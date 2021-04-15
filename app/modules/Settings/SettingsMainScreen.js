@@ -84,37 +84,40 @@ class SettingsMainScreen extends React.PureComponent {
 
     handleChangeLockScreenStatus = () => {
 
-        const { lockScreenStatus } = this.props.settings.keystore
+        try {
 
-        if (+lockScreenStatus) {
+            const { lockScreenStatus } = this.props.settings.keystore
 
-            lockScreenAction.setFlowType({
-                flowType: 'DELETE_PINCODE'
-            })
-
-            NavStore.goNext('LockScreen')
-
-        } else {
-
-            const isAllWalletBackUp = this.isAllWalletBackUp()
-
-            if (isAllWalletBackUp) {
+            if (+lockScreenStatus) {
                 lockScreenAction.setFlowType({
-                    flowType: 'CREATE_PINCODE'
+                    flowType: 'DELETE_PINCODE'
                 })
                 NavStore.goNext('LockScreen')
             } else {
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: 'INFO',
-                    title: strings('modal.exchange.sorry'),
-                    description: strings('modal.disabledLockScreenModal.description'),
-                })
+                const isAllWalletBackUp = this.isAllWalletBackUp()
+                if (isAllWalletBackUp) {
+                    lockScreenAction.setFlowType({
+                        flowType: 'CREATE_PINCODE'
+                    })
+                    NavStore.goNext('LockScreen')
+                } else {
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: 'INFO',
+                        title: strings('modal.exchange.sorry'),
+                        description: strings('modal.disabledLockScreenModal.description'),
+                    })
+                }
+                return
             }
-            return
-        }
 
-        NavStore.goNext('LockScreen')
+
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('Settings handleChangeLockScreenStatus error ' + e.message)
+            }
+            Log.log('Settings handleChangeLockScreenStatus error ' + e.message)
+        }
 
     }
 
@@ -137,7 +140,6 @@ class SettingsMainScreen extends React.PureComponent {
         NavStore.goNext('LockScreen')
     }
 
-
     changeAskWhenSending = () => {
         lockScreenAction.setFlowType({
             flowType: 'CHANGE_ASKING_STATUS'
@@ -155,36 +157,6 @@ class SettingsMainScreen extends React.PureComponent {
     handleChangeLang = () => { NavStore.goNext('LanguageListScreen') }
 
     handleChangeScanner = () => { NavStore.goNext('ScannerSettingsScreen') }
-
-    // TODO: implement somewhere ?
-    // handleReferral = () => {
-    //     MarketingEvent.logEvent('taki_cashback_1_click', {})
-    //     NavStore.goNext('CashbackScreen')
-    // }
-
-    // handleBackup = () => {
-    //     setFlowType({
-    //         flowType: 'BACKUP_WALLET'
-    //     })
-    //     NavStore.goNext('BackupStep0Screen')
-    // }
-
-    // handleImport = () => {
-    //     setFlowType({
-    //         flowType: 'IMPORT_WALLET'
-    //     })
-    //     setWalletName({ walletName: '' })
-    //     NavStore.goNext('EnterMnemonicPhrase')
-    // }
-
-    // handleCreate = () => {
-    //     setFlowType({
-    //         flowType: 'CREATE_NEW_WALLET'
-    //     })
-    //     setWalletName({ walletName: '' })
-    //     setMnemonicLength({ mnemonicLength: 128 })
-    //     NavStore.goNext('BackupStep0Screen')
-    // }
 
     handleChangeLocalCurrency = () => { NavStore.goNext('LocalCurrencyScreen') }
 
@@ -266,14 +238,14 @@ class SettingsMainScreen extends React.PureComponent {
 
     handleWalletManagment = () => { NavStore.goNext('WalletListScreen') }
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => { NavStore.reset('HomeScreen') }
 
     handleWalletConnect = () => { NavStore.goNext('WalletConnectScreen') }
 
     handleScanQr = () => checkQRPermission(this.qrPermissionCallback)
 
     qrPermissionCallback = () => {
-        Log.log('WalletInfo handleScanQr started')
+        Log.log('Settings qrPermissionCallback started')
 
         setQRConfig({
             name: strings('components.elements.input.qrName'),
@@ -298,8 +270,6 @@ class SettingsMainScreen extends React.PureComponent {
             touchIDStatus,
             askPinCodeWhenSending
         } = this.props.settings.keystore
-
-        const { mainStore } = this.props
 
         lockScreenStatus = +lockScreenStatus
         touchIDStatus = +touchIDStatus

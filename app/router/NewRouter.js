@@ -62,11 +62,16 @@ const Stack = createStackNavigator()
 export default () => {
 
     // https://reactnavigation.org/docs/stack-navigator/#animations
-    const transitionSpec = { open: TransitionSpecs.TransitionIOSSpec, close: TransitionSpecs.TransitionIOSSpec }
-    const cardStyleInterpolator = CardStyleInterpolators.forFadeFromBottomAndroid
+    const transitionSpec = {
+        open: TransitionSpecs.TransitionIOSSpec,
+        close: TransitionSpecs.TransitionIOSSpec,
+        gestureDirection: 'horizontal'
+
+    }
+    const cardStyleInterpolator = CardStyleInterpolators.forHorizontalIOS
 
     return <Stack.Navigator initialRouteName='LoadScreen'>
-        <Stack.Screen name='LoadScreen' component={LoadScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='LoadScreen' component={LoadScreen} options={{ headerShown: false }} />
         <Stack.Screen name='WalletCreateScreen' component={WalletCreateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='BackupStep0Screen' component={BackupStep0Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

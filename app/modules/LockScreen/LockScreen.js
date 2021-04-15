@@ -1,13 +1,13 @@
 /**
- * @version 0.41
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import { View, Image, Animated, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 
-import PINCode, { hasUserSetPinCode, deleteUserPinCode } from '@haskkor/react-native-pincode'
+import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode'
 
 import NavStore from '@app/components/navigation/NavStore'
 import Header from '@app/components/elements/new/Header'
@@ -15,21 +15,13 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import { strings } from '@app/services/i18n'
 
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
-import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-
-import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore'
 import Log from '@app/services/Log/Log'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import UpdateOneByOneDaemon from "@app/daemons/back/UpdateOneByOneDaemon"
-import UpdateAccountListDaemon from "@app/daemons/view/UpdateAccountListDaemon"
-import UpdateAppNewsListDaemon from "@app/daemons/view/UpdateAppNewsListDaemon"
-
 import { getLockScreenData } from '@app/appstores/Stores/LockScreen/selectors'
 import { getIsTouchIDStatus } from '@app/appstores/Stores/Settings/selectors'
+import { finishProcess } from '@app/modules/LockScreen/helpers'
 
 
 class LockScreen extends React.PureComponent {
@@ -38,161 +30,16 @@ class LockScreen extends React.PureComponent {
         super(props)
         this.state = {
             passwordState: null,
-            progress: new Animated.Value(0),
-            show: false,
-            lastStatus: 'status1',
-            pinLocked: null,
-
             headerHeight: 0
         }
     }
 
     async componentDidMount() {
-
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(this.state.progress, {
-                    toValue: 1,
-                    duration: 500
-                }),
-                Animated.timing(this.state.progress, {
-                    toValue: 0,
-                    duration: 500
-                })
-            ]),
-            {
-                iterations: 100
-            }
-        ).start()
         Orientation.lockToPortrait()
-    }
-
-    finishProcess = async () => {
-
-        const { flowType, actionCallback, backData } = this.props.lockScreen
-        MarketingEvent.UI_DATA.IS_LOCKED = false
-
-        UpdateOneByOneDaemon.unstop()
-        UpdateAccountListDaemon.unstop()
-        UpdateAppNewsListDaemon.unstop()
-
-        if (flowType === 'WALLET_CONNECT') {
-            lockScreenAction.setFlowType({
-                flowType: ''
-            })
-            NavStore.reset('WalletConnectScreen', backData)
-        } else if (flowType === 'JUST_CALLBACK') {
-            setTimeout(() => {
-                actionCallback(false)
-                lockScreenAction.setFlowType({ flowType: '' })
-                lockScreenAction.setActionCallback({ actionCallback: () => {} })
-            }, 500)
-        } else if (flowType === 'CREATE_PINCODE') {
-            await SettingsKeystore.setAskPinCodeWhenSending('1')
-            await SettingsKeystore.setLockScreenStatus('1')
-            await settingsActions.getSettings(true)
-            lockScreenAction.setFlowType({
-                flowType: ''
-            })
-            NavStore.reset('SettingsMainScreen')
-        } else if (flowType === 'DELETE_PINCODE') {
-            await SettingsKeystore.setLockScreenStatus('0')
-            await deleteUserPinCode('reactNativePinCode')
-            await settingsActions.getSettings(true)
-            lockScreenAction.setFlowType({
-                flowType: ''
-            })
-            NavStore.reset('SettingsMainScreen')
-        } else if (flowType === 'CHANGE_TOUCHID_STATUS') {
-            const touchIDStatus = await SettingsKeystore.getTouchIDStatus()
-            await SettingsKeystore.setTouchIDStatus(touchIDStatus === '0' ? '1' : '0')
-            await settingsActions.getSettings(true)
-            lockScreenAction.setFlowType({
-                flowType: ''
-            })
-            NavStore.reset('SettingsMainScreen')
-        } else if (flowType === 'CHANGE_ASKING_STATUS') {
-            const askPinCodeWhenSending = await SettingsKeystore.getAskPinCodeWhenSending()
-            await SettingsKeystore.setAskPinCodeWhenSending(askPinCodeWhenSending === '0' ? '1' : '0')
-            await settingsActions.getSettings(true)
-            lockScreenAction.setFlowType({
-                flowType: ''
-            })
-            NavStore.reset('SettingsMainScreen')
-        } else if (flowType === 'CHANGE_PASSWORD_FIRST_STEP') {
-            this.setState({
-                passwordState: 'choose'
-            })
-            lockScreenAction.setFlowType({
-                flowType: ''
-            })
-        } else if (flowType ===  'CONFIRM_BACKUP_WALLET') {
-            NavStore.goBack()
-            setLoaderStatus(true)
-            setTimeout(() => {
-                actionCallback(false)
-                lockScreenAction.setFlowType({ flowType: '' })
-                lockScreenAction.setActionCallback({ actionCallback: () => {} })
-            }, 50)
-        } else if (flowType === 'CONFIRM_SEND_CRYPTO') {
-            NavStore.goBack()
-            setLoaderStatus(true)
-            setTimeout(() => {
-                actionCallback(false)
-                lockScreenAction.setFlowType({ flowType: '' })
-                lockScreenAction.setActionCallback({ actionCallback: () => {} })
-            }, 500)
-        } else if (flowType === 'CONFIRM_WALLET_PHRASE') {
-            NavStore.goBack()
-            setLoaderStatus(true)
-            setTimeout(() => {
-                actionCallback(false)
-                lockScreenAction.setFlowType({ flowType: '' })
-                lockScreenAction.setActionCallback({ actionCallback: () => {} })
-            }, 500)
-        } else {
-            this.setState({
-                show: false
-            })
-            NavStore.goBack()
-        }
-    }
-
-    // eslint-disable-next-line camelcase
-    async UNSAFE_componentWillMount() {
-
-        this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
-            const res = await hasUserSetPinCode()
-
-            this.setState({
-                passwordState: res ? 'enter' : 'choose'
-            })
-
-            setTimeout(() => {
-                this.setState({
-                    show: true
-                })
-            }, 100)
-        })
-
-    }
-
-    renderSubtitle = () => {
-        return (
-            <View></View>
-        )
-    }
-
-    updateLastStatus = (status) => {
+        const res = await hasUserSetPinCode()
         this.setState({
-            lastStatus: status
+            passwordState: res ? 'enter' : 'choose'
         })
-    }
-
-    renderButtonComponentLockedPage = () => {
-        return (
-            <View></View>
-        )
     }
 
     renderIconComponentLockedPage = () => {
@@ -214,7 +61,6 @@ class LockScreen extends React.PureComponent {
 
     renderHeader = () => {
         const { flowType } = this.props.lockScreen
-
         if(flowType !== '' && flowType !== 'JUST_CALLBACK') {
             MarketingEvent.UI_DATA.IS_LOCKED = false
             return <Header
@@ -229,27 +75,11 @@ class LockScreen extends React.PureComponent {
         }
     }
 
-    backNavigationAction = () => {
-        const { flowType } = this.props.lockScreen
-
-        if(flowType === 'CONFIRM_SEND_CRYPTO') {
-            return () => {
-                MarketingEvent.UI_DATA.IS_LOCKED = false
-                lockScreenAction.setFlowType({ flowType: '' })
-                lockScreenAction.setActionCallback({ actionCallback: () => {} })
-            }
-        } else {
-            return () => {
-                MarketingEvent.UI_DATA.IS_LOCKED = false
-            }
-        }
-    }
-
     render() {
         MarketingAnalytics.setCurrentScreen('LockScreen.index')
+
         const { flowType } = this.props.lockScreen
-        let touchIDStatus = this.props.touchIDStatus
-        touchIDStatus = +touchIDStatus
+        const touchIDStatus = this.props.touchIDStatus * 1
         Log.log('LockScreen.render with touchIDStatus ' + JSON.stringify(touchIDStatus))
 
         const { colors, isLight } = this.context
@@ -260,8 +90,6 @@ class LockScreen extends React.PureComponent {
             <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
                 {this.renderHeader()}
                 {
-                    this.state.passwordState !== null && this.state.show ?
-
                         <View style={{ flex: 1, marginTop: headerHeight * 0.75 }}>
                              <View style={[styles.top, flowType !== '' ? styles.top__navigation : null]}>
                                  {  isLight ? (
@@ -279,15 +107,13 @@ class LockScreen extends React.PureComponent {
 
                             </View>
                             <PINCode
-                                changeInternalStatus = {this.updateLastStatus}
                                 status={this.state.passwordState}
-                                finishProcess={this.finishProcess}
+                                finishProcess={() => finishProcess(this.props.lockScreen)}
                                 passwordLength={6}
                                 timeLocked={300000}
                                 maxAttempts={3}
                                 touchIDDisabled={!touchIDStatus}
                                 colorCircleButtons={'rgb(255, 255, 255)'}
-                                styleMainContainer={!this.state.show ? { height: 0, overflow: 'hidden',} : undefined}
                                 stylePinCodeButtonCircle={{
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -319,7 +145,7 @@ class LockScreen extends React.PureComponent {
                                 styleLockScreenColorIcon={colors.common.text3}
 
                                 colorPassword={'#864dd9'}
-                                subtitleComponent={() => this.renderSubtitle()}
+                                subtitleComponent={() => <View></View>}
                                 styleLockScreenSizeIcon={30}
                                 stylePinCodeHiddenPasswordSizeEmpty={10}
                                 stylePinCodeHiddenPasswordSizeFull={15}
@@ -368,7 +194,7 @@ class LockScreen extends React.PureComponent {
                                     borderRadius: 40
                                 }}
                                 iconComponentLockedPage={this.renderIconComponentLockedPage}
-                                buttonComponentLockedPage={this.renderButtonComponentLockedPage}
+                                buttonComponentLockedPage={() => <View></View>}
                                 /*handleResultEnterPin={this.updateLastStatus}*/
                                 styleLockScreenTextTimer={{
                                     fontFamily: 'Montserrat-SemiBold',
@@ -394,7 +220,7 @@ class LockScreen extends React.PureComponent {
                                         }
                                 }
                                 bottomLeftComponent={
-                                    (this.state.passwordState !== 'enter' || touchIDStatus === 0) ? null :
+                                    (this.state.passwordState !== 'enter' || touchIDStatus === 0 || flowType === 'CHANGE_TOUCHID_STATUS') ? null :
                                         (launchTouchID) => {
                                             return <TouchableOpacity onPress={launchTouchID} style={[styles.iconContainer]}>
                                                 <MaterialIcons size={35} name={'fingerprint'} color={'#7229AE'}/>
@@ -403,7 +229,6 @@ class LockScreen extends React.PureComponent {
                                 }
                             />
                         </View>
-                        : null
                 }
             </View>
         )
