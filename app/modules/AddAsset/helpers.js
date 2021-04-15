@@ -1,4 +1,6 @@
-
+/**
+ * @version 0.43
+ */
 import _forEach from 'lodash/forEach'
 
 import NavStore from '@app/components/navigation/NavStore'

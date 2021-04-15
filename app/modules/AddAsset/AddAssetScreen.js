@@ -1,4 +1,6 @@
-
+/**
+ * @version 0.43
+ */
 import React from 'react'
 import { connect } from 'react-redux'
 import {
@@ -48,14 +50,8 @@ class AddAssetScreen extends React.PureComponent {
         headerHasExtraView: true
     }
 
-    navigationListener;
-
     componentDidMount() {
         this.prepareData()
-        this.navigationListener = this.props.navigation.addListener('didFocus', this.checkIfWasScanned)
-    }
-
-    checkIfWasScanned = () => {
         const data = NavStore.getParamWrapper(this, 'tokenData')
         if (data && typeof data !== 'undefined' && typeof data.address !== 'undefined' && data.address) {
             this.setState({ customAddress: data.address })

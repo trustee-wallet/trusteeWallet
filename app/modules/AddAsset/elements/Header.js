@@ -1,6 +1,5 @@
 /**
- * @version 0.1
- * @author vlad
+ * @version 0.43
  */
 import React from 'react'
 import {
@@ -9,18 +8,16 @@ import {
     Text,
     StatusBar,
     SafeAreaView,
-    Animated,
-    Platform
+    Animated, StyleSheet
 } from 'react-native'
-import { connect } from 'react-redux'
 
 import AntIcon from 'react-native-vector-icons/AntDesign'
 
-import { strings } from '../../../services/i18n'
-import { HIT_SLOP } from '../../../themes/Themes'
-import TextInput from '../../../components/elements/new/TextInput'
+import { strings } from '@app/services/i18n'
+import { HIT_SLOP } from '@app/themes/Themes'
+import TextInput from '@app/components/elements/new/TextInput'
 
-import { ThemeContext } from '../../theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 
 const HEADER_MIN_HEIGHT = 44
@@ -110,7 +107,6 @@ export default class Header extends React.Component {
         const {
             headerHeight,
             inputHeight,
-            scrollOffset,
             overflow,
             headerHasExtraView
         } = this.state
@@ -159,7 +155,7 @@ export default class Header extends React.Component {
 Header.contextType = ThemeContext
 
 
-const styles = {
+const styles = StyleSheet.create({
     wrapper: {
         position: 'absolute',
         top: 0,
@@ -225,4 +221,4 @@ const styles = {
         textTransform: 'uppercase',
         textAlign: 'center'
     },
-}
+})
