@@ -1,7 +1,7 @@
 /**
  * @version 0.30
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { View, Text, StyleSheet,  SafeAreaView, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { connect } from 'react-redux'
 
@@ -27,7 +27,6 @@ import ListItem from '@app/components/elements/new/list/ListItem/Basic'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import App from '@app/appstores/Actions/App/App'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
@@ -63,10 +62,10 @@ class BackupSettingsScreen extends React.PureComponent {
 
         if (walletName !== oldWalletName) setWalletName({ walletName })
 
-        this.props.navigation.goBack()
+        NavStore.goBack()
     }
 
-    handleBack = () => { this.props.navigation.goBack() }
+    handleBack = () => { NavStore.goBack() }
 
     changeWalletName = (walletName) => { this.setState(() => ({ walletName })) }
 
