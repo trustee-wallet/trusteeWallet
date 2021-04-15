@@ -118,7 +118,7 @@ const getRightContent = (rightContent, params, color) => {
                     switchLeftPx={-5}
                     switchRightPx={-5}
                     outerCircleStyle={{ paddingRight: reversedValue ? 5 : 0, paddingLeft: reversedValue ? 0 : 5 }}
-                    innerCircleStyle={[!disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive}]}
+                    innerCircleStyle={{ borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive}}
                 />
             )
         case 'arrow_down':
