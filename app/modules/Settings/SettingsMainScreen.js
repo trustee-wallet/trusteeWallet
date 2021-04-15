@@ -34,6 +34,9 @@ import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+import Log from '@app/services/Log/Log'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 
 class SettingsMainScreen extends React.Component {
@@ -267,6 +270,22 @@ class SettingsMainScreen extends React.Component {
 
     handleWalletConnect = () => { NavStore.goNext('WalletConnectScreen') }
 
+    handleScanQr = () => checkQRPermission(this.qrPermissionCallback)
+
+    qrPermissionCallback = () => {
+        Log.log('WalletInfo handleScanQr started')
+
+        setQRConfig({
+            name: strings('components.elements.input.qrName'),
+            successMessage: strings('components.elements.input.qrSuccess'),
+            type: 'MAIN_SCANNER'
+        })
+
+        setQRValue('')
+
+        NavStore.goNext('QRCodeScannerScreen')
+    }
+
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
@@ -343,7 +362,7 @@ class SettingsMainScreen extends React.Component {
                                     title={strings('settings.walletConnect.title')}
                                     subtitle={strings(`settings.walletConnect.${isWalletConnected ? 'activated' : 'disabled'}`)}
                                     iconType="walletConnect"
-                                    onPress={isWalletConnected && this.handleWalletConnect}
+                                    onPress={isWalletConnected ? this.handleWalletConnect : this.handleScanQr}
                                     rightContent="arrow"
                                     last
                                 />

@@ -15,14 +15,14 @@ const CACHE_FOR_CHANGE = {}
 
 export default class BtcUnspentsProvider extends DogeUnspentsProvider implements BlocksoftBlockchainTypes.UnspentsProvider {
 
-    static async getCache(walletHash : string) {
+    static async getCache(walletHash : string, currencyCode = 'BTC') {
         if (typeof CACHE_FOR_CHANGE[walletHash] !== 'undefined') {
             return CACHE_FOR_CHANGE[walletHash]
         }
-        const mainCurrencyCode =  this._settings.currencyCode === 'LTC' ?  'LTC' : 'BTC'
+        const mainCurrencyCode = currencyCode === 'LTC' ?  'LTC' : 'BTC'
         const segwitPrefix = BlocksoftDict.CurrenciesForTests[mainCurrencyCode + '_SEGWIT'].addressPrefix
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + '  BtcUnspentsProvider.getCache ' + walletHash + ' started as ' + JSON.stringify(CACHE_FOR_CHANGE[walletHash]))
+        BlocksoftCryptoLog.log(currencyCode + ' ' + mainCurrencyCode + '  BtcUnspentsProvider.getCache ' + walletHash + ' started as ' + JSON.stringify(CACHE_FOR_CHANGE[walletHash]))
 
         const sqlPub = `SELECT wallet_pub_value as walletPub
             FROM wallet_pub
@@ -42,7 +42,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             const res = await Database.setQueryString(sql).query()
             for (const row of res.array) {
                 const prefix = row.address.indexOf(segwitPrefix) === 0 ? segwitPrefix : row.address.substr(0, 1)
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getCache started HD CACHE_FOR_CHANGE ' + walletHash)
+                await BlocksoftCryptoLog.log(currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getCache started HD CACHE_FOR_CHANGE ' + walletHash)
                 // @ts-ignore
                 if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
                     // @ts-ignore
@@ -53,7 +53,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
                     // @ts-ignore
                     CACHE_FOR_CHANGE[walletHash][prefix] = row.address
                     // @ts-ignore
-                    await BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getCache started HD CACHE_FOR_CHANGE '
+                    await BlocksoftCryptoLog.log(currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getCache started HD CACHE_FOR_CHANGE '
                         + walletHash + ' ' + prefix + ' changed ' + JSON.stringify(CACHE_FOR_CHANGE[walletHash]))
                 }
             }
@@ -68,7 +68,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             const res = await Database.setQueryString(sql).query()
             for (const row of res.array) {
                 // @ts-ignore
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getUnspents started CACHE_FOR_CHANGE ' + walletHash)
+                await BlocksoftCryptoLog.log(currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getUnspents started CACHE_FOR_CHANGE ' + walletHash)
                 if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
                     // @ts-ignore
                     CACHE_FOR_CHANGE[walletHash] = {}
@@ -79,7 +79,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             }
         }
         if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {
-            throw new Error(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider no CACHE_FOR_CHANGE retry for ' + walletHash)
+            throw new Error(currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider no CACHE_FOR_CHANGE retry for ' + walletHash)
         }
         return CACHE_FOR_CHANGE[walletHash]
     }
