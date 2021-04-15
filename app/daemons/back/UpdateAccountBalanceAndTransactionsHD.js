@@ -16,6 +16,7 @@ import AccountTransactionsRecheck from './apputils/AccountTransactionsRecheck'
 import accountDS from '../../appstores/DataSource/Account/Account'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
+import config from '@app/config/config'
 
 let CACHE_LAST_TIME = false
 const CACHE_VALID_10MIN_TIME = 600000 // 10 minutes
@@ -190,7 +191,10 @@ class UpdateAccountBalanceAndTransactionsHD {
 
         let addresses = await accountScanningDS.getAddresses({ currencyCode: walletPub.currencyCode, walletHash: walletPub.walletHash })
         try {
-            const addressesBlockchain = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ walletPub }).setWalletHash(walletPub.walletHash)).getAddresses('UpdateAccountBalanceAndTransactionsHD addressesBlockchain')
+            const addressesBlockchain = await BlocksoftTransactions.getAddresses({
+                account : { currencyCode : walletPub.currencyCode, address : walletPub.walletPubValue, walletHash : walletPub.walletHash},
+                additional : { walletPub }
+            }, 'UpdateAccountBalanceAndTransactionsHD addressesBlockchain')
             let address
             const sql = []
             for (address in addresses) {
@@ -229,11 +233,21 @@ class UpdateAccountBalanceAndTransactionsHD {
                 await accountDS.massUpdateAccount(`address IN (` + sql.join(',') + ') AND (already_shown IS NULL OR already_shown=0)', 'already_shown=1')
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(' transactionsAddressesError ' + e.message)
+            }
             transactionsError = ' found transactionsAddressesError ' + e.message
         }
         try {
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newTransactions ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue)
-            newTransactions = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ addresses, walletPub }).setWalletHash(walletPub.walletHash)).getTransactions('AccountRunHD')
+            newTransactions = await BlocksoftTransactions.getTransactions({
+                account : {
+                    currencyCode: walletPub.currencyCode,
+                    address: walletPub.walletPubValue,
+                    walletHash : walletPub.walletHash
+                },
+                additional : { addresses, walletPub }
+            },'AccountRunHD')
 
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError += ' something wrong with balance ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' => ' + JSON.stringify(newTransactions)
@@ -242,6 +256,9 @@ class UpdateAccountBalanceAndTransactionsHD {
                 transactionsError += ' found transactions ' + newTransactions.length
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(' found transactionsError ' + e.message)
+            }
             transactionsError += ' found transactionsError ' + e.message
         }
 
@@ -256,6 +273,9 @@ class UpdateAccountBalanceAndTransactionsHD {
             }
             await walletPubScanningDS.updateTransactions({ updateObj: transactionUpdateObj }, walletPub)
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(' walletPubScanningDS.updateWalletPub ' + e.message)
+            }
             e.message += ' while walletPubScanningDS.updateWalletPub'
             throw e
         }

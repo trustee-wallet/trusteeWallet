@@ -2,35 +2,23 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Animated,
-    StyleSheet,
-    Dimensions
-} from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native'
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 
-import GradientView from '../../../components/elements/GradientView'
-import CustomIcon from '../../../components/elements/CustomIcon'
-import NavStore from '../../../components/navigation/NavStore'
+import GradientView from '@app/components/elements/GradientView'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import NavStore from '@app/components/navigation/NavStore'
 
-import Settings from './Settings'
+import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setFlowType, setWalletName } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
-import cryptoWalletActions from '../../../appstores/Actions/CryptoWalletActions'
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-import { setFlowType, setWalletName } from '../../../appstores/Stores/CreateWallet/CreateWalletActions'
+import { strings } from '@app/services/i18n'
 
-import { strings } from '../../../services/i18n'
+import DaemonCache from '@app/daemons/DaemonCache'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import DaemonCache from '../../../daemons/DaemonCache'
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
-
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-import { reverse } from 'lodash'
-
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 const smallDevice = Dimensions.get('screen').width < 370
 
@@ -61,10 +49,11 @@ class Wallet extends Component {
     }
 
     handleBackup = async () => {
-        setFlowType({ flowType: 'BACKUP_WALLET' })
+        const { walletNumber, walletHash } = this.props.wallet
+        setFlowType({ flowType: 'BACKUP_WALLET', walletHash, walletNumber, source : 'WalletListScreen' })
         setWalletName({ walletName: this.props.wallet.walletName })
-        if (this.props.wallet.walletHash !== this.props.selectedWallet.walletHash) {
-            await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleBackupNeeded')
+        if (walletHash !== this.props.selectedWallet.walletHash) {
+            await cryptoWalletActions.setSelectedWallet(walletHash, 'handleBackupNeeded')
         }
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'backup' })
     }
@@ -93,16 +82,11 @@ class Wallet extends Component {
             afterDecimal = '.' + tmp[1].substr(0, 2)
         }
 
-        return { currencySymbol, beforeDecimal, afterDecimal };
+        return { currencySymbol, beforeDecimal, afterDecimal }
     }
 
     render() {
-        const {
-            selectedWallet,
-            wallet,
-            openSettings,
-            isBalanceVisible
-        } = this.props
+        const { selectedWallet, wallet, isBalanceVisible} = this.props
 
         const isSelected = wallet.walletHash === selectedWallet.walletHash
         const isBackedUp = wallet.walletIsBackedUp

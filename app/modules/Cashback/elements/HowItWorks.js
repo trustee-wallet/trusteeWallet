@@ -1,17 +1,15 @@
-
+/**
+ * @version 0.42
+ */
 import React from 'react'
-import {
-    View,
-    Text,
-    StyleSheet,
-} from 'react-native'
+import { View, Text, StyleSheet} from 'react-native'
 import Accordion from 'react-native-collapsible/Accordion'
 
-import { strings } from '../../../services/i18n'
+import { strings } from '@app/services/i18n'
 
-import CustomIcon from '../../../components/elements/CustomIcon'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 
 const getSections = () => [
@@ -67,7 +65,6 @@ export default class HowItWorksContent extends React.Component {
             colors,
             GRID_SIZE,
         } = this.context
-        const { promoCode } = this.state
 
         return (
             <View style={{ marginTop: GRID_SIZE * 4 }}>

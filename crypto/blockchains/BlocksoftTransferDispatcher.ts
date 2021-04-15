@@ -52,8 +52,6 @@ export namespace BlocksoftTransferDispatcher {
                 CACHE_PROCESSORS[currencyCode] = new BsvTransferProcessor(currencyDictSettings)
                 break
             case 'BTC':
-            case 'BTC_SEGWIT':
-            case 'BTC_SEGWIT_COMPATIBLE':
                 CACHE_PROCESSORS[currencyCode] = new BtcTransferProcessor(currencyDictSettings)
                 break
             case 'BTC_TEST':

@@ -20,7 +20,6 @@ import NavStore from '../../components/navigation/NavStore'
 
 import { strings, sublocale } from '../../services/i18n'
 
-import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
 import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
 
 import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
@@ -39,6 +38,7 @@ import Header from '../../components/elements/new/Header'
 import RoundButton from '../../components/elements/new/buttons/RoundButton'
 import ListItem from '../../components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 
 const getSocialLinksData = () => [
@@ -75,7 +75,6 @@ class AboutScreen extends React.Component {
         Toast.setMessage(strings('settings.config', { config: 'DEV' })).show()
         config.exchange.mode = 'DEV'
         config.cashback.mode = 'DEV'
-        CashBackSettings.init()
         Vibration.vibrate(100)
     }
 
@@ -108,39 +107,46 @@ class AboutScreen extends React.Component {
     handleLogs = async () => {
         setLoaderStatus(true)
 
-        SendLog.getAll().then(async (shareOptions) => {
-            await prettyShare(shareOptions)
+        try {
+            const shareOptions = await SendLog.getAll()
+            if (shareOptions) {
+                await prettyShare(shareOptions)
+            }
             setLoaderStatus(false)
-        }).catch(function (e) {
-            setLoaderStatus(false)
+        } catch (e) {
+            try {
+                setLoaderStatus(false)
 
-            let text = e.message || JSON.stringify(e.error).substr(0, 100)
-            let log = e.message
-            if (typeof (e.error) !== 'undefined') {
-                if (e.error.toString().indexOf('No Activity') !== -1) {
-                    text = strings('modal.walletLog.noMailApp')
-                } else if (!text) {
-                    text = JSON.stringify(e.error).substr(0, 100)
+                let text = e.message || JSON.stringify(e.error).substr(0, 100)
+                let log = e.message
+                if (typeof (e.error) !== 'undefined') {
+                    if (e.error.toString().indexOf('No Activity') !== -1) {
+                        text = strings('modal.walletLog.noMailApp')
+                    } else if (!text) {
+                        text = JSON.stringify(e.error).substr(0, 100)
+                    }
+                    log += ' ' + JSON.stringify(e.error)
                 }
-                log += ' ' + JSON.stringify(e.error)
-            }
 
-            if (typeof (e.error) !== 'undefined' && e.error.toString().indexOf('No Activity') !== -1) {
-                text = strings('modal.walletLog.noMailApp')
+                if (typeof (e.error) !== 'undefined' && e.error.toString().indexOf('No Activity') !== -1) {
+                    text = strings('modal.walletLog.noMailApp')
 
+                }
+                if (text.indexOf('User did not share') !== -1) {
+                    text = strings('modal.walletLog.notComplited')
+                }
+                Log.err('SettingsMain.handleLogs error ' + log)
+                BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + log)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: false,
+                    title: strings('modal.walletLog.sorry'),
+                    description: text
+                })
+            } catch (e1) {
+                Log.err('SettingsMain.handleLogs error1 ' + e1.message)
             }
-            if (text.indexOf('User did not share') !== -1) {
-                text = strings('modal.walletLog.notComplited')
-            }
-            Log.err('SettingsMain.handleLogs error ' + log)
-            BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + log)
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.walletLog.sorry'),
-                description: text
-            })
-        })
+        }
     }
 
     openSocial = async (linkName) => {

@@ -487,6 +487,8 @@
       "self": "სელფი",
       "freeze": "გაყინვა",
       "claim": "ჯილდო",
+      "swap_income" : "Contract Income",
+      "swap_outcome" : "Contract Outcome",
       "exchange": "გაცვლა",
       "buy": "ყიდვა",
       "sell": "გაყიდვა",
@@ -521,6 +523,7 @@
       "fail": "შეცდომა",
       "missing": "არ მოიძებნა",
       "replaced": "შეცვლილია",
+      "out_of_energy" : "No energy",
       "internal_success": "წარმატებულია ხელშეკრულებიდან",
       "internal_new": "ახალი ხელშეკრულებიდან",
       "internal_fail": "შეცდომა ხელშეკრულებიდან"
@@ -557,7 +560,8 @@
           "success": "წარმატებულია",
           "pending": "მუშავდება",
           "canceled": "გაუქმებულია",
-          "missing": "Not found"
+          "missing": "Not found",
+          "out_of_energy" : "No energy"
         }
       },
       "transactionHash": "ტრანზაქციის ჰაში:",
@@ -657,6 +661,7 @@
     },
     "ordersStatus": {
       "exchange": {
+        "dex" : "DEX",
         "pending_payin": "შევსება მოლოდინის რეჟიმშია",
         "canceled_payin": "შევსება უარყოფილია",
         "refunded_order": "თანხა დაბრუნებულია",
@@ -671,6 +676,7 @@
         "error_order": "შეცდომა შევსების დროს. ორდერი მუშავდებოდა ხელით."
       },
       "sell": {
+        "dex" : "DEX",
         "pending_payin": "მიმდინარეობს შევსების პროცესი",
         "canceled_payin": "შევსება გაუქმებულია",
         "refunded_order": "განხორციელდა თანხის დაბრუნების პროცესი",
@@ -685,6 +691,7 @@
         "error_order": "შეცდომა შესრულების დროს. ორდერი მუშავდებოდა ხელით."
       },
       "buy": {
+        "dex" : "DEX",
         "pending_payin": "მიმდინარეობს შევსების პროცესი",
         "canceled_payin": "შევსება გაუქმებულია",
         "refunded_order": "განხორციელდა თანხის დაბრუნება",
@@ -807,6 +814,9 @@
       "confirm": "გაგზავნა",
       "force": "იძულებითი გაგზავნა?"
     },
+    "feeModal": {
+      "description": "The fee miners receive for confirming your transaction. The miner (network) fee is paid by the sender for the transfer of crypto assets to the recipient's address. This commission is calculated by the application based on the network data at the time of the transaction creation and does not depend on the transfer amount.\n\nImportant!\n The speed of confirmation of your transaction by miners directly depends from the size of the network fee. Please consider this information when manually changing the commission."
+    },
     "fee": {
       "smallFeeNoticeTitle": "გთხოვთ, იყოთ ყურადღებით",
       "smallFeeNoticeDesc": "არაა საკმარისი ბალანსი სწრაფი ტრანზაქციისთვის",
@@ -840,7 +850,7 @@
         "title": "Ручная",
         "fixedFeeTitle": "ფიქსირებული\nსაკომისიო",
         "customFeeTitle": "დაყენება\nხელით",
-        "calculetedFee": "საანგარიშო საკომისიო:",
+        "calculatedFee": "საანგარიშო საკომისიო:",
         "eth": {
           "gasPrice": "გაზის ფასი",
           "gasLimit": "გაზის ლიმიტი",
@@ -912,7 +922,7 @@
       "SERVER_RESPONSE_BAD_SEND_NODE": "არა არის წვდომა გაგზავნის სერვერთან",
       "SERVER_RESPONSE_DOUBLE_SPEND": "გთხოვთ, თავიდან შექმნათ ტრანზაქცია, რადგან მიმდინარე იყენებს შესვლის მოძველებულ მეთოდებს ან დაელოდეთ სხვა ტრანზაქციების დადასტურებას ",
       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP": "დასაჩქარებელი ტრანზაქცია ვერ მოიძებნა",
-      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient balance for fee / bandwith limit is over"
+      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over"
     }
   },
   "walletBackup": {
@@ -1065,7 +1075,7 @@
     "earn": "შოვნა",
     "settings": "მეტი",
     "support": "მხარდაჭერა",
-    "market": "Market"
+    "market": "Swap"
   },
   "modal": {
     "titles": {

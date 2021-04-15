@@ -21,7 +21,6 @@ export namespace BlocksoftTransferUtils {
         if (data.currencyCode === BlocksoftDictTypes.Code.XLM) {
             const tmp1 = 'GCVPV3D4PAYFA7H2CHGFRTSPAHMSU4KQR4CHBUBUR4X23JUDJWHYZDYZ'
             const tmp2 = 'GAQA5FITDUZW36J6VFXAH4YDNTTDEGRNWIXHIOR3FNN4DVJCXCNHUR4E'
-            console.log('address to')
             return data.address === tmp1 ? tmp2 : tmp1
 
         }
@@ -37,27 +36,23 @@ export namespace BlocksoftTransferUtils {
     }
 
     export const getBalanceForTransfer = function(data : {
-        walletUseUnconfirmed : boolean,
-        balancePretty : string,
-        unconfirmedPretty : string,
+        balance : string,
+        unconfirmed : string,
         currencyCode: BlocksoftDictTypes.Code
     }) : string {
-        if (!data.walletUseUnconfirmed) {
-            return data.balancePretty
-        }
         // @ts-ignore
-        if (data.unconfirmedPretty * 1 < 0) {
-            return data.balancePretty
+        if (data.unconfirmed * 1 < 0) {
+            return data.balance
         }
         if (data.currencyCode === BlocksoftDictTypes.Code.XRP) {
-            return data.balancePretty
+            return data.balance
         }
         if (data.currencyCode === BlocksoftDictTypes.Code.ETH || data.currencyCode.indexOf('ETH_') === 0) {
-            return data.balancePretty
+            return data.balance
         }
         if (data.currencyCode === BlocksoftDictTypes.Code.TRX || data.currencyCode.indexOf('TRX_') === 0) {
-            return data.balancePretty
+            return data.balance
         }
-        return BlocksoftUtils.add(data.balancePretty, data.unconfirmedPretty).toString()
+        return BlocksoftUtils.add(data.balance, data.unconfirmed).toString()
     }
 }

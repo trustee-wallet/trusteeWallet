@@ -3,10 +3,10 @@
  */
 const INITIAL_STATE = {
     data: {},
-    keystore : {
-        lockScreenStatus : '0',
-        askPinCodeWhenSending : '0',
-        touchIDStatus : '0'
+    keystore: {
+        lockScreenStatus: '0',
+        askPinCodeWhenSending: '0',
+        touchIDStatus: '0'
     }
 }
 
@@ -15,11 +15,11 @@ const settingsStoreReducer = (state = INITIAL_STATE, action) => {
         case 'UPDATE_SETTINGS':
             return {
                 data: action.settings,
-                keystore : action.keystore
+                keystore: action.keystore
             }
+        default:
+            return state
     }
-
-    return state
 }
 
 export default settingsStoreReducer

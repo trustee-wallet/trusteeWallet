@@ -24,7 +24,8 @@ export default function SubSettingListItem(props) {
         radioButtonFirst,
         withoutLine,
         checkedStyle,
-        ExtraView
+        ExtraView,
+        ExtraViewParams
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -50,7 +51,7 @@ export default function SubSettingListItem(props) {
                         </View>
                     </View>
                     {(ExtraView && checked) && (
-                        <ExtraView />
+                        <ExtraView ExtraViewParams={ExtraViewParams}/>
                     )}
                 </>
                 :

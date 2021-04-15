@@ -9,6 +9,9 @@ import BlocksoftUtils from '../../common/BlocksoftUtils'
 const API_PATH = 'https://bsv-chain.api.btc.com/v3/address/'
 const API_TX_PATH = 'https://bsv-chain.api.btc.com/v3/address/'
 
+const CACHE = {
+    CACHE_BALANCE: {}
+}
 export default class BsvScannerProcessor {
     /**
      * @type {number}
@@ -22,6 +25,10 @@ export default class BsvScannerProcessor {
      * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalanceBlockchain(address) {
+        if (typeof CACHE.CACHE_BALANCE[address] !== 'undefined' && CACHE.CACHE_BALANCE[address]) {
+            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getBalanceBlockchain started ' + address + ' from cache')
+            return CACHE.CACHE_BALANCE[address]
+        }
         const link = API_PATH + address
         await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getBalanceBlockchain started ' + address + ' ' + link)
         const res = await BlocksoftAxios.getWithoutBraking(link)
@@ -35,31 +42,42 @@ export default class BsvScannerProcessor {
                 return false
             }
         }
-        return { balance: res.data.data.balance, unconfirmed: 0, provider: 'btc.com' }
+        const formatted = { balance: res.data.data.balance, unconfirmed: 0, provider: 'btc.com' }
+        CACHE.CACHE_BALANCE[address] = formatted
+        return formatted
     }
 
     /**
      * https://explorer.viabtc.com/res/bsv/transactions/addressv2?address=1KiTAxJQJ2cv4hTZsJXtCgc3ZaaqZCF7Un
      * https://bsv-chain.api.btc.com/v3/address/1KiTAxJQJ2cv4hTZsJXtCgc3ZaaqZCF7Un/tx
-     * @param {string} address
+     * @param {string} scanData.account.address
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address) {
+    async getTransactionsBlockchain(scanData) {
+        const address = scanData.account.address.trim()
         const link = API_TX_PATH + address + '/tx'
         await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions started ' + address + ' ' + link)
-        const tmp = await BlocksoftAxios.getWithoutBraking(link)
-        if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.data === 'undefined' || !tmp.data.data || typeof tmp.data.data.list === 'undefined' || !tmp.data.data.list) {
-            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions no data ' + address)
+        try {
+            const tmp = await BlocksoftAxios.getWithoutBraking(link)
+            if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.data === 'undefined' || !tmp.data.data || typeof tmp.data.data.list === 'undefined' || !tmp.data.data.list) {
+                await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions no data ' + address)
+                return []
+            }
+            const transactions = []
+            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions data ' + address, tmp.data.data.list)
+            for (const tx of tmp.data.data.list) {
+                const transaction = await this._unifyTransaction(address, tx)
+                transactions.push(transaction)
+            }
+            await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
+            CACHE.CACHE_BALANCE[address] = false
+            return transactions
+        } catch (e) {
+            if (e.message.indexOf('403 forbidden') === -1) {
+                throw e
+            }
             return []
         }
-        const transactions = []
-        await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions data ' + address, tmp.data.data.list)
-        for (const tx of tmp.data.data.list) {
-            const transaction = await this._unifyTransaction(address, tx)
-            transactions.push(transaction)
-        }
-        await BlocksoftCryptoLog.log('BtcSvScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
-        return transactions
     }
 
     async _unifyTransaction(address, transaction) {

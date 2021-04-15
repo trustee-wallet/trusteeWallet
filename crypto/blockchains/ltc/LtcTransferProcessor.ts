@@ -2,10 +2,10 @@
  * @version 0.20
  */
 
-import DogeTransferProcessor from '../doge/DogeTransferProcessor'
-import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
+import BtcTransferProcessor from '@crypto/blockchains/btc/BtcTransferProcessor'
+import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
 
-export default class LtcTransferProcessor extends DogeTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
+export default class LtcTransferProcessor extends BtcTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
     _trezorServerCode = 'LTC_TREZOR_SERVER'
 

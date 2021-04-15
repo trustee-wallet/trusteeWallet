@@ -108,7 +108,7 @@ class Transaction extends Component {
     handleCopyAll = (valueToView, currencySymbolToView) => {
         const tx = this.props.transaction
         let text = ' ' + tx.transactionHash + ' ' + valueToView + ' ' + currencySymbolToView
-        if (tx.transactionDirection === 'outcome') {
+        if (tx.transactionDirection === 'outcome' || tx.transactionDirection === 'swap_outcome') {
             text += ' => ' + tx.addressTo
         } else if (tx.transactionDirection === 'income') {
             text += ' ' + tx.addressFrom + ' => '
@@ -142,7 +142,7 @@ class Transaction extends Component {
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}
 
-        if (transactionDirection === 'income' || transactionDirection === 'claim') {
+        if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
             arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         }
         if (transactionDirection === 'self') {
@@ -150,7 +150,7 @@ class Transaction extends Component {
             circleStyle = { backgroundColor: isStatus ? color : colors.accountScreen.transactions.circleBackground }
         }
         // if (status === 'fail' || status === 'missing' || status === 'replaced') {
-        if (visibleStatus.toUpperCase() === 'MISSING') {
+        if (visibleStatus.toUpperCase() === 'MISSING' || visibleStatus.toUpperCase() === 'OUT_OF_ENERGY') {
             arrowIcon = <Feather name="x" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
             circleStyle = { backgroundColor: colors.accountScreen.transactions.circleBackground }
         }
@@ -313,7 +313,7 @@ class Transaction extends Component {
                                     array={colors.accountScreen.transactions.transactionGradientArray}
                                     start={styles.transaction__item_bg.start}
                                     end={styles.transaction__item_bg.end}>
-                                    <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' ? 0.5 : null }}>
+                                    <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'out_of_energy' ? 0.5 : null }}>
                                         <View style={{ justifyContent: 'center', width: '75%' }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%' }}>
                                                 {/* width: subtitle ? '45%' : '100%' */}
@@ -327,7 +327,7 @@ class Transaction extends Component {
                                                     subtitle ?
                                                         <>
                                                             <Ionicons name={'ios-arrow-round-up'} size={20} color={colors.accountScreen.transactions.circle} style={{
-                                                                transform: [{ rotate: transactionDirection === 'outcome' ? "90deg" : "-90deg" }],
+                                                                transform: [{ rotate: transactionDirection === 'outcome' || transactionDirection === 'swap_outcome' ? "90deg" : "-90deg" }],
                                                                 marginHorizontal: 7, marginBottom: Platform.OS === 'ios' ? -1 : null
                                                             }} />
                                                             <Text style={{ ...styles.transaction__item__subtitle, marginBottom: Platform.OS === 'ios' ? 2 : null, color: colors.common.text1 }} >
@@ -551,7 +551,7 @@ const globalStyles = {
         transaction__data: {
             fontFamily: 'SFUIDisplay-Semibold',
             fontSize: 14,
-            lineРeight: 18,
+            lineHeight: 18,
         },
     },
     themes: {

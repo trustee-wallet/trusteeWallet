@@ -224,6 +224,11 @@
       "listTitle": "Payment accounts",
       "listSubtitle": "Accounts: %{number}"
     },
+    "walletConnect": {
+      "title": "Wallet connect",
+      "activated": "Activated",
+      "disabled": "Disabled"
+    },
     "walletManagement": {
       "title": "Wallets management",
       "backup": "Backup wallet",
@@ -488,6 +493,8 @@
       "income": "Income",
       "freeze" : "Freeze",
       "claim" : "Claim",
+      "swap_income" : "Contract Income",
+      "swap_outcome" : "Contract Outcome",
       "self": "Self",
       "exchange": "Exchange",
       "buy": "Buy",
@@ -523,6 +530,7 @@
       "fail": "Fail",
       "missing" : "Not found",
       "replaced" : "Replaced",
+      "out_of_energy" : "No energy",
       "internal_success": "Success from Contract",
       "internal_new": "New from Contract",
       "internal_fail": "Fail from Contract"
@@ -559,7 +567,8 @@
           "success": "Success",
           "pending": "Pending",
           "canceled": "Canceled",
-          "missing": "Not found"
+          "missing": "Not found",
+          "out_of_energy" : "No energy"
         }
       },
       "transactionHash": "Transaction hash:",
@@ -666,6 +675,7 @@
     },
     "ordersStatus": {
       "exchange": {
+        "dex" : "DEX",
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
         "refunded_order": "Refund was made",
@@ -680,6 +690,7 @@
         "error_order": "An error occurred while execution. The order was processed manually."
       },
       "sell": {
+        "dex" : "DEX",
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
         "refunded_order": "Refund was made",
@@ -694,6 +705,7 @@
         "error_order": "An error occurred while execution. The order was processed manually."
       },
       "buy": {
+        "dex" : "DEX",
         "pending_payin": "Replenishment expected",
         "canceled_payin": "Replenishment canceled",
         "refunded_order": "Refund was made",
@@ -816,6 +828,9 @@
       "confirm": "Send",
       "force": "Do anyway?"
     },
+    "feeModal": {
+      "description": "The fee miners receive for confirming your transaction. The miner (network) fee is paid by the sender for the transfer of crypto assets to the recipient's address. This commission is calculated by the application based on the network data at the time of the transaction creation and does not depend on the transfer amount.\n\nImportant!\n The speed of confirmation of your transaction by miners directly depends from the size of the network fee. Please consider this information when manually changing the commission."
+    },
     "fee": {
       "smallFeeNoticeTitle": "Please, be careful",
       "smallFeeNoticeDesc": "Not enough balance for recommended fast transaction fee",
@@ -849,7 +864,7 @@
         "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
         "customFeeTitle": "SET\nMANUALLY",
-        "calculetedFee": "Calculeted fee:",
+        "calculatedFee": "Calculated fee:",
         "eth": {
           "gasPrice": "Gas price",
           "gasLimit": "Gas limit",
@@ -922,7 +937,7 @@
      "SERVER_RESPONSE_BAD_SEND_NODE" : "No access to sending server or internet error - please try again",
      "SERVER_RESPONSE_DOUBLE_SPEND" : "Please, regenerate transaction as outputs are changed or wait for the other transactions to be mined",
      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Transaction for speedup not found",
-      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient balance for fee / bandwith limit is over"
+      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over"
     }
   },
   "walletBackup": {
@@ -1075,7 +1090,7 @@
     "earn": "Earn",
     "settings": "More",
     "support": "Support",
-    "market": "Market"
+    "market": "Swap"
   },
   "modal": {
     "titles": {
@@ -1286,7 +1301,8 @@
       "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",
       "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
       "longQuerySettingOff" : "The ability to send a second transaction until the previous one is confirmed is disabled",
-      "noTBKprovider" : "Sorry, the function is disabled as exchange operator could not process speed up transactions"
+      "noTBKprovider" : "Sorry, the function is disabled as exchange operator could not process speed up transactions",
+      "noChangeFee": "For transactions with a fixed exchange rate, the miners fee cannot be changed"
     },
     "walletLog": {
       "sorry": "Attention!",
@@ -1308,6 +1324,12 @@
     },
     "notificationModal": {
       "unsubscribe": "Unsubscribe"
+    },
+    "marketModal": {
+      "title": "Welcome to Trustee Smart Swap",
+      "description": "Note that some information, for example, payment details, will be transferred to exchange providers to carry out the exchange operation.",
+      "notShowAgain": "Don't show again",
+      "continue": "Continue"
     }
   },
   "lockScreen": {

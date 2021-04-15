@@ -3,65 +3,54 @@
  */
 import React from 'react'
 import {
-    Text,
     SafeAreaView,
     View,
-    Animated,
-    ScrollView,
     RefreshControl,
-    Platform,
-    TouchableOpacity,
-    StatusBar,
     Vibration,
     FlatList,
     StyleSheet
 } from 'react-native'
 import { connect } from 'react-redux'
-import _sortBy from 'lodash/sortBy'
 import _orderBy from 'lodash/orderBy'
 import _isEqual from 'lodash/isEqual'
-// import DraggableFlatList from 'react-native-draggable-flatlist'
 
 import AsyncStorage from '@react-native-community/async-storage'
-
-import GradientView from '../../components/elements/GradientView'
-import CustomIcon from '../../components/elements/CustomIcon'
 
 import CryptoCurrency from './elements/CryptoCurrency'
 import BottomNavigation from './elements/BottomNavigation'
 import WalletInfo from './elements/WalletInfo'
 import Header from './elements/Header'
 
-import Log from '../../services/Log/Log'
-import { strings } from '../../services/i18n'
+import Log from '@app/services/Log/Log'
 
-import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
-import UpdateCurrencyRateDaemon from '../../daemons/back/UpdateCurrencyRateDaemon'
-import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
-import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
-import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import DaemonCache from '../../daemons/DaemonCache'
-import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
+import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import DaemonCache from '@app/daemons/DaemonCache'
+import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { SendDeepLinking } from '../../appstores/Stores/Send/SendDeepLinking'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
-import { getVisibleCurrencies } from '../../appstores/Stores/Currency/selectors'
-import { getIsBalanceVisible } from '../../appstores/Stores/Settings/selectors'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { SendDeepLinking } from '@app/appstores/Stores/Send/SendDeepLinking'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
+import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
+import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 
-import NavStore from '../../components/navigation/NavStore'
-import checkTransferHasError from '../../services/UI/CheckTransferHasError/CheckTransferHasError'
-import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
-import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import AppLockBlur from "../../components/AppLockBlur";
+import NavStore from '@app/components/navigation/NavStore'
+import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
+import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
+import UpdateAppNewsListDaemon from '@app/daemons/view/UpdateAppNewsListDaemon'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import AppLockBlur from '@app/components/AppLockBlur'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 let CACHE_SET_WALLET_HASH = false
 let CACHE_IS_SCANNING = false
@@ -87,8 +76,7 @@ class HomeScreen extends React.Component {
             enableVerticalScroll: true
         }
         this.getCurrenciesOrder()
-        SendDeepLinking.init()
-        SendActions.cleanData()
+        SendDeepLinking.initDeepLinking()
     }
 
     componentDidMount() {
@@ -201,25 +189,17 @@ class HomeScreen extends React.Component {
 
     // linked to stores
     handleHide = async (cryptoCurrency) => {
+        MarketingEvent.logEvent('gx_currency_hide', { currencyCode: cryptoCurrency.currencyCode , source : 'HomeScreen'}, 'GX')
         await currencyActions.toggleCurrencyVisibility({
             currencyCode: cryptoCurrency.currencyCode,
-            isHidden: 0
+            newIsHidden: 1,
+            currentIsHidden : cryptoCurrency.isHidden
         })
-        // this is for store reload
-        await currencyActions.setCryptoCurrencies()
     }
 
     // separated from stores not to be updated from outside
-    handleSend = async (cryptoCurrency) => {
-        await SendActions.cleanData()
-        SendActions.setUiType({
-            ui: {
-                uiType: 'HOME_SCREEN'
-            }
-        })
-        await SendActions.startSend({
-            currencyCode: cryptoCurrency.currencyCode
-        })
+    handleSend = async (cryptoCurrency, account) => {
+        await SendActionsStart.startFromHomeScreen(cryptoCurrency, account)
     }
 
     // linked to stores as rates / addresses could be changed outside
@@ -292,8 +272,8 @@ class HomeScreen extends React.Component {
             }
         }
 
-        let tmp = totalBalance.toString().split('.')
-        let beforeDecimal = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
+        const tmp = totalBalance.toString().split('.')
+        const beforeDecimal = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
         let afterDecimal = ''
         if (typeof tmp[1] !== 'undefined') {
             afterDecimal = '.' + tmp[1].substr(0, 2)
@@ -310,24 +290,31 @@ class HomeScreen extends React.Component {
     }
 
     setScrollEnabled = (value) => {
-        if (this.state.enableVerticalScroll !== value) this.setState(() => ({ enableVerticalScroll: value }))
+        if (this._listRef && this._listRef.setNativeProps) {
+            this._listRef.setNativeProps({ scrollEnabled: value });
+        } else if (this._listRef && this._listRef.getScrollResponder) {
+            const scrollResponder = this._listView.getScrollResponder();
+            if (scrollResponder.setNativeProps) scrollResponder.setNativeProps({ scrollEnabled: value });
+        } else {
+            this.setState(() => ({ enableVerticalScroll: value }))
+        }
     };
 
     render() {
         if (this.props.mainStore.blurVisibility) {
             return  <AppLockBlur/>
         }
-        const { colors, isLight } = this.context
+        const { colors } = this.context
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
-        let walletHash = this.props.mainStore.selectedWallet.walletHash
+        let {walletHash, walletNumber} = this.props.mainStore.selectedWallet
         if (!walletHash || typeof walletHash === 'undefined') {
             if (!CACHE_SET_WALLET_HASH) {
                 CACHE_SET_WALLET_HASH = true
                 walletHash = cryptoWalletActions.setFirstWallet()
                 Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
-                cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
+                cryptoWalletActions.setSelectedWalletFromHome(walletHash, 'WalletList.HomeScreen', false)
             }
         }
         const balanceData = this.getBalanceData()
@@ -346,6 +333,7 @@ class HomeScreen extends React.Component {
                     <View style={[styles.content, { backgroundColor: colors.common.background }]}>
                         <View style={styles.stub} />
                         <FlatList
+                            ref={ref => { this._listRef = ref; }}
                             data={this.state.data}
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={styles.list}
@@ -367,6 +355,7 @@ class HomeScreen extends React.Component {
                                     changeBalanceVisibility={this.changeBalanceVisibility}
                                     triggerBalanceVisibility={this.triggerBalanceVisibility}
                                     balanceData={balanceData}
+                                    walletNumber={walletNumber}
                                 />
                             )}
                             renderItem={({ item, drag, isActive }) => (
@@ -376,54 +365,13 @@ class HomeScreen extends React.Component {
                                     onDrag={drag}
                                     isActive={isActive}
                                     handleReceive={account => this.handleReceive(item, account)}
-                                    handleSend={() => this.handleSend(item)}
+                                    handleSend={account => this.handleSend(item, account)}
                                     handleHide={() => this.handleHide(item)}
                                     setScrollEnabled={this.setScrollEnabled}
                                 />
                             )}
                             keyExtractor={item => item.currencyCode}
                         />
-                        {/* <DraggableFlatList
-                            data={this.state.data}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={styles.list}
-                            onScrollOffsetChange={this.updateOffset}
-                            autoscrollSpeed={300}
-                            refreshControl={
-                                <RefreshControl
-                                    style={styles.refreshControl}
-                                    enabled={!this.state.isCurrentlyDraggable}
-                                    tintColor={colors.common.text1}
-                                    refreshing={this.state.refreshing}
-                                    onRefresh={this.handleRefresh}
-                                />
-                            }
-
-                            ListHeaderComponent={(
-                                <WalletInfo
-                                    isBalanceVisible={this.state.isBalanceVisible}
-                                    originalVisibility={this.state.originalVisibility}
-                                    changeBalanceVisibility={this.changeBalanceVisibility}
-                                    triggerBalanceVisibility={this.triggerBalanceVisibility}
-                                    balanceData={balanceData}
-                                />
-                            )}
-                            renderItem={({ item, drag, isActive }) => (
-                                <CryptoCurrency
-                                    cryptoCurrency={item}
-                                    isBalanceVisible={this.state.isBalanceVisible}
-                                    onDrag={drag}
-                                    isActive={isActive}
-                                    handleReceive={account => this.handleReceive(item, account)}
-                                    handleSend={() => this.handleSend(item)}
-                                    handleHide={() => this.handleHide(item)}
-                                />
-                            )}
-                            keyExtractor={item => item.currencyCode}
-                            activationDistance={15}
-                            onDragEnd={this.onDragEnd}
-                            onDragBegin={this.onDragBegin}
-                        /> */}
                         <BottomNavigation />
                     </View>
                 </SafeAreaView>
@@ -435,15 +383,8 @@ class HomeScreen extends React.Component {
 const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
-        toolTipsStore: state.toolTipsStore,
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore)
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
     }
 }
 

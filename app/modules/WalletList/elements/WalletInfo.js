@@ -1,49 +1,46 @@
 /**
- * @version 0.11
+ * @version 0.31
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import {
     View,
     Text,
     Animated,
-    TouchableOpacity,
-    Image,
-    Platform,
+    TouchableOpacity, StyleSheet
 } from 'react-native'
 
 import AsyncStorage from '@react-native-community/async-storage'
 import Entypo from 'react-native-vector-icons/Entypo'
 import moment from 'moment'
 
-import IconVisible from '../../../assets/images/icon_visible'
-import IconHidden from '../../../assets/images/icon_hidden'
-import NavStore from '../../../components/navigation/NavStore'
-import ToolTips from '../../../components/elements/ToolTips'
-import GradientView from '../../../components/elements/GradientView'
-import LetterSpacing from '../../../components/elements/LetterSpacing'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import NavStore from '@app/components/navigation/NavStore'
+import GradientView from '@app/components/elements/GradientView'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
 
-import { setQRConfig, setQRValue } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { sublocale, strings } from '../../../services/i18n'
+import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { saveSelectedBasicCurrencyCode } from '@app/appstores/Stores/Main/MainStoreActions'
+import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import Log from '../../../services/Log/Log'
+import { strings } from '@app/services/i18n'
+import Log from '@app/services/Log/Log'
+import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
-import { checkQRPermission } from '../../../services/UI/Qr/QrPermissions'
-import { saveSelectedBasicCurrencyCode } from '../../../appstores/Stores/Main/MainStoreActions'
-import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
+import { HIT_SLOP } from '@app/themes/Themes'
 
-import { HIT_SLOP } from '../../../themes/Themes';
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { SIZE } from '../helpers'
 
-import { SIZE } from '../helpers';
-import { AppWalletConnect } from '../../../services/Back/AppWalletConnect/AppWalletConnect'
 
 let CACHE_PREV_CURRENCY = false
 
-class WalletInfo extends Component {
+class WalletInfo extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -126,31 +123,17 @@ class WalletInfo extends Component {
         })
     }
 
-    renderTooltip = () => {
-        const { isViolet } = this.state
-        const { colors } = this.context
-        return (
-            <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
-                <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
-                <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
-                    {strings('settings.assets.addAsset').toUpperCase()}
-                </Text>
-            </View>
-        )
-    }
-
     render() {
         const {
             changeBalanceVisibility,
             triggerBalanceVisibility,
             isBalanceVisible,
             originalVisibility,
-            selectedBasicCurrency,
-            balanceData
+            balanceData,
+            walletNumber
         } = this.props
         const { isViolet } = this.state
         const { colors, GRID_SIZE } = this.context
-        const isWalletConnected = AppWalletConnect.isConnected()
         // @misha to optimize
         const date = new Date()
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
@@ -180,14 +163,34 @@ class WalletInfo extends Component {
                                 ]}>
                                     {strings('homeScreen.balance')}
                                 </Text>
-                                <LetterSpacing
-                                    text={todayPrep}
-                                    textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
-                                    letterSpacing={1}
-                                />
+
+
+
+                                {MarketingEvent.DATA.LOG_TESTER ? (
+                                        <TouchableOpacity onPress={() => cryptoWalletActions.setNextWallet(walletNumber, 'HomeScreen.WalletInfo')} hitSlop={HIT_SLOP}>
+                                            <LetterSpacing
+                                                text={'NEXT WALLET'}
+                                                textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
+                                                letterSpacing={1}
+                                            />
+                                        </TouchableOpacity>
+                                    )
+                                    :
+                                    <LetterSpacing
+                                        text={todayPrep}
+                                        textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
+                                        letterSpacing={1}
+                                    />
+
+                                }
                             </View>
                             <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
-                                <ToolTips type={'HOME_SCREEN_ADD_CRYPTO_BTN_TIP'} height={150} MainComponent={() => this.renderTooltip()} />
+                                <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
+                                    <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
+                                    <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
+                                        {strings('settings.assets.addAsset').toUpperCase()}
+                                    </Text>
+                                </View>
                             </TouchableOpacity>
                         </View>
 
@@ -226,22 +229,11 @@ class WalletInfo extends Component {
 
                             </TouchableOpacity>
 
-                            {isWalletConnected ? (
-                            <TouchableOpacity onPress={() => NavStore.goNext('WalletConnectScreen')} hitSlop={HIT_SLOP}>
-                                <Text style={[
-                                    { color: isViolet ? colors.homeScreen.text1Violet : colors.common.text1 }
-                                ]}>
-                                    WalletConnect
-                                </Text>
-                            </TouchableOpacity>
-                                )
-                                : null }
-
                             <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                 {isBalanceVisible ? (
-                                    <IconVisible color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                    <CustomIcon name={'eye'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                 ) : (
-                                        <IconHidden color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                    <CustomIcon name={'eyeClosed'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                     )}
                             </TouchableOpacity>
                         </View>
@@ -271,7 +263,7 @@ WalletInfo.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps)(WalletInfo)
 
 
-const styles = {
+const styles = StyleSheet.create({
     notificationButton: {
         paddingHorizontal: 12
     },
@@ -394,4 +386,4 @@ const styles = {
         marginRight: 2,
         marginTop: 1,
     },
-}
+})

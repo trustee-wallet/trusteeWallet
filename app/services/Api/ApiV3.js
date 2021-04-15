@@ -1,22 +1,17 @@
 /**
- * @version 0.14
+ * @version 0.41
  * @author yura
  */
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
-import DaemonCache from '@app/daemons/DaemonCache'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
-import accountDS from '@app/appstores/DataSource/Account/Account'
-import walletPubDS from '@app/appstores/DataSource/Wallet/WalletPub'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
 import database from '@react-native-firebase/database'
 
-import PubEncrypt from './PubEncrypt/PubEncrypt'
 import config from '@app/config/config'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
-import currencyDS from '@app/appstores/DataSource/Currency/Currency'
 import cardDS from '@app/appstores/DataSource/Card/Card'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import axios from 'axios'
@@ -27,6 +22,9 @@ import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalanc
 import BlocksoftCryptoUtils from '@crypto/common/BlocksoftCryptoUtils'
 import ApiProxy from './ApiProxy'
 
+import store from '@app/store'
+
+
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
 const V3_ENTRY_POINT_SELL = '/mobile-sell'
 const V3_ENTRY_POINT_BUY = '/mobile-buy'
@@ -34,11 +32,8 @@ const V3_ENTRY_POINT_CHECK = '/mobile-check'
 const V3_ENTRY_POINT_SET_STATUS = '/order/update-payment-status'
 const V3_ENTRY_POINT_MARKET = '/mobile-market'
 
-const V3_PUB = '818ef87763ee0f9eaee49ff1f27d4b87e76dc1a8309187b82de52687783d832705f4bafe4a51efad26ccca9367419f9e28e07cea849b8b15108a56e054128a8c'
 const V3_KEY_PREFIX = 'TrusteeExchange'
 
-
-let CACHE_SERVER_TIME_NEED_TO_ASK = true
 
 export default {
 
@@ -50,24 +45,20 @@ export default {
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
 
         try {
-            return await axios.post(`${baseUrl}/payment-details/validate-card`, data, {
+            let res = await axios.post(`${baseUrl}/payment-details/validate-card`, data, {
                 headers: {
                     'Accept': 'multipart/form-data',
                     'Content-Type': 'multipart/form-data'
                 }
             })
+            return res
         } catch (e) {
             Log.err('ApiV3 validateCard e.response.data ' + JSON.stringify(e.response.data))
             Log.err('ApiV3 validateCard e.response.data.message ' + JSON.stringify(e.response.data.message))
         }
     },
 
-    async initWallet(walletHash, currencies = false) {
-        if (typeof DaemonCache.CACHE_WALLET_NAMES_AND_CB[walletHash] === 'undefined') {
-            return false
-        }
-        const wallet = DaemonCache.CACHE_WALLET_NAMES_AND_CB[walletHash]
-
+    async initWallet(wallet, source) {
         const btcLegacyOrSegWit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
         const btcShowTwoAddress = settingsActions.getSettingStatic('btcShowTwoAddress')
         let showType = 'segwit'
@@ -75,70 +66,27 @@ export default {
             showType = 'legacy'
         }
 
-        if (currencies === false || typeof currencies['BTC'] === 'undefined') {
-            const tmps = await currencyDS.getCurrencies()
-            currencies = {}
-            for (const currency of tmps) {
-                const currencyCode = currency.currencyCode
-                currencies[currencyCode] = currency
+        const accountList = store.getState().accountStore.accountList
+        if (typeof accountList[wallet.walletHash] === 'undefined') {
+            if (source === 'ApiProxy') {
+                return []
             }
+            if (config.debug.appErrors) {
+                console.log('ApiV3 initWallet ' + wallet.walletHash + ' accountList[wallet.walletHash] is not set')
+            }
+            Log.log('ApiV3 initWallet ' + wallet.walletHash + ' accountList[wallet.walletHash] is not set')
+            return []
+        }
+
+        const tmps = store.getState().currencyStore.cryptoCurrencies
+        const currencies = {}
+        for (const tmp of tmps) {
+            currencies[tmp.currencyCode] = tmp
         }
 
         const accounts = []
-        for (const currencyCode in DaemonCache.CACHE_ALL_ACCOUNTS[walletHash]) {
-            const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][currencyCode]
-
-            // @todo optimize with setSelectedAccount
-            if (currencyCode === 'BTC' && wallet.walletIsHd) {
-                let accounts = await accountDS.getAccountData({
-                    walletHash: walletHash,
-                    currencyCode: currencyCode,
-                    splitSegwit: true,
-                    notAlreadyShown: true
-                })
-
-                let needSegwit = false
-                let needLegacy = false
-                if (showType === 'segwit' && (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0)) {
-                    needSegwit = true
-                }
-                if (typeof accounts.legacy === 'undefined' || !accounts.legacy || accounts.legacy.length === 0) {
-                    needLegacy = true
-                }
-                Log.log('ACT/ApiV3 HD checked ' + JSON.stringify({ needSegwit, needLegacy }))
-                if (needSegwit || needLegacy) {
-                    await walletPubDS.discoverMoreAccounts({
-                        walletHash: walletHash,
-                        currencyCode: currencyCode,
-                        needSegwit,
-                        needLegacy
-                    }, '_SET_APIV3')
-                    accounts = await accountDS.getAccountData({
-                        walletHash: walletHash,
-                        currencyCode: currencyCode,
-                        splitSegwit: true,
-                        notAlreadyShown: true
-                    })
-                }
-                if (!accounts) {
-                    accounts = await accountDS.getAccountData({
-                        walletHash: walletHash,
-                        currencyCode: currencyCode,
-                        splitSegwit: true
-                    })
-                }
-                if (accounts) {
-                    if (showType === 'segwit' && accounts.segwit && typeof accounts.segwit[0] !== 'undefined') {
-                        account.segwit = accounts.segwit[0].address
-                    }
-                    if (accounts.legacy && typeof accounts.legacy[0] !== 'undefined') {
-                        account.legacy = accounts.legacy[0].address
-                        account.address = account.legacy
-                    }
-                }
-            }
-            // @todo end optimization
-
+        for (const currencyCode in accountList[wallet.walletHash]) {
+            const account = accountList[wallet.walletHash][currencyCode]
             const resultAccount = {
                 currencyCode,
                 address: account.address,
@@ -190,10 +138,8 @@ export default {
 
     async initData(type, currencyCode = false, side) {
 
-        let { mode: exchangeMode, apiEndpoints } = config.exchange
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
         let entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
-        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
-
         entryURL = type === 'MARKET' ? exchangeMode === 'DEV' ? apiEndpoints.entryMarketURLTest : apiEndpoints.entryMarketURL : entryURL
 
 
@@ -210,38 +156,56 @@ export default {
             throw new Error('ApiV3 invalid settings type ' + type)
         }
 
-        await UpdateCardsDaemon.updateCardsDaemon({ force: true })
+        // yurchik update anyway so do load faster
+        /*
+        try {
+            await UpdateCardsDaemon.updateCardsDaemon({ force: true })
+        } catch (e) {
+            Log.log('ApiV3.initData cards recheck error ' + e.message)
+            // do nothing if nothing
+        }
+        */
+
+        const tmp = await cardDS.getCards()
+        const cards = []
+        if (tmp) {
+            for (const card of tmp) {
+                if (card.number === 'REMOVED') { // just in case
+                    continue
+                }
+                if (card.cardCheckStatus === 'null') {
+                    card.cardCheckStatus = null
+                }
+                cards.push(card)
+            }
+        }
 
         const data = {
             locale: sublocale(),
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
             wallets: [],
-            cards: await cardDS.getCards(),
+            cards,
             selectedCurrency: currencyCode,
             sideWay: side
         }
-        if (!data.cards || typeof data.cards === 'undefined') {
-            data.cards = []
-        }
 
-        const tmps = await currencyDS.getCurrencies()
-        const currencies = {}
-        for (const currency of tmps) {
-            const currencyCode = currency.currencyCode
-            currencies[currencyCode] = currency
-        }
-
-        for (const walletHash in DaemonCache.CACHE_WALLET_NAMES_AND_CB) {
-            let wallet = DaemonCache.CACHE_WALLET_NAMES_AND_CB[walletHash]
-            wallet = await walletDS._redoCashback(wallet)
-            const accounts = await this.initWallet(walletHash, currencies)
-
-            data.wallets.push({
-                walletHash,
-                walletName: wallet.walletName,
-                cashbackToken: wallet.walletCashback,
-                accounts
-            })
+        try {
+            const wallets = store.getState().walletStore.wallets
+            for (let wallet of wallets) {
+                wallet = await walletDS._redoCashback(wallet)
+                const accounts = await this.initWallet(wallet, 'ApiV3')
+                data.wallets.push({
+                    walletHash: wallet.walletHash,
+                    walletName: wallet.walletName,
+                    cashbackToken: wallet.walletCashback,
+                    accounts
+                })
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('ApiV3.initData build error ' + e.message)
+            }
+            Log.err('ApiV3.initData build error ' + e.message)
         }
 
         let msg = await ApiProxy.getServerTimestampIfNeeded()
@@ -266,17 +230,10 @@ export default {
                 + '&signature=' + sign.signature
                 + '&cashbackToken=' + currentToken
                 + '&locale=' + sublocale()
-                + '&version=' + MarketingEvent.DATA.LOG_VERSION
+                + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
 
-            await Log.log('ApiV3.initData start json link ' + link)
-            //const text = JSON.stringify(data)
-            //await Log.log('ApiV3.initData start encryption')
-            //const encrypted = await PubEncrypt.encryptWithPublicKey(V3_PUB, text)
-            //await Log.log('ApiV3.initData end encryption')
-            //encrypted.key = currentToken // for firebase key read rule
-
-            await Log.log('ApiV3.initData start save to firebase')
+            await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
             await database().ref(keyTitle).set(data)
             await Log.log('ApiV3.initData end save to firebase link ' + link)
             return link
@@ -316,7 +273,7 @@ export default {
         }
     },
 
-    setExchangeStatus: async (orderHash, status) => {
+    setExchangeStatus: async (orderHash, status, transactionHash = '') => {
 
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
@@ -332,16 +289,22 @@ export default {
         data.cashbackToken = cashbackToken
 
         data.orderHash = orderHash
+        data.transactionHash = transactionHash
         data.paymentStatus = status
 
         try {
             const link = baseUrl + V3_ENTRY_POINT_SET_STATUS
-            Log.log('ApiV3 setExchangeStatus axios ' + link + ' status ' + status)
-            return BlocksoftAxios.post(link, data, false)
-
+            Log.log('ApiV3 setExchangeStatus axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' ApiV3 setExchangeStatus start axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
+            }
+            const res = await BlocksoftAxios.post(link, data, false)
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' ApiV3 setExchangeStatus end', JSON.stringify(res.data))
+            }
+            return res
         } catch (e) {
             Log.err('ApiV3 setExchangeStatus e.response.data ' + e.response.data)
-            Log.err('ApiV3 setExchangeStatus e.response.data.message ' + e.response.data.message)
         }
     },
 

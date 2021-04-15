@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.41
  */
 import Database from '@app/appstores/DataSource/Database';
 
@@ -18,12 +18,13 @@ export default {
      * @return {Promise<void>}
      */
     updateCurrency: async (data) => {
-        if (typeof data.updateObj.currencyRateJson !== 'undefined') {
-            if (typeof data.updateObj.currencyRateJson !== 'string') {
-                data.updateObj.currencyRateJson = Database.escapeString(JSON.stringify(data.updateObj.currencyRateJson))
+        const updateObj = {...data.updateObj} // as currencyRateJson escaping is breaking all other features if go upper
+        if (typeof updateObj.currencyRateJson !== 'undefined') {
+            if (typeof updateObj.currencyRateJson !== 'string') {
+                updateObj.currencyRateJson = Database.escapeString(JSON.stringify(updateObj.currencyRateJson))
             }
         }
-        const updated = await Database.setTableName(tableName).setUpdateData(data).update()
+        const updated = await Database.setTableName(tableName).setUpdateData({ updateObj, key: data.key}).update()
 
         if (!updated || typeof updated.res === 'undefined' || typeof updated.res[0] === 'undefined') {
             Log.err('DS/Currency updateCurrency error - no rows updated ' + JSON.stringify(data))
@@ -104,7 +105,7 @@ export default {
         }
         data.push('BTC_SEGWIT')
         data.push('BTC_SEGWIT_COMPATIBLE')
-
+        data.push('LTC_SEGWIT')
         return data
     }
 }

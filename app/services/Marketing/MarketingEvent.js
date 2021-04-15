@@ -20,6 +20,7 @@ import changeableTester from '../../config/changeable.tester'
 import DeviceInfo from 'react-native-device-info'
 
 
+let CACHE_TG_INITED = false
 let CACHE_BALANCE = {}
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 
@@ -29,6 +30,8 @@ class MarketingEvent {
         LOG_WALLET: '',
         LOG_CASHBACK: '',
         LOG_PARENT: '',
+        LOG_WALLETS_COUNT : '0',
+        LOG_DEV : false,
         LOG_TESTER: false
     }
 
@@ -91,19 +94,8 @@ class MarketingEvent {
 
         }
 
-        await this._reinitTgMessage(testerMode)
-
         // after this is a little bit long soooo we will pass variables any time we could
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
-        await this._reinitTgMessage(testerMode)
-
-        await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET })
-        this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
-        await this._reinitTgMessage(testerMode)
-
-        this.DATA.LOG_PARENT = CashBackUtils.getParentToken()
-        await this._reinitTgMessage(testerMode)
-
         let tmp = await AsyncStorage.getItem('CACHE_BALANCE')
         if (tmp) {
             try {
@@ -115,13 +107,18 @@ class MarketingEvent {
         }
     }
 
+    async reinitIfNever() {
+        if (CACHE_TG_INITED) return true
+        await this._reinitTgMessage(this.UI_DATA.IS_TESTER)
+    }
+
     async reinitByWallet(walletHash) {
         if (this.DATA.LOG_WALLET === walletHash) {
             return false
         }
         this.DATA.LOG_WALLET = walletHash
 
-        await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET })
+        await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET }, 'MarketingEvent')
 
         this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
         this.DATA.LOG_PARENT = CashBackUtils.getParentToken()
@@ -169,6 +166,7 @@ class MarketingEvent {
 
         await Log._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
         await BlocksoftCryptoLog._reinitTgMessage(testerMode, this.DATA, this.TG_MESSAGE)
+        CACHE_TG_INITED = true
 
     }
 
@@ -176,8 +174,22 @@ class MarketingEvent {
         if (this.DATA.LOG_DEV) {
             return false
         }
+        let logDataString = ''
+        let logDataObject = {}
+        if (typeof logData === 'string') {
+            logDataString = logData
+            logDataObject = {
+                'txt' : logData
+            }
+        } else {
+            logDataString = JSON.stringify(logData)
+            logDataObject = logData
+            if (!logDataObject) {
+                logDataObject = {}
+            }
+        }
 
-        const tmp = logTitle + ' ' + JSON.stringify(logData)
+        const tmp = logTitle + ' ' + logDataString
         if (tmp === this._cacheLastLog) return true
 
         const date = (new Date()).toISOString().split('T')
@@ -190,31 +202,25 @@ class MarketingEvent {
                     await this._reinitTgMessage()
                 }
             }
-
             this._cacheLastLog = tmp
-
-            if (!logData) {
-                logData = {}
-            }
-            logData.date = date
-
+            logDataObject.date = date
         } catch (e) {
-            await Log.err(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
+            await Log.err(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             return false
         }
 
         if (PREFIX !== 'RTM') {
             try {
-                await analytics().logEvent(logTitle.replace(' ', '_'), logData)
+                await analytics().logEvent(logTitle.replace(' ', '_'), logDataObject)
             } catch (e) {
-                await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
+                await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             }
         }
 
         try {
             await this.TG.send(PREFIX + `_2021_02_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
         } catch (e) {
-            await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + JSON.stringify(logData))
+            await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
         }
     }
 

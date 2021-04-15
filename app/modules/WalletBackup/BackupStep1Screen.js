@@ -1,42 +1,35 @@
-
+/**
+ * @version 0.30
+ */
 import React from 'react'
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    ScrollView,
-    SafeAreaView,
-} from 'react-native'
+import { View, StyleSheet, ScrollView, SafeAreaView} from 'react-native'
 import { connect } from 'react-redux'
 
+import NavStore from '@app/components/navigation/NavStore'
+
+import { strings } from '@app/services/i18n'
+
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+
+import App from '@app/appstores/Actions/App/App'
+import Log from '@app/services/Log/Log'
+
+import { setCallback, proceedSaveGeneratedWallet } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
 
-import NavStore from '../../components/navigation/NavStore'
-
-import { strings } from '../../../app/services/i18n'
-
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-
-import App from '../../appstores/Actions/App/App'
-import Log from '../../services/Log/Log'
-
-import { setCallback, proceedSaveGeneratedWallet } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
-import walletActions from '../../appstores/Stores/Wallet/WalletActions'
-
-
-import Header from '../../components/elements/new/Header'
-import TwoButtons from '../../components/elements/new/buttons/TwoButtons'
-import CheckBox from '../../components/elements/new/CheckBox'
+import Header from '@app/components/elements/new/Header'
+import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import MnemonicWord from './elements/MnemonicWord'
 import SelectedMnemonic from './elements/SelectedMnemonic'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
-const VISIBILITY_TIMEOUT = 4000;
+const VISIBILITY_TIMEOUT = 4000
 
 class BackupStep1Screen extends React.Component {
     visibilityTimer;
@@ -127,16 +120,18 @@ class BackupStep1Screen extends React.Component {
     validateMnemonic = async () => {
         Log.log('WalletBackup.BackupStep1Screen validateMnemonic')
 
-        const { flowType } = this.props.createWalletStore
+        const { flowType, walletHash, walletNumber, source } = this.props.createWalletStore
 
         if (this.state.walletMnemonicSorted.length) return true
 
         if (JSON.stringify(this.state.walletMnemonicSelected) !== JSON.stringify(this.state.walletMnemonicDefault)) {
             showModal({ type: 'MNEMONIC_FAIL_MODAL' }, this.init)
         } else if (flowType === 'BACKUP_WALLET') {
+            MarketingEvent.logEvent('gx_view_mnemonic_screen_confirmed_mnemonic', { walletNumber, source }, 'GX')
 
-            walletActions.setWalletBackedUpStatus(this.props.mainStore.selectedWallet.walletHash)
+            walletActions.setWalletBackedUpStatus(walletHash)
 
+            MarketingEvent.logEvent('gx_view_mnemonic_screen_success', { walletNumber, source }, 'GX')
             showModal({
                 type: 'INFO_MODAL',
                 icon: true,
@@ -147,25 +142,24 @@ class BackupStep1Screen extends React.Component {
                 NavStore.reset('DashboardStack')
             })
         } else {
-            const { walletName, walletMnemonic, callback } = this.props.createWalletStore
+            const { walletName, walletMnemonic, callback, source, walletNumber } = this.props.createWalletStore
 
             try {
                 setLoaderStatus(true)
 
-                let tmpWalletName = walletName
-
-                if (!tmpWalletName) {
-                    tmpWalletName = await walletActions.getNewWalletName()
-                }
+                MarketingEvent.logEvent('gx_view_mnemonic_screen_confirmed_mnemonic', { walletNumber, source }, 'GX')
 
                 const walletHash = await proceedSaveGeneratedWallet({
-                    walletName: tmpWalletName,
-                    walletMnemonic
+                    walletName,
+                    walletMnemonic,
+                    walletNumber
                 })
 
                 walletActions.setWalletBackedUpStatus(walletHash)
 
                 setLoaderStatus(false)
+
+                MarketingEvent.logEvent('gx_view_mnemonic_screen_success', { walletNumber, source }, 'GX')
 
                 showModal({
                     type: 'INFO_MODAL',
@@ -277,7 +271,6 @@ class BackupStep1Screen extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
         createWalletStore: state.createWalletStore,
     }
 }

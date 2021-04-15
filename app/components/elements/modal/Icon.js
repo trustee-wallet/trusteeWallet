@@ -5,22 +5,15 @@ import React, { Component } from 'react'
 
 import { View, TouchableOpacity, StyleSheet } from 'react-native'
 
-import IconEntypo from 'react-native-vector-icons/Entypo'
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import IconIonicons from 'react-native-vector-icons/Ionicons'
 import CustomIcon from '../CustomIcon'
 
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 
 class Icon extends Component {
 
-    constructor(props) {
-        super(props)
-    }
-
     renderHtml = () => {
 
-        const { callback } = this.props
+        const { callback, color } = this.props
 
         const { colors } = this.context
 
@@ -28,7 +21,7 @@ class Icon extends Component {
             return (
                 <View style={styles.icon__wrapper}>
                     <TouchableOpacity onPress={() => callback()}>
-                        <View style={{...styles.info, backgroundColor: colors.modal.info }}>
+                        <View style={{...styles.info, backgroundColor: color || colors.modal.info }}>
                             <CustomIcon name="infoTransparent" style={{ fontSize: styles_.info.size, color: styles_.color }}/>
                         </View>
                     </TouchableOpacity>

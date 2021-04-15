@@ -86,6 +86,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name={'fee'} size={22} color={color} />
         case 'keyMonero':
             return <CustomIcon name={'secretKeyMonero'} size={22} color={color} />
+        case 'walletConnect':
+            return <CustomIcon name={'walletConnect'} size={22} color={color} />
         default: return null
     }
 }
@@ -141,7 +143,8 @@ export default function SettingListItem(props) {
         onLongPress,
         delayLongPress = 5000,
         type,
-        ExtraView
+        ExtraView,
+        ExtraViewParams
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -172,7 +175,7 @@ export default function SettingListItem(props) {
                     </View>
                 </TouchableOpacity>
                 {(ExtraView && switchParams.value) && (
-                    <ExtraView />
+                    <ExtraView ExtraViewParams={ExtraViewParams}/>
                 )}
             </>
         )
@@ -203,7 +206,7 @@ export default function SettingListItem(props) {
                     </View>
                 </TouchableOpacity>
                 {ExtraView && (
-                    <ExtraView />
+                    <ExtraView ExtraViewParams={ExtraViewParams} />
                 )}
                 { !last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
             </View>

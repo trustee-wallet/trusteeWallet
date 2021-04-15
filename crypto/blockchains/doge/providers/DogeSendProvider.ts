@@ -11,7 +11,7 @@ import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
 export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendProvider {
 
-    private _trezorServerCode: string = ''
+    protected _trezorServerCode: string = ''
 
     private _trezorServer: string = ''
 
@@ -35,23 +35,29 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
     async _check(hex: string, subtitle: string, txRBF: any, logData: any) {
         let checkResult = false
         try {
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy checkResult start ' + this._proxy, logData)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy checkResult start ' + this._proxy, logData)
+            if (config.debug.cryptoErrors) {
+                console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy checkResult start ' + this._proxy)
+            }
             checkResult = await BlocksoftAxios.post(this._proxy, {
                 raw: hex,
                 txRBF,
                 logData,
                 marketingData: MarketingEvent.DATA
             })
+            if (config.debug.cryptoErrors) {
+                console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy checkResult end ' + this._proxy)
+            }
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error checkResult ' + e.message)
             }
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error checkResult ' + e.message)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error checkResult ' + e.message)
         }
 
         if (checkResult !== false) {
             if (typeof checkResult.data !== 'undefined') {
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy checkResult1 ', checkResult.data)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy checkResult1 ', checkResult.data)
                 if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
                     if (config.debug.cryptoErrors) {
                         console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error checkResult1 ', checkResult)
@@ -61,7 +67,7 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
                     throw new Error(checkResult.data.msg)
                 }
             } else {
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy checkResult2 ', checkResult)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy checkResult2 ', checkResult)
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error checkResult2 ', checkResult)
                 }
@@ -79,7 +85,10 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
     }
 
     async _checkError(hex: string, subtitle: string, txRBF: any, logData: any) {
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx start ' + this._errorProxy, logData)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx start ' + this._errorProxy, logData)
+        if (config.debug.cryptoErrors) {
+            console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy errorTx start ' + this._errorProxy)
+        }
         const res2 = await BlocksoftAxios.post(this._errorProxy, {
             raw: hex,
             txRBF,
@@ -87,16 +96,19 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
             marketingData: MarketingEvent.DATA
         })
         if (config.debug.cryptoErrors) {
-            console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx result', JSON.parse(JSON.stringify(res2.data)))
+            console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy errorTx result ', JSON.parse(JSON.stringify(res2.data)))
         }
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx', typeof res2.data !== 'undefined' ? res2.data : res2)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy errorTx', typeof res2.data !== 'undefined' ? res2.data : res2)
     }
 
     async _checkSuccess(transactionHash: string, hex: string, subtitle: string, txRBF: any, logData: any) {
         let checkResult = false
         try {
             logData.txHash = transactionHash
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successTx start ' + this._successProxy, logData)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successTx start ' + this._successProxy, logData)
+            if (config.debug.cryptoErrors) {
+                console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy successTx start ' + this._successProxy)
+            }
             checkResult = await BlocksoftAxios.post(this._successProxy, {
                 raw: hex,
                 txRBF,
@@ -104,18 +116,18 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
                 marketingData: MarketingEvent.DATA
             })
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successTx result ', JSON.parse(JSON.stringify(checkResult.data)))
+                console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' proxy successTx result ', JSON.parse(JSON.stringify(checkResult.data)))
             }
         } catch (e3) {
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error successTx ' + e3.message)
             }
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error successTx ' + e3.message)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error successTx ' + e3.message)
         }
 
         if (checkResult !== false) {
             if (typeof checkResult.data !== 'undefined') {
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successResult1 ', checkResult.data)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successResult1 ', checkResult.data)
                 if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
                     if (config.debug.cryptoErrors) {
                         console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error successResult1 ', checkResult)
@@ -125,7 +137,7 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
                     throw new Error(checkResult.data.msg)
                 }
             } else {
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successResult2 ', checkResult)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy successResult2 ', checkResult)
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error successResult2 ', checkResult)
                 }
@@ -166,7 +178,7 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error errorTx ' + e.message)
                 }
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error errorTx ' + e2.message)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.send proxy error errorTx ' + e2.message)
             }
             if (this._settings.currencyCode === 'USDT' && e.message.indexOf('bad-txns-in-belowout') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')

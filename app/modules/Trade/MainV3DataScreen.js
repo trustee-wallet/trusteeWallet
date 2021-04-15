@@ -1,9 +1,8 @@
 /**
- * @version 0.3
+ * @version 0.41
  * @author yura
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 
 import {
     View,
@@ -17,39 +16,45 @@ import {
     SafeAreaView
 } from 'react-native'
 
-import NavStore from '../../components/navigation/NavStore'
-
-import ApiV3 from '../../services/Api/ApiV3'
-import Log from '../../services/Log/Log'
-
 import { WebView } from 'react-native-webview'
-import { strings, sublocale } from '../../services/i18n'
-import cardDS from '../../appstores/DataSource/Card/Card'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { FileSystem } from '../../services/FileSystem/FileSystem'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import { Camera } from '../../services/Camera/Camera'
 import { CardIOModule } from 'react-native-awesome-card-io'
-import countriesDict from '../../assets/jsons/other/country-codes'
-import Validator from '../../services/UI/Validator/Validator'
 import valid from 'card-validator'
 import _ from 'lodash'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import UpdateCardsDaemon from '../../daemons/back/UpdateCardsDaemon'
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
 
-import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import config from '../../config/config'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import { Cards } from '../../services/Cards/Cards'
+import ApiV3 from '@app/services/Api/ApiV3'
+import Log from '@app/services/Log/Log'
+import { strings, sublocale } from '@app/services/i18n'
+
+
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+
+import countriesDict from '@app/assets/jsons/other/country-codes'
+import Validator from '@app/services/UI/Validator/Validator'
+import cardDS from '@app/appstores/DataSource/Card/Card'
+import { Cards } from '@app/services/Cards/Cards'
+import { Camera } from '@app/services/Camera/Camera'
+
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
+
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+
+
 import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import ExchangeActions from '../../appstores/Stores/Exchange/ExchangeActions'
+
+import config from '@app/config/config'
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -70,11 +75,6 @@ class MainV3DataScreen extends Component {
     }
 
     init = async () => {
-
-        const { currencyCode } = this.props.cryptoCurrency
-
-        const prev = NavStore.getPrevRoute().routeName
-
         const key = 'onlyOne'
         if (CACHE_INIT_KEY === key && this.state.inited) {
             return
@@ -82,10 +82,9 @@ class MainV3DataScreen extends Component {
         CACHE_INIT_KEY = key
         this.setState({ inited: true })
 
-        // here to do upload
-        const type = this.props.navigation.getParam('tradeType')
-
-        let apiUrl = await ApiV3.initData(type, prev === 'AccountScreen' && currencyCode)
+        const tradeType = this.props.navigation.getParam('tradeType')
+        const currencyCode = this.props.navigation.getParam('currencyCode')
+        const apiUrl = await ApiV3.initData(tradeType, currencyCode)
 
         setTimeout(() => {
             this.setState({
@@ -100,22 +99,22 @@ class MainV3DataScreen extends Component {
         const { isLight } = this.context
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow)
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
-    componentWiilUnmount() {
+    componentWillUnmount() {
         const { isLight } = this.context
 
-        BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow);
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        BackHandler.removeEventListener('hardwareBackPress', this.handlerBackPress)
+        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow)
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     onKeyboardShow = () => {
         const { isLight } = this.context
 
-        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content');
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
     handlerBackPress = () => {
@@ -156,8 +155,7 @@ class MainV3DataScreen extends Component {
 
             cardData.numberPlaceholder = value.replace(' ', '')
 
-        }
-        else if (name === 'date') {
+        } else if (name === 'date') {
             cardData.datePlaceholder = ((value.replace(' ', '')).concat('00000000')).substring(0, 5)
         }
 
@@ -240,9 +238,11 @@ class MainV3DataScreen extends Component {
 
         try {
             const allData = JSON.parse(event.nativeEvent.data)
-            const { error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
-                updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus, 
-                useAllFunds, goToNew } = allData
+            const {
+                error, backToOld, close, homePage, cardData, tradeType, takePhoto, scanCard, deleteCard,
+                updateCard, orderData, injectScript, currencySelect, dataSell, didMount, navigationState, message, exchangeStatus,
+                useAllFunds, goToNew
+            } = allData
 
             Log.log('Trade/MainV3Screen.onMessage parsed', event.nativeEvent.data)
 
@@ -254,13 +254,9 @@ class MainV3DataScreen extends Component {
 
             if (backToOld) {
                 if (tradeType === 'SELL') {
-                    ExchangeActions.handleSetNewInterface(false, 'SELL')
-                    ExchangeActions.handleSetTradeType({ tradeType: 'SELL' })
-                    NavStore.goNext('TradeScreenStack')
+                    NavStore.reset('MainV3DataScreen', { oldInterface: true, tradeType })
                 } else if (tradeType === 'BUY') {
-                    ExchangeActions.handleSetNewInterface(false, 'BUY')
-                    ExchangeActions.handleSetTradeType({ tradeType: 'BUY' })
-                    NavStore.goNext('TradeScreenStack')
+                    NavStore.reset('MainV3DataScreen', { oldInterface: true, tradeType })
                 }
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
             }
@@ -323,14 +319,15 @@ class MainV3DataScreen extends Component {
     }
 
     async sellV3(data) {
-        // console.log('Trade/MainV3Screen dataSell', JSON.stringify(data))
-        const limits = JSON.parse(data.limits)
-        const trusteeFee = JSON.parse(data.trusteeFee)
-
-        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
-
         try {
-            Log.log('Trade/MainV3Screen dataSell', data)
+            if (config.debug.cryptoErrors) {
+                console.log('Trade/MainV3Screen sellV3 data ' + JSON.stringify(data))
+            }
+            Log.log('Trade/MainV3Screen sellV3 data', data)
+
+            const limits = JSON.parse(data.limits)
+            // const trusteeFee = JSON.parse(data.trusteeFee)
+            const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
 
             const bseOrderData = {
                 amountReceived: null,
@@ -340,43 +337,38 @@ class MainV3DataScreen extends Component {
                 inTxHash: null,
                 orderHash: data.orderHash,
                 orderId: data.orderHash,
-                outDestination: data.outDestination.substr(0,2) + '***' + data.outDestination.substr(-4, 4),
+                outDestination: data.outDestination.substr(0, 2) + '***' + data.outDestination.substr(-4, 4),
                 outTxHash: null,
                 payinUrl: null,
-                requestedInAmount: {amount: data.amount, currencyCode: data.currencyCode},
-                requestedOutAmount: {amount: data.outAmount, currencyCode: data.outCurrency},
-                status: "pending_payin"
+                requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
+                requestedOutAmount: { amount: data.outAmount, currencyCode: data.outCurrency },
+                status: 'pending_payin'
             }
 
-            SendActions.setUiType({
-                ui: {
-                    uiType: 'TRADE_SEND',
-                    uiApiVersion: 'v3',
-                    uiProviderType: data.providerType, // 'FIXED' || 'FLOATING'
-                    uiInputAddress: typeof data.address !== 'undefined' && data.address && data.address !== ''
-                },
-                addData: {
-                    gotoReceipt: true,
-                    comment: data.comment || ''
-                }
-            })
-            await SendActions.startSend({
+            await SendActionsStart.startFromBSE({
                 addressTo: data.address,
-                amountPretty: data.amount.toString(),
+                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
                 memo: data.memo,
+                comment: data.comment || '',
                 currencyCode: data.currencyCode,
                 isTransferAll: data.useAllFunds,
+            }, {
+                bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
                 bseOrderId: data.orderHash || data.orderId,
-                bseMinCrypto : minCrypto,
-                bseTrusteeFee : {
-                    value : trusteeFee.trusteeFee,
-                    currencyCode : trusteeFee.currencyCode,
-                    type : 'SELL',
-                    from : data.currencyCode,
-                    to : data.outCurrency
+                bseMinCrypto: minCrypto,
+                bseTrusteeFee: {
+                    // value: trusteeFee ? trusteeFee.trusteeFee : 0,
+                    // currencyCode: trusteeFee ? trusteeFee.currencyCode : 'USD',
+                    value :  data.amount, // to unify with Vlad
+                    currencyCode: data.currencyCode, // to unify
+                    type: 'SELL',
+                    from: data.currencyCode,
+                    to: data.outCurrency
                 },
                 bseOrderData: bseOrderData
-            })
+            }
+            )
+
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('Trade/MainV3Screen.sellV3', e)
@@ -610,7 +602,7 @@ class MainV3DataScreen extends Component {
                 (cardJson.verificationStatus === 'PENDING' || cardJson.verificationStatus === 'WAIT_FOR_PHOTO')) {
                 await this.resCardToWebView(numberCard)
             } else {
-                this.webref.postMessage(JSON.stringify({ "res": { cardID, res, numberCard } }))
+                this.webref.postMessage(JSON.stringify({ 'res': { cardID, res, numberCard } }))
             }
 
         } catch (e) {
@@ -619,25 +611,31 @@ class MainV3DataScreen extends Component {
         }
     }
 
+
     async resCardToWebView(numberCard) {
-        const cacheJson = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
-        let cardStatus = cacheJson
-        let card
-        if (typeof cacheJson === 'undefined' || !cacheJson) {
-            card = await cardDS.getCards({ number: numberCard })
-            cardStatus = JSON.parse(card[0].cardVerificationJson)
+        try {
+            let cardStatus = await UpdateCardsDaemon.updateCardsDaemon({ force: true, numberCard })
+            if (typeof cardStatus === 'undefined' || !cardStatus) {
+                cardStatus = await cardDS.getCardVerificationJson(numberCard)
+            }
+            if (config.debug.appErrors) {
+                console.log('Trade/MainV3Screen resCardToWebView cardStatus ' + cardStatus.verificationStatus + ' ' + JSON.stringify(cardStatus))
+            }
+            if (cardStatus && typeof cardStatus.verificationStatus !== 'undefined' && (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED')) {
+                this.webref && this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
+                return true
+            } else {
+                this.webref.postMessage(JSON.stringify({ 'res': { 'res': cardStatus, numberCard } }))
+                setTimeout(async () => {
+                    await this.resCardToWebView(numberCard)
+                }, 30e3) //30 sec
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('Trade/MainV3Screen resCardToWebView error ' + e.message)
+            }
+            Log.err('Trade/MainV3Screen resCardToWebView error ' + e.message)
         }
-
-        if (cardStatus.verificationStatus === 'SUCCESS' || cardStatus.verificationStatus === 'CANCELED') {
-            this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
-            return true
-        } else {
-            this.webref.postMessage(JSON.stringify({ "res": { "res": cardStatus, numberCard } }))
-            setTimeout(async () => {
-                await this.resCardToWebView(numberCard)
-            }, 30e3) //30 sec
-        }
-
     }
 
     async onDeleteCard(cardID) {
@@ -686,11 +684,7 @@ class MainV3DataScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
-                currencyCode,
-                addressTo: addressToForTransferAll
-            })
+            const transferBalance = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
             this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee: 'notUsedNotPassed', amount: amount ? amount : 0 } }))
             return {
@@ -732,14 +726,16 @@ class MainV3DataScreen extends Component {
         const { colors } = this.context
         return (
             <ActivityIndicator
-                size="large"
-                style={{ backgroundColor: colors.common.header.bg, position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                justifyContent: 'center',
-                alignItems: 'center' }}
+                size='large'
+                style={{
+                    backgroundColor: colors.common.header.bg, position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
                 color={this.context.colors.common.text2}
             />
         )
@@ -799,6 +795,8 @@ class MainV3DataScreen extends Component {
                                     Log.log('Trade.WebViewMainScreen.on start load with request ' + e.navigationType)
                                     return true
                                 }}
+                                // onLoadStart={StatusBar.setBarStyle('dark-content')}
+                                // onLoad={StatusBar.setBarStyle('dark-content')}
                                 useWebKit={true}
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
@@ -807,29 +805,17 @@ class MainV3DataScreen extends Component {
                         <>
                             {this.renderLoading()}
                         </>
-                        }
+                    }
                 </View>
             </View>
         )
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        exchangeStore: state.exchangeStore,
-        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
 
 MainV3DataScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainV3DataScreen)
+export default MainV3DataScreen
 
 const styles = {
     wrapper: {

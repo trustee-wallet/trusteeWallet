@@ -4,53 +4,45 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import _debounce from 'lodash/debounce'
-import {
-    Keyboard,
-    Dimensions,
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    SafeAreaView
-} from 'react-native'
+import { Keyboard, View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 
 
+import NavStore from '@app/components/navigation/NavStore'
 
-import NavStore from '../../components/navigation/NavStore'
+import App from '@app/appstores/Actions/App/App'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setCallback, setWalletMnemonic, proceedSaveGeneratedWallet } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import App from '../../appstores/Actions/App/App'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setCallback, setWalletMnemonic, proceedSaveGeneratedWallet } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
-import walletDS from '../../appstores/DataSource/Wallet/Wallet'
+import { strings } from '@app/services/i18n'
 
-import { strings } from '../../services/i18n'
+import Log from '@app/services/Log/Log'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+// import GoogleDrive from '@app/services/Back/Google/GoogleDrive'
 
-import Log from '../../services/Log/Log'
-import walletActions from '../../appstores/Stores/Wallet/WalletActions'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-// import GoogleDrive from '../../services/Back/Google/GoogleDrive'
+import Header from '@app/components/elements/new/Header'
+import TextInput from '@app/components/elements/new/TextInput'
+import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
-import Header from '../../components/elements/new/Header'
-import TextInput from '../../components/elements/new/TextInput'
-import TwoButtons from '../../components/elements/new/buttons/TwoButtons'
-import CheckBox from '../../components/elements/new/CheckBox'
 import MnemonicWord from '../WalletBackup/elements/MnemonicWord'
 import SelectedMnemonic from '../WalletBackup/elements/SelectedMnemonic'
 
-import QrCodeIcon from '../../assets/images/qrCodeBtn';
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import MNEMONIC_DICTIONARY from '../../services/UI/Validator/_words/english.json'
-import Validator from '../../services/UI/Validator/Validator'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import MNEMONIC_DICTIONARY from '@app/services/UI/Validator/_words/english.json'
+import Validator from '@app/services/UI/Validator/Validator'
+
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
 const callWithDelay = _debounce(
@@ -122,7 +114,7 @@ class EnterMnemonicPhrase extends Component {
             return
         }
 
-        const { walletName, callback } = this.props.walletCreate
+        const { walletName, callback, source, walletNumber } = this.props.walletCreateStore
 
         if (result.status === 'success' && await walletDS.walletExist(walletMnemonic)) {
             this.setState(() => ({ error: strings('walletCreate.walletExist') }))
@@ -133,25 +125,24 @@ class EnterMnemonicPhrase extends Component {
 
         try {
 
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_validated', { walletNumber, source }, 'GX')
+
             Keyboard.dismiss()
 
             setLoaderStatus(true)
 
-            let tmpWalletName = walletName
-
-            if (!tmpWalletName) {
-                tmpWalletName = await walletActions.getNewWalletName()
-            }
-
             const walletHash = await proceedSaveGeneratedWallet({
-                walletName: tmpWalletName,
+                walletName,
                 walletMnemonic,
-                walletIsBackedUp: 1
+                walletIsBackedUp: 1,
+                walletNumber,
             }, 'IMPORT')
 
             await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletCreate.EnterMnemonicPhrase' })
 
             setLoaderStatus(false)
+
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_success', { walletNumber, source }, 'GX')
 
             showModal({
                 type: 'INFO_MODAL',
@@ -189,6 +180,10 @@ class EnterMnemonicPhrase extends Component {
     }
 
     handleSelectWord = (word) => {
+        const { source, walletNumber } = this.props.walletCreateStore
+        if (!this.state.walletMnemonicSelected || this.state.walletMnemonicSelected.length === 0) {
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_first', {walletNumber, source}, 'GX')
+        }
         this.setState(state => ({
             walletMnemonicSelected: [...state.walletMnemonicSelected, word],
             wordsProposed: [],
@@ -232,6 +227,8 @@ class EnterMnemonicPhrase extends Component {
 
         if (spacesNumber >= 11) {
             const wordsArr = lowercasedValue.split(/\s+/g) // linebreaks could be
+            const { source, walletNumber } = this.props.walletCreateStore
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_first', {walletNumber, source}, 'GX')
             this.setState(() => ({
                 walletMnemonicSelected: wordsArr,
                 wordsProposed: [],
@@ -275,7 +272,11 @@ class EnterMnemonicPhrase extends Component {
     }
 
     triggerMnemonicVisible = () => {
-        this.setState(state => ({ isMnemonicVisible: !state.isMnemonicVisible }))
+        if (!this.state.walletMnemonicSelected.length) {
+            this.textInput.focus()
+        } else {
+            this.setState(state => ({ isMnemonicVisible: !state.isMnemonicVisible }))
+        }
     }
 
     renderQrCode = () => {
@@ -289,7 +290,7 @@ class EnterMnemonicPhrase extends Component {
 
         return (
             <TouchableOpacity>
-                <QrCodeIcon width={20} height={20} color={iconColor} />
+                <CustomIcon name={'qr'} size={20} color={iconColor} />
             </TouchableOpacity>
         )
     }
@@ -350,6 +351,7 @@ class EnterMnemonicPhrase extends Component {
                                         placeholder={strings('walletCreate.phrasePlaceholder')}
                                         onChangeText={this.handleInputPhrase}
                                         value={phraseInputValue}
+                                        compRef={ref => {this.textInput = ref}}
                                         // HelperAction={this.renderQrCode}
                                     />
                                     {!!error && (
@@ -398,7 +400,7 @@ EnterMnemonicPhrase.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        walletCreate: state.createWalletStore
+        walletCreateStore: state.createWalletStore
     }
 }
 

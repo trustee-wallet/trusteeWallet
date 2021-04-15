@@ -61,7 +61,6 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
         for (const fee of result.fees) {
             fee.amountForTx = data.amount
         }
-        result.shouldChangeBalance = false
         return result
     }
 
@@ -91,8 +90,7 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
         }
         return {
             ...fees,
-            selectedTransferAllBalance: balance,
-            shouldChangeBalance: false
+            selectedTransferAllBalance: balance
         }
     }
 

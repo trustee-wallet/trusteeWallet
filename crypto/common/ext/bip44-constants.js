@@ -20,6 +20,7 @@ module.exports = [
     [ `44'/1`, "ETH_ROPSTEN", "Ropsten Ether" ],
 
     [ `44'/2`, "LTC", "Litecoin" ],
+    [ `84'/2`, "LTC_SEGWIT", "Litecoin" ],
     [ `44'/3`, "DOGE", "Dogecoin" ],
     [ `44'/77`, "XVG", "Verge" ],
     [ `44'/195`, "TRX", "Tron" ],

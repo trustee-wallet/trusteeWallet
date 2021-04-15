@@ -13,14 +13,12 @@ import walletDS from '../../DataSource/Wallet/Wallet'
 import NavStore from '../../../components/navigation/NavStore'
 
 import { setInitState, setInitError, setSelectedWallet } from '../../Stores/Main/MainStoreActions'
-import { setCards } from '../../Stores/Card/CardActions'
 import walletActions from '../../Stores/Wallet/WalletActions'
 import currencyActions from '../../Stores/Currency/CurrencyActions'
 import settingsActions from '../../Stores/Settings/SettingsActions'
 import customCurrencyActions from '../CustomCurrencyActions'
-import exchangeActions from '../../Stores/Exchange/ExchangeActions'
 
-import Database from '@app/appstores/DataSource/Database';
+import Database, { cleanupNotNeeded } from '@app/appstores/DataSource/Database'
 
 import Log from '../../../services/Log/Log'
 import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
@@ -29,7 +27,6 @@ import AppNotification from '../../../services/AppNotification/AppNotificationLi
 
 import Daemon from '../../../daemons/Daemon'
 import CashBackActions from '../../Stores/CashBack/CashBackActions'
-import CashBackSettings from '../../Stores/CashBack/CashBackSettings'
 import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
 
 import FilePermissions from '../../../services/FileSystem/FilePermissions'
@@ -142,9 +139,6 @@ class App {
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
-            // noinspection ES6MissingAwait
-            setCards()
-
             this.initStatus = 'setCards()'
 
             // console.log(new Date().toISOString() + ' done')
@@ -191,32 +185,23 @@ class App {
 
         await currencyActions.init()
 
-        await CashBackSettings.init()
-
         if (firstTimeCall === 'first') {
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })
 
         } else if (firstTimeCall === 'second') {
             // second step of init
-            await exchangeActions.init()
+            await cleanupNotNeeded()
 
             await UpdateAccountListDaemon.forceDaemonUpdate(params)
 
-            await UpdateCashBackDataDaemon.updateCashBackDataDaemon()
+            // await UpdateCashBackDataDaemon.updateCashBackDataDaemon({source : 'UpdateCashBackDataDaemon.AppHomeScreen'})
 
-            await CashBackUtils.init()
-
-            await CashBackActions.setPublicLink()
+            await CashBackUtils.init({},'ACT/App appRefreshWalletsStates init ' + firstTimeCall)
         } else {
-            // reload from wallet import etc
-            await CashBackSettings.init()
-
             await Daemon.forceAll(params)
 
-            await CashBackUtils.init()
-
-            await CashBackActions.setPublicLink()
+            await CashBackUtils.init({}, 'ACT/App appRefreshWalletsStates init '  + firstTimeCall)
         }
 
         await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall) + ' finished')

@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.42
  */
 const INITIAL_STATE = {
     flowType: '',

@@ -2,7 +2,7 @@
  * @version 0.30
  */
 
-import Database from '@app/appstores/DataSource/Database';
+import Database from '@app/appstores/DataSource/Database'
 
 import Log from '../../services/Log/Log'
 import Api from '../../services/Api/Api'
@@ -13,8 +13,12 @@ import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/B
 
 import config from '../../config/config'
 import ApiProxy from '../../services/Api/ApiProxy'
+import store from '@app/store'
+import NavStore from '@app/components/navigation/NavStore'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
-const settingsDS = new Settings()
+const { dispatch } = store
 
 const CACHE_VALID_TIME = 20000 // 2 minute
 let CACHE_LAST_TIME = false
@@ -82,8 +86,38 @@ class UpdateTradeOrdersDaemon {
         Log.daemon('UpdateTradeOrders removeId ' + removeId)
         try {
             const nowAt = new Date().toISOString()
-            const sql = ` UPDATE transactions SET hidden_at='${nowAt}' WHERE bse_order_id = '${removeId}' `
-            await Database.setQueryString(sql).query(true)
+            const found = await Database.setQueryString(` SELECT id, hidden_at FROM transactions WHERE bse_order_id = '${removeId}' `).query(true)
+            if (found && found.array && found.array.length > 0) {
+                const row = found.array[0]
+                if (!row.hidden_at || row.hidden_at === 'null' || row.hidden_at === '') {
+                    const sql = ` UPDATE transactions SET hidden_at='${nowAt}' WHERE bse_order_id = '${removeId}' `
+                    await Database.setQueryString(sql).query(true)
+                }
+            }
+
+            const account = store.getState().mainStore.selectedAccount
+            if (account) {
+                let found = false
+                const transactionsToView = account.transactionsToView
+                const newTransactions = []
+                if (transactionsToView) {
+                    for (const transaction of transactionsToView) {
+                        if (transaction.bseOrderData && typeof transaction.bseOrderData.orderId !== 'undefined' && transaction.bseOrderData.orderId == removeId) {
+                            found = true
+                        } else {
+                            newTransactions.push(transaction)
+                        }
+                    }
+                }
+                if (found) {
+                    account.transactionsToView = newTransactions
+                    dispatch({
+                        type: 'SET_SELECTED_ACCOUNT',
+                        selectedAccount: account
+                    })
+                }
+            }
+            NavStore.goBack()
         } catch (e) {
             Log.errDaemon('UpdateTradeOrders removeId ' + removeId + ' error ' + e.message)
         }
@@ -94,7 +128,7 @@ class UpdateTradeOrdersDaemon {
      * @param params.source
      * @returns {Promise<boolean>}
      */
-    updateTradeOrdersDaemon = async (params) => {
+    updateTradeOrdersDaemon = async (params, dataUpdate = false) => {
 
         if (typeof params.source !== 'undefined' && params.source === 'ACCOUNT_OPEN' && CACHE_LAST_TIME) {
             const now = new Date().getTime()
@@ -115,8 +149,23 @@ class UpdateTradeOrdersDaemon {
         const nowAt = new Date().toISOString()
         try {
 
-            const res = await ApiProxy.getAll({ source: 'UpdateTradeOrdersDaemon.updateTradeOrders' })
+            let res = false
+            let asked = false
+            if (!dataUpdate) {
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loading new')
+                }
+                asked = true
+                res = await ApiProxy.getAll({ source: 'UpdateTradeOrdersDaemon.updateTradeOrders' })
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loaded new finished')
+                }
+            } else {
+                res = dataUpdate
+            }
+
             const tmpTradeOrders = typeof res.cbOrders !== 'undefined' ? res.cbOrders : false
+
 
             /*
             sometimes transaction hash should be unified with order status
@@ -129,6 +178,12 @@ class UpdateTradeOrdersDaemon {
 
                 if (typeof tmpTradeOrders === 'undefined' || !tmpTradeOrders || !tmpTradeOrders.length) {
                     return false
+                }
+
+                if (!asked) {
+                    if (config.debug.appErrors) {
+                        console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loaded proxy')
+                    }
                 }
 
                 let item
@@ -149,20 +204,25 @@ class UpdateTradeOrdersDaemon {
                     }
 
                     try {
-                        const tmps = [
-                            {
+                        const tmps = []
+                        if (item.exchangeWayType !== 'BUY') {
+                            tmps.push({
                                 currencyCode: item.requestedInAmount.currencyCode || false,
                                 addressAmount: item.requestedInAmount.amount || 0,
+                                addressTo: typeof item.depositAddress !== 'undefined' ? item.depositAddress : false,
                                 updateHash: item.inTxHash || false,
                                 suffix: 'in'
-                            },
-                            {
+                            })
+                        }
+                        if (item.exchangeWayType !== 'SELL') {
+                            tmps.push({
                                 currencyCode: item.requestedOutAmount.currencyCode || false,
                                 addressAmount: item.requestedOutAmount.amount || 0,
+                                addressTo: typeof item.outDestination !== 'undefined' && item.outDestination && item.outDestination.toString().indexOf('*') === -1 ? item.outDestination : false,
                                 updateHash: item.outTxHash || false,
                                 suffix: 'out'
-                            }
-                        ]
+                            })
+                        }
 
                         let currencyCode = 'NONE'
                         let someIsUpdatedAllWillUpdate = false
@@ -182,48 +242,102 @@ class UpdateTradeOrdersDaemon {
                         if (!someIsUpdatedAllWillUpdate) continue
 
 
-                        let savedToTx = {}
-                        let askedSimple = false
+                        const savedToTx = {}
                         for (const tmp of tmps) {
                             if (!tmp.currencyCode) continue
                             currencyCode = tmp.currencyCode
                             let sql
                             let sqlUpdateDir = ''
+                            let noHash = true
                             if (tmp.updateHash && tmp.updateHash !== '' && tmp.updateHash !== 'null') {
+                                noHash = false
                                 sqlUpdateDir = `bse_order_id_${tmp.suffix}='${item.orderId}', bse_order_id='${item.orderId}', `
                                 sql = `
                                      SELECT id, bse_order_data, transaction_hash, transactions_scan_log, hidden_at FROM transactions
-                                     WHERE (transaction_hash='${tmp.updateHash}' AND currency_code='${tmp.currencyCode}')
-                                     OR bse_order_id='${item.orderId}'
+                                     WHERE (transaction_hash='${tmp.updateHash}' OR bse_order_id='${item.orderId}')
+                                     AND currency_code='${tmp.currencyCode}'
                                      `
-                            } else if (!askedSimple) {
-                                askedSimple = true
+
+                            } else {
                                 sql = `
                                      SELECT id, bse_order_data, transaction_hash, transactions_scan_log, hidden_at FROM transactions
-                                     WHERE bse_order_id='${item.orderId}'
+                                     WHERE bse_order_id='${item.orderId}' AND currency_code='${tmp.currencyCode}'
                                      `
-                            } else {
-                                continue // do nothing if already asked
                             }
-                            const found = await Database.setQueryString(sql).query(true)
+
+                            let found = await Database.setQueryString(sql).query(true)
+
+                            if (!found || !found.array || found.array.length === 0 || found.array[0].transaction_hash === '') {
+                                if (typeof item.searchHashByAmount !== 'undefined' && item.searchHashByAmount && noHash) {
+                                    Log.daemon('UpdateTradeOrders called inner search ' + JSON.stringify(item))
+                                    let sql2 = ''
+                                    const rawAmount = BlocksoftPrettyNumbers.setCurrencyCode(tmp.currencyCode).makeUnPretty(tmp.addressAmount)
+                                    if (typeof tmp.addressTo !== 'undefined' && tmp.addressTo) {
+                                        sql2 = `
+                                             SELECT  id, bse_order_data, transaction_hash, transactions_scan_log, hidden_at, created_at, address_amount FROM transactions
+                                             WHERE transaction_hash != '' AND (bse_order_id IS NULL OR bse_order_id='') AND currency_code='${tmp.currencyCode}'
+                                             AND LOWER(address_to)='${tmp.addressTo.toLowerCase()}'
+                                             `
+                                    }
+                                    if (sql2) {
+                                        const found2 = await Database.setQueryString(sql2).query(true)
+                                        if (found2 && found2.array) {
+                                            for (const found22 of found2.array) {
+                                                if (Math.abs(BlocksoftUtils.diff(found22.address_amount, rawAmount).toString() * 1) > 10) continue
+                                                const createdAt = new Date(found22.created_at).getTime()
+                                                if (Math.abs(createdAt - item.createdAt) > 12000000) continue //60 * 1000 * 200 minutes
+                                                if (!found || !found.array) {
+                                                    found = { array: [] }
+                                                }
+                                                sqlUpdateDir = `bse_order_id='${item.orderId}', `
+                                                found.array.push(found22)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             if (found && found.array && found.array.length > 0) {
 
                                 savedToTx[tmp.currencyCode] = true
 
-                                let id = found.array[0].id
+                                let id = 0
+                                let id2 = 0
+                                let id3 = 0
                                 const toRemove = []
                                 if (found.array.length > 1) {
                                     for (const row of found.array) {
                                         if (row.transaction_hash && row.transaction_hash !== '') {
                                             id = row.id
+                                        } else if (row.hidden_at && row.hidden_at !== 'null' && row.hidden_at !== '') {
+                                            id2 = row.id
                                         } else {
+                                            id3 = row.id
+                                        }
+                                    }
+                                    if (id === 0) {
+                                        id = id2
+                                    }
+                                    if (id === 0) {
+                                        id = id3
+                                    }
+                                    for (const row of found.array) {
+                                        if (row.id !== id) {
                                             toRemove.push(row.id)
                                         }
                                     }
+
+                                } else {
+                                    id = found.array[0].id
                                 }
+
+
                                 for (const row of found.array) {
                                     if (id !== row.id) continue
-                                    if (row.hidden_at !== '' && row.hidden_at !== 'null') continue
+                                    if (row.hidden_at && row.hidden_at !== '' && row.hidden_at !== 'null') {
+                                        savedToTx[tmp.currencyCode] = 'id : ' + id
+                                        continue
+                                    }
                                     const escaped = Database.escapeString(JSON.stringify(item))
 
                                     if (!(row.bse_order_data === escaped)) {
@@ -252,6 +366,8 @@ class UpdateTradeOrdersDaemon {
                         for (const tmp of tmps) {
                             if (!tmp.currencyCode || tmp.addressAmount === 0) continue
                             if (typeof savedToTx[tmp.currencyCode] !== 'undefined') continue
+                            if (tmp.suffix === 'out' && !tmp.updateHash) continue
+
                             currencyCode = tmp.currencyCode
 
                             const createdAt = new Date(item.createdAt).toISOString()
@@ -262,6 +378,7 @@ class UpdateTradeOrdersDaemon {
                                             '${tmp.addressAmount}', '', '${item.orderId}', '${item.orderId}', '${Database.escapeString(JSON.stringify(item))}')
                                        `
                             await Database.setQueryString(sql).query(true)
+                            savedToTx[tmp.currencyCode] = 1
                         }
 
                         total++

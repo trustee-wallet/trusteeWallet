@@ -187,7 +187,7 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
 
             const time = dbTransaction.updatedAt || dbTransaction.createdAt
             const minutes = Math.round((now - new Date(time).getTime()) / 60000)
-            if (minutes > minutesToWait) {
+            if (minutes > minutesToWait && (dbTransaction.transactionStatus !== 'fail' && dbTransaction.transactionStatus !== 'no_energy')) {
                 await BlocksoftTransfer.setMissingTx(account, dbTransaction)
 
                 await transactionDS.saveTransaction({

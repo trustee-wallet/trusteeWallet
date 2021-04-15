@@ -60,12 +60,14 @@ export default class XrpScannerProcessor {
 
 
     /**
-     * @param {string} address
-     * @return {Promise<[UnifiedTransaction]>}
+     * @param {string} scanData.account.address
+     * @param {*} scanData.additional
+     * @param {string} scanData.account.walletHash
+     * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address) {
+    async getTransactionsBlockchain(scanData, source = '') {
         await this.init()
-        address = address.trim()
+        const address = scanData.account.address.trim()
         const action = 'payments'
         await BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions ' + action + ' started ' + address)
         const link = `${API_PATH}/accounts/${address}/payments`

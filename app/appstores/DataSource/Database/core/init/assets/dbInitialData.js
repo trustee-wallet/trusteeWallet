@@ -9,7 +9,7 @@ export default function getInitialData() {
         settings: {
             language: locales[0].languageTag,
             local_currency: 'USD',
-            btc_legacy_or_segwit: 'legacy'
+            btc_legacy_or_segwit: 'segwit'
         },
     }
 }

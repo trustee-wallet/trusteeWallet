@@ -1,5 +1,5 @@
 /**
- * @version 0.30
+ * @version 0.41
  * @author yura
  */
 import React, { Component } from 'react'
@@ -16,26 +16,28 @@ import {
     SafeAreaView
 } from 'react-native'
 
-import NavStore from '../../components/navigation/NavStore'
-
-import ApiV3 from '../../services/Api/ApiV3'
-import Log from '../../services/Log/Log'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-
 import { WebView } from 'react-native-webview'
-import { strings } from '../../services/i18n'
 import AsyncStorage from '@react-native-community/async-storage'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
-import { SendActions } from '../../appstores/Stores/Send/SendActions'
+import NavStore from '@app/components/navigation/NavStore'
+
+import ApiV3 from '@app/services/Api/ApiV3'
+import Log from '@app/services/Log/Log'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+
+
+import { strings } from '@app/services/i18n'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import config from '../../config/config'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -49,6 +51,7 @@ class MainV3DataScreen extends Component {
             show: false,
             inited: false,
             apiUrl: 'https://testexchange.trustee.deals/waiting',
+            navigationViewV3 : true,
             homePage: false,
             countedFees: false,
             selectedFee: false
@@ -64,12 +67,15 @@ class MainV3DataScreen extends Component {
         this.setState({ inited: true })
 
         // here to do upload
-        let apiUrl = await ApiV3.initData('EXCHANGE')
+        UpdateOneByOneDaemon.pause()
+        const apiUrl = await ApiV3.initData('EXCHANGE')
 
+        const navigationViewV3 = BlocksoftExternalSettings.getStatic('navigationViewV3') === 1
         setTimeout(() => {
             this.setState({
                 show: true,
-                apiUrl
+                apiUrl,
+                navigationViewV3
             })
         }, 10)
 
@@ -83,10 +89,10 @@ class MainV3DataScreen extends Component {
 	    StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
     }
 
-    componentWiilUnmount() {
+    componentWillUnmount() {
         const { isLight } = this.context
 
-        BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
+        BackHandler.removeEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.removeListener( 'keyboardWillShow', this.onKeyboardShow );
 	    StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
     }
@@ -179,14 +185,16 @@ class MainV3DataScreen extends Component {
     }
 
     exchangeV3 = async (data) => {
-        // console.log('Exchange/MainV3Screen dataExchange', JSON.stringify(data))
-        const limits = JSON.parse(data.limits)
-        const trusteeFee = JSON.parse(data.trusteeFee)
-
-        const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
-
         try {
-            Log.log('Exchange/MainV3Screen dataExchange', data)
+            if (config.debug.cryptoErrors) {
+                console.log('EXC/MainV3Screen exchangeV3 data ' + JSON.stringify(data))
+            }
+            Log.log('EXC/MainV3Screen exchangeV3 data ', data)
+
+            const limits = JSON.parse(data.limits)
+            // const trusteeFee = JSON.parse(data.trusteeFee)
+            const minCrypto = BlocksoftPrettyNumbers.setCurrencyCode(limits.currencyCode).makeUnPretty(limits.limits)
+
 
             const bseOrderData = {
                 amountReceived: null,
@@ -204,35 +212,29 @@ class MainV3DataScreen extends Component {
                 status: "pending_payin"
             }
 
-            SendActions.setUiType({
-                ui: {
-                    uiType: 'TRADE_SEND',
-                    uiApiVersion: 'v3',
-                    uiProviderType: data.providerType, // 'FIXED' || 'FLOATING'
-                    uiInputAddress: typeof data.address !== 'undefined' && data.address && data.address !== ''
-                },
-                addData: {
-                    gotoReceipt: true,
-                    comment: data.comment || ''
+            await SendActionsStart.startFromBSE({
+                    addressTo: data.address,
+                    amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
+                    memo: data.memo,
+                    comment: data.comment || '',
+                    currencyCode: data.currencyCode,
+                    isTransferAll: data.useAllFunds,
+                }, {
+                    bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
+                    bseOrderId: data.orderHash || data.orderId,
+                    bseMinCrypto: minCrypto,
+                    bseTrusteeFee: {
+                        // value: trusteeFee ? trusteeFee.trusteeFee : 0,
+                        // currencyCode: trusteeFee ? trusteeFee.currencyCode : 'USD',
+                        value :  data.amount, // to unify with Vlad
+                        currencyCode: data.currencyCode, // to unify
+                        type: 'EXCHANGE',
+                        from: data.currencyCode,
+                        to: data.outCurrency
+                    },
+                    bseOrderData: bseOrderData
                 }
-            })
-            await SendActions.startSend({
-                addressTo: data.address,
-                amountPretty: data.amount.toString(),
-                memo: data.memo,
-                currencyCode: data.currencyCode,
-                isTransferAll: data.useAllFunds,
-                bseOrderId: data.orderHash || data.orderId,
-                bseMinCrypto : minCrypto,
-                bseTrusteeFee : {
-                    value : trusteeFee.trusteeFee,
-                    currencyCode : trusteeFee.currencyCode,
-                    type : 'EXCHANGE',
-                    from : data.currencyCode,
-                    to : data.outCurrency
-                },
-                bseOrderData: bseOrderData
-            })
+            )
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('EXC/MainV3Screen exchangeV3', e)
@@ -248,11 +250,7 @@ class MainV3DataScreen extends Component {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            const addressToForTransferAll = BlocksoftTransferUtils.getAddressToForTransferAll({ currencyCode, address })
-            const { transferBalance } = await SendActions.countTransferAllBeforeStartSend({
-                currencyCode,
-                addressTo: addressToForTransferAll
-            })
+            const transferBalance = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
             const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.exchangeAll')
             this.webref.postMessage(JSON.stringify({ fees: { countedFees: 'notUsedNotPassed', selectedFee : 'notUsedNotPassed', amount: amount ? amount : 0 } }))
             return {
@@ -263,9 +261,9 @@ class MainV3DataScreen extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('EXC/MainV3Screen.handleTransferAll', e)
             }
-            
+
             this.webref.postMessage(JSON.stringify({serverError: true}))
-            
+
             Log.errorTranslate(e, 'Trade/MainV3Screen.handleTransferAll', extend)
 
             showModal({
@@ -366,6 +364,8 @@ class MainV3DataScreen extends Component {
                                     Log.log('Exchanger.WebViewMainScreen.on start load with request ' + e.navigationType)
                                     return true
                                 }}
+                                // onLoadStart={StatusBar.setBarStyle("dark-content")}
+                                // onLoad={StatusBar.setBarStyle("dark-content")}
                                 useWebKit={true}
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
@@ -379,6 +379,7 @@ class MainV3DataScreen extends Component {
         )
     }
 }
+
 MainV3DataScreen.contextType = ThemeContext
 
 export default MainV3DataScreen

@@ -1,5 +1,6 @@
 /**
- * @version 0.11
+ * @version 0.31
+ * @author yura
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -19,62 +20,61 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 
 import LottieView from 'lottie-react-native'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import LetterSpacing from '../../components/elements/LetterSpacing'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
-import LightButton from '../../components/elements/LightButton'
-import CustomIcon from '../../components/elements/CustomIcon'
-import Loader from '../../components/elements/LoaderItem'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
+import CurrencyIcon from '@app/components/elements/CurrencyIcon'
+import LightButton from '@app/components/elements/LightButton'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import Loader from '@app/components/elements/LoaderItem'
 
-import { strings, sublocale } from '../../services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
-import Toast from '../../services/UI/Toast/Toast'
-import Netinfo from '../../services/Netinfo/Netinfo'
-import Log from '../../services/Log/Log'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
+import Netinfo from '@app/services/Netinfo/Netinfo'
+import Log from '@app/services/Log/Log'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
-import { FileSystem } from '../../services/FileSystem/FileSystem'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus, setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
-import walletHDActions from '../../appstores/Actions/WalletHDActions'
-import walletActions from '../../appstores/Stores/Wallet/WalletActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import walletHDActions from '@app/appstores/Actions/WalletHDActions'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
-import { HIT_SLOP } from '../../themes/Themes'
+import { HIT_SLOP } from '@app/themes/Themes'
 
-import qrLogo from '../../assets/images/logoWithWhiteBG.png'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
+import qrLogo from '@app/assets/images/logoWithWhiteBG.png'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
-import UIDict from '../../services/UIDict/UIDict'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import UIDict from '@app/services/UIDict/UIDict'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
-import QrCodeBox from '../../components/elements/QrCodeBox'
-import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import AsyncStorage from '@react-native-community/async-storage'
-import { resolveChainCode } from '../../../crypto/blockchains/fio/FioUtils'
+import QrCodeBox from '@app/components/elements/QrCodeBox'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { resolveChainCode } from '@crypto/blockchains/fio/FioUtils'
 
-import Header from '../../components/elements/new/Header'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import Header from '@app/components/elements/new/Header'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
-import { BlocksoftTransferUtils } from '../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import Buttons from './elements/buttons'
-import Tabs from '../../components/elements/new/Tabs'
+import Tabs from '@app/components/elements/new/Tabs'
 
-import AmountInput from '../Send/elements/Input'
-import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
+import AmountInput from './elements/ReceiveInput'
+import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 
-import UtilsService from '../../services/UI/PrettyNumber/UtilsService'
-import TextInput from '../../components/elements/new/TextInput'
-import Button from '../../components/elements/new/buttons/Button'
+import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
+import TextInput from '@app/components/elements/new/TextInput'
+import Button from '@app/components/elements/new/buttons/Button'
 
-import blackLoader from '../../assets/jsons/animations/refreshBlack.json'
-import whiteLoader from '../../assets/jsons/animations/refreshWhite.json'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import config from '@app/config/config'
+import AsyncStorage from '@react-native-community/async-storage'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -185,11 +185,25 @@ class ReceiveScreen extends Component {
         try {
             await Netinfo.isInternetReachable()
 
-            if (config.exchange.mode === 'DEV') {
-                NavStore.goNext('MarketScreen')
-            } else {
-                NavStore.goNext('ExchangeV3ScreenStack')
-            }
+            // if (config.exchange.mode === 'PROD') {
+            //     NavStore.goNext('ExchangeV3ScreenStack')
+            // } else {
+                let showMsg = await AsyncStorage.getItem('smartSwapMsg')
+                showMsg = showMsg ? JSON.parse(showMsg) : false
+
+                if (typeof showMsg === 'undefined' || !showMsg) {
+                    showModal({
+                        type: 'MARKET_MODAL',
+                        icon: 'INFO',
+                        title: strings('modal.marketModal.title'),
+                        description: strings('modal.marketModal.description'),
+                    }, () => {
+                        NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
+                    })
+                } else {
+                    NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
+                }
+            // }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
                 Log.log('ReceiveScreen.handleExchange error ' + e.message)
@@ -257,18 +271,8 @@ class ReceiveScreen extends Component {
     renderAccountDetail = () => {
 
         const { currencySymbol, currencyName, currencyCode } = this.props.cryptoCurrency
-        const { basicCurrencyRate, balancePretty, unconfirmedPretty } = this.props.account
-        const { walletUseUnconfirmed } = this.props.wallet
+        const { balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.account
         const { isBalanceVisible, originalVisibility } = this.state
-
-        const amountPretty = BlocksoftTransferUtils.getBalanceForTransfer({
-            walletUseUnconfirmed: walletUseUnconfirmed === 1,
-            balancePretty,
-            unconfirmedPretty,
-            currencyCode
-        })
-
-        const amountPrep = BlocksoftPrettyNumbers.makeCut(amountPretty).cutted
 
         const { colors } = this.context
 
@@ -277,19 +281,14 @@ class ReceiveScreen extends Component {
             cryptoCurrency: this.props.cryptoCurrency
         })
 
+        const amountPrep = BlocksoftPrettyNumbers.makeCut(balanceTotalPretty).cutted
         let sumPrep = amountPrep + ' ' + currencySymbol
-        if (amountPretty && currencyCode && basicCurrencyRate) {
-            try {
-                const basicCurrencySymbol = this.props.account.basicCurrencySymbol || '$'
-                const basicAmount = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
-                const basicAmountPrep = BlocksoftPrettyNumbers.makeCut(basicAmount, 2).cutted
-                sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicAmountPrep
-            } catch (e) {
-                Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
-            }
+        try {
+            sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicCurrencyBalanceTotal
+        } catch (e) {
+            Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
         }
 
-        // const currencyAmountPrep = BlocksoftPrettyNumbers.makeCut(balancePretty).separated
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View>
@@ -311,8 +310,8 @@ class ReceiveScreen extends Component {
                                         disabled={originalVisibility}
                                         hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
                                     >
-                                        {isBalanceVisible ? 
-                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> : 
+                                        {isBalanceVisible ?
+                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> :
                                                 <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
                                                 ****</Text>
                                         }
@@ -537,7 +536,7 @@ class ReceiveScreen extends Component {
 
             amount = this.state.customAmount ? amount : ''
 
-            if (currencyCode === 'BTC') {
+            if (currencyCode === 'BTC' || currencyCode === 'LTC') {
                 address = this.state.settingAddressType === 'segwit' ? this.props.account.segwitAddress : this.props.account.legacyAddress
             } else {
                 address = this.props.account.address
@@ -635,7 +634,7 @@ class ReceiveScreen extends Component {
                         }}
                     >
                         <View style={{ ...styles.wrapper__content, marginTop: headerHeight + GRID_SIZE * 2 }}>
-                            {currencyCode === 'BTC' ? this.renderSegWitLegacy() : null}
+                            {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderSegWitLegacy() : null}
                             <View style={styles.qr}>
                                 <QrCodeBox
                                     getRef={ref => this.refSvg = ref}
@@ -709,7 +708,7 @@ class ReceiveScreen extends Component {
                                         hitSlop={HIT_SLOP}>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                             <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
-                                                <LetterSpacing text={currencyCode === 'BTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
+                                                <LetterSpacing text={currencyCode === 'BTC' || currencyCode === 'LTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
                                                     flexWrap: 'wrap',
                                                     justifyContent: 'center'
                                                 }} textStyle={{ ...styles.accountDetail__text, textAlign: 'center', color: colors.common.text1 }}
@@ -766,7 +765,6 @@ const mapStateToProps = (state) => {
         mainStore: state.mainStore,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
-        exchangeStore: state.exchangeStore,
         settingsStore: state.settingsStore,
         wallet: state.mainStore.selectedWallet,
     }

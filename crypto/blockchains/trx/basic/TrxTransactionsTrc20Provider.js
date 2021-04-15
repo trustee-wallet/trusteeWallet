@@ -5,14 +5,19 @@
 import TrxTransactionsProvider from './TrxTransactionsProvider'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 
+const SWAPS = require('../dict/swaps')
 export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvider {
+    _token = false
+
     setLink(token) {
+        this._token = token
         this._tronscanLink = 'https://apilist.tronscan.org/api/contract/events?sort=-timestamp&count=true&limit=50&contract=' + token + '&address='
     }
 
     /**
-     * @param {string} address
+     * @param {string} scanData.account.address
      * @param {Object} transaction
      * @param {string} transaction.amount 1000000
      * @param {string} transaction.transferFromAddress 'TUbHxAdhPk9ykkc7SDP5e9zUBEN14K65wk'
@@ -28,8 +33,8 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
      * @return {UnifiedTransaction}
      * @private
      */
-    async _unifyTransaction(address, transaction) {
-
+    async _unifyTransaction(scanData, transaction) {
+        const address = scanData.account.address.trim()
         let transactionStatus = 'new'
         if (transaction.confirmed) {
             transactionStatus = 'success'
@@ -37,6 +42,7 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
             transactionStatus = 'fail'
         }
 
+        let txTokenName = false
         let formattedTime
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.timestamp / 1000)
@@ -48,7 +54,8 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
             // noinspection ES6MissingAwait
             BlocksoftCryptoLog.err('TrxTransactionsTrc20Provider._unifyTransaction buggy tx ' + JSON.stringify(transaction))
         }
-        return {
+
+        const res = {
             transactionHash: transaction.transactionHash,
             blockHash: '',
             blockNumber: transaction.block,
@@ -57,10 +64,53 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
             transactionDirection: (address.toLowerCase() === transaction.transferFromAddress.toLowerCase()) ? 'outcome' : 'income',
             addressFrom: (address.toLowerCase() === transaction.transferFromAddress.toLowerCase()) ? '' : transaction.transferFromAddress,
             addressTo: (address.toLowerCase() === transaction.transferToAddress.toLowerCase()) ? '' : transaction.transferToAddress,
-            addressAmount: typeof transaction.amount !== 'undefined' ? transaction.amount : 0,
-            transactionStatus : transactionStatus,
+            addressAmount: typeof transaction.amount !== 'undefined' ? transaction.amount.toString() : '0',
+            transactionStatus: transactionStatus,
             transactionFee: 0,
             inputValue: transaction.data
         }
+
+        let needData = false
+        if (res.addressAmount.indexOf('115792089237316195423570985008687907853269984665640564039457') === 0) {
+            res.addressAmount = '0'
+            needData = true
+        }
+        if (typeof SWAPS[res.addressTo] !== 'undefined') {
+            res.addressTo = SWAPS[res.addressTo]
+            res.transactionDirection = 'swap_outcome'
+            res.addressAmount = '0'
+            needData = true
+        } else if (typeof SWAPS[res.addressFrom] !== 'undefined') {
+            res.addressFrom = SWAPS[res.addressFrom]
+            res.transactionDirection = 'swap_income'
+            res.addressAmount = '0'
+            needData = true
+        }
+
+        if (needData) {
+            const diff = scanData.account.transactionsScanTime - transaction.timestamp / 1000
+            if (diff > 600) {
+                return false
+            }
+        }
+        if (needData) {
+            const tmp = await BlocksoftAxios.get('https://apilist.tronscan.org/api/transaction-info?hash=' + res.transactionHash)
+            if (typeof tmp.data.trc20TransferInfo !== 'undefined') {
+                for (const info of tmp.data.trc20TransferInfo) {
+                    if (info.contract_address !== this._token) continue
+                    if (info.from_address === address) {
+                        res.transactionDirection = 'swap_outcome'
+                        res.addressAmount = info.amount_str
+                    } else if (info.to_address === address) {
+                        res.transactionDirection = 'swap_income'
+                        res.addressAmount = info.amount_str
+                    } else {
+                        continue
+                    }
+                }
+            }
+        }
+
+        return { res, txTokenName }
     }
 }

@@ -22,7 +22,7 @@ class ApiRates {
 
     _inited = false
 
-    async getRates(params) {
+    async getRates(params, dataUpdate = false) {
         try {
             if (typeof params !== 'undefined') {
                 if (typeof params.force !== 'undefined') {
@@ -40,9 +40,24 @@ class ApiRates {
             } else {
                 params = { source: 'ApiRates.getRates' }
             }
-            const res = await ApiProxy.getAll(params)
+            let res = false
+            let asked = false
+            if (!dataUpdate) {
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' ApiRates loading new')
+                }
+                asked = true
+                res = await ApiProxy.getAll(params)
+            } else {
+                res = dataUpdate
+            }
             if (!res || typeof res.rates === 'undefined' || typeof res.rates.data === 'undefined' || typeof res.ratesHash === 'undefined' || res.ratesHash === CACHE_RATES_HASH) {
                 return false
+            }
+            if (!asked) {
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' ApiRates loaded proxy')
+                }
             }
             this._cachedData = res.rates.data
             CACHE_RATES_HASH = res.ratesHash

@@ -27,7 +27,7 @@ export namespace BlocksoftTransferPrivate {
         if (!mnemonic) {
             throw new Error('no mnemonic for hash ' + data.walletHash)
         }
-        if (data.currencyCode === 'BTC' || data.currencyCode === 'USDT') {
+        if (data.currencyCode === 'BTC' || data.currencyCode === 'LTC' || data.currencyCode === 'USDT') {
             return initTransferPrivateBTC(data, mnemonic)
         }
         const discoverFor = {

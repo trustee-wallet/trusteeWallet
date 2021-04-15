@@ -18,6 +18,7 @@ import DaemonCache from '../DaemonCache'
 import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
 import BlocksoftBN from '../../../crypto/common/BlocksoftBN'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 
 let CACHE_PAUSE = 0
 
@@ -106,6 +107,17 @@ class UpdateAccountListDaemon extends Update {
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].derivationPath = tmpCurrency.derivationPath
                         }
                         reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].walletPubs = walletPub[tmpCurrency.walletHash]
+
+                        if (tmpCurrency.address.indexOf(BlocksoftDict.Currencies[tmpCurrency.currencyCode].addressPrefix) === 0) {
+                            if (typeof  reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].legacy === 'undefined') {
+                                reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].legacy = tmpCurrency.address
+                            }
+                        } else if (tmpCurrency.address.indexOf(BlocksoftDict.CurrenciesForTests[tmpCurrency.currencyCode + '_SEGWIT'].addressPrefix) === 0) {
+                            if (typeof reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].segwit  === 'undefined') {
+                                reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].segwit = tmpCurrency.address
+                            }
+                        }
+
                         continue
                     }
                     const pub = walletPub[tmpCurrency.walletHash]
@@ -157,8 +169,8 @@ class UpdateAccountListDaemon extends Update {
                                 Log.errDaemon('UpdateAccountListDaemon error on tmpUnconfirmed ' + e.message)
                             }
                         }
-
                     }
+
                     const badAddresses = await accountDS.getAccountData({ derivationPath: 'm/49quote/0quote/0/1/0' })
                     if (badAddresses) {
                         let bad
@@ -242,11 +254,13 @@ class UpdateAccountListDaemon extends Update {
                             Log.errDaemon('UpdateAccountListDaemon error on balanceAddingLog2 ' + e.message)
                         }
                     }
-                    const firstLetter = tmpCurrency.address.substr(0, 1)
-                    if (firstLetter === '1') {
-                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].legacy = tmpCurrency.address
-                    } else if (firstLetter === 'b') {
-                        reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].segwit = tmpCurrency.address
+
+                    if (typeof BlocksoftDict.CurrenciesForTests[tmpCurrency.currencyCode + '_SEGWIT'] !== 'undefined') {
+                        if (tmpCurrency.address.indexOf(BlocksoftDict.Currencies[tmpCurrency.currencyCode].addressPrefix) === 0) {
+                            reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].legacy = tmpCurrency.address
+                        } else if (tmpCurrency.address.indexOf(BlocksoftDict.CurrenciesForTests[tmpCurrency.currencyCode + '_SEGWIT'].addressPrefix) === 0) {
+                            reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].segwit = tmpCurrency.address
+                        }
                     }
                 }
             }
@@ -311,14 +325,6 @@ class UpdateAccountListDaemon extends Update {
                         continue
                     }
                     const accountWallet = allWallets.find(item => item.walletHash === tmpWalletHash)
-                    if (typeof accountWallet !== 'undefined' && accountWallet) {
-                        DaemonCache.CACHE_WALLET_NAMES_AND_CB[tmpWalletHash] = {
-                            walletName: accountWallet.walletName,
-                            walletCashback: accountWallet.walletCashback,
-                            walletIsHd: accountWallet.walletIsHd,
-                            walletUseUnconfirmed: accountWallet.walletUseUnconfirmed
-                        }
-                    }
                     const account = reformatted[tmpWalletHash][currencyCode]
 
                     const extendCurrencyCode = BlocksoftDict.getCurrencyAllSettings(account.currencyCode)
@@ -327,9 +333,15 @@ class UpdateAccountListDaemon extends Update {
                     account.feesCurrencySymbol = extendedFeesCode.currencySymbol || extendedFeesCode.currencyCode
 
                     account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
-
+                    account.walletUseUnconfirmed = accountWallet.walletUseUnconfirmed
                     try {
-                        account.balanceRaw = (accountWallet && accountWallet.walletUseUnconfirmed === 1) ? BlocksoftUtils.add(account.balance, account.unconfirmed).toString() : account.balance
+                        account.balanceRaw = (accountWallet && accountWallet.walletUseUnconfirmed === 1) ?
+                            BlocksoftTransferUtils.getBalanceForTransfer({
+                                balance : account.balance,
+                                unconfirmed : account.unconfirmed,
+                                currencyCode
+                            })
+                            : account.balance
                     } catch (e) {
                         Log.errDaemon('UpdateAccountListDaemon error on account.balanceRaw ' + e.message)
                         account.balanceRaw = account.balance
@@ -354,15 +366,26 @@ class UpdateAccountListDaemon extends Update {
                             Log.errDaemon('UpdateAccountListDaemon error on account.unconfirmed makePretty ' + e.message)
                         }
                     }
+                    account.balanceTotalPretty = 0
+                    if (account.balanceRaw > 0) {
+                        try {
+                            account.balanceTotalPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.balanceRaw, 'updateAccountListDaemon.balanceRaw')
+                        } catch (e) {
+                            Log.errDaemon('UpdateAccountListDaemon error on account.balanceRaw makePretty ' + e.message)
+                        }
+                    }
                     if (rate > 0) {
                         account.basicCurrencyBalanceNorm = account.balancePretty
                         account.basicCurrencyUnconfirmedNorm = account.unconfirmedPretty
+                        account.basicCurrencyBalanceTotalNorm = account.balanceTotalPretty
                         if (rate !== 1) {
                             account.basicCurrencyBalanceNorm = BlocksoftUtils.mul(account.balancePretty, rate)
                             account.basicCurrencyUnconfirmedNorm = BlocksoftUtils.mul(account.unconfirmedPretty, rate)
+                            account.basicCurrencyBalanceTotalNorm = BlocksoftUtils.mul(account.balanceTotalPretty, rate)
                         }
                         account.basicCurrencyBalance = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyBalanceNorm, 2).separated
                         account.basicCurrencyUnconfirmed = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyUnconfirmedNorm, 2).separated
+                        account.basicCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyBalanceTotalNorm, 2).separated
 
                         let str = ''
                         str += account.balancePretty + ' ' + account.currencyCode
@@ -371,7 +394,15 @@ class UpdateAccountListDaemon extends Update {
                         }
                         str += ' ' + account.basicCurrencyBalance + ' ' + account.basicCurrencyCode + ', '
 
-                        if (!tmpCurrency.isHidden) {
+                        const mask = Number(tmpCurrency.isHidden || 0).toString(2).split('').reverse() // split to binary
+                        let maskedHidden
+                        if (typeof mask[accountWallet.walletNumber] === 'undefined') {
+                            maskedHidden = mask.length === 1 ? ( mask[mask.length - 1] === '1' ) : false
+                        } else {
+                            maskedHidden = mask[accountWallet.walletNumber] === '1'
+                        }
+
+                        if (!maskedHidden) {
 
                             if (account.basicCurrencyBalanceNorm > 0) {
                                 try {
@@ -407,6 +438,8 @@ class UpdateAccountListDaemon extends Update {
                         account.basicCurrencyUnconfirmed = 0
                         account.basicCurrencyBalanceNorm = 0
                         account.basicCurrencyUnconfirmedNorm = 0
+                        account.basicCurrencyBalanceTotal = 0
+                        account.basicCurrencyBalanceTotalNorm = 0
                     }
 
                     DaemonCache.CACHE_ALL_ACCOUNTS[tmpWalletHash][currencyCode] = account
@@ -426,7 +459,6 @@ class UpdateAccountListDaemon extends Update {
                     basicCurrencyCode,
                     walletHash : tmpWalletHash })
             }
-
             Log.daemon('UpdateAccountListDaemon CACHE_WALLET_SUMS', DaemonCache.CACHE_WALLET_SUMS)
 
             if (typeof DaemonCache.CACHE_ALL_ACCOUNTS !== 'undefined') {
@@ -449,6 +481,12 @@ class UpdateAccountListDaemon extends Update {
             } catch (e) {
                 Log.errDaemon('UpdateAccountListDaemon error on setSelected ' + e.message)
             }
+
+            // FIXME: remove it, temporary solution to fix UI changing on home screen when user change local currency
+            store.dispatch({
+                type: 'SET_SELECTED_BASIC_CURRENCY',
+                selectedBasicCurrency: currentStore.mainStore.selectedBasicCurrency
+            })
 
             this._canUpdate = true
 

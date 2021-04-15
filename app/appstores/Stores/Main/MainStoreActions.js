@@ -1,25 +1,25 @@
 /**
  * @version 0.9
  */
-import store from '../../../store'
+import store from '@app/store'
 
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import walletDS from '../../DataSource/Wallet/Wallet'
-import walletPubDS from '../../DataSource/Wallet/WalletPub'
-import cryptoWalletsDS from '../../DataSource/CryptoWallets/CryptoWallets'
-import accountDS from '../../DataSource/Account/Account'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import walletPubDS from '@app/appstores/DataSource/Wallet/WalletPub'
+import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
+import accountDS from '@app/appstores/DataSource/Account/Account'
 
-import settingsActions from '../Settings/SettingsActions'
-import currencyActions from '../Currency/CurrencyActions'
-import DaemonCache from '../../../daemons/DaemonCache'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
-import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
-import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
-import CashBackUtils from '../CashBack/CashBackUtils'
-import transactionDS from '../../DataSource/Transaction/Transaction'
-import transactionActions from '../../Actions/TransactionActions'
+import DaemonCache from '@app/daemons/DaemonCache'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import transactionActions from '@app/appstores/Actions/TransactionActions'
 
 
 const { dispatch } = store
@@ -33,8 +33,6 @@ export async function setSelectedWallet(source) {
     if (!walletHash) {
         return false
     }
-
-    await CashBackUtils.createWalletSignature(false)
 
     const wallet = await walletDS.getWalletByHash(walletHash)
 
@@ -101,7 +99,7 @@ export async function setSelectedAccount(setting) {
     let basicAccounts = store.getState().accountStore.accountList
 
     let accounts
-    if (currency.currencyCode === 'BTC') {
+    if (currency.currencyCode === 'BTC' || currency.currencyCode === 'LTC') {
         // Log.log('ACT/MStore setSelectedAccount BTC', { wallet, currency })
 
         accounts = await accountDS.getAccountData({
@@ -110,7 +108,7 @@ export async function setSelectedAccount(setting) {
             splitSegwit: true,
             notAlreadyShown: wallet.walletIsHd
         })
-        if (wallet.walletIsHd) {
+        if (currency.currencyCode === 'BTC' && wallet.walletIsHd) { // !!! no ltc hd for now
             let needSegwit = false
             let needLegacy = false
             if (typeof accounts.segwit === 'undefined' || !accounts.segwit || accounts.segwit.length === 0) {
@@ -119,7 +117,7 @@ export async function setSelectedAccount(setting) {
             if (typeof accounts.legacy === 'undefined' || !accounts.legacy || accounts.legacy.length === 0) {
                 needLegacy = true
             }
-            Log.log('ACT/MStore setSelectedAccount HD checked ' + JSON.stringify({needSegwit, needLegacy}))
+            Log.log('ACT/MStore setSelectedAccount HD checked ' + JSON.stringify({ needSegwit, needLegacy }))
             if (needSegwit || needLegacy) {
                 await walletPubDS.discoverMoreAccounts({
                     walletHash: wallet.walletHash,
@@ -130,7 +128,7 @@ export async function setSelectedAccount(setting) {
                 accounts = await accountDS.getAccountData({
                     walletHash: wallet.walletHash,
                     currencyCode: currency.currencyCode,
-                    splitSegwit : true,
+                    splitSegwit: true,
                     notAlreadyShown: wallet.walletIsHd
                 })
             }
@@ -138,7 +136,7 @@ export async function setSelectedAccount(setting) {
                 accounts = await accountDS.getAccountData({
                     walletHash: wallet.walletHash,
                     currencyCode: currency.currencyCode,
-                    splitSegwit : true
+                    splitSegwit: true
                 })
             }
             if (!accounts || typeof accounts === 'undefined' || typeof accounts.legacy === 'undefined' || typeof accounts.legacy[0] === 'undefined') {
@@ -147,24 +145,24 @@ export async function setSelectedAccount(setting) {
                     walletHash: wallet.walletHash,
                     currencyCode: currency.currencyCode,
                     needSegwit,
-                    needLegacy:true
+                    needLegacy: true
                 }, '_SET_SELECTED_2')
                 accounts = await accountDS.getAccountData({
                     walletHash: wallet.walletHash,
                     currencyCode: currency.currencyCode,
-                    splitSegwit : true,
+                    splitSegwit: true,
                     notAlreadyShown: wallet.walletIsHd
                 })
             }
         } else if (!accounts || typeof accounts === 'undefined' || typeof accounts.legacy === 'undefined' || typeof accounts.legacy[0] === 'undefined') {
 
-            await accountDS.discoverAccounts({ walletHash: wallet.walletHash, currencyCode: [currency.currencyCode], source : 'SET_SELECTED' }, 'SET_SELECTED')
-            await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source : 'SET_SELECTED'})
+            await accountDS.discoverAccounts({ walletHash: wallet.walletHash, currencyCode: [currency.currencyCode], source: 'SET_SELECTED' }, 'SET_SELECTED')
+            await UpdateAccountListDaemon.updateAccountListDaemon({ force: true, source: 'SET_SELECTED' })
 
             accounts = await accountDS.getAccountData({
                 walletHash: wallet.walletHash,
                 currencyCode: currency.currencyCode,
-                splitSegwit : true
+                splitSegwit: true
             })
 
         }
@@ -175,15 +173,15 @@ export async function setSelectedAccount(setting) {
             Log.log('ACT/MStore setSelectedAccount GENERATE SEGWIT')
             const tmp = await accountDS.discoverAccounts({
                 walletHash: wallet.walletHash,
-                currencyCode: ['BTC_SEGWIT']
+                currencyCode: [currency.currencyCode + '_SEGWIT']
             }, 'MS_SELECT_ACCOUNT')
             accounts.segwit = tmp.accounts
         }
         if (typeof accounts.segwit[0] === 'undefined') {
-            throw new Error('ACT/MStore setSelectedAccount NOTHING SET BTC SEGWIT ' + JSON.stringify(accounts.segwit))
+            throw new Error('ACT/MStore setSelectedAccount NOTHING SET ' + currency.currencyCode + ' SEGWIT ' + JSON.stringify(accounts.segwit))
         }
         if (typeof accounts.legacy[0] === 'undefined') {
-            throw new Error('ACT/MStore setSelectedAccount NOTHING SET BTC LEGACY ' + JSON.stringify(accounts.legacy))
+            throw new Error('ACT/MStore setSelectedAccount NOTHING SET ' + currency.currencyCode + ' LEGACY ' + JSON.stringify(accounts.legacy))
         }
         const segwit = accounts.segwit[0]
         const legacy = accounts.legacy[0]
@@ -211,8 +209,8 @@ export async function setSelectedAccount(setting) {
         })
 
         if (!accounts || !accounts[0]) {
-            const tmp = await accountDS.discoverAccounts({ walletHash: wallet.walletHash, fullTree: false, currencyCode : [currency.currencyCode], source : 'SET_SELECTED'}, 'SET_SELECTED')
-            await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source : 'SET_SELECTED'})
+            const tmp = await accountDS.discoverAccounts({ walletHash: wallet.walletHash, fullTree: false, currencyCode: [currency.currencyCode], source: 'SET_SELECTED' }, 'SET_SELECTED')
+            await UpdateAccountListDaemon.updateAccountListDaemon({ force: true, source: 'SET_SELECTED' })
             accounts = tmp.accounts
             if (!accounts || !accounts[0]) {
                 throw new Error('ACT/MStore setSelectedAccount NOTHING SET OTHER')

@@ -15,7 +15,6 @@ class DaemonCache {
     CACHE_WALLET_TOTAL = { balance: 0, unconfirmed: 0 }
     CACHE_RATES = {}
     CACHE_ALL_ACCOUNTS = {}
-    CACHE_WALLET_NAMES_AND_CB = {}
     CACHE_FIO_MEMOS = {}
 
     CACHE_ACCOUNT_TX = {}

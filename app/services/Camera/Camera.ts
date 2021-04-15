@@ -1,11 +1,11 @@
 /**
- * @version 0.30
+ * @version 0.31
  * @author ksu
  */
 import { check, PERMISSIONS, request } from 'react-native-permissions'
 import { Linking, Platform } from 'react-native'
 import Log from '../Log/Log'
-import ImagePicker from 'react-native-image-picker'
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { strings } from '../i18n'
 import { showModal, hideModal } from '../../appstores/Stores/Modal/ModalActions'
 import { FileSystem } from '../FileSystem/FileSystem'
@@ -54,7 +54,7 @@ const requestGalleryOn = async (source: string): Promise<boolean> => {
 const getCameraPhoto = async (source: string): Promise<any> => {
     Log.log(source + ' getCameraPhoto started')
     return new Promise((resolve) => {
-        ImagePicker.launchCamera(imagePickerOptions, (res) => {
+        launchCamera(imagePickerOptions, (res) => {
                 Log.log(source + ' getCameraPhoto result', res)
                 resolve(res)
             }
@@ -65,7 +65,7 @@ const getCameraPhoto = async (source: string): Promise<any> => {
 const getGalleryPhoto = async (source: string): Promise<any> => {
     Log.log(source + ' getGalleryPhoto started')
     return new Promise((resolve) => {
-        ImagePicker.launchImageLibrary({}, (res) => {
+        launchImageLibrary({mediaType: 'photo'}, (res) => {
                 Log.log(source + ' getGalleryPhoto result', res)
                 resolve(res)
             }
@@ -82,9 +82,16 @@ export namespace Camera {
         const res = await check(Platform.OS !== 'ios' ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA)
         Log.log(source + ' checkCameraOn result', res)
 
-        if (res !== 'blocked' && res !== 'denied' ) {
-            return true
+        if (Platform.OS !== 'ios') {
+            if (res !== 'blocked' && res !== 'denied' ) {
+                return true
+            }
+        } else {
+            if (res !== 'blocked') {
+                return true
+            }
         }
+
         showModal({
             type: 'OPEN_SETTINGS_MODAL',
             icon: false,
@@ -105,7 +112,7 @@ export namespace Camera {
         if (await requestCameraOn(source)) {
             response = await getCameraPhoto(source)
         }
-        if (typeof response === 'undefined' || typeof response.error !== 'undefined' || response.didCancel) {
+        if (typeof response === 'undefined' || typeof response.error !== 'undefined' || response.didCancel || typeof response.errorCode !== 'undefined') {
             response = await getGalleryPhoto(source)
 
             if (typeof response.error !== 'undefined' && response.error) {

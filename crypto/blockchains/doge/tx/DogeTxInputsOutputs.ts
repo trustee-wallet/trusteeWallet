@@ -5,19 +5,20 @@ import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import BlocksoftBN from '../../../common/BlocksoftBN'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 const coinSelect = require('coinselect')
 const coinSplit = require('coinselect/split')
 
 export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxInputsOutputs {
     private _builderSettings: BlocksoftBlockchainTypes.BuilderSettings
-    private _settings: BlocksoftBlockchainTypes.CurrencySettings
+    protected _settings: BlocksoftBlockchainTypes.CurrencySettings
     private _minOutputDust: any
     private _minChangeDust: any
 
     // in*148 + out*34 + 10 plus or minus 'in'
     SIZE_FOR_BASIC = 34
-    SIZE_FOR_INPUT = 148
+    SIZE_FOR_INPUT = 148 // TX_INPUT_PUBKEYHASH = 107
     SIZE_FOR_BC = 75
 
     constructor(settings: BlocksoftBlockchainTypes.CurrencySettings, builderSettings: BlocksoftBlockchainTypes.BuilderSettings) {
@@ -103,14 +104,20 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         const utxos = []
         const isRequired: any = {}
         let isAllRequired: boolean = true
+        const segwitPrefix = typeof BlocksoftDict.CurrenciesForTests[this._settings.currencyCode + '_SEGWIT'] !== 'undefined' ? BlocksoftDict.CurrenciesForTests[this._settings.currencyCode + '_SEGWIT'].addressPrefix : false
         for (const unspent of unspents) {
-            utxos.push({
+            const input = {
                 txId: unspent.txid,
                 vout: unspent.vout,
                 // @ts-ignore
                 value: unspent.value * 1,
                 my: unspent
-            })
+            }// script
+            if (typeof unspent.address !== 'undefined' && unspent.address.indexOf(segwitPrefix) === 0) {
+                input.isSegwit = true
+                // https://github.com/bitcoinjs/coinselect/pull/63 wait for it to be merged
+            }
+            utxos.push(input)
             if (unspent.isRequired) {
                 if (typeof isRequired[unspent.txid] === 'undefined') {
                     isRequired[unspent.txid] = unspent
@@ -154,7 +161,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         console.log('---------------------')
         console.log('')
         */
-        
+
         const formatted = {
             inputs: [],
             outputs: [],
@@ -316,12 +323,11 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
 
         const {
             multiAddress,
-            basicWishedAmountBN,
             wishedAmountBN,
             outputs
         } = this._usualTargets(data, unspents)
 
-        if (typeof feeToCount.feeForByte !== 'undefined') {
+        if (typeof feeToCount.feeForByte !== 'undefined' && feeToCount.feeForByte !== 'none') {
             const result = await this._coinSelect(data, filteredUnspents, feeToCount.feeForByte, multiAddress, subtitle)
             if (result.inputs.length > 0) {
                 return result

@@ -10,7 +10,6 @@ import BlocksoftBN from '../../common/BlocksoftBN'
 
 import EthTmpDS from './stores/EthTmpDS'
 import EthRawDS from './stores/EthRawDS'
-import { add } from 'react-native-reanimated'
 
 const CACHE_GET_MAX_BLOCK = { ETH: { max_block_number: 0, confirmations: 0 }, BNB: { max_block_number: 0, confirmations: 0 } }
 const CACHE_BLOCK_NUMBER_TO_HASH = { ETH: {}, BNB: {} }
@@ -134,13 +133,13 @@ export default class EthScannerProcessor extends EthBasic {
     }
 
     /**
-     * @param {string} address
+     * @param {string} scanData.account.address
      * @return {Promise<[UnifiedTransaction]>}
      */
-    async getTransactionsBlockchain(address) {
+    async getTransactionsBlockchain(scanData) {
+        const address = scanData.account.address.toLowerCase()
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getTransactions started ' + address)
 
-        address = address.toLowerCase()
         let res = false
         if (this._settings.currencyCode !== 'ETH_ROPSTEN' && this._trezorServerCode) {
             res = await this._get(address)

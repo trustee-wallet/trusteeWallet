@@ -1,4 +1,6 @@
-
+/**
+ * @version 0.42
+ */
 import React from 'react'
 import { connect } from 'react-redux'
 import {
@@ -10,34 +12,31 @@ import {
     TouchableOpacity,
     RefreshControl
 } from 'react-native'
-
-
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
-import NavStore from '../../components/navigation/NavStore'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { strings } from '@app/services/i18n'
+import Log from '@app/services/Log/Log'
+import Toast from '@app/services/UI/Toast/Toast'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
-import { strings } from '../../services/i18n'
-import Log from '../../services/Log/Log'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import Toast from '../../services/UI/Toast/Toast'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
 
-import CashBackSettings from '../../appstores/Stores/CashBack/CashBackSettings'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-
-import CustomIcon from '../../components/elements/CustomIcon'
-import QrCodeBox from '../../components/elements/QrCodeBox'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import RoundButton from '../../components/elements/new/buttons/RoundButton'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import QrCodeBox from '@app/components/elements/QrCodeBox'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import Header from '@app/components/elements/new/Header'
+import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import PromoCodeContent from './elements/PromoCode'
 import DetailsContent from './elements/Details'
 import HowItWorks from './elements/HowItWorks'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import UpdateCashBackDataDaemon from '../../daemons/back/UpdateCashBackDataDaemon'
+
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+
+import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
+import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 
 
 class CashbackScreen extends React.Component {
@@ -121,22 +120,15 @@ class CashbackScreen extends React.Component {
             GRID_SIZE,
         } = this.context
         const { headerHeight, selectedContent } = this.state
-        const { cashbackStore, walletHash } = this.props
+        const { cashbackStore } = this.props
 
         let cashbackLink = cashbackStore.dataFromApi.cashbackLink || false
-        let cashbackLinkNotice = !cashbackLink
         let cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
         if (!cashbackLink || cashbackLink === '') {
             cashbackLink = cashbackStore.cashbackLink || ''
-            cashbackLinkNotice = !!cashbackLink
         }
         if (!cashbackLinkTitle || cashbackLinkTitle === '') {
             cashbackLinkTitle = cashbackStore.cashbackLinkTitle || ''
-        }
-
-        const savedAuthHash = cashbackStore.dataFromApi.authHash || ''
-        if (savedAuthHash !== walletHash) {
-            cashbackLink = CashBackSettings.getLink(CashBackUtils.getWalletToken())
         }
 
         return (
@@ -221,7 +213,7 @@ class CashbackScreen extends React.Component {
             return <PromoCodeContent />
         }
         if (selectedContent === 'details') {
-            const { cashbackStore, walletHash } = this.props
+            const { cashbackStore } = this.props
             const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
             let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted
 
@@ -250,9 +242,7 @@ class CashbackScreen extends React.Component {
                 timePrep = timeDate.toLocaleTimeString()
             }
 
-
-            const savedAuthHash = cashbackStore.dataFromApi.authHash || ''
-            if (savedAuthHash !== walletHash) {
+            if (typeof cashbackStore.dataFromApi.cashbackToken === 'undefined' || cashbackStore.dataFromApi.cashbackToken !== cashbackStore.cashbackToken) {
                 invitedUsers = '?'
                 level2Users = '?'
                 overalPrep = '?'
@@ -291,8 +281,7 @@ class CashbackScreen extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        cashbackStore: state.cashBackStore,
-        walletHash: state.mainStore.selectedWallet.walletHash
+        cashbackStore: getCashBackData(state)
     }
 }
 

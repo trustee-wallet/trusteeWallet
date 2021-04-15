@@ -77,7 +77,7 @@ class BlocksoftDispatcher {
                 return new BchAddressProcessor(currencyDictSettings)
             case 'BTC':
                 return new BtcAddressProcessor(currencyDictSettings)
-            case 'BTC_SEGWIT':
+            case 'BTC_SEGWIT': case 'LTC_SEGWIT':
                 return new BtcSegwitAddressProcessor(currencyDictSettings)
             case 'BTC_SEGWIT_COMPATIBLE':
                 return new BtcSegwitCompatibleAddressProcessor(currencyDictSettings)

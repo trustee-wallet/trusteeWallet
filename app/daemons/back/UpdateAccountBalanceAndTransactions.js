@@ -19,6 +19,7 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import config from '../../config/config'
 import { getFioObtData, resolveCryptoCodes } from '../../../crypto/blockchains/fio/FioUtils'
 import DaemonCache from '../DaemonCache'
+import store from '@app/store'
 
 const CACHE_SCANNING = {}
 const CACHE_VALID_TIME = 60000 // 1 minute
@@ -43,6 +44,7 @@ class UpdateAccountBalanceAndTransactions {
      * @param {string} callParams.source
      * @param {boolean} callParams.force
      * @param {boolean} callParams.allWallets
+     * @param {boolean} callParams.onlyBalances
      * @param {string} callParams.currencyCode
      * @returns {Promise<boolean>}
      */
@@ -51,7 +53,7 @@ class UpdateAccountBalanceAndTransactions {
         const source = callParams.source || 'FRONT'
         const force = callParams.force || false
         const allWallets = callParams.allWallets || false
-
+        const onlyBalances = callParams.onlyBalances || false
         if (!force || source === 'BACK') {
             const setting = await settingsActions.getSetting('scannerCode')
             if (!setting) {
@@ -100,7 +102,7 @@ class UpdateAccountBalanceAndTransactions {
 
             tmpAction = 'accounts init'
 
-            let accounts = await accountScanningDS.getAccountsForScan({...params, force : false})
+            let accounts = await accountScanningDS.getAccountsForScan({ ...params, force: false })
 
             if (force) {
                 if (!accounts || accounts.length === 0) {
@@ -130,7 +132,7 @@ class UpdateAccountBalanceAndTransactions {
                     continue
                 }
                 tmpAction = 'account run ' + JSON.stringify(account)
-                await this._accountRun(account, accounts, source, CACHE_VALID_TIME, force)
+                await this._accountRun(account, accounts, source, CACHE_VALID_TIME, force, onlyBalances)
                 running++
             }
 
@@ -141,7 +143,7 @@ class UpdateAccountBalanceAndTransactions {
                 }
                 if (typeof CACHE_CUSTOM_TIME[account.currencyCode] !== 'undefined') {
                     // if its the only ones not updated - lets do them faster
-                    await this._accountRun(account, accounts, source, running > 0 ? CACHE_CUSTOM_TIME[account.currencyCode] : CACHE_VALID_TIME, force)
+                    await this._accountRun(account, accounts, source, running > 0 ? CACHE_CUSTOM_TIME[account.currencyCode] : CACHE_VALID_TIME, force, onlyBalances)
                 }
             }
 
@@ -155,6 +157,15 @@ class UpdateAccountBalanceAndTransactions {
     }
 
     loadFioData = async (currencyCode) => {
+        const currencies = store.getState().currencyStore.cryptoCurrencies
+        let foundFio = false
+        for (const tmp of currencies) {
+            if (tmp.currencyCode === 'FIO' && !tmp.maskedHidden) {
+                foundFio = true
+                break
+            }
+        }
+        if (!foundFio) return false
         Log.daemon('UpdateAccountBalanceAndTransactions loadFioData ' + currencyCode)
         try {
             // eslint-disable-next-line camelcase
@@ -185,7 +196,7 @@ class UpdateAccountBalanceAndTransactions {
         }
     }
 
-    async _accountRun(account, accounts, source, time, force) {
+    async _accountRun(account, accounts, source, time, force, onlyBalances = false) {
 
         let newBalance = false
         let addressToScan = account.address
@@ -300,7 +311,7 @@ class UpdateAccountBalanceAndTransactions {
             throw e
         }
 
-        if (!continueWithTx) {
+        if (!continueWithTx || onlyBalances) {
             return true // balance error - tx will not be good also
         }
 
@@ -309,18 +320,17 @@ class UpdateAccountBalanceAndTransactions {
         try {
             Log.daemon('UpdateAccountBalanceAndTransactions newTransactions ' + account.currencyCode + ' ' + account.address)
             if (account.currencyCode === 'BTC') {
-                const addresses = await accountScanningDS.getAddresses({
+                const additional = {... account.accountJson}
+                additional.addresses = await accountScanningDS.getAddresses({
                     currencyCode: account.currencyCode,
                     walletHash: account.walletHash
                 })
-                const additional = account.accountJson
-                additional.addresses  = addresses
                 if (account.walletIsHd) {
-                   additional.walletPub = true // actually not needed pub - just flag
+                    additional.walletPub = true // actually not needed pub - just flag
                 }
-                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional(additional).setWalletHash(account.walletHash)).getTransactions('AccountRunTransactionsBtc')
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional }, 'AccountRunTransactionsBtc')
             } else {
-                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional(account.accountJson).setWalletHash(account.walletHash)).getTransactions('AccountRunTransactions')
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional: account.accountJson }, 'AccountRunTransactions')
             }
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError = ' empty transactions ' + account.currencyCode + ' ' + account.address
@@ -329,8 +339,10 @@ class UpdateAccountBalanceAndTransactions {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                Log.errDaemon('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message)
+                console.log('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message, e)
             }
+            Log.errDaemon('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message)
+
             transactionsError = ' found transactionsError ' + e.message
         }
 

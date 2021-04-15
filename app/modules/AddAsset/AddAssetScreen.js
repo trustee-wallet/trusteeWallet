@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import {
     View,
     Text,
-    ScrollView,
     SafeAreaView,
     SectionList,
     FlatList,
@@ -13,25 +12,20 @@ import {
     Keyboard
 } from 'react-native'
 
-import _forEach from 'lodash/forEach'
-import AntDesignIcon from 'react-native-vector-icons/AntDesign'
+import NavStore from '@app/components/navigation/NavStore'
 
-import NavStore from '../../components/navigation/NavStore'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import Validator from '@app/services/UI/Validator/Validator'
+import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import Validator from '../../services/UI/Validator/Validator'
-import { setQRConfig, setQRValue } from '../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-
-import { strings } from '../../services/i18n'
-import { checkQRPermission } from '../../services/UI/Qr/QrPermissions'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import TextInput from '../../components/elements/new/TextInput'
-import Button from '../../components/elements/new/buttons/Button'
-import ListItem from '../../components/elements/new/list/ListItem/Asset'
-import Tabs from '../../components/elements/new/Tabs'
+import { strings } from '@app/services/i18n'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import TextInput from '@app/components/elements/new/TextInput'
+import Button from '@app/components/elements/new/buttons/Button'
+import ListItem from '@app/components/elements/new/list/ListItem/Asset'
+import Tabs from '@app/components/elements/new/Tabs'
 import Header from './elements/Header'
-
-import QrCodeIcon from '../../assets/images/qrCodeBtn';
 
 import {
     getTabs,
@@ -39,7 +33,9 @@ import {
     prepareDataForDisplaying,
     addCustomToken
 } from './helpers'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 
 class AddAssetScreen extends React.Component {
@@ -85,21 +81,26 @@ class AddAssetScreen extends React.Component {
         if (currency.isHidden === null) {
             this.handleAddCurrency(currency)
         } else {
-            this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
+            this.toggleCurrencyVisibility(currency.currencyCode, currency.isHidden * 1 > 0 ? 0 : 1, currency.isHidden)
         }
-        return;
     }
 
     handleAddCurrency = async (currencyToAdd) => {
+        Keyboard.dismiss()
+        MarketingEvent.logEvent('gx_currency_add', { currencyCode: currencyToAdd.currencyCode }, 'GX')
         await currencyActions.addCurrency(currencyToAdd)
-        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.prepareData(cryptoCurrencies)
+        this.prepareData()
     }
 
-    toggleCurrencyVisibility = async (currencyCode, isHidden) => {
-        currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
-        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.prepareData(cryptoCurrencies)
+    toggleCurrencyVisibility = async (currencyCode, newIsHidden, currentIsHidden) => {
+        Keyboard.dismiss()
+        if (newIsHidden) {
+            MarketingEvent.logEvent('gx_currency_hide', { currencyCode, source: 'AddAssetScreen' }, 'GX')
+        } else {
+            MarketingEvent.logEvent('gx_currency_show', { currencyCode, source: 'AddAssetScreen' }, 'GX')
+        }
+        await currencyActions.toggleCurrencyVisibility({ currencyCode, newIsHidden, currentIsHidden : 0}) // add to all wallets
+        this.prepareData()
     }
 
     handleOpenQr = () => {
@@ -115,6 +116,7 @@ class AddAssetScreen extends React.Component {
     handleChangeCustomAddress = (value) => { this.setState(() => ({ customAddress: value })) }
 
     handleAddCustomToken = async () => {
+        Keyboard.dismiss();
         const types = ['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']
         const { customAddress } = this.state
         const tmps = types.map(type => ({
@@ -152,7 +154,6 @@ class AddAssetScreen extends React.Component {
     render() {
         const { colors, GRID_SIZE } = this.context
         const {
-            headerHeight,
             data,
             searchQuery,
             tabs,
@@ -162,8 +163,6 @@ class AddAssetScreen extends React.Component {
         const activeGroup = tabs.find(tab => tab.active).group
 
         MarketingAnalytics.setCurrentScreen('AddAssetScreen')
-
-        const contentPaddingTop = headerHeight + GRID_SIZE / 2
 
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
@@ -178,47 +177,53 @@ class AddAssetScreen extends React.Component {
                 <SafeAreaView style={[styles.content, { backgroundColor: colors.common.background }]}>
                     {
                         activeGroup === ASSESTS_GROUP.CUSTOM && !searchQuery ? (
-                            <TouchableOpacity style={{ flex: 1, paddingBottom: GRID_SIZE * 2, paddingTop: contentPaddingTop }} activeOpacity={1} onPress={Keyboard.dismiss}>
-                                <View style={[{ paddingHorizontal: GRID_SIZE * 2, paddingBottom: GRID_SIZE / 2 }]}>
-                                    {this.renderTabs()}
-                                </View>
-                                <View style={[styles.customAddressConent, { paddingHorizontal: GRID_SIZE }]}>
-                                    <TextInput
-                                        label={strings('assets.addCustomLabel')}
-                                        labelColor={colors.common.text3}
-                                        placeholder={strings('assets.addCustomPlaceholder')}
-                                        onChangeText={this.handleChangeCustomAddress}
-                                        value={customAddress}
-                                        HelperAction={() => (
-                                            <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
-                                                <QrCodeIcon width={20} height={20} color={colors.common.text1} />
-                                            </TouchableOpacity>
-                                        )}
-                                    />
-                                    <Button
-                                        title={strings('assets.addAssetButton')}
-                                        onPress={this.handleAddCustomToken}
-                                        disabled={!customAddress}
-                                    />
-                                </View>
-                            </TouchableOpacity>
+                            <FlatList
+                                {...this.commonHeaderProps}
+                                ListEmptyComponent={null}
+                                data={data}
+                                ListHeaderComponent={!!searchQuery ? null : () => (
+                                    <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
+                                        {this.renderTabs(false)}
+                                        <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
+                                            <TextInput
+                                                label={strings('assets.addCustomLabel')}
+                                                labelColor={colors.common.text3}
+                                                placeholder={strings('assets.addCustomPlaceholder')}
+                                                onChangeText={this.handleChangeCustomAddress}
+                                                value={customAddress}
+                                                HelperAction={() => (
+                                                    <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
+                                                        <CustomIcon name={'qr'} size={20} color={colors.common.text1} />
+                                                    </TouchableOpacity>
+                                                )}
+                                            />
+                                            <Button
+                                                containerStyle={{ marginTop: GRID_SIZE * 2 }}
+                                                title={strings('assets.addAssetButton')}
+                                                onPress={this.handleAddCustomToken}
+                                                disabled={!customAddress}
+                                            />
+                                        </View>
+                                    </TouchableOpacity>
+                                )}
+                            />
                         ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
-                                ? (
-                                    <SectionList
-                                        {...this.commonHeaderProps}
-                                        sections={data}
-                                        stickySectionHeadersEnabled={false}
-                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
-                                        renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
-                                        renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
-                                    />
-                                ) : (
-                                    <FlatList
-                                        {...this.commonHeaderProps}
-                                        data={data}
-                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
-                                    />
-                                )
+                            ? (
+                                <SectionList
+                                    {...this.commonHeaderProps}
+                                    sections={data}
+                                    stickySectionHeadersEnabled={false}
+                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
+                                    renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
+                                    renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
+                                />
+                            ) : (
+                                <FlatList
+                                    {...this.commonHeaderProps}
+                                    data={data}
+                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                />
+                            )
                     }
                 </SafeAreaView>
             </View>
@@ -251,7 +256,7 @@ class AddAssetScreen extends React.Component {
                 iconType={item.currencyCode}
                 onPress={() => this.handleChangeCurrencyStatus(item)}
                 rightContent="switch"
-                switchParams={{ value: item.isHidden === 0, onPress: () => this.handleChangeCurrencyStatus(item) }}
+                switchParams={{ value: item.isHidden !== null && !item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
             />
         )
     }

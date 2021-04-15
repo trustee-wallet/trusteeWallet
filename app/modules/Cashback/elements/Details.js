@@ -1,4 +1,6 @@
-
+/**
+ * @version 0.42
+ */
 import React from 'react'
 import { connect } from 'react-redux'
 import {
@@ -11,25 +13,25 @@ import {
 
 import { Pages } from 'react-native-pages'
 
-import { strings } from '../../../services/i18n'
-import Validator from '../../../services/UI/Validator/Validator'
-import Log from '../../../services/Log/Log'
+import { strings } from '@app/services/i18n'
+import Validator from '@app/services/UI/Validator/Validator'
+import Log from '@app/services/Log/Log'
 
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import CustomIcon from '../../../components/elements/CustomIcon'
-import NavStore from '../../../components/navigation/NavStore'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActions'
-import { setQRConfig } from '../../../appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import CashBackUtils from '../../../appstores/Stores/CashBack/CashBackUtils'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-import Button from '../../../components/elements/new/buttons/Button'
-import TextInput from '../../../components/elements/new/TextInput'
-import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
-import MarketingEvent from '../../../services/Marketing/MarketingEvent'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import TextInput from '@app/components/elements/new/TextInput'
 
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 
 class DetailsContent extends React.Component {
     state = {
@@ -43,10 +45,7 @@ class DetailsContent extends React.Component {
     componentDidMount() {
         this.setState(() => ({ inviteLink: this.props.inviteLink, inviteLinkError: false }), () => {
             if (this.props.inviteLink) {
-                console.log('CashBackScreen.Details init handleSubmitInviteLink')
                 this.handleSubmitInviteLink()
-            } else {
-                console.log('CashBackScreen.Details init no handleSubmitInviteLink')
             }
         })
     }
@@ -54,7 +53,6 @@ class DetailsContent extends React.Component {
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.inviteLink) {
             this.setState(() => ({ inviteLink: nextProps.inviteLink, inviteLinkError: false }), () => {
-                console.log('CashBackScreen.Details props handleSubmitInviteLink')
                 this.handleSubmitInviteLink()
             })
         }
@@ -75,7 +73,6 @@ class DetailsContent extends React.Component {
     handleSubmitInviteLink = async () => {
         const { inviteLink } = this.state
         if (!inviteLink) {
-            console.log('CashBackScreen.Details handleSubmitInviteLink no invite link')
             return
         }
 
@@ -240,7 +237,7 @@ class DetailsContent extends React.Component {
         let balanceAfterDecimal = '?'
 
         if (typeof balance === 'number') {
-            let tmp = balance.toString().split('.')
+            const tmp = balance.toString().split('.')
             balanceBeforeDecimal = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
             balanceAfterDecimal = ''
             if (typeof tmp[1] !== 'undefined') {
@@ -317,7 +314,7 @@ class DetailsContent extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        cashbackStore: state.cashBackStore
+        cashbackStore: getCashBackData(state)
     }
 }
 

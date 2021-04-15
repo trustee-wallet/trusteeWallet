@@ -2,39 +2,39 @@
  * @version 0.9
  */
 
-import store from '../../../store'
+import store from '@app/store'
 
-import currencyDS from '../../DataSource/Currency/Currency'
-import appTaskDS from '../../DataSource/AppTask/AppTask'
-import accountDS from '../../DataSource/Account/Account'
-import accountBalanceDS from '../../DataSource/AccountBalance/AccountBalance'
-import walletDS from '../../DataSource/Wallet/Wallet'
+import currencyDS from '@app/appstores/DataSource/Currency/Currency'
+import accountDS from '@app/appstores/DataSource/Account/Account'
+import accountBalanceDS from '@app/appstores/DataSource/AccountBalance/AccountBalance'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
 import { setLoaderStatus } from '../Main/MainStoreActions'
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
-import BlocksoftPrettyLocalize from '../../../../crypto/common/BlocksoftPrettyLocalize'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftPrettyLocalize from '@crypto/common/BlocksoftPrettyLocalize'
 
 import countries from '../../../assets/jsons/other/country-by-currency-code'
 import settingsActions from '../Settings/SettingsActions'
-import ApiRates from '../../../services/Api/ApiRates'
-import UpdateCurrencyRateDaemon from '../../../daemons/back/UpdateCurrencyRateDaemon'
-import UpdateAccountBalanceAndTransactions from '../../../daemons/back/UpdateAccountBalanceAndTransactions'
+import ApiRates from '@app/services/Api/ApiRates'
+import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 const { dispatch } = store
 
 const BASIC_CURRENCIES_DICTS = {}
 
 const currencyActions = {
 
-    init: async function() {
+    init: async function () {
         await currencyActions.reloadDict()
         await currencyActions.setCryptoCurrencies()
         const currencyCode = await settingsActions.getSetting('local_currency')
         currencyActions.setSelectedBasicCurrencyCode(currencyCode)
     },
 
-    reloadDict: async function() {
+    reloadDict: async function () {
         const basicCurrencies = await ApiRates.getBasicCurrencies()
         const basicCountries = {}
         let tmp
@@ -50,7 +50,7 @@ const currencyActions = {
         }
     },
 
-    setSelectedBasicCurrencyCode: function(currencyCode) {
+    setSelectedBasicCurrencyCode: function (currencyCode) {
         if (typeof BASIC_CURRENCIES_DICTS[currencyCode] === 'undefined') {
             currencyCode = 'USD'
         }
@@ -61,11 +61,18 @@ const currencyActions = {
         })
     },
 
-    getBasicCurrencies: function() {
+    getBasicCurrencies: function () {
         return BASIC_CURRENCIES_DICTS
     },
 
-    setCryptoCurrencies: async function() {
+    updateCryptoCurrencies: async function (data) {
+        dispatch({
+            type: 'UPDATE_CRYPTO_CURRENCIES',
+            cryptoCurrencies: data
+        })
+    },
+
+    setCryptoCurrencies: async function () {
         const prepare = []
 
         const currencies = await currencyDS.getCurrencies()
@@ -164,9 +171,6 @@ const currencyActions = {
                 errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
             }
 
-
-            await appTaskDS.clearTasksByCurrencyAdd({ currencyCode: currencyToAdd.currencyCode })
-
             const currencyInsertObjs = {
                 currencyCode: currencyToAdd.currencyCode,
                 currencyRateScanTime: 0,
@@ -176,8 +180,8 @@ const currencyActions = {
             await currencyDS.insertCurrency({ insertObjs: [currencyInsertObjs] })
 
             await currencyActions.setCryptoCurrencies()
-            await UpdateCurrencyRateDaemon.updateCurrencyRate({source: 'ACT/Currency addCurrency'})
-            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({force : true, currencyCode : currencyToAdd.currencyCode})
+            await UpdateCurrencyRateDaemon.updateCurrencyRate({ source: 'ACT/Currency addCurrency' })
+            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true, currencyCode: currencyToAdd.currencyCode })
 
             Log.log('ACT/Currency addCurrency finished')
         } catch (e) {
@@ -198,28 +202,38 @@ const currencyActions = {
     /**
      *
      * @param {string} params.currencyCode
-     * @param {integer} params.isHidden
+     * @param {integer} params.newIsHidden
+     * @param {integer} params.currentIsHidden
      * @returns {Promise<void>}
      */
     toggleCurrencyVisibility: async (params) => {
 
         setLoaderStatus(true)
 
-        Log.log('ACT/Currency toggleCurrencyVisibility called')
+        Log.log('ACT/Currency toggleCurrencyVisibility called ', params)
 
         try {
+
+            // binary from int - for support of old stored values
+            const selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
+            const currentIsHidden = Number(params.currentIsHidden || 0).toString(2).split('').reverse() // split to binary
+            for (let i = 0; i <= MarketingEvent.DATA.LOG_WALLETS_COUNT; i++) {
+                if (typeof currentIsHidden[i] === 'undefined') {
+                    currentIsHidden[i] = 0
+                }
+            }
+            currentIsHidden[selectedWalletNumber] = params.newIsHidden
+            const isHidden = parseInt(currentIsHidden.reverse().join(''), 2)
+            Log.log('ACT/Currency toggleCurrencyVisibility selectedWalletNumber ' + selectedWalletNumber + ' isHidden ' + isHidden, JSON.stringify(currentIsHidden))
             await currencyDS.updateCurrency({
                 key: {
                     currencyCode: params.currencyCode
                 },
                 updateObj: {
-                    isHidden: params.isHidden ? 0 : 1
+                    isHidden
                 }
             })
-
-            await appTaskDS.clearTasksByCurrencyAdd({ currencyCode: params.currencyCode })
-
-            await currencyActions.setCryptoCurrencies()
+            await currencyActions.updateCryptoCurrencies([{ currencyCode: params.currencyCode, isHidden }])
 
         } catch (e) {
             Log.err('ACT/Currency toggleCurrencyVisibility error ' + e.message)

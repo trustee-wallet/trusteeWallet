@@ -1,7 +1,7 @@
 /**
- * @version 0.9
+ * @version 0.42
  */
-import store from '../../../store'
+import store from '@app/store'
 
 const { dispatch } = store
 
