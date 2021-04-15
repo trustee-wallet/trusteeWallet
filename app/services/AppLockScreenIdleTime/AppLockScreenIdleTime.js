@@ -95,7 +95,7 @@ class AppLockScreenIdleTime {
             this._activeTime = new Date().getTime()
             clearFunction()
 
-            const routeName = NavStore.getCurrentRoute(this)
+            const routeName = NavStore.getCurrentRoute()
 
             const diff = this._backgroundTime > 0 ? ( new Date().getTime() - this._backgroundTime ) : 0
             if (diff >= TIME_DIFF) {

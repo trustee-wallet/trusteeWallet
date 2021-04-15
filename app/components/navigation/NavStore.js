@@ -5,7 +5,7 @@
  */
 import config from '@app/config/config'
 
-import { navigate, reset, goBack } from '@app/components/navigation/NavRoot'
+import { navigate, reset, goBack, getCurrent } from '@app/components/navigation/NavRoot'
 
 class ObservableNavStore {
 
@@ -32,11 +32,13 @@ class ObservableNavStore {
         }
     }
 
-    getCurrentRoute = (screen) => {
+    getCurrentRoute = () => {
+
         try {
-            if (typeof screen.props.route !== 'undefined' && typeof screen.props.route.name !== 'undefined') {
-                return screen.props.route.name
-            }
+            // console.log('JSON ' + JSON.stringify(getCurrent()))
+       //     if (typeof screen.props.route !== 'undefined' && typeof screen.props.route.name !== 'undefined') {
+        //        return screen.props.route.name
+         //   }
             return ''
         } catch (e) {
             if (config.debug.appErrors) {

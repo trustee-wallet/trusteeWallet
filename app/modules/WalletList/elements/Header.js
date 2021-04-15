@@ -82,7 +82,7 @@ class WalletInfo extends React.Component {
 
     handleScanQr = () => checkQRPermission(this.qrPermissionCallback)
 
-    handleOpenSettings = () => NavStore.goNext('SettingsScreen')
+    handleOpenSettings = () => NavStore.goNext('SettingsMainScreen')
 
     handleOpenNotifications = () => NavStore.goNext('NotificationsScreen')
 

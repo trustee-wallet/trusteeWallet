@@ -94,7 +94,7 @@ class LockScreen extends React.PureComponent {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
-            NavStore.reset('SettingsScreen')
+            NavStore.reset('SettingsMainScreen')
         } else if (flowType === 'DELETE_PINCODE') {
             await SettingsKeystore.setLockScreenStatus('0')
             await deleteUserPinCode('reactNativePinCode')
@@ -102,7 +102,7 @@ class LockScreen extends React.PureComponent {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
-            NavStore.reset('SettingsScreen')
+            NavStore.reset('SettingsMainScreen')
         } else if (flowType === 'CHANGE_TOUCHID_STATUS') {
             const touchIDStatus = await SettingsKeystore.getTouchIDStatus()
             await SettingsKeystore.setTouchIDStatus(touchIDStatus === '0' ? '1' : '0')
@@ -110,7 +110,7 @@ class LockScreen extends React.PureComponent {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
-            NavStore.reset('SettingsScreen')
+            NavStore.reset('SettingsMainScreen')
         } else if (flowType === 'CHANGE_ASKING_STATUS') {
             const askPinCodeWhenSending = await SettingsKeystore.getAskPinCodeWhenSending()
             await SettingsKeystore.setAskPinCodeWhenSending(askPinCodeWhenSending === '0' ? '1' : '0')
@@ -118,7 +118,7 @@ class LockScreen extends React.PureComponent {
             lockScreenAction.setFlowType({
                 flowType: ''
             })
-            NavStore.reset('SettingsScreen')
+            NavStore.reset('SettingsMainScreen')
         } else if (flowType === 'CHANGE_PASSWORD_FIRST_STEP') {
             this.setState({
                 passwordState: 'choose'
