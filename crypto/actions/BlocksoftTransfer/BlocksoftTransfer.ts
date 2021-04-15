@@ -51,7 +51,7 @@ export namespace BlocksoftTransfer {
                 throw new Error('server.not.responding.all.balance.' + data.currencyCode + ' ' + e.message)
             } else {
                 if (config.debug.appErrors) {
-                    console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance ` + e.message)
+                    console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance error ` + e.message)
                 }
                 throw e
             }
