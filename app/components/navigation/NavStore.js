@@ -64,10 +64,17 @@ class ObservableNavStore {
     }
 
     getParamWrapper = (screen, data, def = false) => {
-        if (typeof screen.props.route.params[data] === 'undefined') {
+        try {
+            if (typeof screen.props.route === 'undefined' || typeof screen.props.route.params === 'undefined' || !screen.props.route.params || typeof screen.props.route.params[data] === 'undefined') {
+                return def
+            }
+            return screen.props.route.params[data]
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('NavStore.getParamWrapper error ' + e.message)
+            }
             return def
         }
-        return screen.props.route.params[data]
     }
 }
 

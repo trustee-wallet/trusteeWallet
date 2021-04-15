@@ -40,7 +40,7 @@ import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import NavStore from '@app/components/navigation/NavStore'
 
 
-class CashbackScreen extends React.Component {
+class CashbackScreen extends React.PureComponent {
     state = {
         headerHeight: 0,
         selectedContent: null,
@@ -49,19 +49,11 @@ class CashbackScreen extends React.Component {
         refreshing: false
     }
 
-    navigationListener;
-
     componentDidMount() {
-        this.navigationListener = this.props.navigation.addListener('didFocus', () => {
-            const qrCodeData = NavStore.getParamWrapper(this, 'qrData')
-            if (qrCodeData && typeof qrCodeData.qrCashbackLink !== 'undefined' && qrCodeData.qrCashbackLink) {
-                this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
-            }
-        })
-    }
-
-    componentWillUnmount() {
-        if (typeof this.navigationListener === 'function') this.navigationListener()
+        const qrCodeData = NavStore.getParamWrapper(this, 'qrData')
+        if (qrCodeData && typeof qrCodeData.qrCashbackLink !== 'undefined' && qrCodeData.qrCashbackLink) {
+            this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
+        }
     }
 
     setHeaderHeight = (height) => {
@@ -69,7 +61,7 @@ class CashbackScreen extends React.Component {
         this.setState(() => ({ headerHeight }))
     }
 
-    handleBack = () => { this.props.navigation.goBack() }
+    handleBack = () => { NavStore.goBack() }
 
     handleRenderQrError = (e) => {
         if (e.message !== 'No input text') Log.err('CashbackScreen QRCode error ' + e.message)
