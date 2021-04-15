@@ -31,9 +31,10 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
         }
 
         BlocksoftCryptoLog.log('BtcTxInputsOutputs needFindSegwit ' + JSON.stringify(needFindSegwit))
-        const CACHE_FOR_CHANGE = await BtcUnspentsProvider.getCache(data.walletHash)
-        BlocksoftCryptoLog.log('BtcTxInputsOutputs CACHE_FOR_CHANGE ' + data.walletHash, CACHE_FOR_CHANGE)
         try {
+            const CACHE_FOR_CHANGE = await BtcUnspentsProvider.getCache(data.walletHash, this._settings.currencyCode)
+            BlocksoftCryptoLog.log('BtcTxInputsOutputs CACHE_FOR_CHANGE ' + data.walletHash, CACHE_FOR_CHANGE)
+
             let addressForChange = false
             if (needFindSegwit) {
                 addressForChange = CACHE_FOR_CHANGE[segwitPrefix]
