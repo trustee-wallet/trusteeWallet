@@ -1,30 +1,32 @@
 /**
- * @version 0.30
+ * @version 0.43
  */
 import React from 'react'
 import { ThemeContext } from '../theme/ThemeProvider'
-import { Dimensions, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 
+import Header from '@app/components/elements/new/Header'
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+import NavStore from '@app/components/navigation/NavStore'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+import Log from '@app/services/Log/Log'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import Header from '../../components/elements/new/Header'
-import config from '../../config/config'
-import ListItem from '../../components/elements/new/list/ListItem/Setting'
-import NavStore from '../../components/navigation/NavStore'
-import { AppWalletConnect } from '../../services/Back/AppWalletConnect/AppWalletConnect'
-import Log from '../../services/Log/Log'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import LetterSpacing from '../../components/elements/LetterSpacing'
-import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import EthNetworkPrices from '../../../crypto/blockchains/eth/basic/EthNetworkPrices'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-import { strings } from '../../services/i18n'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import EthNetworkPrices from '@crypto/blockchains/eth/basic/EthNetworkPrices'
+
+
+import config from '@app/config/config'
 
 class WalletConnectScreen extends React.PureComponent {
 
     state = {
+        initData : false,
         headerHeight: 0,
         paranoidLogout : false,
         walletStarted: false,
@@ -42,40 +44,45 @@ class WalletConnectScreen extends React.PureComponent {
     }
 
     componentDidMount() {
-
-        // when usual open (moved from unsafe)
         this.init()
+    }
 
-        // when back by history
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-            this.init()
-        })
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const data = NavStore.getParamWrapper(this,'walletConnect')
+        if (data) {
+            this.setState({
+                initData : data
+            }, () => {
+                this.init()
+            })
+        }
     }
 
     async init() {
         Log.log('WalletConnectScreen.init')
-        const data = NavStore.getParamWrapper(this,'walletConnect')
         try {
-            const clientData = await AppWalletConnect.init(data,
+            const clientData = await AppWalletConnect.init(this.state.initData,
                 this.handleSessionRequest,
                 this.handleSessionEnd,
                 this.handleSendTransaction,
                 this.handleSendSign,
                 this.handleSendSignTyped
             )
-            const stateData = {
-                walletStarted: true,
-                peerStatus: clientData.connected,
-                chainId: clientData.chainId,
-                accounts: clientData.accounts
+            if (clientData) {
+                const stateData = {
+                    walletStarted: true,
+                    peerStatus: clientData.connected,
+                    chainId: clientData.chainId,
+                    accounts: clientData.accounts
+                }
+                if (typeof clientData.peerMeta !== 'undefined' && clientData.peerMeta && clientData.peerMeta !== '') {
+                    stateData.peerMeta = clientData.peerMeta
+                }
+                if (typeof clientData.peerId !== 'undefined' && clientData.peerId && clientData.peerId !== '') {
+                    stateData.peerId = clientData.peerId
+                }
+                this.setState(stateData)
             }
-            if (typeof clientData.peerMeta !== 'undefined' && clientData.peerMeta  && clientData.peerMeta !== '') {
-                stateData.peerMeta = clientData.peerMeta
-            }
-            if (typeof clientData.peerId !== 'undefined' && clientData.peerId && clientData.peerId !== '') {
-                stateData.peerId = clientData.peerId
-            }
-            this.setState(stateData)
         } catch (e) {
             if (config.debug.appErrors) {
                 Log.log('WalletConnect.init error ' + e.message)

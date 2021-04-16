@@ -61,33 +61,45 @@ export namespace AppWalletConnect {
         sendTx: any,
         sendSign: any,
         sendSignTyped: any
-    ): Promise<{ chainId: any, accounts: any, peerId: any, peerMeta: any, connected: any }> {
+    ): Promise<{ chainId: any, accounts: any, peerId: any, peerMeta: any, connected: any } | boolean> {
 
-        if (!data || typeof data === 'undefined' || !data.fullLink || WALLET_CONNECTOR_LINK === data.fullLink) {
-            Log.log('AppWalletConnect.init connected1 ' + JSON.stringify(data))
-            let { chainId, accounts, peerId, peerMeta, connected } = WALLET_CONNECTOR
-            if (!peerId || peerId === '' || !WALLET_CONNECTOR.connected) {
-                Log.log('AppWalletConnect.init connecting1 ')
-                await WALLET_CONNECTOR.createSession()
-                peerId = WALLET_CONNECTOR.peerId
-                peerMeta = WALLET_CONNECTOR.peerMeta
-            }
-            return { chainId, accounts, peerId, peerMeta, connected }
-        }
-        Log.log('AppWalletConnect.init fullLink ' + data.fullLink)
-
-        WALLET_CONNECTOR_LINK = data.fullLink
-        WALLET_CONNECTOR = new WalletConnect(
-            {
-                uri: data.fullLink,
-                clientMeta: {
-                    description: 'Trustee Wallet for Wallet Connect',
-                    url: 'https://trustee.deals',
-                    icons: ['https://walletconnect.org/walletconnect-logo.png'],
-                    name: 'Trustee Wallet'
+        try {
+            if (typeof WALLET_CONNECTOR !== 'undefined' && WALLET_CONNECTOR) {
+                if (!data || typeof data === 'undefined' || !data.fullLink || WALLET_CONNECTOR_LINK === data.fullLink) {
+                    Log.log('AppWalletConnect.init connected1 ' + JSON.stringify(data))
+                    let { chainId, accounts, peerId, peerMeta, connected } = WALLET_CONNECTOR
+                    if (!peerId || peerId === '' || !WALLET_CONNECTOR.connected) {
+                        Log.log('AppWalletConnect.init connecting1 ')
+                        await WALLET_CONNECTOR.createSession()
+                        peerId = WALLET_CONNECTOR.peerId
+                        peerMeta = WALLET_CONNECTOR.peerMeta
+                    }
+                    return { chainId, accounts, peerId, peerMeta, connected }
                 }
             }
-        )
+        } catch (e) {
+            throw new Error(e.message + ' in AppWalletConnect check connected')
+        }
+        Log.log('AppWalletConnect.init fullLink ' + data.fullLink)
+        if (!data || typeof data === 'undefined' || typeof data.fullLink === 'undefined') {
+            return false
+        }
+        WALLET_CONNECTOR_LINK = data.fullLink
+        try {
+            WALLET_CONNECTOR = new WalletConnect(
+                {
+                    uri: data.fullLink,
+                    clientMeta: {
+                        description: 'Trustee Wallet for Wallet Connect',
+                        url: 'https://trustee.deals',
+                        icons: ['https://walletconnect.org/walletconnect-logo.png'],
+                        name: 'Trustee Wallet'
+                    }
+                }
+            )
+        } catch (e) {
+            throw new Error(e.message + ' in AppWalletConnect init connection data.fullLink ' + JSON.stringify(data.fullLink))
+        }
 
         if (!WALLET_CONNECTOR.connected) {
             // create new session

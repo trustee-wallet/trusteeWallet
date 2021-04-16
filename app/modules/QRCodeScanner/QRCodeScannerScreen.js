@@ -28,6 +28,7 @@ import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsU
 
 import Header from '@app/components/elements/new/Header'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
@@ -74,8 +75,7 @@ class QRCodeScannerScreen extends React.PureComponent {
             const res = await decodeTransactionQrCode(param, currencyCode)
 
             if (typeof res.data.isWalletConnect !== 'undefined' && res.data.isWalletConnect) {
-                const { lockScreenStatus } = this.props.settings.keystore
-                if (+lockScreenStatus) {
+                if (this.props.lockScreenStatus * 1 > 0) {
                     lockScreenAction.setFlowType({
                         flowType: 'WALLET_CONNECT'
                     })
@@ -312,11 +312,9 @@ class QRCodeScannerScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        main: state.mainStore,
         cryptoCurrencies: state.currencyStore.cryptoCurrencies,
-        settings: state.settingsStore,
+        lockScreenStatus : getLockScreenStatus(state),
         qrCodeScanner: state.qrCodeScannerStore,
-        accountStore: state.accountStore
     }
 }
 

@@ -5,16 +5,16 @@
  */
 import config from '@app/config/config'
 
-import { navigate, reset, goBack, getCurrent } from '@app/components/navigation/NavRoot'
+import { navigate, reset, goBack } from '@app/components/navigation/NavRoot'
 
 class ObservableNavStore {
 
-    reset = (routeName) => {
+    reset = (routeName, params) => {
         try {
             reset({
                 index: 0,
-                routes: [{ name: routeName }],
-            })
+                routes: [{ name: routeName, params }],
+            }, params)
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NavStore.reset error ' + e.message)
