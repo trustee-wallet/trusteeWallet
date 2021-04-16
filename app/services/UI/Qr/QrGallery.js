@@ -3,7 +3,7 @@
  */
 import { NativeModules } from 'react-native'
 
-import ImagePicker from 'react-native-image-picker'
+import { launchImageLibrary } from 'react-native-image-picker'
 import Log from '../../Log/Log'
 
 let { QRScanReader } = NativeModules
@@ -22,7 +22,7 @@ export function openQrGallery() {
     }
 
     return new Promise((resolve, reject) => {
-        ImagePicker.launchImageLibrary({}, (response) => {
+        launchImageLibrary({}, (response) => {
             if (response.didCancel) {
                 Log.log('QrGallery User cancelled image picker')
                 resolve(false)
