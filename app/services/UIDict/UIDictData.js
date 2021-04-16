@@ -500,6 +500,12 @@ export default {
             darkColor: '#C1AB5D'
         }
     },
+    'CUSTOM_STORJ': {
+        colors: {
+            mainColor: '#2683FF',
+            darkColor: '#3F81D9'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',
