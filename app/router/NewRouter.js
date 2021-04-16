@@ -72,12 +72,13 @@ export default () => {
 
     return <Stack.Navigator initialRouteName='LoadScreen'>
         <Stack.Screen name='LoadScreen' component={LoadScreen} options={{ headerShown: false }} />
+        <Stack.Screen name='InitScreen' component={InitScreen} options={{ headerShown: false}} />
+
         <Stack.Screen name='WalletCreateScreen' component={WalletCreateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='BackupStep0Screen' component={BackupStep0Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-        <Stack.Screen name='InitScreen' component={InitScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='HomeScreen' component={HomeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

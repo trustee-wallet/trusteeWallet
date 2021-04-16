@@ -7,41 +7,6 @@ const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 
 export default {
-    initScreenStyles: {
-        wrapper: {
-            flex: 1,
-            justifyContent: 'center',
-            paddingLeft: 30,
-            paddingRight: 30
-        },
-        title: {
-            textAlign: 'center',
-            marginBottom: 10,
-            fontSize: 34,
-            fontFamily: 'SFUIDisplay-Semibold',
-            color: '#404040'
-        },
-        image: {
-            alignSelf: 'center',
-            width: 148,
-            height: 180,
-            marginBottom: 147
-        },
-        image__url: {
-            path: require('../../assets/images/logo.png')
-        },
-        button: {
-            marginBottom: 20
-        },
-        appName__text: {
-            position: 'relative',
-            fontSize: 30,
-            fontFamily: 'SFUIDisplay-Bold',
-            color: '#F24B93',
-            textAlign: 'center',
-            zIndex: 2
-        }
-    },
     homeScreenStyles: {
         mainBg: {
             flex: 1

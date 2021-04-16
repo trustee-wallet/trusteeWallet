@@ -3,7 +3,6 @@
  */
 
  const INITIAL_STATE = {
-    init: null,
     selectedWallet: {},
     selectedCryptoCurrency: {},
     selectedBasicCurrency: {},
@@ -19,16 +18,6 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 selectedWallet: action.wallet
-            }
-        case 'SET_INIT_STATE':
-            return {
-                ...state,
-                init: action.init
-            }
-        case 'SET_INIT_ERROR':
-            return {
-                ...state,
-                initError: action.initError
             }
         case 'SET_SELECTED_ACCOUNT':
             return {

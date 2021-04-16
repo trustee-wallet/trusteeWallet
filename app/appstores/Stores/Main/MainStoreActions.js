@@ -300,20 +300,3 @@ export async function setSelectedAccount(setting) {
         throw new Error(e.message + ' account ' + JSON.stringify(account))
     }
 }
-
-
-export function setInitState(data) {
-    Log.log('ACT/MStore setInitState called ' + JSON.stringify(data))
-    return {
-        type: 'SET_INIT_STATE',
-        init: data
-    }
-}
-
-export function setInitError(data) {
-    Log.log('ACT/MStore setInitError called ' + JSON.stringify(data))
-    return {
-        type: 'SET_INIT_ERROR',
-        initError: data
-    }
-}

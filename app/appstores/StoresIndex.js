@@ -4,6 +4,7 @@
 import { combineReducers } from 'redux'
 
 import mainStoreReducer from './Stores/Main/MainStore'
+import initStoreReducer from '@app/appstores/Stores/Init/InitStore'
 import createWalletStoreReducer from './Stores/CreateWallet/CreateWalletStore'
 import walletStoreReducer from './Stores/Wallet/WalletStore'
 import accountStoreReducer from './Stores/Account/AccountStore'
@@ -20,6 +21,7 @@ import sendScreenStoreReducer from './Stores/Send/SendScreenStore'
 
 export default combineReducers({
     mainStore: mainStoreReducer,
+    initStore : initStoreReducer,
     walletStore: walletStoreReducer,
     accountStore: accountStoreReducer,
     currencyStore: currencyStoreReducer,

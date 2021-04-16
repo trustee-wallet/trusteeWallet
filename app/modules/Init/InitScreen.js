@@ -1,86 +1,53 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import { Image, View, Text, Platform, TouchableOpacity, Linking } from 'react-native'
-
-
-
-import {
-    UIActivityIndicator,
-    MaterialIndicator
-} from 'react-native-indicators'
-
-import GradientView from '../../components/elements/GradientView'
-import NavStore from '../../components/navigation/NavStore'
-
-import App from '../../appstores/Actions/App/App'
-
-import Log from '../../services/Log/Log'
-
-import config from '../../config/config'
-
-import Theme from '../../themes/Themes'
+import { Image, View, Text, Platform, TouchableOpacity, Linking, StyleSheet } from 'react-native'
+import {  UIActivityIndicator, MaterialIndicator} from 'react-native-indicators'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
-import { strings } from '../../services/i18n'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import SendLog from '../../services/Log/SendLog'
-import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
 
-let styles
+import GradientView from '@app/components/elements/GradientView'
+import NavStore from '@app/components/navigation/NavStore'
 
+import App from '@app/appstores/Actions/App/App'
+
+import Log from '@app/services/Log/Log'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import SendLog from '@app/services/Log/SendLog'
+
+import config from '@app/config/config'
+
+import { strings } from '@app/services/i18n'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { getInit, getInitError } from '@app/appstores/Stores/Init/selectors'
+import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 
 class InitScreen extends React.PureComponent {
-
-    constructor() {
-        super()
-        this.state = {
-            init: false,
-            initError: false
-        }
-    }
-
-    UNSAFE_componentWillMount() {
-        Log.log('InitScreen is mounted')
-        styles = Theme.getStyles().initScreenStyles
-    }
 
     componentDidMount() {
         try {
             App.init({navigateToInit : false, source : 'InitScreen.mount'})
         } catch (e) {
-            this.setState({
-                initError: e.message
-            })
+            Log.log('InitScreen mount error ' + e.message)
         }
     }
 
-    UNSAFE_componentWillReceiveProps(props) {
-        Log.log('InitScreen is receiving props')
-        // @debug for raw testing
-        // NavStore.reset('WalletCreateScreen')
-        if (props.data.initError) {
-            this.setState({
-                initError: props.data.initError
-            })
-        }
-        if (props.data.init === true) { //this one is making "freezing"//&& this.props.data.init !== props.data.init) {
-            if (+props.settings.keystore.lockScreenStatus) {
-                Log.log('InitScreen navigated to LockScreen')
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.init === true) {
+            if (this.props.lockScreenStatus * 1 > 0) {
                 NavStore.reset('LockScreen')
             } else {
-                Log.log('InitScreen navigated to HomeScreen')
                 NavStore.reset('HomeScreen')
             }
-        } else {
-            Log.log('!!!!!!!!!!!!!!!!InitScreen will be here till DB inited')
         }
     }
 
@@ -95,7 +62,7 @@ class InitScreen extends React.PureComponent {
         setLoaderStatus(true)
 
         try {
-            const shareOptions = await SendLog.getAll(this.state.initError)
+            const shareOptions = await SendLog.getAll(this.props.initError)
             if (shareOptions) {
                 await prettyShare(shareOptions)
             }
@@ -138,7 +105,7 @@ class InitScreen extends React.PureComponent {
                 <View style={{ flex: 1, justifyContent: 'center' }}>
                     <Image
                         style={styles.image}
-                        source={styles.image__url.path}
+                        source={styles_.image__url.path}
                     />
                     <View style={{ marginTop: -70, marginBottom: 60 }}>
                         {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#3E3453'/> :
@@ -164,35 +131,35 @@ class InitScreen extends React.PureComponent {
                             TRUSTEE WALLET
                         </Text>
                         {
-                            this.state.initError ?
+                            this.props.initError ?
                                 <View>
-                                    <View style={stylesOld.block}>
-                                        <View style={stylesOld.block__content}>
+                                    <View style={styles.block}>
+                                        <View style={styles.block__content}>
 
-                                            <TouchableOpacity style={stylesOld.header__description}>
+                                            <TouchableOpacity style={styles.header__description}>
                                                 <Text>
                                                     <Text style={styles.header__title}>
                                                         {strings('settings.error.title')}
                                                     </Text>
                                                 </Text>
                                                 <Text>
-                                                    <Text>{this.state.initError}</Text>
+                                                    <Text>{this.props.initError}</Text>
                                                 </Text>
                                             </TouchableOpacity>
 
-                                            <TouchableOpacity style={stylesOld.block__item}
+                                            <TouchableOpacity style={styles.block__item}
                                                               onPress={this.handleLogs}>
-                                                <FontAwesome name="bug" size={20} style={stylesOld.block__icon}/>
-                                                <Text style={stylesOld.block__text}
+                                                <FontAwesome name="bug" size={20} style={styles.block__icon}/>
+                                                <Text style={styles.block__text}
                                                       numberOfLines={1}>{strings('settings.other.copyLogs')}</Text>
                                             </TouchableOpacity>
 
-                                            <View style={stylesOld.divider}/>
+                                            <View style={styles.divider}/>
 
-                                            <TouchableOpacity style={stylesOld.block__item}
+                                            <TouchableOpacity style={styles.block__item}
                                                               onPress={this.handleSupport}>
-                                                <MaterialIcon name="telegram" size={20} style={stylesOld.block__icon}/>
-                                                <Text style={stylesOld.block__text} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
+                                                <MaterialIcon name="telegram" size={20} style={styles.block__icon}/>
+                                                <Text style={styles.block__text} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
                                             </TouchableOpacity>
 
                                         </View>
@@ -222,8 +189,9 @@ class InitScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        settings: state.settingsStore,
-        data: state.mainStore
+        lockScreenStatus: getLockScreenStatus(state),
+        init : getInit(state),
+        initError : getInitError(state)
     }
 }
 
@@ -232,13 +200,44 @@ export default connect(mapStateToProps, {})(InitScreen)
 const styles_ = {
     array: ['#f2f2f2', '#f2f2f2'],
     start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
+    end: { x: 0, y: 1 },
+    image__url: {
+        path: require('../../assets/images/logo.png')
+    }
 }
 
-const stylesOld = {
+const styles = StyleSheet.create({
     wrapper: {
-        flex: 1
+        flex: 1,
+        justifyContent: 'center',
+        paddingLeft: 30,
+        paddingRight: 30
     },
+    title: {
+        textAlign: 'center',
+        marginBottom: 10,
+        fontSize: 34,
+        fontFamily: 'SFUIDisplay-Semibold',
+        color: '#404040'
+    },
+    image: {
+        alignSelf: 'center',
+        width: 148,
+        height: 180,
+        marginBottom: 147
+    },
+    button: {
+        marginBottom: 20
+    },
+    appName__text: {
+        position: 'relative',
+        fontSize: 30,
+        fontFamily: 'SFUIDisplay-Bold',
+        color: '#F24B93',
+        textAlign: 'center',
+        zIndex: 2
+    },
+
     wrapper__top: {
         height: 115,
         marginBottom: 35
@@ -292,4 +291,4 @@ const stylesOld = {
     header__description: {
         alignItems: 'center'
     },
-}
+})

@@ -12,7 +12,8 @@ import walletDS from '../../DataSource/Wallet/Wallet'
 
 import NavStore from '../../../components/navigation/NavStore'
 
-import { setInitState, setInitError, setSelectedWallet } from '../../Stores/Main/MainStoreActions'
+import { setSelectedWallet } from '../../Stores/Main/MainStoreActions'
+import { setInitState, setInitError } from '../../Stores/Init/InitStoreActions'
 import walletActions from '../../Stores/Wallet/WalletActions'
 import currencyActions from '../../Stores/Currency/CurrencyActions'
 import settingsActions from '../../Stores/Settings/SettingsActions'
@@ -61,7 +62,7 @@ class App {
             const { init } = getState().mainStore
 
             if (init === true) {
-                dispatch(setInitState(true))
+                setInitState(true)
                 return
             }
 
@@ -123,7 +124,7 @@ class App {
                 UpdateAppNewsDaemon.goToNotifications('INITED_APP')
             }
 
-            dispatch(setInitState(true))
+            setInitState(true)
 
             this.initStatus = 'dispatch(setInitState(true))'
 
@@ -149,7 +150,7 @@ class App {
             }
             Log.err('ACT/App init application error ' + this.initStatus + ' ' + e.message)
             this.initError = e.message
-            dispatch(setInitError(e.message))
+            setInitError(e.message)
             NavStore.goNext('ErrorScreen', { error: e.message })
         }
         try {
