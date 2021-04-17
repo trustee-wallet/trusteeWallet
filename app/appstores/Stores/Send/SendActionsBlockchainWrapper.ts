@@ -109,6 +109,7 @@ export namespace SendActionsBlockchainWrapper {
             if (typeof uiData === 'undefined' || typeof uiData.addressTo === 'undefined') {
                 uiData = store.getState().sendScreenStore.ui
             }
+
             const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
             newCountedFeesData.addressTo = uiData.addressTo
             newCountedFeesData.amount = uiData.cryptoValue
@@ -117,7 +118,7 @@ export namespace SendActionsBlockchainWrapper {
             if (newCountedFeesData.isTransferAll) {
                 newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
             }
-            if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
+            if (!store.getState().sendScreenStore.fromBlockchain.neverCounted && JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return
             }
             if (config.debug.sendLogs) {
@@ -138,7 +139,8 @@ export namespace SendActionsBlockchainWrapper {
                 type: 'RESET_DATA_BLOCKCHAIN',
                 fromBlockchain: {
                     countedFees,
-                    selectedFee
+                    selectedFee,
+                    neverCounted : false
                 }
             })
 
@@ -175,7 +177,7 @@ export namespace SendActionsBlockchainWrapper {
                     address: newCountedFeesData.addressFrom
                 })
             }
-            if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
+            if (!store.getState().sendScreenStore.fromBlockchain.neverCounted && JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return CACHE_DATA.transferAllBalance
             }
             const countedFees = await BlocksoftTransfer.getTransferAllBalance(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
@@ -195,7 +197,8 @@ export namespace SendActionsBlockchainWrapper {
                 fromBlockchain: {
                     countedFees,
                     selectedFee,
-                    transferAllBalance
+                    transferAllBalance,
+                    neverCounted : false
                 }
             })
             return typeof transferAllBalance !== 'undefined' && transferAllBalance ? transferAllBalance : 0
