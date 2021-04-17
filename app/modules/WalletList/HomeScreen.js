@@ -50,6 +50,7 @@ import UpdateAppNewsListDaemon from '@app/daemons/view/UpdateAppNewsListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import AppLockBlur from '@app/components/AppLockBlur'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import { getIsBlurVisible } from '@app/appstores/Stores/Main/selectors'
 
 
 let CACHE_SET_WALLET_HASH = false
@@ -301,7 +302,7 @@ class HomeScreen extends React.PureComponent {
     };
 
     render() {
-        if (this.props.mainStore.blurVisibility) {
+        if (this.props.isBlurVisible) {
             return  <AppLockBlur/>
         }
         const { colors } = this.context
@@ -383,6 +384,7 @@ class HomeScreen extends React.PureComponent {
 const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
+        isBlurVisible: getIsBlurVisible(state),
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore)
     }

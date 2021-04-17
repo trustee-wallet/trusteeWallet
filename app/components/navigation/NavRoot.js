@@ -16,7 +16,3 @@ export function reset(name, params) {
 export function goBack() {
     navigationRef.current?.goBack()
 }
-
-export function goCurrent() {
-    navigationRef.current
-}

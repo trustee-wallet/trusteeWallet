@@ -43,9 +43,9 @@ class LoadScreen extends React.PureComponent {
         if (this.props.init === true) {
             clearTimeout(this.statusTimeout)
             if (this.props.lockScreenStatus * 1 > 0) {
-                NavStore.reset('LockScreen')
+                NavStore.reset('LockScreenPop')
             } else {
-                NavStore.reset('HomeScreen')
+                NavStore.reset('HomeScreenPop')
             }
         }
     }

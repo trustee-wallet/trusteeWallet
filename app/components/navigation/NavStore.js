@@ -32,21 +32,6 @@ class ObservableNavStore {
         }
     }
 
-    getCurrentRoute = () => {
-
-        try {
-            // console.log('JSON ' + JSON.stringify(getCurrent()))
-       //     if (typeof screen.props.route !== 'undefined' && typeof screen.props.route.name !== 'undefined') {
-        //        return screen.props.route.name
-         //   }
-            return ''
-        } catch (e) {
-            if (config.debug.appErrors) {
-                console.log('NavStore.getCurrentRoute error ' + e.message)
-            }
-        }
-    }
-
     goNext = (routeName, params = null, reset = false) => {
         if (reset) {
             console.log('navstore reset is depressed')

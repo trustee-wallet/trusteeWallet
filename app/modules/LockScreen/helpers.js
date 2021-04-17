@@ -12,12 +12,13 @@ import NavStore from '@app/components/navigation/NavStore'
 import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setBlurStatus, setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 export const finishProcess = async (lockScreen) => {
     const { flowType, actionCallback, backData } = lockScreen
     MarketingEvent.UI_DATA.IS_LOCKED = false
 
+    setBlurStatus(false)
     UpdateOneByOneDaemon.unstop()
     UpdateAccountListDaemon.unstop()
     UpdateAppNewsListDaemon.unstop()

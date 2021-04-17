@@ -42,7 +42,7 @@ export namespace AppNewsActions {
                         }
                     }
                 })
-                NavStore.reset('LockScreen')
+                NavStore.reset('LockScreenPop')
                 return false
             }
 

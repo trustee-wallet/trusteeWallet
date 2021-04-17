@@ -62,6 +62,7 @@ import Netinfo from '@app/services/Netinfo/Netinfo'
 
 import { diffTimeScan } from './helpers'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import { getIsBlurVisible } from '@app/appstores/Stores/Main/selectors'
 
 let CACHE_ASKED = false
 
@@ -412,8 +413,7 @@ class Account extends React.PureComponent {
     }
 
     render() {
-        const blurVisibility = this.props.blurVisibility
-        if (blurVisibility) {
+        if (this.props.isBlurVisible) {
             return  <AppLockBlur/>
         }
 
@@ -572,7 +572,7 @@ const mapStateToProps = (state) => {
         account: state.mainStore.selectedAccount,
         settingsStore: state.settingsStore,
         cashBackStore: state.cashBackStore,
-        blurVisibility: state.mainStore.blurVisibility
+        isBlurVisible: getIsBlurVisible(state)
     }
 }
 

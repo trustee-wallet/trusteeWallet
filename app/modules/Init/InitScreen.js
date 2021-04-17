@@ -43,12 +43,11 @@ class InitScreen extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('this.props.init ' + JSON.stringify(this.props.init))
         if (this.props.init === true) {
             if (this.props.lockScreenStatus * 1 > 0) {
-                NavStore.reset('LockScreen')
+                NavStore.reset('LockScreenPop')
             } else {
-                NavStore.reset('HomeScreen')
+                NavStore.reset('HomeScreenPop')
             }
         }
     }
@@ -102,9 +101,9 @@ class InitScreen extends React.PureComponent {
     render() {
         if (this.props.init === true) {
             if (this.props.lockScreenStatus * 1 > 0) {
-                NavStore.reset('LockScreen')
+                NavStore.reset('LockScreenPop')
             } else {
-                NavStore.reset('HomeScreen')
+                NavStore.reset('HomeScreenPop')
             }
         }
         MarketingAnalytics.setCurrentScreen('InitScreen.index')

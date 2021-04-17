@@ -74,7 +74,13 @@ export default () => {
 
     return <Stack.Navigator initialRouteName='LoadScreen'>
         <Stack.Screen name='LoadScreen' component={LoadScreen} options={{ headerShown: false }} />
-        <Stack.Screen name='InitScreen' component={InitScreen} options={{ headerShown: false}} />
+        <Stack.Screen name='InitScreen' component={InitScreen} options={{ headerShown: false }} />
+
+        <Stack.Screen name='LockScreen' component={LockScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='LockScreenPop' component={LockScreen} options={{ headerShown: false }} />
+
+        <Stack.Screen name='HomeScreen' component={HomeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='HomeScreenPop' component={HomeScreen} options={{ headerShown: false }} />
 
         <Stack.Screen name='WalletCreateScreen' component={WalletCreateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='BackupStep0Screen' component={BackupStep0Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -82,9 +88,8 @@ export default () => {
         <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-        <Stack.Screen name='HomeScreen' component={HomeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-        <Stack.Screen name='LockScreen' component={LockScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
         <Stack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
