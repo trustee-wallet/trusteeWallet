@@ -156,6 +156,18 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
             throw new Error('XLM transaction required addressTo')
         }
 
+        if (typeof uiData.selectedFee === 'undefined' || typeof uiData.selectedFee.blockchainData === 'undefined') {
+            const getFee = await this._provider.getFee()
+
+            if (!getFee) {
+                throw new Error('SERVER_RESPONSE_BAD_INTERNET')
+            }
+            if (typeof uiData.selectedFee === 'undefined') {
+                // @ts-ignore
+                uiData.selectedFee = {}
+            }
+            uiData.selectedFee.blockchainData = getFee
+        }
 
         let transaction = false
         try {
