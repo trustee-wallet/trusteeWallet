@@ -28,6 +28,7 @@ import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import config from '@app/config/config'
+import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 let CACHE_IS_COUNTING = false
 
@@ -208,7 +209,7 @@ SendScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        isBalanceVisible: state.settingsStore.data.isBalanceVisible,
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore),
         sendScreenStore: getSendScreenData(state)
     }
 }

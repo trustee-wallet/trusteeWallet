@@ -255,6 +255,7 @@ class Input extends Component {
                                 multiline={isTextarea}
                                 autoCorrect={false}
                                 spellCheck={false}
+                                label={''}
                                 onBlur={() => {
                                     this.setState({ focus: false })
                                 }}
