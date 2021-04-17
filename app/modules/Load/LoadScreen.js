@@ -1,22 +1,21 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
-
-import { Animated, Image, Platform, Text, View } from 'react-native'
-
+import React from 'react'
+import { Image, Platform, StyleSheet, Text, View } from 'react-native'
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
+
+import App from '@app/appstores/Actions/App/App'
 
 import { connect } from 'react-redux'
 
-import config from '../../config/config'
+import config from '@app/config/config'
 
-import Log from '../../services/Log/Log'
-
-import App from '../../appstores/Actions/App/App'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
+import { getInit, getInitError } from '@app/appstores/Stores/Init/selectors'
 
 
 class LoadScreen extends React.PureComponent {
@@ -24,7 +23,6 @@ class LoadScreen extends React.PureComponent {
     constructor() {
         super()
         this.state = {
-            progress: new Animated.Value(0),
             status: ''
         }
     }
@@ -40,28 +38,14 @@ class LoadScreen extends React.PureComponent {
         }
     }
 
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillMount() {
-        try {
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.init === true) {
             clearTimeout(this.statusTimeout)
-        } catch (e) {
-        }
-    }
-
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillReceiveProps(props) {
-        Log.log('LoadScreen is receiving props')
-
-        if (props.data.init === true) {
-            if (+props.settings.keystore.lockScreenStatus) {
-                Log.log('InitScreen navigated to LockScreen')
+            if (this.props.lockScreenStatus * 1 > 0) {
                 NavStore.reset('LockScreen')
             } else {
-                Log.log('InitScreen navigated to HomeScreen')
                 NavStore.reset('HomeScreen')
             }
-        } else {
-            Log.log('!!!!!!!!!!!!!!!!InitScreen will be here till DB inited')
         }
     }
 
@@ -123,14 +107,16 @@ class LoadScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        settings: state.settingsStore,
-        data: state.mainStore
+        lockScreenStatus: getLockScreenStatus(state),
+        init : getInit(state),
+        initError : getInitError(state)
     }
 }
 
 export default connect(mapStateToProps, {})(LoadScreen)
 
-const styles = {
+
+const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         justifyContent: 'center',
@@ -151,9 +137,6 @@ const styles = {
         height: 180,
         marginBottom: 147
     },
-    image__url: {
-        path: require('../../assets/images/logo.png')
-    },
     button: {
         marginBottom: 20
     },
@@ -165,4 +148,4 @@ const styles = {
         textAlign: 'center',
         zIndex: 2
     }
-}
+})

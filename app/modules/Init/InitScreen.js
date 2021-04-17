@@ -99,13 +99,12 @@ class InitScreen extends React.PureComponent {
 
     render() {
         MarketingAnalytics.setCurrentScreen('InitScreen.index')
-
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
                 <View style={{ flex: 1, justifyContent: 'center' }}>
                     <Image
                         style={styles.image}
-                        source={styles_.image__url.path}
+                        source={require('../../assets/images/logo.png')}
                     />
                     <View style={{ marginTop: -70, marginBottom: 60 }}>
                         {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#3E3453'/> :
@@ -200,10 +199,7 @@ export default connect(mapStateToProps, {})(InitScreen)
 const styles_ = {
     array: ['#f2f2f2', '#f2f2f2'],
     start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 },
-    image__url: {
-        path: require('../../assets/images/logo.png')
-    }
+    end: { x: 0, y: 1 }
 }
 
 const styles = StyleSheet.create({
