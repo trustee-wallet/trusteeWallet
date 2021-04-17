@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
 import React from 'react'
 import {
@@ -16,28 +16,28 @@ import {
     Linking,
 } from 'react-native'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { strings, sublocale } from '../../services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import Toast from '../../services/UI/Toast/Toast'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import SendLog from '../../services/Log/SendLog'
-import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
-import Log from '../../services/Log/Log'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
+import Toast from '@app/services/UI/Toast/Toast'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import SendLog from '@app/services/Log/SendLog'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import Log from '@app/services/Log/Log'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
-import config from '../../config/config'
+import config from '@app/config/config'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import RoundButton from '../../components/elements/new/buttons/RoundButton'
-import ListItem from '../../components/elements/new/list/ListItem/Setting'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import Header from '@app/components/elements/new/Header'
+import RoundButton from '@app/components/elements/new/buttons/RoundButton'
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 
@@ -65,10 +65,6 @@ class AboutScreen extends React.PureComponent {
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0);
         this.setState(() => ({ headerHeight }))
-    }
-
-    handleModal = (route) => {
-        NavStore.goNext(route)
     }
 
     _onLongPressButton = () => {
