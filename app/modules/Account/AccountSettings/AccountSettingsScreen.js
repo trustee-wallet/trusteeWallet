@@ -1,44 +1,27 @@
 /**
- * @version 0.30
+ * @version 0.43
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 
-import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View, SafeAreaView } from 'react-native'
+import { ScrollView, View, SafeAreaView, StyleSheet } from 'react-native'
 
-
-
-
-import NavStore from '../../../components/navigation/NavStore'
-
-import AsyncStorage from '@react-native-community/async-storage'
-
-import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
-import lockScreenAction from '../../../appstores/Stores/LockScreen/LockScreenActions'
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-import CashBackSettings from '../../../appstores/Stores/CashBack/CashBackSettings'
-
-import UIDict from '../../../services/UIDict/UIDict'
+import NavStore from '@app/components/navigation/NavStore'
 
 import SettingsBTC from './elements/SettingsBTC'
 import SettingsUSDT from './elements/SettingsUSDT'
+import SettingsXVG from './elements/SettingsXVG'
 import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
 import SettingsTRX from './elements/SettingsTRX'
 import SettingsBNB from './elements/SettingsBNB'
 
-import config from '../../../config/config'
+import { strings } from '@app/services/i18n'
 
-import { strings } from '../../../services/i18n'
-import Toast from '../../../services/UI/Toast/Toast'
-import MarketingEvent from '../../../services/Marketing/MarketingEvent'
-import AppNotificationListener from '../../../services/AppNotification/AppNotificationListener'
-
-import { ThemeContext } from '../../theme/ThemeProvider'
-import Header from '../../../components/elements/new/Header'
-import ListItem from '../../../components/elements/new/list/ListItem/Setting'
-import MarketingAnalytics from '../../../services/Marketing/MarketingAnalytics'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import Header from '@app/components/elements/new/Header'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 class AccountSettingScreen extends React.PureComponent {
     constructor() {
@@ -65,44 +48,43 @@ class AccountSettingScreen extends React.PureComponent {
     }
 
     render() {
-        const { colors, GRID_SIZE } = this.context
+        const { colors } = this.context
 
-        const { mainStore, cryptoCurrency, account } = this.props
+        const { selectedWallet, cryptoCurrency, account } = this.props
 
         MarketingAnalytics.setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
 
-        const {
-            headerHeight,
-        } = this.state
+        const { headerHeight } = this.state
 
         let settingsComponent = null
         if (account.currencyCode === 'BTC') {
             settingsComponent =
                 <SettingsBTC containerStyle={{ overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} />
+                    wallet={selectedWallet} />
         } else if (account.currencyCode === 'USDT') {
             settingsComponent =
                 <SettingsUSDT containerStyle={{ overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
+                    wallet={selectedWallet} account={account} />
+        } else if (account.currencyCode === 'XVG') {
+            settingsComponent =
+                <SettingsXVG containerStyle={{ overflow: 'hidden' }}
+                              wallet={selectedWallet} account={account} />
         } else if (account.currencyCode === 'ETH') {
             settingsComponent =
                 <SettingsETH containerStyle={{ overflow: 'hidden' }} />
         } else if (account.currencyCode === 'XMR') {
             settingsComponent =
                 <SettingsXMR containerStyle={{ overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
+                    wallet={selectedWallet} account={account} />
         } else if (account.currencyCode === 'TRX') {
             settingsComponent =
                 <SettingsTRX containerStyle={{ overflow: 'hidden' }}
-                    wallet={mainStore.selectedWallet} account={account} />
+                    wallet={selectedWallet} account={account} />
         } else if (account.currencyCode === 'BNB') {
             settingsComponent =
                 <SettingsBNB containerStyle={{ overflow: 'hidden' }}
-                             wallet={mainStore.selectedWallet} account={account} />
+                             wallet={selectedWallet} account={account} />
         }
-        const dict = new UIDict(cryptoCurrency.currencyCode)
-        const color = dict.settings.colors.mainColor
-
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
                 <Header
@@ -135,23 +117,17 @@ class AccountSettingScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
+        selectedWallet: state.mainStore.selectedWallet,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
 AccountSettingScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(AccountSettingScreen)
+export default connect(mapStateToProps, {})(AccountSettingScreen)
 
-const styles = {
+const styles = StyleSheet.create({
     container: {
         flex: 1
     },
@@ -168,4 +144,4 @@ const styles = {
         letterSpacing: 1.5,
         textTransform: 'uppercase',
     },
-}
+})

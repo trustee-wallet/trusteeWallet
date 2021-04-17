@@ -29,7 +29,7 @@ class AccountScanning {
             limit = 20
         }
         if (typeof params.currencyCode !== 'undefined' && params.currencyCode) {
-            where.push(`account.currency_code='${params.currencyCode}'`)
+            where.push(`account.currency_code IN ('${params.currencyCode}')`)
             where.push(`account.is_main=1`)
             limit = 10
             if (params.currencyCode === 'BTC') {
@@ -170,7 +170,7 @@ class AccountScanning {
             where.push(`account.wallet_hash='${params.walletHash}'`)
         }
         if (params.currencyCode) {
-            where.push(`account.currency_code='${params.currencyCode}'`)
+            where.push(`account.currency_code IN ('${params.currencyCode}')`)
         }
         if (typeof params.onlyLegacy !== 'undefined') {
             where.push(`account.address LIKE '1%'`)
@@ -192,7 +192,6 @@ class AccountScanning {
             FROM account
             ${where}
         `
-
 
         const indexedRes = {}
         try {

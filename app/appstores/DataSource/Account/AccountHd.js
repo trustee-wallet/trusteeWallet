@@ -12,6 +12,7 @@ export default {
      * @param params.newAddress
      * @param params.oldAddress
      * @param params.currencyCode
+     * @param params.basicCurrencyCode
      * @param params.walletHash
      * @returns {Promise<void>}
      */
@@ -33,7 +34,7 @@ export default {
 
             Log.daemon('DS/AccountHD setMainAddress updated', params)
         } else {
-            res = await Database.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code='BTC'`).query()
+            res = await Database.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code IN ('${params.basicCurrencyCode}')`).query()
             Log.daemon('res2', JSON.parse(JSON.stringify(res)))
             if (res.array && res.array.length > 0) {
                 res = res.array[0]

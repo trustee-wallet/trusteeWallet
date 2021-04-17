@@ -90,7 +90,7 @@ class SettingsUSDT extends Component {
         }, async () => {
             setLoaderStatus(true)
 
-            await accountHdDS.setMainAddress({ newAddress, oldAddress: account.address, currencyCode: 'USDT', walletHash: wallet.walletHash })
+            await accountHdDS.setMainAddress({ newAddress, oldAddress: account.address, currencyCode: 'USDT', basicCurrencyCode : 'BTC', walletHash: wallet.walletHash })
 
             try {
                 await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true, currencyCode: account.currencyCode, source: 'ACCOUNT_SET_MAIN' })
