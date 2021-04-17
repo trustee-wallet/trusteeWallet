@@ -43,6 +43,7 @@ class InitScreen extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log('this.props.init ' + JSON.stringify(this.props.init))
         if (this.props.init === true) {
             if (this.props.lockScreenStatus * 1 > 0) {
                 NavStore.reset('LockScreen')
@@ -99,6 +100,13 @@ class InitScreen extends React.PureComponent {
     }
 
     render() {
+        if (this.props.init === true) {
+            if (this.props.lockScreenStatus * 1 > 0) {
+                NavStore.reset('LockScreen')
+            } else {
+                NavStore.reset('HomeScreen')
+            }
+        }
         MarketingAnalytics.setCurrentScreen('InitScreen.index')
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
