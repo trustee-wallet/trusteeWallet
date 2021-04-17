@@ -5,13 +5,15 @@ import React from 'react'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
 
-import LoadScreen from '@app/modules/Load/LoadScreen'
+import LoadScreen from '@app/modules/Init/LoadScreen'
+import InitScreen from '@app/modules/Init/InitScreen'
+
 import WalletCreateScreen from '@app/modules/WalletCreate/WalletCreateScreen'
 import BackupStep0Screen from '@app/modules/WalletBackup/BackupStep0Screen'
 import BackupStep1Screen from '@app/modules/WalletBackup/BackupStep1Screen'
 import BackupSettingsScreen from '@app/modules/WalletBackup/Settings'
 import EnterMnemonicPhrase from '@app/modules/WalletCreate/EnterMnemonicPhrase'
-import InitScreen from '@app/modules/Init/InitScreen'
+
 import ErrorScreen from '@app/modules/Error/ErrorScreen'
 import HomeScreen from '@app/modules/WalletList/HomeScreen'
 import AboutScreen from '@app/modules/About/AboutScreen'

@@ -1,5 +1,6 @@
 /**
  * @version 0.43
+ * second screen while app is loading data
  */
 import React from 'react'
 import { connect } from 'react-redux'
