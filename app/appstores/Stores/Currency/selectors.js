@@ -1,4 +1,3 @@
-
 import { createSelector } from 'reselect'
 import store from '@app/store'
 import Log from '@app/services/Log/Log'

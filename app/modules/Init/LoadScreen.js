@@ -74,19 +74,7 @@ class LoadScreen extends React.PureComponent {
                         <Text style={styles.appName__text} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
-                        <Text style={{
-                            position: 'absolute',
-                            top: 1,
-                            left: 1,
-
-                            width: '100%',
-
-                            fontSize: 30,
-                            fontFamily: 'SFUIDisplay-Bold',
-                            color: '#3E3453',
-                            textAlign: 'center',
-                            zIndex: 1
-                        }} numberOfLines={1}>
+                        <Text style={styles.appName__text2} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
                         {
@@ -148,5 +136,16 @@ const styles = StyleSheet.create({
         color: '#F24B93',
         textAlign: 'center',
         zIndex: 2
+    },
+    appName__text2: {
+        position: 'absolute',
+        top: 1,
+        left: 1,
+        width: '100%',
+        fontSize: 30,
+        fontFamily: 'SFUIDisplay-Bold',
+        color: '#3E3453',
+        textAlign: 'center',
+        zIndex: 1
     }
 })

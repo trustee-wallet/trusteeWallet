@@ -5,7 +5,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Image, View, Text, Platform, TouchableOpacity, Linking, StyleSheet } from 'react-native'
-import {  UIActivityIndicator, MaterialIndicator} from 'react-native-indicators'
+import { UIActivityIndicator, MaterialIndicator } from 'react-native-indicators'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -36,7 +36,7 @@ class InitScreen extends React.PureComponent {
 
     componentDidMount() {
         try {
-            App.init({navigateToInit : false, source : 'InitScreen.mount'})
+            App.init({ navigateToInit: false, source: 'InitScreen.mount' })
         } catch (e) {
             Log.log('InitScreen mount error ' + e.message)
         }
@@ -108,26 +108,14 @@ class InitScreen extends React.PureComponent {
                         source={require('../../assets/images/logo.png')}
                     />
                     <View style={{ marginTop: -70, marginBottom: 60 }}>
-                        {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#3E3453'/> :
-                            <MaterialIndicator size={30} color='#3E3453'/>}
+                        {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#3E3453' /> :
+                            <MaterialIndicator size={30} color='#3E3453' />}
                     </View>
                     <View style={{ position: 'relative' }}>
                         <Text style={styles.appName__text} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
-                        <Text style={{
-                            position: 'absolute',
-                            top: 1,
-                            left: 1,
-
-                            width: '100%',
-
-                            fontSize: 30,
-                            fontFamily: 'SFUIDisplay-Bold',
-                            color: '#3E3453',
-                            textAlign: 'center',
-                            zIndex: 1
-                        }} numberOfLines={1}>
+                        <Text style={styles.appName__text2} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
                         {
@@ -149,16 +137,16 @@ class InitScreen extends React.PureComponent {
 
                                             <TouchableOpacity style={styles.block__item}
                                                               onPress={this.handleLogs}>
-                                                <FontAwesome name="bug" size={20} style={styles.block__icon}/>
+                                                <FontAwesome name='bug' size={20} style={styles.block__icon} />
                                                 <Text style={styles.block__text}
                                                       numberOfLines={1}>{strings('settings.other.copyLogs')}</Text>
                                             </TouchableOpacity>
 
-                                            <View style={styles.divider}/>
+                                            <View style={styles.divider} />
 
                                             <TouchableOpacity style={styles.block__item}
                                                               onPress={this.handleSupport}>
-                                                <MaterialIcon name="telegram" size={20} style={styles.block__icon}/>
+                                                <MaterialIcon name='telegram' size={20} style={styles.block__icon} />
                                                 <Text style={styles.block__text} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
                                             </TouchableOpacity>
 
@@ -171,14 +159,7 @@ class InitScreen extends React.PureComponent {
                     </View>
                 </View>
                 <View style={{ marginTop: 'auto' }}>
-                    <Text style={{
-                        marginBottom: 10,
-                        opacity: .5,
-                        textAlign: 'center',
-                        fontFamily: 'SFUIDisplay-Regular',
-                        fontSize: 10,
-                        color: '#3E3453'
-                    }}>
+                    <Text style={styles.appVersion__text}>
                         {'#' + config.version.hash + ' | ' + config.version.code}
                     </Text>
                 </View>
@@ -190,8 +171,8 @@ class InitScreen extends React.PureComponent {
 const mapStateToProps = (state) => {
     return {
         lockScreenStatus: getLockScreenStatus(state),
-        init : getInit(state),
-        initError : getInitError(state)
+        init: getInit(state),
+        initError: getInitError(state)
     }
 }
 
@@ -234,7 +215,25 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         zIndex: 2
     },
-
+    appName__text2: {
+        position: 'absolute',
+        top: 1,
+        left: 1,
+        width: '100%',
+        fontSize: 30,
+        fontFamily: 'SFUIDisplay-Bold',
+        color: '#3E3453',
+        textAlign: 'center',
+        zIndex: 1
+    },
+    appVersion__text: {
+        marginBottom: 10,
+        opacity: .5,
+        textAlign: 'center',
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 10,
+        color: '#3E3453'
+    },
     wrapper__top: {
         height: 115,
         marginBottom: 35
@@ -287,5 +286,5 @@ const styles = StyleSheet.create({
     },
     header__description: {
         alignItems: 'center'
-    },
+    }
 })
