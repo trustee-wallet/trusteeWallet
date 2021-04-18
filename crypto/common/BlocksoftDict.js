@@ -225,7 +225,7 @@ const Currencies = {
     ETH_USDC:
         {
             currencyType: 'token',
-            currencyName: 'USD Coin',
+            currencyName: 'USDC ERC20',
             currencyCode: 'ETH_USDC',
             currencySymbol: 'USDC',
             extendsProcessor: 'ETH_TRUE_USD',
@@ -410,7 +410,7 @@ const Currencies = {
     ETH_BAT:
         {
             currencyType: 'token',
-            currencyName: 'Basic Attention Token',
+            currencyName: 'Basic Attention Token ERC20',
             currencyCode: 'ETH_BAT',
             currencySymbol: 'BAT',
             extendsProcessor: 'ETH_TRUE_USD',
@@ -426,7 +426,7 @@ const Currencies = {
     BNB_SMART_BAT:
         {
             currencyType: 'token',
-            currencyName: 'Basic Attention Token ',
+            currencyName: 'Basic Attention Token BEP20',
             currencyCode: 'BNB_SMART_BAT',
             currencySymbol: 'BAT',
             ratesCurrencyCode: 'BAT',
@@ -607,7 +607,7 @@ const Currencies = {
     ETH_LINK:
         {
             currencyType: 'token',
-            currencyName: 'ChainLink Token ERC20',
+            currencyName: 'ChainLink ERC20',
             currencyCode: 'ETH_LINK',
             currencySymbol: 'LINK',
             extendsProcessor: 'ETH_TRUE_USD',
@@ -1108,7 +1108,7 @@ const Currencies = {
     ETH_SXP:
         {
             currencyType: 'token',
-            currencyName: 'Swipe',
+            currencyName: 'Swipe ERC20',
             currencyCode: 'ETH_SXP',
             currencySymbol: 'SXP',
             extendsProcessor: 'ETH_TRUE_USD',
@@ -1124,7 +1124,7 @@ const Currencies = {
     BNB_SMART_SXP:
         {
             currencyType: 'token',
-            currencyName: 'Swipe Token BEP20',
+            currencyName: 'Swipe BEP20',
             currencyCode: 'BNB_SMART_SXP',
             currencySymbol: 'SXP',
             ratesCurrencyCode: 'SXP',
@@ -1182,7 +1182,7 @@ const Currencies = {
     ETH_UNI:
         {
             currencyType: 'token',
-            currencyName: 'Uniswap Token ERC20',
+            currencyName: 'Uniswap ERC20',
             currencyCode: 'ETH_UNI',
             currencySymbol: 'UNI',
             extendsProcessor: 'ETH_TRUE_USD',
