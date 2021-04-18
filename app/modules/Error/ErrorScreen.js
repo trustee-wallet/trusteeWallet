@@ -1,23 +1,27 @@
+/**
+ * @version 0.43
+ */
 import React from 'react'
-import {Dimensions, Image, Linking, PixelRatio, Text, TouchableOpacity, View} from 'react-native'
+import { Dimensions, Linking, PixelRatio, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
-import {strings} from '../../services/i18n'
-import config from '../../config/config'
-import {setLoaderStatus} from '../../appstores/Stores/Main/MainStoreActions'
-import Log from '../../services/Log/Log'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import SendLog from '../../services/Log/SendLog'
-import {showModal} from '../../appstores/Stores/Modal/ModalActions'
+import {strings} from '@app/services/i18n'
+import config from '@app/config/config'
+import {setLoaderStatus} from '@app/appstores/Stores/Main/MainStoreActions'
+import Log from '@app/services/Log/Log'
+import BlocksoftCryptoLog from '@app/../crypto/common/BlocksoftCryptoLog'
+import SendLog from '@app/services/Log/SendLog'
+import {showModal} from '@app/appstores/Stores/Modal/ModalActions'
 
-import CustomIcon from "../../components/elements/CustomIcon"
-import App from '../../appstores/Actions/App/App'
-import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import App from '@app/appstores/Actions/App/App'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
-import SvgLogo from "./ErrorScreenLogo";
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
+import SvgLogo from './ErrorScreenLogo'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import NavStore from '@app/components/navigation/NavStore'
 
 const {height: HEIGHT, width: WIDTH} = Dimensions.get('window')
 
@@ -33,11 +37,8 @@ if (PixelRatio.get() === 2 && WIDTH > 600) {
 }
 
 const goHome = (props) => {
-    if (typeof props.resetError === 'undefined') {
-        return false
-    }
     App.initStatus = 'resetError'
-    props.resetError()
+    NavStore.reset('InitScreen')
 }
 
 const handleSupport = async () => {
@@ -88,12 +89,11 @@ const handleLogs = async () => {
 
 const ErrorScreen = (props) => {
     let error = props.error || ''
-    if (typeof props.navigation !== 'undefined'
-        && typeof props.navigation.state !== 'undefined'
-        && typeof props.navigation.state.params !== 'undefined'
-        && typeof props.navigation.state.params.error !== 'undefined'
+    if (typeof props.route !== 'undefined'
+        && typeof props.route.params !== 'undefined'
+        && typeof props.route.params.error !== 'undefined'
     ) {
-        error = props.navigation.state.params.error
+        error = props.route.params.error
     }
 
     const tmp = JSON.stringify(error)
@@ -122,8 +122,8 @@ const ErrorScreen = (props) => {
                     <TouchableOpacity style={styles.block__item}
                                       onPress={handleLogs}>
                         <View style={!PHONE ? styles.circle : stylesTablet.circle__tablet}>
-                            {/* <FontAwesome name="bug" size={30} style={styles.block__icon}/> */}
-                            <FontAwesome name="bug" size={!PHONE ? 30 : 40} style={styles.block__icon}/>
+                            {/* <FontAwesome name='bug' size={30} style={styles.block__icon}/> */}
+                            <FontAwesome name='bug' size={!PHONE ? 30 : 40} style={styles.block__icon}/>
                         </View>
                         <Text style={!PHONE ? styles.block__text : stylesTablet.block__text__tablet}
                               numberOfLines={2}>{strings('settings.other.copyLogs')}</Text>
@@ -131,8 +131,8 @@ const ErrorScreen = (props) => {
                     <TouchableOpacity style={styles.block__item}
                                       onPress={handleSupport}>
                         <View style={!PHONE ? styles.circle : stylesTablet.circle__tablet}>
-                            {/* <MaterialIcon name="telegram" size={38} style={{...styles.block__icon, marginLeft: -5}}/> */}
-                            <MaterialIcon name="telegram" size={!PHONE ? 36 : 46}
+                            {/* <MaterialIcon name='telegram' size={38} style={{...styles.block__icon, marginLeft: -5}}/> */}
+                            <MaterialIcon name='telegram' size={!PHONE ? 36 : 46}
                                           style={{...styles.block__icon, marginLeft: -5}}/>
                         </View>
                         <Text style={!PHONE ? styles.block__text : stylesTablet.block__text__tablet}
@@ -161,7 +161,7 @@ const ErrorScreen = (props) => {
 
 export default ErrorScreen
 
-const styles = {
+const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: '#f5f5f5',
@@ -206,7 +206,7 @@ const styles = {
     header__title: {
         fontFamily: 'Montserrat-Regular',
         fontStyle: 'normal',
-        fontWeight: "bold",
+        fontWeight: 'bold',
         fontSize: hp('2.78%'),
         lineHeight: hp('3.51%'),
         color: '#404040',
@@ -222,8 +222,8 @@ const styles = {
         width: wp('85%'),
         height: hp('13%'),
         fontFamily: 'SFUIDisplay-Regular',
-        fontStyle: "normal",
-        fontWeight: "500",
+        fontStyle: 'normal',
+        fontWeight: '500',
         fontSize: hp('2.25%'),
         // fontSize: width * 10,
         lineHeight: hp('2.6%'),
@@ -319,13 +319,13 @@ const styles = {
         textAlign: 'center',
         color: '#404040'
     },
-}
+})
 
-const stylesTablet = {
+const stylesTablet = StyleSheet.create({
     header__title__tablet: {
         fontFamily: 'Montserrat-Regular',
         fontStyle: 'normal',
-        fontWeight: "bold",
+        fontWeight: 'bold',
         // fontSize: hp('2.78%'),
         fontSize: 32,
         // lineHeight: hp('3.51%'),
@@ -340,8 +340,8 @@ const stylesTablet = {
         width: wp('60%'),
         height: hp('13%'),
         fontFamily: 'SFUIDisplay-Regular',
-        fontStyle: "normal",
-        fontWeight: "500",
+        fontStyle: 'normal',
+        fontWeight: '500',
         // fontSize: hp('2.25%'),
         fontSize: 17,
         // lineHeight: hp('2.6%'),
@@ -383,4 +383,4 @@ const stylesTablet = {
         // letterSpacing: wp('0.125%'),
         letterSpacing: 2,
     },
-}
+})

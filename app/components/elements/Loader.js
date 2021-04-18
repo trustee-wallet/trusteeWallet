@@ -19,8 +19,7 @@ class Loader extends React.PureComponent {
         this.state = {
             isCloseEnable: false
         }
-        this.timeout = () => {
-        }
+        this.timeout = () => {}
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -34,11 +33,21 @@ class Loader extends React.PureComponent {
             }
         } else {
             clearTimeout(this.timeout)
+            if (prevState.isCloseEnable) {
+                this.setState({
+                    isCloseEnable: false
+                })
+            }
         }
     }
 
     handleClose = () => {
-        setLoaderStatus(false)
+        this.setState({
+            isCloseEnable: false
+        }, () => {
+            clearTimeout(this.timeout)
+            setLoaderStatus(false)
+        })
     }
 
     render() {

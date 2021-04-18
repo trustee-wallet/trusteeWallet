@@ -106,7 +106,11 @@ class BackupSettingsScreen extends React.PureComponent {
                 }
 
                 try {
-                    await App.refreshWalletsStore({ firstTimeCall: 'skip', walletHash, source: 'WalletBackup.handleSkip' })
+                    if (walletNumber*1 > 1) {
+                        await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.handleSkip' })
+                    } else {
+                        App.init({source : 'WalletBackup.handleSkip', onMount : false})
+                    }
                 } catch (e) {
                     e.message += ' while refreshWalletsStore'
                     throw e
@@ -123,8 +127,11 @@ class BackupSettingsScreen extends React.PureComponent {
                     description: strings('modal.walletBackup.walletCreated'),
                     noBackdropPress: true
                 }, async () => {
-                    if (callback === null) {
+                    if (callback === null || !callback) {
                         NavStore.reset('HomeScreen')
+                    } else if (callback === 'InitScreen') {
+                        setCallback({ callback: null })
+                        NavStore.reset('InitScreen')
                     } else {
                         callback()
                         setCallback({ callback: null })

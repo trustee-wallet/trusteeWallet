@@ -1,6 +1,6 @@
 /**
  * @version 0.43
- * second screen while app is loading data
+ * screen while app is loading data
  */
 import React from 'react'
 import { connect } from 'react-redux'
@@ -34,20 +34,38 @@ import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 
 class InitScreen extends React.PureComponent {
 
-    componentDidMount() {
-        try {
-            App.init({ navigateToInit: false, source: 'InitScreen.mount' })
-        } catch (e) {
-            Log.log('InitScreen mount error ' + e.message)
+    constructor() {
+        super()
+        this.state = {
+            status: ''
         }
+        this.timeout = () => {}
+    }
+
+    componentDidMount() {
+       this.init()
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        this.init()
+    }
+
+    init = async () => {
         if (this.props.init === true) {
+            clearTimeout(this.statusTimeout)
             if (this.props.lockScreenStatus * 1 > 0) {
                 NavStore.reset('LockScreenPop')
             } else {
                 NavStore.reset('HomeScreenPop')
+            }
+        } else {
+            try {
+                this.statusTimeout = setTimeout(() => {
+                    this.setState({
+                        status: App.initStatus + ' ' + App.initError
+                    })
+                }, 60000)
+            } catch (e) {
             }
         }
     }
@@ -99,16 +117,18 @@ class InitScreen extends React.PureComponent {
     }
 
     render() {
-        if (this.props.init === true) {
-            if (this.props.lockScreenStatus * 1 > 0) {
-                NavStore.reset('LockScreenPop')
-            } else {
-                NavStore.reset('HomeScreenPop')
-            }
+        if (App.initStatus === 'resetError') {
+            App.init({source : 'InitScreen.render', onMount : false})
         }
+
         MarketingAnalytics.setCurrentScreen('InitScreen.index')
         return (
             <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
+                <View style={{ position: 'absolute', top: 20, left: 20 }}>
+                    <Text style={{ marginTop: 40 }}>
+                        {this.state.status}
+                    </Text>
+                </View>
                 <View style={{ flex: 1, justifyContent: 'center' }}>
                     <Image
                         style={styles.image}

@@ -1,13 +1,13 @@
 /**
- * @version 0.10
+ * @version 0.43
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import Modal from 'react-native-modal'
-import { View, StyleSheet, Platform, Dimensions } from 'react-native'
-import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { View, StyleSheet, Dimensions } from 'react-native'
+import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -20,18 +20,14 @@ if (WINDOW_HEIGHT < WINDOW_WIDTH) {
     windowWidth = WINDOW_WIDTH
 }
 
-class ModalLayout extends Component {
-
-    constructor(props) {
-        super(props)
-    }
+class ModalLayout extends React.PureComponent {
 
     render() {
 
         const { colors } = this.context
 
         return (
-            <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} isVisible={this.props.visible} onBackdropPress={() => {this.props.noBackdropPress === true ? null : hideModal()}} >
+            <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} isVisible={this.props.visible === true || this.props.visible === 'true'} onBackdropPress={() => {this.props.noBackdropPress === true ? null : hideModal()}} >
                 <View style={{...styles.container, backgroundColor: colors.common.background, minHeight: this.props.notifications ? 170 : 290  }}>
                     <View>
                         {this.props.children}

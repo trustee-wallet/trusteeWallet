@@ -5,7 +5,6 @@ import React from 'react'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
 
-import LoadScreen from '@app/modules/Init/LoadScreen'
 import InitScreen from '@app/modules/Init/InitScreen'
 
 import WalletCreateScreen from '@app/modules/WalletCreate/WalletCreateScreen'
@@ -72,8 +71,7 @@ export default () => {
     }
     const cardStyleInterpolator = CardStyleInterpolators.forHorizontalIOS
 
-    return <Stack.Navigator initialRouteName='LoadScreen'>
-        <Stack.Screen name='LoadScreen' component={LoadScreen} options={{ headerShown: false }} />
+    return <Stack.Navigator initialRouteName='InitScreen'>
         <Stack.Screen name='InitScreen' component={InitScreen} options={{ headerShown: false }} />
 
         <Stack.Screen name='LockScreen' component={LockScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

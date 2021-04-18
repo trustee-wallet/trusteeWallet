@@ -50,7 +50,7 @@ class Skip extends React.PureComponent {
                         <Button onPress={this.handleHide} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Button onPress={this.handleSkip} style={{backgroundColor: 'none', color: colors.modal.warning}}>
+                        <Button onPress={this.handleSkip} style={{backgroundColor: 'transparent', color: colors.modal.warning}}>
                             {strings('walletBackup.skipElement.yes')}
                         </Button>
                     </View>

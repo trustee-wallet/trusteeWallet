@@ -157,6 +157,17 @@ class BackupStep1Screen extends React.PureComponent {
 
                 walletActions.setWalletBackedUpStatus(walletHash)
 
+                try {
+                    if (walletNumber*1 > 1) {
+                        await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.handleSkip' })
+                    } else {
+                        App.init({source : 'WalletBackup.handleSkip', onMount : false})
+                    }
+                } catch (e) {
+                    e.message += ' while refreshWalletsStore'
+                    throw e
+                }
+
                 setLoaderStatus(false)
 
                 MarketingEvent.logEvent('gx_view_mnemonic_screen_success', { walletNumber, source }, 'GX')
@@ -168,9 +179,11 @@ class BackupStep1Screen extends React.PureComponent {
                     description: strings('modal.walletBackup.walletCreated'),
                     noBackdropPress: true
                 }, async () => {
-                    if (callback === null) {
+                    if (callback === null || !callback) {
                         NavStore.reset('HomeScreen')
-                        await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.BackupStep1Screen' })
+                    } else if (callback === 'InitScreen') {
+                        setCallback({ callback: null })
+                        NavStore.reset('InitScreen')
                     } else {
                         callback()
                         setCallback({ callback: null })

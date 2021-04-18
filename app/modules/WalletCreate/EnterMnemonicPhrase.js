@@ -138,7 +138,16 @@ class EnterMnemonicPhrase extends React.PureComponent {
                 walletNumber,
             }, 'IMPORT')
 
-            await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletCreate.EnterMnemonicPhrase' })
+            try {
+                if (walletNumber*1 > 1) {
+                    await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletCreate.EnterMnemonicPhrase' })
+                } else {
+                    App.init({source : 'WalletCreate.EnterMnemonicPhrase', onMount : false})
+                }
+            } catch (e) {
+                e.message += ' while refreshWalletsStore'
+                throw e
+            }
 
             setLoaderStatus(false)
 
@@ -151,8 +160,11 @@ class EnterMnemonicPhrase extends React.PureComponent {
                 description: strings('modal.walletCreate.walletImported'),
                 noBackdropPress: true,
             }, async () => {
-                if (callback === null) {
+                if (callback === null || !callback) {
                     NavStore.reset('HomeScreen')
+                } else if (callback === 'InitScreen') {
+                    setCallback({ callback: null })
+                    NavStore.reset('InitScreen')
                 } else {
                     callback()
                     setCallback({ callback: null })

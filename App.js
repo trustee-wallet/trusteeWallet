@@ -38,7 +38,7 @@ export default class App extends React.Component {
     }
 
     componentDidMount() {
-        Application.init({ source: 'App.mount' })
+        Application.init({ source: 'App.mount', onMount : true })
         Linking.addEventListener('url', (data) => SendDeepLinking.handleInitialURL(data.url))
     }
 

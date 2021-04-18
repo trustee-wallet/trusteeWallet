@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import '../../../services/GlobalExceptionHandler/GlobalExceptionHandler'
+import '@app/services/GlobalExceptionHandler/GlobalExceptionHandler'
 import { Text } from 'react-native'
 
 import Orientation from 'react-native-orientation'
@@ -49,51 +49,48 @@ class App {
     initHasWallets = false
 
     init = async (params) => {
-        const navigateToInit = typeof params.navigateToInit !== 'undefined' ? params.navigateToInit : true
+        const onMount = typeof params.onMount !== 'undefined' ? params.onMount : true
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
 
-            await FilePermissions.init()
-
-            this.initStatus = 'FilePermissions.init'
-
-            Orientation.lockToPortrait()
-
-            const { init } = getState().mainStore
-
-            if (init === true) {
-                setInitState(true)
-                return
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' ACT/App init application called ' + source + ' onMount ' + JSON.stringify(onMount))
             }
 
-            this.initStatus = 'Orientation.lockToPortrait()'
+            if (onMount) {
 
-            Log.log('ACT/App init application called ' + source)
+                this.initStatus = 'FilePermissions.init'
 
-            if (navigateToInit) {
+                await FilePermissions.init()
+
+                this.initStatus = 'FilePermissions.init'
+
+                Orientation.lockToPortrait()
 
                 this.initStatus = 'await Database.start()'
 
-                await Database.start();
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' ACT/App init application called started DB')
+                }
+
+                await Database.start()
+
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' ACT/App init application called finished DB')
+                }
 
                 if (!(await walletDS.hasWallet())) {
 
-                    this.initStatus = '!(await walletDS.hasWallet())'
+                    this.initStatus = 'createWallets'
 
                     Log.log('ACT/App no wallets found')
 
                     NavStore.reset('WalletCreateScreen')
 
-                    this.initStatus = 'NavStore.reset(\'WalletCreateScreen\')'
+                    this.initStatus = 'WalletCreateScreen'
 
                     return
                 }
-
-                NavStore.reset('InitScreen')
-
-                this.initStatus = 'NavStore.reset(\'InitScreen\')'
-
-                return
             }
 
             this.initHasWallets = true

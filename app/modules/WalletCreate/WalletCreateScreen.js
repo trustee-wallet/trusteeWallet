@@ -73,12 +73,7 @@ class WalletCreateScreen extends React.PureComponent {
 
     handleSelect = (data) => {
         setFlowType(data)
-        setCallback({
-            callback: async () => {
-                NavStore.reset('InitScreen')
-            }
-        })
-
+        setCallback({ callback: 'InitScreen' })
         setWalletName({ walletName: '' })
         setMnemonicLength({ mnemonicLength: 128 })
 
