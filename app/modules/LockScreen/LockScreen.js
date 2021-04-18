@@ -90,6 +90,7 @@ class LockScreen extends React.PureComponent {
 
         const { headerHeight } = this.state
 
+        const noTouchIDShow = (this.state.passwordState !== 'enter' || touchIDStatus === 0 || flowType === 'CHANGE_TOUCHID_STATUS')
         return (
             <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
                 {this.renderHeader()}
@@ -116,7 +117,7 @@ class LockScreen extends React.PureComponent {
                             passwordLength={6}
                             timeLocked={300000}
                             maxAttempts={3}
-                            touchIDDisabled={!touchIDStatus}
+                            touchIDDisabled={noTouchIDShow}
                             colorCircleButtons={'rgb(255, 255, 255)'}
                             stylePinCodeButtonCircle={{
                                 alignItems: 'center',
@@ -222,7 +223,7 @@ class LockScreen extends React.PureComponent {
                                     }
                             }
                             bottomLeftComponent={
-                                (this.state.passwordState !== 'enter' || touchIDStatus === 0 || flowType === 'CHANGE_TOUCHID_STATUS') ? null :
+                                noTouchIDShow ? null :
                                     (launchTouchID) => {
                                         return <TouchableOpacity onPress={launchTouchID} style={[styles.iconContainer]}>
                                             <MaterialIcons size={35} name={'fingerprint'} color={'#7229AE'} />
