@@ -36,7 +36,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 import Log from '@app/services/Log/Log'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
-import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 
 class SettingsMainScreen extends React.PureComponent {
@@ -252,8 +252,6 @@ class SettingsMainScreen extends React.PureComponent {
             successMessage: strings('components.elements.input.qrSuccess'),
             type: 'MAIN_SCANNER'
         })
-
-        setQRValue('')
 
         NavStore.goNext('QRCodeScannerScreen')
     }

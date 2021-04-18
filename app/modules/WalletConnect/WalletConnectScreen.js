@@ -254,13 +254,6 @@ class WalletConnectScreen extends React.PureComponent {
         this.setState({paranoidLogout : !this.state.paranoidLogout})
     }
 
-    handleBack = async () => {
-        if (this.state.paranoidLogout) {
-            AppWalletConnect.killSession()
-        }
-        NavStore.goBack()
-    }
-
     handleClose = async () => {
         if (this.state.paranoidLogout) {
             AppWalletConnect.killSession()
@@ -272,14 +265,14 @@ class WalletConnectScreen extends React.PureComponent {
     render() {
         MarketingAnalytics.setCurrentScreen('WalletConnect')
 
-        const { colors, GRID_SIZE, isLight } = this.context
+        const { colors } = this.context
         const { headerHeight } = this.state
 
         return (
             <View style={[styles.container, { backgroundColor: colors.common.background }]}>
                 <Header
                     leftType='back'
-                    leftAction={this.handleBack}
+                    leftAction={this.handleClose}
                     rightType='close'
                     rightAction={this.handleClose}
                     title={'Wallet Connect'}

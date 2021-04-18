@@ -12,7 +12,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import AddressInput from '@app/components/elements/NewInput'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import { SendActionsContactBook } from '@app/appstores/Stores/Send/SendActionsContactBook'
 
@@ -177,7 +177,6 @@ class InputAddress extends React.PureComponent {
                                 description: strings('modal.qrScanner.success.description'),
                                 type: 'SEND_SCANNER'
                             })
-                            setQRValue('')
                             NavStore.goNext('QRCodeScannerScreen')
                         }}
                         validPlaceholder={true}

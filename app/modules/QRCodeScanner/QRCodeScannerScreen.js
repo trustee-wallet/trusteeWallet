@@ -29,6 +29,9 @@ import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsU
 import Header from '@app/components/elements/new/Header'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { getQrCodeScannerConfig } from '@app/appstores/Stores/QRCodeScanner/selectors'
+import store from '@app/store'
 
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
@@ -46,10 +49,7 @@ class QRCodeScannerScreen extends React.PureComponent {
     async onSuccess(param) {
         UpdateOneByOneDaemon.unpause()
         try {
-            const {
-                currencyCode,
-                type,
-            } = this.props.qrCodeScanner.config
+            const { currencyCode, type } = this.props.config
 
             if (type === 'CASHBACK_LINK' || (
                 type === 'MAIN_SCANNER' &&
@@ -88,7 +88,7 @@ class QRCodeScannerScreen extends React.PureComponent {
                 }
                 return
             } else if (type === 'MAIN_SCANNER') {
-                const { cryptoCurrencies } = this.props
+                const { cryptoCurrencies } = store.getState().currencyStore.cryptoCurrencies
 
                 let cryptoCurrency
                 if (typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode) {
@@ -246,10 +246,10 @@ class QRCodeScannerScreen extends React.PureComponent {
     }
 
     render() {
-        UpdateOneByOneDaemon.pause()
         MarketingAnalytics.setCurrentScreen('QRCodeScannerScreen.index')
+        const { colors } = this.context
         return (
-            <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+            <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
                 <Header
                     leftType='back'
                     leftAction={this.handleBack}
@@ -312,19 +312,14 @@ class QRCodeScannerScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        cryptoCurrencies: state.currencyStore.cryptoCurrencies,
         lockScreenStatus : getLockScreenStatus(state),
-        qrCodeScanner: state.qrCodeScannerStore,
+        config: getQrCodeScannerConfig(state)
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
+QRCodeScannerScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(QRCodeScannerScreen)
+export default connect(mapStateToProps, {})(QRCodeScannerScreen)
 
 const overlayColor = 'transparent' // this gives us a black color with a 50% transparency
 
@@ -337,6 +332,9 @@ const scanBarHeight = SCREEN_WIDTH * 0.0025 // this is equivalent to 1 from a 39
 const scanBarColor = '#22ff00'
 
 const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1
+    },
     rectangleContainer: {
         flex: 1,
         width: '100%',

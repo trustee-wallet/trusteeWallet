@@ -18,7 +18,7 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import Validator from '@app/services/UI/Validator/Validator'
-import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import { strings } from '@app/services/i18n'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'

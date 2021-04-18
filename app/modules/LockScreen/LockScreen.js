@@ -15,7 +15,6 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import { strings } from '@app/services/i18n'
 
-import Log from '@app/services/Log/Log'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
@@ -83,8 +82,8 @@ class LockScreen extends React.PureComponent {
         MarketingAnalytics.setCurrentScreen('LockScreen.index')
 
         const { flowType } = this.props.lockScreen
+
         const touchIDStatus = this.props.touchIDStatus * 1
-        Log.log('LockScreen.render with touchIDStatus ' + JSON.stringify(touchIDStatus))
 
         const { colors, isLight } = this.context
 

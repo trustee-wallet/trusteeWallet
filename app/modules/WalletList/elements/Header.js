@@ -20,7 +20,7 @@ import WalletName from './WalletName/WalletName'
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import { setQRConfig, setQRValue } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
 import { strings } from '@app/services/i18n'
 
@@ -99,8 +99,6 @@ class WalletInfo extends React.Component {
             successMessage: strings('components.elements.input.qrSuccess'),
             type: 'MAIN_SCANNER'
         })
-
-        setQRValue('')
 
         NavStore.goNext('QRCodeScannerScreen')
     }
