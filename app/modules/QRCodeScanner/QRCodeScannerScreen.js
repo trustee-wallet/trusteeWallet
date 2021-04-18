@@ -88,8 +88,8 @@ class QRCodeScannerScreen extends React.PureComponent {
                 }
                 return
             } else if (type === 'MAIN_SCANNER') {
-                const { cryptoCurrencies } = store.getState().currencyStore.cryptoCurrencies
-
+                const { cryptoCurrencies } = store.getState().currencyStore
+                
                 let cryptoCurrency
                 if (typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode) {
                     try {

@@ -1,10 +1,10 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { Text, StyleSheet, View } from 'react-native'
 
-export default class Text_ extends Component {
+export default class Text_ extends React.PureComponent {
     render() {
         return (
             <View style={this.props.style}>

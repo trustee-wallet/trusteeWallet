@@ -1,27 +1,22 @@
 /**
- * @version 0.10
+ * @version 0.43
  */
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { View } from 'react-native'
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
 
-import Layout from '../../../components/elements/modal/Layout'
-import Title from '../../../components/elements/modal/Title'
-import Text from '../../../components/elements/modal/Text'
-import Button from '../../../components/elements/modal/Button'
-import Icon from '../../../components/elements/modal/Icon'
+import Layout from '@app/components/elements/modal/Layout'
+import Title from '@app/components/elements/modal/Title'
+import Text from '@app/components/elements/modal/Text'
+import Button from '@app/components/elements/modal/Button'
+import Icon from '@app/components/elements/modal/Icon'
 
-import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import { strings } from '../../../services/i18n'
+import { strings } from '@app/services/i18n'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-class YesNoModal extends Component {
-
-    constructor(props) {
-        super(props)
-    }
+class YesNoModal extends React.PureComponent {
 
     handleYes = async () => {
         const { callback } = this.props
@@ -62,10 +57,10 @@ class YesNoModal extends Component {
                     </View>
                     <View>
                         <Button onPress={this.handleNo} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
-                            {oneButton ? oneButton : reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
+                            {oneButton || reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
                         </Button>
-                        <Button onPress={this.handleYes} style={{ backgroundColor: 'none', color: colors.modal.warning }}>
-                            {twoButton ? twoButton : reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
+                        <Button onPress={this.handleYes} style={{ backgroundColor: 'transparent', color: colors.modal.warning }}>
+                            {twoButton || reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
                         </Button>
                     </View>
                 </View>
@@ -74,18 +69,11 @@ class YesNoModal extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        createWallet: state.createWalletStore,
-        skipModal: state.createWalletStore.skipModal
-    }
-}
-
 YesNoModal.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(YesNoModal)
+export default YesNoModal
 
-const styles = {
+const styles = StyleSheet.create({
     title: {
         fontFamily: 'Montserrat-Bold',
         fontStyle: 'normal',
@@ -105,7 +93,7 @@ const styles = {
         textAlign: 'center',
         letterSpacing: 0.5
     }
-}
+})
 
 /*
 <Modal
