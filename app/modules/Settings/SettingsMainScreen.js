@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
 import React from 'react'
 import { connect } from 'react-redux'
@@ -11,8 +11,6 @@ import {
     SafeAreaView,
     StyleSheet
 } from 'react-native'
-
-
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -27,16 +25,20 @@ import { strings } from '@app/services/i18n'
 import Toast from '@app/services/UI/Toast/Toast'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
+import store from '@app/store'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import Header from '@app/components/elements/new/Header'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
-import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 import Log from '@app/services/Log/Log'
+
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+import { getWalletsNumber } from '@app/appstores/Stores/Wallet/selectors'
 
 
 class SettingsMainScreen extends React.PureComponent {
@@ -75,10 +77,8 @@ class SettingsMainScreen extends React.PureComponent {
 
     getLangCode = () => {
         const { languageList } = config.language
-        const { language } = this.props.settings.data
-
+        const { language } = this.props.settingsData
         const tmpLanguage = languageList.find((item) => item.code.split('-')[0] === language.split('-')[0])
-
         return typeof tmpLanguage === 'undefined' ? 'en-US' : tmpLanguage.code
     }
 
@@ -86,7 +86,7 @@ class SettingsMainScreen extends React.PureComponent {
 
         try {
 
-            const { lockScreenStatus } = this.props.settings.keystore
+            const { lockScreenStatus } = this.props.settingsData
 
             if (+lockScreenStatus) {
                 lockScreenAction.setFlowType({
@@ -122,14 +122,13 @@ class SettingsMainScreen extends React.PureComponent {
     }
 
     isAllWalletBackUp = () => {
-        const walletList = JSON.parse(JSON.stringify(this.props.walletStore.wallets))
-
+        console.log('store.getState().walletStore ' + JSON.stringify(store.getState().walletStore))
+        const walletList = store.getState().walletStore
         for (const wallet of walletList) {
             if (!wallet.walletIsBackedUp) {
                 return false
             }
         }
-
         return true
     }
 
@@ -238,7 +237,7 @@ class SettingsMainScreen extends React.PureComponent {
 
     handleWalletManagment = () => { NavStore.goNext('WalletListScreen') }
 
-    handleBack = () => { NavStore.reset('HomeScreen') }
+    handleBack = () => { NavStore.goBack() }
 
     handleWalletConnect = () => { NavStore.goNext('WalletConnectScreen') }
 
@@ -259,15 +258,8 @@ class SettingsMainScreen extends React.PureComponent {
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
-        let {
-            local_currency: localCurrency,
-        } = this.props.settings.data
-
-        let {
-            lockScreenStatus,
-            touchIDStatus,
-            askPinCodeWhenSending
-        } = this.props.settings.keystore
+        let { localCurrency, lockScreenStatus, touchIDStatus, askPinCodeWhenSending } = this.props.settingsData
+        const walletsNumber = this.props.walletsNumber
 
         lockScreenStatus = +lockScreenStatus
         touchIDStatus = +touchIDStatus
@@ -311,7 +303,7 @@ class SettingsMainScreen extends React.PureComponent {
                             <View style={{ marginVertical: GRID_SIZE }}>
                                 <ListItem
                                     title={strings('settings.wallets.listTitle')}
-                                    subtitle={strings('settings.wallets.listSubtitle', { number: this.props.walletStore.wallets.length })}
+                                    subtitle={strings('settings.wallets.listSubtitle', { number: walletsNumber })}
                                     iconType="wallet"
                                     onPress={this.handleWalletManagment}
                                     rightContent="arrow"
@@ -449,22 +441,14 @@ class SettingsMainScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
-        walletStore: state.walletStore,
-        settings: state.settingsStore,
-        appNewsList: state.appNewsStore.appNewsList
-    }
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
+        settingsData: getSettingsScreenData(state),
+        walletsNumber : getWalletsNumber(state)
     }
 }
 
 SettingsMainScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsMainScreen)
+export default connect(mapStateToProps, {})(SettingsMainScreen)
 
 const styles = StyleSheet.create({
     container: {

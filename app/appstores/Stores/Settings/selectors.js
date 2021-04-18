@@ -14,3 +14,17 @@ export const getLockScreenStatus = createSelector(
     [state => state.settingsStore.keystore.lockScreenStatus],
     (data => data)
 )
+
+export const getSettingsScreenData = createSelector(
+    [state => state.settingsStore],
+    (data => {
+        return {
+            language : data.data.language,
+            localCurrency : data.data.local_currency,
+            lockScreenStatus : data.keystore.lockScreenStatus,
+            touchIDStatus : data.keystore.touchIDStatus,
+            askPinCodeWhenSending : data.keystore.askPinCodeWhenSending,
+
+        }
+    })
+)
