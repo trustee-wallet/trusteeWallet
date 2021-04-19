@@ -13,14 +13,14 @@ import NavStore from '@app/components/navigation/NavStore'
 
 let CACHE_LAST_ERROR = ''
 
-const exceptionHandlerText = async (text: string): Promise<void> => {
+const exceptionHandlerText = async (text: string, isFatal : string = 'native'): Promise<void> => {
     try {
         if (text === CACHE_LAST_ERROR) {
             // do nothing not to spam
         } else {
             CACHE_LAST_ERROR = text
             if (text.indexOf('the componentWillUnmount') === -1) {
-                Log.err(text)
+                Log.err('ERROR FROM HANDLER ' + isFatal + ' ' + text)
             } else {
                 // do nothing
             }
@@ -38,10 +38,10 @@ const exceptionHandler = async (e: Error, isFatal: boolean): Promise<boolean> =>
     }
 
     const text = errorTemplate(e)
-    await exceptionHandlerText(text)
+    await exceptionHandlerText(text, JSON.stringify(isFatal))
 
-    if (e.message) {
-        NavStore.goNext('ErrorScreen', { error: e.message })
+    if (!isFatal && e.message) {
+        NavStore.reset('ErrorScreen', { error: e.message })
     }
     return true
 }

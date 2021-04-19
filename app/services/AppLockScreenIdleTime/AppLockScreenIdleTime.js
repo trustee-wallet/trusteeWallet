@@ -83,7 +83,7 @@ class AppLockScreenIdleTime {
                 if (+lockScreenStatus) {
                     const diff = this._activeTime > 0 ? (new Date().getTime() - this._activeTime) : 0
                     if (diff > 300 && !this._isBlur) {
-                        // setBlurStatus(true)
+                        setBlurStatus(true)
                         this._isBlur = true
                     }
                 }
@@ -114,7 +114,7 @@ class AppLockScreenIdleTime {
                     MarketingEvent.UI_DATA.IS_ACTIVE = true
                     this._backgroundTime = 0
                     this._isBlur = false
-                    // setBlurStatus(false)
+                    setBlurStatus(false)
                     NavStore.reset('LockScreenPop')
                     return true
                 }
@@ -127,7 +127,7 @@ class AppLockScreenIdleTime {
                 UpdateAppNewsListDaemon.unstop()
             }
             if (this._isBlur) {
-                // setBlurStatus(false)
+                setBlurStatus(false)
                 this._isBlur = false
             }
         }

@@ -122,9 +122,8 @@ class SettingsMainScreen extends React.PureComponent {
     }
 
     isAllWalletBackUp = () => {
-        console.log('store.getState().walletStore ' + JSON.stringify(store.getState().walletStore))
-        const walletList = store.getState().walletStore
-        for (const wallet of walletList) {
+        const { wallets } = store.getState().walletStore
+        for (const wallet of wallets) {
             if (!wallet.walletIsBackedUp) {
                 return false
             }
