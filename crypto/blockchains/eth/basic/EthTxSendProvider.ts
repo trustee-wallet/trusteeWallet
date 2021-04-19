@@ -42,6 +42,9 @@ export default class EthTxSendProvider {
             throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
         }
         // noinspection JSUnresolvedVariable
+        if (this._mainCurrencyCode === 'ETC') {
+            tx.chainId = 61 // https://ethereumclassic.org/development/porting
+        }
         const signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
 
         // @ts-ignore

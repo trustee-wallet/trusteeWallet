@@ -12,6 +12,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import SettingsBTC from './elements/SettingsBTC'
 import SettingsUSDT from './elements/SettingsUSDT'
 import SettingsXVG from './elements/SettingsXVG'
+import SettingsETC from './elements/SettingsETC'
 import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
 import SettingsTRX from './elements/SettingsTRX'
@@ -69,6 +70,10 @@ class AccountSettingScreen extends React.PureComponent {
             settingsComponent =
                 <SettingsXVG containerStyle={{ overflow: 'hidden' }}
                               wallet={selectedWallet} account={account} />
+        } else if (account.currencyCode === 'ETC') {
+            settingsComponent =
+                <SettingsETC containerStyle={{ overflow: 'hidden' }}
+                             wallet={selectedWallet} account={account} />
         } else if (account.currencyCode === 'ETH') {
             settingsComponent =
                 <SettingsETH containerStyle={{ overflow: 'hidden' }} />

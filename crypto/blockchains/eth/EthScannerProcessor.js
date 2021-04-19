@@ -11,11 +11,23 @@ import BlocksoftBN from '../../common/BlocksoftBN'
 import EthTmpDS from './stores/EthTmpDS'
 import EthRawDS from './stores/EthRawDS'
 
-const CACHE_GET_MAX_BLOCK = { ETH: { max_block_number: 0, confirmations: 0 }, BNB: { max_block_number: 0, confirmations: 0 } }
-const CACHE_BLOCK_NUMBER_TO_HASH = { ETH: {}, BNB: {} }
+const CACHE_GET_MAX_BLOCK = {
+    ETH: { max_block_number: 0, confirmations: 0 },
+    BNB: { max_block_number: 0, confirmations: 0 },
+    ETC: { max_block_number: 0, confirmations: 0 }
+}
+const CACHE_BLOCK_NUMBER_TO_HASH = {
+    ETH: {},
+    BNB: {},
+    ETC : {}
+}
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
-const CACHE = { ETH: {}, BNB: {} }
+const CACHE = {
+    ETH: {},
+    BNB: {},
+    ETC : {}
+}
 
 export default class EthScannerProcessor extends EthBasic {
     /**
@@ -39,7 +51,11 @@ export default class EthScannerProcessor extends EthBasic {
     async _get(address) {
         address = address.toLowerCase()
 
-        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Scanner._get')
+        try {
+            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Scanner._get')
+        } catch (e) {
+            throw new Error(e.message + ' while getTrezorServer ' + this._trezorServerCode)
+        }
 
         if (typeof this._trezorServer === 'undefined') {
             BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthScannerProcessor._get empty trezorServer')
@@ -51,7 +67,7 @@ export default class EthScannerProcessor extends EthBasic {
         }
 
         const now = new Date().getTime()
-        if (typeof CACHE[this._mainCurrencyCode][address] !== 'undefined' && (now - CACHE[this._mainCurrencyCode][address].time < CACHE_VALID_TIME)) {
+        if (typeof CACHE[this._mainCurrencyCode] !== 'undefined' && typeof CACHE[this._mainCurrencyCode][address] !== 'undefined' && (now - CACHE[this._mainCurrencyCode][address].time < CACHE_VALID_TIME)) {
             CACHE[this._mainCurrencyCode][address].provider = 'trezor-cache'
             return CACHE[this._mainCurrencyCode][address]
         }
@@ -142,8 +158,13 @@ export default class EthScannerProcessor extends EthBasic {
 
         let res = false
         if (this._settings.currencyCode !== 'ETH_ROPSTEN' && this._trezorServerCode) {
-            res = await this._get(address)
+            try {
+                res = await this._get(address)
+            } catch (e) {
+                throw new Error(e.message + ' in EthScannerProcessor._get')
+            }
         }
+
 
         let transactions
         if (res && typeof res.data !== 'undefined' && res.data) {
@@ -437,17 +458,20 @@ export default class EthScannerProcessor extends EthBasic {
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
-        CACHE_BLOCK_NUMBER_TO_HASH[this._mainCurrencyCode][transaction.blockHeight] = transaction.blockHash
-
 
         let blockHash = false
-        if (typeof transaction.blockHash !== 'undefined') {
-            blockHash = transaction.blockHash
-        }
         const confirmations = transaction.confirmations
-        if (confirmations > 0 && transaction.blockHeight > CACHE_GET_MAX_BLOCK[this._mainCurrencyCode].max_block_number) {
-            CACHE_GET_MAX_BLOCK[this._mainCurrencyCode].max_block_number = transaction.blockHeight
-            CACHE_GET_MAX_BLOCK[this._mainCurrencyCode].confirmations = confirmations
+        try {
+            CACHE_BLOCK_NUMBER_TO_HASH[this._mainCurrencyCode][transaction.blockHeight] = transaction.blockHash
+            if (typeof transaction.blockHash !== 'undefined') {
+                blockHash = transaction.blockHash
+            }
+            if (confirmations > 0 && transaction.blockHeight > CACHE_GET_MAX_BLOCK[this._mainCurrencyCode].max_block_number) {
+                CACHE_GET_MAX_BLOCK[this._mainCurrencyCode].max_block_number = transaction.blockHeight
+                CACHE_GET_MAX_BLOCK[this._mainCurrencyCode].confirmations = confirmations
+            }
+        } catch (e) {
+            throw new Error(e.message + ' in  CACHE_GET_MAX_BLOCK ' + this._mainCurrencyCode )
         }
         let transactionStatus = 'new'
 

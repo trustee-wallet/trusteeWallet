@@ -2,9 +2,9 @@
  * @version 0.5
  */
 
-import DogeScannerProcessor from '../doge/DogeScannerProcessor'
+import BtcScannerProcessor from '../btc/BtcScannerProcessor'
 
-export default class LtcScannerProcessor extends DogeScannerProcessor {
+export default class LtcScannerProcessor extends BtcScannerProcessor {
 
     /**
      * @type {number}

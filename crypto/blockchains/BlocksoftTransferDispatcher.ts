@@ -24,8 +24,10 @@ import XmrTransferProcessor from './xmr/XmrTransferProcessor'
 import FioTransferProcessor from './fio/FioTransferProcessor'
 import BnbTransferProcessor from './bnb/BnbTransferProcessor'
 import BnbSmartTransferProcessor from './bnb_smart/BnbSmartTransferProcessor'
-import { BlocksoftBlockchainTypes } from './BlocksoftBlockchainTypes'
 import BnbSmartTransferProcessorErc20 from './bnb_smart/BnbSmartTransferProcessorErc20'
+import EtcTransferProcessor from './etc/EtcTransferProcessor'
+import { BlocksoftBlockchainTypes } from './BlocksoftBlockchainTypes'
+
 
 export namespace BlocksoftTransferDispatcher {
 
@@ -68,6 +70,9 @@ export namespace BlocksoftTransferDispatcher {
                 break
             case 'ETH_ERC_20':
                 CACHE_PROCESSORS[currencyCode] = new EthTransferProcessorErc20(currencyDictSettings)
+                break
+            case 'ETC':
+                CACHE_PROCESSORS[currencyCode] = new EtcTransferProcessor(currencyDictSettings)
                 break
             case 'BNB_SMART_20':
                 CACHE_PROCESSORS[currencyCode] = new BnbSmartTransferProcessorErc20(currencyDictSettings)

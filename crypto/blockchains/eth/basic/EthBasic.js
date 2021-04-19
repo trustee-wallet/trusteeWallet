@@ -87,6 +87,7 @@ export default class EthBasic {
 
         this._settings = settings
 
+
         if (settings.currencyCode === 'BNB_SMART' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'BNB')) {
             this._web3Link = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
 
@@ -100,6 +101,18 @@ export default class EthBasic {
             this._mainCurrencyCode = 'BNB'
             this._mainTokenType = 'BNB_SMART_20'
             this._mainTokenBlockchain = 'Binance'
+        } else if (settings.currencyCode === 'ETC') {
+
+            this._etherscanSuffix = false
+            this._etherscanApiPath = false
+            this._etherscanApiPathInternal = false
+
+            this._trezorServer = 'to_load'
+            this._trezorServerCode = 'ETC_TREZOR_SERVER'
+
+            this._mainCurrencyCode = 'ETC'
+            this._mainTokenType = 'ETC_ERC_20'
+            this._mainTokenBlockchain = 'Ethereum'
         } else {
 
             this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)

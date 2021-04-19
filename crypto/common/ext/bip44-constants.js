@@ -17,6 +17,7 @@ module.exports = [
     [ `44'/236`, "BSV", "Bitcoin SV" ],
 
     [ `44'/60`, "ETH", "Ether" ],
+    [ `44'/61`, "ETC", "Ether Classic" ],
     [ `44'/1`, "ETH_ROPSTEN", "Ropsten Ether" ],
 
     [ `44'/2`, "LTC", "Litecoin" ],

@@ -319,13 +319,13 @@ class UpdateAccountBalanceAndTransactions {
         let newTransactions = false
         try {
             Log.daemon('UpdateAccountBalanceAndTransactions newTransactions ' + account.currencyCode + ' ' + account.address)
-            if (account.currencyCode === 'BTC') {
+            if (account.currencyCode === 'BTC' || account.currencyCode === 'LTC') {
                 const additional = {... account.accountJson}
                 additional.addresses = await accountScanningDS.getAddresses({
                     currencyCode: account.currencyCode,
                     walletHash: account.walletHash
                 })
-                if (account.walletIsHd) {
+                if (account.walletIsHd && account.currencyCode !== 'LTC') {
                     additional.walletPub = true // actually not needed pub - just flag
                 }
                 newTransactions = await BlocksoftTransactions.getTransactions({ account, additional }, 'AccountRunTransactionsBtc')

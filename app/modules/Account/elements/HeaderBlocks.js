@@ -206,6 +206,8 @@ class HeaderBlocks extends Component {
             return this.handleSettingAccount(currencyCode)
         } else if (currencyCode === 'XVG') {
             return this.handleSettingAccount(currencyCode)
+        } else if (currencyCode === 'ETC') {
+            return this.handleSettingAccount(currencyCode)
         } else if (currencyCode === 'ETH') {
             return this.handleSettingAccount(currencyCode)
         } else if (currencyCode === 'FIO') {

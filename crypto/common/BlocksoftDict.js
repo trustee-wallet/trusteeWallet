@@ -76,7 +76,7 @@ const Currencies = {
             decimals: 8,
             currencyExplorerLink: 'https://blockchair.com/litecoin/address/',
             currencyExplorerTxLink: 'https://blockchair.com/litecoin/transaction/',
-            addressPrefix : 'L',
+            addressPrefix: 'L',
             defaultPath: `m/44'/2'/0'/0/0`
         },
     ETH_USDT:
@@ -788,6 +788,25 @@ const Currencies = {
             tokenName: 'THb4CqiFdwNHsWsQCs4JhzwjMWys4aqCbF',
             currencyExplorerLink: 'https://tronscan.org/#/address/',
             currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
+        },
+    ETC:
+        {
+            currencyType: 'coin',
+            currencyName: 'Ethereum Classic',
+            currencyCode: 'ETC',
+            currencySymbol: 'ETC',
+            ratesCurrencyCode: 'ETC',
+            addressCurrencyCode: 'ETC',
+            addressProcessor: 'ETH',
+            addressUiChecker: 'ETH',
+            scannerProcessor: 'ETH',
+            extendsProcessor: 'ETH',
+            prettyNumberProcessor: 'ETH',
+            transferProcessor: 'ETC',
+            network: 'mainnet',
+            decimals: 18,
+            currencyExplorerLink: 'https://blockscout.com/etc/mainnet/address/',
+            currencyExplorerTxLink: 'https://blockscout.com/etc/mainnet/tx/'
         },
     ETH_ROPSTEN:
         {
