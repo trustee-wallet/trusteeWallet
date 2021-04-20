@@ -762,12 +762,16 @@ class TransactionScreen extends React.PureComponent {
                 await SendActionsStart.startFromTransactionScreenRemove(account, transaction)
             }
         })
+        return true
 
     }
 
     renderRemoveButton = (array) => {
         const { transaction } = this.state
         if (!transaction.bseOrderData) {
+            return false
+        }
+        if (transaction.bseOrderData.status.toLowerCase() === 'pending_payin') {
             return false
         }
         array.push({
@@ -785,6 +789,7 @@ class TransactionScreen extends React.PureComponent {
                 setLoaderStatus(false)
             }
         })
+        return true
     }
 
     renderReplaceByFee = (array) => {
@@ -825,6 +830,7 @@ class TransactionScreen extends React.PureComponent {
                 await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
             }
         })
+        return true
     }
 
     renderCheckV3 = (array) => {
@@ -1004,6 +1010,13 @@ class TransactionScreen extends React.PureComponent {
             buttonsArray[0].splice(2, 1)
         }
 
+        this.renderCheckV3(buttonsArray[1])
+        const rbf1 = this.renderReplaceByFeeRemove(buttonsArray[1])
+        const rbf2 = this.renderReplaceByFee(buttonsArray[1])
+        if (!rbf1 && !rbf2) {
+            this.renderRemoveButton(buttonsArray[1])
+        }
+
         const prev = '' // @todo NavStore.getPrevRoute().routeName
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -1077,27 +1090,9 @@ class TransactionScreen extends React.PureComponent {
                             {this.commentHandler()}
                         </View>
                     </View>
-                    {this.renderCheckV3(buttonsArray[1])}
-                    {this.renderReplaceByFeeRemove(buttonsArray[1])}
-                    {this.renderReplaceByFee(buttonsArray[1])}
-                    {this.renderRemoveButton(buttonsArray[1])}
                     {this.renderButtons(buttonsArray)}
-                    {/* <View style={{ height: 120, paddingTop: 20 }}>
-                        {buttonsArray[1].length === 0 ?
-                            this.renderButton(buttonsArray[0])
-                            :
-                            <Pages indicatorColor={'#5C5C5C'}>
-                                {buttonsArray.map(this.renderButton)}
-                            </Pages>}
-                    </View> */}
                     {showMoreDetails && (
                         <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: colors.transactionScreen.backgroundItem }}>
-                            {/* <InsertShadow containerStyle={{
-                                ...styles.moreInfo,
-                                flex: 1,
-                                borderRadius: 16,
-                                backgroundColor: '#F2F2F2'
-                            }} shadowRadius={9} shadowColor={'#999999'} > */}
                             {subContent.map((item) => {
                                 return (
                                     // eslint-disable-next-line react/jsx-key
@@ -1117,10 +1112,6 @@ class TransactionScreen extends React.PureComponent {
                                     <LetterSpacing textStyle={{ ...styles.viewExplorer, color: color }} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
                                     />
                                 </TouchableOpacity> : null}
-                            {/* </InsertShadow> */}
-                            {/* <View style={styles.shadow}>
-                                <View style={styles.shadowItem} />
-                            </View> */}
                         </View>)}
                 </ScrollView>
                 <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient}
