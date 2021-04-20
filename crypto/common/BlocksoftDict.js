@@ -187,7 +187,7 @@ const Currencies = {
     ETH_TRUE_USD:
         {
             currencyType: 'token',
-            currencyName: 'TrueUSD',
+            currencyName: 'TrueUSD ERC20',
             currencyCode: 'ETH_TRUE_USD',
             currencyIcon: 'ETH',
             currencySymbol: 'TUSD',
@@ -206,6 +206,22 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
+        },
+    TRX_TUSD:
+        {
+            currencyType: 'token',
+            currencyName: 'TrueUSD TRC20',
+            currencyCode: 'TRX_TUSD',
+            currencySymbol: 'TUSD',
+            extendsProcessor: 'TRX_TUSD',
+            addressUiChecker: 'TRX',
+            ratesCurrencyCode: 'TUSD',
+            network: 'trx',
+            decimals: 18,
+            tokenBlockchain: 'TRON',
+            tokenName: 'TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4',
+            currencyExplorerLink: 'https://tronscan.org/#/address/',
+            currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
         },
     ETH_BNB:
         {

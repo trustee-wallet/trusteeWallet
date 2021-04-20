@@ -135,4 +135,5 @@ class AppLockScreenIdleTime {
 
 }
 
-export default new AppLockScreenIdleTime()
+const AppLockScreenIdleTimeSingle = new AppLockScreenIdleTime()
+export default AppLockScreenIdleTimeSingle
