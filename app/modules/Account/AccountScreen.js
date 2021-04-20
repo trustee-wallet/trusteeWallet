@@ -230,7 +230,7 @@ class Account extends React.PureComponent {
                 currencyCode: account.currencyCode,
                 source: 'ACCOUNT_REFRESH'
             })
-            if (mainStore.selectedWallet.walletIsHd === 1) {
+            if (account.currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd === 1) {
                 await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({
                     force: true,
                     currencyCode: account.currencyCode,

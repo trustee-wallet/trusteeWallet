@@ -63,6 +63,11 @@ export default class BtcScannerProcessor {
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data) {
             await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
+            CACHE[address] = {
+                data: false,
+                time: now,
+                provider: 'trezor-empty'
+            }
             return false
         }
         if (typeof res.data.balance === 'undefined') {
@@ -228,9 +233,13 @@ export default class BtcScannerProcessor {
         const transactions = []
         const addresses = res.plainAddresses
         if (typeof data !== 'undefined' && data && typeof data.addresses !== 'undefined') {
-            let tmp
-            for (tmp in data.addresses) {
+            for (const tmp in data.addresses) {
                 addresses[tmp] = data.addresses[tmp]
+            }
+        }
+        if (typeof scanData.additional.addresses !== 'undefined') {
+            for (const tmp in scanData.additional.addresses) {
+                address[tmp] = tmp
             }
         }
 

@@ -5,7 +5,8 @@ import config from '../../app/config/config'
 import { showModal } from '../../app/appstores/Stores/Modal/ModalActions'
 import { strings } from '../../app/services/i18n'
 
-const CancelToken = axios && typeof axios.CancelToken !== 'undefined' ? axios.CancelToken : function () {}
+const CancelToken = axios && typeof axios.CancelToken !== 'undefined' ? axios.CancelToken : function() {
+}
 
 const CACHE_ERRORS_VALID_TIME = 60000 // 1 minute
 const CACHE_ERRORS_BY_LINKS = {}
@@ -15,6 +16,7 @@ const CACHE_STARTED_CANCEL = {}
 
 let CACHE_TIMEOUT_ERRORS = 0
 let CACHE_TIMEOUT_ERROR_SHOWN = 0
+
 class BlocksoftAxios {
 
     /**
@@ -26,7 +28,22 @@ class BlocksoftAxios {
         let tmp = false
         try {
             BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' start ' + link)
-            tmp = await this.get(link, false, false)
+            tmp = await fetch(link, {
+                method: 'GET',
+                credentials: 'same-origin',
+                mode: 'same-origin',
+                headers: {
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                    'Content-Type': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                    'upgrade-insecure-requests': 1,
+                    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36'
+                }
+            })
+            if (tmp.status !== 200) {
+                throw new Error('bad result ' + JSON.stringify(tmp))
+            }
+            tmp = { data: await tmp.json() }
+
             BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
             CACHE_ERRORS_BY_LINKS[link] = { time: 0, tries: 0 }
         } catch (e) {
@@ -50,7 +67,7 @@ class BlocksoftAxios {
                 CACHE_ERRORS_BY_LINKS[link].time = now
                 throw e
             }
-            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' error ' + e.message.substr(0, 200))
+            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' error ' + e.message.substr(0, 300))
         }
 
         return tmp
@@ -124,7 +141,7 @@ class BlocksoftAxios {
             }
             if (typeof CACHE_STARTED[link] !== 'undefined') {
                 const now = new Date().getTime()
-                const timeMsg = ' timeout ' + CACHE_STARTED[link].timeOut + ' started ' + CACHE_STARTED[link].time + ' diff ' + (now -  CACHE_STARTED[link].time)
+                const timeMsg = ' timeout ' + CACHE_STARTED[link].timeOut + ' started ' + CACHE_STARTED[link].time + ' diff ' + (now - CACHE_STARTED[link].time)
                 BlocksoftCryptoLog.log('PREV CALL WILL BE CANCELED ' + timeMsg)
                 await CACHE_STARTED_CANCEL[link].cancel('PREV CALL CANCELED ' + timeMsg)
             }
@@ -216,7 +233,7 @@ class BlocksoftAxios {
                                 type: 'INFO_MODAL',
                                 icon: null,
                                 title: strings('modal.exchange.sorry'),
-                                description: strings('toast.badInternet'),
+                                description: strings('toast.badInternet')
                             })
                         }
                     }

@@ -37,6 +37,9 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
                 vinAddress = transaction.vin[i].addr
             }
             if (!vinAddress) continue
+            if (vinAddress.indexOf('OP_RETURN (omni') !== -1) {
+                vinAddress = 'OMNI'
+            }
             if (typeof indexedAddresses[vinAddress] !== 'undefined') {
                 inputMyBN.add(vinValue)
                 inputMyAddress = vinAddress
@@ -65,6 +68,9 @@ export default async function BtcFindAddressFunction(indexedAddresses, transacti
                 voutAddress = transaction.vout[j].addresses[0]
             } else if (typeof transaction.vout[j].scriptPubKey !== 'undefined' && typeof transaction.vout[j].scriptPubKey.addresses !== 'undefined') {
                 voutAddress = transaction.vout[j].scriptPubKey.addresses[0]
+            }
+            if (voutAddress.indexOf('OP_RETURN (omni') !== -1) {
+                voutAddress = 'OMNI'
             }
 
             if (typeof indexedAddresses[voutAddress] !== 'undefined') {
