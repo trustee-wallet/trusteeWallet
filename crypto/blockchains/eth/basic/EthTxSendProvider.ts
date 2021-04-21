@@ -51,12 +51,14 @@ export default class EthTxSendProvider {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx signed', tx)
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
 
-        let link
-        if (this._trezorServerCode && this._trezorServerCode.indexOf('http') === -1) {
-            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Send.sendTx')
-            link = this._trezorServer + '/api/v2/sendtx/'
-        } else {
-            link = this._trezorServerCode // actually is direct url like link = 'https://dex.binance.org/api/v1/broadcast'
+        let link = BlocksoftExternalSettings.getStatic(this._trezorServerCode + '_SEND_LINK')
+        if (!link || link === '') {
+            if (this._trezorServerCode && this._trezorServerCode.indexOf('http') === -1) {
+                this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Send.sendTx')
+                link = this._trezorServer + '/api/v2/sendtx/'
+            } else {
+                link = this._trezorServerCode // actually is direct url like link = 'https://dex.binance.org/api/v1/broadcast'
+            }
         }
 
         const proxy = config.proxy.apiEndpoints.baseURL + '/send/checktx'

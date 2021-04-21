@@ -96,7 +96,7 @@ export default class TrxScannerProcessor {
             LIMIT 10
         `
         const res = await Database.setQueryString(sql).query()
-        if (!res || typeof res.array === 'undefined' || !res.array) {
+        if (!res || typeof res.array === 'undefined' || !res.array || res.array.length === 0) {
             return false
         }
 
@@ -105,8 +105,8 @@ export default class TrxScannerProcessor {
             needUpdateBalance = 0
             try {
                 const linkBlock = 'https://api.trongrid.io/wallet/getnowblock'
-                const block = await BlocksoftAxios.post(linkBlock)
-                if (typeof block.data !== 'undefined') {
+                const block = await BlocksoftAxios.get(linkBlock)
+                if (typeof block !== 'undefined' && block && typeof block.data !== 'undefined') {
                     lastBlock = block.data.block_header.raw_data.number
                 }
             } catch (e1) {
