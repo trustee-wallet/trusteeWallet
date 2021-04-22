@@ -200,7 +200,7 @@ class Wallet {
     _prepWallet(wallet) {
         wallet.walletToSendStatus = wallet.walletToSendStatus * 1
         wallet.walletName = Database.unEscapeString(wallet.walletName)
-        wallet.walletNumber = wallet.walletNumber * 1
+        wallet.walletNumber = wallet.walletNumber * 1 || 1
         wallet.walletIsHd = wallet.walletIsHd * 1 || 0
         if (typeof wallet.walletIsBackedUp !== 'undefined') {
             wallet.walletIsBackedUp = wallet.walletIsBackedUp * 1 || 0
