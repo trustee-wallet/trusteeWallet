@@ -5,7 +5,14 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import { Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import {
+    Platform,
+    RefreshControl,
+    Text,
+    TouchableOpacity,
+    View,
+    FlatList,
+} from 'react-native'
 
 import LottieView from 'lottie-react-native'
 
@@ -15,26 +22,27 @@ import GradientView from '@app/components/elements/GradientView'
 import NavStore from '@app/components/navigation/NavStore'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
-
-import Transaction from './elements/Transaction'
+import AppLockBlur from '@app/components/AppLockBlur'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import Log from '@app/services/Log/Log'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
-
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 import { strings } from '@app/services/i18n'
 
 import { HIT_SLOP } from '@app/themes/Themes'
-import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import AsyncStorage from '@react-native-community/async-storage'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
@@ -47,16 +55,12 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import Header from './elements/Header'
 import HeaderBlocks from './elements/HeaderBlocks'
 import AccountButtons from './elements/accountButtons'
-
-import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
-import transactionActions from '@app/appstores/Actions/TransactionActions'
+import Transaction from './elements/Transaction'
 import BalanceHeader from './elements/AccountData'
 
 import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
-import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import AppLockBlur from "@app/components/AppLockBlur";
 
 import Netinfo from '@app/services/Netinfo/Netinfo'
 
@@ -65,6 +69,7 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { getIsBlurVisible } from '@app/appstores/Stores/Main/selectors'
 
 let CACHE_ASKED = false
+const TX_PER_PAGE = 20
 
 class Account extends React.PureComponent {
 
@@ -74,37 +79,21 @@ class Account extends React.PureComponent {
             refreshing: false,
             clickRefresh: false,
 
-            amountToView: 5,
             transactionsToView: [],
-            transactionsShownLength: 5,
 
-            show: true,
             mode: 'TRANSACTIONS',
-            dash: true,
 
             fioMemo: {},
-            scrollOffset: 0,
             isBalanceVisible: false,
             originalVisibility: false,
 
-            headerHeight: 0
+            hasStickyHeader: false,
         }
     }
 
-    // eslint-disable-next-line camelcase
-    async UNSAFE_componentWillMount() {
-
-        this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
-            this.transactionInfinity()
-        })
-
-        CACHE_ASKED = await AsyncStorage.getItem('asked')
-
-        //this.transactionInfinity()
-        //this.ordersWithoutTransactions()
-    }
-
     async componentDidMount() {
+        CACHE_ASKED = await AsyncStorage.getItem('asked')
+        this.loadTransactions()
         this.getBalanceVisibility()
         const { currencyCode } = this.props.cryptoCurrency
         if (currencyCode === 'FIO') {
@@ -118,8 +107,6 @@ class Account extends React.PureComponent {
                 }, this.handleRegisterFIOAddress)
             }
         }
-        //this.transactionInfinity()
-        //this.ordersWithoutTransactions()
     }
 
     getBalanceVisibility = () => {
@@ -131,9 +118,11 @@ class Account extends React.PureComponent {
         this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
     }
 
-    updateOffset = (offset) => {
+    updateOffset = (event) => {
+        const offset = event.nativeEvent.contentOffset.y
         const newOffset = Math.round(offset)
-        if (this.state.scrollOffset !== newOffset) this.setState(() => ({ scrollOffset: newOffset }))
+        if (!this.state.hasStickyHeader && newOffset > 260) this.setState(() => ({ hasStickyHeader: true }))
+        if (this.state.hasStickyHeader && newOffset < 260) this.setState(() => ({ hasStickyHeader: false }))
     }
 
     handleRegisterFIOAddress = async () => {
@@ -160,9 +149,7 @@ class Account extends React.PureComponent {
         const isSynchronized = currencyActions.checkIsCurrencySynchronized({ cryptoCurrency, account })
 
         if (isSynchronized) {
-
-           await SendActionsStart.startFromAccountScreen(cryptoCurrency, account)
-
+            await SendActionsStart.startFromAccountScreen(cryptoCurrency, account)
         } else {
             showModal({
                 type: 'INFO_MODAL',
@@ -180,21 +167,21 @@ class Account extends React.PureComponent {
             // if (config.exchange.mode === 'PROD') {
             //     NavStore.goNext('MainV3DataScreen', {tradeType: 'BUY', currencyCode: this.props.account.currencyCode})
             // } else {
-                let showMsg = await AsyncStorage.getItem('smartSwapMsg')
-                showMsg = showMsg ? JSON.parse(showMsg) : false
+            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
+            showMsg = showMsg ? JSON.parse(showMsg) : false
 
-                if (typeof showMsg === 'undefined' || !showMsg) {
-                    showModal({
-                        type: 'MARKET_MODAL',
-                        icon: 'INFO',
-                        title: strings('modal.marketModal.title'),
-                        description: strings('modal.marketModal.description'),
-                    }, () => {
-                        NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
-                    })
-                } else {
+            if (typeof showMsg === 'undefined' || !showMsg) {
+                showModal({
+                    type: 'MARKET_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.marketModal.title'),
+                    description: strings('modal.marketModal.description'),
+                }, () => {
                     NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
-                }
+                })
+            } else {
+                NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
+            }
 
             // }
         } catch (e) {
@@ -206,8 +193,8 @@ class Account extends React.PureComponent {
         }
     }
 
-    handleRefresh = async (click= false) => {
-        const { account, mainStore } = this.props
+    handleRefresh = async (click = false) => {
+        const { account, selectedWallet } = this.props
 
         this.setState({
             refreshing: !click,
@@ -230,7 +217,7 @@ class Account extends React.PureComponent {
                 currencyCode: account.currencyCode,
                 source: 'ACCOUNT_REFRESH'
             })
-            if (account.currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd === 1) {
+            if (account.currencyCode === 'BTC' && selectedWallet.walletIsHd === 1) {
                 await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({
                     force: true,
                     currencyCode: account.currencyCode,
@@ -255,7 +242,7 @@ class Account extends React.PureComponent {
 
         UpdateOneByOneDaemon._canUpdate = true
 
-        this.transactionInfinity(0, this.state.transactionsShownLength)
+        this.loadTransactions()
 
         this.setState({
             refreshing: false,
@@ -264,9 +251,6 @@ class Account extends React.PureComponent {
     }
 
     renderSynchronized = (cryptoCurrency, account, allTransactionsToView) => {
-
-        // const { cryptoCurrency, account, allTransactionsToView } = props
-
         let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = account.transactionsToView
@@ -280,14 +264,14 @@ class Account extends React.PureComponent {
         const diff = diffTimeScan(this.props.account.balanceScanTime)
         let diffTimeText = ''
         if (diff > 60) {
-           diffTimeText =  strings('account.soLong')
+            diffTimeText = strings('account.soLong')
         } else {
             if (diff < 1) {
                 diffTimeText = strings('account.justScan')
             } else {
                 diffTimeText = strings('account.scan', { time: diff })
             }
-            if (this.props.account.balanceScanError && this.props.account.balanceScanError !== '' && this.props.account.balanceScanError!=='null') {
+            if (this.props.account.balanceScanError && this.props.account.balanceScanError !== '' && this.props.account.balanceScanError !== 'null') {
                 diffTimeText += '\n' + strings(this.props.account.balanceScanError)
             }
         }
@@ -296,8 +280,8 @@ class Account extends React.PureComponent {
             <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
                 <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'column' }} >
-                        <Text style={{...styles.transaction_title, color: colors.common.text1}}>{strings('account.history')}</Text>
-                        <View style={{...styles.scan, marginLeft: 16 }}>
+                        <Text style={{ ...styles.transaction_title, color: colors.common.text1 }}>{strings('account.history')}</Text>
+                        <View style={{ ...styles.scan, marginLeft: 16 }}>
                             {isSynchronized ?
                                 <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2} >{diffTimeText}</Text>
                                 :
@@ -319,20 +303,20 @@ class Account extends React.PureComponent {
                             }
                         </View>
                     </View>
-                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE}} onPress={() => this.handleRefresh(true)} hitSlop={HIT_SLOP} >
-                            {this.state.clickRefresh ?
-                                <LottieView style={{ width: 20, height: 20, }}
+                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE }} onPress={() => this.handleRefresh(true)} hitSlop={HIT_SLOP} >
+                        {this.state.clickRefresh ?
+                            <LottieView style={{ width: 20, height: 20, }}
                                 source={isLight ? blackLoader : whiteLoader}
                                 autoPlay loop /> :
-                            <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} /> }
-                        </TouchableOpacity>
+                            <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} />}
+                    </TouchableOpacity>
                 </View>
                 {
                     // account.transactionsTotalLength === 0 && (!transactionsToView || transactionsToView.length === 0) ? //@ksu fail order not working
                     allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0) ?
                         <View style={{ marginRight: GRID_SIZE }} >
                             {isSynchronized && <Text
-                                style={{...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3}}>
+                                style={{ ...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3 }}>
                                 {strings('account.noTransactions')}
                             </Text>}
                         </View>
@@ -341,10 +325,6 @@ class Account extends React.PureComponent {
             </View>
         )
 
-    }
-
-    renderDash = () => {
-        this.setState({ dash: this.state.dash })
     }
 
     renderAddressTooltip = (props) => {
@@ -361,17 +341,13 @@ class Account extends React.PureComponent {
         NavStore.goBack()
     }
 
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
-    }
-
     handleShowMore = () => {
-        this.transactionInfinity(0, this.state.transactionsShownLength + 10)
+        if (this.state.clickRefresh) return
+        this.loadTransactions(this.state.transactionsToView.length)
     }
 
-    async transactionInfinity(from = 0, perPage = 10) {
-        const { account, mainStore } = this.props
+    async loadTransactions(from = 0, perPage = TX_PER_PAGE) {
+        const { account, selectedWallet } = this.props
 
         const params = {
             walletHash: account.walletHash,
@@ -379,10 +355,10 @@ class Account extends React.PureComponent {
             limitFrom: from,
             limitPerPage: perPage
         }
-        if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
+        if (selectedWallet.walletIsHideTransactionForFee !== null && +selectedWallet.walletIsHideTransactionForFee === 1) {
             params.minAmount = 0
         }
-        const tmp = await transactionDS.getTransactions(params, 'AccountScreen.transactionInfinity list')
+        const tmp = await transactionDS.getTransactions(params, 'AccountScreen.loadTransactions list')
         const transactionsToView = []
 
         if (tmp && tmp.length > 0) {
@@ -392,15 +368,11 @@ class Account extends React.PureComponent {
             }
         }
 
-        if (account.transactionsTotalLength > 0) {
-            this.setState({ transactionsToView, transactionsShownLength: perPage })
-        } else {
-            this.setState({ transactionsToView })
-        }
+        this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView) }))
     }
 
     getPrettyCurrenceName = (currencyCode, currencyName) => {
-        switch(currencyCode){
+        switch (currencyCode) {
             case 'USDT':
                 return 'Tether Bitcoin'
             case 'ETH_USDT':
@@ -422,22 +394,21 @@ class Account extends React.PureComponent {
         UpdateAccountListDaemon.pause()
 
         const { colors, isLight } = this.context
-        const { mode, headerHeight } = this.state
-        const { mainStore, account, cryptoCurrency, settingsStore } = this.props
-        let { amountToView, show, transactionsToView, transactionsShownLength, isBalanceVisible } = this.state
+        const { mode } = this.state
+        const { account, cryptoCurrency, settingsStore } = this.props
+        const isSegwit = settingsStore.data.btc_legacy_or_segwit === 'segwit'
+        let { transactionsToView, isBalanceVisible } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = account.transactionsToView
         }
 
         const allTransactionsToView = transactionsToView // was concat before
 
-        const address = account.address
-
         const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
 
-        let shownAddress = address
-        if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
-            shownAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
+        let shownAddress = account.address
+        if (account.segwitAddress) {
+            shownAddress = isSegwit ? account.segwitAddress : account.legacyAddress
         }
 
         if (account && account.balanceProvider) {
@@ -447,7 +418,7 @@ class Account extends React.PureComponent {
                 amount: account.balancePretty + '',
                 unconfirmed: account.unconfirmedPretty + '',
                 balanceScanTime: account.balanceScanTime + '',
-                balanceScanError : account.balanceScanError + '',
+                balanceScanError: account.balanceScanError + '',
                 balanceProvider: account.balanceProvider + '',
                 balanceScanLog: account.balanceScanLog + '',
                 balanceAddingLog: account.balanceAddingLog + '',
@@ -456,7 +427,7 @@ class Account extends React.PureComponent {
                 basicCurrencyRate: account.basicCurrencyRate + ''
             }
 
-            if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
+            if (account.segwitAddress) {
                 logData.legacyAddress = account.legacyAddress || ''
                 logData.segwitAddress = account.segwitAddress || ''
             }
@@ -470,8 +441,7 @@ class Account extends React.PureComponent {
                     rightType="close"
                     rightAction={this.closeAction}
                     title={this.getPrettyCurrenceName(cryptoCurrency.currencyCode, cryptoCurrency.currencyName)}
-                    setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={() => { return (
+                    ExtraView={() => (
                         <BalanceHeader
                             account={account}
                             cryptoCurrency={cryptoCurrency}
@@ -481,81 +451,58 @@ class Account extends React.PureComponent {
                             isBalanceVisible={this.state.isBalanceVisible}
                             originalVisibility={this.state.originalVisibility}
                         />
-                    ) }}
-                    scrollOffset={this.state.scrollOffset}
+                    )}
+                    hasStickyHeader={this.state.hasStickyHeader}
                 />
-                <ScrollView
-                    style={{...styles.wrapper__scrollView, marginTop: Platform.OS === 'android' ? 50 : 84 }}
+                <View style={styles.stub} />
+                <FlatList
+                    data={allTransactionsToView}
                     showsVerticalScrollIndicator={false}
-                    scrollEventThrottle={16}
-                    onScroll={(event) => this.updateOffset(event.nativeEvent.contentOffset.y)}
+                    contentContainerStyle={styles.wrapper__scrollView}
+                    initialNumToRender={10}
+                    onScroll={this.updateOffset}
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
                             onRefresh={this.handleRefresh}
                             tintColor={colors.common.text1}
                         />
-                    }>
-                    <View style={{...styles.wrapper__content }}>
-                        <HeaderBlocks
-                            mainStore={mainStore}
-                            account={account}
-                            cryptoCurrency={cryptoCurrency}
-                            settingsStore={settingsStore}
-                            cacheAsked={CACHE_ASKED}
-                            isBalanceVisible={this.state.isBalanceVisible}
-                            originalVisibility={this.state.originalVisibility}
-                            triggerBalanceVisibility={this.triggerBalanceVisibility}
-                        />
-                        <AccountButtons
-                            title={true}
-                            actionReceive={this.handleReceive}
-                            actionBuy={this.handleBuy}
-                            actionSend={this.handleSend}
-                        />
-                        <View style={{
-                            flex: 1,
-                            // alignItems: 'flex-start',
-                            height: mode === 'TRANSACTIONS' ? 'auto' : 0,
-                            overflow: 'hidden'
-                        }}>
+                    }
+                    ListHeaderComponent={() => (
+                        <React.Fragment>
+                            <HeaderBlocks
+                                account={account}
+                                cryptoCurrency={cryptoCurrency}
+                                isSegwit={isSegwit}
+                                cacheAsked={CACHE_ASKED}
+                                isBalanceVisible={this.state.isBalanceVisible}
+                                originalVisibility={this.state.originalVisibility}
+                                triggerBalanceVisibility={this.triggerBalanceVisibility}
+                            />
+                            <AccountButtons
+                                title={true}
+                                actionReceive={this.handleReceive}
+                                actionBuy={this.handleBuy}
+                                actionSend={this.handleSend}
+                            />
                             <View>
                                 {this.renderSynchronized(cryptoCurrency, account, allTransactionsToView)}
                             </View>
-                            <View style={{ position: 'relative', width: '100%' }}>
-                                <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
-                                    {
-                                        show ? allTransactionsToView.map((item, index) => {
-                                            return <Transaction key={item.id} index={item.id}
-                                                count={index}
-                                                cards={mainStore.cards}
-                                                transactions={transactionsToView}
-                                                amountToView={amountToView}
-                                                transaction={item}
-                                                fioMemo={fioMemo[item.transactionHash]}
-                                                account={account}
-                                                cryptoCurrency={cryptoCurrency}
-                                                dash={(allTransactionsToView.length - 1 === index) ? this.renderDash : !this.renderDash}
-                                            />
-                                        }) : null
-                                    }
-                                </View>
-                            </View>
-                            {
-                                account.transactionsTotalLength > transactionsShownLength ?
-                                    <View style={{ width: '100%', alignItems: 'center' }}>
-                                        <TouchableOpacity style={styles.showMore} onPress={this.handleShowMore} hitSlop={HIT_SLOP} >
-                                            <Text style={{ ...styles.showMore__btn, color: colors.common.text1 }}>
-                                                {strings('account.showMore')}
-                                            </Text>
-                                            <Ionicons name='ios-arrow-down' size={12} color={colors.common.text1} />
-                                        </TouchableOpacity>
-                                    </View> :
-                                <View style={{ marginBottom: 60 }} />
-                            }
-                        </View>
-                    </View>
-                </ScrollView>
+                        </React.Fragment>
+                    )}
+                    renderItem={({ item, index }) => (
+                        <Transaction
+                            isFirst={index === 0}
+                            transaction={item}
+                            cryptoCurrency={{ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol }}
+                            dashHeight={allTransactionsToView.length === 1 ? 0 : (allTransactionsToView.length - 1 === index) ? 50 : 150}
+                        />
+                    )
+                    }
+                    onEndReachedThreshold={0.5}
+                    onEndReached={this.handleShowMore}
+                    keyExtractor={item => item.id || item.bseOrderData.orderId}
+                />
                 <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
             </View>
 
@@ -567,7 +514,7 @@ Account.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
+        selectedWallet: state.mainStore.selectedWallet,
         cryptoCurrency: state.mainStore.selectedCryptoCurrency,
         account: state.mainStore.selectedAccount,
         settingsStore: state.settingsStore,
@@ -576,17 +523,14 @@ const mapStateToProps = (state) => {
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Account)
+export default connect(mapStateToProps)(Account)
 
 const styles = {
     wrapper__scrollView: {
-        flex: 1
+        paddingBottom: 20,
+    },
+    stub: {
+        marginBottom: Platform.OS === 'android' ? 50 : 84,
     },
     wrapper__content: {
         flex: 1
@@ -601,8 +545,6 @@ const styles = {
         paddingBottom: Platform.OS === 'ios' ? 30 : 0
     },
     scan: {
-        // marginLeft: 10,
-        // marginTop: 3,
         flexDirection: 'row'
     },
     scan__text: {

@@ -72,7 +72,6 @@ class HomeScreen extends React.PureComponent {
             data: [],
             currenciesOrder: [],
             isCurrentlyDraggable: false,
-            scrollOffset: 0,
             hasStickyHeader: false,
             enableVerticalScroll: true
         }
@@ -323,7 +322,6 @@ class HomeScreen extends React.PureComponent {
         return (
             <View style={styles.container}>
                 <Header
-                    scrollOffset={this.state.scrollOffset}
                     hasStickyHeader={this.state.hasStickyHeader}
                     isBalanceVisible={this.state.isBalanceVisible}
                     originalVisibility={this.state.originalVisibility}

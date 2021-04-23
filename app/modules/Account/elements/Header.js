@@ -16,9 +16,9 @@ import { connect } from 'react-redux'
 
 import AntIcon from 'react-native-vector-icons/AntDesign'
 
-import { HIT_SLOP } from '../../../themes/Themes'
+import { HIT_SLOP } from '@app/themes/Themes'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 const headerHeight = Platform.OS === 'android' ? 49 : 44
 const headerHeightSticky = Platform.OS === 'android' ? 148 : 138
@@ -28,16 +28,14 @@ export default class Header extends React.Component {
     constructor(props) {
         super(props)
 
-        const hasStickyHeader = this.props.scrollOffset > 300
+        const hasStickyHeader = this.props.hasStickyHeader
         const opacity = hasStickyHeader ? 1 : 0
         const height = hasStickyHeader ? headerHeightSticky : headerHeight
-        const elevation = hasStickyHeader ? 10 : 0
 
         this.state = {
             hasStickyHeader,
             opacity: new Animated.Value(opacity),
             height: new Animated.Value(height),
-            elevation: new Animated.Value(elevation),
         }
     }
 
@@ -89,19 +87,21 @@ export default class Header extends React.Component {
         )
     }
 
-    processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
-
     static getDerivedStateFromProps(nextProps, state) {
-        const hasStickyHeader = nextProps.scrollOffset > 260;
+        const hasStickyHeader = nextProps.hasStickyHeader
+        if (hasStickyHeader === state.hasStickyHeader) return null
+
         if (!state.hasStickyHeader && hasStickyHeader) {
-            Animated.timing(state.height, { toValue: headerHeightSticky, duration: 50 }).start();
-            Animated.timing(state.opacity, { toValue: 1, duration: 300 }).start();
-            Animated.timing(state.elevation, { toValue: 10, duration: 300 }).start();
+            Animated.parallel([
+                Animated.spring(state.height, { toValue: headerHeightSticky, bounciness: 0 }),
+                Animated.spring(state.opacity, { toValue: 1, bounciness: 0, delay: 300 }),
+            ], { stopTogether: false }).start()
         }
         if (state.hasStickyHeader && !hasStickyHeader) {
-            Animated.timing(state.height, { toValue: headerHeight, duration: 100 }).start();
-            Animated.timing(state.opacity, { toValue: 0, duration: 100 }).start();
-            Animated.timing(state.elevation, { toValue: 0, duration: 300 }).start();
+            Animated.parallel([
+                Animated.spring(state.height, { toValue: headerHeight, bounciness: 0, delay: 300 }),
+                Animated.spring(state.opacity, { toValue: 0, bounciness: 0 }),
+            ], { stopTogether: false }).start()
         }
         return {
             ...state,
@@ -118,13 +118,12 @@ export default class Header extends React.Component {
         } = this.context
         const {
             hasStickyHeader,
-            elevation,
             height,
             opacity,
         } = this.state
 
         return (
-            <View style={styles.wrapper} onLayout={this.processHeaderHeight}>
+            <View style={styles.wrapper}>
                 <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.header.bg }} />
                 <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
 
@@ -143,15 +142,13 @@ export default class Header extends React.Component {
                         </View>
                     </View>
 
-                    {(ExtraView && this.state.hasStickyHeader) && (
-                        <Animated.View style={[styles.extraView, { backgroundColor: colors.common.header.bg, opacity }]}>
-                            <ExtraView />
-                        </Animated.View>
-                    )}
+                    <Animated.View style={[styles.extraView, { backgroundColor: colors.common.header.bg, opacity }]}>
+                        <ExtraView />
+                    </Animated.View>
                 </Animated.View>
 
                 <View style={styles.shadow__container}>
-                    <Animated.View style={[styles.shadow__item]} />
+                    <View style={[styles.shadow__item]} />
                 </View>
             </View>
         )
@@ -168,7 +165,6 @@ const styles = {
         left: 0,
         right: 0,
         zIndex: 10,
-        // borderWidth: 1
     },
     shadow__container: {
         position: 'absolute',
@@ -198,8 +194,6 @@ const styles = {
     extraView: {
         flex: 1,
         zIndex: 20,
-        // alignItems: 'center',
-        // justifyContent: 'center',
     },
     header: {
         flexDirection: 'row',

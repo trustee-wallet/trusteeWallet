@@ -14,7 +14,14 @@ export default class GradientView extends Component {
     render() {
 
         return (
-            <LinearGradient style={this.props.style} colors={this.props.array} start={this.props.start} end={this.props.end}>
+            <LinearGradient
+                style={this.props.style}
+                colors={this.props.array}
+                start={this.props.start}
+                end={this.props.end}
+                renderToHardwareTextureAndroid
+                shouldRasterizeIOS
+            >
                 {this.props.children}
             </LinearGradient>
         )
