@@ -1,44 +1,41 @@
 /**
  * @version 0.30
  */
-import React, { Component } from 'react'
-
+import React, { PureComponent } from 'react'
 import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native'
-
-import GradientView from '../../../components/elements/GradientView'
-import ToolTips from '../../../components/elements/ToolTips'
-import CurrencyIcon from '../../../components/elements/CurrencyIcon'
-import LetterSpacing from '../../../components/elements/LetterSpacing'
-import Loader from '../../../components/elements/LoaderItem'
-import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
-
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-import AsyncStorage from '@react-native-community/async-storage'
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-
-import Log from '../../../services/Log/Log'
-import Toast from '../../../services/UI/Toast/Toast'
-import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
-import checkTransferHasError from '../../../services/UI/CheckTransferHasError/CheckTransferHasError'
-
-import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
-
-import currencyActions from '../../../appstores/Stores/Currency/CurrencyActions'
-
-import { strings } from '../../../services/i18n'
-
+import _isEqual from 'lodash/isEqual'
+import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons'
 import IconAwesome from 'react-native-vector-icons/FontAwesome'
-import NavStore from '../../../components/navigation/NavStore'
-import CustomIcon from '../../../components/elements/CustomIcon'
-import { HIT_SLOP } from '../../../themes/Themes'
 
-class HeaderBlocks extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
+import GradientView from '@app/components/elements/GradientView'
+import CurrencyIcon from '@app/components/elements/CurrencyIcon'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
+import Loader from '@app/components/elements/LoaderItem'
 
-        }
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import AsyncStorage from '@react-native-community/async-storage'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+import Log from '@app/services/Log/Log'
+import Toast from '@app/services/UI/Toast/Toast'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
+
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+
+import { strings } from '@app/services/i18n'
+
+import NavStore from '@app/components/navigation/NavStore'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import { HIT_SLOP } from '@app/themes/Themes'
+
+class HeaderBlocks extends PureComponent {
+
+    shouldComponentUpdate(nextProps) {
+        return !_isEqual(this.props, nextProps)
     }
 
     handleOpenLink = async (address, forceLink = false) => {
@@ -66,8 +63,8 @@ class HeaderBlocks extends Component {
         let text = account.id + ' ' + account.address + ' ' + account.balanceProvider + ' current ' + account.balance + ', scan log ' + account.balanceScanLog
         if (typeof account.legacyData !== 'undefined' && account.legacyData) {
             text += `
-        
-        
+
+
         ` + account.legacyData.id + ' ' + account.legacyData.address + ' ' + account.legacyData.balanceProvider + ' current ' + account.legacyData.balance + ', scan log ' + account.legacyData.balanceScanLog
         }
 
@@ -80,13 +77,8 @@ class HeaderBlocks extends Component {
     }
 
     actualOpen = (address, forceLink = false) => {
-        const{ currencyExplorerLink } = this.props.cryptoCurrency
-        let actualLink
-        if (forceLink) {
-            actualLink = forceLink
-        } else {
-            actualLink = currencyExplorerLink + address
-        }
+        const { currencyExplorerLink } = this.props.cryptoCurrency
+        const actualLink = forceLink || currencyExplorerLink + address
         Linking.canOpenURL(actualLink).then(supported => {
             if (supported) {
                 let linkUrl = actualLink
@@ -144,25 +136,29 @@ class HeaderBlocks extends Component {
                             onPressOut={() => triggerBalanceVisibility(false)}
                             activeOpacity={1}
                             disabled={originalVisibility}
-                            hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
-                            >
-                            {isBalanceVisible ?
-                            <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
-                                {balancePrettyPrep1}
-                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
-                                    {balancePrettyPrep2}
+                            hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
+                        >
+                            {isBalanceVisible ? (
+                                <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
+                                    {balancePrettyPrep1}
+                                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
+                                        {balancePrettyPrep2}
+                                    </Text>
                                 </Text>
-                            </Text>
-                            :
+                            ) : (
                                 <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
-                                    ****</Text>
-                            }
+                                    ****
+                                </Text>
+                            )}
                         </TouchableOpacity>
                     </View>
-                    { isBalanceVisible &&
-                    <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                        textStyle={{ ...styles.topContent__subtitle, color: colors.common.text2 }} letterSpacing={.5} />
-                    }
+                    {isBalanceVisible && (
+                        <LetterSpacing
+                            text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
+                            textStyle={{ ...styles.topContent__subtitle, color: colors.common.text2 }}
+                            letterSpacing={.5}
+                        />
+                    )}
                 </View>
             )
         } else {
@@ -200,51 +196,39 @@ class HeaderBlocks extends Component {
     }
 
     settings = (currencyCode) => {
-        if (currencyCode === 'BTC') {
-            return this.handleSettingAccount(currencyCode)
-        } else if (currencyCode === 'USDT') {
-            return this.handleSettingAccount(currencyCode)
-        } else if (currencyCode === 'XVG') {
-            return this.handleSettingAccount(currencyCode)
-        } else if (currencyCode === 'ETC') {
-            return this.handleSettingAccount(currencyCode)
-        } else if (currencyCode === 'ETH') {
-            return this.handleSettingAccount(currencyCode)
-        } else if (currencyCode === 'FIO') {
-            return this.handleSettingAccount(currencyCode)
-        } else if (currencyCode === 'XMR') {
-            return this.handleSettingAccount(currencyCode)
-        } else if (currencyCode === 'TRX') {
-            return this.handleSettingAccount(currencyCode)
-        } else if (currencyCode === 'BNB') {
-            return this.handleSettingAccount(currencyCode)
-        } else {
-            return null
+        switch (currencyCode) {
+            case 'BTC':
+            case 'USDT':
+            case 'XVG':
+            case 'ETC':
+            case 'ETH':
+            case 'FIO':
+            case 'XMR':
+            case 'TRX':
+            case 'BNB':
+                return this.handleSettingAccount(currencyCode)
+            default:
+                return null
         }
     }
 
     render() {
-
         const { colors } = this.context
 
-        const { mainStore, account, cryptoCurrency, settingsStore } = this.props
+        const { account, cryptoCurrency, isSegwit } = this.props
         const address = account.address
 
         let shownAddress = address
         let forceLink = false
-        let isSegwit = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit'
         if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
             shownAddress = isSegwit ? account.segwitAddress : account.legacyAddress
         }
-        if (cryptoCurrency.currencyCode === 'BTC') {
-            if (typeof account.walletPubs !== 'undefined' && account.walletPubs) {
-                isSegwit = isSegwit ? 'btc.84' : 'btc.44'
-                if (typeof account.walletPubs[isSegwit] !== 'undefined' && account.walletPubs[isSegwit].walletPubValue) {
-                    forceLink = 'https://blockchair.com/bitcoin/xpub/' + account.walletPubs[isSegwit].walletPubValue
-                }
+        if (cryptoCurrency.currencyCode === 'BTC' && account.walletPubs) {
+            isSegwit = isSegwit ? 'btc.84' : 'btc.44'
+            if (typeof account.walletPubs[isSegwit] !== 'undefined' && account.walletPubs[isSegwit].walletPubValue) {
+                forceLink = 'https://blockchair.com/bitcoin/xpub/' + account.walletPubs[isSegwit].walletPubValue
             }
         }
-
 
         const addressPrep = BlocksoftPrettyStrings.makeCut(shownAddress, 6, 6)
 
@@ -253,42 +237,46 @@ class HeaderBlocks extends Component {
                 <View style={styles.topContent__content}>
                     <View style={{ flexDirection: 'row' }} >
                         <View style={{ marginTop: 16 }}>
-                            <TouchableOpacity style={{
-                                position: 'relative',
-                                padding: 20,
-                                paddingTop: 0,
-                                alignItems: 'center'
-                            }} onPress={() => this.handleOpenLink(shownAddress, forceLink)}
+                            <TouchableOpacity
+                                style={styles.linkButton}
+                                onPress={() => this.handleOpenLink(shownAddress, forceLink)}
                                 onLongPress={() => this.handleOpenLinkLongPress()}
-                                delayLongPress={5000}>
-                                <View style={{ position: 'relative', width: 50, height: 50 }}>
-                                    <GradientView style={styles.topContent__icon} array={colors.accountScreen.containerBGIcon}
+                                delayLongPress={5000}
+                            >
+                                <View style={{ width: 50, height: 50 }}>
+                                    <GradientView
+                                        style={styles.topContent__icon}
+                                        array={colors.accountScreen.containerBGIcon}
                                         start={styles.containerBG.start}
-                                        end={styles.containerBG.end} />
+                                        end={styles.containerBG.end}
+                                    />
                                     <View style={styles.icon}>
-                                        <CurrencyIcon currencyCode={cryptoCurrency.currencyCode}
+                                        <CurrencyIcon
+                                            currencyCode={cryptoCurrency.currencyCode}
                                             containerStyle={{ borderWidth: 0 }}
                                             markStyle={{ top: 30 }}
                                             textContainerStyle={{ bottom: -19 }}
-                                            textStyle={{ backgroundColor: 'transparent' }} />
+                                            textStyle={{ backgroundColor: 'transparent' }}
+                                        />
                                     </View>
-                                    <View style={{ ...styles.topContent__bottom__btn__shadow }}>
+                                    <View style={styles.topContent__bottom__btn__shadow}>
                                         <View style={styles.topContent__bottom__btn__shadow__item} />
                                     </View>
                                 </View>
                             </TouchableOpacity>
                         </View>
                         <View style={{ marginTop: 22 }}>
-                            <Text style={{...styles.currencyName, color: colors.common.text1 }}>{cryptoCurrency.currencySymbol}</Text>
-                            <TouchableOpacity style={styles.topContent__middle}
+                            <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{cryptoCurrency.currencySymbol}</Text>
+                            <TouchableOpacity
+                                style={styles.topContent__middle}
                                 onPress={() => this.handleBtcAddressCopy(shownAddress)}
-                                hitSlop={HIT_SLOP}>
+                                hitSlop={HIT_SLOP}
+                            >
                                 <View style={{ alignItems: 'center' }}>
                                     <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
                                 </View>
-                                <View onPress={() => this.handleBtcAddressCopy(shownAddress)}
-                                    style={styles.copyBtn}>
-                                    <Copy name="content-copy" size={15} color={'#939393'} />
+                                <View onPress={() => this.handleBtcAddressCopy(shownAddress)} style={styles.copyBtn}>
+                                    <IconMaterial name="content-copy" size={15} color={'#939393'} />
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -296,11 +284,14 @@ class HeaderBlocks extends Component {
                             {this.settings(account.currencyCode)}
                         </View>
                     </View>
-                    {this.renderBalance(cryptoCurrency, mainStore.selectedAccount)}
+                    {this.renderBalance(cryptoCurrency, account)}
                 </View>
-                <GradientView style={styles.bg}
-                    array={colors.accountScreen.containerBG} start={styles.containerBG.start}
-                    end={styles.containerBG.end} />
+                <GradientView
+                    style={styles.bg}
+                    array={colors.accountScreen.containerBG}
+                    start={styles.containerBG.start}
+                    end={styles.containerBG.end}
+                />
                 <View style={styles.topContent__bg}>
                     <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
                 </View>
@@ -314,6 +305,12 @@ HeaderBlocks.contextType = ThemeContext
 export default HeaderBlocks
 
 const styles = {
+    linkButton: {
+        position: 'relative',
+        padding: 20,
+        paddingTop: 0,
+        alignItems: 'center',
+    },
     containerBG: {
         start: { x: 0.0, y: 0 },
         end: { x: 0, y: 1 }

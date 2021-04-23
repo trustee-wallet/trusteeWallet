@@ -1,88 +1,72 @@
 /**
  * @version 0.11
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import {
     Platform,
     View,
     Text,
     TouchableOpacity,
-    Dimensions, PixelRatio
+    Dimensions,
+    PixelRatio,
 } from 'react-native'
+import Dash from 'react-native-dash'
 import { BoxShadow } from 'react-native-shadow'
+import _ from 'lodash'
 
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import MaterialCommunity from 'react-native-vector-icons/MaterialCommunityIcons'
-import Dash from 'react-native-dash'
-
-import _ from 'lodash'
-
-import Circle from './Circle'
-import GradientView from '../../../components/elements/GradientView'
-import CustomIcon from '../../../components/elements/CustomIcon'
-
-import NavStore from '../../../components/navigation/NavStore'
-
-import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
-import Log from '../../../services/Log/Log'
-import Toast from '../../../services/UI/Toast/Toast'
-import { strings } from '../../../services/i18n'
-
-import UIDict from '../../../services/UIDict/UIDict'
-
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import updateTradeOrdersDaemon from '../../../daemons/back/UpdateTradeOrdersDaemon'
+import GradientView from '@app/components/elements/GradientView'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import Circle from './Circle'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-import config from '../../../config/config'
+import NavStore from '@app/components/navigation/NavStore'
 
-class Transaction extends Component {
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
+import UIDict from '@app/services/UIDict/UIDict'
+
+import updateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import config from '@app/config/config'
+
+class Transaction extends PureComponent {
 
     constructor(props) {
         super(props)
         this.state = {
-            styles: {},
+            styles: this.getPreparedStyles(),
+            currencyColor: '',
         }
     }
 
-    async UNSAFE_componentWillMount() {
-        this.init()
+    componentDidMount() {
+        const dict = new UIDict(this.props.cryptoCurrency.currencyCode)
+        const color = dict.settings.colors[this.context.isLight ? 'mainColor' : 'darkColor']
+        this.setState(() => ({ currencyColor: color }))
     }
 
-    async componentDidMount() {
-        this.init()
+    shouldComponentUpdate(nextProps, nextState) {
+        return !_.isEqual(this.props, nextProps) || !_.isEqual(this.state, nextState)
     }
 
-    async componentDidUpdate(prevProps, prevState) {
-    //    this.init()
-    }
-
-    init() {
+    getPreparedStyles() {
         const { transaction } = this.props
-        const transactionStatus = this.prepareStatus(transaction.transactionVisibleStatus)
-        const transactionDirection = this.prepareDirection(transaction.transactionDirection)
-        const styles = JSON.parse(JSON.stringify(this.prepareStyles(transactionStatus, transactionDirection)))
-        this.setState({
-            styles
-        })
-    }
-
-    prepareStyles = (status, direction) => {
-        let styles = globalStyles.themes[direction]
-        if (status === 'new' || status === 'confirming' || status === 'done_payin' || status === 'wait_trade' || status === 'done_trade' || status === 'pending_payin') {
+        const status = this.prepareStatus(transaction.transactionVisibleStatus)
+        const direction = transaction.transactionDirection
+        let styles
+        if (/new|confirming|done_payin|wait_trade|done_trade|pending_payin/.test(status)) {
             styles = globalStyles.themes.new
+        } else {
+            styles = globalStyles.themes[direction]
         }
-        return _.merge(globalStyles.default, styles)
-    }
-
-    prepareDirection = (transactionDirection) => {
-        return transactionDirection
-    }
-
-    prepareWayType = (wayType) => {
-        return wayType // moved to preformatWithBSEforShow
+        const prepared = _.merge(globalStyles.default, styles)
+        return JSON.parse(JSON.stringify(prepared))
     }
 
     prepareStatus = (transactionStatus) => {
@@ -133,11 +117,8 @@ class Transaction extends Component {
 
     renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
         const { colors, isLight } = this.context
-        const { styles } = this.state
-        const { amountToView, count, transactions, cryptoCurrency } = this.props
-
-        const dict = new UIDict(cryptoCurrency.currencyCode)
-        const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
+        const { styles, currencyColor } = this.state
+        const { isFirst, cryptoCurrency, dashHeight: height } = this.props
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}
@@ -147,7 +128,7 @@ class Transaction extends Component {
         }
         if (transactionDirection === 'self') {
             arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
-            circleStyle = { backgroundColor: isStatus ? color : colors.accountScreen.transactions.circleBackground }
+            circleStyle = { backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circleBackground }
         }
         // if (status === 'fail' || status === 'missing' || status === 'replaced') {
         if (visibleStatus.toUpperCase() === 'MISSING' || visibleStatus.toUpperCase() === 'OUT_OF_ENERGY') {
@@ -157,8 +138,7 @@ class Transaction extends Component {
 
         const statusTmp = status !== 'new' && status !== 'confirming' && status !== 'done_payin' && status !== 'wait_trade' && status !== 'done_trade' && status !== 'pending_payin' && status !== 'pending_payin'
 
-        const marginTop = !count ? 50 : 0
-        const height = (amountToView === count + 1 && transactions && transactions.length === count + 1) ? 50 : 700
+        const marginTop = isFirst ? 50 : 0
 
         const { width: SCREEN_WIDTH } = Dimensions.get('window')
         const PIXEL_RATIO = PixelRatio.get()
@@ -182,19 +162,21 @@ class Transaction extends Component {
                 marginTop: !statusTmp ? 1 : 0
             }]}>
                 <View style={{ position: 'absolute', top: 3, left: 23 }}>
-                    <Dash style={{
-                        width: 2,
-                        height: !this.props.dash ? height : transactions.length === 1 ? 0 : 70,
-                        marginTop: marginTop,
-                        flexDirection: 'column'
-                    }}
+                    <Dash
+                        style={{
+                            width: 2,
+                            height,
+                            marginTop: marginTop,
+                            flexDirection: 'column'
+                        }}
                         dashColor={colors.accountScreen.transactions.dashColor}
                         dashGap={3}
-                        dashLength={3} />
+                        dashLength={3}
+                    />
                 </View>
                 <Circle style={{
                     ...styles.transaction__circle__small, ...circleStyle,
-                    backgroundColor: isStatus ? color : colors.accountScreen.transactions.circle,
+                    backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circle,
                     width: 24,
                     height: 24
                 }}>
@@ -204,8 +186,9 @@ class Transaction extends Component {
                         width: '100%',
                         height: '100%',
                         borderRadius: 25,
-                        backgroundColor: isStatus ? color : colors.accountScreen.transactions.circle, ...circleStyle,
-                        marginLeft:  0
+                        backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circle,
+                        ...circleStyle,
+                        marginLeft: 0,
                     }}>
                         {arrowIcon}
                     </View>
@@ -231,7 +214,7 @@ class Transaction extends Component {
     }
 
     render() {
-        const { styles } = this.state
+        const { styles, currencyColor } = this.state
         const { colors, isLight } = this.context
 
         const { cryptoCurrency, transaction } = this.props
@@ -241,8 +224,8 @@ class Transaction extends Component {
         const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
         const transactionStatus = this.prepareStatus(transaction.transactionStatus)
         const transactionBlockchainStatus = transaction.transactionBlockchainStatus
-        const transactionDirection = this.prepareDirection(transaction.transactionDirection)
-        const wayType = this.prepareWayType(transaction.wayType)
+        const transactionDirection = transaction.transactionDirection
+        const wayType = transaction.wayType
 
         let value, valueToView, currencySymbolToView
         if (transaction.addressAmountSatoshi && (cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'DOGE')) {
@@ -255,21 +238,10 @@ class Transaction extends Component {
             currencySymbolToView = cryptoCurrency.currencySymbol
         }
         const basicValueToView = wayType !== 'EXCHANGE' && typeof transaction.basicAmountPretty !== 'undefined' ?
-            ( transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty ) : false
+            (transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty) : false
 
         const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
         // end preformat
-
-
-        const dict = new UIDict(cryptoCurrency.currencyCode)
-        const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
-
-
-
-        // const doteSlice = subtitle ? subtitle.indexOf('-') : -1
-        // const subtitleMini = transaction.bseOrderData.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
-        //     transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
-        //         transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
 
         let subtitle = false
         let subtitleMini = ''
@@ -279,7 +251,7 @@ class Transaction extends Component {
             }
             if (bseOrderData.exchangeWayType === 'SELL') {
                 subtitleMini = bseOrderData.outDestination.slice(-7)
-            } else if (bseOrderData.exchangeWayType === 'EXCHANGE'){
+            } else if (bseOrderData.exchangeWayType === 'EXCHANGE') {
                 subtitleMini = transactionDirection !== 'income' ?
                     bseOrderData.requestedOutAmount.currencyCode : bseOrderData.requestedInAmount.currencyCode
             }
@@ -300,7 +272,7 @@ class Transaction extends Component {
                                         style={{ ...styles.transaction__top__type__icon, color: colors.accountScreen.transactions.transactionTitleColor }} />
                                 </View> : null
                         }
-                        <Text style={[styles.transaction__top__type, { color: isStatus ? color : colors.accountScreen.transactions.transactionTitleColor }]}>
+                        <Text style={[styles.transaction__top__type, { color: isStatus ? currencyColor : colors.accountScreen.transactions.transactionTitleColor }]}>
                             {isStatus ? strings(`account.transactionStatuses.${transactionBlockchainStatus === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
                         </Text>
                         {this.ifTxsTW()}
@@ -309,18 +281,18 @@ class Transaction extends Component {
                         <View style={{ ...styles.transaction__content__item, backgroundColor: colors.accountScreen.transactions.transactionContentBack }}>
                             <TouchableOpacity onPress={() => this.transactionDetails(transaction)}>
                                 <GradientView
-                                    style={[styles.transaction__item, styles.transaction__item_active ]}
+                                    style={[styles.transaction__item, styles.transaction__item_active]}
                                     array={colors.accountScreen.transactions.transactionGradientArray}
                                     start={styles.transaction__item_bg.start}
-                                    end={styles.transaction__item_bg.end}>
+                                    end={styles.transaction__item_bg.end}
+                                >
                                     <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'out_of_energy' ? 0.5 : null }}>
-                                        <View style={{ justifyContent: 'center', width: '75%' }}>
+                                        <View style={{ justifyContent: 'center', flex: 3 }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%' }}>
-                                                {/* width: subtitle ? '45%' : '100%' */}
-                                                <Text style={{...styles.transaction__item__title, color: colors.common.text1}} numberOfLines={1}>
+                                                <Text style={{ ...styles.transaction__item__title, color: colors.common.text1 }} numberOfLines={1}>
                                                     {valueToView}
                                                 </Text>
-                                                <Text style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors[isLight ? 'mainColor' : 'darkColor'] }]}>
+                                                <Text style={[styles.transaction__item__title__subtitle, { color: currencyColor }]}>
                                                     {currencySymbolToView}
                                                 </Text>
                                                 {
@@ -337,12 +309,13 @@ class Transaction extends Component {
                                                         : null
                                                 }
                                             </View>
-                                            { basicValueToView ?
+                                            {basicValueToView ? (
                                                 <Text style={{ ...styles.transaction__item__subtitle, color: '#999999' }}>
                                                     {basicValueToView}
-                                                </Text> : null}
+                                                </Text>
+                                            ) : null}
                                         </View>
-                                        <View style={{ flexDirection: 'column', alignItems: 'flex-end', width: '25%' }}>
+                                        <View style={{ flexDirection: 'column', alignItems: 'flex-end', flex: 1 }}>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
                                                 {this.getTransactionDate(createdAt)}</Text>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
@@ -353,15 +326,23 @@ class Transaction extends Component {
                                 </GradientView>
                             </TouchableOpacity>
                         </View>
-                        {isStatus && Platform.OS !== 'ios' && typeof this.state.height !== 'undefined' && typeof this.state.width !== 'undefined' ?
-                            <BoxShadow setting={{
-                                ...styles.shadow__item__android, color: color,
-                                height: this.state.height, width: this.state.width
-                            }} fromTransaction={1}>
-                            </BoxShadow> :
-                            <View style={styles.shadow}>
-                                <View style={{ ...styles.shadow__item, shadowColor: isStatus ? color : null }} />
-                            </View>}
+                        {
+                            isStatus && Platform.OS !== 'ios' && this.state.height && this.state.width ? (
+                                <BoxShadow
+                                    setting={{
+                                        ...styles.shadow__item__android,
+                                        color: currencyColor,
+                                        height: this.state.height,
+                                        width: this.state.width
+                                    }}
+                                    fromTransaction={1}
+                                />
+                            ) : (
+                                <View style={styles.shadow}>
+                                    <View style={{ ...styles.shadow__item, shadowColor: isStatus ? currencyColor : null }} />
+                                </View>
+                            )
+                        }
                     </View>
                 </View>
             </View>
