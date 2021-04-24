@@ -9,17 +9,14 @@ import {
     Text,
     StatusBar,
     SafeAreaView,
-    Animated, Platform
 } from 'react-native'
-import { connect } from 'react-redux'
 
 import AntIcon from 'react-native-vector-icons/AntDesign'
 
-import { HIT_SLOP } from '../../../themes/Themes'
+import { HIT_SLOP } from '@app/themes/Themes'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
-
-export default class Header extends React.Component {
+export default class Header extends React.PureComponent {
 
     getLeftAction = () => {
         const {
@@ -72,7 +69,7 @@ export default class Header extends React.Component {
     processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
 
     render() {
-        const { title, setHeaderHeight, ExtraView, anime } = this.props
+        const { title, ExtraView } = this.props
         const {
             colors,
             isLight,

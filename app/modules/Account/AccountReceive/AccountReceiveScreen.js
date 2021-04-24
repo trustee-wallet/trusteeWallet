@@ -2,16 +2,9 @@
  * @version 0.31
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    ScrollView,
-    Platform,
-    Dimensions
-} from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform,  Dimensions } from 'react-native'
 
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -28,7 +21,7 @@ import LightButton from '@app/components/elements/LightButton'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import Loader from '@app/components/elements/LoaderItem'
 
-import { strings, sublocale } from '@app/services/i18n'
+import { strings } from '@app/services/i18n'
 
 import Toast from '@app/services/UI/Toast/Toast'
 import Netinfo from '@app/services/Netinfo/Netinfo'
@@ -60,10 +53,10 @@ import Header from '@app/components/elements/new/Header'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
-import Buttons from './elements/buttons'
+import Buttons from '@app/components/elements/new/buttons/Buttons'
 import Tabs from '@app/components/elements/new/Tabs'
 
-import AmountInput from './elements/ReceiveInput'
+import AmountInput from './elements/AccountReceiveInput'
 import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 
 import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
@@ -73,7 +66,6 @@ import Button from '@app/components/elements/new/buttons/Button'
 import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import config from '@app/config/config'
 import AsyncStorage from '@react-native-community/async-storage'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -85,7 +77,7 @@ const amountInput = {
     mark: 'ETH'
 }
 
-class ReceiveScreen extends React.PureComponent {
+class AccountReceiveScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -131,7 +123,7 @@ class ReceiveScreen extends React.PureComponent {
 
             Toast.setMessage(strings('toast.copied')).show()
         } catch (e) {
-            Log.err('ReceiveScreen.copyToClip error', e.message)
+            Log.err('AccountReceiveScreen.copyToClip error', e.message)
         }
 
     }
@@ -144,7 +136,7 @@ class ReceiveScreen extends React.PureComponent {
         } else if (segwitAddress) {
             address = segwitAddress
         }
-        Log.log('ReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType })
+        Log.log('AccountReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType })
         return address
     }
 
@@ -175,7 +167,7 @@ class ReceiveScreen extends React.PureComponent {
             }
             return linkForQR
         } catch (e) {
-            Log.err('ReceiveScreen.getDataForQR error', e.message)
+            Log.err('AccountReceiveScreen.getDataForQR error', e.message)
         }
 
     }
@@ -206,9 +198,9 @@ class ReceiveScreen extends React.PureComponent {
             // }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
-                Log.log('ReceiveScreen.handleExchange error ' + e.message)
+                Log.log('AccountReceiveScreen.handleExchange error ' + e.message)
             } else {
-                Log.err('ReceiveScreen.handleExchange error ' + e.message)
+                Log.err('AccountReceiveScreen.handleExchange error ' + e.message)
             }
         }
     }
@@ -341,7 +333,7 @@ class ReceiveScreen extends React.PureComponent {
             setLoaderStatus(false)
         } catch (e) {
             // noinspection ES6MissingAwait
-            Log.err('ReceiveScreen.changeAddressType error ' + e.message)
+            Log.err('AccountReceiveScreen.changeAddressType error ' + e.message)
         }
     }
 
@@ -358,7 +350,6 @@ class ReceiveScreen extends React.PureComponent {
 
         try {
             const { settingAddressType } = this.state
-            const { cryptoCurrency, settingsStore } = this.props
 
             const tabs = [
                 {
@@ -383,7 +374,7 @@ class ReceiveScreen extends React.PureComponent {
                 </>
             )
         } catch (e) {
-            Log.err('ReceiveScreen.renderSegWitLegacy error ' + e.message)
+            Log.err('AccountReceiveScreen.renderSegWitLegacy error ' + e.message)
         }
     }
 
@@ -410,7 +401,7 @@ class ReceiveScreen extends React.PureComponent {
             }
         } catch (e) {
             // noinspection ES6MissingAwait
-            Log.err('ReceiveScreen changeAddress error ' + e.message)
+            Log.err('AccountReceiveScreen changeAddress error ' + e.message)
         }
 
         setLoaderStatus(false)
@@ -487,7 +478,7 @@ class ReceiveScreen extends React.PureComponent {
 
     handleChangeEquivalentType = () => {
         const { currencySymbol } = this.props.cryptoCurrency
-        const { basicCurrencyCode, basicCurrencySymbol } = this.props.account
+        const { basicCurrencyCode } = this.props.account
 
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
 
@@ -588,10 +579,9 @@ class ReceiveScreen extends React.PureComponent {
 
     render() {
         const { mainStore, settingsStore } = this.props
-        const { isSegWitLegacy, fioName, headerHeight, customAmount, focused, amountForQr, labelForQr, inputType } = this.state
+        const { fioName, headerHeight, customAmount, amountForQr, labelForQr, inputType } = this.state
         const { address, basicCurrencyCode } = this.props.account
         const { currencySymbol, currencyCode, decimals } = this.props.cryptoCurrency
-        const { btcShowTwoAddress = 1 } = settingsStore.data
 
         MarketingAnalytics.setCurrentScreen('Account.ReceiveScreen')
 
@@ -646,7 +636,7 @@ class ReceiveScreen extends React.PureComponent {
                                     logoSize={70}
                                     logoBackgroundColor='transparent'
                                     onError={(e) => {
-                                        Log.err('ReceiveScreen QRCode error ' + e.message)
+                                        Log.err('AccountReceiveScreen QRCode error ' + e.message)
                                     }}
                                 />
                             </View>
@@ -776,9 +766,9 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-ReceiveScreen.contextType = ThemeContext
+AccountReceiveScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReceiveScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(AccountReceiveScreen)
 
 const styles = {
     wrapper: {

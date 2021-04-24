@@ -2,7 +2,7 @@
  * @version 0.1
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 
 import {
     View,
@@ -17,25 +17,24 @@ import {
 } from 'react-native'
 
 
+import NavStore from '@app/components/navigation/NavStore'
 
-import NavStore from '../../components/navigation/NavStore'
-
-import ApiV3 from '../../services/Api/ApiV3'
-import Log from '../../services/Log/Log'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import ApiV3 from '@app/services/Api/ApiV3'
+import Log from '@app/services/Log/Log'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 import { WebView } from 'react-native-webview'
-import { strings } from '../../services/i18n'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import { strings } from '@app/services/i18n'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
 
-class CheckV3DataScreen extends React.PureComponent {
+class AccountTransactionCheckScreen extends React.PureComponent {
 
     constructor() {
         super()
@@ -74,7 +73,7 @@ class CheckV3DataScreen extends React.PureComponent {
 	    StatusBar.setBarStyle( isLight ? 'dark-content' : 'light-content' );
     }
 
-    componentWiilUnmount() {
+    componentWillUnmount() {
         const { isLight } = this.context
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
@@ -214,9 +213,9 @@ class CheckV3DataScreen extends React.PureComponent {
     }
 }
 
-CheckV3DataScreen.contextType = ThemeContext
+AccountTransactionCheckScreen.contextType = ThemeContext
 
-export default CheckV3DataScreen
+export default AccountTransactionCheckScreen
 
 const styles = {
     wrapper: {

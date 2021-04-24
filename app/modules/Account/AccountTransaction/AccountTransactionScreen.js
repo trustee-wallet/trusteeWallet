@@ -2,7 +2,7 @@
  * @version 0.31
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import {
     Platform,
     View,
@@ -12,7 +12,6 @@ import {
 } from 'react-native'
 import { connect } from 'react-redux'
 import { strings } from '@app/services/i18n'
-import Header from './elements/transactionHeader'
 import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import Feather from 'react-native-vector-icons/Feather'
@@ -26,8 +25,9 @@ import UIDict from '@app/services/UIDict/UIDict'
 
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import TransactionItem from './elements/TransactionItem'
+import Header from './elements/TransactionHeader'
 
-import Buttons from './elements/buttons'
+import Buttons from '@app/components/elements/new/buttons/Buttons'
 
 import { Pages } from 'react-native-pages'
 
@@ -50,11 +50,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import GradientView from '@app/components/elements/GradientView'
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import config from '@app/config/config'
-import {
-    setLoaderStatus,
-    setSelectedAccount,
-    setSelectedCryptoCurrency
-} from '@app/appstores/Stores/Main/MainStoreActions'
+import {  setLoaderStatus,  setSelectedAccount, setSelectedCryptoCurrency} from '@app/appstores/Stores/Main/MainStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
@@ -66,7 +62,7 @@ const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 let CACHE_DELETE_ORDER_ID = ''
 let CACHE_RESCAN_TX = false
 
-class TransactionScreen extends React.PureComponent {
+class AccountTransactionScreen extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -115,14 +111,14 @@ class TransactionScreen extends React.PureComponent {
                         if (typeof currencyCode !== 'undefined' && currencyCode) {
                             searchParams.currencyCode = currencyCode
                         }
-                        let tmp = await transactionDS.getTransactions(searchParams, 'TransactionScreen.init with transactionHash ' + transactionHash)
+                        let tmp = await transactionDS.getTransactions(searchParams, 'AccountTransactionScreen.init with transactionHash ' + transactionHash)
                         if (!tmp && currencyCode) {
                             await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
                                 force: true,
                                 currencyCode: currencyCode,
                                 source: 'TRANSACTION_PUSH'
                             })
-                            tmp = await transactionDS.getTransactions(searchParams, 'TransactionScreen.init with transactionHash ' + transactionHash)
+                            tmp = await transactionDS.getTransactions(searchParams, 'AccountTransactionScreen.init with transactionHash ' + transactionHash)
                         }
                         if (tmp) {
                             // if you need = add also transactionActions.preformat for basic rates
@@ -137,13 +133,13 @@ class TransactionScreen extends React.PureComponent {
                             tx = transactionActions.preformatWithBSEforShow(false, { orderHash, createdAt: notification.createdAt }, currencyCode)
                         }
                     } catch (e) {
-                        Log.log('TransactionScreen.init with transactionHash error  ' + e)
+                        Log.log('AccountTransactionScreen.init with transactionHash error  ' + e)
                     }
                 } else if (orderHash) {
                     try {
                         const tmp = await transactionDS.getTransactions({
                             bseOrderHash: orderHash
-                        }, 'TransactionScreen.init with orderHash ' + orderHash)
+                        }, 'AccountTransactionScreen.init with orderHash ' + orderHash)
                         if (tmp) {
                             // if you need = add also transactionActions.preformat for basic rates
                             currencyCode = tmp[0].currencyCode
@@ -159,12 +155,12 @@ class TransactionScreen extends React.PureComponent {
                             }
                         }
                     } catch (e) {
-                        Log.log('TransactionScreen.init with orderHash error  ' + e)
+                        Log.log('AccountTransactionScreen.init with orderHash error  ' + e)
                     }
                 } else {
                     Log.log('WTF?')
                 }
-                Log.log('TransactionScreen.tx search result ', JSON.parse(JSON.stringify(tx)))
+                Log.log('AccountTransactionScreen.tx search result ', JSON.parse(JSON.stringify(tx)))
             } else {
                 tx = transaction
                 currencyCode = transaction.currencyCode
@@ -218,7 +214,7 @@ class TransactionScreen extends React.PureComponent {
         } catch (e) {
             CACHE_RESCAN_TX = false
             if (config.debug.appErrors) {
-                console.log('TransactionScreen.rescanOnInit error ' + e.message)
+                console.log('AccountTransactionScreen.rescanOnInit error ' + e.message)
             }
         }
     }
@@ -291,7 +287,7 @@ class TransactionScreen extends React.PureComponent {
 
         } catch (e) {
             if (config.debug.appErrors) {
-                Log.log('TransactionScreen init error ', e)
+                Log.log('AccountTransactionScreen init error ', e)
             }
             Log.err(`TransactionScreen init error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(transaction)}`)
         }
@@ -754,7 +750,7 @@ class TransactionScreen extends React.PureComponent {
             return false
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
-            Log.log('TransactionScreen.renderReplaceByFee could not remove', { account, transaction })
+            Log.log('AccountTransactionScreen.renderReplaceByFee could not remove', { account, transaction })
             return false
         }
         array.push({
@@ -784,7 +780,7 @@ class TransactionScreen extends React.PureComponent {
                     await UpdateTradeOrdersDaemon.removeId(transaction.bseOrderData.orderId)
                 } catch (e) {
                     CACHE_DELETE_ORDER_ID = false
-                    Log.err('TransactionScreen.removeButton error ' + e.message)
+                    Log.err('AccountTransactionScreen.removeButton error ' + e.message)
                 }
                 setLoaderStatus(false)
             }
@@ -811,7 +807,7 @@ class TransactionScreen extends React.PureComponent {
             return false
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
-            Log.log('TransactionScreen.renderReplaceByFee could not replace', { account, transaction })
+            Log.log('AccountTransactionScreen.renderReplaceByFee could not replace', { account, transaction })
             return false
         }
         array.push({
@@ -844,7 +840,7 @@ class TransactionScreen extends React.PureComponent {
         array.push({
             icon: 'check',
             title: strings('account.transactionScreen.check'),
-            action: async () => NavStore.goNext('CheckV3DataScreen', { orderHash: transaction.bseOrderData.orderHash })
+            action: async () => NavStore.goNext('AccountTransactionCheckScreen', { orderHash: transaction.bseOrderData.orderHash })
         })
     }
 
@@ -991,7 +987,7 @@ class TransactionScreen extends React.PureComponent {
 
         // Log.log()
         // Log.log()
-        // Log.log('TransactionScreen.Transaction', JSON.stringify(transaction))
+        // Log.log('AccountTransactionScreen.Transaction', JSON.stringify(transaction))
 
         const dict = new UIDict(typeof cryptoCurrency !== 'undefined' ? cryptoCurrency.currencyCode : '')
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
@@ -1121,7 +1117,7 @@ class TransactionScreen extends React.PureComponent {
     }
 }
 
-TransactionScreen.contextType = ThemeContext
+AccountTransactionScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
@@ -1139,7 +1135,7 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TransactionScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(AccountTransactionScreen)
 
 const styles = {
     container: {

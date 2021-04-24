@@ -8,14 +8,10 @@ import {
     Text,
     TouchableOpacity,
 } from 'react-native'
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 
-import { useTheme } from '../../theme/ThemeProvider'
+import { useTheme } from '@app/modules/theme/ThemeProvider'
 
-import InsertShadow from 'react-native-inset-shadow'
-import CustomIcon from '../../../components/elements/CustomIcon'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
@@ -48,9 +44,6 @@ const TransactionItem = (props) => {
         subtitle,
         iconType,
         withoutBack,
-        isLink,
-        linkUrl,
-        handleLink,
         copyAction
     } = props
 
@@ -69,8 +62,7 @@ const TransactionItem = (props) => {
                     </View>
                 </View>
                 :
-                <>  
-                    {/* <InsertShadow containerStyle={{ flex: 1, borderRadius: 16, justifyContent: 'center', backgroundColor: '#F2F2F2' }} shadowRadius={5} shadowColor={'#999999'} > */}
+                <>
                         <View style={{ ...styles.wrapper, flexDirection: 'row', padding: GRID_SIZE, backgroundColor: colors.transactionScreen.backgroundItem  }} >
                             {iconType && (
                                 <View style={styles.icon}>
@@ -96,10 +88,6 @@ const TransactionItem = (props) => {
                                 </View>
                             </View>
                         </View>
-                    {/* </InsertShadow> */}
-                    {/* <View style={styles.shadow} >
-                        <View style={styles.shadowItem} />
-                    </View> */}
                 </>
             }
         </View>

@@ -4,22 +4,20 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native'
+import { Clipboard, TextInput, View, Platform } from 'react-native'
 
-import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
-import { capitalize } from '../../../services/UI/Capitalize/Capitalize'
-import Validator from '../../../services/UI/Validator/Validator'
-import Toast from '../../../services/UI/Toast/Toast'
-import { strings } from '../../../services/i18n'
-import { normalizeInputWithDecimals } from '../../../services/UI/Normalize/NormalizeInput'
-import BlocksoftPrettyStrings from '../../../../crypto/common/BlocksoftPrettyStrings'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Validator from '@app/services/UI/Validator/Validator'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
+import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 
-class ReceiveInput extends Component {
+class AccountReceiveInput extends Component {
 
     constructor(props) {
         super(props)
@@ -168,12 +166,10 @@ class ReceiveInput extends Component {
 
     render() {
 
-        const { value, focus, errors, autoFocus, fontSize } = this.state
+        const { value, errors, fontSize } = this.state
         const {
             id,
-            style,
             onFocus,
-            disabled,
             noEdit,
             enoughFunds = false,
             maxLength,
@@ -218,9 +214,9 @@ class ReceiveInput extends Component {
     }
 }
 
-ReceiveInput.contextType = ThemeContext
+AccountReceiveInput.contextType = ThemeContext
 
-export default connect(null, null, null, { forwardRef: true })(ReceiveInput)
+export default connect(null, null, null, { forwardRef: true })(AccountReceiveInput)
 
 const styles = {
     wrapper: {

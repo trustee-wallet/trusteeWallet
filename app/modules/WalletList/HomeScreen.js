@@ -225,7 +225,7 @@ class HomeScreen extends React.PureComponent {
 
             await setSelectedAccount()
 
-            NavStore.goNext('ReceiveScreen')
+            NavStore.goNext('AccountReceiveScreen')
         } catch (e) {
             Log.err('HomeScreen.handleReceive error ' + status + ' ' + e.message, cryptoCurrency)
         }

@@ -2,7 +2,7 @@
  * @version 0.31
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 
 import {
@@ -15,8 +15,6 @@ import {
 } from 'react-native'
 
 import LottieView from 'lottie-react-native'
-
-import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '@app/components/elements/GradientView'
 import NavStore from '@app/components/navigation/NavStore'
@@ -48,13 +46,12 @@ import AsyncStorage from '@react-native-community/async-storage'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
 import config from '@app/config/config'
-import DaemonCache from '@app/daemons/DaemonCache'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import Header from './elements/Header'
 import HeaderBlocks from './elements/HeaderBlocks'
-import AccountButtons from './elements/accountButtons'
+import AccountButtons from './elements/AccountButtons'
 import Transaction from './elements/Transaction'
 import BalanceHeader from './elements/AccountData'
 
@@ -140,7 +137,7 @@ class Account extends React.PureComponent {
             addressFrom: account.address,
             addressTo: account.address
         })
-        NavStore.goNext('ReceiveScreen')
+        NavStore.goNext('AccountReceiveScreen')
     }
 
     handleSend = async () => {
@@ -164,9 +161,6 @@ class Account extends React.PureComponent {
         try {
             await Netinfo.isInternetReachable()
 
-            // if (config.exchange.mode === 'PROD') {
-            //     NavStore.goNext('MainV3DataScreen', {tradeType: 'BUY', currencyCode: this.props.account.currencyCode})
-            // } else {
             let showMsg = await AsyncStorage.getItem('smartSwapMsg')
             showMsg = showMsg ? JSON.parse(showMsg) : false
 
@@ -393,18 +387,15 @@ class Account extends React.PureComponent {
 
         UpdateAccountListDaemon.pause()
 
-        const { colors, isLight } = this.context
-        const { mode } = this.state
+        const { colors } = this.context
         const { account, cryptoCurrency, settingsStore } = this.props
         const isSegwit = settingsStore.data.btc_legacy_or_segwit === 'segwit'
-        let { transactionsToView, isBalanceVisible } = this.state
+        let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = account.transactionsToView
         }
 
         const allTransactionsToView = transactionsToView // was concat before
-
-        const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
 
         let shownAddress = account.address
         if (account.segwitAddress) {

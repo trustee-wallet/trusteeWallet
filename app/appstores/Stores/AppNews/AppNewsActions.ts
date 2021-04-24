@@ -77,7 +77,7 @@ export namespace AppNewsActions {
                 createdAt: notification.newsCreated
             }
             if (orderTransactionHash) {
-                NavStore.goNext('TransactionScreen', {
+                NavStore.goNext('AccountTransactionScreen', {
                     txData: {
                         transactionHash : orderTransactionHash,
                         orderHash,
@@ -87,7 +87,7 @@ export namespace AppNewsActions {
                 })
                 return false
             } else if (orderHash) {
-                NavStore.goNext('TransactionScreen', {
+                NavStore.goNext('AccountTransactionScreen', {
                     txData: {
                         orderHash,
                         walletHash: notification.walletHash,
@@ -96,7 +96,7 @@ export namespace AppNewsActions {
                 })
                 return false
             } else if (transactionHash) {
-                NavStore.goNext('TransactionScreen', {
+                NavStore.goNext('AccountTransactionScreen', {
                     txData: {
                         currencyCode,
                         transactionHash,

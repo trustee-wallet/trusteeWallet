@@ -1,11 +1,11 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
-import { View } from 'react-native'
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
 import { BoxShadow } from 'react-native-shadow'
 
-class Circle extends Component {
+class Circle extends React.PureComponent {
 
     render() {
 

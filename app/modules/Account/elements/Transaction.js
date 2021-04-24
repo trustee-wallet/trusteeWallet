@@ -1,7 +1,7 @@
 /**
- * @version 0.11
+ * @version 0.43
  */
-import React, { PureComponent } from 'react'
+import React from 'react'
 import {
     Platform,
     View,
@@ -30,12 +30,9 @@ import Toast from '@app/services/UI/Toast/Toast'
 import { strings } from '@app/services/i18n'
 import UIDict from '@app/services/UIDict/UIDict'
 
-import updateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
-
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import config from '@app/config/config'
 
-class Transaction extends PureComponent {
+class Transaction extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -71,8 +68,7 @@ class Transaction extends PureComponent {
 
     prepareStatus = (transactionStatus) => {
         // orderStatus => transactionStatus moved to preformatWithBSEforShow
-        const transactionStatusTmp = typeof (transactionStatus) !== 'undefined' ? transactionStatus : 'new'
-        return !transactionStatusTmp ? 'new' : transactionStatusTmp
+        return typeof transactionStatus !== 'undefined' && transactionStatus ? transactionStatus : 'new'
     }
 
     prepareBlockConfirmations = (blockConfirmations) => {
@@ -116,9 +112,9 @@ class Transaction extends PureComponent {
     }
 
     renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
-        const { colors, isLight } = this.context
+        const { colors } = this.context
         const { styles, currencyColor } = this.state
-        const { isFirst, cryptoCurrency, dashHeight: height } = this.props
+        const { isFirst, dashHeight: height } = this.props
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}
@@ -206,7 +202,7 @@ class Transaction extends PureComponent {
     }
 
     transactionDetails = (tx) => {
-        NavStore.goNext('TransactionScreen', {
+        NavStore.goNext('AccountTransactionScreen', {
             txData: {
                 transaction: tx
             }
@@ -215,7 +211,7 @@ class Transaction extends PureComponent {
 
     render() {
         const { styles, currencyColor } = this.state
-        const { colors, isLight } = this.context
+        const { colors } = this.context
 
         const { cryptoCurrency, transaction } = this.props
         const { bseOrderData, createdAt } = transaction

@@ -1,11 +1,10 @@
 /**
- * @version 0.30
+ * @version 0.43
  */
-import React, { PureComponent } from 'react'
+import React from 'react'
 import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native'
 import _isEqual from 'lodash/isEqual'
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons'
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
 
 import GradientView from '@app/components/elements/GradientView'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
@@ -32,7 +31,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { HIT_SLOP } from '@app/themes/Themes'
 
-class HeaderBlocks extends PureComponent {
+class HeaderBlocks extends React.PureComponent {
 
     shouldComponentUpdate(nextProps) {
         return !_isEqual(this.props, nextProps)
@@ -215,7 +214,7 @@ class HeaderBlocks extends PureComponent {
     render() {
         const { colors } = this.context
 
-        const { account, cryptoCurrency, isSegwit } = this.props
+        let { account, cryptoCurrency, isSegwit } = this.props
         const address = account.address
 
         let shownAddress = address

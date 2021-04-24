@@ -112,7 +112,7 @@ export namespace SendActionsEnd {
         const { uiType, tbk } = sendScreenStore.ui
         const { transactionAction } = tbk
         if (typeof transactionAction !== 'undefined' && transactionAction !== '') {
-            NavStore.reset('TransactionScreen', {
+            NavStore.reset('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash,
                     toOpenAccountBack: true
@@ -143,13 +143,13 @@ export namespace SendActionsEnd {
                 }
             }
         } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
-            NavStore.goNext('TransactionScreen', {
+            NavStore.goNext('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash
                 }
             })
         } else if (uiType === 'TRADE_SEND') {
-            NavStore.reset('TransactionScreen', {
+            NavStore.reset('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash
                 }

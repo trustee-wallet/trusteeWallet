@@ -1,17 +1,16 @@
-import React, { Component } from 'react'
-import {
-    Text,
-    View,
-    TouchableOpacity
-} from 'react-native'
+/**
+ * @version 0.43
+ */
+import React from 'react'
+import { Text, View, TouchableOpacity } from 'react-native'
 
-import LetterSpacing from '../../../components/elements/LetterSpacing'
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
-import AccountButtons from './accountButtons'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-class BalanceHeader extends Component {
+import AccountButtons from './AccountButtons'
+
+class AccountData extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -29,8 +28,8 @@ class BalanceHeader extends Component {
     }
 
     triggerBalanceVisibility = (value) => {
-        this.setState({ 
-            isBalanceVisible: value || this.state.originalVisibility 
+        this.setState({
+            isBalanceVisible: value || this.state.originalVisibility
         })
     }
 
@@ -43,7 +42,7 @@ class BalanceHeader extends Component {
             actionSend
         } = this.props
 
-        const { colors, isLight } = this.context
+        const { colors } = this.context
 
         const { isBalanceVisible, originalVisibility } = this.state
 
@@ -95,9 +94,9 @@ class BalanceHeader extends Component {
     }
 }
 
-BalanceHeader.contextType = ThemeContext
+AccountData.contextType = ThemeContext
 
-export default BalanceHeader
+export default AccountData
 
 const styles = {
     topContent__top: {

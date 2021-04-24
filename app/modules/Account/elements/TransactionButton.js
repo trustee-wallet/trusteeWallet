@@ -1,19 +1,14 @@
 /**
- * @version 0.1
+ * @version 0.43
  * @author yura
  */
 
 import React from 'react'
-import {
-    Text,
-    TouchableOpacity
-} from 'react-native'
-
-import { useTheme } from '../../theme/ThemeProvider'
-
-import { strings } from '../../../services/i18n'
+import { Text, TouchableOpacity } from 'react-native'
 import FontistoIcon from 'react-native-vector-icons/Fontisto'
-import CustomIcon from '../../../components/elements/CustomIcon';
+
+import { useTheme } from '@app/modules/theme/ThemeProvider'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 
 const iconButton = (type) => {

@@ -1,13 +1,13 @@
 /**
- * @version 0.30
+ * @version 0.43
  */
-
 import React from 'react'
-import TransactionButton from './TransactionButton'
 import { View } from 'react-native'
-import { useTheme } from '../../theme/ThemeProvider'
 
-import { strings } from '../../../services/i18n'
+import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { strings } from '@app/services/i18n'
+
+import TransactionButton from './TransactionButton'
 
 const AccountButtons = (props) => {
 

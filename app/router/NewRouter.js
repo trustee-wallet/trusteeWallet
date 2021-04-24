@@ -31,9 +31,9 @@ import ReceiptScreen from '@app/modules/Send/ReceiptScreen'
 
 import AccountScreen from '@app/modules/Account/AccountScreen'
 import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountSettingsScreen'
-import ReceiveScreen from '@app/modules/Account/ReceiveScreen'
-import TransactionScreen from '@app/modules/Account/TransactionScreen'
-import CheckV3DataScreen from '@app/modules/Account/CheckV3'
+import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
+import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
+import AccountTransactionCheckScreen from '@app/modules/Account/AccountTransactionCheck/AccountTransactionCheckScreen'
 
 
 import FioChooseRecipient from '@app/modules/FIO/FioChooseRecipient'
@@ -101,9 +101,9 @@ export default () => {
         <Stack.Screen name='ReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='AccountScreen' component={AccountScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         <Stack.Screen name='AccountSettings' component={AccountSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-        <Stack.Screen name='TransactionScreen' component={TransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-        <Stack.Screen name='CheckV3DataScreen' component={CheckV3DataScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-        <Stack.Screen name='ReceiveScreen' component={ReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AccountTransactionScreen' component={AccountTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AccountTransactionCheckScreen' component={AccountTransactionCheckScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        <Stack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
 
         <Stack.Screen name='FioChooseRecipient' component={FioChooseRecipient} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

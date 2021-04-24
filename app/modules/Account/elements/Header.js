@@ -1,5 +1,5 @@
 /**
- * @version 0.1
+ * @version 0.43
  * @author yura
  */
 
@@ -10,20 +10,18 @@ import {
     Text,
     StatusBar,
     SafeAreaView,
-    Animated, Platform
+    Animated, Platform, StyleSheet
 } from 'react-native'
-import { connect } from 'react-redux'
 
 import AntIcon from 'react-native-vector-icons/AntDesign'
 
 import { HIT_SLOP } from '@app/themes/Themes'
-
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 const headerHeight = Platform.OS === 'android' ? 49 : 44
 const headerHeightSticky = Platform.OS === 'android' ? 148 : 138
 
-export default class Header extends React.Component {
+export default class Header extends React.PureComponent {
 
     constructor(props) {
         super(props)
@@ -110,14 +108,13 @@ export default class Header extends React.Component {
     }
 
     render() {
-        const { title, setHeaderHeight, ExtraView, anime } = this.props
+        const { title, ExtraView } = this.props
         const {
             colors,
             isLight,
             GRID_SIZE
         } = this.context
         const {
-            hasStickyHeader,
             height,
             opacity,
         } = this.state
@@ -158,7 +155,7 @@ export default class Header extends React.Component {
 Header.contextType = ThemeContext
 
 
-const styles = {
+const styles = StyleSheet.create({
     wrapper: {
         position: 'absolute',
         top: 0,
@@ -223,5 +220,5 @@ const styles = {
         letterSpacing: 1,
         textAlign: 'center'
     },
-}
+})
 
