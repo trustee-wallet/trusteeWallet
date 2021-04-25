@@ -75,7 +75,7 @@ class MarketModal extends Component {
                         <Button onPress={this.handleContinue} color={colors.modal.success} shadow={true} style={{ marginTop: 17 }}>
                             {strings('modal.marketModal.continue')}
                         </Button>
-                        <Button onPress={this.handleHide} style={{ backgroundColor: 'none', color: colors.modal.success }}>
+                        <Button onPress={this.handleHide} style={{ backgroundColor: 'transparent', color: colors.modal.success }}>
                             {strings('walletBackup.skipElement.no')}
                         </Button>
                     </View>

@@ -153,7 +153,7 @@ class MarketingEvent {
                 analytics().setUserProperty(key + '_FULL', val.toString().substr(0, 36))
             } else {
                 if (key === 'LOG_CASHBACK') {
-                    appsFlyer.setCustomerUserId(val.toString())
+                    appsFlyer.setCustomerUserId(val.toString(), () => {})
                 }
                 if (key === 'LOG_VERSION') {
                     // do nothing
