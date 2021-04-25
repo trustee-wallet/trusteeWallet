@@ -213,7 +213,7 @@ const Currencies = {
             currencyName: 'TrueUSD TRC20',
             currencyCode: 'TRX_TUSD',
             currencySymbol: 'TUSD',
-            extendsProcessor: 'TRX_TUSD',
+            extendsProcessor: 'TRX_USDT',
             addressUiChecker: 'TRX',
             ratesCurrencyCode: 'TUSD',
             network: 'trx',
