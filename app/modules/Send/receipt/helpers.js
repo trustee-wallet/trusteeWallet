@@ -28,15 +28,21 @@ const showSendError = function(e, _this, passwordCheck) {
         return false
     }
 
-    const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
     const msg = e.message
-    Log.errorTranslate(e, 'ReceiptScreen.showSendError', extend)
+    let shownMsg
+    if (e.message.indexOf('cloudflare') !== -1) {
+       shownMsg = strings('send.errors.SERVER_RESPONSE_CLOUDFLARE')
+    } else {
+        const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        Log.errorTranslate(e, 'ReceiptScreen.showSendError', extend)
+        shownMsg = e.message
+    }
 
     showModal({
         type: 'INFO_MODAL',
         icon: null,
         title: strings('modal.exchange.sorry'),
-        description: e.message
+        description: shownMsg
     }, async () => {
         if (
             msg.indexOf('SERVER_RESPONSE_PLEASE_SELECT_FEE') !== -1

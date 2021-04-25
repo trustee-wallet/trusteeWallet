@@ -892,6 +892,7 @@
     "errors": {
      "UI_CONFIRM_DOUBLE_SEND": "The transaction has been sent to this address already, are you sure that you want to repeat the transaction?",
      "UI_CALCULATE_CUSTOM_FEE" : "Please, calculate actual custom fee to use for send",
+     "SERVER_RESPONSE_CLOUDFLARE" : "Please, try again - no access to cloudflare protected server",
      "SERVER_RESPONSE_BAD_CODE": "Something went wrong, contact our support service, please,",
      "SERVER_RESPONSE_BAD_INTERNET": "No access to internet",
      "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "Transaction was not found, please check your internet connection. Possible delays for updating information",

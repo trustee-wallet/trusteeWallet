@@ -38,7 +38,7 @@ class Transaction extends React.PureComponent {
         super(props)
         this.state = {
             styles: this.getPreparedStyles(),
-            currencyColor: '',
+            currencyColor: '#000',
         }
     }
 

@@ -884,6 +884,7 @@
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND": "აღნიშნულ მისამართზე ტრანზაქცია უკვე გაგზავნილია. დარწმუნებული ხართ, რომ გინდათ ხელახლა გაგზავნა?",
       "UI_CALCULATE_CUSTOM_FEE": "გთხოვთ, დაითვალეთ სრული ღირებულება ბაიტის არჩეული ფასზე ",
+      "SERVER_RESPONSE_CLOUDFLARE" : "Please, try again - no access to cloudflare protected server",
       "SERVER_RESPONSE_BAD_CODE": "დაფიქსირდა შეცდომა. გთხოვთ, დაუკავშირდეთ მხარდაჭერის სამსახურს",
       "SERVER_RESPONSE_BAD_INTERNET": "არ არის კავშირი ინტერნეტთან",
       "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "ტრანზაქცია ვერ მოიძებნა, გთხოვთ, შეამოწმოთ კავშირი ინტერნეტთან. შესაძლოა ადგილი ჰქონდეს დაყოვნებას ინფორმაციის გამოსახულების მიღების თვალსაზრისით ",

@@ -321,16 +321,6 @@ class Account extends React.PureComponent {
 
     }
 
-    renderAddressTooltip = (props) => {
-        const address = props.address || ''
-        const addressPrep = BlocksoftPrettyStrings.makeCut(address, 6, 6)
-        return (
-            <View style={styles.topContent__address}>
-                <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
-            </View>
-        )
-    }
-
     closeAction = () => {
         NavStore.goBack()
     }
