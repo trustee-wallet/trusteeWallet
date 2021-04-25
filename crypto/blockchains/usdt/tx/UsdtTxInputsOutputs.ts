@@ -112,6 +112,9 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
                 needOneOutput = true
             }
         }
+        if (res.inputs.length === 0 && (!inputIsFound || newInputAdded.value === '546')) {
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST')
+        }
         res.inputs = newInputs
         if (res.inputs.length === 0 || !inputIsFound) {
             throw new Error('SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT')

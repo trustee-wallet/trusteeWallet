@@ -2,7 +2,7 @@
  * @version 0.41
  */
 import React from 'react'
-import { View, ScrollView } from 'react-native'
+import { View, ScrollView, Keyboard } from 'react-native'
 import { connect } from 'react-redux'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
@@ -29,6 +29,7 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import config from '@app/config/config'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
+import Log from '@app/services/Log/Log'
 
 let CACHE_IS_COUNTING = false
 
@@ -86,7 +87,10 @@ class SendScreen extends SendBasicScreen {
             CACHE_IS_COUNTING = false
             NavStore.goNext('SendAdvancedScreen')
         } catch (e) {
-            console.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
+            if (config.debug.sendLogs) {
+                console.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
+            }
+            Log.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
         }
@@ -97,6 +101,7 @@ class SendScreen extends SendBasicScreen {
             return true
         }
         setLoaderStatus(true)
+        Keyboard.dismiss()
         CACHE_IS_COUNTING = true
         try {
             if (config.debug.sendLogs) {
@@ -107,7 +112,10 @@ class SendScreen extends SendBasicScreen {
             CACHE_IS_COUNTING = false
             NavStore.goNext('ReceiptScreen')
         } catch (e) {
-            console.log('ReceiptScreen.handleGotoReceipt error ' + e.message)
+            if (config.debug.sendLogs) {
+                console.log('ReceiptScreen.handleGotoReceipt error ' + e.message)
+            }
+            Log.log('ReceiptScreen.handleGotoReceipt error ' + e.message)
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
         }

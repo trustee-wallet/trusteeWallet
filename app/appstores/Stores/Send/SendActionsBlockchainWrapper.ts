@@ -10,6 +10,7 @@ import Log from '@app/services/Log/Log'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
+import NavStore from '@app/components/navigation/NavStore'
 
 const { dispatch } = store
 
@@ -154,6 +155,10 @@ export namespace SendActionsBlockchainWrapper {
                     icon: null,
                     title: strings('modal.exchange.sorry'),
                     description: strings('send.errors.' + e.message)
+                }, () => {
+                    if (e.message === 'SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST') {
+                        NavStore.goBack()
+                    }
                 })
             } else {
                 Log.err('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
