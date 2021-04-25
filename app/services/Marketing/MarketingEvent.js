@@ -7,17 +7,17 @@ import analytics from '@react-native-firebase/analytics'
 import AsyncStorage from '@react-native-community/async-storage'
 import { Platform } from 'react-native'
 
-import Log from '../Log/Log'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import BlocksoftTg from '../../../crypto/common/BlocksoftTg'
-import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import Log from '@app/services/Log/Log'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftTg from '@crypto/common/BlocksoftTg'
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-
-import changeableProd from '../../config/changeable.prod'
-import changeableTester from '../../config/changeable.tester'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import changeableProd from '@app/config/changeable.prod'
+import changeableTester from '@app/config/changeable.tester'
 
 import DeviceInfo from 'react-native-device-info'
+import appsFlyer from 'react-native-appsflyer'
 
 
 let CACHE_TG_INITED = false
@@ -152,6 +152,9 @@ class MarketingEvent {
                 analytics().setUserProperty(key, short)
                 analytics().setUserProperty(key + '_FULL', val.toString().substr(0, 36))
             } else {
+                if (key === 'LOG_CASHBACK') {
+                    appsFlyer.setCustomerUserId(val.toString())
+                }
                 if (key === 'LOG_VERSION') {
                     // do nothing
                 } else {
@@ -211,6 +214,7 @@ class MarketingEvent {
 
         if (PREFIX !== 'RTM') {
             try {
+                await appsFlyer.logEvent(logTitle.replace(' ', '_'), logDataObject)
                 await analytics().logEvent(logTitle.replace(' ', '_'), logDataObject)
             } catch (e) {
                 await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
@@ -218,7 +222,7 @@ class MarketingEvent {
         }
 
         try {
-            await this.TG.send(PREFIX + `_2021_02_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
+            await this.TG.send(PREFIX + `_2021_04_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
         } catch (e) {
             await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
         }
