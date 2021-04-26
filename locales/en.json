@@ -1141,7 +1141,12 @@
   "validator": {
     "empty": "Please, fill in the %{name} field",
     "invalidFormat": "Inappropriate format",
-    "moreThanMax": "The %{name} must be less 255 characters"
+    "moreThanMax": "The %{name} must be less 255 characters",
+    "unstoppableErrors": {
+      "UnregisteredDomain": "Domain %{domain} is not registered",
+      "RecordNotFound": "Domain %{domain} has no %{ticker} address",
+      "UnspecifiedResolver": "Domain %{domain} has no resolver contract"
+    }
   },
   "toast": {
     "copied": "Copied to clipboard",

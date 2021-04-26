@@ -1134,7 +1134,12 @@
   "validator": {
     "empty": "Заполните поле",
     "invalidFormat": "Неправильный формат",
-    "moreThanMax": "Лимит возможной длины превышен"
+    "moreThanMax": "Лимит возможной длины превышен",
+    "unstoppableErrors": {
+      "UnregisteredDomain": "Домейн %{domain} не зарегистрирован",
+      "RecordNotFound": "Домейн %{domain} не имеет %{ticker} адресса",
+      "UnspecifiedResolver": "Домейн %{domain} не имеет резолвер контракта"
+    }
   },
   "toast": {
     "copied": "Скопировано в буфер",

@@ -22,6 +22,8 @@ import { normalizeInputWithDecimals } from '../../services/UI/Normalize/Normaliz
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import Log from '../../services/Log/Log'
 import NavStore from '../../components/navigation/NavStore'
+import Resolution, { ResolutionError, ResolutionErrorCode } from '@unstoppabledomains/resolution'
+import { address } from 'bitcoinjs-lib'
 
 
 class Input extends Component {
@@ -35,9 +37,11 @@ class Input extends Component {
             autoFocus: false,
             show: false,
             tap: true,
-            inputHeight : 0
+            inputHeight : 0,
+            isResolvingDomain: false
         }
         this.inputRef = React.createRef()
+        this.domainResolution = new Resolution();
     }
 
     componentDidMount() {
@@ -86,12 +90,64 @@ class Input extends Component {
 
     }
 
+    translateResolutionError = (domain, errorCode, ticker) => {
+        switch(errorCode) {
+            case ResolutionErrorCode.UnregisteredDomain:
+            case ResolutionErrorCode.RecordNotFound:
+            case ResolutionErrorCode.UnspecifiedResolver: {
+                const tkey = `validator.unstoppableErrors.${errorCode}`;
+                return strings(tkey, {domain, ticker});
+            }
+            default: {
+                return "Unknown Resolution Error";
+            }
+        }
+    }
+
+    resolveBlockchainDomain = async (domain, ticker) => {
+        console.log("starting the domain resolving process for ", {domain, ticker});
+        try {
+            if (!this.domainResolution.isSupportedDomain(domain)) { 
+                this.setState({
+                    value: domain,
+                    isResolvingDomain: false
+                });
+                return ;
+            }
+            const cryptoAddress = await this.domainResolution.addr(domain, ticker);
+            console.log(`got value ${cryptoAddress}`);
+            this.setState({
+                value: cryptoAddress,
+                isResolvingDomain: false,
+                errors: []
+            });
+        } catch (err) {
+            if (err instanceof ResolutionError) {
+                const errorMessage = this.translateResolutionError(domain, err.code, ticker);
+                this.setState({
+                    value: domain,
+                    errors: [{msg: errorMessage, field: 'address'}],
+                    isResolvingDomain: false
+                });
+                return ;
+            }
+            throw err;
+        }
+        return ;
+    }
+
     handleInput = async (value, useCallback) => {
 
         value === '' && !this.state.focus ? value = this.state.value : value
 
         const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
-
+        if (value.endsWith('.crypto') || value.endsWith('.zil')) {
+            this.setState({
+                isResolvingDomain: true,
+                value
+            });
+            await this.resolveBlockchainDomain(value.toLowerCase(), cuttype);
+        } else
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
             this.setState({
@@ -190,7 +246,7 @@ class Input extends Component {
 
     render() {
 
-        const { value, show, focus, errors, autoFocus } = this.state
+        const { value, show, focus, errors, autoFocus, isResolvingDomain } = this.state
         const {
             id,
             name,
@@ -225,8 +281,10 @@ class Input extends Component {
             isLine = true,
             isTextarea = false
         } = this.props
-        const placeholder = isCapitalize ? capitalize(name) : name
-
+        let placeholder = isCapitalize ? capitalize(name) : name
+        if (isResolvingDomain) {
+            placeholder = 'Resolving';
+        }
         let error = errors.find(item => item.field === id)
         error = typeof error !== 'undefined' ? error.msg : ''
         const isDisabled = typeof disabled !== 'undefined' ? disabled : false

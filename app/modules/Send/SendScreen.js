@@ -210,7 +210,7 @@ class SendScreen extends Component {
                     }
                     this.memoInput.handleInput(destinationTag)
                 }
-
+                // console.log("my Address is ", address);
                 this.addressInput.handleInput(address)
                 this.commentInput.handleInput(comment)
                 this.valueInput.handleInput(value)
