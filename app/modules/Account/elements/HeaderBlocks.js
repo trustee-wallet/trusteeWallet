@@ -23,8 +23,6 @@ import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckT
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
-
 import { strings } from '@app/services/i18n'
 
 import NavStore from '@app/components/navigation/NavStore'
@@ -36,6 +34,7 @@ class HeaderBlocks extends React.PureComponent {
     shouldComponentUpdate(nextProps) {
         return !_isEqual(this.props, nextProps)
     }
+
 
     handleOpenLink = async (address, forceLink = false) => {
         const now = new Date().getTime()
@@ -54,25 +53,6 @@ class HeaderBlocks extends React.PureComponent {
         } else {
             this.actualOpen(address, forceLink)
         }
-    }
-
-    handleOpenLinkLongPress = () => {
-        const { account } = this.props
-
-        let text = account.id + ' ' + account.address + ' ' + account.balanceProvider + ' current ' + account.balance + ', scan log ' + account.balanceScanLog
-        if (typeof account.legacyData !== 'undefined' && account.legacyData) {
-            text += `
-
-
-        ` + account.legacyData.id + ' ' + account.legacyData.address + ' ' + account.legacyData.balanceProvider + ' current ' + account.legacyData.balance + ', scan log ' + account.legacyData.balanceScanLog
-        }
-
-        showModal({
-            type: 'INFO_MODAL',
-            icon: 'INFO',
-            title: 'SYSTEM_LOG',
-            description: text.slice(0, 500)
-        })
     }
 
     actualOpen = (address, forceLink = false) => {
@@ -104,15 +84,15 @@ class HeaderBlocks extends React.PureComponent {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
-    renderBalance = (cryptoCurrency, account) => {
+    renderBalance = () => {
 
         const { colors, GRID_SIZE } = this.context
 
-        const { isBalanceVisible, triggerBalanceVisibility, originalVisibility } = this.props
+        const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility } = this.props
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance } = this.props.account
 
-        const isSyncronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
-
-        let tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+        let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
         if (typeof tmp.split === 'undefined') {
             throw new Error('AccountScreen.renderBalance split is undefined')
         }
@@ -126,7 +106,7 @@ class HeaderBlocks extends React.PureComponent {
             balancePrettyPrep2 = tmps[1]
         }
 
-        if (isSyncronized) {
+        if (isSynchronized) {
             return (
                 <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
@@ -135,9 +115,9 @@ class HeaderBlocks extends React.PureComponent {
                             onPressOut={() => triggerBalanceVisibility(false)}
                             activeOpacity={1}
                             disabled={originalVisibility}
-                            hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
+                            hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}
                         >
-                            {isBalanceVisible ? (
+                            {finalIsBalanceVisible ? (
                                 <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
                                     {balancePrettyPrep1}
                                     <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
@@ -151,9 +131,9 @@ class HeaderBlocks extends React.PureComponent {
                             )}
                         </TouchableOpacity>
                     </View>
-                    {isBalanceVisible && (
+                    {finalIsBalanceVisible && (
                         <LetterSpacing
-                            text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
+                            text={basicCurrencySymbol + ' ' + basicCurrencyBalance}
                             textStyle={{ ...styles.topContent__subtitle, color: colors.common.text2 }}
                             letterSpacing={.5}
                         />
@@ -215,13 +195,8 @@ class HeaderBlocks extends React.PureComponent {
         const { colors } = this.context
 
         let { account, cryptoCurrency, isSegwit } = this.props
-        const address = account.address
-
-        let shownAddress = address
+        const shownAddress = account.shownAddress
         let forceLink = false
-        if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
-            shownAddress = isSegwit ? account.segwitAddress : account.legacyAddress
-        }
         if (cryptoCurrency.currencyCode === 'BTC' && account.walletPubs) {
             isSegwit = isSegwit ? 'btc.84' : 'btc.44'
             if (typeof account.walletPubs[isSegwit] !== 'undefined' && account.walletPubs[isSegwit].walletPubValue) {
@@ -239,8 +214,6 @@ class HeaderBlocks extends React.PureComponent {
                             <TouchableOpacity
                                 style={styles.linkButton}
                                 onPress={() => this.handleOpenLink(shownAddress, forceLink)}
-                                onLongPress={() => this.handleOpenLinkLongPress()}
-                                delayLongPress={5000}
                             >
                                 <View style={{ width: 50, height: 50 }}>
                                     <GradientView
@@ -283,7 +256,7 @@ class HeaderBlocks extends React.PureComponent {
                             {this.settings(account.currencyCode)}
                         </View>
                     </View>
-                    {this.renderBalance(cryptoCurrency, account)}
+                    {this.renderBalance()}
                 </View>
                 <GradientView
                     style={styles.bg}

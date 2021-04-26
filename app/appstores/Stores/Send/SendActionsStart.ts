@@ -74,7 +74,8 @@ export namespace SendActionsStart {
         AsyncStorage.setItem('sendInputType', inputType)
     }
 
-    export const startFromAccountScreen = async (cryptoCurrency : any, account : any, uiType = 'ACCOUNT_SCREEN') => {
+    export const startFromAccountScreen = async (currencyCode : string, uiType = 'ACCOUNT_SCREEN') => {
+        const { cryptoCurrency, account } = findWalletPlus(currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
         dispatch({
@@ -88,8 +89,17 @@ export namespace SendActionsStart {
     }
 
 
-    export const startFromHomeScreen = async (cryptoCurrency : any, account : any)  => {
-        return startFromAccountScreen(cryptoCurrency, account, 'HOME_SCREEN')
+    export const startFromHomeScreen = async (cryptoCurrency : any, account : any, uiType = 'HOME_SCREEN')  => {
+        const dict = await formatDict(cryptoCurrency, account)
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
+        dispatch({
+            type: 'RESET_DATA',
+            ui: {
+                uiType
+            },
+            dict
+        })
+        NavStore.goNext('SendScreen')
     }
 
     export const startFromDEX = async (data : {

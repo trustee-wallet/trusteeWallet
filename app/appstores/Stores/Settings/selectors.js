@@ -5,6 +5,11 @@ export const getIsBalanceVisible = createSelector(
   (data => data.isBalanceVisible)
 )
 
+export const getIsSegwit = createSelector(
+    [state => state.settingsStore.data.btc_legacy_or_segwit === 'segwit'],
+    (data => data)
+)
+
 export const getIsTouchIDStatus = createSelector(
     [state => state.settingsStore.keystore.touchIDStatus],
     (data => data)

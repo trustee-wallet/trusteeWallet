@@ -2,7 +2,7 @@
  * @version 0.43
  */
 import React from 'react'
-import { Text, View, TouchableOpacity } from 'react-native'
+import { Text, View, TouchableOpacity, StyleSheet } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
@@ -15,28 +15,20 @@ class AccountData extends React.PureComponent {
     constructor(props) {
         super(props)
         this.state = {
-            isBalanceVisible: false,
-            originalVisibility: false
+            isBalanceVisible: false
         }
-    }
-
-    componentDidMount(){
-        this.setState({
-            isBalanceVisible: this.props.isBalanceVisible,
-            originalVisibility: this.props.originalVisibility
-        })
     }
 
     triggerBalanceVisibility = (value) => {
         this.setState({
-            isBalanceVisible: value || this.state.originalVisibility
+            isBalanceVisible: value
         })
     }
 
     render() {
         const {
-            account,
-            cryptoCurrency,
+            balancePretty,
+            currencySymbol,
             actionReceive,
             actionBuy,
             actionSend
@@ -44,9 +36,11 @@ class AccountData extends React.PureComponent {
 
         const { colors } = this.context
 
-        const { isBalanceVisible, originalVisibility } = this.state
+        const { isBalanceVisible, isBalanceVisibleTriggered, originalVisibility } = this.props
+        const finalIsBalanceVisible = this.state.isBalanceVisible || (isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility)
 
-        let tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
+
+        let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
 
         if (typeof tmp.split === 'undefined') {
             throw new Error('AccountScreen.renderBalance split is undefined')
@@ -72,11 +66,11 @@ class AccountData extends React.PureComponent {
                             disabled={originalVisibility}
                             hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
                             >
-                            {isBalanceVisible ?
+                            {finalIsBalanceVisible ?
                                 <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
                                     {balancePrettyPrep1}
                                     <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
-                                        {balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol}
+                                        {balancePrettyPrep2 + ' ' + currencySymbol}
                                     </Text>
                                 </Text> :
                                 <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 40, height: 34 }} >****</Text>
@@ -98,7 +92,7 @@ AccountData.contextType = ThemeContext
 
 export default AccountData
 
-const styles = {
+const styles = StyleSheet.create({
     topContent__top: {
         position: 'relative',
         alignItems: 'center',
@@ -127,4 +121,4 @@ const styles = {
         fontSize: 14,
         textAlign: 'center'
     },
-}
+})

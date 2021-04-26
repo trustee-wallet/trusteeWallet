@@ -20,6 +20,7 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
+import UIDict from '@app/services/UIDict/UIDict'
 
 
 const { dispatch } = store
@@ -73,6 +74,10 @@ export function setCurrentScreen(screen) {
 }
 
 export function setSelectedCryptoCurrency(data) {
+    const dict = new UIDict(data.currencyCode)
+    data.mainColor = dict.settings.colors['mainColor']
+    data.darkColor = dict.settings.colors['darkColor']
+
     dispatch({
         type: 'SET_SELECTED_CRYPTO_CURRENCY',
         selectedCryptoCurrency: data
@@ -265,27 +270,22 @@ export async function setSelectedAccount(setting) {
 
         account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
 
-        account.transactionsTotalLength = await DaemonCache.getCacheTxsCount(account, wallet)
         Log.log('ACT/MStore setSelectedAccount.transactionInfinity transactionsTotalLength cached ' + account.transactionsTotalLength)
 
         // cutpaste from account screen - to think about
         account.transactionsToView = []
+
         const params = {
             walletHash: account.walletHash,
             currencyCode: account.currencyCode,
             limitFrom: 0,
-            limitPerPage: 5
+            limitPerPage: 1
         }
         if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
             params.minAmount = 0
         }
         const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
         if (tmp && tmp.length > 0) {
-            if (account.transactionsTotalLength === 0) {
-                // somehow cache = zero is possible
-                account.transactionsTotalLength = await DaemonCache.getCacheTxsCount(account, wallet, true)
-                Log.log('ACT/MStore setSelectedAccount.transactionInfinity transactionsTotalLength forced ' + account.transactionsTotalLength)
-            }
             for (let transaction of tmp) {
                 transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)
                 account.transactionsToView.push(transaction)

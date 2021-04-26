@@ -28,7 +28,6 @@ import NavStore from '@app/components/navigation/NavStore'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 import { strings } from '@app/services/i18n'
-import UIDict from '@app/services/UIDict/UIDict'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
@@ -38,14 +37,7 @@ class Transaction extends React.PureComponent {
         super(props)
         this.state = {
             styles: this.getPreparedStyles(),
-            currencyColor: '#000',
         }
-    }
-
-    componentDidMount() {
-        const dict = new UIDict(this.props.cryptoCurrency.currencyCode)
-        const color = dict.settings.colors[this.context.isLight ? 'mainColor' : 'darkColor']
-        this.setState(() => ({ currencyColor: color }))
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -63,7 +55,7 @@ class Transaction extends React.PureComponent {
             styles = globalStyles.themes[direction]
         }
         const prepared = _.merge(globalStyles.default, styles)
-        return JSON.parse(JSON.stringify(prepared))
+        return {...prepared}
     }
 
     prepareStatus = (transactionStatus) => {
@@ -113,8 +105,9 @@ class Transaction extends React.PureComponent {
 
     renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
         const { colors } = this.context
-        const { styles, currencyColor } = this.state
+        const { styles } = this.state
         const { isFirst, dashHeight: height } = this.props
+        const currencyColor = this.props.cryptoCurrency.currencyColor
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}

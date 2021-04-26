@@ -1,5 +1,5 @@
 /**
- * @version 0.31
+ * @version 0.43
  * @author yura
  */
 import React from 'react'
@@ -18,15 +18,13 @@ import LottieView from 'lottie-react-native'
 
 import GradientView from '@app/components/elements/GradientView'
 import NavStore from '@app/components/navigation/NavStore'
-import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
 import AppLockBlur from '@app/components/AppLockBlur'
 
-import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import Log from '@app/services/Log/Log'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
@@ -43,7 +41,6 @@ import { strings } from '@app/services/i18n'
 import { HIT_SLOP } from '@app/themes/Themes'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import AsyncStorage from '@react-native-community/async-storage'
-import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
 import config from '@app/config/config'
 
@@ -63,10 +60,13 @@ import Netinfo from '@app/services/Netinfo/Netinfo'
 
 import { diffTimeScan } from './helpers'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
-import { getIsBlurVisible } from '@app/appstores/Stores/Main/selectors'
+import { getIsBlurVisible, getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
+import store from '@app/store'
 
 let CACHE_ASKED = false
-const TX_PER_PAGE = 20
+let CACHE_CLICKED_BACK = false
+const TX_PER_PAGE = 5
 
 class Account extends React.PureComponent {
 
@@ -78,21 +78,16 @@ class Account extends React.PureComponent {
 
             transactionsToView: [],
 
-            mode: 'TRANSACTIONS',
-
             fioMemo: {},
             isBalanceVisible: false,
-            originalVisibility: false,
+            isBalanceVisibleTriggered: false,
 
             hasStickyHeader: false,
         }
     }
 
     async componentDidMount() {
-        CACHE_ASKED = await AsyncStorage.getItem('asked')
-        this.loadTransactions()
-        this.getBalanceVisibility()
-        const { currencyCode } = this.props.cryptoCurrency
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
         if (currencyCode === 'FIO') {
             const fioAccount = await getAccountFioName()
             if (!fioAccount) {
@@ -104,15 +99,17 @@ class Account extends React.PureComponent {
                 }, this.handleRegisterFIOAddress)
             }
         }
+
+        this._onLoad()
     }
 
-    getBalanceVisibility = () => {
-        const isBalanceVisible = this.props.settingsStore.data.isBalanceVisible
-        this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
+    async _onLoad() {
+        CACHE_ASKED = await AsyncStorage.getItem('asked')
+        CACHE_CLICKED_BACK = false
     }
 
     triggerBalanceVisibility = (value) => {
-        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility, isBalanceVisibleTriggered : true }))
     }
 
     updateOffset = (event) => {
@@ -123,30 +120,31 @@ class Account extends React.PureComponent {
     }
 
     handleRegisterFIOAddress = async () => {
-        const { address } = this.props.account
+        const { address } = this.props.selectedAccountData
         const { apiEndpoints } = config.fio
         NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${address}`, title: strings('fioMainSettings.registerFioAddress') })
     }
 
     handleReceive = () => {
-        const { cryptoCurrency, account } = this.props
+        const { walletHash, address } = this.props.selectedAccountData
+        const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
+
         checkTransferHasError({
-            walletHash: account.walletHash,
-            currencyCode: cryptoCurrency.currencyCode,
-            currencySymbol: cryptoCurrency.currencySymbol,
-            addressFrom: account.address,
-            addressTo: account.address
+            walletHash,
+            currencyCode,
+            currencySymbol,
+            addressFrom: address,
+            addressTo: address
         })
         NavStore.goNext('AccountReceiveScreen')
     }
 
     handleSend = async () => {
-        const { cryptoCurrency, account } = this.props
-
-        const isSynchronized = currencyActions.checkIsCurrencySynchronized({ cryptoCurrency, account })
+        const { isSynchronized } = this.props.selectedAccountData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
 
         if (isSynchronized) {
-            await SendActionsStart.startFromAccountScreen(cryptoCurrency, account)
+            await SendActionsStart.startFromAccountScreen(currencyCode)
         } else {
             showModal({
                 type: 'INFO_MODAL',
@@ -158,6 +156,7 @@ class Account extends React.PureComponent {
     }
 
     handleBuy = async () => {
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
         try {
             await Netinfo.isInternetReachable()
 
@@ -171,10 +170,10 @@ class Account extends React.PureComponent {
                     title: strings('modal.marketModal.title'),
                     description: strings('modal.marketModal.description'),
                 }, () => {
-                    NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
+                    NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode })
                 })
             } else {
-                NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode: this.props.account.currencyCode })
+                NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode })
             }
 
             // }
@@ -188,8 +187,8 @@ class Account extends React.PureComponent {
     }
 
     handleRefresh = async (click = false) => {
-        const { account, selectedWallet } = this.props
-
+        const { walletIsHd } = this.props.selectedWalletData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
         this.setState({
             refreshing: !click,
             clickRefresh: click,
@@ -197,7 +196,7 @@ class Account extends React.PureComponent {
 
         UpdateOneByOneDaemon._canUpdate = false
 
-        if (account.currencyCode !== 'ETH_ROPSTEN') {
+        if (currencyCode !== 'ETH_ROPSTEN') {
             try {
                 await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })
             } catch (e) {
@@ -208,13 +207,13 @@ class Account extends React.PureComponent {
         try {
             await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
                 force: true,
-                currencyCode: account.currencyCode,
+                currencyCode,
                 source: 'ACCOUNT_REFRESH'
             })
-            if (account.currencyCode === 'BTC' && selectedWallet.walletIsHd === 1) {
+            if (currencyCode === 'BTC' && walletIsHd) {
                 await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({
                     force: true,
-                    currencyCode: account.currencyCode,
+                    currencyCode,
                     source: 'ACCOUNT_REFRESH'
                 })
             }
@@ -225,7 +224,7 @@ class Account extends React.PureComponent {
         try {
             await UpdateAccountListDaemon.updateAccountListDaemon({
                 force: true,
-                currencyCode: account.currencyCode,
+                currencyCode,
                 source: 'ACCOUNT_REFRESH'
             })
         } catch (e) {
@@ -236,7 +235,7 @@ class Account extends React.PureComponent {
 
         UpdateOneByOneDaemon._canUpdate = true
 
-        this.loadTransactions()
+        this.loadTransactions(0)
 
         this.setState({
             refreshing: false,
@@ -244,18 +243,17 @@ class Account extends React.PureComponent {
         })
     }
 
-    renderSynchronized = (cryptoCurrency, account, allTransactionsToView) => {
+    renderSynchronized = (allTransactionsToView) => {
+        const { balanceScanTime, balanceScanError, isSynchronized } = this.props.selectedAccountData
         let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
-            transactionsToView = account.transactionsToView
+            transactionsToView = this.props.selectedAccountData.transactionsToView
         }
-
-        const isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
         const { colors, GRID_SIZE, isLight } = this.context
 
 
-        const diff = diffTimeScan(this.props.account.balanceScanTime)
+        const diff = diffTimeScan(balanceScanTime)
         let diffTimeText = ''
         if (diff > 60) {
             diffTimeText = strings('account.soLong')
@@ -265,8 +263,8 @@ class Account extends React.PureComponent {
             } else {
                 diffTimeText = strings('account.scan', { time: diff })
             }
-            if (this.props.account.balanceScanError && this.props.account.balanceScanError !== '' && this.props.account.balanceScanError !== 'null') {
-                diffTimeText += '\n' + strings(this.props.account.balanceScanError)
+            if (balanceScanError && balanceScanError !== '' && balanceScanError !== 'null') {
+                diffTimeText += '\n' + strings(balanceScanError)
             }
         }
 
@@ -306,7 +304,6 @@ class Account extends React.PureComponent {
                     </TouchableOpacity>
                 </View>
                 {
-                    // account.transactionsTotalLength === 0 && (!transactionsToView || transactionsToView.length === 0) ? //@ksu fail order not working
                     allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0) ?
                         <View style={{ marginRight: GRID_SIZE }} >
                             {isSynchronized && <Text
@@ -322,7 +319,10 @@ class Account extends React.PureComponent {
     }
 
     closeAction = () => {
-        NavStore.goBack()
+        if (!CACHE_CLICKED_BACK) {
+            CACHE_CLICKED_BACK = true
+            NavStore.goBack()
+        }
     }
 
     handleShowMore = () => {
@@ -330,32 +330,40 @@ class Account extends React.PureComponent {
         this.loadTransactions(this.state.transactionsToView.length)
     }
 
-    async loadTransactions(from = 0, perPage = TX_PER_PAGE) {
-        const { account, selectedWallet } = this.props
+    async loadTransactions(from = 6, perPage = TX_PER_PAGE) {
+        const { walletIsHideTransactionForFee } = this.props.selectedWalletData
+        const { walletHash } = this.props.selectedAccountData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+
 
         const params = {
-            walletHash: account.walletHash,
-            currencyCode: account.currencyCode,
+            walletHash,
+            currencyCode,
             limitFrom: from,
             limitPerPage: perPage
         }
-        if (selectedWallet.walletIsHideTransactionForFee !== null && +selectedWallet.walletIsHideTransactionForFee === 1) {
+        if (walletIsHideTransactionForFee) {
             params.minAmount = 0
         }
         const tmp = await transactionDS.getTransactions(params, 'AccountScreen.loadTransactions list')
         const transactionsToView = []
 
         if (tmp && tmp.length > 0) {
+            const account = store.getState().mainStore.selectedAccount
             for (let transaction of tmp) {
-                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)
+                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, currencyCode)
                 transactionsToView.push(transaction)
             }
         }
 
-        this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView) }))
+        if (from === 0) {
+            this.setState((state) => ({ transactionsToView: transactionsToView })) // from start reload
+        } else {
+            this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView) }))
+        }
     }
 
-    getPrettyCurrenceName = (currencyCode, currencyName) => {
+    getPrettyCurrencyName = (currencyCode, currencyName) => {
         switch (currencyCode) {
             case 'USDT':
                 return 'Tether Bitcoin'
@@ -375,42 +383,39 @@ class Account extends React.PureComponent {
 
         MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 
-        UpdateAccountListDaemon.pause()
-
         const { colors } = this.context
-        const { account, cryptoCurrency, settingsStore } = this.props
-        const isSegwit = settingsStore.data.btc_legacy_or_segwit === 'segwit'
+        const { isSegwit, selectedAccountData, selectedCryptoCurrencyData } = this.props
         let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
-            transactionsToView = account.transactionsToView
+            transactionsToView = selectedAccountData.transactionsToView
         }
 
         const allTransactionsToView = transactionsToView // was concat before
 
-        let shownAddress = account.address
-        if (account.segwitAddress) {
-            shownAddress = isSegwit ? account.segwitAddress : account.legacyAddress
+        let shownAddress = selectedAccountData.address
+        if (selectedAccountData.segwitAddress) {
+            shownAddress = isSegwit ? selectedAccountData.segwitAddress : selectedAccountData.legacyAddress
         }
 
-        if (account && account.balanceProvider) {
+        if (selectedAccountData.balanceProvider) {
             const logData = {
-                currency: cryptoCurrency.currencyCode,
+                currency: selectedCryptoCurrencyData.currencyCode,
                 address: shownAddress,
-                amount: account.balancePretty + '',
-                unconfirmed: account.unconfirmedPretty + '',
-                balanceScanTime: account.balanceScanTime + '',
-                balanceScanError: account.balanceScanError + '',
-                balanceProvider: account.balanceProvider + '',
-                balanceScanLog: account.balanceScanLog + '',
-                balanceAddingLog: account.balanceAddingLog + '',
-                basicCurrencyCode: account.basicCurrencyCode + '',
-                basicCurrencyBalance: account.basicCurrencyBalance + '',
-                basicCurrencyRate: account.basicCurrencyRate + ''
+                amount: selectedAccountData.balancePretty + '',
+                unconfirmed: selectedAccountData.unconfirmedPretty + '',
+                balanceScanTime: selectedAccountData.balanceScanTime + '',
+                balanceScanError: selectedAccountData.balanceScanError + '',
+                balanceProvider: selectedAccountData.balanceProvider + '',
+                balanceScanLog: selectedAccountData.balanceScanLog + '',
+                balanceAddingLog: selectedAccountData.balanceAddingLog + '',
+                basicCurrencyCode: selectedAccountData.basicCurrencyCode + '',
+                basicCurrencyBalance: selectedAccountData.basicCurrencyBalance + '',
+                basicCurrencyRate: selectedAccountData.basicCurrencyRate + ''
             }
 
-            if (account.segwitAddress) {
-                logData.legacyAddress = account.legacyAddress || ''
-                logData.segwitAddress = account.segwitAddress || ''
+            if (selectedAccountData.segwitAddress) {
+                logData.legacyAddress = selectedAccountData.legacyAddress || ''
+                logData.segwitAddress = selectedAccountData.segwitAddress || ''
             }
             MarketingEvent.logEvent('view_account', logData)
         }
@@ -421,16 +426,17 @@ class Account extends React.PureComponent {
                 <Header
                     rightType="close"
                     rightAction={this.closeAction}
-                    title={this.getPrettyCurrenceName(cryptoCurrency.currencyCode, cryptoCurrency.currencyName)}
+                    title={this.getPrettyCurrencyName(selectedCryptoCurrencyData.currencyCode, selectedCryptoCurrencyData.currencyName)}
                     ExtraView={() => (
                         <BalanceHeader
-                            account={account}
-                            cryptoCurrency={cryptoCurrency}
+                            balancePretty={selectedAccountData.balancePretty}
+                            currencySymbol={selectedCryptoCurrencyData.currencySymbol}
                             actionReceive={this.handleReceive}
                             actionBuy={this.handleBuy}
                             actionSend={this.handleSend}
                             isBalanceVisible={this.state.isBalanceVisible}
-                            originalVisibility={this.state.originalVisibility}
+                            isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
+                            originalVisibility={this.props.isBalanceVisible}
                         />
                     )}
                     hasStickyHeader={this.state.hasStickyHeader}
@@ -452,12 +458,24 @@ class Account extends React.PureComponent {
                     ListHeaderComponent={() => (
                         <React.Fragment>
                             <HeaderBlocks
-                                account={account}
-                                cryptoCurrency={cryptoCurrency}
+                                account={{
+                                    walletHash : selectedAccountData.walletHash,
+                                    shownAddress,
+                                    balancePretty : selectedAccountData.balancePretty,
+                                    basicCurrencySymbol : selectedAccountData.basicCurrencySymbol,
+                                    basicCurrencyBalance : selectedAccountData.basicCurrencyBalance,
+                                    isSynchronized : selectedAccountData.isSynchronized,
+                                    walletPubs : selectedAccountData.walletPubs
+                                }}
+                                cryptoCurrency={{
+                                    currencyCode : selectedCryptoCurrencyData.currencyCode,
+                                    currencySymbol : selectedCryptoCurrencyData.currencySymbol
+                                }}
                                 isSegwit={isSegwit}
                                 cacheAsked={CACHE_ASKED}
                                 isBalanceVisible={this.state.isBalanceVisible}
-                                originalVisibility={this.state.originalVisibility}
+                                isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
+                                originalVisibility={this.props.isBalanceVisible}
                                 triggerBalanceVisibility={this.triggerBalanceVisibility}
                             />
                             <AccountButtons
@@ -467,7 +485,7 @@ class Account extends React.PureComponent {
                                 actionSend={this.handleSend}
                             />
                             <View>
-                                {this.renderSynchronized(cryptoCurrency, account, allTransactionsToView)}
+                                {this.renderSynchronized(allTransactionsToView)}
                             </View>
                         </React.Fragment>
                     )}
@@ -475,18 +493,21 @@ class Account extends React.PureComponent {
                         <Transaction
                             isFirst={index === 0}
                             transaction={item}
-                            cryptoCurrency={{ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol }}
+                            cryptoCurrency={{
+                                currencyCode : selectedCryptoCurrencyData.currencyCode,
+                                currencySymbol: selectedCryptoCurrencyData.currencySymbol,
+                                currencyColor : this.context.isLight ? selectedCryptoCurrencyData.mainColor : selectedCryptoCurrencyData.darkColor
+                            }}
                             dashHeight={allTransactionsToView.length === 1 ? 0 : (allTransactionsToView.length - 1 === index) ? 50 : 150}
                         />
                     )
                     }
                     onEndReachedThreshold={0.5}
                     onEndReached={this.handleShowMore}
-                    keyExtractor={item => item.id || item.bseOrderData.orderId}
+                    keyExtractor={item => (item.id || ('bse_' + item.bseOrderData.orderId)).toString()}
                 />
                 <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
             </View>
-
         )
     }
 }
@@ -495,11 +516,11 @@ Account.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        selectedWallet: state.mainStore.selectedWallet,
-        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
-        account: state.mainStore.selectedAccount,
-        settingsStore: state.settingsStore,
-        cashBackStore: state.cashBackStore,
+        selectedWalletData: getSelectedWalletData(state),
+        selectedCryptoCurrencyData: getSelectedCryptoCurrencyData(state),
+        selectedAccountData: getSelectedAccountData(state),
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore),
+        isSegwit: getIsSegwit(state),
         isBlurVisible: getIsBlurVisible(state)
     }
 }

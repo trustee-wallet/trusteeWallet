@@ -157,14 +157,13 @@ const transactionActions = {
         if (typeof exchangeOrder === 'undefined' || !exchangeOrder || exchangeOrder === null) {
             _transaction.bseOrderData = false // for easy checks
             _transaction.transactionBlockchainStatus = typeof _transaction.transactionStatus  !== 'undefined' ? _transaction.transactionStatus : '?'
-            _transaction.transactionOfTrusteeWallet =
-                typeof _transaction.transactionOfTrusteeWallet !== 'undefined' ? _transaction.transactionOfTrusteeWallet : false
+            _transaction.transactionOfTrusteeWallet = typeof _transaction.transactionOfTrusteeWallet !== 'undefined' ? _transaction.transactionOfTrusteeWallet : false
             _transaction = this.preformatWithBSEforShowInner(_transaction)
             _transaction.transactionVisibleStatus = this.prepareStatus(_transaction.transactionStatus)
             return _transaction
         }
 
-        const transaction = _transaction ? JSON.parse(JSON.stringify(_transaction)) : {
+        const transaction = _transaction ? { ..._transaction } : {
             currencyCode: _currencyCode,
             transactionHash: false,
             transactionDirection : 'outcome',
