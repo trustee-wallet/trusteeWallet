@@ -220,6 +220,13 @@ class InputAndButtons extends PureComponent {
             return strings('send.notValidAmount')
         }
 
+        if (this.state.cryptoValue === '000000000' || this.state.cryptoValue === 0) {
+            if (this.state.inputType === 'CRYPTO') {
+                return strings('send.notValidAmount')
+            } else {
+                return strings('send.notValidAmountInFiat')
+            }
+        }
 
         // enough balance check
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)

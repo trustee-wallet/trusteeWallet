@@ -773,6 +773,7 @@
     "notEnough": "თქვენ არ გაქვთ საკმარისი თანხა გადარიცხვის განსახორციელებლად",
     "addressError": "მიმღების მისამართი არასწორია, გთხოვთ, შეამოწმოთ",
     "notValidAmount": "გთხოვთ, შეიყვანოთ თანხის ოდენობა",
+    "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
     "notEnoughForFee": "ტოკენების გასაგზავნად აუცილებელია ადგილობრივ ვალუტაში დადებითი ბალანსის არსებობა %{symbol}",
     "notEnoughForFeeConfirmed": "ტოკენების გასაგზავნად აუცილებელია დადებითი დადასტურებული ბალანსი ადგილობრივ ვალუტაში %{symbol}, დაელოდეთ დადასტურებას",
     "publicFioAddressNotFound": "%{symbol} საჯარო მისამართი არაა დაკავშირებული FIO მისამართთან",
