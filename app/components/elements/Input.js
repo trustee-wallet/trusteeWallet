@@ -23,7 +23,6 @@ import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyString
 import Log from '../../services/Log/Log'
 import NavStore from '../../components/navigation/NavStore'
 import Resolution, { ResolutionError, ResolutionErrorCode } from '@unstoppabledomains/resolution'
-import { address } from 'bitcoinjs-lib'
 
 
 class Input extends Component {
@@ -42,7 +41,7 @@ class Input extends Component {
             resolvedAddress: ''
         }
         this.inputRef = React.createRef()
-        this.domainResolution = new Resolution();
+        this.domainResolution = new Resolution()
     }
 
     componentDidMount() {
@@ -96,36 +95,35 @@ class Input extends Component {
             case ResolutionErrorCode.UnregisteredDomain:
             case ResolutionErrorCode.RecordNotFound:
             case ResolutionErrorCode.UnspecifiedResolver: {
-                const tkey = `validator.unstoppableErrors.${errorCode}`;
-                return strings(tkey, {domain, ticker});
+                const tkey = `validator.unstoppableErrors.${errorCode}`
+                return strings(tkey, {domain, ticker})
             }
             default: {
-                return "Unknown Resolution Error";
+                return errorCode
             }
         }
     }
 
     resolveBlockchainDomain = async (domain, ticker) => {
         try {
-            const cryptoAddress = await this.domainResolution.addr(domain, ticker);
-            console.log(`got value ${cryptoAddress}`);
+            const cryptoAddress = await this.domainResolution.addr(domain, ticker)
             this.setState({
                 resolvedAddress: cryptoAddress,
                 isResolvingDomain: false,
                 value: domain,
                 errors: []
-            });
+            })
         } catch (err) {
             if (err instanceof ResolutionError) {
-                const errorMessage = this.translateResolutionError(domain.toLowerCase(), err.code, ticker);
+                const errorMessage = this.translateResolutionError(domain.toLowerCase(), err.code, ticker)
                 this.setState({
                     value: domain,
                     errors: [{msg: errorMessage, field: 'address'}],
                     isResolvingDomain: false
-                });
-                return ;
+                })
+                return 
             }
-            throw err;
+            throw err
         }
     }
 
@@ -134,12 +132,12 @@ class Input extends Component {
         value === '' && !this.state.focus ? value = this.state.value : value
 
         const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
-        
+
         if (type.endsWith('_ADDRESS') && value.endsWith('.crypto') || value.endsWith('.zil')) {
             this.setState({
                 isResolvingDomain: true,
-            });
-            await this.resolveBlockchainDomain(value, cuttype);
+            })
+            await this.resolveBlockchainDomain(value, cuttype)
         } else
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
@@ -276,7 +274,7 @@ class Input extends Component {
         } = this.props
         let placeholder = isCapitalize ? capitalize(name) : name
         if (isResolvingDomain) {
-            placeholder = 'Resolving';
+            placeholder = 'Resolving'
         }
         let error = errors.find(item => item.field === id)
         error = typeof error !== 'undefined' ? error.msg : ''
