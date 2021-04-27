@@ -270,8 +270,6 @@ export async function setSelectedAccount(setting) {
 
         account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
 
-        Log.log('ACT/MStore setSelectedAccount.transactionInfinity transactionsTotalLength cached ' + account.transactionsTotalLength)
-
         // cutpaste from account screen - to think about
         account.transactionsToView = []
 

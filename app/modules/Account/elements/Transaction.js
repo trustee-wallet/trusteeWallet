@@ -106,8 +106,8 @@ class Transaction extends React.PureComponent {
     renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
         const { colors } = this.context
         const { styles } = this.state
-        const { isFirst, dashHeight: height } = this.props
-        const currencyColor = this.props.cryptoCurrency.currencyColor
+        const { isFirst, dashHeight: height, cryptoCurrency } = this.props
+        const { currencyColor } = cryptoCurrency
 
         let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}
@@ -203,11 +203,12 @@ class Transaction extends React.PureComponent {
     }
 
     render() {
-        const { styles, currencyColor } = this.state
+        const { styles } = this.state
         const { colors } = this.context
 
         const { cryptoCurrency, transaction } = this.props
         const { bseOrderData, createdAt } = transaction
+        const { currencyColor, currencyCode } = cryptoCurrency
 
         // if any of this will be reused the same way at details screen -> move to preformatWithBSEforShowInner
         const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
@@ -217,7 +218,7 @@ class Transaction extends React.PureComponent {
         const wayType = transaction.wayType
 
         let value, valueToView, currencySymbolToView
-        if (transaction.addressAmountSatoshi && (cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'DOGE')) {
+        if (transaction.addressAmountSatoshi && (currencyCode === 'BTC' || currencyCode === 'DOGE')) {
             value = transaction.addressAmountSatoshi
             valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
             currencySymbolToView = 'sat'

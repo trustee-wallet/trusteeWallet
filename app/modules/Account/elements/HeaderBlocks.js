@@ -73,10 +73,12 @@ class HeaderBlocks extends React.PureComponent {
 
     handleBtcAddressCopy = (address) => {
         const { cryptoCurrency, account } = this.props
+        const { walletHash } = account
+        const { currencyCode, currencySymbol } = cryptoCurrency
         checkTransferHasError({
-            walletHash: account.walletHash,
-            currencyCode: cryptoCurrency.currencyCode,
-            currencySymbol: cryptoCurrency.currencySymbol,
+            walletHash,
+            currencyCode,
+            currencySymbol,
             addressFrom: address,
             addressTo: address
         })
@@ -88,9 +90,10 @@ class HeaderBlocks extends React.PureComponent {
 
         const { colors, GRID_SIZE } = this.context
 
-        const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility } = this.props
+        const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility, account } = this.props
         const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
-        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance } = this.props.account
+
+        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance } = account
 
         let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
         if (typeof tmp.split === 'undefined') {
@@ -166,11 +169,11 @@ class HeaderBlocks extends React.PureComponent {
         )
     }
 
-    accountSetting = (account) => {
-        if (account === 'FIO') {
+    accountSetting = (currencyCode) => {
+        if (currencyCode === 'FIO') {
             NavStore.goNext('FioMainSettings')
         } else {
-            NavStore.goNext('AccountSettings', { account })
+            NavStore.goNext('AccountSettings', { account : currencyCode })
         }
     }
 
@@ -195,12 +198,13 @@ class HeaderBlocks extends React.PureComponent {
         const { colors } = this.context
 
         let { account, cryptoCurrency, isSegwit } = this.props
-        const shownAddress = account.shownAddress
+        const { shownAddress, walletPubs } = account
+        const { currencyCode, currencySymbol } = cryptoCurrency
         let forceLink = false
-        if (cryptoCurrency.currencyCode === 'BTC' && account.walletPubs) {
+        if (currencyCode === 'BTC' && walletPubs) {
             isSegwit = isSegwit ? 'btc.84' : 'btc.44'
-            if (typeof account.walletPubs[isSegwit] !== 'undefined' && account.walletPubs[isSegwit].walletPubValue) {
-                forceLink = 'https://blockchair.com/bitcoin/xpub/' + account.walletPubs[isSegwit].walletPubValue
+            if (typeof walletPubs[isSegwit] !== 'undefined' && walletPubs[isSegwit].walletPubValue) {
+                forceLink = 'https://blockchair.com/bitcoin/xpub/' + walletPubs[isSegwit].walletPubValue
             }
         }
 
@@ -224,7 +228,7 @@ class HeaderBlocks extends React.PureComponent {
                                     />
                                     <View style={styles.icon}>
                                         <CurrencyIcon
-                                            currencyCode={cryptoCurrency.currencyCode}
+                                            currencyCode={currencyCode}
                                             containerStyle={{ borderWidth: 0 }}
                                             markStyle={{ top: 30 }}
                                             textContainerStyle={{ bottom: -19 }}
@@ -238,7 +242,7 @@ class HeaderBlocks extends React.PureComponent {
                             </TouchableOpacity>
                         </View>
                         <View style={{ marginTop: 22 }}>
-                            <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{cryptoCurrency.currencySymbol}</Text>
+                            <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
                             <TouchableOpacity
                                 style={styles.topContent__middle}
                                 onPress={() => this.handleBtcAddressCopy(shownAddress)}
@@ -253,7 +257,7 @@ class HeaderBlocks extends React.PureComponent {
                             </TouchableOpacity>
                         </View>
                         <View style={{ ...styles.settings, right: 0, position: 'absolute' }}>
-                            {this.settings(account.currencyCode)}
+                            {this.settings(currencyCode)}
                         </View>
                     </View>
                     {this.renderBalance()}
