@@ -38,7 +38,8 @@ class Input extends Component {
             show: false,
             tap: true,
             inputHeight : 0,
-            isResolvingDomain: false
+            isResolvingDomain: false,
+            resolvedAddress: ''
         }
         this.inputRef = React.createRef()
         this.domainResolution = new Resolution();
@@ -105,25 +106,18 @@ class Input extends Component {
     }
 
     resolveBlockchainDomain = async (domain, ticker) => {
-        console.log("starting the domain resolving process for ", {domain, ticker});
         try {
-            if (!this.domainResolution.isSupportedDomain(domain)) { 
-                this.setState({
-                    value: domain,
-                    isResolvingDomain: false
-                });
-                return ;
-            }
             const cryptoAddress = await this.domainResolution.addr(domain, ticker);
             console.log(`got value ${cryptoAddress}`);
             this.setState({
-                value: cryptoAddress,
+                resolvedAddress: cryptoAddress,
                 isResolvingDomain: false,
+                value: domain,
                 errors: []
             });
         } catch (err) {
             if (err instanceof ResolutionError) {
-                const errorMessage = this.translateResolutionError(domain, err.code, ticker);
+                const errorMessage = this.translateResolutionError(domain.toLowerCase(), err.code, ticker);
                 this.setState({
                     value: domain,
                     errors: [{msg: errorMessage, field: 'address'}],
@@ -133,7 +127,6 @@ class Input extends Component {
             }
             throw err;
         }
-        return ;
     }
 
     handleInput = async (value, useCallback) => {
@@ -141,12 +134,12 @@ class Input extends Component {
         value === '' && !this.state.focus ? value = this.state.value : value
 
         const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
-        if (value.endsWith('.crypto') || value.endsWith('.zil')) {
+        
+        if (type.endsWith('_ADDRESS') && value.endsWith('.crypto') || value.endsWith('.zil')) {
             this.setState({
                 isResolvingDomain: true,
-                value
             });
-            await this.resolveBlockchainDomain(value.toLowerCase(), cuttype);
+            await this.resolveBlockchainDomain(value, cuttype);
         } else
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
@@ -162,7 +155,7 @@ class Input extends Component {
         }
 
         if (typeof callback !== 'undefined' && useCallback !== false) {
-            callback(value)
+            callback(this.resolvedAddress ? this.resolvedAddress : value)
         }
     }
 
@@ -246,7 +239,7 @@ class Input extends Component {
 
     render() {
 
-        const { value, show, focus, errors, autoFocus, isResolvingDomain } = this.state
+        const { value, show, focus, errors, autoFocus, isResolvingDomain, resolvedAddress } = this.state
         const {
             id,
             name,
@@ -432,6 +425,9 @@ class Input extends Component {
                 }
                 <View style={styles.bottomTexts}>
                     <Text numberOfLines={1}>
+                        <Text style={{ ...styles.mark, ...markStyle }}>
+                            {typeof resolvedAddress !== 'undefined' ? resolvedAddress : ''}
+                        </Text>
                         <Text style={{ ...styles.mark, ...markStyle }}>
                             {typeof bottomLeftText !== 'undefined' ? bottomLeftText : ''}
                         </Text>
