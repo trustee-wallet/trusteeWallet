@@ -383,6 +383,18 @@ export default class ButtonLine extends Component {
                 )
 
             case 'ETH_TRUE_USD':
+            case 'TRX_TUSD':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict['ETH_TRUE_USD'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name={'ETH_TRUE_USD'} style={{ color: colorDict['ETH_TRUE_USD'].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name={currencyCode === 'ETH_TRUE_USD' ? "ETH" : 'TRX'} style={{ color: colorDict[currencyCode === 'ETH_TRUE_USD' ? "ETH" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                            </View>
+                        </View>
+                    </View>
+                )
+
             case 'ETH_BNB':
             case 'ETH_USDC':
             case 'ETH_PAX':
