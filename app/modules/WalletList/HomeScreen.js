@@ -371,7 +371,7 @@ class HomeScreen extends React.PureComponent {
                             )}
                             keyExtractor={item => item.currencyCode}
                         />
-                        <BottomNavigation />
+                        {/* <BottomNavigation /> */}
                     </View>
                 </SafeAreaView>
             </View>

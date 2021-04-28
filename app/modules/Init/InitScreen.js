@@ -56,7 +56,7 @@ class InitScreen extends React.PureComponent {
             if (this.props.lockScreenStatus * 1 > 0) {
                 NavStore.reset('LockScreenPop')
             } else {
-                NavStore.reset('HomeScreenPop')
+                NavStore.reset('TabBar')
             }
         } else {
             try {
