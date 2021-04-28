@@ -46,6 +46,7 @@ class CryptoCurrency extends React.PureComponent {
 
         let status = ''
         CACHE_CLICK = true
+
         try {
 
             // Log.log('HomeScreen.Currency handleCurrencySelect inited ', cryptoCurrency)
@@ -140,7 +141,7 @@ class CryptoCurrency extends React.PureComponent {
         }
 
         return (
-            <View style={styles.container}>
+            <View style={styles.container} accessibilityLabel={cryptoCurrency.currencySymbol}>
                 <View style={styles.shadow__container}>
                     <View style={[styles.shadow__item, this.props.isActive && styles.shadow__item__active]} />
                 </View>

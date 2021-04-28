@@ -7,8 +7,12 @@ const ModuleResolverPlugin = ['module-resolver', {
 }];
 
 module.exports = {
-    presets: ['module:metro-react-native-babel-preset'],
-    plugins: [ModuleResolverPlugin],
+    presets: [
+        'module:metro-react-native-babel-preset',
+    ],
+    plugins: [
+        ModuleResolverPlugin,
+    ],
     overrides: [
         {
             test: /\.ts?$/,

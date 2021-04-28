@@ -1,0 +1,3 @@
+export const ACCESSIBILITY_LABEL = {
+    LOGO_GRAY_IMAGE: 'LOGO_GRAY_IMAGE'
+}

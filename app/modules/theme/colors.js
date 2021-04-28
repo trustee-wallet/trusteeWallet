@@ -4,6 +4,8 @@ export const lightColors = {
         text1: '#404040',
         text2: '#999',
         text3: '#5c5c5c',
+        iconTxUp: '#36D07F',
+        iconTxDown: '#FF0082',
         roundButtonBg: '#404040',
         roundButtonContent: '#f7f7f7',
         iconMarkBg: '#f9f9f9',

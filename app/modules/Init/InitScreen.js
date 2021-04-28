@@ -51,6 +51,9 @@ class InitScreen extends React.PureComponent {
     }
 
     init = async () => {
+
+        const isKIFTestMode = require('../../../env.json');
+
         if (this.props.init === true) {
             clearTimeout(this.statusTimeout)
             if (this.props.lockScreenStatus * 1 > 0) {

@@ -60,6 +60,7 @@ async function storeCurrenciesOrder(walletHash, data) {
     AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
 }
 
+const isKIFTestMode = require('../../../env.json');
 class HomeScreen extends React.PureComponent {
 
     constructor(props) {
@@ -68,8 +69,8 @@ class HomeScreen extends React.PureComponent {
             refreshing: false,
             isBalanceVisible: true,
             originalVisibility: false,
-            originalData: [],
-            data: [],
+            originalData: isKIFTestMode.isKIF ? isKIFTestMode.originalData : [],
+            data: isKIFTestMode.isKIF ? isKIFTestMode.data : [],
             currenciesOrder: [],
             isCurrentlyDraggable: false,
             scrollOffset: 0,
@@ -83,7 +84,6 @@ class HomeScreen extends React.PureComponent {
     componentDidMount() {
         setLoaderStatus(false)
         this.getBalanceVisibility()
-
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {

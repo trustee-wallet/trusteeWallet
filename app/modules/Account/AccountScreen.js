@@ -65,7 +65,6 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { getIsBlurVisible } from '@app/appstores/Stores/Main/selectors'
 
 let CACHE_ASKED = false
-
 class Account extends React.PureComponent {
 
     constructor(props) {
@@ -75,7 +74,7 @@ class Account extends React.PureComponent {
             clickRefresh: false,
 
             amountToView: 5,
-            transactionsToView: [],
+            transactionsToView:[],
             transactionsShownLength: 5,
 
             show: true,

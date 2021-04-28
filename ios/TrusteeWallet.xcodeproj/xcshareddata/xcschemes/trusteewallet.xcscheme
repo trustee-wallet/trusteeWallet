@@ -56,6 +56,16 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A1E3198C263874650070FD9C"
+               BuildableName = "TrusteeWalletKIFTests.xctest"
+               BlueprintName = "TrusteeWalletKIFTests"
+               ReferencedContainer = "container:TrusteeWallet.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

@@ -7,7 +7,9 @@ import {
     View,
     Text,
     TouchableOpacity,
-    Dimensions, PixelRatio
+    Dimensions, 
+    PixelRatio, 
+    Image
 } from 'react-native'
 import { BoxShadow } from 'react-native-shadow'
 
@@ -38,6 +40,7 @@ import updateTradeOrdersDaemon from '../../../daemons/back/UpdateTradeOrdersDaem
 import { ThemeContext } from '../../../modules/theme/ThemeProvider'
 import config from '../../../config/config'
 
+import { ACCESSIBILITY_LABEL } from '../../../services/TestabilityServices/AccessibilityConstants'
 class Transaction extends Component {
 
     constructor(props) {
@@ -139,21 +142,23 @@ class Transaction extends Component {
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
-        let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
+        // let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
+        let arrowIcon = <Image style={{ width: 15, height: 20 }} resize={'stretch'} source={require('@app/assets/images/logo_gray.png')} accessibilityLabel={ACCESSIBILITY_LABEL.LOGO_GRAY_IMAGE} />
+
         let circleStyle = {}
 
-        if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
-            arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
-        }
-        if (transactionDirection === 'self') {
-            arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
-            circleStyle = { backgroundColor: isStatus ? color : colors.accountScreen.transactions.circleBackground }
-        }
+        // if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
+        //     arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
+        // }
+        // if (transactionDirection === 'self') {
+        //     arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
+        //     circleStyle = { backgroundColor: isStatus ? color : colors.accountScreen.transactions.circleBackground }
+        // }
         // if (status === 'fail' || status === 'missing' || status === 'replaced') {
-        if (visibleStatus.toUpperCase() === 'MISSING' || visibleStatus.toUpperCase() === 'OUT_OF_ENERGY') {
-            arrowIcon = <Feather name="x" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
-            circleStyle = { backgroundColor: colors.accountScreen.transactions.circleBackground }
-        }
+        // if (visibleStatus.toUpperCase() === 'MISSING' || visibleStatus.toUpperCase() === 'OUT_OF_ENERGY') {
+        //     arrowIcon = <Feather name="x" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
+        //     circleStyle = { backgroundColor: colors.accountScreen.transactions.circleBackground }
+        // }
 
         const statusTmp = status !== 'new' && status !== 'confirming' && status !== 'done_payin' && status !== 'wait_trade' && status !== 'done_trade' && status !== 'pending_payin' && status !== 'pending_payin'
 
@@ -192,13 +197,13 @@ class Transaction extends Component {
                         dashGap={3}
                         dashLength={3} />
                 </View>
-                <Circle style={{
+                {/* <Circle style={{
                     ...styles.transaction__circle__small, ...circleStyle,
                     backgroundColor: isStatus ? color : colors.accountScreen.transactions.circle,
                     width: 24,
                     height: 24
-                }}>
-                    <View style={{
+                }}> */}
+                    {/* <View style={{
                         alignItems: 'center',
                         justifyContent: 'center',
                         width: '100%',
@@ -206,10 +211,10 @@ class Transaction extends Component {
                         borderRadius: 25,
                         backgroundColor: isStatus ? color : colors.accountScreen.transactions.circle, ...circleStyle,
                         marginLeft:  0
-                    }}>
+                    }}> */}
                         {arrowIcon}
-                    </View>
-                </Circle>
+                    {/* </View> */}
+                {/* </Circle> */}
             </View>
         )
     }
@@ -264,7 +269,7 @@ class Transaction extends Component {
         const dict = new UIDict(cryptoCurrency.currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
-
+        const colorValueToView = transaction.addressAmountPrettyPrefix === "+" ? colors.homeScreen.listItemArrowUp : colors.homeScreen.listItemArrowDown
 
         // const doteSlice = subtitle ? subtitle.indexOf('-') : -1
         // const subtitleMini = transaction.bseOrderData.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
@@ -317,7 +322,7 @@ class Transaction extends Component {
                                         <View style={{ justifyContent: 'center', width: '75%' }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%' }}>
                                                 {/* width: subtitle ? '45%' : '100%' */}
-                                                <Text style={{...styles.transaction__item__title, color: colors.common.text1}} numberOfLines={1}>
+                                                <Text style={{...styles.transaction__item__title, color: colorValueToView}} numberOfLines={1}>
                                                     {valueToView}
                                                 </Text>
                                                 <Text style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors[isLight ? 'mainColor' : 'darkColor'] }]}>

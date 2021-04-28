@@ -145,7 +145,7 @@ class WalletInfo extends React.Component {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={styles.header__center}>
+                        <View style={styles.header__center} accessibilityLabel={selectedWallet.walletName}>
                             <WalletName
                                 walletHash={selectedWallet.walletHash || ''}
                                 walletNameText={selectedWallet.walletName || ''}

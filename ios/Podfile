@@ -1,4 +1,6 @@
 platform :ios, '10.0.4'
+install! 'cocoapods', :disable_input_output_paths => true
+
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 permissions_path = '../node_modules/react-native-permissions/ios'
 
@@ -57,6 +59,12 @@ target 'TrusteeWallet' do
     inherit! :search_paths
     # Pods for testing
   end
+  
+  target 'TrusteeWalletKIFTests' do
+      inherit! :search_paths
+      pod 'KIF'
+      pod 'KIF/IdentifierTests'
+  end
 
   use_native_modules!
 end
@@ -68,5 +76,37 @@ target 'TrusteeWallet-tvOS' do
     inherit! :search_paths
     # Pods for testing
   end
+end
 
+## Fix XCode imprecisions
+
+post_install do |installer|
+
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
+    end
+  end
+
+  ## Fix for XCode 12.5
+
+  find_and_replace("../node_modules/react-native/React/CxxBridge/RCTCxxBridge.mm",
+    "_initializeModules:(NSArray<id<RCTBridgeModule>> *)modules", "_initializeModules:(NSArray<Class> *)modules")
+    
+  find_and_replace("../node_modules/react-native/ReactCommon/turbomodule/core/platform/ios/RCTTurboModuleManager.mm",
+    "RCTBridgeModuleNameForClass(module))", "RCTBridgeModuleNameForClass(Class(module)))")
+
+end
+
+def find_and_replace(dir, findstr, replacestr)
+  Dir[dir].each do |name|
+      text = File.read(name)
+      replace = text.gsub(findstr,replacestr)
+      if text != replace
+          puts "Fix: " + name
+          File.open(name, "w") { |file| file.puts replace }
+          STDOUT.flush
+      end
+  end
+  Dir[dir + '*/'].each(&method(:find_and_replace))
 end

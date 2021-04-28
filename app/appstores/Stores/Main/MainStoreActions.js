@@ -23,6 +23,7 @@ import transactionActions from '@app/appstores/Actions/TransactionActions'
 
 
 const { dispatch } = store
+const isKIFTestMode = require('../../../../env.json');
 
 // @misha rething this selected wallet chain
 export async function setSelectedWallet(source) {
@@ -108,6 +109,7 @@ export async function setSelectedAccount(setting) {
             splitSegwit: true,
             notAlreadyShown: wallet.walletIsHd
         })
+
         if (currency.currencyCode === 'BTC' && wallet.walletIsHd) { // !!! no ltc hd for now
             let needSegwit = false
             let needLegacy = false
@@ -139,6 +141,7 @@ export async function setSelectedAccount(setting) {
                     splitSegwit: true
                 })
             }
+
             if (!accounts || typeof accounts === 'undefined' || typeof accounts.legacy === 'undefined' || typeof accounts.legacy[0] === 'undefined') {
                 Log.log('ACT/MStore setSelectedAccount GENERATE LEGACY 2')
                 await walletPubDS.discoverMoreAccounts({
@@ -208,7 +211,8 @@ export async function setSelectedAccount(setting) {
             currencyCode: currency.currencyCode
         })
 
-        if (!accounts || !accounts[0]) {
+
+        if (!isKIFTestMode.isKIF && (!accounts || !accounts[0])) {
             const tmp = await accountDS.discoverAccounts({ walletHash: wallet.walletHash, fullTree: false, currencyCode: [currency.currencyCode], source: 'SET_SELECTED' }, 'SET_SELECTED')
             await UpdateAccountListDaemon.updateAccountListDaemon({ force: true, source: 'SET_SELECTED' })
             accounts = tmp.accounts
@@ -292,9 +296,11 @@ export async function setSelectedAccount(setting) {
             }
         }
 
+        const resultAccount = isKIFTestMode.isKIF ? isKIFTestMode.account : account
+
         dispatch({
             type: 'SET_SELECTED_ACCOUNT',
-            selectedAccount: account
+            selectedAccount: resultAccount
         })
     } catch (e) {
         throw new Error(e.message + ' account ' + JSON.stringify(account))

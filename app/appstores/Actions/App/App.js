@@ -49,6 +49,7 @@ class App {
     initHasWallets = false
 
     init = async (params) => {
+        console.log(`App params ${JSON.stringify(params)}`)
         const onMount = typeof params.onMount !== 'undefined' ? params.onMount : true
         const source = typeof params.source !== 'undefined' ? params.source : ''
         try {
@@ -79,7 +80,9 @@ class App {
                     console.log(new Date().toISOString() + ' ACT/App init application called finished DB')
                 }
 
-                if (!(await walletDS.hasWallet())) {
+                const testabilityData = require('../../../../env.json');
+
+                if (!(await walletDS.hasWallet()) & !testabilityData.isKIF) {
 
                     this.initStatus = 'createWallets'
 
