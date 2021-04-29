@@ -1,25 +1,25 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * @author yura
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, SafeAreaView, Switch } from 'react-native'
+import { View, Text, ScrollView, Switch } from 'react-native'
 
-import Button from '../../components/elements/new/buttons/Button'
+import Button from '@app/components/elements/new/buttons/Button'
 import SettingsCoin from './elements/SettingsCoin'
-import i18n, { strings } from '../../services/i18n'
-import GradientView from '../../components/elements/GradientView'
+import i18n, { strings } from '@app/services/i18n'
 import { connect } from 'react-redux'
-import config from '../../config/config'
+import config from '@app/config/config'
 import Moment from 'moment';
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { addCryptoPublicAddresses, resolveCryptoCodes, getPubAddress, removeCryptoPublicAddresses } from '../../../crypto/blockchains/fio/FioUtils'
-import NavStore from '../../components/navigation/NavStore'
-import accountDS from '../../appstores/DataSource/Account/Account'
-import Toast from '../../services/UI/Toast/Toast'
-import Netinfo from '../../services/Netinfo/Netinfo'
+import NavStore from '@app/components/navigation/NavStore'
+import accountDS from '@app/appstores/DataSource/Account/Account'
+import Toast from '@app/services/UI/Toast/Toast'
+import Netinfo from '@app/services/Netinfo/Netinfo'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 class FioSettings extends Component {
 
@@ -35,11 +35,6 @@ class FioSettings extends Component {
             fioAddressExpiration: null,
             headerHeight: 0,
         }
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
@@ -66,7 +61,7 @@ class FioSettings extends Component {
                 const accounts = await accountDS.getAccountData({
                     walletHash: selectedWallet.walletHash,
                     currencyCode: account.currencyCode,
-                    splitSegwit : true,
+                    splitSegwit: true,
                     notAlreadyShown: 1,
                 })
 
@@ -255,98 +250,87 @@ class FioSettings extends Component {
 
     render() {
         const { fioAddress, fioAddressExpiration } = this.state
-        Moment.locale( i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
+        Moment.locale(i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
 
-        const { colors, GRID_SIZE } = this.context
-
-        const { headerHeight } = this.state
+        const { colors } = this.context
 
         return (
-            <View style={[styles.containerMain, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('FioSettings.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('FioSettings.title')}
+            >
 
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                    height: '100%',
-                }]}>
-
-                    <View style={styles.titleSection}>
-                        {
-                            fioAddress ? (
-                                <View>
-                                    <Text style={styles.titleTxt1}>{fioAddress}</Text>
-                                    <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {Moment(fioAddressExpiration).format('lll')} </Text>
-                                </View>
-                            ) : (
-                                    /* if fio address not registered */
-                                    <View>
-                                        <Text style={styles.titleTxt1}>{strings('FioSettings.noFioTitle')}</Text>
-                                    </View>
-                            )
-                         }
-                    </View>
-
+                <View style={styles.titleSection}>
                     {
                         fioAddress ? (
-                            <View style={styles.container}>
-                                <View>
-                                    <Text style={styles.txt}>{strings('FioSettings.description')} </Text>
-                                </View>
-
-                                <View style={{ flex: 1, paddingVertical: 20 }}>
-                                    <ScrollView style={{ marginHorizontal: -20, paddingHorizontal: 20 }}>
-
-                                        <View style={[styles.coinRow, { borderColor: colors.fio.borderColorLight }]} >
-                                            <View style={styles.coinRowInfo}>
-                                                <Text  style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioSettings.connectAllWallets')} </Text>
-                                            </View>
-
-                                            <Switch
-                                                thumbColor="#fff"
-                                                trackColor={{ true: '#864DD9', false: '#dadada' }}
-                                                onValueChange={this.toggleSwitchAll}
-                                                value={this.state.isAllWalletsSelected} />
-                                        </View>
-
-                                        {this.renderSettingCoins(this.state.accounts)}
-
-                                    </ScrollView>
-                                </View>
-
-                                <View style={{ marginTop: 20 }}>
-                                    <Button
-                                        title={strings('FioSettings.btnText')}
-                                        onPress={this.handleNext}
-                                    />
-                                </View>
-
+                            <View>
+                                <Text style={styles.titleTxt1}>{fioAddress}</Text>
+                                <Text style={styles.titleTxt2}>{strings('FioSettings.Expire')} {Moment(fioAddressExpiration).format('lll')} </Text>
                             </View>
                         ) : (
                             /* if fio address not registered */
-                            <View style={styles.container}>
-                                <View>
-                                    <Text style={styles.txt}> {strings('FioSettings.noFioDescription')} </Text>
-                                </View>
-
-                                <View style={{ marginTop: 20 }}>
-                                    <Button
-                                        title={strings('FioSettings.noFioBtn')}
-                                        onPress={this.handleRegisterFIOAddress}
-                                    />
-                                </View>
+                            <View>
+                                <Text style={styles.titleTxt1}>{strings('FioSettings.noFioTitle')}</Text>
                             </View>
                         )
                     }
-                </SafeAreaView>
-            </View>
+                </View>
+
+                {
+                    fioAddress ? (
+                        <View style={styles.container}>
+                            <View>
+                                <Text style={styles.txt}>{strings('FioSettings.description')} </Text>
+                            </View>
+
+                            <View style={{ flex: 1, paddingVertical: 20 }}>
+                                <ScrollView style={{ marginHorizontal: -20, paddingHorizontal: 20 }}>
+
+                                    <View style={[styles.coinRow, { borderColor: colors.fio.borderColorLight }]} >
+                                        <View style={styles.coinRowInfo}>
+                                            <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioSettings.connectAllWallets')} </Text>
+                                        </View>
+
+                                        <Switch
+                                            thumbColor="#fff"
+                                            trackColor={{ true: '#864DD9', false: '#dadada' }}
+                                            onValueChange={this.toggleSwitchAll}
+                                            value={this.state.isAllWalletsSelected} />
+                                    </View>
+
+                                    {this.renderSettingCoins(this.state.accounts)}
+
+                                </ScrollView>
+                            </View>
+
+                            <View style={{ marginTop: 20 }}>
+                                <Button
+                                    title={strings('FioSettings.btnText')}
+                                    onPress={this.handleNext}
+                                />
+                            </View>
+
+                        </View>
+                    ) : (
+                        /* if fio address not registered */
+                        <View style={styles.container}>
+                            <View>
+                                <Text style={styles.txt}> {strings('FioSettings.noFioDescription')} </Text>
+                            </View>
+
+                            <View style={{ marginTop: 20 }}>
+                                <Button
+                                    title={strings('FioSettings.noFioBtn')}
+                                    onPress={this.handleRegisterFIOAddress}
+                                />
+                            </View>
+                        </View>
+                    )
+                }
+            </ScreenWrapper>
         );
     }
 }

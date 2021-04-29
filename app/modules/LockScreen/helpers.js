@@ -41,7 +41,8 @@ export const finishProcess = async (lockScreen) => {
         lockScreenAction.setFlowType({
             flowType: ''
         })
-        NavStore.reset('SettingsMainScreen')
+        // NavStore.reset('SettingsMainScreen')
+        NavStore.goBack()
     } else if (flowType === 'DELETE_PINCODE') {
         await SettingsKeystore.setLockScreenStatus('0')
         await deleteUserPinCode('reactNativePinCode')
@@ -49,7 +50,8 @@ export const finishProcess = async (lockScreen) => {
         lockScreenAction.setFlowType({
             flowType: ''
         })
-        NavStore.reset('SettingsMainScreen')
+        // NavStore.reset('SettingsMainScreen')
+        NavStore.goBack()
     } else if (flowType === 'CHANGE_TOUCHID_STATUS') {
         const touchIDStatus = await SettingsKeystore.getTouchIDStatus()
         await SettingsKeystore.setTouchIDStatus(touchIDStatus === '0' ? '1' : '0')
@@ -57,7 +59,8 @@ export const finishProcess = async (lockScreen) => {
         lockScreenAction.setFlowType({
             flowType: ''
         })
-        NavStore.reset('SettingsMainScreen')
+        // NavStore.reset('SettingsMainScreen')
+        NavStore.goBack()
     } else if (flowType === 'CHANGE_ASKING_STATUS') {
         const askPinCodeWhenSending = await SettingsKeystore.getAskPinCodeWhenSending()
         await SettingsKeystore.setAskPinCodeWhenSending(askPinCodeWhenSending === '0' ? '1' : '0')
@@ -65,7 +68,8 @@ export const finishProcess = async (lockScreen) => {
         lockScreenAction.setFlowType({
             flowType: ''
         })
-        NavStore.reset('SettingsMainScreen')
+        // NavStore.reset('SettingsMainScreen')
+        NavStore.goBack()
     } else if (flowType === 'CHANGE_PASSWORD_FIRST_STEP') {
         this.setState({
             passwordState: 'choose'
@@ -98,6 +102,6 @@ export const finishProcess = async (lockScreen) => {
             lockScreenAction.setActionCallback({ actionCallback: () => {} })
         }, 500)
     } else {
-        NavStore.reset('HomeScreen')
+        NavStore.reset('TabBar')
     }
 }

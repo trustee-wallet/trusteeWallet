@@ -1,43 +1,36 @@
 /**
- * @version 0.30
+ * @version 0.43
  */
 import React from 'react'
 import { connect } from 'react-redux'
 import {
     View,
     Text,
-    ScrollView,
-    SafeAreaView,
     SectionList,
     StyleSheet,
-    TouchableOpacity,
-    Linking,
     RefreshControl,
 } from 'react-native'
-
-
 
 import _forEach from 'lodash/forEach'
 import _cloneDeep from 'lodash/cloneDeep'
 import moment from 'moment'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
-import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
+import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
+import UpdateAppNewsListDaemon from '@app/daemons/view/UpdateAppNewsListDaemon'
 
-import Log from '../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
-import { NOTIFIES_GROUP, ALLOWED_NOTIFICATIONS } from '../../appstores/Stores/AppNews/AppNewsReducer'
+import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
+import { NOTIFIES_GROUP, ALLOWED_NOTIFICATIONS } from '@app/appstores/Stores/AppNews/AppNewsReducer'
 
-import { strings, sublocale } from '../../services/i18n'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import Tabs from '../../components/elements/new/Tabs'
-import ListItem from '../../components/elements/new/list/ListItem/Notification'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
+import { strings, sublocale } from '@app/services/i18n'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import Tabs from '@app/components/elements/new/Tabs'
+import ListItem from '@app/components/elements/new/list/ListItem/Notification'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
 const getIconType = (notif) => {
@@ -60,7 +53,6 @@ const getIconType = (notif) => {
 
 class NotificationsScreen extends React.PureComponent {
     state = {
-        headerHeight: 0,
         tabs: [
             {
                 title: strings('notifications.tabAll'),
@@ -137,11 +129,6 @@ class NotificationsScreen extends React.PureComponent {
         this.setState(() => ({ data, tabs }))
     }
 
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
-    }
-
     handleRefresh = async () => {
         this.setState({ isRefreshing: true })
 
@@ -194,50 +181,43 @@ class NotificationsScreen extends React.PureComponent {
     }
 
     handleOpenNotification = async (notification, title, subtitle) => {
-      return AppNewsActions.onOpen(notification, title, subtitle, false)
+        return AppNewsActions.onOpen(notification, title, subtitle, false)
     }
 
     render() {
         const { colors, GRID_SIZE } = this.context
-        const { headerHeight, data, isRefreshing } = this.state
+        const { data, isRefreshing } = this.state
 
         MarketingAnalytics.setCurrentScreen('NotificationsScreen')
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    rightType="close"
-                    rightAction={this.handleBack}
-                    title={strings('notifications.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={this.renderTabs}
+            <ScreenWrapper
+                rightType="close"
+                rightAction={this.handleBack}
+                title={strings('notifications.title')}
+                ExtraView={this.renderTabs}
+            >
+                <SectionList
+                    showsVerticalScrollIndicator={false}
+                    sections={data}
+                    refreshControl={
+                        <RefreshControl
+                            style={{ marginTop: GRID_SIZE, marginBottom: -GRID_SIZE * 1.5 }}
+                            tintColor={colors.common.text1}
+                            refreshing={isRefreshing}
+                            onRefresh={this.handleRefresh}
+                        />
+                    }
+                    keyExtractor={notif => notif.id.toString()}
+                    stickySectionHeadersEnabled={false}
+                    contentContainerStyle={{ paddingTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }}
+                    renderItem={this.renderListItem}
+                    renderSectionHeader={({ section: { title } }) => (
+                        <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>
+                    )}
+                    renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
                 />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <SectionList
-                        showsVerticalScrollIndicator={false}
-                        sections={data}
-                        refreshControl={
-                            <RefreshControl
-                                style={{ marginTop: GRID_SIZE, marginBottom: -GRID_SIZE * 1.5 }}
-                                tintColor={colors.common.text1}
-                                refreshing={isRefreshing}
-                                onRefresh={this.handleRefresh}
-                            />
-                        }
-                        keyExtractor={notif => notif.id.toString()}
-                        stickySectionHeadersEnabled={false}
-                        contentContainerStyle={{ paddingTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }}
-                        renderItem={this.renderListItem}
-                        renderSectionHeader={({ section: { title } }) => (
-                            <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>
-                        )}
-                        renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
-                    />
-                </SafeAreaView>
-            </View>
+            </ScreenWrapper >
         )
     }
 }
@@ -261,12 +241,6 @@ NotificationsScreen.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps)(NotificationsScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     blockTitle: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,

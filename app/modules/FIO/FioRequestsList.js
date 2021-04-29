@@ -1,23 +1,22 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * @author yura
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TextInput, KeyboardAvoidingView, SafeAreaView, TouchableOpacity, Dimensions, PixelRatio  } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import { strings } from '../../services/i18n'
-import Icon from '../../components/elements/CustomIcon.js'
-import GradientView from '../../components/elements/GradientView'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
+import { strings } from '@app/services/i18n'
+import Icon from '@app/components/elements/CustomIcon.js'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import RequestItem from './elements/RequestItem'
-import { getSentFioRequests, getPendingFioRequests } from '../../../crypto/blockchains/fio/FioUtils'
+import { getSentFioRequests, getPendingFioRequests } from '@crypto/blockchains/fio/FioUtils'
 import { connect } from 'react-redux'
-import NavStore from '../../components/navigation/NavStore'
-import Netinfo from '../../services/Netinfo/Netinfo'
+import NavStore from '@app/components/navigation/NavStore'
+import Netinfo from '@app/services/Netinfo/Netinfo'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 class FioRequestsList extends Component {
 
@@ -27,13 +26,7 @@ class FioRequestsList extends Component {
             pendingRequestsData: [],
             sentRequestsData: [],
             status: false,
-            headerHeight: 0,
         }
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
@@ -87,63 +80,48 @@ class FioRequestsList extends Component {
 
     render() {
 
-        const { colors, GRID_SIZE } = this.context
-
-        const { headerHeight } = this.state
+        const { colors } = this.context
 
         return (
-            <View style={[styles.container_main, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('FioRequestsList.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                    height: '100%',
-                }]}>
-
-
-                    <View style={{height: '100%'}}>
-                        <View style={styles.title_section}>
-                            <Icon name="selectVisibleAddress" size={24} style={[styles.icon1, { color: colors.common.text3 }]}/>
-                            <Text
-                                style={[styles.title_section_txt, { color: colors.common.text3 }]} >{strings('FioRequestsList.pendingRequests')}</Text>
-                        </View>
-
-                        <ScrollView>
-                            <View style={styles.container}>
-                                {this.renderRequestList(this.state.pendingRequestsData, 'pending')}
-                            </View>
-                        </ScrollView>
-
-                        <View style={styles.line_container}>
-                            <View style={[styles.line, { backgroundColor: colors.fio.borderColorLight }]}></View>
-                        </View>
-
-                        <View style={styles.title_section}>
-                            <Icon name="earn" size={24} style={[styles.icon1, { color: colors.common.text3 }]}/>
-                            <Text
-                                style={[styles.title_section_txt, { color: colors.common.text3 }]} >{strings('FioRequestsList.sentRequests')}</Text>
-                        </View>
-
-                        <ScrollView>
-                            <View  style={[styles.container, styles.pad1]}>
-
-                                {this.renderRequestList(this.state.sentRequestsData, 'sent')}
-
-                            </View>
-                        </ScrollView>
-
-
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('FioRequestsList.title')}
+            >
+                <View style={{ height: '100%' }}>
+                    <View style={styles.title_section}>
+                        <Icon name="selectVisibleAddress" size={24} style={[styles.icon1, { color: colors.common.text3 }]} />
+                        <Text
+                            style={[styles.title_section_txt, { color: colors.common.text3 }]} >{strings('FioRequestsList.pendingRequests')}</Text>
                     </View>
-                </SafeAreaView>
-            </View>
+
+                    <ScrollView>
+                        <View style={styles.container}>
+                            {this.renderRequestList(this.state.pendingRequestsData, 'pending')}
+                        </View>
+                    </ScrollView>
+
+                    <View style={styles.line_container}>
+                        <View style={[styles.line, { backgroundColor: colors.fio.borderColorLight }]}></View>
+                    </View>
+
+                    <View style={styles.title_section}>
+                        <Icon name="earn" size={24} style={[styles.icon1, { color: colors.common.text3 }]} />
+                        <Text
+                            style={[styles.title_section_txt, { color: colors.common.text3 }]} >{strings('FioRequestsList.sentRequests')}</Text>
+                    </View>
+
+                    <ScrollView>
+                        <View style={[styles.container, styles.pad1]}>
+
+                            {this.renderRequestList(this.state.sentRequestsData, 'sent')}
+
+                        </View>
+                    </ScrollView>
+                </View>
+            </ScreenWrapper>
         );
     }
 }
@@ -200,7 +178,7 @@ const styles = {
     },
 
     line_container: {
-       paddingHorizontal: 25,
+        paddingHorizontal: 25,
     },
 
     line: {

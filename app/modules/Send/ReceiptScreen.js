@@ -1,7 +1,7 @@
 /**
- * @version 0.41
+ * @version 0.43
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { View, ScrollView, Text, StatusBar, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
@@ -11,13 +11,11 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import Header from '@app/components/elements/new/Header'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 
 import UIDict from '@app/services/UIDict/UIDict'
 
-import SendBasicScreen from '@app/modules/Send/elements/SendBasicScreen'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
@@ -37,20 +35,20 @@ import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
 let CACHE_IS_COUNTING = false
 let CACHE_IS_SENDING = false
 let CACHE_WARNING_NOTICE = false
 
-class ReceiptScreen extends SendBasicScreen {
+class ReceiptScreen extends PureComponent {
 
     constructor(props) {
         super(props)
 
         this.state = {
-            headerHeight: 0,
-            needPasswordConfirm : true,
+            needPasswordConfirm: true,
             sendInProcess: false
         }
     }
@@ -120,7 +118,7 @@ class ReceiptScreen extends SendBasicScreen {
                 }
             })
             this.setState({
-                sendInProcess : false
+                sendInProcess: false
             })
             CACHE_IS_SENDING = false
             return false
@@ -227,18 +225,16 @@ class ReceiptScreen extends SendBasicScreen {
         }
 
         return (
-            <View style={{ flex: 1, backgroundColor: colors.common.background }}>
-                <Header
-                    leftType='back'
-                    leftAction={this.closeAction}
-                    leftParams={{ 'close': false }}
-                    rightType='close'
-                    rightAction={this.closeAction}
-                    rightParams={{ 'close': true }}
-                    title={strings('send.receiptScreen.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                    setStatusBar={() => StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')}
-                />
+            <ScreenWrapper
+                leftType='back'
+                leftAction={this.closeAction}
+                leftParams={{ 'close': false }}
+                rightType='close'
+                rightAction={this.closeAction}
+                rightParams={{ 'close': true }}
+                title={strings('send.receiptScreen.title')}
+                setStatusBar={() => StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')}
+            >
                 <ScrollView
                     ref={(ref) => {
                         this.scrollView = ref
@@ -251,7 +247,6 @@ class ReceiptScreen extends SendBasicScreen {
                         padding: GRID_SIZE,
                         paddingBottom: GRID_SIZE * 2
                     }}
-                    style={{ marginTop: this.state.headerHeight }}
                 >
                     <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -265,7 +260,7 @@ class ReceiptScreen extends SendBasicScreen {
                                         textStyle={{ ...styles.notEquivalent, color: '#999999' }}
                                         letterSpacing={1} />
 
-                                    :  <LetterSpacing
+                                    : <LetterSpacing
                                         text={strings(`account.transaction.orderId`) + ' ' + bseOrderId}
                                         numberOfLines={1}
                                         textStyle={{ ...styles.notEquivalent, color: '#999999' }}
@@ -295,7 +290,7 @@ class ReceiptScreen extends SendBasicScreen {
                         }}
                     />
                 </ScrollView>
-            </View>
+            </ScreenWrapper>
         )
     }
 }

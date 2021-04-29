@@ -1,14 +1,13 @@
 /**
  * @version 0.43
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import {
     View,
     Text,
     ScrollView,
     Vibration,
-    SafeAreaView,
     StyleSheet
 } from 'react-native'
 
@@ -28,7 +27,6 @@ import AppNotificationListener from '@app/services/AppNotification/AppNotificati
 import store from '@app/store'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import Header from '@app/components/elements/new/Header'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
@@ -39,22 +37,17 @@ import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import { getWalletsNumber } from '@app/appstores/Stores/Wallet/selectors'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
-class SettingsMainScreen extends React.PureComponent {
+class SettingsMainScreen extends PureComponent {
     constructor() {
         super()
         this.state = {
             devMode: false,
             mode: '',
-            testerMode: '',
-            headerHeight: 0,
+            testerMode: ''
         }
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     // eslint-disable-next-line camelcase
@@ -271,7 +264,6 @@ class SettingsMainScreen extends React.PureComponent {
             isLight
         } = this.context
         const {
-            headerHeight,
             devMode,
             testerMode,
             mode,
@@ -281,34 +273,28 @@ class SettingsMainScreen extends React.PureComponent {
 
         // @todo uncomment payment accounts
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    rightType="close"
-                    rightAction={this.handleBack}
-                    title={strings('settings.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollViewContent}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <View style={{ paddingHorizontal: GRID_SIZE }}>
+            <ScreenWrapper
+                rightType="close"
+                rightAction={this.handleBack}
+                title={strings('settings.title')}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={{ paddingHorizontal: GRID_SIZE }}>
 
-                            <View style={{ marginVertical: GRID_SIZE }}>
+                        <View style={{ marginVertical: GRID_SIZE }}>
+                            <ListItem
+                                title={strings('settings.wallets.listTitle')}
+                                subtitle={strings('settings.wallets.listSubtitle', { number: walletsNumber })}
+                                iconType="wallet"
+                                onPress={this.handleWalletManagment}
+                                rightContent="arrow"
+                            />
+                            {false && (
                                 <ListItem
-                                    title={strings('settings.wallets.listTitle')}
-                                    subtitle={strings('settings.wallets.listSubtitle', { number: walletsNumber })}
-                                    iconType="wallet"
-                                    onPress={this.handleWalletManagment}
-                                    rightContent="arrow"
-                                />
-                                { false && (
-                                    <ListItem
                                     title={strings('settings.paymentAccounts.listTitle')}
                                     subtitle={strings('settings.paymentAccounts.listSubtitle', { number: 0 })}
                                     iconType="accounts"
@@ -316,124 +302,123 @@ class SettingsMainScreen extends React.PureComponent {
                                     rightContent="arrow"
                                     last
                                 />
-                                )}
-                                <ListItem
-                                    title={strings('settings.walletConnect.title')}
-                                    subtitle={strings(`settings.walletConnect.${isWalletConnected ? 'activated' : 'disabled'}`)}
-                                    iconType="walletConnect"
-                                    onPress={isWalletConnected ? this.handleWalletConnect : this.handleScanQr}
-                                    rightContent="arrow"
-                                    last
-                                />
-                            </View>
-
-
-                            <View style={{ marginVertical: GRID_SIZE }}>
-                                <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('settings.security.title')}</Text>
-                                <ListItem
-                                    title={strings('settings.security.lock')}
-                                    iconType="pinCode"
-                                    onPress={this.handleChangeLockScreenStatus}
-                                    rightContent="switch"
-                                    switchParams={{ value: !!lockScreenStatus, onPress: this.handleChangeLockScreenStatus }}
-                                />
-                                <ListItem
-                                    title={strings('settings.security.touch')}
-                                    iconType="biometricLock"
-                                    onPress={this.handleChangeTouchIDStatus}
-                                    rightContent="switch"
-                                    disabled={!lockScreenStatus}
-                                    switchParams={{ value: !!lockScreenStatus && !!touchIDStatus, onPress: this.handleChangeTouchIDStatus }}
-                                />
-                                <ListItem
-                                    title={strings('settings.security.askPINCodeToSend')}
-                                    subtitle={strings('settings.security.askPINCodeSubtitle')}
-                                    iconType="transactionConfirmation"
-                                    onPress={this.changeAskWhenSending}
-                                    rightContent="switch"
-                                    disabled={!lockScreenStatus}
-                                    switchParams={{ value: !!lockScreenStatus && !!askPinCodeWhenSending, onPress: this.changeAskWhenSending }}
-                                />
-                                <ListItem
-                                    title={strings('settings.security.change')}
-                                    iconType="changePinCode"
-                                    onPress={this.handleChangePassword}
-                                    rightContent="arrow"
-                                    disabled={!lockScreenStatus}
-                                    last
-                                />
-                            </View>
-
-                            <View style={{ marginVertical: GRID_SIZE }}>
-                                <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('settings.other.title')}</Text>
-                                {devMode && (
-                                    <ListItem
-                                        title={strings('settings.other.configMode')}
-                                        subtitle={mode}
-                                        iconType="config"
-                                        onPress={null}
-                                        onLongPress={this.handleToggleConfig}
-                                        delayLongPress={1000}
-                                    />
-                                )}
-                                {(devMode || testerMode === 'TESTER') && (
-                                    <ListItem
-                                        title={strings('settings.other.testerMode')}
-                                        subtitle={testerMode}
-                                        iconType="testerMode"
-                                        onPress={null}
-                                        onLongPress={this.handleToggleTester}
-                                        delayLongPress={1000}
-                                    />
-                                )}
-                                <ListItem
-                                    title={strings('settings.other.darkModeTitle')}
-                                    subtitle={strings(`settings.other.${isLight ? 'darkModeDisabledSubtitle' : 'darkModeEnabledSubtitle'}`)}
-                                    iconType="darkMode"
-                                    onPress={changeTheme}
-                                    rightContent="switch"
-                                    switchParams={{ value: !isLight, onPress: changeTheme }}
-                                />
-                                <ListItem
-                                    title={strings('settings.other.notifications')}
-                                    iconType="notifications"
-                                    onPress={this.handleOpenNotifications}
-                                    rightContent="arrow"
-                                />
-                                <ListItem
-                                    title={strings('settings.other.localCurrency')}
-                                    subtitle={localCurrency}
-                                    iconType="localCurrency"
-                                    onPress={this.handleChangeLocalCurrency}
-                                    rightContent="arrow"
-                                />
-                                <ListItem
-                                    title={strings('settings.other.lang')}
-                                    subtitle={strings(`languageList.languages.${this.getLangCode()}`)?.toUpperCase()}
-                                    iconType="language"
-                                    onPress={this.handleChangeLang}
-                                    rightContent="arrow"
-                                />
-                                <ListItem
-                                    title={strings('settings.other.scannerSettings')}
-                                    subtitle={strings('settings.other.scannerSubtitle')}
-                                    iconType="scanning"
-                                    onPress={this.handleChangeScanner}
-                                    rightContent="arrow"
-                                />
-                                <ListItem
-                                    title={strings('settings.other.about')}
-                                    iconType="about"
-                                    onPress={() => { NavStore.goNext('AboutScreen') }}
-                                    onLongPress={this.toggleDevMode}
-                                    rightContent="arrow"
-                                    last
-                                />
-                            </View>
+                            )}
+                            <ListItem
+                                title={strings('settings.walletConnect.title')}
+                                subtitle={strings(`settings.walletConnect.${isWalletConnected ? 'activated' : 'disabled'}`)}
+                                iconType="walletConnect"
+                                onPress={isWalletConnected ? this.handleWalletConnect : this.handleScanQr}
+                                rightContent="arrow"
+                                last
+                            />
                         </View>
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
+
+
+                        <View style={{ marginVertical: GRID_SIZE }}>
+                            <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('settings.security.title')}</Text>
+                            <ListItem
+                                title={strings('settings.security.lock')}
+                                iconType="pinCode"
+                                onPress={this.handleChangeLockScreenStatus}
+                                rightContent="switch"
+                                switchParams={{ value: !!lockScreenStatus, onPress: this.handleChangeLockScreenStatus }}
+                            />
+                            <ListItem
+                                title={strings('settings.security.touch')}
+                                iconType="biometricLock"
+                                onPress={this.handleChangeTouchIDStatus}
+                                rightContent="switch"
+                                disabled={!lockScreenStatus}
+                                switchParams={{ value: !!lockScreenStatus && !!touchIDStatus, onPress: this.handleChangeTouchIDStatus }}
+                            />
+                            <ListItem
+                                title={strings('settings.security.askPINCodeToSend')}
+                                subtitle={strings('settings.security.askPINCodeSubtitle')}
+                                iconType="transactionConfirmation"
+                                onPress={this.changeAskWhenSending}
+                                rightContent="switch"
+                                disabled={!lockScreenStatus}
+                                switchParams={{ value: !!lockScreenStatus && !!askPinCodeWhenSending, onPress: this.changeAskWhenSending }}
+                            />
+                            <ListItem
+                                title={strings('settings.security.change')}
+                                iconType="changePinCode"
+                                onPress={this.handleChangePassword}
+                                rightContent="arrow"
+                                disabled={!lockScreenStatus}
+                                last
+                            />
+                        </View>
+
+                        <View style={{ marginVertical: GRID_SIZE }}>
+                            <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('settings.other.title')}</Text>
+                            {devMode && (
+                                <ListItem
+                                    title={strings('settings.other.configMode')}
+                                    subtitle={mode}
+                                    iconType="config"
+                                    onPress={null}
+                                    onLongPress={this.handleToggleConfig}
+                                    delayLongPress={1000}
+                                />
+                            )}
+                            {(devMode || testerMode === 'TESTER') && (
+                                <ListItem
+                                    title={strings('settings.other.testerMode')}
+                                    subtitle={testerMode}
+                                    iconType="testerMode"
+                                    onPress={null}
+                                    onLongPress={this.handleToggleTester}
+                                    delayLongPress={1000}
+                                />
+                            )}
+                            <ListItem
+                                title={strings('settings.other.darkModeTitle')}
+                                subtitle={strings(`settings.other.${isLight ? 'darkModeDisabledSubtitle' : 'darkModeEnabledSubtitle'}`)}
+                                iconType="darkMode"
+                                onPress={changeTheme}
+                                rightContent="switch"
+                                switchParams={{ value: !isLight, onPress: changeTheme }}
+                            />
+                            <ListItem
+                                title={strings('settings.other.notifications')}
+                                iconType="notifications"
+                                onPress={this.handleOpenNotifications}
+                                rightContent="arrow"
+                            />
+                            <ListItem
+                                title={strings('settings.other.localCurrency')}
+                                subtitle={localCurrency}
+                                iconType="localCurrency"
+                                onPress={this.handleChangeLocalCurrency}
+                                rightContent="arrow"
+                            />
+                            <ListItem
+                                title={strings('settings.other.lang')}
+                                subtitle={strings(`languageList.languages.${this.getLangCode()}`)?.toUpperCase()}
+                                iconType="language"
+                                onPress={this.handleChangeLang}
+                                rightContent="arrow"
+                            />
+                            <ListItem
+                                title={strings('settings.other.scannerSettings')}
+                                subtitle={strings('settings.other.scannerSubtitle')}
+                                iconType="scanning"
+                                onPress={this.handleChangeScanner}
+                                rightContent="arrow"
+                            />
+                            <ListItem
+                                title={strings('settings.other.about')}
+                                iconType="about"
+                                onPress={() => { NavStore.goNext('AboutScreen') }}
+                                onLongPress={this.toggleDevMode}
+                                rightContent="arrow"
+                                last
+                            />
+                        </View>
+                    </View>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
@@ -441,7 +426,7 @@ class SettingsMainScreen extends React.PureComponent {
 const mapStateToProps = (state) => {
     return {
         settingsData: getSettingsScreenData(state),
-        walletsNumber : getWalletsNumber(state)
+        walletsNumber: getWalletsNumber(state)
     }
 }
 
@@ -450,12 +435,6 @@ SettingsMainScreen.contextType = ThemeContext
 export default connect(mapStateToProps, {})(SettingsMainScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     scrollViewContent: {
         flexGrow: 1,
     },

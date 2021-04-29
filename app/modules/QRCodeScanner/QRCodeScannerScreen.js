@@ -1,12 +1,10 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
 import React from 'react'
 import { connect } from 'react-redux'
 import { View, Dimensions, Text, StyleSheet } from 'react-native'
 import QRCodeScanner from 'react-native-qrcode-scanner'
-
-
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -26,12 +24,12 @@ import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 
-import Header from '@app/components/elements/new/Header'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { getQrCodeScannerConfig } from '@app/appstores/Stores/QRCodeScanner/selectors'
 import store from '@app/store'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
@@ -89,7 +87,7 @@ class QRCodeScannerScreen extends React.PureComponent {
                 return
             } else if (type === 'MAIN_SCANNER') {
                 const { cryptoCurrencies } = store.getState().currencyStore
-                
+
                 let cryptoCurrency
                 if (typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode) {
                     try {
@@ -247,16 +245,15 @@ class QRCodeScannerScreen extends React.PureComponent {
 
     render() {
         MarketingAnalytics.setCurrentScreen('QRCodeScannerScreen.index')
-        const { colors } = this.context
         return (
-            <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType='back'
-                    leftAction={this.handleBack}
-                    rightType='gallery'
-                    rightAction={this.handleOpenGallery}
-                    title={strings('qrScanner.title')}
-                />
+            <ScreenWrapper
+                leftType='back'
+                leftAction={this.handleBack}
+                rightType='gallery'
+                rightAction={this.handleOpenGallery}
+                title={strings('qrScanner.title')}
+                withoutSafeArea={true}
+            >
                 <QRCodeScanner
                     ref={(node) => {
                         this.scanner = node
@@ -305,14 +302,14 @@ class QRCodeScannerScreen extends React.PureComponent {
                         </View>
                     }
                 />
-            </View>
+            </ScreenWrapper>
         )
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        lockScreenStatus : getLockScreenStatus(state),
+        lockScreenStatus: getLockScreenStatus(state),
         config: getQrCodeScannerConfig(state)
     }
 }
@@ -332,9 +329,6 @@ const scanBarHeight = SCREEN_WIDTH * 0.0025 // this is equivalent to 1 from a 39
 const scanBarColor = '#22ff00'
 
 const styles = StyleSheet.create({
-    wrapper: {
-        flex: 1
-    },
     rectangleContainer: {
         flex: 1,
         width: '100%',

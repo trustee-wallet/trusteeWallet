@@ -5,7 +5,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { ScrollView, View, SafeAreaView, StyleSheet } from 'react-native'
+import { ScrollView, View, StyleSheet } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -21,8 +21,8 @@ import SettingsBNB from './elements/SettingsBNB'
 import { strings } from '@app/services/i18n'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import Header from '@app/components/elements/new/Header'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 class AccountSettingScreen extends React.PureComponent {
     constructor() {
@@ -31,13 +31,7 @@ class AccountSettingScreen extends React.PureComponent {
             devMode: false,
             mode: '',
             testerMode: '',
-            headerHeight: 0,
         }
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     handleBack = () => {
@@ -49,13 +43,10 @@ class AccountSettingScreen extends React.PureComponent {
     }
 
     render() {
-        const { colors } = this.context
 
         const { selectedWallet, cryptoCurrency, account } = this.props
 
         MarketingAnalytics.setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
-
-        const { headerHeight } = this.state
 
         let settingsComponent = null
         if (account.currencyCode === 'BTC') {
@@ -69,11 +60,11 @@ class AccountSettingScreen extends React.PureComponent {
         } else if (account.currencyCode === 'XVG') {
             settingsComponent =
                 <SettingsXVG containerStyle={{ overflow: 'hidden' }}
-                              wallet={selectedWallet} account={account} />
+                    wallet={selectedWallet} account={account} />
         } else if (account.currencyCode === 'ETC') {
             settingsComponent =
                 <SettingsETC containerStyle={{ overflow: 'hidden' }}
-                             wallet={selectedWallet} account={account} />
+                    wallet={selectedWallet} account={account} />
         } else if (account.currencyCode === 'ETH') {
             settingsComponent =
                 <SettingsETH containerStyle={{ overflow: 'hidden' }} />
@@ -88,34 +79,27 @@ class AccountSettingScreen extends React.PureComponent {
         } else if (account.currencyCode === 'BNB') {
             settingsComponent =
                 <SettingsBNB containerStyle={{ overflow: 'hidden' }}
-                             wallet={selectedWallet} account={account} />
+                    wallet={selectedWallet} account={account} />
         }
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('settings.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollViewContent}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <View style={{ marginTop: 20, marginHorizontal: 20 }}>
-                            {settingsComponent}
-                        </View>
-                    </ScrollView>
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('settings.title')}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={{ marginTop: 20, marginHorizontal: 20 }}>
+                        {settingsComponent}
+                    </View>
+                </ScrollView>
 
-                </SafeAreaView>
-            </View>
+            </ScreenWrapper>
         )
     }
 }
@@ -133,12 +117,6 @@ AccountSettingScreen.contextType = ThemeContext
 export default connect(mapStateToProps, {})(AccountSettingScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     scrollViewContent: {
         flexGrow: 1,
     },

@@ -1,36 +1,21 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * @author yura
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, SafeAreaView, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import { strings } from '../../services/i18n'
-import GradientView from '../../components/elements/GradientView'
+import { strings } from '@app/services/i18n'
+import GradientView from '@app/components/elements/GradientView'
 import { connect } from 'react-redux'
-import NavStore from '../../components/navigation/NavStore'
-import Icon from '../../components/elements/CustomIcon.js'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import config from '../../config/config'
+import NavStore from '@app/components/navigation/NavStore'
+import config from '@app/config/config'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import ListItem from '../../components/elements/new/list/ListItem/Setting'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 class FioMainSettings extends Component {
-
-    constructor(props) {
-        super(props)
-    }
-
-    state = {
-        headerHeight: 0,
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
-    }
 
     handleRegisterFIOAddress = async () => {
         const { accountList } = this.props.accountStore
@@ -60,84 +45,72 @@ class FioMainSettings extends Component {
 
     render() {
 
-        const { colors, GRID_SIZE } = this.context
-
-        const { headerHeight } = this.state
+        const { GRID_SIZE } = this.context
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('fioMainSettings.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                    height: '100%',
-                }]}>
-
-                    <GradientView
-                        array={styles_.array}
-                        start={styles_.start} end={styles_.end}>
-                        <View style={styles.titleSection}>
-                            <View>
-                                <Text style={styles.titleTxt1}>{strings('fioMainSettings.description')}</Text>
-                            </View>
-                        </View>
-                    </GradientView>
-
-                    <View style={styles.container}>
-                        <View style={{flex: 1}}>
-                            <ScrollView>
-
-                                <View style={{ paddingHorizontal: GRID_SIZE }}>
-                                    <View style={{ marginVertical: GRID_SIZE }}>
-                                        <ListItem
-                                            title={strings('fioMainSettings.sendFioRequest')}
-                                            subtitle={strings('fioMainSettings.sendFioRequestDesc')}
-                                            iconType="cashMultiple"
-                                            onPress={this.handleSendFioRequest}
-                                            rightContent="arrow"
-                                        />
-
-                                        <ListItem
-                                            title={strings('fioMainSettings.fioRequest')}
-                                            subtitle={strings('fioMainSettings.fioRequestDesc')}
-                                            iconType="accountBoxMultiple"
-                                            onPress={this.handleFioRequests}
-                                            rightContent="arrow"
-                                        />
-
-                                        <ListItem
-                                            title={strings('fioMainSettings.fioAddresses')}
-                                            subtitle={strings('fioMainSettings.fioAddressesDesc')}
-                                            iconType="cogs"
-                                            onPress={this.handleFioAddresses}
-                                            rightContent="arrow"
-                                        />
-
-                                        <ListItem
-                                            title={strings('fioMainSettings.registerFioAddress')}
-                                            subtitle={strings('fioMainSettings.registerFioAddressDesc')}
-                                            iconType="information"
-                                            onPress={this.handleRegisterFIOAddress}
-                                            rightContent="arrow"
-                                        />
-
-                                    </View>
-                                </View>
-
-                            </ScrollView>
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('fioMainSettings.title')}
+            >
+                <GradientView
+                    array={styles_.array}
+                    start={styles_.start} end={styles_.end}>
+                    <View style={styles.titleSection}>
+                        <View>
+                            <Text style={styles.titleTxt1}>{strings('fioMainSettings.description')}</Text>
                         </View>
                     </View>
+                </GradientView>
 
-                </SafeAreaView>
-            </View>
+                <View style={styles.container}>
+                    <View style={{ flex: 1 }}>
+                        <ScrollView>
+
+                            <View style={{ paddingHorizontal: GRID_SIZE }}>
+                                <View style={{ marginVertical: GRID_SIZE }}>
+                                    <ListItem
+                                        title={strings('fioMainSettings.sendFioRequest')}
+                                        subtitle={strings('fioMainSettings.sendFioRequestDesc')}
+                                        iconType="cashMultiple"
+                                        onPress={this.handleSendFioRequest}
+                                        rightContent="arrow"
+                                    />
+
+                                    <ListItem
+                                        title={strings('fioMainSettings.fioRequest')}
+                                        subtitle={strings('fioMainSettings.fioRequestDesc')}
+                                        iconType="accountBoxMultiple"
+                                        onPress={this.handleFioRequests}
+                                        rightContent="arrow"
+                                    />
+
+                                    <ListItem
+                                        title={strings('fioMainSettings.fioAddresses')}
+                                        subtitle={strings('fioMainSettings.fioAddressesDesc')}
+                                        iconType="cogs"
+                                        onPress={this.handleFioAddresses}
+                                        rightContent="arrow"
+                                    />
+
+                                    <ListItem
+                                        title={strings('fioMainSettings.registerFioAddress')}
+                                        subtitle={strings('fioMainSettings.registerFioAddressDesc')}
+                                        iconType="information"
+                                        onPress={this.handleRegisterFIOAddress}
+                                        rightContent="arrow"
+                                    />
+
+                                </View>
+                            </View>
+
+                        </ScrollView>
+                    </View>
+                </View>
+
+            </ScreenWrapper>
         );
     }
 }

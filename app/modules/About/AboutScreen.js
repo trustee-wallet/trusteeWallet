@@ -10,7 +10,6 @@ import {
     TouchableOpacity,
     TouchableWithoutFeedback,
     Vibration,
-    SafeAreaView,
     StyleSheet,
     Dimensions,
     Linking,
@@ -34,11 +33,11 @@ import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import config from '@app/config/config'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import Header from '@app/components/elements/new/Header'
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
 const getSocialLinksData = () => [
@@ -52,19 +51,11 @@ const getSocialLinksData = () => [
 ];
 
 class AboutScreen extends React.PureComponent {
-    state = {
-        headerHeight: 0
-    }
 
     socialData = []
 
     componentDidMount() {
         this.socialData = getSocialLinksData()
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     _onLongPressButton = () => {
@@ -154,112 +145,104 @@ class AboutScreen extends React.PureComponent {
         MarketingAnalytics.setCurrentScreen('About.index')
 
         const { colors, GRID_SIZE, isLight } = this.context
-        const { headerHeight } = this.state
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('settings.about.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={[styles.scrollViewContent, { paddingHorizontal: GRID_SIZE }]}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <View style={[styles.topContent, { marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }]}>
-                            <TouchableWithoutFeedback
-                                delayLongPress={20000}
-                                onLongPress={this._onLongPressButton}
-                            >
-                                <Image
-                                    style={styles.logo}
-                                    resizeMode='stretch'
-                                    source={isLight ? require('../../assets/images/logo.png') : require('../../assets/images/logoWhite.png')}
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('settings.about.title')}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={[styles.scrollViewContent, { paddingHorizontal: GRID_SIZE }]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={[styles.topContent, { marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }]}>
+                        <TouchableWithoutFeedback
+                            delayLongPress={20000}
+                            onLongPress={this._onLongPressButton}
+                        >
+                            <Image
+                                style={styles.logo}
+                                resizeMode='stretch'
+                                source={isLight ? require('@app/assets/images/logo.png') : require('@app/assets/images/logoWhite.png')}
+                            />
+                        </TouchableWithoutFeedback>
+                        <TouchableOpacity activeOpacity={0.8} onPress={this.copyVersion}>
+                            <Text style={[styles.version, { color: colors.common.text1 }]}>{strings('settings.about.version', { version: config.version.code })}</Text>
+                            <Text style={[styles.commitHash, { color: colors.common.text3 }]}>{`#${config.version.hash}`}</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{ marginVertical: GRID_SIZE }}>
+                        <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('settings.about.feedback')}</Text>
+                        <ListItem
+                            title={strings('settings.about.shareLogsTitle')}
+                            subtitle={strings('settings.about.shareLogsSubtitle')}
+                            iconType="shareLogs"
+                            onPress={this.handleLogs}
+                        />
+                        <ListItem
+                            title={strings('settings.about.contactSupportTitle')}
+                            subtitle={strings('settings.about.contactSupportSubtitle')}
+                            iconType="contactSupport"
+                            onPress={this.handleSupport}
+                            rightContent="arrow"
+                            last
+                        />
+                    </View>
+
+                    <View style={{ marginVertical: GRID_SIZE }}>
+                        <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('settings.about.information')}</Text>
+                        <ListItem
+                            title={strings('settings.about.privacy')}
+                            iconType="privacyPolicy"
+                            onPress={this.handlePrivacyPolicyPress}
+                            rightContent="arrow"
+                        />
+                        <ListItem
+                            title={strings('settings.about.terms')}
+                            iconType="termsOfUse"
+                            onPress={this.handleTermsPress}
+                            rightContent="arrow"
+                            last
+                        />
+                    </View>
+
+                    <View style={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2 }}>
+                        <View style={styles.socialLinks}>
+                            {this.socialData.slice(0, 4).map(item => (
+                                <RoundButton
+                                    containerStyle={styles.socialButtonContainer}
+                                    size={44}
+                                    style={styles.socialButton}
+                                    type={item.name}
+                                    key={item.name}
+                                    noTitle
+                                    onPress={() => this.openSocial(item.link)}
                                 />
-                            </TouchableWithoutFeedback>
-                            <TouchableOpacity activeOpacity={0.8} onPress={this.copyVersion}>
-                                <Text style={[styles.version, { color: colors.common.text1 }]}>{strings('settings.about.version', { version: config.version.code })}</Text>
-                                <Text style={[styles.commitHash, { color: colors.common.text3 }]}>{`#${config.version.hash}`}</Text>
-                            </TouchableOpacity>
+                            ))}
                         </View>
-
-                        <View style={{ marginVertical: GRID_SIZE }}>
-                            <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('settings.about.feedback')}</Text>
-                            <ListItem
-                                title={strings('settings.about.shareLogsTitle')}
-                                subtitle={strings('settings.about.shareLogsSubtitle')}
-                                iconType="shareLogs"
-                                onPress={this.handleLogs}
-                            />
-                            <ListItem
-                                title={strings('settings.about.contactSupportTitle')}
-                                subtitle={strings('settings.about.contactSupportSubtitle')}
-                                iconType="contactSupport"
-                                onPress={this.handleSupport}
-                                rightContent="arrow"
-                                last
-                            />
+                        <View style={styles.socialLinks}>
+                            {this.socialData.slice(4).map(item => (
+                                <RoundButton
+                                    containerStyle={styles.socialButtonContainer}
+                                    size={44}
+                                    style={styles.socialButton}
+                                    type={item.name}
+                                    key={item.name}
+                                    noTitle
+                                    onPress={() => this.openSocial(item.link)}
+                                />
+                            ))}
                         </View>
+                    </View>
 
-                        <View style={{ marginVertical: GRID_SIZE }}>
-                            <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('settings.about.information')}</Text>
-                            <ListItem
-                                title={strings('settings.about.privacy')}
-                                iconType="privacyPolicy"
-                                onPress={this.handlePrivacyPolicyPress}
-                                rightContent="arrow"
-                            />
-                            <ListItem
-                                title={strings('settings.about.terms')}
-                                iconType="termsOfUse"
-                                onPress={this.handleTermsPress}
-                                rightContent="arrow"
-                                last
-                            />
-                        </View>
-
-                        <View style={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2 }}>
-                            <View style={styles.socialLinks}>
-                                {this.socialData.slice(0, 4).map(item => (
-                                    <RoundButton
-                                        containerStyle={styles.socialButtonContainer}
-                                        size={44}
-                                        style={styles.socialButton}
-                                        type={item.name}
-                                        key={item.name}
-                                        noTitle
-                                        onPress={() => this.openSocial(item.link)}
-                                    />
-                                ))}
-                            </View>
-                            <View style={styles.socialLinks}>
-                                {this.socialData.slice(4).map(item => (
-                                    <RoundButton
-                                        containerStyle={styles.socialButtonContainer}
-                                        size={44}
-                                        style={styles.socialButton}
-                                        type={item.name}
-                                        key={item.name}
-                                        noTitle
-                                        onPress={() => this.openSocial(item.link)}
-                                    />
-                                ))}
-                            </View>
-                        </View>
-
-                        <Text style={[styles.copyright, { color: colors.common.text3, marginVertical: GRID_SIZE }]}>{strings('settings.about.copyright')}</Text>
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
+                    <Text style={[styles.copyright, { color: colors.common.text3, marginVertical: GRID_SIZE }]}>{strings('settings.about.copyright')}</Text>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
@@ -274,12 +257,6 @@ const LOGO_WIDTH = SCREEN_WIDTH / 7
 const LOGO_HEIGHT = LOGO_WIDTH * 1.2
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     scrollViewContent: {
         flexGrow: 1,
     },

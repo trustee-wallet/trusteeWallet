@@ -1,41 +1,26 @@
 
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import {
     View,
     Text,
     ScrollView,
-    TouchableOpacity,
-    SafeAreaView,
     StyleSheet
 } from 'react-native'
 
+import NavStore from '@app/components/navigation/NavStore'
 
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import NavStore from '../../components/navigation/NavStore'
+import { strings } from '@app/services/i18n'
 
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-import AsyncStorage from '@react-native-community/async-storage'
-
-import { strings } from '../../services/i18n'
-
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import ListItem from '../../components/elements/new/list/ListItem/Setting'
-import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-
-
-class NotificationsSettingScreen extends React.Component {
-    state = {
-        headerHeight: 0
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
-    }
+class NotificationsSettingScreen extends PureComponent {
 
     handleBack = () => { NavStore.goBack() }
 
@@ -73,7 +58,6 @@ class NotificationsSettingScreen extends React.Component {
         MarketingAnalytics.setCurrentScreen('Settings.NotificationsSettingScreen')
 
         const { colors, GRID_SIZE } = this.context
-        const { headerHeight } = this.state
 
         const {
             notifsStatus,
@@ -88,72 +72,65 @@ class NotificationsSettingScreen extends React.Component {
 
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('settings.notifications.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollViewContent}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <View style={{ paddingHorizontal: GRID_SIZE }}>
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('settings.notifications.title')}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={{ paddingHorizontal: GRID_SIZE }}>
 
-                            <View style={{ marginVertical: GRID_SIZE }}>
-                                <ListItem
-                                    title={strings('settings.notifications.allNotificationsTitle')}
-                                    iconType="notifications"
-                                    onPress={this.handleChangeNotifications}
-                                    rightContent="switch"
-                                    switchParams={{ value: notificationsEnabled, onPress: this.handleChangeNotifications }}
-                                    last
-                                />
-                            </View>
-
-                            <View style={{ marginVertical: GRID_SIZE }}>
-                                <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginBottom: GRID_SIZE / 2 }]}>{strings('settings.notifications.additional')}</Text>
-                                <ListItem
-                                    title={strings('settings.notifications.transactionsTitle')}
-                                    subtitle={strings('settings.notifications.transactionsSubtitle')}
-                                    iconType="transactions"
-                                    onPress={this.handleChangeTransactions}
-                                    rightContent="switch"
-                                    disabled={!notificationsEnabled}
-                                    switchParams={{ value: notificationsEnabled && transactionsNotifications, onPress: this.handleChangeTransactions }}
-                                />
-                                <ListItem
-                                    title={strings('settings.notifications.exchangeRatesTitle')}
-                                    subtitle={strings('settings.notifications.exchangeRateSubtitle')}
-                                    iconType="exchangeRates"
-                                    onPress={this.handleChangeRates}
-                                    rightContent="switch"
-                                    disabled={!notificationsEnabled}
-                                    switchParams={{ value: notificationsEnabled && exchangeRatesNotifications, onPress: this.handleChangeRates }}
-                                />
-                                <ListItem
-                                    title={strings('settings.notifications.newsTitle')}
-                                    iconType="news"
-                                    onPress={this.handleChangeNews}
-                                    rightContent="switch"
-                                    disabled={!notificationsEnabled}
-                                    switchParams={{ value: notificationsEnabled && newsNotifications, onPress: this.handleChangeNews }}
-                                    last
-                                />
-                            </View>
-
+                        <View style={{ marginVertical: GRID_SIZE }}>
+                            <ListItem
+                                title={strings('settings.notifications.allNotificationsTitle')}
+                                iconType="notifications"
+                                onPress={this.handleChangeNotifications}
+                                rightContent="switch"
+                                switchParams={{ value: notificationsEnabled, onPress: this.handleChangeNotifications }}
+                                last
+                            />
                         </View>
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
+
+                        <View style={{ marginVertical: GRID_SIZE }}>
+                            <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginBottom: GRID_SIZE / 2 }]}>{strings('settings.notifications.additional')}</Text>
+                            <ListItem
+                                title={strings('settings.notifications.transactionsTitle')}
+                                subtitle={strings('settings.notifications.transactionsSubtitle')}
+                                iconType="transactions"
+                                onPress={this.handleChangeTransactions}
+                                rightContent="switch"
+                                disabled={!notificationsEnabled}
+                                switchParams={{ value: notificationsEnabled && transactionsNotifications, onPress: this.handleChangeTransactions }}
+                            />
+                            <ListItem
+                                title={strings('settings.notifications.exchangeRatesTitle')}
+                                subtitle={strings('settings.notifications.exchangeRateSubtitle')}
+                                iconType="exchangeRates"
+                                onPress={this.handleChangeRates}
+                                rightContent="switch"
+                                disabled={!notificationsEnabled}
+                                switchParams={{ value: notificationsEnabled && exchangeRatesNotifications, onPress: this.handleChangeRates }}
+                            />
+                            <ListItem
+                                title={strings('settings.notifications.newsTitle')}
+                                iconType="news"
+                                onPress={this.handleChangeNews}
+                                rightContent="switch"
+                                disabled={!notificationsEnabled}
+                                switchParams={{ value: notificationsEnabled && newsNotifications, onPress: this.handleChangeNews }}
+                                last
+                            />
+                        </View>
+
+                    </View>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
@@ -175,12 +152,6 @@ NotificationsSettingScreen.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps)(NotificationsSettingScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     scrollViewContent: {
         flexGrow: 1,
     },

@@ -1,43 +1,29 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import {
-    View,
-    Text,
     StyleSheet,
     ScrollView,
-    TouchableOpacity,
-    SafeAreaView
 } from 'react-native'
 
+import NavStore from '@app/components/navigation/NavStore'
+
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+
+import { strings } from '@app/services/i18n'
+
+import config from '@app/config/config'
+import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
-import NavStore from '../../components/navigation/NavStore'
-
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-
-import { strings } from '../../services/i18n'
-
-import config from '../../config/config'
-import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
-
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-
-
-class LanguageListScreen extends React.PureComponent {
-    state = {
-        headerHeight: 0
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
-    }
+class LanguageListScreen extends PureComponent {
 
     getLangCode = () => {
 
@@ -70,41 +56,34 @@ class LanguageListScreen extends React.PureComponent {
         const { languageList } = config.language
         const language = this.getLangCode()
 
-        const { colors, GRID_SIZE } = this.context
-        const { headerHeight } = this.state
+        const { GRID_SIZE } = this.context
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('languageList.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE, paddingLeft: GRID_SIZE * 2 }]}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        {
-                            languageList.map((item, index) => (
-                                <ListItem
-                                    checked={item.code === language}
-                                    title={strings(`languageList.languages.${item.code}`)}
-                                    onPress={() => this.setLanguage(item)}
-                                    last={languageList.length - 1 === index}
-                                />
-                            ))
-                        }
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('languageList.title')}
+                setHeaderHeight={this.setHeaderHeight}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE, paddingLeft: GRID_SIZE * 2 }]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {
+                        languageList.map((item, index) => (
+                            <ListItem
+                                checked={item.code === language}
+                                title={strings(`languageList.languages.${item.code}`)}
+                                onPress={() => this.setLanguage(item)}
+                                last={languageList.length - 1 === index}
+                            />
+                        ))
+                    }
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
@@ -126,12 +105,6 @@ LanguageListScreen.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps)(LanguageListScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     scrollViewContent: {
         flexGrow: 1,
     },

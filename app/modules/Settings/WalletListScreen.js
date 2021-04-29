@@ -1,9 +1,9 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 
 import EntypoIcon from 'react-native-vector-icons/Entypo'
 
@@ -15,21 +15,20 @@ import DaemonCache from '@app/daemons/DaemonCache'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import Wallet from './elements/Wallet'
-import Header from '@app/components/elements/new/Header'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
-class WalletListScreen extends React.PureComponent {
+class WalletListScreen extends PureComponent {
 
     constructor(props) {
         super(props)
         this.state = {
             totalBalance: 0,
-            headerHeight: 0,
             isBalanceVisible: false,
             originalVisibility: false
         }
@@ -48,11 +47,6 @@ class WalletListScreen extends React.PureComponent {
     triggerBalanceVisibility = () => {
         if (this.state.originalVisibility) return
         this.setState(state => ({ isBalanceVisible: !state.isBalanceVisible }))
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     closeAllSettings = () => {
@@ -85,72 +79,65 @@ class WalletListScreen extends React.PureComponent {
         }
 
         const { colors, GRID_SIZE } = this.context
-        const { headerHeight, isBalanceVisible } = this.state
+        const { isBalanceVisible } = this.state
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('settings.walletList.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        bounces={false}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE }]}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <View style={[styles.topContent, { paddingHorizontal: GRID_SIZE / 2, paddingTop: GRID_SIZE / 2, paddingBottom: GRID_SIZE }]}>
-                            <TouchableOpacity
-                                onPressIn={this.triggerBalanceVisibility}
-                                onPressOut={this.triggerBalanceVisibility}
-                                activeOpacity={0.9}
-                                hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 60 : 20, bottom: 30 }}
-                            >
-                                <Text style={[styles.balanceTitle, { color: colors.common.text2 }]}>{strings('settings.walletList.totalBalance')}</Text>
-                                {
-                                    isBalanceVisible ? (
-                                        <Text style={[styles.balanceValue, { color: colors.common.text1 }]}>{localCurrencySymbol} {totalBalance}</Text>
-                                    ) : (
-                                        <Text style={[styles.balanceValue, styles.balanceValueHidden, { color: colors.common.text1 }]}>****</Text>
-                                    )
-                                }
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.addAssetButton, { borderColor: colors.common.text1 }]}
-                                onPress={this.handleAddWallet}
-                            >
-                                <EntypoIcon style={[styles.addAsset__icon, { color: colors.common.text3 }]} size={13} name="plus" />
-                                <Text style={[styles.addAsset__text, { color: colors.common.text3 }]}>
-                                    {strings('settings.walletList.addWallet')}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={{ paddingBottom: GRID_SIZE }}>
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('settings.walletList.title')}
+            >
+                <ScrollView
+                    bounces={false}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE }]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={[styles.topContent, { paddingHorizontal: GRID_SIZE / 2, paddingTop: GRID_SIZE / 2, paddingBottom: GRID_SIZE }]}>
+                        <TouchableOpacity
+                            onPressIn={this.triggerBalanceVisibility}
+                            onPressOut={this.triggerBalanceVisibility}
+                            activeOpacity={0.9}
+                            hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 60 : 20, bottom: 30 }}
+                        >
+                            <Text style={[styles.balanceTitle, { color: colors.common.text2 }]}>{strings('settings.walletList.totalBalance')}</Text>
                             {
-                                wallets.map((item, index) => {
-                                    return (
-                                        <Wallet
-                                            selectedWallet={selectedWallet}
-                                            wallet={item}
-                                            key={index}
-                                            isBalanceVisible={isBalanceVisible}
-                                        />
-                                    )
-                                })
+                                isBalanceVisible ? (
+                                    <Text style={[styles.balanceValue, { color: colors.common.text1 }]}>{localCurrencySymbol} {totalBalance}</Text>
+                                ) : (
+                                    <Text style={[styles.balanceValue, styles.balanceValueHidden, { color: colors.common.text1 }]}>****</Text>
+                                )
                             }
-                        </View>
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.addAssetButton, { borderColor: colors.common.text1 }]}
+                            onPress={this.handleAddWallet}
+                        >
+                            <EntypoIcon style={[styles.addAsset__icon, { color: colors.common.text3 }]} size={13} name="plus" />
+                            <Text style={[styles.addAsset__text, { color: colors.common.text3 }]}>
+                                {strings('settings.walletList.addWallet')}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{ paddingBottom: GRID_SIZE }}>
+                        {
+                            wallets.map((item, index) => {
+                                return (
+                                    <Wallet
+                                        selectedWallet={selectedWallet}
+                                        wallet={item}
+                                        key={index}
+                                        isBalanceVisible={isBalanceVisible}
+                                    />
+                                )
+                            })
+                        }
+                    </View>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
@@ -175,12 +162,6 @@ WalletListScreen.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(WalletListScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     scrollViewContent: {
         flexGrow: 1,
     },

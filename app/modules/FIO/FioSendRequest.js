@@ -1,29 +1,28 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * @author yura
  */
 import React, { Component } from 'react'
-import { View, Text, KeyboardAvoidingView, TouchableOpacity, SafeAreaView, ScrollView  } from 'react-native'
+import { View, Text, KeyboardAvoidingView, TouchableOpacity, ScrollView } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/new/buttons/Button'
-import { strings } from '../../services/i18n'
-import Feather from 'react-native-vector-icons/Feather'
-import NavStore from '../../components/navigation/NavStore'
+import Button from '@app/components/elements/new/buttons/Button'
+import { strings } from '@app/services/i18n'
+import NavStore from '@app/components/navigation/NavStore'
 import { connect } from 'react-redux'
-import { requestFunds, getFioNames, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import Toast from '../../services/UI/Toast/Toast'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
-import DaemonCache from '../../daemons/DaemonCache'
-import config from '../../config/config'
+import { requestFunds, getFioNames, resolveCryptoCodes, getPubAddress } from '@crypto/blockchains/fio/FioUtils'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import Toast from '@app/services/UI/Toast/Toast'
+import CurrencyIcon from '@app/components/elements/CurrencyIcon'
+import DaemonCache from '@app/daemons/DaemonCache'
+import config from '@app/config/config'
 
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import Netinfo from '../../services/Netinfo/Netinfo'
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import TextInput from '../../components/elements/new/TextInput'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import Netinfo from '@app/services/Netinfo/Netinfo'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import TextInput from '@app/components/elements/new/TextInput'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
-import CustomIcon from '../../components/elements/CustomIcon'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 class FioSendRequest extends Component {
 
@@ -37,19 +36,13 @@ class FioSendRequest extends Component {
             currencyCode: '',
             enabledCryptoCurrencies: [],
             availableCryptoCurrencies: [],
-            isLoading: false,
-            headerHeight: 0,
+            isLoading: false
         }
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     async componentDidMount() {
         setLoaderStatus(true)
-        this.setState({isLoading: true})
+        this.setState({ isLoading: true })
         try {
             await Netinfo.isInternetReachable()
             await this.resolveFioAccount()
@@ -58,7 +51,7 @@ class FioSendRequest extends Component {
             NavStore.goBack(null)
         } finally {
             setLoaderStatus(false)
-            this.setState({isLoading: false})
+            this.setState({ isLoading: false })
         }
     }
 
@@ -123,7 +116,7 @@ class FioSendRequest extends Component {
         const account = await DaemonCache.getCacheAccount(selectedWallet.walletHash, currencyCode)
 
         // eslint-disable-next-line camelcase
-        const {chain_code, token_code} = resolveCryptoCodes(currencyCode)
+        const { chain_code, token_code } = resolveCryptoCodes(currencyCode)
 
         setLoaderStatus(true)
         const result = await requestFunds({
@@ -184,164 +177,153 @@ class FioSendRequest extends Component {
     render() {
         const selectedCurrencyName = this.getSelectedCurrency()?.currencyName
 
-        const { colors, GRID_SIZE } = this.context
-
-        const { headerHeight } = this.state
+        const { colors } = this.context
 
         return (
-            <View style={[styles.containerMain, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('FioSendRequest.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('FioSendRequest.title')}
+                setHeaderHeight={this.setHeaderHeight}
+            >
+                <View style={styles.container}>
+                    {
+                        !this.state.isLoading ?
+                            <View style={styles.subheader}>
 
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                    height: '100%',
-                }]}>
-                    <View style={styles.container}>
-                        {
-                            !this.state.isLoading ?
-                                <View style={styles.subheader}>
-
-                                    {
-                                        !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
-                                            <View style={styles.rowFlex}>
-                                                <View style={styles.info_section}>
-                                                    <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator}  style={{ marginRight: 10, }}/>
-                                                    <Text style={styles.descr_txt}>
-                                                        {strings('FioSendRequest.goToFioSettings')}
-                                                    </Text>
-                                                </View>
-                                                <TouchableOpacity style={styles.btn__container2} onPress={() => NavStore.goNext('FioSettings')}>
-                                                    <View style={styles.popup_btn}>
-                                                        <Text style={styles.popup_txt}>
-                                                            {strings('FioSendRequest.fioSettings')}
-                                                        </Text>
-                                                    </View>
-                                                </TouchableOpacity>
+                                {
+                                    !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
+                                        <View style={styles.rowFlex}>
+                                            <View style={styles.info_section}>
+                                                <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator} style={{ marginRight: 10, }} />
+                                                <Text style={styles.descr_txt}>
+                                                    {strings('FioSendRequest.goToFioSettings')}
+                                                </Text>
                                             </View>
-                                            : null
-                                    }
-
-                                    {
-                                        !this.state.payeeFioAddress ?
-                                            <View style={styles.rowFlex}>
-                                                <View style={styles.info_section}>
-                                                    <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator}  style={{ marginRight: 10, }}/>
-                                                    <Text style={styles.descr_txt}>
-                                                        {strings('FioSendRequest.needRegisterFio')}
-                                                    </Text>
-                                                </View>
-
-                                                <TouchableOpacity style={styles.btn__container2} onPress={this.handleRegisterFIOAddress}>
-                                                    <View style={styles.popup_btn}>
-                                                        <Text style={styles.popup_txt}>
-                                                            {strings('FioSendRequest.registerFioAddress')}
-                                                        </Text>
-                                                    </View>
-                                                </TouchableOpacity>
-                                            </View>
-
-                                            : null
-                                    }
-
-                                    {
-                                        !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
-                                            <TouchableOpacity style={styles.btn__container} onPress={this.showSelectCoinModal}>
+                                            <TouchableOpacity style={styles.btn__container2} onPress={() => NavStore.goNext('FioSettings')}>
                                                 <View style={styles.popup_btn}>
                                                     <Text style={styles.popup_txt}>
-                                                        {strings('FioSendRequest.selectCoin')}
+                                                        {strings('FioSendRequest.fioSettings')}
                                                     </Text>
                                                 </View>
-                                            </TouchableOpacity> : null
-                                    }
+                                            </TouchableOpacity>
+                                        </View>
+                                        : null
+                                }
 
-                                    {
-                                        this.state.currencyCode ?
-                                            <TouchableOpacity style={styles.rowFlex2} onPress={this.showSelectCoinModal}>
-                                                <CurrencyIcon
-                                                    currencyCode={this.state.currencyCode}
-                                                    containerStyle={styles.cryptoList__icoWrap}
-                                                    markStyle={styles.cryptoList__icon__mark}
-                                                    markTextStyle={styles.cryptoList__icon__mark__text}
-                                                    iconStyle={styles.cryptoList__icon}/>
-                                                <Text style={[styles.subheaderTxt, { color: colors.common.text3 }]} >{selectedCurrencyName}</Text>
+                                {
+                                    !this.state.payeeFioAddress ?
+                                        <View style={styles.rowFlex}>
+                                            <View style={styles.info_section}>
+                                                <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator} style={{ marginRight: 10, }} />
+                                                <Text style={styles.descr_txt}>
+                                                    {strings('FioSendRequest.needRegisterFio')}
+                                                </Text>
+                                            </View>
 
-                                            </TouchableOpacity> : null
-                                    }
-
-                                </View> : null
-                        }
-
-
-                        { this.state.payeeFioAddress ?
-                            <ScrollView showsVerticalScrollIndicator={false}>
-                                <KeyboardAvoidingView style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}} behavior="padding" enabled>
-
-                                    <View style={{marginHorizontal: 0}}>
-                                        <View style={styles.input__wrapper}>
-                                            <TextInput
-                                                containerStyle={{ shadowRadius: 0, elevation: 0}}
-                                                inputStyle={{ backgroundColor: '#ebebeb'}}
-                                                placeholder={strings('FioSendRequest.from')}
-                                                value={this.state.payeeFioAddress}
-                                                editable={false}
-                                            />
+                                            <TouchableOpacity style={styles.btn__container2} onPress={this.handleRegisterFIOAddress}>
+                                                <View style={styles.popup_btn}>
+                                                    <Text style={styles.popup_txt}>
+                                                        {strings('FioSendRequest.registerFioAddress')}
+                                                    </Text>
+                                                </View>
+                                            </TouchableOpacity>
                                         </View>
 
-                                        <View style={styles.input__wrapper}>
-                                            <TextInput
-                                                placeholder={strings('FioSendRequest.to')}
-                                                value={this.state.payerFioAddress}
-                                                onChangeText={(text) => this.setState({payerFioAddress: text})}
-                                                HelperAction={() => <AntDesignIcon name="edit" size={23}
-                                                                                   color={this.context.colors.common.text2}/>}
-                                            />
-                                        </View>
+                                        : null
+                                }
 
-                                        <View style={styles.input__wrapper}>
-                                            <TextInput
-                                                placeholder={strings('FioSendRequest.amount')}
-                                                value={this.state.amount}
-                                                onChangeText={(text) => this.setState({amount: text})}
-                                                HelperAction={() => <AntDesignIcon name="edit" size={23}
-                                                                                   color={this.context.colors.common.text2}/>}
-                                            />
-                                        </View>
+                                {
+                                    !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
+                                        <TouchableOpacity style={styles.btn__container} onPress={this.showSelectCoinModal}>
+                                            <View style={styles.popup_btn}>
+                                                <Text style={styles.popup_txt}>
+                                                    {strings('FioSendRequest.selectCoin')}
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity> : null
+                                }
 
-                                        <View style={styles.input__wrapper}>
-                                            <TextInput
-                                                placeholder={strings('FioSendRequest.memo')}
-                                                value={this.state.memo}
-                                                onChangeText={(text) => this.setState({memo: text})}
-                                                HelperAction={() => <AntDesignIcon name="edit" size={23}
-                                                                                   color={this.context.colors.common.text2}/>}
-                                            />
-                                        </View>
-                                    </View>
+                                {
+                                    this.state.currencyCode ?
+                                        <TouchableOpacity style={styles.rowFlex2} onPress={this.showSelectCoinModal}>
+                                            <CurrencyIcon
+                                                currencyCode={this.state.currencyCode}
+                                                containerStyle={styles.cryptoList__icoWrap}
+                                                markStyle={styles.cryptoList__icon__mark}
+                                                markTextStyle={styles.cryptoList__icon__mark__text}
+                                                iconStyle={styles.cryptoList__icon} />
+                                            <Text style={[styles.subheaderTxt, { color: colors.common.text3 }]} >{selectedCurrencyName}</Text>
+
+                                        </TouchableOpacity> : null
+                                }
+
+                            </View> : null
+                    }
 
 
+                    {this.state.payeeFioAddress ?
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <KeyboardAvoidingView style={{ flex: 1, flexDirection: 'column', justifyContent: 'space-between' }} behavior="padding" enabled>
 
-                                    <View style={{marginTop: 20, paddingHorizontal: 8}}>
-                                        <Button
-                                            title={strings('FioSendRequest.btnText')}
-                                            onPress={this.handleNext}
+                                <View style={{ marginHorizontal: 0 }}>
+                                    <View style={styles.input__wrapper}>
+                                        <TextInput
+                                            containerStyle={{ shadowRadius: 0, elevation: 0 }}
+                                            inputStyle={{ backgroundColor: '#ebebeb' }}
+                                            placeholder={strings('FioSendRequest.from')}
+                                            value={this.state.payeeFioAddress}
+                                            editable={false}
                                         />
                                     </View>
-                                </KeyboardAvoidingView>
-                            </ScrollView>
-                            : null
-                        }
 
-                    </View>
-                </SafeAreaView>
-            </View>
+                                    <View style={styles.input__wrapper}>
+                                        <TextInput
+                                            placeholder={strings('FioSendRequest.to')}
+                                            value={this.state.payerFioAddress}
+                                            onChangeText={(text) => this.setState({ payerFioAddress: text })}
+                                            HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                color={this.context.colors.common.text2} />}
+                                        />
+                                    </View>
+
+                                    <View style={styles.input__wrapper}>
+                                        <TextInput
+                                            placeholder={strings('FioSendRequest.amount')}
+                                            value={this.state.amount}
+                                            onChangeText={(text) => this.setState({ amount: text })}
+                                            HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                color={this.context.colors.common.text2} />}
+                                        />
+                                    </View>
+
+                                    <View style={styles.input__wrapper}>
+                                        <TextInput
+                                            placeholder={strings('FioSendRequest.memo')}
+                                            value={this.state.memo}
+                                            onChangeText={(text) => this.setState({ memo: text })}
+                                            HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                color={this.context.colors.common.text2} />}
+                                        />
+                                    </View>
+                                </View>
+
+
+
+                                <View style={{ marginTop: 20, paddingHorizontal: 8 }}>
+                                    <Button
+                                        title={strings('FioSendRequest.btnText')}
+                                        onPress={this.handleNext}
+                                    />
+                                </View>
+                            </KeyboardAvoidingView>
+                        </ScrollView>
+                        : null
+                    }
+                </View>
+            </ScreenWrapper>
         );
     }
 }
@@ -357,10 +339,6 @@ FioSendRequest.contextType = ThemeContext
 export default connect(mapStateToProps, {})(FioSendRequest)
 
 const styles = {
-
-    containerMain: {
-        flex: 1,
-    },
 
     container: {
         padding: 20,

@@ -7,12 +7,10 @@ import {
     View,
     Text,
     ScrollView,
-    SafeAreaView,
     StyleSheet,
     TouchableOpacity,
     RefreshControl
 } from 'react-native'
-import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
@@ -26,7 +24,6 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import QrCodeBox from '@app/components/elements/QrCodeBox'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import Header from '@app/components/elements/new/Header'
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import PromoCodeContent from './elements/PromoCode'
 import DetailsContent from './elements/Details'
@@ -38,11 +35,11 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import NavStore from '@app/components/navigation/NavStore'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
 class CashbackScreen extends React.PureComponent {
     state = {
-        headerHeight: 0,
         selectedContent: null,
         promoCode: '',
         inviteLink: '',
@@ -58,10 +55,7 @@ class CashbackScreen extends React.PureComponent {
         }
     }
 
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
-    }
+
 
     handleBack = () => { NavStore.goBack() }
 
@@ -101,7 +95,7 @@ class CashbackScreen extends React.PureComponent {
             refreshing: true,
         })
 
-        await UpdateCashBackDataDaemon.updateCashBackDataDaemon({force : true})
+        await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
 
         this.setState({
             refreshing: false
@@ -114,7 +108,7 @@ class CashbackScreen extends React.PureComponent {
             colors,
             GRID_SIZE,
         } = this.context
-        const { headerHeight, selectedContent } = this.state
+        const { selectedContent } = this.state
         const { cashbackStore } = this.props
 
         let cashbackLink = cashbackStore.dataFromApi.cashbackLink || false
@@ -127,77 +121,68 @@ class CashbackScreen extends React.PureComponent {
         }
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    rightType="close"
-                    rightAction={this.handleBack}
-                    title={strings('cashback.pageTitle')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <KeyboardAwareView>
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={[styles.scrollViewContent, { paddingVertical: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }]}
-                        keyboardShouldPersistTaps="handled"
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this.handleRefresh}
-                                tintColor={colors.common.text1}
-                            />
-                        }>
-                        <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
-                        <TouchableOpacity
-                            style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE }]}
-                            onPress={() => this.copyToClip(cashbackLink)}
-                            activeOpacity={0.8}
-                        >
-                            <QrCodeBox
-                                value={cashbackLink}
-                                size={150}
-                                color={colors.cashback.qrCode}
-                                backgroundColor={colors.cashback.background}
-                                onError={this.handleRenderQrError}
-                                style={styles.qrCode}
-                            />
-                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackLinkTitle} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
-                        </TouchableOpacity>
+            <ScreenWrapper
+                rightType="close"
+                rightAction={this.handleBack}
+                title={strings('cashback.pageTitle')}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={[styles.scrollViewContent, { paddingVertical: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }]}
+                    keyboardShouldPersistTaps="handled"
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={this.handleRefresh}
+                            tintColor={colors.common.text1}
+                        />
+                    }>
+                    <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
+                    <TouchableOpacity
+                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE }]}
+                        onPress={() => this.copyToClip(cashbackLink)}
+                        activeOpacity={0.8}
+                    >
+                        <QrCodeBox
+                            value={cashbackLink}
+                            size={150}
+                            color={colors.cashback.qrCode}
+                            backgroundColor={colors.cashback.background}
+                            onError={this.handleRenderQrError}
+                            style={styles.qrCode}
+                        />
+                        <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackLinkTitle} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
+                    </TouchableOpacity>
 
-                        <View style={[styles.buttonsRow, { margin: GRID_SIZE * 2, marginTop: GRID_SIZE }]}>
-                            <RoundButton
-                                type="share"
-                                size={54}
-                                onPress={() => this.handlePressShare(cashbackLink)}
-                                containerStyle={styles.buttonContainer}
-                                title={!selectedContent && strings('cashback.shareButton')}
-                            />
-                            <RoundButton
-                                type={selectedContent === 'promo' ? 'close' : 'promo'}
-                                size={54}
-                                onPress={this.handlePressPromo}
-                                containerStyle={styles.buttonContainer}
-                                title={!selectedContent && strings('cashback.promoButton')}
-                            />
-                            <RoundButton
-                                type={selectedContent === 'details' ? 'close' : 'details'}
-                                size={54}
-                                onPress={this.handlePressDetails}
-                                containerStyle={styles.buttonContainer}
-                                title={!selectedContent && strings('cashback.detailsButton')}
-                            />
-                        </View>
+                    <View style={[styles.buttonsRow, { margin: GRID_SIZE * 2, marginTop: GRID_SIZE }]}>
+                        <RoundButton
+                            type="share"
+                            size={54}
+                            onPress={() => this.handlePressShare(cashbackLink)}
+                            containerStyle={styles.buttonContainer}
+                            title={!selectedContent && strings('cashback.shareButton')}
+                        />
+                        <RoundButton
+                            type={selectedContent === 'promo' ? 'close' : 'promo'}
+                            size={54}
+                            onPress={this.handlePressPromo}
+                            containerStyle={styles.buttonContainer}
+                            title={!selectedContent && strings('cashback.promoButton')}
+                        />
+                        <RoundButton
+                            type={selectedContent === 'details' ? 'close' : 'details'}
+                            size={54}
+                            onPress={this.handlePressDetails}
+                            containerStyle={styles.buttonContainer}
+                            title={!selectedContent && strings('cashback.detailsButton')}
+                        />
+                    </View>
 
-                        {this.renderContent()}
+                    {this.renderContent()}
 
-                        <HowItWorks />
-                    </ScrollView>
-                </SafeAreaView>
-                </KeyboardAwareView>
-            </View>
+                    <HowItWorks />
+                </ScrollView>
+            </ScreenWrapper >
         )
     }
 
@@ -291,12 +276,6 @@ CashbackScreen.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps)(CashbackScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     scrollViewContent: {
         flexGrow: 1,
     },

@@ -1,42 +1,30 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import {
     View,
     Text,
     StyleSheet,
-    ScrollView,
-    SafeAreaView
+    ScrollView
 } from 'react-native'
 
+import NavStore from '@app/components/navigation/NavStore'
 
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import NavStore from '../../components/navigation/NavStore'
+import { strings } from '@app/services/i18n'
 
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+import config from '@app/config/config'
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 
-import { strings } from '../../services/i18n'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-import config from '../../config/config'
-import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
-
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
-import Header from '../../components/elements/new/Header'
-import ListItem from '../../components/elements/new/list/ListItem/SubSetting'
-import MarketingAnalytics from '../../services/Marketing/MarketingAnalytics'
-
-
-class ScannerSettingsScreen extends React.PureComponent {
-    state = {
-        headerHeight: 0
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
-    }
+class ScannerSettingsScreen extends PureComponent {
 
     getCode = () => {
         let { scannerCode } = this.props.settings.data
@@ -62,50 +50,42 @@ class ScannerSettingsScreen extends React.PureComponent {
         const time = UpdateAccountBalanceAndTransactions.getTime()
 
         const { colors, GRID_SIZE } = this.context
-        const { headerHeight } = this.state
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType="back"
-                    leftAction={this.handleBack}
-                    rightType="close"
-                    rightAction={this.handleClose}
-                    title={strings('scannerSettings.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        bounces={false}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE, paddingLeft: GRID_SIZE * 2 }]}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <View style={[styles.scanningTimeContainer, { paddingRight: GRID_SIZE, paddingTop: GRID_SIZE / 2 }]}>
-                            <Text style={[styles.text, { color: colors.common.text3 }]}>{strings('scannerSettings.lastScan')}</Text>
-                            <Text style={[styles.timeText, { color: colors.common.text1 }]}>{time}</Text>
-                        </View>
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('scannerSettings.title')}
+            >
+                <ScrollView
+                    bounces={false}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE, paddingLeft: GRID_SIZE * 2 }]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={[styles.scanningTimeContainer, { paddingRight: GRID_SIZE, paddingTop: GRID_SIZE / 2 }]}>
+                        <Text style={[styles.text, { color: colors.common.text3 }]}>{strings('scannerSettings.lastScan')}</Text>
+                        <Text style={[styles.timeText, { color: colors.common.text1 }]}>{time}</Text>
+                    </View>
 
-                        <View>
-                            <Text style={[styles.text, { color: colors.common.text3, marginRight: GRID_SIZE * 3, marginVertical: GRID_SIZE * 1.5 }]}>{strings('scannerSettings.helper')}</Text>
-                        </View>
+                    <View>
+                        <Text style={[styles.text, { color: colors.common.text3, marginRight: GRID_SIZE * 3, marginVertical: GRID_SIZE * 1.5 }]}>{strings('scannerSettings.helper')}</Text>
+                    </View>
 
-                        {
-                            scannerSettings.map((item, index) => (
-                                <ListItem
-                                    checked={item.code === code}
-                                    title={strings(`scannerSettings.codes.${item.code}`)}
-                                    onPress={() => this.setCode(item)}
-                                    last={scannerSettings.length - 1 === index}
-                                />
-                            ))
-                        }
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
+                    {
+                        scannerSettings.map((item, index) => (
+                            <ListItem
+                                checked={item.code === code}
+                                title={strings(`scannerSettings.codes.${item.code}`)}
+                                onPress={() => this.setCode(item)}
+                                last={scannerSettings.length - 1 === index}
+                            />
+                        ))
+                    }
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
@@ -127,12 +107,6 @@ ScannerSettingsScreen.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps)(ScannerSettingsScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-    },
     scrollViewContent: {
         flexGrow: 1,
     },

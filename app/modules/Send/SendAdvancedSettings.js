@@ -1,17 +1,14 @@
 /**
- * @version 0.41
+ * @version 0.43
  */
-import React, { Component } from 'react'
-import { View, Text, ScrollView, StyleSheet, Keyboard } from 'react-native'
+import React from 'react'
+import { View, ScrollView, StyleSheet, Keyboard } from 'react-native'
 import { connect } from 'react-redux'
-
-import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import NavStore from '@app/components/navigation/NavStore'
 
-import Header from '@app/components/elements/new/Header'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import TextInput from '@app/components/elements/new/TextInput'
@@ -30,7 +27,7 @@ import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { checkLoadedFee } from './receipt/helpers'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 let CACHE_IS_COUNTING = false
 class SendAdvancedSettings extends React.PureComponent {
@@ -41,8 +38,7 @@ class SendAdvancedSettings extends React.PureComponent {
         this.state = {
             dropMenu: false,
             comment: '',
-            headerHeight: 0,
-            selectedFee : false
+            selectedFee: false
         }
 
         this.customFee = React.createRef()
@@ -51,7 +47,7 @@ class SendAdvancedSettings extends React.PureComponent {
     componentDidMount() {
         SendActionsUpdateValues.setTmpSelectedFee(false)
         this.setState({
-            comment : this.props.sendScreenStore.ui.comment
+            comment: this.props.sendScreenStore.ui.comment
         })
     }
 
@@ -72,13 +68,6 @@ class SendAdvancedSettings extends React.PureComponent {
 
         this.setState({
             dropMenu: !this.state.dropMenu
-        })
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0)
-        this.setState({
-            headerHeight
         })
     }
 
@@ -134,80 +123,75 @@ class SendAdvancedSettings extends React.PureComponent {
         const isCustomFee = typeof currentSelectedFee.isCustomFee !== 'undefined' ? currentSelectedFee.isCustomFee : false
 
         const dropMenu = langMsg !== 'none' ? !!this.state.dropMenu : true
-        const showFees = countedFees && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex*1 >= -2
+        const showFees = countedFees && typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex * 1 >= -2
         const shouldShowFees = countedFees && typeof countedFees.shouldShowFees !== 'undefined' ? countedFees.shouldShowFees : true
         return (
-            <View style={{ flex: 1, backgroundColor: colors.common.background }}>
-                <Header
-                    title={strings('send.setting.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <KeyboardAwareView>
-                    <ScrollView
-                        ref={(ref) => {
-                            this.scrollView = ref
-                        }}
-                        keyboardShouldPersistTaps={'handled'}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{
-                            flexGrow: 1,
-                            justifyContent: 'space-between',
-                            padding: GRID_SIZE,
-                            paddingBottom: GRID_SIZE * 2,
-                        }}
-                        style={{ marginTop: this.state.headerHeight }}
-                    >
-                        <View>
-                            { shouldShowFees && showFees ?
-                                <View>
-                                    <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }} letterSpacing={1.5} />
-                                    <ListItem
-                                        title={strings('send.setting.selectFee')}
-                                        iconType="fee"
-                                        onPress={this.toggleDropMenu}
-                                        rightContent={dropMenu ? 'arrow_up' : "arrow_down"}
-                                        switchParams={{ value: dropMenu, onPress: this.toggleDropMenu }}
-                                        type={'dropdown'}
-                                        ExtraView={() => <SendAdvancedFees
-                                            sendScreenStore={this.props.sendScreenStore}
-                                            currentSelectedFee={currentSelectedFee}
-                                            scrollView={this.scrollView}
-                                            setParentState={this.setFee}
-                                        />}
-                                        subtitle={langMsg
-                                            ? (
-                                                isCustomFee ? strings(`send.fee.customFee.title`) : strings(`send.fee.text.${langMsg}`)
-                                            )
-                                            : null}
-                                    />
-                                </View>
-                                : null }
-
-                            <View style={{ marginVertical: GRID_SIZE }}>
-                                <LetterSpacing text={strings('send.setting.optional').toUpperCase()} textStyle={{...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }}  letterSpacing={1.5} />
-                                <TextInput
-                                    value={this.state.comment}
-                                    placeholder={strings('send.setting.note')}
-                                    onChangeText={this.onChangeComment}
+            <ScreenWrapper
+                title={strings('send.setting.title')}
+            >
+                <ScrollView
+                    ref={(ref) => {
+                        this.scrollView = ref
+                    }}
+                    keyboardShouldPersistTaps={'handled'}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        justifyContent: 'space-between',
+                        padding: GRID_SIZE,
+                        paddingBottom: GRID_SIZE * 2,
+                    }}
+                >
+                    <View>
+                        {shouldShowFees && showFees ?
+                            <View>
+                                <LetterSpacing text={strings('send.setting.feeSettings').toUpperCase()} textStyle={{ ...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }} letterSpacing={1.5} />
+                                <ListItem
+                                    title={strings('send.setting.selectFee')}
+                                    iconType="fee"
+                                    onPress={this.toggleDropMenu}
+                                    rightContent={dropMenu ? 'arrow_up' : "arrow_down"}
+                                    switchParams={{ value: dropMenu, onPress: this.toggleDropMenu }}
+                                    type={'dropdown'}
+                                    ExtraView={() => <SendAdvancedFees
+                                        sendScreenStore={this.props.sendScreenStore}
+                                        currentSelectedFee={currentSelectedFee}
+                                        scrollView={this.scrollView}
+                                        setParentState={this.setFee}
+                                    />}
+                                    subtitle={langMsg
+                                        ? (
+                                            isCustomFee ? strings(`send.fee.customFee.title`) : strings(`send.fee.text.${langMsg}`)
+                                        )
+                                        : null}
                                 />
                             </View>
-                        </View>
-                        <View style={{ marginTop: GRID_SIZE }}>
-                            <TwoButtons
-                                mainButton={{
-                                    onPress: this.handleApply,
-                                    title: strings('send.setting.apply')
-                                }}
-                                secondaryButton={{
-                                    type: 'back',
-                                    onPress: this.handleBack,
-                                }}
+                            : null}
+
+                        <View style={{ marginVertical: GRID_SIZE }}>
+                            <LetterSpacing text={strings('send.setting.optional').toUpperCase()} textStyle={{ ...styles.settings__title, paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }} letterSpacing={1.5} />
+                            <TextInput
+                                value={this.state.comment}
+                                placeholder={strings('send.setting.note')}
+                                onChangeText={this.onChangeComment}
                             />
                         </View>
+                    </View>
+                    <View style={{ marginTop: GRID_SIZE }}>
+                        <TwoButtons
+                            mainButton={{
+                                onPress: this.handleApply,
+                                title: strings('send.setting.apply')
+                            }}
+                            secondaryButton={{
+                                type: 'back',
+                                onPress: this.handleBack,
+                            }}
+                        />
+                    </View>
 
-                    </ScrollView>
-                </KeyboardAwareView>
-            </View>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }

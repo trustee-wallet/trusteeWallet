@@ -1,12 +1,10 @@
 /**
  * @version 0.43
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { ThemeContext } from '../theme/ThemeProvider'
-import { SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 
-
-import Header from '@app/components/elements/new/Header'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import NavStore from '@app/components/navigation/NavStore'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
@@ -20,15 +18,14 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import EthNetworkPrices from '@crypto/blockchains/eth/basic/EthNetworkPrices'
 
-
 import config from '@app/config/config'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-class WalletConnectScreen extends React.PureComponent {
+class WalletConnectScreen extends PureComponent {
 
     state = {
-        initData : false,
-        headerHeight: 0,
-        paranoidLogout : false,
+        initData: false,
+        paranoidLogout: false,
         walletStarted: false,
         chainId: false,
         peerMeta: {
@@ -48,10 +45,10 @@ class WalletConnectScreen extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const data = NavStore.getParamWrapper(this,'walletConnect')
+        const data = NavStore.getParamWrapper(this, 'walletConnect')
         if (data) {
             this.setState({
-                initData : data
+                initData: data
             }, () => {
                 this.init()
             })
@@ -136,7 +133,7 @@ class WalletConnectScreen extends React.PureComponent {
                 gasPrice = BlocksoftUtils.hexToDecimalWalletConnect(data.gasPrice)
             }
             if (gasPrice * 1 <= 0) {
-                const prices = await EthNetworkPrices.getOnlyFees(AppWalletConnect.getMainCurrencyCode(), data.from, {source : 'WalletConnectScreen'})
+                const prices = await EthNetworkPrices.getOnlyFees(AppWalletConnect.getMainCurrencyCode(), data.from, { source: 'WalletConnectScreen' })
                 gasPrice = prices.speed_blocks_2
             }
             const gas = BlocksoftUtils.hexToDecimalWalletConnect(data.gas)
@@ -238,20 +235,15 @@ class WalletConnectScreen extends React.PureComponent {
         }, async () => {
             AppWalletConnect.approveSession()
             this.setState({
-                peerMeta : data.peerMeta,
-                peerId : data.peerId,
-                peerStatus : true
+                peerMeta: data.peerMeta,
+                peerId: data.peerId,
+                peerStatus: true
             })
         })
     }
 
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0)
-        this.setState(() => ({ headerHeight }))
-    }
-
     handleParanoidLogout = () => {
-        this.setState({paranoidLogout : !this.state.paranoidLogout})
+        this.setState({ paranoidLogout: !this.state.paranoidLogout })
     }
 
     handleClose = async () => {
@@ -266,122 +258,108 @@ class WalletConnectScreen extends React.PureComponent {
         MarketingAnalytics.setCurrentScreen('WalletConnect')
 
         const { colors } = this.context
-        const { headerHeight } = this.state
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    leftType='back'
-                    leftAction={this.handleClose}
-                    rightType='close'
-                    rightAction={this.handleClose}
-                    title={'Wallet Connect'}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollViewContent}
-                        keyboardShouldPersistTaps='handled'
-                    >
-                        <View style={{ marginTop: 20, marginHorizontal: 20 }}>
+            <ScreenWrapper
+                leftType='back'
+                leftAction={this.handleClose}
+                rightType='close'
+                rightAction={this.handleClose}
+                title={'Wallet Connect'}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={{ marginTop: 20, marginHorizontal: 20 }}>
 
-                            {
-                                this.state.walletStarted ?
-                                    <ListItem
-                                        title={'Wallet Connect'}
-                                        subtitle={this.state.peerId ? this.state.peerId : 'wait for session request or rescan QR code'}
-                                        iconType='pinCode'
-                                    /> : <ListItem
-                                        title={'Wallet Connect error'}
-                                        subtitle={'rescan QR code'}
-                                        iconType='pinCode'
+                        {
+                            this.state.walletStarted ?
+                                <ListItem
+                                    title={'Wallet Connect'}
+                                    subtitle={this.state.peerId ? this.state.peerId : 'wait for session request or rescan QR code'}
+                                    iconType='pinCode'
+                                /> : <ListItem
+                                    title={'Wallet Connect error'}
+                                    subtitle={'rescan QR code'}
+                                    iconType='pinCode'
+                                />
+                        }
+
+                        {
+                            this.state.peerId && typeof this.state.peerMeta !== 'undefined' ?
+                                <ListItem
+                                    title={this.state.peerMeta.name !== 'undefined' ? this.state.peerMeta.name : ''}
+                                    subtitle={typeof this.state.peerMeta.url !== 'undefined' ? this.state.peerMeta.url : ''}
+                                    iconType='pinCode'
+                                /> : null
+                        }
+                        {
+                            this.state.peerId ?
+                                <View style={{ paddingTop: 10, paddingBottom: 15, flexDirection: 'row' }}>
+                                    <View style={{ paddingLeft: 50, paddingRight: 5, flex: 2 }}>
+                                        <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                            <LetterSpacing text={this.state.peerStatus ? 'Connected' : 'Disconnected'} letterSpacing={0.5} numberOfLines={2}
+                                                textStyle={{ color: colors.common.text1 }} />
+                                        </View>
+                                    </View>
+                                    <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
+                                        <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                            <TouchableOpacity onPress={() => this.handleUserStatus(this.state.peerStatus)}>
+                                                <LetterSpacing text={this.state.peerStatus ? 'Press to Stop' : ''} letterSpacing={0.5} numberOfLines={2}
+                                                    textStyle={{ color: colors.common.text1 }} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </View> : null
+                        }
+
+                        <ListItem
+                            title={'Paranoid Logout'}
+                            subtitle={'Closing the Screen will automatically kill the Session'}
+                            iconType="pinCode"
+                            onPress={this.handleParanoidLogout}
+                            rightContent="switch"
+                            switchParams={{ value: !!this.state.paranoidLogout, onPress: this.handleParanoidLogout }}
+                        />
+
+                        {
+                            this.state.accounts && this.state.accounts.length > 0 ?
+                                <ListItem
+                                    title={BlocksoftPrettyStrings.makeCut(this.state.accounts[0], 10, 8)}
+                                    subtitle={'Change wallet to use another address'}
+                                    iconType='pinCode'
+                                /> : null
+                        }
+
+                        {
+                            this.state.transactions ?
+                                this.state.transactions.map((item, index) => {
+                                    return <ListItem
+                                        key={index}
+                                        title={BlocksoftPrettyStrings.makeCut(item.transactionHash, 10, 8)}
+                                        subtitle={item.subtitle}
+                                        onPress={() => {
+                                        }}
                                     />
-                            }
+                                })
+                                : null
+                        }
 
-                            {
-                                this.state.peerId && typeof this.state.peerMeta !== 'undefined' ?
-                                    <ListItem
-                                        title={this.state.peerMeta.name !== 'undefined' ? this.state.peerMeta.name : ''}
-                                        subtitle={typeof this.state.peerMeta.url !== 'undefined' ? this.state.peerMeta.url : ''}
-                                        iconType='pinCode'
-                                    /> : null
-                            }
-                            {
-                                this.state.peerId ?
-                                    <View style={{ paddingTop: 10, paddingBottom: 15, flexDirection: 'row' }}>
-                                        <View style={{ paddingLeft: 50, paddingRight: 5, flex: 2 }}>
-                                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
-                                                <LetterSpacing text={this.state.peerStatus ? 'Connected' : 'Disconnected'} letterSpacing={0.5} numberOfLines={2}
-                                                               textStyle={{ color: colors.common.text1 }} />
-                                            </View>
-                                        </View>
-                                        <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
-                                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
-                                                <TouchableOpacity onPress={() => this.handleUserStatus(this.state.peerStatus)}>
-                                                    <LetterSpacing text={this.state.peerStatus ? 'Press to Stop' : ''} letterSpacing={0.5} numberOfLines={2}
-                                                                   textStyle={{ color: colors.common.text1 }} />
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                    </View> : null
-                            }
-
-                            <ListItem
-                                title={'Paranoid Logout'}
-                                subtitle={'Closing the Screen will automatically kill the Session'}
-                                iconType="pinCode"
-                                onPress={this.handleParanoidLogout}
-                                rightContent="switch"
-                                switchParams={{ value: !!this.state.paranoidLogout, onPress: this.handleParanoidLogout}}
-                            />
-
-                            {
-                                this.state.accounts && this.state.accounts.length > 0 ?
-                                    <ListItem
-                                        title={BlocksoftPrettyStrings.makeCut(this.state.accounts[0], 10, 8)}
-                                        subtitle={'Change wallet to use another address'}
-                                        iconType='pinCode'
-                                    /> : null
-                            }
-
-                            {
-                                this.state.transactions ?
-                                    this.state.transactions.map((item, index) => {
-                                        return <ListItem
-                                            key={index}
-                                            title={BlocksoftPrettyStrings.makeCut(item.transactionHash, 10, 8)}
-                                            subtitle={item.subtitle}
-                                            onPress={() => {
-                                            }}
-                                        />
-                                    })
-                                    : null
-                            }
-
-                        </View>
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
+                    </View>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
 
 WalletConnectScreen.contextType = ThemeContext
+
 export default WalletConnectScreen
 
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1
-    },
     scrollViewContent: {
-        flexGrow: 1
+        flex: 1
     }
 })

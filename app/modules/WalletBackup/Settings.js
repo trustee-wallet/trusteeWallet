@@ -1,16 +1,21 @@
 /**
- * @version 0.30
+ * @version 0.43
  */
-import React from 'react'
-import { View, Text, StyleSheet,  SafeAreaView, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import React, { PureComponent } from 'react'
+import { View, Text, StyleSheet, ScrollView } from 'react-native'
 import { connect } from 'react-redux'
-
 
 import NavStore from '@app/components/navigation/NavStore'
 
 import { strings } from '@app/services/i18n'
 
-import { setWalletMnemonic, setMnemonicLength, setWalletName, proceedSaveGeneratedWallet, setCallback } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+import {
+    setWalletMnemonic,
+    setMnemonicLength,
+    setWalletName,
+    proceedSaveGeneratedWallet,
+    setCallback
+} from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
@@ -18,7 +23,6 @@ import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
 
 import Log from '@app/services/Log/Log'
 
-import Header from '@app/components/elements/new/Header'
 import TextInput from '@app/components/elements/new/TextInput'
 import RadioButton from '@app/components/elements/new/RadioButton'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
@@ -31,19 +35,14 @@ import App from '@app/appstores/Actions/App/App'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
-class BackupSettingsScreen extends React.PureComponent {
+class BackupSettingsScreen extends PureComponent {
     state = {
-        headerHeight: 0,
         mnemonicLength: this.props.createWalletStore.mnemonicLength,
         walletName: this.props.createWalletStore.walletName,
         isCreating: this.props.createWalletStore.flowType === 'CREATE_NEW_WALLET'
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     handleApply = async () => {
@@ -86,7 +85,7 @@ class BackupSettingsScreen extends React.PureComponent {
             return
         }
 
-        showModal({ type: 'BACKUP_SKIP_MODAL'}, async () => {
+        showModal({ type: 'BACKUP_SKIP_MODAL' }, async () => {
 
             try {
                 setLoaderStatus(true)
@@ -106,10 +105,10 @@ class BackupSettingsScreen extends React.PureComponent {
                 }
 
                 try {
-                    if (walletNumber*1 > 1) {
+                    if (walletNumber * 1 > 1) {
                         await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.handleSkip' })
                     } else {
-                        App.init({source : 'WalletBackup.handleSkip', onMount : false})
+                        App.init({ source: 'WalletBackup.handleSkip', onMount: false })
                     }
                 } catch (e) {
                     e.message += ' while refreshWalletsStore'
@@ -152,7 +151,6 @@ class BackupSettingsScreen extends React.PureComponent {
 
     render() {
         const {
-            headerHeight,
             mnemonicLength,
             walletName,
             isCreating
@@ -167,86 +165,82 @@ class BackupSettingsScreen extends React.PureComponent {
         MarketingAnalytics.setCurrentScreen('WalletBackup.Settings')
 
         return (
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                    <Header
-                        title={strings('walletBackup.settingsScreen.title')}
-                        setHeaderHeight={this.setHeaderHeight}
-                    />
-                    {!!headerHeight && (
-                        <SafeAreaView style={[styles.content, {
-                            backgroundColor: colors.common.background,
-                            marginTop: headerHeight,
-                        }]}>
-                            <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
-                                {isCreating && (
-                                    <View style={[styles.phraseSetting, { marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE * 2 }]}>
-                                        <Text style={[styles.phraseSettingLabel, { color: colors.common.text1 }]}>{strings('walletBackup.settingsScreen.phraseLengthLabel')}</Text>
-                                        <View style={styles.radioButtons}>
-                                            <RadioButton
-                                                label={strings('walletBackup.settingsScreen.12wordsLabel')}
-                                                value={128}
-                                                onChange={this.changeMnemonicLength}
-                                                checked={mnemonicLength === 128}
-                                            />
-                                            <RadioButton
-                                                label={strings('walletBackup.settingsScreen.24wordsLabel')}
-                                                value={256}
-                                                onChange={this.changeMnemonicLength}
-                                                checked={mnemonicLength === 256}
-                                                containerStyle={styles.secondRadioValue}
-                                            />
-                                        </View>
-                                    </View>
-                                )}
-
-                                <TextInput
-                                    label={strings('walletBackup.settingsScreen.walletNameLabel')}
-                                    placeholder={strings('walletBackup.settingsScreen.walletNamePlaceholder')}
-                                    onChangeText={this.changeWalletName}
-                                    value={walletName}
-                                />
-
-                                <View style={{ marginTop: GRID_SIZE * 1.5 }}>
-                                    <ListItem
-                                        title={strings('walletBackup.settingsScreen.contactTitle')}
-                                        subtitle={strings('walletBackup.settingsScreen.contactSubtitle')}
-                                        iconType="support"
-                                        onPress={this.handleSupport}
-                                        last={!isCreating}
+            <ScreenWrapper
+                title={strings('walletBackup.settingsScreen.title')}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    ref={ref => { this.scrollView = ref }}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
+                        {isCreating && (
+                            <View style={[styles.phraseSetting, { marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE * 2 }]}>
+                                <Text style={[styles.phraseSettingLabel, { color: colors.common.text1 }]}>{strings('walletBackup.settingsScreen.phraseLengthLabel')}</Text>
+                                <View style={styles.radioButtons}>
+                                    <RadioButton
+                                        label={strings('walletBackup.settingsScreen.12wordsLabel')}
+                                        value={128}
+                                        onChange={this.changeMnemonicLength}
+                                        checked={mnemonicLength === 128}
                                     />
-                                    {isCreating && (
-                                        <ListItem
-                                            title={strings('walletBackup.settingsScreen.skipTitle')}
-                                            subtitle={strings('walletBackup.settingsScreen.skipSubtitle')}
-                                            iconType="skip"
-                                            last
-                                            onPress={this.handleSkip}
-                                        />
-                                    )}
+                                    <RadioButton
+                                        label={strings('walletBackup.settingsScreen.24wordsLabel')}
+                                        value={256}
+                                        onChange={this.changeMnemonicLength}
+                                        checked={mnemonicLength === 256}
+                                        containerStyle={styles.secondRadioValue}
+                                    />
                                 </View>
                             </View>
+                        )}
 
-                            <View style={{
-                                paddingHorizontal: GRID_SIZE,
-                                paddingVertical: GRID_SIZE * 1.5,
-                            }}>
-                                <TwoButtons
-                                    mainButton={{
-                                        disabled: !hasChanges,
-                                        onPress: this.handleApply,
-                                        title: strings('walletBackup.settingsScreen.apply')
-                                    }}
-                                    secondaryButton={{
-                                        type: 'back',
-                                        onPress: this.handleBack,
-                                    }}
+                        <TextInput
+                            label={strings('walletBackup.settingsScreen.walletNameLabel')}
+                            placeholder={strings('walletBackup.settingsScreen.walletNamePlaceholder')}
+                            onChangeText={this.changeWalletName}
+                            value={walletName}
+                        />
+
+                        <View style={{ marginTop: GRID_SIZE * 1.5 }}>
+                            <ListItem
+                                title={strings('walletBackup.settingsScreen.contactTitle')}
+                                subtitle={strings('walletBackup.settingsScreen.contactSubtitle')}
+                                iconType="support"
+                                onPress={this.handleSupport}
+                                last={!isCreating}
+                            />
+                            {isCreating && (
+                                <ListItem
+                                    title={strings('walletBackup.settingsScreen.skipTitle')}
+                                    subtitle={strings('walletBackup.settingsScreen.skipSubtitle')}
+                                    iconType="skip"
+                                    last
+                                    onPress={this.handleSkip}
                                 />
-                            </View>
-                        </SafeAreaView>
-                    )}
-                </View>
-            </TouchableWithoutFeedback>
+                            )}
+                        </View>
+                    </View>
+
+                    <View style={{
+                        paddingHorizontal: GRID_SIZE,
+                        paddingVertical: GRID_SIZE * 1.5,
+                    }}>
+                        <TwoButtons
+                            mainButton={{
+                                disabled: !hasChanges,
+                                onPress: this.handleApply,
+                                title: strings('walletBackup.settingsScreen.apply')
+                            }}
+                            secondaryButton={{
+                                type: 'back',
+                                onPress: this.handleBack,
+                            }}
+                        />
+                    </View>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
@@ -269,10 +263,7 @@ BackupSettingsScreen.contextType = ThemeContext
 export default connect(mapStateToProps, mapDispatchToProps)(BackupSettingsScreen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
+    scrollViewContent: {
         flex: 1,
         justifyContent: 'space-between'
     },

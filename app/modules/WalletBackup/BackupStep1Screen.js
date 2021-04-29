@@ -2,7 +2,7 @@
  * @version 0.30
  */
 import React from 'react'
-import { View, StyleSheet, ScrollView, SafeAreaView} from 'react-native'
+import { View, StyleSheet, ScrollView } from 'react-native'
 import { connect } from 'react-redux'
 
 import NavStore from '@app/components/navigation/NavStore'
@@ -18,8 +18,6 @@ import Log from '@app/services/Log/Log'
 import { setCallback, proceedSaveGeneratedWallet } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
-
-import Header from '@app/components/elements/new/Header'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import MnemonicWord from './elements/MnemonicWord'
 import SelectedMnemonic from './elements/SelectedMnemonic'
@@ -27,6 +25,7 @@ import SelectedMnemonic from './elements/SelectedMnemonic'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
 const VISIBILITY_TIMEOUT = 4000
@@ -37,7 +36,6 @@ class BackupStep1Screen extends React.PureComponent {
     constructor(props) {
         super(props)
         this.state = {
-            headerHeight: 0,
             isMnemonicVisible: false,
             walletMnemonicDefault: [],
             walletMnemonicSorted: [],
@@ -47,11 +45,6 @@ class BackupStep1Screen extends React.PureComponent {
 
     componentDidMount() {
         this.init()
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0);
-        this.setState(() => ({ headerHeight }))
     }
 
     init = () => {
@@ -158,10 +151,10 @@ class BackupStep1Screen extends React.PureComponent {
                 walletActions.setWalletBackedUpStatus(walletHash)
 
                 try {
-                    if (walletNumber*1 > 1) {
+                    if (walletNumber * 1 > 1) {
                         await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.handleSkip' })
                     } else {
-                        App.init({source : 'WalletBackup.handleSkip', onMount : false})
+                        App.init({ source: 'WalletBackup.handleSkip', onMount: false })
                     }
                 } catch (e) {
                     e.message += ' while refreshWalletsStore'
@@ -216,68 +209,61 @@ class BackupStep1Screen extends React.PureComponent {
         MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep1Screen')
 
         const {
-            headerHeight,
             isMnemonicVisible,
             walletMnemonicSorted,
             walletMnemonicSelected
         } = this.state
-        const { GRID_SIZE, colors } = this.context
+        const { GRID_SIZE } = this.context
 
         return (
-            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
-                <Header
-                    title={strings('walletBackup.step1Screen.title')}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <SafeAreaView style={[styles.content, {
-                    backgroundColor: colors.common.background,
-                    marginTop: headerHeight,
-                }]}>
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        ref={ref => { this.scrollView = ref }}
-                        contentContainerStyle={styles.scrollViewContent}
-                    >
-                        <View style={{ paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2 }}>
-                            <SelectedMnemonic
-                                placeholder={strings('walletBackup.step1Screen.placeholder')}
-                                showButtonTitle={strings('walletBackup.step1Screen.showButton')}
-                                triggerMnemonicVisible={this.triggerMnemonicVisible}
-                                showMnemonic={this.showMnemonic}
-                                removeWord={this.handleRemoveWord}
-                                isMnemonicVisible={isMnemonicVisible}
-                                data={walletMnemonicSelected}
-                            />
-                            <View style={[styles.wordsContainer]}>
-                                {walletMnemonicSorted.map((word, i) => (
-                                    <MnemonicWord
-                                        value={word}
-                                        key={`${word}${i}`}
-                                        onPress={() => this.handleSelectWord(word, i)}
-                                    />
-                                ))}
-                            </View>
+            <ScreenWrapper
+                title={strings('walletBackup.step1Screen.title')}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    ref={ref => { this.scrollView = ref }}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={{ paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2 }}>
+                        <SelectedMnemonic
+                            placeholder={strings('walletBackup.step1Screen.placeholder')}
+                            showButtonTitle={strings('walletBackup.step1Screen.showButton')}
+                            triggerMnemonicVisible={this.triggerMnemonicVisible}
+                            showMnemonic={this.showMnemonic}
+                            removeWord={this.handleRemoveWord}
+                            isMnemonicVisible={isMnemonicVisible}
+                            data={walletMnemonicSelected}
+                        />
+                        <View style={[styles.wordsContainer]}>
+                            {walletMnemonicSorted.map((word, i) => (
+                                <MnemonicWord
+                                    value={word}
+                                    key={`${word}${i}`}
+                                    onPress={() => this.handleSelectWord(word, i)}
+                                />
+                            ))}
                         </View>
+                    </View>
 
-                        <View style={{
-                            paddingHorizontal: GRID_SIZE,
-                            paddingVertical: GRID_SIZE * 1.5,
-                        }}>
-                            <TwoButtons
-                                mainButton={{
-                                    disabled: !!walletMnemonicSorted.length,
-                                    onPress: this.onNext,
-                                    title: strings('walletBackup.step1Screen.next')
-                                }}
-                                secondaryButton={{
-                                    type: 'back',
-                                    onPress: this.handleBack
-                                }}
-                            />
-                        </View>
-                    </ScrollView>
-                </SafeAreaView>
-            </View>
+                    <View style={{
+                        paddingHorizontal: GRID_SIZE,
+                        paddingVertical: GRID_SIZE * 1.5,
+                    }}>
+                        <TwoButtons
+                            mainButton={{
+                                disabled: !!walletMnemonicSorted.length,
+                                onPress: this.onNext,
+                                title: strings('walletBackup.step1Screen.next')
+                            }}
+                            secondaryButton={{
+                                type: 'back',
+                                onPress: this.handleBack
+                            }}
+                        />
+                    </View>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
@@ -293,13 +279,6 @@ BackupStep1Screen.contextType = ThemeContext
 export default connect(mapStateToProps, {})(BackupStep1Screen)
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
-    content: {
-        flex: 1,
-        justifyContent: 'space-between'
-    },
     scrollViewContent: {
         flexGrow: 1,
         justifyContent: 'space-between'

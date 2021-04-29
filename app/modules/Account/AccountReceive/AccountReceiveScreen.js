@@ -4,9 +4,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, ScrollView, Platform,  Dimensions } from 'react-native'
-
-import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
+import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native'
 
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -49,7 +47,6 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { resolveChainCode } from '@crypto/blockchains/fio/FioUtils'
 
-import Header from '@app/components/elements/new/Header'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
@@ -67,6 +64,7 @@ import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import AsyncStorage from '@react-native-community/async-storage'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -83,7 +81,6 @@ class AccountReceiveScreen extends React.PureComponent {
         super()
         this.state = {
             settingAddressType: '',
-            headerHeight: 0,
 
             customAmount: false,
 
@@ -180,21 +177,21 @@ class AccountReceiveScreen extends React.PureComponent {
             // if (config.exchange.mode === 'PROD') {
             //     NavStore.goNext('ExchangeV3ScreenStack')
             // } else {
-                let showMsg = await AsyncStorage.getItem('smartSwapMsg')
-                showMsg = showMsg ? JSON.parse(showMsg) : false
+            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
+            showMsg = showMsg ? JSON.parse(showMsg) : false
 
-                if (typeof showMsg === 'undefined' || !showMsg) {
-                    showModal({
-                        type: 'MARKET_MODAL',
-                        icon: 'INFO',
-                        title: strings('modal.marketModal.title'),
-                        description: strings('modal.marketModal.description'),
-                    }, () => {
-                        NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
-                    })
-                } else {
-                    NavStore.goNext('MarketScreen', { side: 'IN', currencyCode : this.props.account.currencyCode })
-                }
+            if (typeof showMsg === 'undefined' || !showMsg) {
+                showModal({
+                    type: 'MARKET_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.marketModal.title'),
+                    description: strings('modal.marketModal.description'),
+                }, () => {
+                    NavStore.goNext('MarketScreen', { side: 'IN', currencyCode: this.props.account.currencyCode })
+                })
+            } else {
+                NavStore.goNext('MarketScreen', { side: 'IN', currencyCode: this.props.account.currencyCode })
+            }
             // }
         } catch (e) {
             if (Log.isNetworkError(e.message)) {
@@ -300,11 +297,11 @@ class AccountReceiveScreen extends React.PureComponent {
                                         onPressOut={() => this.triggerBalanceVisibility(false)}
                                         activeOpacity={1}
                                         disabled={originalVisibility}
-                                        hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
+                                        hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
                                     >
                                         {isBalanceVisible ?
-                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14}} letterSpacing={1} /> :
-                                                <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
+                                            <LetterSpacing text={sumPrep} textStyle={{ ...styles.accountDetail__text, color: '#999999', height: Platform.OS === 'ios' ? 15 : 18, fontSize: 14 }} letterSpacing={1} /> :
+                                            <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
                                                 ****</Text>
                                         }
                                     </TouchableOpacity>
@@ -433,11 +430,6 @@ class AccountReceiveScreen extends React.PureComponent {
         NavStore.reset('HomeScreen')
     }
 
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0)
-        this.setState(() => ({ headerHeight }))
-    }
-
     renderButton = (item) => {
         return (
             <Buttons
@@ -514,7 +506,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: Platform.OS === 'android' ? 250 : 180})
+                this.scrollView.scrollTo({ y: Platform.OS === 'android' ? 250 : 180 })
             } catch (e) {
             }
         }, 500)
@@ -579,7 +571,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
     render() {
         const { mainStore, settingsStore } = this.props
-        const { fioName, headerHeight, customAmount, amountForQr, labelForQr, inputType } = this.state
+        const { fioName, customAmount, amountForQr, labelForQr, inputType } = this.state
         const { address, basicCurrencyCode } = this.props.account
         const { currencySymbol, currencyCode, decimals } = this.props.cryptoCurrency
 
@@ -602,150 +594,146 @@ class AccountReceiveScreen extends React.PureComponent {
         const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : '0.00'
 
         return (
-            <View style={{ flex: 1, backgroundColor: colors.common.background }}>
-                <Header
-                    leftType='back'
-                    leftAction={this.backAction}
-                    rightType='close'
-                    rightAction={this.closeAction}
-                    title={strings('account.receiveScreen.title', { receive: strings('repeat.receive') + ' ' + currencySymbol })}
-                    ExtraView={this.renderAccountDetail}
-                    setHeaderHeight={this.setHeaderHeight}
-                />
-                <KeyboardAwareView>
-                    <ScrollView
-                        ref={(ref) => {
-                            this.scrollView = ref
-                        }}
-                        keyboardShouldPersistTaps={'handled'}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{
-                            minHeight: WINDOW_HEIGHT
-                        }}
-                    >
-                        <View style={{ ...styles.wrapper__content, marginTop: headerHeight + GRID_SIZE * 2 }}>
-                            {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderSegWitLegacy() : null}
-                            <View style={styles.qr}>
-                                <QrCodeBox
-                                    getRef={ref => this.refSvg = ref}
-                                    value={customAmount ? this.createDataForQr(amountForQr, labelForQr) : this.getAddressForQR()}
-                                    size={200}
-                                    color='#404040'
-                                    backgroundColor={'#F5F5F5'}
-                                    logo={qrLogo}
-                                    logoSize={70}
-                                    logoBackgroundColor='transparent'
-                                    onError={(e) => {
-                                        Log.err('AccountReceiveScreen QRCode error ' + e.message)
-                                    }}
-                                />
-                            </View>
-                            {fioName ? <Text>{fioName}</Text> : null}
+            <ScreenWrapper
+                leftType='back'
+                leftAction={this.backAction}
+                rightType='close'
+                rightAction={this.closeAction}
+                title={strings('account.receiveScreen.title', { receive: strings('repeat.receive') + ' ' + currencySymbol })}
+                ExtraView={this.renderAccountDetail}
+            >
+                <ScrollView
+                    ref={(ref) => {
+                        this.scrollView = ref
+                    }}
+                    keyboardShouldPersistTaps={'handled'}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{
+                        minHeight: WINDOW_HEIGHT
+                    }}
+                >
+                    <View style={{ ...styles.wrapper__content, marginTop: GRID_SIZE * 2 }}>
+                        {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderSegWitLegacy() : null}
+                        <View style={styles.qr}>
+                            <QrCodeBox
+                                getRef={ref => this.refSvg = ref}
+                                value={customAmount ? this.createDataForQr(amountForQr, labelForQr) : this.getAddressForQR()}
+                                size={200}
+                                color='#404040'
+                                backgroundColor={'#F5F5F5'}
+                                logo={qrLogo}
+                                logoSize={70}
+                                logoBackgroundColor='transparent'
+                                onError={(e) => {
+                                    Log.err('AccountReceiveScreen QRCode error ' + e.message)
+                                }}
+                            />
                         </View>
-                        {customAmount ?
-                            <View style={{ marginHorizontal: GRID_SIZE, height: 400}} >
-                                <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <AmountInput
-                                            ref={component => this.refAmountInput = component}
-                                            id={amountInput.id}
-                                            additional={amountInput.additional}
-                                            onFocus={() => this.onFocus()}
-                                            type={amountInput.type}
-                                            decimals={decimals < 10 ? decimals : 10}
-                                            callback={(value) => this.amountInputCallback(value, true)}
-                                            maxLength={17}
-                                            maxWidth={SCREEN_WIDTH * 0.6}
-                                        />
-                                        <Text style={{...styles.ticker, color: colors.sendScreen.amount }}>
-                                            {inputType === 'CRYPTO' ? currencyCode : basicCurrencyCode }
-                                        </Text>
-                                    </View>
+                        {fioName ? <Text>{fioName}</Text> : null}
+                    </View>
+                    {customAmount ?
+                        <View style={{ marginHorizontal: GRID_SIZE, height: 400 }} >
+                            <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <AmountInput
+                                        ref={component => this.refAmountInput = component}
+                                        id={amountInput.id}
+                                        additional={amountInput.additional}
+                                        onFocus={() => this.onFocus()}
+                                        type={amountInput.type}
+                                        decimals={decimals < 10 ? decimals : 10}
+                                        callback={(value) => this.amountInputCallback(value, true)}
+                                        maxLength={17}
+                                        maxWidth={SCREEN_WIDTH * 0.6}
+                                    />
+                                    <Text style={{ ...styles.ticker, color: colors.sendScreen.amount }}>
+                                        {inputType === 'CRYPTO' ? currencyCode : basicCurrencyCode}
+                                    </Text>
                                 </View>
-                                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                    <View style={{ ...styles.line, backgroundColor: colors.sendScreen.colorLine }} />
-                                    <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
-                                        onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP} >
-                                        <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                    <LetterSpacing text={notEquivalentValue} textStyle={{ ...styles.notEquivalentValue, color: '#999999' }}
-                                        letterSpacing={1.5} />
-                                </View>
-                                <View style={{ marginVertical: GRID_SIZE }}>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                <View style={{ ...styles.line, backgroundColor: colors.sendScreen.colorLine }} />
+                                <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
+                                    onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP} >
+                                    <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                <LetterSpacing text={notEquivalentValue} textStyle={{ ...styles.notEquivalentValue, color: '#999999' }}
+                                    letterSpacing={1.5} />
+                            </View>
+                            <View style={{ marginVertical: GRID_SIZE }}>
                                 <TextInput
                                     value={this.state.labelForQr}
                                     placeholder={strings('send.setting.note')}
                                     onChangeText={(value) => this.setState({ labelForQr: value })}
                                     onFocus={() => this.onFocus()}
                                 />
-                                </View>
-                                <View style={{ alignSelf: 'center', width: '100%', marginTop: GRID_SIZE }}>
-                                    <Button
-                                        title={strings('account.receiveScreen.share')}
-                                        onPress={this.shareData}
-                                    />
-                                </View>
                             </View>
-                            :
-                            <>
-                                <View style={{ ...styles.backgroundAddress, backgroundColor: colors.transactionScreen.backgroundItem, marginHorizontal: GRID_SIZE }} >
-                                    <TouchableOpacity style={{
-                                        position: 'relative',
-                                        alignItems: 'center'
-                                    }} onPress={() => this.copyToClip()}
-                                        hitSlop={HIT_SLOP}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                            <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
-                                                <LetterSpacing text={currencyCode === 'BTC' || currencyCode === 'LTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
-                                                    flexWrap: 'wrap',
-                                                    justifyContent: 'center'
-                                                }} textStyle={{ ...styles.accountDetail__text, textAlign: 'center', color: colors.common.text1 }}
-                                                    letterSpacing={1} />
-                                            </View>
-                                            {
-                                                currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ?
-                                                    <TouchableOpacity onPress={this.changeAddress} style={{
-                                                        position: 'relative',
-                                                        marginRight: GRID_SIZE,
-                                                        marginTop: 4
-                                                    }}>
+                            <View style={{ alignSelf: 'center', width: '100%', marginTop: GRID_SIZE }}>
+                                <Button
+                                    title={strings('account.receiveScreen.share')}
+                                    onPress={this.shareData}
+                                />
+                            </View>
+                        </View>
+                        :
+                        <>
+                            <View style={{ ...styles.backgroundAddress, backgroundColor: colors.transactionScreen.backgroundItem, marginHorizontal: GRID_SIZE }} >
+                                <TouchableOpacity style={{
+                                    position: 'relative',
+                                    alignItems: 'center'
+                                }} onPress={() => this.copyToClip()}
+                                    hitSlop={HIT_SLOP}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                        <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
+                                            <LetterSpacing text={currencyCode === 'BTC' || currencyCode === 'LTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
+                                                flexWrap: 'wrap',
+                                                justifyContent: 'center'
+                                            }} textStyle={{ ...styles.accountDetail__text, textAlign: 'center', color: colors.common.text1 }}
+                                                letterSpacing={1} />
+                                        </View>
+                                        {
+                                            currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ?
+                                                <TouchableOpacity onPress={this.changeAddress} style={{
+                                                    position: 'relative',
+                                                    marginRight: GRID_SIZE,
+                                                    marginTop: 4
+                                                }}>
                                                     {this.state.changeAddress ?
                                                         <LottieView style={{ width: 20, height: 20, }}
                                                             source={isLight ? blackLoader : whiteLoader}
                                                             autoPlay loop /> :
                                                         <CustomIcon color={colors.common.text1} size={20} name={'reloadTx'} />
                                                     }
-                                                    </TouchableOpacity> :
-                                                    <View style={{ position: 'relative', marginRight: GRID_SIZE, flexDirection: 'column', justifyContent: 'center' }}>
-                                                        <MaterialIcons color="#999999" size={14} name={'content-copy'} />
-                                                    </View>
-                                            }
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                {
-                                    fioName ? (
-                                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                            <TouchableOpacity style={{ marginTop: 20 }}
-                                                onPress={this.handleFioRequestCreate}>
-                                                <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
-                                                    name={'edit'} {...props} />}
-                                                    title={strings('account.receiveScreen.FIORequest')}
-                                                    iconStyle={{ marginHorizontal: 3 }} />
-                                            </TouchableOpacity>
-                                        </View>
-                                    ) : null
-                                }
-                                <View style={{ height: 180, paddingTop: 50, alignSelf: 'center' }}>
-                                    {this.renderButton(buttonsArray)}
-                                </View>
-                            </>
+                                                </TouchableOpacity> :
+                                                <View style={{ position: 'relative', marginRight: GRID_SIZE, flexDirection: 'column', justifyContent: 'center' }}>
+                                                    <MaterialIcons color="#999999" size={14} name={'content-copy'} />
+                                                </View>
+                                        }
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            {
+                                fioName ? (
+                                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                        <TouchableOpacity style={{ marginTop: 20 }}
+                                            onPress={this.handleFioRequestCreate}>
+                                            <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
+                                                name={'edit'} {...props} />}
+                                                title={strings('account.receiveScreen.FIORequest')}
+                                                iconStyle={{ marginHorizontal: 3 }} />
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : null
                             }
-                    </ScrollView>
-                </KeyboardAwareView>
-            </View>
+                            <View style={{ height: 180, paddingTop: 50, alignSelf: 'center' }}>
+                                {this.renderButton(buttonsArray)}
+                            </View>
+                        </>
+                    }
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }

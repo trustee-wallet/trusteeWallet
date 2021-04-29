@@ -1,8 +1,3 @@
-/**
- * @version 0.43
- * @author yura
- */
-
 import React from 'react'
 import {
     View,
@@ -11,7 +6,6 @@ import {
     ActivityIndicator,
     Linking
 } from 'react-native'
-
 
 import { WebView } from 'react-native-webview'
 import UrlParse from 'url-parse'
@@ -23,23 +17,29 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import Log from '@app/services/Log/Log'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-class WebViewScreen extends React.PureComponent {
+class SupportScreen extends React.PureComponent {
     state = {
-        url: NavStore.getParamWrapper(this, 'url', ''),
-        title: NavStore.getParamWrapper(this, 'title', ''),
+        url: ' ',
+        title: ' ',
     }
 
-    handleBack = () => { NavStore.goBack() }
+    async componentDidMount() {
+        const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
+        this.setState(() => ({
+            url: link,
+            title: strings('settings.about.contactSupportTitle')
+        }))
+    }
+
+    handleBack = () => {
+        NavStore.reset('TabBar')
+    }
 
     handleClose = () => {
-        const prev = NavStore.getParamWrapper(this, 'backOnClose')
-        if (prev) {
-            NavStore.goBack()
-        } else {
-            NavStore.reset('HomeScreen')
-        }
+        NavStore.reset('TabBar')
     }
 
     test = async (req) => {
@@ -60,7 +60,7 @@ class WebViewScreen extends React.PureComponent {
     render() {
         const { title, url } = this.state
 
-        MarketingAnalytics.setCurrentScreen('WebViewScreen')
+        MarketingAnalytics.setCurrentScreen('SupportScreen')
 
         return (
             <ScreenWrapper
@@ -80,7 +80,7 @@ class WebViewScreen extends React.PureComponent {
                         if (e.nativeEvent.description.indexOf('net::ERR_UNKNOWN_URL_SCHEME') !== -1) {
                             Linking.openURL(this.state.url)
                         } else {
-                            Log.err('WebView.WebViewMainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
+                            Log.err('Support.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
                         }
                     }}
 
@@ -131,9 +131,9 @@ class WebViewScreen extends React.PureComponent {
     }
 }
 
-WebViewScreen.contextType = ThemeContext
+SupportScreen.contextType = ThemeContext
 
-export default WebViewScreen
+export default SupportScreen
 
 const styles = StyleSheet.create({
     loader: {

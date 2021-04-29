@@ -7,8 +7,10 @@ import {
     Platform,
     View,
     Text,
-    ScrollView, Linking, TextInput,
-    TouchableOpacity, Dimensions
+    ScrollView, 
+    Linking, 
+    TextInput,
+    TouchableOpacity
 } from 'react-native'
 import { connect } from 'react-redux'
 import { strings } from '@app/services/i18n'
@@ -25,7 +27,6 @@ import UIDict from '@app/services/UIDict/UIDict'
 
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import TransactionItem from './elements/TransactionItem'
-import Header from './elements/TransactionHeader'
 
 import Buttons from '@app/components/elements/new/buttons/Buttons'
 
@@ -50,14 +51,14 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import GradientView from '@app/components/elements/GradientView'
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import config from '@app/config/config'
-import {  setLoaderStatus,  setSelectedAccount, setSelectedCryptoCurrency} from '@app/appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import UpdateAccountPendingTransactions from '@app/daemons/back/UpdateAccountPendingTransactions'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_DELETE_ORDER_ID = ''
 let CACHE_RESCAN_TX = false
@@ -68,7 +69,6 @@ class AccountTransactionScreen extends React.PureComponent {
         super(props)
         this.state = {
             account: {},
-            headerHeight: 0,
             transaction: {},
             subContent: [],
             showMoreDetails: false,
@@ -712,7 +712,7 @@ class AccountTransactionScreen extends React.PureComponent {
                     <View style={{ paddingHorizontal: 17, backgroundColor: colors.common.header.bg }}>
                         <View style={{ ...styles.statusBlock, backgroundColor: color }}>
                             <LetterSpacing text={this.prepareStatusHeaderToView(status)}
-                                           textStyle={{ ...styles.status, color: colors.transactionScreen.status }} letterSpacing={1.5} />
+                                textStyle={{ ...styles.status, color: colors.transactionScreen.status }} letterSpacing={1.5} />
                         </View>
                     </View>
                 </View>
@@ -727,11 +727,6 @@ class AccountTransactionScreen extends React.PureComponent {
 
             </View>
         )
-    }
-
-    setHeaderHeight = (height) => {
-        const headerHeight = Math.round(height || 0)
-        this.setState(() => ({ headerHeight }))
     }
 
     renderReplaceByFeeRemove = (array) => {
@@ -894,7 +889,7 @@ class AccountTransactionScreen extends React.PureComponent {
 
         const { commentToView, commentEditable } = this.state
 
-        const { colors, GRID_SIZE } = this.context
+        const { colors } = this.context
 
         return (
             <>
@@ -979,7 +974,7 @@ class AccountTransactionScreen extends React.PureComponent {
         const { colors, GRID_SIZE, isLight } = this.context
         // const { cryptoCurrency } = this.props
 
-        const { headerHeight, transaction, showMoreDetails, outDestinationCardToView, fromToView, addressToToView, addressExchangeToView, subContent, linkExplorer, focused, cryptoCurrency } = this.state
+        const { transaction, showMoreDetails, outDestinationCardToView, fromToView, addressToToView, addressExchangeToView, subContent, linkExplorer, focused, cryptoCurrency } = this.state
         if (!transaction || typeof transaction === 'undefined') {
             // @yura - its loader when state is initing from notice open - could have some "loader" mark
             return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
@@ -1015,16 +1010,15 @@ class AccountTransactionScreen extends React.PureComponent {
 
         const prev = '' // @todo NavStore.getPrevRoute().routeName
         return (
-            <View style={{ flex: 1, backgroundColor: colors.common.background }}>
-                <Header
-                    leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen'
-                        || prev === 'SMSCodeScreen' || prev === 'SMSV3CodeScreen') ? null : 'back'}
-                    leftAction={this.backAction}
-                    rightType='close'
-                    rightAction={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? () => NavStore.reset('HomeScreen') : this.closeAction}
-                    setHeaderHeight={this.setHeaderHeight}
-                    ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency) : null}
-                />
+            <ScreenWrapper
+                leftType={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen'
+                    || prev === 'SMSCodeScreen' || prev === 'SMSV3CodeScreen') ? null : 'back'}
+                leftAction={this.backAction}
+                rightType='close'
+                rightAction={(prev === 'ReceiptScreen' || prev === 'NotificationsScreen') ? () => NavStore.reset('HomeScreen') : this.closeAction}
+                setHeaderHeight={this.setHeaderHeight}
+                ExtraView={() => transaction ? this.headerTrx(transaction, color, cryptoCurrency) : null}
+            >
                 <ScrollView
                     ref={(ref) => {
                         this.scrollView = ref
@@ -1036,50 +1030,47 @@ class AccountTransactionScreen extends React.PureComponent {
                         justifyContent: 'space-between',
                         padding: GRID_SIZE,
                         paddingBottom: GRID_SIZE * 2,
-                        minHeight: WINDOW_HEIGHT - headerHeight
                     }}
                 >
-                    <View style={{ marginTop: headerHeight }}>
-                        <View>
-                            {outDestinationCardToView ?
+                    <View>
+                        {outDestinationCardToView ?
+                            <TransactionItem
+                                title={outDestinationCardToView.title}
+                                iconType='card'
+                                subtitle={outDestinationCardToView.description}
+                                copyAction={() => this.handleSubContentPress({ plain: outDestinationCardToView.description })}
+                            /> : fromToView ?
                                 <TransactionItem
-                                    title={outDestinationCardToView.title}
-                                    iconType='card'
-                                    subtitle={outDestinationCardToView.description}
-                                    copyAction={() => this.handleSubContentPress({ plain: outDestinationCardToView.description })}
-                                /> : fromToView ?
+                                    title={fromToView.title}
+                                    iconType='addressFrom'
+                                    subtitle={fromToView.description}
+                                    copyAction={() => this.handleSubContentPress({ plain: fromToView.description })}
+                                /> : addressToToView ?
                                     <TransactionItem
-                                        title={fromToView.title}
-                                        iconType='addressFrom'
-                                        subtitle={fromToView.description}
-                                        copyAction={() => this.handleSubContentPress({ plain: fromToView.description })}
-                                    /> : addressToToView ?
+                                        title={addressToToView.title}
+                                        iconType='addressTo'
+                                        subtitle={addressToToView.description}
+                                        copyAction={() => this.handleSubContentPress({ plain: addressToToView.description })}
+                                    /> : addressExchangeToView ?
                                         <TransactionItem
-                                            title={addressToToView.title}
-                                            iconType='addressTo'
-                                            subtitle={addressToToView.description}
-                                            copyAction={() => this.handleSubContentPress({ plain: addressToToView.description })}
-                                        /> : addressExchangeToView ?
-                                            <TransactionItem
-                                                title={addressExchangeToView.title}
-                                                iconType='exchangeTo'
-                                                subtitle={addressExchangeToView.description}
-                                                copyAction={() => this.handleSubContentPress({ plain: addressExchangeToView.description })}
-                                            /> : null
-                            }
-                            {transaction.wayType === 'self' && (
-                                <TransactionItem
-                                    title={strings('account.transactionScreen.self')}
-                                    iconType='self'
-                                    // subtitle={'self'}
-                                />
-                            )}
-                        </View>
+                                            title={addressExchangeToView.title}
+                                            iconType='exchangeTo'
+                                            subtitle={addressExchangeToView.description}
+                                            copyAction={() => this.handleSubContentPress({ plain: addressExchangeToView.description })}
+                                        /> : null
+                        }
+                        {transaction.wayType === 'self' && (
+                            <TransactionItem
+                                title={strings('account.transactionScreen.self')}
+                                iconType='self'
+                            // subtitle={'self'}
+                            />
+                        )}
                         {this.state.notification && (
                             <TransactionItem
                                 title={this.state.notification.subtitle}
                                 iconType='exchangeTo'
-                                // subtitle={addressExchangeToView.description}
+                            // subtitle={addressExchangeToView.description}
                             />
                         )}
                         <View style={{ marginVertical: GRID_SIZE, marginTop: 6 }}>
@@ -1111,8 +1102,8 @@ class AccountTransactionScreen extends React.PureComponent {
                         </View>)}
                 </ScrollView>
                 <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient}
-                              start={styles.containerBG.start} end={styles.containerBG.end} />
-            </View>
+                    start={styles.containerBG.start} end={styles.containerBG.end} />
+            </ScreenWrapper>
         )
     }
 }
@@ -1138,9 +1129,6 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(mapStateToProps, mapDispatchToProps)(AccountTransactionScreen)
 
 const styles = {
-    container: {
-        flex: 1
-    },
     txDirection: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,

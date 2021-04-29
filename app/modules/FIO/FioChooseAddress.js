@@ -1,29 +1,23 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
 import React, { Component } from 'react'
 import { View, Text, ScrollView, Image, TextInput  } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
-import { strings } from '../../services/i18n'
-
-
+import Navigation from '@app/components/navigation/Navigation'
+import Button from '@app/components/elements/Button'
+import { strings } from '@app/services/i18n'
 
 class FioChooseAddress extends Component {
-
 
     render() {
         return (
             <View>
                 <Navigation
-                    //title={strings('assets.mainTitle')}
                     title= {strings('FioChooseAddress.title')}
                 />
                 
                 <View style={{paddingTop: 90, height: '100%'}}>
-
-
 
                 <View  style={styles.container}>
                     <View>
@@ -55,17 +49,7 @@ class FioChooseAddress extends Component {
                             {strings('FioChooseAddress.btnText')}
                         </Button>
                     </View>
-
-
-
                 </View>
-
-
-
-
-
-
-
 
                 </View>
             </View>
