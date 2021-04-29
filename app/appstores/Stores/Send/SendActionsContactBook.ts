@@ -9,7 +9,7 @@ import {
 } from '@crypto/blockchains/fio/FioUtils'
 import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
 
-// import Resolution from '@unstoppabledomains/resolution'
+import Resolution, { ResolutionError, ResolutionErrorCode } from '@unstoppabledomains/resolution'
 
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import Log from '@app/services/Log/Log'
@@ -18,7 +18,19 @@ import config from '@app/config/config'
 import store from '@app/store'
 
 
-
+const translateResolutionError = (domain : string, errorCode : ResolutionErrorCode, ticker : string) => {
+    switch(errorCode) {
+        case ResolutionErrorCode.UnregisteredDomain:
+        case ResolutionErrorCode.RecordNotFound:
+        case ResolutionErrorCode.UnspecifiedResolver: {
+            const tkey = `validator.unstoppableErrors.${errorCode}`
+            return strings(tkey, {domain, ticker})
+        }
+        default: {
+            return errorCode
+        }
+    }
+}
 
 export namespace SendActionsContactBook {
 
@@ -28,29 +40,32 @@ export namespace SendActionsContactBook {
         if (!isUnstoppableAddressValid(data.addressName)) {
             return false
         }
-        throw new Error('unstoppable domains not supported')
-        /*
-        uncomment to try
+
         if (DOMAIN_RESOLUTION === false) {
             try {
                 // @ts-ignore
                 DOMAIN_RESOLUTION = new Resolution()
             } catch (e) {
-                console.log('SendActionsContactBook.getContactAddressUnstoppable init error' + e.message)
+                Log.log('SendActionsContactBook.getContactAddressUnstoppable init error' + e.message)
                 return  false
             }
         }
-        console.log('SendActionsContactBook.getContactAddressUnstoppable checking ' + data.addressName)
+        Log.log('SendActionsContactBook.getContactAddressUnstoppable checking ' + data.addressName)
         let address = false
         try {
             // @ts-ignore
             address = await DOMAIN_RESOLUTION.addr(data.addressName, data.currencyCode)
-            console.log('SendActionsContactBook.getContactAddressUnstoppable checked ' + address)
-        } catch (e) {
-            console.log('SendActionsContactBook.getContactAddressUnstoppable error ' + e.message)
+            Log.log('SendActionsContactBook.getContactAddressUnstoppable checked ' + address)
+        } catch (err) {
+            Log.log('SendActionsContactBook.getContactAddressUnstoppable error ' + err.message)
+            if (err instanceof ResolutionError) {
+                const errorMessage = translateResolutionError(data.addressName, err.code, data.currencyCode)
+                throw new Error(errorMessage)
+            } else {
+                throw err
+            }
         }
         return address
-        */
     }
 
 

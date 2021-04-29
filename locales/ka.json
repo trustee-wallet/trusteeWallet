@@ -1346,7 +1346,12 @@
   "validator": {
     "empty": "შეავსეთ ველი",
     "invalidFormat": "არასწორი ფორმატი",
-    "moreThanMax": "სიგრძის შესაძლო ლიმიტი გადაჭარბებულია"
+    "moreThanMax": "სიგრძის შესაძლო ლიმიტი გადაჭარბებულია",
+    "unstoppableErrors": {
+      "UnregisteredDomain": "Domain %{domain} is not registered",
+      "RecordNotFound": "Domain %{domain} has no %{ticker} address",
+      "UnspecifiedResolver": "Domain %{domain} has no resolver contract"
+    }
   },
   "toast": {
     "copied": "ასლი შენახულია ბუფერში",
