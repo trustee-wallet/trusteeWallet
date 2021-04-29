@@ -429,17 +429,16 @@ class AccountTransactionScreen extends React.PureComponent {
     }
 
     openLink = (link) => {
-        Linking.canOpenURL(link).then(supported => {
-            if (supported) {
-                let linkUrl = link
-                if (linkUrl.indexOf('?') === -1) {
-                    linkUrl += '?from=trustee'
-                }
-                Linking.openURL(linkUrl)
-            } else {
-                Log.err('Account.AccountScreen Dont know how to open URI', link)
+        try {
+            let linkUrl = link
+            if (linkUrl.indexOf('?') === -1) {
+                linkUrl += '?from=trustee'
             }
-        })
+            Linking.openURL(linkUrl)
+        } catch (e) {
+            Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + link)
+        }
+
     }
 
     prepareTransactionFeeToView = (transaction) => {
