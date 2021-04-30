@@ -7,8 +7,8 @@ import {
     Platform,
     View,
     Text,
-    ScrollView, 
-    Linking, 
+    ScrollView,
+    Linking,
     TextInput,
     TouchableOpacity
 } from 'react-native'
@@ -660,7 +660,7 @@ class AccountTransactionScreen extends React.PureComponent {
             )
         }
 
-        const { colors, isLight } = this.context
+        const { colors, isLight, GRID_SIZE } = this.context
 
         const { transactionStatus, transactionDirection, addressAmountPretty, addressAmountPrettyPrefix, wayType, transactionVisibleStatus } = transaction
 
@@ -707,7 +707,7 @@ class AccountTransactionScreen extends React.PureComponent {
                     <Text
                         style={styles.date}>{this.getTransactionDate(transaction)}</Text>
                 </View>
-                <View style={{ width: '100%', justifyContent: 'center', flexDirection: 'row' }}>
+                <View style={{ width: '100%', justifyContent: 'center', flexDirection: 'row', paddingHorizontal: GRID_SIZE }}>
                     <View style={{ ...styles.statusLine, borderBottomColor: color }} />
                     <View style={{ paddingHorizontal: 17, backgroundColor: colors.common.header.bg }}>
                         <View style={{ ...styles.statusBlock, backgroundColor: color }}>
@@ -1077,29 +1077,31 @@ class AccountTransactionScreen extends React.PureComponent {
                             {this.commentHandler()}
                         </View>
                     </View>
-                    {this.renderButtons(buttonsArray)}
-                    {showMoreDetails && (
-                        <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: colors.transactionScreen.backgroundItem }}>
-                            {subContent.map((item) => {
-                                return (
-                                    // eslint-disable-next-line react/jsx-key
-                                    <TransactionItem
-                                        title={item.title}
-                                        subtitle={item.description}
-                                        isLink={item.isLink}
-                                        linkUrl={item.linkUrl}
-                                        withoutBack={true}
-                                        handleLink={this.handleLink}
-                                        copyAction={() => this.handleSubContentPress(item)}
-                                    />
-                                )
-                            })}
-                            {linkExplorer !== null ?
-                                <TouchableOpacity onPress={() => this.handleLink(linkExplorer)}>
-                                    <LetterSpacing textStyle={{ ...styles.viewExplorer, color: color }} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
-                                    />
-                                </TouchableOpacity> : null}
-                        </View>)}
+                    <View>
+                        {this.renderButtons(buttonsArray)}
+                        {showMoreDetails && (
+                            <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: colors.transactionScreen.backgroundItem }}>
+                                {subContent.map((item) => {
+                                    return (
+                                        // eslint-disable-next-line react/jsx-key
+                                        <TransactionItem
+                                            title={item.title}
+                                            subtitle={item.description}
+                                            isLink={item.isLink}
+                                            linkUrl={item.linkUrl}
+                                            withoutBack={true}
+                                            handleLink={this.handleLink}
+                                            copyAction={() => this.handleSubContentPress(item)}
+                                        />
+                                    )
+                                })}
+                                {linkExplorer !== null ?
+                                    <TouchableOpacity onPress={() => this.handleLink(linkExplorer)}>
+                                        <LetterSpacing textStyle={{ ...styles.viewExplorer, color: color }} text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
+                                        />
+                                    </TouchableOpacity> : null}
+                            </View>)}
+                    </View>
                 </ScrollView>
                 <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient}
                     start={styles.containerBG.start} end={styles.containerBG.end} />

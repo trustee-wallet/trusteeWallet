@@ -1,5 +1,7 @@
+/* eslint-disable react/display-name */
 /**
- * @version 0.43
+ * @version 0.44
+ * @author yura
  */
 import React from 'react'
 
@@ -57,13 +59,11 @@ import TermsOfUseScreen from '@app/modules/About/screens/TermsOfUseScreen'
 import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
 import NotificationsSettingScreen from '@app/modules/Settings/NotificationsScreen'
+import SupportScreen from '@app/modules/Support/index'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/modules/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
-
-// import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
-// import NavStore from '@app/components/navigation/NavStore'
 
 const Stack = createStackNavigator()
 
@@ -82,7 +82,7 @@ const cardStyleInterpolator = CardStyleInterpolators.forHorizontalIOS
 const HomeStackScreen = (props) => {
 
     return (
-        <HomeStack.Navigator initialRouteName='HomeScreen'>
+        <HomeStack.Navigator initialRouteName='HomeScreenPop'>
             <HomeStack.Screen name='HomeScreen' component={HomeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='HomeScreenPop' component={HomeScreen} options={{ headerShown: false }} />
 
@@ -102,11 +102,6 @@ const HomeStackScreen = (props) => {
             <HomeStack.Screen name='AccountTransactionCheckScreen' component={AccountTransactionCheckScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
-            <HomeStack.Screen name='WalletCreateScreen' component={WalletCreateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='BackupStep0Screen' component={BackupStep0Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='SettingsMainScreen' component={SettingsMainScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -132,39 +127,18 @@ const HomeStackScreen = (props) => {
     )
 }
 
-const StackNavigation = () => {
-    return (
-        <Stack.Navigator initialRouteName='InitScreen'>
-            <Stack.Screen name='InitScreen' component={InitScreen} options={{ headerShown: false }} />
-
-            <Stack.Screen name='LockScreen' component={LockScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <Stack.Screen name='LockScreenPop' component={LockScreen} options={{ headerShown: false }} />
-
-            <Stack.Screen name='TabBar' component={TabBar} options={{ headerShown: false }} />
-
-            <HomeStack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-        </Stack.Navigator>
-    )
-}
-
-
 const TabBar = () => {
 
     const { colors } = useTheme()
-
-    // const handleSupport = async () => {
-    //     const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
-    //     NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
-    // }
 
     return (
         <Tab.Navigator
             initialRouteName={'HomeScreen'}
             allowFontScaling={false}
-            lazy={false}
+            lazy={true}
             animationEnabled={true}
             tabBarOptions={{
-                // activeTintColor: '#404040',
+                activeTintColor: colors.common.checkbox.bgChecked,
                 inactiveTintColor: colors.common.text1,
                 style: {
                     color: colors.common.text1,
@@ -186,9 +160,9 @@ const TabBar = () => {
                 name='HomeScreen'
                 component={HomeStackScreen}
                 options={{
-                    // eslint-disable-next-line react/display-name
-                    tabBarIcon: ({ color, size }) => (
-                        <CustomIcon name="BTC" style={{ color }} size={20} />
+                    tabBarLabel: strings('dashboardStack.wallet'),
+                    tabBarIcon: ({ color }) => (
+                        <CustomIcon name="wallet" color={color} size={20} />
                     ),
                 }}
             />
@@ -198,32 +172,29 @@ const TabBar = () => {
                 options={{
                     unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.market'),
-                    // eslint-disable-next-line react/display-name
-                    tabBarIcon: ({ color, size }) => (
-                        <CustomIcon name="exchange" style={{ color }} size={20} />
+                    tabBarIcon: ({ color }) => (
+                        <CustomIcon name="exchange" color={color} size={20} />
                     )
                 }}
             />
             <Tab.Screen
                 name='CashbackScreen'
                 component={CashbackScreen}
-                lazy={false}
                 options={{
                     tabBarLabel: strings('dashboardStack.earn'),
-                    // eslint-disable-next-line react/display-name
-                    tabBarIcon: ({ color, size }) => (
-                        <CustomIcon name="earn" style={{ color }} size={20} />
+                    tabBarIcon: ({ color }) => (
+                        <CustomIcon name="earn" color={color} size={20} />
                     )
                 }}
             />
             <Tab.Screen
-                name='SettingsMainScreen'
-                component={SettingsMainScreen}
+                name='SupportScreen'
+                component={SupportScreen}
                 options={{
+                    unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.support'),
-                    // eslint-disable-next-line react/display-name
-                    tabBarIcon: ({ color, size }) => (
-                        <CustomIcon name="support" style={{ color }} size={20} />
+                    tabBarIcon: ({ color }) => (
+                        <CustomIcon name="support" color={color} size={20} />
                     )
                 }}
             />
@@ -231,15 +202,25 @@ const TabBar = () => {
     )
 }
 
-
-
-// eslint-disable-next-line react/display-name
 export default () => {
 
     return (
-        <>
-            {StackNavigation()}
-        </>
+        <Stack.Navigator initialRouteName='InitScreen'>
+            <Stack.Screen name='InitScreen' component={InitScreen} options={{ headerShown: false }} />
+
+            <Stack.Screen name='LockScreen' component={LockScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='LockScreenPop' component={LockScreen} options={{ headerShown: false }} />
+
+            <Stack.Screen name='TabBar' component={TabBar} options={{ headerShown: false, }} />
+
+            <Stack.Screen name='WalletCreateScreen' component={WalletCreateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='BackupStep0Screen' component={BackupStep0Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        </Stack.Navigator>
     )
 
 }

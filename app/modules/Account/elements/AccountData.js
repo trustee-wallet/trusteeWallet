@@ -102,12 +102,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 10,
+        marginTop: -10
     },
     topContent__title_first: {
-        height: 34,
         fontSize: 30,
         fontFamily: 'Montserrat-Regular',
-        lineHeight: 34
+        lineHeight: 38
     },
     topContent__title_last: {
         height: 32,

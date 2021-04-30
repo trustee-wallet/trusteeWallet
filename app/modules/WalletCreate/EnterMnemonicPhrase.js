@@ -204,7 +204,7 @@ class EnterMnemonicPhrase extends PureComponent {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('HomeScreen') }
+    handleClose = () => { NavStore.reset('TabBar') }
 
     handleInputPhrase = (_value = '') => {
         const value = _value.trim()

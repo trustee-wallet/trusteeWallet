@@ -1,7 +1,7 @@
 /**
  * @version 0.41
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { View, Image, Text, Dimensions, StatusBar, StyleSheet } from 'react-native'
 import { Pages } from 'react-native-pages'
 
@@ -49,7 +49,7 @@ const getSliderData = () => [
 
 const SLIDER_SCROLL_TIMEOUT = 4000
 
-class WalletCreateScreen extends React.PureComponent {
+class WalletCreateScreen extends PureComponent {
     state = {
         checked: false
     }

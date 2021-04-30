@@ -10,15 +10,14 @@ import {
     StatusBar,
     SafeAreaView,
 } from 'react-native'
-import { connect } from 'react-redux'
 
 import CustomIcon from '../CustomIcon'
 
-import { HIT_SLOP } from '../../../themes/Themes'
+import { HIT_SLOP } from '@app/themes/Themes'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-export default class Header extends React.Component {
+export default class Header extends React.PureComponent {
 
     getLeftAction = () => {
         const {
@@ -121,7 +120,7 @@ export default class Header extends React.Component {
                     </View>
 
                     {ExtraView && (
-                        <View style={[styles.extraView, { backgroundColor: colors.common.header.bg, paddingHorizontal: GRID_SIZE * 2 }]}>
+                        <View style={[styles.extraView, { backgroundColor: colors.common.header.bg, paddingHorizontal: GRID_SIZE }]}>
                             <ExtraView ExtraViewParams={ExtraViewParams} />
                         </View>
                     )}

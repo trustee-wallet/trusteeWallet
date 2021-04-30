@@ -3,7 +3,7 @@
  * @author yura
  */
 
-import React from 'react'
+import React, { PureComponent } from 'react'
 import {
     View,
     TouchableOpacity,
@@ -21,7 +21,7 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 const headerHeight = Platform.OS === 'android' ? 49 : 44
 const headerHeightSticky = Platform.OS === 'android' ? 148 : 138
 
-export default class Header extends React.PureComponent {
+export default class Header extends PureComponent {
 
     constructor(props) {
         super(props)
@@ -79,7 +79,7 @@ export default class Header extends React.PureComponent {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={{ top: 20, right: 50, bottom: 50, left: 50 }} onPress={rightAction}>
+            <TouchableOpacity hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={rightAction}>
                 <Icon color={colors.common.text1} />
             </TouchableOpacity>
         )

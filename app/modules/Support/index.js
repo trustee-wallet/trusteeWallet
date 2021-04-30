@@ -1,3 +1,8 @@
+/**
+ * @version 0.43
+ * @author yura
+ * @description ksu jumping
+ */
 import React from 'react'
 import {
     View,
@@ -28,10 +33,10 @@ class SupportScreen extends React.PureComponent {
 
     async componentDidMount() {
         const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
-        this.setState(() => ({
+        this.setState({
             url: link,
             title: strings('settings.about.contactSupportTitle')
-        }))
+        })
     }
 
     handleBack = () => {
