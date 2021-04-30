@@ -1372,7 +1372,12 @@
   "validator": {
     "empty": "Заповніть поле",
     "invalidFormat": "Невірний формат",
-    "moreThanMax": "Ліміт можливої довжини перевищено"
+    "moreThanMax": "Ліміт можливої довжини перевищено",
+    "unstoppableErrors": {
+      "UnregisteredDomain": "Домен %{domain} не зареєстрований",
+      "RecordNotFound": "Домен %{domain} не прив`язано до %{ticker} адреси",
+      "UnspecifiedResolver": "Домен %{domain} не прив`язано до контракту"
+    }
   },
   "toast": {
     "copied": "Скопійовано в буфер",
