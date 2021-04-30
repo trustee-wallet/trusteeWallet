@@ -19,7 +19,7 @@ import { HIT_SLOP } from '@app/themes/Themes'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 const headerHeight = Platform.OS === 'android' ? 49 : 44
-const headerHeightSticky = Platform.OS === 'android' ? 148 : 138
+const headerHeightSticky = Platform.OS === 'android' ? 158 : 148
 
 export default class Header extends PureComponent {
 
@@ -139,9 +139,11 @@ export default class Header extends PureComponent {
                         </View>
                     </View>
 
-                    <Animated.View style={[styles.extraView, { backgroundColor: colors.common.header.bg, opacity }]}>
-                        <ExtraView />
-                    </Animated.View>
+                    {ExtraView && (
+                        <Animated.View style={[styles.extraView, { backgroundColor: colors.common.header.bg, opacity }]}>
+                            <ExtraView />
+                        </Animated.View>
+                    )}
                 </Animated.View>
 
                 <View style={styles.shadow__container}>

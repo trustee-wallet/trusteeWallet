@@ -1,7 +1,7 @@
 /**
  * @version 0.43
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { Text, View, TouchableOpacity, StyleSheet } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -10,7 +10,7 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import AccountButtons from './AccountButtons'
 
-class AccountData extends React.PureComponent {
+class AccountData extends PureComponent {
 
     constructor(props) {
         super(props)
@@ -59,13 +59,13 @@ class AccountData extends React.PureComponent {
             <>
                 <View style={styles.topContent__top}>
                     <View style={styles.topContent__title}>
-                    <TouchableOpacity
+                        <TouchableOpacity
                             onPressIn={() => this.triggerBalanceVisibility(true)}
                             onPressOut={() => this.triggerBalanceVisibility(false)}
                             activeOpacity={1}
                             disabled={originalVisibility}
                             hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
-                            >
+                        >
                             {finalIsBalanceVisible ?
                                 <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
                                     {balancePrettyPrep1}
@@ -102,7 +102,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 10,
-        marginTop: -10
     },
     topContent__title_first: {
         fontSize: 30,
