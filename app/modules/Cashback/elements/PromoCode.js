@@ -27,7 +27,14 @@ export default class PromoCodeContent extends React.Component {
     handleApply = async () => {
         try {
             setLoaderStatus(true)
-            const desc = await Api.activatePromo(this.state.promoCode)
+            let desc = await Api.activatePromo(this.state.promoCode)
+            if (typeof desc !== 'string') {
+                if (typeof desc['en'] !== 'undefined') {
+                    desc = desc['en']
+                } else {
+                    desc = JSON.stringify(desc)
+                }
+            }
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
