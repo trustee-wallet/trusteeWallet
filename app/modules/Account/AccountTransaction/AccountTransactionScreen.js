@@ -761,7 +761,7 @@ class AccountTransactionScreen extends React.PureComponent {
         if (!transaction.bseOrderData) {
             return false
         }
-        if (transaction.bseOrderData.status.toLowerCase() === 'pending_payin') {
+        if (typeof transaction.bseOrderData.status !== 'undefined' && transaction.bseOrderData.status.toLowerCase() === 'pending_payin') {
             return false
         }
         array.push({

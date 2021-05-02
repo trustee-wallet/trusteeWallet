@@ -1,19 +1,17 @@
 /**
- * @version 0.32
+ * @version 0.43
  */
-import Log from '../../services/Log/Log'
-import Api from '../../services/Api/Api'
+import Log from '@app/services/Log/Log'
 
-import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
-import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import ApiProxy from '../../services/Api/ApiProxy'
+import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
+import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
+import ApiProxy from '@app/services/Api/ApiProxy'
 import config from '@app/config/config'
+import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
 
 let CACHE_NEWS_HASH = ''
 let CACHE_LAST_TIME = false
-const CACHE_VALID_TIME = 60000 // 1 minute
+const CACHE_VALID_TIME = 120000 // 2 minute
 
 class UpdateAppNewsDaemon {
 
@@ -57,7 +55,7 @@ class UpdateAppNewsDaemon {
             }
             asked = true
             try {
-                res = await ApiProxy.getAll({ source: 'UpdateAppNewsDaemon.updateAppNews' })
+                res = await ApiProxy.getAll({...params, source: 'UpdateAppNewsDaemon.updateAppNews' })
             } catch (e) {
                 this._canUpdate = true
                 return false
@@ -66,10 +64,15 @@ class UpdateAppNewsDaemon {
             res = dataUpdate
         }
 
-        if (!res || typeof res === 'undefined' || typeof res.news === 'undefined' || !res.news || res.news.length === 0 || res.newsHash === CACHE_NEWS_HASH) {
+        if (!res || typeof res === 'undefined' || typeof res.news === 'undefined' || !res.news || res.news.length === 0) {
             if (res && typeof res.forServerIds !== 'undefined' && res.forServerIds.length > 0) {
                 await appNewsDS.saveAppNewsSentForServer(res.forServerIds)
             }
+            this._canUpdate = true
+            return false
+        }
+        if (res.newsHash === CACHE_NEWS_HASH) {
+            // can put log for recheck hashing cache
             this._canUpdate = true
             return false
         }
@@ -99,6 +102,7 @@ class UpdateAppNewsDaemon {
             newsServerHash: 'status'
         }
         try {
+            let savedAny = false
             for (const row of res.news) {
                 const toSave = {
                     newsNeedPopup: row.needPopup ? 1 : 0,
@@ -117,7 +121,13 @@ class UpdateAppNewsDaemon {
                     toSave.removed = 33
                 }
                 Log.daemon('UpdateAppNews adding from Server ', toSave)
-                await appNewsDS.saveAppNews(toSave)
+                const saved = await appNewsDS.saveAppNews(toSave)
+                if (saved) {
+                    savedAny = true
+                }
+            }
+            if (savedAny) {
+                await appNewsInitStore()
             }
 
             if (res.forServerIds.length > 0) {

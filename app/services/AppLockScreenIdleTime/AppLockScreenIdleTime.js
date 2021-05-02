@@ -17,7 +17,6 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
-import UpdateAppNewsListDaemon from '@app/daemons/view/UpdateAppNewsListDaemon'
 
 const TIME_DIFF = 300000
 
@@ -76,7 +75,6 @@ class AppLockScreenIdleTime {
 
             UpdateOneByOneDaemon.stop()
             UpdateAccountListDaemon.stop()
-            UpdateAppNewsListDaemon.stop()
 
             initFunction(() => {
                 const { lockScreenStatus } = store.getState().settingsStore.keystore
@@ -102,7 +100,6 @@ class AppLockScreenIdleTime {
                 if (+lockScreenStatus && !MarketingEvent.UI_DATA.IS_LOCKED) {
                     UpdateOneByOneDaemon.stop()
                     UpdateAccountListDaemon.stop()
-                    UpdateAppNewsListDaemon.stop()
                     lockScreenAction.setFlowType({
                         flowType: ''
                     })
@@ -124,7 +121,6 @@ class AppLockScreenIdleTime {
             if (!MarketingEvent.UI_DATA.IS_LOCKED) {
                 UpdateOneByOneDaemon.unstop()
                 UpdateAccountListDaemon.unstop()
-                UpdateAppNewsListDaemon.unstop()
             }
             if (this._isBlur) {
                 setBlurStatus(false)

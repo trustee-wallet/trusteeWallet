@@ -6,14 +6,12 @@ import AsyncStorage from '@react-native-community/async-storage'
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
 
-import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import config from '../../config/config'
 
 import NavStore from '../../components/navigation/NavStore'
 import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
-import UpdateAppNewsListDaemon from '../../daemons/view/UpdateAppNewsListDaemon'
 import AppNotificationPushSave from './AppNotificationPushSave'
 import AppNotificationPopup from './AppNotificationPopup'
 import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
@@ -334,7 +332,6 @@ export default new class AppNotificationListener {
                     const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
 
                     await UpdateAppNewsDaemon.updateAppNewsDaemon()
-                    await UpdateAppNewsListDaemon.updateAppNewsListDaemon()
 
                     await Log.log('PUSH _onMessage startMessage unified', unifiedPush)
                     if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {

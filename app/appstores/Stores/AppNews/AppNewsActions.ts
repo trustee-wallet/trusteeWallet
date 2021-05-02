@@ -1,23 +1,27 @@
 /**
- * @version 0.30
+ * @version 0.43
  */
-import appNewsDS from '../../DataSource/AppNews/AppNews'
-import Log from '../../../services/Log/Log'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { AppNewsItem } from './Types'
+import NavStore from '@app/components/navigation/NavStore'
 
-import UpdateAppNewsListDaemon from '../../../daemons/view/UpdateAppNewsListDaemon'
-import config from '../../../config/config'
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
-import AppNotificationPopup from '../../../services/AppNotification/AppNotificationPopup'
-import NavStore from '../../../components/navigation/NavStore'
-import { strings } from '../../../services/i18n'
-import { showModal } from '../Modal/ModalActions'
-import MarketingEvent from '../../../services/Marketing/MarketingEvent'
-import lockScreenAction from '../LockScreen/LockScreenActions'
+import { strings, sublocale } from '@app/services/i18n'
 
-import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
-import AppNotificationListener from '../../../services/AppNotification/AppNotificationListener'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+
+import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
+import AppNotificationPopup from '@app/services/AppNotification/AppNotificationPopup'
+import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
+
+import store from '@app/store'
+import config from '@app/config/config'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import Log from '@app/services/Log/Log'
+import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
+
+let CACHE_BADGE = 0
 
 export namespace AppNewsActions {
 
@@ -48,11 +52,17 @@ export namespace AppNewsActions {
 
             await Log.log('ACT/AppNewsActions onOpen', notification)
             if (notification.newsOpenedAt === null) {
-                AppNewsActions.markAsOpened(notification.id)
+                AppNewsActions.markAsOpened(notification.id, notification.hasBadge)
             }
             if (notification.newsUrl && notification.newsUrl !== 'null' && notification.newsUrl !== '') {
+                let url = notification.newsUrl
+                if (url.indexOf('?') === -1) {
+                    url += '?forceLang=' + sublocale()
+                } else {
+                    url += '&forceLang=' + sublocale()
+                }
                 NavStore.goNext('WebViewScreen', {
-                    url: notification.newsUrl,
+                    url: url,
                     title: strings('notifications.newsTitle')
                 })
                 return false
@@ -140,6 +150,8 @@ export namespace AppNewsActions {
     }
 
     export const displayBadge = async (number: number): Promise<void> => {
+        if (number < 0) number = 0
+        CACHE_BADGE = number
         return AppNotificationPopup.displayBadge(number)
     }
 
@@ -186,25 +198,46 @@ export namespace AppNewsActions {
 
     export const clearAll = async (): Promise<void> => {
         await appNewsDS.clear()
-        // @ts-ignore
-        await UpdateAppNewsListDaemon.forceDaemonUpdate()
+        store.dispatch({
+            type: 'SET_APP_NEWS_LIST',
+            appNewsList: []
+        })
+        await AppNewsActions.displayBadge(0)
     }
 
-    export const markAsOpened = async (id: number): Promise<void> => {
+    export const updateSettings = async (): Promise<void> => {
+        const exchangeRatesNotifs = settingsActions.getSettingStatic('exchangeRatesNotifs')
+        if (exchangeRatesNotifs !== '0') {
+            // full reload
+            return appNewsInitStore()
+        }
+        const news = store.getState().appNewsStore.appNewsList
+        const sorted = []
+        for (const item of news) {
+            if (item.newsGroup !== 'RATES_CHANGING') {
+                sorted.push(item)
+            }
+        }
+        store.dispatch({
+            type: 'SET_APP_NEWS_LIST',
+            appNewsList: sorted
+        })
+    }
+
+    export const markAsOpened = async (id: number, hasBadge : boolean): Promise<void> => {
         await appNewsDS.markAsOpened(id)
-        // @ts-ignore
-        await UpdateAppNewsListDaemon.forceDaemonUpdate()
+        store.dispatch({
+            type: 'SET_APP_NEWS_OPENED_ONE',
+            appNewsId : id,
+            appNewsHasBadge : hasBadge
+        })
+        await AppNewsActions.displayBadge(CACHE_BADGE - 1)
     }
 
     export const markAllAsOpened = async (): Promise<void> => {
         await appNewsDS.markAllAsOpened()
-        // @ts-ignore
-        await UpdateAppNewsListDaemon.forceDaemonUpdate()
-    }
-
-    export const markAsRemoved = async (id: number): Promise<void> => {
-        await appNewsDS.setRemoved({ id })
-        // @ts-ignore
-        await UpdateAppNewsListDaemon.forceDaemonUpdate()
+        store.dispatch({
+            type: 'SET_APP_NEWS_OPENED_ALL'
+        })
     }
 }

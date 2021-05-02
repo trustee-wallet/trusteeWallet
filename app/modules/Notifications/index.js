@@ -18,7 +18,7 @@ import moment from 'moment'
 import NavStore from '@app/components/navigation/NavStore'
 
 import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
-import UpdateAppNewsListDaemon from '@app/daemons/view/UpdateAppNewsListDaemon'
+import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
 
 import Log from '@app/services/Log/Log'
 
@@ -134,7 +134,7 @@ class NotificationsScreen extends React.PureComponent {
 
         try {
             await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
-            await UpdateAppNewsListDaemon.updateAppNewsListDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
+            await appNewsInitStore()
         } catch (e) {
             Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAppNewsDaemon both fromServer and forView ' + e.message)
         }

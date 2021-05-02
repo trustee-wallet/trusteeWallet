@@ -6,8 +6,6 @@ import { Text } from 'react-native'
 
 import Orientation from 'react-native-orientation'
 
-import store from '../../../store'
-
 import walletDS from '../../DataSource/Wallet/Wallet'
 
 import NavStore from '../../../components/navigation/NavStore'
@@ -27,17 +25,15 @@ import AppVersionControl from '../../../services/AppVersionControl/AppVersionCon
 import AppNotification from '../../../services/AppNotification/AppNotificationListener'
 
 import Daemon from '../../../daemons/Daemon'
-import CashBackActions from '../../Stores/CashBack/CashBackActions'
 import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
 
 import FilePermissions from '../../../services/FileSystem/FilePermissions'
 import UpdateAppNewsDaemon from '../../../daemons/back/UpdateAppNewsDaemon'
 import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
-import UpdateCashBackDataDaemon from '../../../daemons/back/UpdateCashBackDataDaemon'
 
 
 import config from '../../../config/config'
-const { dispatch, getState } = store
+import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
 
 if (Text.defaultProps == null) Text.defaultProps = {}
 Text.defaultProps.allowFontScaling = false
@@ -191,6 +187,7 @@ class App {
             // second step of init
             await cleanupNotNeeded()
 
+            await appNewsInitStore()
             await UpdateAccountListDaemon.forceDaemonUpdate(params)
 
             // await UpdateCashBackDataDaemon.updateCashBackDataDaemon({source : 'UpdateCashBackDataDaemon.AppHomeScreen'})
