@@ -9,7 +9,7 @@ import { navigate, reset, goBack } from '@app/components/navigation/NavRoot'
 
 class ObservableNavStore {
 
-    reset = (routeName, params) => {
+    reset = (routeName, params = {}) => {
         try {
             reset({
                 index: 0,

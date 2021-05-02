@@ -11,6 +11,7 @@ import {
 import NavStore from '@app/components/navigation/NavStore'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { AppNewsActions }  from '@app/appstores/Stores/AppNews/AppNewsActions'
 
 import { strings } from '@app/services/i18n'
 
@@ -24,7 +25,10 @@ class NotificationsSettingScreen extends PureComponent {
 
     handleBack = () => { NavStore.goBack() }
 
-    handleClose = () => { NavStore.reset('HomeScreen') }
+    handleClose = () => {
+        NavStore.goBack()
+        NavStore.goBack()
+    }
 
     handleChangeNotifications = async () => {
         const { notifsStatus } = this.props.settings
@@ -34,6 +38,7 @@ class NotificationsSettingScreen extends PureComponent {
         await settingsActions.setSettings('newsNotifs', +notifsStatus ? '0' : '1')
         // use "later" function as usual makes some mess when a lot of clicking
         await AppNotificationListener.updateSubscriptionsLater()
+        AppNewsActions.updateSettings()
     }
 
     handleChangeTransactions = async () => {
@@ -46,6 +51,7 @@ class NotificationsSettingScreen extends PureComponent {
         const { exchangeRatesNotifs } = this.props.settings
         await settingsActions.setSettings('exchangeRatesNotifs', +exchangeRatesNotifs ? '0' : '1')
         await AppNotificationListener.updateSubscriptionsLater()
+        AppNewsActions.updateSettings()
     }
 
     handleChangeNews = async () => {

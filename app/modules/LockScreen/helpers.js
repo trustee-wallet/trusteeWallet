@@ -6,7 +6,6 @@ import { deleteUserPinCode } from '@haskkor/react-native-pincode'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
-import UpdateAppNewsListDaemon from '@app/daemons/view/UpdateAppNewsListDaemon'
 import NavStore from '@app/components/navigation/NavStore'
 
 import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
@@ -21,7 +20,6 @@ export const finishProcess = async (lockScreen) => {
     setBlurStatus(false)
     UpdateOneByOneDaemon.unstop()
     UpdateAccountListDaemon.unstop()
-    UpdateAppNewsListDaemon.unstop()
 
     if (flowType === 'WALLET_CONNECT') {
         lockScreenAction.setFlowType({

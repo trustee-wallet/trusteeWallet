@@ -45,8 +45,6 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 import NavStore from '@app/components/navigation/NavStore'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
-import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
-import UpdateAppNewsListDaemon from '@app/daemons/view/UpdateAppNewsListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import AppLockBlur from '@app/components/AppLockBlur'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -155,14 +153,6 @@ class HomeScreen extends React.PureComponent {
         if (CACHE_IS_SCANNING) return false
         CACHE_IS_SCANNING = true
         try {
-
-            try {
-                await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
-                await UpdateAppNewsListDaemon.updateAppNewsListDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
-            } catch (e) {
-                Log.errDaemon('WalletList.HomeScreen handleLateRefresh error updateAppNewsDaemon both fromServer and forView ' + e.message)
-            }
-
 
             try {
                 await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true })
