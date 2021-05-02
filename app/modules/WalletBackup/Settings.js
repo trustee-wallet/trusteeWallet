@@ -37,6 +37,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
+import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 
 class BackupSettingsScreen extends PureComponent {
     state = {
@@ -71,8 +72,9 @@ class BackupSettingsScreen extends PureComponent {
     changeMnemonicLength = (mnemonicLength) => { this.setState(() => ({ mnemonicLength })) }
 
     handleSkip = () => {
+
         Log.log('WalletBackup.BackupStep1Screen handleSkip')
-        const { lockScreenStatus } = this.props.settingsStore.keystore
+        const { lockScreenStatus } = this.props.settingsData
         const { walletName, walletMnemonic, callback, source, walletNumber } = this.props.createWalletStore
 
         if (+lockScreenStatus) {
@@ -127,7 +129,7 @@ class BackupSettingsScreen extends PureComponent {
                     noBackdropPress: true
                 }, async () => {
                     if (callback === null || !callback) {
-                        NavStore.reset('HomeScreen')
+                        NavStore.reset('TabBar')
                     } else if (callback === 'InitScreen') {
                         setCallback({ callback: null })
                         NavStore.reset('InitScreen')
@@ -247,7 +249,7 @@ class BackupSettingsScreen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore,
+        settingsData: getSettingsScreenData(state),
         createWalletStore: state.createWalletStore
     }
 }

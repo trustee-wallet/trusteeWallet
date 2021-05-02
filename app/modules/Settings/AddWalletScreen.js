@@ -36,9 +36,15 @@ class AddWalletScreen extends PureComponent {
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'createAnother' })
     }
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => {
+        NavStore.goBack()
+    }
 
-    handleClose = () => { NavStore.reset('HomeScreen') }
+    handleClose = () => {
+        NavStore.goBack()
+        NavStore.goBack()
+        NavStore.goBack()
+    }
 
     render() {
         MarketingAnalytics.setCurrentScreen('WalletManagment.AddWallet')

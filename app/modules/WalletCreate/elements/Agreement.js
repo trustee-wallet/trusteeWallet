@@ -1,14 +1,16 @@
+/**
+ * @version 0.43
+ */
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
-import CheckBox from '../../../components/elements/new/CheckBox'
-
-import { ThemeContext } from '../../theme/ThemeProvider'
-
-import { strings } from '../../../services/i18n'
+import CheckBox from '@app/components/elements/new/CheckBox'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { strings } from '@app/services/i18n'
 
 
-export default class Agreement extends React.Component {
+export default class Agreement extends React.PureComponent {
+
     getLink = (text, onPress) => {
         const { colors } = this.context
         return (<Text style={[styles.linkText, { color: colors.common.text1 }]} onPress={onPress}>&nbsp;&nbsp;{text}&nbsp;&nbsp;</Text>)
@@ -36,10 +38,7 @@ export default class Agreement extends React.Component {
         const {
             checked,
             onPress,
-            handleTerms,
-            handlePrivacy
         } = this.props
-        const { colors } = this.context
 
         return (
             <CheckBox

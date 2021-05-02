@@ -41,6 +41,7 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 
 const VISIBILITY_TIMEOUT = 4000
 
@@ -76,7 +77,7 @@ class BackupStep0Screen extends PureComponent {
             let mnemonic = ''
             let needPasswordConfirm = false
             if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
-                const { lockScreenStatus } = this.props.settingsStore.keystore
+                const { lockScreenStatus } = this.props.settingsData
                 const selectedWallet = this.props.selectedWallet
                 if (selectedWallet && selectedWallet.walletHash) {
                     try {
@@ -364,7 +365,7 @@ class BackupStep0Screen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore,
+        settingsData: getSettingsScreenData(state),
         selectedWallet: state.mainStore.selectedWallet,
         createWalletStore: state.createWalletStore
     }

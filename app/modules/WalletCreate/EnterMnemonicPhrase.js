@@ -21,7 +21,6 @@ import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import { strings } from '@app/services/i18n'
 
 import Log from '@app/services/Log/Log'
-import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 // import GoogleDrive from '@app/services/Back/Google/GoogleDrive'
@@ -154,7 +153,7 @@ class EnterMnemonicPhrase extends PureComponent {
                 noBackdropPress: true,
             }, async () => {
                 if (callback === null || !callback) {
-                    NavStore.reset('HomeScreen')
+                    NavStore.reset('TabBar')
                 } else if (callback === 'InitScreen') {
                     setCallback({ callback: null })
                     NavStore.reset('InitScreen')

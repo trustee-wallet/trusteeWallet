@@ -59,9 +59,14 @@ class WalletListScreen extends PureComponent {
 
     handleAddWallet = () => { NavStore.goNext('AddWalletScreen') }
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => {
+        NavStore.goBack()
+    }
 
-    handleClose = () => { NavStore.reset('HomeScreen') }
+    handleClose = () => {
+        NavStore.goBack()
+        NavStore.goBack()
+    }
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.WalletListScreen')

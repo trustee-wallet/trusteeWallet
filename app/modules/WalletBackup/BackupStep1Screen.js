@@ -132,7 +132,7 @@ class BackupStep1Screen extends React.PureComponent {
                 description: strings('modal.walletBackup.seedConfirm'),
                 noBackdropPress: true
             }, () => {
-                NavStore.reset('HomeScreen')
+                NavStore.reset('TabBar')
             })
         } else {
             const { walletName, walletMnemonic, callback, source, walletNumber } = this.props.createWalletStore
@@ -173,7 +173,7 @@ class BackupStep1Screen extends React.PureComponent {
                     noBackdropPress: true
                 }, async () => {
                     if (callback === null || !callback) {
-                        NavStore.reset('HomeScreen')
+                        NavStore.reset('TabBar')
                     } else if (callback === 'InitScreen') {
                         setCallback({ callback: null })
                         NavStore.reset('InitScreen')
