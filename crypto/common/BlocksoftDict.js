@@ -464,9 +464,9 @@ const Currencies = {
             ratesCurrencyCode: 'BUSD',
             decimals: 18,
             tokenBlockchain: 'ETHEREUM',
-            tokenAddress: '0xe9e7cea3dedca5984780bafc599bd69add087d56',
+            tokenAddress: '0x4fabb145d64652a948d72533023f6e7a623c7c53',
             currencyExplorerLink:
-                'https://etherscan.io/token/0xe9e7cea3dedca5984780bafc599bd69add087d56?a=',
+                'https://etherscan.io/token/0x4fabb145d64652a948d72533023f6e7a623c7c53?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
         },
     BTC_TEST:
