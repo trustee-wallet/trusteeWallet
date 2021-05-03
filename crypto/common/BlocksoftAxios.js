@@ -136,6 +136,8 @@ class BlocksoftAxios {
                 console.log('BlocksoftAxios.post fetch data ' + JSON.stringify(data).substr(0, 100))
                 console.log('BlocksoftAxios.post fetch cookie ' + JSON.stringify(await CookieManager.get(link)))
                 */
+
+                BlocksoftCryptoLog.log('BlocksoftAxios.post fetch link ' + link)
                 const tmpInner = await fetch(link, {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -144,6 +146,7 @@ class BlocksoftAxios {
                     headers,
                     body: dataPrep
                 })
+                BlocksoftCryptoLog.log('BlocksoftAxios.post fetch link ' + link + ' status ' + tmpInner.status)
                 if (tmpInner.status !== 200) {
                     BlocksoftCryptoLog.log('BlocksoftAxios.post fetch result ' + JSON.stringify(tmpInner))
                     // console.log('BlocksoftAxios.post fetch result ' + JSON.stringify(tmpInner))
