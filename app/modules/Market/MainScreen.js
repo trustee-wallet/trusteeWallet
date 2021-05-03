@@ -246,7 +246,7 @@ class MarketScreen extends React.PureComponent {
 
             if (error || close) {
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
-                NavStore.goNext('HomeScreen')
+                NavStore.reset('HomeScreen')
                 return
             }
 
