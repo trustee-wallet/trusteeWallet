@@ -304,13 +304,14 @@ class Account extends React.PureComponent {
                     </TouchableOpacity>
                 </View>
                 {
-                    allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0) ?
-                        <View style={{ marginRight: GRID_SIZE }} >
-                            {isSynchronized && <Text
-                                style={{ ...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3 }}>
-                                {strings('account.noTransactions')}
-                            </Text>}
-                        </View>
+                    allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0)  && isSynchronized ?
+                            <View style={{ marginRight: GRID_SIZE }} >
+                                <Text
+                                    style={{ ...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3 }}>
+                                    {strings('account.noTransactions')}
+                                </Text>
+                            </View>
+
                         : null
                 }
             </View>
