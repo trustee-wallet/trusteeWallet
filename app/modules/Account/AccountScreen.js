@@ -108,8 +108,8 @@ class Account extends React.PureComponent {
         CACHE_CLICKED_BACK = false
     }
 
-    triggerBalanceVisibility = (value) => {
-        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility, isBalanceVisibleTriggered : true }))
+    triggerBalanceVisibility = (value, originalVisibility) => {
+        this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
     }
 
     updateOffset = (event) => {

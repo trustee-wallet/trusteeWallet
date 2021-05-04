@@ -114,8 +114,8 @@ class HeaderBlocks extends React.PureComponent {
                 <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
                         <TouchableOpacity
-                            onPressIn={() => triggerBalanceVisibility(true)}
-                            onPressOut={() => triggerBalanceVisibility(false)}
+                            onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
+                            onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
                             activeOpacity={1}
                             disabled={originalVisibility}
                             hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}

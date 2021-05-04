@@ -59,14 +59,9 @@ export default {
     },
 
     async initWallet(wallet, source) {
-        const btcLegacyOrSegWit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
-        const btcShowTwoAddress = settingsActions.getSettingStatic('btcShowTwoAddress')
-        let showType = 'segwit'
-        if (btcShowTwoAddress === false && btcLegacyOrSegWit === 'legacy') {
-            showType = 'legacy'
-        }
-
+        const btcLegacyOrSegWit = store.getState().settingsStore.data.btc_legacy_or_segwit
         const accountList = store.getState().accountStore.accountList
+
         if (typeof accountList[wallet.walletHash] === 'undefined') {
             if (source === 'ApiProxy') {
                 return []
@@ -113,7 +108,8 @@ export default {
                 }
             }
 
-            if (showType === 'segwit' && typeof account.legacy !== 'undefined' && typeof account.segwit !== 'undefined') {
+            if (typeof account.legacy !== 'undefined' && typeof account.segwit !== 'undefined') {
+                resultAccount.legacyOrSegWit = btcLegacyOrSegWit
                 resultAccount.address = [
                     {
                         address: account.segwit,
