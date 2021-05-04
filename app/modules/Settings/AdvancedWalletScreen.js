@@ -28,12 +28,14 @@ import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 
 
 class AdvancedWalletScreen extends PureComponent {
     state = {
         isEditing: false,
-        walletName: this.props.wallet.walletName,
+        walletName: this.props.selectedWalletData.walletName,
     }
 
     inputRef = React.createRef()
@@ -41,7 +43,7 @@ class AdvancedWalletScreen extends PureComponent {
     onChangeName = (value) => { this.setState(() => ({ walletName: value })) }
 
     onBlurInput = async () => {
-        const { walletName: oldName, walletHash } = this.props.wallet
+        const { walletName: oldName, walletHash } = this.props.selectedWalletData
         const { walletName: newName } = this.state
         this.setState(() => ({ isEditing: false }))
 
@@ -58,11 +60,11 @@ class AdvancedWalletScreen extends PureComponent {
     }
 
     handleOpenRecoveryPhrase = (needPassword = true) => {
-        const { walletHash, walletNumber } = this.props.wallet
+        const { walletHash, walletNumber } = this.props.selectedWalletData
         setFlowType({ flowType: 'BACKUP_WALLET', walletHash, walletNumber, source: 'AdvancedWalletScreen' })
         setLoaderStatus(false)
 
-        const { lockScreenStatus } = this.props.settingsStore.keystore
+        const { lockScreenStatus } = this.props.settingsData
         if (needPassword && +lockScreenStatus) {
             lockScreenAction.setFlowType({ flowType: 'CONFIRM_WALLET_PHRASE' })
             lockScreenAction.setActionCallback({ actionCallback: this.handleOpenRecoveryPhrase })
@@ -82,7 +84,6 @@ class AdvancedWalletScreen extends PureComponent {
 
     render() {
         MarketingAnalytics.setCurrentScreen('WalletManagment.Advances')
-
         const { colors, GRID_SIZE } = this.context
         const { isEditing, walletName } = this.state
 
@@ -158,18 +159,12 @@ AdvancedWalletScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        wallet: state.mainStore.selectedWallet,
-        settingsStore: state.settingsStore
+        selectedWalletData: getSelectedWalletData(state),
+        settingsData: getSettingsScreenData(state),
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(AdvancedWalletScreen)
+export default connect(mapStateToProps)(AdvancedWalletScreen)
 
 const styles = StyleSheet.create({
     scrollViewContent: {

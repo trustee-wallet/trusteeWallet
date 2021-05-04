@@ -171,15 +171,16 @@ class App {
             return false
         }
 
-        await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall))
-
-        await walletActions.setAvailableWallets()
-
-        await setSelectedWallet('ACT/App appRefreshWalletsStates called from ' + source)
-
-        await currencyActions.init()
-
         if (firstTimeCall === 'first') {
+
+            await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall))
+
+            await walletActions.setAvailableWallets()
+
+            await setSelectedWallet('ACT/App appRefreshWalletsStates called from ' + source)
+
+            await currencyActions.init()
+
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })
 

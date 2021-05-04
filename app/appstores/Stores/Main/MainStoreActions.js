@@ -62,16 +62,6 @@ export function setBlurStatus(visible) {
 
 }
 
-export function setCurrentScreen(screen) {
-    // for now only back and forward
-    if (screen) {
-        screen.changed = new Date().getTime()
-    }
-    dispatch({
-        type: 'SET_NAV_CURRENT_SCREEN',
-        screen
-    })
-}
 
 export function setSelectedCryptoCurrency(data) {
     const dict = new UIDict(data.currencyCode)

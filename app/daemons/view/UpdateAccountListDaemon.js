@@ -19,6 +19,7 @@ import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions
 import BlocksoftBN from '../../../crypto/common/BlocksoftBN'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
 let CACHE_PAUSE = 0
 
@@ -467,6 +468,7 @@ class UpdateAccountListDaemon extends Update {
                     accountList: DaemonCache.CACHE_ALL_ACCOUNTS
                 })
             }
+            walletActions.setWalletsGeneralData(DaemonCache.CACHE_WALLET_TOTAL.balance, DaemonCache.CACHE_WALLET_TOTAL.basicCurrencySymbol)
 
             try {
                 if (selectedAccount && typeof selectedAccount !== 'undefined' && typeof selectedAccount.currencyCode !== 'undefined' && typeof selectedAccount.walletHash !== 'undefined') {

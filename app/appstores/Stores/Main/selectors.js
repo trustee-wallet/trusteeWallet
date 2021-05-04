@@ -14,6 +14,9 @@ export const getSelectedWalletData = createSelector(
     [state => state.mainStore.selectedWallet],
     (data => {
         return {
+            walletHash : data.walletHash,
+            walletName : data.walletName,
+            walletNumber : data.walletNumber,
             walletIsHd : data.walletIsHd === 1,
             walletIsHideTransactionForFee : data.walletIsHideTransactionForFee !== null && data.walletIsHideTransactionForFee * 1 === 1
         }

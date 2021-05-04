@@ -1,5 +1,6 @@
 /**
  * @version 0.9
+ * to take balance from store for version up
  */
 import React, { Component } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native'
@@ -52,7 +53,7 @@ class Wallet extends Component {
         const { walletNumber, walletHash } = this.props.wallet
         setFlowType({ flowType: 'BACKUP_WALLET', walletHash, walletNumber, source : 'WalletListScreen' })
         setWalletName({ walletName: this.props.wallet.walletName })
-        if (walletHash !== this.props.selectedWallet.walletHash) {
+        if (walletHash !== this.props.selectedWalletHash) {
             await cryptoWalletActions.setSelectedWallet(walletHash, 'handleBackupNeeded')
         }
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'backup' })
@@ -62,7 +63,9 @@ class Wallet extends Component {
         await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleSelectWallet')
     }
 
-    handleOpenAdvanced = () => NavStore.goNext('AdvancedWalletScreen')
+    handleOpenAdvanced = () => {
+        NavStore.goNext('AdvancedWalletScreen')
+    }
 
     getBalanceData = () => {
         const { wallet } = this.props
@@ -86,9 +89,12 @@ class Wallet extends Component {
     }
 
     render() {
-        const { selectedWallet, wallet, isBalanceVisible} = this.props
+        const { selectedWalletHash, wallet } = this.props
 
-        const isSelected = wallet.walletHash === selectedWallet.walletHash
+        const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility } = this.props
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+
+        const isSelected = wallet.walletHash === selectedWalletHash
         const isBackedUp = wallet.walletIsBackedUp
 
         const balanceData = this.getBalanceData()
@@ -109,13 +115,24 @@ class Wallet extends Component {
                 >
                     <View style={[styles.balanceContainer, !isBackedUp && { flex: 1 }]}>
                         <Text style={[styles.walletName, { color: colors.common.text3 }]} numberOfLines={1}>{wallet.walletName}</Text>
-                        {isBalanceVisible ? (
-                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                <Text style={[styles.balanceCurrencySymbol, { color: colors.common.text1 }]}>{balanceData.currencySymbol}</Text>
-                                <Text style={[styles.balanceBeforeDecimal, { color: colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
-                                <Text style={[styles.balanceAfterDecimal, { color: colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
-                            </View>
-                        ) : ( <Text style={[styles.balanceHidden, { color: colors.common.text1 }]}>****</Text> )}
+
+                        <TouchableOpacity
+                            onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
+                            onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
+                            activeOpacity={1}
+                            disabled={originalVisibility}
+                            hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}
+                        >
+                            {finalIsBalanceVisible ? (
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <Text style={[styles.balanceCurrencySymbol, { color: colors.common.text1 }]}>{balanceData.currencySymbol}</Text>
+                                    <Text style={[styles.balanceBeforeDecimal, { color: colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
+                                    <Text style={[styles.balanceAfterDecimal, { color: colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
+                                </View>
+                            ) : (
+                                <Text style={[styles.balanceHidden, { color: colors.common.text1 }]}>****</Text>
+                            )}
+                        </TouchableOpacity>
                     </View>
                     {isBackedUp ? (
                         <TouchableOpacity

@@ -13,6 +13,20 @@ const { dispatch } = store
 
 const walletActions = {
 
+    setWalletsGeneralData: async (totalBalance, localCurrencySymbol) => {
+        const oldData = store.getState().walletStore.walletsGeneralData
+        if (oldData.totalBalance === totalBalance && oldData.localCurrencySymbol === localCurrencySymbol) {
+             return false
+        }
+        dispatch({
+            type: 'SET_WALLET_GENERAL_DATA',
+            walletsGeneralData : {
+                totalBalance,
+                localCurrencySymbol
+            }
+        })
+    },
+
     setAvailableWallets: async () => {
         Log.log('ACT/Wallet setAvailableWallets called')
         const wallets = await walletDS.getWallets()
@@ -42,6 +56,21 @@ const walletActions = {
 
     setWalletBackedUpStatus: async (walletHash) => {
         await walletDS.updateWallet({ walletHash, walletIsBackedUp: 1 })
+
+        const oldWallets = store.getState().walletStore.wallets
+        let oldWalletsUpdated = false
+        for (const oldWallet of oldWallets) {
+            if (oldWallet.walletHash === walletHash) {
+                oldWalletsUpdated = true
+                oldWallet.walletIsBackedUp = 1
+            }
+        }
+        if (oldWalletsUpdated) {
+            dispatch({
+                type: 'SET_WALLET',
+                wallets: {...oldWallets}
+            })
+        }
     },
 
     getNewWalletName: async () => {
@@ -58,9 +87,37 @@ const walletActions = {
         try {
             let tmpNewWalletName = newName.replace(/'/g, '')
 
-            if (tmpNewWalletName.length > 255) tmpNewWalletName = tmpNewWalletName.slice(0, 255)
+            if (tmpNewWalletName.length > 255) {
+                tmpNewWalletName = tmpNewWalletName.slice(0, 255)
+                newName = newName.slice(0, 255)
+            }
 
             await walletDS.updateWallet({walletHash, walletName : tmpNewWalletName})
+
+            const oldData = store.getState().mainStore.selectedWallet
+            if (oldData && oldData.walletHash === walletHash) {
+                oldData.walletName = newName
+                dispatch({
+                    type: 'SET_SELECTED_WALLET',
+                    wallet : {...oldData}
+                })
+            }
+
+            const oldWallets = store.getState().walletStore.wallets
+            let oldWalletsUpdated = false
+            for (const oldWallet of oldWallets) {
+                if (oldWallet.walletHash === walletHash) {
+                    oldWalletsUpdated = true
+                    oldWallet.walletName = newName
+                }
+            }
+            if (oldWalletsUpdated) {
+                dispatch({
+                    type: 'SET_WALLET',
+                    wallets: {...oldWallets}
+                })
+            }
+
             return true
         } catch (e) {
             Log.err('walletActions.setNewWalletName error:', e.message)
