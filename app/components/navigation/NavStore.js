@@ -5,11 +5,31 @@
  */
 import config from '@app/config/config'
 
-import { navigate, reset, goBack } from '@app/components/navigation/NavRoot'
+import { navigate, reset, goBack, currentRoute } from '@app/components/navigation/NavRoot'
 
 class ObservableNavStore {
 
     reset = (routeName, params = {}) => {
+        if (routeName === 'HomeScreen' || routeName === 'HomeScreenPop') {
+            try {
+                let i = 0
+                do {
+                    const current = currentRoute()
+                    if (current.name !== 'HomeScreen' && current.name !== 'HomeScreenPop') {
+                        goBack()
+                        i++
+                    } else {
+                        break
+                    }
+                } while (i < 10)
+                if (i< 10) return true
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('NavStore.reset error ' + e.message)
+                }
+            }
+        }
+
         try {
             reset({
                 index: 0,
