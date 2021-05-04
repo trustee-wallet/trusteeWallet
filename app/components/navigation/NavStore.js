@@ -10,7 +10,7 @@ import { navigate, reset, goBack, currentRoute } from '@app/components/navigatio
 class ObservableNavStore {
 
     reset = (routeName, params = {}) => {
-        if (routeName === 'HomeScreen' || routeName === 'HomeScreenPop') {
+        if (routeName === 'HomeScreen') {
             try {
                 let i = 0
                 do {
