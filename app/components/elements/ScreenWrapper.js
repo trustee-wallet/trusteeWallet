@@ -46,7 +46,7 @@ const ScreenWrapper = (props) => {
                     <SafeAreaView style={{
                         flex: 1,
                         backgroundColor: colors.common.background,
-                        marginTop: height > 90 ? height : 88
+                        marginTop: height
                         ,
                     }}>
                         {props.children}

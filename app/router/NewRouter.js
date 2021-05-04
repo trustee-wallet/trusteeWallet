@@ -87,9 +87,7 @@ const HomeStackScreen = (props) => {
             <HomeStack.Screen name='HomeScreenPop' component={HomeScreen} options={{ headerShown: false }} />
 
             <HomeStack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='QRCodeScannerScreen' component={QRCodeScannerScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='MainV3DataScreen' component={MainV3DataScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -138,6 +136,10 @@ const TabBar = () => {
             lazy={true}
             animationEnabled={true}
             tabBarOptions={{
+                // safeAreaInsets: {
+                //     bottom: 20,
+                // },
+                keyboardHidesTabBar: true,
                 activeTintColor: colors.common.checkbox.bgChecked,
                 inactiveTintColor: colors.common.text1,
                 style: {
@@ -213,11 +215,15 @@ export default () => {
 
             <Stack.Screen name='TabBar' component={TabBar} options={{ headerShown: false, }} />
 
+            <Stack.Screen name='QRCodeScannerScreen' component={QRCodeScannerScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
             <Stack.Screen name='WalletCreateScreen' component={WalletCreateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='BackupStep0Screen' component={BackupStep0Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </Stack.Navigator>

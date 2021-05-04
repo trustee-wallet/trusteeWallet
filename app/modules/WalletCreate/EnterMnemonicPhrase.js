@@ -402,7 +402,7 @@ export default connect(mapStateToProps, {})(EnterMnemonicPhrase)
 
 const styles = StyleSheet.create({
     scrollViewContent: {
-        flex: 1,
+        flexGrow: 1,
         justifyContent: 'space-between'
     },
     wordsContainer: {

@@ -1,15 +1,15 @@
 /**
- * @version 0.43
+ * @version 0.44
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { View, StyleSheet, ScrollView, Text } from 'react-native'
-import Navigation from '@app/components/navigation/Navigation'
 import { strings, sublocale } from '@app/services/i18n'
 import ALL_TERMS from '@app/../__terms__/ALL'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
-class PrivacyPolicyScreen extends React.PureComponent {
+class PrivacyPolicyScreen extends PureComponent {
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.PrivacyPolicyScreen')
@@ -20,13 +20,13 @@ class PrivacyPolicyScreen extends React.PureComponent {
         }
 
         return (
-            <View style={styles.wrapper}>
-                <Navigation
-                    title={strings('settings.about.privacy')}
-                />
+            <ScreenWrapper
+                title={strings('settings.about.privacy')}
+            >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    style={styles.wrapper__scrollView}>
+                    style={styles.wrapper__scrollView}
+                >
                     <View style={styles.wrapper__content}>
                         <Text style={styles.title}>
                             {strings('settings.about.privacy')}
@@ -36,7 +36,7 @@ class PrivacyPolicyScreen extends React.PureComponent {
                         </Text>
                     </View>
                 </ScrollView>
-            </View>
+            </ScreenWrapper>
         )
     }
 }
@@ -45,10 +45,6 @@ class PrivacyPolicyScreen extends React.PureComponent {
 export default PrivacyPolicyScreen
 
 const styles = StyleSheet.create({
-    wrapper: {
-        flex: 1,
-        backgroundColor: '#fff'
-    },
     wrapper__scrollView: {
         marginTop: 80
     },
