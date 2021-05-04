@@ -56,10 +56,6 @@ class CashbackScreen extends React.PureComponent {
         }
     }
 
-
-
-    handleBack = () => { NavStore.reset('HomeScreen') }
-
     handleRenderQrError = (e) => {
         if (e.message !== 'No input text') Log.err('CashbackScreen QRCode error ' + e.message)
     }
@@ -123,8 +119,6 @@ class CashbackScreen extends React.PureComponent {
 
         return (
             <ScreenWrapper
-                rightType="close"
-                rightAction={this.handleBack}
                 title={strings('cashback.pageTitle')}
             >
                 <ScrollView

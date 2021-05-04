@@ -43,10 +43,6 @@ class SupportScreen extends React.PureComponent {
         NavStore.reset('TabBar')
     }
 
-    handleClose = () => {
-        NavStore.reset('TabBar')
-    }
-
     test = async (req) => {
         // console.log('WebView.WebViewMainScreen.on start load with request ' + req.navigationType + ' ' + req.url)
         const parsedUrl = UrlParse(req.url)
@@ -69,10 +65,6 @@ class SupportScreen extends React.PureComponent {
 
         return (
             <ScreenWrapper
-                leftType="back"
-                leftAction={this.handleBack}
-                rightType="close"
-                rightAction={this.handleClose}
                 title={title}
             >
                 <WebView
