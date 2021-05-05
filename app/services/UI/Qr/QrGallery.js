@@ -33,9 +33,9 @@ export function openQrGallery() {
                 Log.log('QrGallery User tapped custom button ', response.customButton)
                 resolve(false)
             } else if (response) {
-                let path = response.path
+                let path = response.path ? response.path.toString().slice(7, response.path.toString().length) : null
                 if (!path) {
-                    path = response.uri
+                    path = response.uri ? response.uri.toString().slice(7, response.uri.toString().length) : null
                 }
                 if (!path) {
                     Log.log('QrGallery no path')

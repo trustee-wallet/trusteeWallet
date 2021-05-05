@@ -1,7 +1,7 @@
 /**
  * @version 0.43
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import { View, Dimensions, Text, StyleSheet } from 'react-native'
 import QRCodeScanner from 'react-native-qrcode-scanner'
@@ -38,7 +38,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width
 console.disableYellowBox = true
 
 
-class QRCodeScannerScreen extends React.PureComponent {
+class QRCodeScannerScreen extends PureComponent {
 
     componentDidMount() {
         this.scanner.reactivate()
@@ -250,7 +250,7 @@ class QRCodeScannerScreen extends React.PureComponent {
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='gallery'
-                rightAction={this.handleOpenGallery}
+                rightAction={this.handleOpenGallery.bind(this)}
                 title={strings('qrScanner.title')}
                 withoutSafeArea={true}
             >
