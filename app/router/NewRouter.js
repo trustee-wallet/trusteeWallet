@@ -4,6 +4,7 @@
  * @author yura
  */
 import React from 'react'
+import { Platform } from 'react-native'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -136,9 +137,6 @@ const TabBar = () => {
             lazy={true}
             animationEnabled={true}
             tabBarOptions={{
-                // safeAreaInsets: {
-                //     bottom: 20,
-                // },
                 keyboardHidesTabBar: true,
                 activeTintColor: colors.common.checkbox.bgChecked,
                 inactiveTintColor: colors.common.text1,
@@ -155,8 +153,13 @@ const TabBar = () => {
                     },
                     shadowOpacity: 0.06,
                     shadowRadius: 10,
-                    paddingTop: 8,
-                    height: 80
+                },
+                tabStyle: {
+                    paddingTop: 10,
+                    paddingBottom: Platform.OS === 'ios' ? 0 : 10,
+                    height: 50,
+                    fontSize: 12,
+                    fontFamily: 'SFUIDisplay-Regular',
                 }
             }}
         >
@@ -166,7 +169,7 @@ const TabBar = () => {
                 options={{
                     tabBarLabel: strings('dashboardStack.wallet'),
                     tabBarIcon: ({ color }) => (
-                        <CustomIcon name="wallet" color={color} size={22} />
+                        <CustomIcon name="wallet" color={color} size={22} style={{ marginBottom: 3 }} />
                     )
                 }}
             />
@@ -177,7 +180,7 @@ const TabBar = () => {
                     unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.market'),
                     tabBarIcon: ({ color }) => (
-                        <CustomIcon name="exchange" color={color} size={22} />
+                        <CustomIcon name="exchange" color={color} size={22} style={{ marginBottom: 3 }} />
                     )
                 }}
             />
@@ -187,7 +190,7 @@ const TabBar = () => {
                 options={{
                     tabBarLabel: strings('dashboardStack.earn'),
                     tabBarIcon: ({ color }) => (
-                        <CustomIcon name="earn" color={color} size={22} />
+                        <CustomIcon name="earn" color={color} size={22} style={{ marginBottom: 3 }} />
                     )
                 }}
             />
@@ -198,7 +201,7 @@ const TabBar = () => {
                     unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.support'),
                     tabBarIcon: ({ color }) => (
-                        <CustomIcon name="support" color={color} size={22} />
+                        <CustomIcon name="support" color={color} size={22} style={{ marginBottom: 3 }} />
                     )
                 }}
             />
