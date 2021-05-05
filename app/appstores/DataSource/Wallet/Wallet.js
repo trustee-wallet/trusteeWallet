@@ -182,13 +182,13 @@ class Wallet {
         }
         for (let i = 0, ic = res.array.length; i < ic; i++) {
             res.array[i] = this._prepWallet(res.array[i])
-            this._redoCashback(res.array[i])
+            res.array[i] = await this._redoCashback(res.array[i])
         }
         return res.array
     }
 
     async _redoCashback(wallet) {
-        if (wallet.walletCashback && wallet.walletCashback !== '') {
+        if (wallet.walletCashback && wallet.walletCashback !== '' && wallet.walletCashback !== 'null') {
             return wallet
         }
         const { cashbackToken } = await CashBackUtils.getByHash(wallet.walletHash, 'DS/Wallet getWallets redo')

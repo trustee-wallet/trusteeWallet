@@ -326,6 +326,9 @@ class UpdateAccountListDaemon extends Update {
                         continue
                     }
                     const accountWallet = allWallets.find(item => item.walletHash === tmpWalletHash)
+                    if (!accountWallet) {
+                        throw new Error('walletHash ' + tmpWalletHash + ' not found')
+                    }
                     const account = reformatted[tmpWalletHash][currencyCode]
 
                     const extendCurrencyCode = BlocksoftDict.getCurrencyAllSettings(account.currencyCode)

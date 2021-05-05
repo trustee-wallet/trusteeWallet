@@ -125,8 +125,8 @@ class CashBackUtils {
                 await Log.log('SRV/CashBack setCashBackDataFromApi stopped as no selectedWallet ')
                 return false
             }
-            if (selectedWallet.walletCashback !== data.cashbackToken) {
-                await Log.log('SRV/CashBack setCashBackDataFromApi stopped selectedWallet != loadedWallet')
+            if (selectedWallet.walletCashback && selectedWallet.walletCashback !== data.cashbackToken) {
+                await Log.log('SRV/CashBack setCashBackDataFromApi stopped selectedWallet != loadedWallet ' + selectedWallet.walletCashback + ' !== ' + data.cashbackToken)
                 return false
             }
             updateObj.cashbackToken = data.cashbackToken
