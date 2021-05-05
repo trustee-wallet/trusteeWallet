@@ -35,6 +35,7 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 let CACHE_CLICK = false
 class CryptoCurrency extends React.PureComponent {
@@ -64,11 +65,18 @@ class CryptoCurrency extends React.PureComponent {
 
         } catch (e) {
             Log.err('HomeScreen.Currency handleCurrencySelect error ' + status + ' ' + e.message, cryptoCurrency)
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: e.message
+            })
         }
         CACHE_CLICK = false
     }
 
-    renderSynchrinization = () => (
+    renderSynchronization = () => (
         <View style={styles.cryptoList__syncRow}>
             <Text style={[styles.cryptoList__text, { marginRight: 5, color: this.context.colors.common.text2 }]}>
                 {strings('homeScreen.synchronizing')}
@@ -175,7 +183,7 @@ class CryptoCurrency extends React.PureComponent {
                                 {
                                     typeof isSynchronized !== 'undefined'
                                         ? !isSynchronized
-                                            ? this.renderSynchrinization()
+                                            ? this.renderSynchronization()
                                             : isBalanceVisible
                                                 ? <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>{BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated}</Text>
                                                 : <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>****</Text>

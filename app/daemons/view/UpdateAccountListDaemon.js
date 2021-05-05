@@ -58,8 +58,10 @@ class UpdateAccountListDaemon extends Update {
         const now = new Date().getTime()
 
 
-        if (!force && DaemonCache.CACHE_ALL_ACCOUNTS) {
-            return false
+        if (!force && DaemonCache.CACHE_WALLET_COUNT > 0) {
+            if (store.getState().accountStore.accountList !== {}) {
+                return false // @todo testing if its the key
+            }
             if (
                 (CACHE_PAUSE > 0 && now - CACHE_PAUSE < CACHE_VALID_TIME_PAUSE)
                 || !this._canUpdate

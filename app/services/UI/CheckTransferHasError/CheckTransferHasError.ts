@@ -2,10 +2,10 @@
  * @author Ksu
  * @version 0.20
  */
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-import { strings } from '../../i18n'
-import { BlocksoftTransferUtils } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
-import { BlocksoftDictTypes } from '../../../../crypto/common/BlocksoftDictTypes'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { strings } from '@app/services/i18n'
+import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
+import { BlocksoftDictTypes } from '@crypto/common/BlocksoftDictTypes'
 
 export default async function checkTransferHasError(params: { currencyCode: BlocksoftDictTypes.Code, walletHash : string, currencySymbol: string, addressTo: string, addressFrom: string, amount?: string }): Promise<boolean> {
 

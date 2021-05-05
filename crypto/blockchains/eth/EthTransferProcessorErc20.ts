@@ -27,7 +27,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
 
     async checkTransferHasError(data: BlocksoftBlockchainTypes.CheckTransferHasErrorData): Promise<BlocksoftBlockchainTypes.CheckTransferHasErrorResult> {
         // @ts-ignore
-        const balance = await this._web3.eth.getBalance(data.addressFrom)
+        const balance = data.addressFrom && data.addressFrom !== '' ? await this._web3.eth.getBalance(data.addressFrom) : 0
         if (balance > 0) {
             return { isOk: true }
         } else {

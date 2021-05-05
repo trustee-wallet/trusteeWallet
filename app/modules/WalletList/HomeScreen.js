@@ -48,7 +48,10 @@ import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckT
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import AppLockBlur from '@app/components/AppLockBlur'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import { getIsBlurVisible } from '@app/appstores/Stores/Main/selectors'
+import { getIsBlurVisible, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { strings } from '@app/services/i18n'
 
 
 let CACHE_SET_WALLET_HASH = false
@@ -96,7 +99,7 @@ class HomeScreen extends React.PureComponent {
             const newOrder = data.map(c => c.currencyCode)
             if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
                 newState.currenciesOrder = newOrder
-                storeCurrenciesOrder(nextProps.mainStore.selectedWallet.walletHash, newOrder)
+                storeCurrenciesOrder(nextProps.selectedWalletData.walletHash, newOrder)
             }
         }
 
@@ -109,8 +112,8 @@ class HomeScreen extends React.PureComponent {
     }
 
     getCurrenciesOrder = async () => {
-        const { selectedWallet } = this.props.mainStore
-        const walletToken = selectedWallet.walletHash || ''
+        const { walletHash } = this.props.selectedWalletData
+        const walletToken = walletHash || ''
         try {
             const res = await AsyncStorage.getItem(`${walletToken}:currenciesOrder`)
             const currenciesOrder = res !== null ? JSON.parse(res) : []
@@ -179,23 +182,53 @@ class HomeScreen extends React.PureComponent {
 
     // linked to stores
     handleHide = async (cryptoCurrency) => {
-        MarketingEvent.logEvent('gx_currency_hide', { currencyCode: cryptoCurrency.currencyCode , source : 'HomeScreen'}, 'GX')
-        await currencyActions.toggleCurrencyVisibility({
-            currencyCode: cryptoCurrency.currencyCode,
-            newIsHidden: 1,
-            currentIsHidden : cryptoCurrency.isHidden
-        })
+        try {
+            MarketingEvent.logEvent('gx_currency_hide', { currencyCode: cryptoCurrency.currencyCode, source: 'HomeScreen' }, 'GX')
+            await currencyActions.toggleCurrencyVisibility({
+                currencyCode: cryptoCurrency.currencyCode,
+                newIsHidden: 1,
+                currentIsHidden: cryptoCurrency.isHidden
+            })
+        } catch (e) {
+            Log.err('HomeScreen.handleHide error ' + e.message, cryptoCurrency)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: e.message
+            })
+        }
     }
 
     // separated from stores not to be updated from outside
     handleSend = async (cryptoCurrency, account) => {
-        await SendActionsStart.startFromHomeScreen(cryptoCurrency, account)
+        try {
+            await SendActionsStart.startFromHomeScreen(cryptoCurrency, account)
+        } catch (e) {
+            Log.err('HomeScreen.handleSend error ' + e.message, cryptoCurrency)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: e.message
+            })
+        }
     }
 
     // linked to stores as rates / addresses could be changed outside
     handleReceive = async (cryptoCurrency, account) => {
         let status = ''
         try {
+            status = 'setSelectedCryptoCurrency started'
+
+            await setSelectedCryptoCurrency(cryptoCurrency)
+
+            status = 'setSelectedAccount started'
+
+            await setSelectedAccount()
+
+            NavStore.goNext('AccountReceiveScreen')
+
             if (typeof account !== 'undefined' && account) {
                 status = 'checkTransferHasError started'
                 await checkTransferHasError({
@@ -206,18 +239,14 @@ class HomeScreen extends React.PureComponent {
                     addressTo: account.address
                 })
             }
-
-            status = 'setSelectedCryptoCurrency started'
-
-            await setSelectedCryptoCurrency(cryptoCurrency)
-
-            status = 'setSelectedAccount started'
-
-            await setSelectedAccount()
-
-            NavStore.goNext('AccountReceiveScreen')
         } catch (e) {
             Log.err('HomeScreen.handleReceive error ' + status + ' ' + e.message, cryptoCurrency)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: e.message
+            })
         }
     }
 
@@ -238,21 +267,19 @@ class HomeScreen extends React.PureComponent {
     }
 
     onDragEnd = ({ data }) => {
-        const { selectedWallet } = this.props.mainStore
-        const walletToken = selectedWallet.walletHash
+        const { walletHash } = this.props.selectedWalletData
+        const walletToken = walletHash || ''
         const currenciesOrder = data.map(c => c.currencyCode)
         storeCurrenciesOrder(walletToken, currenciesOrder)
         this.setState(() => ({ currenciesOrder, data, isCurrentlyDraggable: false }))
     }
 
     getBalanceData = () => {
-        const { selectedBasicCurrency, selectedWallet } = this.props.mainStore
-        let currencySymbol = selectedBasicCurrency.symbol
-        if (!currencySymbol) {
-            currencySymbol = selectedBasicCurrency.currencyCode
-        }
+        const { walletHash } = this.props.selectedWalletData
+        const { localCurrencySymbol } = this.props.walletsGeneralData
+        let currencySymbol = localCurrencySymbol
 
-        const CACHE_SUM = DaemonCache.getCache(selectedWallet.walletHash)
+        const CACHE_SUM = DaemonCache.getCache(walletHash)
 
         let totalBalance = 0
         if (CACHE_SUM) {
@@ -298,7 +325,7 @@ class HomeScreen extends React.PureComponent {
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
-        let {walletHash, walletNumber} = this.props.mainStore.selectedWallet
+        let {walletHash, walletNumber} = this.props.selectedWalletData
         if (!walletHash || typeof walletHash === 'undefined') {
             if (!CACHE_SET_WALLET_HASH) {
                 CACHE_SET_WALLET_HASH = true
@@ -371,7 +398,8 @@ class HomeScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
+        selectedWalletData: getSelectedWalletData(state),
+        walletsGeneralData: getWalletsGeneralData(state),
         isBlurVisible: getIsBlurVisible(state),
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore)

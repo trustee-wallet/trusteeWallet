@@ -1,6 +1,7 @@
+/**
+ * @version 0.43
+ */
 import { Dispatch } from 'redux'
-
-import walletDS from '../../DataSource/Wallet/Wallet'
 
 import {
     HomeScreenActionTypes,
@@ -8,11 +9,10 @@ import {
     SET_NEW_WALLET_NAME
 } from './Types'
 
-import { setSelectedWallet } from '../Main/MainStoreActions'
-import walletActions from '../Wallet/WalletActions'
-import Toast from '../../../services/UI/Toast/Toast'
-import { strings } from '../../../services/i18n'
-import config from '../../../config/config'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
+import config from '@app/config/config'
 
 export function setWalletName(walletName: string): HomeScreenActionTypes {
     return {
@@ -47,8 +47,8 @@ export function saveNewWalletName(walletHash: string, newWalletName: string, old
             if(tmpNewWalletName.length > 255) {
                 tmpNewWalletName =  tmpNewWalletName.slice(0, 255)
             }
+            await walletActions.setNewWalletName(walletHash, tmpNewWalletName)
 
-            await walletDS.updateWallet({walletHash, walletName : tmpNewWalletName})
             Toast.setMessage(strings('toast.saved')).show()
             dispatch(setInputEditable(false))
         } catch (e) {

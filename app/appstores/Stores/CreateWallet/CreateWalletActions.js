@@ -115,6 +115,8 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             }
         }
 
+        await walletActions.setAvailableWallets()
+
         await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source }, source)
 
         await accountBalanceActions.initBalances(storedKey, source === 'IMPORT')
