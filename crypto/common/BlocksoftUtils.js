@@ -6,6 +6,11 @@ const Web3 = require('web3')
 
 class BlocksoftUtils {
 
+    static round(val) {
+        const tmp = val.toString().split('.')
+        return tmp[0]
+    }
+
     //  // console.log('added', BlocksoftUtils.add(967282001717650,87696220292905380))
     static add(val1, val2) {
         // console.log('BlocksoftUtils add ', JSON.stringify({ val1, val2}))

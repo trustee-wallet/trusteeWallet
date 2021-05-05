@@ -358,7 +358,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         contract_address: TronUtils.addressToHex(this._tokenName),
                         function_selector: 'transfer(address,uint256)',
                         // @ts-ignore
-                        parameter: '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(data.amount * 1, 20),
+                        parameter: '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(BlocksoftUtils.round(data.amount) * 1, 20),
                         fee_limit: 100000000,
                         call_value: 0
                     }
@@ -368,7 +368,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         owner_address: ownerAddress,
                         to_address: toAddress,
                         // @ts-ignore
-                        amount: data.amount * 1
+                        amount: BlocksoftUtils.round(data.amount) * 1
                     }
 
                     if (this._tokenName === '_') {

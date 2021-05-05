@@ -114,11 +114,15 @@ class InputAndButtons extends PureComponent {
     }
 
     transferAllCallback = (transferAllBalance) => {
+        const { currencyCode } = this.props.sendScreenStoreDict
         let cryptoValue
         if (this.state.partBalance === 4 || transferAllBalance === 0) {
             cryptoValue = transferAllBalance
         } else {
             cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(transferAllBalance, 4), this.state.partBalance)
+        }
+        if (currencyCode !== 'USDT' && currencyCode !== 'XRP' && currencyCode !== 'XLM') {
+            cryptoValue = BlocksoftUtils.round(cryptoValue)
         }
 
         this._setCryptoValue(cryptoValue, this.state.inputType)
