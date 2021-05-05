@@ -59,6 +59,7 @@ class UpdateAccountListDaemon extends Update {
 
 
         if (!force && DaemonCache.CACHE_ALL_ACCOUNTS) {
+            return false
             if (
                 (CACHE_PAUSE > 0 && now - CACHE_PAUSE < CACHE_VALID_TIME_PAUSE)
                 || !this._canUpdate
@@ -327,7 +328,7 @@ class UpdateAccountListDaemon extends Update {
                     }
                     const accountWallet = allWallets.find(item => item.walletHash === tmpWalletHash)
                     if (!accountWallet) {
-                        throw new Error('walletHash ' + tmpWalletHash + ' not found')
+                        throw new Error('not found walletHash ' + tmpWalletHash)
                     }
                     const account = reformatted[tmpWalletHash][currencyCode]
 
