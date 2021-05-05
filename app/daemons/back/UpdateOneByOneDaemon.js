@@ -34,7 +34,7 @@ let CACHE_STOPPED = false
 
 const CACHE_VALID_TIME = {
     'PAUSE' : 60000, // 60 seconds
-    'UPDATE_PROXIED' : 60000, // 60 seconds
+    'UPDATE_PROXIED' : 120000, // 120 seconds
     'UPDATE_ACCOUNT_BALANCES_DAEMON': 10000, // 10 sec
     'UPDATE_ACCOUNT_BALANCES_DAEMON_ALL': 100000, // 100 sec
     'UPDATE_ACCOUNT_BALANCES_HD_DAEMON': 30000 // 30 sec
@@ -76,6 +76,7 @@ class UpdateOneByOneDaemon extends Update {
 
     updateOneByOneDaemon = async (params, level = 0) => {
         if (CACHE_STOPPED) return false
+        return false
 
         const tmpAuthHash = await cryptoWalletsDS.getSelectedWallet()
         if (!tmpAuthHash) {
