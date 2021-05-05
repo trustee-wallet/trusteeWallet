@@ -144,7 +144,7 @@ const TabBar = () => {
                 inactiveTintColor: colors.common.text1,
                 style: {
                     color: colors.common.text1,
-                    // borderTopWidth: 0,
+                    borderTopWidth: 0,
                     borderTopColor: colors.common.text1,
                     backgroundColor: colors.homeScreen.tabBarBackground,
                     borderColor: colors.homeScreen.tabBarBackground,
@@ -155,6 +155,8 @@ const TabBar = () => {
                     },
                     shadowOpacity: 0.06,
                     shadowRadius: 10,
+                    paddingTop: 8,
+                    height: 80
                 }
             }}
         >
@@ -164,8 +166,8 @@ const TabBar = () => {
                 options={{
                     tabBarLabel: strings('dashboardStack.wallet'),
                     tabBarIcon: ({ color }) => (
-                        <CustomIcon name="wallet" color={color} size={20} />
-                    ),
+                        <CustomIcon name="wallet" color={color} size={22} />
+                    )
                 }}
             />
             <Tab.Screen
@@ -175,7 +177,7 @@ const TabBar = () => {
                     unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.market'),
                     tabBarIcon: ({ color }) => (
-                        <CustomIcon name="exchange" color={color} size={20} />
+                        <CustomIcon name="exchange" color={color} size={22} />
                     )
                 }}
             />
@@ -185,7 +187,7 @@ const TabBar = () => {
                 options={{
                     tabBarLabel: strings('dashboardStack.earn'),
                     tabBarIcon: ({ color }) => (
-                        <CustomIcon name="earn" color={color} size={20} />
+                        <CustomIcon name="earn" color={color} size={22} />
                     )
                 }}
             />
@@ -196,7 +198,7 @@ const TabBar = () => {
                     unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.support'),
                     tabBarIcon: ({ color }) => (
-                        <CustomIcon name="support" color={color} size={20} />
+                        <CustomIcon name="support" color={color} size={22} />
                     )
                 }}
             />

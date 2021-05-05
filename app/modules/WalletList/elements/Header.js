@@ -137,7 +137,7 @@ class WalletInfo extends React.Component {
                                 style={styles.notificationButton}
                                 onPress={this.handleOpenNotifications}
                                 onLongPress={this.handleClearNotifications}
-                                delayLongPress={2000}
+                                delayLongPress={1000}
                                 hitSlop={HIT_SLOP}
                             >
                                 <CustomIcon name={'notifications'} color={colors.common.text1} size={20} />
@@ -153,11 +153,13 @@ class WalletInfo extends React.Component {
                         </View>
 
                         <View style={styles.header__right}>
-                            <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr} hitSlop={HIT_SLOP}>
+                            <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr} 
+                                hitSlop={{ top: 15, right: 8, bottom: 15, left: 15 }}>
                                 <CustomIcon name={'qr'} color={colors.common.text1} size={20} />
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings} hitSlop={HIT_SLOP}>
+                            <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings} 
+                                hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}>
                                 <CustomIcon name={'menu'} color={colors.common.text1} size={20} />
                             </TouchableOpacity>
                         </View>
@@ -305,10 +307,9 @@ const styles = StyleSheet.create({
         borderWidth: 2,
     },
     qrButton: {
-        paddingHorizontal: 10
+        paddingHorizontal: 12
     },
     settingsButton: {
-        paddingLeft: 10,
-        paddingRight: 12,
+        paddingHorizontal: 12
     },
 })
