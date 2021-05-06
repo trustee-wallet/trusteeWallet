@@ -63,6 +63,10 @@ export const lightColors = {
     notifications: {
       newNotiesIndicator: '#864DD9',
     },
+    initScreen: {
+        appName: '#F24B93',
+        appNameSub : '#3E3453'
+    },
     homeScreen: {
       listItemGradient: ['#fff', '#f4f4f4'],
       listItemVioletGradient: ['#8A4DD1', '#2C0C56'],
@@ -217,6 +221,10 @@ export const darkColors = {
     },
     notifications: {
       newNotiesIndicator: '#9E71E1',
+    },
+    initScreen: {
+        appName: '#F24B93',
+        appNameSub : '#3E3453'
     },
     homeScreen: {
       listItemGradient: ['#252525', '#1E1E1E'],

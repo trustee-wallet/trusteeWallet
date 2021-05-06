@@ -9,7 +9,6 @@ import { UIActivityIndicator, MaterialIndicator } from 'react-native-indicators'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 
-import GradientView from '@app/components/elements/GradientView'
 import NavStore from '@app/components/navigation/NavStore'
 
 import App from '@app/appstores/Actions/App/App'
@@ -31,6 +30,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { getInit, getInitError } from '@app/appstores/Stores/Init/selectors'
 import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 class InitScreen extends React.PureComponent {
 
@@ -121,9 +121,11 @@ class InitScreen extends React.PureComponent {
             App.init({source : 'InitScreen.render', onMount : false})
         }
 
+        const { colors } = this.context
+
         MarketingAnalytics.setCurrentScreen('InitScreen.index')
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
+            <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
                 <View style={{ position: 'absolute', top: 20, left: 20 }}>
                     <Text style={{ marginTop: 40 }}>
                         {this.state.status}
@@ -139,10 +141,10 @@ class InitScreen extends React.PureComponent {
                             <MaterialIndicator size={30} color='#3E3453' />}
                     </View>
                     <View style={{ position: 'relative' }}>
-                        <Text style={styles.appName__text} numberOfLines={1}>
+                        <Text style={[styles.appName__text, { color: colors.initScreen.appName }]} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
-                        <Text style={styles.appName__text2} numberOfLines={1}>
+                        <Text style={[styles.appName__text2, { color: colors.initScreen.appNameSub }]} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
                         {
@@ -153,7 +155,7 @@ class InitScreen extends React.PureComponent {
 
                                             <TouchableOpacity style={styles.header__description}>
                                                 <Text>
-                                                    <Text style={styles.header__title}>
+                                                    <Text style={[styles.header__title, { color: colors.common.text1 }]}>
                                                         {strings('settings.error.title')}
                                                     </Text>
                                                 </Text>
@@ -165,7 +167,7 @@ class InitScreen extends React.PureComponent {
                                             <TouchableOpacity style={styles.block__item}
                                                               onPress={this.handleLogs}>
                                                 <FontAwesome name='bug' size={20} style={styles.block__icon} />
-                                                <Text style={styles.block__text}
+                                                <Text style={[styles.block__text, { color: colors.common.text1 }]}
                                                       numberOfLines={1}>{strings('settings.other.copyLogs')}</Text>
                                             </TouchableOpacity>
 
@@ -174,7 +176,7 @@ class InitScreen extends React.PureComponent {
                                             <TouchableOpacity style={styles.block__item}
                                                               onPress={this.handleSupport}>
                                                 <MaterialIcon name='telegram' size={20} style={styles.block__icon} />
-                                                <Text style={styles.block__text} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
+                                                <Text style={[styles.block__text, { color: colors.common.text1 }]} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
                                             </TouchableOpacity>
 
                                         </View>
@@ -186,11 +188,11 @@ class InitScreen extends React.PureComponent {
                     </View>
                 </View>
                 <View style={{ marginTop: 'auto' }}>
-                    <Text style={styles.appVersion__text}>
+                    <Text style={[styles.appVersion__text, { color: colors.initScreen.appNameSub }]} >
                         {'#' + config.version.hash + ' | ' + config.version.code}
                     </Text>
                 </View>
-            </GradientView>
+            </View>
         )
     }
 }
@@ -203,13 +205,9 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, {})(InitScreen)
+InitScreen.contextType = ThemeContext
 
-const styles_ = {
-    array: ['#f2f2f2', '#f2f2f2'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
+export default connect(mapStateToProps, {})(InitScreen)
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -217,13 +215,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingLeft: 30,
         paddingRight: 30
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: 10,
-        fontSize: 34,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#404040'
     },
     image: {
         alignSelf: 'center',
@@ -238,7 +229,6 @@ const styles = StyleSheet.create({
         position: 'relative',
         fontSize: 30,
         fontFamily: 'SFUIDisplay-Bold',
-        color: '#F24B93',
         textAlign: 'center',
         zIndex: 2
     },
@@ -249,7 +239,6 @@ const styles = StyleSheet.create({
         width: '100%',
         fontSize: 30,
         fontFamily: 'SFUIDisplay-Bold',
-        color: '#3E3453',
         textAlign: 'center',
         zIndex: 1
     },
@@ -259,7 +248,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 10,
-        color: '#3E3453'
     },
     wrapper__top: {
         height: 115,
@@ -300,15 +288,12 @@ const styles = StyleSheet.create({
     },
     block__text: {
         flex: 1,
-
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
-        color: '#404040'
     },
     header__title: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 22,
-        color: '#404040',
         textAlign: 'center'
     },
     header__description: {
