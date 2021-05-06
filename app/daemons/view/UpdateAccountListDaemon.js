@@ -59,17 +59,18 @@ class UpdateAccountListDaemon extends Update {
 
 
         if (!force && DaemonCache.CACHE_WALLET_COUNT > 0) {
-            if (store.getState().accountStore.accountList !== {}) {
-                return false // @todo testing if its the key
-            }
             if (
                 (CACHE_PAUSE > 0 && now - CACHE_PAUSE < CACHE_VALID_TIME_PAUSE)
                 || !this._canUpdate
             ) {
-                store.dispatch({
-                    type: 'SET_ACCOUNT_LIST',
-                    accountList: DaemonCache.CACHE_ALL_ACCOUNTS
-                })
+                if (store.getState().accountStore.accountList !== {}) {
+                    // do nothing @todo testing if its the key
+                } else {
+                    store.dispatch({
+                        type: 'SET_ACCOUNT_LIST',
+                        accountList: DaemonCache.CACHE_ALL_ACCOUNTS
+                    })
+                }
                 return false
             }
         }
