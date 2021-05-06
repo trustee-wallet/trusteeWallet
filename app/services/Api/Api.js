@@ -223,6 +223,7 @@ export default {
             try {
                 res = await BlocksoftAxios.post(link, getStatisticsReqData)
             } catch (e) {
+                console.log(e.message)
                 if (e.message.indexOf('checkforduplicate') !== -1) {
                     throw new Error('UI_ERROR_CASHBACK_PROMO_DUPLICATE')
                 } else if (e.message.indexOf('no info about promo code')) {
@@ -233,6 +234,9 @@ export default {
             }
             if (!res || typeof res.data === 'undefined' || !res.data) {
                 throw new Error('UI_ERROR_CASHBACK_NETWORK_ERROR')
+            }
+            if (typeof res.data === 'string') {
+                return res.data
             }
             if (typeof res.data.description === 'undefined' || !res.data.description) {
                 Log.daemon('Api activatePromo error ', res.data)
