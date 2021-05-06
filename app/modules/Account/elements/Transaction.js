@@ -31,7 +31,7 @@ import { strings } from '@app/services/i18n'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-class Transaction extends React.PureComponent {
+class Transaction extends React.Component {
 
     constructor(props) {
         super(props)
