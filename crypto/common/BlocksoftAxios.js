@@ -8,6 +8,7 @@ import config from '@app/config/config'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 
+import { Platform } from 'react-native'
 import CookieManager from '@react-native-cookies/cookies'
 
 const CancelToken = axios && typeof axios.CancelToken !== 'undefined' ? axios.CancelToken : function() {}
@@ -105,10 +106,7 @@ class BlocksoftAxios {
         let doOld = false
         if (!doOld) {
             try {
-                await CookieManager.clearAll()
-
-                BlocksoftCryptoLog.log('BlocksoftAxios.post fetch cookie ' + JSON.stringify(await CookieManager.get(link)))
-
+                await this._cookie(link, 'POST')
                 let dataPrep
                 const headers = {
                     'upgrade-insecure-requests': 1,
@@ -169,11 +167,10 @@ class BlocksoftAxios {
         let tmp = false
         let doOld = false
         try {
-            await CookieManager.clearAll()
+            await this._cookie(link, 'GET')
             let tryOneMore = false
             let antiCycle = 0
             do {
-                BlocksoftCryptoLog.log('BlocksoftAxios.get fetch cookie ' + JSON.stringify(await CookieManager.get(link)))
                 /*
                 console.log('')
                 console.log('')
@@ -216,6 +213,41 @@ class BlocksoftAxios {
         }
         return tmp
     }
+
+    async _cookie(link, method) {
+        const tmp = link.split('/')
+        const domain = tmp[0] + '/' + tmp[1] + '/' + tmp[2]
+        const domainShort = tmp[2]
+        if (domain.indexOf('trustee') !== -1) {
+            return false
+        }
+        const oldCookieObj = await CookieManager.get(link)
+        const oldCookie = JSON.stringify(oldCookieObj)
+        if (oldCookie === '{}') return false
+
+        // await CookieManager.clearAll()
+        BlocksoftCryptoLog.log('BlocksoftAxios._cookie domain ' + domain + ' oldCookie ' + oldCookie)
+        if (Platform.OS === 'ios') {
+            // console.log('BlocksoftAxios._cookie domain ' + domain + ' CookieManager.clearByName ' + link + ' ' + method)
+            await CookieManager.clearByName(domain)
+            await CookieManager.clearByName(link)
+        } else {
+            // console.log('BlocksoftAxios._cookie domain ' + domain + ' CookieManager.clear ' + link + ' ' + method)
+            for (const key in oldCookieObj) {
+                const newData = {
+                    name: key,
+                    value: 'none',
+                    domain: '.' + domainShort,
+                    path: '/',
+                    version: '1',
+                    expires: new Date(new Date().getTime() + 24 * 360000).toISOString()
+                }
+                await CookieManager.set(link, newData)
+            }
+        }
+        BlocksoftCryptoLog.log('BlocksoftAxios._cookie domain ' + domain + ' newCookie ' + JSON.stringify(await CookieManager.get(link)))
+    }
+
 
     async _request(link, method = 'get', data = {}, emptyIsBad = false, errSend = true) {
         let tmp
