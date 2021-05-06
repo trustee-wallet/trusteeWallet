@@ -29,7 +29,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { HIT_SLOP } from '@app/themes/Themes'
 
-class HeaderBlocks extends React.PureComponent {
+class HeaderBlocks extends React.Component {
 
     shouldComponentUpdate(nextProps) {
         return !_isEqual(this.props, nextProps)
