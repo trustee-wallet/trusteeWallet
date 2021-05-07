@@ -86,20 +86,6 @@ class DetailsContent extends React.Component {
             value: inviteLink
         }])
 
-        if (cashbackLink === inviteLink) {
-            Log.log('CashbackLink inputParent for ' + cashbackLink + ' is equal ' + inviteLink)
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('modal.cashbackLinkEqualModal.description', { link: inviteLink })
-            })
-            this.setState(() => ({ inviteLinkError: true }))
-            return
-        }
-
-        Log.log('CashbackLink inputParent for  ' + cashbackLink + ' res ', validationResult)
-
         if (validationResult.status !== 'success') {
             this.setState(() => ({ inviteLinkError: true }))
             return
@@ -113,6 +99,24 @@ class DetailsContent extends React.Component {
         if (!cashbackParentToken || cashbackParentToken === '') {
             return
         }
+
+        if (cashbackLink === inviteLink
+            || cashbackParentToken === this.props.cashbackToken
+            || cashbackParentToken === this.props.cashbackStore.dataFromApi.cashbackToken
+            || cashbackParentToken === this.props.cashbackStore.dataFromApi.customToken
+        ) {
+            Log.log('CashbackLink inputParent for ' + cashbackLink + ' is equal ' + inviteLink)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('modal.cashbackLinkEqualModal.description', { link: inviteLink })
+            })
+            this.setState(() => ({ inviteLinkError: true }))
+            return
+        }
+
+        Log.log('CashbackLink inputParent for  ' + cashbackLink + ' res ', validationResult)
 
         try {
             await CashBackUtils.setParentToken(cashbackParentToken)

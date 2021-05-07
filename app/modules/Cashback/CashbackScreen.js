@@ -189,25 +189,30 @@ class CashbackScreen extends React.PureComponent {
         }
         if (selectedContent === 'details') {
             const { cashbackStore } = this.props
+
+            const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
+            const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
+
             const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
             let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted
 
             let cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
             let totalCashbackBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
-            let balancePrep = 1 * BlocksoftPrettyNumbers.makeCut(cashbackBalance, 6).justCutted
 
             let invitedUsers = cashbackStore.dataFromApi.invitedUsers || 0
             let level2Users = cashbackStore.dataFromApi.level2Users || 0
 
-            let cashbackParentToken = cashbackStore.dataFromApi.parentToken || false
-            let cashbackParentNotice = false
-            if (!cashbackParentToken || cashbackParentToken === null) {
-                cashbackParentToken = cashbackStore.parentToken || ''
-                cashbackParentNotice = !!cashbackParentToken
-            }
             let cashbackToShow = false
             if (cashbackStore.dataFromApi.cashbackToken !== cashbackStore.dataFromApi.customToken) {
                 cashbackToShow = cashbackStore.dataFromApi.cashbackToken
+            }
+
+            let cashbackParentToken = cashbackStore.dataFromApi.parentToken || false
+            if (!cashbackParentToken || cashbackParentToken === null) {
+                cashbackParentToken = cashbackStore.parentToken || ''
+            }
+            if (cashbackParentToken === cashbackToken || cashbackParentToken === cashbackToShow || cashbackParentToken === cashbackLinkTitle) {
+                cashbackParentToken = ''
             }
 
             const time = cashbackStore.dataFromApi.time || false

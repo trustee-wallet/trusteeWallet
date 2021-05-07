@@ -5,6 +5,7 @@ import store from '@app/store'
 import Log from '@app/services/Log/Log'
 
 import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
+import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import accountDS from '@app/appstores/DataSource/Account/Account'
 import appTaskDS from '@app/appstores/DataSource/AppTask/AppTask'
@@ -67,8 +68,6 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         storedKey = await cryptoWalletsDS.saveWallet(wallet)
 
-        await cryptoWalletsDS.setSelectedWallet(storedKey, 'ACT/MStore proceedSaveGeneratedWallet')
-
         let tmpWalletName = wallet.walletName
 
         let fromSaved = false
@@ -116,6 +115,8 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
         }
 
         await walletActions.setAvailableWallets()
+
+        await cryptoWalletActions.setSelectedWallet(storedKey, 'ACT/MStore proceedSaveGeneratedWallet Revert')
 
         await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source }, source)
 
