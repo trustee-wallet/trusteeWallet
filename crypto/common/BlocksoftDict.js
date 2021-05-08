@@ -779,7 +779,7 @@ const Currencies = {
             currencyType: 'token',
             currencyName: 'DOGE TRC20',
             currencyCode: 'TRX_DOGE',
-            currencySymbol: 'TRX_DOGE',
+            currencySymbol: 'DOGE',
             extendsProcessor: 'TRX_USDT',
             addressUiChecker: 'TRX',
             ratesCurrencyCode: 'DOGE',
