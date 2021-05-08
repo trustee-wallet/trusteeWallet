@@ -506,6 +506,12 @@ export default {
             darkColor: '#3F81D9'
         }
     },
+    "TRX_DOGE": {
+        colors: {
+            mainColor: '#CEB55C',
+            darkColor: '#C1AB5D'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',
