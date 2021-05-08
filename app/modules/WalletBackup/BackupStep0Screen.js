@@ -46,7 +46,6 @@ import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 const VISIBILITY_TIMEOUT = 4000
 
 class BackupStep0Screen extends PureComponent {
-    visibilityTimer;
 
     scrollView;
 
@@ -62,6 +61,7 @@ class BackupStep0Screen extends PureComponent {
             approvedBackup: false,
             animationProgress: new Animated.Value(0),
             flowSubtype: '', // one of: 'backup', 'createFirst', 'createAnother', 'show'
+            visibilityTimer: null
         }
     }
 
@@ -207,7 +207,7 @@ class BackupStep0Screen extends PureComponent {
     }
 
     triggerMnemonicVisible = (visibility) => {
-        if (this.visibilityTimer) return
+        if (this.state.visibilityTimer) return
         const { source, walletNumber } = this.props.createWalletStore
         if (visibility) {
             this.setState(() => ({ isMnemonicVisible: visibility }), () => {
@@ -220,12 +220,11 @@ class BackupStep0Screen extends PureComponent {
 
     showMnemonic = () => {
         const { source, walletNumber } = this.props.createWalletStore
-        this.visibilityTimer = setTimeout(() => {
-            this.visibilityTimer = null
-            this.setState(() => ({ isMnemonicVisible: false }))
+        setTimeout(() => {
+            this.setState(() => ({ isMnemonicVisible: false, visibilityTimer: null }))
         }, VISIBILITY_TIMEOUT)
 
-        this.setState(() => ({ isMnemonicVisible: true }), () => {
+        this.setState(() => ({ isMnemonicVisible: true, visibilityTimer: true }), () => {
             MarketingEvent.logEvent('gx_view_mnemonic_screen_tap_mnemonic', { walletNumber, source }, 'GX')
             Animated.timing(this.state.animationProgress, {
                 toValue: 1,
@@ -253,7 +252,7 @@ class BackupStep0Screen extends PureComponent {
     handleApproveBackup = () => { this.setState(state => ({ approvedBackup: !state.approvedBackup })) }
 
     render() {
-        const { walletMnemonicArray, isMnemonicVisible, approvedBackup, animationProgress, flowSubtype } = this.state
+        const { walletMnemonicArray, isMnemonicVisible, approvedBackup, animationProgress, flowSubtype, visibilityTimer } = this.state
         const { flowType } = this.props.createWalletStore
 
         const isShowingPhrase = flowSubtype === 'show'
@@ -285,7 +284,7 @@ class BackupStep0Screen extends PureComponent {
                         <>
                             <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
                                 <View style={[styles.infoContainer, { marginBottom: GRID_SIZE }]}>
-                                    {this.visibilityTimer ? (
+                                    {visibilityTimer ? (
                                         <LottieView color={colors.createWalletScreen.keyIcon} source={ProgressAnimation} style={{ width: 24, height: 24 }} progress={animationProgress} />
                                     ) : (
                                         <View style={[styles.keyCircle, { borderColor: colors.createWalletScreen.showMnemonic.showButtonText }]}>
