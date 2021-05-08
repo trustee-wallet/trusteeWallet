@@ -65,7 +65,8 @@ export const lightColors = {
     },
     initScreen: {
         appName: '#F24B93',
-        appNameSub : '#3E3453'
+        appNameSub: '#3E3453',
+        appVersion: '#3E3453'
     },
     homeScreen: {
       listItemGradient: ['#fff', '#f4f4f4'],
@@ -224,7 +225,8 @@ export const darkColors = {
     },
     initScreen: {
         appName: '#F24B93',
-        appNameSub : '#3E3453'
+        appNameSub: '#3E3453',
+        appVersion: '#864DD9'
     },
     homeScreen: {
       listItemGradient: ['#252525', '#1E1E1E'],

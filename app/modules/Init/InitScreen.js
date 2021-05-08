@@ -188,7 +188,7 @@ class InitScreen extends React.PureComponent {
                     </View>
                 </View>
                 <View style={{ marginTop: 'auto' }}>
-                    <Text style={[styles.appVersion__text, { color: colors.initScreen.appNameSub }]} >
+                    <Text style={[styles.appVersion__text, { color: colors.initScreen.appVersion }]} >
                         {'#' + config.version.hash + ' | ' + config.version.code}
                     </Text>
                 </View>

@@ -730,20 +730,6 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f?a='
         },
-    BNB_SMART_DOGE:
-        {
-            currencyType: 'token',
-            currencyName: 'DOGE BEP20',
-            currencyCode: 'BNB_SMART_DOGE',
-            currencySymbol: 'DOGE',
-            ratesCurrencyCode: 'DOGE',
-            extendsProcessor: 'BNB_SMART_CAKE',
-            addressUiChecker: 'ETH',
-            tokenAddress: '0xba2ae424d960c26247dd6c32edc70b295c744c43',
-            tokenBlockchain: 'BNB',
-            currencyExplorerLink:
-                'https://bscscan.com/token/0xba2ae424d960c26247dd6c32edc70b295c744c43?a='
-        },
     DOGE:
         {
             currencyType: 'coin',
@@ -758,6 +744,37 @@ const Currencies = {
             decimals: 8,
             currencyExplorerLink: 'https://blockchair.com/dogecoin/address/',
             currencyExplorerTxLink: 'https://blockchair.com/dogecoin/transaction/'
+        },
+    BNB_SMART_DOGE:
+        {
+            currencyType: 'token',
+            currencyName: 'DOGE BEP20',
+            currencyCode: 'BNB_SMART_DOGE',
+            currencySymbol: 'DOGE',
+            ratesCurrencyCode: 'DOGE',
+            extendsProcessor: 'BNB_SMART_CAKE',
+            addressUiChecker: 'ETH',
+            decimals: 8,
+            tokenAddress: '0xba2ae424d960c26247dd6c32edc70b295c744c43',
+            tokenBlockchain: 'BNB',
+            currencyExplorerLink:
+                'https://bscscan.com/token/0xba2ae424d960c26247dd6c32edc70b295c744c43?a='
+        },
+    TRX_DOGE:
+        {
+            currencyType: 'token',
+            currencyName: 'DOGE TRC20',
+            currencyCode: 'TRX_DOGE',
+            currencySymbol: 'TRX_DOGE',
+            extendsProcessor: 'TRX_USDT',
+            addressUiChecker: 'TRX',
+            ratesCurrencyCode: 'DOGE',
+            network: 'trx',
+            decimals: 8,
+            tokenBlockchain: 'TRON',
+            tokenName: 'THbVQp8kMjStKNnf2iCY6NEzThKMK5aBHg',
+            currencyExplorerLink: 'https://tronscan.org/#/address/',
+            currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
         },
     ETH_ENJ:
         {
@@ -854,6 +871,24 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0x80fb784b7ed66730e8b1dbd9820afd29931aab03?a='
         },
+
+        ETH_FTT:
+            {
+                    currencyType: 'token',
+                    currencyName: 'FTX Token',
+                    currencyCode: 'ETH_FTT',
+                    currencySymbol: 'FTT',
+                    extendsProcessor: 'ETH_TRUE_USD',
+                    addressUiChecker: 'ETH',
+                    ratesCurrencyCode: 'FTT',
+                    decimals: 18,
+                    tokenBlockchain: 'ETHEREUM',
+                    tokenAddress: '0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9',
+                    currencyExplorerLink:
+                        'https://etherscan.io/token/0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9?a=',
+                    currencyExplorerTxLink: 'https://etherscan.io/tx/'
+            },
+
     ETH_GRT:
         {
             currencyType: 'token',
@@ -992,6 +1027,24 @@ const Currencies = {
             currencyExplorerLink: 'https://xmrchain.net/search?value=',
             currencyExplorerTxLink: 'https://blockchair.com/monero/transaction/'
         },
+
+        ETH_NEXO:
+            {
+                    currencyType: 'token',
+                    currencyName: 'Nexo',
+                    currencyCode: 'ETH_NEXO',
+                    currencySymbol: 'NEXO',
+                    extendsProcessor: 'ETH_TRUE_USD',
+                    addressUiChecker: 'ETH',
+                    ratesCurrencyCode: 'NEXO',
+                    decimals: 18,
+                    tokenBlockchain: 'ETHEREUM',
+                    tokenAddress: '0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206',
+                    currencyExplorerLink:
+                        'https://etherscan.io/token/0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206?a=',
+                    currencyExplorerTxLink: 'https://etherscan.io/tx/'
+            },
+
     ETH_OKB:
         {
             currencyType: 'token',

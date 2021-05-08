@@ -239,8 +239,13 @@ class InputAndButtons extends PureComponent {
             if (parentCurrency) {
                 let msg = false
                 const parentBalance = parentCurrency.balance * 1
-                const parentSettings = BlocksoftDict.getCurrencyAllSettings(extend.feesCurrencyCode)
-                const symbol = parentCurrency.currencySymbol || parentSettings.currencySymbol
+                let symbol = ''
+                if (extend.feesCurrencyCode === 'BNB_SMART') {
+                    symbol = 'BNB Smart Chain'
+                } else {
+                    const parentSettings = BlocksoftDict.getCurrencyAllSettings(extend.feesCurrencyCode)
+                    symbol = parentCurrency.currencySymbol || parentSettings.currencySymbol
+                }
                 if (currencyCode === 'USDT' && parentBalance < USDT_LIMIT) {
                     if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed * 1 >= USDT_LIMIT) {
                         // @todo mark to turn on unconfirmed

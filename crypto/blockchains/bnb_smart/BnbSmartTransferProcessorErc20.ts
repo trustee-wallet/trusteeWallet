@@ -14,4 +14,16 @@ export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessor
         result.shouldShowFees = false
         return result
     }
+
+    async checkTransferHasError(data: BlocksoftBlockchainTypes.CheckTransferHasErrorData): Promise<BlocksoftBlockchainTypes.CheckTransferHasErrorResult> {
+        // @ts-ignore
+        const balance = data.addressFrom && data.addressFrom !== '' ? await this._web3.eth.getBalance(data.addressFrom) : 0
+        if (balance > 0) {
+            return { isOk: true }
+        } else {
+            // @ts-ignore
+            return { isOk: false, code: 'TOKEN', parentBlockchain: 'BNB Smart Chain' , parentCurrency: 'BNB Smart Chain' }
+        }
+    }
+
 }

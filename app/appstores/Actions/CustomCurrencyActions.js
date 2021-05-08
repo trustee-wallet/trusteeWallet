@@ -64,9 +64,6 @@ const customCurrencyActions = {
         if (typeof (currencyToAdd.currencyCode) === 'undefined') {
             throw new Error('set currencyCode')
         }
-        if (typeof (BlocksoftDict.Currencies[currencyToAdd.currencyCode]) !== 'undefined') {
-            throw new Error('this currencyCode is already used')
-        }
         if (typeof (currencyToAdd.currencyName) === 'undefined') {
             throw new Error('set currencyName')
         }
