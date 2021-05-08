@@ -29,6 +29,7 @@ import WalletConnectScreen from '@app/modules/WalletConnect/WalletConnectScreen'
 import MainV3DataScreen from '@app/modules/Trade/MainV3DataScreen'
 import SMSV3CodeScreen from '@app/modules/Trade/SMSV3CodeScreen'
 import MarketScreen from '@app/modules/Market/MainScreen'
+import ExchangeV3Screen from '@app/modules/Exchange/MainV3DataScreen'
 import SendScreen from '@app/modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '@app/modules/Send/SendAdvancedSettings'
 import ReceiptScreen from '@app/modules/Send/ReceiptScreen'
@@ -70,6 +71,8 @@ const Stack = createStackNavigator()
 
 const HomeStack = createStackNavigator()
 
+const MarketStack = createStackNavigator()
+
 const Tab = createBottomTabNavigator()
 
 // https://reactnavigation.org/docs/stack-navigator/#animations
@@ -80,7 +83,7 @@ const transitionSpec = {
 }
 const cardStyleInterpolator = CardStyleInterpolators.forHorizontalIOS
 
-const HomeStackScreen = (props) => {
+const HomeStackScreen = () => {
 
     return (
         <HomeStack.Navigator initialRouteName='HomeScreenPop'>
@@ -91,7 +94,7 @@ const HomeStackScreen = (props) => {
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='MainV3DataScreen' component={MainV3DataScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='ExchangeV3Screen' component={ExchangeV3Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendScreen' component={SendScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='ReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -126,6 +129,15 @@ const HomeStackScreen = (props) => {
     )
 }
 
+const MarketStackScreen = () => {
+    return (
+        <MarketStack.Navigator initialRouteName='MarketScreen'>
+            <MarketStack.Screen name='MarketScreen' component={MarketScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <MarketStack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        </MarketStack.Navigator>
+    )
+}
+
 const TabBar = () => {
 
     const { colors } = useTheme()
@@ -156,7 +168,7 @@ const TabBar = () => {
                 },
                 tabStyle: {
                     paddingTop: 10,
-                    paddingBottom: Platform.OS === 'ios' ? 0 : 10,
+                    paddingBottom: Platform.OS === 'ios' ? 4 : 10,
                     height: 50,
                     fontSize: 12,
                     fontFamily: 'SFUIDisplay-Regular',
@@ -175,9 +187,8 @@ const TabBar = () => {
             />
             <Tab.Screen
                 name='MarketScreen'
-                component={MarketScreen}
+                component={MarketStackScreen}
                 options={{
-                    unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.market'),
                     tabBarIcon: ({ color }) => (
                         <CustomIcon name="exchange" color={color} size={22} style={{ marginBottom: 3 }} />

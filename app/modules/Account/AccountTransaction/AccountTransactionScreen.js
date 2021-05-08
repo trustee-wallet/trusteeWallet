@@ -865,12 +865,6 @@ class AccountTransactionScreen extends React.PureComponent {
         prettyShare(shareOptions, 'taki_share_transaction')
     }
 
-    shareSupport = async () => {
-        const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
-        MarketingEvent.logEvent('taki_support', { link, screen: 'TRANSACTION' })
-        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
-    }
-
     onFocus = () => {
         this.setState({
             focused: true
@@ -991,7 +985,6 @@ class AccountTransactionScreen extends React.PureComponent {
         const buttonsArray = [
             [
                 { icon: 'share', title: strings('account.transactionScreen.share'), action: () => this.shareTransaction(transaction, linkExplorer) },
-                { icon: 'support', title: strings('account.transactionScreen.support'), action: () => this.shareSupport() },
                 { icon: showMoreDetails ? 'close' : 'details', title: strings('account.transactionScreen.details'), action: () => this.showMoreDetails() }
             ], []]
 

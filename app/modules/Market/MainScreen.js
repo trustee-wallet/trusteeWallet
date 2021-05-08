@@ -1,10 +1,10 @@
 /**
- * @version 0.31
+ * @version 0.44
  * @author yura
  */
 
-import React, { Component } from 'react'
-
+import React, { PureComponent } from 'react'
+import { connect } from 'react-redux'
 import {
     View,
     Dimensions,
@@ -23,14 +23,14 @@ import { CardIOModule } from 'react-native-awesome-card-io'
 import valid from 'card-validator'
 import _ from 'lodash'
 
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import ApiV3 from '../../services/Api/ApiV3'
-import Log from '../../services/Log/Log'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
+import ApiV3 from '@app/services/Api/ApiV3'
+import Log from '@app/services/Log/Log'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 
-import { strings, sublocale } from '../../services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 import cardDS from '@app/appstores/DataSource/Card/Card'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
@@ -54,11 +54,14 @@ import { Cards } from '@app/services/Cards/Cards'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
+import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
+let CASHE_TIME, CASHE_WALLET_HASH
 
-class MarketScreen extends React.PureComponent {
+class MarketScreen extends PureComponent {
 
     constructor() {
         super()
@@ -81,7 +84,7 @@ class MarketScreen extends React.PureComponent {
         this.setState({ inited: true })
 
         // here to do upload
-        const side = NavStore.getParamWrapper(this,'side')
+        const side = NavStore.getParamWrapper(this, 'side')
         const currencyCode = NavStore.getParamWrapper(this, 'currencyCode')
         const apiUrl = await ApiV3.initData('MARKET', currencyCode, side)
 
@@ -93,8 +96,30 @@ class MarketScreen extends React.PureComponent {
         }, 10)
     }
 
+    refresh = async () => {
+        const apiUrl = await ApiV3.initData('MARKET')
+        this.webref && this.webref.postMessage(JSON.stringify({ url: apiUrl }))
+    }
+
+    diffMinutes = (dt2, dt1) => {
+        let diff = (dt2.getTime() - dt1.getTime()) / 1000;
+        diff /= 60;
+        return Math.abs(Math.round(diff));
+    }
+
     componentDidMount() {
         const { isLight } = this.context
+
+        CASHE_TIME = new Date()
+        CASHE_WALLET_HASH = this.props.selectedWalletData.walletHash
+
+        this.props.navigation.addListener('tabPress', (e) => {
+            const currentTime = new Date()
+            if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || this.props.selectedWalletData.walletHash !== CASHE_WALLET_HASH) {
+                e.preventDefault()
+                NavStore.reset('MarketScreen')
+            }
+        });
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.addListener('keyboardWillShow', this.onKeyboardShow)
@@ -239,7 +264,7 @@ class MarketScreen extends React.PureComponent {
             const {
                 error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, checkCamera
+                useAllFunds, checkCamera, refreshControl
             } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
@@ -260,7 +285,7 @@ class MarketScreen extends React.PureComponent {
                 } else if (backToOld === 'BUY') {
                     NavStore.goNext('MainV3DataScreen', { tradeType: backToOld })
                 } else if (backToOld === 'EXCHANGE') {
-                    NavStore.goNext('ExchangeV3ScreenStack')
+                    NavStore.goNext('ExchangeV3Screen')
                 }
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
             }
@@ -310,6 +335,10 @@ class MarketScreen extends React.PureComponent {
 
             if (dataSend) {
                 this.send(dataSend)
+            }
+
+            if (refreshControl) {
+                this.refresh()
             }
 
         } catch {
@@ -841,7 +870,13 @@ class MarketScreen extends React.PureComponent {
 
 MarketScreen.contextType = ThemeContext
 
-export default MarketScreen
+const mapStateToProps = (state) => {
+    return {
+        selectedWalletData: getSelectedWalletData(state),
+    }
+}
+
+export default connect(mapStateToProps)(MarketScreen)
 
 
 const styles = StyleSheet.create({
