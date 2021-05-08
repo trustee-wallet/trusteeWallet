@@ -28,7 +28,7 @@ if (PIXEL_RATIO*1 <= 2 && SCREEN_WIDTH < 400) {
 }
 
 const mapState = (state: any) => {
-    const walletName: WalletName = state.homeScreenStore.walletInfo.walletName
+    const walletName: WalletName = typeof state.homeScreenStore.walletInfo.walletName.text !== 'undefined' ? state.homeScreenStore.walletInfo.walletName.text : state.homeScreenStore.walletInfo.walletName
     return {
         walletName
     }
