@@ -562,6 +562,20 @@ const Currencies = {
             currencyExplorerLink: 'https://tronscan.org/#/address/',
             currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
         },
+        BNB_SMART_BTT:
+            {
+                    currencyType: 'token',
+                    currencyName: 'BTT BEP20',
+                    currencyCode: 'BNB_SMART_BTT',
+                    currencySymbol: 'BTT',
+                    ratesCurrencyCode: 'BTT',
+                    extendsProcessor: 'BNB_SMART_CAKE',
+                    addressUiChecker: 'ETH',
+                    tokenAddress: '0x8595f9da7b868b1822194faed312235e43007b49',
+                    tokenBlockchain: 'BNB',
+                    currencyExplorerLink:
+                        'https://bscscan.com/token/0x8595f9da7b868b1822194faed312235e43007b49?a='
+            },
     BNB_SMART_BTC:
         {
             currencyType: 'token',
@@ -1253,6 +1267,20 @@ const Currencies = {
             currencyExplorerLink:
                 'https://bscscan.com/token/0x55d398326f99059ff775485246999027b3197955?a='
         },
+        BNB_SMART_TRX:
+            {
+                    currencyType: 'token',
+                    currencyName: 'TRX BEP20',
+                    currencyCode: 'BNB_SMART_TRX',
+                    currencySymbol: 'TRX',
+                    ratesCurrencyCode: 'TRX',
+                    extendsProcessor: 'BNB_SMART_CAKE',
+                    addressUiChecker: 'ETH',
+                    tokenAddress: '0x85eac5ac2f758618dfa09bdbe0cf174e7d574d5b',
+                    tokenBlockchain: 'BNB',
+                    currencyExplorerLink:
+                        'https://bscscan.com/token/0x85eac5ac2f758618dfa09bdbe0cf174e7d574d5b?a='
+            },
     BNB_SMART_UNI:
         {
             currencyType: 'token',
@@ -1343,6 +1371,20 @@ const Currencies = {
             currencyExplorerLink: 'https://tronscan.org/#/address/',
             currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
         },
+        BNB_SMART_WINK:
+            {
+                    currencyType: 'token',
+                    currencyName: 'WINK BEP20',
+                    currencyCode: 'BNB_SMART_WINK',
+                    currencySymbol: 'WINK',
+                    ratesCurrencyCode: 'WINK',
+                    extendsProcessor: 'BNB_SMART_CAKE',
+                    addressUiChecker: 'ETH',
+                    tokenAddress: '0xaef0d72a118ce24fee3cd1d43d383897d05b4e99',
+                    tokenBlockchain: 'BNB',
+                    currencyExplorerLink:
+                        'https://bscscan.com/token/0xaef0d72a118ce24fee3cd1d43d383897d05b4e99?a='
+            },
     ETH_BTC:
         {
             currencyType: 'token',
