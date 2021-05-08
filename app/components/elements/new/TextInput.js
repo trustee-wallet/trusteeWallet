@@ -1,3 +1,6 @@
+/**
+ * @version 0.44 
+ */
 
 import React from 'react'
 import {
@@ -8,9 +11,7 @@ import {
     Animated
 } from 'react-native'
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
-
-import { strings } from '../../../services/i18n'
+import { useTheme } from '@app/modules/theme/ThemeProvider'
 
 
 export default function Input(props) {
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
         padding: 16,
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 16,
-        lineHeight: 20,
+        lineHeight: 18,
         letterSpacing: 0.3,
     },
     inputWithHelper: {

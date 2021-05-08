@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { Image, View, Text, Platform, TouchableOpacity, Linking, StyleSheet } from 'react-native'
+import { Image, View, Text, Platform, TouchableOpacity, Linking, StyleSheet, StatusBar } from 'react-native'
 import { UIActivityIndicator, MaterialIndicator } from 'react-native-indicators'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -51,6 +51,10 @@ class InitScreen extends React.PureComponent {
     }
 
     init = async () => {
+        const { isLight } = this.context
+
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
+
         if (this.props.init === true) {
             clearTimeout(this.statusTimeout)
             if (this.props.lockScreenStatus * 1 > 0) {
@@ -121,11 +125,12 @@ class InitScreen extends React.PureComponent {
             App.init({source : 'InitScreen.render', onMount : false})
         }
 
-        const { colors } = this.context
+        const { colors, isLight } = this.context
 
         MarketingAnalytics.setCurrentScreen('InitScreen.index')
         return (
             <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
+                <StatusBar translucent={false} backgroundColor={colors.common.background} barStyle={isLight ? 'dark-content' : 'light-content'} />
                 <View style={{ position: 'absolute', top: 20, left: 20 }}>
                     <Text style={{ marginTop: 40 }}>
                         {this.state.status}
@@ -134,11 +139,11 @@ class InitScreen extends React.PureComponent {
                 <View style={{ flex: 1, justifyContent: 'center' }}>
                     <Image
                         style={styles.image}
-                        source={require('../../assets/images/logo.png')}
+                        source={isLight ?  require('@app/assets/images/logo.png') : require('@app/assets/images/logoWhite.png')}
                     />
                     <View style={{ marginTop: -70, marginBottom: 60 }}>
-                        {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#3E3453' /> :
-                            <MaterialIndicator size={30} color='#3E3453' />}
+                        {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color={colors.initScreen.loader} /> :
+                            <MaterialIndicator size={30} color={colors.initScreen.loader} />}
                     </View>
                     <View style={{ position: 'relative' }}>
                         <Text style={[styles.appName__text, { color: colors.initScreen.appName }]} numberOfLines={1}>
@@ -188,7 +193,7 @@ class InitScreen extends React.PureComponent {
                     </View>
                 </View>
                 <View style={{ marginTop: 'auto' }}>
-                    <Text style={[styles.appVersion__text, { color: colors.initScreen.appVersion }]} >
+                    <Text style={[styles.appVersion__text, { color: colors.common.text1 }]} >
                         {'#' + config.version.hash + ' | ' + config.version.code}
                     </Text>
                 </View>

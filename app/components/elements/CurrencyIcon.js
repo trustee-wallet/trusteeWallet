@@ -281,6 +281,7 @@ export default class ButtonLine extends Component {
 
             case 'DOGE':
             case 'BNB_SMART_DOGE':
+            case 'TRX_DOGE':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
