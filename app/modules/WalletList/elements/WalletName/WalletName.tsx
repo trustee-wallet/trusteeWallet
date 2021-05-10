@@ -103,7 +103,7 @@ export class WalletNameComponent extends Component<Props, {}>{
                 selectionColor={colors.common.text2}
                 onBlur={() => this.onBlur(props.walletHash, props.walletName.text, props.walletNameText)}
                 onChangeText={(text: string)=>this.onChangeText(text)}
-                value={this.prepareWalletName(props.walletName.text, props.walletName.isEditable)}
+                value={this.prepareWalletName(props.walletName.text || props.walletNameText, props.walletName.isEditable)}
             />
         )
     }
