@@ -130,7 +130,7 @@ export namespace SendActionsStart {
             dict
         })
         await SendActionsBlockchainWrapper.getFeeRate(ui)
-        NavStore.goNext('ReceiptScreen')
+        NavStore.goNext('ReceiptScreen', { backMarket: true })
     }
 
     export const getTransferAllBalanceFromBSE = async (data : {
@@ -198,7 +198,7 @@ export namespace SendActionsStart {
             dict
         })
         await SendActionsBlockchainWrapper.getFeeRate(ui)
-        NavStore.goNext('ReceiptScreen')
+        NavStore.goNext('ReceiptScreen', { backMarket: true })
     }
 
 

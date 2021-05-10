@@ -194,6 +194,15 @@ class ReceiptScreen extends PureComponent {
         }
     }
 
+    backAction = () => {
+        const backMarket = NavStore.getParamWrapper(this, 'backMarket')
+        if (backMarket) {
+            NavStore.goNext('MarketScreen')
+        } else {
+            NavStore.goBack()
+        }
+    }
+
     render() {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
@@ -227,7 +236,7 @@ class ReceiptScreen extends PureComponent {
         return (
             <ScreenWrapper
                 leftType='back'
-                leftAction={this.closeAction}
+                leftAction={this.backAction}
                 leftParams={{ 'close': false }}
                 rightType='close'
                 rightAction={this.closeAction}

@@ -1,11 +1,14 @@
 /**
- * @version 0.1
+ * @version 0.44
  * @author yura
  */
-import React, { Component } from 'react'
-import { Animated, Dimensions, Linking, View } from 'react-native'
+import React, { PureComponent } from 'react'
+import { Animated, Linking, StyleSheet, View } from 'react-native'
 
 import LottieView from 'lottie-react-native'
+
+import axios from 'axios'
+import _ from 'lodash'
 
 import { WebView } from 'react-native-webview'
 import NavStore from '@app/components/navigation/NavStore'
@@ -13,7 +16,6 @@ import NavStore from '@app/components/navigation/NavStore'
 import Log from '@app/services/Log/Log'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import Header from '@app/components/elements/new/Header'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
@@ -22,18 +24,16 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Api from '@app/services/Api/ApiV3'
 
 import store from '@app/store'
-import _ from 'lodash'
 
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import config from '@app/config/config'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
-import axios from 'axios'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_IS_ERROR = false
-class SMSV3CodeScreen extends React.PureComponent {
+class SMSV3CodeScreen extends PureComponent {
 
     constructor() {
         super()
@@ -107,12 +107,12 @@ class SMSV3CodeScreen extends React.PureComponent {
     }
 
     async componentDidMount() {
-        const tradeWebParam = NavStore.getParamWrapper(this,'tradeWebParam')
+        const tradeWebParam = NavStore.getParamWrapper(this, 'tradeWebParam')
         this.prepareFunction(tradeWebParam.didMount, tradeWebParam, this, 'GENERAL')
     }
 
     onMessage(e) {
-        const tradeWebParam = NavStore.getParamWrapper(this,'tradeWebParam').message
+        const tradeWebParam = NavStore.getParamWrapper(this, 'tradeWebParam').message
         this.prepareFunction(tradeWebParam, e, this, 'MSG')
     }
 
@@ -152,13 +152,12 @@ class SMSV3CodeScreen extends React.PureComponent {
 
         CACHE_IS_ERROR = false
         return (
-            <View style={{ ...styles.wrapper }}>
-                <Header
-                    rightType="close"
-                    rightAction={this.closeAction}
-                    leftType={'back'}
-                    leftAction={this.backAction}
-                />
+            <ScreenWrapper
+                rightType={'close'}
+                rightAction={this.closeAction}
+                leftType={'back'}
+                leftAction={this.backAction}
+            >
                 <View style={styles.wrapper__content}>
                     {
                         status !== 'SUCCESS' ?
@@ -167,7 +166,7 @@ class SMSV3CodeScreen extends React.PureComponent {
                                     width: 200,
                                     height: 200,
                                     marginTop: -50
-                                }} source={require('../../assets/jsons/animations/loaderBlue.json')}
+                                }} source={require('@app/assets/jsons/animations/loaderBlue.json')}
                                     progress={this.state.progress} />
                             </View> : null
                     }
@@ -205,27 +204,21 @@ class SMSV3CodeScreen extends React.PureComponent {
                         }}
                         useWebKit={true}
                         startInLoadingState={true}
+                        sharedCookiesEnabled
+                        thirdPartyCookiesEnabled
                     />
                 </View>
-            </View>
+            </ScreenWrapper>
         )
     }
 }
 
 export default SMSV3CodeScreen
 
-const styles = {
-    wrapper: {
-        flex: 1,
-        height: WINDOW_HEIGHT,
-        backgroundColor: '#fff'
-    },
+const styles = StyleSheet.create({
     wrapper__content: {
         flex: 1,
-
-        position: 'relative',
-
-        marginTop: 80
+        position: 'relative'
     },
     img: {
         justifyContent: 'center',
@@ -234,7 +227,7 @@ const styles = {
         top: 0,
         left: 0,
         width: '100%',
-        height: WINDOW_HEIGHT,
+        height: '100%',
         zIndex: 2,
         backgroundColor: '#fff'
     },
@@ -243,4 +236,4 @@ const styles = {
         height: 100,
         marginTop: 100
     }
-}
+})

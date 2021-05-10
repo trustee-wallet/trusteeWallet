@@ -269,7 +269,13 @@ class MarketScreen extends PureComponent {
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
 
-            if (error || close) {
+            if (error) {
+                StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
+                NavStore.reset('TabBar')
+                return
+            }
+
+            if (close) {
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.reset('HomeScreen')
                 return
@@ -771,7 +777,7 @@ class MarketScreen extends PureComponent {
             title: null,
             description: strings('modal.modalV3.description')
         }, () => {
-            NavStore.goNext('HomeScreen')
+            NavStore.reset('HomeScreen')
         })
     }
 
@@ -829,17 +835,17 @@ class MarketScreen extends PureComponent {
                                 renderError={(e) => {
                                     Log.err('Market.MainScreen.render error ' + e)
                                     this.modal()
-                                    NavStore.goNext('HomeScreen')
+                                    NavStore.reset('TabBar')
                                 }}
                                 onError={(e) => {
                                     Log.err('Market.MainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
                                     this.modal()
-                                    NavStore.goNext('HomeScreen')
+                                    NavStore.reset('TabBar')
                                 }}
                                 onHttpError={(e) => {
                                     Log.log('Market.MainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                                     this.modal()
-                                    NavStore.goNext('HomeScreen')
+                                    NavStore.reset('TabBar')
                                 }}
                                 onMessage={e => {
                                     this.onMessage(e)

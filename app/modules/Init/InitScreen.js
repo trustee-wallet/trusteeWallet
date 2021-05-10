@@ -149,9 +149,10 @@ class InitScreen extends React.PureComponent {
                         <Text style={[styles.appName__text, { color: colors.initScreen.appName }]} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
-                        <Text style={[styles.appName__text2, { color: colors.initScreen.appNameSub }]} numberOfLines={1}>
-                            TRUSTEE WALLET
-                        </Text>
+                        {isLight && (
+                            <Text style={[styles.appName__text2, { color: colors.initScreen.appNameSub }]} numberOfLines={1}>
+                                TRUSTEE WALLET
+                            </Text>)}
                         {
                             this.props.initError ?
                                 <View>
