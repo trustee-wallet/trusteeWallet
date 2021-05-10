@@ -242,7 +242,7 @@ export default {
     getMobileCheck: async (orderHash) => {
 
         const { mode: exchangeMode, apiEndpoints } = config.exchange
-        const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
+        const entryUrl = exchangeMode === 'DEV' ? apiEndpoints.entryMarketURLTest : apiEndpoints.entryMarketURL
         const entryPoint = V3_ENTRY_POINT_CHECK
 
 
