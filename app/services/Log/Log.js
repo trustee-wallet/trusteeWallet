@@ -320,11 +320,15 @@ class Log {
 
         let canSend = true
         if (typeof this.DATA.LOG_VERSION !== 'undefined') {
-            const tmp = this.DATA.LOG_VERSION.toString().split(' ')
-            if (typeof tmp[1] !== 'undefined') {
-                const minVersion = await BlocksoftExternalSettings.get('minAppErrorsVersion', 'Log.error')
-                if (minVersion * 1 > tmp[1] * 1) {
-                    canSend = false
+            if (this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER') !== -1) {
+                canSend = false
+            } else {
+                const tmp = this.DATA.LOG_VERSION.toString().split(' ')
+                if (typeof tmp[1] !== 'undefined') {
+                    const minVersion = await BlocksoftExternalSettings.get('minAppErrorsVersion', 'Log.error')
+                    if (minVersion * 1 > tmp[1] * 1) {
+                        canSend = false
+                    }
                 }
             }
         }
