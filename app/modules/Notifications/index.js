@@ -134,7 +134,6 @@ class NotificationsScreen extends React.PureComponent {
 
         try {
             await UpdateAppNewsDaemon.updateAppNewsDaemon({ force: true, source: 'HomeScreen.handleRefresh' })
-            await appNewsInitStore()
         } catch (e) {
             Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAppNewsDaemon both fromServer and forView ' + e.message)
         }

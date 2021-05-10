@@ -9,33 +9,16 @@ import config from '@app/config/config'
 const tableName = 'card'
 
 let CACHE_TOTAL = 0
-export default {
+let CACHE_FOR_API = {}
+let CACHE_FOR_ALL = false
 
-    /**
-     * @param {string} params.number
-     * @returns {Promise<boolean|*>}
-     */
-    getCards: async (params) => {
-        let where = []
-        if (params) {
-            if (typeof params.number !== 'undefined' && params.number) {
-                where.push(`number='${params.number}'`)
-            }
-            if (typeof params.walletHash !== 'undefined' && params.walletHash) {
-                where.push(`(wallet_hash='${params.walletHash}' OR wallet_hash='null' OR wallet_hash='NULL' OR wallet_hash='' OR wallet_hash IS NULL)`)
-            }
-            if (typeof params.withRemoved === 'undefined') {
-                where.push(`number!='REMOVED'`)
-            }
-        } else {
-            where.push(`number!='REMOVED'`)
-        }
-        if (where.length > 0) {
-            where = ' WHERE ' + where.join(' AND ')
-        } else {
-            where = ''
-        }
-        const res = await Database.setQueryString(`
+const _getCards = async (where, couldCount) => {
+    if (where.length > 0) {
+        where = ' WHERE ' + where.join(' AND ')
+    } else {
+        where = ''
+    }
+    const res = await Database.setQueryString(`
                 SELECT
                 id,
                 card_to_send_status AS cardToSendStatus,
@@ -54,14 +37,53 @@ export default {
                 card_details_json AS cardDetailsJson,
                 card_check_status AS cardCheckStatus
                 FROM card ${where}`).query()
-        if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
-            Log.log('DS/Card finished as empty')
-            return false
+    if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
+        if (couldCount) {
+            CACHE_TOTAL = 0
         }
-        if (where === '') {
-            CACHE_TOTAL = res.array.length
+        Log.log('DS/Card finished as empty')
+        return false
+    }
+    if (couldCount) {
+        CACHE_TOTAL = res.array.length
+    }
+    return res.array
+}
+
+export default {
+
+    getCardsForApi : async (walletHash) => {
+        if (typeof CACHE_FOR_API[walletHash] !== 'undefined') {
+            return CACHE_FOR_API[walletHash]
         }
-        return res.array
+        const where = []
+        where.push(`(wallet_hash='${walletHash}' OR wallet_hash='null' OR wallet_hash='NULL' OR wallet_hash='' OR wallet_hash IS NULL)`)
+        CACHE_FOR_API[walletHash] = await _getCards(where, false)
+        return CACHE_FOR_API[walletHash]
+    },
+    /**
+     * @returns {Promise<boolean|*>}
+     */
+    getCards: async (params) => {
+        if (CACHE_FOR_ALL === false) {
+            const where = []
+            where.push(`number!='REMOVED'`)
+            CACHE_FOR_ALL = await _getCards(where, true)
+            if (!CACHE_FOR_ALL) {
+                CACHE_FOR_ALL = []
+            }
+        }
+        return CACHE_FOR_ALL
+    },
+
+    /**
+     * @param {string} number
+     * @returns {Promise<boolean|*>}
+     */
+    getCardByNumber: async (number) => {
+        const where = []
+        where.push(`number='${number}'`)
+        return _getCards(where, false)
     },
 
     updateCard: async (data) => {
@@ -73,6 +95,8 @@ export default {
                 data.updateObj.cardVerificationJson = Database.escapeString(data.updateObj.cardVerificationJson)
             }
             await Database.setTableName(tableName).setUpdateData(data).update()
+            CACHE_FOR_API = {}
+            CACHE_FOR_ALL = false
         } catch (e) {
             throw new Error(e.message + ' while updateCard ' + JSON.stringify(data.updateObj))
         }
@@ -100,6 +124,8 @@ export default {
             }
             await Database.setTableName(tableName).setInsertData(data).insert()
             CACHE_TOTAL = CACHE_TOTAL + 1
+            CACHE_FOR_API = {}
+            CACHE_FOR_ALL = false
             MarketingEvent.logEvent('gx_cards_add', { cardNumber: CACHE_TOTAL.toString() }, 'GX')
             Log.log('DS/Card saveCard finished')
         } catch (e) {
@@ -118,6 +144,8 @@ export default {
                 `
             await Database.setQueryString(sql).query(true)
             CACHE_TOTAL = CACHE_TOTAL - 1
+            CACHE_FOR_API = {}
+            CACHE_FOR_ALL = false
             MarketingEvent.logEvent('gx_cards_remove', { cardNumber: CACHE_TOTAL.toString() }, 'GX')
             Log.log('DS/Card deleteCard finished')
         } catch (e) {

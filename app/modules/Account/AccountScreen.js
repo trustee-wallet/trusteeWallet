@@ -196,46 +196,54 @@ class Account extends React.PureComponent {
 
         UpdateOneByOneDaemon._canUpdate = false
 
+        let needRefresh = false
         if (currencyCode !== 'ETH_ROPSTEN') {
             try {
-                await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })
+                if (await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })) {
+                    needRefresh = true
+                }
             } catch (e) {
                 Log.errDaemon('AccountScreen handleRefresh error updateTradeOrdersDaemon ' + e.message)
             }
         }
 
         try {
-            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
+            if (await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
                 force: true,
                 currencyCode,
                 source: 'ACCOUNT_REFRESH'
-            })
+            })) {
+                needRefresh = true
+            }
             if (currencyCode === 'BTC' && walletIsHd) {
-                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({
+                if (await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({
                     force: true,
                     currencyCode,
                     source: 'ACCOUNT_REFRESH'
-                })
+                })) {
+                    needRefresh = true
+                }
             }
         } catch (e) {
             Log.errDaemon('AccountScreen handleRefresh error updateAccountBalanceAndTransactions ' + e.message)
         }
 
-        try {
-            await UpdateAccountListDaemon.updateAccountListDaemon({
-                force: true,
-                currencyCode,
-                source: 'ACCOUNT_REFRESH'
-            })
-        } catch (e) {
-            Log.errDaemon('AccountScreen handleRefresh error updateAccountListDaemon ' + e.message)
+        if (needRefresh) {
+            try {
+                await UpdateAccountListDaemon.updateAccountListDaemon({
+                    force: true,
+                    currencyCode,
+                    source: 'ACCOUNT_REFRESH'
+                })
+            } catch (e) {
+                Log.errDaemon('AccountScreen handleRefresh error updateAccountListDaemon ' + e.message)
+            }
+            await setSelectedAccount()
+            this.loadTransactions(0)
         }
 
-        await setSelectedAccount()
 
         UpdateOneByOneDaemon._canUpdate = true
-
-        this.loadTransactions(0)
 
         this.setState({
             refreshing: false,

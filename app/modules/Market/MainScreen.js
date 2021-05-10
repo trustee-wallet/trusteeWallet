@@ -575,7 +575,7 @@ class MarketScreen extends PureComponent {
 
         let cardID = 0
         if (typeof cardData.id === 'undefined' || !cardData.id) {
-            const saved = await cardDS.getCards({ number: cardData.number })
+            const saved = await cardDS.getCardByNumber(cardData.number)
             if (!saved) {
                 // todo warning
                 return false

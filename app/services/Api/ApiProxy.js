@@ -18,11 +18,11 @@ import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
 import customCurrencyDS from '@app/appstores/DataSource/CustomCurrency/CustomCurrency'
 import cardsDS from '@app/appstores/DataSource/Card/Card'
 
-import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
-import Log from '@app/services/Log/Log'
-import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import store from '@app/store'
-import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+
+import Log from '@app/services/Log/Log'
+import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import UpdateWalletsDaemon from '@app/daemons/back/UpdateWalletsDaemon'
 import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
 import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
@@ -30,7 +30,6 @@ import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon
 
 async function _getAll(params) {
     const { mode: exchangeMode } = config.exchange
-
     let deviceToken = MarketingEvent.DATA.LOG_TOKEN
     if (!deviceToken || deviceToken === null || deviceToken === '') {
         deviceToken = await AppNotificationListener.getToken()
@@ -39,19 +38,7 @@ async function _getAll(params) {
         deviceToken = 'NO_GOOGLE_AS_NULL_' + (new Date().getTime()) + '_' + (Math.ceil(Math.random() * 100000))
     }
     const link = config.proxy.apiEndpoints.baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
-
     const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
-    /*
-    try {
-        const now = await BlocksoftAxios.get(`https://api.v3.trustee.deals/data/server-time`)
-        if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
-            time = now.data.serverTime
-            Log.daemon('UpdateCardsDaemon msg from server ' + time)
-        }
-    } catch (e) {
-        // do nothing
-    }
-    */
 
     const signedData = await CashBackUtils.createWalletSignature(true, time)
     if (!signedData) {
@@ -69,9 +56,10 @@ async function _getAll(params) {
     MarketingEvent.reinitIfNever()
 
     const forCustomTokens = await customCurrencyDS.getCustomCurrenciesForApi()
-    const forCards = await cardsDS.getCards({walletHash, withRemoved : true})
-    const forServer = await appNewsDS.getAppNewsForServer()
+    const forCards = await cardsDS.getCardsForApi(walletHash)
+    const forServer = await appNewsDS.getAppNewsForApi()
     const forServerIds = []
+
     if (forServer) {
         for (const row of forServer) {
             forServerIds.push(row.id)
@@ -81,6 +69,13 @@ async function _getAll(params) {
             if (row.openedAt) {
                 row.openedAt = row.openedAt + '000'
             }
+        }
+    }
+
+    const anotherCashbackTokensByDevice = []
+    for (const wallet of store.getState().walletStore.wallets) {
+        if (wallet.walletHash !== walletHash) {
+            anotherCashbackTokensByDevice.push(wallet.walletCashback)
         }
     }
     const forWallets = []
@@ -107,8 +102,9 @@ async function _getAll(params) {
         cashbackToken,
         deviceToken,
         sign: signedData,
-        userNotifications: forServer ? forServer : [],
-        exchangeRatesNotifs: await settingsActions.getSetting('exchangeRatesNotifs'),
+        userNotifications: forServer || [],
+        anotherCashbackTokensByDevice,
+        exchangeRatesNotifs: settingsActions.getSettingStatic('exchangeRatesNotifs'),
         locale: sublocale()
     }
 
@@ -144,10 +140,11 @@ async function _getAll(params) {
         marketingAll,
         walletAll
     }
-
     const all = await BlocksoftAxios.post(link, allData)
     if (typeof all.data.data !== 'undefined') {
-        all.data.data.forServerIds = forServerIds
+        if (typeof all.data.data.newsHash !== 'undefined' && all.data.data.newsHash && all.data.data.newsHash !== '') {
+            await appNewsDS.saveAppNewsSentForServer(forServerIds)
+        }
         if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
             await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
         }
@@ -220,7 +217,7 @@ export default {
             }
             let serverTimestamp = false
             try {
-                if (typeof all.data.status !== 'undefined') {
+                if (all && typeof all.data !== 'undefined' && typeof all.data.status !== 'undefined') {
                     if (typeof all.data.subdata !== 'undefined' && typeof all.data.subdata.serverTimestamp !== 'undefined') {
                         if (typeof params === 'undefined') {
                             params = {}

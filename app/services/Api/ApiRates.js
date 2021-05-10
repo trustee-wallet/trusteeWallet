@@ -1,26 +1,30 @@
 /**
- * @version 0.9
+ * @version 0.41
  */
-import Log from '../Log/Log'
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-import ApiProxy from './ApiProxy'
-import config from '../../config/config'
+import _isEqual from 'lodash/isEqual'
+
+import Log from '@app/services/Log/Log'
+import ApiProxy from '@app/services/Api/ApiProxy'
+
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import config from '@app/config/config'
 
 let CACHE_RATES_HASH = ''
 
-class ApiRates {
+let CACHE_BASIC = [
+    { currencyCode: 'USD' },
+    { currencyCode: 'UAH' },
+    { currencyCode: 'RUB' },
+    { currencyCode: 'EUR' },
+    { currencyCode: 'KZT' },
+    { currencyCode: 'USDT', currencyName: 'Usdt', symbol: '$*' },
+    { currencyCode: 'BTC', currencyName: 'Btc', symbol: 'BTC' }
+]
 
-    /**
-     * last response array of rates
-     * @type {array}
-     * @private
-     */
-    _cachedData = {}
 
-    _cachedBasicCurrencies = [{ currencyCode: 'USD' }, { currencyCode: 'UAH' }, { currencyCode: 'RUB' }, { currencyCode: 'USDT', currencyName: 'Usdt' }]
+let CACHE_RATES = {}
 
-    _inited = false
+export default {
 
     async getRates(params, dataUpdate = false) {
         try {
@@ -44,27 +48,35 @@ class ApiRates {
             let asked = false
             if (!dataUpdate) {
                 if (config.debug.appErrors) {
-                    console.log(new Date().toISOString() + ' ApiRates loading new')
+                    // console.log(new Date().toISOString() + ' ApiRates loading new')
                 }
                 asked = true
                 res = await ApiProxy.getAll(params)
             } else {
                 res = dataUpdate
             }
-            if (!res || typeof res.rates === 'undefined' || typeof res.rates.data === 'undefined' || typeof res.ratesHash === 'undefined' || res.ratesHash === CACHE_RATES_HASH) {
+            if (!res || typeof res.rates === 'undefined' || typeof res.rates.data === 'undefined' || typeof res.ratesHash === 'undefined') {
+                if (config.debug.appErrors) {
+                    // console.log(new Date().toISOString() + ' ApiRates not loaded ')
+                }
+                return false
+            }
+            if (res.ratesHash === CACHE_RATES_HASH) {
+                if (config.debug.appErrors) {
+                    // console.log(new Date().toISOString() + ' ApiRates same ratesHash ')
+                }
                 return false
             }
             if (!asked) {
                 if (config.debug.appErrors) {
-                    console.log(new Date().toISOString() + ' ApiRates loaded proxy')
+                    // console.log(new Date().toISOString() + ' ApiRates loaded proxy')
                 }
             }
-            this._cachedData = res.rates.data
+            CACHE_RATES = res.rates.data
             CACHE_RATES_HASH = res.ratesHash
-            if (typeof this._cachedData.basicCurrencies !== 'undefined') {
-                if (this._cachedData.basicCurrencies !== this._cachedBasicCurrencies) {
-                    this._cachedBasicCurrencies = this._cachedData.basicCurrencies
-                    await settingsActions.setSettings('basicCurrencies', JSON.stringify(this._cachedBasicCurrencies))
+            if (typeof res.rates.data.basicCurrencies !== 'undefined') {
+                if (!_isEqual(CACHE_BASIC, res.rates.data.basicCurrencies)) {
+                    CACHE_BASIC = res.rates.data.basicCurrencies
                     currencyActions.reloadDict()
                 }
             }
@@ -74,8 +86,8 @@ class ApiRates {
             }
             Log.daemon('ApiRates error ' + e.message)
         }
-        return this._cachedData
-    }
+        return CACHE_RATES
+    },
 
     /**
      * @returns {{usdtobtc: number, usdtoeuro: number, usdtokzt: number, usdtouah: number, usdttousd: number, usdtorub: number}}
@@ -89,31 +101,16 @@ class ApiRates {
             usdtobtc: 1,
             usdttousd: 1
         }
-        for (const key in this._cachedData.rate) {
-            tmp[key.toLowerCase()] = this._cachedData.rate[key]
+        for (const key in CACHE_RATES.rate) {
+            tmp[key.toLowerCase()] = CACHE_RATES.rate[key]
         }
-        for (const key of this._cachedData.cryptoCurrencies) {
+        for (const key of CACHE_RATES.cryptoCurrencies) {
             tmp[key.currencyCode.toLowerCase()] = key.currencyRateUsd
         }
         return tmp
-    }
+    },
 
     async getBasicCurrencies() {
-        if (!this._inited) {
-            let tmp = await settingsActions.getSetting('basicCurrencies')
-            if (tmp) {
-                try {
-                    tmp = JSON.parse(tmp)
-                    this._cachedBasicCurrencies = tmp
-                    this._inited = true
-                } catch (e) {
-                    // do nothing
-                }
-            }
-        }
-        return this._cachedBasicCurrencies
+        return CACHE_BASIC
     }
 }
-
-const singleApiRates = new ApiRates()
-export default singleApiRates

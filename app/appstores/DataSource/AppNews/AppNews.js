@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.41
  */
 import Database from '@app/appstores/DataSource/Database'
 
@@ -10,13 +10,15 @@ import Log from '@app/services/Log/Log'
 
 const tableName = 'app_news'
 
-class AppNews {
+let CACHE_FOR_API = false
+let CACHE_FOR_API_FROM_API = false
+export default {
 
     /**
      * @param {number} appNews.id
      * @param {string} appNews.newsName
      */
-    setRemoved = async (appNews) => {
+    async setRemoved(appNews) {
         const now = Math.round(new Date().getTime() / 1000)
         let sql
         if (typeof appNews.id !== 'undefined') {
@@ -25,16 +27,16 @@ class AppNews {
             sql = `UPDATE app_news SET news_removed=${now} WHERE news_name='${appNews.newsName}'`
         }
         await Database.setQueryString(sql).query()
-    }
+    },
 
     /**
      * @param {number} appNews.id
      * @param {number} appNews.newsNeedPopup
      */
-    setNewsNeedPopup = async (appNews) => {
+    async setNewsNeedPopup(appNews) {
         const sql = `UPDATE app_news SET news_need_popup=${appNews.newsNeedPopup} WHERE id=${appNews.id}`
         await Database.setQueryString(sql).query()
-    }
+    },
 
     /**
      * @param {string} appNews.walletHash
@@ -58,7 +60,7 @@ class AppNews {
      * @param {boolean} appNews.onlyOne
      * @param {string} appNews.newsServerHash
      */
-    saveAppNews = async (appNews) => {
+    async saveAppNews(appNews, fromStoreStatus = false, fromStore = false) {
         const now = Math.round(new Date().getTime() / 1000)
 
         if (typeof appNews.newsCustomText !== 'undefined' && appNews.newsCustomText) {
@@ -97,27 +99,38 @@ class AppNews {
         let isUpdate = false
         let updateId = 0
         let updateLog = ''
-        if (typeof appNews.newsUniqueKey !== 'undefined' && appNews.newsUniqueKey) {
-            let where = `news_unique_key='${appNews.newsUniqueKey}'`
-            if (typeof appNews.currencyCode !== 'undefined' && appNews.currencyCode) {
-                where += ` AND currency_code='${appNews.currencyCode}' `
-            }
-            if (typeof appNews.walletHash !== 'undefined') {
-                where += ` AND wallet_hash='${appNews.walletHash}'`
+        let found = false
+        if (typeof appNews.newsUniqueKey !== 'undefined' && appNews.newsUniqueKey && fromStoreStatus !== 'can_insert') {
+            if (fromStoreStatus === 'check_update') {
+                found = fromStore
             } else {
-                where += ` AND (wallet_hash IS NULL OR wallet_hash = '')`
+                let where = `news_unique_key='${appNews.newsUniqueKey}'`
+                if (typeof appNews.currencyCode !== 'undefined' && appNews.currencyCode) {
+                    where += ` AND currency_code='${appNews.currencyCode}' `
+                }
+                if (typeof appNews.walletHash !== 'undefined') {
+                    where += ` AND wallet_hash='${appNews.walletHash}'`
+                } else {
+                    where += ` AND (wallet_hash IS NULL OR wallet_hash = '')`
+                }
+                const saved = `SELECT id, news_name as newsName, news_server_hash AS newsServerHash, news_log, news_server_id AS serverId, news_received_at AS receivedAt, news_opened_at AS openedAt FROM app_news WHERE ${where}`
+                const tmp = await Database.setQueryString(saved).query()
+                if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined' && tmp.array[0]) {
+                    found = tmp.array[0]
+                }
             }
-            const saved = `SELECT id, news_name, news_server_hash, news_log FROM app_news WHERE ${where}`
-            const tmp = await Database.setQueryString(saved).query()
-            if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined' && tmp.array[0]) {
-                const found = tmp.array[0]
+            if (found) {
                 if (typeof appNews.newsServerHash !== 'undefined' && appNews.newsServerHash) {
-                    if (found.news_server_hash === appNews.newsServerHash) {
-                        return false
+                    if (found.newsServerHash === appNews.newsServerHash) {
+                        return {
+                            updated: false, id: found.id, serverId: found.serverId, receivedAt: found.receivedAt, openedAt: found.openedAt
+                        }
                     }
                 } else {
-                    if (found.news_name === appNews.newsName) {
-                        return false
+                    if (found.newsName === appNews.newsName) {
+                        return {
+                            updated: false, id: found.id, serverId: found.serverId, receivedAt: found.receivedAt, openedAt: found.openedAt
+                        }
                     }
                 }
                 isUpdate = true
@@ -125,67 +138,67 @@ class AppNews {
                 updateLog = found.news_log
             }
         }
-        if (isUpdate) {
+        if (isUpdate && found) {
             if (typeof appNews.newsLog !== 'undefined') {
                 appNews.newsLog = (appNews.newsLog + ' ' + updateLog).substring(0, 500)
             } else {
                 appNews.newsLog = ' UPDATE / ' + updateLog
             }
-            await Database.setTableName(tableName).setUpdateData( {key: { id: updateId }, updateObj: appNews }).update()
-            return true
+            await Database.setTableName(tableName).setUpdateData({ key: { id: updateId }, updateObj: appNews }).update()
+            return {
+                updated: true, id: found.id, serverId: found.serverId, receivedAt: found.receivedAt, openedAt: found.openedAt
+            }
         } else {
             await Database.setTableName(tableName).setInsertData({ insertObjs: [appNews] }).insert()
-            return true
+            return {
+                updated: true, receivedAt: 0, openedAt: 0
+            }
         }
-    }
+    },
 
-    clear = async() => {
+    async clear() {
         await Database.setQueryString('UPDATE ' + tableName + ' SET news_removed=1 WHERE news_removed IS NULL').query()
-    }
+    },
 
-    shownPopup = async (id) => {
+    async shownPopup(id) {
         if (typeof id === 'undefined' || !id) return
         await Database.setQueryString('UPDATE ' + tableName + ' SET news_shown_popup=1 WHERE id=' + id).query()
-    }
+    },
 
-    markAsOpened = async (id) => {
+    async markAsOpened(id) {
         if (typeof id === 'undefined' || !id) return
         const now = Math.round(new Date().getTime() / 1000)
         await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id=' + id).query()
-    }
+    },
 
-    markAllAsOpened = async (ids = false) => {
+    async markAllAsOpened(ids = false) {
         const now = Math.round(new Date().getTime() / 1000)
         if (ids) {
             await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id IN (' + ids.join(',') + ')').query()
         } else {
             await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE news_opened_at IS NULL').query()
         }
-    }
+    },
 
-    /**
-     * @param {string} params.walletHash
-     * @param {string} params.limit
-     */
-    getAppNewsForServer = async (params) => {
+    pushAppNewsForApi(row) {
+        if (CACHE_FOR_API_FROM_API === false) {
+            CACHE_FOR_API_FROM_API = []
+        }
+        CACHE_FOR_API_FROM_API.push(row)
+    },
+
+    async getAppNewsForApi() {
+        if (CACHE_FOR_API !== false) {
+            return CACHE_FOR_API
+        }
         let where = [
             `app_news.news_server_id IS NOT NULL`,
             `(app_news.news_to_send_status IS NOT NULL AND app_news.news_to_send_status>0)`
         ]
-
-        if (params && typeof params.walletHash !== 'undefined' && params.walletHash) {
-            where.push(`app_news.wallet_hash='${params.walletHash}'`)
-        }
-
         if (where.length > 0) {
             where = ' WHERE ' + where.join(' AND ')
         } else {
             where = ''
-        }
-
-        let limit = 100
-        if (params && typeof params.limit !== 'undefined' && params.limit > 0) {
-            limit = params.limit
         }
 
         const sql = `
@@ -196,31 +209,37 @@ class AppNews {
                 app_news.news_opened_at AS openedAt
             FROM app_news
             ${where}
-            LIMIT ${limit}
+            LIMIT 100
         `
 
+        CACHE_FOR_API = CACHE_FOR_API_FROM_API === false ? [] : CACHE_FOR_API_FROM_API
         try {
             const res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('DS/AppNews getAppNewsForServer finished as empty')
-                return []
+            } else {
+                for (const row of res.array) {
+                    CACHE_FOR_API.push(row)
+                }
             }
-            return res.array
+            return CACHE_FOR_API
         } catch (e) {
             Log.errDaemon('DS/AppNews getAppNewsForServer error ' + sql + ' ' + e.message)
             return []
         }
-    }
+    },
 
-    saveAppNewsSentForServer = async (ids) => {
-        if (typeof ids === 'undefined' || !ids) return
-        await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=0 WHERE id IN (' + ids.join(',') + ')').query()
-    }
+    async saveAppNewsSentForServer(ids) {
+        if (typeof ids === 'undefined' || !ids || ids.length === 0) return
+        const sql = 'UPDATE ' + tableName + ' SET news_to_send_status=0 WHERE id IN (' + ids.join(',') + ')'
+        await Database.setQueryString(sql).query()
+        CACHE_FOR_API = false
+    },
 
     /**
      * @param {string} params.walletHash
      */
-    getSpecialNews = async (params) => {
+    async getSpecialNews(params) {
         let where = [`app_news.news_removed IS NULL AND app_news.news_group = 'GOOGLE_EVENTS'`]
         where.push(`(app_news.news_opened_at=0 OR app_news.news_opened_at IS NULL)`)
 
@@ -273,10 +292,10 @@ class AppNews {
                 }
             }
             return res
-        } catch(e) {
+        } catch (e) {
             Log.errDaemon('DS/AppNews getSpecialNews error ' + sql + ' ' + e.message)
         }
-    }
+    },
 
     /**
      * @param {string} params.walletHash
@@ -284,7 +303,7 @@ class AppNews {
      * @param {string} params.newsNeedPopup
      * @param {string} params.limit
      */
-    getAppNews = async (params) => {
+    async getAppNews(params) {
         const wallets = store.getState().walletStore.wallets
         const names = {}
         let useNames = false
@@ -293,7 +312,7 @@ class AppNews {
                 useNames = true
             }
             let wallet
-            for(wallet of wallets) {
+            for (wallet of wallets) {
                 names[wallet.walletHash] = wallet.walletName
             }
         }
@@ -349,6 +368,7 @@ class AppNews {
                 app_news.news_shown_popup AS newsShownPopup,
                 app_news.news_shown_list AS newsShownList,
                 app_news.news_server_id AS newsServerId,
+                app_news.news_server_hash AS newsServerHash,
                 app_news.news_received_at AS newsReceivedAt,
                 app_news.news_opened_at AS newsOpenedAt
 
@@ -390,5 +410,3 @@ class AppNews {
         return res
     }
 }
-
-export default new AppNews()

@@ -1,11 +1,12 @@
 /**
- * @version 0.9
+ * @version 0.41
  */
 import Database from '@app/appstores/DataSource/Database';
-
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
 const tableName = 'custom_currency'
+
+let CACHE_FOR_API = []
 
 export default {
 
@@ -23,26 +24,17 @@ export default {
 
     savedCustomCurrenciesForApi : async (dataArray) => {
         const where = dataArray.join(', ')
-        return Database.setQueryString(` UPDATE  ${tableName} SET is_added_to_api = 1 WHERE (is_added_to_api IS NULL OR is_added_to_api=0) AND id IN (${where})`).query()
+        await Database.setQueryString(` UPDATE  ${tableName} SET is_added_to_api = 1 WHERE (is_added_to_api IS NULL OR is_added_to_api=0) AND id IN (${where})`).query()
+        CACHE_FOR_API = []
+        return true
     },
 
     getCustomCurrenciesForApi : async () => {
-        const res = await Database.setQueryString(`
-                SELECT
-                id,
-                currency_code AS currencyCode,
-                currency_symbol AS currencySymbol,
-                currency_name AS currencyName,
-                token_type AS tokenType,
-                token_address AS tokenAddress
-                FROM ${tableName} WHERE (is_added_to_api IS NULL OR is_added_to_api=0)`).query()
-
-        if (!res || !res.array || !res.array.length) return false
-
-        return res.array
+        return CACHE_FOR_API
     },
 
     /**
+     * only on init
      * @returns {Promise<[{id, isHidden, currencyCode, currencySymbol, currencyName, tokenType, tokenAddress, tokenDecimals, tokenJson}]>}
      */
     getCustomCurrencies: async () => {
@@ -63,10 +55,16 @@ export default {
 
         Log.daemon('DS/CustomCurrency getCustomCurrencies finished')
 
-        if (!res || !res.array || !res.array.length) return false
-
+        CACHE_FOR_API = []
+        if (!res || !res.array || !res.array.length) {
+            return false
+        }
+        for (const row of res.array) {
+            if (!row.isAdded) {
+                CACHE_FOR_API.push[row]
+            }
+        }
         return res.array
-
     }
 
 }

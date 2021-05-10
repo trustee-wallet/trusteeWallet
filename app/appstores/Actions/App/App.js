@@ -33,7 +33,6 @@ import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaem
 
 
 import config from '../../../config/config'
-import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
 
 if (Text.defaultProps == null) Text.defaultProps = {}
 Text.defaultProps.allowFontScaling = false
@@ -188,7 +187,6 @@ class App {
             // second step of init
             await cleanupNotNeeded()
 
-            await appNewsInitStore()
             await UpdateAccountListDaemon.forceDaemonUpdate(params)
 
             // await UpdateCashBackDataDaemon.updateCashBackDataDaemon({source : 'UpdateCashBackDataDaemon.AppHomeScreen'})

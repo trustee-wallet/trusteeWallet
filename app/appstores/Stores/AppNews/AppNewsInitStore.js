@@ -12,7 +12,7 @@ import Log from '@app/services/Log/Log'
 
 const TO_BADGE_TIME = 3600000 * 24 * 4
 
-const appNewsInitStore = async () => {
+export default async () => {
     const appSpecialList = await appNewsDS.getSpecialNews()
     if (appSpecialList && appSpecialList.length > 0) {
         const ids = []
@@ -81,4 +81,3 @@ const appNewsInitStore = async () => {
         await AppNewsActions.displayBadge(0)
     }
 }
-export default appNewsInitStore

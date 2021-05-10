@@ -416,6 +416,7 @@ class UpdateTradeOrdersDaemon {
             }
         }
         CACHE_LAST_TIME = new Date().getTime()
+        return true
     }
 }
 

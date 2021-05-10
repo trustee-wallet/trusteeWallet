@@ -2,12 +2,13 @@
  * @version 0.43
  */
 import Log from '@app/services/Log/Log'
+import ApiProxy from '@app/services/Api/ApiProxy'
+import config from '@app/config/config'
 
 import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
 import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
-import ApiProxy from '@app/services/Api/ApiProxy'
-import config from '@app/config/config'
 import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
+import store from '@app/store'
 
 let CACHE_NEWS_HASH = ''
 let CACHE_LAST_TIME = false
@@ -65,9 +66,6 @@ class UpdateAppNewsDaemon {
         }
 
         if (!res || typeof res === 'undefined' || typeof res.news === 'undefined' || !res.news || res.news.length === 0) {
-            if (res && typeof res.forServerIds !== 'undefined' && res.forServerIds.length > 0) {
-                await appNewsDS.saveAppNewsSentForServer(res.forServerIds)
-            }
             this._canUpdate = true
             return false
         }
@@ -101,9 +99,21 @@ class UpdateAppNewsDaemon {
             newsServerId: 'serverId',
             newsServerHash: 'status'
         }
+        let savedAny = false
+        const allNews = store.getState().appNewsStore.appNewsList
+        const allNewsIndexed = {}
+        if (allNews.length) {
+            for (const news of allNews) {
+                allNewsIndexed[news.newsServerId] = news
+            }
+        }
         try {
-            let savedAny = false
+            let index = 0
             for (const row of res.news) {
+                if (index > 2) {
+                //    break
+                }
+                index++
                 const toSave = {
                     newsNeedPopup: row.needPopup ? 1 : 0,
                     newsLog: new Date().toISOString() + ' loaded from Server'
@@ -113,31 +123,44 @@ class UpdateAppNewsDaemon {
                     if (typeof row[serverField] !== 'undefined' && row[serverField]) {
                         toSave[saveField] = row[serverField]
                     }
+                    if (typeof row[serverField] !== 'undefined' && row[serverField]) {
+                        toSave[saveField] = row[serverField]
+                    }
                 }
+                let fromStoreStatus = 'no_cache'
+                let fromStore = false
                 if (typeof row.isBroadcast === 'undefined' || row.isBroadcast === false) {
                     toSave.walletHash = walletHash
+                } else if (typeof allNewsIndexed[toSave.newsUniqueKey] !== 'undefined') {
+                    fromStore = allNewsIndexed[toSave.newsUniqueKey]
+                    fromStoreStatus = 'check_update'
+                } else {
+                    fromStoreStatus = 'can_insert'
                 }
                 if (typeof row.status !== 'undefined' && row.status && row.status.toString() === '33') {
                     toSave.removed = 33
                 }
-                Log.daemon('UpdateAppNews adding from Server ', toSave)
-                const saved = await appNewsDS.saveAppNews(toSave)
-                if (saved) {
+                const saved = await appNewsDS.saveAppNews(toSave, fromStoreStatus, fromStore)
+                if (saved.updated) {
                     savedAny = true
+                } else {
+                    await appNewsDS.pushAppNewsForApi(saved)
                 }
-            }
-            if (savedAny) {
-                await appNewsInitStore()
-            }
-
-            if (res.forServerIds.length > 0) {
-                await appNewsDS.saveAppNewsSentForServer(res.forServerIds)
             }
             CACHE_LAST_TIME = new Date().getTime()
         } catch (e) {
             this._canUpdate = true
             Log.err('UpdateAppNews saving result error ' + e.message)
         }
+
+        if (savedAny || allNews.length === 0) {
+            try {
+                await appNewsInitStore()
+            } catch (e) {
+                Log.err('UpdateAppNews appNewsInitStore call error ' + e.message)
+            }
+        }
+
         this._canUpdate = true
     }
 }
