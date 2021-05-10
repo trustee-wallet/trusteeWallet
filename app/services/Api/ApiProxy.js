@@ -91,7 +91,7 @@ async function _getAll(params) {
             walletUseUnconfirmed: wallet.walletUseUnconfirmed,
             walletIsHideTransactionForFee: wallet.walletIsHideTransactionForFee,
             walletAllowReplaceByFee: wallet.walletAllowReplaceByFee,
-            walletIsBackedUp : wallet.walletIsBackedUp
+            walletIsBackedUp: wallet.walletIsBackedUp
         })
         if (!cashbackToken) {
             MarketingEvent.DATA.LOG_CASHBACK = wallet.walletCashback
@@ -129,7 +129,7 @@ async function _getAll(params) {
     }
 
     const walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
-    const marketingAll = { ...MarketingEvent.DATA, CACHE_SERVER_TIME_DIFF}
+    const marketingAll = { ...MarketingEvent.DATA, CACHE_SERVER_TIME_DIFF }
     const allData = {
         newsData,
         cbData,
@@ -258,25 +258,26 @@ export default {
                 CACHE_DATA = res
                 CACHE_LAST_TIME = new Date().getTime()
                 CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
-                if (params.source.indexOf('UpdateCurrencyRateDaemon') === -1 && typeof res.rates !== 'undefined' && res.rates) {
-                    await UpdateCurrencyRateDaemon.updateCurrencyRate(params, res)
-                }
-                if (params.source.indexOf('UpdateCardsDaemon') === -1) {
-                    await UpdateCardsDaemon.updateCardsDaemon(params, res)
-                }
-                if (params.source.indexOf('UpdateWalletsDaemon') === -1) {
-                    await UpdateWalletsDaemon.updateWalletsDaemon(params, res)
-                }
-                if (params.source.indexOf('UpdateAppNewsDaemon') === -1) {
-                    await UpdateAppNewsDaemon.updateAppNewsDaemon(params, res)
-                }
-                if (params.source.indexOf('UpdateCashBack') === -1) {
-                    await UpdateCashBackDataDaemon.updateCashBackDataDaemon(params, res)
-                }
-                if (params.source.indexOf('UpdateTradeOrdersDaemon') === -1) {
-                    await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon(params, res)
-                }
             }
+            if (params.source.indexOf('UpdateCurrencyRateDaemon') === -1 && typeof res.rates !== 'undefined' && res.rates) {
+                await UpdateCurrencyRateDaemon.updateCurrencyRate(params, res)
+            }
+            if (params.source.indexOf('UpdateCardsDaemon') === -1) {
+                await UpdateCardsDaemon.updateCardsDaemon(params, res)
+            }
+            if (params.source.indexOf('UpdateWalletsDaemon') === -1) {
+                await UpdateWalletsDaemon.updateWalletsDaemon(params, res)
+            }
+            if (params.source.indexOf('UpdateAppNewsDaemon') === -1) {
+                await UpdateAppNewsDaemon.updateAppNewsDaemon(params, res)
+            }
+            if (params.source.indexOf('UpdateCashBack') === -1) {
+                await UpdateCashBackDataDaemon.updateCashBackDataDaemon(params, res)
+            }
+            if (params.source.indexOf('UpdateTradeOrdersDaemon') === -1) {
+                await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon(params, res)
+            }
+
         }
         // console.log('ApiProxy finish ' + new Date().toISOString(), JSON.parse(JSON.stringify(params)))
         return res

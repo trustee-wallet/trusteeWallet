@@ -18,6 +18,37 @@ class Account {
 
     /**
      * @param {string} params.walletHash
+     * @param {string} params.currencyCode
+     * @param {string} params.walletPubId
+     * @param {string} params.source
+     * @param {*} params.derivations
+     * @returns {Promise<{accounts : {id, address, derivationPath, derivationType, derivationIndex, currencyCode, walletHash, walletPubId}[], newSaved}>}
+     */
+    discoverAccountsFromHD = async(params, source) => {
+        const tmpName = Database.escapeString('CREATED by ' + source + ' at ' + new Date().toISOString())
+        const prepare = []
+        for (const account of params.derivations) {
+            const derivationPath = Database.escapeString(account.path)
+            const tmp = {
+                address: account.address,
+                name: tmpName,
+                derivationPath: derivationPath,
+                derivationIndex: account.index,
+                derivationType: account.type,
+                alreadyShown: account.alreadyShown ? 1 : 0,
+                status: 0,
+                currencyCode: params.currencyCode,
+                walletHash: params.walletHash,
+                walletPubId: account.walletPubId,
+                transactionsScanTime: 0
+            }
+            prepare.push(tmp)
+        }
+        await Database.setTableName(tableName).setInsertData({ insertObjs: prepare }).insert()
+    }
+
+    /**
+     * @param {string} params.walletHash
      * @param {string} params.mnemonic
      * @param {string} params.currencyCode[]
      * @param {string} params.walletPubId
