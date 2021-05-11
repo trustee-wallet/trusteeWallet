@@ -10,7 +10,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getIsLoaderVisible } from '@app/appstores/Stores/Main/selectors'
 
-const MAX_TIME = 10000
+const MAX_TIME = 60000
 
 class Loader extends React.PureComponent {
 

@@ -108,7 +108,7 @@ class BackupSettingsScreen extends PureComponent {
 
                 try {
                     if (walletNumber * 1 > 1) {
-                        await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.handleSkip' })
+                        App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletBackup.handleSkip' })
                     } else {
                         App.init({ source: 'WalletBackup.handleSkip', onMount: false })
                     }

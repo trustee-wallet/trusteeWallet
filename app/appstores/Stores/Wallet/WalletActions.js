@@ -28,17 +28,22 @@ const walletActions = {
     },
 
     setAvailableWallets: async () => {
-        Log.log('ACT/Wallet setAvailableWallets called')
         const wallets = await walletDS.getWallets()
-
         MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
-        Log.log('ACT/Wallet setAvailableWallets found', wallets)
         dispatch({
             type: 'SET_WALLET_LIST',
             wallets
         })
+    },
 
-        return wallets
+    addAvailableWallets: async (newWallet) => {
+        const wallets = store.getState().walletStore.wallets
+        wallets.push(newWallet)
+        MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
+        dispatch({
+            type: 'SET_WALLET_LIST',
+            wallets
+        })
     },
 
     setSelectedSegwitOrNot: async function() {

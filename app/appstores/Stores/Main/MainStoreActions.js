@@ -26,18 +26,30 @@ import UIDict from '@app/services/UIDict/UIDict'
 const { dispatch } = store
 
 // @misha rething this selected wallet chain
-export async function setSelectedWallet(source) {
+export async function setSelectedWallet(source, walletHash = false) {
     Log.log('ACT/MStore setSelectedWallet called ' + source)
 
-    const walletHash = await cryptoWalletsDS.getSelectedWallet()
-
+    if (typeof walletHash === 'undefined' || !walletHash) {
+        walletHash = await cryptoWalletsDS.getSelectedWallet()
+    }
     if (!walletHash) {
         return false
     }
 
-    const wallet = await walletDS.getWalletByHash(walletHash)
-
-    Log.log('ACT/MStore setSelectedWallet called ' + source + ' found ' + JSON.stringify(wallet))
+    const oldData = store.getState().walletStore.wallets
+    let wallet = false
+    if (oldData) {
+        for (const tmp of oldData) {
+            if (tmp.walletHash === walletHash) {
+                wallet = tmp
+                break
+            }
+        }
+    }
+    if (!wallet) {
+        console.log(new Date().toISOString() + ' start actual walletDS.getWalletByHash')
+        wallet = await walletDS.getWalletByHash(walletHash)
+    }
     dispatch({
         type: 'SET_SELECTED_WALLET',
         wallet

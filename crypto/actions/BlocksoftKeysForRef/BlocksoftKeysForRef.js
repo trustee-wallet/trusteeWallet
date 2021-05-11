@@ -7,7 +7,6 @@ import BlocksoftKeysForRefServerSide from './BlocksoftKeysForRefServerSide'
 import BlocksoftKeys from '../BlocksoftKeys/BlocksoftKeys'
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 
-const bip32 = require('bip32')
 
 const CACHE = {}
 
@@ -33,8 +32,7 @@ class BlocksoftKeysForRef {
             if (typeof data.index !== 'undefined') {
                 index = data.index
             }
-            const seed = BlocksoftKeys.getSeedCached(data.mnemonic)
-            const root = bip32.fromSeed(seed)
+            const root =  BlocksoftKeys.getBip32Cached(data.mnemonic)
             const path = `m/44'/60'/${index}'/0/0`
             const child = root.derivePath(path)
 
@@ -42,6 +40,9 @@ class BlocksoftKeysForRef {
             result = await processor.getAddress(child.privateKey)
             result.index = index
             result.path = path
+            if (index === 0) {
+               BlocksoftKeys.setEthCached(data.mnemonic, result)
+            }
             BlocksoftCryptoLog.log(`BlocksoftKeysForRef discoverPublicAndPrivate finished no cache ` + JSON.stringify(logData))
         }
         // noinspection JSPrimitiveTypeWrapperUsage

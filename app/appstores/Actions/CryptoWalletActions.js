@@ -46,21 +46,17 @@ const cryptoWalletActions = {
 
         try {
 
-            Log.log('ACT/CryptoWallet setSelectedWallet called', walletHash)
-
             await cryptoWalletDS.setSelectedWallet(walletHash,  'ACT/CryptoWallet setSelectedWallet ' + source)
 
             // await walletActions.setAvailableWallets()
 
-            await setSelectedWallet('ACT/App appRefreshWalletsStates called from ' + source)
+            await setSelectedWallet('ACT/App appRefreshWalletsStates called from ' + source, walletHash)
 
             await MarketingEvent.reinitByWallet(walletHash)
 
             await currencyActions.init()
 
             // await Daemon.forceAll({source : 'ACT/CryptoWallet setSelectedWallet ' + source, walletHash})
-
-            Log.log('ACT/CryptoWallet setSelectedWallet finished')
 
         } catch (e) {
 

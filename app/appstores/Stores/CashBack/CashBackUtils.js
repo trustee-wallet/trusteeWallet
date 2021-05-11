@@ -157,14 +157,14 @@ class CashBackUtils {
             // Log.log('SRV/CashBack getByHash ' + tmpHash + ' => ' + tmpPublicAndPrivateResult.cashbackToken)
             return tmpPublicAndPrivateResult
         }
-        await Log.log('SRV/CashBack getByHash need to discoverPublic', tmpHash)
+        // await Log.log('SRV/CashBack getByHash need to discoverPublic', tmpHash)
         const mnemonic = await cryptoWalletsDS.getWallet(tmpHash, source)
         if (!mnemonic) {
            return false
         }
-        await Log.log('SRV/CashBack getByHash got mnemonic to discoverPublic')
+        // await Log.log('SRV/CashBack getByHash got mnemonic to discoverPublic')
         tmpPublicAndPrivateResult = await BlocksoftKeysForRef.discoverPublicAndPrivate({ mnemonic })
-        await Log.log('SRV/CashBack getByHash done discoverPublic ' + tmpHash + ' => ' + tmpPublicAndPrivateResult.cashbackToken)
+        // await Log.log('SRV/CashBack getByHash done discoverPublic ' + tmpHash + ' => ' + tmpPublicAndPrivateResult.cashbackToken)
         try {
             await BlocksoftKeysForRefStorage.setPublicAndPrivateResultForHash(tmpHash, tmpPublicAndPrivateResult)
         } catch (e) {
