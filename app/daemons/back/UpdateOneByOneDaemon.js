@@ -76,7 +76,6 @@ class UpdateOneByOneDaemon extends Update {
 
     updateOneByOneDaemon = async (params, level = 0) => {
         if (CACHE_STOPPED) return false
-        return false
 
         const tmpAuthHash = await cryptoWalletsDS.getSelectedWallet()
         if (!tmpAuthHash) {
