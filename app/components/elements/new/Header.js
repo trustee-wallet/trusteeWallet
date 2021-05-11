@@ -13,7 +13,7 @@ import {
 
 import CustomIcon from '../CustomIcon'
 
-import { HIT_SLOP } from '@app/themes/Themes'
+import { HIT_SLOP } from '@app/themes/HitSlop'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 

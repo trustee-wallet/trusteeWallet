@@ -14,7 +14,7 @@ import {
 import AntIcon from 'react-native-vector-icons/AntDesign'
 
 import { strings } from '@app/services/i18n'
-import { HIT_SLOP } from '@app/themes/Themes'
+import { HIT_SLOP } from '@app/themes/HitSlop'
 import TextInput from '@app/components/elements/new/TextInput'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'

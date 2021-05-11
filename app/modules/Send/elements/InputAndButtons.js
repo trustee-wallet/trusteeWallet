@@ -5,7 +5,7 @@ import React, { PureComponent } from 'react'
 import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
-import { HIT_SLOP } from '@app/themes/Themes'
+import { HIT_SLOP } from '@app/themes/HitSlop'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { strings } from '@app/services/i18n'
 

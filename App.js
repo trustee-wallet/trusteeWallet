@@ -11,7 +11,6 @@ import { Linking } from 'react-native'
 import store from '@app/store'
 
 import Router from '@app/router'
-import Themes from '@app/themes/Themes'
 import { ThemeProvider } from '@app/modules/theme/ThemeProvider'
 
 import Application from '@app/appstores/Actions/App/App'
@@ -31,11 +30,6 @@ appsFlyer.initSdk(
 );
 
 export default class App extends React.Component {
-
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillMount() {
-        Themes.init()
-    }
 
     componentDidMount() {
         Application.init({ source: 'App.mount', onMount : true })

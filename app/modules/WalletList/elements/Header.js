@@ -28,7 +28,7 @@ import Log from '@app/services/Log/Log'
 
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 
-import { HIT_SLOP } from '@app/themes/Themes';
+import { HIT_SLOP } from '@app/themes/HitSlop'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -153,12 +153,12 @@ class WalletInfo extends React.Component {
                         </View>
 
                         <View style={styles.header__right}>
-                            <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr} 
+                            <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr}
                                 hitSlop={{ top: 15, right: 8, bottom: 15, left: 15 }}>
                                 <CustomIcon name={'qr'} color={colors.common.text1} size={20} />
                             </TouchableOpacity>
 
-                            <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings} 
+                            <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings}
                                 hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}>
                                 <CustomIcon name={'menu'} color={colors.common.text1} size={20} />
                             </TouchableOpacity>

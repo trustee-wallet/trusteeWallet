@@ -15,7 +15,7 @@ import {
 
 import AntIcon from 'react-native-vector-icons/AntDesign'
 
-import { HIT_SLOP } from '@app/themes/Themes'
+import { HIT_SLOP } from '@app/themes/HitSlop'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 const headerHeight = Platform.OS === 'android' ? 49 : 44

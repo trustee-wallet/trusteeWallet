@@ -3,7 +3,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, TouchableOpacity } from 'react-native'
+import { View } from 'react-native'
 
 import { strings } from '@app/services/i18n'
 
@@ -13,11 +13,7 @@ import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/
 import accountHdDS from '@app/appstores/DataSource/Account/AccountHd'
 import accountScanningDS from '@app/appstores/DataSource/Account/AccountScanning'
 
-import Input from '@app/components/elements/NewInput'
-import CustomIcon from '@app/components/elements/CustomIcon'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-import styles from './styles'
-import { HIT_SLOP } from '@app/themes/Themes'
 
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'

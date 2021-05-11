@@ -38,7 +38,7 @@ import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 import { strings } from '@app/services/i18n'
 
-import { HIT_SLOP } from '@app/themes/Themes'
+import { HIT_SLOP } from '@app/themes/HitSlop'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import AsyncStorage from '@react-native-community/async-storage'
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'

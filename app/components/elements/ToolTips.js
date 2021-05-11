@@ -14,7 +14,6 @@ import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 import { ThemeContext } from '../../modules/theme/ThemeProvider'
 import CustomIcon from './CustomIcon'
-import { HIT_SLOP } from '../../themes/Themes'
 
 
 class ToolTips extends Component {
@@ -72,7 +71,7 @@ class ToolTips extends Component {
         let nextBtnCallback
         let nextBtnText
         let isSkip
-        
+
         switch (type) {
             case 'HOME_SCREEN_BUY_BTN_TIP':
                 nextBtnText = strings(`tooltips.buttons.next`)
@@ -279,7 +278,7 @@ class ToolTips extends Component {
                                 isSkip ?
                                     <TouchableOpacity onPress={this.skip} hitSlop={{top: 10, right: 10, bottom: 10, left: 10}} >
                                         <View style={{ height: 30, marginLeft: GRID_SIZE, marginTop: 6 }}>
-                                            <CustomIcon name={'close'} size={18} color={colors.common.text1} /> 
+                                            <CustomIcon name={'close'} size={18} color={colors.common.text1} />
                                         </View>
                                     </TouchableOpacity> : null
                             }

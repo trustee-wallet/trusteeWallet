@@ -33,7 +33,7 @@ import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/
 import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
-import { HIT_SLOP } from '@app/themes/Themes'
+import { HIT_SLOP } from '@app/themes/HitSlop'
 
 import qrLogo from '@app/assets/images/logoWithWhiteBG.png'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'

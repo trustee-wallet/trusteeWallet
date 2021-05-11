@@ -24,7 +24,7 @@ import { ThemeContext } from '../../../theme/ThemeProvider'
 import styles from './styles'
 import ListItem from '../../../../components/elements/new/list/ListItem/SubSetting'
 import CustomIcon from '../../../../components/elements/CustomIcon'
-import { HIT_SLOP } from '../../../../themes/Themes'
+import { HIT_SLOP } from '@app/themes/HitSlop'
 
 class SettingsUSDT extends Component {
 

@@ -27,7 +27,7 @@ import { strings } from '@app/services/i18n'
 
 import NavStore from '@app/components/navigation/NavStore'
 import CustomIcon from '@app/components/elements/CustomIcon'
-import { HIT_SLOP } from '@app/themes/Themes'
+import { HIT_SLOP } from '@app/themes/HitSlop'
 
 class HeaderBlocks extends React.Component {
 
