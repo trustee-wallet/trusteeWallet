@@ -86,9 +86,8 @@ class AboutScreen extends React.PureComponent {
         NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.privacy') })
     }
 
-    handleSupport = async () => {
-        const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
-        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
+    handleSupport = () => {
+        NavStore.goNext('SupportScreen')
     }
 
     handleLogs = async () => {

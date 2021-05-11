@@ -15,8 +15,6 @@ import {
 import { WebView } from 'react-native-webview'
 import UrlParse from 'url-parse'
 
-import NavStore from '@app/components/navigation/NavStore'
-
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import Log from '@app/services/Log/Log'
@@ -40,7 +38,7 @@ class SupportScreen extends React.PureComponent {
     }
 
     handleBack = () => {
-        NavStore.reset('TabBar')
+        this.props.navigation.jumpTo('HomeScreen')
     }
 
     test = async (req) => {
