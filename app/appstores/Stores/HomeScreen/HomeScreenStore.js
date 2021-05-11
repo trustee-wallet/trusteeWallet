@@ -1,3 +1,6 @@
+/**
+ * @version 0.43
+ */
 const initialState = {
     walletInfo: {
         walletName: {
@@ -16,19 +19,6 @@ const homeScreenStoreReducer = (state = initialState, action) => {
                     walletName: {
                         ...state.walletInfo.walletName,
                         text: action.payload.walletName
-                    }
-                }
-            }
-        // @ts-ignore
-        case 'SET_SELECTED_WALLET':
-            return {
-                ...state,
-                walletInfo: {
-                    ...state.walletInfo,
-                    walletName: {
-                        ...state.walletInfo.walletName,
-                        // @ts-ignore
-                        text: action.wallet.walletName || state.walletInfo.walletName
                     }
                 }
             }
