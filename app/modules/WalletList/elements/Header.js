@@ -1,5 +1,5 @@
 /**
- * @version 0.31
+ * @version 0.44
  * @author yura
  */
 import React from 'react'
@@ -16,8 +16,6 @@ import {
     StyleSheet
 } from 'react-native'
 
-import WalletName from './WalletName/WalletName'
-
 import NavStore from '@app/components/navigation/NavStore'
 
 import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
@@ -32,6 +30,7 @@ import { HIT_SLOP } from '@app/themes/HitSlop'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
+import WalletName from './WalletName/WalletName'
 
 
 const headerHeight = 44
@@ -106,7 +105,6 @@ class WalletInfo extends React.Component {
     render() {
         const { colors, GRID_SIZE, isLight } = this.context
         const {
-            selectedWallet,
             triggerBalanceVisibility,
             isBalanceVisible,
             originalVisibility,
@@ -146,10 +144,7 @@ class WalletInfo extends React.Component {
                         </View>
 
                         <View style={styles.header__center}>
-                            <WalletName
-                                walletHash={selectedWallet.walletHash || ''}
-                                walletNameText={selectedWallet.walletName || ''}
-                            />
+                            <WalletName />
                         </View>
 
                         <View style={styles.header__right}>
@@ -201,7 +196,6 @@ class WalletInfo extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        selectedWallet: state.mainStore.selectedWallet,
         hasNews: state.appNewsStore.hasNews
     }
 }

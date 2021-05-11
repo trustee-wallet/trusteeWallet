@@ -1,25 +1,14 @@
-import {
-    HomeScreenActionTypes,
-    HomeScreenState,
-    SET_NEW_WALLET_NAME,
-    SET_INPUT_EDITABLE,
-} from './Types'
-
-const initialState: HomeScreenState = {
+const initialState = {
     walletInfo: {
         walletName: {
-            text: '',
-            isEditable: false
+            text: ''
         }
     }
 }
 
-const homeScreenStoreReducer = (
-    state = initialState,
-    action: HomeScreenActionTypes
-): HomeScreenState => {
+const homeScreenStoreReducer = (state = initialState, action) => {
     switch (action.type) {
-        case SET_NEW_WALLET_NAME:
+        case 'SET_NEW_WALLET_NAME':
             return {
                 ...state,
                 walletInfo: {
@@ -27,17 +16,6 @@ const homeScreenStoreReducer = (
                     walletName: {
                         ...state.walletInfo.walletName,
                         text: action.payload.walletName
-                    }
-                }
-            }
-        case SET_INPUT_EDITABLE:
-            return {
-                ...state,
-                walletInfo: {
-                    ...state.walletInfo,
-                    walletName: {
-                        ...state.walletInfo.walletName,
-                        isEditable: action.payload.isEditable
                     }
                 }
             }
