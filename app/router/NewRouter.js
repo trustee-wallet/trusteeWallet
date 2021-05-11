@@ -66,6 +66,7 @@ import SupportScreen from '@app/modules/Support/index'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/modules/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
+import config from '@app/config/config';
 
 const Stack = createStackNavigator()
 
@@ -192,7 +193,12 @@ const TabBar = () => {
                     tabBarLabel: strings('dashboardStack.market'),
                     tabBarIcon: ({ color }) => (
                         <CustomIcon name="exchange" color={color} size={22} style={{ marginBottom: 3 }} />
-                    )
+                    ),
+                    tabBarOnPress: ({ navigation }) => {
+                        if (config.debug.appErrors) {
+                            console.log("pressed")
+                        }
+                    }
                 }}
             />
             <Tab.Screen

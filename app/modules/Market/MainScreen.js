@@ -113,13 +113,15 @@ class MarketScreen extends PureComponent {
         CASHE_TIME = new Date()
         CASHE_WALLET_HASH = this.props.selectedWalletData.walletHash
 
-        this.props.navigation.addListener('tabPress', (e) => {
-            const currentTime = new Date()
-            if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || this.props.selectedWalletData.walletHash !== CASHE_WALLET_HASH) {
-                e.preventDefault()
-                NavStore.reset('MarketScreen')
-            }
-        });
+        if (this.props.navigation.dangerouslyGetParent()) {
+            this.props.navigation.dangerouslyGetParent().addListener('tabPress', (e) => {
+                const currentTime = new Date()
+                if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || this.props.selectedWalletData.walletHash !== CASHE_WALLET_HASH) {
+                    e.preventDefault()
+                    NavStore.reset('MarketScreen')
+                }
+            });
+        }
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
         Keyboard.addListener('keyboardWillShow', this.onKeyboardShow)
