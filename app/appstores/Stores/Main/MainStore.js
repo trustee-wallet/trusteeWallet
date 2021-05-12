@@ -2,7 +2,7 @@
  * @version 0.9
  */
 
- const INITIAL_STATE = {
+const INITIAL_STATE = {
     selectedWallet: {},
     selectedCryptoCurrency: {},
     selectedBasicCurrency: {},
@@ -48,6 +48,14 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 blurVisibility: action.visible
+            }
+        case 'SET_SELECTED_WALLET_NAME':
+            return {
+                ...state,
+                selectedWallet: {
+                    ...state.selectedWallet,
+                    walletName: action.walletName
+                }
             }
         default:
             return state

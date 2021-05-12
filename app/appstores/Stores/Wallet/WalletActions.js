@@ -106,10 +106,6 @@ const walletActions = {
                     type: 'SET_SELECTED_WALLET',
                     wallet : {...oldData}
                 })
-                dispatch({
-                    type: 'SET_SELECTED_WALLET_NAME',
-                    wallet: {...oldData}
-                })
             }
 
             const oldWallets = store.getState().walletStore.wallets

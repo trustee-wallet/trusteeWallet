@@ -16,7 +16,6 @@ import lockScreenReducer from './Stores/LockScreen/LockScreenStore'
 import cashBackStoreReducer from './Stores/CashBack/CashBackStore'
 import toolTipsReducer from './Stores/ToolTips/ToolTipsStore'
 import appNewsStoreReducer from './Stores/AppNews/AppNewsReducer'
-import homeScreenStoreReducer from './Stores/HomeScreen/HomeScreenStore'
 import sendScreenStoreReducer from './Stores/Send/SendScreenStore'
 
 export default combineReducers({
@@ -33,6 +32,5 @@ export default combineReducers({
     cashBackStore: cashBackStoreReducer,
     toolTipsStore: toolTipsReducer,
     appNewsStore : appNewsStoreReducer,
-    homeScreenStore: homeScreenStoreReducer,
     sendScreenStore: sendScreenStoreReducer
 })

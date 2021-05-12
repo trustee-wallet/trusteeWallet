@@ -54,10 +54,6 @@ export async function setSelectedWallet(source, walletHash = false) {
         type: 'SET_SELECTED_WALLET',
         wallet
     })
-    dispatch({
-        type: 'SET_SELECTED_WALLET_NAME',
-        wallet
-    })
 }
 
 export function setLoaderStatus(visible) {
@@ -303,4 +299,11 @@ export async function setSelectedAccount(setting) {
     } catch (e) {
         throw new Error(e.message + ' account ' + JSON.stringify(account))
     }
+}
+
+export function setSelectedWalletName(walletName) {
+    dispatch({
+        type: 'SET_SELECTED_WALLET_NAME',
+        walletName
+    })
 }

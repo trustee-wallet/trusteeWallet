@@ -9,9 +9,16 @@ import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
+import { setSelectedWalletName } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+
+import config from '@app/config/config'
+
 import Input from '@app/components/elements/new/TextInput'
-import homeAction from '@app/appstores/Stores/HomeScreen/HomeScreenActions'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
+
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -22,17 +29,8 @@ if (PIXEL_RATIO * 1 <= 2 && SCREEN_WIDTH < 400) {
 }
 
 class WalletName extends PureComponent {
-
-    constructor(props) {
-        super(props)
-        this.state = {
-            walletNameText: null,
-            isEditing: false
-        }
-    }
-
-    componentDidMount() {
-        this.setState(() => ({ walletNameText: this.props.selectedWallet.walletName }))
+    state = {
+        isEditing: false
     }
 
     onLongPress = () => {
@@ -57,23 +55,27 @@ class WalletName extends PureComponent {
 
     onChangeName = (text) => {
         const tmpText = text.replace(/[\u2006]/g, '')
-        homeAction.setWalletName(tmpText)
+        setSelectedWalletName(tmpText)
     }
 
-    onBlurInput = (walletHash, walletName, walletNameText) => {
-        this.nameInputRef.blur()
+    onBlurInput = async (walletHash, walletName) => {
         this.nameInputRef.blur()
         this.setState(() => ({ isEditing: false }))
-        homeAction.saveNewWalletName(walletHash, walletName, walletNameText)
+        try {
+            await walletActions.setNewWalletName(walletHash, walletName)
 
+            Toast.setMessage(strings('toast.saved')).show()
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('WalletName.saveWalletName error ' + e.message)
+            }
+        }
     }
 
     render() {
 
-        const { walletHash } = this.props.selectedWallet
-        const { walletNameText, isEditing } = this.state
-        const { walletName } = this.props.walletInfo
-
+        const { walletHash, walletName } = this.props.selectedWallet
+        const { isEditing } = this.state
         const { colors } = this.context
 
         return (
@@ -88,9 +90,9 @@ class WalletName extends PureComponent {
                         placeholder=''
                         editable={isEditing}
                         selectionColor={colors.common.text2}
-                        onBlur={() => this.onBlurInput(walletHash, walletName.text, walletNameText)}
+                        onBlur={() => this.onBlurInput(walletHash, walletName)}
                         onChangeText={(text) => this.onChangeName(text)}
-                        value={this.prepareWalletName(walletName.text || walletNameText, isEditing)}
+                        value={this.prepareWalletName(walletName, isEditing)}
                     />
                 </View>
                 {
@@ -108,19 +110,11 @@ WalletName.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        selectedWallet: getSelectedWalletData(state),
-        walletInfo: state.homeScreenStore.walletInfo
+        selectedWallet: getSelectedWalletData(state)
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
-
-export default connect(mapStateToProps, mapDispatchToProps)(WalletName)
+export default connect(mapStateToProps, {})(WalletName)
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -133,7 +127,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         minWidth: 150,
         maxWidth: 220,
-        height: '100%',
+        height: '100%'
     },
     input: {
         fontFamily: 'Montserrat-Bold',
@@ -152,6 +146,8 @@ const styles = StyleSheet.create({
         zIndex: 2
     },
     container: {
+        minWidth: 150,
+        maxWidth: 220,
         elevation: 0,
         shadowColor: 'transparent',
         shadowRadius: 0,
