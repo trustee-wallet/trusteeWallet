@@ -15,9 +15,7 @@ const homeAction = {
     setWalletName: (walletName) => {
         dispatch({
             type: 'SET_NEW_WALLET_NAME',
-            payload: {
-                walletName
-            }
+            walletName
         })
     },
 

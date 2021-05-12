@@ -127,6 +127,10 @@ class Wallet {
                     type: 'SET_SELECTED_WALLET',
                     wallet: selectedWallet
                 })
+                store.dispatch({
+                    type: 'SET_SELECTED_WALLET_NAME',
+                    wallet: selectedWallet
+                })
                 UpdateWalletsDaemon.updateWalletsDaemon({ force: true })
             }
         }

@@ -54,6 +54,10 @@ export async function setSelectedWallet(source, walletHash = false) {
         type: 'SET_SELECTED_WALLET',
         wallet
     })
+    dispatch({
+        type: 'SET_SELECTED_WALLET_NAME',
+        wallet
+    })
 }
 
 export function setLoaderStatus(visible) {

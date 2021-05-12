@@ -81,6 +81,7 @@ class WalletName extends PureComponent {
                 <View style={styles.content}>
                     <Input
                         inputStyle={[styles.input, { color: colors.common.text1 }]}
+                        containerStyle={styles.container}
                         compRef={ref => this.nameInputRef = ref}
                         // placeholder={strings(`components.elements.modal.input.placeholder`).split('').join(String.fromCodePoint(parseInt('2006', 16)))}
                         // placeholder={strings(`components.elements.modal.input.placeholder`)}
@@ -139,8 +140,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 18,
         textAlign: 'center',
-        // minWidth: 150,
-        // maxWidth: 220,
         backgroundColor: 'transparent',
         paddingHorizontal: 0
     },
@@ -151,6 +150,16 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         zIndex: 2
+    },
+    container: {
+        elevation: 0,
+        shadowColor: 'transparent',
+        shadowRadius: 0,
+        shadowOpacity: 0,
+        shadowOffset: {
+            width: 0,
+            height: 0
+        }
     }
 })
 
