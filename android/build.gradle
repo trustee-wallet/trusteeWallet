@@ -2,6 +2,7 @@
 
 buildscript {
     ext {
+        firebaseMessagingVersion = "21.1.0"
         buildToolsVersion = "30.0.3"
         minSdkVersion = 21
         compileSdkVersion = 30
