@@ -88,9 +88,9 @@ const config = {
     fio: {
         apiEndpoints: {
             // baseURL: 'https://testnet.fioprotocol.io/v1/',
-            baseURL: 'https://api.fio.eosdetroit.io/v1/',
+            baseURL: 'https://fio.eosphere.io/v1/',
             // historyURL: 'https://testnet.fio.dev/v1/history/',
-            historyURL: 'https://api.fio.eosdetroit.io/v1/history/',
+            historyURL: 'https://fio.eosphere.io/v1/history/',
             registrationSiteURL: 'https://reg.fioprotocol.io/ref/trustee?publicKey=',
         },
     },
