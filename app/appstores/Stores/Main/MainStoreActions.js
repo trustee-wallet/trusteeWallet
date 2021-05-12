@@ -47,7 +47,6 @@ export async function setSelectedWallet(source, walletHash = false) {
         }
     }
     if (!wallet) {
-        console.log(new Date().toISOString() + ' start actual walletDS.getWalletByHash')
         wallet = await walletDS.getWalletByHash(walletHash)
     }
     dispatch({

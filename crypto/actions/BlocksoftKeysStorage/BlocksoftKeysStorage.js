@@ -186,8 +186,14 @@ export class BlocksoftKeysStorage {
 
     async getOneWalletText(walletHash, discoverPath, currencyCode) {
         try {
-            const key = this.getAddressCacheKey(walletHash, discoverPath, currencyCode)
-            return this.getAddressCache(key)
+            if (typeof discoverPath === 'undefined' || discoverPath === false) {
+                const res = await this._getKeyValue(walletHash)
+                if (!res) return false
+                return res.priv
+            } else {
+                const key = this.getAddressCacheKey(walletHash, discoverPath, currencyCode)
+                return this.getAddressCache(key)
+            }
         } catch (e) {
             // do nothing
         }
@@ -362,6 +368,7 @@ export class BlocksoftKeysStorage {
         }
         */
 
+        await this._setKeyValue(unique, unique, newMnemonic.mnemonic)
         await this._setKeyValue('wallet_' + this._serviceWalletsCounter, unique, newMnemonic.mnemonic)
         await this._setKeyValue('wallets_counter', this._serviceWalletsCounter)
         this._serviceWallets[unique] = newMnemonic.mnemonic

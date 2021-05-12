@@ -53,6 +53,9 @@ import FioSettings from '@app/modules/FIO/FioSettings'
 import SettingsMainScreen from '@app/modules/Settings/SettingsMainScreen'
 import WalletListScreen from '@app/modules/Settings/WalletListScreen'
 import AddWalletScreen from '@app/modules/Settings/AddWalletScreen'
+import BackupSearchWallet from '@app/modules/Settings/BackupSearchWalletScreen'
+import BackupSearchOne from '@app/modules/Settings/BackupSearchOneScreen'
+
 import AdvancedWalletScreen from '@app/modules/Settings/AdvancedWalletScreen'
 import LocalCurrencyScreen from '@app/modules/Settings/LocalCurrencyScreen'
 import LanguageListScreen from '@app/modules/Settings/LanguageListScreen'
@@ -110,6 +113,9 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='SettingsMainScreen' component={SettingsMainScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletListScreen' component={WalletListScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AddWalletScreen' component={AddWalletScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='BackupSearchWallet' component={BackupSearchWallet} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='BackupSearchOne' component={BackupSearchOne} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
             <HomeStack.Screen name='AdvancedWalletScreen' component={AdvancedWalletScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='LocalCurrencyScreen' component={LocalCurrencyScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='LanguageListScreen' component={LanguageListScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

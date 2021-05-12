@@ -16,8 +16,31 @@ import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import AsyncStorage from '@react-native-community/async-storage'
+import config from '@app/config/config'
 
 class AddWalletScreen extends PureComponent {
+
+    constructor() {
+        super()
+        this.state = {
+            devMode: false
+        }
+    }
+
+    // eslint-disable-next-line camelcase
+    async UNSAFE_componentWillMount() {
+        const devMode = await AsyncStorage.getItem('devMode')
+        if (devMode && devMode.toString() === '1') {
+            config.devMode = true
+        }
+
+        if (typeof config.devMode !== 'undefined') {
+            this.setState({
+                devMode: true
+            })
+        }
+    }
 
     handleImport = () => {
         const walletNumber = (MarketingEvent.DATA.LOG_WALLETS_COUNT * 1 + 1).toString()
@@ -25,6 +48,10 @@ class AddWalletScreen extends PureComponent {
         setFlowType({ flowType: 'IMPORT_WALLET', source: 'WalletAddScreen', walletNumber })
         setWalletName({ walletName: '' })
         NavStore.goNext('EnterMnemonicPhrase', { flowSubtype: 'importAnother' })
+    }
+
+    handleBackupSearchWallet = () => {
+        NavStore.goNext('BackupSearchWallet')
     }
 
     handleCreate = () => {
@@ -65,6 +92,15 @@ class AddWalletScreen extends PureComponent {
                     keyboardShouldPersistTaps="handled"
                 >
                     <View style={{ padding: GRID_SIZE }}>
+                        {this.state.devMode && (
+                            <ListItem
+                                title={'Restore wallet'}
+                                subtitle={'only dev mode'}
+                                iconType="config"
+                                onPress={this.handleBackupSearchWallet}
+                                rightContent="arrow"
+                            />
+                        )}
                         <ListItem
                             title={strings('settings.walletManagement.addWallet.importTitle')}
                             subtitle={strings('settings.walletManagement.addWallet.importSubtitle')}
