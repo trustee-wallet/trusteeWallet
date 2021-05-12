@@ -512,6 +512,54 @@ export default {
             darkColor: '#C1AB5D'
         }
     },
+    "BNB_SMART_TRX": {
+        colors: {
+            mainColor: '#E51A31',
+            darkColor: '#E51A31'
+        }
+    },
+    "BNB_SMART_BTT": {
+        colors: {
+            mainColor: '#D73A64',
+            darkColor: '#CA4D6F'
+        }
+    },
+    "BNB_SMART_WINK": {
+        colors: {
+            mainColor: '#FBC509',
+            darkColor: '#D1AB24'
+        }
+    },
+    "ETH_FTT": {
+        colors: {
+            mainColor: '#62D1E5',
+            darkColor: '#4FC2D7'
+        }
+    },
+    "BNB_SMART_FTT": {
+        colors: {
+            mainColor: '#62D1E5',
+            darkColor: '#4FC2D7'
+        }
+    },
+    "ETH_NEXO": {
+        colors: {
+            mainColor: '#3CA9E5',
+            darkColor: '#3CA9E5'
+        }
+    },
+    "BNB_SMART_NEXO": {
+        colors: {
+            mainColor: '#3CA9E5',
+            darkColor: '#3CA9E5'
+        }
+    },
+    "ETC": {
+        colors: {
+            mainColor: '#3AB83A',
+            darkColor: '#2CAC2C'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',
