@@ -650,6 +650,21 @@ const Currencies = {
                 'https://etherscan.io/token/0x514910771af9ca656af840dff83e8264ecf986ca?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
         },
+        ETH_NOW:
+            {
+                    currencyType: 'token',
+                    currencyName: 'ChangeNOW',
+                    currencyCode: 'ETH_NOW',
+                    currencySymbol: 'NOW',
+                    extendsProcessor: 'ETH_TRUE_USD',
+                    addressUiChecker: 'ETH',
+                    ratesCurrencyCode: 'NOW',
+                    decimals: 8,
+                    tokenBlockchain: 'ETHEREUM',
+                    tokenAddress: '0xe9a95d175a5f4c9369f3b74222402eb1b837693b',
+                    currencyExplorerLink:
+                        'https://etherscan.io/token/0xe9a95d175a5f4c9369f3b74222402eb1b837693b?a='
+            },
     ETH_CHZ:
         {
             currencyType: 'token',
