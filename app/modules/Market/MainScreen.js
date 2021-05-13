@@ -59,7 +59,7 @@ import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
-let CASHE_TIME, CASHE_WALLET_HASH
+let CASHE_TIME, CASHE_WALLET_HASH, CASHE_CONFIG
 
 class MarketScreen extends PureComponent {
 
@@ -112,11 +112,12 @@ class MarketScreen extends PureComponent {
 
         CASHE_TIME = new Date()
         CASHE_WALLET_HASH = this.props.selectedWalletData.walletHash
+        CASHE_CONFIG = config.exchange.mode
 
         if (this.props.navigation.dangerouslyGetParent()) {
             this.props.navigation.dangerouslyGetParent().addListener('tabPress', (e) => {
                 const currentTime = new Date()
-                if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || this.props.selectedWalletData.walletHash !== CASHE_WALLET_HASH) {
+                if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || this.props.selectedWalletData.walletHash !== CASHE_WALLET_HASH || config.exchange.mode !== CASHE_CONFIG) {
                     e.preventDefault()
                     NavStore.reset('MarketScreen')
                 }
@@ -266,7 +267,7 @@ class MarketScreen extends PureComponent {
             const {
                 error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, checkCamera, refreshControl
+                useAllFunds, checkCamera, refreshControl, restart
             } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
@@ -280,6 +281,11 @@ class MarketScreen extends PureComponent {
             if (close) {
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.reset('HomeScreen')
+                return
+            }
+
+            if (restart) {
+                NavStore.reset('MarketScreen')
                 return
             }
 
@@ -387,7 +393,8 @@ class MarketScreen extends PureComponent {
                 payinUrl: null,
                 requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
                 requestedOutAmount: { amount: data.outAmount, currencyCode: data.outCurrency },
-                status: 'pending_payin'
+                status: 'pending_payin',
+                payway: data.payway || null
             }
 
             const bse = {
@@ -397,7 +404,7 @@ class MarketScreen extends PureComponent {
                 bseTrusteeFee: {
                     // value: trusteeFee ? trusteeFee.trusteeFee : 0,
                     // currencyCode: trusteeFee ? trusteeFee.currencyCode : 'USD',
-                    value :  data.amount, // to unify with Vlad
+                    value:  data.amount, // to unify with Vlad
                     currencyCode: data.currencyCode, // to unify
 
                     type: 'MARKET',

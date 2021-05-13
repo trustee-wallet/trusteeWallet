@@ -130,7 +130,7 @@ export namespace SendActionsStart {
             dict
         })
         await SendActionsBlockchainWrapper.getFeeRate(ui)
-        NavStore.goNext('ReceiptScreen', { backMarket: true })
+        NavStore.goNext('HomeScreen', { screen: 'ReceiptScreen', params: { backMarket: true } })
     }
 
     export const getTransferAllBalanceFromBSE = async (data : {
@@ -174,7 +174,8 @@ export namespace SendActionsStart {
         bseOrderId: any,
         bseMinCrypto : any,
         bseTrusteeFee : any,
-        bseOrderData : any
+        bseOrderData : any,
+        payway : any
     }) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
@@ -198,7 +199,7 @@ export namespace SendActionsStart {
             dict
         })
         await SendActionsBlockchainWrapper.getFeeRate(ui)
-        NavStore.goNext('ReceiptScreen', { backMarket: true })
+        NavStore.goNext('HomeScreen', { screen: 'ReceiptScreen', params: { backMarket: true } })
     }
 
 
