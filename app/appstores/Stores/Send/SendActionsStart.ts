@@ -174,7 +174,8 @@ export namespace SendActionsStart {
         bseOrderId: any,
         bseMinCrypto : any,
         bseTrusteeFee : any,
-        bseOrderData : any
+        bseOrderData : any,
+        payway : any
     }) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = await formatDict(cryptoCurrency, account)

@@ -5,16 +5,16 @@ import store from '../../store'
 
 import transactionDS from '../DataSource/Transaction/Transaction'
 
-import Log from '../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import DaemonCache from '../../daemons/DaemonCache'
-import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
-import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
-import config from '../../config/config'
-import EthTmpDS from '../../../crypto/blockchains/eth/stores/EthTmpDS'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import DaemonCache from '@app/daemons/DaemonCache'
+import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
+import config from '@app/config/config'
+import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
 
 const { dispatch } = store
 
@@ -193,9 +193,6 @@ const transactionActions = {
 
         if (typeof exchangeOrder.exchangeWayType !== 'undefined') {
             transaction.wayType = exchangeOrder.exchangeWayType
-            if (exchangeOrder.outDestination && exchangeOrder.outDestination.includes('+')) {
-                transaction.wayType = 'MOBILE_PHONE'
-            }
 
             if (exchangeOrder.exchangeWayType === 'BUY') {
                 transaction.transactionDirection = 'income'
