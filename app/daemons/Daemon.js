@@ -17,7 +17,6 @@ export default {
     async start () {
         if (CACHE_STARTED) return false
         const { daemon } = config
-        console.log('daemon update')
         UpdateOneByOneDaemon
             .setTime(daemon.updateTimes.oneByOne)
             .start()
