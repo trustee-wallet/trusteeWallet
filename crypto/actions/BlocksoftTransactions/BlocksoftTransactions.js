@@ -67,6 +67,34 @@ class BlocksoftTransactions {
     }
 
     /**
+     * @return {Promise<boolean>}
+     */
+    async resetTransactionsPending(data, source = '') {
+        const currencyCode = data.account.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
+        if (!this._processor[currencyCode]) {
+            /**
+             * @type {TrxScannerProcessor}
+             */
+            this._processor[currencyCode] = BlocksoftDispatcher.getScannerProcessor(currencyCode)
+        }
+        if (typeof this._processor[currencyCode].resetTransactionsPendingBlockchain === 'undefined') {
+            return false
+        }
+        let resultData = false
+        try {
+            resultData = await this._processor[currencyCode].resetTransactionsPendingBlockchain(data, source, false)
+        } catch (e) {
+            e.message += ' on actual resetTransactionsPending step '
+            throw e
+        }
+
+        return resultData
+    }
+
+    /**
      * @return {Promise<string[]>}
      */
     async getAddresses(data, source = '') {

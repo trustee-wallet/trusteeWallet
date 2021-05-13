@@ -18,6 +18,7 @@ import { strings, sublocale } from '@app/services/i18n'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import BlocksoftTransactions from '@crypto/actions/BlocksoftTransactions/BlocksoftTransactions'
 
 // https://developers.tron.network/docs/parameter-and-return-value-encoding-and-decoding
 const ethers = require('ethers')
@@ -445,6 +446,8 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         }
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('v20_trx_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
+
+        await (BlocksoftTransactions.resetTransactionsPending({account : {currencyCode : 'TRX'}}, 'AccountRunPending'))
 
         if (config.debug.cryptoErrors) {
             console.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx result', JSON.parse(JSON.stringify(result)))

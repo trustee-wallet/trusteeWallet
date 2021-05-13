@@ -120,20 +120,12 @@ class App {
 
             this.initStatus = 'dispatch(setInitState(true))'
 
-            Log.log('ACT/App init application finished')
-
-            this.initStatus = 'const { daemon } = config'
-
-            await Daemon.start()
-
-            this.initStatus = 'Daemon.start()'
-
             await this.refreshWalletsStore({ firstTimeCall: 'second', source: 'ACT/App init' })
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
-            this.initStatus = 'setCards()'
 
+            Daemon.start()
             // console.log(new Date().toISOString() + ' done')
 
         } catch (e) {
@@ -192,6 +184,7 @@ class App {
             // await UpdateCashBackDataDaemon.updateCashBackDataDaemon({source : 'UpdateCashBackDataDaemon.AppHomeScreen'})
 
             await CashBackUtils.init({},'ACT/App appRefreshWalletsStates init ' + firstTimeCall)
+
         } else {
             await Daemon.forceAll(params)
 

@@ -8,22 +8,26 @@ import UpdateCurrencyRateDaemon from './back/UpdateCurrencyRateDaemon'
 import UpdateCashBackDataDaemon from './back/UpdateCashBackDataDaemon'
 
 import config from '../config/config'
-import UpdateTradeOrdersDaemon from './back/UpdateTradeOrdersDaemon'
 import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 
-class Daemon {
+let CACHE_STARTED = false
 
-    start = async () => {
+export default {
+
+    async start () {
+        if (CACHE_STARTED) return false
         const { daemon } = config
+        console.log('daemon update')
         UpdateOneByOneDaemon
             .setTime(daemon.updateTimes.oneByOne)
             .start()
         UpdateAccountListDaemon
             .setTime(daemon.updateTimes.view)
             .start()
-    }
+        CACHE_STARTED = true
+    },
 
-    forceAll = async (params) => {
+    async forceAll(params) {
         if (typeof params.noRatesApi === 'undefined') {
             await UpdateCurrencyRateDaemon.updateCurrencyRate(params)
         }
@@ -37,5 +41,3 @@ class Daemon {
         }
     }
 }
-
-export default new Daemon

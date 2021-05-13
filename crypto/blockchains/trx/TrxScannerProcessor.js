@@ -15,6 +15,8 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import needUpdate from 'react-native-version-check/src/needUpdate'
 
+let CACHE_PENDING_TXS = false
+
 export default class TrxScannerProcessor {
 
     constructor(settings) {
@@ -83,7 +85,15 @@ export default class TrxScannerProcessor {
         return result
     }
 
+    async resetTransactionsPendingBlockchain(scanData, source, lastBlock = false) {
+        CACHE_PENDING_TXS = false
+        return false
+    }
+
     async getTransactionsPendingBlockchain(scanData, source, lastBlock = false) {
+        if (CACHE_PENDING_TXS === 'none') {
+            return false
+        }
         // id, transaction_hash, block_number, block_confirmations, transaction_status,
         const sql = `SELECT id, transaction_hash AS transactionHash, transactions_scan_log AS transactionsScanLog
             FROM transactions
@@ -95,8 +105,10 @@ export default class TrxScannerProcessor {
             ORDER BY created_at DESC
             LIMIT 10
         `
+        console.log(sql)
         const res = await Database.setQueryString(sql).query()
         if (!res || typeof res.array === 'undefined' || !res.array || res.array.length === 0) {
+            CACHE_PENDING_TXS = 'none'
             return false
         }
 
