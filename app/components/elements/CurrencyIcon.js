@@ -19,7 +19,7 @@ export default class ButtonLine extends PureComponent {
 
     renderIcon = () => {
 
-        const { currencyCode, containerStyle, markStyle, iconStyle, textContainerStyle, textStyle } = this.props
+        const { currencyCode, containerStyle, markStyle, iconStyle } = this.props
 
         const fontSize = typeof iconStyle !== 'undefined' ? iconStyle.fontSize : 24
 
@@ -635,53 +635,54 @@ export default class ButtonLine extends PureComponent {
                         </View>
                     </View>
                 )
-
-            default:
-                return (
-                    <View style={{ ...styles.icon, borderColor: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
-                        <View style={styles.icon__item}>
-                            <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>No</Text>
-                            <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>Icon</Text>
-                        </View>
-                    </View>
-                )
         }
 
         if (typeof extend.addressCurrencyCode !== 'undefined') {
             switch (extend.addressCurrencyCode) {
 
                 case 'ETH':
+                    if (extend.tokenBlockchain === 'BNB') {
+                        return (
+                            <View style={{ ...styles.icon, borderColor: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                            <View style={styles.icon__item}>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>No</Text>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>Icon</Text>
+                            </View>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name="BNB_SMART" style={{ color: colorDict['BNB_SMART'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                            </View>
+                        </View>
+                        )
+                    }
                     return (
-                        <View style={{ ...styles.icon, borderColor: '#1EB3E4', ...tmpContainerStyle }}>
-                            <View style={[styles.icon__item, { color: '#1EB3E4' }]}>
-                                <Text style={{ fontFamily: 'SFUIDisplay-Semibold', color: '#1EB3E4', fontSize: 12 }}>
-                                    {extend.currencySymbol}
-                                </Text>
-                                <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                    <CustomIcon name="ETH" style={{ color: '#1EB3E4' }} fontSize={14} />
-                                </View>
+                        <View style={{ ...styles.icon, borderColor: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                            <View style={styles.icon__item}>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>No</Text>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>Icon</Text>
+                            </View>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     )
                 case 'TRX':
                     return (
-                        <View style={{ ...styles.icon, borderColor: '#E51A31', ...tmpContainerStyle }}>
-                            <View style={[styles.icon__item, { color: '#E51A31' }]}>
-                                <Text style={{ fontFamily: 'SFUIDisplay-Semibold', color: '#E51A31', fontSize: 12 }}>
-                                    {extend.currencySymbol}
-                                </Text>
-                                <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                    <CustomIcon name="TRX" style={{ color: '#E51A31', fontSize: 12 }} />
-                                </View>
+                        <View style={{ ...styles.icon, borderColor: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                            <View style={styles.icon__item}>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>No</Text>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>Icon</Text>
+                            </View>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     )
                 default:
                     return (
-                        <View style={{ ...styles.icon, ...tmpContainerStyle }}>
+                        <View style={{ ...styles.icon, borderColor: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                             <View style={styles.icon__item}>
-                                <Text>No</Text>
-                                <Text>icon</Text>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>No</Text>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>Icon</Text>
                             </View>
                         </View>
                     )
