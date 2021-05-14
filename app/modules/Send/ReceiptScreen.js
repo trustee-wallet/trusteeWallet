@@ -185,24 +185,15 @@ class ReceiptScreen extends PureComponent {
     }
 
 
-    closeAction = async (closeScreen = false) => {
+    closeAction = async () => {
         await SendActionsEnd.endClose(this.props.sendScreenStore)
-        const { uiType } = this.props.sendScreenStore.ui
-        if (closeScreen) {
-            if (uiType === 'TRADE_SEND') {
-                NavStore.goNext('MarketScreen') // @todo here some param to reset all search
-            } else {
-                NavStore.reset('HomeScreen')
-            }
-        } else {
-            NavStore.goBack()
-        }
+        NavStore.reset('HomeScreen')
     }
 
     backAction = () => {
         const { uiType } = this.props.sendScreenStore.ui
         if (uiType === 'TRADE_SEND') {
-            NavStore.goNext('MarketScreen')
+            NavStore.goNext('MarketScreen') // @todo here some param to reset all search
         } else {
             NavStore.goBack()
         }
@@ -242,10 +233,8 @@ class ReceiptScreen extends PureComponent {
             <ScreenWrapper
                 leftType='back'
                 leftAction={this.backAction}
-                leftParams={{ 'close': false }}
                 rightType='close'
                 rightAction={this.closeAction}
-                rightParams={{ 'close': true }}
                 title={strings('send.receiptScreen.title')}
                 setStatusBar={() => StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')}
             >
