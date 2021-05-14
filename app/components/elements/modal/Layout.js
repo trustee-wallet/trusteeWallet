@@ -27,7 +27,13 @@ class ModalLayout extends React.PureComponent {
         const { colors } = this.context
 
         return (
-            <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} isVisible={this.props.visible === true || this.props.visible === 'true'} onBackdropPress={() => {this.props.noBackdropPress === true ? null : hideModal()}} >
+            <Modal style={styles.modal}
+                   hasBackdrop={true}
+                   backdropOpacity={0.4}
+                   isVisible={this.props.visible === true || this.props.visible === 'true'}
+                   onBackdropPress={() => {this.props.noBackdropPress === true ? null : hideModal()}}
+                   useNativeDriver={true}
+            >
                 <View style={{...styles.container, backgroundColor: colors.common.background, minHeight: this.props.notifications ? 170 : 290  }}>
                     <View>
                         {this.props.children}

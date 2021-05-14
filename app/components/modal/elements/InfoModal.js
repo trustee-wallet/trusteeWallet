@@ -20,12 +20,15 @@ import { strings } from '@app/services/i18n'
 
 class InfoModal extends React.PureComponent {
 
-    handleHide = () => {
-        const { callback } = this.props
-
+    handleHide = async () => {
         hideModal()
-        if (typeof callback !== 'undefined') {
-            callback()
+        const { callback } = this.props
+        try {
+            if (typeof callback !== 'undefined') {
+                await callback()
+            }
+        } catch (e) {
+            // do nothing
         }
 
     }
@@ -63,8 +66,8 @@ class InfoModal extends React.PureComponent {
                     </TouchableOpacity>
                     {typeof component !== 'undefined' ? component() : null}
                     <View style={{marginBottom: 30 }}>
-                        <Button onPress={this.handleHide} color={ icon === true ? colors.modal.success : icon === false ? colors.modal.warning : icon === null ? colors.modal.warning  : colors.modal.info  } shadow={true} style={{ marginTop: 17 }}>
-                            Ok
+                        <Button onPress={() => { return this.handleHide()}} color={ icon === true ? colors.modal.success : icon === false ? colors.modal.warning : icon === null ? colors.modal.warning  : colors.modal.info  } shadow={true} style={{ marginTop: 17 }}>
+                            Ok1
                         </Button>
                     </View>
                 </View>
