@@ -498,7 +498,7 @@ class AccountTransactionScreen extends React.PureComponent {
     }
 
     prepareStatusToView = (transaction) => {
-        if (!transaction.bseOrderData || typeof transaction.bseOrderData.exchangeWayType === 'undefined' || !transaction.bseOrderData.exchangeWayType) {
+        if (!transaction.bseOrderData || typeof transaction.bseOrderData.exchangeWayType === 'undefined' || !transaction.bseOrderData.exchangeWayType || typeof transaction.bseOrderData.status === 'undefined' || !transaction.bseOrderData.status) {
             return {
                 title: strings(`account.transaction.status`),
                 description: strings(`account.transactionStatuses.${transaction.transactionVisibleStatus.toLowerCase()}`)
