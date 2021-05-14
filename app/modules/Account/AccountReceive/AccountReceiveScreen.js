@@ -29,14 +29,12 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import walletHDActions from '@app/appstores/Actions/WalletHDActions'
-import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
 import { HIT_SLOP } from '@app/themes/HitSlop'
 
 import qrLogo from '@app/assets/images/logoWithWhiteBG.png'
-import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
 import UIDict from '@app/services/UIDict/UIDict'
@@ -65,6 +63,8 @@ import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import AsyncStorage from '@react-native-community/async-storage'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
+
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -80,7 +80,8 @@ class AccountReceiveScreen extends React.PureComponent {
     constructor() {
         super()
         this.state = {
-            settingAddressType: '',
+            settingAddressType: false,
+            settingAddressTypeTriggered : false,
 
             customAmount: false,
 
@@ -95,46 +96,33 @@ class AccountReceiveScreen extends React.PureComponent {
             changeAddress: false,
 
             isBalanceVisible: false,
-            originalVisibility: false,
+            isBalanceVisibleTriggered: false,
         }
     }
 
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillMount() {
-        this.getBalanceVisibility()
-        settingsActions.getSetting('btc_legacy_or_segwit').then(res => this.setState({ settingAddressType: res }))
+
+    getAddress = () => {
+        const { settingAddressType, settingAddressTypeTriggered } = this.state
+        const { isSegwit } = this.props
+        let { address, legacyAddress, segwitAddress } = this.props.account
+        const actualIsSegwit = settingAddressTypeTriggered ? (settingAddressType !== 'legacy') : isSegwit
+        if (!actualIsSegwit && legacyAddress) {
+            address = legacyAddress
+        } else if (segwitAddress) {
+            address = segwitAddress
+        }
+        Log.log('AccountReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType, actualIsSegwit })
+        return address
     }
 
     copyToClip = () => {
-        const { settingAddressType } = this.state
-
         try {
-            let { address, legacyAddress, segwitAddress } = this.props.account
-            if (settingAddressType === 'legacy' && legacyAddress) {
-                address = legacyAddress
-            } else if (segwitAddress) {
-                address = segwitAddress
-            }
-
-            copyToClipboard(address)
-
+            copyToClipboard(this.getAddress())
             Toast.setMessage(strings('toast.copied')).show()
         } catch (e) {
             Log.err('AccountReceiveScreen.copyToClip error', e.message)
         }
 
-    }
-
-    getAddress = () => {
-        const { settingAddressType } = this.state
-        let { address, legacyAddress, segwitAddress } = this.props.account
-        if (settingAddressType === 'legacy' && legacyAddress) {
-            address = legacyAddress
-        } else if (segwitAddress) {
-            address = segwitAddress
-        }
-        Log.log('AccountReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType })
-        return address
     }
 
     getAddressForQR = () => {
@@ -261,7 +249,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
         const { currencySymbol, currencyName, currencyCode } = this.props.cryptoCurrency
         const { balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.account
-        const { isBalanceVisible, originalVisibility } = this.state
+        const isBalanceVisible = this.state.isBalanceVisibleTriggered ? this.state.isBalanceVisible : this.props.isBalanceVisible
 
         const { colors } = this.context
 
@@ -293,10 +281,10 @@ class AccountReceiveScreen extends React.PureComponent {
                             isSynchronized ?
                                 <View style={{ alignItems: 'flex-start' }}>
                                     <TouchableOpacity
-                                        onPressIn={() => this.triggerBalanceVisibility(true)}
-                                        onPressOut={() => this.triggerBalanceVisibility(false)}
+                                        onPressIn={() => this.triggerBalanceVisibility(true, this.props.isBalanceVisible)}
+                                        onPressOut={() => this.triggerBalanceVisibility(false, this.props.isBalanceVisible)}
                                         activeOpacity={1}
-                                        disabled={originalVisibility}
+                                        disabled={this.props.isBalanceVisible}
                                         hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
                                     >
                                         {isBalanceVisible ?
@@ -323,11 +311,10 @@ class AccountReceiveScreen extends React.PureComponent {
 
     changeAddressType = async () => {
         try {
-            setLoaderStatus(true)
-            const setting = await walletActions.setSelectedSegwitOrNot()
-            await setSelectedAccount(setting)
-            settingsActions.getSetting('btc_legacy_or_segwit').then(res => this.setState({ settingAddressType: res }))
-            setLoaderStatus(false)
+            const { settingAddressType, settingAddressTypeTriggered } = this.state
+            const { isSegwit } = this.props
+            const actualIsSegwit = settingAddressTypeTriggered ? (settingAddressType !== 'legacy') : isSegwit
+            this.setState({ settingAddressType: actualIsSegwit ? 'legacy' : 'segwit', settingAddressTypeTriggered : true })
         } catch (e) {
             // noinspection ES6MissingAwait
             Log.err('AccountReceiveScreen.changeAddressType error ' + e.message)
@@ -346,20 +333,21 @@ class AccountReceiveScreen extends React.PureComponent {
     renderSegWitLegacy = () => {
 
         try {
-            const { settingAddressType } = this.state
-
+            const { settingAddressType, settingAddressTypeTriggered } = this.state
+            const { isSegwit } = this.props
+            const actualIsSegwit = settingAddressTypeTriggered ? (settingAddressType !== 'legacy') : isSegwit
             const tabs = [
                 {
                     title: 'SegWit',
                     index: 0,
-                    active: settingAddressType === 'segwit' ? true : false,
+                    active: actualIsSegwit,
                     hasNewNoties: false,
                     group: null
                 },
                 {
                     title: 'Legacy',
                     index: 1,
-                    active: settingAddressType === 'legacy' ? true : false,
+                    active: !actualIsSegwit,
                     hasNewNoties: false,
                     group: null
                 },
@@ -515,15 +503,8 @@ class AccountReceiveScreen extends React.PureComponent {
     getDataForQR = (amount, label) => {
         try {
             const { currencySymbol, currencyCode } = this.props.cryptoCurrency
-            let address
-
+            const address = this.getAddress()
             amount = this.state.customAmount ? amount : ''
-
-            if (currencyCode === 'BTC' || currencyCode === 'LTC') {
-                address = this.state.settingAddressType === 'segwit' ? this.props.account.segwitAddress : this.props.account.legacyAddress
-            } else {
-                address = this.props.account.address
-            }
 
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             let linkForQR = ''
@@ -560,17 +541,11 @@ class AccountReceiveScreen extends React.PureComponent {
         return tmp
     }
 
-    getBalanceVisibility = () => {
-        const originalVisibility = this.props.settingsStore.data.isBalanceVisible
-        this.setState(() => ({ originalVisibility, isBalanceVisible: originalVisibility }))
+    triggerBalanceVisibility = (value, originalVisibility) => {
+        this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
     }
-
-    triggerBalanceVisibility = (value) => {
-        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
-    }
-
     render() {
-        const { mainStore, settingsStore } = this.props
+        const { mainStore } = this.props
         const { fioName, customAmount, amountForQr, labelForQr, inputType } = this.state
         const { address, basicCurrencyCode } = this.props.account
         const { currencySymbol, currencyCode, decimals } = this.props.cryptoCurrency
@@ -582,8 +557,7 @@ class AccountReceiveScreen extends React.PureComponent {
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
-        const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ?
-            this.props.account.segwitAddress : this.props.account.legacyAddress
+        const btcAddress = this.getAddress()
 
         const buttonsArray = [
             { icon: 'edit', title: strings('account.receiveScreen.amount'), action: () => this.handleCustomReceiveAmount() },
@@ -745,6 +719,8 @@ const mapStateToProps = (state) => {
         account: state.mainStore.selectedAccount,
         settingsStore: state.settingsStore,
         wallet: state.mainStore.selectedWallet,
+        isSegwit: getIsSegwit(state),
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore),
     }
 }
 
