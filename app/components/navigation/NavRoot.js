@@ -17,6 +17,10 @@ export function goBack() {
     navigationRef.current?.goBack()
 }
 
+export function canGoBack() {
+    return navigationRef.current?.canGoBack()
+}
+
 export function currentRoute() {
     return  navigationRef.current?.getCurrentRoute()
 }

@@ -83,7 +83,8 @@ class AccountTransactionScreen extends React.PureComponent {
 
             focused: false,
             notification: false,
-            toOpenAccountBack: false
+            toOpenAccountBack: false,
+            uiType : false
         }
     }
 
@@ -91,7 +92,7 @@ class AccountTransactionScreen extends React.PureComponent {
         try {
             const data = NavStore.getParamWrapper(this, 'txData')
 
-            let { transactionHash, transactionStatus, currencyCode, orderHash, walletHash, transaction, notification, toOpenAccountBack } = data
+            let { transactionHash, transactionStatus, currencyCode, orderHash, walletHash, transaction, notification, toOpenAccountBack, uiType } = data
             let tx
             let account
 
@@ -182,14 +183,16 @@ class AccountTransactionScreen extends React.PureComponent {
                     account,
                     notification,
                     cryptoCurrency,
-                    toOpenAccountBack
+                    toOpenAccountBack,
+                    uiType
                 }))
             } else {
                 this.setState(() => ({
                     transaction: tx,
                     account,
                     cryptoCurrency,
-                    toOpenAccountBack
+                    toOpenAccountBack,
+                    uiType
                 }))
             }
         } catch (e) {
@@ -626,7 +629,9 @@ class AccountTransactionScreen extends React.PureComponent {
     }
 
     backAction = async () => {
-        if (this.state.toOpenAccountBack) {
+        if (this.state.uiType === 'TRADE_SEND') {
+            NavStore.goNext('MarketScreen')
+        } else if (this.state.toOpenAccountBack) {
             const { cryptoCurrency } = this.props
             setSelectedCryptoCurrency(cryptoCurrency)
             await setSelectedAccount()
@@ -637,7 +642,11 @@ class AccountTransactionScreen extends React.PureComponent {
     }
 
     closeAction = () => {
-        NavStore.reset('HomeScreen')
+        if (this.state.uiType === 'TRADE_SEND') {
+            NavStore.goNext('MarketScreen') // @todo here some param to reset all search
+        } else {
+            NavStore.reset('HomeScreen')
+        }
     }
 
     getTransactionDate(transaction) {

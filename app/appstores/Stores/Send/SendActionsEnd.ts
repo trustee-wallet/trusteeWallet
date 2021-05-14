@@ -111,8 +111,8 @@ export namespace SendActionsEnd {
         const { currencyCode } = sendScreenStore.dict
         const { uiType, tbk } = sendScreenStore.ui
         const { transactionAction } = tbk
-        if (typeof transactionAction !== 'undefined' && transactionAction !== '') {
-            NavStore.reset('AccountTransactionScreen', {
+        if (typeof transactionAction !== 'undefined' && transactionAction !== '' && transactionAction) {
+            NavStore.goNext('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash,
                     toOpenAccountBack: true
@@ -145,13 +145,15 @@ export namespace SendActionsEnd {
         } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
-                    transactionHash: tx.transactionHash
+                    transactionHash: tx.transactionHash,
+                    uiType
                 }
             })
         } else if (uiType === 'TRADE_SEND') {
-            NavStore.reset('AccountTransactionScreen', {
+            NavStore.goNext('AccountTransactionScreen', {
                 txData: {
-                    transactionHash: tx.transactionHash
+                    transactionHash: tx.transactionHash,
+                    uiType
                 }
             })
         } else {

@@ -5,24 +5,29 @@
  */
 import config from '@app/config/config'
 
-import { navigate, reset, goBack, currentRoute } from '@app/components/navigation/NavRoot'
+import { navigate, reset, goBack, currentRoute, canGoBack } from '@app/components/navigation/NavRoot'
 
-class ObservableNavStore {
+export default {
 
-    reset = (routeName, params = {}) => {
+    reset(routeName, params = {}) {
         if (routeName === 'HomeScreen' || routeName === 'HomeScreenPop') {
             try {
                 let i = 0
+                let doBack = false
                 do {
                     const current = currentRoute()
                     if (current.name !== 'HomeScreen' && current.name !== 'HomeScreenPop') {
-                        goBack()
-                        i++
+                        if (canGoBack()) {
+                            goBack()
+                            i++
+                            doBack = true
+                        }
                     } else {
+                        doBack = true
                         break
                     }
                 } while (i < 10)
-                if (i< 10) return true
+                if (i< 10 && doBack) return true
             } catch (e) {
                 if (config.debug.appErrors) {
                     console.log('NavStore.reset error ' + e.message)
@@ -40,19 +45,21 @@ class ObservableNavStore {
                 console.log('NavStore.reset error ' + e.message)
             }
         }
-    }
+    },
 
-    goBack = () => {
+    goBack() {
         try {
-           goBack()
+           if (canGoBack()) {
+                goBack()
+           }
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NavStore.goBack error ' + e.message)
             }
         }
-    }
+    },
 
-    goNext = (routeName, params = null, reset = false) => {
+    goNext(routeName, params = null, reset = false) {
         if (reset) {
             console.log('navstore reset is depressed')
             this.reset(routeName)
@@ -66,9 +73,9 @@ class ObservableNavStore {
                 console.log('NavStore.goNext error ' + e.message)
             }
         }
-    }
+    },
 
-    getParamWrapper = (screen, data, def = false) => {
+    getParamWrapper(screen, data, def = false) {
         try {
             if (typeof screen.props.route === 'undefined' || typeof screen.props.route.params === 'undefined' || !screen.props.route.params || typeof screen.props.route.params[data] === 'undefined') {
                 return def
@@ -82,7 +89,3 @@ class ObservableNavStore {
         }
     }
 }
-
-const NavStore = new ObservableNavStore()
-
-export default NavStore
