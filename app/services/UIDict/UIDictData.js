@@ -560,6 +560,12 @@ export default {
             darkColor: '#2CAC2C'
         }
     },
+    "ETH_NOW": {
+        colors: {
+            mainColor: '#00C26F',
+            darkColor: '#13AF6C'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',
