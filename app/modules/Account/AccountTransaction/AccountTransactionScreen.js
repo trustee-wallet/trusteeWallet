@@ -643,7 +643,7 @@ class AccountTransactionScreen extends React.PureComponent {
 
     closeAction = () => {
         if (this.state.uiType === 'TRADE_SEND') {
-            NavStore.goNext('MarketScreen') // @todo here some param to reset all search
+            NavStore.reset('MarketScreen') // @todo here some param to reset all search
         } else {
             NavStore.reset('HomeScreen')
         }

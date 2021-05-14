@@ -187,13 +187,18 @@ class ReceiptScreen extends PureComponent {
 
     closeAction = async () => {
         await SendActionsEnd.endClose(this.props.sendScreenStore)
-        NavStore.reset('HomeScreen')
+        const { uiType } = this.props.sendScreenStore.ui
+        if (uiType === 'TRADE_SEND') {
+            NavStore.reset('MarketScreen') // @todo here some param to reset all search
+        } else {
+            NavStore.reset('HomeScreen')
+        }
     }
 
     backAction = () => {
         const { uiType } = this.props.sendScreenStore.ui
         if (uiType === 'TRADE_SEND') {
-            NavStore.goNext('MarketScreen') // @todo here some param to reset all search
+            NavStore.goNext('MarketScreen')
         } else {
             NavStore.goBack()
         }
