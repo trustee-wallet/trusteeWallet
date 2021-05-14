@@ -30,6 +30,7 @@ export const getSelectedCryptoCurrencyData = createSelector(
             currencyCode : data.currencyCode,
             currencySymbol : data.currencySymbol,
             currencyName : data.currencyName,
+            decimals : data.decimals,
             currencyExplorerLink : data.currencyExplorerLink,
             mainColor : data.mainColor,
             darkColor : data.darkColor

@@ -1,5 +1,5 @@
 /**
- * @version 0.31
+ * @version 0.43
  * @author yura
  */
 import React from 'react'
@@ -35,7 +35,6 @@ import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 import { HIT_SLOP } from '@app/themes/HitSlop'
 
 import qrLogo from '@app/assets/images/logoWithWhiteBG.png'
-import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
 import UIDict from '@app/services/UIDict/UIDict'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
@@ -64,6 +63,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import AsyncStorage from '@react-native-community/async-storage'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
+import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -104,7 +104,7 @@ class AccountReceiveScreen extends React.PureComponent {
     getAddress = () => {
         const { settingAddressType, settingAddressTypeTriggered } = this.state
         const { isSegwit } = this.props
-        let { address, legacyAddress, segwitAddress } = this.props.account
+        let { address, legacyAddress, segwitAddress } = this.props.selectedAccountData
         const actualIsSegwit = settingAddressTypeTriggered ? (settingAddressType !== 'legacy') : isSegwit
         if (!actualIsSegwit && legacyAddress) {
             address = legacyAddress
@@ -126,8 +126,7 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     getAddressForQR = () => {
-        const { currencySymbol } = this.props.cryptoCurrency
-        const { currencyCode } = this.props.account
+        const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
 
         try {
 
@@ -158,6 +157,7 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     handleExchange = async () => {
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
 
         try {
             await Netinfo.isInternetReachable()
@@ -175,10 +175,10 @@ class AccountReceiveScreen extends React.PureComponent {
                     title: strings('modal.marketModal.title'),
                     description: strings('modal.marketModal.description'),
                 }, () => {
-                    NavStore.goNext('MarketScreen', { side: 'IN', currencyCode: this.props.account.currencyCode })
+                    NavStore.goNext('MarketScreen', { side: 'IN', currencyCode })
                 })
             } else {
-                NavStore.goNext('MarketScreen', { side: 'IN', currencyCode: this.props.account.currencyCode })
+                NavStore.goNext('MarketScreen', { side: 'IN', currencyCode })
             }
             // }
         } catch (e) {
@@ -198,7 +198,7 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     handleFioRequestCreate = () => {
-        const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+        const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
         const { fioName } = this.state
         const address = this.getAddress()
         const chainCode = resolveChainCode(currencyCode, currencySymbol)
@@ -214,8 +214,7 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     shareData = () => {
-        const { currencySymbol } = this.props.cryptoCurrency
-
+        const { currencySymbol } = this.props.selectedCryptoCurrencyData
         const address = this.getAddress()
 
         try {
@@ -246,22 +245,16 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     renderAccountDetail = () => {
-
-        const { currencySymbol, currencyName, currencyCode } = this.props.cryptoCurrency
-        const { balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.account
+        const { currencyCode, currencyName, currencySymbol } = this.props.selectedCryptoCurrencyData
+        const { balancePretty, basicCurrencyBalance, basicCurrencySymbol, isSynchronized } = this.props.selectedAccountData
         const isBalanceVisible = this.state.isBalanceVisibleTriggered ? this.state.isBalanceVisible : this.props.isBalanceVisible
 
         const { colors } = this.context
 
-        const isSynchronized = currencyActions.checkIsCurrencySynchronized({
-            account: this.props.account,
-            cryptoCurrency: this.props.cryptoCurrency
-        })
-
-        const amountPrep = BlocksoftPrettyNumbers.makeCut(balanceTotalPretty).cutted
+        const amountPrep = BlocksoftPrettyNumbers.makeCut(balancePretty).cutted
         let sumPrep = amountPrep + ' ' + currencySymbol
         try {
-            sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicCurrencyBalanceTotal
+            sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicCurrencyBalance
         } catch (e) {
             Log.err('Send.SendScreen renderAccountDetail error ' + e.message)
         }
@@ -428,9 +421,8 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     amountInputCallback = (value) => {
-        const { currencySymbol, currencyCode } = this.props.mainStore.selectedCryptoCurrency
-        const { basicCurrencyCode, basicCurrencyRate } = this.props.mainStore.selectedAccount
-
+        const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
+        const { basicCurrencyCode, basicCurrencyRate } = this.props.selectedAccountData
         let amount = '0'
         let symbol = currencySymbol
         try {
@@ -457,8 +449,8 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     handleChangeEquivalentType = () => {
-        const { currencySymbol } = this.props.cryptoCurrency
-        const { basicCurrencyCode } = this.props.account
+        const { currencySymbol } = this.props.selectedCryptoCurrencyData
+        const { basicCurrencyCode } = this.props.selectedAccountData
 
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
 
@@ -502,7 +494,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
     getDataForQR = (amount, label) => {
         try {
-            const { currencySymbol, currencyCode } = this.props.cryptoCurrency
+            const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
             const address = this.getAddress()
             amount = this.state.customAmount ? amount : ''
 
@@ -544,11 +536,14 @@ class AccountReceiveScreen extends React.PureComponent {
     triggerBalanceVisibility = (value, originalVisibility) => {
         this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
     }
+
     render() {
-        const { mainStore } = this.props
+
+        const { walletIsHd } = this.props.selectedWalletData
+
         const { fioName, customAmount, amountForQr, labelForQr, inputType } = this.state
-        const { address, basicCurrencyCode } = this.props.account
-        const { currencySymbol, currencyCode, decimals } = this.props.cryptoCurrency
+        const { basicCurrencyCode, address } = this.props.selectedAccountData
+        const { currencyCode, currencySymbol, decimals} = this.props.selectedCryptoCurrencyData
 
         MarketingAnalytics.setCurrentScreen('Account.ReceiveScreen')
 
@@ -668,7 +663,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                                 letterSpacing={1} />
                                         </View>
                                         {
-                                            currencyCode === 'BTC' && mainStore.selectedWallet.walletIsHd ?
+                                            currencyCode === 'BTC' && walletIsHd ?
                                                 <TouchableOpacity onPress={this.changeAddress} style={{
                                                     position: 'relative',
                                                     marginRight: GRID_SIZE,
@@ -714,25 +709,16 @@ class AccountReceiveScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
-        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
-        account: state.mainStore.selectedAccount,
-        settingsStore: state.settingsStore,
-        wallet: state.mainStore.selectedWallet,
+        selectedWalletData: getSelectedWalletData(state),
+        selectedCryptoCurrencyData: getSelectedCryptoCurrencyData(state),
+        selectedAccountData: getSelectedAccountData(state),
         isSegwit: getIsSegwit(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
     }
 }
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
 AccountReceiveScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(AccountReceiveScreen)
+export default connect(mapStateToProps, {})(AccountReceiveScreen)
 
 const styles = {
     wrapper: {
