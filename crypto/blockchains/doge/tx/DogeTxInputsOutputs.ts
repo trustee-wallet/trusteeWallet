@@ -54,7 +54,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs _coinSelectTargets', {
             amount: data.amount,
             isTransferAll: data.isTransferAll,
-            multiAddress
+            multiAddress,
+            address : data.addressTo
         }, targets)
         return targets
     }

@@ -120,7 +120,7 @@ export namespace SendActionsBlockchainWrapper {
                 newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
             }
             if (!store.getState().sendScreenStore.fromBlockchain.neverCounted && JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
-                return
+                return { isTransferAll : newCountedFeesData.isTransferAll, amount : newCountedFeesData.amount, source : 'CACHE_COUNTED', addressTo : newCountedFeesData.addressTo}
             }
             if (config.debug.sendLogs) {
                 console.log('SendActionsBlockchainWrapper.getFeeRate starting')
@@ -145,6 +145,8 @@ export namespace SendActionsBlockchainWrapper {
                 }
             })
 
+            return { isTransferAll : newCountedFeesData.isTransferAll, amount : newCountedFeesData.amount, source : 'NEW_COUNTED', addressTo : newCountedFeesData.addressTo}
+
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
@@ -155,15 +157,13 @@ export namespace SendActionsBlockchainWrapper {
                     icon: null,
                     title: strings('modal.exchange.sorry'),
                     description: strings('send.errors.' + e.message)
-                }, () => {
-                    if (e.message === 'SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST') {
-                        NavStore.goBack()
-                    }
                 })
             } else {
                 Log.err('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
             }
         }
+
+        return {source : 'ERROR', addressTo : '?'}
     }
 
     export const getTransferAllBalance = async (uiData = {}) => {
@@ -183,7 +183,7 @@ export namespace SendActionsBlockchainWrapper {
                 })
             }
             if (!store.getState().sendScreenStore.fromBlockchain.neverCounted && JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
-                return CACHE_DATA.transferAllBalance
+                return { transferAllBalance : CACHE_DATA.transferAllBalance, source : 'CACHE_COUNTED', addressTo : newCountedFeesData.addressTo}
             }
             const countedFees = await BlocksoftTransfer.getTransferAllBalance(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
             let selectedFee = false
@@ -206,7 +206,7 @@ export namespace SendActionsBlockchainWrapper {
                     neverCounted : false
                 }
             })
-            return typeof transferAllBalance !== 'undefined' && transferAllBalance ? transferAllBalance : 0
+            return { transferAllBalance : typeof transferAllBalance !== 'undefined' && transferAllBalance ? transferAllBalance : 0, source : 'NEW_COUNTED', addressTo : newCountedFeesData.addressTo}
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)
@@ -222,7 +222,7 @@ export namespace SendActionsBlockchainWrapper {
                 Log.err('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)
             }
         }
-        return '0'
+        return { transferAllBalance : 0, source : 'ERROR', addressTo : '?'}
     }
 
     export const actualSend = async (sendScreenStore : any, uiErrorConfirmed: any, selectedFee : any) => {

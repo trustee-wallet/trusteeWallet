@@ -271,7 +271,8 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     }
                 }
                 // @ts-ignore
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs', preparedInputsOutputs)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte
+                    + ' preparedInputsOutputs addressTo' + data.addressTo, preparedInputsOutputs)
                 if (preparedInputsOutputs.inputs.length === 0) {
                     // do noting
                     continue

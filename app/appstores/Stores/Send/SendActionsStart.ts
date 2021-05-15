@@ -159,7 +159,8 @@ export namespace SendActionsStart {
             ui,
             dict
         })
-        return await SendActionsBlockchainWrapper.getTransferAllBalance()
+        const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
+        return res.transferAllBalance || 0
     }
 
     export const startFromBSE = async (data : {

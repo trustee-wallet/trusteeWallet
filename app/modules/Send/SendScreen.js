@@ -75,8 +75,11 @@ class SendScreen extends PureComponent {
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
         try {
-            // Ksu, proposition - return if error
-            await SendActionsBlockchainWrapper.getFeeRate()
+            const disableInput = await this.inputAndButtonsComponent.disabledGotoWhy()
+            const disableAddress = await this.inputAddressComponent.disabledGotoWhy()
+            Log.log('Input.openAdvancedSettings start counting ' + disableInput.value + ' ' + disableAddress.value)
+            const res = await SendActionsBlockchainWrapper.getFeeRate()
+            Log.log('Input.openAdvancedSettings end counting ' + disableInput.value + ' ' + disableAddress.value + ' with res ' + JSON.stringify(res))
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
             NavStore.goNext('SendAdvancedScreen')
@@ -101,7 +104,11 @@ class SendScreen extends PureComponent {
             if (config.debug.sendLogs) {
                 console.log('handleGotoReceipt getFeeRate start')
             }
-            await SendActionsBlockchainWrapper.getFeeRate()
+            const disableInput = await this.inputAndButtonsComponent.disabledGotoWhy()
+            const disableAddress = await this.inputAddressComponent.disabledGotoWhy()
+            Log.log('Input.handleGotoReceipt start counting ' + disableInput.value + ' ' + disableAddress.value)
+            const res = await SendActionsBlockchainWrapper.getFeeRate()
+            Log.log('Input.handleGotoReceipt end counting ' + disableInput.value + ' ' + disableAddress.value + ' with res ' + JSON.stringify(res))
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
             NavStore.goNext('ReceiptScreen')

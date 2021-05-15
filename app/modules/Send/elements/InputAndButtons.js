@@ -103,12 +103,15 @@ class InputAndButtons extends PureComponent {
 
     handlePartBalance = (newPartBalance) => {
         // if newPartBalance = 4 = 100%
+        Log.log('Input.handlePartBalance ' + newPartBalance + ' clicked')
         this.setState({
             partBalance: newPartBalance,
             isCountingTransferAll: true
         }, async () => {
-            const transferAllBalance = await SendActionsBlockchainWrapper.getTransferAllBalance()
-            this.transferAllCallback(transferAllBalance)
+            Log.log('Input.handlePartBalance ' + newPartBalance + ' start counting')
+            const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
+            const val = this.transferAllCallback(res.transferAllBalance)
+            Log.log('Input.handlePartBalance ' + newPartBalance + ' end counting ' + val + ' with res ' + JSON.stringify(res))
         })
 
     }
@@ -126,6 +129,7 @@ class InputAndButtons extends PureComponent {
         }
 
         this._setCryptoValue(cryptoValue, this.state.inputType)
+        return cryptoValue
     }
 
     _setCryptoValue = (cryptoValue, inputType, cryptoValueRecounted = false) => {
@@ -195,7 +199,8 @@ class InputAndButtons extends PureComponent {
                 }
             })
             return {
-                status: 'fail'
+                status: 'fail',
+                value: 0
             }
         }
         if (!this.state.enoughFunds.isAvailable) {
@@ -215,6 +220,10 @@ class InputAndButtons extends PureComponent {
 
     async _disabledGotoWhy() {
         const { balanceTotalPretty, balanceRaw, currencyCode, walletHash, addressFrom } = this.props.sendScreenStoreDict
+
+        if (this.state.isCountingTransferAll) {
+            return 'Loading...'
+        }
 
         if (balanceTotalPretty <= 0) {
             return strings('send.notEnough')
