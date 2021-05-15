@@ -15,8 +15,8 @@ export default class XvgSendProvider implements BlocksoftBlockchainTypes.SendPro
     }
 
     async sendTx(hex: string, subtitle: string): Promise<{ transactionHash: string, transactionJson: any }> {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XvgSendProvider.sendTx ' + subtitle + ' started ' + subtitle)
         const link = BlocksoftExternalSettings.getStatic('XVG_SEND_LINK')
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XvgSendProvider.sendTx ' + subtitle + ' started ' + subtitle + ' ' + link)
         let res
         try {
             res = await BlocksoftAxios.post(link, { rawTx: hex })

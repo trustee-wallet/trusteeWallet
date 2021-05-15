@@ -9,11 +9,14 @@ import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 
 import { XrpTxUtils } from '../../xrp/basic/XrpTxUtils'
 
-import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 import config from '../../../../app/config/config'
-import BlocksoftAxios from '../../../common/BlocksoftAxios'
 
 const StellarSdk = require('stellar-sdk')
+
+
+const CACHE_VALID_TIME = 600000 // 10 minute
+let CACHE_FEES_TIME = 0
+let CACHE_FEES_VALUE = 0
 
 export class XlmTxSendProvider {
 
@@ -23,14 +26,31 @@ export class XlmTxSendProvider {
     constructor() {
         this._server = BlocksoftExternalSettings.getStatic('XLM_SERVER')
         this._api = new StellarSdk.Server(this._server)
+        CACHE_FEES_VALUE = BlocksoftExternalSettings.getStatic('XLM_SERVER_PRICE')
     }
 
     async getFee() {
-        return this._api.fetchBaseFee()
+        const now = new Date().getTime()
+        if (now - CACHE_FEES_TIME <= CACHE_VALID_TIME) {
+            return CACHE_FEES_VALUE
+        }
+
+        BlocksoftCryptoLog.log('XlmSendProvider.getFee link ' + this._server)
+        let res = CACHE_FEES_VALUE
+        try {
+            res = await this._api.fetchBaseFee()
+            if (res * 1 > 0) {
+                CACHE_FEES_VALUE = res * 1
+                CACHE_FEES_TIME = now
+            }
+        } catch (e) {
+            BlocksoftCryptoLog.log('XlmSendProvider.getFee error ' + e.message + ' link ' + this._server)
+            res = CACHE_FEES_VALUE
+        }
+        return res
     }
 
     async getPrepared(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData, type = 'usual') {
-
         const account = await this._api.loadAccount(data.addressFrom)
 
         let transaction
@@ -77,13 +97,15 @@ export class XlmTxSendProvider {
 
     async sendRaw(raw: string) {
         let result = false
+        const link = BlocksoftExternalSettings.getStatic('XLM_SEND_LINK')
+        BlocksoftCryptoLog.log('XlmSendProvider.sendRaw ' + link)
         try {
             // console.log(`curl -X POST -F "tx=${raw}" "https://horizon.stellar.org/transactions"`)
 
             const formData = new FormData()
             formData.append('tx', raw)
 
-            const response = await fetch(this._server + '/transactions', {
+            const response = await fetch(link, {
                 method: 'POST',
                 credentials: 'same-origin',
                 mode: 'same-origin',
@@ -103,9 +125,9 @@ export class XlmTxSendProvider {
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('XlmTransferProcessor.sendTx error ', e)
+                console.log('XlmTransferProcessor.sendTx error ' + e.message + ' link ' + link)
             }
-            await BlocksoftCryptoLog.log('XlmTransferProcessor.sendTx error ' + e.message)
+            await BlocksoftCryptoLog.log('XlmTransferProcessor.sendTx error ' + e.message + ' link ' + link)
             throw e
         }
         await BlocksoftCryptoLog.log('XlmTransferProcessor.sendTx result ', result)
