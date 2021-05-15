@@ -31,7 +31,7 @@ class HeaderAccountDetails extends React.PureComponent {
         const { currencySymbol, currencyName, currencyCode, balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.ExtraViewParams.sendScreenStoreDict
 
 
-        const amountPrep = BlocksoftPrettyNumbers.makeCut(balanceTotalPretty).cutted
+        const amountPrep = BlocksoftPrettyNumbers.makeCut(balanceTotalPretty).separated
         let sumPrep = amountPrep + ' ' + currencySymbol
         try {
             sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicCurrencyBalanceTotal

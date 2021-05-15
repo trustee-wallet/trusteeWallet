@@ -251,7 +251,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
         const { colors } = this.context
 
-        const amountPrep = BlocksoftPrettyNumbers.makeCut(balancePretty).cutted
+        const amountPrep = BlocksoftPrettyNumbers.makeCut(balancePretty).separated
         let sumPrep = amountPrep + ' ' + currencySymbol
         try {
             sumPrep += ' / ~' + basicCurrencySymbol + ' ' + basicCurrencyBalance
