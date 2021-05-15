@@ -19,7 +19,7 @@ const exceptionHandlerText = async (text: string, isFatal : string = 'native'): 
             // do nothing not to spam
         } else {
             CACHE_LAST_ERROR = text
-            if (text.indexOf('the componentWillUnmount') === -1) {
+            if (text.indexOf('the componentWillUnmount') === -1 && text.indexOf('AsyncStorage has been extracted from react-native core') === -1) {
                 Log.err('ERROR FROM HANDLER ' + isFatal + ' ' + text)
             } else {
                 // do nothing

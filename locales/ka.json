@@ -925,7 +925,8 @@
       "SERVER_RESPONSE_BAD_SEND_NODE": "არა არის წვდომა გაგზავნის სერვერთან",
       "SERVER_RESPONSE_DOUBLE_SPEND": "გთხოვთ, თავიდან შექმნათ ტრანზაქცია, რადგან მიმდინარე იყენებს შესვლის მოძველებულ მეთოდებს ან დაელოდეთ სხვა ტრანზაქციების დადასტურებას ",
       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP": "დასაჩქარებელი ტრანზაქცია ვერ მოიძებნა",
-      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over"
+      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
+      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation"
     }
   },
   "walletBackup": {

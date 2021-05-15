@@ -303,12 +303,10 @@ class Log {
             }
 
             if (!config.debug.appErrors) {
+                const e = new Error('FRNT_2021_02 ' + line)
                 if (typeof crashlytics().recordError !== 'undefined') {
-                    const e = new Error('FRNT_2021_02 ' + line)
-                    e.stack = line
                     crashlytics().recordError(e)
                 } else {
-                    crashlytics().log('FRNT_2021_02 ' + line)
                     crashlytics().crash()
                 }
             }

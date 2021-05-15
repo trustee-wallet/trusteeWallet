@@ -4,7 +4,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, TouchableOpacity, View, Platform } from 'react-native'
+import { Clipboard, Text, TouchableOpacity, View, Platform, Keyboard } from 'react-native'
 
 import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
@@ -59,6 +59,7 @@ class Input extends Component {
     handleReadFromClipboard = async () => {
         const { callback } = this.props
 
+        Keyboard.dismiss()
         const clipboardContent = await Clipboard.getString()
         this.setState({ value: clipboardContent }, () => {
             this.handleValidate()

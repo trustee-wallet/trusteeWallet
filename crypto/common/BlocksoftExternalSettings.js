@@ -26,6 +26,7 @@ const CACHE = {
     'XVG': { '2': 700, '6': 600, '12': 300 },
     'XRP_SERVER' : 'wss://s1.ripple.com',
     'XLM_SERVER' : 'https://horizon.stellar.org',
+    'XVG_SEND_LINK' : 'https://api.vergecurrency.network/node/api/XVG/mainnet/tx/send',
     'BNB_SERVER' : 'https://dex.binance.org',
     'BNB_SMART_SERVER' : 'https://bsc-dataseed1.binance.org:443',
     'BNB_SMART_PRICE' : 10000000000,

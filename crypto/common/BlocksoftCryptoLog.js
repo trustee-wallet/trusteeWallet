@@ -156,12 +156,10 @@ class BlocksoftCryptoLog {
         try {
             await this.FS.writeLine('CRPT_2021_02 ' + line)
             if (!config.debug.cryptoErrors) {
+                const e = new Error('CRPT_2021_02 ' + line)
                 if (typeof crashlytics().recordError !== 'undefined') {
-                    const e = new Error('CRPT_2021_02 ' + line)
-                    e.stack = line
                     crashlytics().recordError(e)
                 } else {
-                    crashlytics().log('CRPT_2021_02 ' + line)
                     crashlytics().crash()
                 }
             }
