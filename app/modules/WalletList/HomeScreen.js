@@ -282,7 +282,7 @@ class HomeScreen extends React.PureComponent {
         const CACHE_SUM = DaemonCache.getCache(walletHash)
 
         let totalBalance = 0
-        if (CACHE_SUM) {
+        if (CACHE_SUM && typeof CACHE_SUM.balance !== 'undefined' && CACHE_SUM.balance) {
             totalBalance = CACHE_SUM.balance
             if (currencySymbol !== CACHE_SUM.basicCurrencySymbol) {
                 currencySymbol = CACHE_SUM.basicCurrencySymbol

@@ -11,6 +11,7 @@ import config from '../../app/config/config'
 import changeableProd from '../../app/config/changeable.prod'
 import changeableTester from '../../app/config/changeable.tester'
 import { FileSystem } from '../../app/services/FileSystem/FileSystem'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const DEBUG = config.debug.cryptoLogs // set true to see usual logs in console
 
@@ -162,6 +163,7 @@ class BlocksoftCryptoLog {
                 } else {
                     crashlytics().crash()
                 }
+                MarketingEvent.reinitCrashlytics()
             }
         } catch (firebaseError) {
             msg += ' Crashlytics error ' + firebaseError.message

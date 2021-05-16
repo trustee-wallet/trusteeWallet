@@ -13,6 +13,7 @@ import changeableTester from '../../config/changeable.tester'
 import { FileSystem } from '../FileSystem/FileSystem'
 import { strings } from '../i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const DEBUG = config.debug.appLogs // set true to see usual logs in console
 const DEBUG_DAEMON = config.debug.appDaemonLogs // set true to see cron jobs logs in console
@@ -309,6 +310,7 @@ class Log {
                 } else {
                     crashlytics().crash()
                 }
+                MarketingEvent.reinitCrashlytics()
             }
         } catch (firebaseError) {
             msg += ' Crashlytics error ' + firebaseError.message

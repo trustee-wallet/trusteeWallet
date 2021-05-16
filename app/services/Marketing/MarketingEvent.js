@@ -129,7 +129,35 @@ class MarketingEvent {
         await this._reinitTgMessage(this.UI_DATA.IS_TESTER)
     }
 
-    /**
+
+    async reinitCrashlytics() {
+        for (const key in this.DATA) {
+            const val = this.DATA[key]
+            if (!val) {
+                continue
+            }
+
+            if (key === 'LOG_DEV') {
+                // do nothing
+            } else if (key === 'LOG_TOKEN') {
+                const short = val.substr(0, 20)
+                if (crashlytics()) {
+                    crashlytics().setAttribute(key, short)
+                    crashlytics().setAttribute(key + '_FULL', val)
+                }
+                analytics().setUserProperty(key, short)
+                analytics().setUserProperty(key + '_FULL', val.toString().substr(0, 36))
+            } else {
+                if (crashlytics()) {
+                    crashlytics().setAttribute(key, val)
+                }
+                analytics().setUserProperty(key, val)
+            }
+        }
+    }
+
+
+        /**
      * @private
      */
     async _reinitTgMessage(testerMode) {
