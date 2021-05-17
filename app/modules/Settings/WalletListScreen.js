@@ -18,8 +18,10 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+
 import { getWalletsGeneralData, getWalletsList } from '@app/appstores/Stores/Wallet/selectors'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 class WalletListScreen extends PureComponent {
 
@@ -53,12 +55,14 @@ class WalletListScreen extends PureComponent {
 
         const { walletsList } = this.props
         const { walletHash } =  this.props.selectedWalletData
-        const { totalBalance, localCurrencySymbol } = this.props.walletsGeneralData
+        let { totalBalance, localCurrencySymbol } = this.props.walletsGeneralData
         const { colors, GRID_SIZE } = this.context
 
         const { isBalanceVisible, isBalanceVisibleTriggered } = this.state
         const originalVisibility = this.props.isBalanceVisible
         const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+
+        totalBalance = BlocksoftPrettyNumbers.makeCut(totalBalance).separated
 
         return (
             <ScreenWrapper
