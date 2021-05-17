@@ -30,14 +30,20 @@ class SendCustomFee extends React.PureComponent {
         }
         if (prefix === 'CUSTOM') {
             const settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-            if (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'ETHEREUM') {
-                prefix = 'ETH'
+            if (typeof settings.tokenBlockchain !== 'undefined') {
+                if (settings.tokenBlockchain === 'ETHEREUM') {
+                    prefix = 'ETH'
+                } else if (settings.tokenBlockchain === 'BNB') {
+                    prefix = 'BNB'
+                }
             }
         }
 
         switch (prefix) {
             case 'ETH':
             case 'ETC':
+            case 'BNB':
+            case 'BNB_SMART':
                 return <SendCustomFeeETH
                     sendScreenStore={this.props.sendScreenStore}
                     currentSelectedFee={this.props.currentSelectedFee}

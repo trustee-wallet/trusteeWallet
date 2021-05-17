@@ -164,7 +164,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         let showBigGasNotice = false
         if (typeof additionalData === 'undefined' || typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee) {
             try {
-                if (gasLimit * 1 > BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT') * 1) {
+                const limit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_GAS_LIMIT')
+                if (gasLimit * 1 > limit * 1) {
                     showBigGasNotice = true
                 }
             } catch (e) {

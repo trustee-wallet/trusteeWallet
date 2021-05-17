@@ -121,6 +121,13 @@ class Log {
             params = e.logData
         }
         params.symbol = currencyCode
+        if (typeof extend.transferProcessor !== 'undefined') {
+            if (extend.transferProcessor === 'BNB_SMART' || extend.transferProcessor === 'BNB_SMART_20') {
+                params.symbol = 'BNB Smart Chain'
+            } else if (extend.transferProcessor === 'BNB') {
+                params.symbol = 'BNB'
+            }
+        }
         try {
             newMessage = strings('send.errors.' + e.message, params)
         } catch (e2) {

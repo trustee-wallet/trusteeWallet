@@ -11,7 +11,7 @@ export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessor
         additionalData.gasPrice = await BnbSmartNetworkPrices.getFees()
         additionalData.gasPriceTitle = 'speed_blocks_2'
         const result = await super.getFeeRate(data, privateData, additionalData)
-        result.shouldShowFees = false
+        result.shouldShowFees = true
         return result
     }
 
