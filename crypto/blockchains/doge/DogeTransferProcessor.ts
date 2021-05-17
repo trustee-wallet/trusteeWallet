@@ -253,17 +253,19 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                             feeForByte : 'none',
                             feeForAll : BlocksoftUtils.fromUnified(feeStaticReadable['speed_blocks_' + blocks], this._settings.decimals),
+                            feeForAllInputs : feeStaticReadable.feeForAllInputs,
                             autoFeeLimitReadable
                         },
                         additionalData,
                         subtitle)
                     let newStatic = 0
-                    if (preparedInputsOutputs.inputs.length > feeStaticReadable.feeForAllInputs * 1) {
+                    if (!data.isTransferAll && preparedInputsOutputs.inputs && preparedInputsOutputs.inputs.length > feeStaticReadable.feeForAllInputs * 1) {
                         newStatic = BlocksoftUtils.mul(feeStaticReadable['speed_blocks_' + blocks], Math.ceil(preparedInputsOutputs.inputs.length / feeStaticReadable.feeForAllInputs))
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' inputs ' + preparedInputsOutputs.inputs.length + ' newStatic ' + newStatic)
                         preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                                 feeForByte : 'none',
                                 feeForAll : BlocksoftUtils.fromUnified(newStatic, this._settings.decimals),
+                                feeForAllInputs : feeStaticReadable.feeForAllInputs,
                                 autoFeeLimitReadable
                             },
                             additionalData,
@@ -469,7 +471,6 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             }
         }
         result.additionalData = { unspents }
-
         return result
     }
 

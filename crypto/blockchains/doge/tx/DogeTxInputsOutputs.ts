@@ -322,7 +322,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             totalBalanceBN.add(unspent.value)
         }
 
-        const {
+        let {
             multiAddress,
             wishedAmountBN,
             outputs
@@ -345,10 +345,14 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             autocalculateFee = true
             msg += ' and autocalculate feeForByte ' + feeToCount.feeForByte
         } else {
+            if (data.isTransferAll && typeof feeToCount.feeForAllInputs !== 'undefined' && feeToCount.feeForAllInputs * 1 > 0 ) {
+                feeToCount.feeForAll = BlocksoftUtils.mul(feeToCount.feeForAll, Math.ceil(filteredUnspents.length / feeToCount.feeForAllInputs))
+                wishedAmountBN = new BlocksoftBN(BlocksoftUtils.diff(totalBalanceBN, feeToCount.feeForAll))
+                outputs[0].amount = wishedAmountBN.toString()
+                msg += ' and isTransferAll inputs counted '
+            }
             msg += ' and prefee ' + feeToCount.feeForAll + ' = ' + BlocksoftUtils.toUnified(feeToCount.feeForAll.toString(), this._settings.decimals)
         }
-
-
         const inputs = []
         const inputsBalanceBN = new BlocksoftBN(0)
 
@@ -397,6 +401,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         }
 
         const leftForChangeDiff = new BlocksoftBN(inputsBalanceBN).diff(wishedAmountWithFeeBN)
+
         if (leftForChangeDiff.lessThanZero()) {
             if (autocalculateFee) {
                 const newData = JSON.parse(JSON.stringify(data))
@@ -434,7 +439,6 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                         countedFor: 'DOGE'
                     }
                 }
-
             }
             // no change
             msg += ' will transfer all but later will RECHECK as change ' + leftForChangeDiff.toString()
@@ -447,6 +451,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 countedFor: 'DOGE'
             }
         }
+
         const changeDiff = new BlocksoftBN(leftForChangeDiff).diff(this._minChangeDust)
         if (changeDiff.lessThanZero()) {
             // no change
