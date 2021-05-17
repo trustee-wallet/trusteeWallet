@@ -142,7 +142,17 @@ export namespace SendActionsEnd {
                     NavStore.reset('HomeScreen')
                 }
             }
-        } else if (uiType === 'SEND_SCANNER' || uiType === 'ACCOUNT_SCREEN') {
+        } else if (uiType === 'SEND_SCANNER') {
+            await NavStore.goBack()
+            NavStore.goNext('AccountTransactionScreen', {
+                txData: {
+                    transactionHash: tx.transactionHash,
+                    uiType
+                }
+            })
+        } else if (uiType === 'ACCOUNT_SCREEN') {
+            await NavStore.goBack()
+            await NavStore.goBack()
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash,
