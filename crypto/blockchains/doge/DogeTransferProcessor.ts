@@ -187,6 +187,15 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             autocorrectFee = true
         }
 
+        if (isStaticFee && feeStaticReadable) {
+            const newPrices = {}
+            for (const key of keys) {
+                if (typeof feeStaticReadable[key] === 'undefined') continue
+                newPrices[key] = prices[key]
+            }
+            prices = newPrices
+        }
+
         const stepSatoshi = transactionRemoveByFee ? this._builderSettings.minRbfStepSatoshi * 2 : this._builderSettings.minRbfStepSatoshi
         let pricesTotal = 0
         for (const key of keys) {
@@ -243,11 +252,23 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 if (isStaticFee) {
                     preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                             feeForByte : 'none',
-                            feeForAll : BlocksoftUtils.fromUnified(feeStaticReadable[blocks], this._settings.decimals),
+                            feeForAll : BlocksoftUtils.fromUnified(feeStaticReadable['speed_blocks_' + blocks], this._settings.decimals),
                             autoFeeLimitReadable
                         },
                         additionalData,
                         subtitle)
+                    let newStatic = 0
+                    if (preparedInputsOutputs.inputs.length > feeStaticReadable.feeForAllInputs * 1) {
+                        newStatic = BlocksoftUtils.mul(feeStaticReadable['speed_blocks_' + blocks], Math.ceil(preparedInputsOutputs.inputs.length / feeStaticReadable.feeForAllInputs))
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' inputs ' + preparedInputsOutputs.inputs.length + ' newStatic ' + newStatic)
+                        preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
+                                feeForByte : 'none',
+                                feeForAll : BlocksoftUtils.fromUnified(newStatic, this._settings.decimals),
+                                autoFeeLimitReadable
+                            },
+                            additionalData,
+                            subtitle)
+                    }
                 } else {
                     preparedInputsOutputs = await this.txPrepareInputsOutputs.getInputsOutputs(data, unspents, {
                             feeForByte,
@@ -436,7 +457,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
         result.selectedFeeIndex = result.fees.length - 1
 
-        if (!transactionReplaceByFee && !transactionRemoveByFee) {
+        if (!transactionReplaceByFee && !transactionRemoveByFee && !isStaticFee) {
             let foundFast = false
             for (const fee of result.fees) {
                 if (fee.langMsg === this._langPrefix + '_speed_blocks_2') {

@@ -32,6 +32,10 @@ class Wallet {
             throw new Error('DS/Wallet saveWallet walletHash is required')
         }
 
+        let walletNumber = 0
+        if (typeof wallet.walletNumber !== 'undefined' && wallet.walletNumber && wallet.walletNumber * 1 > 0) {
+            walletNumber = wallet.walletNumber * 1
+        }
         const tmpWalletName = Database.escapeString(wallet.walletName)
         const sql = `INSERT INTO wallet (
         wallet_to_send_status, wallet_hash, wallet_name, 
@@ -41,7 +45,7 @@ class Wallet {
         ${wallet.walletToSendStatus || 0}, '${wallet.walletHash}', '${tmpWalletName}', 
         ${wallet.walletIsHd || 0}, ${wallet.walletUseLegacy || 2}, ${wallet.walletUseUnconfirmed || 1}, 
         ${wallet.walletAllowReplaceByFee || 1}, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1},
-        ${wallet.walletNumber || 1}
+        ${walletNumber}
         )`
         await Database.setQueryString(sql).query(true)
     }

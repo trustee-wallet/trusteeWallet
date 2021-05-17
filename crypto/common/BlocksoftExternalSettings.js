@@ -21,7 +21,7 @@ const CACHE = {
     'BSV': { '2': 2, '6': 1, '12': 1 },
     'BTG': { '2': 10, '6': 5, '12': 2 },
     'DOGE': { '2': 800000, '6': 600000, '12': 500000 },
-    'DOGE_STATIC' : { 'useStatic' : true, '2' : 2, '6' : 1.5, '12' : 1},
+    'DOGE_STATIC' : { 'useStatic' : true, 'speed_blocks_2' : 1, 'feeForAllInputs' : 3},
     'LTC': { '2': 8, '6': 5, '12': 2 },
     'XVG': { '2': 700, '6': 600, '12': 300 },
     'XVG_SEND_LINK' : 'https://api.vergecurrency.network/node/api/XVG/mainnet/tx/send',
