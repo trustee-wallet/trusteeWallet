@@ -892,7 +892,7 @@
         "totalMinerFee": "Общая комиссия майнера",
         "customNonce": "Custom nonce",
         "nonce": "Nonce",
-        "trusteeInfo": "Trustee не может брать комиссию в криптовалютных транзакциях",
+        "trusteeInfo": "Trustee не берет комиссию в криптовалютных транзакциях",
         "send": "Отправить",
         "sending": "Отправка"
 

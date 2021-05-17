@@ -877,8 +877,8 @@
       "minerFee": "მაინერის საკომისიო",
       "totalMinerFee": "მაინერის საერთო საკომისიო",
       "customNonce": "Custom nonce",
-       "nonce": "Nonce",
-      "trusteeInfo": "Trustee-ს არ შეუძლია საკომისიოს აღება კრიპტოვალუტის ტრანზაქციებისთვის",
+      "nonce": "Nonce",
+      "trusteeInfo": "Trustee does not charge a fee in cryptocurrency transactions",
       "send": "გაგზავნა",
       "sending": "იგზავნება"
     },
