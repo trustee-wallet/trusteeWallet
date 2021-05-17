@@ -5,6 +5,7 @@ import BlocksoftAxios from '../../common/BlocksoftAxios'
 import { Fio } from '@fioprotocol/fiojs'
 import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 import chunk from 'lodash/chunk'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 export const resolveChainCode = (currencyCode, currencySymbol) => {
     let chainCode = currencyCode
@@ -252,11 +253,11 @@ export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeToken
 }
 
 export const getTransactions = async (publicKey) => {
-    const { apiEndpoints: { historyURL } } = config.fio
 
     try {
+        const link = BlocksoftExternalSettings.getStatic('FIO_HISTORY_URL')
         const accountHash = Fio.accountHash(publicKey);
-        const response = await BlocksoftAxios.post(`${historyURL}get_actions`, {
+        const response = await BlocksoftAxios.post(link + 'get_actions', {
             'account_name': accountHash,
             'pos': -1
         })

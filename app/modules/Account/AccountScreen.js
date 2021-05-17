@@ -63,6 +63,7 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { getIsBlurVisible, getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import store from '@app/store'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
@@ -121,8 +122,8 @@ class Account extends React.PureComponent {
 
     handleRegisterFIOAddress = async () => {
         const { address } = this.props.selectedAccountData
-        const { apiEndpoints } = config.fio
-        NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${address}`, title: strings('fioMainSettings.registerFioAddress') })
+        const link = BlocksoftExternalSettings.getStatic('FIO_REGISTRATION_URL')
+        NavStore.goNext('WebViewScreen', { url: link + address, title: strings('fioMainSettings.registerFioAddress') })
     }
 
     handleReceive = () => {

@@ -18,6 +18,7 @@ import Netinfo from '@app/services/Netinfo/Netinfo'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 class FioAddresses extends Component {
 
@@ -56,11 +57,10 @@ class FioAddresses extends Component {
     handleRegisterFIOAddress = async () => {
         const { accountList } = this.props.accountStore
         const { selectedWallet } = this.props.mainStore
-        const { apiEndpoints } = config.fio
-
+        const link = BlocksoftExternalSettings.getStatic('FIO_REGISTRATION_URL')
         const publicFioAddress = accountList[selectedWallet.walletHash]['FIO']?.address
         if (publicFioAddress) {
-            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${publicFioAddress}`, title: strings('FioAddresses.WebViewTitle') })
+            NavStore.goNext('WebViewScreen', { url: link + publicFioAddress, title: strings('FioAddresses.WebViewTitle') })
         } else {
             // TODO show some warning tooltip
         }

@@ -2,21 +2,15 @@ import { FIOSDK } from '@fioprotocol/fiosdk'
 import config from '../../../app/config/config'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftKeysStorage from '../../actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const fetchJson = async (uri, opts = {}) => {
     // eslint-disable-next-line no-undef
     return fetch(uri, opts)
 }
 
-const { apiEndpoints: { baseURL } } = config.fio
-
 export class FioSdkWrapper {
     sdk
-
-    constructor() {
-        this.sdk = new FIOSDK(null, null, baseURL, fetchJson)
-    }
-
 
     async init(walletHash) {
         try {
@@ -33,7 +27,8 @@ export class FioSdkWrapper {
                 publicKey = tmp.publicKey
                 await BlocksoftKeysStorage.setAddressCache(walletHash + 'SpecialFio', {address : publicKey, privateKey : fioKey})
             }
-            this.sdk = new FIOSDK(fioKey, publicKey, baseURL, fetchJson)
+            const link = BlocksoftExternalSettings.getStatic('FIO_BASE_URL')
+            this.sdk = new FIOSDK(fioKey, publicKey, link, fetchJson)
             BlocksoftCryptoLog.log(`FioSdkWrapper.inited for ${walletHash}`)
         } catch (e) {
             if (config.debug.fioErrors) {
@@ -48,5 +43,9 @@ export class FioSdkWrapper {
 export const fioSdkWrapper = new FioSdkWrapper()
 
 export const getFioSdk = () => {
-    return fioSdkWrapper?.sdk || new FIOSDK(null, null, baseURL, fetchJson)
+    if (typeof  fioSdkWrapper?.sdk !== 'undefined' &&  fioSdkWrapper?.sdk) {
+        return fioSdkWrapper?.sdk
+    }
+    const link = BlocksoftExternalSettings.getStatic('FIO_BASE_URL')
+    return new FIOSDK(null, null, link, fetchJson)
 }

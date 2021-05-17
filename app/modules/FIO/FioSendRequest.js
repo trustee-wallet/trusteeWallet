@@ -23,6 +23,7 @@ import TextInput from '@app/components/elements/new/TextInput'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 class FioSendRequest extends Component {
 
@@ -140,11 +141,11 @@ class FioSendRequest extends Component {
 
     handleRegisterFIOAddress = async () => {
         const { selectedWallet } = this.props.mainStore
-        const { apiEndpoints } = config.fio
+        const link = BlocksoftExternalSettings.getStatic('FIO_REGISTRATION_URL')
 
         const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
         if (fioAccount && fioAccount.address) {
-            NavStore.goNext('WebViewScreen', { url: `${apiEndpoints.registrationSiteURL}${fioAccount.address}`, title: strings('FioSendRequest.registerFioAddress') })
+            NavStore.goNext('WebViewScreen', { url: link + fioAccount.address, title: strings('FioSendRequest.registerFioAddress') })
         }
     }
 
