@@ -515,7 +515,7 @@ class Account extends React.PureComponent {
                             dashHeight={allTransactionsToView.length === 1 ? 0 : (allTransactionsToView.length - 1 === index) ? 50 : 150}
                         />
                     )}
-                    onEndReachedThreshold={0.05}
+                    onEndReachedThreshold={0.5}
                     onEndReached={this.handleShowMore}
                     keyExtractor={item => (item.id || ('bse_' + item.bseOrderData.orderId)).toString()}
                 />
