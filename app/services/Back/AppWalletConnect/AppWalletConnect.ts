@@ -5,8 +5,6 @@ import WalletConnect from '@walletconnect/client'
 import { ITxData } from '@walletconnect/types'
 import MarketingEvent from '../../Marketing/MarketingEvent'
 import Log from '../../Log/Log'
-import DaemonCache from '../../../daemons/DaemonCache'
-import cryptoWalletsDS from '../../../appstores/DataSource/CryptoWallets/CryptoWallets'
 import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
 import BlocksoftPrivateKeysUtils from '../../../../crypto/common/BlocksoftPrivateKeysUtils'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
@@ -18,6 +16,7 @@ import EthTmpDS from '../../../../crypto/blockchains/eth/stores/EthTmpDS'
 import { signTypedData_v4 } from 'eth-sig-util'
 
 import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
+import store from '@app/store'
 
 let WALLET_CONNECTOR: WalletConnect
 let WALLET_CONNECTOR_LINK: string | boolean = false
@@ -30,8 +29,13 @@ let MAIN_CURRENCY_CODE = 'ETH'
 export namespace AppWalletConnect {
 
     const _getAccount = async function() {
-        const walletHash = await cryptoWalletsDS.getSelectedWallet()
+        const { walletHash } = store.getState().mainStore.selectedWallet
         const { chainId } = WALLET_CONNECTOR
+        const accountList = store.getState().accountStore.accountList
+        if (!accountList || typeof accountList[walletHash] === 'undefined') {
+            return false
+        }
+
         MAIN_CURRENCY_CODE = 'ETH'
 
         if (chainId === 3) {
@@ -47,10 +51,10 @@ export namespace AppWalletConnect {
         WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
 
         Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' ' + WEB3_LINK)
-        if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][MAIN_CURRENCY_CODE] === 'undefined') {
+        if (typeof  accountList[walletHash][MAIN_CURRENCY_CODE] === 'undefined') {
             throw new Error('TURN ON ' + MAIN_CURRENCY_CODE)
         }
-        const account = DaemonCache.CACHE_ALL_ACCOUNTS[walletHash][MAIN_CURRENCY_CODE]
+        const account = accountList[walletHash][MAIN_CURRENCY_CODE]
         return account
     }
 

@@ -33,8 +33,6 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 import Log from '@app/services/Log/Log'
 
-import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
-import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import { getWalletsNumber } from '@app/appstores/Stores/Wallet/selectors'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -233,20 +231,6 @@ class SettingsMainScreen extends PureComponent {
 
     handleWalletConnect = () => { NavStore.goNext('WalletConnectScreen') }
 
-    handleScanQr = () => checkQRPermission(this.qrPermissionCallback)
-
-    qrPermissionCallback = () => {
-        Log.log('Settings qrPermissionCallback started')
-
-        setQRConfig({
-            name: strings('components.elements.input.qrName'),
-            successMessage: strings('components.elements.input.qrSuccess'),
-            type: 'MAIN_SCANNER'
-        })
-
-        NavStore.goNext('QRCodeScannerScreen')
-    }
-
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
@@ -307,7 +291,7 @@ class SettingsMainScreen extends PureComponent {
                                 title={strings('settings.walletConnect.title')}
                                 subtitle={strings(`settings.walletConnect.${isWalletConnected ? 'activated' : 'disabled'}`)}
                                 iconType="walletConnect"
-                                onPress={isWalletConnected ? this.handleWalletConnect : this.handleScanQr}
+                                onPress={this.handleWalletConnect}
                                 rightContent="arrow"
                                 last
                             />

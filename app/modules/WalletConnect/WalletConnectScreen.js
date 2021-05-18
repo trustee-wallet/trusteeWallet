@@ -20,9 +20,15 @@ import EthNetworkPrices from '@crypto/blockchains/eth/basic/EthNetworkPrices'
 
 import config from '@app/config/config'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import TextInput from '@app/components/elements/new/TextInput'
+import { strings } from '@app/services/i18n'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import Button from '@app/components/elements/new/buttons/Button'
+import Input from '@app/components/elements/NewInput'
+import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 class WalletConnectScreen extends PureComponent {
-
     state = {
         initData: false,
         paranoidLogout: false,
@@ -37,8 +43,10 @@ class WalletConnectScreen extends PureComponent {
         peerId: false,
         peerStatus: false,
         accounts: [],
-        transactions: []
+        transactions: [],
+        walletLink : ''
     }
+
 
     componentDidMount() {
         this.init()
@@ -56,21 +64,27 @@ class WalletConnectScreen extends PureComponent {
     }
 
     async init() {
-        Log.log('WalletConnectScreen.init')
+        return this._init(this.state.initData)
+    }
+
+    async _init(anyData) {
+        Log.log('WalletConnectScreen.init ', anyData)
         try {
-            const clientData = await AppWalletConnect.init(this.state.initData,
+           const clientData = await AppWalletConnect.init(anyData,
                 this.handleSessionRequest,
                 this.handleSessionEnd,
                 this.handleSendTransaction,
                 this.handleSendSign,
                 this.handleSendSignTyped
             )
-            if (clientData) {
+            console.log('clientData', JSON.stringify(clientData))
+            /*if (clientData) {
                 const stateData = {
                     walletStarted: true,
                     peerStatus: clientData.connected,
                     chainId: clientData.chainId,
-                    accounts: clientData.accounts
+                    accounts: clientData.accounts,
+                    walletLink: ''
                 }
                 if (typeof clientData.peerMeta !== 'undefined' && clientData.peerMeta && clientData.peerMeta !== '') {
                     stateData.peerMeta = clientData.peerMeta
@@ -79,7 +93,7 @@ class WalletConnectScreen extends PureComponent {
                     stateData.peerId = clientData.peerId
                 }
                 this.setState(stateData)
-            }
+            }*/
         } catch (e) {
             if (config.debug.appErrors) {
                 Log.log('WalletConnect.init error ' + e.message)
@@ -87,6 +101,27 @@ class WalletConnectScreen extends PureComponent {
             Log.err('WalletConnect.init error ' + e.message)
             this.setState({
                 walletStarted: false
+            })
+        }
+    }
+
+    async handleApplyLink() {
+        try {
+            const { walletLink } = this.state
+            if (!walletLink || walletLink === '') {
+                return false
+            }
+            await this._init({fullLink : walletLink})
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('WalletConnect.handleApplyLink error ', e)
+            }
+            const msg = e.message.indexOf('SERVER_RESPONSE_') === -1 ? e.message : strings('send.errors.' + e.message)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: msg
             })
         }
     }
@@ -246,6 +281,18 @@ class WalletConnectScreen extends PureComponent {
         this.setState({ paranoidLogout: !this.state.paranoidLogout })
     }
 
+    qrPermissionCallback = () => {
+        Log.log('Settings qrPermissionCallback started')
+
+        setQRConfig({
+            name: strings('components.elements.input.qrName'),
+            successMessage: strings('components.elements.input.qrSuccess'),
+            type: 'MAIN_SCANNER'
+        })
+
+        NavStore.goNext('QRCodeScannerScreen')
+    }
+
     handleClose = async () => {
         if (this.state.paranoidLogout) {
             AppWalletConnect.killSession()
@@ -253,6 +300,7 @@ class WalletConnectScreen extends PureComponent {
         NavStore.reset('HomeScreen')
     }
 
+    handleChangeWalletLink = (value) => { this.setState(() => ({ walletLink: value.trim() })) }
 
     render() {
         MarketingAnalytics.setCurrentScreen('WalletConnect')
@@ -273,6 +321,35 @@ class WalletConnectScreen extends PureComponent {
                     keyboardShouldPersistTaps='handled'
                 >
                     <View style={{ marginTop: 20, marginHorizontal: 20 }}>
+
+                        {
+                            this.state.walletStarted && this.state.peerStatus && this.state.peerId ? null :
+                                <>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                                    <TextInput
+                                        label={'Direct Link'}
+                                        labelColor={colors.common.text3}
+                                        placeholder={'wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'}
+                                        onChangeText={this.handleChangeWalletLink}
+                                        value={this.state.walletLink}
+                                        HelperAction={() => (
+                                            <TouchableOpacity onPress={() => checkQRPermission(this.qrPermissionCallback)}>
+                                                <CustomIcon name={'qr'} size={20} color={colors.common.text1} />
+                                            </TouchableOpacity>
+                                        )}
+                                    />
+                                </View>
+                                <View style={{ paddingTop: 5, marginBottom: 20, flexDirection: 'row' }}>
+                                    <TouchableOpacity style={{ paddingLeft: 0, paddingRight: 0, flex: 2 }} onPress={() => this.handleApplyLink()}>
+                                        <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                            <LetterSpacing text={'Apply'} letterSpacing={0.5} numberOfLines={2}
+                                                           textStyle={{ color: colors.common.text1 }} />
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                                </>
+                        }
+
 
                         {
                             this.state.walletStarted ?
@@ -361,5 +438,13 @@ export default WalletConnectScreen
 const styles = StyleSheet.create({
     scrollViewContent: {
         flex: 1
-    }
+    },
+    buttonHeader: {
+        borderRadius: 10,
+        borderWidth: 2,
+        height: 40,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 })
