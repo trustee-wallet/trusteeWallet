@@ -1,7 +1,7 @@
 /**
  * @version 0.43
  */
-import React from 'react'
+import React, { PureComponent } from 'react'
 import {
     View,
     Text,
@@ -50,12 +50,19 @@ const getSocialLinksData = () => [
     { name: 'faq', link: 'SOCIAL_LINK_FAQ' },
 ];
 
-class AboutScreen extends React.PureComponent {
+class AboutScreen extends PureComponent {
 
-    socialData = []
+    constructor() {
+        super()
+        this.state = {
+            socialData: []
+        }
+    }
 
     componentDidMount() {
-        this.socialData = getSocialLinksData()
+        this.setState(() => ({
+            socialData: getSocialLinksData()
+        }))
     }
 
     _onLongPressButton = () => {
@@ -145,6 +152,8 @@ class AboutScreen extends React.PureComponent {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
+        const { socialData } = this.state
+
         return (
             <ScreenWrapper
                 leftType="back"
@@ -212,7 +221,7 @@ class AboutScreen extends React.PureComponent {
 
                     <View style={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2 }}>
                         <View style={styles.socialLinks}>
-                            {this.socialData.slice(0, 4).map(item => (
+                            {socialData.slice(0, 4).map(item => (
                                 <RoundButton
                                     containerStyle={styles.socialButtonContainer}
                                     size={44}
@@ -225,7 +234,7 @@ class AboutScreen extends React.PureComponent {
                             ))}
                         </View>
                         <View style={styles.socialLinks}>
-                            {this.socialData.slice(4).map(item => (
+                            {socialData.slice(4).map(item => (
                                 <RoundButton
                                     containerStyle={styles.socialButtonContainer}
                                     size={44}
