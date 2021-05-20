@@ -105,9 +105,13 @@ export namespace AppWalletConnect {
             throw new Error(e.message + ' in AppWalletConnect init connection data.fullLink ' + JSON.stringify(data.fullLink))
         }
 
+        Log.log('---debug--- AppWalletConnect.init init')
         if (!WALLET_CONNECTOR.connected) {
             // create new session
             await WALLET_CONNECTOR.createSession()
+            Log.log('Session NOT CONNECTED ' + JSON.stringify(WALLET_CONNECTOR.session))
+        } else {
+            Log.log('Session ALREADY CONNECTED ' + JSON.stringify(WALLET_CONNECTOR.session))
         }
 
         WALLET_CONNECTOR.on('session_request', (error, payload) => {
@@ -295,9 +299,9 @@ export namespace AppWalletConnect {
         })
     }
 
-    export const approveSession = async function() {
-        Log.log('AppWalletConnect.approveSession')
-        const { chainId } = WALLET_CONNECTOR
+    export const approveSession = async function(payload : any) {
+        Log.log('AppWalletConnect.approveSession', payload)
+        const { chainId } = payload
         const account = await _getAccount()
         try {
             const data = {
@@ -306,7 +310,12 @@ export namespace AppWalletConnect {
                 ],
                 chainId: chainId && chainId > 0 ? chainId : 1
             }
-            WALLET_CONNECTOR.approveSession(data)
+            Log.log('---debug--- AppWalletConnect.approveSession init')
+            Log.log('Session ' + JSON.stringify(WALLET_CONNECTOR.session))
+            await WALLET_CONNECTOR.approveSession(data)
+            Log.log('Session2 ' + JSON.stringify(WALLET_CONNECTOR.session))
+            await WALLET_CONNECTOR.updateSession(data)
+            Log.log('Session3 ' + JSON.stringify(WALLET_CONNECTOR.session))
             Log.log('AppWalletConnect.approveSession ok')
             return data
         } catch (e) {
