@@ -45,7 +45,8 @@ class WalletConnectScreen extends PureComponent {
             peerStatus: false,
             accounts: [],
             transactions: [],
-            fullLink : ''
+            fullLink : '',
+            qrFullLink: ''
         }
         this.linkInput = React.createRef()
     }
@@ -54,10 +55,13 @@ class WalletConnectScreen extends PureComponent {
         const data = NavStore.getParamWrapper(this, 'walletConnect')
         if (data && typeof data.fullLink !== 'undefined' && data.fullLink) {
             this.setState({
-                fullLink: data.fullLink
+                fullLink: data.fullLink,
+                qrFullLink : data.fullLink
             }, () => {
                 this._init({fullLink : data.fullLink})
-                this.linkInput.handleInput(data.fullLink, false)
+                if (this.linkInput) {
+                    this.linkInput.handleInput(data.fullLink, false)
+                }
             })
         } else {
             this._init(false)
@@ -66,18 +70,21 @@ class WalletConnectScreen extends PureComponent {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         const data = NavStore.getParamWrapper(this, 'walletConnect')
-        if (data && typeof data.fullLink !== 'undefined' && data.fullLink ) {
+        if (data && typeof data.fullLink !== 'undefined' && data.fullLink && data.fullLink !== this.state.qrFullLink) {
             this.setState({
-                fullLink: data.fullLink
+                fullLink: data.fullLink,
+                qrFullLink : data.fullLink
             }, () => {
                 this._init({fullLink : data.fullLink})
-                this.linkInput.handleInput(data.fullLink, false)
+                if (this.linkInput) {
+                    this.linkInput.handleInput(data.fullLink, false)
+                }
             })
         }
     }
 
     async _init(anyData) {
-        Log.log('WalletConnectScreen.init ', anyData)
+        Log.log('WalletConnectScreen.init stateLink ' + this.state.fullLink, anyData)
         try {
            const clientData = await AppWalletConnect.init(anyData,
                 this.handleSessionRequest,
