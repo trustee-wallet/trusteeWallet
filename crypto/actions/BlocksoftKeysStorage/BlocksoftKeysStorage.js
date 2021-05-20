@@ -346,7 +346,7 @@ export class BlocksoftKeysStorage {
         if (!newMnemonic.hash) {
             throw new Error('unique hash required ' + JSON.stringify(newMnemonic))
         }
-        if (this._serviceWallets[newMnemonic.hash]) {
+        if (typeof this._serviceWallets[newMnemonic.hash] !== 'undefined' &&  this._serviceWallets[newMnemonic.hash]) {
             if (this._serviceWallets[newMnemonic.hash] !== newMnemonic.mnemonic) {
                 throw new Error('something wrong with hash algorithm')
             }

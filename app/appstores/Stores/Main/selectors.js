@@ -18,6 +18,7 @@ export const getSelectedWalletData = createSelector(
             walletName : data.walletName,
             walletNumber : data.walletNumber,
             walletIsHd : data.walletIsHd === 1,
+            walletIsBackedUp : data.walletIsBackedUp === 1,
             walletIsHideTransactionForFee : data.walletIsHideTransactionForFee !== null && data.walletIsHideTransactionForFee * 1 === 1
         }
     })

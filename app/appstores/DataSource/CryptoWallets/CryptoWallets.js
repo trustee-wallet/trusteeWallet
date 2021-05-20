@@ -11,6 +11,15 @@ import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 const cryptoWallets = {
 
     /**
+     * remove unique key
+     * @param {string} wallet.walletHash
+     * @return {Promise<string>}
+     */
+    deleteWallet: async (wallet) => {
+        // @todo
+    },
+
+    /**
      * returns unique key for mnemonic saved in cryptostorage
      * @param {string} wallet.walletName
      * @param {string} wallet.newMnemonic

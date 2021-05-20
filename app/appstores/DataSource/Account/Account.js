@@ -338,6 +338,8 @@ class Account {
     clearAccounts = async (params) => {
         Log.daemon('DS/Account clear accounts called ' + params.walletHash)
 
+        await Database.setQueryString(`DELETE FROM wallet_pub WHERE wallet_hash='${params.walletHash}'`).query()
+
         await Database.setQueryString(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`).query()
 
         await Database.setQueryString(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`).query()
@@ -345,6 +347,28 @@ class Account {
         Log.daemon('DS/Account clear accounts finished ' + params.walletHash)
     }
 
+
+    /**
+     * @param {string} params.walletHash
+     * @returns {Promise<void>}
+     */
+    clearAccountsAll = async (params) => {
+        Log.daemon('DS/Account clear accounts all called ' + params.walletHash)
+
+        await Database.setQueryString(`DELETE FROM wallet_pub WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM transactions WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM transactions_raw`).query()
+
+        await Database.setQueryString(`DELETE FROM app_news WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`).query()
+
+        Log.daemon('DS/Account clear accounts all finished ' + params.walletHash)
+    }
     /**
      * @param {string} params.walletHash
      * @param {string} params.currencyCode

@@ -99,6 +99,14 @@ export const finishProcess = async (lockScreen) => {
             lockScreenAction.setFlowType({ flowType: '' })
             lockScreenAction.setActionCallback({ actionCallback: () => {} })
         }, 500)
+    } else if (flowType === 'REMOVE_WALLET_PHRASE') {
+        NavStore.goBack()
+        setLoaderStatus(true)
+        setTimeout(() => {
+            actionCallback(false)
+            lockScreenAction.setFlowType({ flowType: '' })
+            lockScreenAction.setActionCallback({ actionCallback: () => {} })
+        }, 500)
     } else {
         NavStore.reset('TabBar')
     }

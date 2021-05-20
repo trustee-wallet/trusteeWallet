@@ -52,11 +52,10 @@ class UpdateAccountListDaemon extends Update {
      * @return {Promise<void>}
      */
     updateAccountListDaemon = async (params) => {
-        if (CACHE_STOPPED) return false
         const source = params.source || 'none'
         const force = params.force || false
         const now = new Date().getTime()
-
+        if (CACHE_STOPPED && !force) return false
 
         if (!force && DaemonCache.CACHE_WALLET_COUNT > 0) {
             if (

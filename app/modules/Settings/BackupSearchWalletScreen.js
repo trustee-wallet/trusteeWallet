@@ -74,7 +74,7 @@ class BackupSearchWalletScreen extends PureComponent {
                 showModal({
                     type: 'INFO_MODAL',
                     icon: true,
-                    title: strings('modal.send.success'),
+                    title: strings('modal.exchange.sorry'),
                     description: 'Full mnemonic not found'
                 })
             }

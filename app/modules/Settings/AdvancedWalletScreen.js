@@ -30,8 +30,11 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
-import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
+import UpdateWalletsDaemon from '@app/daemons/back/UpdateWalletsDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import Log from '@app/services/Log/Log'
 
 
 class AdvancedWalletScreen extends PureComponent {
@@ -85,25 +88,36 @@ class AdvancedWalletScreen extends PureComponent {
             title: strings('modal.titles.attention'),
             description: strings('modal.walletDelete.deleteWallet'),
         },  () => {
-            this.deleteWallet()
+            this._actualDelete(true)
         })
     }
 
-    deleteWallet = async () => { 
-        
-        const { walletHash, walletNumber } = this.props.selectedWalletData
+    _actualDelete = async (needPassword = true) => {
 
-        const checkBalance = true // TODO - check balance
-        if (checkBalance) {
+        const { walletHash, walletNumber, walletIsBackedUp } = this.props.selectedWalletData
+        const { totalBalance } = this.props.walletsGeneralData
+        const { lockScreenStatus } = this.props.settingsData
+        if (needPassword && +lockScreenStatus) {
+            lockScreenAction.setFlowType({ flowType: 'REMOVE_WALLET_PHRASE' })
+            lockScreenAction.setActionCallback({ actionCallback: this._actualDelete })
+            NavStore.goNext('LockScreen')
+            return
+        }
+
+        if (!walletIsBackedUp && totalBalance * 1 > 0) {
             setFlowType({ flowType: 'DELETE_WALLET', walletHash, walletNumber, source: 'AdvancedWalletScreen' })
             NavStore.goNext('BackupStep1Screen')
         } else {
-            const selectedWallet = await cryptoWallets.getSelectedWallet()
-            const mnemonicWallet = await cryptoWallets.getWallet(selectedWallet, 'AdvancedWalletScreen')
-
-            // check pinCode?
-            // TODO delete wallet and set another wallet
-            
+            setLoaderStatus(true)
+            try {
+                await walletActions.removeWallet(walletHash)
+                await UpdateAccountListDaemon.updateAccountListDaemon({force : true, source : 'AdvancedWalletScreen'})
+                NavStore.goBack()
+                setLoaderStatus(false)
+            } catch (e) {
+                Log.log('WalletManagement.Advances deleteWallet error ' + e.message)
+                setLoaderStatus(false)
+            }
         }
 
     }
@@ -113,7 +127,7 @@ class AdvancedWalletScreen extends PureComponent {
     handleClose = () => { NavStore.reset('HomeScreen') }
 
     render() {
-        MarketingAnalytics.setCurrentScreen('WalletManagment.Advances')
+        MarketingAnalytics.setCurrentScreen('WalletManagement.Advances')
         const { colors, GRID_SIZE } = this.context
         const { isEditing, walletName } = this.state
 
@@ -190,6 +204,7 @@ AdvancedWalletScreen.contextType = ThemeContext
 const mapStateToProps = (state) => {
     return {
         selectedWalletData: getSelectedWalletData(state),
+        walletsGeneralData: getWalletsGeneralData(state),
         settingsData: getSettingsScreenData(state),
     }
 }
