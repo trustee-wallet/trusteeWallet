@@ -26,37 +26,52 @@ import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import LinkInput from '@app/components/elements/NewInput'
+import AddressInput from '@app/components/elements/NewInput'
 
 class WalletConnectScreen extends PureComponent {
-    state = {
-        paranoidLogout: false,
-        walletStarted: false,
-        chainId: false,
-        peerMeta: {
-            name: '',
-            url: '',
-            description: '',
-            icons: []
-        },
-        peerId: false,
-        peerStatus: false,
-        accounts: [],
-        transactions: [],
-        fullLink : ''
+    constructor(props) {
+        super(props)
+        this.state = {
+            paranoidLogout: false,
+            walletStarted: false,
+            chainId: false,
+            peerMeta: {
+                name: '',
+                url: '',
+                description: '',
+                icons: []
+            },
+            peerId: false,
+            peerStatus: false,
+            accounts: [],
+            transactions: [],
+            fullLink : ''
+        }
+        this.linkInput = React.createRef()
     }
-
 
     componentDidMount() {
-        this._init(false)
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
         const data = NavStore.getParamWrapper(this, 'walletConnect')
         if (data && typeof data.fullLink !== 'undefined' && data.fullLink) {
             this.setState({
                 fullLink: data.fullLink
             }, () => {
-                this._init({fullLink : this.state.fullLink})
+                this._init({fullLink : data.fullLink})
+                this.linkInput.handleInput(data.fullLink, false)
+            })
+        } else {
+            this._init(false)
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const data = NavStore.getParamWrapper(this, 'walletConnect')
+        if (data && typeof data.fullLink !== 'undefined' && data.fullLink ) {
+            this.setState({
+                fullLink: data.fullLink
+            }, () => {
+                this._init({fullLink : data.fullLink})
+                this.linkInput.handleInput(data.fullLink, false)
             })
         }
     }
@@ -322,6 +337,8 @@ class WalletConnectScreen extends PureComponent {
                                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
 
                                     <LinkInput
+                                        ref={component => this.linkInput = component}
+                                        id={'direct_link'}
                                         name={'DirectLink'}
                                         type={'STRING'}
                                         paste={true}
