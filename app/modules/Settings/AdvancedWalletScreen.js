@@ -30,6 +30,8 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 
 class AdvancedWalletScreen extends PureComponent {
@@ -76,7 +78,35 @@ class AdvancedWalletScreen extends PureComponent {
 
     handleEdit = () => { this.setState(() => ({ isEditing: true }), () => { this.inputRef.focus() }) }
 
-    handleDelete = () => { /* TODO: add handler */ }
+    handleDelete = () => {
+        showModal({
+            type: 'YES_NO_MODAL',
+            icon: 'WARNING',
+            title: strings('modal.titles.attention'),
+            description: strings('modal.walletDelete.deleteWallet'),
+        },  () => {
+            this.deleteWallet()
+        })
+    }
+
+    deleteWallet = async () => { 
+        
+        const { walletHash, walletNumber } = this.props.selectedWalletData
+
+        const checkBalance = true // TODO - check balance
+        if (checkBalance) {
+            setFlowType({ flowType: 'DELETE_WALLET', walletHash, walletNumber, source: 'AdvancedWalletScreen' })
+            NavStore.goNext('BackupStep1Screen')
+        } else {
+            const selectedWallet = await cryptoWallets.getSelectedWallet()
+            const mnemonicWallet = await cryptoWallets.getWallet(selectedWallet, 'AdvancedWalletScreen')
+
+            // check pinCode?
+            // TODO delete wallet and set another wallet
+            
+        }
+
+    }
 
     handleBack = () => { NavStore.goBack() }
 

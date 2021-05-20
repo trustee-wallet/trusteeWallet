@@ -1338,6 +1338,11 @@
       "description": "Note that some information, for example, payment details, will be transferred to exchange providers to carry out the exchange operation.",
       "notShowAgain": "Don't show again",
       "continue": "Continue"
+    },
+    "walletDelete": {
+      "deleteWallet": "Are you sure you want to delete this wallet? Make sure you back up your wallet.",
+      "delete": "Do yoy want delete this wallet?",
+      "confirmDelete": "Do you really want to delete this wallet?"
     }
   },
   "lockScreen": {
