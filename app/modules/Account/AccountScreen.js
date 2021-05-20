@@ -67,7 +67,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
-const TX_PER_PAGE = 5
+const TX_PER_PAGE = 20
 
 class Account extends React.PureComponent {
 
@@ -110,7 +110,7 @@ class Account extends React.PureComponent {
     }
 
     triggerBalanceVisibility = (value, originalVisibility) => {
-        this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
+        this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered: true }))
     }
 
     updateOffset = (event) => {
@@ -313,13 +313,13 @@ class Account extends React.PureComponent {
                     </TouchableOpacity>
                 </View>
                 {
-                    allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0)  && isSynchronized ?
-                            <View style={{ marginRight: GRID_SIZE }} >
-                                <Text
-                                    style={{ ...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3 }}>
-                                    {strings('account.noTransactions')}
-                                </Text>
-                            </View>
+                    allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0) && isSynchronized ?
+                        <View style={{ marginRight: GRID_SIZE }} >
+                            <Text
+                                style={{ ...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3 }}>
+                                {strings('account.noTransactions')}
+                            </Text>
+                        </View>
 
                         : null
                 }
@@ -388,7 +388,7 @@ class Account extends React.PureComponent {
 
     render() {
         if (this.props.isBlurVisible) {
-            return  <AppLockBlur/>
+            return <AppLockBlur />
         }
 
         MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
@@ -456,8 +456,11 @@ class Account extends React.PureComponent {
                     data={allTransactionsToView}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.wrapper__scrollView}
-                    initialNumToRender={10}
+                    initialNumToRender={20}
+                    maxToRenderPerBatch={TX_PER_PAGE}
+                    updateCellsBatchingPeriod={100}
                     onScroll={this.updateOffset}
+                    getItemLayout={(data, index) => ({ length: 110, offset: 110 * index, index })}
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
@@ -469,18 +472,18 @@ class Account extends React.PureComponent {
                         <React.Fragment>
                             <HeaderBlocks
                                 account={{
-                                    walletHash : selectedAccountData.walletHash,
+                                    walletHash: selectedAccountData.walletHash,
                                     shownAddress,
-                                    balancePretty : selectedAccountData.balancePretty,
-                                    basicCurrencySymbol : selectedAccountData.basicCurrencySymbol,
-                                    basicCurrencyBalance : selectedAccountData.basicCurrencyBalance,
-                                    isSynchronized : selectedAccountData.isSynchronized,
-                                    walletPubs : selectedAccountData.walletPubs
+                                    balancePretty: selectedAccountData.balancePretty,
+                                    basicCurrencySymbol: selectedAccountData.basicCurrencySymbol,
+                                    basicCurrencyBalance: selectedAccountData.basicCurrencyBalance,
+                                    isSynchronized: selectedAccountData.isSynchronized,
+                                    walletPubs: selectedAccountData.walletPubs
                                 }}
                                 cryptoCurrency={{
-                                    currencyCode : selectedCryptoCurrencyData.currencyCode,
-                                    currencySymbol : selectedCryptoCurrencyData.currencySymbol,
-                                    currencyExplorerLink : selectedCryptoCurrencyData.currencyExplorerLink
+                                    currencyCode: selectedCryptoCurrencyData.currencyCode,
+                                    currencySymbol: selectedCryptoCurrencyData.currencySymbol,
+                                    currencyExplorerLink: selectedCryptoCurrencyData.currencyExplorerLink
                                 }}
                                 isSegwit={isSegwit}
                                 cacheAsked={CACHE_ASKED}
@@ -505,14 +508,13 @@ class Account extends React.PureComponent {
                             isFirst={index === 0}
                             transaction={item}
                             cryptoCurrency={{
-                                currencyCode : selectedCryptoCurrencyData.currencyCode,
+                                currencyCode: selectedCryptoCurrencyData.currencyCode,
                                 currencySymbol: selectedCryptoCurrencyData.currencySymbol,
-                                currencyColor : this.context.isLight ? selectedCryptoCurrencyData.mainColor : selectedCryptoCurrencyData.darkColor
+                                currencyColor: this.context.isLight ? selectedCryptoCurrencyData.mainColor : selectedCryptoCurrencyData.darkColor
                             }}
                             dashHeight={allTransactionsToView.length === 1 ? 0 : (allTransactionsToView.length - 1 === index) ? 50 : 150}
                         />
-                    )
-                    }
+                    )}
                     onEndReachedThreshold={0.5}
                     onEndReached={this.handleShowMore}
                     keyExtractor={item => (item.id || ('bse_' + item.bseOrderData.orderId)).toString()}
