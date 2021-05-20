@@ -1153,6 +1153,10 @@
       "title": "ყურადღება!",
       "description": "გამოვიყენოთ ისევ მისამართები ტრანზაქციების გარეშე?"
     },
+    "useAgainAddressesGap": {
+      "title": "Attention!",
+      "description": "Recommended to use again addresses from last one with transactions"
+    },
     "cashbackDontWork": {
       "description": "ქეშბექი არაა მხარდაჭერილი მოწყობილობის მიერ"
     },

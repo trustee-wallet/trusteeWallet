@@ -1168,6 +1168,10 @@
       "title": "Attention!",
       "description": "Use again addresses without transactions?"
     },
+    "useAgainAddressesGap": {
+      "title": "Attention!",
+      "description": "Recommended to use again addresses from last one with transactions"
+    },
     "cashbackDontWork": {
       "description": "Your device does not support cashback"
     },

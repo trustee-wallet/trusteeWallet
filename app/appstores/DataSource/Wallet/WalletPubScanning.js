@@ -21,7 +21,6 @@ export default {
             const now = Math.round(new Date().getTime() / 1000) - 60 // 1 minute before
             where.push(`(wallet_pub.balance_scan_time IS NULL OR wallet_pub.balance_scan_time < ${now} OR wallet_pub.transactions_scan_time IS NULL OR wallet_pub.transactions_scan_time < ${now})`)
         }
-        where.push(`currency.is_hidden=0`)
         if (params.walletHash) {
             where.push(`wallet_pub.wallet_hash='${params.walletHash}'`)
         }
@@ -54,7 +53,6 @@ export default {
             wallet_pub.balance_scan_block AS balanceScanBlock
 
             FROM wallet_pub
-            LEFT JOIN currency ON currency.currency_code=wallet_pub.currency_code
             ${where}
             ORDER BY wallet_pub.balance_scan_time ASC
             LIMIT 20

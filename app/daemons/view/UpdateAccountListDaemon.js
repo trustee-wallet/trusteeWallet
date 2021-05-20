@@ -128,8 +128,8 @@ class UpdateAccountListDaemon extends Update {
                     const pub = walletPub[tmpCurrency.walletHash]
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode] = tmpCurrency
 
-                    let tmpBalanceScanTime = new BlocksoftBN(0)
-                    let tmpTransactionsScanTime = new BlocksoftBN(0)
+                    let tmpBalanceScanTime = 0
+                    let tmpTransactionsScanTime = 0
                     let tmpBalance = new BlocksoftBN(0)
                     let tmpUnconfirmed = new BlocksoftBN(0)
                     let tmpBalanceLog = ''
@@ -151,9 +151,7 @@ class UpdateAccountListDaemon extends Update {
                         }
                         if (tmpTransactionsScanTime > 0) {
                             if (pub[key].transactionsScanTime * 1 > 0) {
-                                tmpTransactionsScanTime = Math.min(tmpTransactionsScanTime, pub[key].transactionsScanTime)
-                            } else {
-                                tmpTransactionsScanTime = 0
+                                tmpTransactionsScanTime = Math.max(tmpTransactionsScanTime, pub[key].transactionsScanTime)
                             }
                         } else {
                             tmpTransactionsScanTime = pub[key].transactionsScanTime * 1
@@ -211,7 +209,7 @@ class UpdateAccountListDaemon extends Update {
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedTxt = ''
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedFix = ''
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog = tmpBalanceLog
-                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanTime = tmpBalanceScanTime
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanTime = tmpBalanceScanTime > tmpTransactionsScanTime ? tmpBalanceScanTime : tmpTransactionsScanTime
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanError = tmpBalanceScanError
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].transactionsScanTime = tmpTransactionsScanTime
 

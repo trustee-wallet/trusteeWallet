@@ -368,14 +368,25 @@ class AccountReceiveScreen extends React.PureComponent {
             const address = this.getAddress()
             const res = await walletHDActions.setSelectedAccountAsUsed(address)
             if (res) {
-                showModal({
-                    type: 'YES_NO_MODAL',
-                    icon: 'WARNING',
-                    title: strings('modal.useAgainAddresses.title'),
-                    description: strings('modal.useAgainAddresses.description')
-                }, (res) => {
-                    walletHDActions.backUnusedAccounts()
-                })
+                if (res.code === 'error.near.too.much.gap') {
+                    showModal({
+                        type: 'YES_NO_MODAL',
+                        icon: 'WARNING',
+                        title: strings('modal.useAgainAddressesGap.title'),
+                        description: strings('modal.useAgainAddressesGap.description')
+                    }, () => {
+                        walletHDActions.backUnusedAccounts(res)
+                    })
+                } else {
+                    showModal({
+                        type: 'YES_NO_MODAL',
+                        icon: 'WARNING',
+                        title: strings('modal.useAgainAddresses.title'),
+                        description: strings('modal.useAgainAddresses.description')
+                    }, () => {
+                        walletHDActions.backUnusedAccounts(res)
+                    })
+                }
             }
         } catch (e) {
             // noinspection ES6MissingAwait

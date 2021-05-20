@@ -2,8 +2,8 @@
  * @version 0.11
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
-import BlocksoftAxios from '../../../../crypto/common/BlocksoftAxios'
+import Log from '@app/services/Log/Log'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 
 
 export default {
@@ -212,9 +212,54 @@ export default {
         return res.array[0].cn
     },
 
-    backUsed: async (params) => {
-        const sql = `UPDATE account SET already_shown=0 WHERE already_shown=2 AND wallet_hash='${params.walletHash}' AND currency_code='${params.currencyCode}'`
+    countGap: async (params) => {
+        let sql = `SELECT id, derivation_index, derivation_path, already_shown FROM account WHERE wallet_hash='${params.walletHash}' AND currency_code='${params.currencyCode}'`
+        if (params.address.indexOf('bc1') === 0) {
+            sql += ` AND address LIKE 'bc1%' AND derivation_path LIKE 'm/84quote/0quote/0quote/0/%'`
+        } else {
+            sql += ` AND address LIKE '1%' AND derivation_path LIKE 'm/84quote/0quote/0quote/0/%'`
+        }
         const res = await Database.setQueryString(sql).query()
+        if (!res || typeof res.array === 'undefined' || !res.array || typeof res.array[0] === 'undefined' || !res.array[0]) {
+            return 0
+        }
+        let maxIndexManualUsed = 0
+        let maxIndexUsed = 0
+        let maxNotUsed = 0
+
+
+        for (const row of res.array) {
+            const tmp = row.derivation_path.split('/')
+            if (typeof tmp[5] === 'undefined') continue
+            const max = tmp[5] * 1
+            row.already_shown = row.already_shown * 1
+            if (row.already_shown === 2) {
+                if (max > maxIndexManualUsed) {
+                    maxIndexManualUsed = max
+                }
+            } else if (row.already_shown === 1) {
+                if (max > maxIndexUsed) {
+                    maxIndexUsed = max
+                }
+            } else if (row.already_shown === 0) {
+                if (max > maxNotUsed) {
+                    maxNotUsed = max
+                }
+            }
+            if (row.derivation_index * 1 !== max) {
+                await Database.setQueryString(`UPDATE account SET derivation_index=${max} WHERE id=${row.id}`).query()
+            }
+        }
+        Log.log(`DS/AccountHD countGap maxNotUsed ${maxNotUsed} maxIndexUsed ${maxIndexUsed} maxIndexManualUsed ${maxIndexManualUsed}`)
+        return {gap : maxIndexManualUsed - maxIndexUsed, maxIndexUsed}
+    },
+
+    backUsed: async (params) => {
+        let sql = `UPDATE account SET already_shown=0 WHERE already_shown=2 AND wallet_hash='${params.walletHash}'`
+        if (typeof params.maxIndexUsed !== 'undefined') {
+            sql += ' AND derivation_index>' + params.maxIndexUsed
+        }
+        const res = await Database.setQueryString(sql).query(true)
         if (!res || typeof res.rowsAffected === 'undefined') {
             return 0
         }
