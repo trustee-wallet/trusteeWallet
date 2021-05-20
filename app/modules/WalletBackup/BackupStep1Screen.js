@@ -27,6 +27,10 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
+import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
+import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+
 
 const VISIBILITY_TIMEOUT = 4000
 
@@ -47,17 +51,24 @@ class BackupStep1Screen extends React.PureComponent {
         this.init()
     }
 
-    init = () => {
+    init = async () => {
         Log.log('WalletBackup.BackupStep1Screen init')
 
         if (typeof this.props.createWalletStore.walletMnemonic === 'undefined') {
             throw new Error('WalletBackup.BackupStep1Screen init error')
         }
 
+        const { flowType } = this.props.createWalletStore
 
         let walletMnemonicDefault
         try {
-            walletMnemonicDefault = this.props.createWalletStore.walletMnemonic.split(' ')
+            if (flowType === 'DELETE_WALLET') {
+                const selectedWallet = await cryptoWallets.getSelectedWallet()
+                walletMnemonicDefault = await cryptoWallets.getWallet(selectedWallet, 'WalletBackup.BackupStep1Screen')
+                walletMnemonicDefault = walletMnemonicDefault.split(' ')
+            } else {
+                walletMnemonicDefault = this.props.createWalletStore.walletMnemonic.split(' ')
+            }
         } catch (e) {
             throw new Error('WalletBackup.BackupStep1Screen init split error ' + e.message)
         }
@@ -110,6 +121,35 @@ class BackupStep1Screen extends React.PureComponent {
 
     handleBack = () => { NavStore.goBack() }
 
+    handleDeleteWallet = () => {
+        setTimeout(() => {
+            showModal({
+                type: 'YES_NO_MODAL',
+                icon: 'WARNING',
+                title: strings('modal.titles.attention'),
+                description: strings('modal.walletDelete.confirmDelete'),
+                noCallback: this.init
+            }, (needPassword = true) => {
+                const { lockScreenStatus } = this.props.settingsData
+                if (needPassword && +lockScreenStatus) {
+                    lockScreenAction.setFlowType({ flowType: 'CONFIRM_WALLET_PHRASE' })
+                    lockScreenAction.setActionCallback({ actionCallback: this.confirmDeleteWallet })
+                    NavStore.goNext('LockScreen')
+                    return
+                }
+
+                this.confirmDeleteWallet()
+            })
+        }, 0)
+    }
+
+    confirmDeleteWallet = () => {
+        // TODO delete wallet and set another wallet
+
+        setLoaderStatus(false)
+
+    }
+
     validateMnemonic = async () => {
         Log.log('WalletBackup.BackupStep1Screen validateMnemonic')
 
@@ -119,6 +159,17 @@ class BackupStep1Screen extends React.PureComponent {
 
         if (JSON.stringify(this.state.walletMnemonicSelected) !== JSON.stringify(this.state.walletMnemonicDefault)) {
             showModal({ type: 'MNEMONIC_FAIL_MODAL' }, this.init)
+        } else if (flowType === 'DELETE_WALLET') {
+            showModal({
+                type: 'YES_NO_MODAL',
+                icon: 'WARNING',
+                title: strings('modal.titles.attention'),
+                description: strings('modal.walletDelete.delete'),
+                noCallback: this.init
+            }, () => {
+                this.handleDeleteWallet()
+            })
+
         } else if (flowType === 'BACKUP_WALLET') {
             MarketingEvent.logEvent('gx_view_mnemonic_screen_confirmed_mnemonic', { walletNumber, source }, 'GX')
 
@@ -271,6 +322,7 @@ class BackupStep1Screen extends React.PureComponent {
 const mapStateToProps = (state) => {
     return {
         createWalletStore: state.createWalletStore,
+        settingsData: getSettingsScreenData(state),
     }
 }
 
