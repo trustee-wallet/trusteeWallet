@@ -150,7 +150,7 @@ class Transaction extends React.Component {
                 overflow: 'visible',
                 marginTop: !statusTmp ? 1 : 0
             }]}>
-                <View style={{ position: 'absolute', top: 3, left: 23 }}>
+                {/* <View style={{ position: 'absolute', top: 3, left: 23 }}>
                     <Dash
                         style={{
                             width: 2,
@@ -162,7 +162,7 @@ class Transaction extends React.Component {
                         dashGap={3}
                         dashLength={3}
                     />
-                </View>
+                </View> */}
                 <Circle style={{
                     ...styles.transaction__circle__small, ...circleStyle,
                     backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circle,
