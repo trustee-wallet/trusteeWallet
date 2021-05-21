@@ -8,7 +8,7 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
-    "postinstall": "npx jetifier && ./node_modules/.bin/rn-nodeify --hack --install && patch-package",
+    "postinstall": "npx jetifier && rm -f shim.js && ./node_modules/.bin/rn-nodeify --hack --install && patch-package",
     "run_android": "cd android && gradlew cleanBuildCache clean && cd ../ && react-native run-android",
     "mra": "cd ./android && ./gradlew cleanBuildCache clean && cd ../ && react-native run-android",
     "oam": "adb shell input keyevent 82"
