@@ -191,6 +191,9 @@ class WalletConnectScreen extends PureComponent {
             const gas = BlocksoftUtils.hexToDecimalWalletConnect(data.gas)
             txPrice = BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty(BlocksoftUtils.mul(gasPrice, gas))
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('WalletConnectScreen.handleSendTransaction txPrice error ' + e.message)
+            }
             Log.log('WalletConnectScreen.handleSendTransaction txPrice error ' + e.message)
         }
         let subtitle
@@ -221,13 +224,25 @@ class WalletConnectScreen extends PureComponent {
                 await AppWalletConnect.rejectRequest(payload)
             }
         }, async () => {
-            const transaction = await AppWalletConnect.approveRequest(data, payload)
-            transaction.subtitle = subtitle
-            const transactions = this.state.transactions
-            transactions.push(transaction)
-            this.setState({
-                transactions: transactions
-            })
+            try {
+                const transaction = await AppWalletConnect.approveRequest(data, payload)
+                if (transaction) {
+                    transaction.subtitle = subtitle
+                    const transactions = this.state.transactions
+                    transactions.push(transaction)
+                    this.setState({
+                        transactions: transactions
+                    })
+                }
+            } catch (e) {
+                const msg = e.message.indexOf('SERVER_RESPONSE_') === -1 ? e.message : strings('send.errors.' + e.message)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: msg
+                })
+            }
         })
 
     }

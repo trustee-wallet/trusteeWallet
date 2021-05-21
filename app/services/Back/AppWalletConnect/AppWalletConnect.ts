@@ -15,9 +15,12 @@ import EthTmpDS from '../../../../crypto/blockchains/eth/stores/EthTmpDS'
 // @ts-ignore
 import { signTypedData_v4 } from 'eth-sig-util'
 
-import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import store from '@app/store'
 import { setWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import config from '@app/config/config'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { strings } from '@app/services/i18n'
 
 let WALLET_CONNECTOR: WalletConnect
 let WALLET_CONNECTOR_LINK: string | boolean = false
@@ -205,7 +208,21 @@ export namespace AppWalletConnect {
                 const tmp = await WEB3.eth.sendSignedTransaction(signData.rawTransaction)
                 BlocksoftCryptoLog.log(account.currencyCode + ' AppWalletConnect.send send ok ' + nonce + ' from ' + data.from + ' ' + signData.transactionHash, tmp)
             } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log(account.currencyCode + ' AppWalletConnect.send send error ' + e.message + nonce + ' from ' + data.from + ' ' + signData.transactionHash)
+                }
                 BlocksoftCryptoLog.log(account.currencyCode + ' AppWalletConnect.send send error ' + e.message + nonce + ' from ' + data.from + ' ' + signData.transactionHash)
+                let msg = e.message
+                if (e.message.indexOf('insufficient funds') !== -1) {
+                    msg = strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_FEE', {symbol :  MAIN_CURRENCY_CODE === 'ETH' ?  MAIN_CURRENCY_CODE  : 'BNB Smart Chain'})
+                }
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: msg
+                })
+                return false // somehow not catched up
             }
 
             await EthRawDS.saveRaw({
@@ -225,6 +242,9 @@ export namespace AppWalletConnect {
 
             return { transactionHash: signData.transactionHash }
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('AppWalletConnect.approveRequest error ' + e.message)
+            }
             Log.err('AppWalletConnect.approveRequest error ' + e.message)
         }
     }
