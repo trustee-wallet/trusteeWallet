@@ -27,6 +27,9 @@ import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerAc
 
 import LinkInput from '@app/components/elements/NewInput'
 import AddressInput from '@app/components/elements/NewInput'
+import Update from '@app/daemons/Update'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 class WalletConnectScreen extends PureComponent {
     constructor(props) {
@@ -309,6 +312,13 @@ class WalletConnectScreen extends PureComponent {
         NavStore.goNext('QRCodeScannerScreen')
     }
 
+    handleBack = async () => {
+        if (this.state.paranoidLogout) {
+            AppWalletConnect.killSession()
+        }
+        NavStore.goBack()
+    }
+
     handleClose = async () => {
         if (this.state.paranoidLogout) {
             AppWalletConnect.killSession()
@@ -321,12 +331,14 @@ class WalletConnectScreen extends PureComponent {
     render() {
         MarketingAnalytics.setCurrentScreen('WalletConnect')
 
+        UpdateAccountListDaemon.pause()
+        UpdateOneByOneDaemon.pause()
         const { colors } = this.context
 
         return (
             <ScreenWrapper
                 leftType='back'
-                leftAction={this.handleClose}
+                leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
                 title={'Wallet Connect'}

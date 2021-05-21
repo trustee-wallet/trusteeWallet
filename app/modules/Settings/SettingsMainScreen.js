@@ -36,6 +36,7 @@ import Log from '@app/services/Log/Log'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import { getWalletsNumber } from '@app/appstores/Stores/Wallet/selectors'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
 
 
 class SettingsMainScreen extends PureComponent {
@@ -235,7 +236,7 @@ class SettingsMainScreen extends PureComponent {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
         let { localCurrency, lockScreenStatus, touchIDStatus, askPinCodeWhenSending } = this.props.settingsData
-        const walletsNumber = this.props.walletsNumber
+        const { isWalletConnected, walletsNumber } = this.props
 
         lockScreenStatus = +lockScreenStatus
         touchIDStatus = +touchIDStatus
@@ -252,8 +253,6 @@ class SettingsMainScreen extends PureComponent {
             testerMode,
             mode,
         } = this.state
-
-        const isWalletConnected = AppWalletConnect.isConnected()
 
         // @todo uncomment payment accounts
         return (
@@ -410,7 +409,8 @@ class SettingsMainScreen extends PureComponent {
 const mapStateToProps = (state) => {
     return {
         settingsData: getSettingsScreenData(state),
-        walletsNumber: getWalletsNumber(state)
+        walletsNumber: getWalletsNumber(state),
+        isWalletConnected : getWalletConnectIsConnected(state)
     }
 }
 

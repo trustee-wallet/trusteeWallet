@@ -102,6 +102,7 @@ class BlocksoftAxios {
     }
 
     async post(link, data, errSend = true) {
+        return false
         let tmp = false
         let doOld = false
         if (!doOld) {
@@ -164,6 +165,7 @@ class BlocksoftAxios {
     }
 
     async get(link, emptyIsBad = false, errSend = true) {
+        return false
         let tmp = false
         let doOld = false
         try {
@@ -215,6 +217,7 @@ class BlocksoftAxios {
     }
 
     async _cookie(link, method) {
+        return false
         const tmp = link.split('/')
         const domain = tmp[0] + '/' + tmp[1] + '/' + tmp[2]
         const domainShort = tmp[2]

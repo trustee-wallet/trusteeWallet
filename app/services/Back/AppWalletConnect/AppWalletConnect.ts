@@ -17,6 +17,7 @@ import { signTypedData_v4 } from 'eth-sig-util'
 
 import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
 import store from '@app/store'
+import { setWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 let WALLET_CONNECTOR: WalletConnect
 let WALLET_CONNECTOR_LINK: string | boolean = false
@@ -70,13 +71,13 @@ export namespace AppWalletConnect {
         try {
             if (typeof WALLET_CONNECTOR !== 'undefined' && WALLET_CONNECTOR) {
                 if (!data || typeof data === 'undefined' || !data.fullLink || WALLET_CONNECTOR_LINK === data.fullLink) {
-                    Log.log('AppWalletConnect.init connected1 ' + JSON.stringify(data))
-                    let { chainId, accounts, peerId, peerMeta, connected } = WALLET_CONNECTOR
-                    if (!peerId || peerId === '' || !WALLET_CONNECTOR.connected) {
-                        Log.log('AppWalletConnect.init connecting1 ')
+                    Log.log('AppWalletConnect.init connectedCheck Data ' + JSON.stringify(data), WALLET_CONNECTOR.session)
+                    let { chainId, accounts, peerId, peerMeta, connected } = WALLET_CONNECTOR.session
+                    if (!peerId || peerId === '' || !connected) {
                         await WALLET_CONNECTOR.createSession()
                         peerId = WALLET_CONNECTOR.peerId
                         peerMeta = WALLET_CONNECTOR.peerMeta
+                        connected =  WALLET_CONNECTOR.connected
                     }
                     return { chainId, accounts, peerId, peerMeta, connected }
                 }
@@ -88,36 +89,32 @@ export namespace AppWalletConnect {
         if (!data || typeof data === 'undefined' || typeof data.fullLink === 'undefined') {
             return false
         }
-        WALLET_CONNECTOR_LINK = data.fullLink
-        try {
-            WALLET_CONNECTOR = new WalletConnect(
-                {
-                    uri: data.fullLink,
-                    clientMeta: {
-                        description: 'Trustee Wallet for Wallet Connect',
-                        url: 'https://trustee.deals',
-                        icons: ['https://walletconnect.org/walletconnect-logo.png'],
-                        name: 'Trustee Wallet'
+        if (data.fullLink !== WALLET_CONNECTOR_LINK) {
+            WALLET_CONNECTOR_LINK = data.fullLink
+            try {
+                WALLET_CONNECTOR = new WalletConnect(
+                    {
+                        uri: data.fullLink,
+                        clientMeta: {
+                            description: 'Trustee Wallet for Wallet Connect',
+                            url: 'https://trustee.deals',
+                            icons: ['https://walletconnect.org/walletconnect-logo.png'],
+                            name: 'Trustee Wallet'
+                        }
                     }
-                }
-            )
-        } catch (e) {
-            throw new Error(e.message + ' in AppWalletConnect init connection data.fullLink ' + JSON.stringify(data.fullLink))
-        }
-
-        Log.log('---debug--- AppWalletConnect.init init')
-        if (!WALLET_CONNECTOR.connected) {
-            // create new session
-            await WALLET_CONNECTOR.createSession()
-            Log.log('Session NOT CONNECTED ' + JSON.stringify(WALLET_CONNECTOR.session))
-        } else {
-            Log.log('Session ALREADY CONNECTED ' + JSON.stringify(WALLET_CONNECTOR.session))
+                )
+            } catch (e) {
+                throw new Error(e.message + ' in AppWalletConnect init connection data.fullLink ' + JSON.stringify(data.fullLink))
+            }
         }
 
         WALLET_CONNECTOR.on('session_request', (error, payload) => {
             Log.log('AppWalletConnect.on session_request payload', payload, error)
             if (error) {
                 throw error
+            }
+            if (!WALLET_CONNECTOR.connected) {
+                WALLET_CONNECTOR.createSession()
             }
 
             if (!payload) {
@@ -141,6 +138,7 @@ export namespace AppWalletConnect {
             if (error) {
                 throw error
             }
+            setWalletConnectIsConnected(WALLET_CONNECTOR.session.connected)
         })
 
         WALLET_CONNECTOR.on('call_request', (error, payload) => {
@@ -176,8 +174,12 @@ export namespace AppWalletConnect {
             }
         })
 
+        if (!WALLET_CONNECTOR.connected) {
+            WALLET_CONNECTOR.createSession()
+        }
+
         const { chainId, accounts, peerId, peerMeta } = WALLET_CONNECTOR
-        return { chainId, accounts, peerId, peerMeta, connected: true }
+        return { chainId, accounts, peerId, peerMeta, connected: false }
     }
 
     export const approveRequest = async function(data: ITxData, payload: any) {
@@ -310,13 +312,8 @@ export namespace AppWalletConnect {
                 ],
                 chainId: chainId && chainId > 0 ? chainId : 1
             }
-            Log.log('---debug--- AppWalletConnect.approveSession init')
-            Log.log('Session ' + JSON.stringify(WALLET_CONNECTOR.session))
             await WALLET_CONNECTOR.approveSession(data)
-            Log.log('Session2 ' + JSON.stringify(WALLET_CONNECTOR.session))
             await WALLET_CONNECTOR.updateSession(data)
-            Log.log('Session3 ' + JSON.stringify(WALLET_CONNECTOR.session))
-            Log.log('AppWalletConnect.approveSession ok')
             return data
         } catch (e) {
             Log.err('AppWalletConnect.approveSession error ' + e.message)
@@ -325,10 +322,6 @@ export namespace AppWalletConnect {
 
     export const getMainCurrencyCode = function() {
         return MAIN_CURRENCY_CODE
-    }
-
-    export const isConnected = function() {
-        return WALLET_CONNECTOR_LINK
     }
 
 }
