@@ -160,6 +160,7 @@
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
     "ripple-lib": "1.8.0",
+    "rn-nodeify": "github:tradle/rn-nodeify",
     "rn-tooltip": "^2.0.0",
     "safe-event-emitter": "^1.0.1",
     "secp256k1": "3.8.0",
@@ -201,7 +202,6 @@
     "jest": "24.9.0",
     "metro-react-native-babel-preset": "0.56.3",
     "react-test-renderer": "16.9.0",
-    "rn-nodeify": "github:tradle/rn-nodeify",
     "typescript": "^3.8.3"
   },
   "jest": {
