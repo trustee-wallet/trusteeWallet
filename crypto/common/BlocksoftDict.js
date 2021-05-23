@@ -1553,6 +1553,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
     }
 
     Currencies[tmp.currencyCode] = tmp
+    return tmp
 }
 
 const ALL_SETTINGS = {}

@@ -111,6 +111,12 @@ function filterBySearchQuery(assets, value) {
     return assets.filter(as => (
         as.currencySymbol.toLowerCase().includes(value)
         || as.currencyName.toLowerCase().includes(value)
+        || (
+            typeof as.tokenAddress !== 'undefined' && as.tokenAddress && as.tokenAddress.toLowerCase() === value
+        )
+        || (
+            typeof as.tokenName !== 'undefined' && as.tokenName && as.tokenName.toLowerCase() === value
+        )
     ))
 }
 
@@ -124,6 +130,28 @@ export async function addCustomToken(tokenAddress) {
 
     let checked
     try {
+        for (const dict in BlocksoftDict.Currencies) {
+            if (
+                (
+                    typeof BlocksoftDict.Currencies[dict].tokenAddress !== 'undefined'
+                    && BlocksoftDict.Currencies[dict].tokenAddress.toLowerCase() === tokenAddress.toLowerCase()
+                ) || (
+                    typeof BlocksoftDict.Currencies[dict].tokenName !== 'undefined'
+                    && BlocksoftDict.Currencies[dict].tokenName.toLowerCase() === tokenAddress.toLowerCase()
+                )
+            ) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.infoAddCustomAssetModal.successAlready.title'),
+                    description: strings('modal.infoAddCustomAssetModal.successAlready.description')
+                })
+                setLoaderStatus(false)
+                return {searchQuery : tokenAddress}
+            }
+            // tokenName
+        }
+
         checked = await customCurrencyActions.checkCustomCurrency({
             tokenType,
             tokenAddress
@@ -145,10 +173,8 @@ export async function addCustomToken(tokenAddress) {
                 title: strings('modal.infoAddCustomAssetModal.error.title'),
                 description: strings('modal.infoAddCustomAssetModal.error.description')
             })
-
             setLoaderStatus(false)
-
-            return
+            return {searchQuery : false}
         }
 
 
@@ -168,7 +194,7 @@ export async function addCustomToken(tokenAddress) {
 
         setLoaderStatus(false)
 
-        return
+        return {searchQuery : false}
     }
 
 
@@ -184,7 +210,7 @@ export async function addCustomToken(tokenAddress) {
 
         setLoaderStatus(false)
 
-        return
+        return {searchQuery : false}
     }
 
     try {
@@ -215,7 +241,7 @@ export async function addCustomToken(tokenAddress) {
         })
 
         setLoaderStatus(false)
-        return
+        return {searchQuery : false}
     }
 
     await customCurrencyActions.importCustomCurrenciesToDict()
@@ -239,4 +265,5 @@ export async function addCustomToken(tokenAddress) {
     }, () => {
         NavStore.reset('HomeScreen')
     })
+    return {searchQuery : false}
 }

@@ -110,7 +110,6 @@ class AddAssetScreen extends React.PureComponent {
             description: strings('modal.qrScanner.success.description'),
             type: 'ADD_CUSTOM_TOKEN_SCANNER'
         })
-        setQRValue('')
         NavStore.goNext('QRCodeScannerScreen')
     }
 
@@ -119,7 +118,7 @@ class AddAssetScreen extends React.PureComponent {
     handleAddCustomToken = async () => {
         Keyboard.dismiss();
         const types = ['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']
-        const { customAddress } = this.state
+        const customAddress = this.state.customAddress.trim().toLowerCase().split(/\s+/g).join('')
         const tmps = types.map(type => ({
             type,
             id: 'address',
@@ -127,7 +126,12 @@ class AddAssetScreen extends React.PureComponent {
         }))
         const validation = await Validator.arrayValidation(tmps)
 
-        if (validation.errorArr.length !== types.length) addCustomToken(customAddress)
+        if (validation.errorArr.length !== types.length) {
+            const result = await addCustomToken(customAddress)
+            if (result.searchQuery) {
+                this.handleSearch(result.searchQuery)
+            }
+        }
     }
 
     updateOffset = (event) => {

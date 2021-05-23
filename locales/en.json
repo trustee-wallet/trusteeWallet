@@ -1229,6 +1229,10 @@
         "title": "Success",
         "description": "Asset was successfully added"
       },
+      "successAlready": {
+        "title": "Success",
+        "description": "Asset already added"
+      },
       "error": {
         "title": "Sorry can`t find asset",
         "description": "Please check asset address and try again"
