@@ -233,6 +233,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:18.0.0'
     implementation 'com.google.firebase:firebase-perf:19.1.1'
 
+    implementation 'io.intercom.android:intercom-sdk-base:5.+'
+
       compile('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
         transitive = true;
       }

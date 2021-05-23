@@ -20,6 +20,9 @@ import androidx.multidex.MultiDexApplication;
 import java.security.Security;
 import android.webkit.WebView;
 
+import com.robinpowered.react.Intercom.IntercomPackage;
+import io.intercom.android.sdk.Intercom;
+
 public class MainApplication extends MultiDexApplication implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost =
@@ -55,6 +58,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this); // Remove this line if you don't want Flipper enabled
     WebView.setWebContentsDebuggingEnabled(true);
+    Intercom.initialize(this, "android_sdk-3484c7e9c5c1f10658e8c8e26a1f1d11013ca5e2", "b0svulae");
   }
 
   /**
