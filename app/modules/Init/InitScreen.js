@@ -50,6 +50,18 @@ class InitScreen extends React.PureComponent {
         this.init()
     }
 
+    recheckInit = () => {
+        if (this.props.init === true) {
+            setTimeout(() => {
+                if (this.props.lockScreenStatus * 1 > 0) {
+                    NavStore.reset('LockScreenPop')
+                } else {
+                    NavStore.reset('TabBar')
+                }
+            }, 1000)
+        }
+    }
+
     init = async () => {
         const { isLight } = this.context
 
@@ -124,6 +136,7 @@ class InitScreen extends React.PureComponent {
         if (App.initStatus === 'resetError') {
             App.init({source : 'InitScreen.render', onMount : false})
         }
+        this.recheckInit()
 
         const { colors, isLight } = this.context
 
