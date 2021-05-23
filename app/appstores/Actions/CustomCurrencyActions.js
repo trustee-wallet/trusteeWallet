@@ -121,7 +121,7 @@ const customCurrencyActions = {
 
         for (const currencyObject of res) {
             if (typeof tokenToDict[currencyObject.tokenAddress] !== 'undefined') {
-                const preparedCustom =  BlocksoftDict.addAndUnifyCustomCurrency(currencyObject)
+                const preparedCustom = BlocksoftDict.addAndUnifyCustomCurrency(currencyObject)
                 const foundNotCustom = tokenToDict[currencyObject.tokenAddress]
                 const currency = await Database.setQueryString(`
                 SELECT currency_code AS currencyCode, is_hidden AS isHidden FROM currency
@@ -129,6 +129,7 @@ const customCurrencyActions = {
                 `).query()
                 let recheckedFoundCurrency = false
                 let recheckedCustomCurrency = false
+                await Database.setQueryString(`DELETE FROM currency WHERE currency_code='${preparedCustom.currencyCode}'`).query()
                 if (currency.array) {
                     for (const recheck of currency.array) {
                         if (recheck.currencyCode === foundNotCustom.currencyCode) {
@@ -148,12 +149,8 @@ const customCurrencyActions = {
                     if (!recheckedFoundCurrency) {
                         await currencyActions.addCurrency({ currencyCode: foundNotCustom.currencyCode }, 0, 0)
                     }
-                    if (recheckedCustomCurrency) {
-                        await Database.setQueryString(`DELETE FROM currency WHERE currency_code='${recheckedCustomCurrency.currencyCode}'`).query()
-                    }
                 }
                 await Database.setQueryString(`DELETE FROM custom_currency WHERE id=${currencyObject.id}`).query()
-                
             } else {
                 BlocksoftDict.addAndUnifyCustomCurrency(currencyObject)
             }
