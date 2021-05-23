@@ -5,6 +5,7 @@
  */
 import React from 'react'
 import { Platform } from 'react-native'
+import Intercom from 'react-native-intercom'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -65,11 +66,13 @@ import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
 import NotificationsSettingScreen from '@app/modules/Settings/NotificationsScreen'
 import SupportScreen from '@app/modules/Support/index'
+import IntercomSupportScreen from '@app/modules/Support/intercomSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/modules/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const Stack = createStackNavigator()
 
@@ -217,17 +220,38 @@ const TabBar = () => {
                     )
                 }}
             />
-            <Tab.Screen
-                name='SupportScreen'
-                component={SupportScreen}
-                options={{
-                    unmountOnBlur: true,
-                    tabBarLabel: strings('dashboardStack.support'),
-                    tabBarIcon: ({ color }) => (
-                        <CustomIcon name="support" color={color} size={22} style={{ marginBottom: 3 }} />
-                    )
-                }}
-            />
+            {MarketingEvent.UI_DATA.IS_TESTER === 'TESTER' ?
+                <Tab.Screen
+                    name='IntercomSupportScreen'
+                    component={IntercomSupportScreen}
+                    options={{
+                        unmountOnBlur: true,
+                        tabBarLabel: strings('dashboardStack.support'),
+                        tabBarIcon: ({ color }) => (
+                            <CustomIcon name="support" color={color} size={22} style={{ marginBottom: 3 }} />
+                        )
+                    }}
+                    listeners={({ navigation }) => ({
+                        tabPress: (e) => {
+                            e.preventDefault();
+                            Intercom.registerIdentifiedUser({ userId: MarketingEvent.DATA.LOG_CASHBACK })
+                            Intercom.displayMessenger()
+                        },
+                    })}
+                />
+                :
+                <Tab.Screen
+                    name='SupportScreen'
+                    component={SupportScreen}
+                    options={{
+                        unmountOnBlur: true,
+                        tabBarLabel: strings('dashboardStack.support'),
+                        tabBarIcon: ({ color }) => (
+                            <CustomIcon name="support" color={color} size={22} style={{ marginBottom: 3 }} />
+                        )
+                    }}
+                />
+            }
         </Tab.Navigator>
     )
 }
