@@ -116,7 +116,7 @@ export class XlmTxSendProvider {
             })
             result = await response.json()
             if (result && typeof result.extras !== 'undefined' && typeof result.extras.result_codes !== 'undefined' && typeof result.extras.result_codes.operations !== 'undefined') {
-                throw new Error(result.extras.result_codes.operations[0])
+                throw new Error(result.extras.result_codes.operations[0] + ' ' + raw)
             }
             if (typeof result.status !== 'undefined') {
                 if (result.status === 406 || result.status === 400 || result.status === 504) {
