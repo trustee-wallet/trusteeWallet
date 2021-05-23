@@ -130,7 +130,7 @@ class CryptoCurrency extends React.PureComponent {
         let ratePrep = account.basicCurrencyRate
         if (ratePrep > 0) {
             ratePrep = BlocksoftPrettyNumbers.makeCut(ratePrep, 2).separated
-            if (ratePrep.indexOf('0.0') === 0) {
+            if (ratePrep.indexOf('.') === 1) {
                 ratePrep = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate, 4).separated
             }
         }
