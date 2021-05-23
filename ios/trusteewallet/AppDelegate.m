@@ -14,6 +14,7 @@
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
 #import "Orientation.h"
+#import "Intercom/intercom.h"
 
 @implementation AppDelegate
 
@@ -70,6 +71,13 @@ willPresentNotification:(UNNotification *)notification
         withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
+}
+
+-(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+    // Intercom
+    [Intercom setApiKey:@"ios_sdk-920b14f9f20f416beba4964bf92b25199a99a4cf" forAppId:@"b0svulae"];
+
 }
 
 /*
