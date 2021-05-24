@@ -257,7 +257,7 @@ const TabBar = () => {
                     )
                 }}
             />
-            {MarketingEvent.UI_DATA.IS_TESTER === 'TESTER' ?
+            {MarketingEvent.DATA.LOG_TESTER ?
                 <Tab.Screen
                     name='IntercomSupportScreen'
                     component={IntercomSupportScreen}

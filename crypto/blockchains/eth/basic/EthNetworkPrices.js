@@ -34,7 +34,9 @@ class EthNetworkPrices {
         if (mainCurrencyCode === 'BNB') {
             return false // @todo server side for BNB if needed
         }
-        const proxy = config.proxy.apiEndpoints.baseURL + '/eth/getFees'
+        const { apiEndpoints } = config.proxy
+        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        const proxy = baseURL + '/eth/getFees'
         const now = new Date().getTime()
         if (CACHE_PROXY_DATA.address === address && now - CACHE_PROXY_TIME < CACHE_PROXY_VALID_TIME) {
             BlocksoftCryptoLog.log(mainCurrencyCode + ' EthNetworkPricesProvider.getWithProxy from cache', logData)

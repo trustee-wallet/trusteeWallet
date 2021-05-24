@@ -61,9 +61,11 @@ export default class EthTxSendProvider {
             }
         }
 
-        const proxy = config.proxy.apiEndpoints.baseURL + '/send/checktx'
-        const errorProxy = config.proxy.apiEndpoints.baseURL + '/send/errortx'
-        const successProxy = config.proxy.apiEndpoints.baseURL + '/send/sendtx'
+        const { apiEndpoints } = config.proxy
+        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        const proxy = baseURL + '/send/checktx'
+        const errorProxy = baseURL + '/send/errortx'
+        const successProxy = baseURL + '/send/sendtx'
         let checkResult = false
         try {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult start ' + proxy, logData)

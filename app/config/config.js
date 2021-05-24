@@ -79,9 +79,9 @@ const config = {
     },
 
     proxy : {
-        mode : 'PROD',
         apiEndpoints : {
-            baseURL : 'https://proxy.trustee.deals'
+            baseURL : 'https://proxy.trustee.deals',
+            baseURLTest : 'https://proxytest.trustee.deals'
         }
     },
 

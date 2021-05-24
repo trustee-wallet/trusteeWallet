@@ -27,9 +27,11 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
         this._settings = settings
         this._trezorServerCode = serverCode
 
-        this._proxy = config.proxy.apiEndpoints.baseURL + '/send/checktx'
-        this._errorProxy = config.proxy.apiEndpoints.baseURL + '/send/errortx'
-        this._successProxy = config.proxy.apiEndpoints.baseURL + '/send/sendtx'
+        const { apiEndpoints } = config.proxy
+        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        this._proxy = baseURL + '/send/checktx'
+        this._errorProxy = baseURL + '/send/errortx'
+        this._successProxy = baseURL + '/send/sendtx'
     }
 
     async _check(hex: string, subtitle: string, txRBF: any, logData: any) {

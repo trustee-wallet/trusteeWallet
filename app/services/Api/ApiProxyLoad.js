@@ -12,8 +12,9 @@ import BlocksoftKeysForRef from '@crypto/actions/BlocksoftKeysForRef/BlocksoftKe
 export default {
 
     getSaved: async (walletHash, newWalletName = false) => {
-
-        const { mode: exchangeMode } = config.exchange
+        const { apiEndpoints } = config.proxy
+        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        const exchangeMode = config.exchange.mode
 
         let deviceToken = MarketingEvent.DATA.LOG_TOKEN
         if (!deviceToken || deviceToken === null || deviceToken === '') {
@@ -22,7 +23,7 @@ export default {
         if (!deviceToken || deviceToken === null || deviceToken === '') {
             deviceToken = 'NO_GOOGLE_AS_NULL_' + (new Date().getTime()) + '_' + (Math.ceil(Math.random() * 100000))
         }
-        const link = config.proxy.apiEndpoints.baseURL + `/saved?exchangeMode=${exchangeMode}&uid=${deviceToken}`
+        const link = baseURL + `/saved?exchangeMode=${exchangeMode}&uid=${deviceToken}`
 
 
         const { privateKey, address, cashbackToken } = await CashBackUtils.getByHash(walletHash, 'ApiProxyLoad')

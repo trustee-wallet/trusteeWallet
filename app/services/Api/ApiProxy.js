@@ -29,7 +29,10 @@ import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon
 import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
 
 async function _getAll(params) {
-    const { mode: exchangeMode } = config.exchange
+    const { apiEndpoints } = config.proxy
+    const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+    const exchangeMode = config.exchange.mode
+
     let deviceToken = MarketingEvent.DATA.LOG_TOKEN
     if (!deviceToken || deviceToken === null || deviceToken === '') {
         deviceToken = await AppNotificationListener.getToken()
@@ -37,7 +40,12 @@ async function _getAll(params) {
     if (!deviceToken || deviceToken === null || deviceToken === '') {
         deviceToken = 'NO_GOOGLE_AS_NULL_' + (new Date().getTime()) + '_' + (Math.ceil(Math.random() * 100000))
     }
-    const link = config.proxy.apiEndpoints.baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
+    const link = baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
+    console.log(`
+    
+    ${link}
+    
+    `)
     const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
 
     const signedData = await CashBackUtils.createWalletSignature(true, time)
@@ -163,7 +171,9 @@ async function _getAll(params) {
 }
 
 async function _getRates(params) {
-    const link = config.proxy.apiEndpoints.baseURL + '/rates'
+    const { mode, apiEndpoints } = config.proxy
+    const baseURL = mode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+    const link = baseURL + '/rates'
     return BlocksoftAxios.get(link)
 }
 

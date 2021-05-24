@@ -74,7 +74,9 @@ class EthRawDS {
                     }
 
                     if (transactionLog && typeof transactionLog.currencyCode !== 'undefined' && (typeof transactionLog.successResult === 'undefined' || !transactionLog.successResult)) {
-                        const successProxy = config.proxy.apiEndpoints.baseURL + '/send/sendtx'
+                        const { apiEndpoints } = config.proxy
+                        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+                        const successProxy = baseURL + '/send/sendtx'
                         let checkResult = false
                         try {
                             transactionLog.selectedFee.isRebroadcast = true
