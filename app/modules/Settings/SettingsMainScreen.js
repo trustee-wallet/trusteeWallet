@@ -12,8 +12,8 @@ import {
 } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
-
 import AsyncStorage from '@react-native-community/async-storage'
+import Intercom from 'react-native-intercom'
 
 import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
@@ -30,7 +30,6 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 import Log from '@app/services/Log/Log'
 
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
@@ -169,6 +168,12 @@ class SettingsMainScreen extends PureComponent {
             mode
         })
 
+        Vibration.vibrate(100)
+    }
+
+    handleClearIntercom = async () => {
+        await Intercom.logout()
+        Toast.setMessage(strings('settings.other.clearIntercomDone')).show()
         Vibration.vibrate(100)
     }
 
@@ -352,6 +357,15 @@ class SettingsMainScreen extends PureComponent {
                                     iconType="testerMode"
                                     onPress={null}
                                     onLongPress={this.handleToggleTester}
+                                    delayLongPress={1000}
+                                />
+                            )}
+                            {(devMode && testerMode === 'TESTER') && (
+                                <ListItem
+                                    title={strings('settings.other.clearIntercom')}
+                                    subtitle={strings('settings.other.clearIntercomSubtitle')}
+                                    iconType="pinCode"
+                                    onPress={this.handleClearIntercom}
                                     delayLongPress={1000}
                                 />
                             )}

@@ -33,6 +33,8 @@ class MarketingEvent {
         LOG_WALLET: '',
         LOG_CASHBACK: '',
         LOG_PARENT: '',
+        LOG_PLATFORM : '',
+        LOG_VERSION : '',
         LOG_WALLETS_COUNT : '0',
         LOG_DEV : false,
         LOG_TESTER: false

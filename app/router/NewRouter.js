@@ -70,9 +70,11 @@ import IntercomSupportScreen from '@app/modules/Support/intercomSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/modules/theme/ThemeProvider'
-import { strings } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import AsyncStorage from '@react-native-community/async-storage'
 
 const Stack = createStackNavigator()
 
@@ -148,6 +150,41 @@ const MarketStackScreen = () => {
     )
 }
 
+let registeredMessage = false
+const startIntercom = async () => {
+    let sub = sublocale()
+    if (sub !== 'uk' && sub !== 'ru') {
+        sub = 'en'
+    }
+
+    if (!registeredMessage || registeredMessage !== MarketingEvent.DATA.LOG_CASHBACK) {
+
+        const sign = await CashBackUtils.createWalletSignature(true)
+        Intercom.registerUnidentifiedUser()
+        Intercom.updateUser({
+            name : sign.cashbackToken,
+            language_override: sub
+        })
+        const str = `${sign.message}00000${sign.messageHash.substr(2)}00000${sign.signature.substr(2)}00000${sign.signedAddress.substr(2)}`
+        const buff = Buffer.from(str, 'hex').toString('base64')
+        // const buff2 = Buffer.from(buff, 'base64').toString('hex')
+        // console.log(buff2.split('00000'))
+
+        Intercom.displayMessageComposerWithInitialMessage(
+            `
+        ----------------------------------------    
+        Sig : ${buff}
+        Version : ${MarketingEvent.DATA.LOG_VERSION}
+        ----------------------------------------
+        
+        
+            `)
+        registeredMessage = sign.cashbackToken
+    } else {
+        Intercom.displayMessenger()
+    }
+
+}
 const TabBar = () => {
 
     const { colors } = useTheme()
@@ -233,9 +270,8 @@ const TabBar = () => {
                     }}
                     listeners={({ navigation }) => ({
                         tabPress: (e) => {
-                            e.preventDefault();
-                            Intercom.registerIdentifiedUser({ userId: MarketingEvent.DATA.LOG_CASHBACK })
-                            Intercom.displayMessenger()
+                            e.preventDefault()
+                            startIntercom()
                         },
                     })}
                 />
