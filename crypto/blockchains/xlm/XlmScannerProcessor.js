@@ -62,6 +62,7 @@ export default class XlmScannerProcessor {
                 && e.message.indexOf('to retrieve payments') === -1
                 && e.message.indexOf('limit exceeded') === -1
                 && e.message.indexOf('timed out') === -1
+                && e.message.indexOf('resource missing') === -1
             ) {
                 throw e
             } else {

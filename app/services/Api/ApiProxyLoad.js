@@ -45,6 +45,7 @@ export default {
 
         const cbData = {
             deviceToken,
+            cashbackToken,
             locale: sublocale(),
             signedData,
             timestamp: +new Date()
