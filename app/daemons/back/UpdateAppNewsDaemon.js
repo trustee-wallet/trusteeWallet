@@ -100,18 +100,25 @@ class UpdateAppNewsDaemon {
             newsServerHash: 'status'
         }
         let savedAny = false
+        if (store.getState().appNewsStore.appNewsList.length === 0) {
+            await appNewsInitStore()
+        }
         const allNews = store.getState().appNewsStore.appNewsList
         const allNewsIndexed = {}
         if (allNews.length) {
             for (const news of allNews) {
-                allNewsIndexed[news.newsServerId] = news
+                allNewsIndexed[news.newsServerId] = {
+                    newsName : news.newsName,
+                    newsServerHash: news.newsServerHash
+                }
             }
         }
+
         try {
             let index = 0
             for (const row of res.news) {
                 if (index > 2) {
-                //    break
+                   // break
                 }
                 index++
                 const toSave = {
@@ -130,6 +137,11 @@ class UpdateAppNewsDaemon {
                 let fromStoreStatus = 'no_cache'
                 let fromStore = false
                 if (typeof row.isBroadcast === 'undefined' || row.isBroadcast === false) {
+                    if (row.newsGroup !== 'GOOGLE_EVENTS' && typeof allNewsIndexed[toSave.newsUniqueKey] !== 'undefined') {
+                        fromStore = allNewsIndexed[toSave.newsUniqueKey]
+                        fromStoreStatus = 'check_update_ind'
+                        // not loaded
+                    }
                     toSave.walletHash = walletHash
                 } else if (typeof allNewsIndexed[toSave.newsUniqueKey] !== 'undefined') {
                     fromStore = allNewsIndexed[toSave.newsUniqueKey]

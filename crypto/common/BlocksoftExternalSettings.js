@@ -96,7 +96,7 @@ class BlocksoftExternalSettings {
         }
         try {
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source)
-            const tmp = await ApiProxy.getAll({source : 'BlocksoftExternalSettings._get ' + source, onlyRates: true})
+            const tmp = await ApiProxy.getAll({source : 'BlocksoftExternalSettings._get ' + source, onlyFees: true})
             CACHE_TIME = now
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get returned ALL from ' + source)
             if (tmp && typeof tmp.fees !== 'undefined' && tmp.fees) {

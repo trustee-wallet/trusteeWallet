@@ -103,6 +103,8 @@ export default {
         if (typeof appNews.newsUniqueKey !== 'undefined' && appNews.newsUniqueKey && fromStoreStatus !== 'can_insert') {
             if (fromStoreStatus === 'check_update') {
                 found = fromStore
+            } else if (fromStoreStatus === 'check_update_ind') {
+                found = fromStore
             } else {
                 let where = `news_unique_key='${appNews.newsUniqueKey}'`
                 if (typeof appNews.currencyCode !== 'undefined' && appNews.currencyCode) {
@@ -352,6 +354,7 @@ export default {
             SELECT
                 app_news.id,
                 app_news.wallet_hash AS walletHash,
+                app_news.news_server_hash AS newsServerHash,
                 app_news.currency_code AS currencyCode,
                 app_news.news_source AS newsSource,
                 app_news.news_group AS newsGroup,

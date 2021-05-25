@@ -20,12 +20,14 @@ export default async () => {
             ids.push(item.id)
             try {
                 // https://rnfirebase.io/reference/analytics#logPurchase
+                /*
                 if (item.newsJson && typeof item.newsJson.googleEvent !== 'undefined' && item.newsJson.googleEvent && typeof item.newsJson.googleEvent.eventCode !== 'undefined') {
                     await MarketingEvent.logEvent(item.newsJson.googleEvent.eventCode, item.newsJson.googleEvent.params, 'GX')
                     if (typeof item.newsJson.googleEvent.eCommerceParams !== 'undefined') {
                         await analytics().logPurchase(item.newsJson.googleEvent.eCommerceParams)
                     }
                 }
+                */
             } catch (e) {
                 if (config.debug.appErrors) {
                     console.log('v20_log_purchase2 error ' + e.message, item.newsJson.googleEvent)
@@ -50,12 +52,14 @@ export default async () => {
             if (!(item.newsOpenedAt === null || item.newsOpenedAt === 0)) continue
 
             try {
+                /*
                 if (item.newsJson && typeof item.newsJson.googleEvent !== 'undefined' && item.newsJson.googleEvent && typeof item.newsJson.googleEvent.eventCode !== 'undefined') {
                     await MarketingEvent.logEvent(item.newsJson.googleEvent.eventCode, item.newsJson.googleEvent.params, 'GX')
                     if (typeof item.newsJson.googleEvent.eCommerceParams !== 'undefined') {
                         await analytics().logPurchase(item.newsJson.googleEvent.eCommerceParams)
                     }
                 }
+                */
             } catch (e) {
                 if (config.debug.appErrors) {
                     console.log('v20_log_purchase error ' + e.message, item.newsJson.googleEvent)
