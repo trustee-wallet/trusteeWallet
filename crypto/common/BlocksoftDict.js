@@ -364,7 +364,7 @@ const Currencies = {
     ETH_ALPHA:
         {
             currencyType: 'token',
-            currencyName: 'Alpha Finance Lab',
+            currencyName: 'Alpha Finance ERC20',
             currencyCode: 'ETH_ALPHA',
             currencySymbol: 'ALPHA',
             extendsProcessor: 'ETH_TRUE_USD',
@@ -377,6 +377,22 @@ const Currencies = {
                 'https://etherscan.io/token/0xa1faa113cbe53436df28ff0aee54275c13b40975?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
         },
+        TRX_APE:
+            {
+                    currencyType: 'token',
+                    currencyName: 'APENFT TRC20',
+                    currencyCode: 'TRX_APE',
+                    currencySymbol: 'APE',
+                    extendsProcessor: 'TRX_USDT',
+                    addressUiChecker: 'TRX',
+                    ratesCurrencyCode: 'NFT',
+                    network: 'trx',
+                    decimals: 6,
+                    tokenBlockchain: 'TRON',
+                    tokenName: 'TFczxzPhnThNSqr5by8tvxsdCFRRz6cPNq',
+                    currencyExplorerLink: 'https://tronscan.org/#/address/',
+                    currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
+            },
     ETH_BADGER:
         {
             currencyType: 'token',
@@ -575,6 +591,21 @@ const Currencies = {
                     tokenBlockchain: 'BNB',
                     currencyExplorerLink:
                         'https://bscscan.com/token/0x8595f9da7b868b1822194faed312235e43007b49?a='
+            },
+        ETH_BTT:
+            {
+                    currencyType: 'token',
+                    currencyName: 'BTT ERC20',
+                    currencyCode: 'ETH_BTT',
+                    currencySymbol: 'BTT',
+                    extendsProcessor: 'ETH_TRUE_USD',
+                    addressUiChecker: 'ETH',
+                    ratesCurrencyCode: 'BTT',
+                    decimals: 6,
+                    tokenBlockchain: 'ETHEREUM',
+                    tokenAddress: '0xe83cccfabd4ed148903bf36d4283ee7c8b3494d1',
+                    currencyExplorerLink:
+                        'https://etherscan.io/token/0xe83cccfabd4ed148903bf36d4283ee7c8b3494d1?a='
             },
     BNB_SMART_BTC:
         {
@@ -1175,6 +1206,22 @@ const Currencies = {
             currencyExplorerLink: 'https://blockchair.com/ripple/account/',
             currencyExplorerTxLink: 'https://blockchair.com/ripple/transaction/'
         },
+        ETH_SHIB:
+            {
+                    currencyType: 'token',
+                    currencyName: 'Shibu ERC20',
+                    currencyCode: 'ETH_SHIB',
+                    currencySymbol: 'SHIB',
+                    extendsProcessor: 'ETH_TRUE_USD',
+                    addressUiChecker: 'ETH',
+                    ratesCurrencyCode: 'SHIB',
+                    decimals: 18,
+                    tokenBlockchain: 'ETHEREUM',
+                    tokenAddress: '0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce',
+                    currencyExplorerLink:
+                        'https://etherscan.io/token/0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce?a=',
+                    currencyExplorerTxLink: 'https://etherscan.io/tx/'
+            },
     XLM:
         {
             currencyType: 'coin',
@@ -1295,6 +1342,21 @@ const Currencies = {
                     tokenBlockchain: 'BNB',
                     currencyExplorerLink:
                         'https://bscscan.com/token/0x85eac5ac2f758618dfa09bdbe0cf174e7d574d5b?a='
+            },
+        ETH_TRX:
+            {
+                    currencyType: 'token',
+                    currencyName: 'TRX ERC20',
+                    currencyCode: 'ETH_TRX',
+                    currencySymbol: 'TRX',
+                    extendsProcessor: 'ETH_TRUE_USD',
+                    addressUiChecker: 'ETH',
+                    ratesCurrencyCode: 'TRX',
+                    decimals: 8,
+                    tokenBlockchain: 'ETHEREUM',
+                    tokenAddress: '0xe1be5d3f34e89de342ee97e6e90d405884da6c67',
+                    currencyExplorerLink:
+                        'https://etherscan.io/token/0xe1be5d3f34e89de342ee97e6e90d405884da6c677?a='
             },
     BNB_SMART_UNI:
         {
