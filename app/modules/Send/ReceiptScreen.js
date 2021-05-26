@@ -53,6 +53,10 @@ class ReceiptScreen extends PureComponent {
         }
     }
 
+    componentDidMount = () => {
+        setLoaderStatus(false)
+    }
+
     openAdvancedSettings = async () => {
         if (CACHE_IS_COUNTING) {
             return true

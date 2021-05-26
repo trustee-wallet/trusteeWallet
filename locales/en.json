@@ -487,7 +487,7 @@
       "empty": "(empty)",
       "fee": "Fee",
       "feeIncome": "Sender Fee",
-      "txHash": "Actual transaction hash",
+      "txHash": "Transaction ID",
       "replacedTxHash": "Previous transaction hash",
       "from": "From",
       "to": "To",
@@ -510,7 +510,7 @@
       "cardNumberDestination": "Withdraw card number",
       "advAccountDestination": "Withdraw account number",
       "phoneDestination": "Withdraw phone number",
-      "orderId": "Order ID",
+      "orderId": "Related to swap ID",
       "RBF": {
         "replaceByFeeBtn": "Update tx fee",
         "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
@@ -559,7 +559,7 @@
       "share": "Share",
       "booster": "Booster",
       "remove": "Remove",
-      "removeRbf": "Returning a transaction",
+      "removeRbf": "Returning a tx",
       "check": "Check",
       "support": "Support",
       "details": "Details",
@@ -577,7 +577,8 @@
       "transactionHash": "Transaction hash:",
       "cashbackLink": "Website:",
       "thanks": "Thank you for choosing Trustee Wallet!",
-      "self": "This transaction was send to your address"
+      "self": "This transaction was send to your address",
+      "order": "To order"
     }
   },
 

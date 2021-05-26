@@ -42,7 +42,6 @@ import { HIT_SLOP } from '@app/themes/HitSlop'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import AsyncStorage from '@react-native-community/async-storage'
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
-import config from '@app/config/config'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
@@ -434,8 +433,8 @@ class Account extends React.PureComponent {
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
-                    rightType="close"
-                    rightAction={this.closeAction}
+                    leftType="back"
+                    leftAction={this.closeAction}
                     title={this.getPrettyCurrencyName(selectedCryptoCurrencyData.currencyCode, selectedCryptoCurrencyData.currencyName)}
                     ExtraView={() => (
                         <BalanceHeader

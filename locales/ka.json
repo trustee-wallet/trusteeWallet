@@ -479,7 +479,7 @@
       "empty": "(ცარიელია)",
       "fee": "საკომისიო",
       "feeIncome": "გამგზავნის საკომისიო",
-      "txHash": "ტრანზაქციების აქტუალური ჰაში",
+      "txHash": "Transaction ID",
       "replacedTxHash": "წინა გარიგების ჰაში",
       "from": "გამგზავნი",
       "to": "მიმღები",
@@ -502,7 +502,7 @@
       "cardNumberDestination": "ბარათის ნომერი თანხის გასატანად",
       "advAccountDestination": "ანგარიშის ნომერი თანხის გასატანად",
       "phoneDestination": "ტელეფონის ნომერი თანხის გასატანად",
-      "orderId": "შეკვეთის ID",
+      "orderId": "Related to swap ID",
       "RBF": {
         "replaceByFeeBtn": "საკომისიოს გაზრდა",
         "willReplaceWithNewFee": "მიმდინარე ტრანზაქცია შეიცვლება ახლით, ახალი ჰაშით და უფრო მაღალი საკომისიოთი",
@@ -569,7 +569,8 @@
       "transactionHash": "ტრანზაქციის ჰაში:",
       "cashbackLink": "ქეშბექის ბმული:",
       "thanks": "მადლობა, რომ აირჩიეთ Trustee Wallet!",
-      "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე"
+      "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე",
+      "order": "To order"
     }
   },
   "fioMainSettings": {

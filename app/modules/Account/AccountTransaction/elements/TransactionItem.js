@@ -30,6 +30,12 @@ const getIcon = (iconType, color) => {
         case 'exchangeTo':
         case 'self':
             return <CustomIcon name={'user'} color={color} size={20} />
+        case 'bse':
+            return <CustomIcon name={'swapLinked'} color={color} size={20} />
+        case 'txFee':
+            return <CustomIcon name={'feeTxScreen'} color={color} size={20} />
+        case 'txID':
+            return <CustomIcon name={'swapID2'} color={color} size={20} />
         default: return null
     }
 }
@@ -40,54 +46,66 @@ const TransactionItem = (props) => {
     const { colors, GRID_SIZE } = useTheme()
 
     const {
+        mainTitle,
         title,
         subtitle,
         iconType,
         withoutBack,
-        copyAction
+        copyAction,
+        bse,
+        orderHandler,
+        textOrder,
+        colorLink,
+        handleLink
     } = props
 
     return (
-        <View style={{ marginTop: 16 }}>
+        <View style={{ marginTop: mainTitle ? 0 : 12 }}>
             {withoutBack ?
                 <View style={styles.withoutBack}>
                     <View style={styles.mainContent}>
                         <View style={[styles.textContent, { paddingVertical: 3 }]}>
                             <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
                             {!!subtitle ?
-                                    <TouchableOpacity onPress={copyAction}>
-                                        <Text style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>
-                                    </TouchableOpacity> : null}
+                                <TouchableOpacity onPress={handleLink ? handleLink : copyAction} onLongPress={handleLink ? copyAction : null}>
+                                    <Text style={[styles.subtitle, { color: colorLink ? colorLink : colors.common.text1, textDecorationLine: colorLink ? 'underline' : null }]}>{subtitle}</Text>
+                                </TouchableOpacity> : null}
                         </View>
                     </View>
                 </View>
                 :
                 <>
-                        <View style={{ ...styles.wrapper, flexDirection: 'row', padding: GRID_SIZE, backgroundColor: colors.transactionScreen.backgroundItem  }} >
-                            {iconType && (
-                                <View style={styles.icon}>
-                                    {getIcon(iconType, colors.common.text1)}
-                                </View>
-                            )}
-                            <View style={styles.mainContent}>
-                                <View style={[styles.textContent, { paddingVertical: 3 }]}>
-                                    <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
-                                    {
-                                        copyAction ?
-                                            (
-                                                <TouchableOpacity onPress={copyAction}>
+                    <View style={{ ...styles.wrapper, padding: GRID_SIZE, backgroundColor: colors.transactionScreen.backgroundItem }} >
+                        {iconType && (
+                            <View style={styles.icon}>
+                                {getIcon(iconType, colors.common.text1)}
+                            </View>
+                        )}
+                        <View style={styles.mainContent}>
+                            <View style={[styles.textContent, { paddingVertical: 3 }]}>
+                                <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
+                                {
+                                    copyAction ?
+                                        (
+                                            <TouchableOpacity onPress={copyAction}>
                                                 {!!subtitle &&
                                                     <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
-                                                </TouchableOpacity>
-                                            )
+                                            </TouchableOpacity>
+                                        )
                                         :
-                                            !!subtitle &&
-                                            <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>
+                                        !!subtitle &&
+                                        <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>
 
-                                    }
-                                </View>
+                                }
                             </View>
+                            {bse && (
+                                <TouchableOpacity onPress={orderHandler}
+                                    style={[styles.button, { borderColor: colors.accountScreen.trxButtonBorderColor }]}>
+                                    <Text style={[styles.buttonText, { color: colors.common.text1 }]}>{textOrder}</Text>
+                                </TouchableOpacity>
+                            )}
                         </View>
+                    </View>
                 </>
             }
         </View>
@@ -103,8 +121,9 @@ const styles = {
         width: '100%',
         // backgroundColor: '#F2F2F2',
         position: 'relative',
-
         zIndex: 2,
+
+        flexDirection: 'row',
     },
     withoutBack: {
         width: '100%',
@@ -166,5 +185,20 @@ const styles = {
         flex: 1,
         justifyContent: 'center',
     },
+    button: {
+        borderRadius: 8,
+        borderWidth: 2,
+        width: 85,
+        height: 34,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonText: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+    }
 }
 

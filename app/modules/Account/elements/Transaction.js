@@ -207,7 +207,7 @@ class Transaction extends React.Component {
         const { colors } = this.context
 
         const { cryptoCurrency, transaction } = this.props
-        const { bseOrderData, createdAt } = transaction
+        const { createdAt } = transaction
         const { currencyColor, currencyCode } = cryptoCurrency
 
         // if any of this will be reused the same way at details screen -> move to preformatWithBSEforShowInner
@@ -232,20 +232,6 @@ class Transaction extends React.Component {
 
         const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
         // end preformat
-
-        let subtitle = false
-        let subtitleMini = ''
-        if (bseOrderData) { // simplified in preformatWithBSEforShow
-            if (bseOrderData.exchangeWayType !== 'BUY') {
-                subtitle = true
-            }
-            if (bseOrderData.exchangeWayType === 'SELL') {
-                subtitleMini = bseOrderData.outDestination.slice(-7)
-            } else if (bseOrderData.exchangeWayType === 'EXCHANGE') {
-                subtitleMini = transactionDirection !== 'income' ?
-                    bseOrderData.requestedOutAmount.currencyCode : bseOrderData.requestedInAmount.currencyCode
-            }
-        }
 
         return (
             <View style={styles.transaction}>
@@ -278,26 +264,13 @@ class Transaction extends React.Component {
                                 >
                                     <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'out_of_energy' ? 0.5 : null }}>
                                         <View style={{ justifyContent: 'center', flex: 3 }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end', width: subtitle ? '45%' : '100%' }}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                                 <Text style={{ ...styles.transaction__item__title, color: colors.common.text1 }} numberOfLines={1}>
                                                     {valueToView}
                                                 </Text>
                                                 <Text style={[styles.transaction__item__title__subtitle, { color: currencyColor }]}>
                                                     {currencySymbolToView}
                                                 </Text>
-                                                {
-                                                    subtitle ?
-                                                        <>
-                                                            <Ionicons name={'ios-arrow-round-up'} size={20} color={colors.accountScreen.transactions.circle} style={{
-                                                                transform: [{ rotate: transactionDirection === 'outcome' || transactionDirection === 'swap_outcome' ? "90deg" : "-90deg" }],
-                                                                marginHorizontal: 7, marginBottom: Platform.OS === 'ios' ? -1 : null
-                                                            }} />
-                                                            <Text style={{ ...styles.transaction__item__subtitle, marginBottom: Platform.OS === 'ios' ? 2 : null, color: colors.common.text1 }} >
-                                                                {subtitleMini}
-                                                            </Text>
-                                                        </>
-                                                        : null
-                                                }
                                             </View>
                                             {basicValueToView ? (
                                                 <Text style={{ ...styles.transaction__item__subtitle, color: '#999999' }}>

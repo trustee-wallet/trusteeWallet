@@ -114,8 +114,6 @@ class AccountTransactionCheckScreen extends React.PureComponent {
             icon: null,
             title: null,
             description: strings('modal.modalV3.description')
-        },() => {
-            NavStore.goBack()
         })
     }
 
@@ -172,7 +170,6 @@ class AccountTransactionCheckScreen extends React.PureComponent {
                                 renderError={(e) => {
                                     Log.err('BSE/CheckV3DataScreen.render error ' + e)
                                     this.modal()
-                                    NavStore.goBack()
                                 }}
                                 onError={(e) => {
                                     Log.err('BSE/CheckV3DataScreenon error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)

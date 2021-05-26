@@ -1,7 +1,6 @@
 /**
  * @version 0.9
  */
-import store from '../../store'
 
 import transactionDS from '../DataSource/Transaction/Transaction'
 
@@ -12,11 +11,9 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import DaemonCache from '@app/daemons/DaemonCache'
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import config from '@app/config/config'
 import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
 
-const { dispatch } = store
 
 const transactionActions = {
 
@@ -183,29 +180,11 @@ const transactionActions = {
         transaction.transactionBlockchainStatus = transaction.transactionStatus
         transaction.transactionVisibleStatus = this.prepareStatus(transaction.transactionStatus)
 
-        if (typeof exchangeOrder.status !== 'undefined' && exchangeOrder.status && exchangeOrder.status.toLowerCase() !== 'dex') {
-            if (transaction.transactionStatus.toLowerCase() !== 'fail' || transaction.transactionStatus.toLowerCase() !== 'missing'
-                || transaction.transactionStatus.toLowerCase() !== 'out_of_energy'
-                || transaction.transactionStatus.toLowerCase() !== 'replaced') {
-                transaction.transactionVisibleStatus = this.prepareStatus(exchangeOrder.status)
-            }
-        }
-
-        if (typeof exchangeOrder.exchangeWayType !== 'undefined') {
-            transaction.wayType = exchangeOrder.exchangeWayType
-
-            if (exchangeOrder.exchangeWayType === 'BUY') {
+        if (typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.currencyCode !== 'undefined') {
+            if (exchangeOrder.requestedOutAmount.currencyCode === transaction.currencyCode) {
                 transaction.transactionDirection = 'income'
-            } else if (exchangeOrder.exchangeWayType === 'SELL') {
+            } else {
                 transaction.transactionDirection = 'outcome'
-            } else if (exchangeOrder.exchangeWayType === 'EXCHANGE') {
-                if (typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.currencyCode !== 'undefined') {
-                    if (exchangeOrder.requestedOutAmount.currencyCode === transaction.currencyCode) {
-                        transaction.transactionDirection = 'income'
-                    } else {
-                        transaction.transactionDirection = 'outcome'
-                    }
-                }
             }
         }
 
