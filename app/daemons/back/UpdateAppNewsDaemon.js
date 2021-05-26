@@ -65,6 +65,10 @@ class UpdateAppNewsDaemon {
             res = dataUpdate
         }
 
+        if (store.getState().appNewsStore.appNewsList.length === 0) {
+            await appNewsInitStore()
+        }
+
         if (!res || typeof res === 'undefined' || typeof res.news === 'undefined' || !res.news || res.news.length === 0) {
             this._canUpdate = true
             return false
@@ -100,9 +104,6 @@ class UpdateAppNewsDaemon {
             newsServerHash: 'status'
         }
         let savedAny = false
-        if (store.getState().appNewsStore.appNewsList.length === 0) {
-            await appNewsInitStore()
-        }
         const allNews = store.getState().appNewsStore.appNewsList
         const allNewsIndexed = {}
         if (allNews.length) {

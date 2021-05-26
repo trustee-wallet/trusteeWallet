@@ -28,6 +28,7 @@ import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
 import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
 import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
 
+let CACHE_SENT_FIRST_SKIP = true
 async function _getAll(params) {
     const { apiEndpoints } = config.proxy
     const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
@@ -41,11 +42,6 @@ async function _getAll(params) {
         deviceToken = 'NO_GOOGLE_AS_NULL_' + (new Date().getTime()) + '_' + (Math.ceil(Math.random() * 100000))
     }
     const link = baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
-    console.log(`
-    
-    ${link}
-    
-    `)
     const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
 
     const signedData = await CashBackUtils.createWalletSignature(true, time)
@@ -64,10 +60,23 @@ async function _getAll(params) {
     MarketingEvent.reinitIfNever()
 
     const forCustomTokens = await customCurrencyDS.getCustomCurrenciesForApi()
-    const forCards = await cardsDS.getCardsForApi(walletHash)
-    const forServer = await appNewsDS.getAppNewsForApi()
+
+    let forCards = false
+    let forWallets = false
+    let newsData = false
+    let walletAll = false
+    let cbOrders = false
+    let cbData = false
     const forServerIds = []
 
+    const anotherCashbackTokensByDevice = []
+    for (const wallet of store.getState().walletStore.wallets) {
+        if (wallet.walletHash !== walletHash) {
+            anotherCashbackTokensByDevice.push(wallet.walletCashback)
+        }
+    }
+
+    const forServer = await appNewsDS.getAppNewsForApi()
     if (forServer) {
         for (const row of forServer) {
             forServerIds.push(row.id)
@@ -80,48 +89,55 @@ async function _getAll(params) {
         }
     }
 
-    const anotherCashbackTokensByDevice = []
-    for (const wallet of store.getState().walletStore.wallets) {
-        if (wallet.walletHash !== walletHash) {
-            anotherCashbackTokensByDevice.push(wallet.walletCashback)
+    if (!CACHE_SENT_FIRST_SKIP) {
+
+        forCards = await cardsDS.getCardsForApi(walletHash)
+        forWallets = []
+        const wallet = store.getState().mainStore.selectedWallet
+        if (wallet && wallet.walletHash === walletHash) {
+            forWallets.push({
+                walletToSendStatus: wallet.walletToSendStatus,
+                walletHash: wallet.walletHash,
+                walletCashback: wallet.walletCashback,
+                walletIsHd: wallet.walletIsHd,
+                walletName: wallet.walletName,
+                walletUseLegacy: wallet.walletUseLegacy,
+                walletUseUnconfirmed: wallet.walletUseUnconfirmed,
+                walletIsHideTransactionForFee: wallet.walletIsHideTransactionForFee,
+                walletAllowReplaceByFee: wallet.walletAllowReplaceByFee,
+                walletIsBackedUp: wallet.walletIsBackedUp
+            })
+            if (!cashbackToken) {
+                MarketingEvent.DATA.LOG_CASHBACK = wallet.walletCashback
+            }
         }
-    }
-    const forWallets = []
-    const wallet = store.getState().mainStore.selectedWallet
-    if (wallet && wallet.walletHash === walletHash) {
-        forWallets.push({
-            walletToSendStatus: wallet.walletToSendStatus,
-            walletHash: wallet.walletHash,
-            walletCashback: wallet.walletCashback,
-            walletIsHd: wallet.walletIsHd,
-            walletName: wallet.walletName,
-            walletUseLegacy: wallet.walletUseLegacy,
-            walletUseUnconfirmed: wallet.walletUseUnconfirmed,
-            walletIsHideTransactionForFee: wallet.walletIsHideTransactionForFee,
-            walletAllowReplaceByFee: wallet.walletAllowReplaceByFee,
-            walletIsBackedUp: wallet.walletIsBackedUp
-        })
-        if (!cashbackToken) {
-            MarketingEvent.DATA.LOG_CASHBACK = wallet.walletCashback
+        walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
+
+        cbOrders = {
+            CACHE_ORDERS_HASH: UpdateTradeOrdersDaemon.getSavedOrdersHash(),
+            cashbackToken,
+            signedData,
+            timestamp: +new Date()
+        }
+
+        newsData = {
+            cashbackToken,
+            deviceToken,
+            sign: signedData,
+            userNotifications: forServer || [],
+            anotherCashbackTokensByDevice,
+            exchangeRatesNotifs: settingsActions.getSettingStatic('exchangeRatesNotifs'),
+            locale: sublocale()
         }
     }
 
-    const newsData = {
-        cashbackToken,
-        deviceToken,
-        sign: signedData,
-        userNotifications: forServer || [],
-        anotherCashbackTokensByDevice,
-        exchangeRatesNotifs: settingsActions.getSettingStatic('exchangeRatesNotifs'),
-        locale: sublocale()
-    }
-
-    const cbData = {
+    cbData = {
         deviceToken,
         locale: sublocale(),
         signedData,
         timestamp: +new Date()
     }
+
     if (typeof cashbackToken !== 'undefined' && cashbackToken !== null) {
         cbData.cashbackToken = cashbackToken
     }
@@ -129,14 +145,6 @@ async function _getAll(params) {
         cbData.parentToken = parentToken
     }
 
-    const cbOrders = {
-        CACHE_ORDERS_HASH: UpdateTradeOrdersDaemon.getSavedOrdersHash(),
-        cashbackToken,
-        signedData,
-        timestamp: +new Date()
-    }
-
-    const walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
     const marketingAll = { ...MarketingEvent.DATA, CACHE_SERVER_TIME_DIFF }
     const allData = {
         newsData,
@@ -149,6 +157,7 @@ async function _getAll(params) {
         walletAll
     }
     const all = await BlocksoftAxios.post(link, allData)
+    CACHE_SENT_FIRST_SKIP = false
     if (typeof all.data.data !== 'undefined') {
         if (typeof all.data.data.newsHash !== 'undefined' && all.data.data.newsHash && all.data.data.newsHash !== '') {
             await appNewsDS.saveAppNewsSentForServer(forServerIds)
@@ -170,11 +179,20 @@ async function _getAll(params) {
     return all
 }
 
+async function _getFees(params) {
+    const { apiEndpoints } = config.proxy
+    const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+    const link = baseURL + '/fees'
+    const all = await BlocksoftAxios.get(link)
+    return all
+}
+
 async function _getRates(params) {
-    const { mode, apiEndpoints } = config.proxy
-    const baseURL = mode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+    const { apiEndpoints } = config.proxy
+    const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
     const link = baseURL + '/rates'
-    return BlocksoftAxios.get(link)
+    const all = await BlocksoftAxios.get(link)
+    return all
 }
 
 async function _checkServerTimestamp(serverTimestamp) {
@@ -199,7 +217,9 @@ export default {
 
     getAll: async (params = {}) => {
         if (typeof params === 'undefined' || typeof params.force === 'undefined' || !params) {
-            if (typeof params === 'undefined' || typeof params.onlyRates === 'undefined') {
+            if (typeof params === 'undefined' || (
+                typeof params.onlyRates === 'undefined' && typeof typeof params.onlyFees === 'undefined'
+            )) {
                 if (MarketingEvent.DATA.LOG_WALLET !== CACHE_LAST_WALLET) {
                     CACHE_LAST_TIME = false
                 }
@@ -220,8 +240,14 @@ export default {
         let index = 0
         // console.log('ApiProxy start ' + new Date().toISOString() + ' last cache ' + new Date(CACHE_LAST_TIME).toISOString(), JSON.parse(JSON.stringify(params)))
         do {
-            if (typeof params !== 'undefined' && typeof params.onlyRates !== 'undefined') {
-                all = await _getRates(params)
+            if (typeof params !== 'undefined') {
+                if (typeof params.onlyRates !== 'undefined') {
+                    all = await _getRates(params)
+                } else if (typeof params.onlyFees !== 'undefined') {
+                    all = await _getFees(params)
+                } else {
+                    all = await _getAll(params)
+                }
             } else {
                 all = await _getAll(params)
             }
