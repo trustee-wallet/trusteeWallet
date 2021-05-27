@@ -38,7 +38,8 @@ class SendAdvancedSettings extends React.PureComponent {
         this.state = {
             dropMenu: false,
             comment: '',
-            selectedFee: false
+            selectedFee: false,
+            rawOnly : false
         }
 
         this.customFee = React.createRef()
@@ -47,7 +48,8 @@ class SendAdvancedSettings extends React.PureComponent {
     componentDidMount() {
         SendActionsUpdateValues.setTmpSelectedFee(false)
         this.setState({
-            comment: this.props.sendScreenStore.ui.comment
+            comment: this.props.sendScreenStore.ui.comment,
+            rawOnly : this.props.sendScreenStore.ui.rawOnly
         })
     }
 
@@ -81,6 +83,12 @@ class SendAdvancedSettings extends React.PureComponent {
         })
     }
 
+    handleRawOnly = () => {
+        this.setState({
+            rawOnly : !this.state.rawOnly
+        })
+    }
+
     handleBack = () => {
         Keyboard.dismiss()
         SendActionsUpdateValues.setTmpSelectedFee(false)
@@ -94,7 +102,7 @@ class SendAdvancedSettings extends React.PureComponent {
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
         try {
-            await SendActionsUpdateValues.setCommentAndFeeFromTmp(comment)
+            await SendActionsUpdateValues.setCommentAndFeeFromTmp(comment, this.state.rawOnly)
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('SendAdvancedSettings.handleApply error ' + e.message)
@@ -116,6 +124,7 @@ class SendAdvancedSettings extends React.PureComponent {
         const { colors, GRID_SIZE } = this.context
 
         const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
+        const { currencyCode } = this.props.sendScreenStore.dict
 
         const currentSelectedFee = this.state.selectedFee ? this.state.selectedFee : selectedFee
 
@@ -176,6 +185,21 @@ class SendAdvancedSettings extends React.PureComponent {
                                 onChangeText={this.onChangeComment}
                             />
                         </View>
+
+                        {
+                            currencyCode === 'XLM' ?
+                            <View style={{ marginVertical: GRID_SIZE }}>
+                                <ListItem
+                                    title={strings('send.fee.getRaw')}
+                                    iconType="rbf"
+                                    onPress={this.handleRawOnly}
+                                    rightContent="switch"
+                                    switchParams={{ value: !!this.state.rawOnly, onPress: this.handleRawOnly }}
+                                />
+                            </View>
+                            : null
+                        }
+
                     </View>
                     <View style={{ marginTop: GRID_SIZE }}>
                         <TwoButtons

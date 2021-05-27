@@ -850,6 +850,7 @@
         "ltc_speed_blocks_2": "ჩქარი",
         "xrp_speed_one": "ჩქარი"
       },
+      "getRaw" : "Build transaction hex only (no send)",
       "customFee": {
         "title": "Ручная",
         "fixedFeeTitle": "ფიქსირებული\nსაკომისიო",
@@ -883,6 +884,7 @@
       "nonce": "Nonce",
       "trusteeInfo": "Trustee does not charge a fee in cryptocurrency transactions",
       "send": "გაგზავნა",
+      "build" : "Build",
       "sending": "იგზავნება"
     },
     "errors": {

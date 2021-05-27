@@ -145,7 +145,7 @@ class BlocksoftAxios {
                     body: dataPrep
                 })
                 BlocksoftCryptoLog.log('BlocksoftAxios.post fetch link ' + link + ' status ' + tmpInner.status)
-                if (tmpInner.status !== 200) {
+                if (tmpInner.status !== 200 && tmpInner.status !== 201 && tmpInner.status !== 202) {
                     BlocksoftCryptoLog.log('BlocksoftAxios.post fetch result ' + JSON.stringify(tmpInner))
                     // console.log('BlocksoftAxios.post fetch result ' + JSON.stringify(tmpInner))
                     doOld = true

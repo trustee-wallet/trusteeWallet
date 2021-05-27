@@ -12,6 +12,7 @@ const INITIAL_STATE = {
         cryptoValue: '',
         cryptoValueRecounted: 0,
         comment: '',
+        rawOnly : false,
         isTransferAll: false,
         dexCurrencyCode: false,
         dexOrderData: false,

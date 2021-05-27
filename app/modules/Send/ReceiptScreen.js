@@ -36,6 +36,8 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
 
 
 let CACHE_IS_COUNTING = false
@@ -141,6 +143,26 @@ class ReceiptScreen extends PureComponent {
             e = e1
         }
 
+        if (!e && tx && typeof tx.rawOnly !== 'undefined' && tx.rawOnly) {
+            if (config.debug.appErrors) {
+                console.log('ReceiptScreen.handleSend rawOnly ', JSON.stringify(tx))
+            }
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.titles.attention'),
+                description: tx.raw
+            })
+            copyToClipboard(tx.raw)
+            Toast.setMessage(strings('toast.copied')).show()
+
+            this.setState({
+                sendInProcess: false
+            })
+            CACHE_IS_SENDING = false
+            return false
+        }
+
         if (!e && (!tx || typeof tx.transactionHash === 'undefined' || !tx.transactionHash || tx.transactionHash === '')) {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.handleSendError errorTx ', JSON.stringify(tx))
@@ -217,7 +239,7 @@ class ReceiptScreen extends PureComponent {
 
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
-        const { cryptoValue, bse } = this.props.sendScreenStore.ui
+        const { cryptoValue, bse, rawOnly } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
         const { sendInProcess } = this.state
 
@@ -293,7 +315,7 @@ class ReceiptScreen extends PureComponent {
                     <TwoButtons
                         mainButton={{
                             onPress: this.handleSend,
-                            title: strings('send.receiptScreen.send'),
+                            title: strings(rawOnly ? 'send.receiptScreen.build' : 'send.receiptScreen.send'),
                             sendInProcess
                         }}
                         secondaryButton={{

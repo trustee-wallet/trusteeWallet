@@ -125,9 +125,11 @@ export namespace BlocksoftTransfer {
             const privateData = await BlocksoftTransferPrivate.initTransferPrivate(data, additionalData)
             txResult = await processor.sendTx(data, privateData, uiData)
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendTx got ${data.addressFrom} result is ok`)
-            CACHE_DOUBLE_TO[data.currencyCode] = {
-                key: data.addressTo,
-                time: new Date().getTime()
+            if (typeof uiData.selectedFee === 'undefined' || typeof uiData.selectedFee.rawOnly === 'undefined' || !uiData.selectedFee.rawOnly) {
+                CACHE_DOUBLE_TO[data.currencyCode] = {
+                    key: data.addressTo,
+                    time: new Date().getTime()
+                }
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {

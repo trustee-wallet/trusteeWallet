@@ -17,18 +17,20 @@ export namespace SendActionsUpdateValues {
         })
     }
 
-    export const setCommentAndFeeFromTmp = async (comment : string) => {
+    export const setCommentAndFeeFromTmp = async (comment : string, rawOnly : boolean = false) => {
         if (!CACHE_SELECTED_FEE) {
             dispatch({
                 type: 'SET_DATA',
                 ui: {
                     comment,
+                    rawOnly,
                     cryptoValueRecounted : 0
                 }
             })
         } else {
             const ui = {
                 comment,
+                rawOnly,
                 cryptoValueRecounted : 0
             }
 

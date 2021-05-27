@@ -865,6 +865,7 @@
         "ltc_speed_blocks_2": "Fast",
         "xrp_speed_one": "Fast"
       },
+      "getRaw" : "Build transaction hex only (no actually send)",
       "customFee": {
         "title": "Manually",
         "fixedFeeTitle": "FIXED FEE",
@@ -898,6 +899,7 @@
         "nonce": "Nonce",
         "trusteeInfo": "Trustee does not charge a fee in cryptocurrency transactions",
         "send": "Send",
+        "build" : "Build",
         "sending": "Sending"
 
     },

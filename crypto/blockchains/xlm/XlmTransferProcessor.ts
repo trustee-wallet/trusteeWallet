@@ -181,12 +181,15 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.sendTx prepared')
         let raw = transaction.toEnvelope().toXDR('base64')
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.sendTx base64', raw)
+        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+            return { rawOnly: uiData.selectedFee.rawOnly, raw }
+        }
 
         let result = false
         try {
             result = await this._provider.sendRaw(raw)
         } catch (e) {
-            if (e.message === 'op_no_destination') {
+            if (e.message.indexOf('op_no_destination') !== -1) {
                 transaction = await this._provider.getPrepared(data, privateData, uiData, 'create_account')
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.sendTx prepared create account')
                 raw = transaction.toEnvelope().toXDR('base64')
