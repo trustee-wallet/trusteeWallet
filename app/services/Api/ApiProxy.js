@@ -216,19 +216,28 @@ let CACHE_SERVER_TIME_DIFF = false // diff to make
 export default {
 
     getAll: async (params = {}) => {
+
+        let realAction = '_getAll'
+        if (typeof params !== 'undefined') {
+            if (typeof params.onlyRates !== 'undefined') {
+                realAction = '_getRates'
+            } else if (typeof params.onlyFees !== 'undefined') {
+                realAction = '_getFees'
+            }
+        }
+
         if (typeof params === 'undefined' || typeof params.force === 'undefined' || !params) {
-            if (typeof params === 'undefined' || (
-                typeof params.onlyRates === 'undefined' && typeof typeof params.onlyFees === 'undefined'
-            )) {
+            if (realAction === '_getAll') {
                 if (MarketingEvent.DATA.LOG_WALLET !== CACHE_LAST_WALLET) {
                     CACHE_LAST_TIME = false
                 }
-            }
-            if (CACHE_LAST_TIME) {
-                const now = new Date().getTime()
-                const diff = now - CACHE_LAST_TIME
-                if (diff < CACHE_VALID_TIME) {
-                    return CACHE_DATA
+
+                if (CACHE_LAST_TIME) {
+                    const now = new Date().getTime()
+                    const diff = now - CACHE_LAST_TIME
+                    if (diff < CACHE_VALID_TIME) {
+                        return CACHE_DATA
+                    }
                 }
             }
         }
@@ -240,14 +249,10 @@ export default {
         let index = 0
         // console.log('ApiProxy start ' + new Date().toISOString() + ' last cache ' + new Date(CACHE_LAST_TIME).toISOString(), JSON.parse(JSON.stringify(params)))
         do {
-            if (typeof params !== 'undefined') {
-                if (typeof params.onlyRates !== 'undefined') {
-                    all = await _getRates(params)
-                } else if (typeof params.onlyFees !== 'undefined') {
-                    all = await _getFees(params)
-                } else {
-                    all = await _getAll(params)
-                }
+            if (realAction === '_getRates') {
+                all = await _getRates(params)
+            } else if (realAction === '_getFees') {
+                all = await _getFees(params)
             } else {
                 all = await _getAll(params)
             }

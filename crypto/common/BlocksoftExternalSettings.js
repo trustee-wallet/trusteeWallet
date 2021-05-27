@@ -3,9 +3,9 @@ import BlocksoftCryptoLog from './BlocksoftCryptoLog'
 import ApiProxy from '../../app/services/Api/ApiProxy'
 import config from '../../app/config/config'
 
-const MAX_CACHE_VALID_TIME = 600000 // 10 minutes
-const MIN_CACHE_VALID_TIME = 60000 // 1 minute
-let CACHE_VALID_TIME = 60000 // 1 minute
+const MAX_CACHE_VALID_TIME = 6000000 // 100 minutes
+const MIN_CACHE_VALID_TIME = 600000 // 10 minute
+let CACHE_VALID_TIME = 600000 // 10 minute
 let CACHE_TIME = 0
 
 const TREZOR_SERVERS = {}
@@ -97,6 +97,7 @@ class BlocksoftExternalSettings {
         try {
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source)
             const tmp = await ApiProxy.getAll({source : 'BlocksoftExternalSettings._get ' + source, onlyFees: true})
+
             CACHE_TIME = now
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get returned ALL from ' + source)
             if (tmp && typeof tmp.fees !== 'undefined' && tmp.fees) {
