@@ -115,10 +115,10 @@ class AddAssetScreen extends React.PureComponent {
 
     handleChangeCustomAddress = (value) => { this.setState(() => ({ customAddress: value })) }
 
-    handleAddCustomToken = async () => {
+    handleAddCustomToken = async (value) => {
         Keyboard.dismiss();
         const types = ['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']
-        const customAddress = this.state.customAddress.trim().toLowerCase().split(/\s+/g).join('')
+        const customAddress = value.trim().toLowerCase().split(/\s+/g).join('')
         const tmps = types.map(type => ({
             type,
             id: 'address',
@@ -205,7 +205,7 @@ class AddAssetScreen extends React.PureComponent {
                                             <Button
                                                 containerStyle={{ marginTop: GRID_SIZE * 2 }}
                                                 title={strings('assets.addAssetButton')}
-                                                onPress={this.handleAddCustomToken}
+                                                onPress={() => this.handleAddCustomToken(customAddress)}
                                                 disabled={!customAddress}
                                             />
                                         </View>
@@ -237,11 +237,30 @@ class AddAssetScreen extends React.PureComponent {
 
     renderEmptyList = () => {
         const { colors, GRID_SIZE } = this.context
-        return (
-            <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
-                <Text style={[styles.emptyText, { color: colors.common.text2 }]}>{strings('assets.noAssetsFound')}</Text>
-            </View>
-        )
+        const { searchQuery } = this.state
+
+
+        if (searchQuery && searchQuery.trim().indexOf('0x') === 0 && searchQuery.length === 42) {
+            return (
+                <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
+                    <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
+                        <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
+                            <Button
+                                containerStyle={{ marginTop: GRID_SIZE * 2 }}
+                                title={strings('assets.addAssetButton') + ' ' + searchQuery}
+                                onPress={() => this.handleAddCustomToken(searchQuery)}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            )
+        } else {
+            return (
+                <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
+                    <Text style={[styles.emptyText, { color: colors.common.text2 }]}>{strings('assets.noAssetsFound')}</Text>
+                </View>
+            )
+        }
     }
 
     renderTabs = (isSection) => (

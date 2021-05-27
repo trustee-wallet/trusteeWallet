@@ -110,6 +110,7 @@ const customCurrencyActions = {
 
         const tokenToDict = {}
         for (const code in BlocksoftDict.Currencies) {
+            if (code.indexOf('CUSTOM_') === 0) continue
             const added = BlocksoftDict.Currencies[code]
             if (typeof added.tokenAddress !== 'undefined' && added.tokenAddress) {
                 tokenToDict[added.tokenAddress] = added
