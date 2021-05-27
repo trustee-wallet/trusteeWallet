@@ -1237,22 +1237,38 @@ const Currencies = {
             currencyExplorerLink: 'https://blockchair.com/steller/account/',
             currencyExplorerTxLink: 'https://blockchair.com/stellar/transaction/'
         },
-    TRX_SUN:
+    TRX_SUN_NEW:
         {
             currencyType: 'token',
-            currencyName: 'SUN',
-            currencyCode: 'TRX_SUN',
-            currencySymbol: 'SUN',
+            currencyName: 'SUN New',
+            currencyCode: 'TRX_SUN_NEW',
+            currencySymbol: 'SUN New',
             extendsProcessor: 'TRX_USDT',
             addressUiChecker: 'TRX',
-            ratesCurrencyCode: 'SUN',
+            ratesCurrencyCode: 'SUN_NEW',
             network: 'trx',
             decimals: 18,
             tokenBlockchain: 'TRON',
-            tokenName: 'TKkeiboTkxXKJpbmVFbv4a8ov5rAfRDMf9',
+            tokenName: 'TSSMHYeV2uE9qYH95DqyoCuNCzEL1NvU3S',
             currencyExplorerLink: 'https://tronscan.org/#/address/',
             currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
         },
+        TRX_SUN:
+            {
+                    currencyType: 'token',
+                    currencyName: 'SUN Old',
+                    currencyCode: 'TRX_SUN',
+                    currencySymbol: 'SUN',
+                    extendsProcessor: 'TRX_USDT',
+                    addressUiChecker: 'TRX',
+                    ratesCurrencyCode: 'SUN',
+                    network: 'trx',
+                    decimals: 18,
+                    tokenBlockchain: 'TRON',
+                    tokenName: 'TKkeiboTkxXKJpbmVFbv4a8ov5rAfRDMf9',
+                    currencyExplorerLink: 'https://tronscan.org/#/address/',
+                    currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
+            },
     ETH_SUSHI:
         {
             currencyType: 'token',
