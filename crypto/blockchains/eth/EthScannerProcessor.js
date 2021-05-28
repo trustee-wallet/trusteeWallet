@@ -10,6 +10,7 @@ import BlocksoftBN from '../../common/BlocksoftBN'
 
 import EthTmpDS from './stores/EthTmpDS'
 import EthRawDS from './stores/EthRawDS'
+import config from '@app/config/config'
 
 const CACHE_GET_MAX_BLOCK = {
     ETH: { max_block_number: 0, confirmations: 0 },
@@ -48,8 +49,8 @@ export default class EthScannerProcessor extends EthBasic {
      * @returns {Promise<boolean|*>}
      * @private
      */
-    async _get(address) {
-        address = address.toLowerCase()
+    async _get(_address) {
+        const address = _address.toLowerCase()
 
         try {
             this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Scanner._get')
@@ -143,6 +144,9 @@ export default class EthScannerProcessor extends EthBasic {
             time = 'now()'
             return { balance, unconfirmed: 0, provider, time }
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' error ' + e.message)
+            }
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' error ' + e.message)
             return false
         }
@@ -153,7 +157,7 @@ export default class EthScannerProcessor extends EthBasic {
      * @return {Promise<[UnifiedTransaction]>}
      */
     async getTransactionsBlockchain(scanData) {
-        const address = scanData.account.address.toLowerCase()
+        const address = scanData.account.address
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getTransactions started ' + address)
 
         let res = false
@@ -164,7 +168,6 @@ export default class EthScannerProcessor extends EthBasic {
                 throw new Error(e.message + ' in EthScannerProcessor._get')
             }
         }
-
 
         let transactions
         if (res && typeof res.data !== 'undefined' && res.data) {
@@ -284,10 +287,11 @@ export default class EthScannerProcessor extends EthBasic {
      * @returns {Promise<[{UnifiedTransaction}]>}
      * @private
      */
-    async _unifyTransactions(address, result, isInternal, isTrezor = false, transactions = {}) {
+    async _unifyTransactions(_address, result, isInternal, isTrezor = false, transactions = {}) {
         if (!result) {
             return transactions
         }
+        let address = _address.toLowerCase()
         let tx
         let maxNonce = -1
         let maxSuccessNonce = -1
@@ -378,9 +382,9 @@ export default class EthScannerProcessor extends EthBasic {
      * @param {string} transaction.tokenTransfers[].value "1000000"
      * @private
      */
-    async _unifyTransactionTrezor(address, transaction, isInternal = false) {
+    async _unifyTransactionTrezor(_address, transaction, isInternal = false) {
         let fromAddress = ''
-        address = address.toLowerCase()
+        const address = _address.toLowerCase()
         if (typeof transaction.vin[0] !== 'undefined' && transaction.vin[0].addresses && typeof transaction.vin[0].addresses[0] !== 'undefined') {
             fromAddress = transaction.vin[0].addresses[0].toLowerCase()
         }
@@ -540,10 +544,11 @@ export default class EthScannerProcessor extends EthBasic {
      * @return {UnifiedTransaction}
      * @protected
      */
-    async _unifyTransaction(address, transaction, isInternal = false) {
+    async _unifyTransaction(_address, transaction, isInternal = false) {
         if (typeof transaction.timeStamp === 'undefined') {
             throw new Error(' no transaction.timeStamp error transaction data ' + JSON.stringify(transaction))
         }
+        let address = _address.toLowerCase()
         let formattedTime = transaction.timeStamp
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.timeStamp)
