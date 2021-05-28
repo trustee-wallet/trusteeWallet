@@ -1209,7 +1209,7 @@ const Currencies = {
         ETH_SHIB:
             {
                     currencyType: 'token',
-                    currencyName: 'Shibu ERC20',
+                    currencyName: 'Shiba ERC20',
                     currencyCode: 'ETH_SHIB',
                     currencySymbol: 'SHIB',
                     extendsProcessor: 'ETH_TRUE_USD',

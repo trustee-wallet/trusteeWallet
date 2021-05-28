@@ -60,12 +60,12 @@ const CACHE = {
     'SOCIAL_LINK_VK': 'https://vk.com/trustee_wallet',
     'SOCIAL_LINK_GITHUB': 'https://github.com/trustee-wallet/trusteeWallet',
     'SOCIAL_LINK_FAQ': 'https://github.com/trustee-wallet/trusteeWallet/wiki',
-    'PRIVACY_POLICY_en': 'https://wptgterms.blocksoftlab.com/privacy-policy/?header_footer=none',
-    'PRIVACY_POLICY_ru': 'https://wptgterms.blocksoftlab.com/ru/politika-konfidencialnosti/?header_footer=none',
-    'PRIVACY_POLICY_uk': 'https://wptgterms.blocksoftlab.com/uk/poltika-konfidencijnosti/?header_footer=none',
-    'TERMS_en': 'https://wptgterms.blocksoftlab.com/terms-of-use/?header_footer=none',
-    'TERMS_ru': 'https://wptgterms.blocksoftlab.com/ru/usloviya-ispolzovaniya/?header_footer=none',
-    'TERMS_uk': 'https://wptgterms.blocksoftlab.com/uk/umovi-vikoristannya/?header_footer=none',
+    'PRIVACY_POLICY_en': 'https://trusteeglobal.com/privacy-policy/?header_footer=none',
+    'PRIVACY_POLICY_ru': 'https://trusteeglobal.com/ru/politika-konfidencialnosti/?header_footer=none',
+    'PRIVACY_POLICY_uk': 'https://trusteeglobal.com/uk/poltika-konfidencijnosti/?header_footer=none',
+    'TERMS_en': 'https://trusteeglobal.com/terms-of-use/?header_footer=none',
+    'TERMS_ru': 'https://trusteeglobal.com/ru/usloviya-ispolzovaniya/?header_footer=none',
+    'TERMS_uk': 'https://trusteeglobal.com/uk/umovi-vikoristannya/?header_footer=none',
     'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95
 }
 
