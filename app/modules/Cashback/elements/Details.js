@@ -177,8 +177,10 @@ class DetailsContent extends React.Component {
                     indicatorColor={colors.common.text3}
                     indicatorOpacity={0.25}
                 >
-                    {this.renderBalance('current')}
-                    {this.renderBalance('all')}
+                    {this.renderBalance('current', strings('cashback.cashbackBalance'), this.props.currentBalance)}
+                    {this.renderBalance('all', strings('cashback.wholeBalance'), this.props.wholeBalance)}
+                    {this.renderBalance('cpaCurrent',  strings('cashback.cpaCurrent'), this.props.cpaBalance)}
+                    {this.renderBalance('cpaAll',  strings('cashback.cpaTotal'), this.props.cpaTotalBalance)}
                 </Pages>
 
                 <View style={styles.textRow}>
@@ -228,15 +230,26 @@ class DetailsContent extends React.Component {
                         onBlur={this.handleSubmitInviteLink}
                     />
                 )}
+
+                <View style={styles.textRow}>
+                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel1')}</Text>
+                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel1}</Text>
+                </View>
+                <View style={styles.textRow}>
+                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel2')}</Text>
+                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel2}</Text>
+                </View>
+                <View style={styles.textRow}>
+                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
+                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel3}</Text>
+                </View>
             </View>
         )
     }
 
-    renderBalance = (type) => {
+    renderBalance = (type, balanceTitle, balance) => {
         const { colors } = this.context
-        const { updatedTime = '-', currentBalance, wholeBalance } = this.props
-        const balanceTitle = type === 'current' ? strings('cashback.cashbackBalance') : strings('cashback.wholeBalance')
-        const balance = type === 'current' ? currentBalance : wholeBalance
+        const { updatedTime = '-' } = this.props
         let balanceBeforeDecimal
         let balanceAfterDecimal = '?'
 
@@ -251,12 +264,12 @@ class DetailsContent extends React.Component {
 
         return (
             <View style={{ flex: 1 }}>
-                <View style={type === 'current' ? styles.currentBalanceTitleRow : styles.allBalanceTitleRow}>
+                <View style={type === 'current' || type === 'cpaCurrent' ? styles.currentBalanceTitleRow : styles.allBalanceTitleRow}>
                     <View>
                         <Text style={[styles.balanceTitle, { color: colors.common.text1, textAlign: type === 'current' ? 'left' : 'center' }]}>{balanceTitle}</Text>
                         <Text style={[styles.balanceUpdatedAt, { color: colors.common.text2, textAlign: type === 'current' ? 'left' : 'center' }]}>{`${strings('cashback.updated')} ${updatedTime}`}</Text>
                     </View>
-                    {type === 'current' && (
+                    {(type === 'current' || type === 'cpaCurrent') && (
                         <TouchableOpacity
                             activeOpacity={0.6}
                             style={[styles.withdrawButton, { borderColor: colors.common.text3 }]}

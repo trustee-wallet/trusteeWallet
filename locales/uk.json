@@ -413,6 +413,11 @@
     "applyButton": "Застосувати",
     "wholeBalance": "Усього накопичено кешбеку",
     "cashbackBalance": "Баланс кешбеку",
+    "cpaCurrent": "Баланс CPA",
+    "cpaTotal": "Усього CPA",
+    "cpaLevel1": "CPA Рівень №1",
+    "cpaLevel2": "CPA Рівень №2",
+    "cpaLevel3": "CPA Рівень №3",
     "cashbackToken": "Токен",
     "invitedBy": "Запрошений",
     "howItWorks": {

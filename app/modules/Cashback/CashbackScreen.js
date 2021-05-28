@@ -199,6 +199,12 @@ class CashbackScreen extends React.PureComponent {
             let cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
             let totalCashbackBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
 
+            let cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
+            let cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
+            let cpaLevel1 = cashbackStore.dataFromApi.cpaLevel1 || 0
+            let cpaLevel2 = cashbackStore.dataFromApi.cpaLevel2 || 0
+            let cpaLevel3 = cashbackStore.dataFromApi.cpaLevel3 || 0
+
             let invitedUsers = cashbackStore.dataFromApi.invitedUsers || 0
             let level2Users = cashbackStore.dataFromApi.level2Users || 0
 
@@ -215,6 +221,7 @@ class CashbackScreen extends React.PureComponent {
                 cashbackParentToken = ''
             }
 
+
             const time = cashbackStore.dataFromApi.time || false
             let timePrep
             if (time) {
@@ -228,6 +235,11 @@ class CashbackScreen extends React.PureComponent {
                 overalPrep = '?'
                 cashbackBalance = '?'
                 totalCashbackBalance = '?'
+                cpaTotalBalance = '?'
+                cpaBalance = '?'
+                cpaLevel1 = '?'
+                cpaLevel2 = '?'
+                cpaLevel3 = '?'
             }
 
             MarketingEvent.logEvent('taki_cashback_2_render', {
@@ -237,7 +249,12 @@ class CashbackScreen extends React.PureComponent {
                 cashbackBalance,
                 totalCashbackBalance,
                 overalPrep,
-                cashbackParentToken
+                cashbackParentToken,
+                cpaBalance,
+                cpaTotalBalance,
+                cpaLevel1,
+                cpaLevel2,
+                cpaLevel3
             })
 
             return (
@@ -249,6 +266,11 @@ class CashbackScreen extends React.PureComponent {
                     level2Users={level2Users}
                     cashbackParentToken={cashbackParentToken}
                     cashbackToShow={cashbackToShow}
+                    cpaBalance={cpaBalance}
+                    cpaTotalBalance={cpaTotalBalance}
+                    cpaLevel1={cpaLevel1}
+                    cpaLevel2={cpaLevel2}
+                    cpaLevel3={cpaLevel3}
                     inviteLink={this.state.inviteLink}
                     updatedTime={timePrep}
                 />

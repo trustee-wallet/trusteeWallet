@@ -412,6 +412,11 @@
     "enterInviteLinkPlaceholder": "Введите ссылку-приглашение",
     "applyButton": "Применить",
     "wholeBalance": "Всего заработано кешбэка",
+    "cpaCurrent": "Баланс CPA",
+    "cpaTotal": "Всего CPA",
+    "cpaLevel1": "CPA Уровень №1",
+    "cpaLevel2": "CPA Уровень №2",
+    "cpaLevel3": "CPA Уровень №3",
     "cashbackBalance": "Баланс кешбэка",
     "cashbackToken": "Токен",
     "howItWorks": {

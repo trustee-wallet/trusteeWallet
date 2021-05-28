@@ -405,6 +405,11 @@
     "applyButton": "დადასტურება",
     "wholeBalance": "სრული ბალანსი",
     "cashbackBalance": "ქეშბექის ბალანსი",
+    "cpaCurrent": "Current CPA",
+    "cpaTotal": "Total CPA",
+    "cpaLevel1": "CPA Level 1",
+    "cpaLevel2": "CPA Level 2",
+    "cpaLevel3": "CPA Level 3",
     "cashbackToken": "ტოკენი",
     "howItWorks": {
       "title": "როგორ მუშაობს?",
