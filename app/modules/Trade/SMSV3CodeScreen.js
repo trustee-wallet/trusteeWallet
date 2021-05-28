@@ -206,6 +206,8 @@ class SMSV3CodeScreen extends PureComponent {
                         startInLoadingState={true}
                         sharedCookiesEnabled
                         thirdPartyCookiesEnabled
+                        allowsInlineMediaPlayback={true}
+                        allowsBackForwardNavigationGestures={true}
                     />
                 </View>
             </ScreenWrapper>

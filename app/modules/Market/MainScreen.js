@@ -872,6 +872,8 @@ class MarketScreen extends PureComponent {
                                 useWebKit={true}
                                 startInLoadingState={true}
                                 renderLoading={this.renderLoading}
+                                allowsInlineMediaPlayback={true}
+                                allowsBackForwardNavigationGestures={true}
                             />
                         </KeyboardAvoidingView> :
                         <>

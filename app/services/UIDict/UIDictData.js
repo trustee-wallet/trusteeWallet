@@ -242,6 +242,12 @@ export default {
             darkColor: '#D7C253'
         }
     },
+    "TRX_SUN_NEW": {
+        colors: {
+            mainColor: '#FEDF3C',
+            darkColor: '#D7C253'
+        }
+    },
     "TRX_JST": {
         colors: {
             mainColor: '#B41514',
@@ -564,6 +570,18 @@ export default {
         colors: {
             mainColor: '#00C26F',
             darkColor: '#13AF6C'
+        }
+    },
+    "ETH_BTT": {
+        colors: {
+            mainColor: '#D73A64',
+            darkColor: '#CA4D6F'
+        }
+    },
+    'ETH_TRX': {
+        colors: {
+            mainColor: '#E51A31',
+            darkColor: '#E51A31'
         }
     },
     'DEFAULT': {
