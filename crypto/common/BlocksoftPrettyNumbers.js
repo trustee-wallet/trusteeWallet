@@ -47,7 +47,7 @@ class BlocksoftPrettyNumbers {
     }
 
     makeCut(tmp, size = 5, source = false) {
-        if (this._decimals <= 6 && size === 5) {
+        if (this._decimals <= 6 && size === 5 && this._decimals > 0) {
             size = this._decimals
         }
         let cutted = 0
