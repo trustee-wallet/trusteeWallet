@@ -262,14 +262,15 @@ class DetailsContent extends React.Component {
             }
         }
 
+        const withLink = (type === 'current' || type === 'cpaCurrent')
         return (
             <View style={{ flex: 1 }}>
-                <View style={type === 'current' || type === 'cpaCurrent' ? styles.currentBalanceTitleRow : styles.allBalanceTitleRow}>
+                <View style={ withLink ? styles.currentBalanceTitleRow : styles.allBalanceTitleRow}>
                     <View>
-                        <Text style={[styles.balanceTitle, { color: colors.common.text1, textAlign: type === 'current' ? 'left' : 'center' }]}>{balanceTitle}</Text>
-                        <Text style={[styles.balanceUpdatedAt, { color: colors.common.text2, textAlign: type === 'current' ? 'left' : 'center' }]}>{`${strings('cashback.updated')} ${updatedTime}`}</Text>
+                        <Text style={[styles.balanceTitle, { color: colors.common.text1, textAlign: withLink ? 'left' : 'center' }]}>{balanceTitle}</Text>
+                        <Text style={[styles.balanceUpdatedAt, { color: colors.common.text2, textAlign: withLink ? 'left' : 'center' }]}>{`${strings('cashback.updated')} ${updatedTime}`}</Text>
                     </View>
-                    {(type === 'current' || type === 'cpaCurrent') && (
+                    {withLink && (
                         <TouchableOpacity
                             activeOpacity={0.6}
                             style={[styles.withdrawButton, { borderColor: colors.common.text3 }]}
