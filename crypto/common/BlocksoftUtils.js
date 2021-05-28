@@ -8,7 +8,7 @@ class BlocksoftUtils {
 
     static round(val) {
         const tmp = val.toString().split('.')
-        return tmp[0]
+        return tmp[0].replace(' ', '')
     }
 
     //  // console.log('added', BlocksoftUtils.add(967282001717650,87696220292905380))
