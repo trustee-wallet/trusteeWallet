@@ -38,6 +38,7 @@ import {
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import CustomIcon from '@app/components/elements/CustomIcon'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 
 class AddAssetScreen extends React.PureComponent {
@@ -118,7 +119,7 @@ class AddAssetScreen extends React.PureComponent {
     handleAddCustomToken = async (value) => {
         Keyboard.dismiss();
         const types = ['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']
-        const customAddress = value.trim().toLowerCase().split(/\s+/g).join('')
+        const customAddress = value.trim().split(/\s+/g).join('')
         const tmps = types.map(type => ({
             type,
             id: 'address',
@@ -131,6 +132,13 @@ class AddAssetScreen extends React.PureComponent {
             if (result.searchQuery) {
                 this.handleSearch(result.searchQuery)
             }
+        } else {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('validator.invalidFormat')
+            })
         }
     }
 
@@ -237,10 +245,21 @@ class AddAssetScreen extends React.PureComponent {
 
     renderEmptyList = () => {
         const { colors, GRID_SIZE } = this.context
-        const { searchQuery } = this.state
+        let { searchQuery } = this.state
 
 
-        if (searchQuery && searchQuery.trim().indexOf('0x') === 0 && searchQuery.length === 42) {
+
+        let isSearchTokenAddress = false
+        if (searchQuery) {
+            searchQuery =  searchQuery.trim()
+            if (searchQuery.indexOf('0x') === 0 && searchQuery.length === 42) {
+                isSearchTokenAddress = true
+            } else if (searchQuery.indexOf('T') === 0 && searchQuery.length === 34) {
+                isSearchTokenAddress = true
+            }
+        }
+
+        if (isSearchTokenAddress) {
             return (
                 <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
                     <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
