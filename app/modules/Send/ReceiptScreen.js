@@ -185,29 +185,35 @@ class ReceiptScreen extends PureComponent {
 
         if (tx) {
             try {
-                await SendActionsEnd.saveTx(tx, this.props.sendScreenStore)
+                try {
+                    await SendActionsEnd.saveTx(tx, this.props.sendScreenStore)
+                } catch (e2) {
+                    e2.message += ' while SendActionsEnd.saveTx'
+                    throw e2
+                }
                 this.setState({
                     sendInProcess: false
                 })
                 CACHE_IS_SENDING = false
-                await SendActionsEnd.endRedirect(tx, this.props.sendScreenStore)
-
+                try {
+                    await SendActionsEnd.endRedirect(tx, this.props.sendScreenStore)
+                } catch (e2) {
+                    e2.message += ' while SendActionsEnd.endRedirect'
+                    throw e2
+                }
+                return true
             } catch (e1) {
                 if (config.debug.appErrors) {
-                    console.log('ReceiptScreen.handleSendSaveTx error ' + e.message)
+                    console.log('ReceiptScreen.handleSendSaveTx error ' + e1.message)
                 }
-                Log.log('ReceiptScreen.handleSendSaveTx error ' + e.message)
-                this.setState({
-                    sendInProcess: false
-                })
-                CACHE_IS_SENDING = false
+                Log.log('ReceiptScreen.handleSendSaveTx error ' + e1.message)
             }
-        } else {
-            this.setState({
-                sendInProcess: false
-            })
-            CACHE_IS_SENDING = false
         }
+        this.setState({
+            sendInProcess: false
+        })
+        CACHE_IS_SENDING = false
+        return false
     }
 
 

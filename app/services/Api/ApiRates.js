@@ -101,6 +101,9 @@ export default {
             usdtobtc: 1,
             usdttousd: 1
         }
+        if (!CACHE_RATES || typeof CACHE_RATES.rate === 'undefined' || typeof CACHE_RATES.cryptoCurrencies === 'undefined') {
+            return false
+        }
         for (const key in CACHE_RATES.rate) {
             tmp[key.toLowerCase()] = CACHE_RATES.rate[key]
         }

@@ -57,25 +57,31 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
     let localCurrency = bseTrusteeFee.currencyCode.toLowerCase()
     let usdCurrency = 'usd'
     Log.log('sendScreenData.bseTrusteeFee in ' + localCurrency + ' ' + usdValue, bseTrusteeFee)
-    if (usdValue * 1 > 0) {
-        if (localCurrency !== 'usd') {
-            const rate = ApiRates.getRatesWithLocal()
-            if (localCurrency.indexOf('usdt') !== -1) {
-                usdValue = typeof rate.usdttousd !== 'undefined' && rate.usdttousd > 0 ? BlocksoftUtils.mul(rate.usdttousd, usdValue) : usdValue
-                Log.log('sendScreenData.bseTrusteeFee rate1 ' + rate.usdttousd + ' => ' + usdValue)
-            } else if (typeof rate['usdto' + localCurrency] !== 'undefined') {
-                usdValue = BlocksoftUtils.div(usdValue, rate['usdto' + localCurrency])
-                Log.log('sendScreenData.bseTrusteeFee rate2 ' + rate['usdto' + localCurrency] + ' => ' + usdValue)
-            } else if (typeof rate[localCurrency] !== 'undefined') {
-                usdValue = BlocksoftUtils.div(usdValue, rate[localCurrency])
-                Log.log('sendScreenData.bseTrusteeFee rate3 ' + rate[localCurrency] + ' => ' + usdValue)
-            } else {
-                Log.log('sendScreenData.bseTrusteeFee rate4 not found ' + localCurrency)
-                usdCurrency = 'uah'
+    let rate = false
+    try {
+        if (usdValue * 1 > 0 && localCurrency) {
+            if (localCurrency !== 'usd') {
+                rate = ApiRates.getRatesWithLocal()
+                if (typeof rate !== 'undefined' && rate) {
+                    if (localCurrency.indexOf('usdt') !== -1) {
+                        usdValue = typeof rate.usdttousd !== 'undefined' && rate.usdttousd > 0 ? BlocksoftUtils.mul(rate.usdttousd, usdValue) : usdValue
+                        Log.log('sendScreenData.bseTrusteeFee rate1 ' + rate.usdttousd + ' => ' + usdValue)
+                    } else if (typeof rate['usdto' + localCurrency] !== 'undefined') {
+                        usdValue = BlocksoftUtils.div(usdValue, rate['usdto' + localCurrency])
+                        Log.log('sendScreenData.bseTrusteeFee rate2 ' + rate['usdto' + localCurrency] + ' => ' + usdValue)
+                    } else if (typeof rate[localCurrency] !== 'undefined') {
+                        usdValue = BlocksoftUtils.div(usdValue, rate[localCurrency])
+                        Log.log('sendScreenData.bseTrusteeFee rate3 ' + rate[localCurrency] + ' => ' + usdValue)
+                    } else {
+                        Log.log('sendScreenData.bseTrusteeFee rate4 not found ' + localCurrency)
+                        usdCurrency = 'uah'
+                    }
+                }
             }
-        } else {
-            usdValue = bseTrusteeFee.value
         }
+    } catch (e) {
+        e.message += ' while usdValue calculation ' + localCurrency + ' ' + JSON.stringify(rate)
+        throw e
     }
     let gaParams = {}
     try {
@@ -309,14 +315,27 @@ export namespace SendActionsEnd {
                 transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()
             }
 
-            await logSendSell(transaction, tx, logData, sendScreenStore)
 
-            await logFio(transaction, tx, logData, sendScreenStore)
+            try {
+                await logSendSell(transaction, tx, logData, sendScreenStore)
+            } catch (e) {
+                Log.log('SendActionsEnd.logSendSell call error ' + e.message)
+            }
 
-            const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+            try {
+                await logFio(transaction, tx, logData, sendScreenStore)
+            } catch (e) {
+                Log.log('SendActionsEnd.logFio call error ' + e.message)
+            }
 
-            // @ts-ignore
-            await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
+            try {
+                const line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+                // @ts-ignore
+                await transactionActions.saveTransaction(transaction, line + ' HANDLE SEND ')
+            } catch (e) {
+                e.message += ' while transactionActions.saveTransaction'
+                throw e
+            }
         }
     }
 
