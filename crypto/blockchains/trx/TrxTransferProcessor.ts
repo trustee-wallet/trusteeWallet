@@ -253,7 +253,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                             fee_limit: 100000000
                         }
                         if (typeof order.options !== 'undefined' && typeof order.options.callValue !== 'undefined') {
-                            params.all_value = order.options.callValue * 1
+                            params.call_value = order.options.callValue * 1
                         }
                     } catch (e1) {
                         throw new Error(e1.message + ' in params build')
