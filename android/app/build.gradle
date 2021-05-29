@@ -216,8 +216,7 @@ android {
 
 dependencies {
     implementation project(':react-native-vector-icons')
-    def multidex_version = "2.0.1"
-    implementation 'androidx.multidex:multidex:$multidex_version'
+    implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation 'org.conscrypt:conscrypt-android:2.1.0'
     implementation 'androidx.appcompat:appcompat:1.2.0-beta01'
