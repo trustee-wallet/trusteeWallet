@@ -171,7 +171,7 @@ class BackupStep1Screen extends React.PureComponent {
             })
 
         } else if (flowType === 'BACKUP_WALLET') {
-            MarketingEvent.logEvent('gx_view_mnemonic_screen_confirmed_mnemonic', { walletNumber, source }, 'GX')
+            MarketingEvent.logEvent('gx_view_mnemonic_screen_cnf', { walletNumber, source }, 'GX')
 
             walletActions.setWalletBackedUpStatus(walletHash)
 
@@ -191,7 +191,7 @@ class BackupStep1Screen extends React.PureComponent {
             try {
                 setLoaderStatus(true)
 
-                MarketingEvent.logEvent('gx_view_mnemonic_screen_confirmed_mnemonic', { walletNumber, source }, 'GX')
+                MarketingEvent.logEvent('gx_view_mnemonic_screen_cnf', { walletNumber, source }, 'GX')
 
                 const walletHash = await proceedSaveGeneratedWallet({
                     walletName,
