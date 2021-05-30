@@ -58,7 +58,7 @@ class SendScreen extends PureComponent {
             return true
         }
         SendActionsUpdateValues.setStepOne({
-            cryptoValue: disableInput.value,
+            cryptoValue: disableInput.value.toString().replace(' ', ''),
             isTransferAll: disableInput.isTransferAll,
             addressTo: disableAddress.value,
             addressName: disableAddress.addressName,
