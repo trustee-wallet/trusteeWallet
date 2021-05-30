@@ -43,6 +43,7 @@ const CACHE = {
     'BTG_TREZOR_SERVER': ['https://btg1.trezor.io', 'https://btg2.trezor.io', 'https://btg3.trezor.io', 'https://btg4.trezor.io', 'https://btg5.trezor.io'],
     'ETH_ROPSTEN_TREZOR_SERVER' : ['https://ac-dev0.net:29136'],
     'ETC_TREZOR_SERVER' : ['https://etcblockexplorer.com'],
+    'ETC_SERVER' : 'https://www.ethercluster.com/etc',
     'ETC_PRICE' : 6710000000,
     'ETC_GAS_LIMIT' : 620000,
     'FIO_BASE_URL' : 'https://fio.eosphere.io/v1/',

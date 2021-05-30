@@ -102,6 +102,7 @@ export default class EthBasic {
             this._mainTokenType = 'BNB_SMART_20'
             this._mainTokenBlockchain = 'Binance'
         } else if (settings.currencyCode === 'ETC') {
+            this._web3Link = BlocksoftExternalSettings.getStatic('ETC_SERVER')
 
             this._etherscanSuffix = false
             this._etherscanApiPath = false
