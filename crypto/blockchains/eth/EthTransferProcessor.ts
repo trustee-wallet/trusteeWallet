@@ -260,6 +260,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
         }
         const titles = ['eth_speed_slow', 'eth_speed_medium', 'eth_speed_fast']
+        const titlesChanged = ['eth_speed_slowest', 'eth_speed_medium_to_slow', 'eth_speed_fast_to_medium']
         const keys = ['speed_blocks_12', 'speed_blocks_6', 'speed_blocks_2']
         let skippedByOld = false
         let prevGasPrice = 0
@@ -311,7 +312,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             let langMsg = titles[index]
             if (changedFeeByBalance) {
                 if (index > 0) {
-                    langMsg = titles[index - 1]
+                    langMsg = titlesChanged[index - 1]
                 }
             }
 
