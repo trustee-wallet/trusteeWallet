@@ -7,6 +7,10 @@ const INITIAL_STATE = {
     selectedCryptoCurrency: {},
     selectedBasicCurrency: {},
     selectedAccount: {},
+    selectedAccountTransactions : {
+        transactionsToView : [],
+        transactionsLoaded : 0
+    },
     loaderVisibility: false,
     blurVisibility: false,
     currentScreen: {} // TODO: question - do we need this? it seems like unused
@@ -23,6 +27,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 selectedAccount: action.selectedAccount
+            }
+        case 'SET_SELECTED_ACCOUNT_TRANSACTIONS':
+            return {
+                ...state,
+                selectedAccountTransactions: action.selectedAccountTransactions
             }
         case 'SET_SELECTED_CRYPTO_CURRENCY':
             return {

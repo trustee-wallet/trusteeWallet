@@ -13,6 +13,8 @@ import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
 import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
+import store from '@app/store'
+import { setSelectedAccountTransactions } from '@app/appstores/Stores/Main/MainStoreActions'
 
 
 const transactionActions = {
@@ -48,19 +50,8 @@ const transactionActions = {
             if (transaction.currencyCode.indexOf('ETH') !== -1) {
                 await EthTmpDS.getCache(transaction.addressFromBasic)
             }
-            /*
-            const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
-            if (transaction.currencyCode === account.currencyCode) {
-
-                // @todo page reload
-            }
-
-            dispatch({
-                type: 'SET_SELECTED_ACCOUNT',
-                selectedAccount: account
-            })
-            */
+            await setSelectedAccountTransactions()
 
             if (typeof transaction.bseOrderId !== 'undefined') {
                 UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })

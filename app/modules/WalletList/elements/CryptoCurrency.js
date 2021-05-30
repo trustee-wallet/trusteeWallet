@@ -23,7 +23,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import GradientView from '@app/components/elements/GradientView'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 
-import { setSelectedAccount, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getAccountCurrency } from '@app/appstores/Stores/Account/selectors'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
@@ -58,6 +58,8 @@ class CryptoCurrency extends React.PureComponent {
             status = 'setSelectedAccount started'
 
             await setSelectedAccount()
+            
+            await setSelectedAccountTransactions()
 
             // Log.log('HomeScreen.Currency handleCurrencySelect finished ', cryptoCurrency)
 

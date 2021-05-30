@@ -15,7 +15,7 @@ import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumber
 import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
 
 import DaemonCache from '../DaemonCache'
-import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount, setSelectedAccountTransactions } from '../../appstores/Stores/Main/MainStoreActions'
 import BlocksoftBN from '../../../crypto/common/BlocksoftBN'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
@@ -481,6 +481,7 @@ class UpdateAccountListDaemon extends Update {
                     } else {
                         if (DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode].balance !== selectedAccount.balance) {
                             await setSelectedAccount()
+                            await setSelectedAccountTransactions()
                         }
                     }
                 }

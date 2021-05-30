@@ -96,9 +96,9 @@ class UpdateTradeOrdersDaemon {
             }
 
             const account = store.getState().mainStore.selectedAccount
+            const { transactionsToView } = store.getState().mainStore.selectedAccountTransactions
             if (account) {
                 let found = false
-                const transactionsToView = account.transactionsToView
                 const newTransactions = []
                 if (transactionsToView) {
                     for (const transaction of transactionsToView) {
@@ -110,10 +110,12 @@ class UpdateTradeOrdersDaemon {
                     }
                 }
                 if (found) {
-                    account.transactionsToView = newTransactions
                     dispatch({
-                        type: 'SET_SELECTED_ACCOUNT',
-                        selectedAccount: account
+                        type: 'SET_SELECTED_ACCOUNT_TRANSACTIONS',
+                        selectedAccountTransactions: {
+                            transactionsToView : newTransactions,
+                            transactionsLoaded : new Date().getTime()
+                        }
                     })
                 }
             }

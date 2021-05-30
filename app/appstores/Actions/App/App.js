@@ -21,7 +21,6 @@ import Database, { cleanupNotNeeded } from '@app/appstores/DataSource/Database'
 
 import Log from '../../../services/Log/Log'
 import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
-import AppVersionControl from '../../../services/AppVersionControl/AppVersionControl'
 import AppNotification from '../../../services/AppNotification/AppNotificationListener'
 
 import Daemon from '../../../daemons/Daemon'
@@ -136,12 +135,6 @@ class App {
             this.initError = e.message
             setInitError(e.message)
             NavStore.goNext('ErrorScreen', { error: e.message })
-        }
-        try {
-            // noinspection ES6MissingAwait
-            AppVersionControl.init()
-        } catch (e) {
-            // do nothing
         }
     }
 

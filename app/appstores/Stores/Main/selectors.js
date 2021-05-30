@@ -60,9 +60,17 @@ export const getSelectedAccountData = createSelector(
             basicCurrencyRate: data.basicCurrencyRate,
             basicCurrencySymbol : data.basicCurrencySymbol,
 
-            transactionsToView : data.transactionsToView,
             walletPubs : data.walletPubs
         }
     })
 )
 
+export const getSelectedAccountTransactions = createSelector(
+    [state => state.mainStore.selectedAccountTransactions],
+    (data => {
+        return {
+            transactionsToView : data.transactionsToView,
+            transactionsLoaded : data.transactionsLoaded
+        }
+    })
+)

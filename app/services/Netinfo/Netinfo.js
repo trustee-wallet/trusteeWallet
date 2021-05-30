@@ -1,21 +1,12 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
 import NetInfoModule from '@react-native-community/netinfo'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
 
-import Toast from '../../services/UI/Toast/Toast'
-import { strings } from '../../services/i18n'
-
-export default new class NetInfo {
-
-
-    /**
-     *
-     * @param {number} toastPosition
-     * @returns {Promise<void>}
-     */
-
-    isInternetReachable = async (toastPosition) => {
+export default {
+    isInternetReachable: async (toastPosition) => {
         await NetInfoModule.fetch()
 
         await new Promise((resolve, reject) => {
@@ -31,5 +22,4 @@ export default new class NetInfo {
         Toast.setMessage(strings('toast.noInternet')).show(toastPosition)
         throw new Error('SERVER_RESPONSE_INTERNET_CONNECTION_ERROR')
     }
-
 }

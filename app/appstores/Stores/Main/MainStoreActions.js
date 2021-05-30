@@ -271,26 +271,6 @@ export async function setSelectedAccount(setting) {
 
         account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
 
-        // cutpaste from account screen - to think about
-        account.transactionsToView = []
-
-        const params = {
-            walletHash: account.walletHash,
-            currencyCode: account.currencyCode,
-            limitFrom: 0,
-            limitPerPage: 1
-        }
-        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
-            params.minAmount = 0
-        }
-        const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
-        if (tmp && tmp.length > 0) {
-            for (let transaction of tmp) {
-                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)
-                account.transactionsToView.push(transaction)
-            }
-        }
-
         dispatch({
             type: 'SET_SELECTED_ACCOUNT',
             selectedAccount: account
@@ -298,6 +278,36 @@ export async function setSelectedAccount(setting) {
     } catch (e) {
         throw new Error(e.message + ' account ' + JSON.stringify(account))
     }
+}
+
+export async function setSelectedAccountTransactions(setting) {
+    const wallet = store.getState().mainStore.selectedWallet
+    const account = store.getState().mainStore.selectedAccount
+    const transactionsToView = []
+
+    const params = {
+        walletHash: account.walletHash,
+        currencyCode: account.currencyCode,
+        limitFrom: 0,
+        limitPerPage: 1
+    }
+    if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
+        params.minAmount = 0
+    }
+    const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
+    if (tmp && tmp.length > 0) {
+        for (let transaction of tmp) {
+            transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)
+            transactionsToView.push(transaction)
+        }
+    }
+    dispatch({
+        type: 'SET_SELECTED_ACCOUNT_TRANSACTIONS',
+        selectedAccountTransactions: {
+            transactionsToView,
+            transactionsLoaded : new Date().getTime()
+        }
+    })
 }
 
 export function setSelectedWalletName(walletName) {

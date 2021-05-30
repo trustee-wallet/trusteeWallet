@@ -24,7 +24,7 @@ import AppLockBlur from '@app/components/AppLockBlur'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount, setSelectedAccountTransactions } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import Log from '@app/services/Log/Log'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
@@ -59,13 +59,14 @@ import Netinfo from '@app/services/Netinfo/Netinfo'
 
 import { diffTimeScan } from './helpers'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
-import { getIsBlurVisible, getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
+let CACHE_TX_LOADED = 0
 const TX_PER_PAGE = 20
 
 class Account extends React.PureComponent {
@@ -255,11 +256,10 @@ class Account extends React.PureComponent {
         const { balanceScanTime, balanceScanError, isSynchronized } = this.props.selectedAccountData
         let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
-            transactionsToView = this.props.selectedAccountData.transactionsToView
+            transactionsToView = this.props.selectedAccountTransactions.transactionsToView
         }
 
         const { colors, GRID_SIZE, isLight } = this.context
-
 
         const diff = diffTimeScan(balanceScanTime)
         let diffTimeText = ''
@@ -364,6 +364,7 @@ class Account extends React.PureComponent {
                 transactionsToView.push(transaction)
             }
         }
+        CACHE_TX_LOADED = new Date().getTime()
 
         if (from === 0) {
             this.setState((state) => ({ transactionsToView: transactionsToView })) // from start reload
@@ -396,7 +397,12 @@ class Account extends React.PureComponent {
         const { isSegwit, selectedAccountData, selectedCryptoCurrencyData } = this.props
         let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
-            transactionsToView = selectedAccountData.transactionsToView
+            transactionsToView = this.props.selectedAccountTransactions.transactionsToView
+            CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
+        } else if (CACHE_TX_LOADED*1 <= this.props.selectedAccountTransactions.transactionsLoaded*1) {
+            transactionsToView = this.props.selectedAccountTransactions.transactionsToView
+            CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
+            this.loadTransactions(0)
         }
 
         const allTransactionsToView = transactionsToView // was concat before
@@ -531,6 +537,7 @@ const mapStateToProps = (state) => {
         selectedWalletData: getSelectedWalletData(state),
         selectedCryptoCurrencyData: getSelectedCryptoCurrencyData(state),
         selectedAccountData: getSelectedAccountData(state),
+        selectedAccountTransactions: getSelectedAccountTransactions(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
         isSegwit: getIsSegwit(state),
         isBlurVisible: getIsBlurVisible(state)

@@ -41,7 +41,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import GradientView from '@app/components/elements/GradientView'
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import config from '@app/config/config'
-import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus, setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
@@ -588,6 +588,7 @@ class AccountTransactionScreen extends PureComponent {
         } else if (this.state.toOpenAccountBack) {
             setSelectedCryptoCurrency(this.props.cryptoCurrency)
             await setSelectedAccount()
+            await setSelectedAccountTransactions()
             NavStore.reset('AccountScreen')
         } else {
             NavStore.goBack()

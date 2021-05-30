@@ -4,7 +4,11 @@
 import analytics from '@react-native-firebase/analytics'
 
 import NavStore from '@app/components/navigation/NavStore'
-import { setSelectedCryptoCurrency, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import {
+    setSelectedCryptoCurrency,
+    setSelectedAccount,
+    setSelectedAccountTransactions
+} from '@app/appstores/Stores/Main/MainStoreActions'
 import store from '@app/store'
 import Log from '@app/services/Log/Log'
 
@@ -143,6 +147,7 @@ export namespace SendActionsEnd {
                 if (cryptoCurrency.currencyCode) {
                     setSelectedCryptoCurrency(cryptoCurrency)
                     await setSelectedAccount()
+                    await setSelectedAccountTransactions()
                     NavStore.reset('AccountScreen')
                 } else {
                     NavStore.reset('HomeScreen')
