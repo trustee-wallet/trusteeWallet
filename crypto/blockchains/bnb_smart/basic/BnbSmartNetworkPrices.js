@@ -6,8 +6,8 @@ import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 
-const CACHE_VALID_TIME = 60000 // 1 minute
-let CACHE_FEES = 0
+const CACHE_VALID_TIME = 120000 // 2 minute
+let CACHE_FEES = 5000000000
 let CACHE_FEES_TIME = 0
 
 class BnbSmartNetworkPrices {
