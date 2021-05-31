@@ -1432,6 +1432,42 @@ const Currencies = {
             currencyExplorerLink:
                 'https://bscscan.com/token/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d?a='
         },
+    VET:
+            {
+                    currencyType: 'coin',
+                    currencyName: 'VeChain',
+                    currencyCode: 'VET',
+                    currencySymbol: 'VET',
+                    ratesCurrencyCode: 'VET',
+                    addressCurrencyCode: 'VET',
+                    addressProcessor: 'ETH',
+                    addressUiChecker: 'ETH',
+                    scannerProcessor: 'VET',
+                    prettyNumberProcessor: 'ETH',
+                    transferProcessor: 'VET',
+                    network: 'mainnet',
+                    decimals: 18,
+                    currencyExplorerLink: 'https://explore.vechain.org/accounts/',
+                    currencyExplorerTxLink: 'https://explore.vechain.org/transactions/'
+            },
+        VTHO:
+            {
+                    currencyType: 'coin',
+                    currencyName: 'VeChain Token',
+                    currencyCode: 'VTHO',
+                    currencySymbol: 'VTHO',
+                    ratesCurrencyCode: 'VTHO',
+                    addressCurrencyCode: 'VET',
+                    addressProcessor: 'ETH',
+                    addressUiChecker: 'ETH',
+                    scannerProcessor: 'VET',
+                    prettyNumberProcessor: 'ETH',
+                    transferProcessor: 'VET',
+                    network: 'mainnet',
+                    decimals: 18,
+                    currencyExplorerLink: 'https://explore.vechain.org/accounts/',
+                    currencyExplorerTxLink: 'https://explore.vechain.org/transactions/'
+            },
     XVG:
         {
             currencyType: 'coin',

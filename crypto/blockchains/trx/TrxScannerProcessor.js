@@ -13,7 +13,6 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import config from '@app/config/config'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
-import needUpdate from 'react-native-version-check/src/needUpdate'
 
 let CACHE_PENDING_TXS = false
 

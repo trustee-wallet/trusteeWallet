@@ -113,7 +113,7 @@ export default class EthBasic {
 
             this._mainCurrencyCode = 'ETC'
             this._mainTokenType = 'ETC_ERC_20'
-            this._mainTokenBlockchain = 'Ethereum'
+            this._mainTokenBlockchain = 'Ethereum Classic'
         } else {
 
             this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
