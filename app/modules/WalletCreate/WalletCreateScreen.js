@@ -102,13 +102,13 @@ class WalletCreateScreen extends PureComponent {
     handleTermsPress = () => {
         const lang = sublocale()
         const url = BlocksoftExternalSettings.getStatic(`TERMS_${lang}`)
-        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.terms'), backOnClose: true })
+        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.termsTitle'), backOnClose: true })
     }
 
     handlePrivacyPolicyPress = () => {
         const lang = sublocale()
         const url = BlocksoftExternalSettings.getStatic(`PRIVACY_POLICY_${lang}`)
-        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.privacyPolicy'), backOnClose: true })
+        NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.privacyPolicyTitle'), backOnClose: true })
     }
 
     renderSliderPage = ({ image, text, textStyle }) => {
