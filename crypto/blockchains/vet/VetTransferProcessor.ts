@@ -7,6 +7,7 @@ import BlocksoftUtils from '../../common/BlocksoftUtils'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import { thorify } from 'thorify'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const Web3 = require('web3')
 const abi = [
@@ -159,7 +160,7 @@ export default class VetTransferProcessor implements BlocksoftBlockchainTypes.Tr
         }
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
-            const send = await BlocksoftAxios.post(API_PATH + '/transactions', { raw: signedData.rawTransaction })
+            const send = await BlocksoftAxios.post(API_PATH + '/transactions', { raw: signedData.rawTransaction }, false)
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' VetTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount, send.data)
             if (typeof send.data === 'undefined' || !send.data || typeof send.data.id === 'undefined') {
                 throw new Error('SYSTEM_ERROR')
@@ -167,8 +168,40 @@ export default class VetTransferProcessor implements BlocksoftBlockchainTypes.Tr
             result.transactionHash = send.data.id
         } catch (e) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' VetTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' send error ' + e.message)
-            throw new Error(e.message)
+            this.checkError(e, data, false)
         }
         return result
+    }
+
+    checkError(e, data, txRBF = false) {
+
+        if (e.message.indexOf('nonce too low') !== -1) {
+            BlocksoftCryptoLog.log('VeChain checkError0.1 ' + e.message + ' for ' + data.addressFrom)
+            let e2
+            if (txRBF) {
+                e2 = new Error('SERVER_RESPONSE_TRANSACTION_ALREADY_MINED')
+            } else {
+                e2 = new Error('SERVER_RESPONSE_NONCE_ALREADY_MINED')
+            }
+            throw e2
+        } else if (e.message.indexOf('insufficient funds') !== -1) {
+            BlocksoftCryptoLog.log('VeChain checkError0.3 ' + e.message + ' for ' + data.addressFrom)
+            if ((this._settings.currencyCode === 'ETH' || this._settings.currencyCode === 'BNB_SMART') && data.amount * 1 > 0) {
+                throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+            } else {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+            }
+        } else if (e.message.indexOf('underpriced') !== -1) {
+            BlocksoftCryptoLog.log('VeChain checkError0.4 ' + e.message + ' for ' + data.addressFrom)
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+        } else if (e.message.indexOf('already known') !== -1) {
+            BlocksoftCryptoLog.log('VeChain checkError0.5 ' + e.message + ' for ' + data.addressFrom)
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+        } else if (e.message.indexOf('insufficient energy') !== -1) {
+            BlocksoftCryptoLog.log('VeChain checkError0.6 ' + e.message + ' for ' + data.addressFrom)
+            throw new Error('SERVER_RESPONSE_ENERGY_ERROR_VET')
+        } else {
+            throw e
+        }
     }
 }
