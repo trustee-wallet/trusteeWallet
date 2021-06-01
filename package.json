@@ -169,6 +169,7 @@
     "string_decoder": "^0.10.31",
     "text-encoding": "^0.7.0",
     "timers-browserify": "^1.4.2",
+    "thorify": "git+https://git@github.com/trustee-wallet/thorify#dist",
     "tty-browserify": "0.0.0",
     "url": "^0.10.3",
     "url-parse": "^1.4.7",

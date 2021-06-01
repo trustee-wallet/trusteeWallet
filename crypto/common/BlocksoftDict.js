@@ -1435,7 +1435,7 @@ const Currencies = {
     VET:
             {
                     currencyType: 'coin',
-                    currencyName: 'VeChain',
+                    currencyName: 'VeChain Thor',
                     currencyCode: 'VET',
                     currencySymbol: 'VET',
                     ratesCurrencyCode: 'VET',
@@ -1453,7 +1453,7 @@ const Currencies = {
         VTHO:
             {
                     currencyType: 'coin',
-                    currencyName: 'VeChain Token',
+                    currencyName: 'VeChain Thor Token',
                     currencyCode: 'VTHO',
                     currencySymbol: 'VTHO',
                     ratesCurrencyCode: 'VTHO',
