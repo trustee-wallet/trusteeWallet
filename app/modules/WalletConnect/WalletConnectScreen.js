@@ -62,7 +62,7 @@ class WalletConnectScreen extends PureComponent {
                 qrFullLink : data.fullLink
             }, () => {
                 setTimeout(() => {
-                    //this._init({ fullLink: data.fullLink })
+                    this._init({ fullLink: data.fullLink })
                     if (this.linkInput) {
                         this.linkInput.handleInput(data.fullLink, false)
                     }
@@ -81,7 +81,7 @@ class WalletConnectScreen extends PureComponent {
                 qrFullLink : data.fullLink
             }, () => {
                 setTimeout(() => {
-                    //this._init({fullLink : data.fullLink})
+                    this._init({fullLink : data.fullLink})
                     if (this.linkInput) {
                         this.linkInput.handleInput(data.fullLink, false)
                     }

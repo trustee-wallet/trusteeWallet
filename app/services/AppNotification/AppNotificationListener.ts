@@ -324,7 +324,7 @@ export default new class AppNotificationListener {
                             }
                         }
                     })
-                    NavStore.reset('LockScreenPop')
+                    NavStore.goNext('LockScreenPop')
                 } else {
                     await Log.log('PUSH _onMessage startMessage not null', startMessage)
                     UpdateAppNewsDaemon.goToNotifications('AFTER_APP')

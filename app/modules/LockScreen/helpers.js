@@ -25,7 +25,7 @@ export const finishProcess = async (lockScreen) => {
         lockScreenAction.setFlowType({
             flowType: ''
         })
-        NavStore.reset('WalletConnectScreen', backData)
+        NavStore.goNext('WalletConnectScreen', backData)
     } else if (flowType === 'JUST_CALLBACK') {
         setTimeout(() => {
             actionCallback(false)
