@@ -39,7 +39,7 @@
     "@unstoppabledomains/resolution": "^3.0.0",
     "@walletconnect/client": "1.3.6",
     "@walletconnect/core": "1.3.6",
-    "@walletconnect/iso-crypto": "1.3.6",
+    "@walletconnect/iso-crypto": "git+https://git@github.com/trustee-wallet/walletconnect-iso-crypto.git",
     "@walletconnect/utils": "1.3.6",
     "assert": "^1.5.0",
     "asyncstorage-down": "latest",

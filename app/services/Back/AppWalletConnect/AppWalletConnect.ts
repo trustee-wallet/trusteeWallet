@@ -3,22 +3,23 @@
  */
 import WalletConnect from '@walletconnect/client'
 import { ITxData } from '@walletconnect/types'
-import MarketingEvent from '../../Marketing/MarketingEvent'
-import Log from '../../Log/Log'
-import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
-import BlocksoftPrivateKeysUtils from '../../../../crypto/common/BlocksoftPrivateKeysUtils'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
 
-import EthRawDS from '../../../../crypto/blockchains/eth/stores/EthRawDS'
-import EthTmpDS from '../../../../crypto/blockchains/eth/stores/EthTmpDS'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import Log from '@app/services/Log/Log'
 
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftPrivateKeysUtils from '@crypto/common/BlocksoftPrivateKeysUtils'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+
+import EthRawDS from '@crypto/blockchains/eth/stores/EthRawDS'
+import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
 // @ts-ignore
 import { signTypedData_v4 } from 'eth-sig-util'
 
-import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import store from '@app/store'
-import { setWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import config from '@app/config/config'
+import { setWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 
