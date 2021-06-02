@@ -48,7 +48,7 @@ class WalletConnectScreen extends PureComponent {
             peerStatus: false,
             accounts: [],
             transactions: [],
-            fullLink : '',
+            fullLink: '',
             qrFullLink: ''
         }
         this.linkInput = React.createRef()
@@ -59,14 +59,12 @@ class WalletConnectScreen extends PureComponent {
         if (data && typeof data.fullLink !== 'undefined' && data.fullLink) {
             this.setState({
                 fullLink: data.fullLink,
-                qrFullLink : data.fullLink
+                qrFullLink: data.fullLink
             }, () => {
-                setTimeout(() => {
-                    this._init({ fullLink: data.fullLink })
-                    if (this.linkInput) {
-                        this.linkInput.handleInput(data.fullLink, false)
-                    }
-                }, 1000)
+                this._init({ fullLink: data.fullLink })
+                if (this.linkInput) {
+                    this.linkInput.handleInput(data.fullLink, false)
+                }
             })
         } else {
             this._init(false)
@@ -78,14 +76,12 @@ class WalletConnectScreen extends PureComponent {
         if (data && typeof data.fullLink !== 'undefined' && data.fullLink && data.fullLink !== this.state.qrFullLink) {
             this.setState({
                 fullLink: data.fullLink,
-                qrFullLink : data.fullLink
+                qrFullLink: data.fullLink
             }, () => {
-                setTimeout(() => {
-                    this._init({fullLink : data.fullLink})
-                    if (this.linkInput) {
-                        this.linkInput.handleInput(data.fullLink, false)
-                    }
-                }, 1000)
+                this._init({ fullLink: data.fullLink })
+                if (this.linkInput) {
+                    this.linkInput.handleInput(data.fullLink, false)
+                }
             })
         }
     }
@@ -93,7 +89,7 @@ class WalletConnectScreen extends PureComponent {
     async _init(anyData) {
         Log.log('WalletConnectScreen.init stateLink ' + this.state.fullLink, anyData)
         try {
-           const clientData = await AppWalletConnect.init(anyData,
+            const clientData = await AppWalletConnect.init(anyData,
                 this.handleSessionRequest,
                 this.handleSessionEnd,
                 this.handleSendTransaction,
@@ -105,7 +101,7 @@ class WalletConnectScreen extends PureComponent {
                     walletStarted: true,
                     peerStatus: clientData.connected,
                     chainId: clientData.chainId,
-                    accounts: clientData.accounts,
+                    accounts: clientData.accounts
                 }
                 if (typeof clientData.peerMeta !== 'undefined' && clientData.peerMeta && clientData.peerMeta !== '') {
                     stateData.peerMeta = clientData.peerMeta
@@ -132,7 +128,7 @@ class WalletConnectScreen extends PureComponent {
             if (!fullLink || fullLink === '') {
                 return false
             }
-            await this._init({fullLink : fullLink})
+            await this._init({ fullLink: fullLink })
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('WalletConnect.handleApplyLink error ', e)
@@ -345,7 +341,9 @@ class WalletConnectScreen extends PureComponent {
         NavStore.reset('HomeScreen')
     }
 
-    handleChangeFullLink = (value) => { this.setState(() => ({ fullLink: value.trim() })) }
+    handleChangeFullLink = (value) => {
+        this.setState(() => ({ fullLink: value.trim() }))
+    }
 
     render() {
         MarketingAnalytics.setCurrentScreen('WalletConnect')
@@ -372,32 +370,32 @@ class WalletConnectScreen extends PureComponent {
                         {
                             this.state.walletStarted && this.state.peerStatus && this.state.peerId ? null :
                                 <>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
 
-                                    <LinkInput
-                                        ref={component => this.linkInput = component}
-                                        id={'direct_link'}
-                                        name={'DirectLink'}
-                                        type={'STRING'}
-                                        paste={true}
-                                        copy={false}
-                                        qr={true}
-                                        placeholder={'wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'}
-                                        onChangeText={this.handleChangeFullLink}
-                                        callback={this.handleChangeFullLink}
-                                        addressError={false}
-                                        qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
-                                        validPlaceholder={true}
-                                    />
-                                </View>
-                                <View style={{ paddingTop: 5, marginBottom: 20, flexDirection: 'row' }}>
-                                    <TouchableOpacity style={{ paddingLeft: 0, paddingRight: 0, flex: 2 }} onPress={() => this.handleApplyLink()}>
-                                        <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
-                                            <LetterSpacing text={'Apply'} letterSpacing={0.5} numberOfLines={2}
-                                                           textStyle={{ color: colors.common.text1 }} />
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
+                                        <LinkInput
+                                            ref={component => this.linkInput = component}
+                                            id={'direct_link'}
+                                            name={'DirectLink'}
+                                            type={'STRING'}
+                                            paste={true}
+                                            copy={false}
+                                            qr={true}
+                                            placeholder={'wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'}
+                                            onChangeText={this.handleChangeFullLink}
+                                            callback={this.handleChangeFullLink}
+                                            addressError={false}
+                                            qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
+                                            validPlaceholder={true}
+                                        />
+                                    </View>
+                                    <View style={{ paddingTop: 5, marginBottom: 20, flexDirection: 'row' }}>
+                                        <TouchableOpacity style={{ paddingLeft: 0, paddingRight: 0, flex: 2 }} onPress={() => this.handleApplyLink()}>
+                                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                                <LetterSpacing text={'Apply'} letterSpacing={0.5} numberOfLines={2}
+                                                               textStyle={{ color: colors.common.text1 }} />
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
                                 </>
                         }
 
@@ -426,23 +424,23 @@ class WalletConnectScreen extends PureComponent {
                         {
                             this.state.peerId ?
                                 this.state.peerStatus ?
-                                <View style={{ paddingTop: 10, paddingBottom: 15, flexDirection: 'row' }}>
-                                    <View style={{ paddingLeft: 50, paddingRight: 5, flex: 2 }}>
-                                        <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
-                                            <LetterSpacing text={this.state.peerStatus ? 'Connected' : 'Disconnected'} letterSpacing={0.5} numberOfLines={2}
-                                                textStyle={{ color: colors.common.text1 }} />
+                                    <View style={{ paddingTop: 10, paddingBottom: 15, flexDirection: 'row' }}>
+                                        <View style={{ paddingLeft: 50, paddingRight: 5, flex: 2 }}>
+                                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                                <LetterSpacing text={this.state.peerStatus ? 'Connected' : 'Disconnected'} letterSpacing={0.5} numberOfLines={2}
+                                                               textStyle={{ color: colors.common.text1 }} />
+                                            </View>
+                                        </View>
+                                        <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
+                                            <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
+                                                <TouchableOpacity onPress={() => this.handleUserStatus(this.state.peerStatus)}>
+                                                    <LetterSpacing text={'Press to Stop'} letterSpacing={0.5} numberOfLines={2}
+                                                                   textStyle={{ color: colors.common.text1 }} />
+                                                </TouchableOpacity>
+                                            </View>
                                         </View>
                                     </View>
-                                    <View style={{ paddingLeft: 5, paddingRight: 15, flex: 2 }}>
-                                        <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
-                                            <TouchableOpacity onPress={() => this.handleUserStatus(this.state.peerStatus)}>
-                                                <LetterSpacing text={'Press to Stop'} letterSpacing={0.5} numberOfLines={2}
-                                                    textStyle={{ color: colors.common.text1 }} />
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                </View>
-                               : <View style={{ paddingTop: 10, paddingBottom: 15, flexDirection: 'row' }}>
+                                    : <View style={{ paddingTop: 10, paddingBottom: 15, flexDirection: 'row' }}>
                                         <View style={{ paddingLeft: 50, paddingRight: 5, flex: 1 }}>
                                             <View style={styles.noButtonHeader}>
                                                 <LetterSpacing text={'Disconnected'} letterSpacing={0.5} numberOfLines={2}
@@ -450,15 +448,15 @@ class WalletConnectScreen extends PureComponent {
                                             </View>
                                         </View>
                                     </View>
-                            : null
+                                : null
                         }
 
                         <ListItem
                             title={'Paranoid Logout'}
                             subtitle={'Closing the Screen will automatically kill the Session'}
-                            iconType="pinCode"
+                            iconType='pinCode'
                             onPress={this.handleParanoidLogout}
-                            rightContent="switch"
+                            rightContent='switch'
                             switchParams={{ value: !!this.state.paranoidLogout, onPress: this.handleParanoidLogout }}
                         />
 
@@ -513,5 +511,5 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center'
-    },
+    }
 })
