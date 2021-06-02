@@ -61,10 +61,12 @@ class WalletConnectScreen extends PureComponent {
                 fullLink: data.fullLink,
                 qrFullLink : data.fullLink
             }, () => {
-                this._init({fullLink : data.fullLink})
-                if (this.linkInput) {
-                    this.linkInput.handleInput(data.fullLink, false)
-                }
+                setTimeout(() => {
+                    this._init({ fullLink: data.fullLink })
+                    if (this.linkInput) {
+                        this.linkInput.handleInput(data.fullLink, false)
+                    }
+                }, 1000)
             })
         } else {
             this._init(false)
@@ -78,10 +80,12 @@ class WalletConnectScreen extends PureComponent {
                 fullLink: data.fullLink,
                 qrFullLink : data.fullLink
             }, () => {
-                this._init({fullLink : data.fullLink})
-                if (this.linkInput) {
-                    this.linkInput.handleInput(data.fullLink, false)
-                }
+                setTimeout(() => {
+                    this._init({fullLink : data.fullLink})
+                    if (this.linkInput) {
+                        this.linkInput.handleInput(data.fullLink, false)
+                    }
+                }, 1000)
             })
         }
     }
