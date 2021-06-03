@@ -94,7 +94,7 @@ class AboutScreen extends PureComponent {
     }
 
     handleSupport = () => {
-        NavStore.goNext('SupportScreen')
+        Linking.openURL('mailto:contact@trustee.deals')
     }
 
     handleLogs = async () => {
@@ -199,6 +199,13 @@ class AboutScreen extends PureComponent {
                             onPress={this.handleSupport}
                             rightContent="arrow"
                             last
+                        />
+                        <ListItem
+                            title={strings('settings.about.contactSupportEmail')}
+                            subtitle={strings('settings.about.contactSupportEmailSubtitle')}
+                            iconType="supportMail"
+                            onPress={this.handleSupportEmail}
+                            rightContent="arrow"
                         />
                     </View>
 

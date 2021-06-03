@@ -358,7 +358,9 @@
       "shareLogsTitle": "Share app logs",
       "shareLogsSubtitle": "Help us to be better",
       "contactSupportTitle": "Contact support",
-      "contactSupportSubtitle": "Official telegram chanel",
+      "contactSupportSubtitle": "Official telegram channel",
+      "contactSupportEmail": "or send Email",
+      "contactSupportEmailSubtitle": "Official email contact@trustee.deals",
       "information": "Information",
       "copyright": "© BlockSoftLab Inc, 2021"
     },
