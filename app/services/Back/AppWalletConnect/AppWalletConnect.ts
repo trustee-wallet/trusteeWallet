@@ -1,9 +1,7 @@
 /**
  * @version 0.30
  */
-import WalletConnect from '@walletconnect/client'
 import { ITxData } from '@walletconnect/types'
-import * as WalletConnectISO from '@walletconnect/iso-crypto'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import Log from '@app/services/Log/Log'
@@ -23,6 +21,20 @@ import config from '@app/config/config'
 import { setWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
+
+const walletConnectCore = require("@walletconnect/core");
+const walletConnectISO = require("@walletconnect/iso-crypto")
+class WalletConnect extends walletConnectCore.default {
+    // @ts-ignore
+    constructor(connectorOpts, pushServerOpts) {
+        super({
+            cryptoLib : walletConnectISO,
+            connectorOpts,
+            pushServerOpts,
+        });
+    }
+}
+
 
 let WALLET_CONNECTOR: WalletConnect
 let WALLET_CONNECTOR_LINK: string | boolean = false
@@ -74,10 +86,10 @@ export namespace AppWalletConnect {
     ): Promise<{ chainId: any, accounts: any, peerId: any, peerMeta: any, connected: any } | boolean> {
 
         Log.log(`
-        WalletConnectISO.isUpdated ${typeof WalletConnectISO.isUpdated === 'undefined' ? ' none ' : WalletConnectISO.isUpdated()}
+        WalletConnectISO.isUpdated ${typeof walletConnectISO.isUpdated === 'undefined' ? ' none ' : walletConnectISO.isUpdated()}
         `)
         BlocksoftCryptoLog.log(`
-        WalletConnectISO.isUpdated ${typeof WalletConnectISO.isUpdated === 'undefined' ? ' none ' : WalletConnectISO.isUpdated()}
+        WalletConnectISO.isUpdated ${typeof walletConnectISO.isUpdated === 'undefined' ? ' none ' : walletConnectISO.isUpdated()}
         `)
 
         try {
@@ -105,6 +117,7 @@ export namespace AppWalletConnect {
         if (data.fullLink !== WALLET_CONNECTOR_LINK) {
             WALLET_CONNECTOR_LINK = data.fullLink
             try {
+                // @ts-ignore
                 WALLET_CONNECTOR = new WalletConnect(
                     {
                         uri: data.fullLink,
