@@ -3,6 +3,7 @@
  */
 import WalletConnect from '@walletconnect/client'
 import { ITxData } from '@walletconnect/types'
+import * as WalletConnectISO from '@walletconnect/iso-crypto'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import Log from '@app/services/Log/Log'
@@ -72,6 +73,13 @@ export namespace AppWalletConnect {
         sendSignTyped: any
     ): Promise<{ chainId: any, accounts: any, peerId: any, peerMeta: any, connected: any } | boolean> {
 
+        Log.log(`
+        WalletConnectISO.isUpdated ${typeof WalletConnectISO.isUpdated === 'undefined' ? ' none ' : WalletConnectISO.isUpdated()}
+        `)
+        BlocksoftCryptoLog.log(`
+        WalletConnectISO.isUpdated ${typeof WalletConnectISO.isUpdated === 'undefined' ? ' none ' : WalletConnectISO.isUpdated()}
+        `)
+
         try {
             if (typeof WALLET_CONNECTOR !== 'undefined' && WALLET_CONNECTOR) {
                 if (!data || typeof data === 'undefined' || !data.fullLink || WALLET_CONNECTOR_LINK === data.fullLink) {
@@ -90,6 +98,7 @@ export namespace AppWalletConnect {
             throw new Error(e.message + ' in AppWalletConnect check connected')
         }
         Log.log('AppWalletConnect.init fullLink ' + data.fullLink)
+        BlocksoftCryptoLog.log('AppWalletConnect.init fullLink ' + data.fullLink)
         if (!data || typeof data === 'undefined' || typeof data.fullLink === 'undefined') {
             return false
         }
@@ -324,6 +333,7 @@ export namespace AppWalletConnect {
 
     export const approveSession = async function(payload : any) {
         Log.log('AppWalletConnect.approveSession', payload)
+        BlocksoftCryptoLog.log('AppWalletConnect.approveSession', payload)
         const { chainId } = payload
         const account = await _getAccount()
         try {
@@ -335,6 +345,8 @@ export namespace AppWalletConnect {
             }
             await WALLET_CONNECTOR.approveSession(data)
             await WALLET_CONNECTOR.updateSession(data)
+            Log.log('AppWalletConnect.approveSession finish', data)
+            BlocksoftCryptoLog.log('AppWalletConnect.approveSession finish', data)
             return data
         } catch (e) {
             Log.err('AppWalletConnect.approveSession error ' + e.message)
