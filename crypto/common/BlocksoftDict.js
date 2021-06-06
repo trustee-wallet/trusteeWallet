@@ -654,7 +654,7 @@ const Currencies = {
     BNB_SMART_LINK:
         {
             currencyType: 'token',
-            currencyName: 'ChainLink BEP20',
+            currencyName: 'Chainlink BEP20',
             currencyCode: 'BNB_SMART_LINK',
             currencySymbol: 'LINK',
             ratesCurrencyCode: 'LINK',
@@ -668,7 +668,7 @@ const Currencies = {
     ETH_LINK:
         {
             currencyType: 'token',
-            currencyName: 'ChainLink ERC20',
+            currencyName: 'Chainlink ERC20',
             currencyCode: 'ETH_LINK',
             currencySymbol: 'LINK',
             extendsProcessor: 'ETH_TRUE_USD',
