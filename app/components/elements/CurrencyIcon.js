@@ -693,6 +693,15 @@ export default class ButtonLine extends PureComponent {
             }
         }
 
+        return (
+            <View style={{ ...styles.icon, borderColor: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                <View style={styles.icon__item}>
+                    <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>No</Text>
+                    <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>Icon</Text>
+                </View>
+            </View>
+        )
+
     }
 
     render() {
