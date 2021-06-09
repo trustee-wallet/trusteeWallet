@@ -132,7 +132,7 @@ export default {
         return accounts
     },
 
-    async initData(type, currencyCode = false, side) {
+    async initData(type, currencyCode = false, side, orderHash = false) {
 
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         let entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
@@ -228,6 +228,7 @@ export default {
                 + '&locale=' + sublocale()
                 + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
+                + '&orderHash=' + orderHash
 
             await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
             await database().ref(keyTitle).set(data)

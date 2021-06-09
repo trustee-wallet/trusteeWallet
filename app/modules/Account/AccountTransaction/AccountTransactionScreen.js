@@ -319,7 +319,7 @@ class AccountTransactionScreen extends PureComponent {
     }
 
     prepareAddressExchangeToView = (transaction) => {
-        if (!transaction.bseOrderData) return false
+        if (!transaction.bseOrderData || !transaction.bseOrderData?.depositAddress) return false
         return {
             title: strings(`account.transaction.${transaction.transactionDirection === 'income' ? 'from' : 'to'}`),
             description: transaction.bseOrderData.depositAddress.toString()
@@ -798,7 +798,7 @@ class AccountTransactionScreen extends PureComponent {
     }
 
     handlerOrderDetails = () => {
-        NavStore.goNext('AccountTransactionCheckScreen', { orderHash: this.state.orderIdToView.description })
+        NavStore.reset('MarketScreen', { screen: 'MarketScreen', params: { orderHash: this.state.orderIdToView.description } })
     }
 
     render() {

@@ -56,6 +56,9 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+
+
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
@@ -86,7 +89,8 @@ class MarketScreen extends PureComponent {
         // here to do upload
         const side = NavStore.getParamWrapper(this, 'side')
         const currencyCode = NavStore.getParamWrapper(this, 'currencyCode')
-        const apiUrl = await ApiV3.initData('MARKET', currencyCode, side)
+        const orderHash = NavStore.getParamWrapper(this, 'orderHash')
+        const apiUrl = await ApiV3.initData('MARKET', currencyCode, side, orderHash)
 
         setTimeout(() => {
             this.setState({
@@ -267,7 +271,7 @@ class MarketScreen extends PureComponent {
             const {
                 error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, checkCamera, refreshControl, restart
+                useAllFunds, checkCamera, refreshControl, restart, share, txHash
             } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
@@ -353,6 +357,21 @@ class MarketScreen extends PureComponent {
 
             if (refreshControl) {
                 this.refresh()
+            }
+
+            if (share) {
+                const shareOptions = { message: share.title + share.desciption }
+                prettyShare(shareOptions, 'murzik_share_transaction')
+            }
+
+            if (txHash) {
+                NavStore.goNext('HomeScreen', {
+                    screen: 'AccountTransactionScreen', params: {
+                        txData: {
+                            transactionHash: txHash
+                        }
+                    }
+                })
             }
 
         } catch {
