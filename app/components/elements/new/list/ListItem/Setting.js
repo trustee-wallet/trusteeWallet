@@ -88,6 +88,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name={'secretKeyMonero'} size={22} color={color} />
         case 'walletConnect':
             return <CustomIcon name={'walletConnect'} size={22} color={color} />
+        case 'supportMail':
+            return <CustomIcon name={'supportMail'} size={22} color={color} />
         default: return null
     }
 }

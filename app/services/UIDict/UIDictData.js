@@ -584,6 +584,30 @@ export default {
             darkColor: '#E51A31'
         }
     },
+    'ETH_SHIB': {
+        colors: {
+            mainColor: '#F6A31D',
+            darkColor: '#CC8C25'
+        }
+    },
+    'VTHO': {
+        colors: {
+            mainColor: '#4B6F9C',
+            darkColor: '#4B6F9C'
+        }
+    },
+    'VET': {
+        colors: {
+            mainColor: '#15BCFD',
+            darkColor: '#2CAEE1'
+        }
+    },
+    'TRX_APE': {
+        colors: {
+            mainColor: '#070001',
+            darkColor: '#B8B8B8'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',
