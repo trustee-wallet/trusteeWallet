@@ -7,17 +7,14 @@
 
 #import "AppDelegate.h"
 #import <Firebase.h>
-#import "RNFirebaseNotifications.h"
-#import "RNFirebaseMessaging.h"
-#import "RNFirebaseLinks.h"
+#import <RNCPushNotificationIOS.h>
 
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
-#import <FBSDKCoreKit/FBSDKCoreKit.h>
-#import <TSBackgroundFetch/TSBackgroundFetch.h>
 #import "Orientation.h"
+#import "Intercom/intercom.h"
 
 @implementation AppDelegate
 
@@ -31,34 +28,55 @@
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
-  
-  [[FBSDKApplicationDelegate sharedInstance] application:application
-  didFinishLaunchingWithOptions:launchOptions];
-  
+
+
   [FIROptions defaultOptions].deepLinkURLScheme = @"com.trusteewallet";
   [FIRApp configure];
-  [RNFirebaseNotifications configure];
-  [[TSBackgroundFetch sharedInstance] didFinishLaunching];
-  
+  // [RNFirebaseNotifications configure];
+
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"TrusteeWallet"
                                             initialProperties:nil];
-
-  rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
+  if (@available(iOS 13.0, *)) {
+     rootView.backgroundColor = UIColor.systemBackgroundColor;
+  } else {
+     rootView.backgroundColor = UIColor.grayColor;
+  }
 
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  
-  [FBSDKSettings setAutoLogAppEventsEnabled:YES];
-  [FBSDKSettings setAdvertiserIDCollectionEnabled:YES];
-  
+
+
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+  center.delegate = self;
+
+  // Intercom
+  [Intercom setApiKey:@"ios_sdk-920b14f9f20f416beba4964bf92b25199a99a4cf" forAppId:@"b0svulae"];
+
   return YES;
 }
 
+// Required for localNotification event
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+didReceiveNotificationResponse:(UNNotificationResponse *)response
+         withCompletionHandler:(void (^)(void))completionHandler
+{
+  [RNCPushNotificationIOS didReceiveNotificationResponse:response];
+}
+
+//Called when a notification is delivered to a foreground app.
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center
+willPresentNotification:(UNNotification *)notification
+        withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
+{
+  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
+}
+
+/*
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
             options:(NSDictionary<NSString *, id> *)options {
@@ -67,11 +85,7 @@
     if (!handledLink) {
         handledLink = [RCTLinkingManager application:application openURL:url options:options];
     }
-  
-    if ([[FBSDKApplicationDelegate sharedInstance] application:application openURL:url options:options]) {
-      return YES;
-    }
-  
+
     return handledLink;
 }
 
@@ -89,14 +103,11 @@ continueUserActivity:(NSUserActivity *)userActivity
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   [[RNFirebaseNotifications instance] didReceiveLocalNotification:notification];
 }
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo
-fetchCompletionHandler:(nonnull void (^)(UIBackgroundFetchResult))completionHandler{
-  [[RNFirebaseNotifications instance] didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-}
+
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
   [[RNFirebaseMessaging instance] didRegisterUserNotificationSettings:notificationSettings];
 }
-
+*/
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
 #if DEBUG

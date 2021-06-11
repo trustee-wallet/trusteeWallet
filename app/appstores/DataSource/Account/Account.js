@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
@@ -9,13 +9,43 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import currencyDS from '../Currency/Currency'
 
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
-import BlocksoftCryptoLog from '../../../../crypto/common/BlocksoftCryptoLog'
-import { acc } from 'react-native-reanimated'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 const tableName = 'account'
 let SAVED_UNIQUE = {}
 
 class Account {
+
+    /**
+     * @param {string} params.walletHash
+     * @param {string} params.currencyCode
+     * @param {string} params.walletPubId
+     * @param {string} params.source
+     * @param {*} params.derivations
+     * @returns {Promise<{accounts : {id, address, derivationPath, derivationType, derivationIndex, currencyCode, walletHash, walletPubId}[], newSaved}>}
+     */
+    discoverAccountsFromHD = async(params, source) => {
+        const tmpName = Database.escapeString('CREATED by ' + source + ' at ' + new Date().toISOString())
+        const prepare = []
+        for (const account of params.derivations) {
+            const derivationPath = Database.escapeString(account.path)
+            const tmp = {
+                address: account.address,
+                name: tmpName,
+                derivationPath: derivationPath,
+                derivationIndex: account.index,
+                derivationType: account.type,
+                alreadyShown: account.alreadyShown ? 1 : 0,
+                status: 0,
+                currencyCode: params.currencyCode,
+                walletHash: params.walletHash,
+                walletPubId: account.walletPubId,
+                transactionsScanTime: 0
+            }
+            prepare.push(tmp)
+        }
+        await Database.setTableName(tableName).setInsertData({ insertObjs: prepare }).insert()
+    }
 
     /**
      * @param {string} params.walletHash
@@ -30,12 +60,10 @@ class Account {
      * @returns {Promise<{accounts : {id, address, derivationPath, derivationType, derivationIndex, currencyCode, walletHash, walletPubId}[], newSaved}>}
      */
     discoverAccounts = async (params, source = 'BASIC') => {
-        const dbInterface = new DBInterface()
-
         Log.daemon('DS/Account discoverAddresses called')
         let mnemonic
         if (typeof params.mnemonic === 'undefined' || !params.mnemonic) {
-            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash)
+            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash, 'Account.discoverAccounts')
         } else {
             mnemonic = params.mnemonic
         }
@@ -47,7 +75,7 @@ class Account {
         let toIndex = 1
         let fullTree = false
         let currencyCode = params.currencyCode
-        let derivations = { 'BTC': [], 'BTC_SEGWIT': [], 'BTC_SEGWIT_COMPATIBLE' : [] }
+        let derivations = { 'BTC': [], 'BTC_SEGWIT': [], 'BTC_SEGWIT_COMPATIBLE' : [], 'LTC' : [], 'LTC_SEGWIT' : [] }
 
         if (params.fromIndex) {
             fromIndex = params.fromIndex
@@ -95,7 +123,7 @@ class Account {
         const all = []
         let code, account
 
-        const tmpName = dbInterface.escapeString('CREATED by ' + source + ' at ' + new Date().toISOString())
+        const tmpName = Database.escapeString('CREATED by ' + source + ' at ' + new Date().toISOString())
 
         for (code of currencyCode) {
             if (typeof accounts[code] === 'undefined') {
@@ -105,15 +133,17 @@ class Account {
             const tmp = accounts[code]
             if (code === 'BTC_SEGWIT' || code === 'BTC_SEGWIT_COMPATIBLE') {
                 code = 'BTC'
+            } else if (code === 'LTC_SEGWIT') {
+                code = 'LTC'
             }
             Log.daemon('DS/Account discoverAddresses ' + source + ' accounts ' + code + ' length ' + tmp.length + ' fromIndex ' + fromIndex + ' firstAddress ' + tmp[0].address + ' ' + tmp[0].path + ' index ' + tmp[0].index)
             for (account of tmp) {
-                const derivationPath = dbInterface.escapeString(account.path)
+                const derivationPath = Database.escapeString(account.path)
                 const key = BlocksoftKeysStorage.getAddressCacheKey(params.walletHash, derivationPath, keyCode)
 
                 let accountJson = ''
                 if (typeof (account.addedData) !== 'undefined') {
-                    accountJson = dbInterface.escapeString(JSON.stringify(account.addedData))
+                    accountJson = Database.escapeString(JSON.stringify(account.addedData))
                 }
                 const tmp = {
                     address: account.address,
@@ -140,17 +170,17 @@ class Account {
                 if (typeof (SAVED_UNIQUE[key]) === 'undefined') {
                     const findSql = `
                         SELECT
-                            id, address, 
-                            derivation_path AS derivationPath, 
-                            derivation_type AS derivationType, 
-                            derivation_index AS derivationIndex, 
-                            currency_code AS currencyCode, 
-                            wallet_hash AS walletHash, 
+                            id, address,
+                            derivation_path AS derivationPath,
+                            derivation_type AS derivationType,
+                            derivation_index AS derivationIndex,
+                            currency_code AS currencyCode,
+                            wallet_hash AS walletHash,
                             wallet_pub_id AS walletPubId
-                        FROM ${tableName} 
+                        FROM ${tableName}
                         WHERE currency_code='${code}' AND address='${account.address}'`
 
-                    let find = await dbInterface.setQueryString(findSql).query()
+                    let find = await Database.setQueryString(findSql).query()
                     if (find.array.length === 0) {
                         prepare.push(tmp)
                         Log.daemon('DS/Account insert accounts will add ' + code + ' ' + account.address + ' index ' + account.index + ' pubId ' + tmp.walletPubId)
@@ -161,19 +191,19 @@ class Account {
                         if (account.walletPubId && find.walletPubId !== account.walletPubId) {
                             const sql5 = `UPDATE ${tableName} SET derivation_type='${account.type}', derivation_index=${account.index}, wallet_pub_id=${account.walletPubId} WHERE id=${find.id}`
                             Log.daemon(sql5)
-                            await dbInterface.setQueryString(sql5).query()
+                            await Database.setQueryString(sql5).query()
                             Log.daemon('DS/Account insert accounts update walletPubId 1 ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                             // Log.daemon('DS/Account insert accounts update walletPubId ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                         } else if (typeof params.walletPubId !== 'undefined' && find.walletPubId !== params.walletPubId) {
                             const sql5 = `UPDATE ${tableName} SET derivation_type='${account.type}', derivation_index=${account.index}, wallet_pub_id=${params.walletPubId} WHERE id=${find.id}`
                             Log.daemon(sql5)
-                            await dbInterface.setQueryString(sql5).query()
+                            await Database.setQueryString(sql5).query()
                             Log.daemon('DS/Account insert accounts update walletPubId 2 ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                             // Log.daemon('DS/Account insert accounts update walletPubId ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                         } else if (find.derivationIndex !== account.index || find.derivationType !== account.type) {
                             const sql5 = `UPDATE ${tableName} SET derivation_type='${account.type}', derivation_index=${account.index} WHERE id=${find.id}`
                             Log.daemon(sql5)
-                            await dbInterface.setQueryString(sql5).query()
+                            await Database.setQueryString(sql5).query()
                             Log.daemon('DS/Account insert accounts update type/index ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                             // Log.daemon('DS/Account insert accounts update type/index ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                         } else {
@@ -195,7 +225,7 @@ class Account {
 
         Log.daemon('DS/Account insert accounts called ' + prepare.length)
 
-        await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepare }).insert()
+        await Database.setTableName(tableName).setInsertData({ insertObjs: prepare }).insert()
 
         if (prepare && prepare.length > 0) {
             for (account of prepare) {
@@ -203,17 +233,17 @@ class Account {
                 Log.daemon('DS/Account insert accounts recheck called ' + code + ' ' + account.address + ' rechecking ')
                 const findSql = `
                         SELECT
-                            id, address, 
-                            derivation_path AS derivationPath, 
-                            derivation_type AS derivationType, 
-                            derivation_index AS derivationIndex, 
-                            currency_code AS currencyCode, 
-                            wallet_hash AS walletHash, 
+                            id, address,
+                            derivation_path AS derivationPath,
+                            derivation_type AS derivationType,
+                            derivation_index AS derivationIndex,
+                            currency_code AS currencyCode,
+                            wallet_hash AS walletHash,
                             wallet_pub_id AS walletPubId
-                        FROM ${tableName} 
+                        FROM ${tableName}
                         WHERE currency_code='${account.currency_code}' AND address='${account.address}'`
 
-                const find = await dbInterface.setQueryString(findSql).query()
+                const find = await Database.setQueryString(findSql).query()
                 if (!find || !find.array || !find.array.length) {
                     Log.daemon('DS/Account insert accounts recheck called ' + code + ' ' + account.address + ' not found')
                     SAVED_UNIQUE = {}
@@ -230,9 +260,8 @@ class Account {
     }
 
     insertAccountByPrivateKey = async (account) => {
-        const dbInterface = new DBInterface()
-        const derivationPath = dbInterface.escapeString(account.derivationPath)
-        const tmpName = dbInterface.escapeString('CREATED by InsertByPrivateKey at ' + new Date().toISOString())
+        const derivationPath = Database.escapeString(account.derivationPath)
+        const tmpName = Database.escapeString('CREATED by InsertByPrivateKey at ' + new Date().toISOString())
 
         const key = BlocksoftKeysStorage.getAddressCacheKey(account.walletHash, derivationPath, account.currencyCode)
         if (!(typeof (SAVED_UNIQUE[key]) === 'undefined')) {
@@ -242,6 +271,8 @@ class Account {
         let currencyCode =  account.currencyCode
         if (account.currencyCode === 'BTC_SEGWIT' || account.currencyCode === 'BTC_SEGWIT_COMPATIBLE') {
             currencyCode = 'BTC'
+        } else if (account.currencyCode === 'LTC_SEGWIT') {
+            currencyCode = 'LTC'
         }
         const findSql = `
                 SELECT
@@ -254,13 +285,13 @@ class Account {
                     wallet_pub_id AS walletPubId
                     FROM ${tableName}
                     WHERE currency_code IN ('${currencyCode}', '${account.currencyCode}') AND address='${account.address}'`
-        const find = await dbInterface.setQueryString(findSql).query()
+        const find = await Database.setQueryString(findSql).query()
         if (find.array.length !== 0) {
             if (find.array[0].walletHash !== account.walletHash) {
-                await dbInterface.setQueryString(`UPDATE ${tableName} SET wallet_hash='${account.walletHash}' WHERE id=${find.array[0].id}`).query()
+                await Database.setQueryString(`UPDATE ${tableName} SET wallet_hash='${account.walletHash}' WHERE id=${find.array[0].id}`).query()
             }
             if (find.array[0].currencyCode !== currencyCode) {
-                await dbInterface.setQueryString(`UPDATE ${tableName} SET currency_code='${currencyCode}' WHERE id=${find.array[0].id}`).query()
+                await Database.setQueryString(`UPDATE ${tableName} SET currency_code='${currencyCode}' WHERE id=${find.array[0].id}`).query()
             }
             SAVED_UNIQUE[key] = 1
             Log.daemon('DS/Account insert account by privateKey already in db ' + account.currencyCode + ' ' + account.address + ' index ' + account.index + ' find', find)
@@ -278,9 +309,9 @@ class Account {
             walletHash: account.walletHash,
             transactionsScanTime: 0
         }
-        await dbInterface.setTableName(tableName).setInsertData({ insertObjs: [tmp] }).insert()
+        await Database.setTableName(tableName).setInsertData({ insertObjs: [tmp] }).insert()
 
-        const find2 = await dbInterface.setQueryString(findSql).query()
+        const find2 = await Database.setQueryString(findSql).query()
         if (!find2 || find2.array.length === 0) {
             Log.log('!!!DS/Account insert account by privateKey not found after insert error ' + findSql, tmp)
         } else {
@@ -293,7 +324,7 @@ class Account {
                 walletHash: account.walletHash,
                 accountId: find2.array[0].id
             }
-            await dbInterface.setTableName('account_balance').setInsertData({ insertObjs: [tmp2] }).insert()
+            await Database.setTableName('account_balance').setInsertData({ insertObjs: [tmp2] }).insert()
             SAVED_UNIQUE[key] = 1
         }
         Log.daemon('DS/Account insert account by privateKey add ' + account.address + ' index ' + account.index)
@@ -305,26 +336,45 @@ class Account {
      * @returns {Promise<void>}
      */
     clearAccounts = async (params) => {
-        const dbInterface = new DBInterface()
-
         Log.daemon('DS/Account clear accounts called ' + params.walletHash)
 
-        await dbInterface.setQueryString(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.setQueryString(`DELETE FROM wallet_pub WHERE wallet_hash='${params.walletHash}'`).query()
 
-        await dbInterface.setQueryString(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.setQueryString(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`).query()
 
         Log.daemon('DS/Account clear accounts finished ' + params.walletHash)
     }
 
+
+    /**
+     * @param {string} params.walletHash
+     * @returns {Promise<void>}
+     */
+    clearAccountsAll = async (params) => {
+        Log.daemon('DS/Account clear accounts all called ' + params.walletHash)
+
+        await Database.setQueryString(`DELETE FROM wallet_pub WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM transactions WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM transactions_raw`).query()
+
+        await Database.setQueryString(`DELETE FROM app_news WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`).query()
+
+        await Database.setQueryString(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`).query()
+
+        Log.daemon('DS/Account clear accounts all finished ' + params.walletHash)
+    }
     /**
      * @param {string} params.walletHash
      * @param {string} params.currencyCode
      * @returns {Promise<{id, address, name, derivationType, derivationPath, currencyCode, walletHash, accountJson, alreadyShown}[]>}
      */
     getAccounts = async (params) => {
-
-        const dbInterface = new DBInterface()
-
         let where = []
 
         if (params.walletHash) {
@@ -352,7 +402,7 @@ class Account {
 
         let res = []
         try {
-            res = await dbInterface.setQueryString(sql).query()
+            res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('DS/Account getAccounts finished as empty')
                 return false
@@ -374,9 +424,6 @@ class Account {
      * @returns {Promise<{id, address, name, accountId, derivationType, derivationPath, currencyCode, walletHash, accountJson, balanceFix, balanceTxt, balanceProvider, balanceScanTime, balanceScanLog, alreadyShown}[]>}
      */
     getAccountData = async (params) => {
-
-        const dbInterface = new DBInterface()
-
         let where = [`account.derivation_type='main'`]
 
         if (typeof params.notAlreadyShown !== 'undefined' && params.notAlreadyShown && params.notAlreadyShown > 0) {
@@ -419,6 +466,7 @@ class Account {
             account_balance.unconfirmed_txt AS unconfirmedTxt,
             account_balance.balance_provider AS balanceProvider,
             account_balance.balance_scan_time AS balanceScanTime,
+            account_balance.balance_scan_error AS balanceScanError,
             account_balance.balance_scan_log AS balanceScanLog,
             account.already_shown AS alreadyShown,
             account.is_main AS isMain
@@ -428,7 +476,7 @@ class Account {
             ORDER BY account.id
         `
 
-        const res = await dbInterface.setQueryString(sql).query()
+        const res = await Database.setQueryString(sql).query()
 
         if (!res || !res.array || !res.array.length) {
             return []
@@ -446,6 +494,7 @@ class Account {
                 for (account of res.array) {
                     account = this._prepAccount(account)
                     const key = account.currencyCode + '_' + account.walletHash
+                    const segwitPrefix = BlocksoftDict.CurrenciesForTests[account.currencyCode + '_SEGWIT'].addressPrefix
                     if (typeof uniqueAddresses[key] === 'undefined') {
                         uniqueAddresses[key] = { 1: 1 }
                     } else if (typeof (uniqueAddresses[key][account.address]) !== 'undefined') {
@@ -461,13 +510,13 @@ class Account {
                     account.unconfirmed = BlocksoftFixBalance(account, 'unconfirmed')
                     account.balanceProvider = account.balanceProvider || 'old'
                     accounts.push(account)
-                    const first = account.address.substr(0,1)
-                    if (first === 'b') {
+                    const first = account.address.substr(0, segwitPrefix.length)
+                    if (first === segwitPrefix) {
                         segwit.push(account)
-                    } else if (first === '1') {
+                    } else if (account.address[0] !== '3') {
+                        // bitcoin compatible skipped
                         legacy.push(account)
                     }
-                    // no compatible !!!!
                 }
                 accounts.segwit = segwit
                 accounts.legacy = legacy
@@ -482,7 +531,7 @@ class Account {
                             account,
                             inDb: uniqueAddresses[key]
                         })
-                        await dbInterface.setQueryString(`UPDATE transactions SET account_id=${uniqueAddresses[key][account.address]} WHERE account_id=${account.id}`).query()
+                        await Database.setQueryString(`UPDATE transactions SET account_id=${uniqueAddresses[key][account.address]} WHERE account_id=${account.id}`).query()
                         idsToRemove.push(account.id)
                         continue
                     }
@@ -501,8 +550,8 @@ class Account {
         if (idsToRemove.length > 0) {
             Log.daemon('DS/Account getAccountData unique check finished, found ' + idsToRemove.join(','))
             Log.daemon('DS/Account getAccountData should not removed', uniqueAddresses)
-            await dbInterface.setQueryString(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`).query()
-            await dbInterface.setQueryString(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`).query()
+            await Database.setQueryString(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`).query()
+            await Database.setQueryString(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`).query()
         }
 
         return accounts
@@ -529,9 +578,6 @@ class Account {
      * @param {string} params.currencyCode
      */
     getAddressesList = async (params) => {
-
-        const dbInterface = new DBInterface()
-
         let where = [`account.derivation_type='main'`]
         if (params.walletHash) {
             where.push(`account.wallet_hash='${params.walletHash}'`)
@@ -554,7 +600,7 @@ class Account {
             ${where}
         `
 
-        const res = await dbInterface.setQueryString(sql).query()
+        const res = await Database.setQueryString(sql).query()
 
         if (!res || !res.array || !res.array.length) {
             return []
@@ -574,20 +620,18 @@ class Account {
      * @return {Promise<void>}
      */
     updateAccount = async (data, account = false) => {
-        const dbInterface = new DBInterface()
-
         if (typeof data.updateObj.transactionsScanLog !== 'undefined') {
             if (data.updateObj.transactionsScanLog.length > 1000) {
                 data.updateObj.transactionsScanLog = data.updateObj.transactionsScanLog.substr(0, 1000)
             }
-            data.updateObj.transactionsScanLog = dbInterface.escapeString(data.updateObj.transactionsScanLog)
+            data.updateObj.transactionsScanLog = Database.escapeString(data.updateObj.transactionsScanLog)
         }
 
         if (typeof account !== 'undefined') {
             data.key = { id: account.id }
         }
 
-        await (dbInterface.setTableName(tableName).setUpdateData(data)).update()
+        await (Database.setTableName(tableName).setUpdateData(data)).update()
 
     }
 
@@ -597,11 +641,9 @@ class Account {
      * @return {Promise<void>}
      */
     massUpdateAccount = async (where, update) => {
-        const dbInterface = new DBInterface()
-
         const sql = `UPDATE ${tableName} SET ${update} WHERE (${where})`
 
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     }
 
 }

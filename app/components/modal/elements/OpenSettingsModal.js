@@ -13,7 +13,9 @@ import Icon from '../../../components/elements/modal/Icon'
 import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 import { strings } from '../../../services/i18n'
 
-export default class OpenSettingsModal extends Component {
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
+class OpenSettingsModal extends Component {
 
     constructor(props) {
         super(props)
@@ -34,24 +36,27 @@ export default class OpenSettingsModal extends Component {
         if (typeof (error) !== 'undefined' && typeof (error.log) !== 'undefined') {
             // make visible for advanced users or devs @Misha? alert(error.log)
         }
+
+        const { colors } = this.context
+
         return (
             <Layout visible={show}>
                 <View>
                     <Icon callback={this.handleHide} icon={`${icon === true ? 'success' : icon === false ? 'fail' : icon === null ? 'warning' : ''}`}/>
-                    <Title style={styles.title}>
+                    <Title style={{...styles.title, color: colors.common.text1 }}>
                         {title}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: -5 }}>
-                        <Text style={styles.text}>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {description}
                         </Text>
                     </View>
                     {typeof component != 'undefined' ? component() : null}
                     <View>
-                        <Button onPress={this.handleHide} color={ icon === true ? '#864DD9' : icon === false ? '#F59E6C' : icon === null ? '#F59E6C' : '#2A7FDB' } shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleHide} color={ icon === true ? colors.modal.success : icon === false ? colors.modal.warning : icon === null ? colors.modal.warning  : colors.modal.info } shadow={true} style={{ marginTop: 17 }}>
                             {strings('walletBackup.skipElement.cancel')}
                         </Button>
-                        <Button onPress={callback} style={{ backgroundColor: 'none', color: icon === true ? '#864DD9' : icon === false ? '#F59E6C' : icon === null ? '#F59E6C' : '#2A7FDB' }}>
+                        <Button onPress={callback} style={{ backgroundColor: 'transparent', color: icon === true ? colors.modal.success : icon === false ? colors.modal.warning : icon === null ? colors.modal.warning  : colors.modal.info }}>
                             {btnSubmitText}
                         </Button>
                     </View>
@@ -61,6 +66,10 @@ export default class OpenSettingsModal extends Component {
     }
 }
 
+OpenSettingsModal.contextType = ThemeContext
+
+export default OpenSettingsModal
+
 const styles = {
     title: {
         fontFamily: 'Montserrat-Bold',
@@ -69,12 +78,10 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040',
         marginTop: -10,
         marginBottom: -2
     },
     text: {
-        color: '#5C5C5C',
         fontFamily: 'SFUIDisplay-Regular',
         fontStyle: 'normal',
         fontWeight: 'normal',

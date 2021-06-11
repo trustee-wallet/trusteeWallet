@@ -1,8 +1,15 @@
 import { BigNumber } from 'bignumber.js'
+import { hexToBn } from '../blockchains/eth/ext/estimateGas/util'
+import Log from '../../app/services/Log/Log'
 
 const Web3 = require('web3')
 
 class BlocksoftUtils {
+
+    static round(val) {
+        const tmp = val.toString().split('.')
+        return tmp[0].replace(' ', '')
+    }
 
     //  // console.log('added', BlocksoftUtils.add(967282001717650,87696220292905380))
     static add(val1, val2) {
@@ -33,7 +40,7 @@ class BlocksoftUtils {
             }
         }
         // console.log('BlocksoftUtils added ', JSON.stringify({ val1, val2, res}))
-        return res
+        return BlocksoftUtils.fromENumber(res)
     }
 
     static mul(val1, val2) {
@@ -259,12 +266,13 @@ class BlocksoftUtils {
         }
 
         // noinspection JSUnresolvedVariable
-        let newVal
+        let newVal = 0
         try {
             // noinspection JSUnresolvedVariable,JSCheckFunctionSignatures
             newVal = Web3.utils.fromWei(val, 'gwei')
         } catch (e) {
             e.message = JSON.stringify(val) + ' ' + e.message
+            Log.err('BlocksoftUtils.toGwei error ' + e.message)
         }
         return newVal
     }
@@ -303,8 +311,20 @@ class BlocksoftUtils {
         return Web3.utils.hexToUtf8(hex)
     }
 
+    static utfToHex(str) {
+        return Web3.utils.utf8ToHex(str)
+    }
+
+
     static hexToDecimal(hex) {
-        return Web3.utils.hexToNumber(hex)
+        if (hex.toString().indexOf('0x') === 0) {
+            return Web3.utils.hexToNumber(hex)
+        }
+        return hex
+    }
+
+    static hexToDecimalWalletConnect(hex) {
+        return hexToBn(hex).toString()
     }
 
     static decimalToHex(decimal, len = 0) {

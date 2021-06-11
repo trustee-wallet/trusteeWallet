@@ -17,11 +17,18 @@ import LtcTransferProcessor from './ltc/LtcTransferProcessor'
 import TrxTransferProcessor from './trx/TrxTransferProcessor'
 import UsdtTransferProcessor from './usdt/UsdtTransferProcessor'
 import XrpTransferProcessor from './xrp/XrpTransferProcessor'
+import XlmTransferProcessor from './xlm/XlmTransferProcessor'
 import XvgTransferProcessor from './xvg/XvgTransferProcessor'
 import EthTransferProcessorUAX from './eth/EthTransferProcessorUAX'
 import XmrTransferProcessor from './xmr/XmrTransferProcessor'
 import FioTransferProcessor from './fio/FioTransferProcessor'
+import BnbTransferProcessor from './bnb/BnbTransferProcessor'
+import BnbSmartTransferProcessor from './bnb_smart/BnbSmartTransferProcessor'
+import BnbSmartTransferProcessorErc20 from './bnb_smart/BnbSmartTransferProcessorErc20'
+import EtcTransferProcessor from './etc/EtcTransferProcessor'
+import VetTransferProcessor from '@crypto/blockchains/vet/VetTransferProcessor'
 import { BlocksoftBlockchainTypes } from './BlocksoftBlockchainTypes'
+
 
 export namespace BlocksoftTransferDispatcher {
 
@@ -29,7 +36,7 @@ export namespace BlocksoftTransferDispatcher {
         [key in BlocksoftDictTypes.Code]: BlocksoftBlockchainTypes.TransferProcessor
     }
 
-    const CACHE_PROCESSORS : BlocksoftTransferDispatcherDict = {} as BlocksoftTransferDispatcherDict
+    const CACHE_PROCESSORS: BlocksoftTransferDispatcherDict = {} as BlocksoftTransferDispatcherDict
 
     export const getTransferProcessor = function(currencyCode: BlocksoftDictTypes.Code): BlocksoftBlockchainTypes.TransferProcessor {
         const currencyDictSettings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
@@ -48,8 +55,6 @@ export namespace BlocksoftTransferDispatcher {
                 CACHE_PROCESSORS[currencyCode] = new BsvTransferProcessor(currencyDictSettings)
                 break
             case 'BTC':
-            case 'BTC_SEGWIT':
-            case 'BTC_SEGWIT_COMPATIBLE':
                 CACHE_PROCESSORS[currencyCode] = new BtcTransferProcessor(currencyDictSettings)
                 break
             case 'BTC_TEST':
@@ -67,6 +72,12 @@ export namespace BlocksoftTransferDispatcher {
             case 'ETH_ERC_20':
                 CACHE_PROCESSORS[currencyCode] = new EthTransferProcessorErc20(currencyDictSettings)
                 break
+            case 'ETC':
+                CACHE_PROCESSORS[currencyCode] = new EtcTransferProcessor(currencyDictSettings)
+                break
+            case 'BNB_SMART_20':
+                CACHE_PROCESSORS[currencyCode] = new BnbSmartTransferProcessorErc20(currencyDictSettings)
+                break
             case 'ETH_UAX':
                 CACHE_PROCESSORS[currencyCode] = new EthTransferProcessorUAX(currencyDictSettings)
                 break
@@ -82,6 +93,9 @@ export namespace BlocksoftTransferDispatcher {
             case 'XRP':
                 CACHE_PROCESSORS[currencyCode] = new XrpTransferProcessor(currencyDictSettings)
                 break
+            case 'XLM':
+                CACHE_PROCESSORS[currencyCode] = new XlmTransferProcessor(currencyDictSettings)
+                break
             case 'XVG':
                 CACHE_PROCESSORS[currencyCode] = new XvgTransferProcessor(currencyDictSettings)
                 break
@@ -90,6 +104,15 @@ export namespace BlocksoftTransferDispatcher {
                 break
             case 'FIO':
                 CACHE_PROCESSORS[currencyCode] = new FioTransferProcessor(currencyDictSettings)
+                break
+            case 'BNB':
+                CACHE_PROCESSORS[currencyCode] = new BnbTransferProcessor(currencyDictSettings)
+                break
+            case 'BNB_SMART':
+                CACHE_PROCESSORS[currencyCode] = new BnbSmartTransferProcessor(currencyDictSettings)
+                break
+            case 'VET':
+                CACHE_PROCESSORS[currencyCode] = new VetTransferProcessor(currencyDictSettings)
                 break
             default:
                 throw new Error('Unknown transferProcessor ' + transferProcessor)

@@ -1,100 +1,83 @@
 /**
- * @version 0.9
+ * @version 0.44
  */
-import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TextInput  } from 'react-native'
+import React, { PureComponent } from 'react'
+import { View, Text, ScrollView, Image, TextInput } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
-import { strings } from '../../services/i18n'
+import Button from '@app/components/elements/Button'
+import { strings } from '@app/services/i18n'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
 
-class FioChooseRecipient extends Component {
+class FioChooseRecipient extends PureComponent {
 
 
     render() {
         return (
-            <View>
-                <Navigation
-                    //title={strings('assets.mainTitle')}
-                    title= {strings('FioChooseRecipient.title')}
-                />
-                
-                <View style={{paddingTop: 90, height: '100%'}}>
+            <ScreenWrapper
+                title={strings('FioChooseRecipient.title')}
+            >
+                <View style={{ paddingTop: 90, height: '100%' }}>
+                    <View style={styles.container}>
+                        <View>
+                            <Text style={styles.txt}>{strings('FioChooseRecipient.description')}</Text>
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={text => console.log('Input changed')}
+                            />
+                        </View>
+
+                        <View style={{ flex: 1, paddingVertical: 20 }}>
+                            <ScrollView>
+
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 1</Text>
+                                </View>
+
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 2</Text>
+                                </View>
+
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 3</Text>
+                                </View>
+
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 4</Text>
+                                </View>
+
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 5</Text>
+                                </View>
+
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 6</Text>
+                                </View>
+
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 7</Text>
+                                </View>
 
 
+                            </ScrollView>
+                        </View>
 
-                <View  style={styles.container}>
-                    <View>
-                        <Text style={styles.txt}>{strings('FioChooseRecipient.description')}</Text>
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={text => console.log('Input changed')}
-                        />
+                        <View style={{ marginTop: 20 }}>
+                            <Button press={() => console.log('select FIO pressed')}>
+                                {strings('FioChooseRecipient.btnText')}
+                            </Button>
+                        </View>
                     </View>
-
-                    <View style={{ flex: 1,  paddingVertical: 20}}>
-                        <ScrollView>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 1</Text>
-                            </View>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 2</Text>
-                            </View>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 3</Text>
-                            </View>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 4</Text>
-                            </View>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 5</Text>
-                            </View>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 6</Text>
-                            </View>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 7</Text>
-                            </View>
-
-
-                        </ScrollView>
-                    </View>
-
-                    <View style={{marginTop: 20}}>
-                        <Button press={() =>  console.log('select FIO pressed')}>
-                            {strings('FioChooseRecipient.btnText')}
-                        </Button>
-                    </View>
-
-
-
                 </View>
-
-
-
-
-
-
-
-
-                </View>
-            </View>
+            </ScreenWrapper>
         );
     }
 }
@@ -109,7 +92,8 @@ const styles = {
         height: '100%',
         flexDirection: 'column',
         flex: 1,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        backgroundColor: 'red'
     },
 
     input: {

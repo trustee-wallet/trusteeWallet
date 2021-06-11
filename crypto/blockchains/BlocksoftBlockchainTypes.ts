@@ -20,7 +20,7 @@ export namespace BlocksoftBlockchainTypes {
 
         getFeeRate(data: TransferData, privateData?: TransferPrivateData, additionalData?: TransferAdditionalData): Promise<FeeRateResult>
 
-        sendRawTx?(data: DbAccount, rawTxHex: string): Promise<string>
+        sendRawTx?(data: DbAccount, rawTxHex: string, txRBF: any, logData: any): Promise<string>
 
         setMissingTx?(data: DbAccount, transaction: DbTransaction): Promise<boolean>
 
@@ -30,13 +30,13 @@ export namespace BlocksoftBlockchainTypes {
     export interface UnspentsProvider {
         getUnspents(address: string): Promise<UnspentTx[]>
 
-        getTx?(tx: string, address: string, allUnspents: BlocksoftBlockchainTypes.UnspentTx[]): Promise<UnspentTx[]>
+        getTx?(tx: string, address: string, allUnspents: BlocksoftBlockchainTypes.UnspentTx[], walletHash: string): Promise<UnspentTx[]>
 
-        _isMyAddress?(voutAddress: string, address: string): boolean
+        _isMyAddress?(voutAddress: string, address: string, walletHash: string): string
     }
 
     export interface SendProvider {
-        sendTx(hex: string, subtitle: string) : Promise<{transactionHash: string, transactionJson:any}>
+        sendTx(hex: string, subtitle: string, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any, logData?: any }>
     }
 
     export interface NetworkPrices {
@@ -44,15 +44,12 @@ export namespace BlocksoftBlockchainTypes {
     }
 
     export interface TxInputsOutputs {
-        getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
+        getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+                         unspents: BlocksoftBlockchainTypes.UnspentTx[],
                          feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
-                         subtitle : string)
-            : {
-            inputs: BlocksoftBlockchainTypes.UnspentTx[],
-            outputs: BlocksoftBlockchainTypes.OutputTx[],
-            multiAddress: [],
-            msg: string,
-        }
+                         additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
+                         subtitle: string)
+            : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx>
     }
 
     export interface TxBuilder {
@@ -70,7 +67,7 @@ export namespace BlocksoftBlockchainTypes {
 
         _getRawTxSign(txb: TransactionBuilder, i: number, input: UnspentTx): Promise<void>
 
-        _getRawTxAddOutput(txb: TransactionBuilder, output : OutputTx): void
+        _getRawTxAddOutput(txb: TransactionBuilder, output: OutputTx): void
     }
 
     export interface Fee {
@@ -82,17 +79,20 @@ export namespace BlocksoftBlockchainTypes {
         feeForTx: string,
         nonceForTx?: number | string,
         amountForTx: string,
+        addressToTx?: string,
         isCustomFee?: boolean,
+        showNonce?: boolean,
         feeForTxBasicAmount?: number,
         feeForTxBasicSymbol?: string,
         feeForTxCurrencyAmount?: number,
         feeForTxDelegated?: number,
         blockchainData?: any
+        rawOnly?: boolean
     }
 
     export interface CheckTransferHasErrorData {
         currencyCode: BlocksoftDictTypes.Code,
-        walletHash : string,
+        walletHash: string,
         addressTo: string,
         addressFrom: string,
         amount: string
@@ -100,9 +100,9 @@ export namespace BlocksoftBlockchainTypes {
 
     export interface CheckTransferHasErrorResult {
         isOk: boolean,
-        code?: 'TOKEN' | 'XRP',
-        parentBlockchain?: 'Ethereum' | 'Bitcoin',
-        parentCurrency?: 'ETH' | 'BTC',
+        code?: 'TOKEN' | 'XRP' | 'XLM',
+        parentBlockchain?: 'Ethereum' | 'Bitcoin' | 'Binance',
+        parentCurrency?: 'ETH' | 'BTC' | 'BNB',
         address?: string
     }
 
@@ -113,16 +113,21 @@ export namespace BlocksoftBlockchainTypes {
         addressFrom: string,
         addressTo: string,
         amount: string,
-        unconfirmed: string,
         useOnlyConfirmed: boolean,
         allowReplaceByFee: boolean,
+        useLegacy: number,
+        isHd: boolean,
+
+        accountBalanceRaw: string,
         isTransferAll: boolean,
 
         memo?: string,
         transactionReplaceByFee?: string,
         transactionSpeedUp?: string,
+        transactionRemoveByFee?: string,
 
         blockchainData?: string,
+        dexOrderData?:string,
 
         accountJson?: any,
         transactionJson?: any
@@ -142,28 +147,42 @@ export namespace BlocksoftBlockchainTypes {
         mnemonic?: string,
         prices?: { 'speed_blocks_2': string, 'speed_blocks_6': string, 'speed_blocks_12': string },
         feeForByte?: string,
-        estimatedGas?: number,
-        gasPrice?: number[],
+        gasLimit?: number,
+        gasPrice?: number,
+        gasPriceTitle?: 'speed_blocks_2',
+        nonceForTx?: number,
+        isCustomFee?: boolean,
         balance?: string,
         unspents?: []
     }
 
     export interface TransferAllBalanceResult {
+        additionalData?: { unspents: any[] }
         selectedTransferAllBalance: string,
         selectedFeeIndex: number,
         countedForBasicBalance: string,
         fees: Fee[],
-        showSmallFeeNotice?: boolean,
-        shouldChangeBalance?: boolean
+        shouldShowFees?: boolean,
+        showSmallFeeNotice?: number,
+        countedTime?: number
     }
 
     export interface FeeRateResult {
+        additionalData: { unspents: any[] }
         countedForBasicBalance: string,
         selectedFeeIndex: number,
         fees: Fee[],
-        showSmallFeeNotice?: boolean,
-        showChangeAmountNotice?: boolean,
-        shouldChangeBalance?: boolean
+        shouldShowFees?: boolean,
+
+        showBigGasNotice?: number,
+        showSmallFeeNotice?: number,
+
+        showLongQueryNotice?: number,
+        showLongQueryNoticeTxs?: any,
+
+        showBlockedBalanceNotice?: number,
+        showBlockedBalanceFree?: number | any,
+        countedTime: number
     }
 
     export interface SendTxResult {
@@ -196,15 +215,18 @@ export namespace BlocksoftBlockchainTypes {
     export interface BuilderSettings {
         minOutputDustReadable: number,
         minChangeDustReadable: number,
-        feeMaxReadable: number,
+        feeMaxForByteSatoshi: number,
         feeMaxAutoReadable2: number,
         feeMaxAutoReadable6: number,
         feeMaxAutoReadable12: number,
-        changeTogether: boolean
+        changeTogether: boolean,
+        minRbfStepSatoshi?: number,
+        minSpeedUpMulti?: number,
+        feeMinTotalReadable?: number
     }
 
     export interface UnspentTx {
-        isRequired : boolean,
+        isRequired: boolean,
         derivationPath?: string
         address?: string,
         txid: string,
@@ -217,7 +239,8 @@ export namespace BlocksoftBlockchainTypes {
     export interface OutputTx {
         isChange?: boolean,
         isUsdt?: boolean,
-        tokenAmount ?: string,
+        tokenAmount?: string,
+        logType?: string,
         to: string,
         amount: string
     }
@@ -226,7 +249,8 @@ export namespace BlocksoftBlockchainTypes {
         inputs: BlocksoftBlockchainTypes.UnspentTx[],
         outputs: BlocksoftBlockchainTypes.OutputTx[],
         multiAddress: [],
-        msg: string
+        msg: string,
+        countedFor?: string
     }
 
     export interface EthTx {

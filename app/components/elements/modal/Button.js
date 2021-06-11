@@ -1,14 +1,10 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { TouchableOpacity, StyleSheet, Text, View } from 'react-native'
 
-export default class Button extends Component {
-
-    constructor(props) {
-        super(props)
-    }
+export default class Button extends React.PureComponent {
 
     render() {
         return (
@@ -59,7 +55,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         fontSize: 16,
         lineHeight: 16,
-        letterSpacing: 0.5, 
+        letterSpacing: 0.5,
         color: '#F7F7F7'
     }
 })

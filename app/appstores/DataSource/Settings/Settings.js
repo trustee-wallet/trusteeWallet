@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 
 import Log from '../../../services/Log/Log'
 
@@ -15,17 +15,15 @@ class Settings {
             return false
         }
 
-        const dbInterface = new DBInterface()
+        const dbParamValue = Database.escapeString(paramValue)
 
-        const dbParamValue = dbInterface.escapeString(paramValue)
-
-        const updateRes = await dbInterface.setQueryString(`
+        const updateRes = await Database.setQueryString(`
             UPDATE settings
             SET paramValue='${dbParamValue}'
             WHERE paramKey='${paramKey}';
         )`).query()
         if(!updateRes.rowsAffected) {
-            await dbInterface.setQueryString(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('${paramKey}', '${dbParamValue}')`).query()
+            await Database.setQueryString(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('${paramKey}', '${dbParamValue}')`).query()
         }
 
         CACHE_SETTINGS[paramKey] = {paramValue}
@@ -35,15 +33,12 @@ class Settings {
     }
 
     getSettings = async () => {
-
-        const dbInterface = new DBInterface()
-
-        const res = await dbInterface.setQueryString(`SELECT * FROM settings`).query()
+        const res = await Database.setQueryString(`SELECT * FROM settings`).query()
 
         let tmp
         for (tmp of res.array) {
             CACHE_SETTINGS[tmp.paramKey] = tmp
-            CACHE_SETTINGS[tmp.paramKey].paramValue = dbInterface.unEscapeString(tmp.paramValue)
+            CACHE_SETTINGS[tmp.paramKey].paramValue = Database.unEscapeString(tmp.paramValue)
         }
 
         const toRemove = []
@@ -53,10 +48,14 @@ class Settings {
             }
         }
         if (toRemove && toRemove.length > 0) {
-            await dbInterface.setQueryString(`DELETE FROM settings WHERE id IN (${toRemove.join(',')})`).query()
+            await Database.setQueryString(`DELETE FROM settings WHERE id IN (${toRemove.join(',')})`).query()
         }
 
         return CACHE_SETTINGS
+    }
+
+    getSettingStatic = (key) => {
+        return CACHE_SETTINGS[key]
     }
 
     getSetting = async (key) => {
@@ -64,18 +63,15 @@ class Settings {
             return CACHE_SETTINGS[key]
         }
 
-        const dbInterface = new DBInterface()
-
-        const res = await dbInterface.setQueryString(`SELECT * FROM settings WHERE [paramKey]='${key}'`).query()
-
-        Log.log('DS/Settings getSetting ' + key + ' finished')
+        const res = await Database.setQueryString(`SELECT * FROM settings WHERE [paramKey]='${key}'`).query()
 
         if (!res.array || typeof res.array[0] === 'undefined') {
+            CACHE_SETTINGS[key] = false
             return false
         }
 
-        let tmp = res.array[0]
-        tmp.paramValue = dbInterface.unEscapeString(tmp.paramValue)
+        const tmp = res.array[0]
+        tmp.paramValue = Database.unEscapeString(tmp.paramValue)
         CACHE_SETTINGS[key] = tmp
         return tmp
     }

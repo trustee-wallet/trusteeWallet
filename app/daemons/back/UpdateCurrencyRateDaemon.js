@@ -1,15 +1,13 @@
 /**
- * @version 0.11
+ * @version 0.41
  */
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
-import Log from '../../services/Log/Log'
-import ApiRates from '../../services/Api/ApiRates'
+import Log from '@app/services/Log/Log'
+import ApiRates from '@app/services/Api/ApiRates'
 
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-
-import currencyDS from '../../appstores/DataSource/Currency/Currency'
-import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import currencyDS from '@app/appstores/DataSource/Currency/Currency'
 
 const CACHE_SAVED = {}
 
@@ -18,10 +16,10 @@ class UpdateCurrencyRateDaemon {
     /**
      * @return {Promise<void>}
      */
-    updateCurrencyRate = async (params) => {
+    updateCurrencyRate = async (params, dataUpdate = false) => {
         Log.daemon('UpdateCurrencyRateDaemon started ' + params.source)
-        const res = await ApiRates.getRates()
-       // console.log('rates', res.cryptoCurrencies[0])
+
+        const res = await ApiRates.getRates(params, dataUpdate)
         if (!res || typeof res.cryptoCurrencies === 'undefined') {
             return []
         }
@@ -66,7 +64,7 @@ class UpdateCurrencyRateDaemon {
                 }
                 toSearch[code] = 1
 
-                if (currency.isHidden !== 1) {
+                if (currency.isHidden*1 === 0) {
                     toAddToNews[currency.currencyCode] = 1
                 }
             }
@@ -75,7 +73,7 @@ class UpdateCurrencyRateDaemon {
             throw e
         }
 
-        let addedNews = false
+        const updatedCurrencies = []
         try {
             for (currency of res.cryptoCurrencies) {
                 let codes = false
@@ -100,28 +98,19 @@ class UpdateCurrencyRateDaemon {
                 for (code of codes) {
                     delete toSearch[code]
                     if (typeof CACHE_SAVED[code] === 'undefined' || CACHE_SAVED[code] !== updateObj.currencyRateScanTime) {
-                        if (code === 'BTC') {
-                            Log.daemon('UpdateCurrencyRateDaemon scanned BTC ' + updateObj.currencyRateUsd)
-                        }
+                        updatedCurrencies.push({
+                            ...updateObj,
+                            currencyCode: code
+                        })
                         res = await currencyDS.updateCurrency({ updateObj, key: { currencyCode: code } })
                         CACHE_SAVED[code] = updateObj.currencyRateScanTime
-                        if (typeof toAddToNews[code] !== 'undefined') {
-                            addedNews = true
-                            await appNewsDS.saveAppNews({ onlyOne: true, currencyCode: code, newsGroup: 'ONE_BY_ONE_SCANNER', newsName: 'CURRENCY_RATE_UPDATED', newsJson: updateObj })
-                        }
                     } else {
                         res = true
-                        if (code === 'BTC') {
-                            Log.daemon('UpdateCurrencyRateDaemon ignored BTC ' + updateObj.currencyRateUsd)
-                        }
                     }
                 }
                 if (!res) {
                     Log.daemon('UpdateCurrencyRateDaemon something wrong with updateCurrency ', currency)
                 }
-            }
-            if (!addedNews) {
-                await appNewsDS.saveAppNews({ onlyOne: true, currencyCode: 'BTC', newsGroup: 'ONE_BY_ONE_SCANNER', newsName: 'CURRENCY_RATE_SCANNED_LAST_TIME', newsJson: {} })
             }
         } catch (e) {
             e.message += ' in res.cryptoCurrencies'
@@ -131,7 +120,7 @@ class UpdateCurrencyRateDaemon {
         Log.daemon('UpdateCurrencyRateDaemon finished')
 
         try {
-            await currencyActions.setCryptoCurrencies()
+            if (updatedCurrencies.length) await currencyActions.updateCryptoCurrencies(updatedCurrencies)
         } catch (e) {
             e.message += 'in setCryptoCurrencies'
             throw e

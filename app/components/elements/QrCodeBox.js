@@ -23,9 +23,10 @@ export default class QrCodeBox extends Component {
                     getRef={this.props.getRef}
                     value={this.props.value}
                     fgColor={this.props.color}
-                    bgColor='#FFF'
+                    bgColor={this.props.backgroundColor}
                     size={this.props.size}
                     onError={this.props.onError}
+                    style={[this.props.style, { backgroundColor: this.props.backgroundColor }]}
                 />
             )
         }
@@ -36,10 +37,12 @@ export default class QrCodeBox extends Component {
                 value={this.props.value}
                 size={this.props.size}
                 color={this.props.color}
+                backgroundColor={this.props.backgroundColor}
                 logo={this.props.logo}
                 logoSize={this.props.logoSize}
                 logoBackgroundColor={this.props.logoBackgroundColor}
                 quietZone={10}
+                style={this.props.style}
                 onError={this.props.onError}
             />
         )

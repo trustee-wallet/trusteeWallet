@@ -1,479 +1,88 @@
 /**
- * @version 0.10
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React from 'react'
 import {
     Platform,
     View,
     Text,
     TouchableOpacity,
-    Linking,
-    TextInput, Dimensions, PixelRatio
+    Dimensions,
+    PixelRatio,
 } from 'react-native'
+import Dash from 'react-native-dash'
 import { BoxShadow } from 'react-native-shadow'
+import _ from 'lodash'
 
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import MaterialCommunity from 'react-native-vector-icons/MaterialCommunityIcons'
-import Dash from 'react-native-dash'
-import AsyncStorage from '@react-native-community/async-storage'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-
-import _ from 'lodash'
-
-import Circle from './Circle'
-import GradientView from '../../../components/elements/GradientView'
-import CustomIcon from '../../../components/elements/CustomIcon'
-import LightButton from '../../../components/elements/LightButton'
-
-import NavStore from '../../../components/navigation/NavStore'
-
-import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
-import Log from '../../../services/Log/Log'
-import Toast from '../../../services/UI/Toast/Toast'
-import { strings } from '../../../services/i18n'
-
-import transactionDS from '../../../appstores/DataSource/Transaction/Transaction'
-import { setExchangeData } from '../../../appstores/Stores/Exchange/ExchangeActions'
-import { setSendData } from '../../../appstores/Stores/Send/SendActions'
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-
-import UIDict from '../../../services/UIDict/UIDict'
-
-import updateTradeOrdersDaemon from '../../../daemons/back/UpdateTradeOrdersDaemon'
-
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 
-import MarketingEvent from '../../../services/Marketing/MarketingEvent'
+import GradientView from '@app/components/elements/GradientView'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import Circle from './Circle'
 
-class Transaction extends Component {
+import NavStore from '@app/components/navigation/NavStore'
+
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+class Transaction extends React.Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            wayType: null,
-            direction: null,
-            status: null,
-            blockConfirmations: null,
-            value: null,
-            valueToView: null,
-            currencySymbolToView: null,
-            basicValueToView: null,
-            payButtonTimeToEnable: 0,
-
-            isExpanded: false,
-            subContent: [],
-
-            styles: {},
-
-            show: false,
-            removed: false,
-
-            commentEditable: false
+            styles: this.getPreparedStyles(),
         }
     }
 
-    componentDidMount() {
-        this.init(this.props.transaction)
+    shouldComponentUpdate(nextProps, nextState) {
+        return !_.isEqual(this.props, nextProps) || !_.isEqual(this.state, nextState)
     }
 
-    init = (transaction) => {
-
-        try {
-            const {cryptoCurrency, fioMemo} = this.props
-
-            const subContent = []
-
-            const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
-
-            const status = this.prepareStatus(transaction.transactionStatus, transaction.status)
-
-            const orderIdToView = this.prepareOrderIdToView(transaction)
-            orderIdToView ? subContent.push(orderIdToView) : null
-
-            const statusToView = this.prepareStatusToView(status, transaction)
-            statusToView ? subContent.push(statusToView) : null
-
-            const commentToView = this.prepareCommentToView(transaction.transactionJson)
-            commentToView ? subContent.push(commentToView) : null
-
-            const fioMemoToView = this.prepareFioMemoToView(fioMemo)
-            fioMemoToView ? subContent.push(fioMemoToView) : null
-
-            const outDestinationCardToView = this.prepareOutDestinationCard(transaction)
-            outDestinationCardToView ? subContent.push(outDestinationCardToView) : null
-
-            const fromToView = this.prepareAddressFromToView(cryptoCurrency, transaction)
-            fromToView ? subContent.push(fromToView) : null
-
-            const addressToToView = this.prepareAddressToToView(cryptoCurrency, transaction, transaction.exchangeWayType)
-            addressToToView ? subContent.push(addressToToView) : null
-
-            const date = this.prepareDate(transaction.createdAt)
-            subContent.push(date)
-
-            const transactionDestinationTag = this.prepareTransactionDestinationTag(transaction.transactionJson, cryptoCurrency.currencyCode)
-            transactionDestinationTag ? subContent.push(transactionDestinationTag) : null
-
-            const transactionNonce = this.prepareTransactionNonce(transaction.transactionJson, cryptoCurrency.currencyCode)
-            transactionNonce ? subContent.push(transactionNonce) : null
-
-            const transactionDelegatedNonce = this.prepareTransactionDelegatedNonce(transaction.transactionJson, cryptoCurrency.currencyCode)
-            transactionDelegatedNonce ? subContent.push(transactionDelegatedNonce) : null
-
-            const transactionFeeToView = this.prepareTransactionFeeToView(transaction)
-            transactionFeeToView ? subContent.push(transactionFeeToView) : null
-
-            const transactionHashToView = this.prepareTransactionHashToView(cryptoCurrency, transaction)
-            transactionHashToView ? subContent.push(transactionHashToView) : null
-
-            const transactionsOtherHashesToView = this.prepareTransactionsOtherHashesToView(cryptoCurrency, transaction)
-            transactionsOtherHashesToView ? subContent.push(transactionsOtherHashesToView) : null
-
-            const direction = this.prepareType(transaction.transactionDirection)
-
-            const wayType = this.prepareWayType(transaction.exchangeWayType)
-
-            const styles = JSON.parse(JSON.stringify(this.prepareStyles(status, direction)))
-
-            let value, valueToView, currencySymbolToView
-
-            if (transaction.addressAmountSatoshi && (cryptoCurrency.currencyCode === 'BTC' || cryptoCurrency.currencyCode === 'DOGE')) {
-                value = this.prepareValue(transaction.addressAmountSatoshi, cryptoCurrency.currencyCode)
-                valueToView = this.prepareValueToView(value, 'SAT', direction)
-                currencySymbolToView = 'sat'
-            } else {
-                value = this.prepareValue(transaction.addressAmountPretty, cryptoCurrency.currencyCode)
-                valueToView = this.prepareValueToView(value, cryptoCurrency.currencySymbol, direction)
-                currencySymbolToView = cryptoCurrency.currencySymbol
-            }
-
-
-            const basicValueToView = transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty
-
-
-            this.setState({
-                direction,
-                wayType,
-                status,
-                subContent,
-                styles,
-                blockConfirmations,
-                value,
-                valueToView,
-                basicValueToView,
-                currencySymbolToView,
-                show: true
-            })
-        } catch (e) {
-            Log.err(`AccountScreen.Transaction init error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(transaction)}`)
-        }
-    }
-
-    static getDerivedStateFromProps(nextProps, prevState) {
-
-        if (typeof nextProps.transaction !== 'undefined' && typeof prevState.transaction !== 'undefined' && typeof prevState.transaction.prevState !== 'undefined' && typeof nextProps.transaction.block_confirmations !== 'undefined' && nextProps.transaction.block_confirmations !== prevState.transaction.block_confirmations) {
-            return { transaction: nextProps.transaction }
-        } else return null
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.transaction.blockConfirmations !== this.props.transaction.blockConfirmations) {
-            this.init(this.props.transaction)
-        }
-    }
-
-    prepareAddressToToView = (cryptoCurrency, transaction, exchangeWayType) => {
-        if (typeof transaction.addressTo !== 'undefined' && transaction.addressTo && typeof exchangeWayType === 'undefined') {
-            return {
-                title: strings(`account.transaction.to`),
-                description: transaction.addressTo.toString()
-            }
-        }
-
-        return false
-    }
-
-    prepareAddressFromToView = (cryptoCurrency, transaction, exchangeWayType) => {
-        if (typeof transaction.addressFrom !== 'undefined' && transaction.addressFrom && transaction.addressFrom.indexOf(',') === -1 && typeof exchangeWayType === 'undefined') {
-            return {
-                title: strings(`account.transaction.from`),
-                description: transaction.addressFrom.toString()
-            }
-        }
-
-        return false
-    }
-
-    prepareOrderIdToView = (transaction) => {
-
-        if (typeof transaction.orderId !== 'undefined') {
-            return {
-                title: strings(`account.transaction.orderId`),
-                description: transaction.orderId.toString()
-            }
-        }
-
-        return false
-    }
-
-    prepareCommentToView = (transactionJson) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && typeof transactionJson.comment !== 'undefined') {
-            return {
-                title: strings(`send.comment`),
-                description: transactionJson.comment,
-                config: {
-                    isEditable: true
-                }
-            }
-        }
-
-        return null
-    }
-
-    prepareFioMemoToView = (fioMemo) => {
-        if (typeof fioMemo !== 'undefined' && fioMemo !== null) {
-            return {
-                title: strings(`send.fio_memo`),
-                description: fioMemo,
-            }
-        }
-
-        return null
-    }
-
-    prepareOutDestinationCard = (transaction) => {
-
-        if (typeof transaction.outDestination !== 'undefined' && transaction.outDestination !== null && transaction.outDestination.includes('***')) {
-            if (transaction.outDestination.includes('+')) {
-                return {
-                    title: strings(`account.transaction.phoneDestination`),
-                    description: transaction.outDestination.toString()
-                }
-            } else if (transaction.outDestination.substr(0, 1) === 'U') {
-                return {
-                    title: strings(`account.transaction.advAccountDestination`),
-                    description: transaction.outDestination.toString()
-                }
-            } else {
-                return {
-                    title: strings(`account.transaction.cardNumberDestination`),
-                    description: transaction.outDestination.toString()
-                }
-            }
-        }
-
-        return null
-    }
-
-    handleLink = (link) => {
-
-        Linking.canOpenURL(link).then(supported => {
-            if (supported) {
-                Linking.openURL(link)
-            } else {
-                Log.err('Account.AccountScreen Dont know how to open URI', `${link}`)
-            }
-        })
-    }
-
-    prepareTransactionFeeToView = (transaction) => {
-
-        if (!transaction || typeof transaction.transactionFee === 'undefined' || !transaction.transactionFee) return null
-
-        const title = strings(`account.transaction.fee`)
-        if (transaction.transactionDirection === 'income') {
-            // not my txs no fees to show
-            // title = strings(`account.transaction.feeIncome`)
-            return null
-        }
-        return {
-            title,
-            description: `${transaction.transactionFeePretty} ${transaction.feesCurrencySymbol} (${transaction.basicFeeCurrencySymbol} ${transaction.basicFeePretty})`
-        }
-
-    }
-
-    prepareTransactionDestinationTag = (transactionJson, currencyCode) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && typeof transactionJson.memo !== 'undefined') {
-            const txt = transactionJson.memo.toString().trim()
-            if (txt !== '') {
-                if (currencyCode === 'XRP') {
-                    return {
-                        title: strings(`account.transaction.destinationTag`),
-                        description: txt
-                    }
-                } else if (currencyCode === 'XMR') {
-                    return {
-                        title: strings(`account.transaction.paymentId`),
-                        description: txt
-                    }
-                }
-            }
-        }
-
-        return null
-    }
-
-    prepareTransactionNonce = (transactionJson, currencyCode) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && transactionJson && typeof transactionJson.nonce !== 'undefined') {
-            return {
-                title: strings(`account.transaction.nonce`),
-                description: transactionJson.nonce.toString()
-            }
-        }
-
-        return null
-    }
-
-    prepareTransactionDelegatedNonce = (transactionJson, currencyCode) => {
-        if (typeof transactionJson !== 'undefined' && transactionJson !== null && transactionJson && typeof transactionJson.delegatedNonce !== 'undefined') {
-            return {
-                title: strings(`account.transaction.delegatedNonce`),
-                description: transactionJson.delegatedNonce.toString()
-            }
-        }
-
-        return null
-    }
-
-    prepareStatusToView = (status, transaction) => {
-        if (transaction.exchangeWayType) {
-            return {
-                title: strings(`account.transaction.status`),
-                description: strings(`exchange.ordersStatus.${transaction.exchangeWayType.toLowerCase()}.${transaction.status.toLowerCase()}`)
-            }
-        }
-
-        return {
-            title: strings(`account.transaction.status`),
-            description: strings(`account.transactionStatuses.${status.toLowerCase()}`)
-
-            // description: strings(`exchange.ordersStatus.error_order`)
-        }
-    }
-
-    prepareTransactionHashToView = (cryptoCurrency, transaction) => {
-
-        if (!transaction.transactionHash) return null
-
-        let linkUrl = cryptoCurrency.currencyExplorerTxLink + transaction.transactionHash
-        if (linkUrl.indexOf('?') === -1) {
-            linkUrl += '?from=trustee'
-        }
-        return {
-            title: strings(`account.transaction.txHash`),
-            description: transaction.transactionHash,
-            isLink: true,
-            linkUrl
-        }
-    }
-
-    prepareTransactionsOtherHashesToView = (cryptoCurrency, transaction) => {
-
-        if (!transaction.transactionsOtherHashes) return null
-
-        let tmp = transaction.transactionsOtherHashes.split(',')
-        tmp = tmp[0]
-
-        let linkUrl = cryptoCurrency.currencyExplorerTxLink + tmp
-        if (linkUrl.indexOf('?') === -1) {
-            linkUrl += '?from=trustee'
-        }
-        return {
-            title: strings(`account.transaction.replacedTxHash`),
-            description: tmp,
-            isLink: true,
-            linkUrl
-        }
-    }
-
-    prepareType = (transactionDirection) => {
-
-        return transactionDirection
-    }
-
-    prepareWayType = (wayType) => {
-
+    getPreparedStyles() {
         const { transaction } = this.props
-
-        if (typeof transaction.outDestination !== 'undefined' && transaction.outDestination !== null && transaction.outDestination.includes('+')) {
-            return 'MOBILE_PHONE'
+        const status = this.prepareStatus(transaction.transactionVisibleStatus)
+        const direction = transaction.transactionDirection
+        let styles
+        if (/new|confirming|done_payin|wait_trade|done_trade|pending_payin/.test(status)) {
+            styles = globalStyles.themes.new
+        } else {
+            styles = globalStyles.themes[direction]
         }
-
-        return typeof wayType !== 'undefined' ? wayType : null
+        const prepared = _.merge(globalStyles.default, styles)
+        return {...prepared}
     }
 
-    prepareStatus = (transactionStatus, orderStatus) => {
-
-        if (orderStatus) {
-            return orderStatus
-        }
-
-        const transactionStatusTmp = typeof (transactionStatus) !== 'undefined' ? transactionStatus : 'new'
-        return !transactionStatusTmp ? 'new' : transactionStatusTmp
-    }
-
-    prepareStyles = (status, direction) => {
-
-        let styles = globalStyles.themes[direction]
-
-        if (status === 'new' || status === 'confirming' || status === 'done_payin' || status === 'wait_trade' || status === 'done_trade' || status === 'pending_payin') styles = globalStyles.themes.new
-
-        return _.merge(globalStyles.default, styles)
-    }
-
-    prepareValue = (value) => {
-        try {
-            return value
-        } catch (e) {
-            Log.err('AccountScreen/Transaction.prepareValueToView error ' + e.message)
-        }
-    }
-
-    prepareValueToView = (value, currencySymbol, direction) => `${(direction === 'outcome' || direction === 'self' || direction === 'freeze') ? '-' : '+'} ${value}`
-
-    prepareDate = (createdAt) => {
-
-        const tmp = {
-            title: strings('account.transaction.date'),
-            description: '...'
-        }
-
-        if (createdAt)
-            tmp.description = new Date(createdAt).toLocaleTimeString() + ' ' + new Date(createdAt).toLocaleDateString()
-
-        return tmp
+    prepareStatus = (transactionStatus) => {
+        // orderStatus => transactionStatus moved to preformatWithBSEforShow
+        return typeof transactionStatus !== 'undefined' && transactionStatus ? transactionStatus : 'new'
     }
 
     prepareBlockConfirmations = (blockConfirmations) => {
-
-        let tmp = 0
-
-        if (typeof blockConfirmations !== 'undefined' && blockConfirmations > 0) {
-
-            tmp = blockConfirmations.toString()
-
-            if (blockConfirmations > 20)
-                tmp = '20+'
+        if (blockConfirmations === '' || blockConfirmations === false) {
+            return ''
         }
-
+        let tmp = 0
+        if (typeof blockConfirmations !== 'undefined' && blockConfirmations > 0) {
+            tmp = blockConfirmations.toString()
+            if (blockConfirmations > 20) {
+                tmp = '20+'
+            }
+        }
         return tmp
     }
 
-
-    toggleIsExpanded = () => this.setState((state) => {
-        return { isExpanded: !state.isExpanded }
-    })
-
-    handleCopyAll = () => {
-        const { valueToView, currencySymbolToView } = this.state
+    handleCopyAll = (valueToView, currencySymbolToView) => {
         const tx = this.props.transaction
         let text = ' ' + tx.transactionHash + ' ' + valueToView + ' ' + currencySymbolToView
-        if (tx.transactionDirection === 'outcome') {
+        if (tx.transactionDirection === 'outcome' || tx.transactionDirection === 'swap_outcome') {
             text += ' => ' + tx.addressTo
-        } else if (text.transactionDirection === 'income') {
+        } else if (tx.transactionDirection === 'income') {
             text += ' ' + tx.addressFrom + ' => '
         } else {
             text += ' self '
@@ -482,396 +91,43 @@ class Transaction extends Component {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
-    renderToggleArrow = (color) => {
-
-        const { isExpanded, styles } = this.state
-
-        const settings = {}
-
-        settings.style = styles.transaction__item__arrow_down
-        settings.arrowName = 'chevron-down'
-
-        if (isExpanded) {
-            settings.style = styles.transaction__item__arrow_up
-            settings.arrowName = 'chevron-up'
-        }
-
-        return (
-            // <View style={[styles.transaction__circle__big, globalStyles.themes.outcome.transaction__circle__big.borderColor={color}]}>
-            <View style={{ ...styles.transaction__circle__big, borderColor: color }}>
-                <Feather name={settings.arrowName}
-                         style={[styles.transaction__item__arrow, settings.style, color = { color }]} />
-            </View>
-        )
-    }
-
-    onLongPressEditableCallback = () => {
-        this.setState({
-            commentEditable: true
-        })
-
-        this.commentInput.focus()
-    }
-
-    onBlurComment = (item) => {
-        try {
-            this.setState({
-                commentEditable: false
-            })
-
-            const { id: updateID, transactionJson } = this.props.transaction
-
-            let comment = ''
-            if (typeof item.description !== 'undefined') {
-                comment = item.description.replace(/[\u2006]/g, '').split('').join('')
-                comment = comment.length > 255 ? comment.slice(0, 255) : comment
-            }
-            const transaction = {
-                transactionJson: {
-                    ...transactionJson,
-                    comment
-                }
-            }
-
-            if (transactionJson.comment !== comment) {
-                transactionDS.saveTransaction(transaction, updateID, 'onBlurComment')
-            }
-        } catch (e) {
-            Log.err(`AccountScreen.Transaction/onBlurComment error - ${JSON.stringify(e)} ; Transaction - ${JSON.stringify(this.props.transaction)}`)
-        }
-    }
-
-    subContentTemplate = (item, key) => {
-        const { styles, commentEditable } = this.state
-        const { cryptoCurrency } = this.props
-
-        const onPressCallback = typeof item.isLink !== 'undefined' && item.isLink ? () => this.handleLink(item.linkUrl) : () => this.handleSubContentPress(item)
-        const onLongPressCallback = typeof item.isLink !== 'undefined' && item.isLink ? () => this.handleSubContentPress({ description: item.linkUrl }) : () => this.handleSubContentPress(item)
-
-        const descriptionValue = typeof item.description !== 'undefined' ? item.description.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16))) : ''
-        // const descriptionValue = typeof item.description !== 'undefined' ? item.description : ''
-
-        // letterSpacing with js
-        // const descriptionPrep = typeof item.description !== 'undefined' ? item.description.split('').join(String.fromCodePoint(parseInt('2006', 16))) : ''
-        const descriptionPrep = typeof item.description !== 'undefined' ? item.description : ''
-
-        if (typeof item.config !== 'undefined' && item.config.isEditable) {
-
-            const descriptionClean = typeof item.description !== 'undefined' ? item.description.replace(/[\u2006]/g, '').split('').join('') : ''
-            const length = descriptionClean.length
-            const isTextareaStyle = {}
-            const isTextarea = true // can be line dependent
-            const lines = Math.ceil(length / 20)
-            const height = 22 + 14 * lines
-            isTextareaStyle.maxHeight = height * 1.2
-            isTextareaStyle.minHeight = height
-            isTextareaStyle.paddingVertical = 3
-            isTextareaStyle.paddingLeft = 0
-            // isTextareaStyle.marginTop = 10
-            isTextareaStyle.paddingBottom = 0
-
-            return (
-                <TouchableOpacity activeOpacity={.7} onLongPress={this.onLongPressEditableCallback} key={key}>
-                    <View style={styles.transaction__item__subcontent}>
-                        <View>
-                            <Text style={styles.transaction__item__subcontent__title}>
-                                {item.title}
-                            </Text>
-                        </View>
-                        <View style={{ height: height, marginVertical: 0 }}>
-                            {/*<View>*/}
-                            <TextInput ref={ref => this.commentInput = ref}
-                                       style={{ ...styles.transaction__item__subcontent__text, ...isTextareaStyle }}
-                                // placeholder={strings(`account.transaction.empty`).split('').join(String.fromCodePoint(parseInt('2006', 16)))}
-                                       placeholder={strings(`account.transaction.empty`)}
-                                       placeholderTextColor='#999999'
-                                       editable={commentEditable}
-                                       autoFocus={commentEditable}
-                                       autoCorrect={false}
-                                       spellCheck={false}
-                                       selectionColor={'#404040'}
-                                       onBlur={() => this.onBlurComment(this.state.subContent[key])}
-                                       multiline={isTextarea}
-                                       showSoftInputOnFocus={true}
-                                       onChangeText={(value) => {
-
-                                           const subContent = this.state.subContent
-
-                                           subContent[key] = {
-                                               ...subContent[key],
-                                               description: value
-                                           }
-
-                                           this.setState({
-                                               subContent
-                                           })
-                                       }}
-                                       value={descriptionValue} />
-                            {/* <Text style={[, item.isLink ? styles.transaction__item__subcontent__text_link : null ]}> */}
-                            {/*    { item.description.split('').join(String.fromCodePoint(parseInt("2006", 16))) } */}
-                            {/* </Text> */}
-                        </View>
-                    </View>
-                </TouchableOpacity>
-            )
-        }
-
-        // ??? @misha
-        // textDecorationColor.settings.colors.mainColor
-        // color: UIDict[cryptoCurrency.currencyCode].colors.mainColor
-        const dict = new UIDict(cryptoCurrency.currencyCode)
-        const textDecorationColor = dict.settings.colors.mainColor
-        const color = dict.settings.colors.mainColor
-
-        return (
-            <TouchableOpacity onPress={onPressCallback} onLongPress={onLongPressCallback} key={key}>
-                <View style={styles.transaction__item__subcontent}>
-                    <View>
-                        <Text style={styles.transaction__item__subcontent__title}>
-                            {item.title}
-                        </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Text style={[styles.transaction__item__subcontent__text, item.isLink ? {
-                            ...styles.transaction__item__subcontent__text_link,
-                            textDecorationColor,
-                            color
-                        } : null]} numberOfLines={4}>{descriptionPrep}</Text>
-                    </View>
-                </View>
-            </TouchableOpacity>
-        )
-    }
-
-    renderReplaceByFeeRemove = () => {
-        const { cryptoCurrency, transaction, account } = this.props
-
-        if (transaction.transactionDirection === 'income') {
-            return false
-        }
-
-        if (transaction.transactionStatus !== 'new' && transaction.transactionStatus !== 'missing') {
-            return false
-        }
-
-        if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
-            return false
-        }
-
-        const icon = (props) => <MaterialIcons color="#864DD9" size={10} name={'delete'} {...props} />
-
-        return (
-            <View style={{ alignItems: 'center' }}>
-                <TouchableOpacity
-                    style={{ alignItems: 'center', padding: 20, paddingHorizontal: 30, paddingTop: 0 }}
-                    onPress={() => this.handleReplaceByFeeBtn('remove')}>
-                    <LightButton Icon={(props) => icon(props)} iconStyle={{ marginHorizontal: 3 }}
-                                 title={strings('account.transaction.removeRBF')} />
-                </TouchableOpacity>
-            </View>
-        )
-
-    }
-
-
-    renderReplaceByFeeIcon = () => {
-        const { cryptoCurrency, transaction, account } = this.props
-
-        if (transaction.transactionHash === 'undefined' || !transaction.transactionHash) {
-            return false
-        }
-
-        if (transaction.transactionStatus !== 'new' && transaction.transactionStatus !== 'pending_payin' && transaction.transactionStatus !== 'missing') {
-            return false
-        }
-
-        if (cryptoCurrency.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
-            return
-        }
-
-        if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
-            return false
-        }
-
-        const icon = (props) => <Feather name='refresh-ccw' {...props} />
-
-        return (
-            <View style={{ alignItems: 'center' }}>
-                <TouchableOpacity
-                    style={{ alignItems: 'center', padding: 20, paddingHorizontal: 30, paddingTop: 0 }}
-                    onPress={() => this.handleReplaceByFeeBtn('usual')}>
-                    <LightButton Icon={(props) => icon(props)} iconStyle={{ marginHorizontal: 3 }}
-                                 title={strings('account.transaction.RBF.replaceByFeeBtn')} />
-                </TouchableOpacity>
-            </View>
-        )
-
-    }
-
-
-    handleReplaceByFeeBtn = async (mode = 'usual') => {
-
-        const { cryptoCurrency, transaction, account } = this.props
-
-        const rbfMode = await AsyncStorage.getItem('RBF')
-
-        const TmpComponent = () => {
-            return (
-                <View style={{ alignItems: 'center', width: '100%' }}>
-                    <TouchableOpacity onPress={() => {
-                        Linking.openURL('https://github.com/bitcoin/bips/blob/master/bip-0125.mediawiki')
-                    }}>
-                        <Text style={{
-                            paddingTop: 10,
-                            paddingHorizontal: 10,
-                            fontFamily: 'SFUIDisplay-Semibold',
-                            color: '#4AA0EB',
-                            textAlign: 'center'
-                        }}>https://github.com/bitcoin/bips/blob/master/bip-0125.mediawiki</Text>
-                    </TouchableOpacity>
-                </View>
-            )
-        }
-
-
-        try {
-            if (rbfMode && rbfMode.toString() === '1') {
-                if (transaction.transactionDirection === 'outcome' || transaction.transactionDirection === 'self') {
-                    if (BlocksoftTransfer.canRBF(account, transaction, 'REPLACE_INNER')) {
-                        showModal({
-                            type: 'YES_NO_MODAL',
-                            icon: 'WARNING',
-                            title: strings(`modal.rbfModal.title`),
-                            description: strings(`account.transaction.RBF.willReplaceWithNewFee`)
-                        }, async () => {
-
-                            try {
-                                let memo = ''
-                                if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson) {
-                                    memo = transaction.transactionJson.memo || ''
-                                }
-                                let address = transaction.addressTo || account.address
-                                let amountRaw = transaction.addressAmount
-                                let amount =  transaction.addressAmountPretty.toString()
-                                if (mode === 'remove') {
-                                    address = account.address
-                                    amountRaw = 0
-                                    amount = 0
-                                }
-                                const data = {
-                                    memo,
-                                    amount,
-                                    amountRaw,
-                                    address,
-                                    wallet: { walletHash: transaction.walletHash },
-                                    cryptoCurrency,
-                                    account,
-                                    useAllFunds: false,
-                                    toTransactionJSON: transaction.transactionJson,
-                                    transactionReplaceByFee: transaction.transactionHash,
-                                    transactionReplaceMode : mode,
-                                    type: false
-                                }
-
-                                NavStore.goNext('ConfirmSendScreen', {
-                                    confirmSendScreenParam: data
-                                })
-                            } catch (e) {
-                                Log.err('SendScreen.Transaction.RBF dialog error ' + e.message)
-                            }
-
-                        })
-                    } else {
-                        showModal({
-                            type: 'INFO_MODAL',
-                            icon: 'INFO',
-                            title: strings(`modal.rbfModal.title`),
-                            description: strings(`account.transaction.RBF.notAllowed`),
-                            component: TmpComponent
-                        })
-                    }
-                } else {
-                    showModal({
-                        type: 'YES_NO_MODAL',
-                        icon: 'WARNING',
-                        title: strings(`modal.rbfModal.title`),
-                        description: strings(`account.transaction.CPFP.willSpeedUp`)
-                    }, async (res) => {
-
-                        const data = {
-                            memo: '',
-                            amount: transaction.addressAmountPretty.toString(),
-                            amountRaw: transaction.addressAmount,
-                            address: account.address,
-                            wallet: { walletHash: transaction.walletHash },
-                            cryptoCurrency,
-                            account,
-                            useAllFunds: false,
-                            transactionSpeedUp: transaction.transactionHash,
-                            type: false
-                        }
-
-                        NavStore.goNext('ConfirmSendScreen', {
-                            confirmSendScreenParam: data
-                        })
-                    })
-                }
-            } else {
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: 'INFO',
-                    title: strings(`modal.featureExpectedModal.title`),
-                    description: strings(`modal.featureExpectedModal.description`),
-                    component: TmpComponent
-                })
-            }
-        } catch (e) {
-            Log.err('SendScreen.Transaction.handleReplaceByFeeBtn predialog error ' + e.message)
-        }
-    }
-
-    handleSubContentPress = (item) => {
-        copyToClipboard(item.description)
-        Toast.setMessage(strings('toast.copied')).show()
-    }
-
     ifTxsTW = () => {
-
         const { styles } = this.state
         const { transaction } = this.props
-
+        const { colors } = this.context
         if (transaction.transactionOfTrusteeWallet && transaction.transactionOfTrusteeWallet === 1)
-            return <View style={{ marginLeft: 'auto', marginRight: 20 }}><CustomIcon name="shield"
-                                                                                     style={styles.transaction__top__type__icon} /></View>
+            return (
+                <View style={{ marginLeft: 'auto', marginRight: 20 }}>
+                    <CustomIcon name="shield" style={{ ...styles.transaction__top__type__icon, color: colors.accountScreen.transactions.transactionTitleColor }} />
+                </View>
+            )
     }
 
-    renderStatusCircle = (isStatus, status, transactionDirection) => {
-
+    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
+        const { colors } = this.context
         const { styles } = this.state
-        const { amountToView, count, transactions, cryptoCurrency } = this.props
+        const { isFirst, dashHeight: height, cryptoCurrency } = this.props
+        const { currencyColor } = cryptoCurrency
 
-        const dict = new UIDict(cryptoCurrency.currencyCode)
-        const color = dict.settings.colors.mainColor
-
-        let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: '#f7f7f7', fontSize: 15 }} />
+        let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}
 
-        if (transactionDirection === 'income' || transactionDirection === 'claim') {
-            arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: '#f7f7f7', fontSize: 15 }} />
+        if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
+            arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         }
         if (transactionDirection === 'self') {
-            arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: '#f7f7f7', fontSize: 10 }} />
-            circleStyle = { backgroundColor: isStatus ? color : '#999999' }
+            arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
+            circleStyle = { backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circleBackground }
         }
-        if (status === 'fail' || status === 'missing' || status === 'replaced') {
-            arrowIcon = <Feather name="x" style={{ marginTop: 1, color: '#f7f7f7', fontSize: 15 }} />
-            circleStyle = { backgroundColor: '#999999' }
+        // if (status === 'fail' || status === 'missing' || status === 'replaced') {
+        if (visibleStatus.toUpperCase() === 'MISSING' || visibleStatus.toUpperCase() === 'OUT_OF_ENERGY') {
+            arrowIcon = <Feather name="x" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
+            circleStyle = { backgroundColor: colors.accountScreen.transactions.circleBackground }
         }
 
         const statusTmp = status !== 'new' && status !== 'confirming' && status !== 'done_payin' && status !== 'wait_trade' && status !== 'done_trade' && status !== 'pending_payin' && status !== 'pending_payin'
 
-        const marginTop = !count ? 50 : 0
-        const height = (amountToView === count + 1 && transactions && transactions.length === count + 1) ? 50 : 700
+        const marginTop = isFirst ? 50 : 0
 
         const { width: SCREEN_WIDTH } = Dimensions.get('window')
         const PIXEL_RATIO = PixelRatio.get()
@@ -894,20 +150,22 @@ class Transaction extends Component {
                 overflow: 'visible',
                 marginTop: !statusTmp ? 1 : 0
             }]}>
-                <View style={{ position: 'absolute', top: 3, left: 23 }}>
-                    <Dash style={{
-                        width: 2,
-                        height: !this.props.dash ? height : transactions.length === 1 ? 0 : 70,
-                        marginTop: marginTop,
-                        flexDirection: 'column'
-                    }}
-                          dashColor={'#E3E6E9'}
-                          dashGap={3}
-                          dashLength={3} />
-                </View>
+                {/* <View style={{ position: 'absolute', top: 3, left: 23 }}>
+                    <Dash
+                        style={{
+                            width: 2,
+                            height,
+                            marginTop: marginTop,
+                            flexDirection: 'column'
+                        }}
+                        dashColor={colors.accountScreen.transactions.dashColor}
+                        dashGap={3}
+                        dashLength={3}
+                    />
+                </View> */}
                 <Circle style={{
                     ...styles.transaction__circle__small, ...circleStyle,
-                    backgroundColor: isStatus ? color : '#404040',
+                    backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circle,
                     width: 24,
                     height: 24
                 }}>
@@ -917,8 +175,9 @@ class Transaction extends Component {
                         width: '100%',
                         height: '100%',
                         borderRadius: 25,
-                        backgroundColor: isStatus ? color : '#404040', ...circleStyle,
-                        marginLeft: Platform.OS === 'ios' && transactionDirection !== 'self' ? 1 : 0
+                        backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circle,
+                        ...circleStyle,
+                        marginLeft: 0,
                     }}>
                         {arrowIcon}
                     </View>
@@ -927,306 +186,134 @@ class Transaction extends Component {
         )
     }
 
-    renderPayButton = () => {
-
-        const { transaction } = this.props
-        const { status, wayType } = this.state
-
-        let icon, onPress
-
-        if (wayType !== null) {
-            if (wayType === 'BUY') {
-                icon = (props) => <FontAwesome5 color="#864DD9" size={10} name={'money-bill-wave'} {...props} />
-                onPress = this.handleBuy
-            } else {
-                icon = (props) => <FontAwesome5 color="#864DD9" size={10} name={'coins'} {...props} />
-                onPress = this.handleSell
-            }
-        } else {
-            icon = (props) => <MaterialIcons color="#864DD9" size={10} name={'content-copy'} {...props} />
-            onPress = () => {
-            }
-        }
-
-        if (typeof status !== 'undefined' && status !== null && status === 'pending_payin' && (wayType === 'BUY' || (
-            wayType === 'EXCHANGE' && transaction.transactionDirection === 'outcome'
-        ))) {
-
-            const limit = wayType === 'BUY' ? 36 * 100000 : 36 * 1000000
-            const diff = new Date().getTime() - transaction.createdAt
-            const isPayButtonDisabled = diff > limit || diff < 6000
-
-            if (isPayButtonDisabled || typeof transaction.transactionHash === 'string') {
-                return
-            }
-
-            return (
-                <View style={{ alignItems: 'center' }}>
-                    <TouchableOpacity
-                        style={{ alignItems: 'center', padding: 20, paddingHorizontal: 30, paddingTop: 0 }}
-                        onPress={onPress}>
-                        <LightButton Icon={(props) => icon(props)} iconStyle={{ marginHorizontal: 3 }}
-                                     title={strings('account.transaction.pay')} />
-                    </TouchableOpacity>
-                </View>
-            )
-        }
+    getTransactionDate(date) {
+        let datetime = new Date(date)
+        datetime = (datetime.getDate().toString().length === 1 ? '0' + datetime.getDate() : datetime.getDate()) + '.' +
+            ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) +
+            '.' + datetime.getFullYear().toString().slice(-2)
+        return datetime
     }
 
-    renderRemoveButton = () => {
-
-        const { transaction } = this.props
-        const { status, wayType } = this.state
-
-        if (typeof wayType === 'undefined' || wayType === null || !wayType) {
-            return null
-        }
-        if (typeof status === 'undefined' || status === null || !status) {
-            return null
-        }
-
-        if (typeof transaction.transactionHash === 'string') {
-            return null
-        }
-
-        const icon = (props) => <MaterialIcons color="#864DD9" size={10} name={'delete'} {...props} />
-        const onPress = this.handleRemove
-
-
-        return (
-            <View style={{ alignItems: 'center' }}>
-                <TouchableOpacity
-                    style={{ alignItems: 'center', padding: 20, paddingHorizontal: 30, paddingTop: 0 }}
-                    onPress={onPress}>
-                    <LightButton Icon={(props) => icon(props)} iconStyle={{ marginHorizontal: 3 }}
-                                 title={strings('account.transaction.remove')} />
-                </TouchableOpacity>
-            </View>
-        )
-
-    }
-
-    handleRemove = async () => {
-        try {
-            const { transaction } = this.props
-
-            this.setState({ removed: true })
-
-            await updateTradeOrdersDaemon.updateTradeOrdersDaemon({
-                force: true,
-                removeId: transaction.orderId,
-                source: 'ACCOUNT_HANDLE_REMOVE'
-            })
-
-        } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err(`AccountScreen.Transaction/handleRemove error - ${e.message}`)
-        }
-    }
-
-    handleBuy = async () => {
-        try {
-            const deviceToken = MarketingEvent.DATA.LOG_TOKEN
-
-            const { transaction, cryptoCurrency, cards } = this.props
-
-            let creditCard
-
-            // @misha maybe orderJson to unify?
-            if (typeof transaction.orderJSON !== 'undefined') {
-                creditCard = cards.find(item => item.number === transaction.orderJSON.card.cardNumber)
+    transactionDetails = (tx) => {
+        NavStore.goNext('AccountTransactionScreen', {
+            txData: {
+                transaction: tx
             }
-
-            setExchangeData({})
-
-            const exchangeData = {
-                id: transaction.orderId,
-                link: transaction.payinUrl,
-                deviceToken: deviceToken,
-                selectedCryptoCurrency: cryptoCurrency
-            }
-
-            if (typeof transaction.orderJSON !== 'undefined') {
-                exchangeData.uniqueParams = transaction.orderJSON
-            }
-
-            if (typeof creditCard !== 'undefined') {
-                exchangeData.cardNumber = creditCard.number
-                exchangeData.expirationDate = creditCard.expiration_date
-            }
-
-            setExchangeData(exchangeData)
-
-            await updateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_HANDLE_BUY' })
-
-            NavStore.goNext('SMSCodeScreen')
-        } catch (e) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.infoPayOrder.error.title'),
-                description: strings('modal.infoPayOrder.error.description')
-            })
-            // noinspection ES6MissingAwait
-            Log.err(`AccountScreen.Transaction/handleBuy error - ${e.message}`)
-        }
-    }
-
-    handleSell = async () => {
-        try {
-            const { transaction, cryptoCurrency, account } = this.props
-
-            const dataToScreen = {
-                disabled: true,
-                address: transaction.depositAddress,
-                value: transaction.addressAmountPretty.toString(),
-                account,
-                cryptoCurrency,
-                description: strings('send.descriptionExchange'),
-                useAllFunds: false,
-                type: 'TRADE_SEND',
-                copyAddress: true,
-                toTransactionJSON: {
-                    bseOrderID: transaction.orderId
-                }
-            }
-
-            if (typeof transaction.orderJSON !== 'undefined' && transaction.orderJSON !== null) {
-                dataToScreen.destinationTag = transaction.orderJSON.destinationTag !== null ? transaction.orderJSON.destinationTag : ''
-                dataToScreen.paymentId = transaction.orderJSON.paymentId !== null ? transaction.orderJSON.paymentId : ''
-            }
-
-            setSendData(dataToScreen)
-
-            await updateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_HANDLE_SELL' })
-
-            NavStore.goNext('SendScreen')
-        } catch (e) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.infoPayOrder.error.title'),
-                description: strings('modal.infoPayOrder.error.description')
-            })
-            // noinspection ES6MissingAwait
-            Log.err(`AccountScreen.Transaction/handleSell error - ${e.message}`)
-        }
-    }
-
-    measureView(event) {
-        this.setState({
-            width: Math.ceil(event.nativeEvent.layout.width),
-            height: Math.ceil(event.nativeEvent.layout.height - 1)
         })
     }
 
     render() {
+        const { styles } = this.state
+        const { colors } = this.context
 
-        const { wayType, direction, status, subContent, valueToView, isExpanded, blockConfirmations, basicValueToView, styles, show, currencySymbolToView, removed } = this.state
-
-        if (removed) {
-            return <View />
-        }
         const { cryptoCurrency, transaction } = this.props
-        const isStatus = status === 'new' || status === 'done_payin' || status === 'wait_trade' || status === 'done_trade' || status === 'pending_payin'
+        const { createdAt } = transaction
+        const { currencyColor, currencyCode } = cryptoCurrency
 
-        const dict = new UIDict(cryptoCurrency.currencyCode)
-        const color = dict.settings.colors.mainColor
-        const subtitle = typeof transaction.subtitle !== 'undefined' && transaction.subtitle ? transaction.subtitle : false
+        // if any of this will be reused the same way at details screen -> move to preformatWithBSEforShowInner
+        const blockConfirmations = this.prepareBlockConfirmations(transaction.blockConfirmations)
+        const transactionStatus = this.prepareStatus(transaction.transactionStatus)
+        const transactionBlockchainStatus = transaction.transactionBlockchainStatus
+        const transactionDirection = transaction.transactionDirection
+        const wayType = transaction.wayType
 
-        const doteSlice = subtitle ? subtitle.indexOf('-') : -1
-        const subtitleMini = doteSlice && transaction.exchangeWayType === 'EXCHANGE' ? transaction.transactionDirection === 'income' ?
-            transaction.subtitle.slice(0, doteSlice) : transaction.transactionDirection === 'outcome' ?
-                transaction.subtitle.slice(doteSlice + 1, transaction.subtitle.length) : transaction.subtitle : transaction.subtitle
+        let value, valueToView, currencySymbolToView
+        if (transaction.addressAmountSatoshi && (currencyCode === 'BTC' || currencyCode === 'DOGE')) {
+            value = transaction.addressAmountSatoshi
+            valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
+            currencySymbolToView = 'sat'
+        } else {
+            value = transaction.addressAmountPretty
+            valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
+            currencySymbolToView = cryptoCurrency.currencySymbol
+        }
+        const basicValueToView = wayType !== 'EXCHANGE' && typeof transaction.basicAmountPretty !== 'undefined' ?
+            (transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty) : false
 
-        return show ? (
+        const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
+        // end preformat
+
+        return (
             <View style={styles.transaction}>
-                {this.renderStatusCircle(isStatus, status, transaction.transactionDirection)}
+                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
-                    <TouchableOpacity style={styles.transaction__top} onLongPress={this.handleCopyAll}>
-                        <Text style={styles.transaction__top__title}>
-                            {strings(`account.transaction.${wayType === null ? direction : wayType.toLowerCase()}`)}
+                    <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
+                        <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>
+                            {strings(`account.transaction.${wayType.toLowerCase()}`)}
                         </Text>
                         {
                             !isStatus ?
                                 <View style={{ marginRight: 4 }}>
                                     <MaterialCommunity name="progress-check"
-                                                       style={styles.transaction__top__type__icon} />
+                                        style={{ ...styles.transaction__top__type__icon, color: colors.accountScreen.transactions.transactionTitleColor }} />
                                 </View> : null
                         }
-                        <Text style={[styles.transaction__top__type, isStatus ? { color: color } : null]}>
-                            {isStatus ? strings(`account.transactionStatuses.${status === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
+                        <Text style={[styles.transaction__top__type, { color: isStatus ? currencyColor : colors.accountScreen.transactions.transactionTitleColor }]}>
+                            {isStatus ? strings(`account.transactionStatuses.${transactionBlockchainStatus === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
                         </Text>
                         {this.ifTxsTW()}
                     </TouchableOpacity>
-                    <View onLayout={(event) => this.measureView(event)} style={styles.transaction__content}>
-                        <View style={styles.transaction__content__item}>
-                            <TouchableOpacity onLayout={(event) => this.measureView(event)}
-                                              onPress={this.toggleIsExpanded}>
+                    <View style={{ ...styles.transaction__content, backgroundColor: colors.accountScreen.transactions.transactionContentBack }}>
+                        <View style={{ ...styles.transaction__content__item, backgroundColor: colors.accountScreen.transactions.transactionContentBack }}>
+                            <TouchableOpacity onPress={() => this.transactionDetails(transaction)}>
                                 <GradientView
-                                    style={[styles.transaction__item, isExpanded ? styles.transaction__item_active : null]}
-                                    array={styles.transaction__item_bg.array}
+                                    style={[styles.transaction__item, styles.transaction__item_active]}
+                                    array={colors.accountScreen.transactions.transactionGradientArray}
                                     start={styles.transaction__item_bg.start}
-                                    end={styles.transaction__item_bg.end}>
-                                    <View style={{ ...styles.transaction__item__content, opacity: status === 'fail' || status === 'missing' || status === 'replaced' ? 0.5 : null }}>
-                                        <View style={{ justifyContent: 'center' }}>
+                                    end={styles.transaction__item_bg.end}
+                                >
+                                    <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'out_of_energy' ? 0.5 : null }}>
+                                        <View style={{ justifyContent: 'center', flex: 3 }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                                <Text style={styles.transaction__item__title}>
+                                                <Text style={{ ...styles.transaction__item__title, color: colors.common.text1 }} numberOfLines={1}>
                                                     {valueToView}
                                                 </Text>
-                                                <Text
-                                                    style={[styles.transaction__item__title__subtitle, { color: new UIDict(cryptoCurrency.currencyCode).settings.colors.mainColor }]}>
+                                                <Text style={[styles.transaction__item__title__subtitle, { color: currencyColor }]}>
                                                     {currencySymbolToView}
                                                 </Text>
-                                                {
-                                                    subtitle ?
-                                                        <>
-                                                            <Ionicons name={'ios-arrow-round-up'} size={20}
-                                                                      color={'#404040'} style={{ transform: [{ rotate: (
-                                                                          transaction.transactionDirection === 'outcome' ||  transaction.transactionDirection === 'freeze'
-                                                                    ) ? '90deg' : '-90deg' }], marginHorizontal: 7, marginBottom: Platform.OS === 'ios' ? -1 : null }} />
-                                                            <Text style={{ ...styles.transaction__item__subtitle, marginBottom: Platform.OS === 'ios' ? 2 : null }}>
-                                                                {subtitleMini}
-                                                            </Text>
-                                                        </>
-                                                        : null
-                                                }
                                             </View>
-                                            {wayType !== 'EXCHANGE' && basicValueToView !== 'undefined undefined' ?
+                                            {basicValueToView ? (
                                                 <Text style={{ ...styles.transaction__item__subtitle, color: '#999999' }}>
                                                     {basicValueToView}
-                                                </Text> : null}
+                                                </Text>
+                                            ) : null}
                                         </View>
-                                        {this.renderToggleArrow(isStatus ? color : null)}
+                                        <View style={{ flexDirection: 'column', alignItems: 'flex-end', flex: 1 }}>
+                                            <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
+                                                {this.getTransactionDate(createdAt)}</Text>
+                                            <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>
+                                                {new Date(createdAt).toTimeString().slice(0, 5)}</Text>
+
+                                        </View>
                                     </View>
-                                    <View style={styles.line}>
-                                        <View style={styles.line__item} />
-                                    </View>
-                                    {
-                                        isExpanded ? subContent.map((item, key) => this.subContentTemplate(item, key)) : null
-                                    }
-                                    {this.renderPayButton()}
-                                    {this.renderRemoveButton()}
-                                    {this.renderReplaceByFeeIcon()}
-                                    {this.renderReplaceByFeeRemove()}
                                 </GradientView>
                             </TouchableOpacity>
                         </View>
-                        {isStatus && Platform.OS !== 'ios' && typeof this.state.height !== 'undefined' && typeof this.state.width !== 'undefined' ?
-                            <BoxShadow setting={{
-                                ...styles.shadow__item__android, color: color,
-                                height: this.state.height, width: this.state.width
-                            }} fromTransaction={1}>
-                            </BoxShadow> :
-                            <View style={styles.shadow}>
-                                <View style={{ ...styles.shadow__item, shadowColor: isStatus ? color : null }} />
-                            </View>}
+                        {
+                            isStatus && Platform.OS !== 'ios' && this.state.height && this.state.width ? (
+                                <BoxShadow
+                                    setting={{
+                                        ...styles.shadow__item__android,
+                                        color: currencyColor,
+                                        height: this.state.height,
+                                        width: this.state.width
+                                    }}
+                                    fromTransaction={1}
+                                />
+                            ) : (
+                                <View style={styles.shadow}>
+                                    <View style={{ ...styles.shadow__item, shadowColor: isStatus ? currencyColor : null }} />
+                                </View>
+                            )
+                        }
                     </View>
                 </View>
             </View>
-        ) : <View />
+        )
     }
 }
+
+Transaction.contextType = ThemeContext
 
 export default Transaction
 
@@ -1235,22 +322,21 @@ const globalStyles = {
     default: {
         transaction: {
             flexDirection: 'row',
+            height: 110,
 
             overflow: 'hidden'
         },
         transaction__content: {
             position: 'relative',
 
-            backgroundColor: '#fff',
-            borderRadius: 16
+            borderRadius: 18
         },
         transaction__content__item: {
             position: 'relative',
 
-            backgroundColor: '#fff',
-            borderRadius: 16,
+            borderRadius: 18,
 
-            zIndex: 2
+            zIndex: 2,
         },
         transaction__col1: {
             alignItems: 'center',
@@ -1297,21 +383,17 @@ const globalStyles = {
             marginRight: 8,
 
             fontFamily: 'Montserrat-Bold',
-            fontSize: 12,
-            color: '#404040'
+            fontSize: 14,
         },
         transaction__top__type__icon: {
             marginTop: 2,
-            fontSize: 14,
-
-            color: '#5C5C5C'
+            fontSize: 16,
         },
         transaction__top__type: {
             marginTop: Platform.OS === 'android' ? 2.5 : 0.5,
 
             fontFamily: 'SFUIDisplay-Bold',
-            fontSize: 12,
-            color: '#5C5C5C'
+            fontSize: 14,
         },
         transaction__top__confirmation: {},
         transaction__item: {
@@ -1333,65 +415,30 @@ const globalStyles = {
             height: 62
         },
         transaction__item_bg: {
-            array: ['#fff', '#f2f2f2'],
             start: { x: 1, y: 0 },
             end: { x: 1, y: 1 }
         },
         transaction__item__title: {
             marginRight: 5,
 
-            fontFamily: 'Montserrat-Medium',
+            fontFamily: 'Montserrat-SemiBold',
             fontSize: 18
         },
         transaction__item__title__subtitle: {
-            marginBottom: 1.8,
 
             fontFamily: 'Montserrat-SemiBold',
-            fontSize: 12,
+            fontSize: 14,
             color: '#1EB3E4'
         },
         transaction__item__subtitle: {
-            fontFamily: 'SFUIDisplay-Semibold',
+            fontFamily: 'Montserrat-SemiBold',
             fontSize: 12,
-            color: '#404040'
         },
         circle: {},
         transaction__item__arrow: {
             marginLeft: .5,
 
             fontSize: 16
-        },
-        transaction__item__arrow_up: {
-            marginTop: 0.5
-        },
-        transaction__item__arrow_down: {
-            marginTop: 1.5
-        },
-        transaction__item__subcontent: {
-            marginBottom: 16,
-            paddingHorizontal: 30
-        },
-        transaction__item__subcontent__title: {
-            marginBottom: 4,
-            fontFamily: 'Montserrat-Bold',
-            fontSize: 14,
-            color: '#404040'
-        },
-        transaction__item__subcontent__text: {
-            fontFamily: 'SFUIDisplay-Bold',
-            fontSize: 12,
-            letterSpacing: 2,
-            color: '#999999',
-            flex: 1,
-            flexWrap: 'wrap'
-        },
-        transaction__item__subcontent__text_link: {
-            fontFamily: 'SFUIDisplay-Bold',
-            fontSize: 12,
-            color: '#864DD9',
-            textDecorationLine: 'underline',
-            textDecorationStyle: 'solid',
-            textDecorationColor: '#864DD9'
         },
         shadow: {
             position: 'absolute',
@@ -1434,8 +481,6 @@ const globalStyles = {
 
             backgroundColor: '#fff',
 
-            // borderRadius: 16,
-
             width: 350,
             height: 63,
             border: 6,
@@ -1445,19 +490,14 @@ const globalStyles = {
             y: 0,
             style: {
                 flexDirection: 'row',
-                // marginVertical: 5,
-                position: 'absolute'
-                // margin: 1
+                position: 'absolute',
             }
         },
-        line: {
-            height: 1,
-            marginBottom: 12,
-
-            marginHorizontal: 56,
-
-            backgroundColor: '#E3E6E9'
-        }
+        transaction__data: {
+            fontFamily: 'SFUIDisplay-Semibold',
+            fontSize: 14,
+            lineHeight: 18,
+        },
     },
     themes: {
         new: {
@@ -1465,7 +505,6 @@ const globalStyles = {
                 backgroundColor: '#404040'
             },
             transaction__circle__big: {
-                // backgroundColor: "#404040",
                 borderColor: '#404040',
                 borderWidth: 1.5,
                 borderRadius: 20
@@ -1475,14 +514,13 @@ const globalStyles = {
             },
             transaction__item__arrow: {
                 color: '#404040'
-            }
+            },
         },
         self: {
             transaction__circle__small: {
                 backgroundColor: '#404040'
             },
             transaction__circle__big: {
-                // backgroundColor: "#404040",
                 borderColor: '#404040',
                 borderWidth: 1.5,
                 borderRadius: 20
@@ -1492,14 +530,13 @@ const globalStyles = {
             },
             transaction__item__arrow: {
                 color: '#404040'
-            }
+            },
         },
         outcome: {
             transaction__circle__small: {
                 backgroundColor: '#404040'
             },
             transaction__circle__big: {
-                // backgroundColor: "#404040",
                 borderColor: '#404040',
                 borderWidth: 1.5,
                 borderRadius: 20
@@ -1516,7 +553,6 @@ const globalStyles = {
                 backgroundColor: '#404040'
             },
             transaction__circle__big: {
-                // backgroundColor: "#404040",
                 borderColor: '#404040',
                 borderWidth: 1.5,
                 borderRadius: 20

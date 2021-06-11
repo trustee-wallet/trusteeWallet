@@ -1,28 +1,26 @@
 /**
- * @version 0.14
+ * @version 0.44
  * @author ksu
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 
 import { View, Dimensions, KeyboardAvoidingView, Platform } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-
-import firebase from 'react-native-firebase'
-
-import GoogleDrive from '../../services/Back/Google/GoogleDrive'
-import Log from '../../services/Log/Log'
+import GoogleDrive from '@app/services/Back/Google/GoogleDrive'
+import Log from '@app/services/Log/Log'
 
 import { WebView } from 'react-native-webview'
-import { strings } from '../../services/i18n'
-import NavStore from '../../components/navigation/NavStore'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import { strings } from '@app/services/i18n'
+import NavStore from '@app/components/navigation/NavStore'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
-class BackupStepGoogle extends Component {
+class BackupStepGoogle extends PureComponent {
 
     constructor() {
         super()
@@ -47,14 +45,14 @@ class BackupStepGoogle extends Component {
             return false
         }
 
-        this.setState({show : false})
+        this.setState({ show: false })
         try {
             const checked = await GoogleDrive.checkCode(url)
 
             if (checked) {
 
                 const selectedWallet = this.props.selectedWallet
-                const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash)
+                const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash, 'BackupStepGoogle.navigatorChange')
 
                 const files = await GoogleDrive.getFiles(selectedWallet.walletHash)
                 if (files) {
@@ -96,17 +94,14 @@ class BackupStepGoogle extends Component {
 
     render() {
 
-        firebase.analytics().setCurrentScreen('BackupStepGoogle')
+        MarketingAnalytics.setCurrentScreen('BackupStepGoogle')
 
         return (
-            <View style={styles.wrapper}>
-                <Navigation
-                    self={this}
-                    navigation={this.props.navigation}
-                    isBack={false}
-                    closeAction={this.closeAction}
-                    title={strings('walletCreate.importGoogle')}
-                />
+            <ScreenWrapper
+                rightType="close"
+                rightAction={this.closeAction}
+                title={strings('walletCreate.importGoogle')}
+            >
                 <View style={{ flex: 1, position: 'relative', marginTop: 80 }}>
                     {this.state.show ?
                         <KeyboardAvoidingView
@@ -157,7 +152,7 @@ class BackupStepGoogle extends Component {
                             />
                         </KeyboardAvoidingView> : null}
                 </View>
-            </View>
+            </ScreenWrapper>
         )
     }
 }

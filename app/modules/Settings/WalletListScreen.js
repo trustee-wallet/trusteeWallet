@@ -1,174 +1,190 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 
-import firebase from 'react-native-firebase'
+import EntypoIcon from 'react-native-vector-icons/Entypo'
 
-import Navigation from '../../components/navigation/Navigation'
-import LightButton from '../../components/elements/LightButton'
-import LetterSpacing from '../../components/elements/LetterSpacing'
-import NavStore from '../../components/navigation/NavStore'
-import CustomIcon from '../../components/elements/CustomIcon'
+import NavStore from '@app/components/navigation/NavStore'
+
+import { strings } from '@app/services/i18n'
 
 import Wallet from './elements/Wallet'
 
-import { setFlowType, setWalletName } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import { strings } from '../../services/i18n'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-import DaemonCache from '../../daemons/DaemonCache'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
+import { getWalletsGeneralData, getWalletsList } from '@app/appstores/Stores/Wallet/selectors'
+import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-class WalletListScreen extends Component {
+class WalletListScreen extends PureComponent {
 
     constructor(props) {
         super(props)
         this.state = {
-            totalBalance: 0
+            isBalanceVisible: false,
+            isBalanceVisibleTriggered: false
         }
-        this.walletsRefs = {}
     }
 
-
-    handleImport = () => {
-        setFlowType({
-            flowType: 'IMPORT_WALLET'
-        })
-        setWalletName({ walletName: '' })
-        NavStore.goNext('EnterMnemonicPhrase')
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value, isBalanceVisibleTriggered: true }))
     }
 
-    closeAllSettings = () => {
-        let i = 0
-        for (const item in this.walletsRefs) {
-            this.walletsRefs[`walletRef${i}`].closeSetting()
-            i++
-        }
+    handleAddWallet = () => {
+        NavStore.goNext('AddWalletScreen')
+    }
+
+    handleBack = () => {
+        NavStore.goBack()
+    }
+
+    handleClose = () => {
+        NavStore.goBack()
+        NavStore.goBack()
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.WalletListScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.WalletListScreen')
 
+        const { walletsList } = this.props
+        const { walletHash } =  this.props.selectedWalletData
+        let { totalBalance, localCurrencySymbol } = this.props.walletsGeneralData
+        const { colors, GRID_SIZE } = this.context
 
-        const { selectedWallet, selectedBasicCurrency } = this.props.mainStore
-        const { wallets } = this.props
-        const { accountList } = this.props.accountStore
+        const { isBalanceVisible, isBalanceVisibleTriggered } = this.state
+        const originalVisibility = this.props.isBalanceVisible
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
 
-        let totalBalance = 0
-        let localCurrencySymbol = selectedBasicCurrency.symbol
-
-        const CACHE_SUM = DaemonCache.getCache(false)
-        if (CACHE_SUM) {
-            totalBalance = BlocksoftPrettyNumbers.makeCut(CACHE_SUM.balance, 2, 'Settings/totalBalance').separated
-            localCurrencySymbol = CACHE_SUM.basicCurrencySymbol
-        }
-
-        const importBtnTitle = strings('walletCreateScreen.importWallet').split(' ')[0]
+        totalBalance = BlocksoftPrettyNumbers.makeCut(totalBalance).separated
 
         return (
-            <View style={styles.wrapper}>
-                <Navigation
-                    title={strings('settings.walletList.title')}
-                />
+            <ScreenWrapper
+                leftType='back'
+                leftAction={this.handleBack}
+                rightType='close'
+                rightAction={this.handleClose}
+                title={strings('settings.walletList.title')}
+            >
                 <ScrollView
+                    bounces={false}
                     showsVerticalScrollIndicator={false}
-                    style={styles.wrapper__scrollView}>
-                    <View style={styles.wrapper__top}>
-                        <View style={styles.wrapper__top__content}>
-                            <LetterSpacing text={strings('settings.walletList.totalBalance')} textStyle={styles.wrapper__top__content__title} letterSpacing={0.5}/>
-                            <Text style={styles.wrapper__top__content__text}>
-                                {localCurrencySymbol} {totalBalance}
-                            </Text>
-                        </View>
-
-                                <TouchableOpacity onPress={this.handleImport}>
-                                    <LightButton Icon={(props) => <CustomIcon size={10} name={'receive'} {...props} />} iconStyle={{ marginHorizontal: 3 }} title={importBtnTitle}/>
-                                </TouchableOpacity>
-
-                    </View>
-                    <View style={styles.wrapper__content}>
-                        <View style={styles.block}>
+                    contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE }]}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={[styles.topContent, { paddingHorizontal: GRID_SIZE / 2, paddingTop: GRID_SIZE / 2, paddingBottom: GRID_SIZE }]}>
+                        <TouchableOpacity
+                            onPressIn={() => this.triggerBalanceVisibility(true, originalVisibility)}
+                            onPressOut={() => this.triggerBalanceVisibility(false, originalVisibility)}
+                            activeOpacity={0.9}
+                            disabled={originalVisibility}
+                            hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 60 : 20, bottom: 30 }}
+                        >
+                            <Text style={[styles.balanceTitle, { color: colors.common.text2 }]}>{strings('settings.walletList.totalBalance')}</Text>
                             {
-                                wallets.map((item, index) => {
-                                    return (
-                                        <Wallet ref={ref => this.walletsRefs[`walletRef${index}`] = ref}
-                                                selectedWallet={selectedWallet}
-                                                accountListByHash={accountList[item.walletHash]}
-                                                wallet={item}
-                                                key={index}
-                                                setTotalBalance={this.setTotalBalance}
-                                                closeAllSettings={this.closeAllSettings}/>
-                                    )
-                                })
+                                finalIsBalanceVisible ? (
+                                    <Text style={[styles.balanceValue, { color: colors.common.text1 }]}>{localCurrencySymbol} {totalBalance}</Text>
+                                ) : (
+                                    <Text style={[styles.balanceValue, styles.balanceValueHidden, { color: colors.common.text1 }]}>****</Text>
+                                )
                             }
-                        </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.addAssetButton, { borderColor: colors.common.text1 }]}
+                            onPress={this.handleAddWallet}
+                        >
+                            <EntypoIcon style={[styles.addAsset__icon, { color: colors.common.text3 }]} size={13} name='plus' />
+                            <Text style={[styles.addAsset__text, { color: colors.common.text3 }]}>
+                                {strings('settings.walletList.addWallet')}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{ paddingBottom: GRID_SIZE }}>
+                        {
+                            walletsList.map((item, index) => {
+                                return (
+                                    <Wallet
+                                        selectedWalletHash={walletHash}
+                                        wallet={item}
+                                        key={index}
+                                        isBalanceVisible={this.state.isBalanceVisible}
+                                        isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
+                                        originalVisibility={this.props.isBalanceVisible}
+                                        triggerBalanceVisibility={this.triggerBalanceVisibility}
+                                    />
+                                )
+                            })
+                        }
                     </View>
                 </ScrollView>
-            </View>
+            </ScreenWrapper>
         )
     }
 }
 
+WalletListScreen.contextType = ThemeContext
+
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
-        accountStore : state.accountStore,
-        wallets: state.walletStore.wallets
+        selectedWalletData: getSelectedWalletData(state),
+        walletsGeneralData: getWalletsGeneralData(state),
+        walletsList: getWalletsList(state),
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore)
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
+export default connect(mapStateToProps)(WalletListScreen)
 
-export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(WalletListScreen)
-
-const styles = {
-    wrapper: {
-        flex: 1,
-        backgroundColor: '#f5f5f5'
+const styles = StyleSheet.create({
+    scrollViewContent: {
+        flexGrow: 1
     },
-    wrapper__scrollView: {
-        marginTop: 80
-    },
-    wrapper__bg: {
-        width: '100%',
-        height: '100%'
-    },
-    wrapper__content: {
-        marginTop: 35
-    },
-    title: {
-        position: 'absolute',
-        top: 75,
-        width: '100%',
-        fontSize: 24,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#f4f4f4',
-        textAlign: 'center'
-    },
-    wrapper__top: {
+    topContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-
-        paddingHorizontal: 31,
-        marginTop: 16
+        justifyContent: 'space-between'
     },
-    wrapper__top__content: {},
-    wrapper__top__content__title: {
-        fontSize: 14,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#999'
+    addAssetButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 30,
+        paddingRight: 14,
+        paddingLeft: 10,
+        paddingVertical: 5,
+        borderRadius: 6,
+        borderWidth: 1.5
     },
-    wrapper__top__content__text: {
-        fontSize: 18,
+    addAsset__text: {
+        fontSize: 10,
         fontFamily: 'Montserrat-Bold',
-        color: '#404040'
+        textTransform: 'uppercase'
+    },
+    addAsset__icon: {
+        marginRight: 2,
+        marginTop: 1
+    },
+    balanceTitle: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1
+    },
+    balanceValue: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        lineHeight: 17,
+        marginTop: 5
+    },
+    balanceValueHidden: {
+        fontSize: 24,
+        lineHeight: 25,
+        marginBottom: -8
     }
-}
+})

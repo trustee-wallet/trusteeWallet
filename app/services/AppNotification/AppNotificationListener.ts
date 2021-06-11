@@ -1,44 +1,56 @@
-import { Platform } from 'react-native'
-import firebase, { RNFirebase } from 'react-native-firebase'
+/**
+ * @version 0.30
+ **/
+import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-community/async-storage'
-import { hideModal, showModal } from '../../appstores/Stores/Modal/ModalActions'
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
-import { NotificationUnified } from './Types'
-import { AppNewsItem } from '../../appstores/Stores/AppNews/Types'
 
-import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
-import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
-import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
-import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
 import MarketingEvent from '../Marketing/MarketingEvent'
+import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
+import config from '../../config/config'
 
+import NavStore from '../../components/navigation/NavStore'
+import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
+import AppNotificationPushSave from './AppNotificationPushSave'
+import AppNotificationPopup from './AppNotificationPopup'
+import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
+import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
+import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
+import { Platform } from 'react-native'
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
 const ASYNC_ALL_CACHE = 'allPushTokens'
 const CACHE_VALID_TIME = 120000000 // 2000 minute
 
+
+const TOPICS = ['transactions', 'exchangeRates', 'news']
+
 export default new class AppNotificationListener {
 
-    private notificationListener: any
-    private notificationOpenedListener: any
     private messageListener: any
+    private inited: boolean = false
+    private initing: number = 0
+    private timer : any
 
     async init(): Promise<void> {
+        const now = new Date().getTime()
+        if (this.inited || (now - this.initing) < 10000) {
+            return
+        }
+        this.initing = now
         if (await this.checkPermission()) {
+            this.inited = true
             await this.createRefreshListener()
-            await this.createNotificationListeners()
-            await this.createNotificationOpenedListener()
             await this.createMessageListener()
-            await this.isAppOpenViaNotification()
         }
     }
 
     async checkPermission(): Promise<boolean> {
         let res = false
         try {
-            const enabled: boolean = await firebase.messaging().hasPermission()
+            const enabled: any = await messaging().hasPermission()
             if (enabled) {
                 await this.getToken()
                 res = true
@@ -46,9 +58,14 @@ export default new class AppNotificationListener {
                 res = await this.requestPermission()
             }
         } catch (e) {
-            Log.log('PUSH checkPermission error ' + e.message)
+            if (config.debug.appErrors) {
+                await Log.log('PUSH checkPermission error ' + e.message)
+            }
+            await Log.log('PUSH checkPermission error ' + e.message)
         }
-        Log.log('PUSH checkPermission result ', res)
+
+        await Log.log('PUSH checkPermission result ' + JSON.stringify(res))
+        /*
         if (res) {
             await appNewsDS.setRemoved({ newsName: 'PUSH_NOTIFICATION_DISABLED' })
         } else {
@@ -59,95 +76,227 @@ export default new class AppNotificationListener {
                 newsJson: {}
             })
         }
+        */
         return res
     }
 
-    async unsetLang(): Promise<void> {
-        const locale: string = sublocale()
-        try {
-            await firebase.messaging().unsubscribeFromTopic('trustee_all_' + locale)
-        } catch (e) {
-            Log.log('PUSH unsetLang ' + locale + ' error ' + e.message)
+    async _subscribe(topic: string, locale: string, isDev: boolean): Promise<void> {
+        const { languageList } = config.language
+        Log.log('PUSH subscribe ' + topic + ' started ' + locale)
+
+        for (const lang of languageList) {
+            const sub = sublocale(lang.code)
+            if (sub === locale) {
+                Log.log('PUSH subscribe ' + topic + ' lang ' + locale)
+                await messaging().subscribeToTopic(topic)
+                await messaging().subscribeToTopic(topic + '_' + locale)
+                if (Platform.OS === 'ios') {
+                    await messaging().subscribeToTopic(topic + '_ios')
+                    await messaging().subscribeToTopic(topic + '_ios_' + locale)
+                } else {
+                    await messaging().subscribeToTopic(topic + '_android')
+                    await messaging().subscribeToTopic(topic + '_android_' + locale)
+                }
+                if (isDev) {
+                    await messaging().subscribeToTopic(topic + '_dev')
+                    await messaging().subscribeToTopic(topic + '_dev_' + locale)
+                } else {
+                    await messaging().unsubscribeFromTopic(topic + '_dev')
+                    await messaging().unsubscribeFromTopic(topic + '_dev_' + locale)
+                }
+            } else {
+                Log.log('PUSH subscribe ' + topic + ' unlang ' + sub)
+                await messaging().unsubscribeFromTopic(topic + '_' + sub)
+                await messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
+                if (Platform.OS === 'ios') {
+                    await messaging().unsubscribeFromTopic(topic + '_ios_' + sub)
+                } else {
+                    await messaging().unsubscribeFromTopic(topic + '_android_' + sub)
+                }
+            }
         }
+
+        Log.log('PUSH subscribe ' + topic + ' finished')
+    }
+
+    async _unsubscribe(topic: string): Promise<void> {
+        const { languageList } = config.language
+
+        Log.log('PUSH unsubscribe ' + topic + ' started')
+
+        await messaging().unsubscribeFromTopic(topic)
+        await messaging().unsubscribeFromTopic(topic + '_dev')
+        if (Platform.OS === 'ios') {
+            await messaging().unsubscribeFromTopic(topic + '_ios')
+        } else {
+            await messaging().unsubscribeFromTopic(topic + '_android')
+        }
+        for (const lang of languageList) {
+            const sub = sublocale(lang.code)
+            await messaging().unsubscribeFromTopic(topic + '_' + sub)
+            await messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
+            if (Platform.OS === 'ios') {
+                await messaging().unsubscribeFromTopic(topic + '_ios_' + sub)
+            } else {
+                await messaging().unsubscribeFromTopic(topic + '_android_' + sub)
+            }
+        }
+
+        Log.log('PUSH unsubscribe ' + topic + ' finished')
+    }
+
+    async rmvOld(fcmToken: string = ''): Promise<void> {
+        if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
+            return
+        }
+        const { languageList } = config.language
         try {
-            await firebase.messaging().unsubscribeFromTopic('trustee_dev_' + locale)
+            await Log.log('PUSH rmvOld start')
+            await messaging().unsubscribeFromTopic('trustee_all')
+            await messaging().unsubscribeFromTopic('trustee_dev')
+            for (const lang of languageList) {
+                const sub = sublocale(lang.code)
+                await messaging().unsubscribeFromTopic('trustee_all_' + sub)
+                await messaging().unsubscribeFromTopic('trustee_dev_' + sub)
+            }
+            await Log.log('PUSH rmvOld finished')
         } catch (e) {
-            Log.log('PUSH unsetLang ' + locale + ' error ' + e.message)
+            if (config.debug.appErrors) {
+                Log.log('PUSH rmvOld error ' + e.message)
+            }
         }
     }
 
-    async setLang(): Promise<void> {
-        const locale: string = sublocale()
-        try {
-            await firebase.messaging().subscribeToTopic('trustee_all_' + locale)
-        } catch (e) {
-            Log.log('PUSH setLang ' + locale + ' error ' + e.message)
+    async updateSubscriptions(fcmToken: string = ''): Promise<void> {
+        if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
+            return
         }
+        Log.log('PUSH updateSubscriptions ' + fcmToken)
+        const settings = await settingsActions.getSettings(false)
+        if (typeof settings === 'undefined' || !settings) {
+            return
+        }
+        const notifsStatus = settings && typeof settings.notifsStatus !== 'undefined' && settings.notifsStatus ? settings.notifsStatus : '1'
+        const locale = settings && typeof settings.language !== 'undefined' && settings.language ? sublocale(settings.language) : sublocale()
+        Log.log('settings ' + settings.language + ' locale ' + locale)
         const devMode = await AsyncStorage.getItem('devMode')
-        if (devMode && devMode.toString() === '1') {
-            try {
-                await firebase.messaging().subscribeToTopic('trustee_dev_' + locale)
-            } catch (e) {
-                Log.log('PUSH setLang ' + locale + ' error ' + e.message)
+        const isDev = devMode && devMode.toString() === '1'
+
+
+        await this._subscribe('trusteeAll', locale, isDev as boolean)
+        if (notifsStatus === '1') {
+            for (const key of TOPICS) {
+                // @ts-ignore
+                if (typeof settings[key + 'Notifs'] === 'undefined' || settings[key + 'Notifs'] === '1') {
+                    await this._subscribe(key, locale, isDev as boolean)
+                } else {
+                    await this._unsubscribe(key)
+                }
             }
+        } else {
+            for (const key of TOPICS) {
+                await this._unsubscribe(key)
+            }
+        }
+
+        if (typeof fcmToken === 'undefined' || fcmToken === '') {
+            fcmToken = MarketingEvent.DATA.LOG_TOKEN
+        }
+        if (typeof settings.dbVersion !== 'undefined' && settings.dbVersion) {
+            await settingsActions.setSettings('notifsSavedToken', fcmToken)
         }
     }
 
-    async unsetDev(): Promise<void> {
-        const locale: string = sublocale()
-        const keys = ['trustee_dev', 'trustee_dev_' + locale, 'trustee_dev_ua', 'trustee_dev_en', 'trustee_dev_ru']
-        for (const key of keys) {
-            try {
-                await firebase.messaging().unsubscribeFromTopic(key)
-            } catch (e) {
-                Log.log('PUSH unsetDev ' + locale + ' error ' + e.message)
+    async updateSubscriptionsLater(): Promise<void> {
+        await Log.log('PUSH updateSubscriptionsLater')
+        await settingsActions.setSettings('notifsSavedToken', '')
+        try {
+            if (this.timer) {
+                clearTimeout(this.timer)
             }
+        } catch (e) {
+            await Log.log('PUSH updateSubscriptionsLater timer clean error ' + e.message)
         }
+        this.timer = setTimeout(() => {
+            this.updateSubscriptions()
+        }, 2000)
     }
 
-
-    async getToken(): Promise<void> {
+    async getToken(): Promise<string | null> {
         let fcmToken: string | null = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
         // @ts-ignore
         let time: number = 1 * (await AsyncStorage.getItem(ASYNC_CACHE_TIME))
 
         const now = new Date().getTime()
         if (time && fcmToken) {
-            if (now - time > CACHE_VALID_TIME) {
+            if (now - time > CACHE_VALID_TIME && fcmToken.indexOf('NO_GOOGLE') === -1) {
                 time = 0
                 fcmToken = ''
-                Log.log('PUSH getToken cache invalidate ' + (now - time) + ' time ' + time)
+                await Log.log('PUSH getToken cache invalidate ' + (now - time) + ' time ' + time)
             } else {
-                Log.log('PUSH getToken cache valid ' + (now - time) + ' time ' + time)
+                // Log.log('PUSH getToken cache valid ' + (now - time) + ' time ' + time)
             }
         }
 
-        const locale: string = sublocale()
+        const notifsSavedToken = await settingsActions.getSetting('notifsSavedToken')
+        const notifsRmvOld = await settingsActions.getSetting('notifsRmvOld')
 
-        if (!time || !fcmToken || fcmToken === '') {
-            await firebase.messaging().subscribeToTopic('trustee_all')
-            await firebase.messaging().subscribeToTopic('trustee_all_' + locale)
-            const devMode = await AsyncStorage.getItem('devMode')
-            if (devMode && devMode.toString() === '1') {
-                await firebase.messaging().subscribeToTopic('trustee_dev')
-                await firebase.messaging().subscribeToTopic('trustee_dev_' + locale)
+        // Log.log('notifsSavedToken', notifsSavedToken)
+        try {
+            if (!time || !fcmToken || fcmToken === '' || notifsSavedToken !== fcmToken) {
+                if (fcmToken) {
+                    await this.updateSubscriptions(fcmToken)
+                }
+                try {
+                    fcmToken = await messaging().getToken()
+                    if (!notifsRmvOld && fcmToken) {
+                        await this.rmvOld(fcmToken)
+                        await settingsActions.setSettings('notifsRmvOld', '1')
+                    }
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        Log.log('PUSH getToken fcmToken error ' + e.message)
+                    }
+                    await Log.log('PUSH getToken fcmToken error ' + e.message)
+                }
+
+                if (!fcmToken) {
+                    try {
+                        await messaging().registerDeviceForRemoteMessages()
+                        fcmToken = await messaging().getToken()
+                    } catch (e) {
+                        if (config.debug.appErrors) {
+                            Log.log('PUSH getToken fcmToken error ' + e.message)
+                        }
+                        await Log.log('PUSH getToken fcmToken error ' + e.message)
+                        if (e.message.indexOf('MISSING_INSTANCEID_SERVICE') !== -1) {
+                            fcmToken = 'NO_GOOGLE_' + (new Date().getTime()) + '_' + (Math.ceil(Math.random() * 100000))
+                        }
+                    }
+                }
+
+                await Log.log('PUSH getToken subscribed token ' + fcmToken)
+                await this._onRefresh(fcmToken)
+                await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
+            } else {
+                // Log.log('PUSH getToken1 cache result ', fcmToken)
             }
-            fcmToken = await firebase.messaging().getToken()
-            Log.log('PUSH getToken subscribed token ' + fcmToken)
-            await this._onRefresh(fcmToken)
-            await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
-        } else {
-            Log.log('PUSH getToken cache result ' + fcmToken)
-        }
 
-        // @ts-ignore
-        MarketingEvent.DATA.LOG_TOKEN = fcmToken
+            // @ts-ignore
+            MarketingEvent.DATA.LOG_TOKEN = fcmToken
+        } catch (e) {
+            if (config.debug.appErrors) {
+                Log.log('PUSH getToken error ' + e.message)
+            }
+            await Log.log('PUSH getToken error ' + e.message)
+        }
+        return fcmToken
     }
 
     async requestPermission(): Promise<boolean> {
         try {
-            await firebase.messaging().requestPermission()
-            this.getToken()
+            await messaging().requestPermission()
+            await this.getToken()
             return true
         } catch (e) {
             Log.log('PUSH requestPermission rejected error ' + e.message)
@@ -155,50 +304,65 @@ export default new class AppNotificationListener {
         }
     }
 
-    createNotificationOpenedListener = async (): Promise<void> => {
-        /*
-        * If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
-        * */
-        Log.log('PUSH _onNotificationOpen inited')
-        try {
-            this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
-                Log.log('PUSH _onNotificationOpen', notificationOpen)
-                let data
-                let notificationId
-                try {
-                    data = this._unifyAnyPush(notificationOpen.notification)
-                    notificationId = data.toSave.newsServerId
-                } catch (e) {
-                    // @ts-ignore
-                    Log.err('PUSH AppNotification.createNotificationOpenedListener parse error ' + e.message, notificationOpen.notification._data)
-                }
-
-                try {
-                    if (typeof data.toShow !== 'undefined' && data.toShow && typeof data.toShow.newsCreated !== 'undefined') {
-                        this.showNewsModal(data.toShow, notificationId)
-                    } else {
-                        this.showNotificationModal(data.toSave, notificationId)
-                    }
-                } catch (e) {
-                    Log.err('PUSH AppNotification.createNotificationOpenedListener show error ' + e.message, {
-                        data,
-                        notificationId
-                    })
-                }
-            })
-        } catch (e) {
-            Log.log('PUSH AppNotification.createNotificationOpenedListener outside error ' + e.message)
-        }
-    }
-
     createMessageListener = async (): Promise<void> => {
-        /*
-        * Triggered for data only payload in foreground
-        * */
-        Log.log('PUSH _onMessage inited')
-        this.messageListener = firebase.messaging().onMessage((message) => {
-            Log.log('PUSH _onMessage', message)
+        try {
+            const startMessage = await messaging().getInitialNotification()
+
+            if (startMessage && typeof startMessage.messageId !== 'undefined') {
+                const lockScreen = await SettingsKeystore.getLockScreenStatus()
+                if (+lockScreen) {
+                    await Log.log('PUSH _onMessage startMessage not null but lockScreen is needed', startMessage)
+                    const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
+                    lockScreenAction.setFlowType({
+                        flowType: 'JUST_CALLBACK'
+                    })
+                    lockScreenAction.setActionCallback({
+                        actionCallback: async () => {
+                            await Log.log('PUSH _onMessage startMessage after lock screen', unifiedPush)
+                            if (await AppNewsActions.onOpen(unifiedPush, '', '', false)) {
+                                NavStore.reset('NotificationsScreen')
+                            }
+                        }
+                    })
+                    NavStore.goNext('LockScreenPop')
+                } else {
+                    await Log.log('PUSH _onMessage startMessage not null', startMessage)
+                    UpdateAppNewsDaemon.goToNotifications('AFTER_APP')
+
+                    const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
+
+                    await UpdateAppNewsDaemon.updateAppNewsDaemon()
+
+                    await Log.log('PUSH _onMessage startMessage unified', unifiedPush)
+                    if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
+                        await Log.log('PUSH _onMessage startMessage app is inited first')
+                        if (await AppNewsActions.onOpen(unifiedPush)) {
+                            NavStore.reset('NotificationsScreen')
+                        }
+                    } else {
+                        await Log.log('PUSH _onMessage startMessage app is not inited')
+                        await AppNewsActions.onOpen(unifiedPush)
+                    }
+                }
+
+                await Log.log('PUSH _onMessage startMessage finished')
+            } else {
+                await Log.log('PUSH _onMessage startMessage is null', startMessage)
+            }
+        } catch (e) {
+            Log.err('PUSH _onMessage startMessage error ' + e.message)
+        }
+
+        this.messageListener = messaging().onMessage(async (message) => {
+            await Log.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+            await AppNotificationPopup.displayPush(message)
         })
+
+        await messaging().onNotificationOpenedApp(async (message) => {
+            await Log.log('PUSH _onNotificationOpened inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+            await AppNotificationPopup.onOpened(message)
+        })
+
     }
 
     _onRefresh = async (fcmToken: string): Promise<void> => {
@@ -220,272 +384,15 @@ export default new class AppNotificationListener {
         await AsyncStorage.setItem(ASYNC_ALL_CACHE, JSON.stringify(all))
     }
 
-
     createRefreshListener = async (): Promise<void> => {
         /*
         * Triggered for data only payload in foreground
         * */
         Log.log('PUSH _onRefresh inited')
-        this.messageListener = firebase.messaging().onTokenRefresh((fcmToken) => {
+        this.messageListener = messaging().onTokenRefresh((fcmToken) => {
             Log.log('PUSH _onRefresh', fcmToken)
             this._onRefresh(fcmToken)
 
         })
-    }
-
-    isAppOpenViaNotification = async (): Promise<void> => {
-        /*
-        * If your app is closed, you can check if it was opened by a notification being clicked / tapped / opened as follows:
-        * */
-        let data
-        let notificationId
-        let notificationOpen
-        try {
-            notificationOpen = await firebase.notifications().getInitialNotification()
-            Log.log('PUSH _isAppOpenViaNotification notificationOpen ', notificationOpen)
-        } catch (e) {
-            Log.log('PUSH _isAppOpenViaNotification init error ' + e.message)
-        }
-
-        if (!notificationOpen) {
-            return
-        }
-
-        try {
-            data = this._unifyAnyPush(notificationOpen.notification)
-            notificationId = data.toSave.newsServerId
-        } catch (e) {
-            Log.log('PUSH _isAppOpenViaNotification parse error ' + e.message)
-        }
-
-        try {
-            if (typeof data.toShow !== 'undefined' && data.toShow && typeof data.toShow.newsCreated !== 'undefined') {
-                // @ts-ignore
-                this.showNewsModal(data.toShow, notificationId)
-            } else {
-                // @ts-ignore
-                this.showNotificationModal(data.toSave, notificationId)
-            }
-        } catch (e) {
-            Log.log('PUSH _isAppOpenViaNotification show error ' + e.message, { data, notificationId })
-        }
-    }
-
-
-    _unifyAnyPush(notification: RNFirebase.notifications.Notification): { toSave: NotificationUnified, toShow: AppNewsItem, needReload: boolean } {
-
-        let toShow = false
-        try {
-            // @ts-ignore
-            if (typeof notification._data.notification !== 'undefined') {
-                // @ts-ignore
-                toShow = JSON.parse(notification._data.notification)
-            } else {
-                // @ts-ignore
-                toShow = notification._data.notificationJson
-            }
-        } catch (e) {
-            // do nothing
-        }
-
-        const toSave = {
-            newsSource: 'PUSHES',
-            newsGroup: 'PUSHES',
-            newsName: 'PUSH_NOTIFICATION',
-            newsCustomTitle: notification.title,
-            newsCustomText: notification.body,
-            newsNeedPopup: 0,
-            newsServerId: notification.notificationId,
-            newsJson: {}
-        } as NotificationUnified
-
-        const locale: string = sublocale()
-
-        const keys = [
-            notification.data,
-            notification.body
-        ]
-        // @ts-ignore
-        if (typeof notification._data !== 'undefined') {
-            // @ts-ignore
-            if (typeof notification._data.notification !== 'undefined') {
-                // @ts-ignore
-                keys.push(notification._data.notification)
-                // @ts-ignore
-            } else if (typeof notification._data.notificationJson !== 'undefined') {
-                // @ts-ignore
-                keys.push(notification._data.notificationJson)
-            } else {
-                // @ts-ignore
-                keys.push(notification._data)
-            }
-        }
-        if (typeof notification.data !== 'undefined') {
-            keys.push(notification.data)
-        }
-        if (typeof notification.body !== 'undefined') {
-            keys.push(notification.body)
-        }
-
-        for (const key of keys) {
-            if (!key) continue
-            let tmp = false
-            if (typeof notification.body !== 'object') {
-                try {
-                    tmp = JSON.parse(key)
-                } catch (e) {
-                    Log.log('PUSH _onNotification notification not JSON ' + e.message, key)
-                }
-            } else {
-                tmp = key
-            }
-            if (tmp && typeof tmp === 'object') {
-                // @ts-ignore
-                toSave.newsJson = { ...tmp, ...toSave.newsJson }
-            }
-        }
-
-        if (toSave.newsJson === {}) {
-            // @ts-ignore
-            toSave.newsJson = false
-        }
-
-        let needReload = false
-        if (toSave.newsJson) {
-            if (typeof toSave.newsJson.notification !== 'undefined') {
-                let tmp = false
-                try {
-                    tmp = JSON.parse(toSave.newsJson.notification)
-                } catch (e) {
-                    // do nothing
-                }
-                if (tmp) {
-                    toSave.newsJson.notification = tmp
-                }
-            }
-
-            let lang = toSave.newsJson
-            if (typeof toSave.newsJson.notification !== 'undefined' && typeof toSave.newsJson.notification['en'] !== 'undefined') {
-                lang = toSave.newsJson.notification
-            }
-            if (typeof toSave.newsJson.inCurrencyCode !== 'undefined') {
-                needReload = true
-            }
-            if (typeof lang !== 'undefined' && typeof lang['en'] !== 'undefined' && typeof lang['en'].title !== 'undefined' && lang['en'].title === 'Exchange') {
-                needReload = true
-            }
-
-            if (typeof lang[locale] !== 'undefined') {
-                if (typeof lang[locale].title !== 'undefined' && lang[locale].title) {
-                    toSave.newsCustomTitle = lang[locale].title
-                }
-                if (typeof lang[locale].description !== 'undefined' && lang[locale].description) {
-                    toSave.newsCustomText = lang[locale].description
-                }
-            }
-        }
-        return { toSave, needReload, toShow }
-    }
-
-    async _onNotification(notification: RNFirebase.notifications.Notification): Promise<void> {
-
-        const { toSave, needReload } = this._unifyAnyPush(notification)
-        Log.log('PUSH _onNotification got toSave', toSave)
-        await appNewsDS.saveAppNews(toSave)
-
-        const notificationSubtitle: string | undefined = typeof notification.subtitle === 'undefined' ? '' : notification.subtitle
-
-        let localNotification = new firebase.notifications.Notification()
-            .setNotificationId(notification.notificationId)
-            .setTitle(toSave.newsCustomTitle)
-            .setSubtitle(notificationSubtitle)
-            .setBody(toSave.newsCustomText)
-            .setData(notification.data)
-
-        if (Platform.OS === 'android') {
-
-            const channel = new firebase.notifications.Android.Channel(
-                'trusteeWalletChannel',
-                'Trustee wallet channel',
-                firebase.notifications.Android.Importance.Max
-            ).setDescription('Trustee wallet channel for notifications')
-            await firebase.notifications().android.createChannel(channel)
-
-            localNotification = localNotification.android.setChannelId('trusteeWalletChannel')
-                .android.setSmallIcon('ic_notification')
-                .android.setColor('#f24b93')
-                .android.setPriority(firebase.notifications.Android.Priority.High)
-
-        } else if (Platform.OS === 'ios') {
-
-            const notificationBadge: number | undefined = typeof notification.ios.badge === 'undefined' ? 0 : notification.ios.badge
-
-            localNotification = localNotification.ios.setBadge(notificationBadge)
-        }
-
-        try {
-            await firebase.notifications().displayNotification(localNotification)
-        } catch (e) {
-            Log.err('PUSH AppNotification _onNotification error ' + e.message)
-        }
-
-        if (needReload) {
-            try {
-                await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
-            } catch (e) {
-                Log.err('PUSH AppNotification _onNotification reload Orders error ' + e.message)
-            }
-        }
-    }
-
-    async createNotificationListeners(): Promise<void> {
-        try {
-            /*
-            * Triggered when a particular notification has been received in foreground
-            * */
-            this.notificationListener = firebase.notifications().onNotification(async (notification) => {
-                try {
-                    await this._onNotification(notification)
-                } catch (e) {
-                    Log.err('PUSH _onNotification inside error ' + e.message)
-                }
-                return false
-            })
-        } catch (e) {
-            Log.err('PUSH _onNotification outside error ' + e.message)
-        }
-    }
-
-    showNotificationModal = (data: NotificationUnified, notificationId: string): void => {
-        const locale: string = sublocale()
-        showModal({
-            type: 'CHOOSE_INFO_MODAL',
-            data: {
-                // @ts-ignore
-                title: data.newsCustomTitle,
-                // @ts-ignore
-                description: data.newsCustomText,
-                hideBottom: true,
-                acceptCallback: async () => {
-                    if (notificationId) {
-                        firebase.notifications().removeDeliveredNotification(notificationId)
-                    }
-                    if (typeof data.walletHash !== 'undefined' && data.walletHash) {
-                        const selectedWallet = await BlocksoftKeysStorage.getSelectedWallet()
-                        if (selectedWallet !== data.walletHash) {
-                            await cryptoWalletActions.setSelectedWallet(data.walletHash, 'showNewsModal')
-                        }
-                    }
-                    hideModal()
-                }
-            }
-        })
-    }
-
-    showNewsModal = async (data: AppNewsItem, notificationId: string): Promise<void> => {
-        await appNewsDS.shownPopup(data.id)
-        if (notificationId) {
-            firebase.notifications().removeDeliveredNotification(notificationId)
-        }
     }
 }

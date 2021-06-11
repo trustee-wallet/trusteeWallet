@@ -8,9 +8,12 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 
 import BtcFindAddressFunction from './basic/BtcFindAddressFunction'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
+import config from '../../../app/config/config'
+import Database from '@app/appstores/DataSource/Database';
 
-const CACHE_VALID_TIME = 30000 // 30 seconds
+const CACHE_VALID_TIME = 60000 // 60 seconds
 const CACHE = {}
+const CACHE_WALLET_PUBS = {}
 
 export default class BtcScannerProcessor {
 
@@ -41,24 +44,30 @@ export default class BtcScannerProcessor {
      * @returns {Promise<boolean|*>}
      * @private
      */
-    async _get(address, additionalData) {
+    async _get(address, additionalData, source = '') {
         const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             CACHE[address].provider = 'trezor-cache'
             return CACHE[address]
         }
+        BlocksoftCryptoLog.log('BtcScannerProcessor._get ' + address + ' from ' + source + ' started')
 
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'BTC.Scanner._get')
 
-        const prefix = address.substr(0,4)
+        const prefix = address.substr(0, 4)
 
-        let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
+        let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999'
         if (prefix === 'xpub' || prefix === 'zpub' || prefix === 'ypub') {
-            link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999'
+            link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used'
         }
         const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data) {
             await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
+            CACHE[address] = {
+                data: false,
+                time: now,
+                provider: 'trezor-empty'
+            }
             return false
         }
         if (typeof res.data.balance === 'undefined') {
@@ -74,8 +83,8 @@ export default class BtcScannerProcessor {
             let token
             for (token of res.data.tokens) {
                 addresses[token.name] = {
-                    balance : token.balance,
-                    transactions : token.transfers
+                    balance: token.balance,
+                    transactions: token.transfers
                 }
                 plainAddresses[token.name] = token.path
             }
@@ -92,57 +101,183 @@ export default class BtcScannerProcessor {
         return CACHE[address]
     }
 
+    async _getPubs(walletHash) {
+        if (typeof CACHE_WALLET_PUBS[walletHash] !== 'undefined') {
+            return CACHE_WALLET_PUBS[walletHash]
+        }
+        const sqlPub = `SELECT wallet_pub_value as walletPub
+                    FROM wallet_pub
+                    WHERE wallet_hash = '${walletHash}'
+                    AND currency_code='BTC'`
+        const resPub = await Database.setQueryString(sqlPub).query()
+        CACHE_WALLET_PUBS[walletHash] = {}
+        if (resPub && resPub.array && resPub.array.length > 0) {
+            for (const row of resPub.array) {
+                const scanAddress = row.walletPub
+                CACHE_WALLET_PUBS[walletHash][scanAddress] = 1
+            }
+        }
+        return CACHE_WALLET_PUBS[walletHash]
+    }
+
     /**
      * @param {string} address
      * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
      */
-    async getBalanceBlockchain(address) {
+    async getBalanceBlockchain(address, data, walletHash, source = '') {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getBalance started ' + address)
-        const res = await this._get(address)
+        const res = await this._get(address, data, source)
         if (!res) {
             return false
         }
-        return { balance: res.data.balance, unconfirmed: res.data.unconfirmedBalance, provider: res.provider, time : res.time, addresses : res.data.addresses }
+        return {
+            balance: res.data.balance,
+            unconfirmed: res.data.unconfirmedBalance,
+            provider: res.provider,
+            time: res.time,
+            addresses: res.data.addresses
+        }
     }
 
-    async getAddressesBlockchain(address) {
+    async getAddressesBlockchain(scanData, source = '') {
+        const address = scanData.account.address.trim()
+        const data = scanData.additional
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started', address)
-        const res = await this._get(address)
-        if (!res) {
-            return false
+        let res = await this._get(address, data, source)
+        if (typeof res.data !== 'undefined') {
+            res = JSON.parse(JSON.stringify(res.data))
+        } else {
+            res = false
         }
-        return res.data.plainAddresses
+        try {
+            if (typeof data.walletPub !== 'undefined') {
+                const resPub = await this._getPubs(data.walletPub.walletHash)
+                for (const scanAddress in resPub) {
+                    if (scanAddress === address) continue
+                    const tmp = await this._get(scanAddress, data, source + ' _getPubs1')
+                    if (typeof tmp.data === 'undefined' || typeof tmp.data.plainAddresses === 'undefined') continue
+                    if (res === false || typeof res.plainAddresses === 'undefined') {
+                        res = JSON.parse(JSON.stringify(tmp.data))
+                    } else {
+                        for (const row in tmp.data.plainAddresses) {
+                            res.plainAddresses[row] = tmp.data.plainAddresses[row]
+                        }
+                    }
+
+                }
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses load from all addresses error ' + e.message, e)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses load from all addresses error ' + e.message)
+        }
+        return res.plainAddresses
     }
 
     /**
-     * @param {string} address
-     * @param {*} data
+     * @param {string} scanData.account.address
+     * @param {*} scanData.additional
+     * @param {string} scanData.account.walletHash
      * @return {Promise<UnifiedTransaction[]>}
      */
-    async getTransactionsBlockchain(address, data) {
-        address = address.trim()
+    async getTransactionsBlockchain(scanData, source = '') {
+        const address = scanData.account.address.trim()
+        const data = scanData.additional
+
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions started ' + address)
-        let res = await this._get(address, data)
-        if (!res || typeof res.data === 'undefined') return []
+        let res = await this._get(address, data, source)
+        if (typeof res.data !== 'undefined') {
+            res = JSON.parse(JSON.stringify(res.data))
+        } else {
+            res = false
+        }
+        try {
+            if (typeof data.walletPub !== 'undefined') {
+                const resPub = await this._getPubs(data.walletPub.walletHash)
+                for (const scanAddress in resPub) {
+                    if (scanAddress === address) continue
+                    const tmp = await this._get(scanAddress, data, source + ' _getPubs2')
+                    if (typeof tmp.data === 'undefined' || typeof tmp.data.transactions === 'undefined') continue
+                    if (res === false || typeof res.transactions === 'undefined') {
+                        res = JSON.parse(JSON.stringify(tmp.data))
+                    } else {
+                        for (const row of tmp.data.transactions) {
+                            res.transactions.push(row)
+                        }
+                    }
+                }
+            } else {
+                for (const scanAddress in data.addresses) {
+                    if (scanAddress === address) continue
+                    const tmp = await this._get(scanAddress, data, source + ' _getOnes2')
+                    if (typeof tmp.data === 'undefined' || typeof tmp.data.transactions === 'undefined') continue
+                    if (res === false || typeof res.transactions === 'undefined') {
+                        res = tmp.data
+                    } else {
+                        for (const row of tmp.data.transactions) {
+                            res.transactions.push(row)
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions load from all addresses error ' + e.message, e)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions load from all addresses error ' + e.message)
+        }
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions loaded from ' + res.provider + ' ' + res.time)
-        res = res.data
+
         if (typeof res.transactions === 'undefined' || !res.transactions) return []
         const transactions = []
         const addresses = res.plainAddresses
         if (typeof data !== 'undefined' && data && typeof data.addresses !== 'undefined') {
-            let tmp
-            for (tmp in data.addresses) {
+            for (const tmp in data.addresses) {
                 addresses[tmp] = data.addresses[tmp]
             }
         }
-        let tx
-        for (tx of res.transactions) {
+        if (typeof scanData.additional.addresses !== 'undefined') {
+            for (const tmp in scanData.additional.addresses) {
+                address[tmp] = tmp
+            }
+        }
+
+        const vinsOrder = {}
+        for (const tx of res.transactions) {
+            vinsOrder[tx.txid] = tx.blockTime
+        }
+
+        let plussed = false
+        let i = 0
+        do {
+            for (const tx of res.transactions) {
+                if (typeof tx.vin === 'undefined' || tx.vin.length === 0) continue
+                for (const vin of tx.vin) {
+                    if (typeof vinsOrder[vin.txid] === 'undefined') {
+                        continue
+                    }
+                    const newTime = vinsOrder[vin.txid] + 1
+                    if (tx.blockTime < newTime) {
+                        tx.blockTime = newTime
+                        plussed = true
+                    }
+                    vinsOrder[tx.txid] = tx.blockTime
+                }
+            }
+            i++
+        } while (plussed && i < 100)
+
+        const uniqueTxs = {}
+        for (const tx of res.transactions) {
             const transaction = await this._unifyTransaction(address, addresses, tx)
             if (transaction) {
+                if (typeof uniqueTxs[transaction.transactionHash] !== 'undefined') continue
+                uniqueTxs[transaction.transactionHash] = 1
                 transactions.push(transaction)
             }
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions finished ' +  address + ' total: ' + transactions.length)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
         return transactions
     }
 

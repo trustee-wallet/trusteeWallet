@@ -178,7 +178,7 @@ export default {
         if (address.indexOf('bitcoincash:') === 0) {
             address = address.substr(12)
         }
-        if (address.substr(0, 1) !== 'q') {
+        if (address.substr(0, 1) !== 'q' && address.substr(0,1) !== 'p') {
             return address
         }
         const payloadBack = base32decode(address)

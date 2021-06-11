@@ -5,6 +5,7 @@
 import { BlocksoftDictTypes } from '../../common/BlocksoftDictTypes'
 import { BlocksoftTransferDispatcher } from '../../blockchains/BlocksoftTransferDispatcher'
 import { BlocksoftBlockchainTypes } from '../../blockchains/BlocksoftBlockchainTypes'
+import BlocksoftUtils from '../../common/BlocksoftUtils'
 
 export namespace BlocksoftTransferUtils {
 
@@ -17,6 +18,12 @@ export namespace BlocksoftTransferUtils {
             const tmp2 = 'rnyWPfJ7dk2X15N7jqwmqo3Nspu1oYiRZ3'
             return data.address === tmp1 ? tmp2 : tmp1
         }
+        if (data.currencyCode === BlocksoftDictTypes.Code.XLM) {
+            const tmp1 = 'GCVPV3D4PAYFA7H2CHGFRTSPAHMSU4KQR4CHBUBUR4X23JUDJWHYZDYZ'
+            const tmp2 = 'GAQA5FITDUZW36J6VFXAH4YDNTTDEGRNWIXHIOR3FNN4DVJCXCNHUR4E'
+            return data.address === tmp1 ? tmp2 : tmp1
+
+        }
         return data.address
     }
 
@@ -26,5 +33,26 @@ export namespace BlocksoftTransferUtils {
             return {isOk : true}
         }
         return processor.checkTransferHasError(data)
+    }
+
+    export const getBalanceForTransfer = function(data : {
+        balance : string,
+        unconfirmed : string,
+        currencyCode: BlocksoftDictTypes.Code
+    }) : string {
+        // @ts-ignore
+        if (data.unconfirmed * 1 < 0) {
+            return data.balance
+        }
+        if (data.currencyCode === BlocksoftDictTypes.Code.XRP) {
+            return data.balance
+        }
+        if (data.currencyCode === BlocksoftDictTypes.Code.ETH || data.currencyCode.indexOf('ETH_') === 0) {
+            return data.balance
+        }
+        if (data.currencyCode === BlocksoftDictTypes.Code.TRX || data.currencyCode.indexOf('TRX_') === 0) {
+            return data.balance
+        }
+        return BlocksoftUtils.add(data.balance, data.unconfirmed).toString()
     }
 }

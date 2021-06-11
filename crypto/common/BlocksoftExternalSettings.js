@@ -1,27 +1,40 @@
 import BlocksoftAxios from './BlocksoftAxios'
 import BlocksoftCryptoLog from './BlocksoftCryptoLog'
-import { createDispatchHook } from 'react-redux'
+import ApiProxy from '../../app/services/Api/ApiProxy'
+import config from '../../app/config/config'
 
-const API_PATH = 'https://microscanners.trustee.deals/fees'
-
-const MAX_CACHE_VALID_TIME = 600000 // 10 minutes
-const MIN_CACHE_VALID_TIME = 60000 // 1 minute
-let CACHE_VALID_TIME = 60000 // 1 minute
+const MAX_CACHE_VALID_TIME = 6000000 // 100 minutes
+const MIN_CACHE_VALID_TIME = 600000 // 10 minute
+let CACHE_VALID_TIME = 600000 // 10 minute
 let CACHE_TIME = 0
 
 const TREZOR_SERVERS = {}
 
 const CACHE = {
     'TRX_VOTE_BEST' : 'TV9QitxEJ3pdiAUAfJ2QuPxLKp9qTTR3og',
+    'ETH_LONG_QUERY' : 1,
+    'ETH_BLOCKED_BALANCE_FORCE_QUIT' : 1,
+    'ETH_LONG_QUERY_FORCE_QUIT' : 1,
+    'ETH_GAS_LIMIT' : 120000,
+    'ETH_GAS_LIMIT_FORCE_QUIT' : 1,
     'BCH': { '2': 2, '6': 1, '12': 1 },
     'BSV': { '2': 2, '6': 1, '12': 1 },
     'BTG': { '2': 10, '6': 5, '12': 2 },
-    'DOGE': { '2': 100, '6': 4, '12': 2 },
-    'LTC': { '2': 100, '6': 2, '12': 1 },
+    'DOGE': { '2': 800000, '6': 600000, '12': 500000 },
+    'DOGE_STATIC' : { 'useStatic' : true, 'speed_blocks_2' : 1, 'feeForAllInputs' : 3},
+    'LTC': { '2': 8, '6': 5, '12': 2 },
     'XVG': { '2': 700, '6': 600, '12': 300 },
+    'XVG_SEND_LINK' : 'https://api.vergecurrency.network/node/api/XVG/mainnet/tx/send',
     'XRP_SERVER' : 'wss://s1.ripple.com',
+    'XLM_SERVER' : 'https://horizon.stellar.org',
+    'XLM_SERVER_PRICE' : 100,
+    'XLM_SEND_LINK' : 'https://horizon.stellar.org/transactions',
+    'BNB_SERVER' : 'https://dex.binance.org',
+    'BNB_SMART_SERVER' : 'https://bsc-dataseed1.binance.org:443',
+    'BNB_SMART_PRICE' : 10000000000,
+    'BNB_GAS_LIMIT' : 620000,
     'ETH_INFURA' : '5e52e85aba6f483398c461c55b639a7b',
-    'ETH_INFURA_PROJECT_ID' : '619a0809dcf2483c834982803f6e8b40',
+    'ETH_INFURA_PROJECT_ID' : 'c8b5c2ced3b041a8b55a1719b508ff08',
     'ETH_TREZOR_SERVER': ['https://eth1.trezor.io', 'https://eth2.trezor.io'],
     'BTC_TREZOR_SERVER': ['https://btc1.trezor.io', 'https://btc2.trezor.io', 'https://btc3.trezor.io', 'https://btc4.trezor.io', 'https://btc5.trezor.io'],
     'LTC_TREZOR_SERVER': ['https://ltc1.trezor.io', 'https://ltc2.trezor.io', 'https://ltc3.trezor.io', 'https://ltc4.trezor.io', 'https://ltc5.trezor.io'],
@@ -29,32 +42,51 @@ const CACHE = {
     'DOGE_TREZOR_SERVER': ['https://doge1.trezor.io', 'https://doge2.trezor.io', 'https://doge3.trezor.io', 'https://doge4.trezor.io', 'https://doge5.trezor.io'],
     'BTG_TREZOR_SERVER': ['https://btg1.trezor.io', 'https://btg2.trezor.io', 'https://btg3.trezor.io', 'https://btg4.trezor.io', 'https://btg5.trezor.io'],
     'ETH_ROPSTEN_TREZOR_SERVER' : ['https://ac-dev0.net:29136'],
+    'ETC_TREZOR_SERVER' : ['https://etcblockexplorer.com'],
+    'ETC_SERVER' : 'https://www.ethercluster.com/etc',
+    'ETC_PRICE' : 6710000000,
+    'ETC_GAS_LIMIT' : 620000,
+    'FIO_BASE_URL' : 'https://fio.eosphere.io/v1/',
+    'FIO_HISTORY_URL': 'https://fio.eosphere.io/v1/history/',
+    'FIO_REGISTRATION_URL' : 'https://reg.fioprotocol.io/ref/trustee?publicKey=',
     'minCryptoErrorsVersion': 491,
     'minAppErrorsVersion': 491,
-    'cardsCountries' : {643 : 1, 804: 1, 398: 1, 112: 1},
-    'rubCardsCountries' : {643 : 1, 112: 1}, // 643 - russia, 398 - kz, 112 - bl, 804 - ua,
-    'rubKostilKZT' : 0,
-    'ADV_PERCENT' : 1,
     'SUPPORT_BOT' : 'https://t.me/trustee_support_bot?start=app',
-    'navigationViewV3': 1
+    'SUPPORT_BOT_NAME' : '@trustee_support_bot',
+    'navigationViewV3': 1,
+    'SOCIAL_LINK_TELEGRAM': 'https://t.me/trustee_deals',
+    'SOCIAL_LINK_TWITTER': 'https://twitter.com/Trustee_Wallet',
+    'SOCIAL_LINK_FACEBOOK': 'https://facebook.com/Trustee.Wallet/',
+    'SOCIAL_LINK_INSTAGRAM': 'https://instagram.com/trustee_wallet/',
+    'SOCIAL_LINK_VK': 'https://vk.com/trustee_wallet',
+    'SOCIAL_LINK_GITHUB': 'https://github.com/trustee-wallet/trusteeWallet',
+    'SOCIAL_LINK_FAQ': 'https://github.com/trustee-wallet/trusteeWallet/wiki',
+    'PRIVACY_POLICY_en': 'https://trusteeglobal.com/privacy-policy/?header_footer=none',
+    'PRIVACY_POLICY_ru': 'https://trusteeglobal.com/ru/politika-konfidencialnosti/?header_footer=none',
+    'PRIVACY_POLICY_uk': 'https://trusteeglobal.com/uk/poltika-konfidencijnosti/?header_footer=none',
+    'TERMS_en': 'https://trusteeglobal.com/terms-of-use/?header_footer=none',
+    'TERMS_ru': 'https://trusteeglobal.com/ru/usloviya-ispolzovaniya/?header_footer=none',
+    'TERMS_uk': 'https://trusteeglobal.com/uk/umovi-vikoristannya/?header_footer=none',
+    'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95
 }
 
 
 class BlocksoftExternalSettings {
 
     async getAll(source) {
-        await this._get(source)
+        await this._get('getAll ' + source)
         return CACHE
     }
 
     async get(param, source) {
         // BlocksoftCryptoLog.log('BlocksoftExternalSettings.get started ' + param + ' from ' + source)
-        await this._get(source)
+        await this._get('get ' + (typeof source !== 'undefined' ? source : param))
         if (typeof CACHE[param] === 'undefined') return false
         return CACHE[param]
     }
 
     getStatic(param, source = '') {
+        if (typeof CACHE[param] === 'undefined') return false
         return CACHE[param]
     }
 
@@ -65,16 +97,20 @@ class BlocksoftExternalSettings {
         }
         try {
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source)
-            const tmp = await BlocksoftAxios.getWithoutBraking(API_PATH)
+            const tmp = await ApiProxy.getAll({source : 'BlocksoftExternalSettings._get ' + source, onlyFees: true})
+
             CACHE_TIME = now
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get returned ALL from ' + source)
-            if (tmp && typeof tmp.data !== 'undefined' && tmp.data) {
-                this._setCache(tmp.data.data)
+            if (tmp && typeof tmp.fees !== 'undefined' && tmp.fees) {
+                this._setCache(tmp.fees.data)
                 CACHE_VALID_TIME = MIN_CACHE_VALID_TIME
             } else {
                 CACHE_VALID_TIME = MAX_CACHE_VALID_TIME
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
+            }
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
         }
     }
@@ -124,7 +160,7 @@ class BlocksoftExternalSettings {
                 return cached.currentServerValue
             }
         }
-        const servers = await this.get(key, 'inner')
+        const servers = await this.get(key, 'inner getTrezorServer ' + key)
         let okServers = []
         let bestHeight = 0
         let currentServer = false
@@ -181,10 +217,10 @@ class BlocksoftExternalSettings {
             currentServerIndex: 0
         }
         if (typeof currentServer === 'undefined' || !currentServer) {
-            BlocksoftCryptoLog.err('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' error with currentServer ' + JSON.stringify(TREZOR_SERVERS[key]))
+            BlocksoftCryptoLog.err('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' error with currentServer ', JSON.stringify(TREZOR_SERVERS[key]))
         }
 
-        BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' put to cache ' + JSON.stringify(TREZOR_SERVERS[key]))
+        BlocksoftCryptoLog.log('BlocksoftExternalSettings.getTrezorServer ' + key + ' from ' + source + ' put to cache ', JSON.stringify(TREZOR_SERVERS[key]))
 
         return currentServer
     }

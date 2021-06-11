@@ -8,7 +8,7 @@ import store from '../../../store'
 
 const { dispatch } = store
 
-export function showModal(data, callback) {
+export function showModal(data, callback = false) {
 
     setTimeout(() => {
         Keyboard.dismiss()

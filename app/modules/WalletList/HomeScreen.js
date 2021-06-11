@@ -1,89 +1,141 @@
 /**
- * @version 0.9
+ * @version 0.30
  */
-import React, { Component } from 'react'
-import {Text, SafeAreaView, View, Animated, ScrollView, RefreshControl, Platform, TouchableOpacity} from 'react-native'
+import React from 'react'
+import {
+    SafeAreaView,
+    View,
+    RefreshControl,
+    Vibration,
+    FlatList,
+    StyleSheet
+} from 'react-native'
 import { connect } from 'react-redux'
+import _orderBy from 'lodash/orderBy'
+import _isEqual from 'lodash/isEqual'
 
-import firebase from 'react-native-firebase'
-
-import GradientView from '../../components/elements/GradientView'
+import AsyncStorage from '@react-native-community/async-storage'
 
 import CryptoCurrency from './elements/CryptoCurrency'
 import BottomNavigation from './elements/BottomNavigation'
 import WalletInfo from './elements/WalletInfo'
+import Header from './elements/Header'
 
-import Log from '../../services/Log/Log'
-import { strings } from '../../services/i18n'
+import Log from '@app/services/Log/Log'
 
-import SendActions from '../../appstores/Stores/Send/SendActions'
+import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import DaemonCache from '@app/daemons/DaemonCache'
+import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 
-import Theme from '../../themes/Themes'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import UpdateCurrencyRateDaemon from '../../daemons/back/UpdateCurrencyRateDaemon'
-import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
-import UpdateAccountBalanceAndTransactionsHD from '../../daemons/back/UpdateAccountBalanceAndTransactionsHD'
-import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-import cryptoWalletActions from '../../appstores/Actions/CryptoWalletActions'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import Button from '../../components/elements/Button'
-import NavStore from '../../components/navigation/NavStore'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-let styles
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { SendDeepLinking } from '@app/appstores/Stores/Send/SendDeepLinking'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
+import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
+import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
-class HomeScreen extends Component {
+
+import NavStore from '@app/components/navigation/NavStore'
+import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import AppLockBlur from '@app/components/AppLockBlur'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import { getIsBlurVisible, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { strings } from '@app/services/i18n'
+
+
+let CACHE_SET_WALLET_HASH = false
+let CACHE_IS_SCANNING = false
+
+async function storeCurrenciesOrder(walletHash, data) {
+    AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
+}
+
+class HomeScreen extends React.PureComponent {
 
     constructor(props) {
         super(props)
         this.state = {
             refreshing: false,
-            isHeaderTransparent: false,
-            opacity: new Animated.Value(0)
+            isBalanceVisible: true,
+            originalVisibility: false,
+            originalData: [],
+            data: [],
+            currenciesOrder: [],
+            isCurrentlyDraggable: false,
+            hasStickyHeader: false,
+            enableVerticalScroll: true
         }
+        this.getCurrenciesOrder()
+        SendDeepLinking.initDeepLinking()
     }
 
-    // eslint-disable-next-line camelcase
-    UNSAFE_componentWillMount() {
-        styles = Theme.getStyles().homeScreenStyles
-
-        SendActions.init()
-    }
-
-    async componentDidMount() {
-
+    componentDidMount() {
         setLoaderStatus(false)
+        this.getBalanceVisibility()
+
     }
 
-    onPress = () => {
-        this.props.navigation.navigate('CryptoList')
+    static getDerivedStateFromProps(nextProps, prevState) {
+        let newState = null
+
+        if (!_isEqual(nextProps.currencies, prevState.originalData)) {
+            newState = {}
+            const currenciesOrder = prevState.currenciesOrder
+            const currenciesLength = nextProps.currencies.length
+            const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+            newState.data = data
+            newState.originalData = nextProps.currencies
+            const newOrder = data.map(c => c.currencyCode)
+            if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
+                newState.currenciesOrder = newOrder
+                storeCurrenciesOrder(nextProps.selectedWalletData.walletHash, newOrder)
+            }
+        }
+
+        return newState
+    }
+
+    getBalanceVisibility = () => {
+        const isBalanceVisible = this.props.isBalanceVisible
+        this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
+    }
+
+    getCurrenciesOrder = async () => {
+        const { walletHash } = this.props.selectedWalletData
+        const walletToken = walletHash || ''
+        try {
+            const res = await AsyncStorage.getItem(`${walletToken}:currenciesOrder`)
+            const currenciesOrder = res !== null ? JSON.parse(res) : []
+            const currenciesLength = this.state.data.length
+
+            this.setState(state => ({
+                currenciesOrder,
+                data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+            }))
+        } catch (e) {
+            Log.err(`HomeScreen getCurrenciesOrder error ${e.message}`)
+        }
     }
 
     handleRefresh = async () => {
         try {
-            this.setState({
-                isHeaderTransparent: false
-            })
-
-            this.setState({
-                refreshing: true
-            })
+            this.setState({ refreshing: true })
 
             try {
-                await UpdateCurrencyRateDaemon.updateCurrencyRate({force : true, source: 'HomeScreen.handleRefresh'})
+                await UpdateCurrencyRateDaemon.updateCurrencyRate({ force: true, source: 'HomeScreen.handleRefresh' })
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateCurrencyRateDaemon ' + e.message)
-            }
-
-            try {
-                await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({force : true})
-            } catch (e) {
-                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsDaemon ' + e.message)
-            }
-
-            try {
-                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({force : true})
-            } catch (e) {
-                Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountBalanceAndTransactionsHDDaemon ' + e.message)
             }
 
             try {
@@ -92,207 +144,252 @@ class HomeScreen extends Component {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountListDaemon ' + e.message)
             }
 
-            this.setState({
-                refreshing: false
-            })
+            this.setState({ refreshing: false })
         } catch (e) {
             Log.err('WalletList.HomeScreen handleRefresh error ' + e.message)
         }
+
+        this.handleLateRefresh()
     }
 
-    renderHeaderTransparent = () => {
-        return <View/>
-    }
+    handleLateRefresh = async () => {
+        if (CACHE_IS_SCANNING) return false
+        CACHE_IS_SCANNING = true
+        try {
 
-    onScroll = (event) => {
-        const { isHeaderTransparent, opacity } = this.state
+            try {
+                await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true })
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleLateRefresh error updateAccountBalanceAndTransactionsDaemon ' + e.message)
+            }
 
-        let isHeaderTransparentTmp = false
+            try {
+                await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({ force: true })
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleLateRefresh error updateAccountBalanceAndTransactionsHDDaemon ' + e.message)
+            }
 
-        if (event.nativeEvent.contentOffset.y > 150) {
-
-            Animated.timing(
-                opacity, {
-                    toValue: 1,
-                    duration: 200
-                }
-            ).start()
-
-            isHeaderTransparentTmp = true
-        } else {
-            Animated.timing(
-                opacity, {
-                    toValue: 0,
-                    duration: 200
-                }
-            ).start()
+            try {
+                await UpdateAccountListDaemon.forceDaemonUpdate()
+            } catch (e) {
+                Log.errDaemon('WalletList.HomeScreen handleLateRefresh error updateAccountListDaemon ' + e.message)
+            }
+        } catch (e) {
+            Log.err('WalletList.HomeScreen handleLateRefresh error ' + e.message)
         }
+        CACHE_IS_SCANNING = false
+    }
 
-        if (isHeaderTransparent !== isHeaderTransparentTmp) {
-            this.setState({
-                isHeaderTransparent: isHeaderTransparentTmp
+    // linked to stores
+    handleHide = async (cryptoCurrency) => {
+        try {
+            MarketingEvent.logEvent('gx_currency_hide', { currencyCode: cryptoCurrency.currencyCode, source: 'HomeScreen' }, 'GX')
+            await currencyActions.toggleCurrencyVisibility({
+                currencyCode: cryptoCurrency.currencyCode,
+                newIsHidden: 1,
+                currentIsHidden: cryptoCurrency.isHidden
+            })
+        } catch (e) {
+            Log.err('HomeScreen.handleHide error ' + e.message, cryptoCurrency)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: e.message
             })
         }
     }
 
-    scrollToEnd = () => {
-        this.refHomeScreenSV.scrollToEnd({ animated: true })
+    // separated from stores not to be updated from outside
+    handleSend = async (cryptoCurrency, account) => {
+        try {
+            await SendActionsStart.startFromHomeScreen(cryptoCurrency, account)
+        } catch (e) {
+            Log.err('HomeScreen.handleSend error ' + e.message, cryptoCurrency)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: e.message
+            })
+        }
     }
 
-    // handleSend = () => {
-    //     const cryptoCurrency = this.props.cryptoCurrenciesStore.cryptoCurrencies[0]
-    //     const walletHash = this.props.mainStore.selectedWallet.walletHash
-    //     const account = this.props.accountStore.accountList[walletHash][0]
-    //     console.log(account)
-    //
-    //     const isSynchronized = currencyActions.checkIsCurrencySynchronized({ cryptoCurrency, account })
-    //
-    //     if (isSynchronized) {
-    //
-    //         clearSendData()
-    //
-    //         NavStore.goNext('SendScreen')
-    //
-    //     } else {
-    //         showModal({
-    //             type: 'INFO_MODAL',
-    //             icon: 'INFO',
-    //             title: strings('modal.cryptocurrencySynchronizing.title'),
-    //             description: strings('modal.cryptocurrencySynchronizing.description')
-    //         })
-    //     }
-    // }
-    // винести методи в компоненту та передавати атрибути через пропси - і буде тобі щастя!!!
-    // handleReceive = (cryptoCurrency, address) => {
-    //     const cryptoCurrency = this.props.cryptoCurrency
-    //     const { address } = this.props.account
-    //     noinspection ES6MissingAwait
-    //     checkTransferHasError({ currencyCode: cryptoCurrency.currencyCode, currencySymbol: cryptoCurrency.currencySymbol, address })
-    //     NavStore.goNext('ReceiveScreen')
-    // }
+    // linked to stores as rates / addresses could be changed outside
+    handleReceive = async (cryptoCurrency, account) => {
+        let status = ''
+        try {
+            status = 'setSelectedCryptoCurrency started'
 
-    // renderItem = ({item, index, drag, isActive}) => {
-    //     const walletHash = this.props.mainStore.selectedWallet.walletHash
-    //     const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
-    //     return (
-    //         !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item}
-    //                                          accountListByWallet={accountListByWallet}
-    //                                          drag={drag}
-    //                                          isActive={isActive}/> : <></>
-    //                                          // /> : <></>
-    //     )
-    // }
+            await setSelectedCryptoCurrency(cryptoCurrency)
+
+            status = 'setSelectedAccount started'
+
+            await setSelectedAccount()
+
+            NavStore.goNext('AccountReceiveScreen')
+
+            if (typeof account !== 'undefined' && account) {
+                status = 'checkTransferHasError started'
+                await checkTransferHasError({
+                    walletHash: account.walletHash,
+                    currencyCode: cryptoCurrency.currencyCode,
+                    currencySymbol: cryptoCurrency.currencySymbol,
+                    addressFrom: account.address,
+                    addressTo: account.address
+                })
+            }
+        } catch (e) {
+            Log.err('HomeScreen.handleReceive error ' + status + ' ' + e.message, cryptoCurrency)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: e.message
+            })
+        }
+    }
+
+    changeBalanceVisibility = async () => {
+        const newVisibilityValue = !this.state.isBalanceVisible
+        await AsyncStorage.setItem('isBalanceVisible', JSON.stringify(newVisibilityValue))
+        await settingsActions.getSettings()
+        this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
+    }
+
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
+    }
+
+    onDragBegin = () => {
+        Vibration.vibrate(100)
+        this.setState(() => ({ isCurrentlyDraggable: true }))
+    }
+
+    onDragEnd = ({ data }) => {
+        const { walletHash } = this.props.selectedWalletData
+        const walletToken = walletHash || ''
+        const currenciesOrder = data.map(c => c.currencyCode)
+        storeCurrenciesOrder(walletToken, currenciesOrder)
+        this.setState(() => ({ currenciesOrder, data, isCurrentlyDraggable: false }))
+    }
+
+    getBalanceData = () => {
+        const { walletHash } = this.props.selectedWalletData
+        const { localCurrencySymbol } = this.props.walletsGeneralData
+        let currencySymbol = localCurrencySymbol
+
+        const CACHE_SUM = DaemonCache.getCache(walletHash)
+
+        let totalBalance = 0
+        if (CACHE_SUM && typeof CACHE_SUM.balance !== 'undefined' && CACHE_SUM.balance) {
+            totalBalance = CACHE_SUM.balance
+            if (currencySymbol !== CACHE_SUM.basicCurrencySymbol) {
+                currencySymbol = CACHE_SUM.basicCurrencySymbol
+            }
+        }
+
+        const tmp = totalBalance.toString().split('.')
+        const beforeDecimal = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
+        let afterDecimal = ''
+        if (typeof tmp[1] !== 'undefined') {
+            afterDecimal = '.' + tmp[1].substr(0, 2)
+        }
+
+        return { currencySymbol, beforeDecimal, afterDecimal }
+    }
+
+    updateOffset = (offset) => {
+        // const newOffset = Math.round(offset)
+        const newOffset = Math.round(offset.nativeEvent.contentOffset.y)
+        if (!this.state.hasStickyHeader && newOffset > 110) this.setState(() => ({ hasStickyHeader: true }))
+        if (this.state.hasStickyHeader && newOffset < 110) this.setState(() => ({ hasStickyHeader: false }))
+    }
+
+    setScrollEnabled = (value) => {
+        if (this._listRef && this._listRef.setNativeProps) {
+            this._listRef.setNativeProps({ scrollEnabled: value });
+        } else if (this._listRef && this._listRef.getScrollResponder) {
+            const scrollResponder = this._listView.getScrollResponder();
+            if (scrollResponder.setNativeProps) scrollResponder.setNativeProps({ scrollEnabled: value });
+        } else {
+            this.setState(() => ({ enableVerticalScroll: value }))
+        }
+    };
 
     render() {
-        // console.log(new Date().toISOString() + ' render')
-
-        firebase.analytics().setCurrentScreen('WalletList.HomeScreen')
-
-        const data = this.props.cryptoCurrenciesStore.cryptoCurrencies
-        let walletHash = this.props.mainStore.selectedWallet.walletHash
-        if (!walletHash || typeof walletHash === 'undefined') {
-            walletHash = cryptoWalletActions.setFirstWallet()
-            Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
-            cryptoWalletActions.setSelectedWallet(walletHash, 'WalletList.HomeScreen', false)
+        if (this.props.isBlurVisible) {
+            return  <AppLockBlur/>
         }
-        const accountListByWallet = this.props.accountStore.accountList[walletHash] || {}
+        const { colors } = this.context
+
+        MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
+
+        let {walletHash, walletNumber} = this.props.selectedWalletData
+        if (!walletHash || typeof walletHash === 'undefined') {
+            if (!CACHE_SET_WALLET_HASH) {
+                CACHE_SET_WALLET_HASH = true
+                walletHash = cryptoWalletActions.setFirstWallet()
+                Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
+                cryptoWalletActions.setSelectedWalletFromHome(walletHash, 'WalletList.HomeScreen', false)
+            }
+        }
+        const balanceData = this.getBalanceData()
 
         return (
-            <View style={{ flex: 1 }}>
-                <SafeAreaView style={{ flex: 0, backgroundColor: '#f5f5f5' }}/>
-                <SafeAreaView style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-                    <GradientView
-                        style={{ flex: 1 }}
-                        array={styles_.bg.array}
-                        start={styles_.bg.start}
-                        end={styles_.bg.end}>
-                        {Platform.OS === 'android' ? <View style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 25, backgroundColor: '#f5f5f5', zIndex: 100 }}/> : null}
-                        {this.renderHeaderTransparent()}
-                        <ScrollView
-                            ref={ref => this.refHomeScreenSV = ref}
-                            style={{ flex: 1, position: 'relative', marginBottom: -20, zIndex: 2 }}
+            <View style={styles.container}>
+                <Header
+                    hasStickyHeader={this.state.hasStickyHeader}
+                    isBalanceVisible={this.state.isBalanceVisible}
+                    originalVisibility={this.state.originalVisibility}
+                    triggerBalanceVisibility={this.triggerBalanceVisibility}
+                    balanceData={balanceData}
+                />
+                <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
+                    <View style={[styles.content, { backgroundColor: colors.common.background }]}>
+                        <View style={styles.stub} />
+                        <FlatList
+                            ref={ref => { this._listRef = ref; }}
+                            data={this.state.data}
                             showsVerticalScrollIndicator={false}
-                            onScrollBeginDrag={this.onScroll}
-                            onScrollEndDrag={this.onScroll}
-                            onMomentumScrollStart={this.onScroll}
-                            onMomentumScrollEnd={this.onScroll}
+                            contentContainerStyle={styles.list}
+                            onScroll={this.updateOffset}
+                            scrollEnabled={this.state.enableVerticalScroll}
                             refreshControl={
                                 <RefreshControl
-                                    tintColor={'#404040'}
+                                    style={styles.refreshControl}
+                                    enabled={!this.state.isCurrentlyDraggable}
+                                    tintColor={colors.common.text1}
                                     refreshing={this.state.refreshing}
                                     onRefresh={this.handleRefresh}
                                 />
-                            }>
-                            <WalletInfo accountListByWallet={accountListByWallet}/>
-
-                            <View style={{flex: 1, paddingBottom: 30, backgroundColor: '#f5f5f5'}}>
-                                <Text style={{
-                                    marginLeft: 31,
-                                    fontFamily: 'Montserrat-Bold',
-                                    color: '#404040',
-                                    fontSize: 14
-                                }}>{strings('homeScreen.assets')}</Text>
-                                {/* <DraggableFlatList */}
-                                {/*    // style={styles.cryptoList} */}
-                                {/*    data={cryptoCurrencies} */}
-                                {/*    renderItem={this.renderItem} */}
-                                {/*    keyExtractor={(item, index) => `draggable-item-${item.accountId}`} */}
-                                {/*    onDragEnd={({data}) => this.setState({...this.state, data})} */}
-                                {/* /> */}
-                                {/* <SwipeListView */}
-                                {/*    style={styles.cryptoList} */}
-                                {/*    data={cryptoCurrencies} */}
-                                {/*    renderItem={({item, index}) => ( */}
-                                {/*        !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item} */}
-                                {/*                                         accountListByWallet={accountListByWallet}/> : <></> */}
-                                {/*    )} */}
-                                {/*    renderHiddenItem={({item, index}) => ( */}
-                                {/*        !item.isHidden ? <> */}
-                                {/*            <View style={styles.cryptoList__item__hidden}> */}
-                                {/*                <View style={stl.left__btn}> */}
-                                {/*                    <TouchableOpacity> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='exchange'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                    <TouchableOpacity> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='buy'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                    <TouchableOpacity> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='sell'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                </View> */}
-                                {/*                <View style={stl.right__btn}> */}
-                                {/*                    <TouchableOpacity onPress={this.handleReceive}> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='receive'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                    <TouchableOpacity onPress={this.handleSend}> */}
-                                {/*                        <CustomIcon style={{...styles.block__icon, marginBottom: 2}} */}
-                                {/*                                    size={30} name='send'/> */}
-                                {/*                    </TouchableOpacity> */}
-                                {/*                </View> */}
-                                {/*            </View> */}
-                                {/*        </> : <></> */}
-                                {/*    )} */}
-                                {/*    leftOpenValue={200} */}
-                                {/*    rightOpenValue={-150} */}
-                                {/*    previewRowKey={'0'} */}
-                                {/*    previewOpenValue={-40} */}
-                                {/*    previewOpenDelay={3000} */}
-                                {/* /> */}
-                                <View style={styles.cryptoList}>
-                                    {
-                                        data.map((item, index) => {
-                                            return !item.isHidden ? <CryptoCurrency key={index} cryptoCurrency={item} accountListByWallet={accountListByWallet}/> : null
-                                        })
-                                    }
-                                </View>
-                            </View>
-                        </ScrollView>
-                        <BottomNavigation/>
-                    </GradientView>
+                            }
+                            ListHeaderComponent={(
+                                <WalletInfo
+                                    isBalanceVisible={this.state.isBalanceVisible}
+                                    originalVisibility={this.state.originalVisibility}
+                                    changeBalanceVisibility={this.changeBalanceVisibility}
+                                    triggerBalanceVisibility={this.triggerBalanceVisibility}
+                                    balanceData={balanceData}
+                                    walletNumber={walletNumber}
+                                />
+                            )}
+                            renderItem={({ item, drag, isActive }) => (
+                                <CryptoCurrency
+                                    cryptoCurrency={item}
+                                    isBalanceVisible={this.state.isBalanceVisible}
+                                    onDrag={drag}
+                                    isActive={isActive}
+                                    handleReceive={account => this.handleReceive(item, account)}
+                                    handleSend={account => this.handleSend(item, account)}
+                                    handleHide={() => this.handleHide(item)}
+                                    setScrollEnabled={this.setScrollEnabled}
+                                />
+                            )}
+                            keyExtractor={item => item.currencyCode}
+                        />
+                        {/* <BottomNavigation /> */}
+                    </View>
                 </SafeAreaView>
             </View>
         )
@@ -301,59 +398,37 @@ class HomeScreen extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
-        toolTipsStore: state.toolTipsStore,
-        cryptoCurrenciesStore : state.currencyStore,
-        accountStore : state.accountStore
+        selectedWalletData: getSelectedWalletData(state),
+        walletsGeneralData: getWalletsGeneralData(state),
+        isBlurVisible: getIsBlurVisible(state),
+        currencies: getVisibleCurrencies(state),
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore)
     }
 }
 
-export default connect(mapStateToProps, {})(HomeScreen)
+HomeScreen.contextType = ThemeContext
+
+export default connect(mapStateToProps)(HomeScreen)
 
 
-const styles_ = {
-    cryptoList__icoWrap_bitcoin: {
-        array: ['#8879D9', '#E770B2'],
-        start: { x: 0.0, y: 0.5 },
-        end: { x: 1, y: 0.5 }
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
     },
-    cryptoList__icoWrap_eth: {
-        // array: ["#5b8df1","#a1bef7"],
-        array: ['#145de3', '#4ec8f7'],
-        start: { x: 0.0, y: 0.5 },
-        end: { x: 1, y: 0.5 }
+    safeAreaContent: {
+        flex: 1,
     },
-    cryptoList__ico: {
-        color: '#FBFFFF',
-        size: 24
+    content: {
+        flex: 1,
     },
-    cryptoList__item: {
-        array: ['#fff', '#fff'],
-        start: { x: 0.0, y: 0.5 }
+    stub: {
+        marginBottom: 50
     },
-    bg: {
-        array: ['#f5f5f5', '#f5f5f5'],
-        start: { x: 0.0, y: 0.5 },
-        end: { x: 0, y: 1 }
+    list: {
+        paddingBottom: 20,
+        paddingTop: 10
     },
-    bg_header: {
-        array: ['#f2f2f2', '#f2f2f2'],
-        start: { x: 0.0, y: 1 },
-        end: { x: 1, y: 1 }
+    refreshControl: {
+        marginTop: 0
     }
-}
-
-const stl = {
-    left__btn: {
-        flexDirection: 'row',
-        width: '60%',
-        paddingRight: 30,
-        justifyContent: 'space-around',
-    },
-    right__btn: {
-        flexDirection: 'row-reverse',
-        width: '40%',
-        paddingRight: 30,
-        justifyContent: 'space-around',
-    }
-}
+})

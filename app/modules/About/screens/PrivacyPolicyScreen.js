@@ -1,21 +1,18 @@
 /**
- * @version 0.9
+ * @version 0.44
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { View, StyleSheet, ScrollView, Text } from 'react-native'
+import { strings, sublocale } from '@app/services/i18n'
+import ALL_TERMS from '@app/../__terms__/ALL'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-import firebase from 'react-native-firebase'
 
-import Navigation from '../../../components/navigation/Navigation'
-
-import { strings, sublocale } from '../../../services/i18n'
-
-import ALL_TERMS from '../../../../__terms__/ALL'
-
-class PrivacyPolicyScreen extends Component {
+class PrivacyPolicyScreen extends PureComponent {
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.PrivacyPolicyScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.PrivacyPolicyScreen')
 
         let sub = sublocale()
         if (sub !== 'uk' && sub !== 'ru') {
@@ -23,13 +20,13 @@ class PrivacyPolicyScreen extends Component {
         }
 
         return (
-            <View style={styles.wrapper}>
-                <Navigation
-                    title={strings('settings.about.privacy')}
-                />
+            <ScreenWrapper
+                title={strings('settings.about.privacy')}
+            >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    style={styles.wrapper__scrollView}>
+                    style={styles.wrapper__scrollView}
+                >
                     <View style={styles.wrapper__content}>
                         <Text style={styles.title}>
                             {strings('settings.about.privacy')}
@@ -39,7 +36,7 @@ class PrivacyPolicyScreen extends Component {
                         </Text>
                     </View>
                 </ScrollView>
-            </View>
+            </ScreenWrapper>
         )
     }
 }
@@ -48,10 +45,6 @@ class PrivacyPolicyScreen extends Component {
 export default PrivacyPolicyScreen
 
 const styles = StyleSheet.create({
-    wrapper: {
-        flex: 1,
-        backgroundColor: '#fff'
-    },
     wrapper__scrollView: {
         marginTop: 80
     },

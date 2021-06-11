@@ -47,7 +47,7 @@ class BlocksoftPrettyNumbers {
     }
 
     makeCut(tmp, size = 5, source = false) {
-        if (this._decimals <= 6 && size === 5) {
+        if (this._decimals <= 6 && size === 5 && this._decimals > 0) {
             size = this._decimals
         }
         let cutted = 0
@@ -90,7 +90,19 @@ class BlocksoftPrettyNumbers {
         if (justCutted === def) {
             justCutted = '0'
         }
+
+        if (secondPart) {
+            for (let i = secondPart.length; i--; i >= 0) {
+                if (typeof secondPart[i] === 'undefined' || secondPart[i] === '0') {
+                    secondPart = secondPart.substr(0, i)
+                } else {
+                    break
+                }
+            }
+        }
+
         let separated = justCutted
+        let separatedForInput = false
         if (firstPart) {
             const len = firstPart.length
             if (len > 3) {
@@ -107,14 +119,21 @@ class BlocksoftPrettyNumbers {
             } else {
                 separated = firstPart
             }
+            separatedForInput = separated.toString()
             if (secondPart) {
                 separated += '.' + secondPart
             }
         } else if (secondPart) {
             separated = '0.' + secondPart
+            separatedForInput = '0'
+        }
+        if (separatedForInput === false) {
+            separatedForInput = justCutted
+        } else if (typeof splitted[1] !== 'undefined') {
+            separatedForInput += '.' + splitted[1]
         }
 
-        return { cutted, isSatoshi, justCutted, separated: separated.toString() }
+        return { cutted, isSatoshi, justCutted, separated: separated.toString(), separatedForInput }
     }
 
     /**

@@ -19,10 +19,28 @@ export async function decodeTransactionQrCode(param, currencyCode) {
 
         MarketingEvent.logOnlyRealTime('qr_scan', param.data)
 
-
-
+        let fullLink = param.data
         let tmp = param.data.split(':')
-        if (!tmp[1] || tmp[1].length < 2) {
+        if (tmp[0] === 'wc') {
+            res.data.isWalletConnect = true
+            tmp = tmp[1].split('?')
+            res.data.walletConnect = {
+                fullLink,
+                wc : tmp[0]
+            }
+            /*
+            for now - not needed - wc too but lets keep
+            if (typeof tmp[1] !== 'undefined') {
+                tmp = tmp[1].split('&')
+                for (let tmp1 of tmp) {
+                    tmp1 = tmp1.split('=')
+                    if (typeof tmp1[1] === 'undefined') continue
+                    res.data.walletConnect[tmp1[0]] = decodeURI(tmp1[1])
+                }
+            }
+            */
+            return res
+        } else if (!tmp[1] || tmp[1].length < 2) {
             if (!currencyCode) {
                 MarketingEvent.logOnlyRealTime('qr_error_no_network', param.data)
                 return {
@@ -47,7 +65,9 @@ export async function decodeTransactionQrCode(param, currencyCode) {
             } else if (network === 'tron' || network === 'trx') {
                 res.data.currencyCode = 'TRX'
             } else if (network === 'ripple' || network === 'xrp') {
-                res.data.currencyCode = 'RIPPLE'
+                res.data.currencyCode = 'XRP'
+            } else if (network === 'stellar' || network === 'xlm') {
+                res.data.currencyCode = 'XLM'
             } else if (network === 'doge' || network === 'dogecoin') {
                 res.data.currencyCode = 'DOGE'
             } else if (network === 'ethereum' || network === 'eth') {
@@ -60,6 +80,8 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 res.data.currencyCode = 'ETH_ROPSTEN'
             } else if (network === 'monero') {
                 res.data.currencyCode = 'XMR'
+            } else if (network === 'binance' || network === 'bnb') {
+                res.data.currencyCode = 'XLM'
             } else {
                 res.data.currencyCode = 'BTC'
             }

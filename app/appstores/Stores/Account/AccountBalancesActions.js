@@ -7,7 +7,7 @@ import accountDS from '../../DataSource/Account/Account'
 
 export default {
 
-    initBalances: async (walletHash) => {
+    initBalances: async (walletHash, needScan = true) => {
 
         const accounts = await accountDS.getAccounts({ walletHash })
         const currencyCodes = {}
@@ -23,16 +23,25 @@ export default {
                 id: accountId
             } = account
 
-            prepare.push({
+            const tmp = {
                 balanceFix: 0,
+                balanceTxt: '0',
                 unconfirmedFix: 0,
+                unconfirmedTxt: '0',
+                balanceProvider : 'create',
                 balanceScanTime: 0,
-                balanceScanLog: '',
+                balanceScanLog: new Date().toISOString() + ' create wallet',
                 status: 0,
                 currencyCode,
                 walletHash,
                 accountId
-            })
+            }
+            if (!needScan) {
+                tmp.balanceScanTime = Math.round(new Date().getTime() / 1000)
+                tmp.balanceScanLog = new Date().toISOString() + ' create wallet without scan'
+            }
+
+            prepare.push(tmp)
 
             currencyCodes[currencyCode] = 1
         }

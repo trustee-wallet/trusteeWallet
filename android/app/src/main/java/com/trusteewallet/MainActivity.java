@@ -11,8 +11,30 @@ import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
 
+import android.graphics.Color;
+
 public class MainActivity extends ReactActivity {
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+            switch (currentNightMode) {
+                case Configuration.UI_MODE_NIGHT_NO: {
+                    this.getWindow().getDecorView().setBackgroundColor(Color.parseColor("#F5F5F5"));
+                    break;
+                }
+                case Configuration.UI_MODE_NIGHT_YES:{
+                    this.getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+                    break;
+                }
+                case Configuration.UI_MODE_NIGHT_UNDEFINED: {
+                    this.getWindow().getDecorView().setBackgroundColor(Color.WHITE);
+                }
+            }
+    }
     /**
      * Returns the name of the main component registered from JavaScript.
      * This is used to schedule rendering of the component.

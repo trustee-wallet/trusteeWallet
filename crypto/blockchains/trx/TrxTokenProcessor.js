@@ -22,6 +22,7 @@ export default class TrxTokenProcessor {
             if (typeof res.data.trc20_tokens[0] !== 'undefined') {
                 const tmp = res.data.trc20_tokens[0]
                 return {
+                    currencyCodePrefix : 'CUSTOM_', // the same as basic eth for legacy support
                     currencyCode: tmp.symbol,
                     currencyName: tmp.name,
                     tokenType : 'TRX', // 'TRX'
@@ -37,6 +38,7 @@ export default class TrxTokenProcessor {
             if (typeof res.data.data[0] !== 'undefined') {
                 const tmp = res.data.data[0]
                 return {
+                    currencyCodePrefix : 'CUSTOM_', // the same as basic eth for legacy support
                     currencyCode: tmp.abbr,
                     currencyName: tmp.name,
                     tokenType : 'TRX', // 'TRX'

@@ -1,32 +1,51 @@
 /**
  * @version 0.9
  */
-import store from '../../../store'
+import store from '@app/store'
 
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import walletDS from '../../DataSource/Wallet/Wallet'
-
-import settingsActions from '../Settings/SettingsActions'
-import { setSelectedWallet } from '../Main/MainStoreActions'
-
-import App from '../../Actions/App/App'
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import accountDS from '@app/appstores/DataSource/Account/Account'
+import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 
 const { dispatch } = store
 
 const walletActions = {
 
-    setAvailableWallets: async () => {
-        Log.log('ACT/Wallet setAvailableWallets called')
-        const wallets = await walletDS.getWallets()
+    setWalletsGeneralData: async (totalBalance, localCurrencySymbol) => {
+        const oldData = store.getState().walletStore.walletsGeneralData
+        if (oldData.totalBalance === totalBalance && oldData.localCurrencySymbol === localCurrencySymbol) {
+            return false
+        }
+        dispatch({
+            type: 'SET_WALLET_GENERAL_DATA',
+            walletsGeneralData: {
+                totalBalance,
+                localCurrencySymbol
+            }
+        })
+    },
 
-        Log.log('ACT/Wallet setAvailableWallets found', wallets)
+    setAvailableWallets: async () => {
+        const wallets = await walletDS.getWallets()
+        MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
         dispatch({
             type: 'SET_WALLET_LIST',
             wallets
         })
+    },
 
-        return wallets
+    addAvailableWallets: async (newWallet) => {
+        const wallets = store.getState().walletStore.wallets
+        wallets.push(newWallet)
+        MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
+        dispatch({
+            type: 'SET_WALLET_LIST',
+            wallets
+        })
     },
 
     setSelectedSegwitOrNot: async function() {
@@ -38,28 +57,49 @@ const walletActions = {
         return setting
     },
 
-    /**
-     * @param {string} wallet.walletHash
-     * @param {string} wallet.walletIsHideTransactionForFee
-     * @param {string} wallet.walletUseUnconfirmed
-     * @param {string} wallet.walletUseLegacy
-     * @returns {Promise<void>}
-     */
     setUse: async (wallet) => {
-
         await walletDS.updateWallet(wallet)
-
-        await walletActions.setAvailableWallets()
-
-        await setSelectedWallet('ACT/Wallet setUse')
     },
 
     setWalletBackedUpStatus: async (walletHash) => {
-
         await walletDS.updateWallet({ walletHash, walletIsBackedUp: 1 })
 
-        await App.refreshWalletsStore({firstTimeCall : false, source : 'ACT/Wallet setWalletBackedUpStatus '})
+        const oldWallets = store.getState().walletStore.wallets
+        let oldWalletsUpdated = false
+        for (const oldWallet of oldWallets) {
+            if (oldWallet.walletHash === walletHash) {
+                oldWalletsUpdated = true
+                oldWallet.walletIsBackedUp = 1
+            }
+        }
+        if (oldWalletsUpdated) {
+            dispatch({
+                type: 'SET_WALLET',
+                wallets: { ...oldWallets }
+            })
+        }
+    },
 
+    removeWallet: async (walletHash) => {
+        await accountDS.clearAccountsAll({ walletHash })
+        await walletDS.clearWallet({ walletHash })
+        const oldWallets = store.getState().walletStore.wallets
+        const wallets = []
+        let storedKey = false
+        for (const wallet of oldWallets) {
+            if (wallet.walletHash === walletHash) continue
+            wallets.push(wallet)
+            storedKey = wallet.walletHash
+        }
+        if (wallets.length === 0) {
+            throw new Error('Last Wallet')
+        }
+        MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
+        await dispatch({
+            type: 'SET_WALLET_LIST',
+            wallets
+        })
+        await cryptoWalletActions.setSelectedWallet(storedKey, 'ACT/MStore removeWallet', false)
     },
 
     getNewWalletName: async () => {
@@ -70,6 +110,48 @@ const walletActions = {
         }
 
         return 'TRUSTEE WALLET №' + (wallets.length)
+    },
+
+    setNewWalletName: async (walletHash, newName) => {
+        try {
+            let tmpNewWalletName = newName.replace(/'/g, '')
+
+            if (tmpNewWalletName.length > 255) {
+                tmpNewWalletName = tmpNewWalletName.slice(0, 255)
+                newName = newName.slice(0, 255)
+            }
+
+            await walletDS.updateWallet({ walletHash, walletName: tmpNewWalletName })
+
+            const oldData = store.getState().mainStore.selectedWallet
+            if (oldData && oldData.walletHash === walletHash) {
+                oldData.walletName = newName
+                dispatch({
+                    type: 'SET_SELECTED_WALLET',
+                    wallet: { ...oldData }
+                })
+            }
+
+            const oldWallets = store.getState().walletStore.wallets
+            let oldWalletsUpdated = false
+            for (const oldWallet of oldWallets) {
+                if (oldWallet.walletHash === walletHash) {
+                    oldWalletsUpdated = true
+                    oldWallet.walletName = newName
+                }
+            }
+            if (oldWalletsUpdated) {
+                dispatch({
+                    type: 'SET_WALLET',
+                    wallets: { ...oldWallets }
+                })
+            }
+
+            return true
+        } catch (e) {
+            Log.err('walletActions.setNewWalletName error:', e.message)
+            return false
+        }
     }
 }
 

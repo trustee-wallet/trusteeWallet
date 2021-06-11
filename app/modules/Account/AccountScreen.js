@@ -1,111 +1,94 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 
-import { Linking, Platform, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import {
+    Platform,
+    RefreshControl,
+    Text,
+    TouchableOpacity,
+    View,
+    FlatList,
+} from 'react-native'
 
-import firebase from 'react-native-firebase'
-import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import Feather from 'react-native-vector-icons/Feather'
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
+import LottieView from 'lottie-react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import GradientView from '../../components/elements/GradientView'
-import NavStore from '../../components/navigation/NavStore'
-import ToolTips from '../../components/elements/ToolTips'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
-import LetterSpacing from '../../components/elements/LetterSpacing'
-import Loader from '../../components/elements/LoaderItem'
+import GradientView from '@app/components/elements/GradientView'
+import NavStore from '@app/components/navigation/NavStore'
+import Loader from '@app/components/elements/LoaderItem'
+import AppLockBlur from '@app/components/AppLockBlur'
 
-import Transaction from './elements/Transaction'
-import SettingsBTC from './elements/SettingsBTC'
-import SettingsUSDT from './elements/SettingsUSDT'
-import SettingsXMR from './elements/SettingsXMR'
-import SettingsTRX from './elements/SettingsTRX'
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import transactionActions from '@app/appstores/Actions/TransactionActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setSelectedAccount, setSelectedAccountTransactions } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { clearSendData } from '../../appstores/Stores/Send/SendActions'
-import { setSelectedAccount } from '../../appstores/Stores/Main/MainStoreActions'
+import Log from '@app/services/Log/Log'
+import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
+import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
-import Log from '../../services/Log/Log'
-import Toast from '../../services/UI/Toast/Toast'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import checkTransferHasError from '../../services/UI/CheckTransferHasError/CheckTransferHasError'
+import { strings } from '@app/services/i18n'
 
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-
-import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
-import UpdateAccountBalanceAndTransactions from '../../daemons/back/UpdateAccountBalanceAndTransactions'
-import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-
-import { strings } from '../../services/i18n'
-
-import Theme from '../../themes/Themes'
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import CustomIcon from '../../components/elements/CustomIcon'
-import UIDict from '../../services/UIDict/UIDict'
+import { HIT_SLOP } from '@app/themes/HitSlop'
+import CustomIcon from '@app/components/elements/CustomIcon'
 import AsyncStorage from '@react-native-community/async-storage'
-import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import { getAccountFioName } from '../../../crypto/blockchains/fio/FioUtils'
-import config from '../../config/config'
-import DaemonCache from '../../daemons/DaemonCache'
+import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+import Header from './elements/Header'
+import HeaderBlocks from './elements/HeaderBlocks'
+import AccountButtons from './elements/AccountButtons'
+import Transaction from './elements/Transaction'
+import BalanceHeader from './elements/AccountData'
+
+import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+
+import Netinfo from '@app/services/Netinfo/Netinfo'
+
+import { diffTimeScan } from './helpers'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import { getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
+import store from '@app/store'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 let CACHE_ASKED = false
+let CACHE_CLICKED_BACK = false
+let CACHE_TX_LOADED = 0
+const TX_PER_PAGE = 20
 
-let styles
-
-class Account extends Component {
+class Account extends React.PureComponent {
 
     constructor(props) {
         super(props)
         this.state = {
             refreshing: false,
-            amountToView: 5,
-            transactions: [],
+            clickRefresh: false,
+
             transactionsToView: [],
-            show: true,
-            mode: 'TRANSACTIONS',
-            openTransactionList: [],
-            dash: true,
 
-            firstCall: true,
-            fioMemo: {}
+            fioMemo: {},
+            isBalanceVisible: false,
+            isBalanceVisibleTriggered: false,
+
+            hasStickyHeader: false,
         }
-    }
-
-    // eslint-disable-next-line camelcase
-    async UNSAFE_componentWillMount() {
-        UpdateOneByOneDaemon._canUpdate = false
-        try {
-            styles = Theme.getStyles().accountScreenStyles
-
-            setTimeout(() => {
-                this._onFocusListener = this.props.navigation.addListener('didFocus', async (payload) => {
-                    if (this.state.firstCall) {
-                        this.setState({ firstCall: false })
-                    }
-                })
-            }, 1000)
-
-            // await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({force : true, source : 'ACCOUNT_OPEN'})
-
-        } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err('AccountScreen.componentDidMount ' + e.message)
-        }
-        UpdateOneByOneDaemon._canUpdate = true
-        CACHE_ASKED = await AsyncStorage.getItem('asked')
     }
 
     async componentDidMount() {
-        const { currencyCode } = this.props.cryptoCurrency
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
         if (currencyCode === 'FIO') {
             const fioAccount = await getAccountFioName()
             if (!fioAccount) {
@@ -117,56 +100,52 @@ class Account extends Component {
                 }, this.handleRegisterFIOAddress)
             }
         }
+
+        this._onLoad()
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.account.transactions.length !== this.props.account.transactions.length) {
-            this.setState({
-                show: false
-            }, () => {
-                this.setState({
-                    show: true
-                })
-            })
-        }
+    async _onLoad() {
+        CACHE_ASKED = await AsyncStorage.getItem('asked')
+        CACHE_CLICKED_BACK = false
+    }
+
+    triggerBalanceVisibility = (value, originalVisibility) => {
+        this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered: true }))
+    }
+
+    updateOffset = (event) => {
+        const offset = event.nativeEvent.contentOffset.y
+        const newOffset = Math.round(offset)
+        if (!this.state.hasStickyHeader && newOffset > 260) this.setState(() => ({ hasStickyHeader: true }))
+        if (this.state.hasStickyHeader && newOffset < 260) this.setState(() => ({ hasStickyHeader: false }))
     }
 
     handleRegisterFIOAddress = async () => {
-        const { address } = this.props.account
-        const { apiEndpoints } = config.fio
-        await Linking.openURL(`${apiEndpoints.registrationSiteURL}${address}`)
+        const { address } = this.props.selectedAccountData
+        const link = BlocksoftExternalSettings.getStatic('FIO_REGISTRATION_URL')
+        NavStore.goNext('WebViewScreen', { url: link + address, title: strings('fioMainSettings.registerFioAddress') })
     }
 
-    handleReceive = async () => {
-        const { cryptoCurrency, account } = this.props
-        // noinspection ES6MissingAwait
+    handleReceive = () => {
+        const { walletHash, address } = this.props.selectedAccountData
+        const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
+
         checkTransferHasError({
-            walletHash: account.walletHash,
-            currencyCode: cryptoCurrency.currencyCode,
-            currencySymbol: cryptoCurrency.currencySymbol,
-            addressFrom: account.address,
-            addressTo: account.address
+            walletHash,
+            currencyCode,
+            currencySymbol,
+            addressFrom: address,
+            addressTo: address
         })
-        NavStore.goNext('ReceiveScreen')
+        NavStore.goNext('AccountReceiveScreen')
     }
 
-    handleSetMode = () => {
-        this.setState({
-            mode: this.state.mode === 'TRANSACTIONS' ? 'SETTINGS' : 'TRANSACTIONS'
-        })
-    }
-
-    handleSend = () => {
-        const { cryptoCurrency, account } = this.props
-
-        const isSynchronized = currencyActions.checkIsCurrencySynchronized({ cryptoCurrency, account })
+    handleSend = async () => {
+        const { isSynchronized } = this.props.selectedAccountData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
 
         if (isSynchronized) {
-
-            clearSendData()
-
-            NavStore.goNext('SendScreen')
-
+            await SendActionsStart.startFromAccountScreen(currencyCode)
         } else {
             showModal({
                 type: 'INFO_MODAL',
@@ -177,1002 +156,405 @@ class Account extends Component {
         }
     }
 
-    handleRefresh = async () => {
-        const { account } = this.props
+    handleBuy = async () => {
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+        try {
+            await Netinfo.isInternetReachable()
 
+            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
+            showMsg = showMsg ? JSON.parse(showMsg) : false
+
+            if (typeof showMsg === 'undefined' || !showMsg) {
+                showModal({
+                    type: 'MARKET_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.marketModal.title'),
+                    description: strings('modal.marketModal.description'),
+                }, () => {
+                    NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode })
+                })
+            } else {
+                NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode })
+            }
+
+            // }
+        } catch (e) {
+            if (Log.isNetworkError(e.message)) {
+                Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
+            } else {
+                Log.err('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
+            }
+        }
+    }
+
+    handleRefresh = async (click = false) => {
+        const { walletIsHd } = this.props.selectedWalletData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
         this.setState({
-            refreshing: true
+            refreshing: !click,
+            clickRefresh: click,
         })
 
         UpdateOneByOneDaemon._canUpdate = false
 
-        try {
-            await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })
-        } catch (e) {
-            Log.errDaemon('AccountScreen handleRefresh error updateTradeOrdersDaemon ' + e.message)
+        let needRefresh = false
+        if (currencyCode !== 'ETH_ROPSTEN') {
+            try {
+                if (await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })) {
+                    needRefresh = true
+                }
+            } catch (e) {
+                Log.errDaemon('AccountScreen handleRefresh error updateTradeOrdersDaemon ' + e.message)
+            }
         }
 
         try {
-            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
+            if (await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
                 force: true,
-                currencyCode: account.currencyCode,
+                currencyCode,
                 source: 'ACCOUNT_REFRESH'
-            })
+            })) {
+                needRefresh = true
+            }
+            if (currencyCode === 'BTC' && walletIsHd) {
+                if (await UpdateAccountBalanceAndTransactionsHD.updateAccountBalanceAndTransactionsHD({
+                    force: true,
+                    currencyCode,
+                    source: 'ACCOUNT_REFRESH'
+                })) {
+                    needRefresh = true
+                }
+            }
         } catch (e) {
             Log.errDaemon('AccountScreen handleRefresh error updateAccountBalanceAndTransactions ' + e.message)
         }
 
-        try {
-            await UpdateAccountListDaemon.updateAccountListDaemon({
-                force: true,
-                currencyCode: account.currencyCode,
-                source: 'ACCOUNT_REFRESH'
-            })
-        } catch (e) {
-            Log.errDaemon('AccountScreen handleRefresh error updateAccountListDaemon ' + e.message)
+        if (needRefresh) {
+            try {
+                await UpdateAccountListDaemon.updateAccountListDaemon({
+                    force: true,
+                    currencyCode,
+                    source: 'ACCOUNT_REFRESH'
+                })
+            } catch (e) {
+                Log.errDaemon('AccountScreen handleRefresh error updateAccountListDaemon ' + e.message)
+            }
+            await setSelectedAccount()
+            this.loadTransactions(0)
         }
 
-        await setSelectedAccount()
 
         UpdateOneByOneDaemon._canUpdate = true
 
         this.setState({
-            refreshing: false
+            refreshing: false,
+            clickRefresh: false
         })
     }
 
-    handleOpenLink = async (address) => {
-        const now = new Date().getTime()
-        const diff = now - CACHE_ASKED * 1
-        if (!CACHE_ASKED || diff > 10000) {
-            showModal({
-                type: 'YES_NO_MODAL',
-                title: strings('account.externalLink.title'),
-                icon: 'WARNING',
-                description: strings('account.externalLink.description')
-            }, () => {
-                AsyncStorage.setItem('asked', now + '')
-                CACHE_ASKED = now
-                this.actualOpen(address)
-            })
+    renderSynchronized = (allTransactionsToView) => {
+        const { balanceScanTime, balanceScanError, isSynchronized } = this.props.selectedAccountData
+        let { transactionsToView } = this.state
+        if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
+            transactionsToView = this.props.selectedAccountTransactions.transactionsToView
+        }
+
+        const { colors, GRID_SIZE, isLight } = this.context
+
+        const diff = diffTimeScan(balanceScanTime)
+        let diffTimeText = ''
+        if (diff > 60) {
+            diffTimeText = strings('account.soLong')
         } else {
-            this.actualOpen(address)
-        }
-    }
-
-    actualOpen = (address) => {
-        const { currencyExplorerLink } = this.props.cryptoCurrency
-
-        Linking.canOpenURL(`${currencyExplorerLink}${address}`).then(supported => {
-            if (supported) {
-                let linkUrl = `${currencyExplorerLink}${address}`
-                if (linkUrl.indexOf('?') === -1) {
-                    linkUrl += '?from=trustee'
-                }
-                Linking.openURL(linkUrl)
+            if (diff < 1) {
+                diffTimeText = strings('account.justScan')
             } else {
-                Log.err('Account.AccountScreen Dont know how to open URI', `${currencyExplorerLink}${address}`)
+                diffTimeText = strings('account.scan', { time: diff })
             }
-        })
-    }
-
-    handleOpenLinkLongPress = () => {
-        const { account } = this.props
-
-        let text = account.id + ' ' + account.address + ' ' + account.balanceProvider + ' current ' + account.balance + ', scan log ' + account.balanceScanLog
-        if (typeof account.legacyData !== 'undefined' && account.legacyData) {
-            text += `
-            
-            
-            ` + account.legacyData.id + ' ' + account.legacyData.address + ' ' + account.legacyData.balanceProvider + ' current ' + account.legacyData.balance + ', scan log ' + account.legacyData.balanceScanLog
+            if (balanceScanError && balanceScanError !== '' && balanceScanError !== 'null') {
+                diffTimeText += '\n' + strings(balanceScanError)
+            }
         }
-
-        showModal({
-            type: 'INFO_MODAL',
-            icon: 'INFO',
-            title: 'SYSTEM_LOG',
-            description: text.slice(0, 500)
-        })
-    }
-
-    renderTooltip = (props) => {
-
-        const { cryptoCurrency, account } = props
-
-        const isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
 
         return (
-            <View>
-                <Text style={styles.transaction_title}>{strings('account.history')}</Text>
-                {
-                    !props.transactionsToView.length ?
-                        <View>
-                            {isSynchronized ? <Text
-                                    style={styles.transaction__empty_text}>{strings('account.noTransactions')}</Text> :
+            <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
+                <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
+                    <View style={{ flexDirection: 'column' }} >
+                        <Text style={{ ...styles.transaction_title, color: colors.common.text1 }}>{strings('account.history')}</Text>
+                        <View style={{ ...styles.scan, marginLeft: 16 }}>
+                            {isSynchronized ?
+                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2} >{diffTimeText}</Text>
+                                :
                                 <View style={{
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     marginRight: 10,
-                                    marginLeft: 30
-                                }}><Loader size={14} color={'#999999'} /><Text style={{
+                                    marginTop: 2
+                                }}><Text style={{
                                     ...styles.transaction__empty_text, ...{
-                                        marginLeft: 10,
-                                        marginTop: 0
+                                        marginLeft: 0,
+                                        marginRight: 10,
+                                        marginTop: 0,
+                                        color: colors.common.text1
                                     }
-                                }}>{strings('homeScreen.synchronizing')}</Text></View>}
+                                }}>{strings('homeScreen.synchronizing')}</Text>
+                                    <Loader size={14} color={'#999999'} />
+                                </View>
+                            }
                         </View>
+                    </View>
+                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE }} onPress={() => this.handleRefresh(true)} hitSlop={HIT_SLOP} >
+                        {this.state.clickRefresh ?
+                            <LottieView style={{ width: 20, height: 20, }}
+                                source={isLight ? blackLoader : whiteLoader}
+                                autoPlay loop /> :
+                            <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} />}
+                    </TouchableOpacity>
+                </View>
+                {
+                    allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0) && isSynchronized ?
+                        <View style={{ marginRight: GRID_SIZE }} >
+                            <Text
+                                style={{ ...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3 }}>
+                                {strings('account.noTransactions')}
+                            </Text>
+                        </View>
+
                         : null
                 }
-                <View style={stl.scan}>
-                    <Text style={stl.scan__text}>{strings('account.scan')}</Text>
-                    <Text style={{
-                        ...stl.scan__text,
-                        color: '#404040'
-                    }}>{new Date(this.props.account.balanceScanTime * 1000).toLocaleTimeString().slice(0, 8)}</Text>
-                </View>
             </View>
         )
 
-    }
-
-    renderDash = () => {
-        this.setState({ dash: this.state.dash })
-    }
-
-    prepareTransactions = (transactions, exchangeOrders) => {
-
-        const { mainStore } = this.props
-        const walletCashBackToken = CashBackUtils.getWalletToken()
-
-
-        let transactionsTmp = []
-        const unique = {}
-        const uniqueOrderId = {}
-        const byIds = {}
-        let byIdsLength = 0
-
-        if (exchangeOrders && exchangeOrders.length > 0) {
-            let item
-            for (item of exchangeOrders) {
-                if (item.cashbackToken !== walletCashBackToken) {
-                    continue
-                }
-                if (item.requestedOutAmount.currencyCode !== this.props.cryptoCurrency.currencyCode && item.requestedInAmount.currencyCode !== this.props.cryptoCurrency.currencyCode) {
-                    continue
-                }
-
-                const direction = item.requestedOutAmount.currencyCode === this.props.cryptoCurrency.currencyCode ? 'income' : 'outcome'
-                const amount = direction === 'income' ? item.requestedOutAmount.amount : item.requestedInAmount.amount
-                let subtitle = ''
-                if (item.exchangeWayType === 'EXCHANGE') {
-                    subtitle = item.requestedInAmount.currencyCode + '-' + item.requestedOutAmount.currencyCode
-                } else if (item.exchangeWayType === 'BUY') {
-                    // do nothing
-                } else {
-                    subtitle = item.outDestination
-                }
-
-
-                const order = {
-                    orderId: item.orderId,
-                    exchangeWayType: item.exchangeWayType,
-                    status: item.status,
-                    transactionDirection: direction,
-                    createdAt: item.createdAt,
-                    addressAmountPretty: amount,
-                    outDestination: item.outDestination,
-                    depositAddress: item.depositAddress,
-                    subtitle
-                }
-
-                order.addressAmountPretty = BlocksoftPrettyNumbers.makeCut(order.addressAmountPretty).separated
-
-                if (typeof order.id === 'undefined') {
-                    order.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-                }
-
-                if (typeof item.orderJSON !== 'undefined' && item.orderJSON !== null) {
-                    order.orderJSON = JSON.parse(item.orderJSON)
-                }
-
-                if (typeof item.payinUrl !== 'undefined' && item.payinUrl !== null) {
-                    order.payinUrl = item.payinUrl
-                }
-
-                if (typeof item.payUpdateTime !== 'undefined') {
-                    order.payUpdateTime = item.payUpdateTime
-                }
-
-                if (transactions) {
-                    let added = false
-
-                    const hash2 = item.outTxHash
-                    if (hash2 && typeof transactions[hash2] !== 'undefined') {
-                        if (typeof unique[hash2] === 'undefined') {
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...transactions[hash2], ...order })
-                                unique[hash2] = 1
-                                added = true
-                            }
-                        }
-                    }
-
-                    const hash = item.inTxHash
-                    if (hash && typeof transactions[hash] !== 'undefined') {
-                        if (typeof unique[hash] === 'undefined') {
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...transactions[hash], ...order })
-                                unique[hash] = 1
-                                added = true
-                            }
-
-                        }
-                    }
-
-                    if (!added) {
-                        byIds[item.orderId + ''] = order
-                        byIdsLength++
-                    }
-                } else {
-                    order.blockConfirmations = 0
-                    if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                        uniqueOrderId[item.orderId] = 1
-                        transactionsTmp.push(order)
-                    }
-                }
-            }
-        }
-
-        if (transactions) {
-            let hash
-            for (hash in transactions) {
-                if (typeof unique[hash] !== 'undefined') continue
-                const tx = transactions[hash]
-                let added = false
-                if (byIdsLength > 0) {
-                    if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson && typeof tx.transactionJson.bseOrderID !== 'undefined') {
-                        const tmpKey = tx.transactionJson.bseOrderID + ''
-                        if (typeof byIds[tmpKey] !== 'undefined') {
-                            const item = byIds[tmpKey]
-                            if (typeof uniqueOrderId[item.orderId] === 'undefined') {
-                                uniqueOrderId[item.orderId] = 1
-                                transactionsTmp.push({ ...tx, ...item })
-                                added = true
-                                delete byIds[tmpKey]
-                                byIdsLength--
-                            }
-                        }
-                    }
-                }
-                if (!added) {
-                    if (mainStore.selectedWallet.walletIsHideTransactionForFee !== null && +mainStore.selectedWallet.walletIsHideTransactionForFee === 1) {
-                        if (tx.addressAmount === 0) {
-                            if (tx.transactionOfTrusteeWallet === 1 && tx.transactionsOtherHashes !== '') {
-                                // do nothing as its removed ones
-                            } else {
-                                continue
-                            }
-                        }
-                    }
-                    if (typeof tx.id === 'undefined') {
-                        tx.id = hash
-                    }
-                    transactionsTmp.push(tx)
-                }
-            }
-        }
-
-        if (byIdsLength > 0) {
-            let orderId
-            for (orderId in byIds) {
-                const order = byIds[orderId]
-                if (order) {
-                    transactionsTmp.push(order)
-                }
-            }
-        }
-
-        transactionsTmp = transactionsTmp.sort((a, b) => {
-            if (a.createdAt === b.createdAt) {
-                if (a.transactionDirection === b.transactionDirection) {
-                    return b.id - a.id
-                }
-                const sortingB = b.transactionDirection === 'outcome' ? 2 : b.transactionDirection === 'self' ? 1 : 0
-                const sortingA = a.transactionDirection === 'outcome' ? 2 : a.transactionDirection === 'self' ? 1 : 0
-                if (sortingA === sortingB) {
-                    return b.id - a.id
-                } else {
-                    return sortingB - sortingA
-                }
-            }
-            return new Date(b.createdAt) - new Date(a.createdAt)
-        })
-
-
-        return transactionsTmp
-    }
-
-    handleShowMore = () => {
-        this.setState({ amountToView: this.state.amountToView + 5 })
-    }
-
-    renderAddressTooltip = (props) => {
-        const address = props.address || ''
-        const addressPrep = BlocksoftPrettyStrings.makeCut(address, 10, 8)
-        return (
-            <View style={styles.topContent__address}>
-                <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
-            </View>
-        )
-    }
-
-    handleSetState = (key, value) => this.setState({ [key]: value })
-
-    renderBalance = (cryptoCurrency, account) => {
-        const isSyncronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
-
-        const tmp = BlocksoftPrettyNumbers.makeCut(account.balancePretty, 7, 'AccountScreen/renderBalance').separated
-        if (typeof tmp.split === 'undefined') {
-            throw new Error('AccountScreen.renderBalance split is undefined')
-        }
-        const tmps = tmp.split('.')
-        let balancePrettyPrep1 = tmps[0]
-        let balancePrettyPrep2 = ''
-        if (typeof tmps[1] !== 'undefined' && tmps[1]) {
-            balancePrettyPrep1 = tmps[0] + '.'
-            balancePrettyPrep2 = tmps[1]
-        }
-
-        if (isSyncronized) {
-            return (
-                <View style={styles.topContent__top}>
-                    <View style={styles.topContent__title}>
-                        <Text style={styles.topContent__title_first}>
-                            {
-                                balancePrettyPrep1
-                            }
-                        </Text>
-                        <Text style={styles.topContent__title_last}>
-                            {
-                                balancePrettyPrep2 + ' ' + cryptoCurrency.currencySymbol
-                            }
-                        </Text>
-                    </View>
-                    <LetterSpacing text={account.basicCurrencySymbol + ' ' + account.basicCurrencyBalance}
-                                   textStyle={styles.topContent__subtitle} letterSpacing={.5} />
-                </View>
-            )
-        } else {
-            return (
-                <View style={styles.topContent__top}>
-                    <View style={styles.topContent__title}>
-                        <View style={{ height: Platform.OS === 'ios' ? 46 : 51, alignItems: 'center' }}>
-                            <Loader size={30} color={'#999'} />
-                        </View>
-                    </View>
-                </View>
-            )
-        }
     }
 
     closeAction = () => {
-        NavStore.goBack()
+        if (!CACHE_CLICKED_BACK) {
+            CACHE_CLICKED_BACK = true
+            NavStore.goBack()
+        }
     }
 
-    handleBtcAddressCopy = (address) => {
-        const { cryptoCurrency, account } = this.props
-        checkTransferHasError({
-            walletHash: account.walletHash,
-            currencyCode: cryptoCurrency.currencyCode,
-            currencySymbol: cryptoCurrency.currencySymbol,
-            addressFrom: address,
-            addressTo: address
-        })
-        copyToClipboard(address)
-        Toast.setMessage(strings('toast.copied')).show()
+    handleShowMore = () => {
+        if (this.state.clickRefresh) return
+        this.loadTransactions(this.state.transactionsToView.length)
     }
 
-    renderBTCBlock = () => {
-        const { account } = this.props
-        let segwitPrep = ''
-        let legacyPrep = ''
-        if (typeof account.segwitAddress !== 'undefined' && account.segwitAddress) {
-            segwitPrep = BlocksoftPrettyStrings.makeCut(account.segwitAddress, 5)
-        }
-        if (typeof account.legacyAddress !== 'undefined' && account.legacyAddress) {
-            legacyPrep = BlocksoftPrettyStrings.makeCut(account.legacyAddress, 5)
-        }
-        return (
-            <View style={{
-                position: 'relative',
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 30,
-                marginTop: 20
-            }}>
-                <TouchableOpacity
-                    style={{ flex: 1, marginHorizontal: 20, marginRight: 10, justifyContent: 'center', height: 60 }}
-                    onPress={() => this.handleBtcAddressCopy(account.segwitAddress)}>
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingLeft: 15,
-                        position: 'relative',
-                        zIndex: 2
-                    }}>
-                        <View style={{ paddingRight: 10 }}>
-                            <Text style={{
-                                marginRight: 8,
+    async loadTransactions(from = 6, perPage = TX_PER_PAGE) {
+        const { walletIsHideTransactionForFee } = this.props.selectedWalletData
+        const { walletHash } = this.props.selectedAccountData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
 
-                                fontFamily: 'Montserrat-Bold',
-                                fontSize: 12,
-                                color: '#404040'
-                            }}>
-                                SegWit
-                            </Text>
-                            <LetterSpacing text={segwitPrep} textStyle={styles.topContent__address} letterSpacing={1} />
-                        </View>
-                        <Copy name="content-copy" size={15} color={'#939393'} />
-                    </View>
-                    <View style={[stl.topContent__bg, { height: 45 }]}>
-                        <View style={styles.shadow} />
-                    </View>
-                    <GradientView style={[stl.bg, { height: 60 }]} array={styles.containerBG.array}
-                                  start={styles.containerBG.start} end={styles.containerBG.end} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={{ flex: 1, marginHorizontal: 20, marginLeft: 10, justifyContent: 'center', height: 60 }}
-                    onPress={() => this.handleBtcAddressCopy(account.legacyAddress)}>
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        paddingLeft: 15,
-                        position: 'relative',
-                        zIndex: 2
-                    }}>
-                        <View style={{ paddingRight: 10 }}>
-                            <Text style={{
-                                marginRight: 8,
 
-                                fontFamily: 'Montserrat-Bold',
-                                fontSize: 12,
-                                color: '#404040'
-                            }}>
-                                Legacy
-                            </Text>
-                            <LetterSpacing text={legacyPrep} textStyle={styles.topContent__address} letterSpacing={1} />
-                        </View>
-                        <Copy name="content-copy" size={15} color={'#939393'} />
-                    </View>
-                    <View style={[stl.topContent__bg, { height: 45 }]}>
-                        <View style={styles.shadow} />
-                    </View>
-                    <GradientView style={[stl.bg, { height: 60 }]} array={styles.containerBG.array}
-                                  start={styles.containerBG.start} end={styles.containerBG.end} />
-                </TouchableOpacity>
-            </View>
-        )
+        const params = {
+            walletHash,
+            currencyCode,
+            limitFrom: from,
+            limitPerPage: perPage
+        }
+        if (walletIsHideTransactionForFee) {
+            params.minAmount = 0
+        }
+        const tmp = await transactionDS.getTransactions(params, 'AccountScreen.loadTransactions list')
+        const transactionsToView = []
+
+        if (tmp && tmp.length > 0) {
+            const account = store.getState().mainStore.selectedAccount
+            for (let transaction of tmp) {
+                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, currencyCode)
+                transactionsToView.push(transaction)
+            }
+        }
+        CACHE_TX_LOADED = new Date().getTime()
+
+        if (from === 0) {
+            this.setState((state) => ({ transactionsToView: transactionsToView })) // from start reload
+        } else {
+            this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView) }))
+        }
+    }
+
+    getPrettyCurrencyName = (currencyCode, currencyName) => {
+        switch (currencyCode) {
+            case 'USDT':
+                return 'Tether Bitcoin'
+            case 'ETH_USDT':
+                return 'Tether Ethereum'
+            case 'TRX_USDT':
+                return 'Tether Tron'
+            default:
+                return currencyName
+        }
     }
 
     render() {
-        // noinspection ES6MissingAwait
-        firebase.analytics().setCurrentScreen('Account.AccountScreen')
-
-        UpdateAccountListDaemon.pause()
-
-        const { mode, openTransactionList } = this.state
-        const { mainStore, account, cryptoCurrency, exchangeStore, settingsStore } = this.props
-        const { btcShowTwoAddress = 0 } = settingsStore.data
-        const { amountToView, show } = this.state
-        const transactions = account.transactions
-        const address = account.address
-
-        let transactionsToView = this.prepareTransactions(transactions, exchangeStore.exchangeOrders)
-        let transactionsToViewLength = 0
-        if (transactionsToView) {
-            transactionsToViewLength = transactionsToView.length
-            transactionsToView = transactionsToView.slice(0, this.state.amountToView)
-        } else {
-            transactionsToView = []
+        if (this.props.isBlurVisible) {
+            return <AppLockBlur />
         }
 
-        const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
+        MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 
-        Log.log('AccountScreen.render amountToView ' + this.state.amountToView + ' transactionsToViewLength ' + transactionsToViewLength)
-        const btcAddress = typeof settingsStore.data.btc_legacy_or_segwit !== 'undefined' && settingsStore.data.btc_legacy_or_segwit === 'segwit' ? account.segwitAddress : account.legacyAddress
+        const { colors } = this.context
+        const { isSegwit, selectedAccountData, selectedCryptoCurrencyData } = this.props
+        let { transactionsToView } = this.state
+        if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
+            transactionsToView = this.props.selectedAccountTransactions.transactionsToView
+            CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
+        } else if (CACHE_TX_LOADED*1 <= this.props.selectedAccountTransactions.transactionsLoaded*1) {
+            transactionsToView = this.props.selectedAccountTransactions.transactionsToView
+            CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
+            this.loadTransactions(0)
+        }
 
-        const shownAddress = cryptoCurrency.currencyCode === 'BTC' ? btcAddress : address
+        const allTransactionsToView = transactionsToView // was concat before
 
-        if (account && account.balanceProvider) {
+        let shownAddress = selectedAccountData.address
+        if (selectedAccountData.segwitAddress) {
+            shownAddress = isSegwit ? selectedAccountData.segwitAddress : selectedAccountData.legacyAddress
+        }
+
+        if (selectedAccountData.balanceProvider) {
             const logData = {
-                currency: cryptoCurrency.currencyCode,
+                currency: selectedCryptoCurrencyData.currencyCode,
                 address: shownAddress,
-                amount: account.balancePretty + '',
-                unconfirmed: account.unconfirmedPretty + '',
-                balanceScanTime: account.balanceScanTime + '',
-                balanceProvider: account.balanceProvider + '',
-                balanceScanLog: account.balanceScanLog + '',
-                balanceAddingLog: account.balanceAddingLog + '',
-                basicCurrencyCode: account.basicCurrencyCode + '',
-                basicCurrencyBalance: account.basicCurrencyBalance + '',
-                basicCurrencyRate: account.basicCurrencyRate + ''
+                amount: selectedAccountData.balancePretty + '',
+                unconfirmed: selectedAccountData.unconfirmedPretty + '',
+                balanceScanTime: selectedAccountData.balanceScanTime + '',
+                balanceScanError: selectedAccountData.balanceScanError + '',
+                balanceProvider: selectedAccountData.balanceProvider + '',
+                balanceScanLog: selectedAccountData.balanceScanLog + '',
+                balanceAddingLog: selectedAccountData.balanceAddingLog + '',
+                basicCurrencyCode: selectedAccountData.basicCurrencyCode + '',
+                basicCurrencyBalance: selectedAccountData.basicCurrencyBalance + '',
+                basicCurrencyRate: selectedAccountData.basicCurrencyRate + ''
             }
 
-            if (cryptoCurrency.currencyCode === 'BTC') {
-                logData.legacyAddress = account.legacyAddress || ''
-                logData.segwitAddress = account.segwitAddress || ''
+            if (selectedAccountData.segwitAddress) {
+                logData.legacyAddress = selectedAccountData.legacyAddress || ''
+                logData.segwitAddress = selectedAccountData.segwitAddress || ''
             }
             MarketingEvent.logEvent('view_account', logData)
         }
 
-        let leftComponent
-        let settingsComponent = null
-        if (account.currencyCode === 'BTC') {
-            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                                                    onPress={this.handleSetMode}><View
-                style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
-                                                             color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsBTC containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                             wallet={mainStore.selectedWallet} />
-        } else if (account.currencyCode === 'USDT') {
-            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                                                    onPress={this.handleSetMode}><View
-                style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
-                                                             color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsUSDT containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                              wallet={mainStore.selectedWallet} account={account} />
-        } else if (account.currencyCode === 'FIO') {
-            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() =>  NavStore.goNext('FioMainSettings')}><View style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear" color={`#404040`}/></View></TouchableOpacity>
-        } else if (account.currencyCode === 'XMR') {
-            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                                                    onPress={this.handleSetMode}><View
-                style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
-                                                             color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsXMR containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                             wallet={mainStore.selectedWallet} account={account} />
-        } else if (account.currencyCode === 'TRX') {
-            leftComponent = () => <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }}
-                                                    onPress={this.handleSetMode}><View
-                style={{ paddingVertical: 12 }}><IconAwesome size={20} name="gear"
-                                                             color={`#404040`} /></View></TouchableOpacity>
-            settingsComponent =
-                <SettingsTRX containerStyle={{ height: mode === 'SETTINGS' ? 'auto' : 0, overflow: 'hidden' }}
-                             wallet={mainStore.selectedWallet} account={account} />
-        }
-        const dict = new UIDict(cryptoCurrency.currencyCode)
-        const color = dict.settings.colors.mainColor
+
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                <Navigation
-                    title={`${strings('account.title')} ${cryptoCurrency.currencySymbol}`}
-                    isBack={false}
-                    navigation={this.props.navigation}
-                    closeAction={this.closeAction}
-                    LeftComponent={leftComponent}
+            <View style={{ flex: 1, backgroundColor: colors.common.background }}>
+                <Header
+                    leftType="back"
+                    leftAction={this.closeAction}
+                    title={this.getPrettyCurrencyName(selectedCryptoCurrencyData.currencyCode, selectedCryptoCurrencyData.currencyName)}
+                    ExtraView={() => (
+                        <BalanceHeader
+                            balancePretty={selectedAccountData.balancePretty}
+                            currencySymbol={selectedCryptoCurrencyData.currencySymbol}
+                            actionReceive={this.handleReceive}
+                            actionBuy={this.handleBuy}
+                            actionSend={this.handleSend}
+                            isBalanceVisible={this.state.isBalanceVisible}
+                            isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
+                            originalVisibility={this.props.isBalanceVisible}
+                        />
+                    )}
+                    hasStickyHeader={this.state.hasStickyHeader}
                 />
-                <ScrollView
-                    style={styles.wrapper__scrollView}
+                <View style={styles.stub} />
+                <FlatList
+                    data={allTransactionsToView}
                     showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.wrapper__scrollView}
+                    initialNumToRender={20}
+                    maxToRenderPerBatch={TX_PER_PAGE}
+                    updateCellsBatchingPeriod={100}
+                    onScroll={this.updateOffset}
+                    getItemLayout={(data, index) => ({ length: 110, offset: 110 * index, index })}
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
                             onRefresh={this.handleRefresh}
+                            tintColor={colors.common.text1}
                         />
-                    }>
-                    <View style={styles.wrapper__content}>
-                        <View
-                            style={[styles.topContent, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 190 } : null]}>
-                            <View style={stl.topContent__content}>
-                                {this.renderBalance(cryptoCurrency, mainStore.selectedAccount)}
-                                {
-                                    account.currencyCode !== 'BTC' || (account.currencyCode === 'BTC' && !(+btcShowTwoAddress)) ?
-                                        <TouchableOpacity style={styles.topContent__middle}
-                                                          onPress={() => this.handleBtcAddressCopy(shownAddress)}>
-                                            <ToolTips showAfterRender={true} height={150}
-                                                      type={'ACCOUNT_SCREEN_ADDRESS_TIP'}
-                                                      cryptoCurrency={cryptoCurrency}
-                                                      mainComponentProps={{ address: shownAddress }}
-                                                      MainComponent={this.renderAddressTooltip} />
-                                            <View onPress={() => this.handleBtcAddressCopy(shownAddress)}
-                                                  style={styles.copyBtn}>
-                                                <Copy name="content-copy" size={15} color={'#939393'} />
-                                            </View>
-                                        </TouchableOpacity> : null
-                                }
-                                <View
-                                    style={[styles.topContent__bottom, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { marginTop: 30 } : null]}>
-                                    <TouchableOpacity style={{
-                                        position: 'relative',
-                                        padding: 20,
-                                        paddingTop: 0,
-                                        alignItems: 'center'
-                                    }} onPress={() => this.handleOpenLink(shownAddress)}
-                                                      onLongPress={() => this.handleOpenLinkLongPress()}
-                                                      delayLongPress={5000}>
-                                        <View style={{ position: 'relative', width: 50, height: 50 }}>
-                                            <GradientView style={stl.topContent__icon} array={styles.containerBG.array}
-                                                          start={styles.containerBG.start}
-                                                          end={styles.containerBG.end} />
-                                            <View style={{
-                                                position: 'absolute',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                top: 0,
-                                                left: 0,
-                                                bottom: 0,
-                                                right: 0,
-                                                zIndex: 3
-                                            }}>
-                                                <CurrencyIcon currencyCode={cryptoCurrency.currencyCode}
-                                                              containerStyle={{ borderWidth: 0 }}
-                                                              markStyle={{ top: 30 }}
-                                                              textContainerStyle={{ bottom: -19 }}
-                                                              textStyle={{ backgroundColor: 'transparent' }} />
-                                            </View>
-                                            <View style={{ ...stl.topContent__bottom__btn__shadow }}>
-                                                <View style={stl.topContent__bottom__btn__shadow__item} />
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                    {/* </View> */}
-                                    {/* <View style={{...styles.topContent__bottom, marginTop: -70, paddingLeft: 100}}> */}
-                                    <TouchableOpacity style={{
-                                        position: 'relative',
-                                        padding: 20,
-                                        paddingTop: 0,
-                                        alignItems: 'center'
-                                    }} onPress={() => this.handleRefresh()}>
-                                        <View style={{ position: 'relative', width: 50, height: 50 }}>
-                                            <GradientView style={stl.topContent__icon} array={styles.containerBG.array}
-                                                          start={styles.containerBG.start}
-                                                          end={styles.containerBG.end} />
-                                            <View style={{
-                                                position: 'absolute',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                top: 0,
-                                                left: 0,
-                                                bottom: 0,
-                                                right: 0,
-                                                zIndex: 3
-                                            }}>
-                                                <CustomIcon
-                                                    style={{ ...styles.block__icon, marginBottom: 2, color: color }}
-                                                    size={25} name='reload' />
-                                            </View>
-                                            <View style={{ ...stl.topContent__bottom__btn__shadow }}>
-                                                <View style={stl.topContent__bottom__btn__shadow__item} />
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                            <GradientView
-                                style={[stl.bg, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 160 } : null]}
-                                array={styles.containerBG.array} start={styles.containerBG.start}
-                                end={styles.containerBG.end} />
-                            <View
-                                style={[stl.topContent__bg, cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? { height: 150 } : null]}>
-                                <View style={styles.shadow} />
-                            </View>
-                        </View>
-                        {cryptoCurrency.currencyCode === 'BTC' && +btcShowTwoAddress ? this.renderBTCBlock() : null}
-                        <View style={{
-                            flex: 1,
-                            alignItems: 'flex-start',
-                            height: mode === 'TRANSACTIONS' ? 'auto' : 0,
-                            overflow: 'hidden'
-                        }}>
+                    }
+                    ListHeaderComponent={() => (
+                        <React.Fragment>
+                            <HeaderBlocks
+                                account={{
+                                    walletHash: selectedAccountData.walletHash,
+                                    shownAddress,
+                                    balancePretty: selectedAccountData.balancePretty,
+                                    basicCurrencySymbol: selectedAccountData.basicCurrencySymbol,
+                                    basicCurrencyBalance: selectedAccountData.basicCurrencyBalance,
+                                    isSynchronized: selectedAccountData.isSynchronized,
+                                    walletPubs: selectedAccountData.walletPubs
+                                }}
+                                cryptoCurrency={{
+                                    currencyCode: selectedCryptoCurrencyData.currencyCode,
+                                    currencySymbol: selectedCryptoCurrencyData.currencySymbol,
+                                    currencyExplorerLink: selectedCryptoCurrencyData.currencyExplorerLink
+                                }}
+                                isSegwit={isSegwit}
+                                cacheAsked={CACHE_ASKED}
+                                isBalanceVisible={this.state.isBalanceVisible}
+                                isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
+                                originalVisibility={this.props.isBalanceVisible}
+                                triggerBalanceVisibility={this.triggerBalanceVisibility}
+                            />
+                            <AccountButtons
+                                title={true}
+                                actionReceive={this.handleReceive}
+                                actionBuy={this.handleBuy}
+                                actionSend={this.handleSend}
+                            />
                             <View>
-                                <ToolTips type={'ACCOUNT_SCREEN_TRANSACTION_TIP'}
-                                          height={100}
-                                          MainComponent={this.renderTooltip}
-                                          nextCallback={this.nextCallback}
-                                          mainComponentProps={{
-                                              transactionsToView,
-                                              cryptoCurrency,
-                                              account
-                                          }} />
+                                {this.renderSynchronized(allTransactionsToView)}
                             </View>
-                            <View style={{ position: 'relative', width: '100%' }}>
-                                <View style={{ position: 'relative', width: '100%', zIndex: 1 }}>
-                                    {
-                                        show ? transactionsToView.map((item, index) => {
-                                            return <Transaction key={item.id} index={item.id}
-                                                                count={index}
-                                                                cards={mainStore.cards}
-                                                                transactions={transactionsToView}
-                                                                amountToView={amountToView}
-                                                                transaction={item}
-                                                                fioMemo={fioMemo[item.transactionHash]}
-                                                                handleSetState={this.handleSetState}
-                                                                openTransactionList={openTransactionList}
-                                                                account={account}
-                                                                cryptoCurrency={cryptoCurrency}
-                                                                dash={(transactionsToViewLength - 1 === index) ? this.renderDash : !this.renderDash}
-
-                                            />
-                                        }) : null
-                                    }
-                                </View>
-                            </View>
-                            {
-                                this.state.amountToView < transactionsToViewLength ?
-                                    <View style={{ width: '100%', alignItems: 'center' }}>
-                                        <TouchableOpacity style={{
-                                            ...styles.showMore,
-                                            marginBottom: Platform.OS === 'ios' ? 100 : 70
-                                        }} onPress={this.handleShowMore}>
-                                            <Text style={[styles.showMore__btn, { color: '#404040' }]}>
-                                                {strings('account.showMore')}
-                                            </Text>
-                                            <Ionicons name='ios-arrow-down' size={12} color='#404040' />
-                                        </TouchableOpacity>
-                                    </View> : <View style={{ marginBottom: Platform.OS === 'ios' ? 100 : 60 }} />
-                            }
-                        </View>
-                        {settingsComponent}
-                    </View>
-                </ScrollView>
-                <GradientView style={stl.bottomButtons} array={['#ffffff00', '#d7d7d7']}
-                              start={styles.containerBG.start} end={styles.containerBG.end}>
-                    <View style={[stl.bottomButtons__content, { paddingLeft: transactionsToView.length ? 48 : 15 }]}>
-                        <View style={stl.bottomButton}>
-                            <TouchableOpacity style={stl.bottomButton__wrap} onPress={this.handleSend}>
-                                <View style={stl.bottomButton__item}>
-                                    <View style={[stl.bottomButton__content, {
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        paddingHorizontal: 15,
-                                        backgroundColor: '#404040'
-                                    }]}>
-                                        <Text style={{
-                                            fontFamily: 'SFUIDisplay-Semibold',
-                                            color: '#fff'
-                                        }}>{strings('account.send')}</Text>
-                                        <View style={{ alignItems: 'center' }}>
-                                            <View style={{ marginTop: -4 }}>
-                                                <Feather name={'arrow-up-right'}
-                                                         style={{ color: '#fff', fontSize: 20 }} />
-                                            </View>
-                                            <View style={{
-                                                width: 12,
-                                                marginTop: -1,
-                                                height: 1.4,
-                                                backgroundColor: '#fff'
-                                            }} />
-                                        </View>
-                                    </View>
-                                    <View style={stl.bottomButtons__shadow}>
-                                        <View style={stl.bottomButtons__shadow__item} />
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{ width: 15 }} />
-                        <View style={stl.bottomButton}>
-                            <TouchableOpacity style={stl.bottomButton__wrap} onPress={this.handleReceive}>
-                                <View style={stl.bottomButton__item}>
-                                    <View style={[stl.bottomButton__content, {
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        paddingHorizontal: 15,
-                                        backgroundColor: '#404040'
-                                    }]}>
-                                        <Text style={{
-                                            fontFamily: 'SFUIDisplay-Semibold',
-                                            color: '#fff'
-                                        }}>{strings('account.receive', { receive: strings('repeat.receive') })}</Text>
-                                        <View style={{ alignItems: 'center' }}>
-                                            <View style={{ marginTop: -4 }}>
-                                                <Feather name={'arrow-down-left'}
-                                                         style={{ color: '#fff', fontSize: 20 }} />
-                                            </View>
-                                            <View style={{
-                                                width: 12,
-                                                marginTop: -1,
-                                                height: 1.4,
-                                                backgroundColor: '#fff'
-                                            }} />
-                                        </View>
-                                    </View>
-                                    <View style={stl.bottomButtons__shadow}>
-                                        <View style={stl.bottomButtons__shadow__item} />
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </GradientView>
-            </GradientView>
+                        </React.Fragment>
+                    )}
+                    renderItem={({ item, index }) => (
+                        <Transaction
+                            isFirst={index === 0}
+                            transaction={item}
+                            cryptoCurrency={{
+                                currencyCode: selectedCryptoCurrencyData.currencyCode,
+                                currencySymbol: selectedCryptoCurrencyData.currencySymbol,
+                                currencyColor: this.context.isLight ? selectedCryptoCurrencyData.mainColor : selectedCryptoCurrencyData.darkColor
+                            }}
+                            dashHeight={allTransactionsToView.length === 1 ? 0 : (allTransactionsToView.length - 1 === index) ? 50 : 150}
+                        />
+                    )}
+                    onEndReachedThreshold={0.5}
+                    onEndReached={this.handleShowMore}
+                    keyExtractor={item => (item.id || ('bse_' + item.bseOrderData.orderId)).toString()}
+                />
+                <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
+            </View>
         )
     }
 }
 
+Account.contextType = ThemeContext
+
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
-        cryptoCurrency: state.mainStore.selectedCryptoCurrency,
-        account: state.mainStore.selectedAccount,
-        exchangeStore: state.exchangeStore,
-        settingsStore: state.settingsStore,
-        cashBackStore: state.cashBackStore
+        selectedWalletData: getSelectedWalletData(state),
+        selectedCryptoCurrencyData: getSelectedCryptoCurrencyData(state),
+        selectedAccountData: getSelectedAccountData(state),
+        selectedAccountTransactions: getSelectedAccountTransactions(state),
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore),
+        isSegwit: getIsSegwit(state),
+        isBlurVisible: getIsBlurVisible(state)
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
+export default connect(mapStateToProps)(Account)
 
-export default connect(mapStateToProps, mapDispatchToProps)(Account)
-
-const styles_ = {
-    array: ['#f5f5f5', '#f5f5f5'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
-const stl = {
-    bg: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-
-        width: '100%',
-        height: 195,
-
-        zIndex: 1,
-
-        borderRadius: 16
+const styles = {
+    wrapper__scrollView: {
+        paddingBottom: 20,
     },
-    topContent__content: {
-        position: 'relative',
-        zIndex: 2,
-        borderRadius: 16
+    stub: {
+        marginBottom: Platform.OS === 'android' ? 50 : 84,
     },
-    topContent__tag: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-
-        paddingLeft: 30,
-        paddingBottom: 30,
-        zIndex: 1
-    },
-    topContent__content__tag: {
-        alignItems: 'center',
-
-        width: 70,
-        paddingVertical: 5,
-
-        backgroundColor: '#8D51E4',
-        borderTopRightRadius: 16,
-        borderBottomLeftRadius: 16,
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-
-        elevation: 5
-    },
-    topContent__tag__text: {
-        fontFamily: 'Montserrat-Semibold',
-        fontSize: 12,
-        color: '#f4f4f4'
-    },
-    topContent__bg: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: 185,
-        borderRadius: 16,
-
-        zIndex: 0
-    },
-    topContent__icon: {
-        position: 'relative',
-
-        width: 50,
-        height: 50,
-
-        backgroundColor: '#fff',
-        borderRadius: 30,
-
-        zIndex: 1
-    },
-    topContent__bottom__btn: {
-
-        justifyContent: 'center',
-        alignItems: 'center',
-
-        width: 50,
-        height: 50,
-
-        borderRadius: 50
-    },
-    topContent__bottom__btn__white: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-
-        width: 50,
-        height: 50,
-
-        backgroundColor: '#fff',
-        borderRadius: 50,
-
-        zIndex: 1
-    },
-    topContent__bottom__btn__wrap: {
-        position: 'relative',
-
-        width: 50,
-        height: 50,
-
-        borderRadius: 50,
-
-        zIndex: 2
-    },
-    topContent__bottom__btn__line: {
-        width: 16,
-        height: 1.5,
-
-        marginTop: 2,
-
-        backgroundColor: '#864DD9'
-    },
-    topContent__bottom__btn__shadow: {
-        position: 'absolute',
-        top: 9,
-        left: 3,
-
-        width: 44,
-        height: 44,
-
-        zIndex: 0,
-
-        borderRadius: 30
-    },
-    topContent__bottom__btn__shadow__item: {
-        width: 44,
-        height: 40,
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-
-        elevation: 5,
-
-        backgroundColor: '#fff',
-        borderRadius: 100,
-
-        zIndex: 0
-    },
-    topContent__bottom__btn__text: {
-        marginTop: 5,
-
-        fontSize: 12,
-        color: '#999',
-        textAlign: 'center',
-        fontFamily: 'SFUIDisplay-Regular'
+    wrapper__content: {
+        flex: 1
     },
     bottomButtons: {
         position: 'absolute',
@@ -1180,85 +562,47 @@ const stl = {
         left: 0,
 
         width: '100%',
+        height: 66,
         paddingBottom: Platform.OS === 'ios' ? 30 : 0
     },
-    bottomButton: {
-        flex: 1
-    },
-    bottomButtons__content: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-
-        paddingTop: 20,
-        paddingLeft: 15,
-        paddingRight: 15,
-        paddingBottom: 15
-    },
-    bottomButton__wrap: {},
-    bottomButton__item: {
-        position: 'relative',
-
-
-        height: 44,
-
-        backgroundColor: '#fff',
-
-        borderRadius: 14
-    },
-    bottomButton__content: {
-        position: 'relative',
-
-        flex: 1,
-
-        alignItems: 'center',
-        justifyContent: 'center',
-
-        borderRadius: 14,
-
-        zIndex: 2
-    },
-    bottomButtons__shadow: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-
-        width: '100%',
-        height: '100%',
-
-        zIndex: 1
-    },
-    bottomButtons__shadow__item: {
-        height: 34,
-
-        marginHorizontal: 0,
-        marginTop: 5,
-
-        backgroundColor: '#fff',
-
-        borderRadius: 14,
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 5
-        },
-        shadowOpacity: 0.34,
-        shadowRadius: 6.27,
-
-        elevation: 10
-    },
     scan: {
-        marginLeft: 31,
-        marginBottom: 10,
         flexDirection: 'row'
     },
     scan__text: {
-        color: '#999999',
         letterSpacing: 1,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontStyle: 'normal',
-        fontWeight: 'bold',
-        fontSize: 12,
-        lineHeight: 14
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18
+    },
+    containerBG: {
+        start: { x: 1, y: 0 },
+        end: { x: 1, y: 1 }
+    },
+    transaction_title: {
+        marginLeft: 16,
+        marginBottom: 4,
+        fontSize: 17,
+        fontFamily: 'Montserrat-Bold'
+    },
+    transaction__empty_text: {
+        marginTop: -5,
+        marginLeft: 16,
+        fontSize: 15,
+        lineHeight: 19,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1.5
+    },
+    showMore: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+
+        padding: 10,
+        marginBottom: 60
+    },
+    showMore__btn: {
+        marginRight: 5,
+
+        fontSize: 10,
+        fontFamily: 'SFUIDisplay-Bold'
     }
 }

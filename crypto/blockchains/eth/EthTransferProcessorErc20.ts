@@ -27,11 +27,12 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
 
     async checkTransferHasError(data: BlocksoftBlockchainTypes.CheckTransferHasErrorData): Promise<BlocksoftBlockchainTypes.CheckTransferHasErrorResult> {
         // @ts-ignore
-        const balance = await this._web3.eth.getBalance(data.addressFrom)
+        const balance = data.addressFrom && data.addressFrom !== '' ? await this._web3.eth.getBalance(data.addressFrom) : 0
         if (balance > 0) {
             return { isOk: true }
         } else {
-            return { isOk: false, code: 'TOKEN', parentBlockchain: 'Ethereum', parentCurrency: 'ETH' }
+            // @ts-ignore
+            return { isOk: false, code: 'TOKEN', parentBlockchain: this._mainTokenBlockchain, parentCurrency: this._mainCurrencyCode }
         }
     }
 
@@ -42,6 +43,11 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const tmpData = { ...data }
+        if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate removeByFee no token ' + this._tokenAddress)
+            tmpData.amount = '0'
+            return super.getFeeRate(tmpData, privateData, additionalData)
+        }
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas started token ' + this._tokenAddress)
         let estimatedGas
@@ -49,14 +55,14 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
         try {
             const basicAddressTo = data.addressTo.toLowerCase()
             let firstAddressTo = basicAddressTo
-            let eventTitle = 'v20_eth_gas_limit_token1 '
+            let eventTitle = 'v20_' + this._mainCurrencyCode.toLowerCase() + '_gas_limit_token1 '
             if (basicAddressTo === data.addressFrom.toLowerCase()) {
                 const tmp1 = '0xA09fe17Cb49D7c8A7858C8F9fCac954f82a9f487'
                 const tmp2 = '0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'
                 firstAddressTo = data.addressFrom === tmp1 ? tmp2 : tmp1
                 // @ts-ignore
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas addressToChanged ' + basicAddressTo + ' => ' + firstAddressTo)
-                eventTitle = 'v20_eth_gas_limit_token2 '
+                eventTitle = 'v20_' + this._mainCurrencyCode.toLowerCase() + '_gas_limit_token2 '
             }
 
             let serverEstimatedGas = 0
@@ -66,6 +72,9 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
                 serverEstimatedGas = await this._token.methods.transfer(firstAddressTo, data.amount).estimateGas({ from: data.addressFrom })
             } catch (e) {
                 e.message += ' while transfer check1 ' + data.amount
+                if (e.message.indexOf('opcode 0xfe')) {
+                    throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                }
                 throw e
             }
             try {
@@ -106,37 +115,48 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
         } catch (e) {
             this.checkError(e, data)
         }
+
+
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas finished ' + estimatedGas)
-        const result = await super.getFeeRate(tmpData, privateData, { ...additionalData, ...{ estimatedGas } })
-        result.shouldChangeBalance = false
+        const result = await super.getFeeRate(tmpData, privateData, { ...additionalData, ...{ gasLimit : estimatedGas } })
         return result
     }
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getTransferAllBalance estimateBalance started token ' + this._tokenAddress)
         const tmpData = { ...data }
-        if (!data.amount || data.amount === '0') {
+        if (!tmpData.amount || tmpData.amount === '0') {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessorErc20.getTransferAllBalance ' + data.addressFrom + ' token ' + this._tokenAddress + ' started with load balance needed')
             try {
                 // @ts-ignore
                 tmpData.amount = await this._token.methods.balanceOf(data.addressFrom).call()
             } catch (e) {
                 this.checkError(e, data)
             }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessorErc20.getTransferAllBalance ' + data.addressFrom + ' token ' + this._tokenAddress + ' started with loaded balance ' + tmpData.amount)
+        } else {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessorErc20.getTransferAllBalance ' + data.addressFrom + ' token ' + this._tokenAddress + ' started with preset balance ' + tmpData.amount)
         }
+
         const result = await super.getTransferAllBalance(tmpData, privateData, additionalData)
-        result.shouldChangeBalance = false
         return result
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
-        // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx started token ' + this._tokenAddress)
         const tmpData = { ...data }
+        if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx removeByFee no token ' + this._tokenAddress)
+            tmpData.amount = '0'
+            return super.sendTx(tmpData, privateData, uiData)
+        }
+
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx started token ' + this._tokenAddress)
 
         try {
             const basicAddressTo = data.addressTo.toLowerCase()
             tmpData.blockchainData = this._token.methods.transfer(basicAddressTo, data.amount).encodeABI()
+            tmpData.basicAddressTo = basicAddressTo
+            tmpData.basicAmount = data.amount
+            tmpData.basicToken = this._tokenAddress
         } catch (e) {
             this.checkError(e, data)
         }

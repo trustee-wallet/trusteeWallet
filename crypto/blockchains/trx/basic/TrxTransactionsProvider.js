@@ -30,11 +30,12 @@ export default class TrxTransactionsProvider {
     }
 
     /**
-     * @param address
+     * @param scanData.account.address
      * @param tokenName
      * @returns {Promise<boolean|UnifiedTransaction[]>}
      */
-    async get(address, tokenName) {
+    async get(scanData, tokenName) {
+        const address = scanData.account.address.trim()
         const now = new Date().getTime()
         if (typeof CACHE_OF_TRANSACTIONS[address] !== 'undefined' && (now - CACHE_OF_TRANSACTIONS[address].time) < CACHE_VALID_TIME) {
             if (typeof CACHE_OF_TRANSACTIONS[address][tokenName] !== 'undefined') {
@@ -54,11 +55,15 @@ export default class TrxTransactionsProvider {
         CACHE_OF_TRANSACTIONS[address][tokenName] = []
         let tx
         for (tx of res.data.data) {
-            const transaction = await this._unifyTransaction(address, tx)
-            if (!transaction) continue
+            const tmp = await this._unifyTransaction(scanData, tx)
+            if (!tmp) continue
+
+            const transaction = tmp.res
 
             let txTokenName = '_'
-            if (typeof tx.contractData === 'undefined') {
+            if (typeof tmp.txTokenName !== 'undefined' && tmp.txTokenName) {
+                txTokenName = tmp.txTokenName
+            } else if (typeof tx.contractData === 'undefined') {
                 txTokenName = tokenName
             } else if (typeof tx.contractData.contract_address !== 'undefined') {
                 txTokenName = tx.contractData.contract_address
@@ -75,7 +80,7 @@ export default class TrxTransactionsProvider {
     }
 
     /**
-     * @param {string} address
+     * @param {string} scanData.address.address
      * @param {Object} transaction
      * @param {string} transaction.amount 1000000
      * @param {string} transaction.ownerAddress 'TJcnzHwXiFvMsmGDwBstDmwQ5AWVWFPxTM'
@@ -90,7 +95,8 @@ export default class TrxTransactionsProvider {
      * @return {UnifiedTransaction}
      * @private
      */
-    async _unifyTransaction(address, transaction) {
+    async _unifyTransaction(scanData, transaction) {
+        const address = scanData.account.address.trim()
         let transactionStatus = 'new'
         const now = new Date().getTime()
         transaction.diffSeconds = Math.round((now - transaction.timestamp) / 1000)
@@ -130,29 +136,62 @@ export default class TrxTransactionsProvider {
         }
         let addressAmount = 0
         let transactionDirection = 'self'
+        let txTokenName = false
         if (typeof transaction.contractData.amount === 'undefined') {
-            if (typeof transaction.contractData.frozen_balance !== 'undefined') {
+            if (typeof transaction.contractData !== 'undefined' && typeof transaction.contractData.frozen_balance !== 'undefined') {
                 addressAmount = transaction.contractData.frozen_balance
                 transactionDirection = 'freeze'
             } else if (typeof transaction.amount !== 'undefined' && typeof transaction.contractType !== 'undefined' && transaction.contractType === 13) {
                 addressAmount = transaction.amount
                 transactionDirection = 'claim'
-            } else {
-                if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 31) {
-                    // skip here
-                } else {
-                    if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
-                        // freeze = 11, vote = 4, claim = 13
-                    } else {
-                        // noinspection ES6MissingAwait
-                        BlocksoftCryptoLog.log('TrxTransactionsProvider._unifyTransaction buggy tx ' + JSON.stringify(transaction))
+            } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 31) {
+
+                if (typeof transaction.contractData.call_value === 'undefined') {
+                    addressAmount = 0
+                    txTokenName = '_'
+                    transactionDirection = 'swap_income'
+
+                    const diff = scanData.account.transactionsScanTime - transaction.timestamp / 1000
+                    if (diff > 600) {
+                        return false
                     }
+                    try {
+                        const tmp = await BlocksoftAxios.get('https://apilist.tronscan.org/api/transaction-info?hash=' + transaction.hash)
+
+                        if (typeof tmp.data.internal_transactions !== 'undefined') {
+                            for (const tmp2 in tmp.data.internal_transactions) {
+                                for (const info of tmp.data.internal_transactions[tmp2]) {
+                                    if (typeof info.token_list === 'undefined'
+                                        || typeof info.token_list[0] === 'undefined'
+                                        || typeof info.token_list[0].token_id === 'undefined'
+                                        || info.token_list[0].token_id !== '_'
+                                    ) continue
+                                    addressAmount = info.token_list[0].call_value
+                                }
+                            }
+                        }
+
+                    } catch (e) {
+                        throw new Error(e.message + ' transaction-info for swap_income')
+                    }
+
+                } else {
+                    addressAmount = transaction.contractData.call_value
+                    txTokenName = '_'
+                    transactionDirection = 'swap_outcome'
+                }
+            } else {
+                if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
+                    // freeze = 11, vote = 4, claim = 13
+                } else {
+                    // noinspection ES6MissingAwait
+                    BlocksoftCryptoLog.log('TrxTransactionsProvider._unifyTransaction buggy tx ' + JSON.stringify(transaction))
                 }
                 return false
             }
         } else {
-            addressAmount =  transaction.contractData.amount
-            transactionDirection =  (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? 'outcome' : 'income'
+            addressAmount = transaction.contractData.amount
+            transactionDirection = (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? 'outcome' : 'income'
         }
         const res = {
             transactionHash: transaction.hash,
@@ -168,6 +207,6 @@ export default class TrxTransactionsProvider {
             transactionFee: 0,
             inputValue: transaction.data
         }
-        return res
+        return { res, txTokenName }
     }
 }

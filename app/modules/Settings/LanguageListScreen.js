@@ -1,32 +1,29 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
-
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
+import {
+    StyleSheet,
+    ScrollView,
+} from 'react-native'
 
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native'
+import NavStore from '@app/components/navigation/NavStore'
 
-import IoniconsIcons from 'react-native-vector-icons/Ionicons'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import AntDesign from 'react-native-vector-icons/MaterialCommunityIcons'
+import { strings } from '@app/services/i18n'
 
-import Navigation from '../../components/navigation/Navigation'
+import config from '@app/config/config'
+import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
 
-import NavStore from '../../components/navigation/NavStore'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-import GradientView from '../../components/elements/GradientView'
 
-import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
-
-import { strings } from '../../services/i18n'
-
-import firebase from 'react-native-firebase'
-
-import config from '../../config/config'
-import AppNotificationListener from '../../services/AppNotification/AppNotificationListener'
-
-class LanguageListScreen extends Component {
+class LanguageListScreen extends PureComponent {
 
     getLangCode = () => {
 
@@ -41,55 +38,52 @@ class LanguageListScreen extends Component {
 
     setLanguage = async (item) => {
 
-        await AppNotificationListener.unsetLang()
-
         await settingsActions.setSettings('language', item.code)
 
-        await AppNotificationListener.setLang()
+        await AppNotificationListener.updateSubscriptionsLater()
 
-
-        NavStore.reset('DashboardStack')
+        this.handleBack()
 
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('HomeScreen') }
+
     render() {
-        firebase.analytics().setCurrentScreen('Settings.LanguageListScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.LanguageListScreen')
 
         const { languageList } = config.language
         const language = this.getLangCode()
 
+        const { GRID_SIZE } = this.context
+
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                <Navigation
-                    title={strings('languageList.title')}
-                />
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('languageList.title')}
+                setHeaderHeight={this.setHeaderHeight}
+            >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    style={styles.wrapper__scrollView}>
-                    <View style={styles.wrapper__content}>
-                        <View style={styles.block}>
-                            {
-                                languageList.map((item, index) => {
-                                    return (
-                                        <View style={styles.block__content} key={index}>
-                                            <TouchableOpacity style={{ ...styles.block__item }} onPress={() => this.setLanguage(item)} key={index} disabled={item.code === language}>
-                                                <View style={styles.block__item__content}>
-                                                    <Text style={styles.block__text}>{strings(`languageList.languages.${item.code}`)}</Text>
-                                                </View>
-                                                <View style={checkBox.styleBox}>
-                                                    <View style={checkBox.styleBox}>
-                                                        {item.code == language ? <View style={{ position: 'relative', top: Platform.OS === 'ios' ? 0 : 0 }}><IoniconsIcons name='ios-checkmark' size={30} color='#7127ac'/></View> : null}
-                                                    </View>
-                                                </View>
-                                            </TouchableOpacity>
-                                        </View>
-                                    )
-                                })
-                            }
-                        </View>
-                    </View>
+                    contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE, paddingLeft: GRID_SIZE * 2 }]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {
+                        languageList.map((item, index) => (
+                            <ListItem
+                                checked={item.code === language}
+                                title={strings(`languageList.languages.${item.code}`)}
+                                onPress={() => this.setLanguage(item)}
+                                last={languageList.length - 1 === index}
+                            />
+                        ))
+                    }
                 </ScrollView>
-            </GradientView>
+            </ScreenWrapper>
         )
     }
 }
@@ -106,121 +100,12 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+LanguageListScreen.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps)(LanguageListScreen)
 
-
-const styles_ = {
-    array: ['#f9f9f9', '#f9f9f9'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
-const checkBox = {
-    array: ['#fff', '#fff'],
-    array_: ['#43156d', '#7027aa'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 },
-    styleBox: {
-        alignItems: 'center',
-
-        width: 30,
-        height: 30
-    },
-    styleGradient: {
-        width: 20,
-        height: 20,
-        borderRadius: 4
-    }
-}
-
 const styles = StyleSheet.create({
-    wrapper: {
-        flex: 1
+    scrollViewContent: {
+        flexGrow: 1,
     },
-    wrapper__scrollView: {
-        marginTop: 80
-    },
-    wrapper__top: {
-        height: 145,
-        marginBottom: 35
-    },
-    wrapper__bg: {
-        width: '100%',
-        height: '100%'
-    },
-    wrapper__content: {
-        paddingLeft: 15,
-        paddingRight: 15,
-        marginTop: 35
-    },
-    title: {
-        position: 'absolute',
-        top: 75,
-        width: '100%',
-        fontSize: 24,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#f4f4f4',
-        textAlign: 'center'
-    },
-    block__content: {
-        paddingLeft: 5,
-        paddingRight: 5,
-        marginBottom: 14,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-
-        elevation: 3,
-        backgroundColor: '#fff',
-        borderRadius: 40
-    },
-    block__title: {
-        paddingLeft: 15,
-        marginBottom: 5,
-        fontSize: 14,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#7127ac'
-    },
-    block__item: {
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        height: 40,
-        paddingLeft: 8,
-        paddingRight: 8
-    },
-    block__item__content: {
-        paddingTop: 5,
-        paddingBottom: 5
-    },
-    block__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#404040'
-    },
-    block__subtext: {
-        marginTop: -6,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 11,
-        color: '#999999'
-    },
-    block__text__right: {
-        marginLeft: 'auto',
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#999999'
-    },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#e3e6e9'
-    },
-    icon: {
-        marginRight: 15,
-        marginBottom: 1,
-        color: '#999999'
-    }
 })

@@ -1,36 +1,51 @@
 import { FIOSDK } from '@fioprotocol/fiosdk'
 import config from '../../../app/config/config'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BlocksoftKeysStorage from '../../actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const fetchJson = async (uri, opts = {}) => {
     // eslint-disable-next-line no-undef
     return fetch(uri, opts)
 }
 
-const { apiEndpoints: { baseURL } } = config.fio
-
 export class FioSdkWrapper {
     sdk
 
-    constructor() {
-        this.sdk = new FIOSDK(null, null, baseURL, fetchJson)
-    }
-
-    async init(mnemonic) {
+    async init(walletHash) {
         try {
-            const { fioKey } = await FIOSDK.createPrivateKeyMnemonic(mnemonic)
-            const { publicKey } = FIOSDK.derivedPublicKey(fioKey)
-
-            BlocksoftCryptoLog.log(`FIO SDK initiated for ${publicKey}`)
-            this.sdk = new FIOSDK(fioKey, publicKey, baseURL, fetchJson)
+            const res = await BlocksoftKeysStorage.getAddressCache(walletHash + 'SpecialFio')
+            let publicKey, fioKey
+            if (res) {
+                publicKey = res.address
+                fioKey = res.privateKey
+            } else {
+                const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash, 'BlocksoftKeysStorage.setSelectedWallet init for Fio')
+                let tmp = await FIOSDK.createPrivateKeyMnemonic(mnemonic)
+                fioKey = tmp.fioKey
+                tmp = FIOSDK.derivedPublicKey(fioKey)
+                publicKey = tmp.publicKey
+                await BlocksoftKeysStorage.setAddressCache(walletHash + 'SpecialFio', {address : publicKey, privateKey : fioKey})
+            }
+            const link = BlocksoftExternalSettings.getStatic('FIO_BASE_URL')
+            this.sdk = new FIOSDK(fioKey, publicKey, link, fetchJson)
+            BlocksoftCryptoLog.log(`FioSdkWrapper.inited for ${walletHash}`)
         } catch (e) {
-            await BlocksoftCryptoLog.err(e, e.json, 'FIO init SDK')
+            if (config.debug.fioErrors) {
+                console.log('FioSdkWrapper.init error ' + e.message, e.json)
+            }
+            BlocksoftCryptoLog.err('FioSdkWrapper.init error ' + e.message, e.json)
         }
+        return true
     }
 }
 
 export const fioSdkWrapper = new FioSdkWrapper()
 
 export const getFioSdk = () => {
-    return fioSdkWrapper?.sdk || new FIOSDK(null, null, baseURL, fetchJson)
+    if (typeof  fioSdkWrapper?.sdk !== 'undefined' &&  fioSdkWrapper?.sdk) {
+        return fioSdkWrapper?.sdk
+    }
+    const link = BlocksoftExternalSettings.getStatic('FIO_BASE_URL')
+    return new FIOSDK(null, null, link, fetchJson)
 }

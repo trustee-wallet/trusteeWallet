@@ -1,27 +1,36 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Dimensions, Text, TouchableOpacity } from 'react-native'
+import { View, Dimensions, Text, StyleSheet } from 'react-native'
 import QRCodeScanner from 'react-native-qrcode-scanner'
 
-import Navigation from '../../components/navigation/Navigation'
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { strings } from '../../services/i18n'
-import { setSendData } from '../../appstores/Stores/Send/SendActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { strings } from '@app/services/i18n'
 import _ from 'lodash'
 
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import { decodeTransactionQrCode } from '../../services/UI/Qr/QrScan'
-import Log from '../../services/Log/Log'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import { decodeTransactionQrCode } from '@app/services/UI/Qr/QrScan'
+import Log from '@app/services/Log/Log'
+import { openQrGallery } from '@app/services/UI/Qr/QrGallery'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
-import firebase from 'react-native-firebase'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import { openQrGallery } from '../../services/UI/Qr/QrGallery'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+
+import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { getQrCodeScannerConfig } from '@app/appstores/Stores/QRCodeScanner/selectors'
+import store from '@app/store'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
@@ -29,43 +38,55 @@ const SCREEN_WIDTH = Dimensions.get('window').width
 console.disableYellowBox = true
 
 
-class QRCodeScannerScreen extends Component {
+class QRCodeScannerScreen extends PureComponent {
 
     componentDidMount() {
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-            this.setState({})
-            try {
-                this.scanner.reactivate()
-            } catch {
-            }
-        })
+        this.scanner.reactivate()
     }
 
     async onSuccess(param) {
+        UpdateOneByOneDaemon.unpause()
         try {
-            const {
-                account: oldAccount,
-                cryptoCurrency: oldCurrency,
-                currencyCode,
-                type,
-                inputType
-            } = this.props.qrCodeScanner.config
+            const { currencyCode, type } = this.props.config
 
-            if (type === 'CASHBACK_LINK') {
-                setSendData({
-                    isCashbackLink: true,
-                    qrCashbackLink: param.data
+            if (type === 'CASHBACK_LINK' || (
+                type === 'MAIN_SCANNER' &&
+                (
+                    param.data.indexOf('https://trusteeglobal.com/link/') === 0
+                    || param.data.indexOf('https://trustee.deals/link/') === 0
+                )
+            )) {
+                let link = param.data
+                link = link.split('/')
+                link = link[link.length - 1]
+                await Log.log('QRCodeScanner.onSuccess ' + type + ' link ' + link + ' from ' + param.data)
+                NavStore.goNext('CashbackScreen', {
+                    qrData: {
+                        isCashbackLink: true,
+                        qrCashbackLink: link
+                    }
                 })
-                NavStore.goNext('CashbackScreen')
                 return
             }
 
+
             const res = await decodeTransactionQrCode(param, currencyCode)
 
-            if (type === 'MAIN_SCANNER') {
-
-                const { selectedWallet } = this.props.main
-                const { cryptoCurrencies, accountStore } = this.props
+            if (typeof res.data.isWalletConnect !== 'undefined' && res.data.isWalletConnect) {
+                if (this.props.lockScreenStatus * 1 > 0) {
+                    lockScreenAction.setFlowType({
+                        flowType: 'WALLET_CONNECT'
+                    })
+                    lockScreenAction.setBackData({
+                        backData: { walletConnect: res.data.walletConnect }
+                    })
+                    NavStore.goNext('LockScreen')
+                } else {
+                    NavStore.goNext('WalletConnectScreen', { walletConnect: res.data.walletConnect })
+                }
+                return
+            } else if (type === 'MAIN_SCANNER') {
+                const { cryptoCurrencies } = store.getState().currencyStore
 
                 let cryptoCurrency
                 if (typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode) {
@@ -77,11 +98,8 @@ class QRCodeScannerScreen extends Component {
                     }
                 }
 
-                let account = JSON.parse(JSON.stringify(accountStore.accountList))
-                account = account[selectedWallet.walletHash][res.data.currencyCode]
-
                 if (res.status !== 'success') {
-                    let tmp = res.data.parsedUrl || res.data.address
+                    const tmp = res.data.parsedUrl || res.data.address
                     copyToClipboard(tmp)
 
                     showModal({
@@ -133,48 +151,17 @@ class QRCodeScannerScreen extends Component {
                     return
                 }
 
-                setSendData({
-                    disabled: typeof res.data.needToDisable !== 'undefined' && !!(+res.data.needToDisable),
-                    address: res.data.address,
-                    value: res.data.amount.toString(),
-
-                    account: account,
-                    cryptoCurrency: cryptoCurrency,
-
-                    comment: res.data.label,
-                    description: strings('send.description'),
-                    useAllFunds: false,
-                    type
-                })
-
-                NavStore.goNext('SendScreen')
-
+                const parsed = res.data
+                parsed.currencyCode = cryptoCurrency.currencyCode
+                await SendActionsStart.startFromQRCodeScanner(parsed, 'MAIN_SCANNER')
             } else if (type === 'ADD_CUSTOM_TOKEN_SCANNER') {
-                setSendData({
-                    isToken: true,
-                    address: res.data.address || res.data.parsedUrl
+                NavStore.goNext('AddAssetScreen', {
+                    tokenData: {
+                        address: res.data.address || res.data.parsedUrl
+                    }
                 })
-                NavStore.goNext('AddCustomTokenScreen')
             } else if (type === 'SEND_SCANNER') {
-                if (res.status === 'success' && res.data.currencyCode === currencyCode) {
-
-                    setSendData({
-                        disabled: typeof res.data.needToDisable !== 'undefined' && !!(+res.data.needToDisable),
-                        address: res.data.address,
-                        value: res.data.amount.toString(),
-
-                        account: oldAccount,
-                        cryptoCurrency: oldCurrency,
-                        inputType,
-
-                        comment: res.data.label,
-                        description: strings('send.description'),
-                        useAllFunds: false,
-                        type
-                    })
-
-                    NavStore.goNext('SendScreen')
-                } else if (res.status === 'success' && res.data.currencyCode !== currencyCode) {
+                if (res.status === 'success' && typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode && res.data.currencyCode !== currencyCode) {
                     showModal({
                         type: 'INFO_MODAL',
                         icon: false,
@@ -187,20 +174,27 @@ class QRCodeScannerScreen extends Component {
                         }
                     })
                 } else {
-                    setSendData({
-                        disabled: false,
-                        address: res.data.parsedUrl,
-                        value: '',
-
-                        account: oldAccount,
-                        cryptoCurrency: oldCurrency,
-                        inputType,
-
-                        description: strings('send.description'),
-                        useAllFunds: false,
-                        type
-                    })
-
+                    let parsed
+                    if (res.status === 'success' && res.data.currencyCode === currencyCode) {
+                        parsed = res.data
+                        parsed.currencyCode = currencyCode
+                    } else {
+                        parsed = {
+                            address: res.data.parsedUrl
+                        }
+                    }
+                    const newValue = {}
+                    if (typeof parsed.address !== 'undefined') {
+                        newValue.addressTo = parsed.address
+                    }
+                    if (typeof parsed.amount !== 'undefined' && parsed.amount && parsed.amount * 1 > 0) {
+                        newValue.cryptoValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(parsed.amount)
+                    }
+                    if (typeof parsed.label !== 'undefined' && parsed.label && parsed.label !== '') {
+                        newValue.memo = parsed.label
+                    }
+                    Log.log('QRCodeScanner.onSuccess from ' + type + ' parsed ' + JSON.stringify(parsed))
+                    SendActionsUpdateValues.setStepOne(newValue)
                     NavStore.goNext('SendScreen')
                 }
             }
@@ -217,7 +211,7 @@ class QRCodeScannerScreen extends Component {
         }
     }
 
-    async onOpenGallery() {
+    async handleOpenGallery() {
         try {
             const res = await openQrGallery()
             if (res) {
@@ -245,24 +239,21 @@ class QRCodeScannerScreen extends Component {
         }
     }
 
-    renderOpenGallery() {
-        return (
-            <TouchableOpacity onPress={this.onOpenGallery.bind(this)}>
-                <View style={{ paddingLeft: 23, paddingRight:23 }} >
-                    <MaterialCommunityIcons name="file-find" size={24} color="#855eab"/>
-                </View>
-            </TouchableOpacity>
-        )
+    handleBack = () => {
+        NavStore.goBack()
     }
 
     render() {
-        UpdateOneByOneDaemon.pause()
-        firebase.analytics().setCurrentScreen('QRCodeScannerScreen.index')
+        MarketingAnalytics.setCurrentScreen('QRCodeScannerScreen.index')
         return (
-            <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-                <Navigation
-                    RightComponent={this.renderOpenGallery.bind(this)}
-                />
+            <ScreenWrapper
+                leftType='back'
+                leftAction={this.handleBack}
+                rightType='gallery'
+                rightAction={this.handleOpenGallery.bind(this)}
+                title={strings('qrScanner.title')}
+                withoutSafeArea={true}
+            >
                 <QRCodeScanner
                     ref={(node) => {
                         this.scanner = node
@@ -276,7 +267,7 @@ class QRCodeScannerScreen extends Component {
                             <View style={styles.topOverlay}>
                             </View>
                             <View style={{ flexDirection: 'row' }}>
-                                <View style={styles.leftAndRightOverlay}/>
+                                <View style={styles.leftAndRightOverlay} />
 
                                 <View style={styles.rectangle}>
                                     <View style={styles.rectangle__topLeft}>
@@ -297,7 +288,7 @@ class QRCodeScannerScreen extends Component {
                                     </View>
                                 </View>
 
-                                <View style={styles.leftAndRightOverlay}/>
+                                <View style={styles.leftAndRightOverlay} />
                             </View>
 
                             <View style={styles.bottomOverlay}>
@@ -311,28 +302,21 @@ class QRCodeScannerScreen extends Component {
                         </View>
                     }
                 />
-            </View>
+            </ScreenWrapper>
         )
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        main: state.mainStore,
-        cryptoCurrencies: state.currencyStore.cryptoCurrencies,
-        qrCodeScanner: state.qrCodeScannerStore,
-        sendStore: state.sendStore,
-        accountStore: state.accountStore
+        lockScreenStatus: getLockScreenStatus(state),
+        config: getQrCodeScannerConfig(state)
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
+QRCodeScannerScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(QRCodeScannerScreen)
+export default connect(mapStateToProps, {})(QRCodeScannerScreen)
 
 const overlayColor = 'transparent' // this gives us a black color with a 50% transparency
 
@@ -344,7 +328,7 @@ const scanBarWidth = SCREEN_WIDTH * 0.46 // this is equivalent to 180 from a 393
 const scanBarHeight = SCREEN_WIDTH * 0.0025 // this is equivalent to 1 from a 393 device width
 const scanBarColor = '#22ff00'
 
-const styles = {
+const styles = StyleSheet.create({
     rectangleContainer: {
         flex: 1,
         width: '100%',
@@ -449,4 +433,4 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         color: '#e3e6e9'
     }
-}
+})

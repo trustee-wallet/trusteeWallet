@@ -1,27 +1,32 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, ScrollView, TouchableOpacity, Platform } from 'react-native'
+import {
+    ScrollView,
+    StyleSheet
+} from 'react-native'
 
-import firebase from 'react-native-firebase'
-import IoniconsIcons from 'react-native-vector-icons/Ionicons'
+import NavStore from '@app/components/navigation/NavStore'
 
-import GradientView from '../../components/elements/GradientView'
-import Navigation from '../../components/navigation/Navigation'
+import { saveSelectedBasicCurrencyCode } from '@app/appstores/Stores/Main/MainStoreActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
-import { saveSelectedBasicCurrencyCode } from '../../appstores/Stores/Main/MainStoreActions'
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
+import { strings, sublocale } from '@app/services/i18n'
 
-import { strings, sublocale } from '../../services/i18n'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-class LocalCurrencyScreen extends Component {
+class LocalCurrencyScreen extends PureComponent {
 
     constructor(props) {
         super(props)
         this.state = {
-            currencies: []
+            currencies: [],
+            viewCurrencies: [],
         }
     }
 
@@ -49,51 +54,47 @@ class LocalCurrencyScreen extends Component {
 
     setLocalCurrencyCode = (currencyCode) => {
         saveSelectedBasicCurrencyCode(currencyCode)
+        this.handleClose()
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('HomeScreen') }
+
     render() {
-        firebase.analytics().setCurrentScreen('Settings.LocalCurrencyScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.LocalCurrencyScreen')
 
         const { local_currency: localCurrency } = this.props.settingsStore.data
 
+        const { GRID_SIZE } = this.context
+        const { viewCurrencies } = this.state
+
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                <Navigation
-                    title={strings('settings.other.localCurrency')}
-                />
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('settings.other.localCurrency')}
+            >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    style={styles.wrapper__scrollView}>
-                    <View style={styles.wrapper__content}>
-                        <View style={styles.block}>
-                            {
-                                this.state.viewCurrencies.map((item, index) => {
-                                    return (
-                                        <View style={styles.block__content} key={index}>
-                                            <TouchableOpacity
-                                                style={{ ...styles.block__item }}
-                                                onPress={() => this.setLocalCurrencyCode(item.currencyCode)}
-                                                key={index}
-                                                disabled={item.currencyCode === localCurrency}>
-                                                <View style={styles.block__item__content}>
-                                                    <Text style={styles.block__text}>{item.currencyName}{` (${item.currencyCode})`}</Text>
-                                                </View>
-                                                <View style={checkBox.styleBox}>
-                                                    {item.currencyCode === localCurrency ?
-                                                        <View style={{ position: 'relative', top: Platform.OS === 'ios' ? 0 : 0 }}>
-                                                            <IoniconsIcons name='ios-checkmark' size={30} color='#7127ac'/>
-                                                        </View> : null
-                                                    }
-                                                </View>
-                                            </TouchableOpacity>
-                                        </View>
-                                    )
-                                })
-                            }
-                        </View>
-                    </View>
+                    contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE, paddingLeft: GRID_SIZE * 2 }]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {
+                        viewCurrencies.map((item, index) => (
+                            <ListItem
+                                checked={item.currencyCode === localCurrency}
+                                title={item.currencyName}
+                                subtitle={item.currencyCode}
+                                onPress={() => this.setLocalCurrencyCode(item.currencyCode)}
+                                last={viewCurrencies.length - 1 === index}
+                            />
+                        ))
+                    }
                 </ScrollView>
-            </GradientView>
+            </ScreenWrapper>
         )
     }
 }
@@ -110,120 +111,18 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+LocalCurrencyScreen.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps)(LocalCurrencyScreen)
 
-const styles_ = {
-    array: ['#f9f9f9', '#f9f9f9'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
-const checkBox = {
-    array: ['#fff', '#fff'],
-    array_: ['#43156d', '#7027aa'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 },
-    styleBox: {
-        alignItems: 'center',
-
-        width: 30,
-        height: 30
-    },
-    styleGradient: {
-        width: 20,
-        height: 20,
-        borderRadius: 4
-    }
-}
-
-const styles = {
-    wrapper: {
+const styles = StyleSheet.create({
+    container: {
         flex: 1
     },
-    wrapper__scrollView: {
-        marginTop: 80
+    content: {
+        flex: 1,
     },
-    wrapper__top: {
-        height: 145,
-        marginBottom: 35
+    scrollViewContent: {
+        flexGrow: 1,
     },
-    wrapper__bg: {
-        width: '100%',
-        height: '100%'
-    },
-    wrapper__content: {
-        paddingLeft: 15,
-        paddingRight: 15,
-        marginTop: 35
-    },
-    title: {
-        position: 'absolute',
-        top: 75,
-        width: '100%',
-        fontSize: 24,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#f4f4f4',
-        textAlign: 'center'
-    },
-    block__content: {
-        paddingLeft: 5,
-        paddingRight: 5,
-        marginBottom: 14,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-
-        elevation: 3,
-        backgroundColor: '#fff',
-        borderRadius: 40
-    },
-    block__title: {
-        paddingLeft: 15,
-        marginBottom: 5,
-        fontSize: 14,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#7127ac'
-    },
-    block__item: {
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        height: 40,
-        paddingLeft: 8,
-        paddingRight: 8
-    },
-    block__item__content: {
-        paddingTop: 5,
-        paddingBottom: 5
-    },
-    block__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#404040'
-    },
-    block__subtext: {
-        marginTop: -6,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 11,
-        color: '#999999'
-    },
-    block__text__right: {
-        marginLeft: 'auto',
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#999999'
-    },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#e3e6e9'
-    },
-    icon: {
-        marginRight: 15,
-        marginBottom: 1,
-        color: '#999999'
-    }
-}
+})

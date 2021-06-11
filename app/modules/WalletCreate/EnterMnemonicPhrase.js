@@ -1,135 +1,162 @@
 /**
  * @version 0.9
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
+import _debounce from 'lodash/debounce'
+import { Keyboard, View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 
-import { Keyboard, Dimensions, View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
-
-import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import firebase from 'react-native-firebase'
-
-import Button from '../../components/elements/Button'
-import Input from '../../components/elements/Input'
-import GradientView from '../../components/elements/GradientView'
-
-import NavStore from '../../components/navigation/NavStore'
-import Navigation from '../../components/navigation/Navigation'
-
-import App from '../../appstores/Actions/App/App'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setCallback, setWalletMnemonic, proceedSaveGeneratedWallet } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-
-import walletDS from '../../appstores/DataSource/Wallet/Wallet'
-
-import { strings } from '../../services/i18n'
-
-import Log from '../../services/Log/Log'
-import walletActions from '../../appstores/Stores/Wallet/WalletActions'
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-import UpdateAccountListDaemon from '../../daemons/view/UpdateAccountListDaemon'
-import GoogleDrive from '../../services/Back/Google/GoogleDrive'
-
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
-
-const data = {
-    id: 'mnemonicPhrase',
-    type: 'MNEMONIC_PHRASE'
-}
+import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 
 
-class EnterMnemonicPhrase extends Component {
+import NavStore from '@app/components/navigation/NavStore'
+
+import App from '@app/appstores/Actions/App/App'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setCallback, setWalletMnemonic, proceedSaveGeneratedWallet } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+
+import { strings } from '@app/services/i18n'
+
+import Log from '@app/services/Log/Log'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+// import GoogleDrive from '@app/services/Back/Google/GoogleDrive'
+
+import TextInput from '@app/components/elements/new/TextInput'
+import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
+import CustomIcon from '@app/components/elements/CustomIcon'
+
+import MnemonicWord from '../WalletBackup/elements/MnemonicWord'
+import SelectedMnemonic from '../WalletBackup/elements/SelectedMnemonic'
+
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+import MNEMONIC_DICTIONARY from '@app/services/UI/Validator/_words/english.json'
+import Validator from '@app/services/UI/Validator/Validator'
+
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+
+
+const callWithDelay = _debounce(
+    (cb) => {
+        if (typeof cb === 'function') cb();
+    },
+    500,
+    {
+        leading: false,
+        trailing: true,
+    }
+)
+
+
+class EnterMnemonicPhrase extends PureComponent {
 
     constructor(props) {
         super(props)
         this.state = {
-            focused: false,
             walletExist: false,
-            googleMnemonic: false
-        }
-        this.mnemonicPhrase = React.createRef()
-    }
-
-    init() {
-        const data = this.props.navigation.getParam('flowSubtype')
-
-        if (data !== 'GOOGLE_SUBTYPE') {
-            return false
-        }
-        // somehow without state change init not loaded with ref
-        if (typeof this.mnemonicPhrase.handleInput !== 'undefined') {
-            if (!this.state.googleMnemonic) {
-                this.setState({ googleMnemonic: true })
-                this.mnemonicPhrase.handleInput(GoogleDrive.currentMnemonic())
-            }
-        } else {
-            this.setState({ googleMnemonic: false })
+            googleMnemonic: false,
+            isMnemonicVisible: false,
+            walletMnemonicSelected: [],
+            wordsProposed: [],
+            error: null,
+            phraseInputValue: '',
+            flowSubtype: ''
         }
     }
 
-    handleImportGoogle = async () => {
-        NavStore.goNext('EnterMnemonicPhraseGoogle')
+    componentDidMount() {
+        const flowSubtype = NavStore.getParamWrapper(this, 'flowSubtype', 'createFirst')
+        this.setState(() => ({ flowSubtype }))
     }
 
+    // init() {
+    //     const data = this.props.navigation.getParam('flowSubtype')
+
+    //     if (data !== 'GOOGLE_SUBTYPE') {
+    //         return false
+    //     }
+    //     // somehow without state change init not loaded with ref
+    //     if (typeof this.mnemonicPhrase.handleInput !== 'undefined') {
+    //         if (!this.state.googleMnemonic) {
+    //             this.setState({ googleMnemonic: true })
+    //             this.mnemonicPhrase.handleInput(GoogleDrive.currentMnemonic())
+    //         }
+    //     } else {
+    //         this.setState({ googleMnemonic: false })
+    //     }
+    // }
 
     handleImport = async () => {
+        const walletMnemonic = this.state.walletMnemonicSelected.join(' ')
+        const result = await Validator.arrayValidation([{
+            type: 'MNEMONIC_PHRASE',
+            value: walletMnemonic
+        }])
 
-
-        const { walletName, callback } = this.props.walletCreate
-
-        const result = await this.mnemonicPhrase.handleValidate()
-
-        if (result.status !== 'success') {
-            return false
+        if (result.status === 'fail') {
+            const error = result.errorArr[0]?.msg
+            this.setState(() => ({ error }))
+            return
         }
 
-        if (result.status === 'success' && await walletDS.walletExist(result.value)) {
-            this.setState({
-                walletExist: true
-            })
-            return false
-        } else {
-            this.setState({
-                walletExist: false
-            })
+        const { walletName, callback, source, walletNumber } = this.props.walletCreateStore
+
+        if (result.status === 'success' && await walletDS.walletExist(walletMnemonic)) {
+            this.setState(() => ({ error: strings('walletCreate.walletExist') }))
+            return
         }
 
-        const walletMnemonic = result.value
         setWalletMnemonic(walletMnemonic)
 
         try {
+
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_validated', { walletNumber, source }, 'GX')
 
             Keyboard.dismiss()
 
             setLoaderStatus(true)
 
-            let tmpWalletName = walletName
-
-            if (!tmpWalletName) {
-                tmpWalletName = await walletActions.getNewWalletName()
-            }
-
-            await proceedSaveGeneratedWallet({
-                walletName: tmpWalletName,
+            const walletHash = await proceedSaveGeneratedWallet({
+                walletName,
                 walletMnemonic,
-                walletIsBackedUp: 1
+                walletIsBackedUp: 1,
+                walletNumber,
             }, 'IMPORT')
 
-            await App.refreshWalletsStore({ firstTimeCall: false, source: 'WalletCreate.EnterMnemonicPhrase' })
+            try {
+                if (walletNumber * 1 > 1) {
+                    await App.refreshWalletsStore({ firstTimeCall: false, walletHash, source: 'WalletCreate.EnterMnemonicPhrase' })
+                } else {
+                    App.init({ source: 'WalletCreate.EnterMnemonicPhrase', onMount: false })
+                }
+            } catch (e) {
+                e.message += ' while refreshWalletsStore'
+                throw e
+            }
 
             setLoaderStatus(false)
+
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_success', { walletNumber, source }, 'GX')
 
             showModal({
                 type: 'INFO_MODAL',
                 icon: true,
                 title: strings('modal.walletCreate.success'),
-                description: strings('modal.walletCreate.walletImported')
+                description: strings('modal.walletCreate.walletImported'),
+                noBackdropPress: true,
             }, async () => {
-                if (callback === null) {
-                    NavStore.reset('DashboardStack')
+                if (callback === null || !callback) {
+                    NavStore.reset('TabBar')
+                } else if (callback === 'InitScreen') {
+                    setCallback({ callback: null })
+                    NavStore.reset('InitScreen')
                 } else {
                     callback()
                     setCallback({ callback: null })
@@ -152,187 +179,249 @@ class EnterMnemonicPhrase extends Component {
 
     }
 
-    onFocus = () => {
-        this.setState({
-            focused: true
-        })
+    openWalletSettings = () => {
+        NavStore.goNext('BackupSettingsScreen')
     }
 
-    renderWalletExistError = () => {
+    handleSelectWord = (word) => {
+        const { source, walletNumber } = this.props.walletCreateStore
+        if (!this.state.walletMnemonicSelected || this.state.walletMnemonicSelected.length === 0) {
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_first', { walletNumber, source }, 'GX')
+        }
+        this.setState(state => ({
+            walletMnemonicSelected: [...state.walletMnemonicSelected, word],
+            wordsProposed: [],
+            phraseInputValue: ''
+        }))
+    }
 
-        const { walletExist } = this.state
+    handleRemoveWord = (word) => {
+        this.setState(state => ({
+            walletMnemonicSelected: state.walletMnemonicSelected.filter(w => w !== word)
+        }))
+    }
 
-        if (walletExist) {
-            return (
-                <View style={styles.texts}>
-                    <View style={styles.texts__icon}>
-                        <Icon
-                            name="information-outline"
-                            size={16}
-                            color="#e77ca3"
-                        />
-                    </View>
-                    <View>
-                        <Text style={styles.texts__item}>
-                            {strings('walletCreate.walletExist')}
-                        </Text>
-                    </View>
-                </View>
-            )
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('TabBar') }
+
+    handleInputPhrase = (_value = '') => {
+        const value = _value.trim()
+        const lowercasedValue = value.toLowerCase()
+        const spacesNumber = lowercasedValue.match(/\s/g)?.length || 0
+        if (!lowercasedValue) {
+            this.setState(() => ({
+                phraseInputValue: '',
+                error: null,
+                wordsProposed: []
+            }))
+            return
+        }
+
+        if (spacesNumber === 0) {
+            if (value !== _value) {
+                // whitespace is entered
+                this.findWords(lowercasedValue, true)
+            } else {
+                callWithDelay(() => this.findWords(lowercasedValue, false))
+                this.setState(() => ({ phraseInputValue: value }))
+            }
+            return
+        }
+
+        if (spacesNumber >= 11) {
+            const wordsArr = lowercasedValue.split(/\s+/g) // linebreaks could be
+            const { source, walletNumber } = this.props.walletCreateStore
+            MarketingEvent.logEvent('gx_view_mnemonic_import_screen_first', { walletNumber, source }, 'GX')
+            this.setState(() => ({
+                walletMnemonicSelected: wordsArr,
+                wordsProposed: [],
+                phraseInputValue: '',
+                error: null
+            }))
+            Keyboard.dismiss()
+            return
+        }
+
+        if (spacesNumber > 0) {
+            this.setState(() => ({
+                error: strings('walletCreate.errors.phraseShouldBeLonger'),
+                wordsProposed: [],
+                phraseInputValue: value
+            }))
+            return
         }
     }
 
-    renderSettingsIcon = () => {
+    findWords = (value, setIfOk = false) => {
+        const wordsProposed = []
+
+        MNEMONIC_DICTIONARY.every((word) => {
+            if (wordsProposed.length === 4) return false
+            if (word.startsWith(value)) wordsProposed.push(word)
+            return true
+        })
+
+        const error = wordsProposed.length ? null : strings('walletCreate.errors.wordDoesNotExist')
+        if (wordsProposed.length === 1 && setIfOk) {
+            // entering words fast enough with whitespace search
+            this.handleSelectWord(wordsProposed[0])
+            return false
+        }
+
+        this.setState(state => ({
+            wordsProposed: state.phraseInputValue ? wordsProposed : [],
+            error
+        }))
+    }
+
+    triggerMnemonicVisible = () => {
+        if (!this.state.walletMnemonicSelected.length) {
+            this.textInput.focus()
+        } else {
+            this.setState(state => ({ isMnemonicVisible: !state.isMnemonicVisible }))
+        }
+    }
+
+    renderQrCode = () => {
+        const { error, phraseInputValue } = this.state
+        const { colors } = this.context
+        const iconColor = error
+            ? colors.createWalletScreen.importWallet.error
+            : phraseInputValue
+                ? colors.common.text2
+                : colors.common.text1
+
         return (
-            <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.openWalletSettings}>
-                <View style={{ paddingVertical: 12 }}>
-                    <IconAwesome size={20} name="gear" color={`#404040`}/>
-                </View>
+            <TouchableOpacity>
+                <CustomIcon name={'qr'} size={20} color={iconColor} />
             </TouchableOpacity>
         )
     }
 
-    openWalletSettings = () => {
-        showModal({
-                type: 'WALLET_SETTINGS_MODAL',
-                title: strings('modal.walletCreateSettingsModal.title'),
-                description: ''
-            }, this.selectSettingsCallback
-        )
-    }
-
     render() {
-        this.init()
+        // this.init()
 
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
 
-        firebase.analytics().setCurrentScreen('WalletCreate.EnterMnemonicPhraseScreen')
-        const { focused } = this.state
+        MarketingAnalytics.setCurrentScreen('WalletCreate.EnterMnemonicPhraseScreen')
 
+        const {
+            isMnemonicVisible,
+            wordsProposed,
+            walletMnemonicSelected,
+            phraseInputValue,
+            error,
+            flowSubtype
+        } = this.state
+        const { GRID_SIZE, colors } = this.context
 
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                <Navigation
-                    title={strings('walletCreate.importTitle')}
-                    isBack={false}
-                    LeftComponent={this.renderSettingsIcon}
-                    closeAction={() => NavStore.goBack()}
-                />
-                <KeyboardAwareView>
-                    <ScrollView
-                        keyboardShouldPersistTaps={'always'}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={focused ? styles.wrapper__content_active : styles.wrapper__content}
-                        style={styles.wrapper__scrollView}>
-                        <Text style={styles.text}>
-                            {strings('walletCreate.enterMnemonic.description')}
-                        </Text>
-                        <Input
-                            ref={component => this.mnemonicPhrase = component}
-                            id={data.id}
-                            name={strings('walletCreate.enterMnemonic.mnemonic')}
-                            type={data.type}
-                            // autoFocus={true}
-                            onFocus={() => this.onFocus()}
-                            isTextarea={true}
-                            callback={() => {
-                                this.setState({
-                                    walletExist: false
-                                })
-                            }}/>
-                        {this.renderWalletExistError()}
-                        <View style={styles.qr}>
-                            <View></View>
-                            <Button styles={styles.btn} press={this.handleImport}>
-                                {strings('walletCreate.importTitle')}
-                            </Button>
-                            {false ? <Button styles={styles.btn} press={this.handleImportGoogle}>
-                                {strings('walletCreate.importGoogle')}
-                            </Button> : null}
+            <ScreenWrapper
+                rightType="close"
+                rightAction={flowSubtype === 'importAnother' ? this.handleClose : this.handleBack}
+                leftType={flowSubtype === 'importAnother' ? 'back' : undefined}
+                leftAction={flowSubtype === 'importAnother' ? this.handleBack : undefined}
+                title={strings('walletCreate.importTitle')}
+            >
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    ref={ref => { this.scrollView = ref }}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={{ paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2 }}>
+                        <SelectedMnemonic
+                            placeholder={strings('walletCreate.mnemonicPlaceholder')}
+                            showButtonTitle={strings('walletCreate.showMnemonicButton')}
+                            triggerMnemonicVisible={this.triggerMnemonicVisible}
+                            removeWord={this.handleRemoveWord}
+                            isMnemonicVisible={isMnemonicVisible}
+                            data={walletMnemonicSelected}
+                        />
+                        <View style={{ marginTop: GRID_SIZE * 0.75 }}>
+                            <TextInput
+                                autoCapitalize="none"
+                                inputStyle={!!error && { color: colors.createWalletScreen.importWallet.error }}
+                                placeholder={strings('walletCreate.phrasePlaceholder')}
+                                onChangeText={this.handleInputPhrase}
+                                value={phraseInputValue}
+                                compRef={ref => { this.textInput = ref }}
+                            // HelperAction={this.renderQrCode}
+                            />
+                            {!!error && (
+                                <View style={[styles.errorContainer, { marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }]}>
+                                    <IconMaterial name="error-outline" size={22} color={colors.createWalletScreen.importWallet.error} />
+                                    <Text style={[styles.errorMessage, { color: colors.common.text3 }]}>{error}</Text>
+                                </View>
+                            )}
+                            <View style={[styles.wordsContainer, { marginTop: GRID_SIZE }]}>
+                                {wordsProposed.map((word, i) => (
+                                    <MnemonicWord
+                                        value={word}
+                                        key={`${word}${i}`}
+                                        onPress={() => this.handleSelectWord(word, i)}
+                                    />
+                                ))}
+                            </View>
                         </View>
-                    </ScrollView>
-                </KeyboardAwareView>
-            </GradientView>
+                    </View>
+
+                    <View style={{
+                        paddingHorizontal: GRID_SIZE,
+                        paddingVertical: GRID_SIZE * 1.5,
+                    }}>
+                        <TwoButtons
+                            mainButton={{
+                                disabled: walletMnemonicSelected.length < 12,
+                                onPress: this.handleImport,
+                                title: strings('walletCreate.importButton')
+                            }}
+                            secondaryButton={{
+                                type: 'settings',
+                                onPress: this.openWalletSettings
+                            }}
+                        />
+                    </View>
+                </ScrollView>
+            </ScreenWrapper>
         )
     }
 }
 
+EnterMnemonicPhrase.contextType = ThemeContext
+
 const mapStateToProps = (state) => {
     return {
-        walletCreate: state.createWalletStore
+        walletCreateStore: state.createWalletStore
     }
 }
 
 export default connect(mapStateToProps, {})(EnterMnemonicPhrase)
 
-const styles_ = {
-    array: ['#f9f9f9', '#f9f9f9'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
 const styles = StyleSheet.create({
-    wrapper: {
-        flex: 1
-    },
-    wrapper__scrollView: {
-        marginTop: 80
-    },
-    wrapper__content: {
-        flex: 1,
-        minHeight: WINDOW_HEIGHT - 100,
-        marginTop: 20,
-        paddingLeft: 30,
-        paddingRight: 30,
-        paddingBottom: 30
-    },
-    wrapper__content_active: {
-        flex: 1,
-        minHeight: 200,
-        marginTop: 20,
-        paddingLeft: 30,
-        paddingRight: 30,
-        paddingBottom: 30
-    },
-    btn: {
-        width: '100%'
-    },
-    title: {
-        marginBottom: 10,
-        fontSize: 24,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#404040',
-        textAlign: 'center'
-    },
-    img: {
-        width: 150,
-        height: 150,
-        marginBottom: 50
-    },
-    text: {
-        marginBottom: 10,
-        fontSize: 16,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#999999'
-    },
-    qr: {
-        flex: 1,
-        alignItems: 'center',
+    scrollViewContent: {
+        flexGrow: 1,
         justifyContent: 'space-between'
     },
-    texts: {
+    wordsContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+    },
+    errorContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 30
     },
-    texts__item: {
-        fontSize: 12,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#e77ca3'
-    },
-    texts__icon: {
-        marginRight: 10,
-        transform: [{ rotate: '180deg' }]
+    errorMessage: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+        marginLeft: 12,
+        flex: 1
     }
 })

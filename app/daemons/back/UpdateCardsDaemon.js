@@ -1,132 +1,185 @@
 /**
- * @version 0.12
- * @author yura
+ * @version 0.41
  */
-import Log from '../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import Api from '../../services/Api/Api'
-import ApiV3 from '../../services/Api/ApiV3'
+import config from '@app/config/config'
 
-import cardDS from '../../appstores/DataSource/Card/Card'
-
-import { setCards } from '../../appstores/Stores/Card/CardActions'
-
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-
-const CACHE_UNIQUE = {}
-
-const V3_API = 'https://api.v3.trustee.deals'
+import cardDS from '@app/appstores/DataSource/Card/Card'
+import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
+import ApiProxy from '@app/services/Api/ApiProxy'
 
 class UpdateCardsDaemon {
+
+    _canUpdate = true
 
     /**
      * @string params.numberCard
      * @return {Promise<void>}
      */
-    updateCardsDaemon = async (params) => {
+    updateCardsDaemon = async (params = {}, dataUpdate = false) => {
+        if (typeof params !== 'undefined' && params && typeof params.force === 'undefined' || !params.force) {
+            if (!this._canUpdate && !dataUpdate) return false
+        }
+
+        this._canUpdate = false
+        const res = await this._updateCardsDaemon(params, dataUpdate)
+        this._canUpdate = true
+
+        return res
+    }
+
+    _updateCardsDaemon = async (params, dataUpdate = false) => {
+
         Log.daemon('UpdateCardsDaemon called')
-        if (params) {
-            if (typeof params.unique !== 'undefined') {
-                const now = new Date().getTime()
-                if (typeof CACHE_UNIQUE[params.unique] !== 'undefined' && now - CACHE_UNIQUE[params.unique] < 30000) {
-                    return false
+
+        let asked = false
+        if (!dataUpdate) {
+            const authHash = await cryptoWalletsDS.getSelectedWallet()
+            if (!authHash) {
+                Log.daemon('UpdateCardsDaemon skipped as no auth')
+                return false
+            }
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' UpdateCardsDaemon loading new')
+            }
+            asked = true
+            try {
+                dataUpdate = await ApiProxy.getAll({ ...params, source: 'UpdateCardsDaemon.updateCards' })
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('UpdateCardsDaemon error ' + e.message)
                 }
-                CACHE_UNIQUE[params.unique] = now
+                return false
             }
         }
 
-        const allCards = await cardDS.getCards()
-
-        const toVerifyParams = {isPenging : true}
-        if (typeof params.numberCard !== 'undefined') {
-            toVerifyParams.number = params.numberCard
-        }
-
-        const cards = await cardDS.getCards(toVerifyParams)
-
-        if (!cards || typeof cards === 'undefined' || cards.length === 0) {
+        if (!dataUpdate) {
             return false
         }
 
-        let updated = false
-        let res = false
-        for (const card of cards) {
-            try {
-                // eslint-disable-next-line no-undef
-                const data = new FormData()
-                data.append('cardNumber', card.number)
-
-                if (card.verificationServer === 'V3') {
-                    let msg = ''
-                    try {
-                        Log.daemon('UpdateCardsDaemon will ask time from server')
-                        const now = await BlocksoftAxios.get(V3_API + '/data/server-time')
-                        if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
-                            msg = now.data.serverTime
-                            Log.daemon('UpdateCardsDaemon msg from server ' + msg)
-                        }
-                    } catch (e) {
-                        // do nothing
-                    }
-
-                    const sign = await CashBackUtils.createWalletSignature(true, msg)
-
-                    if (typeof sign !== 'undefined' && sign !== null) {
-                        data.append('signMessage', sign.message)
-                        data.append('signMessageHash', sign.messageHash)
-                        data.append('signature', sign.signature)
-                    }
-
-                    const cashbackToken = CashBackUtils.getWalletToken()
-
-                    typeof cashbackToken !== 'undefined' && cashbackToken !== null ?
-                        data.append('cashbackToken', cashbackToken) : null
-                }
-
-                const cardJson = JSON.parse(card.cardVerificationJson)
-
-                res = false
-                if (cardJson !== null && cardJson.verificationStatus.toLowerCase() === 'pending') {
-                    if (card.verificationServer === 'V3') {
-                        res = await ApiV3.validateCard(data)
-                        res = res.data
-                    } else {
-                        res = await Api.validateCard(data)
-                        res = await res.json()
-                    }
-
-                    const tmp = {
-                        key: {
-                            id: card.id
-                        },
-                        updateObj: {
-                            cardVerificationJson: JSON.stringify(res)
-                        }
-                    }
-                    Log.daemon('UpdateCards verification from Server ', tmp)
-
-                    await cardDS.updateCard(tmp)
-                    updated = true
-                }
-            } catch (e) {
-                if (e.message.indexOf('PaymentDetailsModule | ValidateCard | No file was uploaded')) {
-                    // если нет карты - то это не ошибка вообще то
-                    console.log('UpdateCards verification no photo still', card)
-                } else {
-                    Log.err('UpdateCards verification error ' + e.message, card)
+        if (typeof dataUpdate.forCardsAll !== 'undefined' && dataUpdate.forCardsAll) {
+            if (!asked) {
+                if (config.debug.appErrors) {
+                    console.log(new Date().toISOString() + ' UpdateCardsDaemon loaded proxy forCardsAll')
                 }
             }
-        }
-        CACHE_UNIQUE[params.unique] = new Date().getTime()
+            try {
+                const saved = await cardDS.getCards()
+                const cardsSaved = {}
+                if (saved) {
+                    for (const row of saved) {
+                        cardsSaved[row.number] = row
+                        if (row.cardToSendId > 0) {
+                            cardsSaved['sid_' + row.cardToSendId] = row
+                        }
+                    }
+                }
+                for (const number in dataUpdate.forCardsAll) {
+                    const dataOne = dataUpdate.forCardsAll[number]
+                    if (!dataOne) continue
+                    const mapping = {
+                        cardToSendStatus: dataOne.card_to_send_status,
+                        cardToSendId: dataOne.card_to_send_id,
+                        number: dataOne.card_number,
+                        expirationDate: dataOne.card_expiration_date,
+                        type: dataOne.card_type,
+                        countryCode: dataOne.card_country_code,
+                        cardName: dataOne.card_name,
+                        cardHolder: dataOne.card_holder,
+                        currency: dataOne.card_currency,
+                        walletHash: dataOne.card_wallet_hash,
+                        verificationServer: dataOne.card_verification_server,
+                        cardEmail: dataOne.card_email,
+                        cardDetailsJson: dataOne.card_details_json,
+                        cardVerificationJson: dataOne.card_verification_json,
+                        cardCreateWalletHash: dataOne.log_wallet
+                    }
 
-        if (!updated) return false
-        await setCards()
+                    let currentToUpdate = false
+                    if (typeof cardsSaved[number] === 'undefined' || !cardsSaved[number]) {
+                        if (typeof dataOne.card_to_send_id === 'undefined' || !dataOne.card_to_send_id
+                            || typeof cardsSaved['sid_' + dataOne.card_to_send_id] === 'undefined' || !cardsSaved['sid_' + dataOne.card_to_send_id]
+                        ) {
+                            // do nothing to insert
+                        } else {
+                            currentToUpdate = cardsSaved['sid_' + dataOne.card_to_send_id]
+                        }
+                    } else {
+                        currentToUpdate = cardsSaved[number]
+                    }
 
-        if (typeof params.numberCard !== 'undefined') {
-            return res
+                    if (currentToUpdate === false && typeof currentToUpdate !== 'undefined') {
+                        await cardDS.saveCard({
+                            insertObjs: [mapping]
+                        })
+                    } else {
+                        if (currentToUpdate.cardToSendStatus && currentToUpdate.cardToSendStatus * 1 > dataOne.card_to_send_status * 1) {
+                            // skip
+                        } else {
+                            const updateObj = {
+                                cardVerificationJson: dataOne.card_verification_json
+                            }
+                            for (const key in mapping) {
+                                if (key === 'cardCreateWalletHash') continue // to skip
+                                if (currentToUpdate[key] !== mapping[key]) {
+                                    updateObj[key] = mapping[key]
+                                }
+                            }
+                            const dataForSave = {
+                                key: {
+                                    id : currentToUpdate.id
+                                },
+                                updateObj
+                            }
+                            await cardDS.updateCard(dataForSave)
+                        }
+                    }
+                }
+
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('UpdateCardsDaemon save error1 ' + e.message, e)
+                }
+                Log.errDaemon('UpdateCardsDaemon save error1 ' + e.message)
+                return false
+            }
+        } else if (typeof dataUpdate.forCardsOk !== 'undefined' && dataUpdate.forCardsOk) {
+            if (!asked) {
+                console.log(new Date().toISOString() + ' UpdateCardsDaemon loaded proxy forCardsOk', JSON.stringify(params))
+            }
+            try {
+                for (const number in dataUpdate.forCardsOk) {
+                    const dataOne = dataUpdate.forCardsOk[number]
+                    if (!dataOne) continue
+                    const dataForSave = {
+                        key: {
+                            number
+                        },
+                        updateObj: {
+                            cardVerificationJson: JSON.stringify(dataOne)
+                        }
+                    }
+                    await cardDS.updateCard(dataForSave)
+                }
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('UpdateCardsDaemon status save error2 ' + e.message)
+                }
+                Log.errDaemon('UpdateCardsDaemon status save error2 ' + e.message)
+                return false
+            }
         }
-        return true
+
+        if (typeof params !== 'undefined' && params && params.numberCard !== 'undefined') {
+            if (dataUpdate && dataUpdate.forCardsOk && typeof dataUpdate.forCardsOk[params.numberCard] !== 'undefined' && dataUpdate.forCardsOk[params.numberCard]) {
+                return dataUpdate.forCardsOk[params.numberCard]
+            } else {
+                return false
+            }
+        }
+
+        return false
     }
 
 }

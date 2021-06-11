@@ -5,6 +5,9 @@ import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import DogeTxBuilder from '../../doge/tx/DogeTxBuilder'
 import BlocksoftPrivateKeysUtils from '../../../common/BlocksoftPrivateKeysUtils'
 import { ECPair, payments, TransactionBuilder } from 'bitcoinjs-lib'
+import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import main from '@app/appstores/DataSource/Database'
 
 export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder {
     private mnemonic: string = ''
@@ -29,21 +32,35 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
             throw new Error('no address in input ' + JSON.stringify(input))
         }
 
+        if (!input.derivationPath || input.derivationPath === "false") {
+            // @ts-ignore
+            if (typeof input.path !== 'undefined') {
+                // @ts-ignore
+                input.derivationPath = input.path
+            }
+        }
+
         // @ts-ignore
+        const mainCurrencyCode =  this._settings.currencyCode === 'LTC' ?  'LTC' : 'BTC'
+
+        const segwitPrefix = BlocksoftDict.CurrenciesForTests[mainCurrencyCode + '_SEGWIT'].addressPrefix
+        const segwitCompatiblePrefix = typeof (BlocksoftDict.CurrenciesForTests[mainCurrencyCode + '_SEGWIT_COMPATIBLE']) !== 'undefined' ?
+            BlocksoftDict.CurrenciesForTests[mainCurrencyCode + '_SEGWIT_COMPATIBLE'].addressPrefix : false
+
         if (typeof this.keyPairBTC[input.address] === 'undefined') {
-            let currencyCode = 'BTC'
-            if (input.address.indexOf('bc1') === 0) {
+            let currencyCode = mainCurrencyCode
+            if (input.address.indexOf(segwitPrefix) === 0) {
                 currencyCode += '_SEGWIT'
                 if (!input.derivationPath || input.derivationPath === "false") {
-                    input.derivationPath = `m/89'/0'/0'/0/0`
+                    input.derivationPath = BlocksoftDict.CurrenciesForTests[currencyCode].defaultPath
                 }
-            } else if (input.address.indexOf('3') === 0) {
+            } else if (segwitCompatiblePrefix && input.address.indexOf(segwitCompatiblePrefix) === 0) {
                 currencyCode += '_SEGWIT_COMPATIBLE'
                 if (!input.derivationPath || input.derivationPath === "false") {
-                    input.derivationPath = `m/49'/0'/0'/0/1`
+                    input.derivationPath = BlocksoftDict.CurrenciesForTests[currencyCode].defaultPath
                 }
             } else if (!input.derivationPath || input.derivationPath === "false") {
-                input.derivationPath = `m/44'/0'/0'/0/0`
+                input.derivationPath = BlocksoftDict.CurrenciesForTests[mainCurrencyCode].defaultPath
             }
             const discoverFor = {
                 mnemonic: this.mnemonic,
@@ -57,24 +74,24 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
             try {
                 this.keyPairBTC[input.address] = ECPair.fromWIF(result.privateKey, this._bitcoinNetwork)
                 let address
-                if (currencyCode === 'BTC_SEGWIT') {
+                if (currencyCode === mainCurrencyCode + '_SEGWIT') {
                     try {
                         this.p2wpkhBTC[input.address] = payments.p2wpkh({
                             pubkey: this.keyPairBTC[input.address].publicKey,
                             network: this._bitcoinNetwork
                         })
                     } catch (e) {
-                        e.message += ' in privateKey Segwit signature create'
+                        e.message += ' in privateKey ' + currencyCode + ' Segwit signature create'
                         // noinspection ExceptionCaughtLocallyJS
                         throw e
                     }
 
                     if (typeof this.p2wpkhBTC[input.address].address === 'undefined') {
                         // noinspection ExceptionCaughtLocallyJS
-                        throw new Error('not valid segwit p2sh')
+                        throw new Error('not valid ' + currencyCode + ' segwit p2sh')
                     }
                     address = this.p2wpkhBTC[input.address].address
-                } else if (currencyCode === 'BTC_SEGWIT_COMPATIBLE') {
+                } else if (currencyCode === mainCurrencyCode + '_SEGWIT_COMPATIBLE') {
                     try {
                         this.p2wpkhBTC[input.address] = payments.p2wpkh({
                             pubkey: this.keyPairBTC[input.address].publicKey,
@@ -85,13 +102,13 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
                             network: this._bitcoinNetwork
                         })
                     } catch (e) {
-                        e.message += ' in privateKey SegwitCompatible signature create'
+                        e.message += ' in privateKey ' + currencyCode + ' SegwitCompatible signature create'
                         // noinspection ExceptionCaughtLocallyJS
                         throw e
                     }
                     if (typeof this.p2shBTC[input.address].address === 'undefined') {
                         // noinspection ExceptionCaughtLocallyJS
-                        throw new Error('not valid segwit compatible p2sh')
+                        throw new Error('not valid ' + currencyCode + ' segwit compatible p2sh')
                     }
                     address = this.p2shBTC[input.address].address
                 } else {
@@ -103,10 +120,10 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
 
                 if (address !== input.address) {
                     // noinspection ExceptionCaughtLocallyJS
-                    throw new Error('not valid signing address ' + input.address + ' != ' + address + ' segwit type = ' + currencyCode)
+                    throw new Error('not valid ' + currencyCode + ' signing path ' + input.derivationPath + ' address ' + input.address + ' != ' + address + ' segwit type = ' + currencyCode)
                 }
             } catch (e) {
-                e.message += ' in privateKey BTC signature check '
+                e.message += ' in privateKey ' + currencyCode + '  signature check '
                 throw e
             }
         }
@@ -125,10 +142,19 @@ export default class BtcTxBuilder extends DogeTxBuilder implements BlocksoftBloc
             throw new Error('no address in input ' + JSON.stringify(input))
         }
         if (typeof this.p2wpkhBTC[input.address] === 'undefined') {
+            // @ts-ignore
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx sign usual', input)
+            // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], null, null, input.value * 1)
         } else if (typeof this.p2shBTC[input.address] === 'undefined') {
+            // @ts-ignore
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx sign segwit', input)
+            // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], null, null, input.value * 1)
         } else {
+            // @ts-ignore
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcTxBuilder.getRawTx sign segwit compatible', input)
+            // @ts-ignore
             txb.sign(i, this.keyPairBTC[input.address], this.p2shBTC[input.address].redeem.output, null, input.value * 1)
         }
     }

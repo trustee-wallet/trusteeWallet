@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-qrcode/lib/QRCode.js b/node_modules/react-native-qrcode/lib/QRCode.js
+index 3fdf69b..7855781 100644
+--- a/node_modules/react-native-qrcode/lib/QRCode.js
++++ b/node_modules/react-native-qrcode/lib/QRCode.js
+@@ -114,7 +114,7 @@ var QRCode = createReactClass({
+                     render={renderCanvas}
+                     onLoad={this.props.onLoad}
+                     onLoadEnd={this.props.onLoadEnd}
+-                    style={{ height: size, width: size }}
++                    style={[{ height: size, width: size }, this.props.style]}
+                 />
+             </View>
+         )

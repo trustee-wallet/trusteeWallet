@@ -1,74 +1,56 @@
 /**
- * @version 0.9
+ * @version 0.44
  */
-import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TextInput  } from 'react-native'
+import React, { PureComponent } from 'react'
+import { View, Text, ScrollView, Image, TextInput } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
-import { strings } from '../../services/i18n'
+import Button from '@app/components/elements/Button'
+import { strings } from '@app/services/i18n'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-
-
-class FioChooseAddress extends Component {
-
+class FioChooseAddress extends PureComponent {
 
     render() {
         return (
-            <View>
-                <Navigation
-                    //title={strings('assets.mainTitle')}
-                    title= {strings('FioChooseAddress.title')}
-                />
-                
-                <View style={{paddingTop: 90, height: '100%'}}>
+            <ScreenWrapper
+                title={strings('FioChooseAddress.title')}
+            >
+                <View style={{ paddingTop: 90, height: '100%' }}>
 
+                    <View style={styles.container}>
+                        <View>
+                            <Text style={styles.txt}>{strings('FioChooseAddress.description')}</Text>
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={text => console.log('Input changed')}
+                            />
+                        </View>
 
+                        <View style={{ flex: 1, paddingVertical: 20 }}>
+                            <ScrollView>
 
-                <View  style={styles.container}>
-                    <View>
-                        <Text style={styles.txt}>{strings('FioChooseAddress.description')}</Text>
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={text => console.log('Input changed')}
-                        />
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 1</Text>
+                                </View>
+
+                                <View style={styles.fio_item}>
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Text style={styles.fio_txt}>Fio Adress 2</Text>
+                                </View>
+
+                            </ScrollView>
+                        </View>
+
+                        <View style={{ marginTop: 20 }}>
+                            <Button press={() => console.log('select FIO pressed')}>
+                                {strings('FioChooseAddress.btnText')}
+                            </Button>
+                        </View>
                     </View>
-
-                    <View style={{ flex: 1,  paddingVertical: 20}}>
-                        <ScrollView>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 1</Text>
-                            </View>
-
-                            <View  style={styles.fio_item}>
-                                <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')}/>
-                                <Text style={styles.fio_txt}>Fio Adress 2</Text>
-                            </View>
-
-                        </ScrollView>
-                    </View>
-
-                    <View style={{marginTop: 20}}>
-                        <Button press={() =>  console.log('select FIO pressed')}>
-                            {strings('FioChooseAddress.btnText')}
-                        </Button>
-                    </View>
-
-
 
                 </View>
-
-
-
-
-
-
-
-
-                </View>
-            </View>
+            </ScreenWrapper>
         );
     }
 }

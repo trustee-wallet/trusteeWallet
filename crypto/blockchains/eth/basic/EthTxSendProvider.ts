@@ -1,6 +1,6 @@
 /**
  * @author Ksu
- * @version 0.20
+ * @version 0.32
  */
 import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
@@ -10,26 +10,30 @@ import EthRawDS from '../stores/EthRawDS'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import config from '../../../../app/config/config'
+import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
 
 export default class EthTxSendProvider {
 
     private _web3: any
-    private _trezorServerCode : any
-    private _trezorServer : any
-    private _settings : any
+    private _trezorServerCode: any
+    private _trezorServer: any
+    private _settings: any
+    private _mainCurrencyCode: string
 
-    constructor(web3: any, trezorServerCode : any, settings : any) {
+    constructor(web3: any, trezorServerCode: any, mainCurrencyCode : string, settings: any) {
         this._web3 = web3
         this._trezorServerCode = trezorServerCode
         this._trezorServer = 'to_load'
         this._settings = settings
+
+        this._mainCurrencyCode = mainCurrencyCode
     }
 
 
-    async send(tx: BlocksoftBlockchainTypes.EthTx, privateData: BlocksoftBlockchainTypes.TransferPrivateData): Promise<{ transactionHash: string, transactionJson: any }> {
+    async send(tx: BlocksoftBlockchainTypes.EthTx, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any }> {
         // @ts-ignore
-        BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx tx', tx)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx started', logData)
         // noinspection JSUnresolvedVariable
         if (privateData.privateKey.substr(0, 2) !== '0x') {
             privateData.privateKey = '0x' + privateData.privateKey
@@ -38,22 +42,115 @@ export default class EthTxSendProvider {
             throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
         }
         // noinspection JSUnresolvedVariable
+        if (this._mainCurrencyCode === 'ETC') {
+            tx.chainId = 61 // https://ethereumclassic.org/development/porting
+        }
         const signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
 
         // @ts-ignore
-        BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx signed', tx)
-        BlocksoftCryptoLog.log('EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx signed', tx)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
 
+        let link = BlocksoftExternalSettings.getStatic(this._trezorServerCode + '_SEND_LINK')
+        if (!link || link === '') {
+            if (this._trezorServerCode && this._trezorServerCode.indexOf('http') === -1) {
+                this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Send.sendTx')
+                link = this._trezorServer + '/api/v2/sendtx/'
+            } else {
+                link = this._trezorServerCode // actually is direct url like link = 'https://dex.binance.org/api/v1/broadcast'
+            }
+        }
 
-        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'ETH.Send.sendTx')
-
-        const link = this._trezorServer + '/api/v2/sendtx/'
-        let result
+        const { apiEndpoints } = config.proxy
+        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        const proxy = baseURL + '/send/checktx'
+        const errorProxy = baseURL + '/send/errortx'
+        const successProxy = baseURL + '/send/sendtx'
+        let checkResult = false
         try {
-            result = await BlocksoftAxios.post(link, signData.rawTransaction)
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult start ' + proxy, logData)
+            checkResult = await BlocksoftAxios.post(proxy, {
+                raw: signData.rawTransaction,
+                txRBF,
+                logData,
+                marketingData: MarketingEvent.DATA
+            })
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('ETH Send error ' + e.message)
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult ' + e.message)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult ' + e.message)
+        }
+
+        if (checkResult !== false) {
+            if (typeof checkResult.data !== 'undefined') {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult1 ', checkResult.data)
+                if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
+                    if (config.debug.cryptoErrors) {
+                        console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult1 ', JSON.parse(JSON.stringify(checkResult.data)))
+                    }
+                    checkResult = false
+                } else if (checkResult.data.status === 'notice') {
+                    throw new Error(checkResult.data.msg)
+                }
+            } else {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult2 ', checkResult)
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResult2 ', JSON.parse(JSON.stringify(checkResult.data)))
+                }
+            }
+        } else {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error checkResultEmpty ', JSON.stringify(checkResult.data))
+            }
+        }
+        logData.checkResult = checkResult && typeof checkResult.data !== 'undefined' && checkResult.data ? JSON.parse(JSON.stringify(checkResult.data)) : false
+
+        let result
+        try {
+            if (this._mainCurrencyCode === 'BNB') {
+                /**
+                 * {"blockHash": "0x01d48fd5de1ebb62275096f749acb6849bd97f3c050acb07358222cea0a527bc",
+                 * "blockNumber": 5223318, "contractAddress": null,
+                 * "cumulativeGasUsed": 14465279, "from": "0xf1cff704c6e6ce459e3e1544a9533cccbdad7b99",
+                 * "gasUsed": 21000, "logs": [],
+                 * "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                 * "status": true, "to": "0xf1cff704c6e6ce459e3e1544a9533cccbdad7b99", "transactionHash": "0x1fa5646517b625d422863e6c27082104e1697543a6f912421527bb171c6173f2", "transactionIndex": 95}
+                 */
+                const tmp = await this._web3.eth.sendSignedTransaction(signData.rawTransaction)
+                result = {
+                    data: {
+                        result: typeof tmp.transactionHash !== 'undefined' ? tmp.transactionHash : false
+                    }
+                }
+
+            } else {
+                result = await BlocksoftAxios.post(link, signData.rawTransaction)
+            }
+            // @ts-ignore
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', typeof result !== 'undefined' && result ? result.data : 'NO RESULT')
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send trezor error ' + e.message, JSON.parse(JSON.stringify(logData)))
+            }
+            try {
+                logData.error = e.message
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx start ' + errorProxy, logData)
+                const res2 = await BlocksoftAxios.post(errorProxy, {
+                    raw: signData.rawTransaction,
+                    txRBF,
+                    logData,
+                    marketingData: MarketingEvent.DATA
+                })
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx result', JSON.parse(JSON.stringify(res2.data)))
+                }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx', typeof res2.data !== 'undefined' ? res2.data : res2)
+            } catch (e2) {
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorTx ' + e.message)
+                }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorTx ' + e2.message)
             }
             if (this._settings.currencyCode !== 'ETH' && this._settings.currencyCode !== 'ETH_ROPSTEN' && e.message.indexOf('bad-txns-in-belowout') !== -1) {
                 throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
@@ -77,6 +174,7 @@ export default class EthTxSendProvider {
                 throw e
             }
         }
+
         // @ts-ignore
         if (typeof result.data.result === 'undefined' || !result.data.result) {
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
@@ -88,23 +186,70 @@ export default class EthTxSendProvider {
             throw new Error('SERVER_RESPONSE_BAD_CODE')
         }
 
-        const nonce = BlocksoftUtils.hexToDecimal(tx.nonce)
+        checkResult = false
+        try {
+            logData.txHash = transactionHash
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successTx start ' + successProxy, logData)
+            checkResult = await BlocksoftAxios.post(successProxy, {
+                raw: signData.rawTransaction,
+                txRBF,
+                logData,
+                marketingData: MarketingEvent.DATA
+            })
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successTx result ', JSON.parse(JSON.stringify(checkResult.data)))
+            }
+        } catch (e3) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successTx ' + e3.message)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successTx ' + e3.message)
+        }
+
+        if (checkResult !== false) {
+            if (typeof checkResult.data !== 'undefined') {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successResult1 ', checkResult.data)
+                if (typeof checkResult.data.status === 'undefined' || checkResult.data.status === 'error') {
+                    if (config.debug.cryptoErrors) {
+                        console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successResult1 ', checkResult)
+                    }
+                    checkResult = false
+                } else if (checkResult.data.status === 'notice') {
+                    throw new Error(checkResult.data.msg)
+                }
+            } else {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successResult2 ', checkResult)
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successResult2 ', checkResult)
+                }
+            }
+        } else {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error successResultEmpty ', checkResult)
+            }
+        }
+        logData.successResult = checkResult && typeof checkResult.data !== 'undefined' && checkResult.data ? JSON.parse(JSON.stringify(checkResult.data)) : false
+        logData.txRBF = txRBF
+
+        const nonce = typeof logData.setNonce !== 'undefined' ? logData.setNonce : BlocksoftUtils.hexToDecimal(tx.nonce)
 
         const transactionJson = {
             nonce,
-            gasPrice: BlocksoftUtils.hexToDecimal(tx.gasPrice)
+            gasPrice: typeof logData.gasPrice !== 'undefined' ? logData.gasPrice : BlocksoftUtils.hexToDecimal(tx.gasPrice)
         }
-
-        await EthTmpDS.saveNonce(tx.from, 'send_' + transactionHash, nonce)
 
         await EthRawDS.saveRaw({
             address: tx.from,
-            currencyCode : this._settings.currencyCode,
-            transactionUnique : tx.from + '_' + nonce,
+            currencyCode: this._settings.currencyCode,
+            transactionUnique: tx.from + '_' + nonce,
             transactionHash,
-            transactionRaw: signData.rawTransaction
+            transactionRaw: signData.rawTransaction,
+            transactionLog: logData
         })
 
-        return {transactionHash, transactionJson}
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send save nonce ' + nonce + ' from ' + tx.from + ' ' + transactionHash)
+        await EthTmpDS.saveNonce(this._mainCurrencyCode, tx.from, 'send_' + transactionHash, nonce)
+
+        return { transactionHash, transactionJson }
     }
 }

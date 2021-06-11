@@ -1,7 +1,7 @@
 /**
  * @version 0.11
  */
-import DBInterface from '../../../appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import BlocksoftBalances from '../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
 
 import appNewsDS from '../../../appstores/DataSource/AppNews/AppNews'
@@ -15,18 +15,16 @@ class AppTasksDiscoverBalancesHidden {
      * @returns {Promise<void>}
      */
     run = async (appTask) => {
-
-        const dbInterface = new DBInterface()
         const sql =`
-        SELECT 
+        SELECT
             currency_code AS currencyCode,
-            address, 
+            address,
             account_json AS accountJson,
             wallet_hash AS walletHash
             FROM account
-            WHERE currency_code='${appTask.currencyCode}' 
+            WHERE currency_code='${appTask.currencyCode}'
         LIMIT 1`
-        const tmp = await dbInterface.setQueryString(sql).query()
+        const tmp = await Database.setQueryString(sql).query()
         if (!tmp || typeof tmp.array === 'undefined' || !tmp.array) return 'no account'
         const account = tmp.array[0]
         let addressToScan = account.address

@@ -1,58 +1,71 @@
 /**
  * @version 0.9
  */
+
 const INITIAL_STATE = {
-    init: null,
     selectedWallet: {},
     selectedCryptoCurrency: {},
-    selectedBasicCurrency : {},
+    selectedBasicCurrency: {},
     selectedAccount: {},
+    selectedAccountTransactions : {
+        transactionsToView : [],
+        transactionsLoaded : 0
+    },
     loaderVisibility: false,
-    currentScreen : {}
+    blurVisibility: false,
+    currentScreen: {} // TODO: question - do we need this? it seems like unused
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case 'SET_SELECTED_WALLET':
-            return new Object({
+            return {
                 ...state,
                 selectedWallet: action.wallet
-            })
-        case 'SET_INIT_STATE':
-            return new Object({
-                ...state,
-                init: action.init
-            })
-        case 'SET_INIT_ERROR':
-            return new Object({
-                ...state,
-                initError: action.initError
-            })
+            }
         case 'SET_SELECTED_ACCOUNT':
-            return new Object({
+            return {
                 ...state,
                 selectedAccount: action.selectedAccount
-            })
+            }
+        case 'SET_SELECTED_ACCOUNT_TRANSACTIONS':
+            return {
+                ...state,
+                selectedAccountTransactions: action.selectedAccountTransactions
+            }
         case 'SET_SELECTED_CRYPTO_CURRENCY':
-            return new Object({
+            return {
                 ...state,
                 selectedCryptoCurrency: action.selectedCryptoCurrency
-            })
+            }
         case 'SET_SELECTED_BASIC_CURRENCY':
-            return new Object({
+            return {
                 ...state,
                 selectedBasicCurrency: action.selectedBasicCurrency
-            })
+            }
         case 'SET_NAV_CURRENT_SCREEN':
-            return new Object({
+            return {
                 ...state,
                 currentScreen: action.screen
-            })
+            }
         case 'SET_LOADER_STATUS':
-            return new Object({
+            return {
                 ...state,
                 loaderVisibility: action.visible
-            })
+            }
+        case 'SET_BLUR_STATUS':
+            return {
+                ...state,
+                blurVisibility: action.visible
+            }
+        case 'SET_SELECTED_WALLET_NAME':
+            return {
+                ...state,
+                selectedWallet: {
+                    ...state.selectedWallet,
+                    walletName: action.walletName
+                }
+            }
         default:
             return state
     }

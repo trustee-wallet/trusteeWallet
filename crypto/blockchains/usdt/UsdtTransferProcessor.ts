@@ -18,11 +18,13 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
     _builderSettings: BlocksoftBlockchainTypes.BuilderSettings = {
         minOutputDustReadable: 0.000001,
         minChangeDustReadable: 0.000001,
-        feeMaxReadable: 0.02, // for tx builder
+        feeMaxForByteSatoshi: 1000, // for tx builder
         feeMaxAutoReadable2: 0.01, // for fee calc,
         feeMaxAutoReadable6: 0.005, // for fee calc
         feeMaxAutoReadable12: 0.001, // for fee calc
-        changeTogether: false
+        changeTogether: false,
+        minRbfStepSatoshi: 50,
+        minSpeedUpMulti : 1.5
     }
 
     _initProviders() {
@@ -59,11 +61,10 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
         for (const fee of result.fees) {
             fee.amountForTx = data.amount
         }
-        result.shouldChangeBalance = false
         return result
     }
 
-    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: { estimatedGas?: number, gasPrice?: number[], balance?: string } = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
+    async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' UsdtTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
@@ -73,7 +74,8 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
                 fees: [],
-                countedForBasicBalance: '0'
+                countedForBasicBalance: '0',
+                countedTime : new Date().getTime()
             }
         }
         const fees = await this.getFeeRate(data, privateData, additionalData)
@@ -82,13 +84,13 @@ export default class UsdtTransferProcessor extends BtcTransferProcessor implemen
                 selectedTransferAllBalance: balance,
                 selectedFeeIndex: -2,
                 fees: [],
-                countedForBasicBalance: balance
+                countedForBasicBalance: balance,
+                countedTime : new Date().getTime()
             }
         }
         return {
             ...fees,
-            selectedTransferAllBalance: balance,
-            shouldChangeBalance: false
+            selectedTransferAllBalance: balance
         }
     }
 

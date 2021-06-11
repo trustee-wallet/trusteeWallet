@@ -5,9 +5,19 @@ import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorag
 import BlocksoftKeysUtils from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
 
 import Log from '../../../services/Log/Log'
+import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 
 
 const cryptoWallets = {
+
+    /**
+     * remove unique key
+     * @param {string} wallet.walletHash
+     * @return {Promise<string>}
+     */
+    deleteWallet: async (wallet) => {
+        // @todo
+    },
 
     /**
      * returns unique key for mnemonic saved in cryptostorage
@@ -62,7 +72,7 @@ const cryptoWallets = {
         try {
             // Log.log('DS/cryptoWallets getWallet ' + source  + ' ' + walletHash + ' started')
 
-            storedWalletMnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash)
+            storedWalletMnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash, 'CryptoWallets.getWallet ' + source)
 
             // Log.log('DS/cryptoWallets getWallet ' + source + ' finished')
         } catch (e) {
@@ -73,6 +83,14 @@ const cryptoWallets = {
 
     getFirstWallet() {
         return BlocksoftKeysStorage.getFirstWallet()
+    },
+
+    async getAllWalletsText() {
+        return BlocksoftKeysStorage.getAllWalletsText()
+    },
+
+    async getOneWalletText(walletHash, discoverPath, currencyCode) {
+        return BlocksoftKeysStorage.getOneWalletText(walletHash, discoverPath, currencyCode)
     },
 
     async setSelectedWallet(walletHash, source) {

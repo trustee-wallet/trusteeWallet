@@ -17,15 +17,11 @@ import java.util.List;
 
 import androidx.multidex.MultiDexApplication;
 
-import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
-import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
-import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
-import io.invertase.firebase.storage.RNFirebaseStoragePackage;
-import io.invertase.firebase.database.RNFirebaseDatabasePackage;
-import io.invertase.firebase.fabric.crashlytics.RNFirebaseCrashlyticsPackage;
-import io.invertase.firebase.links.RNFirebaseLinksPackage;
 import java.security.Security;
 import android.webkit.WebView;
+
+import com.robinpowered.react.Intercom.IntercomPackage;
+import io.intercom.android.sdk.Intercom;
 
 public class MainApplication extends MultiDexApplication implements ReactApplication {
 
@@ -41,13 +37,6 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
-          packages.add(new RNFirebaseMessagingPackage());
-          packages.add(new RNFirebaseNotificationsPackage());
-          packages.add(new RNFirebaseAnalyticsPackage());
-          packages.add(new RNFirebaseStoragePackage());
-          packages.add(new RNFirebaseDatabasePackage());
-          packages.add(new RNFirebaseCrashlyticsPackage());
-          packages.add(new RNFirebaseLinksPackage());
           return packages;
         }
 
@@ -69,6 +58,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this); // Remove this line if you don't want Flipper enabled
     WebView.setWebContentsDebuggingEnabled(true);
+    Intercom.initialize(this, "android_sdk-3484c7e9c5c1f10658e8c8e26a1f1d11013ca5e2", "b0svulae");
   }
 
   /**

@@ -40,7 +40,7 @@ class BlocksoftTg {
         CACHE_FILTER[CHAT] = false
         CACHE_TIME[CHAT] = now
 
-        if (typeof data.result.pinned_message === 'undefined') {
+        if (!data || typeof data.result === 'undefined' || !data.result || typeof data.result.pinned_message === 'undefined') {
             return false
         }
         const text = data.result.pinned_message.text
@@ -97,7 +97,7 @@ class BlocksoftTg {
                     chat_id: ID
                 }, API_KEY)
             } catch (err) {
-                if (err.code.toString() === '429') {
+                if (typeof err.code !== 'undefined' && err.code && err.code.toString() === '429') {
                     console.error(text)
                     return true
                 } else if (err.description === 'Bad Gateway') {
@@ -130,10 +130,10 @@ class BlocksoftTg {
             // noinspection JSUnresolvedFunction
             response = await axios.post(link, qs)
         } catch (e) {
-            if (e.response.data) {
+            if (typeof e.response !== 'undefined' && typeof e.response.data !== 'undefined') {
                 e.message = JSON.stringify(e.response.data) + ' ' + e.message
             }
-            if (e.message.indexOf('Request: chat not found') !== -1) {
+            if (typeof e.message !== 'undefined' && e.message.indexOf('Request: chat not found') !== -1) {
                 if (typeof BAD_CHATS[qs.chat_id] === 'undefined') {
                     BAD_CHATS[qs.chat_id] = {}
                     BAD_CHATS[qs.chat_id][API_KEY] = 1
@@ -144,7 +144,9 @@ class BlocksoftTg {
                 }
             }
             e.message += ' ' + link + ' ' + JSON.stringify(qs)
-            console.log('TG error : ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('TG error : ' + e.message)
+            }
             if (e.message.indexOf('Too Many Requests') !== -1) {
                 CACHE_ERROR = now
             }

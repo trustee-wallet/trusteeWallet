@@ -17,9 +17,9 @@ import AccountTransactionsRecheck from './apputils/AccountTransactionsRecheck'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
 import config from '../../config/config'
-import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import { getFioObtData, resolveCryptoCodes } from '../../../crypto/blockchains/fio/FioUtils'
 import DaemonCache from '../DaemonCache'
+import store from '@app/store'
 
 const CACHE_SCANNING = {}
 const CACHE_VALID_TIME = 60000 // 1 minute
@@ -29,6 +29,7 @@ const CACHE_CUSTOM_TIME = {
     'BSV': 60000  // 10 minutes
 }
 let CACHE_LAST_TIME = false
+let CACHE_ONE_ACCOUNTS = {}
 
 class UpdateAccountBalanceAndTransactions {
 
@@ -43,6 +44,7 @@ class UpdateAccountBalanceAndTransactions {
      * @param {string} callParams.source
      * @param {boolean} callParams.force
      * @param {boolean} callParams.allWallets
+     * @param {boolean} callParams.onlyBalances
      * @param {string} callParams.currencyCode
      * @returns {Promise<boolean>}
      */
@@ -51,7 +53,7 @@ class UpdateAccountBalanceAndTransactions {
         const source = callParams.source || 'FRONT'
         const force = callParams.force || false
         const allWallets = callParams.allWallets || false
-
+        const onlyBalances = callParams.onlyBalances || false
         if (!force || source === 'BACK') {
             const setting = await settingsActions.getSetting('scannerCode')
             if (!setting) {
@@ -81,14 +83,32 @@ class UpdateAccountBalanceAndTransactions {
 
             tmpAction = 'params init'
             if (typeof callParams !== 'undefined' && callParams && typeof callParams.currencyCode !== 'undefined') {
-                params.currencyCode = callParams.currencyCode
+
+                if (force) {
+                    if (callParams.currencyCode.indexOf('TRX') === 0) {
+                        params.currencyFamily = 'TRX'
+                    } else if (callParams.currencyCode.indexOf('ETH') === 0) {
+                        params.currencyFamily = 'ETH'
+                    } else {
+                        params.currencyCode = callParams.currencyCode
+                    }
+                } else {
+                    params.currencyCode = callParams.currencyCode
+                }
             }
 
 
             Log.daemon('UpdateAccountBalanceAndTransactions called ' + source)
 
             tmpAction = 'accounts init'
-            const accounts = await accountScanningDS.getAccountsForScan(params)
+
+            let accounts = await accountScanningDS.getAccountsForScan({ ...params, force: false })
+
+            if (force) {
+                if (!accounts || accounts.length === 0) {
+                    accounts = await accountScanningDS.getAccountsForScan(params)
+                }
+            }
 
             if (!accounts || accounts.length === 0) {
                 Log.daemon('UpdateAccountBalanceAndTransactions called - no account')
@@ -103,33 +123,49 @@ class UpdateAccountBalanceAndTransactions {
 
             tmpAction = 'accounts run main'
             let running = 0
+            CACHE_ONE_ACCOUNTS = {}
             for (account of accounts) {
                 if (typeof CACHE_CUSTOM_TIME[account.currencyCode] !== 'undefined') {
                     continue
                 }
+                if (typeof CACHE_ONE_ACCOUNTS[account.currencyCode + '_' + account.address] !== 'undefined') {
+                    continue
+                }
                 tmpAction = 'account run ' + JSON.stringify(account)
-                await this._accountRun(account, source, CACHE_VALID_TIME, force)
+                await this._accountRun(account, accounts, source, CACHE_VALID_TIME, force, onlyBalances)
                 running++
             }
 
             tmpAction = 'accounts run custom'
             for (account of accounts) {
+                if (typeof CACHE_ONE_ACCOUNTS[account.currencyCode + '_' + account.address] !== 'undefined') {
+                    continue
+                }
                 if (typeof CACHE_CUSTOM_TIME[account.currencyCode] !== 'undefined') {
                     // if its the only ones not updated - lets do them faster
-                    await this._accountRun(account, source, running > 0 ? CACHE_CUSTOM_TIME[account.currencyCode] : CACHE_VALID_TIME, force)
+                    await this._accountRun(account, accounts, source, running > 0 ? CACHE_CUSTOM_TIME[account.currencyCode] : CACHE_VALID_TIME, force, onlyBalances)
                 }
             }
 
             CACHE_LAST_TIME = new Date().getTime()
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log(e)
+                console.log('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message, e)
             }
             Log.errDaemon('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message + ' ' + tmpAction)
         }
     }
 
     loadFioData = async (currencyCode) => {
+        const currencies = store.getState().currencyStore.cryptoCurrencies
+        let foundFio = false
+        for (const tmp of currencies) {
+            if (tmp.currencyCode === 'FIO' && !tmp.maskedHidden) {
+                foundFio = true
+                break
+            }
+        }
+        if (!foundFio) return false
         Log.daemon('UpdateAccountBalanceAndTransactions loadFioData ' + currencyCode)
         try {
             // eslint-disable-next-line camelcase
@@ -154,13 +190,13 @@ class UpdateAccountBalanceAndTransactions {
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('UpdateAccountBalanceAndTransactions error on loadFioData ', e)
+                console.log('UpdateAccountBalanceAndTransactions error on loadFioData ' + e.message, e)
             }
             Log.errDaemon('UpdateAccountBalanceAndTransactions error on loadFioData ' + e.message)
         }
     }
 
-    async _accountRun(account, source, time, force) {
+    async _accountRun(account, accounts, source, time, force, onlyBalances = false) {
 
         let newBalance = false
         let addressToScan = account.address
@@ -188,10 +224,24 @@ class UpdateAccountBalanceAndTransactions {
         let balanceError
         try {
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance ' + account.currencyCode + ' ' + addressToScan)
-            newBalance = await (BlocksoftBalances.setCurrencyCode(account.currencyCode).setAddress(addressToScan).setAdditional(account.accountJson).setWalletHash(account.walletHash)).getBalance()
+
+            if (account.currencyCode === 'BTC') {
+                const additional = {}
+                if (account.walletIsHd) {
+                    updateObj.balanceScanLog = account.address + ' should be HD '
+                    updateObj.balanceScanError = ''
+                    await accountBalanceDS.updateAccountBalance({ updateObj }, account)
+                    return false
+                } else {
+                    newBalance = await (BlocksoftBalances.setCurrencyCode(account.currencyCode).setAddress(addressToScan).setAdditional(additional).setWalletHash(account.walletHash)).getBalance('AccountRunBalancesBtc')
+                }
+            } else {
+                newBalance = await (BlocksoftBalances.setCurrencyCode(account.currencyCode).setAddress(addressToScan).setAdditional(account.accountJson).setWalletHash(account.walletHash)).getBalance('AccountRunBalances')
+            }
             if (!newBalance || typeof newBalance.balance === 'undefined') {
                 if (account.balanceScanBlock === 0 && account.balanceScanTime === 0) {
                     updateObj.balanceScanLog = account.address + ' empty response, old balance ' + account.balance + ', ' + JSON.stringify(newBalance)
+                    updateObj.balanceScanError = 'account.balanceBadNetwork'
                     await accountBalanceDS.updateAccountBalance({ updateObj }, account)
                     return false
                 }
@@ -204,15 +254,16 @@ class UpdateAccountBalanceAndTransactions {
             balanceError = ' found balanceError ' + e.message
         }
 
-        Log.daemon('UpdateAccountBalanceAndTransactions newBalance loaded ' + account.currencyCode + ' ' + addressToScan, JSON.stringify(newBalance))
+        Log.daemon('UpdateAccountBalanceAndTransactions newBalance from ' + source + ' loaded ' + account.currencyCode + ' ' + addressToScan, JSON.stringify(newBalance))
         let continueWithTx = true
 
-        if (newBalance) {
-            if (typeof newBalance.balanceScanBlock !== 'undefined' && newBalance.balanceScanBlock * 1 < account.balanceScanBlock * 1) {
+        if (newBalance && typeof newBalance.balance !== 'undefined') {
+            if (typeof newBalance.balanceScanBlock !== 'undefined' && (typeof account.balanceScanBlock === 'undefined' || newBalance.balanceScanBlock * 1 < account.balanceScanBlock * 1)) {
                 continueWithTx = false
                 updateObj.balanceProvider = newBalance.provider
                 updateObj.balanceScanLog = account.address + ' block error, ignored new ' + newBalance.balance + ' block ' + newBalance.balanceScanBlock + ', old balance ' + account.balance + ' block ' + account.balanceScanBlock
-            } else if (newBalance.balance.toString() !== account.balance.toString() || newBalance.unconfirmed.toString() !== account.unconfirmed.toString()) {
+                updateObj.balanceScanError = 'account.balanceBadBlock'
+            } else if (typeof account.balance === 'undefined' || (newBalance.balance.toString() !== account.balance.toString() || newBalance.unconfirmed.toString() !== account.unconfirmed.toString())) {
                 updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
                 updateObj.balanceTxt = newBalance.balance.toString() // and string for any case
                 updateObj.unconfirmedFix = newBalance.unconfirmed || 0 // lets send to db totally not changed big number string
@@ -222,7 +273,7 @@ class UpdateAccountBalanceAndTransactions {
                     updateObj.balanceScanBlock = newBalance.balanceScanBlock
                 }
                 updateObj.balanceScanLog = account.address + ' all ok, new balance ' + newBalance.balance + ', old balance ' + account.balance + ', ' + balanceError
-
+                updateObj.balanceScanError = ''
                 const logData = {}
                 logData.walletHash = account.walletHash
                 logData.currencyCode = account.currencyCode
@@ -236,6 +287,7 @@ class UpdateAccountBalanceAndTransactions {
                 MarketingEvent.setBalance(logData.walletHash, logData.currencyCode, logData.newBalance, logData)
             } else {
                 updateObj.balanceScanLog = account.address + ' not changed, old balance ' + account.balance + ', ' + balanceError
+                updateObj.balanceScanError = ''
                 if (typeof newBalance.provider !== 'undefined') {
                     updateObj.balanceProvider = newBalance.provider
                 }
@@ -243,13 +295,9 @@ class UpdateAccountBalanceAndTransactions {
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance ok Prepared ' + account.currencyCode + ' ' + account.address + ' new balance ' + newBalance.balance + ' provider ' + newBalance.provider + ' old balance ' + account.balance, JSON.stringify(updateObj))
         } else {
             updateObj.balanceScanLog = account.address + ' no balance, old balance ' + account.balance + ', ' + balanceError
+            updateObj.balanceScanError = 'account.balanceBadNetwork'
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance not Prepared ' + account.currencyCode + ' ' + account.address + ' old balance ' + account.balance, JSON.stringify(updateObj))
         }
-
-        await appNewsDS.saveAppNews({
-            onlyOne: true, walletHash: account.walletHash, currencyCode: account.currencyCode, newsGroup: 'ONE_BY_ONE_SCANNER', newsName: 'TXS_SCANNED_LAST_TIME',
-            newsJson: { log: updateObj.balanceScanLog.substr(0, 50) + '...' }
-        })
 
         if (account.balanceScanLog) {
             updateObj.balanceScanLog += ' ' + account.balanceScanLog
@@ -263,7 +311,7 @@ class UpdateAccountBalanceAndTransactions {
             throw e
         }
 
-        if (!continueWithTx) {
+        if (!continueWithTx || onlyBalances) {
             return true // balance error - tx will not be good also
         }
 
@@ -271,14 +319,18 @@ class UpdateAccountBalanceAndTransactions {
         let newTransactions = false
         try {
             Log.daemon('UpdateAccountBalanceAndTransactions newTransactions ' + account.currencyCode + ' ' + account.address)
-            if (account.currencyCode === 'BTC') {
-                const addresses = await accountScanningDS.getAddresses({
+            if (account.currencyCode === 'BTC' || account.currencyCode === 'LTC') {
+                const additional = {... account.accountJson}
+                additional.addresses = await accountScanningDS.getAddresses({
                     currencyCode: account.currencyCode,
                     walletHash: account.walletHash
                 })
-                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional({ addresses }).setWalletHash(account.walletHash)).getTransactions()
+                if (account.walletIsHd && account.currencyCode !== 'LTC') {
+                    additional.walletPub = true // actually not needed pub - just flag
+                }
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional }, 'AccountRunTransactionsBtc')
             } else {
-                newTransactions = await (BlocksoftTransactions.setCurrencyCode(account.currencyCode).setAddress(account.address).setAdditional(account.accountJson).setWalletHash(account.walletHash)).getTransactions()
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional: account.accountJson }, 'AccountRunTransactions')
             }
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError = ' empty transactions ' + account.currencyCode + ' ' + account.address
@@ -287,8 +339,10 @@ class UpdateAccountBalanceAndTransactions {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                Log.errDaemon('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message)
+                console.log('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message, e)
             }
+            Log.errDaemon('UpdateAccountBalanceAndTransactions newTransactions something wrong ' + account.currencyCode + ' ' + account.address + ' => transactionsError ' + e.message)
+
             transactionsError = ' found transactionsError ' + e.message
         }
 
@@ -311,6 +365,24 @@ class UpdateAccountBalanceAndTransactions {
         } catch (e) {
             e.message += ' while accountDS.updateAccount'
             throw e
+        }
+
+
+        CACHE_ONE_ACCOUNTS[account.currencyCode + '_' + account.address] = 1
+
+        if (account.currencyCode === 'TRX') {
+            for (const sub of accounts) {
+                if (sub.currencyCode === 'TRX_USDT') {
+                    await this._accountRun(sub, accounts, source + ' GONE INNER', CACHE_VALID_TIME, true)
+
+                    break
+                }
+            }
+            for (const sub of accounts) {
+                if (sub.currencyCode !== 'TRX_USDT' && sub.currencyCode.indexOf('TRX_') === 0) {
+                    await this._accountRun(sub, accounts, source + ' GONE INNER2', CACHE_VALID_TIME, true)
+                }
+            }
         }
 
         await this.loadFioData(account.currencyCode)

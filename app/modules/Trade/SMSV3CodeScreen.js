@@ -1,42 +1,39 @@
 /**
- * @version 0.1
+ * @version 0.44
  * @author yura
  */
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Animated, Dimensions, Linking, View, StatusBar } from 'react-native'
+import React, { PureComponent } from 'react'
+import { Animated, Linking, StyleSheet, View } from 'react-native'
 
 import LottieView from 'lottie-react-native'
 
-import { WebView } from 'react-native-webview'
-import NavStore from '../../components/navigation/NavStore'
-
-import firebase from 'react-native-firebase'
-
-import Log from '../../services/Log/Log'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
-
-import Navigation from '../../components/navigation/Navigation'
-import UpdateOneByOneDaemon from '../../daemons/back/UpdateOneByOneDaemon'
-
-import { strings } from '../../services/i18n'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-
-import Api from '../../services/Api/ApiV3'
-
-import store from '../../store'
+import axios from 'axios'
 import _ from 'lodash'
 
-import CashBackUtils from '../../appstores/Stores/CashBack/CashBackUtils'
-import BlocksoftAxios from '../../../crypto/common/BlocksoftAxios'
-import config from '../../config/config'
+import { WebView } from 'react-native-webview'
+import NavStore from '@app/components/navigation/NavStore'
 
-const { height: WINDOW_HEIGHT } = Dimensions.get('window')
-const V3_API = 'https://api.v3.trustee.deals'
+import Log from '@app/services/Log/Log'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+
+import Api from '@app/services/Api/ApiV3'
+
+import store from '@app/store'
+
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import config from '@app/config/config'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+
 
 let CACHE_IS_ERROR = false
-class SMSV3CodeScreen extends Component {
+class SMSV3CodeScreen extends PureComponent {
 
     constructor() {
         super()
@@ -53,7 +50,10 @@ class SMSV3CodeScreen extends Component {
             currencySelect: null,
             sign: {},
             api: '',
-            navigation: ''
+            navigation: '',
+            additionalData: {
+                close: false
+            }
         }
         this.webref = React.createRef()
     }
@@ -82,26 +82,6 @@ class SMSV3CodeScreen extends Component {
         })
     }
 
-    async createSign() {
-        let msg = ''
-        try {
-            Log.log('ApiV3.initData will ask time from server')
-            const now = await BlocksoftAxios.get(V3_API + '/data/server-time');
-            if (now && typeof now.data !== 'undefined' && typeof now.data.serverTime !== 'undefined') {
-                msg = now.data.serverTime
-                Log.log('ApiV3.initData msg from server ' + msg)
-            }
-        } catch (e) {
-            // do nothing
-        }
-
-        const sign = await CashBackUtils.createWalletSignature(true, msg);
-
-        this.setState({
-            sign: sign
-        })
-    }
-
     prepareFunction(dataString, param, that, type) {
         let prepare = JSON.parse(JSON.stringify(dataString))
         let item
@@ -117,28 +97,22 @@ class SMSV3CodeScreen extends Component {
 
         if (type === 'GENERAL') {
             // eslint-disable-next-line no-new-func
-            const getCode = new Function('tradeWebParam', 'Log', 'MarketingEvent', 'NavStore', 'setExchangeStatus', 'store', '_', 'state', 'CACHE_IS_ERROR', 'that', prepare)
-            return getCode(param, Log, MarketingEvent, NavStore, this.setExchangeStatus, store, _, this.state, CACHE_IS_ERROR, that)
+            const getCode = new Function('tradeWebParam', 'Log', 'MarketingEvent', 'NavStore', 'setExchangeStatus', 'store', '_', 'state', 'CACHE_IS_ERROR', 'that', 'BlocksoftAxios', 'axios', 'config', prepare)
+            return getCode(param, Log, MarketingEvent, NavStore, this.setExchangeStatus, store, _, this.state, CACHE_IS_ERROR, that, BlocksoftAxios, axios, config)
         } else if (type === 'MSG') {
             // eslint-disable-next-line no-new-func
-            const getCode = new Function('e', 'Log', 'Linking', 'copyToClipboard', 'showModal', 'setExchangeStatus', 'CACHE_IS_ERROR', 'that', prepare)
-            return getCode(param, Log, Linking, copyToClipboard, showModal, this.setExchangeStatus, CACHE_IS_ERROR, that)
-        } else if (type === 'EXCHANGE_STATUS') {
-            const cashbackToken = CashBackUtils.getWalletToken()
-            // eslint-disable-next-line no-new-func
-            const getCode = new Function('param', 'Log', 'BlocksoftAxios', 'config', 'V3_API', 'sign', 'cashbackToken', prepare)
-            return getCode(param, Log, BlocksoftAxios, config, V3_API, this.state.sign, cashbackToken, that)
+            const getCode = new Function('e', 'Log', 'Linking', 'copyToClipboard', 'showModal', 'setExchangeStatus', 'CACHE_IS_ERROR', 'that', 'BlocksoftAxios', 'axios', 'config', prepare)
+            return getCode(param, Log, Linking, copyToClipboard, showModal, this.setExchangeStatus, CACHE_IS_ERROR, that, BlocksoftAxios, axios, config)
         }
     }
 
     async componentDidMount() {
-        const tradeWebParam = this.props.navigation.getParam('tradeWebParam')
-        this.createSign()
+        const tradeWebParam = NavStore.getParamWrapper(this, 'tradeWebParam')
         this.prepareFunction(tradeWebParam.didMount, tradeWebParam, this, 'GENERAL')
     }
 
     onMessage(e) {
-        const tradeWebParam = this.props.navigation.getParam('tradeWebParam').message
+        const tradeWebParam = NavStore.getParamWrapper(this, 'tradeWebParam').message
         this.prepareFunction(tradeWebParam, e, this, 'MSG')
     }
 
@@ -146,23 +120,31 @@ class SMSV3CodeScreen extends Component {
         this.prepareFunction(this.state.navigation, newNavState, this, 'GENERAL')
     }
 
-    setExchangeStatus(body, orderHash, status) {
-        this.prepareFunction(body, { orderHash, status }, this, 'EXCHANGE_STATUS')
+    async setExchangeStatus(body, orderHash, status) {
+        Api.setExchangeStatus(orderHash, status)
     }
 
     closeAction = () => {
-        this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
-        NavStore.goBack()
+        Log.log('Trade.SMSV3CodeScreen.closeAction user click')
+
+        if (this.state.additionalData.close) {
+            this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
+        }
+        NavStore.reset('HomeScreen')
     }
 
     backAction = () => {
-        this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
+        Log.log('Trade.SMSV3CodeScreen.backAction user click')
+
+        if (this.state.additionalData.close) {
+            this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
+        }
         NavStore.goBack()
     }
 
     render() {
         UpdateOneByOneDaemon.pause()
-        firebase.analytics().setCurrentScreen('Trade.SMSV3CodeScreen')
+        MarketingAnalytics.setCurrentScreen('Trade.SMSV3CodeScreen')
 
         const { scriptLoadEnd, status, link } = this.state
 
@@ -170,11 +152,12 @@ class SMSV3CodeScreen extends Component {
 
         CACHE_IS_ERROR = false
         return (
-            <View style={{ ...styles.wrapper }}>
-                <Navigation
-                    closeAction={this.closeAction}
-                    backAction={this.backAction}
-                />
+            <ScreenWrapper
+                rightType={'close'}
+                rightAction={this.closeAction}
+                leftType={'back'}
+                leftAction={this.backAction}
+            >
                 <View style={styles.wrapper__content}>
                     {
                         status !== 'SUCCESS' ?
@@ -183,7 +166,7 @@ class SMSV3CodeScreen extends Component {
                                     width: 200,
                                     height: 200,
                                     marginTop: -50
-                                }} source={require('../../assets/jsons/animations/loaderBlue.json')}
+                                }} source={require('@app/assets/jsons/animations/loaderBlue.json')}
                                     progress={this.state.progress} />
                             </View> : null
                     }
@@ -219,44 +202,25 @@ class SMSV3CodeScreen extends Component {
                             Log.log('Trade.SMSV3CodeScreen.on start load with request ' + e.navigationType)
                             return true
                         }}
-                        onLoadStart={StatusBar.setBarStyle('dark-content')}
-                        onLoad={StatusBar.setBarStyle('dark-content')}
                         useWebKit={true}
                         startInLoadingState={true}
+                        sharedCookiesEnabled
+                        thirdPartyCookiesEnabled
+                        allowsInlineMediaPlayback={true}
+                        allowsBackForwardNavigationGestures={true}
                     />
                 </View>
-            </View>
+            </ScreenWrapper>
         )
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        exchange: state.exchangeStore.data,
-        settingsStore: state.settingsStore
-    }
-}
+export default SMSV3CodeScreen
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(SMSV3CodeScreen)
-
-const styles = {
-    wrapper: {
-        flex: 1,
-        height: WINDOW_HEIGHT,
-        backgroundColor: '#fff'
-    },
+const styles = StyleSheet.create({
     wrapper__content: {
         flex: 1,
-
-        position: 'relative',
-
-        marginTop: 80
+        position: 'relative'
     },
     img: {
         justifyContent: 'center',
@@ -265,7 +229,7 @@ const styles = {
         top: 0,
         left: 0,
         width: '100%',
-        height: WINDOW_HEIGHT,
+        height: '100%',
         zIndex: 2,
         backgroundColor: '#fff'
     },
@@ -274,4 +238,4 @@ const styles = {
         height: 100,
         marginTop: 100
     }
-}
+})

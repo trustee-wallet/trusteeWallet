@@ -13,8 +13,10 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
 import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
 import Log from '../../Log/Log'
-import { isFioAddressValid } from '../../../../crypto/blockchains/fio/FioUtils'
+
 import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
+import { isFioAddressValid } from '@crypto/blockchains/fio/FioUtils'
+import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -28,7 +30,7 @@ async function _fioAddressValidation(obj) {
     if (!value || !type || !type.includes('_ADDRESS')) {
         return false
     }
-    return isFioAddressValid(value)
+    return isFioAddressValid(value) || isUnstoppableAddressValid(value)
 }
 
 async function _userDataValidation(obj) {
@@ -185,6 +187,18 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'BNB_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (value.toLowerCase().indexOf('bnb') !== 0) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            } else if (value.length !== 42) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+
+            break
+
         case 'XRP_DESTINATION_TAG':
             value = value.trim()
             if (!value) {
@@ -192,6 +206,10 @@ async function _userDataValidation(obj) {
             } else if (value > 4294967295) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
+            break
+
+        case 'XLM_DESTINATION_TAG':
+            value = value.trim()
             break
 
         case 'XMR_DESTINATION_TAG':
@@ -345,12 +363,16 @@ async function _userDataValidation(obj) {
         case 'CASHBACK_LINK':
             const valueArray = value.split('/')
             value = value.replace('https://cashback.trustee.deals/', 'https://trustee.deals/link/')
-            if (!value)
+            value = value.replace('https://trustee.deals/', 'https://trusteeglobal.com/')
+            if (!value) {
                 error.msg = strings('validator.empty', { name: name })
-            else if (!value.includes('https://trustee.deals/link/')) {
-                error.msg = strings('validator.invalidFormat', { name: name })
-            }
-            else if (typeof valueArray[valueArray.length -1] === 'undefined' || valueArray[valueArray.length -1].length !== 8) {
+            } else if (!value.includes('https://trusteeglobal.com/link/')) {
+                // not link is ok
+                const tmp = value.split('/')
+                if (tmp.length > 1) {
+                    error.msg = strings('validator.invalidFormat', { name: name })
+                }
+            } else if (typeof valueArray[valueArray.length -1] === 'undefined' || valueArray[valueArray.length -1].length !== 8) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
@@ -440,6 +462,11 @@ async function _validateMnemonic(obj) {
 
 
 module.exports = {
+    userDataValidation : async function(obj) {
+        obj.id = 'any'
+        return _userDataValidation(obj)
+    },
+
     arrayValidation: async function(array) {
         let resultArray = []
         if (!array || typeof (array) === 'undefined' || !array.length) {

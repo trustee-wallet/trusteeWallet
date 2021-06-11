@@ -8,6 +8,7 @@ import * as Keychain from 'react-native-keychain'
 
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import { fioSdkWrapper } from '../../blockchains/fio/FioSdkWrapper'
+import config from '../../../app/config/config'
 
 export class BlocksoftKeysStorage {
 
@@ -64,7 +65,12 @@ export class BlocksoftKeysStorage {
      * @private
      */
     async _getKeyValue(key) {
-        const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key)
+        const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key, {
+            authenticationPrompt: {
+                title: 'Fingerprint title',
+                cancel: 'Cancel'
+            }
+        })
         if (!res) return false
         return { 'pub': res.username, 'priv': res.password }
     }
@@ -104,7 +110,24 @@ export class BlocksoftKeysStorage {
     async _setKeyValue(key, pub, priv = false) {
         pub = pub + ''
         if (!priv) priv = pub
-        return Keychain.setInternetCredentials(this._serviceName + '_' + key, pub, priv)
+        let res = false
+        try {
+            res = await Keychain.setInternetCredentials(this._serviceName + '_' + key, pub, priv, {
+                authenticationPrompt: {
+                    title: 'Fingerprint title',
+                    cancel: 'Cancel'
+                },
+                // if will be breaking again try accessControl : 'BiometryAnyOrDevicePasscode'
+            })
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('BlocksoftKeysStorage _setKeyValue error ', e)
+            }
+            if (key.indexOf('wallet') !== -1) {
+                throw e
+            }
+        }
+        return res
     }
 
     /**
@@ -151,8 +174,9 @@ export class BlocksoftKeysStorage {
         BlocksoftCryptoLog.log('BlocksoftKeysStorage init ended')
         this._serviceWasInited = true
 
-        const mnemonic = await this.getWalletMnemonic(this.publicSelectedWallet)
-        await fioSdkWrapper.init(mnemonic)
+        if (this.publicSelectedWallet) {
+            await fioSdkWrapper.init(this.publicSelectedWallet)
+        }
     }
 
     async reInit() {
@@ -160,6 +184,39 @@ export class BlocksoftKeysStorage {
         return this._init()
     }
 
+    async getOneWalletText(walletHash, discoverPath, currencyCode) {
+        try {
+            if (typeof discoverPath === 'undefined' || discoverPath === false) {
+                const res = await this._getKeyValue(walletHash)
+                if (!res) return false
+                return res.priv
+            } else {
+                const key = this.getAddressCacheKey(walletHash, discoverPath, currencyCode)
+                return this.getAddressCache(key)
+            }
+        } catch (e) {
+            // do nothing
+        }
+        return false
+    }
+
+    async getAllWalletsText() {
+        let res = ''
+        for (let i = 1; i <= 3; i++) {
+            try {
+                const wallet = await this._getKeyValue('wallet_' + i)
+                if (typeof wallet.priv !== 'undefined' && wallet.priv !== 'undefined') {
+                    res += ' WALLET#' + i + ' ' + wallet.priv
+                }
+            } catch (e) {
+                // do nothing
+            }
+        }
+        if (res === '') {
+            return 'Nothing found by general search'
+        }
+        return res
+    }
 
     /**
      * @return {Promise<number>}
@@ -198,6 +255,7 @@ export class BlocksoftKeysStorage {
         await this._init()
         const msg = 'BlocksoftKeysStorage setSelectedWallet ' + source + ' ' + hashOrId + ' '
 
+        let isChanged = false
         if (!hashOrId || typeof hashOrId === 'undefined' || hashOrId === 'first') {
             if (typeof this.publicWallets[0] === 'undefined') {
                 this._serviceWasInited = false
@@ -212,22 +270,30 @@ export class BlocksoftKeysStorage {
             } else {
                 // do nothing
             }
+            isChanged = true
         } else {
             if (!this._serviceWallets[hashOrId]) {
                 throw new Error('undefined wallet with hash ' + hashOrId)
             }
-            this.publicSelectedWallet = hashOrId
-            await this._setKeyValue('selected_hash', hashOrId)
+            try {
+                await this._setKeyValue('selected_hash', hashOrId)
+                this.publicSelectedWallet = hashOrId
+                isChanged = true
+            } catch (e) {
+                return this.publicSelectedWallet
+            }
         }
-        BlocksoftCryptoLog.log(msg + this.publicSelectedWallet)
+        BlocksoftCryptoLog.log(msg + 'new publicSelectedWallet = ' + this.publicSelectedWallet + ' ' + JSON.stringify({ isChanged }))
 
-        const mnemonic = await this.getWalletMnemonic(hashOrId)
-        await fioSdkWrapper.init(mnemonic)
+        if (isChanged) {
+            await fioSdkWrapper.init(this.publicSelectedWallet)
+        }
+
         return this.publicSelectedWallet
     }
 
     getFirstWallet() {
-        if (!this.publicSelectedWallet || typeof  this.publicSelectedWallet === 'undefined') {
+        if (!this.publicSelectedWallet || typeof this.publicSelectedWallet === 'undefined') {
             this.setSelectedWallet('first')
             if (!this.publicWallets || typeof this.publicWallets[0] === 'undefined') {
                 return false
@@ -241,10 +307,10 @@ export class BlocksoftKeysStorage {
      * public wallet mnemonic by hash
      * @return {string}
      */
-    async getWalletMnemonic(hashOrId) {
+    async getWalletMnemonic(hashOrId, source = 'default') {
         await this._init()
         if (!this._serviceWallets[hashOrId]) {
-            throw new Error('undefined wallet with hash ' + hashOrId)
+            throw new Error('undefined wallet with hash ' + hashOrId + ' source ' + source)
         }
         return this._serviceWallets[hashOrId]
     }
@@ -280,7 +346,7 @@ export class BlocksoftKeysStorage {
         if (!newMnemonic.hash) {
             throw new Error('unique hash required ' + JSON.stringify(newMnemonic))
         }
-        if (this._serviceWallets[newMnemonic.hash]) {
+        if (typeof this._serviceWallets[newMnemonic.hash] !== 'undefined' &&  this._serviceWallets[newMnemonic.hash]) {
             if (this._serviceWallets[newMnemonic.hash] !== newMnemonic.mnemonic) {
                 throw new Error('something wrong with hash algorithm')
             }
@@ -302,6 +368,7 @@ export class BlocksoftKeysStorage {
         }
         */
 
+        await this._setKeyValue(unique, unique, newMnemonic.mnemonic)
         await this._setKeyValue('wallet_' + this._serviceWalletsCounter, unique, newMnemonic.mnemonic)
         await this._setKeyValue('wallets_counter', this._serviceWalletsCounter)
         this._serviceWallets[unique] = newMnemonic.mnemonic
@@ -337,6 +404,15 @@ export class BlocksoftKeysStorage {
         return this._setKeyValue('login_' + hashOrId, res.login, res.pass)
     }
 
+    async setSettingValue(hashOrId, value) {
+        return this._setKeyValue('setting_' + hashOrId, hashOrId, value)
+    }
+
+    async getSettingValue(hashOrId) {
+        const res = await this._getKeyValue('setting_' + hashOrId)
+        if (!res) return '0'
+        return res.priv.toString()
+    }
 }
 
 const singleBlocksoftKeysStorage = new BlocksoftKeysStorage()

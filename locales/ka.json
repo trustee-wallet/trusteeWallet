@@ -1,0 +1,1658 @@
+{
+  "appName": "Trustee",
+  "auth": {
+    "navigation": {
+      "title": "თქვენ სისტემაში შეხვედით, როგორც: %{authMnemonicName}",
+      "description": "ავტორიზაცია პაროლის გარეშე"
+    },
+    "logOut": "გამოსვლა"
+  },
+  "finishTradeScreen": {
+    "title": "ვაშაა!",
+    "description": "თქვენი შეკვეთა შექმნილია. \n როგორც კი თქვენ მიერ განხორციელებული ტრანზაქცია გაივლის დადასტურებისთვის აუცილებელ პროცედურებს, ის შესაბამისად შესრულდება. \n თქვენ შეგიძლიათ თვალყური ადევნოთ თქვენი შეკვეთის სტატუსს შეკვეთების ისტორიაში.",
+    "orderHistoryBtn": "შეკვეთების ისტორია"
+  },
+  "finishTradeErrorScreen": {
+    "title": "ბანკმა არ დაადასტურა გადახდა!",
+    "description": "შეკვეთა გადახდილი არაა "
+  },
+  "tooltips": {
+    "HOME_SCREEN_BUY_BTN_TIP": {
+      "title": "",
+      "description": "აქ შეგიძლიათ სარფიანად შეიძინოთ კრიპტოვალუტა საკრედიტო ბარათით ორი დაწკაპუნებით!"
+    },
+    "HOME_SCREEN_EXCHANGE_BTN_TIP": {
+      "title": "",
+      "description": "კრიპტოვალუტების გაცვლა გასაგები და სარფიანი პირობებით!"
+    },
+    "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
+      "title": "",
+      "description": "დაამატეთ საჭირო მონეტები და ტოკენები აქ."
+    },
+    "HOME_SCREEN_CRYPTO_BTN_TIP": {
+      "title": "",
+      "description": "თქვენი ანონიმური ბიტკოინ-საფულე: მიიღეთ, იყიდეთ და გააგზავნეთ ბიტკოინები."
+    },
+    "ACCOUNT_SCREEN_ADDRESS_TIP": {
+      "title": "",
+      "description": "ეს კი შენი პირადი %{currencyName} მისამართია - ბარათის ნომრის ანალოგი მოწინავე მომხმარებლებისთვის!"
+    },
+    "ACCOUNT_SCREEN_TRANSACTION_TIP": {
+      "title": "",
+      "description": "აქ შეგიძლია იპოვო ყველანაირი ინფორმაცია საკუთარი ტრანზაქციებისა და შეკვეთბის შესახებ!"
+    },
+    "buttons": {
+      "next": "შემდეგი",
+      "skip": "გამოტოვება",
+      "close": "დახურვა"
+    }
+  },
+  "homeScreen": {
+    "balance": "ბალანსი",
+    "unconfirmed": "Unconfirmed",
+    "today": "დღეს",
+    "changedLastDay": "ბოლო 24 საათში",
+    "synchronizing": "სინქრონიზაცია"
+  },
+  "walletCreateScreen": {
+    "title": "იყიდე, გაყიდე, გადაცვალე ანონიმურად",
+    "createWallet": "საფულის შექმნა",
+    "importWallet": "საფულის იმპორტი",
+    "acceptTerms": "თქვენ არ დაეთანხმეთ მომსახურების პირობებს და კონფიდენციალურობის პოლიტიკას",
+    "agreement1": "წავიკითხე, გავიგე და თანახმა ვარ",
+    "terms": "გამოყენების პირობები",
+    "agreement2": "და",
+    "privacyPolicy": "კონფიდენციალურობის პოლიტიკა",
+    "termsTitle": "გამოყენების პირობები",
+    "privacyPolicyTitle": "კონფიდენციალურობის პოლიტიკა",
+    "slider1": "უსაფრთხოებისა და ანონიმურობის ინოვაციური ტექნოლოგიები",
+    "slider2": "უსაზღვრო შესაძლებლობები ინტუიტიურად გასაგებ დიზაინში",
+    "slider3": "გაცვლითი პუნქტების ჩაშენებული მონიტორინგი",
+    "slider4": "Зависшие и дорогие транзакции"
+  },
+  "exchangeScreen": {
+    "title": "გაცვლა",
+    "pickProvider": "აირჩიეთ პროვაიდერი",
+    "providerInformation": "ინფორმაცია პროვაიდერის შესახებ",
+    "fee": "საკომისიო",
+    "equivalent": "ექვივალენტი: ~",
+    "exchangeAll": "ყველაფრის გაცვლა",
+    "min": "მინიმალური:",
+    "max": "მაქსიმალური:",
+    "exchangeBtn": "გაცვლა",
+    "payinAddress": "გამგზავნის მისამართი",
+    "payoutAddress": "მიმღების მისამართი",
+    "date": "თარიღი:",
+    "receiveAddressModal": {
+      "title": "გაცვლა საკუთარ საფულეზე?",
+      "description1": "აქტიური საფულე",
+      "description2": "მისამართი"
+    },
+    "expiredModal": {
+      "title": "დრო ამოიწურა",
+      "description": "20-წუთიანი ინტერვალი ტრანზაქციის შესაქმნელად დასრულდა, გთხოვთ, გააკეთოთ ახალი განაცხადი"
+    },
+    "noAddressModal": {
+      "title": "გარე აქტივი",
+      "description": "შერჩეული აქტივი არ არის ჩართული Trustee-ში - გთხოვთ, დაამატოთ ან დაასრულოთ ტრანზაქცია დამოუკიდებლად"
+    },
+    "resendModal": {
+      "title": "გაცვლა ვერ შესრულდა",
+      "description": "შევასრულო ტრანზაქცია ამ მისამართზე?"
+    },
+    "waitConfirmModal": {
+      "title": "გაცვლა თითქმის დასრულებულია",
+      "description": "ტრანზაქცია %{txHash} უკვე შექმნილია, გთხოვთ, დაელოდოთ ქსელის დასტურს"
+    }
+  },
+  "exchangeConfirmScreen": {
+    "title": "დადასტურება",
+    "youWantToExchange": "თქვენ გინდათ, გადაცვალოთ",
+    "exchangeDetails": "გადაცვლის დეტალები",
+    "exchangeBtn": "გადაცვლა"
+  },
+  "tradeScreen": {
+    "tryV3": "სცადეთ ახალი ინტერფეისი",
+    "titleV3": "გაცვლა",
+    "youGet": "იღებთ:",
+    "youGive": "გასცემთ:",
+    "crypto": "კრიპტოვალუტა",
+    "fiat": "ფიატი",
+    "pickPaySys": "აირჩიეთ გადახდის მეთოდი",
+    "pickPaySysSell": "აირჩიეთ მიღების მეთოდი",
+    "worldwide": "სხვა ქვეყნები",
+    "fee": "ბანკის საკომისია",
+    "selectSum": "ექვივალენტური თანხა",
+    "custom": "სხვა",
+    "limitsTitle": "არის გარკვეული შეზღუდვები",
+    "minPurchase": "მინიმალური:",
+    "maxPurchase": "მაქსიმალური:",
+    "selectCrypto": "აირჩიეთ კრიპტოვალუტა",
+    "selectFiat": "აირჩიეთ ვალუტა",
+    "submit": "შემდეგი",
+    "modalError": {
+      "selectPhoto": "აირჩიეთ ბარათის ფოტო გალერეადან",
+      "selectCryptocurrency": "აირჩიეთ კრიპტოვალუტა",
+      "selectWhatYouGet": "აირჩიეთ, რა უნდა მიიღოთ",
+      "selectWhatYouGive": "აირჩიეთ, რა უნდა გასცეთ",
+      "selectPaymentSystem": "აირჩიეთ გადახდის მეთოდი",
+      "selectFiatTemplate": "Select fiat template error",
+      "limit": "თქვენ გასცდით დაშვებულ საზღვრებს",
+      "additionalData": "გთხოვთ, შეავსოთ მონაცემები",
+      "notSupported": "ტელეფონის ეს ფორმატი არ არის მხარდაჭერილი.",
+      "serviceUnavailable": "სერვისი მიუწვდომელია. გთხოვთ, სცადოთ მოგვიანებით",
+      "qrNotFoundInFile": "Qr-კოდი არ მოიძებნა, გთხოვთ, გადატვირთოთ ფაილი.",
+      "UI_ERROR_CARD_NEEDED": {
+        "title": "ბოდიშს გიხდით,...",
+        "desc": "აირჩიეთ ბარათი ან დაამატეთ ახალი"
+      },
+      "UI_ERROR_CARD_NEED_TAKE_PHOTO": {
+        "title": "გთხვოთ, გადაუღოთ ბარათს ფოტო",
+        "desc": " ორიგინალი ბარათის ფოტო. ვირტუალური ბარათის დამატების შემთხვევაში, გადაიღეთ ონლაინბანკინგის პირადი კაბინეტის სრული ეკრანის ფოტო"
+      },
+      "UI_ERROR_CARD_WAIT_VERIFICATION": {
+        "title": "ბოდიშს გიხდით...",
+        "desc": "გთხოვთ, დაგველოდოთ. ფოტო მოწმდება"
+      },
+      "UI_ERROR_CARD_CANCELED_VERIFICATION": {
+        "title": "ბოდიში...",
+        "desc": "ბარათის შემოწმება ვერ მოხერხდა. გთხოვთ, კიდევ ერთხელ სცადოთ "
+      }
+    },
+    "paymentInformation": "ინფორმაცია გადახდის შესახებ",
+    "urkCardOnly": "მხოლოდ უკრაინული ბარათები!",
+    "rusCardOnly": "რუსული და ბელორუსული ბარათები!",
+    "worldwideOnly": "სხვა ქვეყნების ბარათები!",
+    "minAmount": "მინიმალური",
+    "maxAmount": "მაქსიმალური",
+    "RUB": "რუსეთი და ბელორუსი",
+    "KZ": "ყაზახეთი",
+    "UAH": "უკრაინა",
+    "QIWI": "QIWI საფულე",
+    "ADVCASH": "ADV-ს საკომისია",
+    "ADVCashName": "ADV-ს ანგარიში",
+    "PMName": "PM ექაუნთი",
+    "PayeerName": "PAYEER ექაუნთი",
+    "onlinePayment": "ონლაინ გადახდა"
+  },
+  "confirmScreen": {
+    "title": "დადასტურება",
+    "rate": "კურსი",
+    "fees": "შეთანხმების დეტალები",
+    "youWantToBuy": "ყიდულობთ",
+    "youWantToSell": "ყიდით",
+    "providerFee": "ბანკის სამკომისიო",
+    "outputFee": "ქსელის საკომისიო",
+    "trusteeFee": "Trustee-ის საკომისიო",
+    "networkFee": "ქსელის საკომისიო",
+    "info": "ინფორმაცია",
+    "withdrawAddress": "მიმღების მისამართი",
+    "withdrawCardNumber": "თანხის მისაღები ბარათი",
+    "withdrawPhoneNumber": "თანხის მისაღები ტელეფონი",
+    "withdrawAdvAccountNumber": "თანხის მისაღები ანგარიში",
+    "total": "ჯამი:",
+    "submitBtnBuy": "ყიდვა",
+    "submitBtnSell": "გაყიდვა",
+    "edit": "რედაქტირება",
+    "confirmScreenBuy": "თქვენ მიერ არჩეული გადახდის მეთოდი ამ მომენტისთვის მიუწვდომელია. გთხოვთ, სცადოთ სხვა.",
+    "confirmScreenSell": "თქვენ მიერ არჩეული გადახდის მეთოდი ამ მომენტისთვის მიუწვდომელია. გთხოვთ, სცადოთ სხვა.",
+    "bottomInformation": "გთხოვთ, მიაქციოთ ყურადღება, გაცვლითი კურსი არ არის ფიქსირებული და შესაძლოა შეიცვალოს პროცესში ბაზრიდან გამომდინარე.",
+    "confirmScreenInvalidExchangeAmount": "გთხოვთ, აარჩიოთ სხვა რაოდენობა გაცვლისთვის",
+    "confirmScreenInvalidExchangeAmountTooBig": "გთხოვთ, აარჩიოთ ნაკლები რაოდენობა გაცვლისთვის",
+    "confirmScreenInvalidCard": "გთხოვთ, გამოიყენოთ სხვა ბარათი",
+    "confirmScreenTimeout": "გთხოვთ, შეამოწმოთ ინტერნეტკავშირი და კიდევ  სცადოთ",
+    "confirmScreenInvalidOut": "თანხის მისაღები ანგარიში არასწორია. გთხოვთ, შეამოწმოთ და კიდევ სცადოთ ",
+    "confirmScreenAdvNotVerified": "ელფოსტა არ არის ვერიფიცირებული, გთხოვთ, გამოიყენოთ ვერიფიცირებული  ADV ანგარიში და კიდევ სცადოთ",
+    "confirmScreenTemporaryOff": "სავაჭრო წყვილი პროვაიდერის მხარეს დროებით გათიშულია",
+    "confirmScreenInvalidAddress": "სავაჭრო წყვილის სისტემური შეცდომა პროვაიდერის მხრიდან, გთხოვთ, სცადოთ მოგვიანებით ",
+    "openLink": "გადახდის სისტემაზე გადასასვლელად, გთხოვთ, მიჰყვეთ ბმულს ",
+    "openLinkError": "ბრაუზერი ვერ მოიძებნა - ბმულის ასლი შენახულია გაცვლის ბუფერში"
+  },
+  "notifications": {
+    "title": "შეტყობინებები",
+    "newsTitle": "სიახლე",
+    "tabAll": "ყველა სიახლე",
+    "tabNews": "სიახლეები",
+    "today": "დღეს",
+    "yesterday": "გუშინ"
+  },
+  "settings": {
+    "title": "პარამეტრები",
+    "wallets": {
+      "listTitle": "ჩემი საფულეები",
+      "listSubtitle": "საფულეები: %{number}"
+    },
+    "paymentAccounts": {
+      "listTitle": "ანგარიშები",
+      "listSubtitle": "ანგარიშები: %{number}"
+    },
+    "walletManagement": {
+      "title": "საფულეების მართვა",
+      "backup": "საფულის რეზერვირება",
+      "import": "საფულის იმპორტი",
+      "create": "ახალი საფულის შექმნა",
+      "select": "საფულის არჩევა",
+      "addWallet": {
+        "title": "საფულის დამატება",
+        "importTitle": "საფულის იმპორტი",
+        "importSubtitle": "საფულის დამატება აღსადგენი ფრაზით",
+        "createTitle": "ახალი საფულის შქმნა"
+      },
+      "advanced": {
+        "title": "საფულის პარამეტრები",
+        "walletNameLabel": "საფულის სახელი",
+        "recoveryPhraseTitle": "აღსადგენი ფრაზა",
+        "recoveryPhraseSubtitle": "თქვენი საიდუმლო აღსადგენი ფრაზა"
+      }
+    },
+    "security": {
+      "title": "უსაფრთხოება",
+      "change": "PIN-კოდის შეცვლა",
+      "lock": "PIN-კოდი",
+      "touch": "FaceID/TouchID",
+      "askPINCodeToSend": "ტრანზაქციის დადასტურება",
+      "askPINCodeSubtitle": " PIN-კოდის მოთხოვნა აქტივების გაგზვნის დროს"
+    },
+    "assets": {
+      "title": "აქტივების მართვა",
+      "addAsset": "აქტივის დამატება"
+    },
+    "other": {
+      "title": "სხვა",
+      "darkModeTitle": "მუქი რეჟიმი",
+      "darkModeEnabledSubtitle": "ჩართვა",
+      "darkModeDisabledSubtitle": "გამორთვა",
+      "clearIntercom" : "Intercom",
+      "clearIntercomSubtitle" : "Clear support chat history",
+      "support": "მხარდაჭერა",
+      "supportSubtitle": "ჩვენი ბოტი telegram-ში",
+      "lock": "ეკრანის ბლოკირება",
+      "bio": "Biometrics",
+      "about": "Trustee-ს საფულის შესახებ",
+      "lang": "Language",
+      "copyLogs": "ლოგების კოპირება",
+      "cashback": {
+        "title": "ქეშბექი",
+        "description": "მოიწვიეთ მეგობრები და გამოიმუშავეთ თანხა!",
+        "descriptionSmall": "მოიწვიეთ მეგობრები და გამოიმუშავეთ თნხა!"
+      },
+      "notifications": "შეტყობინებები",
+      "localCurrency": "ადგილობრივი ვალუტა",
+      "scannerSettings": "სკანირება",
+      "scannerSubtitle": "ბალანსების განახლების სიხშირე",
+      "scannerSubtitleSmall": "ბალანსების განახლების სიჩქარე",
+      "toolTips": "მინიშნებები",
+      "configMode": "კონფიგურაცია",
+      "testerMode": "ტესტირება"
+    },
+    "walletList": {
+      "title": "ჩემი საფულეები",
+      "addWallet": "საფულეს დამატება",
+      "backupNeeded": "სარეზერვო ასლის შექმნა",
+      "addedAssets": "აქტივების დამატება",
+      "balance": "ბალანსი",
+      "backup": "რეზერვის შექმნა",
+      "off": "გამორთულია",
+      "on": "ჩართულია",
+      "totalBalance": "საერთო ბალანსი",
+      "useUnconfirmed": "დაუდასტურებელი ტრანზაქციების გამოყენება",
+      "allowReplaceByFee": "ტრანზაქციების რედაქტირება მაინერების მიერ დადასტურებამდე",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "მისამართის არჩევან",
+      "hd": "ბევრი ბიტკოინ მისამართია",
+      "hdDescription": "გაზარდეთ კონფინდენციალურობა ახალი მისამართის შექმნით ბიტკოინის ყოველი მიღებისას",
+      "hideCommissionTrans": "დამალეთ საკომისიოს გადახდის ოპერაციები",
+      "manualAddressFromHD": "ჩასვით HD-ის მისამართი",
+      "scanAddressesFromHD": "დაასკანერეთ HD-ის მისამართი",
+      "setAddressesFromHD": {
+        "title": "ძირითადი მისამართი შეიცვლება",
+        "description": "თქვენ გამოიყენებთ  %{newAddress} მისმართის ბალანსს"
+      },
+      "backupModal": {
+        "title": "აღმდგენი ფრაზა არ არის შენახული!",
+        "description": "აღმდგენი ფრაზა (Seed-ფრაზა) ეს არის ერთადერთი გასაღები თქვენი აქტივებისთვის! ტელეფონის მწყობრიდან გამოსვლის ან სხვა მსგავს შემთხვევებში, თქვენს აქტივებთან წვდომა ამ ფრაზის გარეშე შეუძლებელი გახდება. გთხოვთ, ახლავე შეინახოთ ფრაზა უსაფრთხო ადგილას! \n \n  თუ თქვენ გთხოვენ აღმდენ ფრაზას, ე.ი. საქმე გაქვთ თაღლითებთან. \n არავის და არანაირ პირობებში არ გაანდოთ აღმდგენი ფრაზა!"
+      },
+      "hdEnableModal": {
+        "title": "გადავრთოთ საფულე HD რეჟიმში?",
+        "description": "HD რეჟიმი გულისხმობს მისამართების როტაციას ყოველ ტრანზაქციაზე. გადართვის ოპერაცია შუქცევადია."
+      },
+      "serverInputXMR": "სერვერი მონაცემებით (მაგალითად, api.mymonero.com)",
+      "serverInputTitleXMR": "api.mymonero.com:8443",
+      "serverSendInputXMR": "სერვერი ტრანზაქციების გასაგზავნად (მაგალითად, api.mymonero.com)",
+      "serverSendInputTitleXMR": "ან node.moneroworld.com:18089",
+      "needReinstallXMR": "XMR მისამართის სისტემური შეცდომა. გთხოვთ, შეინახოთ მნემონური ფრაზა და თავიდან დააინსტალიროთ პროგრამა, ან დაუკავშირდეთ მხარდაჭერის ჯგუფს დეტალური ინსტრუქციებისთვის. ",
+      "saveSettings": "შენახვა",
+      "getMnemonicXMR": "საიდუმლოებების ნახვა",
+      "availableTRX": "ხელმისაწვდომია",
+      "frozenTRX": "Застейкано",
+      "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX": "შეიყვანეთ TRX-ის  რაოდენობა",
+      "freezeForBandTRX": "Застейкать",
+      "freezeForEnergyTRX": "ენერგიისთვის",
+      "unfreezeTRX": "Разморозить",
+      "votedTRX": "ხმები",
+      "votedBalanceTRX": "გამოყენებულია %{voteTotal} / სულ %{prettyVote}",
+      "voteTRX": "ხმის მიცემა",
+      "rewardTRX": "ჯილდო ხმის მიცემისთვის",
+      "rewardBalanceTRX": "ხელმისაწვდომია %{prettyReward} TRX",
+      "claimTRX": "ჯილდოს მიღება",
+      "refreshTRX": "გადატვირთვა",
+      "allowLongQueryETH": "Allow pending transactions queue",
+      "allowBlockedBalanceETH": "Allow reuse of pending transactions balance"
+    },
+    "about": {
+      "title": "საფულის შესახებ",
+      "version": "Trustee ვერსია: %{version}",
+      "privacy": "კონფინდენციალურობის პოლიტიკა",
+      "terms": "გამოყენების პირობები",
+      "feedback": "უკუკავშირი",
+      "shareLogsTitle": "ლოგების გაგზავნა",
+      "shareLogsSubtitle": "დაგვეხმარეთ, გავხდეთ უკეთესები",
+      "contactSupportTitle": "დაკავშირება მხარდაჭერის სამსახურთან",
+      "contactSupportSubtitle": "ოფიციალური telegram არხი",
+      "information": "ინფორმაცია",
+      "copyright": "© BlockSoftLab Inc, 2021"
+    },
+    "notifications": {
+      "title": "შეტყობინებების კონფიგურაცია",
+      "additional": "დამატებითი",
+      "allNotificationsTitle": "ყველაფრის გააქტიურება",
+      "transactionsTitle": "ტრანზაქციები",
+      "transactionsSubtitle": "ყიდვა, გაყიდვა, მიღება, გაგზავნა, გაცვლა",
+      "exchangeRatesTitle": "ვალუტის კურსის ცვლილება",
+      "exchangeRateSubtitle": "ძირითადი მონეტების ფასები",
+      "newsTitle": "სიახლეები"
+    },
+    "error": {
+      "title": "უკაცრავად, მოხდა შეცდომა",
+      "contactSupport": "მხარდაჭერა",
+      "tryAgain": "განახლება",
+      "text": "თუ თქვენ ხედავთ შეცდომას, გთხოვთ, გამოგვიგზავნეთ ლოგები მხარდაჭერის სამსახურის გავლით ან გადატვირთეთ პროგრამა"
+    },
+    "config": "კონფიგურაცია შეცვლილია: %{config} -ზე",
+    "tester": "ტესტერი/მომხმარებელი შეცვლილია: %{testerMode}-ით"
+  },
+  "assets": {
+    "title": "აქტივის დამატება",
+    "tabAll": "ყველაფერი",
+    "tabCoins": "მონეტები",
+    "tabTokens": "ტოკენები",
+    "tabCustom": "მეტი",
+    "searchPlaceholder": "ძიება",
+    "addCustomPlaceholder": "აქტივის მისამართი",
+    "addCustomLabel": "თქვენ შეგიძლიათ დააამატოთ სტანდარტული ტოკენი, რომელიც შემუშავებულია ბლოკჩეინზე - Ethereum, BNB ან Tron. შეიყვანეთ ან დაასკანერეთ ახალი ტოკენი/აქტივი.",
+    "noAssetsFound": "აქტივები ვერ მოიძებნა",
+    "addAssetButton": "აქტივის დამატება",
+    "mainTitle": "აქტივის დამატება",
+    "addCustomAsset": "დაამატეთ აქტივი, რომელიც არ არის სიაში",
+    "addAsset": "დამატება",
+    "showAsset": "ჩვენება",
+    "hideAsset": "დამალვა"
+  },
+  "AddCustomToken": {
+    "mainTitle": "აქტივის დამატება",
+    "tokenInputTitle": "აქტივის მისამართი",
+    "description": "მხარდაჭერილია Ethereum-ისა (ETH) და Tron-ის (TRX)  ტოკენების / აქტივების მისამართები",
+    "add": "დამატება"
+  },
+  "cashback": {
+    "pageTitle": "მოიწვიე მეგობრები",
+    "pageSubtitle": "გამოიმუშავე 30% საკომისიოდან Trustee Wallet-თან ერთად!",
+    "shareButton": "გაზიარება",
+    "promoButton": "პრომოკოდი",
+    "detailsButton": "დეტალები",
+    "enterPromoPlaceholder": "შეიყვანე პრომოკოდი",
+    "enterInviteLinkPlaceholder": "შეიყვანე მოსაწვევი ბმული",
+    "applyButton": "დადასტურება",
+    "wholeBalance": "სრული ბალანსი",
+    "cashbackBalance": "ქეშბექის ბალანსი",
+    "cpaCurrent": "Current CPA",
+    "cpaTotal": "Total CPA",
+    "cpaLevel1": "CPA Level 1",
+    "cpaLevel2": "CPA Level 2",
+    "cpaLevel3": "CPA Level 3",
+    "cashbackToken": "ტოკენი",
+    "howItWorks": {
+      "title": "როგორ მუშაობს?",
+      "info1Title": "არსებობს Trustee Wallet-ში მომხმარებელთა დაჯილდოების პროგრამა?",
+      "info1Content": "პროგრამა შედგება ქეშბექისგან და ორდონიანი პარტნიორული პროგრამისგან, რაც, საბოლოო ჯამში, იძლევა მოწვეული მოხმარებელების მიერ  კრიპტოვალუტების ყიდვა-გაყიდვიდან გამომდინარე Trustee-ს საკომისიოდან 30%-ის მიღების საშუალებას.",
+      "info2Title": "როგორ გავააქტიურო ქეშბექი?",
+      "info2Content": "გასააქტიურებლად, თქვენ უნდა მოიწვიოთ ერთი ახალი მომხმარებელი თქვენი ბრუნვის ბმულის გამოყენებით. გააქტიურების შემდეგ, თქვენ მიიღებთ მეურვის კომისიის 10% -ს თქვენი ბირჟებიდან. ეს ფუნქცია გააქტიურებულია სამუდამოდ!",
+      "info3Title": "როგორია პარტნიორული პროგრამების პირობები?",
+      "info3Content": "დონე №1 – 10% Trustee-ს საკომისიოდან, რომელიც მიიღება მოწვეული მომხმარებელების მიერ კრიპტოვალუტების ყიდვა-გაყიდვიდან გამომდინარე (აქტიურდება პირველი პარტნიორიდან). რაც მეტი ადამიანი დააყენებს საფულეს თქვენი ბმულის საშუალებით, მით მეტი იქნება თქვენი შემოსავალი. დონე №2 – აქტიურდება კვირაში სტრუქტურის 5000 USDT -იანი ბრუნვის გადაჭარბების შემთხვევაში და იძლევა Trustee -ს საკომოსიოდან 10%-ის მიღების საშუალებას 2-ე დონის მომხმარებლებიდან (თქვენი პარტნიორების პარტნიორები).",
+      "info4Title": "როგორ გავიტანოთ ქეშბექი და პარტნიორული ანაზღაურება?",
+      "info4Content": "გატანის მინიმალური ოდენობა- 2 USDT"
+    },
+    "invitedBy": "მოწვეულია",
+    "mainTitle": "მოიწვიე შენი მეგობრები - მიიღეთ ფულადი თანხა!",
+    "mainDescription": "მოიწვიე მეგობარი შენი ბმულის გამოყენებით და დაიწყე 10% ფულადი სახსრების მიღება თქვენი გაცვლის საკომისიოდან! რწმუნებული უბრუნებს 30% –მდე საკომისიოს თავის მომხმარებლებს!",
+    "shareText": "გაზიარება",
+    "more": "მეტი",
+    "shareTitle": "",
+    "shareMessage": "",
+    "friendsJoined": "თქვენი მეგობრები",
+    "updated": "განახლება",
+    "transAmount": "ტრანზაქციების რაოდენობა",
+    "level2UsersAmount": "მეგობრების მეგობრები",
+    "cashbackError": {
+      "title": "ვერ მოხერდა მონაცემთა მიღება",
+      "UI_ERROR_CASHBACK_NETWORK_ERROR": "არ არის კავშირი ინტერნეტთან",
+      "UI_ERROR_CASHBACK_SIGN_ERROR": "არასწორი ხელმოწერა საცავში - გთხოვთ, კიდევ ერთხელ შეხვიდეთ ქეშბექის განყოფილებაში",
+      "UI_ERROR_CASHBACK_TIME_ERROR": "მოწყობილობის არასწორი თარიღი და დრო",
+      "UI_ERROR_CASHBACK_TIME_ERROR_LOG": "სერვისმა შესაძლოა, არ იმუშაოს არასტაბილური ინტერნეტის არსებობის შედეგად ან თქვენს მობილურ მოწყობილობაზე არასწორი თარიღის და დროის დაფიქსირების შემთხვევაში. ",
+      "UI_ERROR_CASHBACK_PROMO_DUPLICATE": "პრომოკოდი უკვე გამოყენებულია",
+      "UI_ERROR_CASHBACK_PROMO_NOT_FOUND": "პრომოკოდი არ მოიძებნა"
+    },
+    "cashbackAmount": "ქეშბექის რაოდენობა",
+    "setParentToken": "მოსაწვევი ბმულის დაყენება",
+    "hasParentToken": "მოწვეულია %{cashbackParentToken}",
+    "inputParentCashbackLink": "https://trustee.deals/link/example",
+    "withdraw": "თანხის გატანა",
+    "minWithdraw": "მინიმალური თანხა გასატანად",
+    "performWithdraw": "გატანის ოპერაციის განსახორციელებლად, გთხოვთ, მოგვწეროთ telegram-ში ნიკნეიმზე"
+  },
+  "account": {
+    "title": "ანგარიში",
+    "copy": "კოპირება",
+    "refresh": "განახლება",
+    "receive": "%{receive}",
+    "send": "გაგზავნა",
+    "history": "ტრანზაქციები",
+    "balanceBadNetwork" : "Bad internet access",
+    "balanceBadBlock" : "Block number error",
+    "scan": "დასკანერებულია %{time} წუთის წინ",
+    "justScan": "დასკანერდა ახლახან",
+    "soLong": "დასკანერებულია დიდი ხნის წინ",
+    "noTransactions": "თქვენ ჯერ არ გაქვთ ტრანზაქცია, მაგრამ შეგიძლიათ ამ პრობლემის სწრაფად გადაჭრა ღილაკზე „ყიდვა“ დაწკაპუნებით.",
+    "showMore": "მეტის ჩვენება",
+    "assetSettings": "აქტივის პარამეტრები",
+    "externalLink": {
+      "title": "ბლოკჩეინ ექსპლორერზე გადასვლა",
+      "description": "თქვენ გადახვალთ გარე რესურსზე"
+    },
+    "fioAccount": {
+      "title": " FIO-ს ექაუნთი დარეგისტრირებული არაა",
+      "description": "გნებავთ რეგისტრაციის გვერდზე გადასვლა და დარეგისტრირება?"
+    },
+    "transaction": {
+      "pay": "გადახდა",
+      "remove": "დამალვა",
+      "removeRBF": "უკან დაბრუნება",
+      "destinationTag": "დანიშნულების ტეგი",
+      "paymentId": "გადახდის იდენტიფიკატორი",
+      "nonce": "Nonce",
+      "delegatedNonce": "დელეგირებული Nonce",
+      "empty": "(ცარიელია)",
+      "fee": "საკომისიო",
+      "feeIncome": "გამგზავნის საკომისიო",
+      "txHash": "Transaction ID",
+      "replacedTxHash": "წინა გარიგების ჰაში",
+      "from": "გამგზავნი",
+      "to": "მიმღები",
+      "status": "სტატუსი",
+      "outcome": "გასული",
+      "income": "შემოსული",
+      "self": "სელფი",
+      "freeze": "გაყინვა",
+      "claim": "ჯილდო",
+      "swap_income" : "Contract Income",
+      "swap_outcome" : "Contract Outcome",
+      "exchange": "გაცვლა",
+      "buy": "ყიდვა",
+      "sell": "გაყიდვა",
+      "mobile_phone": "მობილურის შევსება",
+      "date": "თარიღი",
+      "confirmations": "დადასტურებული",
+      "blockNumber": "ბლოკის ნომერი",
+      "moreInformation": "მეტი ინფორმაცია",
+      "cardNumberDestination": "ბარათის ნომერი თანხის გასატანად",
+      "advAccountDestination": "ანგარიშის ნომერი თანხის გასატანად",
+      "phoneDestination": "ტელეფონის ნომერი თანხის გასატანად",
+      "orderId": "Related to swap ID",
+      "RBF": {
+        "replaceByFeeBtn": "საკომისიოს გაზრდა",
+        "willReplaceWithNewFee": "მიმდინარე ტრანზაქცია შეიცვლება ახლით, ახალი ჰაშით და უფრო მაღალი საკომისიოთი",
+        "notAllowed": "ტრანზაქცია შექმნილია შეცვლის შესაძლებლობის გარეშე ან უკვე დადასტურებულია"
+      },
+      "CPFP": {
+        "willSpeedUp": "თქვენ შეგიძლიათ დააჩქაროთ შემომავალი ტრანზაქცია თქვენივე თავისთვის დამატებითი ტრანზაქციის შექმნით  უფრო მაღალი საკომისიოს გადახდის გზით. საკომისიოს ოდენობა გამოითვლება ავტომატურად ორივე ტრანზაქციის თავისებურებების გათვალისწინებით. გაითვალისწინეთ, რომ მოცემულ შემთხვვაში ახალი ტრანზაქციის გადახდა მოგიწევთ თქვენივე ხარჯებით. "
+      }
+    },
+    "transactionStatuses": {
+      "paid": "გადახდილია",
+      "pay_waiting": "ელოდება გადახდას",
+      "pay_expired": "გადახდისთვის განკუთვნილი დრო ამოიწურა",
+      "success": "წარმატებულია",
+      "pending": "მოლოდინშია",
+      "new": "ახალი",
+      "process": "მუშავდება",
+      "delegated": "დელეგირებულია",
+      "confirming": "დასტურდება",
+      "fail": "შეცდომა",
+      "missing": "არ მოიძებნა",
+      "replaced": "შეცვლილია",
+      "out_of_energy" : "No energy",
+      "internal_success": "წარმატებულია ხელშეკრულებიდან",
+      "internal_new": "ახალი ხელშეკრულებიდან",
+      "internal_fail": "შეცდომა ხელშეკრულებიდან"
+    },
+    "receiveScreen": {
+      "title": "%{receive}",
+      "description": "თქვენი %{currency} მისამართი:",
+      "clickToCopy": "დააჭირეთ, რომ დააკოპიროთ",
+      "receiveAmount": "მიუთითეთ რაოდენობა",
+      "FIORequest": "FIO მოთხოვნა",
+      "share": "გაზიარება",
+      "copy": "კოპირება",
+      "amount": "მიუთითეთ რაოდენობა"
+    },
+    "addAccount": {
+      "list": "კრიპტოვალუტების სია"
+    },
+    "accountList": {
+      "list": "სია"
+    },
+    "transactionScreen": {
+      "explorer": "Explorer",
+      "share": "გაზიარება",
+      "booster": "დაჩქარება",
+      "remove": "წაშლა",
+      "removeRbf": "ტრანზაქციების დაბრუნება",
+      "check": "ჩეკი",
+      "support": "მხარდაჭერა",
+      "details": "დეტალები",
+      "commentPlaceholder": "კომენტარები (აუცილებელი არაა)",
+      "viewExplorer": "Explorer-ის ნახვა",
+      "header": {
+        "status": {
+          "success": "წარმატებულია",
+          "pending": "მუშავდება",
+          "canceled": "გაუქმებულია",
+          "missing": "Not found",
+          "out_of_energy" : "No energy"
+        }
+      },
+      "transactionHash": "ტრანზაქციის ჰაში:",
+      "cashbackLink": "ქეშბექის ბმული:",
+      "thanks": "მადლობა, რომ აირჩიეთ Trustee Wallet!",
+      "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე",
+      "order": "To order"
+    }
+  },
+  "fioMainSettings": {
+    "title": "FIO პარამეტრები",
+    "description": "გააკონტროლეთ ყველა შესაძლო FIO პარამეტრი",
+    "sendFioRequest": "FIO მოთხოვნის გაგზავნა",
+    "sendFioRequestDesc": "FIO მოთხოვნების გაგზავნა",
+    "fioRequest": "FIO მოთხოვნები",
+    "fioRequestDesc": "ყველა აქტიური ლოდინის რეჟმში მყოფი/გაგზავნილი FIO მოთხოვნების სია",
+    "fioAddresses": "FIO მისამართები",
+    "fioAddressesDesc": "ყველა დარეგისტრირებული FIO მისამართები და მათი ოფციები",
+    "registerFioAddress": "FIO მისამართის დარეგისტრირება",
+    "registerFioAddressDesc": "დაარეგისტრირეთ FIO მისამართი"
+  },
+  "FioChooseRecipient": {
+    "title": "აირჩიეთ FIO მიმღები",
+    "description": "შეიყვანეთ მიმღების FIO, ENS ან საჯარო მისამართი",
+    "btnText": "აირჩიე FIO"
+  },
+  "FioChooseAddress": {
+    "title": "აირჩიე FIO მისამართი",
+    "description": "შეიყვანე მისამართი, რომ მოითხოვო გადახდა მომხმარებლიდან",
+    "btnText": "აირჩიე FIO მისამართი"
+  },
+  "FioAddresses": {
+    "title": "FIO მისამართები",
+    "btnText": "დაარეგისტრირეთ მისამართი",
+    "WebViewTitle": "დაარეგისტრირეთ მისამართი"
+  },
+  "FioSettings": {
+    "title": "FIO პარამეტრები",
+    "description": "აირჩიეთ საფულე, რომელიც გინდათ მიაბათ საკუთარ FIO მისამართს",
+    "Expire": "დრო იწურება",
+    "connectAllWallets": "ყველა საფულის მიბმა",
+    "btnText": "შენახვა",
+    "noFioTitle": "თქვენ უნდა დაარეგისტრიროთ FIO მისამართი",
+    "noFioDescription": "FIO მისამართი დარეგისტრირებული არაა",
+    "noFioBtn": "დაარეგისტრირეთ FIO მისამართი",
+    "serviceUnavailable": "სერივის მიუწვდომელია. გთხოვთ, სცადოთ მოგვიანებით"
+  },
+  "FioSendRequest": {
+    "title": "FIO მოთხოვნის გაგზავნა",
+    "selectCoin": "ვალუტის არჩევა",
+    "from": "მოთხოვნის გაგზავნა მომხმარებლიდან",
+    "to": "მოთხოვნის გაგზავნა მომხმარებლისთვის",
+    "amount": "რაოდენობა",
+    "memo": "კომანტარები",
+    "btnText": "შექმნა",
+    "created": "FIO მოთხოვნა შექმნილია",
+    "fioSettings": "FIO პარამეტრები",
+    "registerFioAddress": " FIO მისამართის დარეგისტრირება",
+    "noCoinSelected": "შეარჩიეთ ვალუტა, რომლისთვისაც უნდა შეიქმნას მოთხოვნა",
+    "goToFioSettings": "გადადით FIO პარამეტრებში, FIO მისამართზე ვალუტის მისაბმელად",
+    "needRegisterFio": "ჯერ უნდა დაარეგისტრიროთ FIO მისამართი"
+  },
+  "FioRequestsList": {
+    "title": "FIO მოთხოვნების სია",
+    "pendingRequests": "მოთხოვნები ლოდინის რეჟიმში",
+    "sentRequests": "გაგზავნილი მოთხოვნები",
+    "RequestedTxt": "მოთხოვნილია"
+  },
+  "FioRequestDetails": {
+    "title": " FIO მოთხოვნის დეტალები",
+    "reqCreated": "მოთხოვნა შექმნილია",
+    "sentTitle": "მიღება ჩემს",
+    "pendingTitle": "გაგზავნა ჩემი",
+    "balance": "ბალანსი",
+    "fee": "საკომისიო",
+    "to": " to ",
+    "from": " from ",
+    "memo": "FIO კომენტარები",
+    "amount": "რაოდენობა",
+    "btnTextReject": "უარყოფა",
+    "btnTextConfirm": "დადასტურება"
+  },
+  "exchangeInit": {
+    "ordersHistory": "ორდერების ისტორია",
+    "ordersNull": "თქვენ არ გაქვთ ორდერი."
+  },
+  "exchange": {
+    "title": "გაცვლა",
+    "description": "კრიპტოვალუტების ყიდვა-გაყიდვის ყველაზე მარტივი მეთოდი. აირჩიეთ კრიპტოვალუტა, რაოდენობა და ბარათი. საერთო რაოდენობა მოიცავს საკომისიოს, რომელიც ითვლება ავტომატურად. მიაქციეთ ყურადღება, რომ მომსახურება წარმოდგენილია სხვა გარე პარტნიორი სერვისების ინტეგრაციის საშუალებების გამოყენებით.",
+    "attention": "",
+    "buy": "ყიდვა",
+    "sell": "გაყიდვა",
+    "exchange": "გაცვლა",
+    "to": "ზე",
+    "providerChanged": {
+      "title": "პროვაიდერი შეიცვალა",
+      "description": "დაიწყეთ ტრანზაქცია თავიდან"
+    },
+    "ordersStatus": {
+      "exchange": {
+        "dex" : "DEX",
+        "pending_payin": "შევსება მოლოდინის რეჟიმშია",
+        "canceled_payin": "შევსება უარყოფილია",
+        "refunded_order": "თანხა დაბრუნებულია",
+        "done_payin": "შევსება წარმატებით დასრულდა",
+        "wait_trade": "კონვერტაცია მოლოდინის რეჟიმშია",
+        "done_trade": "კონვერტაცია განხორციელდა წარმატებით",
+        "wait_payout": "მიმდინარეობს თანხის გატანის პროცესი",
+        "canceled_payout": "თანხის გატანისას წარმოიქმნა შეცდომა",
+        "done_payout": "თანხა გატანილია წარმატებით",
+        "wait_kyc": "KYC მოლოდინის რეჟიმშია",
+        "stopped_order": "ორდერი შეჩერებულია პროვაიდერის მხარეს",
+        "error_order": "შეცდომა შევსების დროს. ორდერი მუშავდებოდა ხელით."
+      },
+      "sell": {
+        "dex" : "DEX",
+        "pending_payin": "მიმდინარეობს შევსების პროცესი",
+        "canceled_payin": "შევსება გაუქმებულია",
+        "refunded_order": "განხორციელდა თანხის დაბრუნების პროცესი",
+        "done_payin": "შევსების პროცესი დასრულდა წარმატებით",
+        "wait_trade": "მიმდინარეობს კონვერტაციის პროცესი",
+        "done_trade": "კონვერტაცია დასრულდა წარმატებით",
+        "wait_payout": "მიმდინარეობს თანხის გატანის პროცესი",
+        "canceled_payout": "თანხის გატანის პროცესში წარმოიქმნა შეცდომა",
+        "done_payout": "თანხის გატანის პროცესი დასრულდა წარმატებით",
+        "wait_kyc": "KYC მოლოდინის რეჟიმშია",
+        "stopped_order": "ორდერი შეჩერებულია პროვაიდერის მხარეს",
+        "error_order": "შეცდომა შესრულების დროს. ორდერი მუშავდებოდა ხელით."
+      },
+      "buy": {
+        "dex" : "DEX",
+        "pending_payin": "მიმდინარეობს შევსების პროცესი",
+        "canceled_payin": "შევსება გაუქმებულია",
+        "refunded_order": "განხორციელდა თანხის დაბრუნება",
+        "done_payin": "შევსება დასრულდა წარმატებით",
+        "wait_trade": "მიმდინარეობის კონვერტაციის პროცესი",
+        "done_trade": "კონვერტაცია დასრულდა წარმატებით",
+        "wait_payout": "მიმდინარეობს თანხის გატანის პროცესი",
+        "canceled_payout": "გადარიცხვის შეცდომა",
+        "done_payout": "გადარიცხვამ ჩაიარა წარმატებით",
+        "wait_kyc": "KYC მოლოდინის რეჟიმშია",
+        "stopped_order": "ორდერი შეჩერებულია პროვაიდერის მხარეს",
+        "error_order": "შეცდომა შესრულების დროს. ორდერი მუშავდებოდა ხელით."
+      }
+    },
+    "mainData": {
+      "selectCurrency": "კრიპტოვალუტის არჩევა",
+      "selectPayment": "გადახდის მეთოდის არჩევა",
+      "estimateAmount": "თანხის რაოდენობის შეყვანა",
+      "addCard": "დაამატეთ ბარათი",
+      "address": "კრიპტოვალუტის გაგზავნის მისამართი:",
+      "titleBuy": "ყიდვა",
+      "titleSell": "გაყიდვა",
+      "amount": "ჯამი",
+      "buyCrypto": "ყიდვა ETH",
+      "sellCrypto": "გაყიდვა ETH",
+      "buyFiat": "ყიდვა UAH",
+      "sellFiat": "გაყიდვა UAH",
+      "sellAll": "ყველას გაყიდვა",
+      "equivalentCryptoBuy": "ყიდვის თანხა: ~",
+      "equivalentCryptoSell": "გაყიდვის თანხა:",
+      "equivalentFiat": "რაოდენობა: ~",
+      "minAmountToBuy": "მინიმალური თანხა კრიპტოვალუტის საყიდლად:",
+      "minAmountToSell": "მინიმალური თანხა კრიპტოვალუტის გასაყიდად:",
+      "minExchange": "%{fiat}",
+      "maxAmountBuy": "ერთი ბარათიდან ყიდვის მაქსიმალური რაოდენობა %{maxAmountToBuy} %{fiatSymbol} დღეში, ნაწილობრივ %{maxAmountToBuyPart} %{fiatSymbol}",
+      "maxAmountSell": "ერთი ბარათიდან გაყიდვის მაქსიმალური რაოდენობა %{maxAmountToBuy} %{fiatSymbol} დღეში",
+      "maxFiat": "",
+      "next": "შემდეგი",
+      "blockedCard": "ეს ბარათი ვერ იქნება გამოყენებული.\n გთხოვთ, აირჩიეთ სხვა",
+      "networkFee": "ქსელის საკომისიო",
+      "paySystemFee": "Trustee-ს საკომისიო",
+      "totalBuy": "სულ გადასახდელია",
+      "totalSell": "გაყიდვის ჯამური თანხა",
+      "moreInformation": "მეტი ინფორმაცია"
+    }
+  },
+  "card": {
+    "title": "ახალი ბარათი",
+    "description": "ახალი ბარათის დასამატებლად დაასკანერეთ ის, ან ჩაწერეთ მონაცემები ხელით ",
+    "instructions": "მოათავსეთ ბარათი \n მართკუთხედში.",
+    "attention": "გთხოვთ, იყოთ ყურადღებით. შეეცადეთ, არ დაუშვათ შეცდომები.",
+    "add": "დამატება",
+    "numberTitleInput": "ბარათის ნომერი",
+    "dateTitleInput": "თვე/წელი",
+    "cardCurrency": "აირჩიეთ ბარათის ქვეყანა...",
+    "cardName": "დაარქვით სახელი ბარათს",
+    "noName": "სახელის გარეშე",
+    "country": "ქვეყანა:"
+  },
+  "qrScanner": {
+    "title": "QR სკანირება",
+    "line1": "განათავსეთ QR-კოდი",
+    "line2": "კამერის არეალში"
+  },
+  "send": {
+    "title": "თარგმანი",
+    "description": "ჩასვით მიმღების საფულის მისამართი ან ისარგებლეთ QR-კოდით",
+    "descriptionExchange": "მიმღების საფულის მისამართი მითითებულია ავტომატურად. ეს არის გაცვლის პროვაიდერის მისამართი. აქტივის გაცვლა და თანხის ჩარიცხვა განხორციელდება წარმატებული ტრანზაქციის შემდეგ.",
+    "address": "მიმღების მისამართი",
+    "value": "თანხა",
+    "comment": "კომენტარები",
+    "send": "შემდეგი",
+    "bnb_memo": "Memo",
+    "xrp_memo": "დანიშნულების ტეგი",
+    "xmr_memo": "გადახდის იდენტიფიკატორი",
+    "fio_memo": "FIO შეტყობინება",
+    "useAllFunds": "ყველა საშუალების გამოყენება",
+    "equivalent": "ექვივალენტი: ~ %{amount} %{symbol}",
+    "notEnough": "თქვენ არ გაქვთ საკმარისი თანხა გადარიცხვის განსახორციელებლად",
+    "addressError": "მიმღების მისამართი არასწორია, გთხოვთ, შეამოწმოთ",
+    "notValidAmount": "გთხოვთ, შეიყვანოთ თანხის ოდენობა",
+    "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
+    "notEnoughForFee": "ტოკენების გასაგზავნად აუცილებელია ადგილობრივ ვალუტაში დადებითი ბალანსის არსებობა %{symbol}",
+    "notEnoughForFeeConfirmed": "ტოკენების გასაგზავნად აუცილებელია დადებითი დადასტურებული ბალანსი ადგილობრივ ვალუტაში %{symbol}, დაელოდეთ დადასტურებას",
+    "publicFioAddressNotFound": "%{symbol} საჯარო მისამართი არაა დაკავშირებული FIO მისამართთან",
+    "domainResolution": {
+      "resolving": "გადაჭრის %{domain}...",
+      "success": "%{domain} გადაწყდა %{address}",
+      "fail": "ინფორმაცია არ არის %{domain}"
+    },
+    "setting": {
+      "title": "დამატებით",
+      "apply": "მიღება",
+      "feeSettings": "საკომისიოს პარამეტრები",
+      "selectFee": "აირჩიეთ საკომისიო",
+      "inputSettings": "შესვლის პარამეტრები",
+      "selectInput": "აირჩიეთ შესვლის მეთოდი",
+      "descriptionInput": "По умолчанию",
+      "optionalSettings": "აუცილებელი არაა",
+      "note": "კომენტარები",
+      "optional": "აუცილებელი არაა",
+      "notAddress": "Please enter an address to continue"
+    },
+    "infoModal": {
+      "title": "ინფორმაცია",
+      "BNB": "BNB Memo is an arbitrary and optional transaction attachment",
+      "XRP": "დანიშნულების ტეგი - ეს არის უნიკალური 9-ნიშნა ნომერი, რომელიც ენიჭება Ripple (XRP)-ის თითოეულ ანგარიშს. ის გამოიყენება მიმღების იდენტიფიცირებისთვის Ripple -ის ტრანზაქციისას..",
+      "XMR": "გადახდის იდენტიფიკატორი - ეს არის ტრანზაქციის თვითნებური და არასავალდებულო ჩანართი. გადახდის იდენტიფიკატორი, ჩვეულებრივ, გამოიყენება მოვაჭრეებთან და ბირჟებთან ტრანზაქციებისთვის. გადახდის იდენტიფიკატორი განსაკუთრებით სასარგებლოა შემომავალი გადახდების დასაკავშირებლად მომხმარებლების ანგარიშებთან შიდა კონფინდენციალური ფუქნციების გათვალისწინებით, რომელიც ჩაშენებულია Monero-ში, რომელშიც შემოსული ტრანზაქციებისთვის, ჩვეულებრივ,  ერთი საჯარო მისამართი გამოიყენება...",
+      "XLM": "Stellar Memo is an arbitrary and optional transaction attachment",
+      "FIO": "FIO შეტყობინება ესაა ..."
+    },
+    "confirmModal": {
+      "title": "გაგზავნის დადასტურება",
+      "titleSpeedUp": "შემოსული ტრანზაქციის დაჩქარების დადასტურება%{hash}",
+      "titleReplaceByFee": "ტრანზაქციის ცვლილების დადასტურება %{hash}",
+      "amount": "",
+      "recipient": "მიმღები",
+      "multiRecipient": "მულტიგაგზავნა %{total} მისამართებზე",
+      "change": "ჩარიცხვა  %{amount} %{currencySymbol} მოხდება",
+      "edit": "უკან დაბრუნება",
+      "confirm": "გაგზავნა",
+      "force": "იძულებითი გაგზავნა?"
+    },
+    "feeModal": {
+      "description": "The fee miners receive for confirming your transaction. The miner (network) fee is paid by the sender for the transfer of crypto assets to the recipient's address. This commission is calculated by the application based on the network data at the time of the transaction creation and does not depend on the transfer amount.\n\nImportant!\n The speed of confirmation of your transaction by miners directly depends from the size of the network fee. Please consider this information when manually changing the commission."
+    },
+    "fee": {
+      "smallFeeNoticeTitle": "გთხოვთ, იყოთ ყურადღებით",
+      "smallFeeNoticeDesc": "არაა საკმარისი ბალანსი სწრაფი ტრანზაქციისთვის",
+      "customFeeCalculated": "საერთო რაოდენობა",
+      "changeAmountNoticeDesc": "ტრანზაქციის ოდენობა შეცვლილია",
+      "title": "საკომისოს\nშეცვლა",
+      "text": {
+        "none": "ხელით დაყენება",
+        "eth_speed_slowest": "მინიმალური",
+        "eth_speed_slow": "ნელი",
+        "eth_speed_medium_to_slow": "Not enough for Medium",
+        "eth_speed_medium": "საშუალო",
+        "eth_speed_fast_to_medium": "Not enough for Fast",
+        "eth_speed_fast": "სწრაფი",
+        "eth_speed_delegated": "დელეგირებული ERC865",
+        "xmr_speed_1": "ნელი",
+        "xmr_speed_2": "საშუალო",
+        "xmr_speed_3": "ჩქარი",
+        "xmr_speed_4": "ძალიან ჩქარი",
+        "btc_speed_blocks_24": "მინიმალური",
+        "btc_speed_blocks_12": "ნელი",
+        "btc_speed_blocks_6": "საშუალო",
+        "btc_speed_blocks_2": "ჩქარი",
+        "bch_speed_blocks_12": "ნელი",
+        "bch_speed_blocks_6": "საშუალო",
+        "bch_speed_blocks_2": "ჩქარი",
+        "ltc_speed_blocks_12": "ნელი",
+        "ltc_speed_blocks_6": "საშუალო",
+        "ltc_speed_blocks_2": "ჩქარი",
+        "xrp_speed_one": "ჩქარი"
+      },
+      "getRaw" : "Build transaction hex only (no send)",
+      "customFee": {
+        "title": "Ручная",
+        "fixedFeeTitle": "ფიქსირებული\nსაკომისიო",
+        "customFeeTitle": "დაყენება\nხელით",
+        "calculatedFee": "საანგარიშო საკომისიო:",
+        "eth": {
+          "gasPrice": "გაზის ფასი",
+          "gasLimit": "გაზის ლიმიტი",
+          "gwei": "GWEI",
+          "nonce": "Nonce"
+        },
+        "btc": {
+          "feeForTx": "ტრანზაქციის ღირებულება",
+          "feeForByte": "ბაიტის ფასი",
+          "satoshi": "SATOSHI"
+        }
+      }
+    },
+    "receiptScreen": {
+      "title": "ქვითარი",
+      "totalSend": "გაგზავნილი თანხის ოდენობა",
+      "rate": "1 %{currencyCode} ღირებულება",
+      "replaceTransactionHash": "ტრანზაქციის შეცვლა",
+      "removeTransactionHash": "ტრანზაქციის წაშლა",
+      "speedUpTransactionHash": "ტრანზაქციის დაჩქარება",
+      "recepient": "მიმღები",
+      "destinationAddress": "მიმრების მისამართი",
+      "minerFee": "მაინერის საკომისიო",
+      "totalMinerFee": "მაინერის საერთო საკომისიო",
+      "customNonce": "Custom nonce",
+      "nonce": "Nonce",
+      "trusteeInfo": "Trustee does not charge a fee in cryptocurrency transactions",
+      "send": "გაგზავნა",
+      "build" : "Build",
+      "sending": "იგზავნება"
+    },
+    "errors": {
+      "UI_CONFIRM_DOUBLE_SEND": "აღნიშნულ მისამართზე ტრანზაქცია უკვე გაგზავნილია. დარწმუნებული ხართ, რომ გინდათ ხელახლა გაგზავნა?",
+      "UI_CALCULATE_CUSTOM_FEE": "გთხოვთ, დაითვალეთ სრული ღირებულება ბაიტის არჩეული ფასზე ",
+      "SERVER_RESPONSE_CLOUDFLARE" : "Please, try again - no access to cloudflare protected server",
+      "SERVER_RESPONSE_BAD_CODE": "დაფიქსირდა შეცდომა. გთხოვთ, დაუკავშირდეთ მხარდაჭერის სამსახურს",
+      "SERVER_RESPONSE_BAD_INTERNET": "არ არის კავშირი ინტერნეტთან",
+      "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "ტრანზაქცია ვერ მოიძებნა, გთხოვთ, შეამოწმოთ კავშირი ინტერნეტთან. შესაძლოა ადგილი ჰქონდეს დაყოვნებას ინფორმაციის გამოსახულების მიღების თვალსაზრისით ",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "ქსელის საკომისიოს დასაფარად ანგარიშზე არ ფიქსირდება საკმარისი რაოდენობის ადგილობრივი მონეტა %{symbol}",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Only dust inputs - couldnt process - please use \"Send All\" to collect them together",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "ვერ მოხერხდა ადგილობრივი მონეტის (%{symbol}) ბალანსის შემოწმება. გთხოვთ, შეამოწმოთ ინტერნეტკავშირი!",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "ძალიან მცირე თანხაა ტრანზაქციისთვის",
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "ტრანზაქციის განსახორციელებლად თანხა არასაკმარისია",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "ბალანსზე არ არის საკმარისი თანხა ქსელის საკომისიოს დასაფარად - გთხოვთ, გამოიყენეთ ფუნქცია \"ყველას გაგზავნა\" ",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "ბალანსზე არაა საკმარისი თანხა დელეგირებული ტრანზაქციის განსახორციელებლად - გთხოვთ, გამოიყენეთ ჩვეულებრივი გადარიცხვა ERC20",
+      "SERVER_RESPONSE_NO_RESPONSE": "ქსელი არ იღებს ტრანზაქციას - გთხოვთ, დაელოდოთ, სანამ სხვა ტრანზაქციები დადასტურდება",
+      "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "ქსელი არ იღებს ტრანზაქციას - გთხოვთ, დაელოდოთ, სანამ სხვა ტრანზაქციები დადასტურდება, ან გამოიყენეთ მაღალი საკომისიო ",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "ადგილობრივი მონეტები %{symbol} არასაკმარისია საკომისიოს გადასახდელად - გთხოვთ, დაელოდოთ, სანამ სხვა ტრანზაქციები დადასტურდება",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "ძალიან მცირეა საკომისიო ტრანზაქციისთვის",
+      "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT": "ძალიან მცირეა საკომისიო ტრანზაქციის შეცვლისთვის - თუ თქვენ დამიდასტურებთ, რომ საკომისიოს აღება შესაძლებელია მიმღების თანხიდან, მომდევნო ნაბიჯზე ნახავთ გადათვლილ მონაცემებს ტრანზაქციისთვის",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "ძალიან მცირეა საკომისიო ტრანზაქციის ცვლილებისთვის",
+      "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED": "ტრანზაქცია უკვე დადასტურებულია",
+      "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce %{nonce} უკვე გამოყენებულია დადასტურებულ ტრანზაქციაში",
+      "SERVER_RESPONSE_NOT_CONNECTED": "ქსელი არ პასუხობს - გთხოვთ, გაიმეოროთ ოპერაცია მოგვიანებით",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "არასაკმარისია თანხა ტრანზაქციების განსახორციელებლად და მინიმალური საკომისიოსთვის",
+      "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "გთხოვთ, დაელოდოთ სხვა ტრანზაქციების დადასტურებას ან ჩართეთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",
+      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "ძალიან მაღალია საკომისიო ტრანზაქციისთვის - გთხოვთ, აირჩიეთ საკომისიოს ოდენობა  ან მიუთითეთ თანხის დიდი რაოდენობა გადარიცხვისთვის ",
+      "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Transaction fee per byte is too high - please adjust the fee manually",
+      "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "ტრანზაქციები ერთსა და იმავე მისამართზე აკრძალულია",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "არაა საკმარისი თანხა გადასარიცხად (ბალანზე დატოვე არანაკლებ 20 XRP )",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "არასაკმარისი თანხა - გააგზავნეთ არანაკლებ 20 XRP მიმღების მისამართის აქტივაციისთვის",
+      "SERVER_RESPONSE_TAG_NEEDED_XRP": "დანიშნულების ტეგი არასწორია - ტრანზაქციის გასაგზავნად გთხოვთ, შეიყვანოთ დანიშნულების სწორი ტეგი ",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "BTC-ს ბალანსი მიმაგრებულ USDT ბიტკოინ მისამართზე არასაკმარისია - გთხოვთ, გადაიტანოთ მასზე სატოშების მცირე რაოდნეობა ",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": " USDT-თან დაკავშირებულ ბიტკოინ მისამართზე ბალანსი არასაკმარისი ან დაუდასტურებელია - გთხოვთ, დაელოდოთ ან ჩართოთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",
+      "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH": "ქსელმა არ მიიღო ტრანზაქცია - გთხოვთ, დაელოდოთ სხვა ტრანზაქციების დადასტურებას ან გამოიყენოთ ჩვეულებრივი გაგზავნის მეთოდი ERC20",
+      "SERVER_RESPONSE_NO_SSL": "SSL ბიბლიოთეკა არ მოიძებნა - გთხოვთ, სცადოთ სისტემის განახლება",
+      "SERVER_RESPONSE_PLEASE_SELECT_FEE": "გთხოვთ, აირჩიოთ საკომისიოს ღირებულება სიიდან ",
+      "SERVER_RESPONSE_MIN_GAS_ETH": "გაზის მინიმალური ლიმიტი უდრის 21000",
+      "SERVER_RESPONSE_TOO_MUCH_GAS_ETH": "ტრანზაქციისთვის საჭიროა გაზის ძალიან დიდი რაოდენობა - გთხოვთ, შეამოწმოთ მიმღების კონტრაქტი. შესაძლოა, ეს სმარტკონტრაქტია",
+      "SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20": "ტოკენების ტრანზაქციებისთვის საჭიროა გაზის დიდი ოდენობა - გთხოვთ, შეამოწმოთ სმარტკონტრაქტი, შესაძლოა, თქვენი ბალანსი გაყინულია",
+      "SERVER_RESPONSE_BAD_DESTINATION": "მიმღების მისამართი არავალიდურია",
+      "SERVER_RESPONSE_BAD_SEND_NODE": "არა არის წვდომა გაგზავნის სერვერთან",
+      "SERVER_RESPONSE_DOUBLE_SPEND": "გთხოვთ, თავიდან შექმნათ ტრანზაქცია, რადგან მიმდინარე იყენებს შესვლის მოძველებულ მეთოდებს ან დაელოდეთ სხვა ტრანზაქციების დადასტურებას ",
+      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP": "დასაჩქარებელი ტრანზაქცია ვერ მოიძებნა",
+      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
+      "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
+      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation"
+    }
+  },
+  "walletBackup": {
+    "titleCreate": "საფულის შექმნა",
+    "titleBackup": "სარეზერვო ასლის შექმნა",
+    "titleShow": "აღმდგენი ფრაზა",
+    "infoScreen": {
+      "continue": "გაგრძელება",
+      "text1": "TRUSTEE WALLET არ გააგზავნის თქვენს აღმდგენ ფრაზას არასდროს და არსად. ამიტომ, მოწყობილობის დაკარგვის ან დაზიანების შემთხვევაში, ერთადერთი გზა, მიიღოთ წვდომა თქვენს საშუალებებთან, არის აღმდგენი ფრაზის გამოყენება ",
+      "checkbox1": "მესმის, რომ თუ დავკარგავ აღმდგენ ფრრაზას, დავკარგავ ჩემს რესურსებს ",
+      "checkbox2": "მესმის, რომ აღმდგენ ფრაზას უნდა წავიკითხო მარტო, კამერების და უცხო პირების ირგვლივ ყოფნის გარეშე ",
+      "text2": "ძალიან ფრთხილად იყავით აღმდგენ ფრაზასთან დაკავშირებით - ნებისმიერი, ვისაც ის ჩაუვარდება ხელში, შეძლებს მიიღოს წვდომა თქვენს რესურსთან და დახარჯოს საკუთარი შეხედულებისამებრ. გთხოვთ, არ გაანდოთ ის არავის არანაირ ვითარებაში!"
+    },
+    "step0Screen": {
+      "info": "აღმდგენი ფრაზა - ეს არის თქვენი აქტივების ერთადერთი საიდუმლო გასაღები. შეინახეთ ის სანდო ადგილას!",
+      "showButton": "სანახავად დააჭირეთ ღილაკს და შეინარჩუნეთ ასეთ მდგომარეობაში",
+      "next": "შემდეგი"
+    },
+    "step1Screen": {
+      "title": "დადასტურება",
+      "placeholder": "გთხოვთ, სწორი თანმიმდევრობით დააჭიროთ სიტყვებს, რომ დაადასტუროთ აღმდგენი ფრაზა. ველიდან სიტყვის წასაშლელად კიდევ ერთხელ დააჭირეთ მას. ",
+      "showButton": "სანახავად დააჭირეთ ღილაკს და შეინარჩუნეთ ასეთ მდგომარეობაში",
+      "next": "შემდეგი"
+    },
+    "settingsScreen": {
+      "title": "პარამეტრები",
+      "apply": "დადასტურება",
+      "walletNameLabel": "დაარქვით სახელი საფულეს",
+      "walletNamePlaceholder": "შეიყვანეთ სახელი (არასავალდებულო)",
+      "phraseLengthLabel": "აირჩიეთ აღმდგენი ფრაზის სიგრძე",
+      "12wordsLabel": "12 სიტყვა",
+      "24wordsLabel": "24 სიტყვა",
+      "contactTitle": "მიწერე მხარდაჭერის სამსახურს",
+      "contactSubtitle": "ოფიციალურიtelegram არხი",
+      "skipTitle": "გამოტოვე აღმდგენი ფრაზის გადამოწმების პროცესი",
+      "skipSubtitle": "არა რის რეკომენდირებული"
+    },
+    "title": "სარეზერვო კოპირება",
+    "titleNewWallet": "საფულის გენერაცია",
+    "titleNewWalletSmall": "გენერაცია",
+    "skip": "გამოტოვება",
+    "description": "ნებისმიერს, ვისაც აქვს აღმდგენი ფრაზა, შეუძლია მიიღოს წვდომა საფულესთან. გთხოვთ, ყურადღებით ჩაიწერეთ ეს %{mnemonicLength} %{words}.\nარასდროს და არანაირ ვითარებაში არ გაანდოთ არავის აღმდგენი ფრაზა!",
+    "pinProtected": "შეიყვანეთ PIN კოდი აღმდგენ ფრაზასთან წვდომის მისაღებად ",
+    "attention": "ეს ფრაზა უნდა დადასტურდეს მომდევნო ნაბიჯზე",
+    "written": "ფრაზა ჩაწერილია",
+    "words": "სიტყვები",
+    "secondStep": {
+      "description": "ჩაწერილი აღმდგენი ფრაზის კორექტულობის შემოწმება, დააჭირეთ სიტყვებს სწორი თანმიმდევრობით. ველიდან სიტყვის წასაშლელად, კიდევ ერთხელ დააჭირეთ მას."
+    },
+    "mnemonicFail": {
+      "title": "უი, არა...",
+      "description": "თქვენ დაუშვით შეცდომა აღმდგენ ფრაზაში. კიდევ სცადეთ."
+    },
+    "skipElement": {
+      "title": "დარწმუნებული ხართ?",
+      "description": "სარეზერვო კოპირების ფრაზა ძალიან მნიშვნელოვანია. თქვენ არ გექნებათ წვდომა თქვენს ფულთან. გამოვტოვოთ ეს ნაბიჯი?",
+      "cancel": "გაუქმება",
+      "yes": "დიახ",
+      "no": "არა"
+    },
+    "descriptionXMR": "ნებისმიერს, ვისაც აქვს აღმდგენი ფრაზა, შეუძლია, მიიღოს წვდომა საფულესთან. ეს სიტყვები მიღებულიაა ძირითადი ფრაზიდან, ამიტომ თქვენ შეგიძლიათ მისი გამოყენება მხოლოდ Monero -ს ბექაფისთვის "
+  },
+  "walletCreate": {
+    "walletExist": "საფულე უკვე იმპორტირებულია აპლიკაციაში.",
+    "createTitle": "საფულის გენერაცია",
+    "importTitle": "საფულის იმპორტი",
+    "importGoogle": "Google Drive",
+    "mnemonicPlaceholder": "ჩასვი აღმდგენი ფრაზა ან შეიყვანე ყველა სიტყვა სათითაოდ (ჩვეულებრივ 12 ან 24 სიტყვა)",
+    "showMnemonicButton": "სანახავად დააჭირეთ ღილაკს",
+    "phrasePlaceholder": "აღმდგენი ფრაზა",
+    "importButton": "საფულის იმპორტი",
+    "errors": {
+      "phraseShouldBeLonger": "აღმდგენი ფრაზა უნდა იყოს 11 სიტყვაზე მეტი",
+      "wordDoesNotExist": "ასეთი სიტყვა არაა ლექსიკონში"
+    },
+    "importGoogleError": {
+      "title": "არაა დაკავშირებული",
+      "description": "გთხოვთ, კიდევ სცადეთ და გადაამოწმეთ კავშირის უფლებები"
+    },
+    "importGoogleNoWallet": {
+      "title": "არ არის სარეზერვო ასლის ფაილი",
+      "description": "სარეზერვო ასლის დაშიფრული ფაილი ვერ მოიძებნა"
+    },
+    "backupGoogleHasWallet": {
+      "title": "სარეზერვო ასლის ფაილი უკვე შექმნილია",
+      "description": "წაშალეთ აღსადგენი სარეზერვო ასლის ფაილი"
+    },
+    "backupGoogleSuccess": {
+      "title": "სარეზერვო ასლის ფაილი შექმნილია",
+      "description": "არ წაშალოთ სარეზერვო ასლის ფაილი აპლიკაციის დაყენების შემდეგ "
+    },
+    "name": "დაარქვით სახელი საფულეს",
+    "submit": "შემდეგი",
+    "words12": "სიტყვა",
+    "words24": "სიტყვა",
+    "description": "აირჩიეთ აღმდგენი ფაილის სიგრძე",
+    "optional": "არასავალდებულო",
+    "enterMnemonic": {
+      "description": "ჩასვით აღმდგენი ფრაზა ერთად ან ჩაწერეთ ხელით (ჩვეულებრივ ეს არის 12 ან 24 სიტყვა).",
+      "mnemonic": "აღმდგენი ფრაზა"
+    }
+  },
+  "walletList": {
+    "elements": {
+      "cryptoCurrency": {
+        "coins": "მონეტა"
+      }
+    }
+  },
+  "components": {
+    "elements": {
+      "modal": {
+        "input": {
+          "placeholder": "შეიყვანეთ ..."
+        }
+      },
+      "input": {
+        "qrName": "საფულის მისამართი",
+        "qrSuccess": "საფულე დასკანერებულია წარმატებით!"
+      },
+      "picker": {
+        "label": "აირჩიეთ ვალუტა..."
+      },
+      "phoneInput": {
+        "phoneNumber": "ტელეფონის ნომერი",
+        "invalidFormat": "ტელეფონის ნომერი არასწორია"
+      },
+      "advInput": {
+        "accountNumber": "ანგარიშის ნომერი",
+        "invalidFormat": "ანგარიშის ნომერი არასწორია"
+      },
+      "advEmail": {
+        "accountEmail": "ელფოსტა",
+        "invalidFormat": "ელფოსტა არასწორია"
+      }
+    },
+    "navigation": {
+      "back": "უკან დაბრუნება",
+      "search": "ძებნა..."
+    },
+    "webview": {
+      "error": "უფს... მოხდა შეცდომა"
+    }
+  },
+  "dashboardStack": {
+    "buy": "ყიდვა",
+    "sell": "გაყიდვა",
+    "wallet": "საფულე",
+    "exchange": "გაცვლა",
+    "earn": "შოვნა",
+    "settings": "მეტი",
+    "support": "მხარდაჭერა",
+    "market": "Swap"
+  },
+  "modal": {
+    "titles": {
+      "attention": "ყურადღება!"
+    },
+    "close": "დახურვა",
+    "ok": "OK",
+    "pleaseWaitModal": {
+      "title": "გთხოვთ, დაელოდოთ...",
+      "description": "ბარათის შემოწმებას დასჭირდება გარკვეული დრო"
+    },
+    "waitModal": {
+      "description": "თქვენ უკვე სცადეთ ორდერის შესრულება.  გთხოვთ, დაელოდოთ."
+    },
+    "featureExpectedModal": {
+      "title": "ფუნქცია მოლოდინის რეჟიმშია",
+      "description": "ტექნოლოგიური ტრანზაქციები, რომელთაც 0 დადასტურება აქვს, შესაძლოა განახლდეს. მოცემული ფუნქცია იძლევა გამოქვეყნებული ტრანზაქციების მოდიფიცირების საშუალებას, რომელიც იმყოფება მაინერების დადასტურების პროცესში. ეს ნიშნავს, რომ შესაძლოა როგორც საკომისიოს ზომის გაზრდა ტრანზაქციისთვის, ასევე მიმღების მისამართის განახლება. მეტი დეტალი იხილეთ ბმულზე."
+    },
+    "enterCashbackTokenLink": {
+      "title": "მეგობართან დაკავშირება!",
+      "description": "გთხოვთ, შეიყვანოთ  მეგობრის ანონიმური  ბმული-მოსაწვევი მის სტრუქტურასთან თქვენი ანონიმური საფულის მისაბმელად. მიაქციეთ ყურადღება, რომ ოპერაციის გაუქმება ან შეცვლა შეუძლებელია.."
+    },
+    "cashbackTokenLinkModal": {
+      "success": {
+        "description": "გილოცავთ, თქვენი საფულე დამატებულია თქვენი მეგობრის სტრუქტურაში! საფულეები დაკავშირებულია ერთმანეთთან ანონიმური იდენტიფიკატორის საშუალებით."
+      }
+    },
+    "cashbackLinkEqualModal": {
+      "description": "ბოდიშს გიხდით, თქვენი საკუთარი ბმული-მოსაწვევის %{link} მითითება აკრძალულია!"
+    },
+    "walletCreateSettingsModal": {
+      "title": "საფულის პარამეტრები"
+    },
+    "sorryYourDeviceDoesntSupportModal": {
+      "description": "ბოდიშს გიხდით, თქვენი ტელეფონს %{agent} მოცემული ფუნქციის მხარდაჭერა"
+    },
+    "cryptocurrencySynchronizing": {
+      "title": "ბოდიშს გიხდით...",
+      "description": "მიმდინარეობს მონაცემების სინქრონიზაცია, გთხოვთ, დაელოდოთ..."
+    },
+    "openSettingsModal": {
+      "title": "საჭიროა წვდომა კამერასთან",
+      "description": "კამერის გამოყენების უფლება დააფიქსირეთ მენიუს პარამეტრებში",
+      "btnSubmitText": "პარამეტრებში გადასვლა"
+    },
+    "checkTransferHasError": {
+      "XRP": {
+        "title": "გთხოვთ, მიაქციოთ ყურადღება!",
+        "description": "თქვენი საფულე Ripple არ არის გააქტიურებული. აქტივაცია მოითხოვს 20 XRP -ის ბლოკირებას. Ripple-ის პროტოკოლის მიხედვით, ამ თანხის განბლოკვა შეუძლებელია და ის ანგარიშზე დარჩება."
+      },
+      "XLM": {
+        "title": "Please, pay attention!",
+        "description": "Your Stellar wallet is not activated. Activation requires to stake 1 XLM. According to Stellar protocol, this amount cannot be unlocked and will remain frozen in your account."
+      },
+      "TRX_20": {
+        "title": "Please, pay attention!",
+        "description": "Your Tron wallet is not activated. Activation requires to send any TRX to the wallet address - you can use it later for transactions"
+      },
+      "TOKEN": {
+        "title": "გთხოვთ, მიაქციოთ ყურადღება!",
+        "description": "ტოკენი %{currencySymbol} მუშაობს ბლოკჩეინზე %{parentBlockchain} და ბრუნვისთვის საჭიროა პოზიტიური ბალანსი %{parentCurrency} მაინერებისთვის საკომისიოს მისაცემად. ამ ეტაპზე თქვენს საფულეში ნულოვანი ბალანსია %{parentCurrency}"
+      }
+    },
+    "tokenNotAdded": {
+      "description": "აქტივი არაა დამატებული. გადავიდეთ დამატების გვერდზე?"
+    },
+    "tokenHidden": {
+      "description": "აქტივი დამალულია. გადავიდეთ აქტივების მართვის გვერდზე?"
+    },
+    "useAgainAddresses": {
+      "title": "ყურადღება!",
+      "description": "გამოვიყენოთ ისევ მისამართები ტრანზაქციების გარეშე?"
+    },
+    "useAgainAddressesGap": {
+      "title": "Attention!",
+      "description": "Recommended to use again addresses from last one with transactions"
+    },
+    "cashbackDontWork": {
+      "description": "ქეშბექი არაა მხარდაჭერილი მოწყობილობის მიერ"
+    },
+    "infoSendAllModal": {
+      "description": "როგორც ჩანს, თქვენ ცდილობთ მთელი თქვენი ბალანსის %{coin} გაგზავნას. კორექტული დამუშავებისთვის,გთხოვთ, გამოიყენოთ ფუნქცია 'ყველაფრის გაგზავნა'. გნებავთ ამ ფუნქციით სარგებლობა ახლა?"
+    },
+    "infoUpdateModal": {
+      "title": "ყურადღება!",
+      "description": "ხელმისაწვდომია ახალი ვერსია, გთხოვთ, გაანახლოთ საფულე!",
+      "download": "გადმოწერა",
+      "notNow": "ახლა არა"
+    },
+    "infoNewInterface": {
+      "title": "ხელმისაწვდომია ახალი ინტერფეისი",
+      "description": "ნახეთ, რა შევცვალეთ თქვენთვის",
+      "try": "სცადეთ",
+      "notNow": "ახლა არა"
+    },
+    "tbkModal": {
+      "enable": "ჩართვა",
+      "disable": "გამორთვა",
+      "title": "Trustee Booster Kit",
+      "statusEnable": "ჩართულია",
+      "statusDisable": "გამორთულია",
+      "cancel": "გაუქმება"
+    },
+    "modalV3": {
+      "title": "უი",
+      "description": "სერვისი დროებით მიუწვდომელია. გთხოვთ, შეამოწმოთ ინტერნეტკავშირი და სცადოთ, მოგვიანებით. "
+    },
+    "infoPayOrder": {
+      "error": {
+        "title": "უკაცრავად...",
+        "description": "ორდერი არ არის დამუშავებული. გთხოვთ, შექმენით ახალი"
+      }
+    },
+    "toggleBitcoinTypeAddressModal": {
+      "info": {
+        "title": "ინფორმაცია...",
+        "description": "Bitcoin-ის ნაჩვენები მისამართის ტიპი შეცვლილია"
+      }
+    },
+    "infoBuyModal": {
+      "currencyNotAvailable": "ვალუტის %{currencySymbol} ყიდვა არ არის ხელმისაწვდომი",
+      "notAvailable": "ყიდვა არ არის ხელმისაწვდომი"
+    },
+    "disabledLockScreenModal": {
+      "description": "თქვენ გაქვთ არადარეზერვებული საფულეები, შესაბამისად, არ გაქვთ PIN-კოდის დაყენების უფლება თქვენი აქტივების უსაფრთხოდ შენახვისთვის."
+    },
+    "disabledSkipModal": {
+      "description": "თქვენ დაყენებული გაქვთ PIN-კოდი, შესაბამისად, ვერ გამოტოვებთ ამ ეტაპს."
+    },
+    "infoAddCustomAssetModal": {
+      "success": {
+        "title": "აქტივი დამატებულია!",
+        "description": "ახლა თქვენ შეგიძლიათ მისი ნახვა აქტივების გვერდზე და მთავარ ეკრანზე "
+      },
+      "successAlready": {
+        "title": "აქტივი დამატებულია!",
+        "description": "Asset already added"
+      },
+      "error": {
+        "title": "უკაცრავად, აქტივი ვერ მოიძებნა",
+        "description": "გთხოვთ, შეამოწმოთ მისამართი და სცადოთ კიდევ ერთხელ"
+      },
+      "catch": {
+        "title": "უკაცრავად, აქტივი დამატებული არაა",
+        "description": "გთხოვთ, შეამოწმოთ ინტერნეტკავშირი და სცადოთ კიდევ ერთხელ"
+      },
+      "attention": {
+        "title": "აქტივი უკვე დამატებულია",
+        "description": "შეამოწმეთ ის წინა ეკრანზე"
+      }
+    },
+    "licenseTerms": {
+      "title": "იურიდიული დოკუმენტები",
+      "description": "    გთხოვთ, წაიკითხოთ, რომ იცოდეთ, რას ეთანხმებით ",
+      "accept": "ვეთანხმები",
+      "decline": "არ ვეთანხმები"
+    },
+    "selectCoinFio": {
+      "title": "აირჩიეთ ვალუტა მოთხოვნისთვის",
+      "description": "გთხოვთ, აირჩიეთ ვალუტა, რომლისთვისაც, გნებავთ, გააკეთოთ მოთხოვნა",
+      "description2": "არჩეული ვალუტა გადაეცემა FIO მოთხოვნას",
+      "btn": "არჩევა"
+    },
+    "login": {
+      "title": "შესვლა/რეგისტრაცია",
+      "description": "მიიღე სპეციალური ბმული, მოიწვიე მეგობრები და დაიწყე თანხის გამომუშავება! 10% ქეშბექი თქვენ მიერ შესრულებული გაცვლის პროცესების საკომისიოდან და 10% მეგობრების მიერ შესრულებული ტრანზაქციებიდან!",
+      "btn": {
+        "login": "შესვლა",
+        "back": "უკან დაბრუნება"
+      }
+    },
+    "exchange": {
+      "sorry": "უკაცრავად...",
+      "descriptionCard": "აირჩიეთ არსებული რუკა ან დაამატეთ ახალი",
+      "failed": "ყურადღება!",
+      "txCanceled": "ტრანზაქცია გაუქმებულია",
+      "success": "წარმატება!",
+      "txSuccess": "ტრანზაქციის გაგზავნა განხორციელდა წარმატებით"
+    },
+    "settings": {
+      "soon": "მოლოდინის რეჟიმი",
+      "soonDescription": "ეს ფუნქცია დაემატება უახლოეს მომავალში"
+    },
+    "infoDeleteCard": {
+      "title": "ნამდვილად გსურთ რუკის წაშლა?",
+      "description": ""
+    },
+    "infoChoose": {
+      "decline": "უკან",
+      "accept": "წაშლა"
+    },
+    "card": {
+      "success": "წარმატება!",
+      "added": "ბარათი დამატებულია"
+    },
+    "qrScanner": {
+      "success": {
+        "title": "წარმატება!",
+        "description": "საფულე შენახულია გაცვლის ბუფერში!"
+      },
+      "error": {
+        "title": "უკაცრავად...",
+        "description": "არასწორი საფულე. გთხოვთ სცადოთ კიდევ ერთხელ."
+      },
+      "sorry": "ბოდიშს გიხდით..."
+    },
+    "send": {
+      "success": "წარმატება!",
+      "txSuccess": "თქვენი ტრანზაქცია გაიგზავნა წარმატებით!",
+      "fail": "ყურადღება!",
+      "feeChangeAmount": "გაგზავნის თანხა შეიცვალა საკომისიოს შეცვლის შემდეგ",
+      "bseMinCrypto": "Exchange minimal amount value is %{limit}",
+      "bseMinCryptoNoFee": "Your balance is not enough for exchange minimal amount and fee",
+      "bigGas": "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
+      "blockedBalance": "Your balance was used in previous unconfirmed transactions, you can use %{free}",
+      "feeSmallAmount": "Left for fee amount is too small - transaction could be take too long time to confirm",
+      "longQuery": "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
+      "longQuerySettingOff": "The ability to send a second transaction until the previous one is confirmed is disabled",
+      "noTBKprovider": "Sorry, the function is disabled as exchange operator could not process speed up transactions"
+    },
+    "walletLog": {
+      "sorry": "ყურადღება!",
+      "noMailApp": "ელფოსტის გასაგზავნად ხელმისაწვდომი აპლიკაცია ვერ მოიძებნა",
+      "notComplited": "გთხოვთ, აირჩიეთ რომელიმე არხი გასაგზავნად"
+    },
+    "walletBackup": {
+      "success": "წარმატება!",
+      "seedConfirm": "აღმდგენი ფრაზა დადასტურებულია!",
+      "walletCreated": "საფულე შექმნილია!"
+    },
+    "walletCreate": {
+      "success": "წარმატება!",
+      "walletImported": "საფულე იმპორტირებულია!"
+    },
+    "receive": {
+      "success": "წარმატება!",
+      "addressCopiedSuccess": "საფულის მისამართი დაკოპირებულია!"
+    }
+  },
+  "lockScreen": {
+    "maximumAttempts": "მიღწეულია მცდელობის მაქსიმალური რაოდენობა",
+    "enter": "შეიყვანე PIN-კოდი",
+    "create": "შეიყვანეთ ახალი PIN-კოდი",
+    "confirm": "დაადასტურეთ PIN-კოდი",
+    "incorrect": "არასწორი PIN-კოდი"
+  },
+  "languageList": {
+    "title": "ენა",
+    "languages": {
+      "ru-RU": "Русский",
+      "en-US": "English",
+      "uk-UA": "Українська",
+      "ru-UA": "Українська",
+      "ka-GE": "Georgian",
+      "de-DE": "German",
+      "es-ES": "Spanish",
+      "fr-FR": "French"
+    }
+  },
+  "scannerSettings": {
+    "title": "სკანირება",
+    "codes": {
+      "none": "ავტოსკანირების გარეშე",
+      "10min": "ყოველ 10 წუთში",
+      "1min": "ყოველწუთიერად"
+    },
+    "lastScan": "თქვენი ბალანსების ასლები შენახულია:",
+    "helper": "თქვენ შეგიძლიათ შეარჩიოთ სიხშირე დამოუკიდებლად"
+  },
+  "repeat": {
+    "receive": "მიღება"
+  },
+  "validator": {
+    "empty": "შეავსეთ ველი",
+    "invalidFormat": "არასწორი ფორმატი",
+    "moreThanMax": "სიგრძის შესაძლო ლიმიტი გადაჭარბებულია",
+    "unstoppableErrors": {
+      "UnregisteredDomain": "Domain %{domain} is not registered",
+      "RecordNotFound": "Domain %{domain} has no %{ticker} address",
+      "UnspecifiedResolver": "Domain %{domain} has no resolver contract"
+    }
+  },
+  "toast": {
+    "copied": "ასლი შენახულია ბუფერში",
+    "noInternet": "არ არის კავშირი ინტერნეტთან",
+    "badInternet": "არასტაბილური წვდომა ინტერნეტთან, გთხოვთ, სცადოთ სხვა პროვაიდერიდან ან წვდომის წერტილი",
+    "saved": "შენახულია"
+  },
+  "pushNotifications": {
+    "FOUND_OUT_TX_STATUS_NEW": {
+      "title": "%{currencyName} გამავალი ტრანზაქცია შექმნილია",
+      "description": "%{walletName} ტრანზაქცია %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_FAIL": {
+      "title": "%{currencyName} გამავალი ტრანზაქცია უარყოფილია",
+      "description": "%{walletName} ტრანზაქცია %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_MISSING": {
+      "title": "%{currencyName} გამავალი ტრანზაქცია ნაპოვნი არაა",
+      "description": "%{walletName} ტრანზაქცია %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_SUCCESS": {
+      "title": "%{currencyName} გამავალი ტრანზაქცია წარმატებით განხორციელდა",
+      "description": "%{walletName} ტრანზაქცია %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_CONFIRMING": {
+      "title": "%{currencyName} გამავალი ტრანზაქცია დადასტურებულია",
+      "description": "%{walletName} ტრანზაქცია %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_OUT_TX_STATUS_DELEGATED": {
+      "title": "%{currencyName} გამავალი ტრანზაქცია დელეგირებულია",
+      "description": "%{walletName} ტრანზაქცია %{amountPretty} %{currencySymbol}"
+    },
+    "FOUND_IN_TX": {
+      "title": "%{currencyName} შემომავალი ტრანზაქცია",
+      "description": "%{walletName} შემომავალი %{amountPretty} %{currencySymbol}"
+    },
+    "DAEMON_HAS_FOUND_HD": {
+      "title": "%{currencyName} HD ვერ მოიძებნა",
+      "description": "%{walletName} გამოყენებულია древовидные მისამართები, ამიტომ HD რეჟიმი ჩართულია ავტომატურად"
+    },
+    "DAEMON_HAS_FOUND_BALANCE_NOT_ADDED": {
+      "title": "%{currencyName} არ არის დამატებული, მაგრამ არის ბალანსი",
+      "description": "%{walletName} მისამართზე %{address} არის %{amountPretty} %{currencySymbol}"
+    },
+    "DAEMON_HAS_FOUND_BALANCE": {
+      "title": "%{currencyName} არაა ნაჩვენები, მაგრამ არის ბალანსი",
+      "description": "%{walletName} მისამართზე %{address} არის %{amountPretty} %{currencySymbol}"
+    },
+    "CURRENCY_RATE_UPDATED": {
+      "title": "%{currencyName} კურსი განახლებულია",
+      "description": "цена %{currencyRateUsd}$"
+    },
+    "CURRENCY_RATE_SCANNED_LAST_TIME": {
+      "title": "მიმდინარეობს ვალუტების კურსების სკანირება",
+      "description": "მაგრამ ქეშირებული მნიშვნელობები ისეთივება, ამიტომ არანაირი ცვლილება არ ფიქსირდება"
+    },
+    "TXS_SCANNED_LAST_TIME": {
+      "title": "%{currencyName} მიმდინარეობს ტრანზაქციების სკანირება",
+      "description": "%{walletName} log %{log}"
+    },
+    "HD_SCANNED_LAST_TIME": {
+      "title": "მიმდინარეობს HD ტრანზაქციების სკანირება",
+      "description": "%{walletName} log %{log}"
+    }
+  },
+  "currencyList": {
+    "AUD": {
+      "currencyCode": "AUD",
+      "currency": "ავსტრალიური დოლარი"
+    },
+    "CAD": {
+      "currencyCode": "CAD",
+      "currency": "კანადური დოლარი"
+    },
+    "CNY": {
+      "currencyCode": "CNY",
+      "currency": "ჩინური იენი"
+    },
+    "HRK": {
+      "currencyCode": "HRK",
+      "currency": "ხორვატული კუნა"
+    },
+    "CZK": {
+      "currencyCode": "CZK",
+      "currency": "ჩეხური კრონა"
+    },
+    "DKK": {
+      "currencyCode": "DKK",
+      "currency": "დანიური კრონა"
+    },
+    "HKD": {
+      "currencyCode": "HKD",
+      "currency": " ჰონგ კონგის დოლარი "
+    },
+    "HUF": {
+      "currencyCode": "HUF",
+      "currency": "უნგრული ფორინტი"
+    },
+    "INR": {
+      "currencyCode": "INR",
+      "currency": "ინდური რუპია"
+    },
+    "IDR": {
+      "currencyCode": "IDR",
+      "currency": "ინდონეზიური რუპია"
+    },
+    "IRR": {
+      "currencyCode": "IRR",
+      "currency": "ირანული რიალი"
+    },
+    "ILS": {
+      "currencyCode": "ILS",
+      "currency": "ისრაელის ახალი შექელი"
+    },
+    "JPY": {
+      "currencyCode": "JPY",
+      "currency": "იაპონური იენი"
+    },
+    "KZT": {
+      "currencyCode": "KZT",
+      "currency": "ყაზახური ტენგი"
+    },
+    "KRW": {
+      "currencyCode": "KRW",
+      "currency": "სამხრეთ კორეული ვონი"
+    },
+    "MXN": {
+      "currencyCode": "MXN",
+      "currency": "მექსიკური პესო"
+    },
+    "MDL": {
+      "currencyCode": "MDL",
+      "currency": "მოლდავური ლეი"
+    },
+    "NZD": {
+      "currencyCode": "NZD",
+      "currency": "ახალზელანდიური დოლარი"
+    },
+    "NOK": {
+      "currencyCode": "NOK",
+      "currency": "ნორვეგიული კრონა"
+    },
+    "RUB": {
+      "currencyCode": "RUB",
+      "currency": "რუსული რუბლი"
+    },
+    "SAR": {
+      "currencyCode": "SAR",
+      "currency": "საუდის რიალი"
+    },
+    "SGD": {
+      "currencyCode": "SGD",
+      "currency": "სინგაპურის დულარი"
+    },
+    "ZAR": {
+      "currencyCode": "ZAR",
+      "currency": "სამხრეთ აფრიკული რანდი"
+    },
+    "SEK": {
+      "currencyCode": "SEK",
+      "currency": "შვედური კრონა"
+    },
+    "CHF": {
+      "currencyCode": "CHF",
+      "currency": "შვეიცარული ფრანკი"
+    },
+    "EGP": {
+      "currencyCode": "EGP",
+      "currency": "ეგვიპტური ფუნტი"
+    },
+    "GBP": {
+      "currencyCode": "GBP",
+      "currency": "ბრიტანული გირვანქა სტერლინგი"
+    },
+    "USD": {
+      "currencyCode": "USD",
+      "currency": "აშშ დოლარი"
+    },
+    "AZN": {
+      "currencyCode": "AZN",
+      "currency": "აზერბაიჯანული მანათი"
+    },
+    "RON": {
+      "currencyCode": "RON",
+      "currency": "რუმინული ლეი"
+    },
+    "TRY": {
+      "currencyCode": "TRY",
+      "currency": "თურქული ლირა"
+    },
+    "BGN": {
+      "currencyCode": "BGN",
+      "currency": "ბულგარული ლევი"
+    },
+    "EUR": {
+      "currencyCode": "EUR",
+      "currency": "ევრო"
+    },
+    "PLN": {
+      "currencyCode": "PLN",
+      "currency": "პოლონური ზლოტი"
+    },
+    "DZD": {
+      "currencyCode": "DZD",
+      "currency": "ალჟირული დინარი"
+    },
+    "BDT": {
+      "currencyCode": "BDT",
+      "currency": "ბანგლადეშის ტაკა"
+    },
+    "AMD": {
+      "currencyCode": "AMD",
+      "currency": "სომხური დრამი"
+    },
+    "IQD": {
+      "currencyCode": "IQD",
+      "currency": "ერაყული დინარი"
+    },
+    "LBP": {
+      "currencyCode": "LBP",
+      "currency": "ლიბანური ფუნტი"
+    },
+    "LYD": {
+      "currencyCode": "LYD",
+      "currency": "ლიბიური დინარი"
+    },
+    "MYR": {
+      "currencyCode": "MYR",
+      "currency": " მალაიზიური რინგგიტი "
+    },
+    "MAD": {
+      "currencyCode": "MAD",
+      "currency": "მაროკოს დირჰამი"
+    },
+    "PKR": {
+      "currencyCode": "PKR",
+      "currency": "პაკისტანის რუპია"
+    },
+    "VND": {
+      "currencyCode": "VND",
+      "currency": "ვიეტნამური დონგი"
+    },
+    "THB": {
+      "currencyCode": "THB",
+      "currency": "ტაილანდური ბატი"
+    },
+    "AED": {
+      "currencyCode": "AED",
+      "currency": " არაბთა გაერთიანებული საემიროების დირჰამი "
+    },
+    "TND": {
+      "currencyCode": "TND",
+      "currency": "ტუნისის დინარი"
+    },
+    "UZS": {
+      "currencyCode": "UZS",
+      "currency": "უზბეკური სომი"
+    },
+    "TWD": {
+      "currencyCode": "TWD",
+      "currency": "ახალი ტაივანის დოლარი"
+    },
+    "GHS": {
+      "currencyCode": "GHS",
+      "currency": "გიბრალტარის ფუნტი"
+    },
+    "RSD": {
+      "currencyCode": "RSD",
+      "currency": "სერბული დინარი"
+    },
+    "GEL": {
+      "currencyCode": "GEL",
+      "currency": "ქართული ლარი"
+    },
+    "UAH": {
+      "currencyCode": "UAH",
+      "currency": "უკრაინული გრივნა"
+    }
+  }
+}

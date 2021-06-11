@@ -76,7 +76,7 @@ class BlocksoftBalances {
     /**
      * @return {Promise<{balance:*, frozen: *, provider:*, unconfirmed:*, addresses : *, balanceScanBlock : *}>}
      */
-    async getBalance() {
+    async getBalance(source) {
         BlocksoftCryptoLog.log('BlocksoftBalances.getBalance ' + this._data.currencyCode + ' ' + this._data.address + ' started')
         const currencyCode = this._data.currencyCode
         if (!currencyCode) {
@@ -87,13 +87,27 @@ class BlocksoftBalances {
         }
         let res
         try {
-            res = await this._processor[currencyCode].getBalanceBlockchain(this._data.address, this._data.jsonData, this._data.walletHash)
+            res = await this._processor[currencyCode].getBalanceBlockchain(this._data.address, this._data.jsonData, this._data.walletHash, source)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             throw e
         }
         BlocksoftCryptoLog.log('BlocksoftBalances.getBalance ' + this._data.currencyCode + ' ' + this._data.address + ' ended ' + JSON.stringify(res))
         return res
+    }
+
+    async getBalanceHodl() {
+        const currencyCode = this._data.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
+        let hodl = 0
+        if (currencyCode === 'XRP') {
+            hodl = 20
+        } else if (currencyCode === 'XLM') {
+            hodl = 1
+        }
+        return hodl
     }
 }
 

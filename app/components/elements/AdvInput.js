@@ -76,7 +76,7 @@ class AdvInput extends Component {
                         options={{
                             mask: walletMask
                         }}
-                        keyboardType={'number'}
+                        keyboardType={'numeric'}
                         value={this.state.walletNumber}
                         onChangeText={(value) => this.onChangeText(value)}
                         placeholderTextColor={!isValid ? '#e77ca3' : '#404040'}

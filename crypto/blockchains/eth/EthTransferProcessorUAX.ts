@@ -6,7 +6,7 @@ import EthTransferProcessorErc20 from './EthTransferProcessorErc20'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 import DaemonCache from '../../../app/daemons/DaemonCache'
-import DBInterface from '../../../app/appstores/DataSource/DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import BlocksoftUtils from '../../common/BlocksoftUtils'
 
@@ -73,7 +73,6 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 i
             countedForBasicBalance: balanceETH.toString(),
             fees : [],
             selectedFeeIndex: 0,
-            shouldChangeBalance: false
         } as BlocksoftBlockchainTypes.FeeRateResult
 
         if (balanceETH > MIN_FEE) {
@@ -350,7 +349,6 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 i
     }
 
     async _saveDelegatedNonce(hash : string, nonce : number, fromAddress : string) {
-        const dbInterface = new DBInterface()
-        await dbInterface.setQueryString(`INSERT INTO transactions_scanners_tmp (currency_code, address, tmp_key, tmp_sub_key, tmp_val) VALUES ('ETH_UAX', '${fromAddress}', 'nonce', '${nonce}', '${hash}')`).query()
+        await Database.setQueryString(`INSERT INTO transactions_scanners_tmp (currency_code, address, tmp_key, tmp_sub_key, tmp_val) VALUES ('ETH_UAX', '${fromAddress}', 'nonce', '${nonce}', '${hash}')`).query()
     }
 }

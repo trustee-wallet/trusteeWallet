@@ -15,7 +15,9 @@ import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../../services/i18n'
 
-export default class UpdateModal extends Component {
+import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+
+class UpdateModal extends Component {
 
     constructor(props) {
         super(props)
@@ -44,22 +46,24 @@ export default class UpdateModal extends Component {
 
         const { title, icon, description } = this.props.data
 
+        const { colors } = this.context
+
         return (
             <Layout visible={this.props.show}>
                 <View>
-                    <Title style={styles.title} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
+                    <Title style={{...styles.title, color: colors.common.text1 }} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
                         {title}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: -5 }}>
-                        <Text style={styles.text}>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {description}
                         </Text>
                     </View>
                     <View>
-                        <Button onPress={this.handleYes} color={'#864DD9'} shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={this.handleYes} color={colors.modal.success} shadow={true} style={{ marginTop: 17 }}>
                             {strings('modal.infoUpdateModal.download')}
                         </Button>
-                        <Button onPress={this.handleNo} style={{ backgroundColor: 'none', color: '#864DD9' }}>
+                        <Button onPress={this.handleNo} style={{ backgroundColor: 'transparent', color: colors.modal.success }}>
                             {strings('modal.infoUpdateModal.notNow')}
                         </Button>
                     </View>
@@ -69,6 +73,10 @@ export default class UpdateModal extends Component {
     }
 }
 
+UpdateModal.contextType = ThemeContext
+
+export default UpdateModal
+
 const styles = {
     title: {
         fontFamily: 'Montserrat-Bold',
@@ -77,12 +85,10 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040',
         marginTop: -10,
         marginBottom: -2
     },
     text: {
-        color: '#5C5C5C',
         fontFamily: 'SFUIDisplay-Regular',
         fontStyle: 'normal',
         fontWeight: 'normal',

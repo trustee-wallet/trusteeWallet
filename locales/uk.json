@@ -1,4 +1,4 @@
- {
+{
   "appName": "Trustee",
   "auth": {
     "navigation": {
@@ -7,11 +7,11 @@
     },
     "logOut": "Вийти"
   },
-   "finishTradeScreen": {
-     "title": "Вітаємо!",
-     "description": "Ваш ордер був створений. \n Щойно транзакція отримає необхідні підтвердження, вона буде виконана відповідно. \n Ви можете відстежувати стан ордеру в історії ордерів.",
-     "orderHistoryBtn": "Історія ордерів"
-   },
+  "finishTradeScreen": {
+   "title": "Вітаємо!",
+    "description": "Ваш ордер був створений. \n Щойно транзакція отримає необхідні підтвердження, вона буде виконана відповідно. \n Ви можете відстежувати стан ордеру в історії ордерів.",
+    "orderHistoryBtn": "Історія ордерів"
+  },
    "finishTradeErrorScreen": {
      "title": "Банк не підтвердив Ваш платіж!",
      "description": "Ордер не оплачений"
@@ -19,19 +19,19 @@
    "tooltips": {
      "HOME_SCREEN_BUY_BTN_TIP": {
        "title": "",
-       "description": "Тут ти можеш купити крипту з карти - Ваш Капітан Очевидність :)"
+       "description": "Тут Ви можете вигідно купити крипту з кредитної картки в два кліка!"
      },
      "HOME_SCREEN_EXCHANGE_BTN_TIP": {
        "title": "",
-       "description": "Не обов’язково міняти на біржах - міняй крипту на крипту у нас у 2 кліки!"
+       "description": "Зрозумілий та вигідний обмін криптовалют!"
      },
      "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
        "title": "",
-       "description": "Додавай необхідні монети та заробляй - вперед!"
+       "description": "Додавайте необхідні монети та токени тут"
      },
      "HOME_SCREEN_CRYPTO_BTN_TIP": {
        "title": "",
-       "description": "Це - твій унікальний біткоїн гаманець - починай відправляти та приймати біткоїни!"
+       "description": "Ваш анонімний біткоїн-гаманець: вигідно отримати, купити та відправити біткоїни."
      },
      "ACCOUNT_SCREEN_ADDRESS_TIP": {
        "title": "",
@@ -49,9 +49,9 @@
    },
    "homeScreen": {
      "balance": "Баланс",
+     "unconfirmed" : "Непідтверджений",
      "today": "Сьогодні",
      "changedLastDay": "За останні 24 години",
-     "assets": "Активи",
      "synchronizing": "Синхронізація"
    },
    "walletCreateScreen": {
@@ -59,8 +59,16 @@
      "createWallet": "Створити гаманець",
      "importWallet": "Імпортувати гаманець",
      "acceptTerms": "Ви не погодились з Умовами надання послуг та Політикою конфіденційності",
-     "terms1": "Погоджуюсь з ",
-     "terms2": "Умовами надання послуг та Політикою конфіденційності"
+     "agreement1": "Я прочитав, розумію та погоджуюсь з цим",
+     "terms": "Умовами користування",
+     "agreement2": "і",
+     "privacyPolicy": "Політикою конфіденційності",
+     "termsTitle": "Умови користування",
+     "privacyPolicyTitle": "Політика конфіденційності",
+     "slider1": "Інноваційні технології безпеки та анонімності",
+     "slider2": "Безмежні можливості в інтуїтівно зрозумілому дизайні",
+     "slider3": "Вбудований моніторинг обмінних пунктів",
+     "slider4": "Завислі та дорогі транзакції"
    },
    "exchangeScreen": {
      "title": "Обмін",
@@ -86,7 +94,7 @@
      },
      "noAddressModal" : {
        "title" : "Зовнішний актив",
-       "description" : "Обраний актив не ввімкнено в Trustee - будь ласка, ввімкніть його у списку або створіть транзакцію самостійно"
+       "description" : "Обраний актив не ввімкнено в Trustee - будь ласка, додайте його або створіть транзакцію самостійно"
      },
      "resendModal" : {
        "title" : "Обмін не завершено",
@@ -94,7 +102,7 @@
      },
      "waitConfirmModal" : {
        "title" : "Обмін майже завершено",
-       "description" : "Транзакцію %{txHash} вже створено, будь ласка зачекайте на підтвердження мережі"
+       "description" : "Транзакцію %{txHash} вже створено, будь ласка, зачекайте на підтвердження мережі"
      }
    },
    "exchangeConfirmScreen": {
@@ -123,6 +131,7 @@
      "selectFiat": "Оберіть валюту",
      "submit": "Далі",
      "modalError": {
+       "selectPhoto" : "Оберіть фото картки з галереї",
        "selectCryptocurrency": "Оберіть криптовалюту",
        "selectWhatYouGet": "Оберіть, що Ви отримуєте",
        "selectWhatYouGive": "Оберіть, що Ви віддаєте",
@@ -130,7 +139,7 @@
        "selectFiatTemplate": "Select fiat template error",
        "limit": "Ви вийшли за допустимі межі",
        "additionalData": "Будь ласка, заповніть дані",
-       "notSupported": "На жаль, цей формат телефону не підтримується.",
+       "notSupported": "На жаль, цей формат телефону не підтримується",
        "serviceUnavailable": "Послуга недоступна. Будь ласка, спробуйте пізніше",
        "qrNotFoundInFile" : "Qr-код не знайдено, будь ласка, спробуйте перезавантажити файл",
        "UI_ERROR_CARD_NEEDED": {
@@ -193,50 +202,87 @@
      "confirmScreenInvalidCard": "Будь ласка, оберіть іншу картку",
      "confirmScreenTimeout" : "Будь ласка, перевірте доступ до інтернету та спробуйте ще раз",
      "confirmScreenInvalidOut" : "Невірний рахунок для виводу, будь ласка, перевірте та спробуйте ще раз",
-     "confirmScreenAdvNotVerified" : "Email не верифіковано, будь ласка, введіть верифікований Adv рахунок та спробуйте ще раз",
+     "confirmScreenAdvNotVerified" : "Email не верифіковано, будь ласка, введіть верифікований ADV рахунок та спробуйте ще раз",
      "confirmScreenTemporaryOff" : "Тимчасове відключення торгової пари на боці провайдера",
      "confirmScreenInvalidAddress" : "Системна помилка торгової пари на боці провайдера, будь ласка, спробуйте ще раз",
      "openLink" : "Для переходу на платіжну систему, будь ласка, перейдіть по цьому посиланню",
      "openLinkError": "Не знайдено браузер - посилання скопійовано в буфер"
    },
+   "notifications": {
+     "title": "Cповіщення",
+     "newsTitle": "Новина",
+     "tabAll": "Всі",
+     "tabNews": "Новини",
+     "today": "Сьогодні",
+     "yesterday": "Вчора"
+   },
   "settings": {
     "title": "Налаштування",
+    "wallets": {
+      "listTitle": "Мої гаманці",
+      "listSubtitle": "Гаманці: %{number}"
+    },
+    "walletConnect": {
+      "title": "Wallet connect",
+      "activated": "Активовано",
+      "disabled": "Відключено"
+    },
+    "paymentAccounts": {
+      "listTitle": "Платіжні рахунки",
+      "listSubtitle": "Рахунки: %{number}"
+    },
     "walletManagement": {
       "title": "Керування гаманцями",
       "backup": "Резервувати гаманець",
       "import": "Імпортувати гаманець",
       "create": "Створити новий гаманець",
       "select": "Обрати гаманець",
-      "turnOnHD" : "Увiмкнути деревовиднi адреси BTC"
+      "addWallet": {
+        "title": "Додати гаманець",
+        "importTitle": "Імпортувати гаманець",
+        "importSubtitle": "Додайте гаманець із фразою відновлення",
+        "createTitle": "Створити новий гаманець"
+      },
+      "advanced": {
+        "title": "Налаштування гаманця",
+        "walletNameLabel": "Ім'я гаманця",
+        "recoveryPhraseTitle": "Фраза відновлення",
+        "recoveryPhraseSubtitle": "Ваша таємна фраза відновлення"
+      }
     },
     "security": {
       "title": "Безпека",
       "change": "Змінити PIN-код",
       "lock": "PIN-код",
       "touch": "FaceID/TouchID",
-      "askPINCodeToSend": "Запит авторизації",
-      "askPINCodeSubtitle": "При відправці активів"
+      "askPINCodeToSend": "Підтвердження транзакції",
+      "askPINCodeSubtitle": "Запит PIN-коду при відправці активів"
     },
     "assets": {
       "title": "Керування активами",
       "addAsset": "Додати актив"
     },
     "other": {
-      "title": "Підтримка та довідка",
+      "title": "Інше",
+      "darkModeTitle": "Темний режим",
+      "darkModeEnabledSubtitle": "Увімкнено",
+      "darkModeDisabledSubtitle": "Вимкнено",
+      "clearIntercom" : "Intercom",
+      "clearIntercomSubtitle" : "Видалити історію повідомлень",
+      "clearIntercomDone" : "Видалено",
       "support": "Підтримка",
       "supportSubtitle": "Наш бот в telegram",
       "lock": "Блокування екрану",
       "bio": "Biometrics",
-      "appnews" : "Технічні повідомлення",
-      "appnewsSmall" : "Тех. повідомлення",
       "about": "Про гаманець Trustee",
-      "lang": "Change language",
+      "lang": "Language",
       "copyLogs": "Копiювати логи",
       "cashback": {
         "title": "Кешбек",
         "description": "Запрошуйте друзів та заробляйте гроші!",
         "descriptionSmall": "Запрошуйте друзів та заробляйте!"
       },
+      "notifications": "Сповіщення",
       "localCurrency": "Локальна валюта",
       "scannerSettings" : "Сканування",
       "scannerSubtitle": "Частота оновлення балансів",
@@ -246,7 +292,9 @@
       "testerMode": "Тестувальник"
     },
     "walletList": {
-      "title": "Список гаманців",
+      "title": "Мої гаманці",
+      "addWallet": "Додати гаманець",
+      "backupNeeded": "Резервне копіювання",
       "addedAssets": "Додані активи",
       "balance": "Баланс",
       "backup": "Резервувати",
@@ -255,24 +303,23 @@
       "totalBalance": "Загальний баланс",
       "useUnconfirmed": "Використовувати непідтверджені транзакції",
       "allowReplaceByFee" : "Редагування транзакції до підтвердження майнерами",
-      "changeSetting" : "Адреса для решти",
-      "useLegacy": "Використовувати Legacy",
-      "useSegWit": "Використовувати Segwit",
-      "showLegacy": "Показувати Legacy",
-      "showSegWit": "Показувати SegWit",
-      "accountSetting": "Налаштування акаунту",
-      "showSegWitAndLegacy": "Показувати SegWit і Legacy",
+      "showLegacy": "Legacy",
+      "showSegWit": "SegWit",
+      "accountAddress": "Тип адреси за замовчуванням",
+      "hd": "Підвищення конфіденційності",
+      "hdDescription": "Створення нової адреси, щоразу, після вхідної BTC транзакції",
       "hideCommissionTrans": "Сховати транзакції оплати за комісію",
-      "checkFrozen" : "Сканувати замороженний баланс",
       "manualAddressFromHD" : "Вставити адресу HD",
-      "scanAddressesFromHD" : "Сканувати адреси HD на наявність балансів",
+      "scanAddressesFromHD" : "Сканувати адреси HD",
       "setAddressesFromHD" : {
         "title": "Головна адреса буде змінена",
         "description" : "Ви будете використовувати баланс %{newAddress}"
       },
       "backupModal": {
-        "title": "Мнемонічна фраза не збережена!",
-        "description": "Мнемонічна фраза (Seed-фраза) це єдиний ключ до Ваших активів! У разі виходу з ладу телефону або в інших подібних ситуаціях, відновити доступ без цієї фрази до Ваших активів буде неможливо! Рекомендуємо зберегти фразу в безпечному місці прямо зараз! \n \n  Якщо у Вас просять сід-фразу, то Ви маєте справу з шахраями! \n Нікому і ні за яких обставин, не повідомляйте сід-фразу!"
+        "title": "Ваша фраза відновлення не збережена!",
+        "description": "Фраза відновлення (Seed-фраза) - це єдиний ключ до Ваших активів! У разі поломки або втрати мобільного пристрою відновити доступ до Ваших активів без Seed-фрази буде неможливо!\n\nЗбережіть Фразу відновлення в надійному місці прямо зараз!\n\nОстерігайтеся шахраїв, ніколи і нікому не передавайте свою Фразу відновлення!",
+        "save": "Зберегти",
+        "late": "Відкласти"
       },
       "hdEnableModal": {
         "title": "Переключити гаманець у режим HD?",
@@ -284,17 +331,49 @@
       "serverSendInputTitleXMR" : "або node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти",
-      "getMnemonicXMR" : "Переглянути секрети"
+      "getMnemonicXMR" : "Переглянути секрети",
+      "availableTRX" : "Доступно",
+      "frozenTRX" : "Застейкано",
+      "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",
+      "enterToFreezeTRX" : "введіть кількість TRX",
+      "freezeForBandTRX" : "Застейкати",
+      "freezeForEnergyTRX" : "Для енергії",
+      "unfreezeTRX" : "Розморозити",
+      "votedTRX" : "Голоса",
+      "votedBalanceTRX" : "Використано %{voteTotal} / Всього %{prettyVote}",
+      "voteTRX" : "Проголосувати",
+      "rewardTRX" : "Нагорода за голосування",
+      "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
+      "claimTRX" : "Забрати нагороду",
+      "refreshTRX" : "Перезавантажити",
+      "allowLongQueryETH" : "Дозволити створювати чергу з непідтверджених транзакцій",
+      "allowBlockedBalanceETH" : "Дозволити повторне використання балансу непідтверджених транзакцій"
     },
     "about": {
       "title": "Про гаманець",
-      "header": "Trustee для %{OS}",
-      "version": "Версія",
+      "version": "Trustee версія: %{version}",
       "privacy": "Політика конфіденційності",
-      "terms": "Умови користування"
+      "terms": "Умови користування",
+      "feedback": "Зворотній зв'язок",
+      "shareLogsTitle": "Надіслати логи",
+      "shareLogsSubtitle": "Допоможіть нам бути кращими",
+      "contactSupportTitle": "Звернутись до служби підтримки",
+      "contactSupportSubtitle": "Офіційний telegram канал",
+      "information": "Інформація",
+      "copyright": "© BlockSoftLab Inc, 2021"
+    },
+    "notifications": {
+      "title": "Налаштування сповіщень",
+      "additional": "Додаткові",
+      "allNotificationsTitle": "Активувати всі",
+      "transactionsTitle": "Транзакції",
+      "transactionsSubtitle": "Покупка, продаж, отримання, відправка, обмін",
+      "exchangeRatesTitle": "Зміна курсів валют",
+      "exchangeRateSubtitle": "Ціни основних монет",
+      "newsTitle": "Новини"
     },
     "error": {
-      "title": "Ой, помилка",
+      "title": "Ой, щось пішло не так",
       "contactSupport": "Підтримка",
       "tryAgain": "Оновити",
       "text": "Якщо Ви бачите це, щось пішло не так, надішліть нам логи через підтримку або спробуйте перезавантажити додаток"
@@ -303,6 +382,16 @@
     "tester": "Тестувальник/користувач змінений на: %{testerMode}"
   },
   "assets": {
+    "title": "Додати актив",
+    "tabAll": "Все",
+    "tabCoins": "Монети",
+    "tabTokens": "Токени",
+    "tabCustom": "Ще",
+    "searchPlaceholder": "Пошук",
+    "addCustomPlaceholder": "Адреса активу",
+    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
+    "noAssetsFound": "Активи не знайдено",
+    "addAssetButton": "Додати актив",
     "mainTitle": "Додати актив",
     "addCustomAsset": "Додати актив не із списку",
     "addAsset": "Додати",
@@ -312,13 +401,40 @@
    "AddCustomToken": {
      "mainTitle": "Додати актив",
      "tokenInputTitle": "Адреса активу",
-     "description": "Підтримуються Ethereum (ETH) и Tron (TRX) адреси токенів/активів",
+     "description": "Підтримуються адреси токенів/активів Ethereum (ETH) і Tron (TRX)",
      "add": "Додати"
    },
   "cashback": {
-    "pageTitle": "Кешбек",
-    "mainTitle": "Приведи друзів - зароби кешбек!",
-    "mainDescription": "Приведи п'ять друзів та почни заробляти 10% кешбеку з комісії своїх обмінів! Trustee повертає до 30% комісії своїм користувачам!",
+    "pageTitle": "Запрошуй друзів",
+    "pageSubtitle": "Заробляй разом з Trustee Wallet до 30% від комісій!",
+    "shareButton": "Поділитись",
+    "promoButton": "Промокод",
+    "detailsButton": "Деталі",
+    "enterPromoPlaceholder": "Введіть промокод",
+    "enterInviteLinkPlaceholder": "Введіть посилання-запрошення",
+    "applyButton": "Застосувати",
+    "wholeBalance": "Усього накопичено кешбеку",
+    "cashbackBalance": "Баланс кешбеку",
+    "cpaCurrent": "Баланс CPA",
+    "cpaTotal": "Усього CPA",
+    "cpaLevel1": "CPA Рівень №1",
+    "cpaLevel2": "CPA Рівень №2",
+    "cpaLevel3": "CPA Рівень №3",
+    "cashbackToken": "Токен",
+    "invitedBy": "Запрошений",
+    "howItWorks": {
+      "title": "Як це працює?",
+      "info1Title": "Чи є в Trustee Wallet програма нагород для користувачів?",
+      "info1Content": "Програма складається з кешбеку та дворівневої партнерської програми, що в підсумку дозволяє отримувати до 30% від комісій Trustee за покупки і продажі криптовалют запрошеними користувачами",
+      "info2Title": "Як активувати кешбек?",
+      "info2Content": "Для активації необхідно запросити одного нового користувача за своїм кешбек посиланням. Після активації Ви будете отримувати 10% від комісії Trustee зі своїх обмінів. Ця функція активується назавжди!",
+      "info3Title": "Які умови партнерської програми?",
+      "info3Content": "Рівень №1 – 10% від комісії Trustee за покупки і продажі криптовалют запрошеними користувачами (активується з першого партнера). Чим більше друзів встановлять гаманець по Вашому посиланню, тим більше буде Ваш дохід. Рівень №2 - активується при перевищенні обороту структури в 5000 USDT в тиждень і дозволить отримувати 10% від комісій Trustee з користувачів 2-го рівня (партнери Ваших партнерів).",
+      "info4Title": "Як вивести кешбек і партнерську винагороду?",
+      "info4Content": "Мінімальна сума для виводу - 2 USDT"
+    },
+    "mainTitle": "Запроси друзів - зароби кешбек!",
+    "mainDescription": "Запроси друга за своїм посиланням та почни отримувати 10% кешбеку з комісії своїх обмінів! Trustee повертає до 30% комісії своїм користувачам!",
     "shareText": "Поділитись",
     "more": "Ще",
     "shareTitle": "",
@@ -332,15 +448,17 @@
       "UI_ERROR_CASHBACK_NETWORK_ERROR": "Немає доступу до інтернету",
       "UI_ERROR_CASHBACK_SIGN_ERROR" : "Некоректний підпис у сховищі - будь ласка, зайдіть в розділ кешбек ще раз",
       "UI_ERROR_CASHBACK_TIME_ERROR" : "Неактуальна дата або час пристрою",
-      "UI_ERROR_CASHBACK_TIME_ERROR_LONG" : "Сервіс може не працювати в результаті нестабільного інтернету або некоректних налаштувань дати та часу на Вашому мобільному пристрої"
+      "UI_ERROR_CASHBACK_TIME_ERROR_LONG" : "Сервіс може не працювати в результаті нестабільного інтернету або некоректних налаштувань дати та часу на Вашому мобільному пристрої",
+      "UI_ERROR_CASHBACK_PROMO_DUPLICATE" : "Промокод використано",
+      "UI_ERROR_CASHBACK_PROMO_NOT_FOUND" : "Промокод не знайдено"
     },
     "cashbackAmount": "Сума кешбеку",
     "setParentToken": "Задати посилання-запрошення Вашого друга",
     "hasParentToken": "Запросив %{cashbackParentToken}",
-    "inputParentCashbackLink": "https://trustee.deals/link/example",
-    "minWithdraw": "Мінімальна сума для виводу",
+    "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Вивести",
-    "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм @TrusteeWallet"
+    "minWithdraw": "Мінімальна сума для виводу",
+    "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм"
   },
   "account": {
     "title": "Рахунок",
@@ -348,19 +466,27 @@
     "refresh": "Оновити",
     "receive": "%{receive}",
     "send": "Відправити",
-    "history": "Історія транзакцій",
-    "scan": "Відскановано в ",
-    "noTransactions": "У Вас ще немає транзакцій",
+    "history": "Транзакції",
+    "balanceBadNetwork" : "Нестабільний доступ  до інтернету",
+    "balanceBadBlock" : "Помилка номеру блока",
+    "scan": "Відскановано %{time} хв назад",
+    "justScan": "Щойно відскановано",
+    "soLong": "Сканування було давно",
+    "noTransactions": "У Вас ще немає транзакцій. Але ви можете швидко вирішити цю проблему, просто натисніть кнопку КУПИТИ",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",
     "externalLink": {
       "title": "Перехід до блокчейн експлореру",
       "description": "Ви перейдете на зовнішній ресурс"
     },
+    "fioAccount": {
+      "title": "Акаунт FIO не зареєстрований",
+      "description": "Перейти на сторінку реєстрації та зареєструвати зараз?"
+    },
     "transaction": {
       "pay": "Оплатити",
       "remove" : "Приховати",
-      "removeRBF" : "Видалити заміною",
+      "removeRBF" : "Повернути кошти",
       "destinationTag": "Тег призначення",
       "paymentId": "Ідентифікатор платежу",
       "nonce": "Nonce",
@@ -368,7 +494,7 @@
       "empty": "(пусто)",
       "fee": "Комісія",
       "feeIncome": "Комісія відправника",
-      "txHash": "Актуальний хеш транзакції",
+      "txHash": "ID транзакції",
       "replacedTxHash": "Попередній хеш транзакції",
       "from": "Відправник",
       "to": "Отримувач",
@@ -378,17 +504,20 @@
       "self" : "Собі",
       "freeze" : "Заморожено",
       "claim" : "Винагорода",
+      "swap_income" : "Contract Вхідна",
+      "swap_outcome" : "Contract Вихідна",
       "exchange": "Обмін",
       "buy": "Покупка",
       "sell": "Продаж",
       "mobile_phone": "Поповнення мобільного",
       "date": "Дата",
-      "confirmations": "Підтверджень:",
+      "confirmations": "Підтверджень",
+      "blockNumber": "Номер блоку",
       "moreInformation": "Більше інформації",
       "cardNumberDestination": "Номер картки для виводу",
       "advAccountDestination": "Номер рахунку для виводу",
       "phoneDestination": "Номер телефону для виводу",
-      "orderId": "ID ордеру",
+      "orderId": "Прив'язаний ID обміну",
       "RBF": {
         "replaceByFeeBtn": "Збільшити комісію",
         "willReplaceWithNewFee": "Поточна транзакція буде замінена новою, з новим хешем та більш високою комісією",
@@ -405,12 +534,13 @@
       "success": "Успішна",
       "pending": "В очікуванні",
       "new": "НОВА",
-      "process": "Обробляється",
+      "process": "Опрацьовується",
       "delegated" : "делегована",
       "confirming": "Підтверджується",
       "fail": "Помилка",
       "missing" : "Не знайдена",
       "replaced" : "Замінена",
+      "out_of_energy" : "Немає енергії",
       "internal_success": "З контракту",
       "internal_new": "Нова з контракту",
       "internal_fail": "Помилка з контракту"
@@ -422,80 +552,115 @@
       "receiveAmount": "Вказати суму",
       "FIORequest": "FIO запит",
       "share": "Поділитись",
-      "copy": "Копіювати"
+      "copy": "Копіювати",
+      "amount": "Вказати суму"
     },
     "addAccount": {
       "list": "Список криптовалют"
     },
     "accountList": {
       "list": "Облікові записи"
-    }
+    },
+    "transactionScreen": {
+      "explorer": "Explorer",
+      "share": "Поширити",
+      "booster": "Ускорити",
+      "remove": "Видалити",
+      "removeRbf": "Повернення",
+      "check": "Чек",
+      "support": "Підтримка",
+      "details": "Деталі",
+      "commentPlaceholder": "Коментарій (необов'язково)",
+      "viewExplorer": "Переглянути в Explorer",
+      "header": {
+        "status": {
+          "success": "Успішно",
+          "pending": "Опрацьовується",
+          "canceled": "Відмінено",
+          "missing": "Не знайдена",
+          "out_of_energy" : "Немає енергії"
+        }
+      },
+      "transactionHash": "Хеш транзакції:",
+      "cashbackLink": "Сайт:",
+      "thanks": "Дякуємо, що обрали Trustee Wallet!",
+      "self": "Дана транзакція була відправлена на Вашу власну адресу",
+      "order": "До ордера"
+      }
   },
 
    "fioMainSettings": {
-     "title": "FIO Налаштування",
-     "description": "Контролюй всі можливі FIO опції",
+     "title": "FIO налаштування",
+     "description": "Контролюй всі можливі FIO налаштування",
      "sendFioRequest": "Надіслати FIO запит",
-     "sendFioRequestDesc": "ви можете надіслати FIO запит",
-     "fioRequest": "FIO Запити",
-     "fioRequestDesc": "перелік всіх активних Очикуючих/Відправлених FIO запитів",
-     "fioAddresses": "FIO Адреси",
+     "sendFioRequestDesc": "Ви можете надіслати FIO запит",
+     "fioRequest": "FIO запити",
+     "fioRequestDesc": "перелік всіх активних Очікуючих/Відправлених FIO запитів",
+     "fioAddresses": "FIO адреси",
      "fioAddressesDesc": "всі зареєстровані FIO адреси та їх опції",
-     "registerFioAddress": "Зарегеструвати FIO адресу",
-     "registerFioAddressDesc": "зарегеструвати FIO адресу"
+     "registerFioAddress": "Зареєструвати FIO адресу",
+     "registerFioAddressDesc": "зареєструвати  адресу"
    },
 
    "FioChooseRecipient": {
-     "title": "Оберіть Fio отримувача",
+     "title": "Оберіть FIO отримувача",
      "description": "Введіть FIO, ENS або публічну адресу отримувача",
      "btnText": "Обрати FIO"
    },
 
    "FioChooseAddress": {
-     "title": "Обрати Fio адресу",
-     "description": "Введіть адресу щоб запросити платіж від",
+     "title": "Обрати FIO адресу",
+     "description": "Введіть адресу, щоб запросити платіж від",
      "btnText": "Оберіть FIO адресу"
    },
-
+   "FioAddresses": {
+    "title": "FIO адреси",
+    "btnText": "Зареєструйте адресу",
+     "WebViewTitle": "Зареєструйте адресу"
+  },
    "FioSettings": {
-     "title": "Fio Налаштування",
+     "title": "FIO налаштування",
      "description": "Оберіть гаманець, який бажаєте з'єднати зі своєю FIO адресою",
      "Expire": "Термін дії закінчується",
      "connectAllWallets": "З'єднати всі гаманці",
      "btnText": "Зберегти",
-     "noFioTitle": "Вам потрібно зарегиструвати FIO адресу",
-     "noFioDescription": "FIO адреса не зарегистрована",
-     "noFioBtn": "Зарегиструвати FIO адресу"
+     "noFioTitle": "Вам потрібно зареєструвати FIO адресу",
+     "noFioDescription": "FIO адреса не зареєстрована",
+     "noFioBtn": "Зареєструвати FIO адресу",
+     "serviceUnavailable": "Послуга недоступна. Будь ласка, спробуйте пізніше"
    },
 
    "FioSendRequest": {
      "title": "Надіслати FIO запит",
-     "selectCoin": "Натисніть щоб вибрати валюту",
+     "selectCoin": "Обрати валюту",
      "from": "Надіслати запит від",
-     "to": "Надіслати запит к",
+     "to": "Надіслати запит до",
      "amount": "Кількість",
      "memo": "Коментар",
      "btnText": "Створити",
      "created": "FIO запит створено",
-     "fioSettings": "FIO Налаштування",
-     "registerFioAddress": "Зарегиструвати FIO адресу",
+     "fioSettings": "FIO налаштування",
+     "registerFioAddress": "Зареєструвати FIO адресу",
      "noCoinSelected": "Вам потрібно обрати валюту, для якої потрібно створити запит",
-     "goToFioSettings": "Вам потрібно перейти в FIO налаштування, щоб з'єднати валюти з вашою FIO адресою",
-     "needRegisterFio": "Спочатку вам потрібно зарегиструвати FIO адресу"
+     "goToFioSettings": "Вам потрібно перейти в FIO налаштування, щоб з'єднати валюти з Вашою FIO адресою",
+     "needRegisterFio": "Спочатку Вам потрібно зареєструвати FIO адресу"
    },
 
    "FioRequestsList": {
      "title": "Список запитів FIO",
-     "pendingRequests": "Очикуючі запити",
+     "pendingRequests": "Запити в процесі",
      "sentRequests": "Відправлені запити",
      "RequestedTxt": "Запитано"
    },
 
    "FioRequestDetails": {
-     "title": "Деталі FIO запита",
+     "title": "Деталі FIO запиту",
+     "reqCreated": "Запит створено",
+     "sentTitle": "Отримати на мій",
+     "pendingTitle": "Надіслати з мого",
      "balance": "Баланс",
      "fee": "Комісія",
-     "to": "К",
+     "to": "До",
      "from": "Від",
      "memo": "FIO коментар",
      "amount": "Кількість",
@@ -521,6 +686,7 @@
     },
     "ordersStatus": {
       "exchange": {
+        "dex" : "DEX",
         "pending_payin": "Поповнення очікується",
         "canceled_payin":  "Поповнення відмінене",
         "refunded_order": "Виконано повернення коштів",
@@ -535,6 +701,7 @@
         "error_order": "Помилка під час виконання. Ордер оброблявся вручну."
       },
       "sell": {
+        "dex" : "DEX",
         "pending_payin": "Поповнення очікується",
         "canceled_payin":  "Поповнення відмінене",
         "refunded_order": "Виконано повернення коштів",
@@ -549,6 +716,7 @@
         "error_order": "Помилка під час виконання. Ордер оброблявся вручну."
       },
       "buy": {
+        "dex" : "DEX",
         "pending_payin": "Поповнення очікується",
         "canceled_payin":  "Поповнення відмінене",
         "refunded_order": "Виконано повернення коштів",
@@ -567,7 +735,6 @@
       "selectCurrency": "Вибір криптовалюти",
       "selectPayment": "Select type of payment",
       "estimateAmount": "Введіть суму",
-
       "addCard": "Додати картку",
       "address": "Адреса зарахування криптовалюти:",
       "titleBuy": "Купівля",
@@ -584,7 +751,7 @@
       "minAmountToBuy": "Мінімальна сума для купівлі криптовалюти:",
       "minAmountToSell": "Мінімальна сума для продажу криптовалюти:",
       "minExchange": "%{fiat}",
-      "maxAmountBuy": "Максимальна сума покупки з однієї картки %{maxAmountToBuy} %{fiatSymbol} в день частинами по %{maxAmountToBuyPart} %{fiatSymbol}",
+      "maxAmountBuy": "Максимальна сума покупки з однієї картки %{maxAmountToBuy} %{fiatSymbol} в день, частинами по %{maxAmountToBuyPart} %{fiatSymbol}",
       "maxAmountSell": "Максимальна сума продажу на одну картку %{maxAmountToBuy} %{fiatSymbol} в день",
       "maxFiat": "",
       "next": "Далі",
@@ -610,26 +777,58 @@
     "country": "Країна:"
   },
   "qrScanner" : {
+    "title": "Сканування QR",
     "line1": "Розмістіть QR-код",
     "line2": "в області камери"
   },
   "send": {
-    "title": "Переказ %{currency}",
+    "title": "Переказ",
     "description": "Введіть адресу гаманця отримувача або скануйте QR-код",
     "descriptionExchange": "Адресу гаманця отримувача задано автоматично. Це адреса постачальника обмінів. Обмін активу та зарахування буде здійснено після успішної транзакції",
     "address": "Адреса отримувача",
     "value": "Сума",
     "comment": "Коментар",
     "send": "Далі",
+    "bnb_memo": "Memo",
     "xrp_memo": "Тег призначення",
     "xmr_memo": "Ідентифікатор платежу",
-    "fio_memo": "FIO Коментар",
+    "fio_memo": "FIO коментар",
     "useAllFunds": "Відправити все",
     "equivalent": "Еквівалент: ~ %{amount} %{symbol}",
     "notEnough": "У Вас недостатньо коштів для відправки",
+    "addressError": "Адреса одержувача невірна, будь ласка, перевірте її",
+    "notValidAmount": "Будь ласка, введіть суму",
+    "notValidAmountInFiat": "Будь ласка, введіть більшу суму або перемкніть тип вводу",
     "notEnoughForFee": "Для надсилання токенів потрібно мати позитивний баланс у нативній монеті %{symbol}",
-    "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження або ввімкніть використання непідтвердженних транзакцій",
-    "publicFioAddressNotFound": "%{symbol} публічна адреса не зв'язана з вказаною FIO адресою",
+    "notEnoughForFeeConfirmed": "Для надсилання токенів потрібно мати позитивний підтверджений баланс у нативній монеті %{symbol}, зачекайте на підтвердження",
+
+    "publicFioAddressNotFound": "%{symbol} публічна адреса не пов'язана з вказаною FIO адресою",
+    "domainResolution": {
+      "resolving": "Пошук %{domain}...",
+      "success": "%{domain} преобразован в %{address}",
+      "fail": "Немає записів для %{domain}"
+    },
+    "setting": {
+      "title": "Додатково",
+      "apply": "Застосувати",
+      "feeSettings": "Налаштування комісії",
+      "selectFee": "Оберіть комісію",
+      "inputSettings": "Налаштування входів",
+      "selectInput": "Оберіть входи",
+      "descriptionInput": "За замовчуванням",
+      "optionalSettings": "Необов'язково",
+      "note": "Коментар",
+      "optional" : "Необов’язково",
+      "notAddress": "Будь ласка, введіть адресу, щоб продовжити"
+    },
+    "infoModal": {
+      "title": "Інформація",
+      "BNB": "BNB Memo є довільним та необов’язковим вкладенням транзакції",
+      "XRP": "Тег призначення - це унікальна 9-значна цифра, присвоєна кожному рахунку Ripple (XRP). Він використовується для ідентифікації одержувача в транзакції Ripple.",
+      "XMR": "Ідентифікатор платежу є довільним та необов’язковим вкладенням транзакції. Ідентифікатор платежу зазвичай використовується для ідентифікації транзакцій продавцям та біржам: враховуючи внутрішні функції конфіденційності, вбудовані в Monero, де для вхідних транзакцій зазвичай використовується одна публічна адреса, ідентифікатор платежу особливо корисний для зв’язку вхідних платежів з обліковими записами користувачів.",
+      "XLM": "Stellar коментар є довільним та необов’язковим вкладенням транзакції",
+      "FIO": "FIO коментар це ..."
+    },
     "confirmModal": {
       "title": "Підтвердження відправлення",
       "titleSpeedUp": "Підтвердження прискорення вхідної транзакції %{hash}",
@@ -642,96 +841,46 @@
       "confirm": "Відправити",
       "force" : "Відправити примусово?"
     },
+    "feeModal": {
+      "description": "Плата, яку отримують майнери за підтвердження Вашої транзакції. Комісію майнера (мережі) сплачує відправник за переказ крипто активів на адресу одержувача. Дана комісія розраховується додатком на підставі даних мережі в момент створення транзакції і не залежить від суми переказу.\n\nВажливо!\nШвидкість підтвердження Вашої транзакції майнерами безпосередньо залежить від величини комісії мережі. Будь ласка, враховуйте цю інформацію при ручній зміні комісії."
+    },
     "fee": {
-      "smallFeeNoticeTitle" : "Будь ласка, будьте обережні",
-      "smallFeeNoticeDesc" : "Недостатньо балансу для швидкої транзакції",
-      "customFeeCalculated" : "Загальна сума",
-      "changeAmountNoticeDesc" : "Сума транзакції змінена",
+      "smallFeeNoticeTitle": "Будь ласка, будьте обережні",
+      "smallFeeNoticeDesc": "Недостатньо балансу для швидкої транзакції",
+      "customFeeCalculated": "Загальна сума",
+      "changeAmountNoticeDesc": "Сума транзакції змінена",
       "title": "Змінити\nкомісію",
       "text": {
+        "none": "Встановіть власноруч",
         "eth_speed_slowest": "Мінімально",
         "eth_speed_slow": "Повільно",
+        "eth_speed_medium_to_slow": "Меньша за Середню",
         "eth_speed_medium": "Середньо",
+        "eth_speed_fast_to_medium": "Меньша за Швидку",
         "eth_speed_fast": "Швидко",
-        "eth_speed_delegated" : "Делегована ERC865",
-
+        "eth_speed_delegated": "Делегована ERC865",
         "xmr_speed_1": "Повільно",
-        "xmr_speed_2" : "Середньо",
-        "xmr_speed_3" : "Швидко",
-        "xmr_speed_4" : "Дуже швидко",
-
+        "xmr_speed_2": "Середньо",
+        "xmr_speed_3": "Швидко",
+        "xmr_speed_4": "Дуже швидко",
         "btc_speed_blocks_24": "Мінімально",
         "btc_speed_blocks_12": "Повільно",
         "btc_speed_blocks_6": "Середньо",
         "btc_speed_blocks_2": "Швидко",
-        "corrected_speed_blocks_2": "Авто",
-
         "bch_speed_blocks_12": "Повільно",
         "bch_speed_blocks_6": "Середньо",
         "bch_speed_blocks_2": "Швидко",
-
         "ltc_speed_blocks_12": "Повільно",
         "ltc_speed_blocks_6": "Середньо",
         "ltc_speed_blocks_2": "Швидко",
-
-        "btc_corrected_speed_blocks_2": "Авто",
-        "btc_corrected_speed_blocks_6": "Авто",
-        "btc_corrected_speed_blocks_12": "Авто",
-        "btc_corrected_speed_blocks_2_protection": "Авто (захист вiд переплати)",
-        "btc_corrected_speed_blocks_6_protection": "Авто (захист вiд переплати)",
-        "btc_corrected_speed_blocks_12_protection": "Авто (захист вiд переплати)",
-        "ltc_corrected_speed_blocks_2": "Авто",
-        "ltc_corrected_speed_blocks_6": "Авто",
-        "ltc_corrected_speed_blocks_12": "Авто",
-        "ltc_corrected_speed_blocks_2_protection": "Авто (захист вiд переплати)",
-        "ltc_corrected_speed_blocks_6_protection": "Авто (захист вiд переплати)",
-        "ltc_corrected_speed_blocks_12_protection": "Авто (захист вiд переплати)",
-
-        "xrp_speed_one" : "Швидко"
+        "xrp_speed_one": "Швидко"
       },
-      "time": {
-        "eth_speed_slowest": "",
-        "eth_speed_slow": "",
-        "eth_speed_medium": "",
-        "eth_speed_fast": "",
-        "eth_speed_delegated" : "Транзакція буде відправлена за рахунок третьої сторони. Комісія стягується в %{symbol} згідно ERC865",
-
-        "xmr_speed_1": "",
-        "xmr_speed_2" : "",
-        "xmr_speed_3" : "",
-        "xmr_speed_4" : "",
-
-        "btc_speed_blocks_24": "",
-        "btc_speed_blocks_12": "",
-        "btc_speed_blocks_6": "",
-        "btc_speed_blocks_2": "",
-
-        "bch_speed_blocks_12": "",
-        "bch_speed_blocks_6": "",
-        "bch_speed_blocks_2": "",
-
-        "ltc_speed_blocks_12": "",
-        "ltc_speed_blocks_6": "",
-        "ltc_speed_blocks_2": "",
-
-        "btc_corrected_speed_blocks_2": "> 35 хвилин",
-        "btc_corrected_speed_blocks_6": "> 95 хвилин",
-        "btc_corrected_speed_blocks_12": "> 135+ хвилин",
-        "btc_corrected_speed_blocks_2_protection": "> 35 хвилин",
-        "btc_corrected_speed_blocks_6_protection": "> 95 хвилин",
-        "btc_corrected_speed_blocks_12_protection": "> 135+ хвилин",
-        "ltc_corrected_speed_blocks_2": "> 15 хвилин",
-        "ltc_corrected_speed_blocks_6": "> 35 хвилин",
-        "ltc_corrected_speed_blocks_12": "> 135+ хвилин",
-        "ltc_corrected_speed_blocks_2_protection": "> 15 хвилин",
-        "ltc_corrected_speed_blocks_6_protection": "> 35 хвилин",
-        "ltc_corrected_speed_blocks_12_protection": "> 135+ хвилин",
-
-        "xrp_speed_one" : ""
-      },
+      "getRaw" : "Побудувати hex для транзакції (без відправки)",
       "customFee": {
+        "title": "Власноруч",
         "fixedFeeTitle": "ФІКСОВАНА\nКОМІСІЯ",
         "customFeeTitle": "ВСТАНОВИТИ\nВЛАСНОРУЧ",
+        "calculatedFee": "Розрахована комісія:",
         "eth": {
           "gasPrice": "Ціна за газ",
           "gasLimit": "Ліміт газу",
@@ -745,34 +894,58 @@
         }
       }
     },
+    "receiptScreen": {
+        "title": "Квитанція",
+        "totalSend": "Сума відправки",
+        "rate": "Ціна за 1 %{currencyCode}",
+        "replaceTransactionHash" : "Заміна транзакції",
+        "removeTransactionHash" : "Видалення транзакції",
+        "speedUpTransactionHash" : "Прискорення транзакції",
+        "recepient": "Отримувач",
+        "destinationAddress": "Адреса отримувача",
+        "minerFee": "Комісія майнера",
+        "totalMinerFee": "Загальна комісія майнера",
+        "customNonce": "Custom nonce",
+        "nonce": "Nonce",
+        "trusteeInfo": "Trustee не бере комісію в криптовалютних транзакціях",
+        "send": "Надіслати",
+        "build" : "Побудувати",
+        "sending": "Відправка"
+
+    },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND" : "Транзакція на цю адресу вже відправлена, Ви впевнені, що хочете повторити транзакцію?",
+      "UI_CALCULATE_CUSTOM_FEE" : "Будь ласка, порахуйте повну вартість від ціни за байт",
+      "SERVER_RESPONSE_CLOUDFLARE" : "Будь ласка, спробуйте ще раз - доступ до мережи захищено cloudflare",
       "SERVER_RESPONSE_BAD_CODE" : "Щось пішло не так, будь ласка, зв'яжіться із службою підтримки",
       "SERVER_RESPONSE_BAD_INTERNET" : "Немає доступу до інтернету",
       "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Транзакцію не знайдено, будь ласка, перевірте доступ до інтернету. Можливі затримки у відображенні інформації",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостатньо коштів нативной монети %{symbol} для оплати комісії мережі",
-      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Неможливо перевірити баланс нативной монети (%{symbol}). Будь ласка, перевірте доступ до інтернету!",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Only dust inputs - couldnt process - please use \"Send All\" to collect them together",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Неможливо перевірити баланс нативної монети (%{symbol}). Будь ласка, перевірте доступ до інтернету!",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Занадто мала сума для транзакції",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для відправки транзакції",
-      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Недостатньо коштів на балансі для сплати комісії мережі - будь ласка, використовуйте опцію \"Відправити Всі \" ",
+      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Недостатньо коштів на балансі для сплати комісії мережі - будь ласка, використовуйте опцію \"Відправити Все \" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Недостатньо коштів на балансі для сплати делегованої транзакції - будь ласка, використовуйте звичайну відправку ERC20",
       "SERVER_RESPONSE_NO_RESPONSE" : "Мережа не приймає транзакцію - будь ласка, зачекайте доки замайняться інші транзакції",
       "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "Мережа не приймає транзакцію - будь ласка, зачекайте доки замайняться інші транзакції або використовуйте більшу комісію",
-      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостатньо коштів нативной монети %{symbol} для сплати комісії - будь ласка, зачекайте доки інші транзакції замайняться",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Недостатньо коштів нативної монети %{symbol} для сплати комісії - будь ласка, зачекайте доки інші транзакції замайняться",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Занадто мала комісія за транзакцію",
       "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Занадто мала комісія за транзакцію для заміни - якщо Ви згодні, що комісію можна взяти із суми отримувача - то на наступному кроці побачите перераховані дані транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Занадто мала комісія за транзакцію для заміни",
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Транзакцію вже підтверджено",
+      "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} вже використано в підтвердженій транзакції",
       "SERVER_RESPONSE_NOT_CONNECTED": "Мережа не відповідає - будь ласка, повторіть операцію пізніше",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції і сплати мінімальної комісії",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте доки інші транзакції замайняться або увімкніть функцію \"Використовувати непідтверджені транзакції\" ",
-      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Занадто велика комісія за транзакцію - будь ласка, виберіть розмір комісії вручну або задайте більшу суму переказу",
+      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Занадто велика комісія за транзакцію - будь ласка, оберіть розмір комісії вручну або задайте більшу суму переказу",
+      "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Занадто велика комісія за байт за транзакцію - будь ласка, оберіть розмір комісії вручну",
       "SERVER_RESPONSE_SELF_TX_FORBIDDEN" : "Транзакції на ту ж саму адресу заборонені",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP" : "Недостатньо коштів для відправки (Завжди залишайте не менше 20 XRP на балансі)",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP" : "Недостатня сума - надішліть не менш ніж 20 XRP для активації адреси одержувача",
       "SERVER_RESPONSE_TAG_NEEDED_XRP" : "Невірний тег призначення - будь ласка, введіть правильний тег призначення для відправки транзакції",
-      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Недостатній баланс BTC на пов'язаній з USDT біткоін адресі - будь ласка, переведіть на неї декілька сатошей",
-      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Недостатній або непідтверджений баланс на пов'язаній з USDT біткоін адресі - будь ласка, зачекайте або увімкніть функцію \"Використовувати непідтверджені транзакції\" ",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT" : "Недостатній баланс BTC на пов'язаній з USDT біткоїн адресі - будь ласка, перерахуйте на неї декілька сатошів",
+      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM" : "Недостатній або непідтверджений баланс на пов'язаній з USDT біткоїн адресі - будь ласка, зачекайте або увімкніть функцію \"Використовувати непідтверджені транзакції\" ",
       "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH" : "Мережа не прийняла транзакцію - будь ласка, зачекайте доки інші транзакції замайняться або використовуйте звичайну відправку ERC20",
       "SERVER_RESPONSE_NO_SSL" : "SSL бібліотека не знайдена - будь ласка, спробуйте оновити систему",
       "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Будь ласка, оберіть вартість комісії зі списку",
@@ -780,17 +953,54 @@
       "SERVER_RESPONSE_TOO_MUCH_GAS_ETH": "Для транзакції потрібно забагато газу - будь ласка, перевірте адресу отримувача - можливо це смартконтракт ",
       "SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20": "Для транзакції токенів потрібно забагато газу - будь ласка, перевірте смартконтракт - можливо ваш баланс заморожено",
       "SERVER_RESPONSE_BAD_DESTINATION" : "Адреса отримувача невалідна",
-      "SERVER_RESPONSE_BAD_SEND_NODE" :  "Немає доступу до сервера відправки",
+      "SERVER_RESPONSE_BAD_SEND_NODE" :  "Немає доступу до сервера відправки або помилка доступу до інтернету - будь ласка, спробуйте ще раз ",
       "SERVER_RESPONSE_DOUBLE_SPEND" : "Будь ласка, створіть повторно транзакцію, оскільки ця використовує вже застарілі входи або зачекайте доки інші транзакції замайняться",
-      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Транзакцію для прискорення не знайдено"
+      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Транзакцію для прискорення не знайдено",
+      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Недостатньо коштів TRX для відправки / ліміт безкоштовних вичерпано",
+      "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Недостатньо коштів VeChain Thor Token (VTHO) для відправки",
+      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції"
     }
   },
   "walletBackup": {
+    "titleCreate": "Створити гаманець",
+    "titleBackup": "Резервне копіювання",
+    "titleShow": "Фраза відновлення",
+    "infoScreen": {
+      "continue": "Продовжити",
+      "text1": "TRUSTEE WALLET ніколи і нікуди не надсилає фразу відновлення. Тому, у випадку втрати чи виходу пристрою з ладу, єдиним способом отримати доступ до Ваших коштів є використання фрази відновлення",
+      "checkbox1": "Я розумію, що якщо втрачу фразу відновлення, я втрачу свої кошти",
+      "checkbox2": "Я розумію, що повинен переглядати фразу відновлення приватно, без камер та сторонних осіб",
+      "text2": "Будьте дуже обережні з фразою відновлення - кожен, хто має її, може отримати доступ до Ваших коштів і витратити їх. Будь ласка, ні в якому разі, нікому не повідомляйте фразу відновлення!"
+    },
+    "step0Screen": {
+      "info": "Фраза відновлення - це єдиний секретний ключ до Ваших активів. Надійно збережіть її",
+      "showButton": "Натисніть і утримуйте, щоб побачити",
+      "next": "Далі"
+    },
+    "step1Screen": {
+      "title": "Підтвердження",
+      "placeholder": "Будь ласка, натисніть слова у правильному порядку, щоб підтвердити фразу відновлення. Щоб видалити слово з поля, натисніть на нього ще раз",
+      "showButton": "Натисніть і утримуйте, щоб побачити",
+      "next": "Далі"
+    },
+    "settingsScreen": {
+      "title": "Налаштування",
+      "apply": "Застосувати",
+      "walletNameLabel": "Дайте назву гаманцю",
+      "walletNamePlaceholder": "Введіть ім'я (необов'язково)",
+      "phraseLengthLabel": "Оберіть довжину фрази відновлення",
+      "12wordsLabel": "12 слів",
+      "24wordsLabel": "24 слова",
+      "contactTitle": "Звернутись до служби підтримки",
+      "contactSubtitle": "Офіційний telegram канал",
+      "skipTitle": "Пропустити перевірку фрази відновлення",
+      "skipSubtitle": "Не рекомендовано"
+    },
     "title": "Резервне копіювання",
     "titleNewWallet": "Генерація гаманця",
     "titleNewWalletSmall": "Генерація",
     "skip": "Пропустити",
-    "description": "Будь хто, маючи Вашу фразу відновлення, може отримати доступ до гаманця. Будь ласка, уважно запишіть ці %{mnemonicLength} %{words}.\nНікому і ні за яких обставин, не повідомляйте сід-фразу!",
+    "description": "Будь хто, маючи Вашу фразу відновлення, може отримати доступ до гаманця. Будь ласка, уважно запишіть ці %{mnemonicLength} %{words}.\nНікому і ні за яких обставин, не повідомляйте фразу відновлення!",
     "pinProtected": "Вам потрібно буде ввести PIN для доступу до фрази відновлення",
     "attention": "Цю фразу потрібно буде підтвердити на наступному кроці",
     "written": "Фразу записано",
@@ -804,7 +1014,7 @@
     },
     "skipElement": {
       "title": "Ви впевнені?",
-      "description": "Фраза резервного копіювання дуже важлива. Ви не матимете доступ до власних коштів. Пропустити цей крок?",
+      "description": "Фраза відновлення - єдиний ключ до Ваших коштів. Не зберігаючи фразу відновлення, Ви ризикуєте втратити кошти назавжди! Пропустити цей крок?",
       "cancel": "Відмінити",
       "yes": "Так",
       "no": "Ні"
@@ -816,21 +1026,29 @@
     "createTitle": "Генерація гаманця",
     "importTitle": "Імпорт гаманця",
     "importGoogle": "Google Drive",
+    "mnemonicPlaceholder": "Вставте всю фразу відновлення або введіть усі слова вручну (зазвичай 12 або 24 слова)",
+    "showMnemonicButton": "Натисніть, щоб подивитись",
+    "phrasePlaceholder": "Фраза відновлення",
+    "importButton": "Імпортувати гаманець",
+    "errors": {
+      "phraseShouldBeLonger": "Фраза відновлення має бути довшою за 11 слів",
+      "wordDoesNotExist": "Такого слова немає в словнику"
+    },
     "importGoogleError": {
-      "title" : "Not Connected",
-      "description" : "Please try again or check access permissions"
+      "title" : "Не з'єднано",
+      "description" : "Будь ласка, спробуйте ще раз або перевірте права доступу"
     },
     "importGoogleNoWallet": {
-      "title" : "No Backup File",
-      "description" : "Encrypted backup file not found"
+      "title" : "Немає файлу резервної копії",
+      "description" : "Зашифрований файл резервної копії не знайдено"
     },
     "backupGoogleHasWallet" : {
-      "title" : "Already Created Backup File",
-      "description" : "Remove backup file to recreate"
+      "title" : "Файл резервної копії же створений",
+      "description" : "Видаліть файл резервної копії для відтворення"
     },
     "backupGoogleSuccess" : {
-      "title" : "Created Backup File",
-      "description" : "Dont remove backup file to restore after application installation"
+      "title" : "Створено файл резервної копії",
+      "description" : "Не видаляйте файл резервної копії для відновлення після встановлення програми"
     },
     "name": "Назвіть гаманець",
     "submit": "Далі",
@@ -840,13 +1058,7 @@
     "optional": "необов’язково",
     "enterMnemonic": {
       "description": "Вставте фразу відновлення повністю або введіть її вручну (звичайно це 12 або 24 слова).",
-      "mnemonic": "Мнемонічна фраза"
-    },
-    "congratsModal": {
-      "title": "Вітаємо!",
-      "description": "Trustee згенерував для Вас новий гаманець. Зробіть резервну копію фрази відновлення пізніше в меню налаштувань - кнопка \"Пропустити\". Або зараз, це займе кілька хвилин - кнопка \"Копіювати\".",
-      "backup": "Копіювати",
-      "skip": "Пропустити"
+      "mnemonic": "Фраза відновлення"
     }
   },
   "walletList": {
@@ -886,6 +1098,9 @@
     "navigation": {
       "back": "Назад",
       "search": "Пошук..."
+    },
+    "webview": {
+      "error": "Упс... Щось пішло не так"
     }
   },
   "dashboardStack": {
@@ -894,7 +1109,9 @@
     "wallet": "Гаманець",
     "exchange": "Обмін",
     "earn": "Заробити",
-    "settings": "Більше"
+    "settings": "Більше",
+    "support": "Підтримка",
+    "market": "Обмінник"
   },
   "modal": {
     "titles": {
@@ -945,6 +1162,14 @@
         "title": "Будь ласка, зверніть увагу!",
         "description": "Ваш гаманець Ripple не активований. Активація вимагає блокування 20 XRP. Згідно протоколу Ripple, ця сума не може бути розблокована і залишиться замороженою на рахунку."
       },
+      "XLM": {
+        "title": "Будь ласка, зверніть увагу!",
+        "description": "Ваш гаманець Stellar не активований. Активація вимагає блокування 1 XLM. Згідно протоколу Stellar, ця сума не може бути розблокована і залишиться замороженою на рахунку."
+      },
+      "TRX_20": {
+        "title": "Будь ласка, зверніть увагу!",
+        "description": "Ваш гаманець Tron не активований. Активація вимагає наявності позитивного балансу ТRX - потім ви зможете використати його для транзакцій "
+      },
       "TOKEN": {
         "title": "Будь ласка, зверніть увагу!",
         "description": "Токен %{currencySymbol} працює на блокчейні %{parentBlockchain} та для обігу потребує позитивного балансу у %{parentCurrency} для оплати комісії майнерам. Поки що на Вашому гаманці нульовий баланс %{parentCurrency}"
@@ -960,11 +1185,15 @@
       "title": "Увага!",
       "description": "Використовувати знову адреси без транзакцій?"
     },
+    "useAgainAddressesGap": {
+      "title": "Увага!",
+      "description": "Рекомендуємо використовувати знову адреси від останньої з транзакціями"
+    },
     "cashbackDontWork": {
       "description": "Ваш пристрій не підтримує кешбек"
     },
     "infoSendAllModal": {
-      "description": "Схоже, ви намагаєтеся надіслати весь свій залишок %{coin}. Для коректної обробки, будь ласка, використовуйте функцію 'надіслати всіх'. Використати зараз?"
+      "description": "Схоже, Ви намагаєтесь надіслати весь свій залишок %{coin}. Для коректної обробки, будь ласка, натисніть кнопку '100%'. Використати зараз?"
     },
     "infoUpdateModal": {
       "title": "Увага!",
@@ -974,21 +1203,21 @@
     },
     "infoNewInterface": {
       "title": "Доступний новий інтерфейс",
-      "description": "Подивіться, що ми для вас змінили",
+      "description": "Подивіться, що ми для Вас змінили",
       "try": "Спробувати",
       "notNow": "Не зараз"
-    },
-    "modalV3": {
-      "title": "Ой",
-      "description": "Сервіс тимчасово недоступний. Перевірте доступ до інтернету та спробуйте, будь ласка, пізніше"
     },
     "tbkModal": {
       "enable": "Увімкнути",
       "disable": "Вимкнути",
       "title": "Trustee Booster Kit",
       "statusEnable": "увімкнений",
-      "statusDisable": "відключений",
+      "statusDisable": "вимкнений",
       "cancel": "Відміна"
+    },
+    "modalV3": {
+      "title": "Ой",
+      "description": "Сервіс тимчасово недоступний. Перевірте доступ до інтернету та спробуйте, будь ласка, пізніше"
     },
     "infoPayOrder": {
       "error": {
@@ -1007,7 +1236,7 @@
       "notAvailable": "Недоступна для покупки"
     },
     "disabledLockScreenModal": {
-      "description": "У Вас є незарезервовані гаманці, тому встановлення PIN-коду не дозволене в цілях безпеки зберігання Ваших активів."
+      "description": "У Вас є незарезервовані гаманці, тому встановлення PIN-коду не дозволене з метою безпеки зберігання Ваших активів."
     },
     "disabledSkipModal": {
       "description": "У Вас встановлений PIN-код, тому Ви не можете пропустити цей етап."
@@ -1016,6 +1245,10 @@
       "success": {
         "title": "Актив додано!",
         "description": "Тепер Ви можете його знайти на сторінці активів та головному екрані"
+      },
+      "successAlready": {
+        "title": "Актив додано!",
+        "description": "Актив вже додано"
       },
       "error": {
         "title": "Вибачте, актив не знайдено",
@@ -1037,9 +1270,9 @@
       "decline": "Відхилити"
     },
     "selectCoinFio": {
-      "title": "Оберіть валюту для запита",
-      "description": "Будь ласка, оберіть валюту для якої ви бажаєте створити запит",
-      "description2": "обрана валюта буде передана в FIO запит",
+      "title": "Оберіть валюту для запиту",
+      "description": "Будь ласка, оберіть валюту для якої Ви бажаєте створити запит",
+      "description2": "обрана валюта буде передана до FIO запиту",
       "btn": "Обрати"
     },
     "login": {
@@ -1053,7 +1286,7 @@
     "exchange": {
       "sorry": "Вибачте...",
       "descriptionCard": "Оберіть справжню картку або додайте нову",
-      "failed": "Помилка...",
+      "failed": "Увага!",
       "txCanceled": "Транзакція відхилена",
       "success": "Успіх!",
       "txSuccess": "Транзакція успішно відправлена"
@@ -1075,26 +1308,33 @@
       "added": "Картка додана"
     },
     "qrScanner": {
-
       "success": {
         "title": "Успіх!",
         "description": "Гаманець успішно скопійовано в буфер обміну!"
       },
-
       "error": {
         "title": "Вибачте...",
         "description": "Недійсний гаманець. Повторіть спробу."
       },
-
       "sorry": "Вибачте..."
     },
     "send": {
       "success": "Успіх!",
       "txSuccess": "Ваша транзакція успішно відправлена!",
-      "fail": "Помилка..."
+      "fail": "Увага!",
+      "feeChangeAmount": "Сума відправки змінилась після зміни комісії",
+      "bseMinCrypto": "Мінімальна сума відправки для обміну %{limit}",
+      "bseMinCryptoNoFee" : "Вашего балансу недостатьно для мінімальної суми відправки для обміну та комісії",
+      "bigGas" : "Ви відправляєте в напрямку, який вимагає нетипово високий газ: %{gasLimit}. З метою збереження ваших коштів транзакція зупинена! ",
+      "blockedBalance" : "Ваш баланс використаний в попередній(іх) непідтверджених транзакціях, доступно %{free}",
+      "feeSmallAmount" : "Залишок балансу для комісії занадто малий - транзакція може чекати на підтвердження занадто довго",
+      "longQuery" : "Попередня(і) транзакція ще не мають підтвердження. Поточна транзакція не буде підтверджена, поки не підтвердиться попередня(і)",
+      "longQuerySettingOff" : "Можливість відправки другої транзакції, поки попередня не підтвердилась, відключена",
+      "noTBKprovider" : "Вибачте, функція відключена так як обмінний провайдер не вміє обробляти пришвидшені транзакції",
+      "noChangeFee": "Для транзакцій з фіксованим курсом обміну, зміна комісії майнерів неможлива"
     },
     "walletLog" : {
-      "sorry" : "Помилка....",
+      "sorry" : "Увага!",
       "noMailApp" : "Немає доступного додатку для відправки email",
       "notComplited" : "Будь ласка, оберіть канал для відправки"
     },
@@ -1110,6 +1350,20 @@
     "receive": {
       "success": "Успіх!",
       "addressCopiedSuccess": "Адресу гаманця скопійовано!"
+    },
+    "notificationModal": {
+      "unsubscribe": "Відписатися"
+    },
+    "marketModal": {
+      "title": "Вітаємо в Trustee Smart Swap",
+      "description": "Зверніть увагу, що деяка інформація, наприклад, платіжні реквізити, буде передана обмінним провайдерам для здійснення обмінної операції.",
+      "notShowAgain": "Більше не показувати",
+      "continue": "Продовжити"
+    },
+    "walletDelete": {
+      "deleteWallet": "Ви впевнені, що хочете видалити цей гаманець? Переконайтесь, що Ви створили резервну копію гаманця.",
+      "delete": "Ви хочете видалити цей гаманець?",
+      "confirmDelete": "Ви дійсно хочете видалити цей гаманець?"
     }
   },
   "lockScreen": {
@@ -1125,17 +1379,22 @@
       "ru-RU": "Русский",
       "en-US": "English",
       "uk-UA": "Українська",
-      "ru-UA": "Українська"
+      "ru-UA": "Українська",
+      "ka-GE" : "Georgian",
+      "de-DE" : "German",
+      "es-ES" : "Spanish",
+      "fr-FR" : "French"
     }
   },
-   "scannerSettings" : {
-     "title" : "Сканування",
-     "codes" : {
-       "none" : "Без авто",
-       "10min" : "10 хвилин",
-       "1min" : "1 хвилина"
-     },
-     "lastScan" : "Останнє сканування: %{time}"
+   "scannerSettings": {
+    "title": "Сканування",
+    "codes": {
+      "none": "Без автосканування",
+      "10min": "Кожні 10 хвилин",
+      "1min": "Щохвилини"
+    },
+    "lastScan": "Ваші баланси відскановано о:",
+    "helper": "Ви можете обрати частоту самостійно"
    },
   "repeat": {
     "receive": "Отримати"
@@ -1143,7 +1402,12 @@
   "validator": {
     "empty": "Заповніть поле",
     "invalidFormat": "Невірний формат",
-    "moreThanMax": "Ліміт можливої довжини перевищено"
+    "moreThanMax": "Ліміт можливої довжини перевищено",
+    "unstoppableErrors": {
+      "UnregisteredDomain": "Домен %{domain} не зареєстрований",
+      "RecordNotFound": "Домен %{domain} не прив`язано до %{ticker} адреси",
+      "UnspecifiedResolver": "Домен %{domain} не прив`язано до контракту"
+    }
   },
   "toast": {
     "copied": "Скопійовано в буфер",
@@ -1151,22 +1415,6 @@
     "badInternet": "Нестабільний доступ  до інтернету, будь ласка, спробуйте іншого провайдера або точку доступу",
     "saved" : "Збережено"
   },
-   "tips": {
-     "homeScreen": {
-       "sellBuyBtn": {
-         "title": "Привіт, Друже!",
-         "description": "Утримуй кнопку для переключення між покупкою та продажем криптовалюти."
-       }
-     }
-   },
-   "appNews" : {
-     "title" : "Технічні повідомлення",
-     "subtitle" : "Всі повідомлення",
-     "subtitleSmall" : "Всі повідомлення",
-     "clearAll" : "Очистити все",
-     "newsNull" : "У Вашому гаманці нічого нового"
-
-   },
    "pushNotifications":  {
      "FOUND_OUT_TX_STATUS_NEW": {
        "title": "%{currencyName} вихідну транзакцію створено",
@@ -1207,8 +1455,24 @@
      "DAEMON_HAS_FOUND_BALANCE": {
        "title": "%{currencyName} не показано, але містить баланс",
        "description": "%{walletName} на адресі %{address} знайдено %{amountPretty} %{currencySymbol}"
-     }
-   },
+     },
+     "CURRENCY_RATE_UPDATED": {
+       "title": "%{currencyName} курс оновлений",
+       "description": "ціна %{currencyRateUsd}$"
+     },
+     "CURRENCY_RATE_SCANNED_LAST_TIME": {
+       "title": "Курси валют скануються",
+       "description": "але кешовані значення однакові - тому змін немає"
+     },
+     "TXS_SCANNED_LAST_TIME" : {
+       "title" : "%{currencyName} транзакції скануються",
+       "description" : "%{walletName} log %{log}"
+     },
+    "HD_SCANNED_LAST_TIME" : {
+      "title" : "HD транзакції скануються",
+      "description" : "%{walletName} log %{log}"
+    }
+  },
   "currencyList": {
     "AUD": {
       "currencyCode":"AUD",

@@ -21,13 +21,13 @@ export namespace BlocksoftTransferPrivate {
         const privateData = {} as BlocksoftBlockchainTypes.TransferPrivateData
         let mnemonic = (typeof additionalData !== 'undefined' && typeof additionalData.mnemonic !== 'undefined') ? additionalData.mnemonic : CACHE_PRIVATE[data.walletHash]
         if (!mnemonic) {
-            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(data.walletHash)
+            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(data.walletHash, 'initTransferPrivate')
             CACHE_PRIVATE[data.walletHash] = mnemonic
         }
         if (!mnemonic) {
             throw new Error('no mnemonic for hash ' + data.walletHash)
         }
-        if (data.currencyCode === 'BTC' || data.currencyCode === 'USDT') {
+        if (data.currencyCode === 'BTC' || data.currencyCode === 'LTC' || data.currencyCode === 'USDT') {
             return initTransferPrivateBTC(data, mnemonic)
         }
         const discoverFor = {
@@ -42,7 +42,7 @@ export namespace BlocksoftTransferPrivate {
         privateData.privateKey = result.privateKey
         // @ts-ignore
         privateData.addedData = result.addedData
-        BlocksoftCryptoLog.log('BlocksoftTransferPrivate.initTransferPrivate finished for ' + data.currencyCode)
+        BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransferPrivate.initTransferPrivate finished for ${data.addressFrom}`)
         return privateData
     }
 }

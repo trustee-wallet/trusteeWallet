@@ -10,6 +10,8 @@ import Log from '../../services/Log/Log'
 import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
 
 import BlocksoftTokenChecks from '../../../crypto/actions/BlocksoftTokenChecks/BlocksoftTokenChecks'
+import Database from '@app/appstores/DataSource/Database/main'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
 const customCurrencyActions = {
     /**
@@ -23,8 +25,8 @@ const customCurrencyActions = {
         if (typeof (currencyToAdd.tokenType) === 'undefined') {
             throw new Error('set tokenType')
         }
-        if (currencyToAdd.tokenType !== 'ETH_ERC_20' && currencyToAdd.tokenType !== 'TRX') {
-            throw new Error('only ETH_ERC_20 or TRX tokenType is supported')
+        if (currencyToAdd.tokenType !== 'ETH_ERC_20' && currencyToAdd.tokenType !== 'BNB_SMART_20' && currencyToAdd.tokenType !== 'TRX') {
+            throw new Error('only ETH_ERC_20 / BNB_SMART_20 or TRX tokenType is supported')
         }
         if (typeof (currencyToAdd.tokenAddress) === 'undefined') {
             throw new Error('set tokenAddress')
@@ -58,14 +60,11 @@ const customCurrencyActions = {
         if (typeof (currencyToAdd.tokenType) === 'undefined') {
             throw new Error('set tokenType')
         }
-        if (currencyToAdd.tokenType !== 'ETH_ERC_20' && currencyToAdd.tokenType !== 'TRX') {
+        if (currencyToAdd.tokenType !== 'ETH_ERC_20' && currencyToAdd.tokenType !== 'TRX' && currencyToAdd.tokenType !== 'BNB_SMART_20') {
             throw new Error('only ETH_ERC_20 or TRX tokenType is supported')
         }
         if (typeof (currencyToAdd.currencyCode) === 'undefined') {
             throw new Error('set currencyCode')
-        }
-        if (typeof (BlocksoftDict.Currencies[currencyToAdd.currencyCode]) !== 'undefined') {
-            throw new Error('this currencyCode is already used')
         }
         if (typeof (currencyToAdd.currencyName) === 'undefined') {
             throw new Error('set currencyName')
@@ -90,6 +89,7 @@ const customCurrencyActions = {
                 tokenAddress: currencyToAdd.tokenAddress,
                 tokenDecimals: currencyToAdd.tokenDecimals,
                 tokenJson: '',
+                isAddedToApi : 0,
                 isHidden: 0
             }
 
@@ -108,8 +108,53 @@ const customCurrencyActions = {
         const res = await customCurrencyDS.getCustomCurrencies()
         if (!res) return false
 
+        const tokenToDict = {}
+        for (const code in BlocksoftDict.Currencies) {
+            if (code.indexOf('CUSTOM_') === 0) continue
+            const added = BlocksoftDict.Currencies[code]
+            if (typeof added.tokenAddress !== 'undefined' && added.tokenAddress) {
+                tokenToDict[added.tokenAddress] = added
+            } else if (typeof added.tokenName !== 'undefined' && added.tokenName) {
+                tokenToDict[added.tokenName] = added
+            }
+        }
+
+
         for (const currencyObject of res) {
-            BlocksoftDict.addAndUnifyCustomCurrency(currencyObject)
+            if (typeof tokenToDict[currencyObject.tokenAddress] !== 'undefined') {
+                const preparedCustom = BlocksoftDict.addAndUnifyCustomCurrency(currencyObject)
+                const foundNotCustom = tokenToDict[currencyObject.tokenAddress]
+                const currency = await Database.setQueryString(`
+                SELECT currency_code AS currencyCode, is_hidden AS isHidden FROM currency
+                WHERE currency_code IN('${preparedCustom.currencyCode}', '${foundNotCustom.currencyCode}')
+                `).query()
+                let recheckedFoundCurrency = false
+                let recheckedCustomCurrency = false
+                await Database.setQueryString(`DELETE FROM currency WHERE currency_code='${preparedCustom.currencyCode}'`).query()
+                if (currency.array) {
+                    for (const recheck of currency.array) {
+                        if (recheck.currencyCode === foundNotCustom.currencyCode) {
+                            recheckedFoundCurrency = recheck
+                        } else if (recheck.currencyCode === preparedCustom.currencyCode) {
+                            recheckedCustomCurrency = recheck
+                        }
+                    }
+
+                    if (recheckedCustomCurrency && recheckedFoundCurrency) {
+                        if (recheckedCustomCurrency.isHidden === recheckedFoundCurrency.isHidden) {
+                            // do nothing
+                        } else {
+                            await Database.setQueryString(`UPDATE currency SET is_hidden=0 WHERE currency_code='${foundNotCustom.currencyCode}'`).query()
+                        }
+                    }
+                    if (!recheckedFoundCurrency) {
+                        await currencyActions.addCurrency({ currencyCode: foundNotCustom.currencyCode }, 0, 0)
+                    }
+                }
+                await Database.setQueryString(`DELETE FROM custom_currency WHERE id=${currencyObject.id}`).query()
+            } else {
+                BlocksoftDict.addAndUnifyCustomCurrency(currencyObject)
+            }
         }
     }
 

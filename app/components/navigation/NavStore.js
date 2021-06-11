@@ -1,89 +1,91 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * https://reactnavigation.org/docs/navigating-without-navigation-prop
+ * https://reactnavigation.org/docs/navigation-prop/
  */
-import { NavigationActions, StackActions } from 'react-navigation'
+import config from '@app/config/config'
 
-import navigationActions from '../../appstores/Stores/Navigation/NavigationActions'
-import { setCurrentScreen } from '../../appstores/Stores/Main/MainStoreActions'
+import { navigate, reset, goBack, currentRoute, canGoBack } from '@app/components/navigation/NavRoot'
 
-class ObservableNavStore {
-    navigator = null
+export default {
 
-    getNavigator = () => this.navigator
-
-    reset = (routeName, params = null) => {
+    reset(routeName, params = {}) {
+        if (routeName === 'HomeScreen' || routeName === 'HomeScreenPop') {
+            try {
+                let i = 0
+                let doBack = false
+                do {
+                    const current = currentRoute()
+                    if (current.name !== 'HomeScreen' && current.name !== 'HomeScreenPop') {
+                        if (canGoBack()) {
+                            goBack()
+                            i++
+                            doBack = true
+                        }
+                    } else {
+                        doBack = true
+                        break
+                    }
+                } while (i < 10)
+                if (i< 10 && doBack) return true
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('NavStore.reset error ' + e.message)
+                }
+            }
+        }
 
         try {
-            const resetAction = StackActions.reset({
-                key: null,
+            reset({
                 index: 0,
-                actions: [NavigationActions.navigate({ routeName, params })]
-            })
-            this.navigator.dispatch(resetAction)
+                routes: [{ name: routeName, params }],
+            }, params)
         } catch (e) {
-            console.log(e)
-        }
-    }
-
-    goBack = () => {
-        try {
-            if (this.navigator.state.nav.routes.length <= 1) {
-                this.reset('DashboardStack')
-            } else {
-                this.navigator.dispatch(NavigationActions.back())
+            if (config.debug.appErrors) {
+                console.log('NavStore.reset error ' + e.message)
             }
-            setCurrentScreen(this.getCurrentRoute())
-        } catch (e) {
-
         }
-    }
+    },
 
-    getCurrentRoute = () => {
-        let route = this.navigator.state.nav
-        while (route.routes) {
-            route = route.routes[route.index]
-        }
-        return route
-    }
-
-    getPrevRoute = () => {
-        let route = this.navigator.state.nav
-        route = route.index > 0 ? route.routes[route.index - 1] : false
-        return route
-    }
-
-    goNext = (routeName, params = null, reset = false) => {
+    goBack() {
         try {
-            this.navigator && this.navigator.dispatch(NavigationActions.navigate({
-                routeName,
-                params
-            }))
-
-            if (reset) {
-                const resetAction = StackActions.reset({
-                    key: null,
-                    index: 0,
-                    actions: [NavigationActions.navigate({ routeName: 'DashboardStack', params })]
-                })
-                this.navigator.dispatch(resetAction)
-            }
-
-            // if(reset){
-            //     this.navigator.dismiss()
-            // }
+           if (canGoBack()) {
+                goBack()
+           }
         } catch (e) {
-            console.log(e)
+            if (config.debug.appErrors) {
+                console.log('NavStore.goBack error ' + e.message)
+            }
+        }
+    },
+
+    goNext(routeName, params = null, reset = false) {
+        if (reset) {
+            console.log('navstore reset is depressed')
+            this.reset(routeName)
+            return false
+        }
+
+        try {
+            navigate(routeName, params)
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('NavStore.goNext error ' + e.message)
+            }
+        }
+    },
+
+    getParamWrapper(screen, data, def = false) {
+        try {
+            if (typeof screen.props.route === 'undefined' || typeof screen.props.route.params === 'undefined' || !screen.props.route.params || typeof screen.props.route.params[data] === 'undefined') {
+                return def
+            }
+            return screen.props.route.params[data]
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('NavStore.getParamWrapper error ' + e.message)
+            }
+            return def
         }
     }
-
-    setDashboardInitialRouteName = (dashboardInitialRouteName) => {
-        navigationActions.setDashboardInitialRouteName(dashboardInitialRouteName)
-        return this
-    }
-
-    getParam = (data) => this.navigator.dispatch(NavigationActions.getParam(data))
 }
-
-const NavStore = new ObservableNavStore()
-
-export default NavStore

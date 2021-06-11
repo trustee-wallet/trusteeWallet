@@ -1,21 +1,21 @@
 /**
  * @version 0.9
  */
-import store from '../../store'
 
 import transactionDS from '../DataSource/Transaction/Transaction'
 
-import Log from '../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import BlocksoftPrettyNumbers from '../../../crypto/common/BlocksoftPrettyNumbers'
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import DaemonCache from '../../daemons/DaemonCache'
-import UpdateTradeOrdersDaemon from '../../daemons/back/UpdateTradeOrdersDaemon'
-import BlocksoftUtils from '../../../crypto/common/BlocksoftUtils'
-import RateEquivalent from '../../services/UI/RateEquivalent/RateEquivalent'
-import config from '../../config/config'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import DaemonCache from '@app/daemons/DaemonCache'
+import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import config from '@app/config/config'
+import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
+import store from '@app/store'
+import { setSelectedAccountTransactions } from '@app/appstores/Stores/Main/MainStoreActions'
 
-const { dispatch } = store
 
 const transactionActions = {
 
@@ -26,40 +26,38 @@ const transactionActions = {
      * @param {string} transaction.accountId
      * @param {string} transaction.transactionHash
      * @param {string} transaction.transactionStatus
+     * @param {string} transaction.transactionDirection
      * @param {string} transaction.addressTo
+     * @param {string} transaction.addressToBasic
      * @param {string} transaction.addressFrom
+     * @param {string} transaction.addressFromBasic
      * @param {string} transaction.addressAmount
      * @param {string} transaction.transactionFee
      * @param {string} transaction.transactionOfTrusteeWallet
      * @param {string} transaction.transactionsScanLog
      * @param {string} transaction.transactionJson
-     * @param {string} transaction.transactionJson.bseOrderID
+     * @param {string} transaction.bseOrderId
+     * @param {object} transaction.bseOrderData
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      */
     saveTransaction: async (transaction, source = '') => {
 
         try {
+
             await transactionDS.saveTransaction(transaction, false,source)
 
-            const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
-
-            if (transaction.accountId === account.accountId) {
-
-                const prepared = { ...account }
-                const tx = JSON.parse(JSON.stringify(transaction))
-                transactionActions.preformat(tx, account)
-                prepared.transactions[tx.transactionHash] = tx
-
-                dispatch({
-                    type: 'SET_SELECTED_ACCOUNT',
-                    selectedAccount: prepared
-                })
+            if (transaction.currencyCode.indexOf('ETH') !== -1) {
+                await EthTmpDS.getCache(transaction.addressFromBasic)
             }
 
-            if (typeof transaction.transactionJson.bseOrderID !== 'undefined') {
+            await setSelectedAccountTransactions()
+
+            if (typeof transaction.bseOrderId !== 'undefined') {
                 UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
             }
+
+            DaemonCache.cleanCacheTxsCount(transaction)
 
         } catch (e) {
 
@@ -76,7 +74,10 @@ const transactionActions = {
      * @param transaction.transactionsOtherHashes
      * @param transaction.transactionJson
      * @param transaction.addressAmount
+     * @param transaction.transactionDirection
      * @param transaction.addressTo
+     * @param transaction.addressToBasic
+     * @param {string} transaction.addressFromBasic
      * @param transaction.transactionStatus
      * @param transaction.transactionFee
      * @param transaction.transactionFeeCurrencyCode
@@ -87,62 +88,130 @@ const transactionActions = {
 
             await transactionDS.updateTransaction(transaction)
 
+            if (transaction.currencyCode.indexOf('ETH') !== -1) {
+                await EthTmpDS.getCache(transaction.addressFromBasic)
+            }
+            /*
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))
 
-            if (typeof transaction.accountId === 'undefined' || transaction.accountId === account.accountId) {
+            if (transaction.currencyCode === account.currencyCode) {
 
-                const prepared = { ...account }
-
-                let transactionHash
-                const newTransactions = {}
-                for (transactionHash in prepared.transactions) {
-                    if (transactionHash === transaction.transactionUpdateHash) {
-                        const tx = prepared.transactions[transactionHash]
-                        tx.id = transaction.transactionHash
-                        tx.transactionHash = transaction.transactionHash
-                        tx.transactionsOtherHashes = transaction.transactionsOtherHashes
-                        tx.transactionJson = transaction.transactionJson
-                        if (typeof transaction.addressAmount !== 'undefined') {
-                            tx.addressAmount = transaction.addressAmount
-                        }
-                        if (typeof transaction.addressTo !== 'undefined') {
-                            tx.addressTo = transaction.addressTo
-                        }
-                        if (typeof transaction.transactionStatus !== 'undefined') {
-                            tx.transactionStatus = transaction.transactionStatus
-                        }
-                        if (typeof transaction.transactionFee !== 'undefined') {
-                            tx.transactionFee = transaction.transactionFee
-                        }
-                        if (typeof transaction.transactionFeeCurrencyCode !== 'undefined') {
-                            tx.transactionFeeCurrencyCode = transaction.transactionFeeCurrencyCode
-                        }
-                        newTransactions[transaction.transactionHash] = tx
-                    } else {
-                        newTransactions[transactionHash] = prepared.transactions[transactionHash]
-                    }
-                }
-                prepared.transactions = newTransactions
-
-                dispatch({
-                    type: 'SET_SELECTED_ACCOUNT',
-                    selectedAccount: prepared
-                })
+                // @todo page reload
             }
+
+            dispatch({
+                type: 'SET_SELECTED_ACCOUNT',
+                selectedAccount: account
+            })
+            */
 
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('ACT/Transaction updateTransaction ' + e.message)
-                console.log(e)
+                console.log('ACT/Transaction updateTransaction ' + e.message, e)
             }
             Log.err('ACT/Transaction updateTransaction ' + e.message)
         }
     },
 
-    preformat(transaction, account) {
+    preformatWithBSEforShowInner(transaction) {
+        const direction = transaction.transactionDirection
+        transaction.addressAmountPrettyPrefix = (direction === 'outcome' || direction === 'self' || direction === 'freeze' || direction === 'swap_outcome') ? '-' : '+'
+        if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
+            transaction.wayType = transaction.transactionDirection
+        }
+        return transaction
+    },
+
+    prepareStatus(status) {
+        switch (status.toUpperCase()) {
+            case 'DONE_PAYOUT':
+            case 'SUCCESS':
+                return 'SUCCESS'
+            case 'CANCELED_PAYOUT':
+            case 'CANCELED_PAYIN':
+                return 'CANCELED'
+            case 'FAIL':
+            case 'MISSING':
+            case 'REPLACED':
+                return 'MISSING'
+            case 'OUT_OF_ENERGY':
+                return 'OUT_OF_ENERGY'
+            default:
+                return 'PENDING'
+        }
+    },
+
+    preformatWithBSEforShow(_transaction, exchangeOrder, _currencyCode = false) {
+        if (typeof exchangeOrder === 'undefined' || !exchangeOrder || exchangeOrder === null) {
+            _transaction.bseOrderData = false // for easy checks
+            _transaction.transactionBlockchainStatus = typeof _transaction.transactionStatus  !== 'undefined' ? _transaction.transactionStatus : '?'
+            _transaction.transactionOfTrusteeWallet = typeof _transaction.transactionOfTrusteeWallet !== 'undefined' ? _transaction.transactionOfTrusteeWallet : false
+            _transaction = this.preformatWithBSEforShowInner(_transaction)
+            _transaction.transactionVisibleStatus = this.prepareStatus(_transaction.transactionStatus)
+            return _transaction
+        }
+
+        const transaction = _transaction ? { ..._transaction } : {
+            currencyCode: _currencyCode,
+            transactionHash: false,
+            transactionDirection : 'outcome',
+            transactionOfTrusteeWallet : false,
+            transactionStatus : '?',
+            transactionVisibleStatus : '?',
+            transactionBlockchainStatus : '?',
+            addressTo : '?',
+            addressFrom : '?',
+            addressAmountPretty: '?',
+            blockConfirmations : false,
+            blockNumber : false,
+            createdAt: exchangeOrder.createdAt,
+            bseOrderData : exchangeOrder
+        }
+
+        transaction.transactionBlockchainStatus = transaction.transactionStatus
+        transaction.transactionVisibleStatus = this.prepareStatus(transaction.transactionStatus)
+
+        if (typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.currencyCode !== 'undefined') {
+            if (exchangeOrder.requestedOutAmount.currencyCode === transaction.currencyCode) {
+                transaction.transactionDirection = 'income'
+            } else {
+                transaction.transactionDirection = 'outcome'
+            }
+        }
+
+        if (transaction.transactionDirection === 'income' && typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.amount !== 'undefined') {
+            transaction.addressAmountPretty = exchangeOrder.requestedOutAmount.amount
+            if (!transaction.currencyCode) {
+                transaction.currencyCode = exchangeOrder.requestedOutAmount.currencyCode
+            }
+        }
+        if (transaction.transactionDirection === 'outcome' && typeof exchangeOrder.requestedInAmount !== 'undefined' && typeof exchangeOrder.requestedInAmount.amount !== 'undefined') {
+            transaction.addressAmountPretty = exchangeOrder.requestedInAmount.amount
+            if (!transaction.currencyCode) {
+                transaction.currencyCode = exchangeOrder.requestedInAmount.currencyCode
+            }
+        }
+        return this.preformatWithBSEforShowInner(transaction)
+    },
+
+    /**
+     *
+     * @param transaction
+     * @param params.currencyCode
+     * @param params.account
+     */
+    preformat(transaction, params) {
         if (!transaction) return
+        if (transaction.transactionHash === '') return false
 
         let addressAmountSatoshi = false
+
+        let account
+        if (typeof params.account !== 'undefined') {
+            account = params.account
+        } else {
+            throw new Error('something wrong with TransactionActions.preformat params')
+        }
 
         try {
             transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount, 'transactionActions.addressAmount')
@@ -167,7 +236,7 @@ const transactionActions = {
                 if (account.basicCurrencyRate === 1) {
                     transaction.basicAmountNorm = transaction.addressAmountNorm
                 } else {
-                    transaction.basicAmountNorm = transaction.addressAmountNorm * account.basicCurrencyRate
+                    transaction.basicAmountNorm = BlocksoftUtils.mul(transaction.addressAmountNorm, account.basicCurrencyRate)
                 }
                 transaction.basicAmountPretty = BlocksoftPrettyNumbers.makeCut(transaction.basicAmountNorm, 2).separated
             } catch (e) {
@@ -241,30 +310,8 @@ const transactionActions = {
             throw e
         }
 
-    },
+        return transaction
 
-    /**
-     * @param {string} account.walletHash
-     * @param {string} account.currencyCode
-     * @return {Promise<Array>}
-     */
-    getTransactions: async (account) => {
-
-        let transactions = []
-
-        try {
-
-            transactions = await transactionDS.getTransactions({
-                walletHash: account.walletHash,
-                currencyCode: account.currencyCode
-            }, 'ACT/Transaction getTransactions')
-
-        } catch (e) {
-
-            Log.err('ACT/Transaction getTransactions ' + e.message)
-        }
-
-        return transactions
     }
 
 }

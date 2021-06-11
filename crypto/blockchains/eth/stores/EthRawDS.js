@@ -1,8 +1,14 @@
-import DBInterface from '../../../../app/appstores/DataSource/DB/DBInterface'
+/**
+ * @author Ksu
+ * @version 0.32
+ */
+import Database from '@app/appstores/DataSource/Database';
 import EthTxSendProvider from '../basic/EthTxSendProvider'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
+import config from '../../../../app/config/config'
 
 const tableName = 'transactions_raw'
 
@@ -20,33 +26,38 @@ class EthRawDS {
             if (typeof data.currencyCode !== 'undefined') {
                 this._currencyCode = data.currencyCode === 'ETH_ROPSTEN' ? 'ETH_ROPSTEN' : 'ETH'
             }
-            const dbInterface = new DBInterface()
             const sql = `
         SELECT id,
         transaction_unique_key AS transactionUnique,
         transaction_hash AS transactionHash,
         transaction_raw AS transactionRaw,
+        transaction_log AS transactionLog,
         broadcast_log AS broadcastLog,
         broadcast_updated AS broadcastUpdated,
         created_at AS transactionCreated,
         is_removed, removed_at
-        FROM transactions_raw 
-        WHERE 
+        FROM transactions_raw
+        WHERE
         (is_removed=0 OR is_removed IS NULL)
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'`
-            const result = await dbInterface.setQueryString(sql).query()
+            const result = await Database.setQueryString(sql).query()
             if (!result || !result.array || result.array.length === 0) {
                 return {}
             }
+
             const ret = {}
 
-            if (this._currencyCode === 'ETH' && this._trezorServer === 'none') {
-                try {
-                    this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Broadcast')
-                    this._infuraProjectId = BlocksoftExternalSettings.getStatic('ETH_INFURA_PROJECT_ID', 'ETH.Broadcast')
-                } catch (e) {
-                    throw new Error(e.message + ' inside trezorServer')
+            if (this._trezorServer === 'none') {
+                if (this._currencyCode === 'ETH') {
+                    try {
+                        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_TREZOR_SERVER', 'ETH.Broadcast')
+                        this._infuraProjectId = BlocksoftExternalSettings.getStatic('ETH_INFURA_PROJECT_ID', 'ETH.Broadcast')
+                    } catch (e) {
+                        throw new Error(e.message + ' inside trezorServer')
+                    }
+                } else {
+                    this._trezorServer = await BlocksoftExternalSettings.getTrezorServer('ETH_ROPSTEN_TREZOR_SERVER', 'ETH.Broadcast')
                 }
             }
 
@@ -55,26 +66,96 @@ class EthRawDS {
             for (const row of result.array) {
                 try {
                     ret[row.transactionUnique] = row
-                    if (this._currencyCode === 'ETH') {
-                        let broadcastLog = ''
-                        let link = this._trezorServer + '/api/v2/sendtx/'
-                        const updateObj = { broadcastUpdated: now }
-                        let broad
+                    let transactionLog
+                    try {
+                        transactionLog = row.transactionLog ? JSON.parse(Database.unEscapeString(row.transactionLog)) : row.transactionLog
+                    } catch (e) {
+                        // do nothing
+                    }
+
+                    if (transactionLog && typeof transactionLog.currencyCode !== 'undefined' && (typeof transactionLog.successResult === 'undefined' || !transactionLog.successResult)) {
+                        const { apiEndpoints } = config.proxy
+                        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+                        const successProxy = baseURL + '/send/sendtx'
+                        let checkResult = false
+                        try {
+                            transactionLog.selectedFee.isRebroadcast = true
+                            checkResult = await BlocksoftAxios.post(successProxy, {
+                                raw: row.transactionRaw,
+                                txRBF: typeof transactionLog.txRBF !== 'undefined' ? transactionLog.txRBF : false,
+                                logData: transactionLog,
+                                marketingData: MarketingEvent.DATA
+                            })
+                            await BlocksoftCryptoLog.log(this._currencyCode + ' EthRawDS.send proxy success result', JSON.parse(JSON.stringify(checkResult)))
+                        } catch (e3) {
+                            if (config.debug.cryptoErrors) {
+                                console.log(this._currencyCode + ' EthRawDS.send proxy success error ' + e3.message)
+                            }
+                            await BlocksoftCryptoLog.log(this._currencyCode + ' EthRawDS.send proxy success error ' + e3.message)
+                        }
+                        if (checkResult && typeof checkResult.data !== 'undefined') {
+                            transactionLog.successResult = checkResult.data
+                        }
+
+                        await Database.setTableName('transactions_raw').setUpdateData({
+                            updateObj: { transactionLog: Database.escapeString(JSON.stringify(transactionLog)) },
+                            key: { id: row.id }
+                        }).update()
+                    }
+
+                    let broadcastLog = ''
+                    let link = ''
+                    let broad
+                    const updateObj = {
+                        broadcastUpdated: now,
+                        is_removed: '0'
+                    }
+                    if (this._currencyCode === 'ETH' || this._currencyCode === 'ETH_ROPSTEN') {
+                        link = this._trezorServer + '/api/v2/sendtx/'
                         try {
                             broad = await BlocksoftAxios.post(link, row.transactionRaw)
                             broadcastLog = ' broadcasted ok ' + JSON.stringify(broad.data)
-                            updateObj.is_removed = 1
+                            updateObj.is_removed = '1'
                             updateObj.removed_at = now
                         } catch (e) {
-                            if (e.message.indexOf('already known') !== -1) {
-                                broadcastLog = ' already known'
+                            if (e.message.indexOf('transaction underpriced') !== -1 || e.message.indexOf('already known') !== -1) {
+                                updateObj.is_removed = '1'
+                                broadcastLog += ' already known'
                             } else {
-                                broadcastLog = e.message
+                                updateObj.is_removed = '0'
+                                broadcastLog += e.message
                             }
                         }
                         broadcastLog += ' ' + link + '; '
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_0 ' + row.transactionHash, { broadcastLog, ...updateObj })
+                    }
+
+                    if (this._currencyCode === 'ETH') {
+                        link = 'https://api.etherscan.io/api?module=proxy&action=eth_sendRawTransaction&apikey=YourApiKeyToken&hex='
+                        let broadcastLog1 = ''
+                        try {
+                            broad = await BlocksoftAxios.get(link + row.transactionRaw)
+                            if (typeof broad.data.error !== 'undefined') {
+                                throw new Error(JSON.stringify(broad.data.error))
+                            }
+                            broadcastLog1 = ' broadcasted ok ' + JSON.stringify(broad.data)
+                            updateObj.is_removed += '1'
+                            updateObj.removed_at = now
+                        } catch (e) {
+                            if (e.message.indexOf('transaction underpriced') !== -1 || e.message.indexOf('already known') !== -1) {
+                                updateObj.is_removed += '1'
+                                broadcastLog1 += ' already known'
+                            } else {
+                                updateObj.is_removed += '0'
+                                broadcastLog1 += e.message
+                            }
+                        }
+                        broadcastLog1 += ' ' + link + '; '
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_1 ' + row.transactionHash, { broadcastLog1, ...updateObj })
+
 
                         link = 'https://mainnet.infura.io/v3/' + this._infuraProjectId
+                        let broadcastLog2 = ''
                         try {
                             broad = await BlocksoftAxios.post(link,
                                 {
@@ -87,21 +168,43 @@ class EthRawDS {
                             if (typeof broad.data.error !== 'undefined') {
                                 throw new Error(JSON.stringify(broad.data.error))
                             }
-                            broadcastLog += ' broadcasted ok ' + JSON.stringify(broad.data)
-                            updateObj.is_removed = 1
+                            broadcastLog2 = ' broadcasted ok ' + JSON.stringify(broad.data)
+                            updateObj.is_removed += '1'
                             updateObj.removed_at = now
                         } catch (e) {
-                            if (e.message.indexOf('already known') !== -1) {
-                                broadcastLog += ' already known'
+                            if (e.message.indexOf('transaction underpriced') !== -1 || e.message.indexOf('already known') !== -1) {
+                                updateObj.is_removed += '1'
+                                broadcastLog2 += ' already known'
                             } else {
-                                broadcastLog += e.message
+                                updateObj.is_removed += '0'
+                                broadcastLog2 += e.message
                             }
+
+                        }
+                        broadcastLog2 += ' ' + link + '; '
+                        MarketingEvent.logOnlyRealTime('v20_eth_resend_2 ' + row.transactionHash, { broadcastLog2, ...updateObj })
+
+                        if (updateObj.is_removed === '111') { // do ALL!
+                            updateObj.is_removed = 1
+                        } else {
                             updateObj.is_removed = 0
                         }
-                        broadcastLog += ' ' + link + '; '
-                        broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' +  (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
+
+                        broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' + broadcastLog1 + ' ' + broadcastLog2 + ' ' + (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
+                    } else if (this._currencyCode === 'ETH_ROPSTEN') {
+                        if (updateObj.is_removed === '1') { // do ALL!
+                            updateObj.is_removed = 1
+                        } else {
+                            updateObj.is_removed = 0
+                        }
+
+                        broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' + (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
+                    }
+
+                    if (this._currencyCode === 'ETH' || this._currencyCode === 'ETH_ROPSTEN') {
                         updateObj.broadcastLog = broadcastLog
-                        await dbInterface.setTableName('transactions_raw').setUpdateData({
+
+                        await Database.setTableName('transactions_raw').setUpdateData({
                             updateObj,
                             key: { id: row.id }
                         }).update()
@@ -117,6 +220,19 @@ class EthRawDS {
         }
     }
 
+    async cleanRawHash(data) {
+        BlocksoftCryptoLog.log('EthRawDS cleanRawHash ', data)
+
+        const now = new Date().toISOString()
+        const sql = `UPDATE transactions_raw
+        SET is_removed=1, removed_at = '${now}'
+        WHERE
+        (is_removed=0 OR is_removed IS NULL)
+        AND (currency_code='ETH' OR currency_code='ETH_ROPSTEN')
+        AND transaction_hash='${data.transactionHash}'`
+        await Database.setQueryString(sql).query()
+    }
+
     async cleanRaw(data) {
         BlocksoftCryptoLog.log('EthRawDS cleanRaw ', data)
 
@@ -124,33 +240,31 @@ class EthRawDS {
             this._currencyCode = data.currencyCode === 'ETH_ROPSTEN' ? 'ETH_ROPSTEN' : 'ETH'
         }
 
-        const dbInterface = new DBInterface()
         const now = new Date().toISOString()
         const sql = `UPDATE transactions_raw
         SET is_removed=1, removed_at = '${now}'
-        WHERE 
+        WHERE
         (is_removed=0 OR is_removed IS NULL)
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'
         AND transaction_unique_key='${data.transactionUnique}'`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
     }
 
     async saveRaw(data) {
         if (typeof data.currencyCode !== 'undefined') {
             this._currencyCode = data.currencyCode === 'ETH_ROPSTEN' ? 'ETH_ROPSTEN' : 'ETH'
         }
-        const dbInterface = new DBInterface()
         const now = new Date().toISOString()
 
         const sql = `UPDATE transactions_raw
         SET is_removed=1, removed_at = '${now}'
-        WHERE 
+        WHERE
         (is_removed=0 OR is_removed IS NULL)
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'
         AND transaction_unique_key='${data.transactionUnique.toLowerCase()}'`
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
 
         const prepared = [{
             currency_code: this._currencyCode,
@@ -158,9 +272,11 @@ class EthRawDS {
             transaction_unique_key: data.transactionUnique.toLowerCase(),
             transaction_hash: data.transactionHash,
             transaction_raw: data.transactionRaw,
-            created_at: now
+            transaction_log: Database.escapeString(JSON.stringify(data.transactionLog)),
+            created_at: now,
+            is_removed: 0
         }]
-        await dbInterface.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
+        await Database.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
     }
 }
 

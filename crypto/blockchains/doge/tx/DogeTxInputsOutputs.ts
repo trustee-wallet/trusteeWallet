@@ -5,19 +5,21 @@ import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import BlocksoftBN from '../../../common/BlocksoftBN'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 const coinSelect = require('coinselect')
 const coinSplit = require('coinselect/split')
 
 export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxInputsOutputs {
     private _builderSettings: BlocksoftBlockchainTypes.BuilderSettings
-    private _settings: BlocksoftBlockchainTypes.CurrencySettings
+    protected _settings: BlocksoftBlockchainTypes.CurrencySettings
     private _minOutputDust: any
     private _minChangeDust: any
 
     // in*148 + out*34 + 10 plus or minus 'in'
     SIZE_FOR_BASIC = 34
-    SIZE_FOR_INPUT = 148
+    SIZE_FOR_INPUT = 148 // TX_INPUT_PUBKEYHASH = 107
+    SIZE_FOR_BC = 75
 
     constructor(settings: BlocksoftBlockchainTypes.CurrencySettings, builderSettings: BlocksoftBlockchainTypes.BuilderSettings) {
         this._settings = settings
@@ -48,10 +50,21 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 })
             }
         }
+        // @ts-ignore
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTxInputsOutputs.getInputsOutputs _coinSelectTargets', {
+            amount: data.amount,
+            isTransferAll: data.isTransferAll,
+            multiAddress,
+            address : data.addressTo
+        }, targets)
         return targets
     }
 
-    _usualTargets(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[] ) {
+    _addressForChange(data: BlocksoftBlockchainTypes.TransferData): string {
+        return data.addressFrom
+    }
+
+    _usualTargets(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[]) {
         const multiAddress = []
         const basicWishedAmountBN = new BlocksoftBN(data.amount)
         const wishedAmountBN = new BlocksoftBN(basicWishedAmountBN)
@@ -87,23 +100,38 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         }
     }
 
-    _coinSelect(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[], feeForByte: string, multiAddress: string[], subtitle: string)
-        : BlocksoftBlockchainTypes.PreparedInputsOutputsTx {
+    async _coinSelect(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[], feeForByte: string, multiAddress: string[], subtitle: string)
+        : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
         const utxos = []
         const isRequired: any = {}
+        let isAllRequired: boolean = true
+        const segwitPrefix = typeof BlocksoftDict.CurrenciesForTests[this._settings.currencyCode + '_SEGWIT'] !== 'undefined' ? BlocksoftDict.CurrenciesForTests[this._settings.currencyCode + '_SEGWIT'].addressPrefix : false
         for (const unspent of unspents) {
-            utxos.push({
+            const input = {
                 txId: unspent.txid,
                 vout: unspent.vout,
                 // @ts-ignore
                 value: unspent.value * 1,
                 my: unspent
-            })
-            if (unspent.isRequired && typeof isRequired[unspent.txid] === 'undefined') {
-                isRequired[unspent.txid] = unspent
+            }// script
+            if (typeof unspent.address !== 'undefined' && unspent.address.indexOf(segwitPrefix) === 0) {
+                input.isSegwit = true
+                // https://github.com/bitcoinjs/coinselect/pull/63 wait for it to be merged
+            }
+            utxos.push(input)
+            if (unspent.isRequired) {
+                if (typeof isRequired[unspent.txid] === 'undefined') {
+                    isRequired[unspent.txid] = unspent
+                }
+            } else {
+                isAllRequired = false
             }
         }
-
+        if (isAllRequired) {
+            if (data.addressFrom === data.addressTo) {
+                data.isTransferAll = true
+            }
+        }
         const targets = this._coinSelectTargets(data, unspents, feeForByte, multiAddress, subtitle)
         let res
         if (data.isTransferAll) {
@@ -112,18 +140,35 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             res = coinSelect(utxos, targets, feeForByte)
         }
         const { inputs, outputs, fee } = res
-
         /*
+        console.log('CS feeForByte ' + feeForByte)
+        console.log('CS isAllRequired ', JSON.stringify(isAllRequired))
         console.log('CS targets ' + feeForByte, JSON.parse(JSON.stringify(targets)))
-        console.log('CS inputs', inputs ? JSON.parse(JSON.stringify(inputs)) : 'none')
-        console.log('CS outputs', outputs ? JSON.parse(JSON.stringify(outputs)) : 'none')
+        if (inputs) {
+            let i = 0
+            for (let input of inputs) {
+                console.log('CS inputs [' + i + ']', JSON.parse(JSON.stringify(input)))
+                i++
+            }
+        }
+        if (outputs) {
+            let i = 0
+            for (let output of outputs) {
+                console.log('CS outputs [' + i + ']', JSON.parse(JSON.stringify(output)))
+                i++
+            }
+        }
         console.log('CS fee ', fee ? JSON.parse(JSON.stringify(fee)) : 'none')
+        console.log('---------------------')
+        console.log('')
         */
+
         const formatted = {
             inputs: [],
             outputs: [],
             multiAddress,
-            msg: ' coinselect for ' + feeForByte + ' fee ' + fee + ' ' + subtitle + ' all data ' + JSON.stringify(inputs) + ' ' + JSON.stringify(outputs)
+            msg: ' coinselect for ' + feeForByte + ' fee ' + fee + ' ' + subtitle + ' all data ' + JSON.stringify(inputs) + ' ' + JSON.stringify(outputs),
+            countedFor: 'DOGE'
         }
         if (!inputs || typeof inputs === 'undefined') {
             // @ts-ignore
@@ -149,6 +194,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         }
 
 
+        const addressForChange = await this._addressForChange(data)
         for (output of outputs) {
             if (output.address) {
                 formatted.outputs.push({
@@ -157,7 +203,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                     // @ts-ignore
                     amount: output.value.toString()
                 })
-            } else if (data.addressFrom === data.addressTo) {
+            } else if (addressForChange === data.addressTo) {
                 changeIsNeeded = true
                 changeBN.add(output.value)
             } else if (changeIsNeeded) {
@@ -165,7 +211,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 changeBN.add(output.value)
                 formatted.outputs.push({
                     // @ts-ignore
-                    to: data.addressFrom,
+                    to: addressForChange,
                     // @ts-ignore
                     amount: changeBN.toString(),
                     // @ts-ignore
@@ -174,7 +220,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             } else {
                 formatted.outputs.push({
                     // @ts-ignore
-                    to: data.addressFrom,
+                    to: addressForChange,
                     // @ts-ignore
                     amount: output.value.toString(),
                     // @ts-ignore
@@ -185,7 +231,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
 
         if (changeIsNeeded) {
             // @ts-ignore
-            if (this._builderSettings.changeTogether && typeof formatted.outputs[0] !== 'undefined' || data.addressFrom === data.addressTo && formatted.outputs[0].to === data.addressFrom) {
+            if (this._builderSettings.changeTogether && typeof formatted.outputs[0] !== 'undefined' && addressForChange === data.addressTo && addressForChange === formatted.outputs[0].to) {
                 // @ts-ignore
                 changeBN.add(formatted.outputs[0].amount)
                 // @ts-ignore
@@ -193,7 +239,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             } else {
                 formatted.outputs.push({
                     // @ts-ignore
-                    to: data.addressFrom,
+                    to: addressForChange,
                     // @ts-ignore
                     amount: changeBN.toString(),
                     // @ts-ignore
@@ -206,15 +252,21 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         return formatted
     }
 
-    getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData, unspents: BlocksoftBlockchainTypes.UnspentTx[],
-                     feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
-                     subtitle: string = 'default')
-        : {
-        inputs: BlocksoftBlockchainTypes.UnspentTx[],
-        outputs: BlocksoftBlockchainTypes.OutputTx[],
-        multiAddress: [],
-        msg: string,
-    } {
+    async getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+                           unspents: BlocksoftBlockchainTypes.UnspentTx[],
+                           feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                           additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
+                           subtitle: string = 'default')
+        : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
+        return this._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle)
+    }
+
+    async _getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+                            unspents: BlocksoftBlockchainTypes.UnspentTx[],
+                            feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
+                            additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
+                            subtitle: string = 'default')
+        : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
         if (typeof data.addressFrom === 'undefined') {
             throw new Error('DogeTxInputsOutputs.getInputsOutputs requires addressFrom')
         }
@@ -227,7 +279,6 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
 
         const filteredUnspents = []
         const unconfirmedBN = new BlocksoftBN(0)
-
 
         const isRequired: any = {}
         let isFoundSpeedUp = false
@@ -271,15 +322,14 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             totalBalanceBN.add(unspent.value)
         }
 
-        const {
+        let {
             multiAddress,
-            basicWishedAmountBN,
             wishedAmountBN,
             outputs
         } = this._usualTargets(data, unspents)
 
-        if (typeof feeToCount.feeForByte !== 'undefined') {
-            const result = this._coinSelect(data, filteredUnspents, feeToCount.feeForByte, multiAddress, subtitle)
+        if (typeof feeToCount.feeForByte !== 'undefined' && feeToCount.feeForByte !== 'none') {
+            const result = await this._coinSelect(data, filteredUnspents, feeToCount.feeForByte, multiAddress, subtitle)
             if (result.inputs.length > 0) {
                 return result
             }
@@ -295,10 +345,14 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             autocalculateFee = true
             msg += ' and autocalculate feeForByte ' + feeToCount.feeForByte
         } else {
+            if (data.isTransferAll && typeof feeToCount.feeForAllInputs !== 'undefined' && feeToCount.feeForAllInputs * 1 > 0 ) {
+                feeToCount.feeForAll = BlocksoftUtils.mul(feeToCount.feeForAll, Math.ceil(filteredUnspents.length / feeToCount.feeForAllInputs))
+                wishedAmountBN = new BlocksoftBN(BlocksoftUtils.diff(totalBalanceBN, feeToCount.feeForAll))
+                outputs[0].amount = wishedAmountBN.toString()
+                msg += ' and isTransferAll inputs counted '
+            }
             msg += ' and prefee ' + feeToCount.feeForAll + ' = ' + BlocksoftUtils.toUnified(feeToCount.feeForAll.toString(), this._settings.decimals)
         }
-
-
         const inputs = []
         const inputsBalanceBN = new BlocksoftBN(0)
 
@@ -329,7 +383,11 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 delete isRequired[unspent.txid]
             }
             if (autocalculateFee) {
-                const tmp2 = BlocksoftUtils.mul(this.SIZE_FOR_INPUT, feeToCount.feeForByte)
+                let size = this.SIZE_FOR_INPUT
+                if (typeof unspent.address !== 'undefined' && unspent.address && unspent.address.toString().indexOf('bc1') === 0) {
+                    size = this.SIZE_FOR_BC
+                }
+                const tmp2 = BlocksoftUtils.mul(size, feeToCount.feeForByte)
                 autoFeeBN.add(tmp2)
                 wishedAmountWithFeeBN.add(tmp2)
                 msg += ' auto => ' + BlocksoftUtils.toUnified(autoFeeBN.get(), this._settings.decimals)
@@ -343,18 +401,18 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
         }
 
         const leftForChangeDiff = new BlocksoftBN(inputsBalanceBN).diff(wishedAmountWithFeeBN)
+
         if (leftForChangeDiff.lessThanZero()) {
             if (autocalculateFee) {
                 const newData = JSON.parse(JSON.stringify(data))
                 const autoFeeLimit = BlocksoftUtils.fromUnified(feeToCount.autoFeeLimitReadable, this._settings.decimals)
-                const autoDiff = new BlocksoftBN(autoFeeBN).diff(autoFeeLimit)
+                const autoDiff = new BlocksoftBN(autoFeeLimit).diff(autoFeeBN)
 
                 let recountWithFee = autoFeeBN.get()
                 if (autoDiff.lessThanZero()) {
                     recountWithFee = autoFeeLimit.toString()
                 }
-
-                const res = this.getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, subtitle + '  notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                const res = await this._getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, additionalData, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
                 if (res.msg.indexOf('RECHECK') === -1) {
                     return res
                 }
@@ -363,8 +421,13 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 const tmp = leftForChangeDiff.get().replace('-', '')
                 const tmp2 = new BlocksoftBN(data.amount).diff(tmp)
                 if (!tmp2.lessThanZero()) {
-                    newData.amount = tmp2.get()
-                    return this.getInputsOutputs(newData, unspents, feeToCount, subtitle + '  notEnough3 ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                    if (this._settings.currencyCode === 'USDT') {
+                        console.log('adsfgadfgadfg')
+                        console.log('tmp2', tmp2)
+                    } else {
+                        newData.amount = tmp2.get()
+                        return this._getInputsOutputs(newData, unspents, feeToCount, additionalData, subtitle + '  notEnough3 ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                    }
                 } else {
                     // @ts-ignore
                     return {
@@ -372,10 +435,10 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                         outputs: [],
                         msg: subtitle + '  notEnough3Stop' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' ' + msg,
                         // @ts-ignore
-                        multiAddress
+                        multiAddress,
+                        countedFor: 'DOGE'
                     }
                 }
-
             }
             // no change
             msg += ' will transfer all but later will RECHECK as change ' + leftForChangeDiff.toString()
@@ -384,9 +447,11 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 outputs,
                 msg,
                 // @ts-ignore
-                multiAddress
+                multiAddress,
+                countedFor: 'DOGE'
             }
         }
+
         const changeDiff = new BlocksoftBN(leftForChangeDiff).diff(this._minChangeDust)
         if (changeDiff.lessThanZero()) {
             // no change
@@ -396,22 +461,24 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 outputs,
                 msg,
                 // @ts-ignore
-                multiAddress
+                multiAddress,
+                countedFor: 'DOGE'
             }
         }
 
 
         msg += ' will have change as change ' + leftForChangeDiff.toString() + ' = ' + BlocksoftUtils.toUnified(leftForChangeDiff.toString(), this._settings.decimals)
-        if (this._builderSettings.changeTogether && data.addressFrom === data.addressTo) {
+        const addressForChange = await this._addressForChange(data)
+        if (this._builderSettings.changeTogether && addressForChange === data.addressTo) {
             leftForChangeDiff.add(outputs[0].amount)
             outputs[0].amount = leftForChangeDiff.toString()
         } else {
             outputs.push(
                 {
-                    'to': data.addressFrom,
-                    'amount': leftForChangeDiff.toString(),
-                    'isChange': true
-                }
+                    to: addressForChange,
+                    amount: leftForChangeDiff.toString(),
+                    isChange: true
+                } as BlocksoftBlockchainTypes.OutputTx
             )
         }
         return {
@@ -419,7 +486,8 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
             outputs,
             msg,
             // @ts-ignore
-            multiAddress
+            multiAddress,
+            countedFor: 'DOGE'
         }
     }
 }

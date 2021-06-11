@@ -24,9 +24,13 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
 
     async getUnspents(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
         // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started', address)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started ' + address)
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Unspents.getUnspents')
-        const link = this._trezorServer + '/api/v2/utxo/' + address
+        let link = BlocksoftExternalSettings.getStatic(this._trezorServerCode + '_UNSPENDS_LINK')
+        if (!link || link === '') {
+            link = this._trezorServer + '/api/v2/utxo/' + address + '?gap=9999'
+        }
+
         const res = await BlocksoftAxios.getWithoutBraking(link)
         // @ts-ignore
         if (!res || typeof res.data === 'undefined') {
@@ -42,16 +46,19 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
         let unspent
         // @ts-ignore
         for (unspent of res.data) {
+            if (typeof unspent.path !== 'undefined') {
+                unspent.derivationPath = unspent.path
+            }
             sortedUnspents.push(unspent)
         }
         return sortedUnspents
     }
 
-    _isMyAddress(voutAddress: string, address: string): boolean {
-        return voutAddress === address
+    _isMyAddress(voutAddress: string, address: string, walletHash: string): string {
+        return (voutAddress === address) ? address : ''
     }
 
-    async getTx(tx: string, address: string, allUnspents: BlocksoftBlockchainTypes.UnspentTx[]): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
+    async getTx(tx: string, address: string, allUnspents: BlocksoftBlockchainTypes.UnspentTx[], walletHash: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx started ' + tx)
 
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'Doge.Unspents.getTx')
@@ -60,6 +67,9 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
             currencyCode: this._settings.currencyCode,
             transactionHash: tx
         })
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx inputs ' + tx, saved)
+
+        let recheckInputs = false
         if (saved) {
             if (typeof saved.inputs !== 'undefined') {
                 saved = saved.inputs
@@ -74,6 +84,7 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
             }
             // @ts-ignore
             saved = res.data.vin
+            recheckInputs = true
         }
 
         const sortedUnspents = []
@@ -96,44 +107,60 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
         let txIn = false
         for (const unspent of saved) {
             if (unspent.txid === tx) continue
-            if (typeof unspent.vout === 'undefined') {
-                try {
-                    const link2 = this._trezorServer + '/api/v2/tx/' + unspent.txid
-                    const res2 = await BlocksoftAxios.getWithoutBraking(link2)
+
+            try {
+                const link2 = this._trezorServer + '/api/v2/tx/' + unspent.txid
+                const res2 = await BlocksoftAxios.getWithoutBraking(link2)
+                // @ts-ignore
+                if (res2 && typeof res2.data !== 'undefined' && res2.data) {
                     // @ts-ignore
-                    if (res2 && typeof res2.data !== 'undefined' && res2.data && typeof res2.data.vout !== 'undefined' && res2.data.vout) {
+                    if (typeof res2.data.confirmations !== 'undefined' && res2.data.confirmations * 1 > 0) {
+                        // @ts-ignore
+                        unspent.confirmations = res2.data.confirmations * 1
+                    } else {
+                        unspent.confirmations = 0
+                    }
+                    // @ts-ignore
+                    if (recheckInputs && typeof res2.data.vout !== 'undefined' && res2.data.vout) {
                         // @ts-ignore
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx loading output data ' + JSON.stringify(unspent) + ' success', res2.data.vout)
                         let tmp
                         // @ts-ignore
                         if (res2.data.vout.length > 0) {
                             // @ts-ignore
+                            unspent.vout = false
+                            // @ts-ignore
                             for (tmp of res2.data.vout) {
                                 if (typeof tmp.addresses !== 'undefined' && tmp.addresses) {
                                     if (typeof tmp.addresses[0] !== 'undefined') {
-                                        if (this._isMyAddress(tmp.addresses[0], address)) {
+                                        const found = this._isMyAddress(tmp.addresses[0], address, walletHash)
+                                        if (found !== '') {
                                             unspent.vout = tmp.n
+                                            unspent.address = found
+                                            break // 1 is enough
                                         }
                                     }
                                 }
                             }
                         }
-                    } else {
-                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx loading output data ' + JSON.stringify(unspent) + ' no res')
                     }
-                } catch (e) {
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx while loading output data ' + JSON.stringify(unspent))
+                } else {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx loading output data ' + JSON.stringify(unspent) + ' no res')
                 }
-                if (typeof unspent.vout === 'undefined') {
-                    continue
-                }
+            } catch (e) {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx while loading output data ' + JSON.stringify(unspent))
             }
+
+
+            if (typeof unspent.vout === 'undefined' || unspent.vout === false) {
+                continue
+            }
+
             const key = unspent.txid + '_' + unspent.vout
             // @ts-ignore
             if (typeof unique[key] !== 'undefined') {
                 // @ts-ignore
                 const index = unique[key]
-                sortedUnspents[index].confirmations = 11
                 sortedUnspents[index].isRequired = true
             } else {
                 // @ts-ignore
@@ -145,6 +172,22 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
                 sortedUnspents.push(unspent)
             }
             txIn = true
+        }
+
+        let foundRequired = false
+        for (const unspent of sortedUnspents) {
+            if (unspent.isRequired && unspent.confirmations > 0) {
+                foundRequired = true
+                break
+            }
+        }
+        if (!foundRequired) {
+            for (const unspent of sortedUnspents) {
+                if (unspent.isRequired) {
+                    unspent.confirmations = 1
+                    break
+                }
+            }
         }
 
         if (!txIn) {

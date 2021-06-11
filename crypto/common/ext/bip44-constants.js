@@ -17,17 +17,23 @@ module.exports = [
     [ `44'/236`, "BSV", "Bitcoin SV" ],
 
     [ `44'/60`, "ETH", "Ether" ],
+    [ `44'/61`, "ETC", "Ether Classic" ],
     [ `44'/1`, "ETH_ROPSTEN", "Ropsten Ether" ],
 
     [ `44'/2`, "LTC", "Litecoin" ],
+    [ `84'/2`, "LTC_SEGWIT", "Litecoin" ],
     [ `44'/3`, "DOGE", "Dogecoin" ],
     [ `44'/77`, "XVG", "Verge" ],
     [ `44'/195`, "TRX", "Tron" ],
 
     [ `44'/144`, "XRP", "Ripple" ],
+    [ `44'/148`, "XLM", "Stellar" ],
     [ `44'/128`, "XMR", "Monero" ],
 
     [ `44'/235`, "FIO", "FIO" ],
+
+    [ `44'/714`, "BNB", "BNB" ],
+    [ `44'/818`, "VET", "VET" ],
     /*
     [ 0x80000004, "RDD", "Reddcoin" ],
     [ 0x80000005, "DASH", "Dash (ex Darkcoin)" ],

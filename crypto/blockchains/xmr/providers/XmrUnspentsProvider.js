@@ -3,8 +3,6 @@
  */
 import settingsActions from '../../../../app/appstores/Stores/Settings/SettingsActions'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
-import MoneroUtilsParser from '../ext/MoneroUtilsParser'
-
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 
 export default class XmrUnspentsProvider {
@@ -15,9 +13,9 @@ export default class XmrUnspentsProvider {
 
     }
 
-    async _init() {
+    _init() {
         if (this._link) return false
-        this._serverUrl = await settingsActions.getSetting('xmrServer')
+        this._serverUrl = settingsActions.getSettingStatic('xmrServer')
         if (!this._serverUrl || this._serverUrl === 'false') {
             this._serverUrl = 'api.mymonero.com:8443'
         }
@@ -35,8 +33,8 @@ export default class XmrUnspentsProvider {
 
     async _getUnspents(params, fn) {
         try {
-            BlocksoftCryptoLog.log(' Xmr._getUnspents', params)
-            await this._init()
+            BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents', params)
+            this._init()
             /*
             const linkParams = {
                 address: params.address,
@@ -49,6 +47,7 @@ export default class XmrUnspentsProvider {
             */
 
             const res = await BlocksoftAxios.post(this._link + 'get_unspent_outs', params)
+            BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents res ' + JSON.stringify(res.data).substr(0, 200))
             if (typeof fn === 'undefined' || !fn) {
                 return res.data
             } else {
@@ -67,8 +66,8 @@ export default class XmrUnspentsProvider {
 
     async _getRandomOutputs(params, fn) {
         try {
-            BlocksoftCryptoLog.log(' Xmr._getRandomOutputs', params)
-            await this._init()
+            BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs', params)
+            this._init()
 
             /*
             const amounts = usingOuts.map(o => (o.rct ? '0' : o.amount.toString()))
@@ -79,6 +78,7 @@ export default class XmrUnspentsProvider {
             */
 
             const res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
+            BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs res ' + JSON.stringify(res.data).substr(0, 200))
             if (typeof fn === 'undefined' || !fn) {
                 return res.data
             } else {

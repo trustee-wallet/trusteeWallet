@@ -17,6 +17,7 @@ const bs58check = require('bs58check')
 
 const ETH_CACHE = {}
 const CACHE = {}
+const CACHE_ROOTS = {}
 
 class BlocksoftKeys {
 
@@ -95,7 +96,7 @@ class BlocksoftKeys {
         const logData = { ...data }
         if (typeof logData.mnemonic !== 'undefined') logData.mnemonic = '***'
 
-        BlocksoftCryptoLog.log(`BlocksoftKeys discoverAddresses called from ${source}`, logData)
+        BlocksoftCryptoLog.log(`BlocksoftKeys discoverAddresses called from ${source}`, JSON.stringify(logData).substring(0, 200))
 
         let toDiscover = BlocksoftDict.Codes
         if (data.currencyCode) {
@@ -153,10 +154,10 @@ class BlocksoftKeys {
                 BlocksoftCryptoLog.log(`BlocksoftKeys will discover ${settings.addressProcessor}`)
                 let root = false
                 if (typeof networksConstants[currencyCode] !== 'undefined') {
-                    root = bip32.fromSeed(await this.getSeedCached(data.mnemonic), networksConstants[currencyCode])
+                    root = this.getBip32Cached(data.mnemonic, networksConstants[currencyCode])
                 } else {
                     if (!bitcoinRoot) {
-                        bitcoinRoot = bip32.fromSeed(await this.getSeedCached(data.mnemonic))
+                        bitcoinRoot = this.getBip32Cached(data.mnemonic)
                     }
                     root = bitcoinRoot
                 }
@@ -253,7 +254,7 @@ class BlocksoftKeys {
                                     derivationPath : path,
                                     derivationIndex : index,
                                     derivationType : suffix.type
-                                })
+                                }, data)
                                 if (result) {
                                     result.basicPrivateKey = child.privateKey.toString('hex')
                                     result.basicPublicKey = child.publicKey.toString('hex')
@@ -295,9 +296,23 @@ class BlocksoftKeys {
         return seed
     }
 
+    getBip32Cached(mnemonic, network = false) {
+        const mnemonicCache = mnemonic.toLowerCase() + '_' + (network || 'btc')
+        if (typeof CACHE_ROOTS[mnemonicCache] === 'undefined') {
+            const seed = this.getSeedCached(mnemonic)
+            CACHE_ROOTS[mnemonicCache] = network ? bip32.fromSeed(seed, network) : bip32.fromSeed(seed)
+        }
+        return CACHE_ROOTS[mnemonicCache]
+    }
+
     getEthCached(mnemonicCache) {
         if (typeof ETH_CACHE[mnemonicCache] === 'undefined') return false
         return ETH_CACHE[mnemonicCache]
+    }
+
+    setEthCached(mnemonic, result) {
+        const mnemonicCache = mnemonic.toLowerCase()
+        ETH_CACHE[mnemonicCache] = result
     }
 
     /**

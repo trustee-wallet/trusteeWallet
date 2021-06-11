@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 
 import accountDS from '../Account/Account'
@@ -28,19 +28,17 @@ class WalletPub {
      * @param {string} walletPub.unconfirmed
      */
     saveWalletPub = async (walletPub, source) => {
-        const dbInterface = new DBInterface()
-
         const now = Math.round(new Date().getTime() / 1000)
 
-        let sql = `INSERT INTO wallet_pub (wallet_hash, currency_code, wallet_pub_type, wallet_pub_value, balance_scan_time, transactions_scan_time) 
+        let sql = `INSERT INTO wallet_pub (wallet_hash, currency_code, wallet_pub_type, wallet_pub_value, balance_scan_time, transactions_scan_time)
         VALUES ('${walletPub.walletHash}', '${walletPub.currencyCode}', '${walletPub.walletPubType}','${walletPub.walletPubValue}', 0, 0)`
         if (typeof walletPub.balance !== 'undefined') {
             sql = `INSERT INTO wallet_pub (wallet_hash, currency_code, wallet_pub_type, wallet_pub_value, balance_scan_time, transactions_scan_time,
-                    balance_fix, balance_txt, unconfirmed_fix, unconfirmed_txt) 
+                    balance_fix, balance_txt, unconfirmed_fix, unconfirmed_txt)
                     VALUES ('${walletPub.walletHash}', '${walletPub.currencyCode}', '${walletPub.walletPubType}','${walletPub.walletPubValue}', '${now}', '${now}',
                     ${walletPub.balance * 1}, '${walletPub.balance}', ${walletPub.unconfirmed * 1}, '${walletPub.unconfirmed}')`
         }
-        await dbInterface.setQueryString(sql).query()
+        await Database.setQueryString(sql).query()
         CACHE[walletPub.walletHash] = false
     }
 
@@ -73,24 +71,23 @@ class WalletPub {
             where = ''
         }
 
-        const dbInterface = new DBInterface()
-
-        const res = await dbInterface.setQueryString(`
-        SELECT id, 
+        const res = await Database.setQueryString(`
+        SELECT id,
         wallet_hash AS walletHash,
-        wallet_pub_type AS walletPubType, 
-        wallet_pub_value AS walletPubValue, 
-        wallet_pub_last_index AS walletPubLastIndex, 
+        wallet_pub_type AS walletPubType,
+        wallet_pub_value AS walletPubValue,
+        wallet_pub_last_index AS walletPubLastIndex,
         wallet_hash AS walletHash,
         currency_code AS currencyCode,
-        balance_fix AS balanceFix, 
+        balance_fix AS balanceFix,
         balance_txt AS balanceTxt,
         unconfirmed_fix AS unconfirmedFix,
         unconfirmed_txt AS unconfirmedTxt,
         balance_provider AS balanceProvider,
         balance_scan_time AS balanceScanTime,
+        balance_scan_error AS balanceScanError,
         transactions_scan_time AS transactionsScanTime
-        FROM wallet_pub 
+        FROM wallet_pub
         ${where}
         `).query()
         if (!res || !res.array || !res.array.length) return false
@@ -121,9 +118,9 @@ class WalletPub {
             let tmp
             for (tmp of toRemove) {
                 const sql3 = `UPDATE account SET wallet_pub_id=${tmp.to} WHERE wallet_pub_id=${tmp.old}`
-                await dbInterface.setQueryString(sql3).query()
+                await Database.setQueryString(sql3).query()
                 const sql4 = `DELETE FROM wallet_pub WHERE id=${tmp.old}`
-                await dbInterface.setQueryString(sql4).query()
+                await Database.setQueryString(sql4).query()
             }
         }
 
@@ -143,7 +140,7 @@ class WalletPub {
         let xpubs = await this.getWalletPubs(params)
         if (!xpubs || typeof xpubs['btc.44'] === 'undefined' || typeof xpubs['btc.84'] === 'undefined' || typeof xpubs['btc.49'] === 'undefined') {
             Log.daemon('DS/WalletPub called BTC pub generation')
-            const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash)
+            const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash, 'WalletPub.getOrGenerate')
             if (!xpubs || typeof xpubs['btc.44'] === 'undefined') {
                 const tmp = await BlocksoftKeys.discoverXpub({ mnemonic, currencyCode: params.currencyCode })
                 await this.saveWalletPub({ walletHash: params.walletHash, currencyCode: params.currencyCode, walletPubType: 'btc.44', walletPubValue: tmp }, 'getOrGenerate')
@@ -265,7 +262,7 @@ class WalletPub {
     discoverFromTrezor = async (params, source) => {
         let mnemonic
         if (typeof params.mnemonic === 'undefined' || !params.mnemonic) {
-            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash)
+            mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(params.walletHash, 'WalletPub.discoverFromTrezor ' + source)
         } else {
             mnemonic = params.mnemonic
         }
@@ -361,7 +358,7 @@ class WalletPub {
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.44', walletPubValue: xpubs[0], balance : xPubBalances[0].balance, unconfirmed : xPubBalances[0].unconfirmed }, 'fromTrezor')
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.49', walletPubValue: xpubs[1], balance : xPubBalances[1].balance, unconfirmed : xPubBalances[1].unconfirmed }, 'fromTrezor')
             await this.saveWalletPub({ walletHash : params.walletHash, currencyCode: 'BTC', walletPubType: 'btc.84', walletPubValue: xpubs[2], balance : xPubBalances[2].balance, unconfirmed : xPubBalances[2].unconfirmed }, 'fromTrezor')
-            Log.daemon.log('DS/WalletPub discoverFromTrezor ' + source + ' saved xpubs', {toSave, params, derivations})
+            Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' saved xpubs', {toSave, params, derivations})
         }
         const check = await this.getWalletPubs({walletHash : params.walletHash, currencyCode: 'BTC'})
 

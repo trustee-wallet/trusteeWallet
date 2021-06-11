@@ -32,10 +32,13 @@ function createOmniSimpleSend(amountInUSD: string, propertyID = USDT_TOKEN_ID) {
 
 export default class UsdtTxBuilder extends BtcTxBuilder implements BlocksoftBlockchainTypes.TxBuilder {
     _getRawTxAddOutput(txb: TransactionBuilder, output: BlocksoftBlockchainTypes.OutputTx): void {
-        if (typeof output.tokenAmount !== 'undefined' && output.tokenAmount) {
+        if (typeof output.tokenAmount !== 'undefined' && output.tokenAmount && output.tokenAmount !== '0') {
             const omniOutput = createOmniSimpleSend(output.tokenAmount)
             txb.addOutput(omniOutput, 0)
         } else {
+            if (typeof output.amount !== 'undefined' && output.amount.toString() === '0') {
+                output.amount = '546'
+            }
             super._getRawTxAddOutput(txb, output)
         }
     }

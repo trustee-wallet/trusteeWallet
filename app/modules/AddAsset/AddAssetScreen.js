@@ -1,398 +1,357 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import {
+    View,
+    Text,
+    SafeAreaView,
+    SectionList,
+    FlatList,
+    StyleSheet,
+    TouchableOpacity,
+    Keyboard
+} from 'react-native'
 
-import NavStore from '../../components/navigation/NavStore'
-import Navigation from '../../components/navigation/Navigation'
+import NavStore from '@app/components/navigation/NavStore'
 
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import Validator from '@app/services/UI/Validator/Validator'
+import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
-import currencyActions from '../../appstores/Stores/Currency/CurrencyActions'
+import { strings } from '@app/services/i18n'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import TextInput from '@app/components/elements/new/TextInput'
+import Button from '@app/components/elements/new/buttons/Button'
+import ListItem from '@app/components/elements/new/list/ListItem/Asset'
+import Tabs from '@app/components/elements/new/Tabs'
+import Header from './elements/Header'
 
-import { strings } from '../../services/i18n'
+import {
+    getTabs,
+    ASSESTS_GROUP,
+    prepareDataForDisplaying,
+    addCustomToken
+} from './helpers'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import BlocksoftDict from '../../../crypto/common/BlocksoftDict'
-import firebase from 'react-native-firebase'
 
-
-class AddAssetScreen extends Component {
-
-    constructor(props) {
-        super(props)
-        this.state = {
-            availableCurrencies: [],
-            viewCurrencies: [],
-            currentSearch: false,
-            size: 0,
-            initSize: 0
-        }
-    }
-
-    UNSAFE_componentWillMount() {
-        this.setAvailableCurrencies()
-        this._onFocusListener = this.props.navigation.addListener('didFocus', (payload) => {
-            this.setAvailableCurrencies()
-        })
-    }
-
-    componentWillUnmount() {
-        this._onFocusListener.remove()
+class AddAssetScreen extends React.PureComponent {
+    state = {
+        headerHeight: 109,
+        searchQuery: '',
+        customAddress: '',
+        tabs: getTabs(),
+        data: [],
+        headerHasExtraView: true
     }
 
     componentDidMount() {
-        setTimeout(() => {
-            this.setState({ size: this.state.initSize })
-        }, 200)
+        this.prepareData()
     }
 
-    setAvailableCurrencies = (cryptoCurrencies) => {
-
-
-        const { currentSearch } = this.state
-
-        let addedCurrencies = []
-        let notAddedCurrencies = []
-
-        const tmpCurrencies = JSON.parse(JSON.stringify(typeof cryptoCurrencies === 'undefined' ? this.props.currencyStore.cryptoCurrencies : cryptoCurrencies))
-
-        for (let currency in BlocksoftDict.Currencies) {
-
-            const tmpCurrency = tmpCurrencies.find((item) => item.currencyCode === currency)
-
-            if (typeof tmpCurrency != 'undefined') {
-                const tmp = JSON.parse(JSON.stringify(tmpCurrency))
-                addedCurrencies.push(tmp)
-            } else {
-                const tmp = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currency]))
-                tmp.isHidden = null
-                notAddedCurrencies.push(tmp)
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const data = NavStore.getParamWrapper(this, 'tokenData')
+        if (data && typeof data !== 'undefined' && typeof data.address !== 'undefined' && data.address) {
+            if (prevState.customAddress !== data.address) {
+                this.setState({ customAddress: data.address })
             }
         }
+    }
 
-        addedCurrencies = addedCurrencies.concat(notAddedCurrencies)
+    prepareData = (assets = this.props.assets, newTab, searchQuery) => {
+        prepareDataForDisplaying.call(this, assets, newTab, searchQuery)
+    }
 
+    handleSearch = (value) => {
+        this.prepareData(undefined, undefined, value)
+    }
 
-        let newArray
-        if (currentSearch) {
-            newArray = this._searchInputToViewArray(addedCurrencies, currentSearch)
-        }
-        if (newArray && newArray.length > 0) {
-            this.setState({
-                availableCurrencies: addedCurrencies,
-                viewCurrencies: newArray
-            })
+    handleBack = () => { NavStore.goBack() }
+
+    handleChangeTab = (newTab) => {
+        Keyboard.dismiss()
+        this.prepareData(undefined, { ...newTab, active: true })
+    }
+
+    handleChangeCurrencyStatus = (currency) => {
+        if (currency.isHidden === null) {
+            this.handleAddCurrency(currency)
         } else {
-            this.setState({
-                availableCurrencies: addedCurrencies,
-                viewCurrencies: addedCurrencies
-            })
+            this.toggleCurrencyVisibility(currency.currencyCode, currency.isHidden * 1 > 0 ? 0 : 1, currency.isHidden)
         }
     }
-
-    _searchInputToViewArray(cryptoCurrencies, value) {
-        let newArray = []
-        const lastArray = []
-
-        for (const item of cryptoCurrencies) {
-            const currencyName = item.currencyName.toLowerCase()
-            const currencyCode = item.currencyCode.toLowerCase()
-            if (currencyName.indexOf(value) !== -1 || currencyCode.indexOf(value) !== -1) {
-                if (currencyName.indexOf(value) === 0 || currencyCode.indexOf(value) === 0) {
-                    newArray.push(item)
-                } else {
-                    lastArray.push(item)
-                }
-            } else if (typeof item.tokenAddress !== 'undefined' && item.tokenAddress) {
-                if (item.tokenAddress.toLowerCase().indexOf(value) !== -1) {
-                    lastArray.push(item)
-                }
-            }
-        }
-
-        if (lastArray && lastArray.length > 0) {
-            newArray = newArray.concat(lastArray)
-        }
-        return newArray
-    }
-
-    searchInputCallback = (value) => {
-        const tmpArray = this.state.availableCurrencies
-
-        if (value) {
-            value = value.trim().toLowerCase()
-        }
-
-        if (!value) {
-            this.setState({
-                viewCurrencies: tmpArray,
-                currentSearch: value
-            })
-        } else {
-            const newArray = this._searchInputToViewArray(tmpArray, value)
-            this.setState({
-                viewCurrencies: newArray,
-                currentSearch: value
-            })
-        }
-    }
-
 
     handleAddCurrency = async (currencyToAdd) => {
+        Keyboard.dismiss()
+        MarketingEvent.logEvent('gx_currency_add', { currencyCode: currencyToAdd.currencyCode }, 'GX')
         await currencyActions.addCurrency(currencyToAdd)
-        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.setAvailableCurrencies(cryptoCurrencies)
+        this.prepareData()
     }
 
-    handleModal = () => {
-        NavStore.goNext('AddCustomTokenScreen')
+    toggleCurrencyVisibility = async (currencyCode, newIsHidden, currentIsHidden) => {
+        Keyboard.dismiss()
+        if (newIsHidden) {
+            MarketingEvent.logEvent('gx_currency_hide', { currencyCode, source: 'AddAssetScreen' }, 'GX')
+        } else {
+            MarketingEvent.logEvent('gx_currency_show', { currencyCode, source: 'AddAssetScreen' }, 'GX')
+        }
+        await currencyActions.toggleCurrencyVisibility({ currencyCode, newIsHidden, currentIsHidden : 0}) // add to all wallets
+        this.prepareData()
     }
 
-    /**
-     * @param {string} currencyCode
-     * @param {integer} isHidden
-     */
-    toggleCurrencyVisibility = async (currencyCode, isHidden) => {
-        currencyActions.toggleCurrencyVisibility({ currencyCode, isHidden })
-        const cryptoCurrencies = await currencyActions.setCryptoCurrencies()
-        this.setAvailableCurrencies(cryptoCurrencies)
+    handleOpenQr = () => {
+        setQRConfig({
+            title: strings('modal.qrScanner.success.title'),
+            description: strings('modal.qrScanner.success.description'),
+            type: 'ADD_CUSTOM_TOKEN_SCANNER'
+        })
+        NavStore.goNext('QRCodeScannerScreen')
     }
 
-    renderControlButton = (currency) => {
+    handleChangeCustomAddress = (value) => { this.setState(() => ({ customAddress: value })) }
 
-        if (currency.isHidden === null) {
-            return (
-                <View style={{ minWidth: this.state.size }} onLayout={this.handleOnLayout}>
-                    <TouchableOpacity style={[styles.btn, styles.btn__text_add]} onPress={() => {
-                        this.handleAddCurrency(currency)
-                    }}>
-                        <Text style={[styles.btn__text, styles.btn__text_add]}>
-                            {strings('assets.addAsset')}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )
-        } else if (currency.isHidden) {
-            return (
-                <View style={{ minWidth: this.state.size }} onLayout={this.handleOnLayout}>
-                    <TouchableOpacity style={styles.btn} onPress={() => {
-                        this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
-                    }}>
-                        <Text style={[styles.btn__text, styles.btn__text_disabled]}>
-                            {strings('assets.showAsset')}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )
-        } else if (!currency.isHidden) {
-            return (
-                <View style={{ minWidth: this.state.size }} onLayout={this.handleOnLayout}>
-                    <TouchableOpacity style={[styles.btn]} onPress={() => {
-                        this.toggleCurrencyVisibility(currency.currencyCode, +currency.isHidden)
-                    }}>
-                        <Text style={[styles.btn__text]}>
-                            {strings('assets.hideAsset')}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            )
+    handleAddCustomToken = async (value) => {
+        Keyboard.dismiss();
+        const types = ['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']
+        const customAddress = value.trim().split(/\s+/g).join('')
+        const tmps = types.map(type => ({
+            type,
+            id: 'address',
+            value: customAddress
+        }))
+        const validation = await Validator.arrayValidation(tmps)
+
+        if (validation.errorArr.length !== types.length) {
+            const result = await addCustomToken(customAddress)
+            if (result.searchQuery) {
+                this.handleSearch(result.searchQuery)
+            }
+        } else {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('validator.invalidFormat')
+            })
         }
     }
 
-    handleOnLayout = (event) => {
-        this.state.initSize = this.state.initSize < event.nativeEvent.layout.width ? event.nativeEvent.layout.width : this.state.initSize
+    updateOffset = (event) => {
+        const scrollOffset = Math.round(event.nativeEvent.contentOffset.y)
+        if (this.state.headerHasExtraView && scrollOffset > 100) this.setState(() => ({ headerHasExtraView: false }))
+        if (!this.state.headerHasExtraView && scrollOffset < 100) this.setState(() => ({ headerHasExtraView: true }))
+    }
+
+    get commonHeaderProps() {
+        const { GRID_SIZE, colors } = this.context
+        const contentPaddingTop = this.state.headerHeight + GRID_SIZE / 2
+        return {
+            showsVerticalScrollIndicator: false,
+            contentContainerStyle: { paddingHorizontal: GRID_SIZE * 2, paddingBottom: GRID_SIZE, paddingTop: contentPaddingTop },
+            ItemSeparatorComponent: () => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />,
+            renderItem: params => this.renderListItem(params),
+            keyExtractor: item => item.currencyCode,
+            keyboardShouldPersistTaps: 'handled',
+            keyboardDismissMode: 'on-drag',
+            ListEmptyComponent: () => this.renderEmptyList(),
+            onScroll: e => this.updateOffset(e)
+        }
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('AddAssetScreen.index')
+        const { colors, GRID_SIZE } = this.context
+        const {
+            data,
+            searchQuery,
+            tabs,
+            customAddress,
+            headerHasExtraView
+        } = this.state
+        const activeGroup = tabs.find(tab => tab.active).group
 
-        const { viewCurrencies } = this.state
+        MarketingAnalytics.setCurrentScreen('AddAssetScreen')
 
         return (
-            <View style={styles.wrapper}>
-                <Navigation
-                    title={strings('assets.mainTitle')}
-                    searchInputCallback={this.searchInputCallback}
+            <View style={[styles.container, { backgroundColor: colors.common.background }]}>
+                <Header
+                    rightType="close"
+                    rightAction={this.handleBack}
+                    title={strings('assets.title')}
+                    headerHasExtraView={headerHasExtraView}
+                    searchQuery={searchQuery}
+                    onSearch={this.handleSearch}
                 />
-                <View style={styles.wrapper__content}>
-                    <View>
-                        <TouchableOpacity style={styles.addButton} onPress={() => this.handleModal()}>
-                            <Text style={styles.addButton__text}>
-                                {strings('assets.addCustomAsset')}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.content}>
-                        <View style={styles.content__left}>
-                            <View style={styles.content__left__bg}/>
-                            <ScrollView
-                                style={styles.availableCurrencies}
-                                showsVerticalScrollIndicator={false}>
-                                {
-                                    viewCurrencies.map((item, index) => {
-                                        return (
-                                            <View key={index}>
-                                                <View
-                                                    key={index}
-                                                    style={styles.availableCurrencies__item}>
-                                                    <CurrencyIcon currencyCode={item.currencyCode}
-                                                                  markStyle={{ top: 30 }}/>
-                                                    <View style={styles.availableCurrencies__text}>
-                                                        <Text style={styles.availableCurrencies__text_name}
-                                                              numberOfLines={1}>{item.currencyName}</Text>
-                                                        <Text
-                                                            style={styles.availableCurrencies__text_symbol}>{item.currencySymbol}</Text>
-                                                    </View>
-                                                    {
-                                                        this.renderControlButton(item)
-                                                    }
-                                                </View>
-                                                <View style={styles.availableCurrencies__line}/>
-                                            </View>
-
-                                        )
-                                    })
-                                }
-                            </ScrollView>
-                        </View>
-                        <View style={styles.content__right}>
-                            <View>
-
-                            </View>
-                            <ScrollView>
-
-                            </ScrollView>
-                        </View>
-                    </View>
-                </View>
+                <SafeAreaView style={[styles.content, { backgroundColor: colors.common.background }]}>
+                    {
+                        activeGroup === ASSESTS_GROUP.CUSTOM && !searchQuery ? (
+                            <FlatList
+                                {...this.commonHeaderProps}
+                                ListEmptyComponent={null}
+                                data={data}
+                                ListHeaderComponent={!!searchQuery ? null : () => (
+                                    <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
+                                        {this.renderTabs(false)}
+                                        <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
+                                            <TextInput
+                                                label={strings('assets.addCustomLabel')}
+                                                labelColor={colors.common.text3}
+                                                placeholder={strings('assets.addCustomPlaceholder')}
+                                                onChangeText={this.handleChangeCustomAddress}
+                                                value={customAddress}
+                                                HelperAction={() => (
+                                                    <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
+                                                        <CustomIcon name={'qr'} size={20} color={colors.common.text1} />
+                                                    </TouchableOpacity>
+                                                )}
+                                            />
+                                            <Button
+                                                containerStyle={{ marginTop: GRID_SIZE * 2 }}
+                                                title={strings('assets.addAssetButton')}
+                                                onPress={() => this.handleAddCustomToken(customAddress)}
+                                                disabled={!customAddress}
+                                            />
+                                        </View>
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
+                            ? (
+                                <SectionList
+                                    {...this.commonHeaderProps}
+                                    sections={data}
+                                    stickySectionHeadersEnabled={false}
+                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
+                                    renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
+                                    renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
+                                />
+                            ) : (
+                                <FlatList
+                                    {...this.commonHeaderProps}
+                                    data={data}
+                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                />
+                            )
+                    }
+                </SafeAreaView>
             </View>
+        )
+    }
+
+    renderEmptyList = () => {
+        const { colors, GRID_SIZE } = this.context
+        let { searchQuery } = this.state
+
+
+
+        let isSearchTokenAddress = false
+        if (searchQuery) {
+            searchQuery =  searchQuery.trim()
+            if (searchQuery.indexOf('0x') === 0 && searchQuery.length === 42) {
+                isSearchTokenAddress = true
+            } else if (searchQuery.indexOf('T') === 0 && searchQuery.length === 34) {
+                isSearchTokenAddress = true
+            }
+        }
+
+        if (isSearchTokenAddress) {
+            return (
+                <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
+                    <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
+                        <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
+                            <Button
+                                containerStyle={{ marginTop: GRID_SIZE * 2 }}
+                                title={strings('assets.addAssetButton') + ' ' + searchQuery}
+                                onPress={() => this.handleAddCustomToken(searchQuery)}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            )
+        } else {
+            return (
+                <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
+                    <Text style={[styles.emptyText, { color: colors.common.text2 }]}>{strings('assets.noAssetsFound')}</Text>
+                </View>
+            )
+        }
+    }
+
+    renderTabs = (isSection) => (
+        <Tabs
+            tabs={this.state.tabs}
+            changeTab={this.handleChangeTab}
+            containerStyle={[styles.tabs, {}]}
+            tabStyle={[styles.tab, { paddingTop: this.context.GRID_SIZE / 2, paddingBottom: isSection ? (this.context.GRID_SIZE * 1.5) : this.context.GRID_SIZE, }]}
+        />
+    )
+
+    renderListItem = ({ item }) => {
+        return (
+            <ListItem
+                title={item.currencyName}
+                subtitle={item.currencySymbol}
+                iconType={item.currencyCode}
+                onPress={() => this.handleChangeCurrencyStatus(item)}
+                rightContent="switch"
+                switchParams={{ value: item.isHidden !== null && !item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
+            />
         )
     }
 }
 
+
 const mapStateToProps = (state) => {
     return {
-        currencyStore: state.currencyStore
+        assets: state.currencyStore.cryptoCurrencies,
     }
 }
 
-export default connect(mapStateToProps, {})(AddAssetScreen)
+const mapDispatchToProps = (dispatch) => {
+    return {
+        dispatch
+    }
+}
 
-const styles = {
-    wrapper: {
-        flex: 1,
+AddAssetScreen.contextType = ThemeContext
 
-        backgroundColor: '#fff'
-    },
-    wrapper__content: {
-        flex: 1,
+export default connect(mapStateToProps, mapDispatchToProps)(AddAssetScreen)
 
-        paddingRight: 15,
-        paddingLeft: 15,
-        marginTop: 130
+const styles = StyleSheet.create({
+    container: {
+        flex: 1
     },
     content: {
         flex: 1,
-        flexDirection: 'row',
-        width: '100%'
     },
-    content__left: {
+    customAddressConent: {
         flex: 1,
-        alignItems: 'center',
-        position: 'relative',
-        backgroundColor: '#f9f9f9',
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10
+        justifyContent: 'space-between',
     },
-    content__left__bg: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: 1000
-
+    tabs: {
+        justifyContent: 'space-around',
+        marginBottom: 0
     },
-    content__right: {},
-    addButton: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 44
+    tab: {
+        flex: 0
     },
-    addButton__text: {
-        fontSize: 10,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#864dd9'
-    },
-    availableCurrencies: {
-        flex: 1,
-        width: '100%'
-    },
-    availableCurrencies__item: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingLeft: 15,
-        paddingRight: 15,
-        marginTop: 10
-    },
-    availableCurrencies__line: {
-        marginLeft: 15,
-        marginRight: 15,
-        height: 1,
-        marginTop: 10,
-        backgroundColor: '#f0f0f0'
-    },
-    availableCurrencies__text: {
-        flex: 1,
-        justifyContent: 'center',
-        marginLeft: 15
-    },
-    availableCurrencies__text_symbol: {
+    blockTitle: {
+        fontFamily: 'Montserrat-Bold',
         fontSize: 12,
-        color: '#999999'
+        lineHeight: 14,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
     },
-    availableCurrencies__text_name: {
-        paddingRight: 10,
-
-        fontSize: 16,
-        color: '#404040'
-    },
-    availableCurrencies__btn: {
-        paddingLeft: 15,
-        paddingRight: 15,
-        height: 35,
-        marginLeft: 'auto'
-    },
-    btn: {
-        alignItems: 'center',
-
-        padding: 10,
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1
-        },
-        shadowOpacity: 0.20,
-        shadowRadius: 1.41,
-
-        elevation: 2,
-
-        backgroundColor: '#fff',
-        borderRadius: 10
-    },
-    btn__text: {
-        fontSize: 12,
+    emptyText: {
         fontFamily: 'SFUIDisplay-Semibold',
-        color: '#864dd9'
+        fontSize: 15,
+        lineHeight: 19,
+        letterSpacing: 1.5,
+        flex: 2,
     },
-    btn__text_disabled: {
-        color: '#404040'
-    },
-    btn__text_add: {
-        color: '#f4f4f4',
-        backgroundColor: '#864dd9'
-        // color: '#7127ac',
-    }
-}
+})

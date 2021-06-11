@@ -9,13 +9,15 @@ class FilePermissions {
 
     init = async () => {
         try {
-            if (RNFS.CachesDirectoryPath) {
-                await RNFS.mkdir(RNFS.CachesDirectoryPath + '/logs')
-                await RNFS.mkdir(RNFS.CachesDirectoryPath + '/zip')
-            } else {
-                await RNFS.mkdir(RNFS.DocumentDirectoryPath + '/logs')
-                await RNFS.mkdir(RNFS.DocumentDirectoryPath + '/zip')
+            const root = RNFS.DocumentDirectoryPath ? RNFS.DocumentDirectoryPath : RNFS.CachesDirectoryPath
+            if (!root) {
+                throw new Error('no root directory')
             }
+            if (!await RNFS.exists(root + '/logs')) {
+                await RNFS.mkdir(root + '/logs')
+                await RNFS.mkdir(root + '/zip')
+            }
+
             IS_OK = true
         } catch (e) {
             CACHE_ERROR = ' ERROR!!! FilePermissions.createDir error ' + e.message + ' ' + JSON.stringify({caches : RNFS.CachesDirectoryPath, docs : RNFS.DocumentDirectoryPath})

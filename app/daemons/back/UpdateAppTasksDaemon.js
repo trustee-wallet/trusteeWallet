@@ -1,5 +1,6 @@
 /**
  * @version 0.11
+ * @todo remove as deprecated if will be not shown
  */
 import Log from '../../services/Log/Log'
 
@@ -17,6 +18,7 @@ class UpdateAppTasksDaemon {
      * @return {Promise<void>}
      */
     updateAppTasksDaemon = async (params) => {
+        return false
         Log.daemon('UpdateAppTaskDaemon called')
 
         const appTasks = await appTaskDoingDS.getTasksForRun(params)

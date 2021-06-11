@@ -1,23 +1,26 @@
-FROM ubuntu:19.10
+FROM ubuntu:20.04
 
 ENV WDIR=trustee
 ENV ANDROID_HOME=/${WDIR}/androidsdk \
-    ANDROID_SDK_ROOT=/${WDIR}/androidsdk
+    ANDROID_SDK_ROOT=/${WDIR}/androidsdk \
+    TZ=Europe/Kiev
 
 WORKDIR /${WDIR}
 
 RUN apt-get -y update && \
-    apt-get -y install build-essential openjdk-8-jdk git curl sudo pigz unzip python3-distutils python3-apt && \
+    DEBIAN_FRONTEND=noninteractive apt-get -qq -y install sudo build-essential openjdk-8-jdk git curl sudo pigz unzip python3-distutils python3-apt && \
+    ln -fs /usr/share/zoneinfo/Europe/Kiev /etc/localtime && \
+    sudo dpkg-reconfigure --frontend noninteractive tzdata && date && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python3 get-pip.py && \
     python3 -m pip install gplaycli && \
     rm -f ./get-pip.py && \
     curl -sL -o /usr/local/bin/apktool https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool && \
-    curl -sL -o /usr/local/bin/apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.4.1.jar && \
+    curl -sL -o /usr/local/bin/apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.5.0.jar && \
     chmod +x /usr/local/bin/apktool /usr/local/bin/apktool.jar && \
-    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.3.0/bundletool-all-1.3.0.jar && \
+    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.5.0/bundletool-all-1.5.0.jar && \
     chmod 644 bundletool.jar && \
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
+    curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && \
     apt-get -y install nodejs && \
     apt-get -y autoremove && \
     apt-get -y clean && \
@@ -33,7 +36,7 @@ RUN mkdir -p /${WDIR}/npm && \
 ADD package.json ./src
 
 RUN cd ./src && \
-    npm install && \
+    npm install --quiet --no-progress && \
     npx jetifier && \
     rm -f shim.js && ./node_modules/.bin/rn-nodeify --hack --install && \
     tar -c --use-compress-program=pigz -f /${WDIR}/npm/node_modules.tar.gz /${WDIR}/src/node_modules && \

@@ -1,37 +1,35 @@
 /**
  * @version 0.9
+ * to take balance from store for version up
  */
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, Animated } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native'
+import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 
-import GradientView from '../../../components/elements/GradientView'
-import CustomIcon from '../../../components/elements/CustomIcon'
-import NavStore from '../../../components/navigation/NavStore'
+import GradientView from '@app/components/elements/GradientView'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import NavStore from '@app/components/navigation/NavStore'
 
-import Settings from './Settings'
+import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setFlowType, setWalletName } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
-import cryptoWalletActions from '../../../appstores/Actions/CryptoWalletActions'
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-import { setFlowType } from '../../../appstores/Stores/CreateWallet/CreateWalletActions'
+import { strings } from '@app/services/i18n'
 
-import { strings } from '../../../services/i18n'
+import DaemonCache from '@app/daemons/DaemonCache'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import DaemonCache from '../../../daemons/DaemonCache'
-import BlocksoftPrettyNumbers from '../../../../crypto/common/BlocksoftPrettyNumbers'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+const smallDevice = Dimensions.get('screen').width < 370
 
 class Wallet extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            isShowSettings: false,
-            heightAnimation: new Animated.Value(102)
+            isShowSettings: false
         }
-    }
-
-    closeSetting = () => {
-        Animated.timing(this.state.heightAnimation, { toValue: 102, duration: 500 }).start()
     }
 
     handleBackUpModal = () => {
@@ -42,293 +40,210 @@ class Wallet extends Component {
             type: 'YES_NO_MODAL',
             title: strings('settings.walletList.backupModal.title'),
             icon: 'WARNING',
-            description: strings('settings.walletList.backupModal.description', { walletName })
-        }, () => {
-            this.handleBackup()
-        })
+            description: strings('settings.walletList.backupModal.description', { walletName }),
+            oneButton: strings('settings.walletList.backupModal.save'),
+            twoButton: strings('settings.walletList.backupModal.late'),
+            noCallback: () => {
+                this.handleBackup()
+            }
+        }, () => {})
     }
 
-    handleBackup = () => {
-        setFlowType({
-            flowType: 'BACKUP_WALLET'
-        })
-        NavStore.goNext('BackupStep0Screen')
+    handleBackup = async () => {
+        const { walletNumber, walletHash } = this.props.wallet
+        setFlowType({ flowType: 'BACKUP_WALLET', walletHash, walletNumber, source : 'WalletListScreen' })
+        setWalletName({ walletName: this.props.wallet.walletName })
+        if (walletHash !== this.props.selectedWalletHash) {
+            await cryptoWalletActions.setSelectedWallet(walletHash, 'handleBackupNeeded')
+        }
+        NavStore.goNext('BackupStep0Screen', { flowSubtype: 'backup' })
     }
 
     handleSelectWallet = async () => {
+        await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleSelectWallet')
+    }
+
+    handleOpenAdvanced = () => {
+        NavStore.goNext('AdvancedWalletScreen')
+    }
+
+    getBalanceData = () => {
         const { wallet } = this.props
-
-        this.props.closeAllSettings()
-
-        await cryptoWalletActions.setSelectedWallet(wallet.walletHash, 'handleSelectWallet')
-        NavStore.reset('DashboardStack')
-    }
-
-    toggleShowSettings = () => {
-        this.setState({ isShowSettings: !this.state.isShowSettings })
-
-        Animated.timing(this.state.heightAnimation, { toValue: !this.state.isShowSettings ? 180 : 102, duration: 500 }).start()
-    }
-
-    render() {
-
-        const { heightAnimation} = this.state
-        const { selectedWallet, wallet } = this.props
-
-        const isSelected = wallet.walletHash === selectedWallet.walletHash
-        const isBackedUp = wallet.walletIsBackedUp
-
         const CACHE_SUM = DaemonCache.getCache(wallet.walletHash)
 
         let walletBalance = 0
-        let walletBalanceLocal = ''
+        let currencySymbol = ''
         if (CACHE_SUM) {
             walletBalance = CACHE_SUM.balance
-            walletBalanceLocal = CACHE_SUM.basicCurrencySymbol
+            currencySymbol = CACHE_SUM.basicCurrencySymbol
         }
 
-        walletBalance = walletBalanceLocal + ' ' + BlocksoftPrettyNumbers.makeCut(walletBalance, 2, 'Settings/walletBalance').separated
+        let tmp = walletBalance.toString().split('.')
+        let beforeDecimal = BlocksoftPrettyNumbers.makeCut(tmp[0]).separated
+        let afterDecimal = ''
+        if (typeof tmp[1] !== 'undefined') {
+            afterDecimal = '.' + tmp[1].substr(0, 2)
+        }
+
+        return { currencySymbol, beforeDecimal, afterDecimal }
+    }
+
+    render() {
+        const { selectedWalletHash, wallet } = this.props
+
+        const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility } = this.props
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+
+        const isSelected = wallet.walletHash === selectedWalletHash
+        const isBackedUp = wallet.walletIsBackedUp
+
+        const balanceData = this.getBalanceData()
+
+        const { colors, GRID_SIZE } = this.context
 
         return (
-            <Animated.View style={{ position: 'relative', height: heightAnimation, marginBottom: 16 }}>
-                <View style={styles.wrapper}>
-                    <TouchableOpacity disabled={isSelected} style={{ position: 'relative', zIndex: 2 }} onPress={this.handleSelectWallet}>
-                        <GradientView style={styles.wrapper__item} array={styles.wrapper__bg.array} start={styles.wrapper__bg.start} end={styles.wrapper__bg.end}>
-                            <View style={[styles.wrapper__select, isSelected ? styles.wrapper__select_active : null]}/>
-                            <TouchableOpacity disabled={!isSelected} style={styles.wrapper__settings} onPress={this.toggleShowSettings}>{['1', '2', '3'].map((item, index) => <View key={index} style={[styles.wrapper__settings__dot, !isSelected ? styles.wrapper__settings__dot__disabled : null]}/>)}</TouchableOpacity>
-                            <View style={styles.wrapper__content}>
-                                <View style={[styles.wrapper__column, { flex: 2 }]}>
-                                    <View>
-                                        <Text style={styles.wrapper__title}>{wallet.walletName}</Text>
-                                        <Text style={styles.wrapper__subTitle}>{strings('settings.walletList.balance')}</Text>
-                                        <Text style={styles.wrapper__text}>{walletBalance}</Text>
-                                    </View>
+            <TouchableOpacity
+                style={[styles.bgContainer, isSelected && styles.activeContainer, { marginVertical: GRID_SIZE / 2, borderColor: colors.walletManagment.walletItemBorderColor }]}
+                disabled={isSelected}
+                onPress={this.handleSelectWallet}
+            >
+                <GradientView
+                    array={isSelected ? colors.walletManagment.walletItemBgActive : colors.walletManagment.walletItemBg}
+                    start={{ x: 1, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.container}
+                >
+                    <View style={[styles.balanceContainer, !isBackedUp && { flex: 1 }]}>
+                        <Text style={[styles.walletName, { color: colors.common.text3 }]} numberOfLines={1}>{wallet.walletName}</Text>
+
+                        <TouchableOpacity
+                            onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
+                            onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
+                            activeOpacity={1}
+                            disabled={originalVisibility}
+                            hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}
+                        >
+                            {finalIsBalanceVisible ? (
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <Text style={[styles.balanceCurrencySymbol, { color: colors.common.text1 }]}>{balanceData.currencySymbol}</Text>
+                                    <Text style={[styles.balanceBeforeDecimal, { color: colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
+                                    <Text style={[styles.balanceAfterDecimal, { color: colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
                                 </View>
-                                <View style={styles.wrapper__line}>
-                                    <View style={styles.wrapper__line__item}/>
-                                </View>
-                                <View style={[styles.wrapper__column, { flex: 1 }]}>
-                                    <View>
-                                        {!isBackedUp ?
-                                            <TouchableOpacity disabled={!isSelected} style={styles.wrapper__warning} onPress={this.handleBackUpModal}>
-                                                <CustomIcon name="warning" style={[styles.wrapper__backUpped__icon, !isSelected ? styles.wrapper__backUpped__icon_disabled : null]}/>
-                                            </TouchableOpacity> : null
-                                        }
-                                        <Text style={styles.wrapper__title}/>
-                                        <Text style={styles.wrapper__subTitle}>HD</Text>
-                                        <Text style={styles.wrapper__text}>{strings(`settings.walletList.${wallet.walletIsHd ? 'on' : 'off'}`)}</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </GradientView>
-                        <View style={styles.shadow}>
-                            <View style={styles.shadow__item}/>
-                        </View>
-                    </TouchableOpacity>
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, marginHorizontal: 15, backgroundColor: '#fff', borderRadius: 16, zIndex: 1 }}/>
-                </View>
-                <Settings wallet={wallet} toggleShowSettings={this.toggleShowSettings}/>
-            </Animated.View>
+                            ) : (
+                                <Text style={[styles.balanceHidden, { color: colors.common.text1 }]}>****</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                    {isBackedUp ? (
+                        <TouchableOpacity
+                            style={styles.advancedButton}
+                            hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
+                            activeOpacity={0.8}
+                            onPress={this.handleOpenAdvanced}
+                            disabled={!isSelected}
+                        >
+                            <CustomIcon name={'coinSettings'} size={20} color={isSelected ? colors.common.text1 : colors.common.text2} />
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity
+                            style={[styles.backupContainer, { borderColor: colors.walletManagment.walletItemBorderColor, paddingLeft: GRID_SIZE }, smallDevice && { flex: 1.5 }]}
+                            onPress={this.handleBackUpModal}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={[styles.backupText, { color: colors.walletManagment.walletItemBorderColor, marginRight: GRID_SIZE / 2 }]}>{strings('settings.walletList.backupNeeded')}</Text>
+                            <IconMaterial name="error-outline" size={22} color={colors.walletManagment.walletItemBorderColor} />
+                        </TouchableOpacity>
+                    )}
+                </GradientView>
+            </TouchableOpacity>
         )
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        mainStore: state.mainStore
-    }
-}
+Wallet.contextType = ThemeContext
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
+export default Wallet
 
-export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(Wallet)
-
-const styles = {
-    wrapper: {
-        position: 'relative',
-
-        paddingHorizontal: 15,
-
-        zIndex: 2
-    },
-    wrapper__item: {
-        position: 'relative',
-
+const styles = StyleSheet.create({
+    bgContainer: {
         borderRadius: 16,
-
-        zIndex: 2
-    },
-    wrapper__settings: {
-        justifyContent: 'space-between',
-
-        position: 'absolute',
-        top: 0,
-        right: 0,
-
-        height: 54,
-        padding: 16,
-
-        zIndex: 3
-    },
-    wrapper__settings__dot: {
-        width: 4,
-        height: 4,
-
-        backgroundColor: '#864DD9',
-
-        borderRadius: 10
-    },
-    wrapper__settings__dot__disabled: {
-        backgroundColor: '#E3E6E9'
-    },
-    wrapper__content: {
-        position: 'relative',
-
-        flexDirection: 'row',
-        alignItems: 'center',
-
-        height: 102,
-        paddingLeft: 16,
-
-        borderRadius: 16,
-
-        zIndex: 2
-    },
-    wrapper__column: {},
-    wrapper__title: {
-        height: 18,
-        marginBottom: 18,
-
-        fontFamily: 'Montserrat-Bold',
-        fontSize: 14,
-        color: '#404040'
-    },
-    wrapper__subTitle: {
-        marginBottom: 4,
-
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#999'
-    },
-    wrapper__text: {
-        fontFamily: 'Montserrat-SemiBold',
-        fontSize: 14,
-        color: '#404040'
-    },
-    wrapper__bg: {
-        array: ['#fff', '#f2f2f2'],
-        start: { x: 1, y: 0 },
-        end: { x: 1, y: 1 }
-    },
-    wrapper__line: {
-        position: 'absolute',
-        top: 40,
-        left: 20,
-
-        height: 1,
-        width: '100%'
-    },
-    wrapper__line__item: {
-        height: '100%',
-        marginRight: 98,
-
-        backgroundColor: '#E3E6E9'
-    },
-    wrapper__backUpped__icon: {
-        fontSize: 18,
-        color: '#FF2E2E'
-    },
-    wrapper__backUpped__icon_disabled: {
-        color: '#E3E6E9'
-    },
-    wrapper__warning: {
-        position: 'absolute',
-        top: -18,
-        left: -20,
-
-        padding: 20,
-        zIndex: 3
-    },
-    shadow: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-
-        width: '100%',
-        height: '100%',
-
-        zIndex: 1
-    },
-    shadow__item: {
-        flex: 1,
-
-        marginHorizontal: 4,
-        marginTop: 11,
-
-        backgroundColor: '#fff',
-
-        borderRadius: 16,
-
         shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
         shadowOffset: {
             width: 0,
             height: 5
         },
-        shadowOpacity: 0.34,
-        shadowRadius: 6.27,
-
         elevation: 10
     },
-    wrapper__select: {
-        position: 'absolute',
-        top: 30,
-
-        width: 4,
-        height: 42,
-
-        backgroundColor: '#E3E6E9',
-        borderTopRightRadius: 10,
-        borderBottomRightRadius: 10
+    activeContainer: {
+        shadowOpacity: 0,
+        elevation: 0,
+        borderWidth: 2,
     },
-    wrapper__select_active: {
-        backgroundColor: '#864DD9'
+    container: {
+        borderRadius: 16,
+        flex: 1,
+        paddingHorizontal: 16,
+        paddingVertical: 19,
+        flexDirection: 'row'
     },
-    settings: {
+    balanceContainer: {
+        flex: 1.8,
+        paddingRight: 5,
+    },
+    backupContainer: {
+        flex: 1,
+        borderLeftWidth: 2,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-
-        position: 'absolute',
-        right: 0,
-
-        width: '50%',
-        height: '100%',
-
-
-        backgroundColor: '#f2f2f2',
-
-        zIndex: 4
     },
-    settings__title: {
-        marginBottom: 4,
-
+    advancedButtonDotRow: {
+        flexDirection: 'row'
+    },
+    advancedButtonDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        margin: 2,
+    },
+    walletName: {
         fontFamily: 'SFUIDisplay-Semibold',
-        fontSize: 12,
-        color: '#404040'
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+        marginBottom: 5,
     },
-    settings__row: {
-        flexDirection: 'row',
-        alignItems: 'center'
+    balanceCurrencySymbol: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 18,
+        lineHeight: 18,
+        marginBottom: 2,
+        marginRight: 4
     },
-    settings__close: {
-        padding: 15
-    },
-    settings__close__icon: {
+    balanceBeforeDecimal: {
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 24,
-        color: '#864DD9'
+        lineHeight: 24,
+    },
+    balanceAfterDecimal: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 16,
+        lineHeight: 24,
+    },
+    balanceHidden: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 24,
+        lineHeight: 24,
+        marginTop: 4,
+        marginBottom: -4,
+    },
+    backupText: {
+        fontFamily: 'SFUIDisplay-Bold',
+        fontSize: 13,
+        lineHeight: 17,
+        letterSpacing: 1.75,
+        flex: 1,
     }
-}
+})

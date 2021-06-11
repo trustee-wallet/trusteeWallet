@@ -1,22 +1,18 @@
 /**
- * @version 0.9
+ * @version 0.44
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { View, StyleSheet, ScrollView, Text } from 'react-native'
-
-import firebase from 'react-native-firebase'
-
-import Navigation from '../../../components/navigation/Navigation'
-
-import { strings, sublocale } from '../../../services/i18n'
-
-import ALL_TERMS from '../../../../__terms__/ALL'
+import { strings, sublocale } from '@app/services/i18n'
+import ALL_TERMS from '@app/../__terms__/ALL'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 
-class TermsOfUseScreen extends Component {
+class TermsOfUseScreen extends React.PureComponent {
 
     render() {
-        firebase.analytics().setCurrentScreen('Settings.TermsOfUseScreen')
+        MarketingAnalytics.setCurrentScreen('Settings.TermsOfUseScreen')
 
         let sub = sublocale()
         if (sub !== 'uk' && sub !== 'ru') {
@@ -24,13 +20,13 @@ class TermsOfUseScreen extends Component {
         }
 
         return (
-            <View style={styles.wrapper}>
-                <Navigation
-                    title={strings('settings.about.terms')}
-                />
+            <ScreenWrapper
+                title={strings('settings.about.terms')}
+            >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    style={styles.wrapper__scrollView}>
+                    style={styles.wrapper__scrollView}
+                >
                     <View style={styles.wrapper__content}>
                         <Text style={styles.title}>
                             {strings('settings.about.terms')}
@@ -43,7 +39,7 @@ class TermsOfUseScreen extends Component {
                         </Text>
                     </View>
                 </ScrollView>
-            </View>
+            </ScreenWrapper>
         )
     }
 }
@@ -52,10 +48,6 @@ class TermsOfUseScreen extends Component {
 export default TermsOfUseScreen
 
 const styles = StyleSheet.create({
-    wrapper: {
-        flex: 1,
-        backgroundColor: '#fff'
-    },
     wrapper__scrollView: {
         marginTop: 80
     },

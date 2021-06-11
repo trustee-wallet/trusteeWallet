@@ -39,6 +39,9 @@ import UsdtScannerProcessor from './usdt/UsdtScannerProcessor'
 import XrpAddressProcessor from './xrp/XrpAddressProcessor'
 import XrpScannerProcessor from './xrp/XrpScannerProcessor'
 
+import XlmAddressProcessor from './xlm/XlmAddressProcessor'
+import XlmScannerProcessor from './xlm/XlmScannerProcessor'
+
 import XvgScannerProcessor from './xvg/XvgScannerProcessor'
 
 import XmrAddressProcessor from './xmr/XmrAddressProcessor'
@@ -46,6 +49,13 @@ import XmrScannerProcessor from './xmr/XmrScannerProcessor'
 import XmrSecretsProcessor from './xmr/XmrSecretsProcessor'
 import FioAddressProcessor from './fio/FioAddressProcessor'
 import FioScannerProcessor from './fio/FioScannerProcessor'
+
+
+import BnbAddressProcessor from './bnb/BnbAddressProcessor'
+import BnbScannerProcessor from './bnb/BnbScannerProcessor'
+import BnbSmartScannerProcessorErc20 from './bnb_smart/BnbSmartScannerProcessorErc20'
+import VetScannerProcessor from '@crypto/blockchains/vet/VetScannerProcessor'
+
 
 class BlocksoftDispatcher {
 
@@ -68,7 +78,7 @@ class BlocksoftDispatcher {
                 return new BchAddressProcessor(currencyDictSettings)
             case 'BTC':
                 return new BtcAddressProcessor(currencyDictSettings)
-            case 'BTC_SEGWIT':
+            case 'BTC_SEGWIT': case 'LTC_SEGWIT':
                 return new BtcSegwitAddressProcessor(currencyDictSettings)
             case 'BTC_SEGWIT_COMPATIBLE':
                 return new BtcSegwitCompatibleAddressProcessor(currencyDictSettings)
@@ -78,10 +88,14 @@ class BlocksoftDispatcher {
                 return new TrxAddressProcessor()
             case 'XRP':
                 return new XrpAddressProcessor()
+            case 'XLM':
+                return new XlmAddressProcessor()
             case 'XMR':
                 return new XmrAddressProcessor()
             case 'FIO':
                 return new FioAddressProcessor()
+            case 'BNB':
+                return new BnbAddressProcessor()
             default:
                 throw new Error('Unknown addressProcessor ' + currencyDictSettings.addressProcessor)
         }
@@ -110,6 +124,8 @@ class BlocksoftDispatcher {
                 return new EthScannerProcessor(currencyDictSettings)
             case 'ETH_ERC_20':
                 return new EthScannerProcessorErc20(currencyDictSettings)
+            case 'BNB_SMART_20':
+                return new BnbSmartScannerProcessorErc20(currencyDictSettings)
             case 'ETH_UAX':
                 return new EthScannerProcessorUAX(currencyDictSettings)
             case 'ETH_SOUL':
@@ -122,12 +138,18 @@ class BlocksoftDispatcher {
                 return new UsdtScannerProcessor(currencyDictSettings)
             case 'XRP':
                 return new XrpScannerProcessor(currencyDictSettings)
+            case 'XLM':
+                return new XlmScannerProcessor(currencyDictSettings)
             case 'XVG':
                 return new XvgScannerProcessor(currencyDictSettings)
             case 'XMR':
                 return new XmrScannerProcessor(currencyDictSettings)
             case 'FIO':
                 return new FioScannerProcessor(currencyDictSettings)
+            case 'BNB':
+                return new BnbScannerProcessor(currencyDictSettings)
+            case 'VET':
+                return new VetScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }
@@ -140,7 +162,9 @@ class BlocksoftDispatcher {
     getTokenProcessor(tokenType) {
         switch (tokenType) {
             case 'ETH_ERC_20':
-                return new EthTokenProcessorErc20({ network: 'mainnet' })
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain: 'ETHEREUM' })
+            case 'BNB_SMART_20':
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'BNB' })
             case 'TRX':
                 return new TrxTokenProcessor()
             default:

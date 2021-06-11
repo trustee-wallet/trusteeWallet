@@ -1,24 +1,40 @@
 /**
- * @version 0.10
+ * @version 0.43
  * @author yura
  */
-import React, { Component } from 'react'
+import React from 'react'
 import Modal from 'react-native-modal'
-import { View, StyleSheet, Platform, Dimensions } from 'react-native'
-import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { View, StyleSheet, Dimensions } from 'react-native'
+import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 
-export default class ModalLayout extends Component {
+let windowHeight, windowWidth
+if (WINDOW_HEIGHT < WINDOW_WIDTH) {
+    windowHeight = WINDOW_WIDTH
+    windowWidth = WINDOW_HEIGHT
+} else {
+    windowHeight = WINDOW_HEIGHT
+    windowWidth = WINDOW_WIDTH
+}
 
-    constructor(props) {
-        super(props)
-    }
+class ModalLayout extends React.PureComponent {
 
     render() {
+
+        const { colors } = this.context
+
         return (
-            <Modal style={styles.modal} hasBackdrop={true} backdropOpacity={0.4} isVisible={this.props.visible} onBackdropPress={hideModal} >
-                <View style={styles.container}>
+            <Modal style={styles.modal}
+                   hasBackdrop={true}
+                   backdropOpacity={0.4}
+                   isVisible={this.props.visible === true || this.props.visible === 'true'}
+                   onBackdropPress={() => {this.props.noBackdropPress === true ? null : hideModal()}}
+                   useNativeDriver={true}
+            >
+                <View style={{...styles.container, backgroundColor: colors.common.background, minHeight: this.props.notifications ? 170 : 290  }}>
                     <View>
                         {this.props.children}
                     </View>
@@ -28,20 +44,24 @@ export default class ModalLayout extends Component {
     }
 }
 
+ModalLayout.contextType = ThemeContext
+
+export default ModalLayout
+
 const styles = StyleSheet.create({
     modal: {
         margin: 0,
         padding: 0,
         justifyContent: 'center',
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
+        width: windowWidth,
+        height: windowHeight
     },
     container: {
         justifyContent: 'flex-end',
         position: 'relative',
-        left: (WINDOW_WIDTH - 313) / 2,
+        left: (windowWidth - 313) / 2,
         width: 313,
-        minHeight: 290,
-        backgroundColor: '#F7F7F7',
         marginVertical: 5,
         borderRadius: 16,
         zIndex: 1

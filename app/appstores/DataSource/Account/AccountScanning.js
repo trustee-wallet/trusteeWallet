@@ -1,9 +1,10 @@
 /**
  * @version 0.9
  */
-import DBInterface from '../DB/DBInterface'
+import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
+import store from '@app/store'
 
 class AccountScanning {
 
@@ -16,11 +17,9 @@ class AccountScanning {
      * @return {Promise<{id, currencyCode, address, transactionsScanTime, transactionsScanLog, balance, balanceFix, balanceTxt, balanceProvider, balanceScanTime, balanceScanLog, accountJson}[]>}
      */
     async getAccountsForScan (params) {
-
-        const dbInterface = new DBInterface()
-
         let where = []
-        let limit = 2
+        let limit = 3
+
         //where.push(`account.currency_code='ETH_UAX'`)
 
         if (typeof params.force === 'undefined' || !params.force) {
@@ -29,16 +28,23 @@ class AccountScanning {
         } else {
             limit = 20
         }
-        where.push(`currency.is_hidden=0`)
-        where.push(`(account.currency_code!='BTC' 
-        OR account.derivation_path = 'm/49quote/0quote/0/1/0' 
-        OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub) 
-        OR wallet.wallet_is_hd NOT IN (1, '1') 
-        OR wallet.wallet_is_hd IS NULL)`)
         if (typeof params.currencyCode !== 'undefined' && params.currencyCode) {
-            where.push(`account.currency_code='${params.currencyCode}'`)
+            where.push(`account.currency_code IN ('${params.currencyCode}')`)
             where.push(`account.is_main=1`)
             limit = 10
+            if (params.currencyCode === 'BTC') {
+                where.push(`(account.derivation_path = 'm/49quote/0quote/0/1/0' OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub))`)
+            }
+        } else {
+            const currencies = store.getState().currencyStore.cryptoCurrencies
+            const codes = []
+            for (const tmp of currencies) {
+                if (!tmp.maskedHidden) {
+                    codes.push(`'${tmp.currencyCode}'`)
+                }
+            }
+            where.push('account.currency_code IN ('  + codes.join(',') + ')')
+            where.push(`(account.currency_code!='BTC' OR account.derivation_path = 'm/49quote/0quote/0/1/0' OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub))`)
         }
         if (typeof params.currencyFamily !== 'undefined' && params.currencyFamily) {
             where.push(`account.currency_code LIKE '${params.currencyFamily}%'`)
@@ -47,10 +53,10 @@ class AccountScanning {
         if (params.walletHash) {
             where.push(`account.wallet_hash='${params.walletHash}'`)
             if (limit === 2) {
-                const countNotSync = await dbInterface.setQueryString(`SELECT COUNT(*) AS cn
+                const countNotSync = await Database.setQueryString(`SELECT COUNT(*) AS cn
                  FROM account_balance
                  LEFT JOIN currency ON currency.currency_code=account_balance.currency_code
-                 WHERE account_balance.wallet_hash='${params.walletHash}' AND (account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time=0) 
+                 WHERE account_balance.wallet_hash='${params.walletHash}' AND (account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time=0)
                  AND currency.is_hidden=0`).query()
                 if (countNotSync && countNotSync.array && typeof countNotSync.array[0] !== 'undefined' && typeof countNotSync.array[0].cn !== 'undefined') {
                     if (countNotSync.array[0].cn > 1) {
@@ -68,28 +74,31 @@ class AccountScanning {
             where = ''
         }
 
-        const sql = ` 
-            SELECT 
-            account.id, 
-            account.currency_code AS currencyCode,  
+        const sql = `
+            SELECT
+            account.id,
+            account.currency_code AS currencyCode,
             account.wallet_hash AS walletHash,
-            account.address, 
-             
-            account.transactions_scan_time AS transactionsScanTime, 
+            wallet.wallet_is_hd AS walletIsHd,
+            account.address,
+
+            account.transactions_scan_time AS transactionsScanTime,
             account.transactions_scan_log AS transactionsScanLog,
-            
-            account_balance.balance_fix AS balanceFix, 
+
+            account_balance.balance_fix AS balanceFix,
             account_balance.balance_txt AS balanceTxt,
-            account_balance.unconfirmed_fix AS unconfirmedFix, 
+            account_balance.unconfirmed_fix AS unconfirmedFix,
             account_balance.unconfirmed_txt AS unconfirmedTxt,
-            
+
             account_balance.balance_provider AS balanceProvider,
             account_balance.balance_scan_time AS balanceScanTime,
+            account_balance.balance_scan_error AS balanceScanError,
             account_balance.balance_scan_log AS balanceScanLog,
             account_balance.balance_scan_block AS balanceScanBlock,
-            
-            account.account_json AS accountJson
-            FROM account 
+
+            account.account_json AS accountJson,
+            currency.is_hidden AS isHidden
+            FROM account
             LEFT JOIN account_balance ON account_balance.account_id=account.id
             LEFT JOIN currency ON currency.currency_code=account.currency_code
             LEFT JOIN wallet ON wallet.wallet_hash=account.wallet_hash
@@ -103,7 +112,7 @@ class AccountScanning {
         const uniqueAddresses = {}
         const idsToRemove = []
         try {
-            res = await dbInterface.setQueryString(sql).query()
+            res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AccountScanning getAccountsForScan finished as empty')
                 return false
@@ -122,7 +131,7 @@ class AccountScanning {
                 }
                 const key = res[i].address + '_' + currencyCode
                 if (typeof uniqueAddresses[key] !== 'undefined') {
-                    await dbInterface.setQueryString(`UPDATE transactions SET account_id=${uniqueAddresses[key]} WHERE account_id=${res[i].id}`).query()
+                    await Database.setQueryString(`UPDATE transactions SET account_id=${uniqueAddresses[key]} WHERE account_id=${res[i].id}`).query()
                     idsToRemove.push(res[i].id)
                     continue
                 }
@@ -131,9 +140,10 @@ class AccountScanning {
                 res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
                 res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0
                 res[i].balanceScanLog = res[i].balanceScanLog || ''
+                res[i].walletIsHd = res[i].walletIsHd || false
                 if (!res[i].accountJson || res[i].accountJson === 'false') continue
 
-                const string = dbInterface.unEscapeString(res[i].accountJson)
+                const string = Database.unEscapeString(res[i].accountJson)
                 try {
                     res[i].accountJson = JSON.parse(string)
                 } catch (e) {
@@ -145,8 +155,8 @@ class AccountScanning {
                 Log.daemon('AccountScanning getAccountsForScan unique check finished, found ' + idsToRemove.join(','))
                 Log.daemon('AccountScanning getAccountsForScan not removed', uniqueAddresses)
 
-                await dbInterface.setQueryString(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`).query()
-                await dbInterface.setQueryString(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`).query()
+                await Database.setQueryString(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`).query()
+                await Database.setQueryString(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`).query()
             }
         } catch (e) {
             Log.daemon('AccountScanning getAccountsForScan error ' + e.message, sql)
@@ -155,15 +165,12 @@ class AccountScanning {
     }
 
     async getAddresses (params) {
-
-        const dbInterface = new DBInterface()
-
         let where = []
         if (params.walletHash) {
             where.push(`account.wallet_hash='${params.walletHash}'`)
         }
         if (params.currencyCode) {
-            where.push(`account.currency_code='${params.currencyCode}'`)
+            where.push(`account.currency_code IN ('${params.currencyCode}')`)
         }
         if (typeof params.onlyLegacy !== 'undefined') {
             where.push(`account.address LIKE '1%'`)
@@ -175,21 +182,20 @@ class AccountScanning {
             where = ''
         }
 
-        const sql = ` 
-            SELECT 
-            account.id, 
-            account.currency_code AS currencyCode,  
+        const sql = `
+            SELECT
+            account.id,
+            account.currency_code AS currencyCode,
             account.wallet_hash AS walletHash,
             account.already_shown AS alreadyShown,
             account.address
-            FROM account          
+            FROM account
             ${where}
         `
 
-
         const indexedRes = {}
         try {
-            let res = await dbInterface.setQueryString(sql).query()
+            let res = await Database.setQueryString(sql).query()
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AccountScanning getAddresses finished as empty')
                 return false

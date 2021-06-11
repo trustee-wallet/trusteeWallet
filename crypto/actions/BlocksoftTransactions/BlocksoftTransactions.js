@@ -11,66 +11,24 @@ class BlocksoftTransactions {
      * @private
      */
     _processor = {}
-    /**
-     * @type {{currencyCode, address, jsonData, walletHash}}
-     * @private
-     */
-    _data = {}
 
     /**
-     * @param {string} currencyCode
-     * @return {BlocksoftTransactions}
+     * @return {Promise<UnifiedTransaction[]>}
      */
-    setCurrencyCode(currencyCode) {
-        this._data.currencyCode = currencyCode
+    async getTransactions(data, source = '') {
+        const currencyCode = data.account.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
         if (!this._processor[currencyCode]) {
             /**
              * @type {EthScannerProcessor|BtcScannerProcessor|UsdtScannerProcessor}
              */
             this._processor[currencyCode] = BlocksoftDispatcher.getScannerProcessor(currencyCode)
         }
-        return this
-    }
-
-    /**
-     * @param {string} address
-     * @return {BlocksoftTransactions}
-     */
-    setAddress(address) {
-        this._data.address = address
-        return this
-    }
-
-    /**
-     * @param {string} walletHash
-     * @return {BlocksoftTransactions}
-     */
-    setWalletHash(walletHash) {
-        this._data.walletHash = walletHash
-        return this
-    }
-
-    /**
-     * @param {*} jsonData
-     * @return {BlocksoftTransactions}
-     */
-    setAdditional(jsonData) {
-        this._data.jsonData = jsonData
-        return this
-    }
-
-
-    /**
-     * @return {Promise<UnifiedTransaction[]>}
-     */
-    async getTransactions() {
-        const currencyCode = this._data.currencyCode
-        if (!currencyCode) {
-            throw new Error('plz set currencyCode before calling')
-        }
         let resultData = []
         try {
-            resultData = await this._processor[currencyCode].getTransactionsBlockchain(this._data.address, this._data.jsonData, this._data.walletHash)
+            resultData = await this._processor[currencyCode].getTransactionsBlockchain(data, source)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             e.message += ' on actual getTransactions step '
@@ -81,16 +39,78 @@ class BlocksoftTransactions {
     }
 
     /**
-     * @return {Promise<string[]>}
+     * @return {Promise<UnifiedTransaction[]>}
      */
-    async getAddresses() {
-        const currencyCode = this._data.currencyCode
+    async getTransactionsPending(data, source = '') {
+        const currencyCode = data.account.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
         }
+        if (!this._processor[currencyCode]) {
+            /**
+             * @type {TrxScannerProcessor}
+             */
+            this._processor[currencyCode] = BlocksoftDispatcher.getScannerProcessor(currencyCode)
+        }
+        if (typeof this._processor[currencyCode].getTransactionsPendingBlockchain === 'undefined') {
+            return false
+        }
+        let resultData = false
+        try {
+            resultData = await this._processor[currencyCode].getTransactionsPendingBlockchain(data, source, false)
+        } catch (e) {
+            e.message += ' on actual getTransactionsPending step '
+            throw e
+        }
+
+        return resultData
+    }
+
+    /**
+     * @return {Promise<boolean>}
+     */
+    async resetTransactionsPending(data, source = '') {
+        const currencyCode = data.account.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
+        if (!this._processor[currencyCode]) {
+            /**
+             * @type {TrxScannerProcessor}
+             */
+            this._processor[currencyCode] = BlocksoftDispatcher.getScannerProcessor(currencyCode)
+        }
+        if (typeof this._processor[currencyCode].resetTransactionsPendingBlockchain === 'undefined') {
+            return false
+        }
+        let resultData = false
+        try {
+            resultData = await this._processor[currencyCode].resetTransactionsPendingBlockchain(data, source, false)
+        } catch (e) {
+            e.message += ' on actual resetTransactionsPending step '
+            throw e
+        }
+
+        return resultData
+    }
+
+    /**
+     * @return {Promise<string[]>}
+     */
+    async getAddresses(data, source = '') {
+        const currencyCode = data.account.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
+        if (!this._processor[currencyCode]) {
+            /**
+             * @type {EthScannerProcessor|BtcScannerProcessor|UsdtScannerProcessor}
+             */
+            this._processor[currencyCode] = BlocksoftDispatcher.getScannerProcessor(currencyCode)
+        }
         let resultData = []
         try {
-            resultData = await this._processor[currencyCode].getAddressesBlockchain(this._data.address)
+            resultData = await this._processor[currencyCode].getAddressesBlockchain(data, source)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             e.message += ' on actual getAddressesBlockchain step '

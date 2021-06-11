@@ -1,55 +1,68 @@
 /**
- * @version 0.11
+ * @version 0.43
+ * @description ksu jumping
  */
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform, Dimensions, PixelRatio } from 'react-native'
-import Icon from 'react-native-vector-icons/AntDesign'
-import Copy from 'react-native-vector-icons/MaterialCommunityIcons'
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+    Animated,
+} from 'react-native'
 
-import Button from '../../components/elements/Button'
-import GradientView from '../../components/elements/GradientView'
-import TextView from '../../components/elements/Text'
+import LottieView from 'lottie-react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import NavStore from '../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { strings } from '../../../app/services/i18n'
+import { strings } from '@app/services/i18n'
 
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import { setWalletMnemonic } from '../../appstores/Stores/CreateWallet/CreateWalletActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setWalletMnemonic, setMnemonicLength, setWalletName, setFlowType } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
-import BlocksoftKeys from '../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
-import BlocksoftKeysStorage from '../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import BlocksoftSecrets from '@crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
 
-import Log from '../../services/Log/Log'
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
+import Log from '@app/services/Log/Log'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
 
-import firebase from 'react-native-firebase'
-import IconAwesome from 'react-native-vector-icons/FontAwesome'
-import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import BlocksoftSecrets from '../../../crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
-import Toast from '../../services/UI/Toast/Toast'
+import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
+import CheckBox from '@app/components/elements/new/CheckBox'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
-const { height: WINDOW_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window')
-const PIXEL_RATIO = PixelRatio.get()
+import ProgressAnimation from '@app/assets/jsons/animations/pieWithStroke.json'
 
-let SIZE = 16
-if (PIXEL_RATIO === 2 && SCREEN_WIDTH < 330) {
-    SIZE = 8
-}
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-class BackupStep0Screen extends Component {
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+
+const VISIBILITY_TIMEOUT = 4000
+
+class BackupStep0Screen extends PureComponent {
+
+    scrollView;
+
+    headerProps = {}
 
     constructor(props) {
         super(props)
         this.state = {
             walletMnemonic: '',
             walletMnemonicArray: [],
-            needPasswordConfirm: false
+            needPasswordConfirm: false,
+            isMnemonicVisible: false,
+            approvedBackup: false,
+            animationProgress: new Animated.Value(0),
+            flowSubtype: '', // one of: 'backup', 'createFirst', 'createAnother', 'show'
+            visibilityTimer: null
         }
-        this.skipModal = React.createRef()
     }
 
     async componentDidMount() {
@@ -58,15 +71,17 @@ class BackupStep0Screen extends Component {
 
             const { flowType, mnemonicLength } = this.props.createWalletStore
 
+            const flowSubtype = NavStore.getParamWrapper(this, 'flowSubtype', 'createFirst')
+
             let walletMnemonic = ''
             let mnemonic = ''
             let needPasswordConfirm = false
             if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
-                const { settingsStore } = this.props
+                const { lockScreenStatus } = this.props.settingsData
                 const selectedWallet = this.props.selectedWallet
                 if (selectedWallet && selectedWallet.walletHash) {
                     try {
-                        mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash)
+                        mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash, 'BackupStep0Screen.mount')
                     } catch {
                         Log.log('WalletBackup.BackupStep0Screen error mnemonic for ' + selectedWallet.walletHash)
                     }
@@ -76,7 +91,7 @@ class BackupStep0Screen extends Component {
                 } else {
                     walletMnemonic = mnemonic
                 }
-                if (+settingsStore.lock_screen_status) {
+                if (+lockScreenStatus) {
                     needPasswordConfirm = true
                 }
                 if (!walletMnemonic || walletMnemonic === '') {
@@ -107,13 +122,34 @@ class BackupStep0Screen extends Component {
             }
 
 
+            if (flowType === 'BACKUP_WALLET_XMR') {
+                this.headerProps.rightType = 'close'
+                this.headerProps.rightAction = this.handleBack
+                this.headerProps.title = strings('walletBackup.titleBackup')
+            } else if (flowSubtype === 'createFirst') {
+                this.headerProps.rightType = 'close'
+                this.headerProps.rightAction = this.handleBack
+                this.headerProps.title = strings('walletBackup.titleCreate')
+            } else {
+                this.headerProps.rightType = 'close'
+                this.headerProps.rightAction = this.handleClose
+                this.headerProps.leftType = 'back'
+                this.headerProps.leftAction = this.handleBack
+                this.headerProps.title = flowSubtype === 'show'
+                    ? strings('walletBackup.titleShow')
+                    : flowSubtype === 'backup'
+                        ? strings('walletBackup.titleBackup')
+                        : strings('walletBackup.titleCreate')
+            }
+
             const walletMnemonicArray = walletMnemonic.split(' ')
 
             setWalletMnemonic({ walletMnemonic })
             this.setState({
                 walletMnemonic,
                 walletMnemonicArray,
-                needPasswordConfirm
+                needPasswordConfirm,
+                flowSubtype
             })
 
         } catch (e) {
@@ -121,199 +157,214 @@ class BackupStep0Screen extends Component {
         }
     }
 
-    selectSettingsCallback = async () => {
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        const { walletMnemonic } = nextProps.createWalletStore
 
-        const { mnemonicLength } = this.props.createWalletStore
+        if (this.props.createWalletStore.mnemonicLength !== nextProps.createWalletStore.mnemonicLength) {
+            this.scrollView.scrollTo?.({ x: 0, y: 0, animated: true })
 
-        const walletMnemonic = (await BlocksoftKeys.newMnemonic(mnemonicLength)).mnemonic
-
-        setWalletMnemonic({ walletMnemonic })
-        const walletMnemonicArray = walletMnemonic.split(' ')
-
-        this.setState({
-            walletMnemonic,
-            walletMnemonicArray
-        })
+            const walletMnemonicArray = walletMnemonic.split('')
+            this.setState(() => ({
+                walletMnemonicArray,
+                walletMnemonic
+            }))
+        }
     }
 
+    // for developing and testing only
     handleCopyModal = () => {
-        const { walletMnemonic } = this.state
-
-        copyToClipboard(walletMnemonic)
+        copyToClipboard(this.state.walletMnemonic)
         Toast.setMessage(strings('toast.copied')).show()
     }
 
-    onPress = () => {
+    onNext = () => {
         NavStore.goNext('BackupStep1Screen')
     }
 
-    onGoogle = () => {
-        NavStore.goNext('BackupStepGoogle')
-    }
-
-    renderSettingsIcon = () => {
-        return (
-            <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={this.openWalletSettings}>
-                <View style={{ paddingVertical: 12 }}>
-                    <IconAwesome size={20} name="gear" color={`#404040`}/>
-                </View>
-            </TouchableOpacity>
-        )
-    }
+    // onGoogle = () => {
+    //     NavStore.goNext('BackupStepGoogle')
+    // }
 
     openWalletSettings = () => {
-        showModal({
-                type: 'WALLET_SETTINGS_MODAL',
-                title: strings('modal.walletCreateSettingsModal.title'),
-                description: ''
-            }, this.selectSettingsCallback
-        )
+        NavStore.goNext('BackupSettingsScreen')
     }
 
-    handleAfterPin = () => {
-        setLoaderStatus(false)
-        this.setState({
-            needPasswordConfirm: false
+    resetWalletStore = () => {
+        setWalletName({ walletName: '' })
+        setWalletMnemonic({ walletMnemonic: '' })
+        setFlowType({ flowType: '' })
+        setMnemonicLength({ mnemonicLength: 0 })
+    }
+
+    handleBack = () => {
+        this.resetWalletStore()
+        NavStore.goBack()
+    }
+
+    handleClose = (route) => {
+        NavStore.reset('TabBar')
+        this.resetWalletStore()
+    }
+
+    triggerMnemonicVisible = (visibility) => {
+        if (this.state.visibilityTimer) return
+        const { source, walletNumber } = this.props.createWalletStore
+        if (visibility) {
+            this.setState(() => ({ isMnemonicVisible: visibility }), () => {
+                MarketingEvent.logEvent('gx_view_mnemonic_screen_tap_mnemonic', { walletNumber, source }, 'GX')
+            })
+        } else {
+            this.setState(() => ({ isMnemonicVisible: visibility }))
+        }
+    }
+
+    showMnemonic = () => {
+        const { source, walletNumber } = this.props.createWalletStore
+        setTimeout(() => {
+            this.setState(() => ({ isMnemonicVisible: false, visibilityTimer: null }))
+        }, VISIBILITY_TIMEOUT)
+
+        this.setState(() => ({ isMnemonicVisible: true, visibilityTimer: true }), () => {
+            MarketingEvent.logEvent('gx_view_mnemonic_screen_tap_mnemonic', { walletNumber, source }, 'GX')
+            Animated.timing(this.state.animationProgress, {
+                toValue: 1,
+                duration: VISIBILITY_TIMEOUT
+            }).start(() => {
+                Animated.timing(this.state.animationProgress, { toValue: 0, duration: 0 }).start()
+            })
         })
     }
 
+    renderWord = (word, index) => {
+        const { colors, GRID_SIZE } = this.context
+        const wordToRender = this.state.isMnemonicVisible ? word : '--------'
+
+        return (
+            <View style={[styles.wordContainer, { backgroundColor: colors.createWalletScreen.showMnemonic.wordBg, marginHorizontal: GRID_SIZE * 0.75 }]}>
+                <View style={[styles.wordIndexContainer, { backgroundColor: colors.createWalletScreen.showMnemonic.wordIndexBg, }]}>
+                    <Text style={[styles.wordIndex, { color: colors.createWalletScreen.showMnemonic.wordIndexText }]}>{index + 1}</Text>
+                </View>
+                <Text style={[styles.word, { color: colors.common.text1, marginLeft: GRID_SIZE * 0.7 }]}>{wordToRender}</Text>
+            </View>
+        )
+    }
+
+    handleApproveBackup = () => { this.setState(state => ({ approvedBackup: !state.approvedBackup })) }
+
     render() {
+        const { walletMnemonicArray, isMnemonicVisible, approvedBackup, animationProgress, flowSubtype, visibilityTimer } = this.state
+        const { flowType } = this.props.createWalletStore
 
-        firebase.analytics().setCurrentScreen('WalletBackup.BackupStep0Screen')
+        const isShowingPhrase = flowSubtype === 'show'
+        const isCreate = flowSubtype === 'createFirst' || flowSubtype === 'createAnother'
+        const isXMR = flowType === 'BACKUP_WALLET_XMR'
+        const { GRID_SIZE, colors } = this.context
 
-        const { flowType, mnemonicLength } = this.props.createWalletStore
+        MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep0Screen')
 
-        if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
-            const {
-                needPasswordConfirm
-            } = this.state
+        const halfArrayNum = Math.ceil(walletMnemonicArray.length / 2);
 
-            if (needPasswordConfirm) {
-                lockScreenAction.setFlowType({ flowType: 'CONFIRM_BACKUP_WALLET' })
-                lockScreenAction.setActionCallback({ actionCallback: this.handleAfterPin })
-                NavStore.goNext('LockScreen')
-                return (
-                    <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                        <Navigation
-                            title={strings('walletBackup.title')}
-                            isClose={false}
-                        />
-                        <ScrollView
-                            showsVerticalScrollIndicator={false}
-                            style={styles.wrapper__scrollView}>
-                            <View style={styles.wrapper__content}>
-                                <TextView style={{ height: 90 }}>
-                                    {strings('walletBackup.description', {
-                                        mnemonicLength: mnemonicLength === 256 ? 24 : 12,
-                                        words: mnemonicLength === 256 ? strings('walletCreate.words24') : strings('walletCreate.words12')
-                                    })}
-                                </TextView>
-                                <Image
-                                    style={styles.img}
-                                    resizeMode='stretch'
-                                    source={require('../../assets/images/importSave.png')}
-                                />
-                                <View style={styles.seed}>
-                                    <Text>
-                                        {strings('walletBackup.pinProtected')}
-                                    </Text>
-                                </View>
-                            </View>
-                        </ScrollView>
-                    </GradientView>
-                )
-            }
-        }
 
-        let totalWords = 12
-        if (mnemonicLength === 256 || (typeof this.state.walletMnemonicArray !== 'undefined' && this.state.walletMnemonicArray.length > 12)) {
-            totalWords = 24
+        let infoText = strings('walletBackup.step0Screen.info')
+        if (isXMR) {
+            infoText = strings('walletBackup.descriptionXMR')
         }
 
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
-                {
-                    flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR' ?
-                        <Navigation
-                            title={strings('walletBackup.title')}
-                            isClose={false}
-                        /> :
-                        <Navigation
-                            title={SIZE === 8 ? strings('walletBackup.titleNewWalletSmall') : strings('walletBackup.titleNewWallet')}
-                            nextTitle={strings('walletBackup.skip')}
-                            isBack={false}
-                            LeftComponent={this.renderSettingsIcon}
-                            closeAction={() => NavStore.goBack()}
-                        />
-                }
+            <ScreenWrapper
+                {...this.headerProps}
+            >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    style={styles.wrapper__scrollView}>
-                    <View style={styles.wrapper__content}>
-                        <TextView style={{ height: 90 }}>
-                            {
-
-                                flowType === 'BACKUP_WALLET_XMR'
-                                    ? strings('walletBackup.descriptionXMR')
-                                    : strings('walletBackup.description', {
-                                    mnemonicLength: totalWords,
-                                    words: totalWords === 24 ? strings('walletCreate.words24') : strings('walletCreate.words12')
-                                })
-
-                            }
-                        </TextView>
-                        <Image
-                            style={styles.img}
-                            resizeMode='stretch'
-                            source={require('../../assets/images/importSave.png')}
-                        />
-                        <View style={styles.seed}>
-                            {
-                                this.state.walletMnemonicArray.map((item, index) => {
-                                    return (
-                                        <View style={styles.seed__item} key={index}>
-                                            <View style={styles.seed__index}>
-                                                <Text style={styles.seed__index__text}>{index + 1}</Text>
-                                            </View>
-                                            <Text style={styles.seed__text}>{' ' + item}</Text>
+                    ref={ref => { this.scrollView = ref }}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    {walletMnemonicArray &&
+                        <>
+                            <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
+                                <View style={[styles.infoContainer, { marginBottom: GRID_SIZE }]}>
+                                    {visibilityTimer ? (
+                                        <LottieView color={colors.createWalletScreen.keyIcon} source={ProgressAnimation} style={{ width: 24, height: 24 }} progress={animationProgress} />
+                                    ) : (
+                                        <View style={[styles.keyCircle, { borderColor: colors.createWalletScreen.showMnemonic.showButtonText }]}>
+                                            <CustomIcon name={'recoveryPhrase'} size={16} color={colors.createWalletScreen.showMnemonic.showButtonText} />
                                         </View>
-                                    )
-                                })
-                            }
-                        </View>
-                        <TouchableOpacity onPress={() => this.handleCopyModal()} style={styles.copyBtn}>
-                            <Text style={styles.copyBtn__text}>
-                                {strings('account.copy')}
-                            </Text>
-                            <Copy name="content-copy" size={18} color="#946288"/>
-                        </TouchableOpacity>
+                                    )}
+                                    <Text style={[styles.infoText, { color: colors.common.text3 }]}>{infoText}</Text>
+                                </View>
 
-                        {flowType !== 'BACKUP_WALLET_XMR' ?
-                            <View style={styles.warning}>
-                                <Icon style={styles.warning__icon} name="warning" size={20} color="#946288"/>
-                                <Text style={styles.warning__text}>{strings('walletBackup.attention')}</Text>
-                            </View> : null}
+                                <TouchableOpacity
+                                    activeOpacity={1}
+                                    onLongPress={this.showMnemonic}
+                                    onPressIn={() => this.triggerMnemonicVisible(true)}
+                                    onPressOut={() => this.triggerMnemonicVisible(false)}
+                                    delayLongPress={2000}
+                                    delayPressIn={100}
+                                    disabled={isMnemonicVisible}
+                                >
+                                    <View style={[styles.mnemonicContainer, { marginHorizontal: -(GRID_SIZE * 0.75) }]}>
+                                        <View style={styles.mnemonicColumn}>
+                                            {walletMnemonicArray.slice(0, halfArrayNum).map(this.renderWord)}
+                                        </View>
+                                        <View style={styles.mnemonicColumn}>
+                                            {walletMnemonicArray.slice(halfArrayNum).map((item, i) => this.renderWord(item, halfArrayNum + i))}
+                                        </View>
+                                    </View>
 
-                        {flowType !== 'BACKUP_WALLET_XMR' ?
-                            <Button press={this.onPress} styles={{ marginBottom: 50 }}>
-                                {strings('walletBackup.written')}
-                            </Button> : null}
+                                    <Text
+                                        style={[
+                                            styles.showMnemonicButton,
+                                            {
+                                                marginTop: GRID_SIZE * 2,
+                                                marginBottom: GRID_SIZE * 2,
+                                                color: colors.createWalletScreen.showMnemonic.showButtonText,
+                                                opacity: isMnemonicVisible ? 0.5 : 1
+                                            }
+                                        ]}
+                                    >{strings('walletBackup.step0Screen.showButton')}</Text>
+                                </TouchableOpacity>
 
-                        {flowType !== 'BACKUP_WALLET_XMR' && false ?
-                            <Button press={this.onGoogle} styles={{ marginBottom: 50 }}>
-                                {strings('walletCreate.importGoogle')}
-                            </Button> : null}
+                                {!isShowingPhrase && !isXMR && (
+                                    <CheckBox
+                                        checked={approvedBackup}
+                                        onPress={this.handleApproveBackup}
+                                        title={strings('walletBackup.infoScreen.checkbox1')}
+                                    />
+                                )}
+                            </View>
 
-                    </View>
+                            {!isShowingPhrase && !isXMR && (
+                                <View style={{
+                                    paddingHorizontal: GRID_SIZE,
+                                    paddingVertical: GRID_SIZE * 1.5,
+                                }}>
+                                    <TwoButtons
+                                        mainButton={{
+                                            disabled: !approvedBackup,
+                                            onPress: this.onNext,
+                                            title: strings('walletBackup.step0Screen.next')
+                                        }}
+                                        secondaryButton={isCreate ? {
+                                            type: 'settings',
+                                            onPress: this.openWalletSettings,
+                                            onLongPress: this.handleCopyModal,
+                                            delayLongPress: 4000
+                                        } : undefined}
+                                    />
+                                </View>
+                            )}
+                        </>
+                    }
                 </ScrollView>
-            </GradientView>
+            </ScreenWrapper>
         )
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        settingsStore: state.settingsStore.data,
+        settingsData: getSettingsScreenData(state),
         selectedWallet: state.mainStore.selectedWallet,
         createWalletStore: state.createWalletStore
     }
@@ -325,139 +376,79 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+BackupStep0Screen.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps)(BackupStep0Screen)
 
-const styles_ = {
-    array: ['#f9f9f9', '#f9f9f9'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
 const styles = StyleSheet.create({
-    wrapper: {
+    scrollViewContent: {
+        flexGrow: 1,
+        justifyContent: 'space-between'
+    },
+    infoContainer: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    infoText: {
+        marginLeft: 12,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
         flex: 1
     },
-    wrapper__scrollView: {
-        marginTop: 80
-    },
-    wrapper__content: {
-        marginTop: 20,
-        paddingLeft: 30,
-        paddingRight: 30
-    },
-    title: {
-        marginBottom: 10,
-        fontSize: 24,
-        fontFamily: 'SFUIDisplay-Semibold',
-        color: '#404040',
-        textAlign: 'center'
-    },
-    text: {
-        textAlign: 'justify',
-        fontSize: 16,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#999999'
-    },
-    img: {
-        alignSelf: 'center',
-        width: 140,
-        height: 200,
-        marginBottom: 20
-    },
-    seed: {
-        marginBottom: 10,
-        flexWrap: 'wrap',
+    mnemonicContainer: {
         flexDirection: 'row',
-        justifyContent: 'flex-start'
+        // flexWrap: 'wrap'
     },
-    seed__item: {
-        position: 'relative',
-
-        paddingTop: 5,
-        paddingBottom: 5,
-        paddingLeft: 10,
-        paddingRight: 10,
-        marginBottom: 10,
-        marginRight: 15,
-        marginTop: 10,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        backgroundColor: '#946288',
-        color: '#fff',
+    mnemonicColumn: {
+        flex: 1
+    },
+    wordContainer: {
+        flex: 1,
+        minWidth: 100,
+        minHeight: 36,
+        padding: 8,
+        marginVertical: 7,
         borderRadius: 8
     },
-    seed__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 14,
-        color: '#fff',
-        textAlign: 'center'
-    },
-    seed__index: {
-        position: 'absolute',
-        top: -10,
-        right: -10,
-
-        padding: Platform.OS === 'android' ? 2 : 4,
+    wordIndexContainer: {
         width: 20,
-
-        textAlign: 'center',
-
-        backgroundColor: '#fff',
-
-        borderRadius: 20,
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-
-        elevation: 5
-    },
-    seed__index__text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 10,
-        textAlign: 'center',
-        color: '#404040'
-    },
-    warning: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        marginBottom: 15
-    },
-
-    warning__icon: {
-        marginRight: 5
-    },
-    warning__text: {
-        marginTop: 2,
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 16,
-        color: '#404040'
-    },
-    btn: {
-        marginBottom: 50
-    },
-    copyBtn: {
-        flexDirection: 'row',
+        height: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 0,
-        marginBottom: 35
+        position: 'absolute',
+        left: 8,
+        top: 8,
+        bottom: 8,
+        borderRadius: 6
     },
-    copyBtn__text: {
-        marginTop: 2,
-        marginRight: 17,
-        fontFamily: 'SFUIDisplay-Bold',
+    wordIndex: {
+        fontFamily: 'Montserrat-Semibold',
         fontSize: 10,
-        color: '#946288'
+        lineHeight: 13,
     },
-    button__line: {
-        width: '100%',
-        marginBottom: 50,
-        backgroundColor: '#f6f6f6'
+    word: {
+        textAlign: 'center',
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 15,
+        lineHeight: 19,
+        letterSpacing: 1.3
+    },
+    showMnemonicButton: {
+        textAlign: 'center',
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 12,
+        lineHeight: 12,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+    },
+    keyCircle: {
+        width: 24,
+        height: 24,
+        borderRadius: 50,
+        borderWidth: 2,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })

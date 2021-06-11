@@ -17,7 +17,7 @@ export default class TrxTronscanProvider {
      * https://apilist.tronscan.org/api/account?address=TUbHxAdhPk9ykkc7SDP5e9zUBEN14K65wk
      * @param {string} address
      * @param {string} tokenName
-     * @returns {Promise<boolean|{unconfirmed: number, frozen: *, voteTotal: *, balance: *, provider: string}>}
+     * @returns {Promise<boolean|{unconfirmed: number, frozen: *, frozenEnergy: *, voteTotal: *, balance: *, provider: string}>}
      */
     async get(address, tokenName) {
         const now = new Date().getTime()
@@ -25,8 +25,11 @@ export default class TrxTronscanProvider {
             if (typeof CACHE_TRONSCAN[address][tokenName] !== 'undefined') {
                 BlocksoftCryptoLog.log('TrxTronscanProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONSCAN[address][tokenName])
                 const frozen = typeof CACHE_TRONSCAN[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozen'] : 0
-                const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? typeof CACHE_TRONSCAN[address].voteTotal : 0
-                return { balance: CACHE_TRONSCAN[address][tokenName], voteTotal, frozen, unconfirmed : 0, provider: 'tronscan-cache' }
+                const frozenEnergy = typeof CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] : 0
+                const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? CACHE_TRONSCAN[address].voteTotal : 0
+                return { balance: CACHE_TRONSCAN[address][tokenName], voteTotal, frozen, frozenEnergy, unconfirmed : 0, provider: 'tronscan-cache' }
+            } else if (tokenName !== '_') {
+                return false
             }
         }
 
@@ -41,26 +44,38 @@ export default class TrxTronscanProvider {
         CACHE_TRONSCAN[address].time = now
         CACHE_TRONSCAN[address]._ = res.data.balance
         CACHE_TRONSCAN[address]._frozen = typeof res.data.frozen.total !== 'undefined' ? res.data.frozen.total : 0
+        CACHE_TRONSCAN[address]._frozenEnergy = typeof res.data.accountResource !== 'undefined'
+                                    && typeof res.data.accountResource.frozen_balance_for_energy !== 'undefined'
+                                    && typeof res.data.accountResource.frozen_balance_for_energy.frozen_balance !== 'undefined' ? res.data.accountResource.frozen_balance_for_energy.frozen_balance : 0
+
         CACHE_TRONSCAN[address].voteTotal = typeof res.data.voteTotal !== 'undefined' ? res.data.voteTotal : 0
         let token
         if (res.data.tokenBalances) {
             for (token of res.data.tokenBalances) {
-                CACHE_TRONSCAN[address][token.name] = token.balance
+                const id = typeof token.name !== 'undefined' ? token.name : token.tokenId
+                CACHE_TRONSCAN[address][id] = token.balance
             }
         }
+
         if (res.data.trc20token_balances) {
             for (token of res.data.trc20token_balances) {
-                CACHE_TRONSCAN[address][token.contract_address] = token.balance
+                const id = typeof token.name !== 'undefined' ? token.name : token.tokenId
+                CACHE_TRONSCAN[address][id] = token.balance
             }
         }
 
         if (typeof CACHE_TRONSCAN[address][tokenName] === 'undefined') {
-            return false
+            if (tokenName.indexOf('T') === 0) {
+                return 0
+            } else {
+                return false
+            }
         }
 
         const balance = CACHE_TRONSCAN[address][tokenName]
         const frozen = typeof CACHE_TRONSCAN[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozen'] : 0
+        const frozenEnergy = typeof CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] : 0
         const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? CACHE_TRONSCAN[address].voteTotal : 0
-        return { balance, frozen, voteTotal, unconfirmed: 0, provider: 'tronscan' }
+        return { balance, frozen, frozenEnergy, voteTotal, unconfirmed: 0, provider: 'tronscan' }
     }
 }

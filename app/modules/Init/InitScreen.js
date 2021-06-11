@@ -1,84 +1,77 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * screen while app is loading data
  */
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import { Image, View, Text, Platform, TouchableOpacity, Linking } from 'react-native'
-import firebase from 'react-native-firebase'
-
-import {
-    UIActivityIndicator,
-    MaterialIndicator
-} from 'react-native-indicators'
-
-import GradientView from '../../components/elements/GradientView'
-import NavStore from '../../components/navigation/NavStore'
-
-import App from '../../appstores/Actions/App/App'
-
-import Log from '../../services/Log/Log'
-
-import config from '../../config/config'
-
-import Theme from '../../themes/Themes'
+import { Image, View, Text, Platform, TouchableOpacity, Linking, StyleSheet, StatusBar } from 'react-native'
+import { UIActivityIndicator, MaterialIndicator } from 'react-native-indicators'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
-import { strings } from '../../services/i18n'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import SendLog from '../../services/Log/SendLog'
-import prettyShare from '../../services/UI/PrettyShare/PrettyShare'
-import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
-import MarketingEvent from '../../services/Marketing/MarketingEvent'
 
-let styles
+import NavStore from '@app/components/navigation/NavStore'
 
+import App from '@app/appstores/Actions/App/App'
 
-class InitScreen extends Component {
+import Log from '@app/services/Log/Log'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import SendLog from '@app/services/Log/SendLog'
+
+import config from '@app/config/config'
+
+import { strings } from '@app/services/i18n'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { getInit, getInitError } from '@app/appstores/Stores/Init/selectors'
+import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+class InitScreen extends React.PureComponent {
 
     constructor() {
         super()
         this.state = {
-            init: false,
-            initError: false
+            status: ''
         }
-    }
-
-    UNSAFE_componentWillMount() {
-        Log.log('InitScreen is mounted')
-        styles = Theme.getStyles().initScreenStyles
     }
 
     componentDidMount() {
-        try {
-            App.init({navigateToInit : false, source : 'InitScreen.mount'})
-        } catch (e) {
-            this.setState({
-                initError: e.message
-            })
-        }
+       this.init()
     }
 
-    UNSAFE_componentWillReceiveProps(props) {
-        Log.log('InitScreen is receiving props')
-        // @debug for raw testing
-        // NavStore.reset('WalletCreateScreen')
-        if (props.data.initError) {
-            this.setState({
-                initError: props.data.initError
-            })
-        }
-        if (props.data.init === true) { //this one is making "freezing"//&& this.props.data.init !== props.data.init) {
-            if (+props.settings.data.lock_screen_status) {
-                Log.log('InitScreen navigated to LockScreen')
-                NavStore.reset('LockScreen')
-            } else {
-                Log.log('InitScreen navigated to DashboardStack')
-                NavStore.reset('DashboardStack')
-            }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.init()
+    }
+
+    init = async () => {
+        const { isLight } = this.context
+
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
+
+        if (this.props.init === true) {
+            clearTimeout(this.statusTimeout)
+            setTimeout(() => {
+                if (this.props.lockScreenStatus * 1 > 0) {
+                    NavStore.reset('LockScreenPop')
+                } else {
+                    NavStore.reset('TabBar')
+                }
+            }, 500)
         } else {
-            Log.log('!!!!!!!!!!!!!!!!InitScreen will be here till DB inited')
+            try {
+                this.statusTimeout = setTimeout(() => {
+                    this.setState({
+                        status: App.initStatus + ' ' + App.initError
+                    })
+                }, 60000)
+            } catch (e) {
+            }
         }
     }
 
@@ -92,98 +85,105 @@ class InitScreen extends Component {
 
         setLoaderStatus(true)
 
-        SendLog.getAll(this.state.initError).then(async (shareOptions) => {
-            prettyShare(shareOptions)
+        try {
+            const shareOptions = await SendLog.getAll(this.props.initError)
+            if (shareOptions) {
+                await prettyShare(shareOptions)
+            }
             setLoaderStatus(false)
-        }).catch(function(e) {
-            setLoaderStatus(false)
-            let text = e.message || false
-            let log = e.message
-            if (typeof (e.error) !== 'undefined') {
-                if (e.error.toString().indexOf('No Activity') !== -1) {
-                    text = strings('modal.walletLog.noMailApp')
-                } else if (!text) {
-                    text = JSON.stringify(e.error).substr(0, 100)
+        } catch (e) {
+            try {
+                setLoaderStatus(false)
+                let text = e.message || false
+                let log = e.message
+                if (typeof (e.error) !== 'undefined') {
+                    if (e.error.toString().indexOf('No Activity') !== -1) {
+                        text = strings('modal.walletLog.noMailApp')
+                    } else if (!text) {
+                        text = JSON.stringify(e.error).substr(0, 100)
+                    }
+                    log += ' ' + JSON.stringify(e.error)
                 }
-                log += ' ' + JSON.stringify(e.error)
+                if (text.indexOf('User did not share') !== -1) {
+                    text = strings('modal.walletLog.notComplited')
+                }
+                Log.err('SettingsMain.handleLogs error ' + log)
+                BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + log)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: false,
+                    title: strings('modal.walletLog.sorry'),
+                    description: text
+                })
+            } catch (e1) {
+                Log.err('SettingsMain.handleLogs error1 ' + e1.message)
             }
-            if (text.indexOf('User did not share') !== -1) {
-                text = strings('modal.walletLog.notComplited')
-            }
-            Log.err('SettingsMain.handleLogs error ' + log)
-            BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + log)
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.walletLog.sorry'),
-                description: text
-            })
-        })
+        }
     }
 
     render() {
-        firebase.analytics().setCurrentScreen('InitScreen.index')
+        if (App.initStatus === 'resetError') {
+            App.init({source : 'InitScreen.render', onMount : false})
+        }
 
+        const { colors, isLight } = this.context
+
+        MarketingAnalytics.setCurrentScreen('InitScreen.index')
         return (
-            <GradientView style={styles.wrapper} array={styles_.array} start={styles_.start} end={styles_.end}>
+            <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
+                <StatusBar translucent={false} backgroundColor={colors.common.background} barStyle={isLight ? 'dark-content' : 'light-content'} />
+                <View style={{ position: 'absolute', top: 20, left: 20 }}>
+                    <Text style={{ marginTop: 40 }}>
+                        {this.state.status}
+                    </Text>
+                </View>
                 <View style={{ flex: 1, justifyContent: 'center' }}>
                     <Image
                         style={styles.image}
-                        source={styles.image__url.path}
+                        source={isLight ?  require('@app/assets/images/logo.png') : require('@app/assets/images/logoWhite.png')}
                     />
                     <View style={{ marginTop: -70, marginBottom: 60 }}>
-                        {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#3E3453'/> :
-                            <MaterialIndicator size={30} color='#3E3453'/>}
+                        {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color={colors.initScreen.loader} /> :
+                            <MaterialIndicator size={30} color={colors.initScreen.loader} />}
                     </View>
                     <View style={{ position: 'relative' }}>
-                        <Text style={styles.appName__text} numberOfLines={1}>
+                        <Text style={[styles.appName__text, { color: colors.initScreen.appName }]} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
-                        <Text style={{
-                            position: 'absolute',
-                            top: 1,
-                            left: 1,
-
-                            width: '100%',
-
-                            fontSize: 30,
-                            fontFamily: 'SFUIDisplay-Bold',
-                            color: '#3E3453',
-                            textAlign: 'center',
-                            zIndex: 1
-                        }} numberOfLines={1}>
-                            TRUSTEE WALLET
-                        </Text>
+                        {isLight && (
+                            <Text style={[styles.appName__text2, { color: colors.initScreen.appNameSub }]} numberOfLines={1}>
+                                TRUSTEE WALLET
+                            </Text>)}
                         {
-                            this.state.initError ?
+                            this.props.initError ?
                                 <View>
-                                    <View style={stylesOld.block}>
-                                        <View style={stylesOld.block__content}>
+                                    <View style={styles.block}>
+                                        <View style={styles.block__content}>
 
-                                            <TouchableOpacity style={stylesOld.header__description}>
+                                            <TouchableOpacity style={styles.header__description}>
                                                 <Text>
-                                                    <Text style={styles.header__title}>
+                                                    <Text style={[styles.header__title, { color: colors.common.text1 }]}>
                                                         {strings('settings.error.title')}
                                                     </Text>
                                                 </Text>
                                                 <Text>
-                                                    <Text>{this.state.initError}</Text>
+                                                    <Text>{this.props.initError}</Text>
                                                 </Text>
                                             </TouchableOpacity>
 
-                                            <TouchableOpacity style={stylesOld.block__item}
+                                            <TouchableOpacity style={styles.block__item}
                                                               onPress={this.handleLogs}>
-                                                <FontAwesome name="bug" size={20} style={stylesOld.block__icon}/>
-                                                <Text style={stylesOld.block__text}
+                                                <FontAwesome name='bug' size={20} style={styles.block__icon} />
+                                                <Text style={[styles.block__text, { color: colors.common.text1 }]}
                                                       numberOfLines={1}>{strings('settings.other.copyLogs')}</Text>
                                             </TouchableOpacity>
 
-                                            <View style={stylesOld.divider}/>
+                                            <View style={styles.divider} />
 
-                                            <TouchableOpacity style={stylesOld.block__item}
+                                            <TouchableOpacity style={styles.block__item}
                                                               onPress={this.handleSupport}>
-                                                <MaterialIcon name="telegram" size={20} style={stylesOld.block__icon}/>
-                                                <Text style={stylesOld.block__text} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
+                                                <MaterialIcon name='telegram' size={20} style={styles.block__icon} />
+                                                <Text style={[styles.block__text, { color: colors.common.text1 }]} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
                                             </TouchableOpacity>
 
                                         </View>
@@ -195,40 +195,66 @@ class InitScreen extends Component {
                     </View>
                 </View>
                 <View style={{ marginTop: 'auto' }}>
-                    <Text style={{
-                        marginBottom: 10,
-                        opacity: .5,
-                        textAlign: 'center',
-                        fontFamily: 'SFUIDisplay-Regular',
-                        fontSize: 10,
-                        color: '#3E3453'
-                    }}>
+                    <Text style={[styles.appVersion__text, { color: colors.common.text1 }]} >
                         {'#' + config.version.hash + ' | ' + config.version.code}
                     </Text>
                 </View>
-            </GradientView>
+            </View>
         )
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        settings: state.settingsStore,
-        data: state.mainStore
+        lockScreenStatus: getLockScreenStatus(state),
+        init: getInit(state),
+        initError: getInitError(state)
     }
 }
 
+InitScreen.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(InitScreen)
 
-const styles_ = {
-    array: ['#f2f2f2', '#f2f2f2'],
-    start: { x: 0.0, y: 0 },
-    end: { x: 0, y: 1 }
-}
-
-const stylesOld = {
+const styles = StyleSheet.create({
     wrapper: {
-        flex: 1
+        flex: 1,
+        justifyContent: 'center',
+        paddingLeft: 30,
+        paddingRight: 30
+    },
+    image: {
+        alignSelf: 'center',
+        width: 148,
+        height: 180,
+        marginBottom: 147
+    },
+    button: {
+        marginBottom: 20
+    },
+    appName__text: {
+        position: 'relative',
+        fontSize: 30,
+        fontFamily: 'SFUIDisplay-Bold',
+        textAlign: 'center',
+        zIndex: 2
+    },
+    appName__text2: {
+        position: 'absolute',
+        top: 1,
+        left: 1,
+        width: '100%',
+        fontSize: 30,
+        fontFamily: 'SFUIDisplay-Bold',
+        textAlign: 'center',
+        zIndex: 1
+    },
+    appVersion__text: {
+        marginBottom: 10,
+        opacity: .5,
+        textAlign: 'center',
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 10,
     },
     wrapper__top: {
         height: 115,
@@ -269,18 +295,15 @@ const stylesOld = {
     },
     block__text: {
         flex: 1,
-
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
-        color: '#404040'
     },
     header__title: {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 22,
-        color: '#404040',
         textAlign: 'center'
     },
     header__description: {
         alignItems: 'center'
-    },
-}
+    }
+})

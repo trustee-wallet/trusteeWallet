@@ -122,7 +122,7 @@ export default class BtcNetworkPrices implements BlocksoftBlockchainTypes.Networ
         try {
             const cachedWithTime = CACHE_PREV_DATA
             if (timeFromBlock) {
-                if (timeFromBlockDiff < 1000) { // 1 minute from block
+                if (timeFromBlockDiff < 1000 && cachedWithTime.fastestFee === '4') { // 1 minute from block
                     if (cachedWithTime.fastestFee < CACHE_PREV_PREV_DATA.fastestFee) {
                         cachedWithTime.fastestFee = CACHE_PREV_PREV_DATA.fastestFee
                         // @ts-ignore

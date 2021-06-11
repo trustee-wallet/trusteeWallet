@@ -1,0 +1,28 @@
+diff --git a/node_modules/react-native-dash/Dash.js b/node_modules/react-native-dash/Dash.js
+index 32ff1ec..6736c46 100644
+--- a/node_modules/react-native-dash/Dash.js
++++ b/node_modules/react-native-dash/Dash.js
+@@ -31,6 +31,8 @@ const Dash = props => {
+ 		<View
+ 			onLayout={ props.onLayout }
+ 			style={ [ props.style, isRow ? styles.row : styles.column ] }
++			renderToHardwareTextureAndroid
++			shouldRasterizeIOS
+ 		>
+ 			{ dash }
+ 		</View>
+diff --git a/node_modules/react-native-dash/dist/index.js b/node_modules/react-native-dash/dist/index.js
+index 4034e31..62308af 100644
+--- a/node_modules/react-native-dash/dist/index.js
++++ b/node_modules/react-native-dash/dist/index.js
+@@ -38,7 +38,9 @@ var Dash = function Dash(props) {
+ 		_reactNative.View,
+ 		{
+ 			onLayout: props.onLayout,
+-			style: [props.style, isRow ? styles.row : styles.column]
++			style: [props.style, isRow ? styles.row : styles.column],
++			renderToHardwareTextureAndroid: true,
++			shouldRasterizeIOS: true,
+ 		},
+ 		dash
+ 	);

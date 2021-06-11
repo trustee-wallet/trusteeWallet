@@ -6,6 +6,7 @@
 import * as f from 'mymonero-core-js/hostAPI/response_parser_utils'
 import * as payment from 'mymonero-core-js/monero_utils/monero_paymentID_utils'
 import { MyMoneroCoreBridgeRN } from 'mymonero-core-js/monero_utils/MyMoneroCoreBridgeRN'
+import config from '../../../../app/config/config'
 
 const MY_MONERO = { core: false, coreWasm : false }
 
@@ -43,7 +44,9 @@ export default {
                 MY_MONERO.core
             )
         } catch (e) {
-            console.log(e)
+            if (config.debug.cryptoErrors) {
+                console.log('MoneroUtilsParser.parseAddressInfo error', e)
+            }
         }
     },
 
@@ -59,7 +62,9 @@ export default {
                 MY_MONERO.core
             )
         } catch (e) {
-            console.log(e)
+            if (config.debug.cryptoErrors) {
+                console.log('MoneroUtilsParser.parseAddressTransactions error', e)
+            }
         }
     }
 }

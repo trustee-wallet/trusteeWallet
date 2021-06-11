@@ -1,25 +1,27 @@
 /**
- * @version 0.9
+ * @version 0.43
  */
-import React, { Component } from 'react'
-import { View } from 'react-native'
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
 import { BoxShadow } from 'react-native-shadow'
 
-class Circle extends Component {
+class Circle extends React.PureComponent {
 
     render() {
 
         const { width, height, border, backgroundColor, backgroundInnerColor } = this.props.style
 
         return (
-            <View style={[styles.circle, { top: -(width / 4), width, height }]}>
-                <BoxShadow setting={{ ...styles.circle__item, width, height, radius: width / 2, color: backgroundColor, backgroundColor }}>
+            <View style={[styles.circle, { top: -(width / 6), width, height }]}>
+                <View style={styles.circle_itm}>
+                    {/* <BoxShadow setting={{ ...styles.circle__item, width, height, radius: width / 2, color: backgroundColor, backgroundColor }}> */}
                     <View style={[styles.circle__item__inner, { backgroundColor }]}>
                         <View style={[styles.circle__item__transparent, { width: width - border, height: height - border, backgroundColor: backgroundInnerColor }]}>
                             {this.props.children ? this.props.children : null}
                         </View>
                     </View>
-                </BoxShadow>
+                    {/* </BoxShadow> */}
+                </View>
             </View>
         )
     }
@@ -35,7 +37,18 @@ const styles = {
 
         width: 10,
         height: 10,
-        borderRadius: 50
+        borderRadius: 50,
+        elevation: 4,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.23,
+        shadowRadius: 2.62,
+    },
+    circle_itm: {
+        marginVertical: 5,
     },
     circle__item: {
         width: 10,

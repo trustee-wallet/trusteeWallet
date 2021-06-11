@@ -1,25 +1,29 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * @author yura
  */
 import React, { Component } from 'react'
-import { View, Text, TextInput, KeyboardAvoidingView, TouchableOpacity, Linking, ScrollView  } from 'react-native'
+import { View, Text, KeyboardAvoidingView, TouchableOpacity, ScrollView } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
-import { strings } from '../../services/i18n'
-import Feather from 'react-native-vector-icons/Feather'
-import NavStore from '../../components/navigation/NavStore'
+import Button from '@app/components/elements/new/buttons/Button'
+import { strings } from '@app/services/i18n'
+import NavStore from '@app/components/navigation/NavStore'
 import { connect } from 'react-redux'
-import { requestFunds, getFioNames, resolveCryptoCodes, getPubAddress } from '../../../crypto/blockchains/fio/FioUtils'
-import { setLoaderStatus } from '../../appstores/Stores/Main/MainStoreActions'
-import Toast from '../../services/UI/Toast/Toast'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
-import DaemonCache from '../../daemons/DaemonCache'
-import config from '../../config/config'
+import { requestFunds, getFioNames, resolveCryptoCodes, getPubAddress } from '@crypto/blockchains/fio/FioUtils'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import Toast from '@app/services/UI/Toast/Toast'
+import CurrencyIcon from '@app/components/elements/CurrencyIcon'
+import DaemonCache from '@app/daemons/DaemonCache'
+import config from '@app/config/config'
 
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
-
-
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import Netinfo from '@app/services/Netinfo/Netinfo'
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import TextInput from '@app/components/elements/new/TextInput'
+import AntDesignIcon from 'react-native-vector-icons/AntDesign'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 class FioSendRequest extends Component {
 
@@ -33,19 +37,22 @@ class FioSendRequest extends Component {
             currencyCode: '',
             enabledCryptoCurrencies: [],
             availableCryptoCurrencies: [],
-            isLoading: false,
+            isLoading: false
         }
     }
 
     async componentDidMount() {
         setLoaderStatus(true)
-        this.setState({isLoading: true})
+        this.setState({ isLoading: true })
         try {
+            await Netinfo.isInternetReachable()
             await this.resolveFioAccount()
             await this.resolvePublicAddresses()
+        } catch (e) {
+            NavStore.goBack(null)
         } finally {
             setLoaderStatus(false)
-            this.setState({isLoading: false})
+            this.setState({ isLoading: false })
         }
     }
 
@@ -97,10 +104,20 @@ class FioSendRequest extends Component {
             return
         }
 
+        if (!amount) {
+            return
+        }
+
+        try {
+            await Netinfo.isInternetReachable()
+        } catch (e) {
+            return
+        }
+
         const account = await DaemonCache.getCacheAccount(selectedWallet.walletHash, currencyCode)
 
         // eslint-disable-next-line camelcase
-        const {chain_code, token_code} = resolveCryptoCodes(currencyCode)
+        const { chain_code, token_code } = resolveCryptoCodes(currencyCode)
 
         setLoaderStatus(true)
         const result = await requestFunds({
@@ -124,11 +141,11 @@ class FioSendRequest extends Component {
 
     handleRegisterFIOAddress = async () => {
         const { selectedWallet } = this.props.mainStore
-        const { apiEndpoints } = config.fio
+        const link = BlocksoftExternalSettings.getStatic('FIO_REGISTRATION_URL')
 
         const fioAccount = await DaemonCache.getCacheAccount(selectedWallet.walletHash, 'FIO')
         if (fioAccount && fioAccount.address) {
-            Linking.openURL(`${apiEndpoints.registrationSiteURL}${fioAccount.address}`)
+            NavStore.goNext('WebViewScreen', { url: link + fioAccount.address, title: strings('FioSendRequest.registerFioAddress') })
         }
     }
 
@@ -154,154 +171,160 @@ class FioSendRequest extends Component {
         return this.state.availableCryptoCurrencies.find(i => i.currencyCode === this.state.currencyCode)
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('HomeScreen') }
+
     render() {
         const selectedCurrencyName = this.getSelectedCurrency()?.currencyName
 
+        const { colors } = this.context
+
         return (
-            <View>
-                <Navigation title={strings('FioSendRequest.title')}/>
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('FioSendRequest.title')}
+                setHeaderHeight={this.setHeaderHeight}
+            >
+                <View style={styles.container}>
+                    {
+                        !this.state.isLoading ?
+                            <View style={styles.subheader}>
 
-                <View style={{paddingTop: 90, height: '100%'}}>
-                    <View style={styles.container}>
-                        {
-                            !this.state.isLoading ?
-                                <View style={styles.subheader}>
-
-                                    {
-                                        !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
-                                            <View style={styles.rowFlex}>
-                                                <TouchableOpacity style={styles.btn__container} onPress={() => NavStore.goNext('FioSettings')}>
-                                                    <View style={styles.popup_btn}>
-                                                        <Text style={styles.popup_txt}>
-                                                            {strings('FioSendRequest.fioSettings')}
-                                                        </Text>
-                                                    </View>
-                                                </TouchableOpacity>
+                                {
+                                    !this.state.enabledCryptoCurrencies?.length && this.state.payeeFioAddress ?
+                                        <View style={styles.rowFlex}>
+                                            <View style={styles.info_section}>
+                                                <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator} style={{ marginRight: 10, }} />
                                                 <Text style={styles.descr_txt}>
                                                     {strings('FioSendRequest.goToFioSettings')}
                                                 </Text>
                                             </View>
-                                            : null
-                                    }
+                                            <TouchableOpacity style={styles.btn__container2} onPress={() => NavStore.goNext('FioSettings')}>
+                                                <View style={styles.popup_btn}>
+                                                    <Text style={styles.popup_txt}>
+                                                        {strings('FioSendRequest.fioSettings')}
+                                                    </Text>
+                                                </View>
+                                            </TouchableOpacity>
+                                        </View>
+                                        : null
+                                }
 
-                                    {
-                                        !this.state.payeeFioAddress ?
-                                            <View style={styles.rowFlex}>
-                                                <TouchableOpacity style={styles.btn__container} onPress={this.handleRegisterFIOAddress}>
-                                                    <View style={styles.popup_btn}>
-                                                        <Text style={styles.popup_txt}>
-                                                            {strings('FioSendRequest.registerFioAddress')}
-                                                        </Text>
-                                                    </View>
-                                                </TouchableOpacity>
+                                {
+                                    !this.state.payeeFioAddress ?
+                                        <View style={styles.rowFlex}>
+                                            <View style={styles.info_section}>
+                                                <CustomIcon name="infoMessage" size={30} color={colors.notifications.newNotiesIndicator} style={{ marginRight: 10, }} />
                                                 <Text style={styles.descr_txt}>
                                                     {strings('FioSendRequest.needRegisterFio')}
                                                 </Text>
                                             </View>
 
-                                            : null
-                                    }
-
-                                    {
-                                        !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
-                                            <TouchableOpacity style={styles.terms__btn} onPress={this.showSelectCoinModal}>
+                                            <TouchableOpacity style={styles.btn__container2} onPress={this.handleRegisterFIOAddress}>
                                                 <View style={styles.popup_btn}>
                                                     <Text style={styles.popup_txt}>
-                                                        {strings('FioSendRequest.selectCoin')}
+                                                        {strings('FioSendRequest.registerFioAddress')}
                                                     </Text>
                                                 </View>
-                                            </TouchableOpacity> : null
-                                    }
-
-                                    {
-                                        this.state.currencyCode ?
-                                            <TouchableOpacity style={styles.rowFlex2} onPress={this.showSelectCoinModal}>
-                                                <CurrencyIcon
-                                                    currencyCode={this.state.currencyCode}
-                                                    containerStyle={styles.cryptoList__icoWrap}
-                                                    markStyle={styles.cryptoList__icon__mark}
-                                                    markTextStyle={styles.cryptoList__icon__mark__text}
-                                                    iconStyle={styles.cryptoList__icon}/>
-                                                <Text style={styles.subheaderTxt}>{selectedCurrencyName}</Text>
-                                            </TouchableOpacity> : null
-                                    }
-
-                                </View> : null
-                        }
-
-
-                        { this.state.payeeFioAddress ?
-                            <ScrollView showsVerticalScrollIndicator={false}>
-                                <KeyboardAvoidingView style={{flex: 1,}} behavior="padding" enabled>
-                                    <View style={styles.input__wrapper}>
-                                        <View style={styles.input__desc__wrapper}>
-                                            <Text style={styles.txt}>{strings('FioSendRequest.from')}</Text>
-                                            <Feather style={styles.wrapper__icon} name='edit'/>
+                                            </TouchableOpacity>
                                         </View>
+
+                                        : null
+                                }
+
+                                {
+                                    !this.state.currencyCode && this.state.enabledCryptoCurrencies?.length ?
+                                        <TouchableOpacity style={styles.btn__container} onPress={this.showSelectCoinModal}>
+                                            <View style={styles.popup_btn}>
+                                                <Text style={styles.popup_txt}>
+                                                    {strings('FioSendRequest.selectCoin')}
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity> : null
+                                }
+
+                                {
+                                    this.state.currencyCode ?
+                                        <TouchableOpacity style={styles.rowFlex2} onPress={this.showSelectCoinModal}>
+                                            <CurrencyIcon
+                                                currencyCode={this.state.currencyCode}
+                                                containerStyle={styles.cryptoList__icoWrap}
+                                                markStyle={styles.cryptoList__icon__mark}
+                                                markTextStyle={styles.cryptoList__icon__mark__text}
+                                                iconStyle={styles.cryptoList__icon} />
+                                            <Text style={[styles.subheaderTxt, { color: colors.common.text3 }]} >{selectedCurrencyName}</Text>
+
+                                        </TouchableOpacity> : null
+                                }
+
+                            </View> : null
+                    }
+
+
+                    {this.state.payeeFioAddress ?
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <KeyboardAvoidingView style={{ flex: 1, flexDirection: 'column', justifyContent: 'space-between' }} behavior="padding" enabled>
+
+                                <View style={{ marginHorizontal: 0 }}>
+                                    <View style={styles.input__wrapper}>
                                         <TextInput
-                                            style={styles.input}
-                                            editable={false}
+                                            containerStyle={{ shadowRadius: 0, elevation: 0 }}
+                                            inputStyle={{ backgroundColor: '#ebebeb' }}
+                                            placeholder={strings('FioSendRequest.from')}
                                             value={this.state.payeeFioAddress}
+                                            editable={false}
                                         />
                                     </View>
 
-
                                     <View style={styles.input__wrapper}>
-                                        <View style={styles.input__desc__wrapper}>
-                                            <Text style={styles.txt}>{strings('FioSendRequest.to')}</Text>
-                                            <Feather style={styles.wrapper__icon} name='edit'/>
-                                        </View>
                                         <TextInput
-                                            style={styles.input}
-                                            onChangeText={(text) => this.setState({payerFioAddress: text})}
+                                            placeholder={strings('FioSendRequest.to')}
                                             value={this.state.payerFioAddress}
+                                            onChangeText={(text) => this.setState({ payerFioAddress: text })}
+                                            HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                color={this.context.colors.common.text2} />}
                                         />
                                     </View>
 
                                     <View style={styles.input__wrapper}>
-                                        <View style={styles.input__desc__wrapper}>
-                                            <Text style={styles.txt}>{strings('FioSendRequest.amount')}</Text>
-                                            <Feather style={styles.wrapper__icon} name='edit'/>
-                                        </View>
                                         <TextInput
-                                            style={styles.input}
-                                            onChangeText={(text) => this.setState({amount: text})}
+                                            placeholder={strings('FioSendRequest.amount')}
                                             value={this.state.amount}
+                                            onChangeText={(text) => this.setState({ amount: text })}
+                                            HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                color={this.context.colors.common.text2} />}
                                         />
                                     </View>
-
 
                                     <View style={styles.input__wrapper}>
-                                        <View style={styles.input__desc__wrapper}>
-                                            <Text style={styles.txt}>{strings('FioSendRequest.memo')}</Text>
-                                            <Feather style={styles.wrapper__icon} name='edit'/>
-                                        </View>
                                         <TextInput
-                                            multiline={false}
-                                            numberOfLines={1}
-                                            style={styles.input}
-                                            onChangeText={(text) => this.setState({memo: text})}
+                                            placeholder={strings('FioSendRequest.memo')}
                                             value={this.state.memo}
+                                            onChangeText={(text) => this.setState({ memo: text })}
+                                            HelperAction={() => <AntDesignIcon name="edit" size={23}
+                                                color={this.context.colors.common.text2} />}
                                         />
                                     </View>
-
-
-                                    <View style={{marginTop: 20}}>
-                                        <Button press={this.handleNext}>
-                                            {strings('FioSendRequest.btnText')}
-                                        </Button>
-                                    </View>
-                                </KeyboardAvoidingView>
-                            </ScrollView>
-                            : null
-                        }
+                                </View>
 
 
 
-
-                    </View>
+                                <View style={{ marginTop: 20, paddingHorizontal: 8 }}>
+                                    <Button
+                                        title={strings('FioSendRequest.btnText')}
+                                        onPress={this.handleNext}
+                                    />
+                                </View>
+                            </KeyboardAvoidingView>
+                        </ScrollView>
+                        : null
+                    }
                 </View>
-            </View>
+            </ScreenWrapper>
         );
     }
 }
@@ -312,27 +335,46 @@ const mapStateToProps = (state) => ({
     currencyStore: state.currencyStore
 })
 
+FioSendRequest.contextType = ThemeContext
+
 export default connect(mapStateToProps, {})(FioSendRequest)
 
 const styles = {
 
     container: {
-        padding: 30,
-        height: '100%',
+        padding: 20,
         flexDirection: 'column',
         flex: 1,
     },
 
+    btn__container: {
+        paddingHorizontal: 8,
+        paddingBottom: 15,
+    },
+
+    btn__container2: {
+        paddingHorizontal: 10,
+        paddingBottom: 35,
+    },
+
+    info_section: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingRight: 20,
+    },
+
     popup_btn: {
-        padding: 10,
-        paddingHorizontal: 20,
+        width: '100%',
+        padding: 12,
         margin: 10,
+        marginHorizontal: 0,
         borderRadius: 10,
-        backgroundColor: '#6B36A8',
+        backgroundColor: '#404040',
     },
 
     popup_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 16,
         color: '#fff',
         textAlign: 'center',
@@ -340,15 +382,10 @@ const styles = {
 
     rowFlex: {
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginHorizontal: -10,
-        marginVertical: 5,
-        backgroundColor: '#eee',
-        padding: 2,
-        paddingRight: 10,
         borderRadius: 20,
+        height: '100%',
     },
 
     rowFlex2: {
@@ -356,37 +393,25 @@ const styles = {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 10,
     },
 
-    btn__container: {
-        flex: 1,
-    },
-
-   descr_txt: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 13,
-        color: '#777',
-       flex: 1,
-    },
-
-    subheader: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: -25,
-        marginBottom: 15,
+    descr_txt: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 16,
+        color: '#5c5c5c',
+        maxWidth: '90%',
     },
 
     subheaderTxt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 18,
         color: '#333',
         textAlign: 'center',
     },
 
     input__wrapper: {
-        paddingBottom: 5,
+        padding: 8,
     },
 
     input__desc__wrapper: {
@@ -401,22 +426,23 @@ const styles = {
     },
 
     input: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 17,
-        lineHeight: 1,
-        color: '#404040',
-        marginTop: 0,
+        marginTop: 5,
         marginBottom: 10,
-        padding: 0,
+        paddingLeft: 3,
+        paddingRight: 3,
+        paddingTop: 0,
+        paddingBottom: 2,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        color: '#404040',
         borderColor: '#6B36A8',
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
     },
 
     txt: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
         color: '#777',
     },
-
 
 }

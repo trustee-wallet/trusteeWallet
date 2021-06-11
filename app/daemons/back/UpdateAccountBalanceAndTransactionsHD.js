@@ -16,10 +16,11 @@ import AccountTransactionsRecheck from './apputils/AccountTransactionsRecheck'
 import accountDS from '../../appstores/DataSource/Account/Account'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
+import config from '@app/config/config'
 
 let CACHE_LAST_TIME = false
 const CACHE_VALID_10MIN_TIME = 600000 // 10 minutes
-
+let CACHE_WALLETS_HASH = {}
 class UpdateAccountBalanceAndTransactionsHD {
 
     /**
@@ -60,8 +61,8 @@ class UpdateAccountBalanceAndTransactionsHD {
             if (!walletPubs || walletPubs.length === 0) return false
 
             this._logNews = {}
-            let walletPub
-            for (walletPub of walletPubs) {
+            CACHE_WALLETS_HASH = {}
+            for (const walletPub of walletPubs) {
                 await this._walletRun(walletPub, source)
             }
 
@@ -80,6 +81,7 @@ class UpdateAccountBalanceAndTransactionsHD {
         } catch (e) {
             Log.errDaemon('UpdateAccountBalanceHD balanceError ' + source + ' ' + e.message)
         }
+        return true
     }
 
     /**
@@ -105,19 +107,28 @@ class UpdateAccountBalanceAndTransactionsHD {
      */
     async _walletRun(walletPub, source) {
         let newBalance = false
-        let balanceError
+        let balanceError = false
         const addressToScan = walletPub.walletPubValue
+        if (config.debug.appErrors) {
+            console.log(new Date().toISOString() + ' UpdateAccountBalanceAndTransactionsHD newBalance started ' + walletPub.currencyCode + ' ' + addressToScan)
+        }
         try {
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newBalance ' + walletPub.currencyCode + ' ' + addressToScan)
-            newBalance = await (BlocksoftBalances.setCurrencyCode(walletPub.currencyCode).setAddress(addressToScan).setWalletHash(walletPub.walletHash)).getBalance()
+            newBalance = await (BlocksoftBalances.setCurrencyCode(walletPub.currencyCode).setAddress(addressToScan).setWalletHash(walletPub.walletHash)).getBalance('AccountRunHD')
             if (!newBalance || typeof newBalance.balance === 'undefined') {
                 balanceError = ' something wrong with balance ' + walletPub.currencyCode + ' ' + addressToScan + ' => ' + JSON.stringify(newBalance)
                 Log.daemon('UpdateAccountBalanceAndTransactionsHD newBalance something wrong ' + walletPub.currencyCode + ' ' + addressToScan + ' => ' + JSON.stringify(newBalance))
+                if (config.debug.appErrors) {
+                    console.log('UpdateAccountBalanceAndTransactionsHD newBalance error ' + balanceError)
+                }
             } else {
                 balanceError = ' found in one ' + JSON.stringify(newBalance)
             }
         } catch (e) {
             balanceError = ' found balanceError ' + e.message
+            if (config.debug.appErrors) {
+                console.log('UpdateAccountBalanceAndTransactionsHD newBalance error ' + balanceError)
+            }
         }
 
         Log.daemon('UpdateAccountBalanceAndTransactionsHD newBalance loaded ' + walletPub.currencyCode + ' ' + addressToScan, JSON.stringify(newBalance))
@@ -156,6 +167,20 @@ class UpdateAccountBalanceAndTransactionsHD {
             Log.daemon('UpdateAccountBalanceAndTransactions newBalance notPrepared ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' old balance ' + walletPub.balance, JSON.stringify(updateObj))
         }
 
+        if (typeof CACHE_WALLETS_HASH[walletPub.walletHash] !== 'undefined') {
+
+            const transactionUpdateObj = {
+                transactionsScanTime: Math.round(new Date().getTime() / 1000),
+                transactionsScanLog: new Date().toISOString() + ' transaction prev scanned by ' +  CACHE_WALLETS_HASH[walletPub.walletHash]
+            }
+            if (walletPub.transactionsScanLog) {
+                transactionUpdateObj.transactionsScanLog += ' ' + walletPub.transactionsScanLog
+            }
+            await walletPubScanningDS.updateTransactions({ updateObj: transactionUpdateObj }, walletPub)
+            return false
+        }
+        CACHE_WALLETS_HASH[walletPub.walletHash] = walletPub.walletPubValue
+
         try {
             if (typeof this._logNews[walletPub.walletHash] === 'undefined') {
                 this._logNews[walletPub.walletHash] = ''
@@ -175,40 +200,37 @@ class UpdateAccountBalanceAndTransactionsHD {
         let newTransactions = false
 
         let addresses = await accountScanningDS.getAddresses({ currencyCode: walletPub.currencyCode, walletHash: walletPub.walletHash })
-
         try {
-            const addressesBlockchain = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue)).getAddresses()
-            let address
+            const addressesBlockchain = await BlocksoftTransactions.getAddresses({
+                account : { currencyCode : walletPub.currencyCode, address : walletPub.walletPubValue, walletHash : walletPub.walletHash},
+                additional : { walletPub }
+            }, 'UpdateAccountBalanceAndTransactionsHD addressesBlockchain')
             const sql = []
-            for (address in addresses) {
-                if (typeof addressesBlockchain[addresses] === 'undefined') continue
-                delete addressesBlockchain[addresses]
-                sql.push(`'` + address + `'`)
-            }
+            const derivations = []
+            let count = 0
             if (addressesBlockchain) {
-                const derivations = { BTC: [], BTC_SEGWIT: [], BTC_SEGWIT_COMPATIBLE : [] }
-                let count = 0
-                for (address in addressesBlockchain) {
-                    const path = addressesBlockchain[address]
-                    if (path.toString().length < 2) continue
-                    const tmp = {
-                        path: path,
-                        alreadyShown: 1,
-                        walletPubId: walletPub.id
-                    }
-                    count++
-                    const first = address.substr(0, 1)
-                    if (first === '1') {
-                        derivations.BTC.push(tmp)
-                    } else if (first === '3') {
-                        derivations.BTC_SEGWIT_COMPATIBLE.push(tmp)
+                for (const address in addressesBlockchain) {
+                    if (typeof addresses[address] !== 'undefined') {
+                        if (addresses[address] === 1) {
+                            // do nothing - can log
+                        } else {
+                            sql.push(`'` + address + `'`)
+                        }
                     } else {
-                        derivations.BTC_SEGWIT.push(tmp)
-
+                        const path = addressesBlockchain[address]
+                        if (path.toString().length < 2) continue
+                        const tmp = {
+                            address,
+                            path,
+                            alreadyShown: 1,
+                            walletPubId: walletPub.id
+                        }
+                        count++
+                        derivations.push(tmp)
                     }
                 }
                 if (count > 0) {
-                    await accountDS.discoverAccounts({ walletHash: walletPub.walletHash, fullTree: false, source, derivations }, source)
+                    await accountDS.discoverAccountsFromHD({ currencyCode : 'BTC', walletHash: walletPub.walletHash, source, derivations }, source)
                     addresses = await accountScanningDS.getAddresses({ currencyCode: walletPub.currencyCode, walletHash: walletPub.walletHash })
                 }
             }
@@ -216,11 +238,21 @@ class UpdateAccountBalanceAndTransactionsHD {
                 await accountDS.massUpdateAccount(`address IN (` + sql.join(',') + ') AND (already_shown IS NULL OR already_shown=0)', 'already_shown=1')
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(' transactionsAddressesError ' + e.message)
+            }
             transactionsError = ' found transactionsAddressesError ' + e.message
         }
         try {
             Log.daemon('UpdateAccountBalanceAndTransactionsHD newTransactions ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue)
-            newTransactions = await (BlocksoftTransactions.setCurrencyCode(walletPub.currencyCode).setAddress(walletPub.walletPubValue).setAdditional({ addresses }).setWalletHash(walletPub.walletHash)).getTransactions()
+            newTransactions = await BlocksoftTransactions.getTransactions({
+                account : {
+                    currencyCode: walletPub.currencyCode,
+                    address: walletPub.walletPubValue,
+                    walletHash : walletPub.walletHash
+                },
+                additional : { addresses, walletPub }
+            },'AccountRunHD')
 
             if (!newTransactions || newTransactions.length === 0) {
                 transactionsError += ' something wrong with balance ' + walletPub.currencyCode + ' ' + walletPub.walletPubValue + ' => ' + JSON.stringify(newTransactions)
@@ -229,6 +261,9 @@ class UpdateAccountBalanceAndTransactionsHD {
                 transactionsError += ' found transactions ' + newTransactions.length
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(' found transactionsError ' + e.message)
+            }
             transactionsError += ' found transactionsError ' + e.message
         }
 
@@ -243,9 +278,16 @@ class UpdateAccountBalanceAndTransactionsHD {
             }
             await walletPubScanningDS.updateTransactions({ updateObj: transactionUpdateObj }, walletPub)
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(' walletPubScanningDS.updateWalletPub ' + e.message)
+            }
             e.message += ' while walletPubScanningDS.updateWalletPub'
             throw e
         }
+        if (config.debug.appErrors) {
+            console.log(new Date().toISOString() + ' UpdateAccountBalanceAndTransactionsHD newBalance finished ' + walletPub.currencyCode + ' ' + addressToScan)
+        }
+        return true
     }
 
 }

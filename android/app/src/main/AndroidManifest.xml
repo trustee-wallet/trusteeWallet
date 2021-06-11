@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.trusteewallet">
+  package="com.trusteewallet"
+  xmlns:tools="http://schemas.android.com/tools"
+>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -13,13 +15,17 @@
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
+      android:usesCleartextTraffic="true"
+      android:requestLegacyExternalStorage="true"
       android:theme="@style/AppTheme">
         <meta-data
                 android:name="com.google.firebase.messaging.default_notification_icon"
                 android:resource="@mipmap/ic_notification"/>
         <meta-data
                 android:name="com.google.firebase.messaging.default_notification_color"
-                android:resource="@color/default_notification_color" />
+                android:resource="@color/default_notification_color"
+                tools:replace="android:resource"
+        />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
         <activity
                 android:name=".MainActivity"
@@ -56,11 +62,6 @@
                 <data android:scheme="tw" android:host="pay" />
             </intent-filter>
         </activity>
-        <service android:name= "io.invertase.firebase.messaging.RNFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
         <receiver android:name="com.google.android.gms.measurement.AppMeasurementInstallReferrerReceiver"
                   android:permission="android.permission.INSTALL_PACKAGES"

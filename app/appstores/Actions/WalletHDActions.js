@@ -1,17 +1,16 @@
 /**
  * @version 0.9
  */
-import store from '../../store'
+import store from '@app/store'
 
-import Log from '../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import walletActions from '../Stores/Wallet/WalletActions'
-import { setSelectedAccount, setSelectedWallet } from '../../appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import walletPubDS from '../DataSource/Wallet/WalletPub'
-import walletDS from '../DataSource/Wallet/Wallet'
-import accountHdDS from '../DataSource/Account/AccountHd'
-import accountDS from '../DataSource/Account/Account'
+import walletPubDS from '@app/appstores/DataSource/Wallet/WalletPub'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
+import accountHdDS from '@app/appstores/DataSource/Account/AccountHd'
+import accountDS from '@app/appstores/DataSource/Account/Account'
 
 const walletHDActions = {
 
@@ -20,8 +19,6 @@ const walletHDActions = {
         Log.log('ACT/WalletHD manual turnOn called ' + walletHash)
 
         await walletDS.updateWallet({ walletHash, walletIsHd: 1 })
-        await setSelectedWallet('ACT/WalletHD manual turnOn' )
-        await walletActions.setAvailableWallets()
 
         try {
             await walletHDActions.hdFromTrezor({ walletHash, force: true, currencyCode: 'BTC' }, 'TURN_ON')
@@ -35,9 +32,17 @@ const walletHDActions = {
         Log.log('ACT/WalletHD setSelectedAccountAsUsed called ' + address)
         const wallet = store.getState().mainStore.selectedWallet
 
+        const res = {walletHash: wallet.walletHash}
         const count = await accountHdDS.countUsed({ walletHash: wallet.walletHash, currencyCode: 'BTC' })
         if (count > 9000) {
-            return 'error.too.much.addresses'
+            res.code = 'error.too.much.addresses'
+            return res
+        }
+        const countGap = await accountHdDS.countGap({ address, walletHash: wallet.walletHash, currencyCode: 'BTC' })
+        if (countGap.gap > 20) {
+            countGap.code = 'error.near.too.much.gap'
+            countGap.walletHash = wallet.walletHash
+            return countGap
         }
         await accountDS.massUpdateAccount(`address='${address}'`, 'already_shown=2')
         const account = store.getState().mainStore.selectedAccount
@@ -47,13 +52,15 @@ const walletHDActions = {
             }
         }
         Log.log('ACT/WalletHD setSelectedAccountAsUsed finished ' + address)
-        return count > 8900 ? 'error.near.too.much.addresses' : false
+        if (count > 8900) {
+            res.code = 'error.near.too.much.addresses'
+        }
+        return false
     },
 
-    backUnusedAccounts: async function() {
-        Log.log('ACT/WalletHD backUnusedAccounts called ')
-        const wallet = store.getState().mainStore.selectedWallet
-        const back = await accountHdDS.backUsed({ wallet_hash: wallet.wallet_hash, currency_code: 'BTC' })
+    backUnusedAccounts: async function(res = {}) {
+        Log.log('ACT/WalletHD backUnusedAccounts called ' + JSON.stringify(res))
+        const back = await accountHdDS.backUsed(res)
         Log.log('ACT/WalletHD backUnusedAccounts finished ' + back)
         return true
     },

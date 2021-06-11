@@ -1,25 +1,22 @@
 /**
- * @version 0.10
+ * @version 0.43
  */
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { View } from 'react-native'
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
 
-import Layout from '../../../components/elements/modal/Layout'
-import Title from '../../../components/elements/modal/Title'
-import Text from '../../../components/elements/modal/Text'
-import Button from '../../../components/elements/modal/Button'
-import Icon from '../../../components/elements/modal/Icon'
+import Layout from '@app/components/elements/modal/Layout'
+import Title from '@app/components/elements/modal/Title'
+import Text from '@app/components/elements/modal/Text'
+import Button from '@app/components/elements/modal/Button'
+import Icon from '@app/components/elements/modal/Icon'
 
-import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import { strings } from '../../../services/i18n'
+import { strings } from '@app/services/i18n'
 
-class YesNoModal extends Component {
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-    constructor(props) {
-        super(props)
-    }
+class YesNoModal extends React.PureComponent {
 
     handleYes = async () => {
         const { callback } = this.props
@@ -42,26 +39,28 @@ class YesNoModal extends Component {
 
     render() {
 
-        const { title, icon, description, reverse } = this.props.data
+        const { title, icon, description, reverse, oneButton, twoButton } = this.props.data
+
+        const { colors } = this.context
 
         return (
             <Layout visible={this.props.show}>
                 <View>
                     <Icon callback={hideModal} icon={icon.toLowerCase()} />
-                    <Title style={styles.title} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
+                    <Title style={{...styles.title, color: colors.common.text1 }} textStyles={{ width: 'auto', paddingHorizontal: 10 }}>
                         {title}
                     </Title>
                     <View style={{ marginTop: 8, marginBottom: -5 }}>
-                        <Text style={styles.text}>
+                        <Text style={{...styles.text, color: colors.sendScreen.amount }}>
                             {description}
                         </Text>
                     </View>
                     <View>
-                        <Button onPress={this.handleNo} color={'#F59E6C'} shadow={true} style={{ marginTop: 17 }}>
-                            {reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
+                        <Button onPress={this.handleNo} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
+                            {oneButton || reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
                         </Button>
-                        <Button onPress={this.handleYes} style={{ backgroundColor: 'none', color: '#F59E6C' }}>
-                            {reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
+                        <Button onPress={this.handleYes} style={{ backgroundColor: 'transparent', color: colors.modal.warning }}>
+                            {twoButton || reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
                         </Button>
                     </View>
                 </View>
@@ -70,16 +69,11 @@ class YesNoModal extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        createWallet: state.createWalletStore,
-        skipModal: state.createWalletStore.skipModal
-    }
-}
+YesNoModal.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(YesNoModal)
+export default YesNoModal
 
-const styles = {
+const styles = StyleSheet.create({
     title: {
         fontFamily: 'Montserrat-Bold',
         fontStyle: 'normal',
@@ -87,12 +81,10 @@ const styles = {
         fontSize: 18,
         lineHeight: 26,
         textAlign: 'center',
-        color: '#404040',
         marginTop: -10,
         marginBottom: -2
     },
     text: {
-        color: '#5C5C5C',
         fontFamily: 'SFUIDisplay-Regular',
         fontStyle: 'normal',
         fontWeight: 'normal',
@@ -101,7 +93,7 @@ const styles = {
         textAlign: 'center',
         letterSpacing: 0.5
     }
-}
+})
 
 /*
 <Modal

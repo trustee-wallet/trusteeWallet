@@ -1,15 +1,9 @@
-platform :ios, '9.0'
+platform :ios, '10.0.4'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 permissions_path = '../node_modules/react-native-permissions/ios'
 
 target 'TrusteeWallet' do
   # Pods for TrusteeWallet
-  pod 'FacebookSDK'
-  pod 'FBSDKCoreKit'
-  pod 'FBSDKLoginKit'
-  pod 'FBSDKShareKit'
-  pod 'FBSDKPlacesKit'
-  pod 'FBSDKMessengerShareKit'
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
   pod 'RCTRequired', :path => "../node_modules/react-native/Libraries/RCTRequired"
@@ -43,8 +37,6 @@ target 'TrusteeWallet' do
 
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
 
-  pod 'Fabric'
-  pod 'Crashlytics'
   pod 'GoogleAnalytics'
   pod 'GoogleIDFASupport'
 
@@ -53,7 +45,8 @@ target 'TrusteeWallet' do
   pod 'Firebase/DynamicLinks'
   pod 'Firebase/Database'
   pod 'Firebase/Analytics'
-
+  pod 'Firebase/Crashlytics'
+  pod 'Firebase/Performance'
 
   pod 'QRScanReader', :path => '../node_modules/react-native-qr-scanner'
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'

@@ -1,19 +1,23 @@
 /**
- * @version 0.9
+ * @version 0.43
+ * @author yura
  */
 import React, { Component } from 'react'
-import { View, Text, ScrollView, Image, TextInput, KeyboardAvoidingView  } from 'react-native'
+import { View, Text } from 'react-native'
 
-import Navigation from '../../components/navigation/Navigation'
-import Button from '../../components/elements/Button'
-import { strings } from '../../services/i18n'
-import CurrencyIcon from '../../components/elements/CurrencyIcon'
-import { rejectFioFundsRequest } from '../../../crypto/blockchains/fio/FioUtils'
-import NavStore from '../../components/navigation/NavStore'
+import Button from '@app/components/elements/new/buttons/Button'
+import i18n, { strings } from '@app/services/i18n'
+import CurrencyIcon from '@app/components/elements/CurrencyIcon'
+import { rejectFioFundsRequest } from '@crypto/blockchains/fio/FioUtils'
+import NavStore from '@app/components/navigation/NavStore'
 import Moment from 'moment';
-import { setLoaderStatus, setSelectedAccount, setSelectedCryptoCurrency } from '../../appstores/Stores/Main/MainStoreActions'
-import Log from '../../services/Log/Log'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import Log from '@app/services/Log/Log'
 import { connect } from 'react-redux'
+
+import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 class FioRequestDetails extends Component {
 
@@ -25,15 +29,15 @@ class FioRequestDetails extends Component {
     }
 
     async componentDidMount() {
-        const data = this.props.navigation.getParam('requestDetailScreenParam')
-        const type = this.props.navigation.getParam('requestDetailScreenType')
+        const data = NavStore.getParamWrapper(this, 'requestDetailScreenParam')
+        const type = NavStore.getParamWrapper(this, 'requestDetailScreenType')
 
         this.setState({
             requestDetailData: data,
             requestDetailType: type,
         })
 
-        Moment.locale('en');
+        Moment.locale(i18n.locale.split('-')[0] === 'uk' ? 'ru' : i18n.locale);
     }
 
     handleReject = async () => {
@@ -47,16 +51,9 @@ class FioRequestDetails extends Component {
 
     handleConfirm = async () => {
         const { content } = this.state.requestDetailData
-        const currency = this.props.currencyStore.cryptoCurrencies.find(item => item.currencyCode === content?.chain_code)
-
         setLoaderStatus(true)
         try {
-            setSelectedCryptoCurrency(currency)
-            await setSelectedAccount()
-
-            NavStore.goNext('SendScreen', {
-                fioRequestDetails: this.state.requestDetailData
-            })
+            await SendActionsStart.startFromFioRequest(content?.chain_code, this.state.requestDetailData)
         } catch (e) {
             await Log.err('FioRequestDetails handleConfirm error ' + e.message, content?.chain_code)
         } finally {
@@ -64,91 +61,96 @@ class FioRequestDetails extends Component {
         }
     }
 
+    handleBack = () => { NavStore.goBack() }
+
+    handleClose = () => { NavStore.reset('HomeScreen') }
+
     render() {
+
+        const { colors } = this.context
+
         return (
-            <View>
-                <Navigation title={strings('FioRequestDetails.title')}/>
+            <ScreenWrapper
+                leftType="back"
+                leftAction={this.handleBack}
+                rightType="close"
+                rightAction={this.handleClose}
+                title={strings('FioRequestDetails.title')}
+            >
+                <View style={styles.container}>
+                    <View>
+                        {/*<Text style={styles.txt}>{strings('FioRequestDetails.balance')}: 0.000025 BTC ($0.24)</Text>*/}
+                        {/*<Text style={styles.txt}>1 BTC = $9,700.70 USD</Text>*/}
+                        <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioRequestDetails.reqCreated')}: {Moment(this.state.requestDetailData?.time_stamp).format('lll')}</Text>
 
-                <View style={{paddingTop: 90, height: '100%'}}>
-                    <View style={styles.container}>
 
-                        <KeyboardAvoidingView behavior="padding">
+                        <View style={styles.info__section}>
+                            <View style={[styles.info__section__content, { backgroundColor: colors.fio.requestItemBg, borderColor: colors.fio.borderColorLight, }]} >
+                                <View style={[styles.flex__container, styles.flex__start]}>
+                                    <CurrencyIcon currencyCode={this.state.requestDetailData?.content?.token_code !== this.state.requestDetailData?.content?.chain_code ? `${this.state.requestDetailData?.content?.chain_code}_${this.state.requestDetailData?.content?.token_code}` : this.state.requestDetailData?.content?.token_code}
+                                        containerStyle={styles.cryptoList__icoWrap}
+                                        markStyle={styles.cryptoList__icon__mark}
+                                        markTextStyle={styles.cryptoList__icon__mark__text}
+                                        iconStyle={styles.cryptoList__icon} />
+                                    <Text style={[styles.txt3, { color: colors.fio.requestDetailPlaneBg }]} >
+                                        {
+                                            this.state.requestDetailType == 'sent' ? (
+                                                /*if type of page is sent*/
+                                                <Text>{strings('FioRequestDetails.sentTitle')} </Text>
+                                            ) : (
+                                                /*if type of page is pending*/
+                                                <Text>{strings('FioRequestDetails.pendingTitle')} </Text>
+                                            )
+                                        }
+                                        {this.state.requestDetailData?.content?.token_code}</Text>
+                                </View>
 
-                            <View>
-                                {/*<Text style={styles.txt}>{strings('FioRequestDetails.balance')}: 0.000025 BTC ($0.24)</Text>*/}
-                                {/*<Text style={styles.txt}>1 BTC = $9,700.70 USD</Text>*/}
-                                <Text style={styles.txt2}>Request created: {Moment(this.state.requestDetailData?.time_stamp).format('lll')}</Text>
+                                <View style={styles.flex__container}>
+                                    <Text style={[styles.txt, { color: colors.fio.requestDetailPlaneBg }]} >{this.state.requestDetailData?.content?.token_code}</Text>
+                                    <Text style={[styles.txt, { color: colors.fio.requestDetailPlaneBg }]} >{this.state.requestDetailData?.content?.amount}</Text>
+                                </View>
 
+                                <View style={styles.flex__container}>
+                                    <View style={[styles.line2, { backgroundColor: colors.fio.borderColorLight }]} ></View>
+                                </View>
 
-                                <View style={styles.info__section}>
-                                    <View style={styles.info__section__content}>
-                                        <View style={[styles.flex__container, styles.flex__start]}>
-                                            <CurrencyIcon currencyCode={this.state.requestDetailData?.content?.token_code !== this.state.requestDetailData?.content?.chain_code ? `${this.state.requestDetailData?.content?.chain_code}_${this.state.requestDetailData?.content?.token_code}` : this.state.requestDetailData?.content?.token_code}
-                                                          containerStyle={styles.cryptoList__icoWrap}
-                                                          markStyle={styles.cryptoList__icon__mark}
-                                                          markTextStyle={styles.cryptoList__icon__mark__text}
-                                                          iconStyle={styles.cryptoList__icon}/>
-                                            <Text style={styles.txt3}>
-                                                {
-                                                    this.state.requestDetailType == 'sent' ? (
-                                                        /*if type of page is sent*/
-                                                        <Text>{strings('FioRequestDetails.sentTitle') } </Text>
-                                                    ) : (
-                                                        /*if type of page is pending*/
-                                                        <Text>{strings('FioRequestDetails.pendingTitle') } </Text>
-                                                    )
-                                                }
-                                                {this.state.requestDetailData?.content?.token_code}</Text>
-                                        </View>
-
-                                        <View style={styles.flex__container}>
-                                            <Text style={styles.txt}>{this.state.requestDetailData?.content?.token_code}</Text>
-                                            <Text style={styles.txt}>{this.state.requestDetailData?.content?.amount}</Text>
-                                        </View>
-
-                                        <View style={styles.flex__container}>
-                                            <View style={styles.line2}></View>
-                                        </View>
-
-                                        {/*<View style={styles.flex__container}>
+                                {/*<View style={styles.flex__container}>
                                             <Text style={styles.txt4}>USD</Text>
                                             <Text style={styles.txt4}>$ 0.004</Text>
                                         </View>*/}
-                                    </View>
-                                    <View style={styles.shadow}>
-                                        <View style={styles.shadow__item}/>
-                                    </View>
-                                </View>
-
-                                {/*<Text style={styles.txt}>{strings('FioRequestDetails.fee')}: + B 0.000033 ($0.03)</Text>*/}
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.to')}: {this.state.requestDetailData?.payee_fio_address}</Text>
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.from')}: {this.state.requestDetailData?.payer_fio_address}</Text>
-                                <Text style={styles.txt2}>{strings('FioRequestDetails.memo')}: {this.state.requestDetailData?.content?.memo}</Text>
                             </View>
-
-                        </KeyboardAvoidingView>
-
-                        { !this.state.requestDetailData?.status &&
-                            <View style={{marginTop: 20}}>
-                                <View style={styles.btn__container}>
-                                    <View style={styles.btn__holder}>
-                                        <Button press={this.handleReject}>
-                                            {strings('FioRequestDetails.btnTextReject')}
-                                        </Button>
-                                    </View>
-                                    <View style={styles.btn__holder}>
-                                        <Button press={this.handleConfirm}>
-                                            {strings('FioRequestDetails.btnTextConfirm')}
-                                        </Button>
-                                    </View>
-                                </View>
+                            <View style={styles.shadow}>
+                                <View style={styles.shadow__item} />
                             </View>
-                        }
+                        </View>
 
-
+                        {/*<Text style={styles.txt}>{strings('FioRequestDetails.fee')}: + B 0.000033 ($0.03)</Text>*/}
+                        <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioRequestDetails.to')}: {this.state.requestDetailData?.payee_fio_address}</Text>
+                        <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioRequestDetails.from')}: {this.state.requestDetailData?.payer_fio_address}</Text>
+                        <Text style={[styles.txt2, { color: colors.common.text3 }]}>{strings('FioRequestDetails.memo')}: {this.state.requestDetailData?.content?.memo}</Text>
                     </View>
+
+                    {!this.state.requestDetailData?.status &&
+                        <View style={{ marginTop: 20 }}>
+                            <View style={styles.btn__container}>
+                                <View style={styles.btn__holder}>
+                                    <Button
+                                        title={strings('FioRequestDetails.btnTextReject')}
+                                        onPress={this.handleReject}
+                                    />
+                                </View>
+                                <View style={styles.btn__holder}>
+                                    <Button
+                                        title={strings('FioRequestDetails.btnTextConfirm')}
+                                        onPress={this.handleConfirm}
+                                    />
+                                </View>
+                            </View>
+                        </View>
+                    }
+
                 </View>
-            </View>
+            </ScreenWrapper>
         );
     }
 }
@@ -166,13 +168,16 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
+FioRequestDetails.contextType = ThemeContext
+
 export default connect(mapStateToProps, mapDispatchToProps)(FioRequestDetails)
 
 
 const styles = {
 
     container: {
-        padding: 30,
+        padding: 10,
+        paddingVertical: 30,
         height: '100%',
         flexDirection: 'column',
         flex: 1,
@@ -180,6 +185,7 @@ const styles = {
 
     info__section: {
         position: 'relative',
+        display: 'flex'
     },
 
     info__section__content: {
@@ -187,7 +193,7 @@ const styles = {
         borderWidth: 1,
         backgroundColor: '#fff',
         borderColor: '#ddd',
-        padding: 20,
+        padding: 15,
         borderRadius: 10,
         marginVertical: 10,
         zIndex: 2,
@@ -198,7 +204,8 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingLeft: 50,
+        paddingLeft: 54,
+        paddingRight: 10,
     },
 
     btn__container: {
@@ -227,15 +234,15 @@ const styles = {
     },
 
     txt: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 19,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 16,
         color: '#333',
         textAlign: 'center',
         marginVertical: 7,
     },
 
     txt2: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 16,
         color: '#000',
         textAlign: 'center',
@@ -243,15 +250,15 @@ const styles = {
     },
 
     txt3: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 22,
+        flex: 1,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 18,
         color: '#333',
-        textAlign: 'center',
         marginVertical: 7,
     },
 
     txt4: {
-        fontFamily: 'SFUIDisplay-Regular',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 12,
         color: '#000',
         textAlign: 'center',

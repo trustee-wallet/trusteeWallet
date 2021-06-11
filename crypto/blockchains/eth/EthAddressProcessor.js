@@ -1,7 +1,6 @@
 /**
  * @version 0.5
  */
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthBasic from './basic/EthBasic'
 
 export default class EthAddressProcessor extends EthBasic{
@@ -29,7 +28,6 @@ export default class EthAddressProcessor extends EthBasic{
      * @returns {Promise<{message: string, messageHash: string, v: string, r: string,s: string, signature: string}>}
      */
     async signMessage(msg, privateKey) {
-        BlocksoftCryptoLog.log('EthAddressProcessor.signMessage msg ' + msg)
         // noinspection JSUnresolvedVariable
         if (privateKey.substr(0, 2) !== '0x') {
             privateKey = '0x' + privateKey

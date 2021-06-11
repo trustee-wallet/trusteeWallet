@@ -5,10 +5,14 @@
  */
 export const normalizeInputWithDecimals = (val, decimals) => {
     let tmpSplit
-    let value = val.replace(',', '.')
+    if (typeof val === 'undefined' || !val) return ''
+    let value = val.toString().replace(',', '.')
 
-    value = value.replace(/[^0-9.]*/g, '')
-    value = value.replace(/\.{2,}/g, '.')
+    value = value
+        .replace(/[^\d.]/g, '')
+        .replace(/(\..*)\./g, '$1')
+    //value = value.replace(/[^0-9.]*/g, '')
+    //value = value.replace(/\.{2,}/g, '.')
     //value = value.replace(/\.,/g, ',');
     //value = value.replace(/\,\./g, ',');
     //value = value.replace(/\,{2,}/g, ',');

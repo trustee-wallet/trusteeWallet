@@ -1,29 +1,20 @@
 /**
- * @version 0.11
+ * @version 0.42
  */
-import config from '../../../config/config'
+import config from '@app/config/config'
 
 const { cashback: cashbackConfig } = config
 
-export default new class CashBackSettings {
+const cashBackSettings = {
 
-    _baseURL = ''
+    getLink : (token) => {
+        return 'https://trusteeglobal.com/link/' + token
+    },
 
-    constructor() {
+    getBase : () => {
         const { mode, apiEndpoints } = cashbackConfig
-        this._baseURL = mode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
-    }
-
-    init = () => {
-        const { mode, apiEndpoints } = cashbackConfig
-        this._baseURL = mode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
-    }
-
-    getLink = (token) => {
-        return 'https://trustee.deals/link/' + token
-    }
-
-    getBase = () => {
-        return this._baseURL
+        return mode === 'DEV' ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
     }
 }
+
+export default cashBackSettings
