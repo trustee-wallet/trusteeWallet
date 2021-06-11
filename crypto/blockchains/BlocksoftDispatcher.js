@@ -56,6 +56,8 @@ import BnbScannerProcessor from './bnb/BnbScannerProcessor'
 import BnbSmartScannerProcessorErc20 from './bnb_smart/BnbSmartScannerProcessorErc20'
 import VetScannerProcessor from '@crypto/blockchains/vet/VetScannerProcessor'
 
+import SolAddressProcessor from '@crypto/blockchains/sol/SolAddressProcessor'
+import SolScannerProcessor from '@crypto/blockchains/sol/SolScannerProcessor'
 
 class BlocksoftDispatcher {
 
@@ -96,6 +98,8 @@ class BlocksoftDispatcher {
                 return new FioAddressProcessor()
             case 'BNB':
                 return new BnbAddressProcessor()
+            case 'SOL':
+                return new SolAddressProcessor()
             default:
                 throw new Error('Unknown addressProcessor ' + currencyDictSettings.addressProcessor)
         }
@@ -150,6 +154,8 @@ class BlocksoftDispatcher {
                 return new BnbScannerProcessor(currencyDictSettings)
             case 'VET':
                 return new VetScannerProcessor(currencyDictSettings)
+            case 'SOL':
+                return new SolScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }

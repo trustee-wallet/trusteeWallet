@@ -215,7 +215,12 @@ class BlocksoftKeys {
 
 
                 let suffixes
-                if (currentFullTree) {
+                if (currencyCode === 'SOL') {
+                    suffixes = [
+                        { 'type': 'main', 'suffix': false, after : `'/0'` },
+                        { 'type': 'no_scan', 'suffix': false, after: `'` }
+                    ]
+                } else if (currentFullTree) {
                     suffixes = [
                         { 'type': 'main', 'suffix': `0'/0` },
                         { 'type': 'change', 'suffix': `0'/1` }
@@ -246,18 +251,28 @@ class BlocksoftKeys {
                         for (let index = currentFromIndex; index < currentToIndex; index++) {
                             let suffix
                             for (suffix of suffixes) {
-                                const path = `m/${hex}'/${suffix.suffix}/${index}`
-                                const child = root.derivePath(path)
-                                const result = await processor.getAddress(child.privateKey, {
-                                    publicKey: child.publicKey,
+                                const path = suffix.suffix ? `m/${hex}'/${suffix.suffix}/${index}` :  `m/${hex}'/${index}${suffix.after}`
+                                let privateKey = false
+                                let publicKey = false
+                                if (currencyCode === 'SOL' || currencyCode === 'XLM' ) {
+                                    // @todo move to coin address processor
+                                } else {
+                                    const child = root.derivePath(path)
+                                    privateKey = child.privateKey
+                                    publicKey = child.publicKey
+                                }
+                                const result = await processor.getAddress(privateKey, {
+                                    publicKey,
                                     walletHash: data.walletHash,
                                     derivationPath : path,
                                     derivationIndex : index,
                                     derivationType : suffix.type
                                 }, data)
                                 if (result) {
-                                    result.basicPrivateKey = child.privateKey.toString('hex')
-                                    result.basicPublicKey = child.publicKey.toString('hex')
+                                    if (privateKey) {
+                                        result.basicPrivateKey = privateKey.toString('hex')
+                                        result.basicPublicKey = publicKey.toString('hex')
+                                    }
                                     result.path = path
                                     result.index = index
                                     result.alreadyShown = 0
@@ -268,7 +283,6 @@ class BlocksoftKeys {
                         }
                     }
                 }
-
                 CACHE[hexesCache] = results[currencyCode]
                 if (currencyCode === 'ETH') {
                     ETH_CACHE[mnemonicCache] = results[currencyCode][0]

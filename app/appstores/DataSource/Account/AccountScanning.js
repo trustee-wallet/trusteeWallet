@@ -28,6 +28,7 @@ class AccountScanning {
         } else {
             limit = 20
         }
+        where.push(`account.derivation_type!='no_scan'`)
         if (typeof params.currencyCode !== 'undefined' && params.currencyCode) {
             where.push(`account.currency_code IN ('${params.currencyCode}')`)
             where.push(`account.is_main=1`)

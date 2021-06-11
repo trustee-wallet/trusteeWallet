@@ -27,6 +27,7 @@ import BnbSmartTransferProcessor from './bnb_smart/BnbSmartTransferProcessor'
 import BnbSmartTransferProcessorErc20 from './bnb_smart/BnbSmartTransferProcessorErc20'
 import EtcTransferProcessor from './etc/EtcTransferProcessor'
 import VetTransferProcessor from '@crypto/blockchains/vet/VetTransferProcessor'
+import SolTransferProcessor from '@crypto/blockchains/sol/SolTransferProcessor'
 import { BlocksoftBlockchainTypes } from './BlocksoftBlockchainTypes'
 
 
@@ -113,6 +114,9 @@ export namespace BlocksoftTransferDispatcher {
                 break
             case 'VET':
                 CACHE_PROCESSORS[currencyCode] = new VetTransferProcessor(currencyDictSettings)
+                break
+            case 'SOL':
+                CACHE_PROCESSORS[currencyCode] = new SolTransferProcessor(currencyDictSettings)
                 break
             default:
                 throw new Error('Unknown transferProcessor ' + transferProcessor)

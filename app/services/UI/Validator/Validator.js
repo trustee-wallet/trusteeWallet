@@ -17,6 +17,7 @@ import Log from '../../Log/Log'
 import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 import { isFioAddressValid } from '@crypto/blockchains/fio/FioUtils'
 import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
+import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -153,6 +154,21 @@ async function _userDataValidation(obj) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^0x+[0-9a-fA-F]{40}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'SOL_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(value)) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            } else {
+                try {
+                    SolUtils.isAddressValid(value)
+                } catch (e) {
+                    error.msg = strings('validator.invalidFormat', { name: name })
+                }
             }
             break
 

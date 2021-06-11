@@ -46,6 +46,8 @@ export namespace BlocksoftDictTypes {
         BNB = 'BNB',
         BNB_SMART = 'BNB_SMART',
         BNB_SMART_20 = 'BNB_SMART_20',
-        ETC = 'ETC'
+        ETC = 'ETC',
+        VET = 'VET',
+        SOL = 'SOL'
     }
 }

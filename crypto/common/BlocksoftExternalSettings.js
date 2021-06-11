@@ -46,6 +46,8 @@ const CACHE = {
     'ETC_SERVER' : 'https://www.ethercluster.com/etc',
     'ETC_PRICE' : 6710000000,
     'ETC_GAS_LIMIT' : 620000,
+    'SOL_SERVER' : 'https://api.mainnet-beta.solana.com',
+    'SOL_PRICE' : 5000,
     'FIO_BASE_URL' : 'https://fio.eosphere.io/v1/',
     'FIO_HISTORY_URL': 'https://fio.eosphere.io/v1/history/',
     'FIO_REGISTRATION_URL' : 'https://reg.fioprotocol.io/ref/trustee?publicKey=',
