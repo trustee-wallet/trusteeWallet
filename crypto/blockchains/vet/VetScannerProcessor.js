@@ -6,7 +6,6 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BigIntXmr from '@crypto/blockchains/xmr/ext/vendor/biginteger'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const API_PATH = 'https://sync-mainnet.vechain.org'
 const CACHE_VALID_TIME = 30000 // 30 seconds

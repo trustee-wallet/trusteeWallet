@@ -17,6 +17,7 @@ import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
 import SettingsTRX from './elements/SettingsTRX'
 import SettingsBNB from './elements/SettingsBNB'
+import SettingsSOL from '@app/modules/Account/AccountSettings/elements/SettingsSOL'
 
 import { strings } from '@app/services/i18n'
 
@@ -80,6 +81,10 @@ class AccountSettingScreen extends React.PureComponent {
             settingsComponent =
                 <SettingsBNB containerStyle={{ overflow: 'hidden' }}
                     wallet={selectedWallet} account={account} />
+        } else if (account.currencyCode === 'SOL') {
+            settingsComponent =
+                <SettingsSOL containerStyle={{ overflow: 'hidden' }}
+                             wallet={selectedWallet} account={account} />
         }
         return (
             <ScreenWrapper

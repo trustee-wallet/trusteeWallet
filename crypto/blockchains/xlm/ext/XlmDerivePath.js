@@ -32,11 +32,15 @@ function CKDPriv(_ref, index) {
     }
 }
 
-export default (seed) => {
+export default (seed, derivationPath) => {
     const getMaster = getMasterKeyFromSeed(seed)
     const key = getMaster.key
     const chainCode = getMaster.chainCode
-    const segments = [44, 148, 0]
+    const segments =  derivationPath
+        .split('/')
+        .slice(1)
+        .map(el => el.replace("'", ''))
+        .map(el => parseInt(el, 10))
 
     const res = segments.reduce(function(parentKeys, segment) {
         return CKDPriv(parentKeys, segment + HARDENED_OFFSET)

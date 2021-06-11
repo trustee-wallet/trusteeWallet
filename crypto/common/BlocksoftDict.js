@@ -382,7 +382,7 @@ const Currencies = {
                     currencyType: 'token',
                     currencyName: 'APENFT TRC20',
                     currencyCode: 'TRX_APE',
-                    currencySymbol: 'APE',
+                    currencySymbol: 'APENFT',
                     extendsProcessor: 'TRX_USDT',
                     addressUiChecker: 'TRX',
                     ratesCurrencyCode: 'NFT',
@@ -1221,6 +1221,21 @@ const Currencies = {
                     currencyExplorerLink:
                         'https://etherscan.io/token/0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce?a=',
                     currencyExplorerTxLink: 'https://etherscan.io/tx/'
+            },
+        SOL:
+            {
+                    currencyType: 'coin',
+                    currencyName: 'Solana',
+                    currencyCode: 'SOL',
+                    currencySymbol: 'SOL',
+                    addressProcessor: 'SOL',
+                    addressUiChecker: 'SOL',
+                    scannerProcessor: 'SOL',
+                    prettyNumberProcessor: 'UNIFIED',
+                    network: 'mainnet',
+                    decimals: 9,
+                    currencyExplorerLink: 'https://explorer.solana.com/address/',
+                    currencyExplorerTxLink: 'https://blockchair.com/ethereum/transaction/'
             },
     XLM:
         {

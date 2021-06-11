@@ -1,7 +1,7 @@
 /**
  * @version 0.11
  */
-import Database from '@app/appstores/DataSource/Database';
+import Database from '@app/appstores/DataSource/Database'
 import Log from '@app/services/Log/Log'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 
@@ -24,75 +24,73 @@ export default {
         Log.daemon('DS/AccountHD setMainAddress called ', params)
 
         const now = new Date().toISOString()
-
-        let res = await Database.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code='${params.currencyCode}'`).query()
+        const selectSql = `SELECT address, derivation_index, derivation_path, derivation_type, is_main FROM account WHERE address IN ('${params.newAddress}', '${params.oldAddress}') AND currency_code='${params.currencyCode}'`
+        let res = await Database.setQueryString(selectSql).query()
         if (res.array && res.array.length > 1) {
-            const sql = ` UPDATE account SET is_main=1, changes_log='${now} CHANGED MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.newAddress}'`
+            const sql = ` UPDATE account SET is_main=1, derivation_type='main', changes_log='${now} CHANGED MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.newAddress}'`
             await Database.setQueryString(sql).query()
-            const sql2 = ` UPDATE account SET is_main=0, changes_log='${now} CHANGED NOT MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.oldAddress}'`
+            const sql2 = ` UPDATE account SET is_main=0, derivation_type='no_scan', changes_log='${now} CHANGED NOT MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.oldAddress}'`
             await Database.setQueryString(sql2).query()
-
             Log.daemon('DS/AccountHD setMainAddress updated', params)
-        } else {
-            res = await Database.setQueryString(`SELECT * FROM account WHERE address='${params.newAddress}' AND currency_code IN ('${params.basicCurrencyCode}')`).query()
-            Log.daemon('res2', JSON.parse(JSON.stringify(res)))
-            if (res.array && res.array.length > 0) {
-                res = res.array[0]
-            } else {
-                const xpub = await Database.setQueryString(`SELECT wallet_pub_value AS xpub FROM wallet_pub WHERE wallet_hash='${params.walletHash}' AND wallet_pub_type='btc.44'`).query()
-                Log.daemon('xpub', JSON.parse(JSON.stringify(xpub)))
-                if (!xpub || !xpub.array || xpub.array.length < 1) {
-                    throw new Error('no Xpub')
-                } else {
-                    let found = false
-                    const link = 'https://btc1.trezor.io/api/v2/xpub/' + xpub.array[0].xpub + '?gap=9999'
-                     Log.daemon('DS/AccountHD link to load ' + link)
-                    const addresses = await BlocksoftAxios.getWithoutBraking(link)
-                    if (!addresses || !addresses.data || !addresses.data.tokens) {
-                        throw new Error('no Xpub addresses loaded')
-                    }
-                     Log.daemon('DS/AccountHD link loaded ' + link, addresses.data.tokens)
-                    for (const token of addresses.data.tokens) {
-                        if (token.name === params.newAddress) {
-                            found = token
-                        }
-                    }
-                    if (!found) {
-                        throw new Error('no Xpub address found in loaded data')
-                    }
-                    res = {
-                        address: found.name,
-                        path: Database.escapeString(found.path),
-                        derivation_index: '0',
-                        derivation_type: 'main'
-                    }
-                     Log.daemon('DS/ACcountHD found res for address', JSON.parse(JSON.stringify({found, res})))
-                }
-            }
-
-            const insert = {
-                address: res.address,
-                currency_code: params.currencyCode,
-                derivation_index: res.derivation_index,
-                derivation_path: res.derivation_path,
-                derivation_type: res.derivation_type,
-                is_main: 1,
-                changes_log: `${now} CHANGED MAIN ${params.oldAddress} => ${params.newAddress} `,
-                name: `CREATED by SET MAIN at ${now}`,
-                status: 0,
-                wallet_hash: params.walletHash
-            }
-            Log.daemon('DS/AccountHD setMainAddress to insert', JSON.parse(JSON.stringify(insert)))
-
-            await Database.setTableName('account').setInsertData({ insertObjs: [insert] }).insert()
-
-            const sql = ` UPDATE account SET is_main=0, changes_log='${now} CHANGED NOT MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.oldAddress}'`
-            await Database.setQueryString(sql).query()
-
-            Log.daemon('DS/AccountHD setMainAddress inserted', params)
-
+            return true
         }
 
+        res = await Database.setQueryString(`SELECT  address, derivation_index, derivation_path, derivation_type, is_main, currency_code FROM account WHERE address='${params.newAddress}' AND currency_code IN ('${params.basicCurrencyCode}')`).query()
+        Log.daemon('res2', JSON.parse(JSON.stringify(res)))
+        if (res.array && res.array.length > 0) {
+            res = res.array[0]
+        } else {
+            const xpub = await Database.setQueryString(`SELECT wallet_pub_value AS xpub FROM wallet_pub WHERE wallet_hash='${params.walletHash}' AND wallet_pub_type='btc.44'`).query()
+            Log.daemon('xpub', JSON.parse(JSON.stringify(xpub)))
+            if (!xpub || !xpub.array || xpub.array.length < 1) {
+                throw new Error('no Xpub')
+            } else {
+                let found = false
+                const link = 'https://btc1.trezor.io/api/v2/xpub/' + xpub.array[0].xpub + '?gap=9999'
+                Log.daemon('DS/AccountHD link to load ' + link)
+                const addresses = await BlocksoftAxios.getWithoutBraking(link)
+                if (!addresses || !addresses.data || !addresses.data.tokens) {
+                    throw new Error('no Xpub addresses loaded')
+                }
+                Log.daemon('DS/AccountHD link loaded ' + link, addresses.data.tokens)
+                for (const token of addresses.data.tokens) {
+                    if (token.name === params.newAddress) {
+                        found = token
+                    }
+                }
+                if (!found) {
+                    throw new Error('no Xpub address found in loaded data')
+                }
+                res = {
+                    address: found.name,
+                    path: Database.escapeString(found.path),
+                    derivation_index: '0',
+                    derivation_type: 'main'
+                }
+                Log.daemon('DS/ACcountHD found res for address', JSON.stringify({ found, res }))
+            }
+        }
+
+        const insert = {
+            address: res.address,
+            currency_code: params.currencyCode,
+            derivation_index: res.derivation_index,
+            derivation_path: res.derivation_path,
+            derivation_type: res.derivation_type,
+            is_main: 1,
+            changes_log: `${now} CHANGED MAIN ${params.oldAddress} => ${params.newAddress} `,
+            name: `CREATED by SET MAIN at ${now}`,
+            status: 0,
+            wallet_hash: params.walletHash
+        }
+        Log.daemon('DS/AccountHD setMainAddress to insert', JSON.stringify(insert))
+
+        await Database.setTableName('account').setInsertData({ insertObjs: [insert] }).insert()
+
+        const sql = ` UPDATE account SET is_main=0, changes_log='${now} CHANGED NOT MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.oldAddress}'`
+        await Database.setQueryString(sql).query()
+
+        Log.daemon('DS/AccountHD setMainAddress inserted', params)
     },
 
     /**

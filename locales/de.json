@@ -895,7 +895,9 @@
     },
     "errors": {
      "UI_CONFIRM_DOUBLE_SEND": "The transaction has been sent to this address already, are you sure that you want to repeat the transaction?",
+     "UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE": "This address has no funds. Are you sure it's correct?",
      "UI_CALCULATE_CUSTOM_FEE" : "Please, calculate actual custom fee to use for send",
+
      "SERVER_RESPONSE_CLOUDFLARE" : "Please, try again - no access to cloudflare protected server",
      "SERVER_RESPONSE_BAD_CODE": "Something went wrong, contact our support service, please,",
      "SERVER_RESPONSE_BAD_INTERNET": "No access to internet",
