@@ -239,7 +239,7 @@ class Account extends React.PureComponent {
             } catch (e) {
                 Log.errDaemon('AccountScreen handleRefresh error updateAccountListDaemon ' + e.message)
             }
-            await setSelectedAccount()
+            await setSelectedAccount('AccountScreen.handeRefresh')
             this.loadTransactions(0)
         }
 

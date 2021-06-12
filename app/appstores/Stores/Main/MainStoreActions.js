@@ -97,8 +97,8 @@ export async function saveSelectedBasicCurrencyCode(currencyCode) {
 }
 
 
-export async function setSelectedAccount(setting) {
-    // Log.log('ACT/MStore setSelectedAccount called')
+export async function setSelectedAccount(source) {
+    // console.log('ACT/MStore setSelectedAccount called ' + source)
 
     const wallet = store.getState().mainStore.selectedWallet
     const currency = store.getState().mainStore.selectedCryptoCurrency
@@ -202,7 +202,7 @@ export async function setSelectedAccount(setting) {
         // console.log('activeAddresses', accounts[0].activeAddresses)
 
         if (!accounts || !accounts[0]) {
-            throw new Error('ACT/MStore setSelectedAccount NOTHING SET BTC ' + setting)
+            throw new Error('ACT/MStore setSelectedAccount NOTHING SET BTC ' + source)
             // here could be more generation
         }
     } else {
@@ -280,34 +280,39 @@ export async function setSelectedAccount(setting) {
     }
 }
 
-export async function setSelectedAccountTransactions(setting) {
-    const wallet = store.getState().mainStore.selectedWallet
-    const account = store.getState().mainStore.selectedAccount
-    const transactionsToView = []
+export async function setSelectedAccountTransactions(source) {
+    try {
+        const wallet = store.getState().mainStore.selectedWallet
+        const account = store.getState().mainStore.selectedAccount
+        const transactionsToView = []
 
-    const params = {
-        walletHash: account.walletHash,
-        currencyCode: account.currencyCode,
-        limitFrom: 0,
-        limitPerPage: 1
-    }
-    if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
-        params.minAmount = 0
-    }
-    const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
-    if (tmp && tmp.length > 0) {
-        for (let transaction of tmp) {
-            transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)
-            transactionsToView.push(transaction)
+        const params = {
+            walletHash: account.walletHash,
+            currencyCode: account.currencyCode,
+            limitFrom: 0,
+            limitPerPage: 1
         }
-    }
-    dispatch({
-        type: 'SET_SELECTED_ACCOUNT_TRANSACTIONS',
-        selectedAccountTransactions: {
-            transactionsToView,
-            transactionsLoaded : new Date().getTime()
+        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
+            params.minAmount = 0
         }
-    })
+        const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
+        if (tmp && tmp.length > 0) {
+            for (let transaction of tmp) {
+                transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)
+                transactionsToView.push(transaction)
+            }
+        }
+        dispatch({
+            type: 'SET_SELECTED_ACCOUNT_TRANSACTIONS',
+            selectedAccountTransactions: {
+                transactionsToView,
+                transactionsLoaded: new Date().getTime()
+            }
+        })
+    } catch (e) {
+        e.message += ' while setSelectedAccountTransactions from ' + source
+        throw e
+    }
 }
 
 export function setSelectedWalletName(walletName) {

@@ -225,7 +225,7 @@ class HomeScreen extends React.PureComponent {
 
             status = 'setSelectedAccount started'
 
-            await setSelectedAccount()
+            await setSelectedAccount('HomeScreen.handleReceive')
 
             NavStore.goNext('AccountReceiveScreen')
 

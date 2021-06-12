@@ -79,7 +79,7 @@ class SettingsBTC extends Component {
             } else {
                 await settingsActions.setSettings('btcShowTwoAddress', '0')
                 await settingsActions.setSettings('btc_legacy_or_segwit', newValue)
-                await setSelectedAccount(newValue)
+                await setSelectedAccount('SettingsBTC.toggleAddress')
             }
             setLoaderStatus(false)
         } catch (e) {

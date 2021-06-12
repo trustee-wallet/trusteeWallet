@@ -48,7 +48,7 @@ const walletHDActions = {
         const account = store.getState().mainStore.selectedAccount
         if (account) {
             if (account.address === address || account.legacyAddress === address || account.segwitAddress === address) {
-                await setSelectedAccount()
+                await setSelectedAccount('WalletHD.setSelectedAccountAsUsed')
             }
         }
         Log.log('ACT/WalletHD setSelectedAccountAsUsed finished ' + address)

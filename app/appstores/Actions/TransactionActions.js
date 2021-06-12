@@ -14,7 +14,8 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
 import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
 import store from '@app/store'
-import { setSelectedAccountTransactions } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
+import NavStore from '@app/components/navigation/NavStore'
 
 
 const transactionActions = {
@@ -51,7 +52,29 @@ const transactionActions = {
                 await EthTmpDS.getCache(transaction.addressFromBasic)
             }
 
-            await setSelectedAccountTransactions()
+            // account was not opened before or no tx could be done
+            const account = store.getState().mainStore.selectedAccount
+            if (!account || typeof account.currencyCode === 'undefined' || account.currencyCode !== transaction.currencyCode) {
+                const { cryptoCurrencies } = store.getState().currencyStore
+                const { selectedCryptoCurrency } = store.getState().mainStore
+                if (selectedCryptoCurrency.currencyCode === transaction.currencyCode) {
+                    // do nothing
+                } else {
+                    let cryptoCurrency = { currencyCode: false }
+                    // @ts-ignore
+                    for (const tmp of cryptoCurrencies) {
+                        if (tmp.currencyCode === transaction.currencyCode) {
+                            cryptoCurrency = tmp
+                        }
+                    }
+                    if (cryptoCurrency.currencyCode) {
+                        setSelectedCryptoCurrency(cryptoCurrency)
+                    }
+                }
+                await setSelectedAccount('TransactionActions.saveTransaction')
+            }
+
+            await setSelectedAccountTransactions('TransactionActions.saveTransaction')
 
             if (typeof transaction.bseOrderId !== 'undefined') {
                 UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true })
@@ -223,7 +246,7 @@ const transactionActions = {
                 transaction.addressAmountPretty = res.separated
             }
         } catch (e) {
-            e.message += ' on addressAmountPretty'
+            e.message += ' on addressAmountPretty account ' + JSON.stringify(account)
             throw e
         }
 

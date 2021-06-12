@@ -587,8 +587,8 @@ class AccountTransactionScreen extends PureComponent {
             NavStore.goNext('MarketScreen')
         } else if (this.state.toOpenAccountBack) {
             setSelectedCryptoCurrency(this.props.cryptoCurrency)
-            await setSelectedAccount()
-            await setSelectedAccountTransactions()
+            await setSelectedAccount('AccountTransactionScreen.backAction')
+            await setSelectedAccountTransactions('AccountTransactionScreen.backAction')
             NavStore.reset('AccountScreen')
         } else {
             NavStore.goBack()

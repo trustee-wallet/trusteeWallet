@@ -480,8 +480,8 @@ class UpdateAccountListDaemon extends Update {
                         Log.daemon('UpdateAccountListDaemon error when no selected ' + selectedAccount.currencyCode)
                     } else {
                         if (DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode].balance !== selectedAccount.balance) {
-                            await setSelectedAccount()
-                            await setSelectedAccountTransactions()
+                            await setSelectedAccount('UpdateAccountListDaemon')
+                            await setSelectedAccountTransactions('UpdateAccountListDaemon')
                         }
                     }
                 }

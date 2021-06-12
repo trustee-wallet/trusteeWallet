@@ -57,9 +57,9 @@ class CryptoCurrency extends React.PureComponent {
 
             status = 'setSelectedAccount started'
 
-            await setSelectedAccount()
+            await setSelectedAccount('CryptoCurrency.handleCurrencySelect')
             
-            await setSelectedAccountTransactions()
+            await setSelectedAccountTransactions('CryptoCurrency.handleCurrencySelect')
 
             // Log.log('HomeScreen.Currency handleCurrencySelect finished ', cryptoCurrency)
 

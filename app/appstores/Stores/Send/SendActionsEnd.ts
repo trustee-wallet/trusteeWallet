@@ -121,6 +121,7 @@ export namespace SendActionsEnd {
         const { currencyCode } = sendScreenStore.dict
         const { uiType, tbk } = sendScreenStore.ui
         const { transactionAction } = tbk
+
         if (typeof transactionAction !== 'undefined' && transactionAction !== '' && transactionAction) {
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
@@ -132,26 +133,11 @@ export namespace SendActionsEnd {
             NavStore.reset('HomeScreen')
         } else if (tx === false || uiType === 'DEEP_LINKING' || uiType === 'HOME_SCREEN') {
             // account was not opened before or no tx could be done
-            const { cryptoCurrencies } = store.getState().currencyStore
-            const { selectedCryptoCurrency } = store.getState().mainStore
-            if (selectedCryptoCurrency.currencyCode === currencyCode) {
-                NavStore.reset('AccountScreen')
+            const account = store.getState().mainStore.selectedAccount
+            if (!account || account.currencyCode !== currencyCode) {
+                NavStore.reset('HomeScreen')
             } else {
-                let cryptoCurrency = { currencyCode: false }
-                // @ts-ignore
-                for (const tmp of cryptoCurrencies) {
-                    if (tmp.currencyCode === currencyCode) {
-                        cryptoCurrency = tmp
-                    }
-                }
-                if (cryptoCurrency.currencyCode) {
-                    setSelectedCryptoCurrency(cryptoCurrency)
-                    await setSelectedAccount()
-                    await setSelectedAccountTransactions()
-                    NavStore.reset('AccountScreen')
-                } else {
-                    NavStore.reset('HomeScreen')
-                }
+                NavStore.reset('AccountScreen')
             }
         } else if (uiType === 'SEND_SCANNER') {
             await NavStore.goBack()
