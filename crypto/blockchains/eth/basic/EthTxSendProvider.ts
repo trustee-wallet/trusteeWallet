@@ -20,14 +20,16 @@ export default class EthTxSendProvider {
     private _trezorServer: any
     private _settings: any
     private _mainCurrencyCode: string
+    private _mainChainId: any
 
-    constructor(web3: any, trezorServerCode: any, mainCurrencyCode : string, settings: any) {
+    constructor(web3: any, trezorServerCode: any, mainCurrencyCode : string, mainChainId : any, settings: any) {
         this._web3 = web3
         this._trezorServerCode = trezorServerCode
         this._trezorServer = 'to_load'
         this._settings = settings
 
         this._mainCurrencyCode = mainCurrencyCode
+        this._mainChainId = mainChainId
     }
 
 
@@ -42,8 +44,8 @@ export default class EthTxSendProvider {
             throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
         }
         // noinspection JSUnresolvedVariable
-        if (this._mainCurrencyCode === 'ETC') {
-            tx.chainId = 61 // https://ethereumclassic.org/development/porting
+        if (this._mainChainId) {
+            tx.chainId = this._mainChainId
         }
         const signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
 

@@ -665,7 +665,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             tx.data = data.blockchainData // actual value for erc20 etc
         }
 
-        const sender = new EthTxSendProvider(this._web3, this._trezorServerCode, this._mainCurrencyCode, this._settings)
+        const sender = new EthTxSendProvider(this._web3, this._trezorServerCode, this._mainCurrencyCode, this._mainChainId, this._settings)
         const logData = JSON.parse(JSON.stringify(tx))
         logData.currencyCode = this._settings.currencyCode
         logData.selectedFee = selectedFee

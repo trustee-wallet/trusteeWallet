@@ -15,19 +15,22 @@ import config from '@app/config/config'
 const CACHE_GET_MAX_BLOCK = {
     ETH: { max_block_number: 0, confirmations: 0 },
     BNB: { max_block_number: 0, confirmations: 0 },
-    ETC: { max_block_number: 0, confirmations: 0 }
+    ETC: { max_block_number: 0, confirmations: 0 },
+    AMB: { max_block_number: 0, confirmations: 0 }
 }
 const CACHE_BLOCK_NUMBER_TO_HASH = {
     ETH: {},
     BNB: {},
-    ETC : {}
+    ETC : {},
+    AMB : {}
 }
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {
     ETH: {},
     BNB: {},
-    ETC : {}
+    ETC : {},
+    AMB : {}
 }
 
 export default class EthScannerProcessor extends EthBasic {

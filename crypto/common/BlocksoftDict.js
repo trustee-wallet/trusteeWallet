@@ -347,6 +347,24 @@ const Currencies = {
                 'https://etherscan.io/token/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
         },
+        AMB:
+        {
+                currencyType: 'coin',
+                currencyName: 'Ambrosus Network',
+                currencyCode: 'AMB',
+                currencySymbol: 'AMB',
+                ratesCurrencyCode: 'AMB',
+                addressProcessor: 'ETH',
+                addressUiChecker: 'ETH',
+                scannerProcessor: 'ETH',
+                extendsProcessor: 'ETH',
+                prettyNumberProcessor: 'ETH',
+                transferProcessor: 'ETC',
+                network: 'mainnet',
+                decimals: 18,
+                currencyExplorerLink: 'https://explorer.ambrosus.com/address/',
+                currencyExplorerTxLink: 'https://explorer.ambrosus.com/tx/'
+        },
     BNB_SMART_ALPHA:
         {
             currencyType: 'token',

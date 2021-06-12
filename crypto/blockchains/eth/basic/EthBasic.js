@@ -101,6 +101,7 @@ export default class EthBasic {
             this._mainCurrencyCode = 'BNB'
             this._mainTokenType = 'BNB_SMART_20'
             this._mainTokenBlockchain = 'Binance'
+            this._mainChainId = false
         } else if (settings.currencyCode === 'ETC') {
             this._web3Link = BlocksoftExternalSettings.getStatic('ETC_SERVER')
 
@@ -114,6 +115,21 @@ export default class EthBasic {
             this._mainCurrencyCode = 'ETC'
             this._mainTokenType = 'ETC_ERC_20'
             this._mainTokenBlockchain = 'Ethereum Classic'
+            this._mainChainId = 61 // https://ethereumclassic.org/development/porting
+        } else if (settings.currencyCode === 'AMB') {
+            this._web3Link = BlocksoftExternalSettings.getStatic('AMB_SERVER')
+
+            this._etherscanSuffix = false
+            this._etherscanApiPath = false
+            this._etherscanApiPathInternal = false
+
+            this._trezorServer = 'to_load'
+            this._trezorServerCode = 'AMB_TREZOR_SERVER'
+
+            this._mainCurrencyCode = 'AMB'
+            this._mainTokenType = 'AMB_ERC_20'
+            this._mainTokenBlockchain = 'Ambrosus Network'
+            this._mainChainId = 16718 // 0x414e
         } else {
 
             this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
@@ -126,6 +142,7 @@ export default class EthBasic {
             this._mainCurrencyCode = 'ETH'
             this._mainTokenType = 'ETH_ERC_20'
             this._mainTokenBlockchain = 'Ethereum'
+            this._mainChainId = false
         }
 
 
