@@ -76,15 +76,13 @@ async function _getAll(params) {
         }
     }
 
-    const forServer = await appNewsDS.getAppNewsForApi()
-    if (forServer) {
+    const forServerLoaded = await appNewsDS.getAppNewsForApi()
+    const forServer = []
+    if (forServerLoaded) {
         for (const row of forServer) {
-            forServerIds.push(row.id)
-            if (row.receivedAt) {
-                row.receivedAt = row.receivedAt + '000'
-            }
-            if (row.openedAt) {
-                row.openedAt = row.openedAt + '000'
+            if (row && typeof row.id !== 'undefined' && row.id && row.id * 1 > 0) {
+                forServer.push(row)
+                forServerIds.push(row.id)
             }
         }
     }

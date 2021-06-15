@@ -104,6 +104,16 @@ const customCurrencyActions = {
         setLoaderStatus(false)
     },
 
+    replaceCustomCurrencyFromDict: async (tokenAddress, newToken) => {
+        const sql = `
+                UPDATE custom_currency 
+                SET token_address='${newToken.tokenAddress}', token_decimals=${newToken.tokenDecimals}
+                WHERE token_address IN('${tokenAddress}')
+                `
+        await Database.setQueryString(sql).query()
+        await customCurrencyDS.getCustomCurrencies()
+    },
+
     importCustomCurrenciesToDict: async () => {
         const res = await customCurrencyDS.getCustomCurrencies()
         if (!res) return false

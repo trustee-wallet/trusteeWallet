@@ -1250,6 +1250,10 @@
       "attention": {
         "title": "აქტივი უკვე დამატებულია",
         "description": "შეამოწმეთ ის წინა ეკრანზე"
+      },
+      "askReplace": {
+        "title": "The asset %{tokenName} has already been added",
+        "description": "Please, confirm replacing %{oldContact} with %{newContract} "
       }
     },
     "licenseTerms": {

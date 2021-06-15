@@ -194,6 +194,7 @@ export namespace AppWalletConnect {
                 throw error
             }
             if (payload.event === 'disconnect') {
+                WALLET_CONNECTOR = false
                 sessionEnd(payload)
             } else {
                 Log.log('AppWalletConnect.on disconnect error unknown event')

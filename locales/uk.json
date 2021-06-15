@@ -1267,6 +1267,10 @@
       "attention": {
         "title": "Актив вже доданий",
         "description": "Перевірте його на попередньому екрані"
+      },
+      "askReplace": {
+        "title": "Актив  %{tokenName} вже доданий",
+        "description": "Будь ласка, підтвердіть заміну %{oldContact} новою адресою %{newContract} "
       }
     },
     "licenseTerms": {

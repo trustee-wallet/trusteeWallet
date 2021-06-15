@@ -1266,6 +1266,10 @@
       "attention": {
         "title": "The asset has already been added",
         "description": "Please, check asset in previous screen"
+      },
+      "askReplace": {
+        "title": "The asset %{tokenName} has already been added",
+        "description": "Please, confirm replacing %{oldContact} with %{newContract} "
       }
     },
     "licenseTerms": {

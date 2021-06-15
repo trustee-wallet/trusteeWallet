@@ -221,6 +221,12 @@ export default {
                 Log.daemon('DS/AppNews getAppNewsForServer finished as empty')
             } else {
                 for (const row of res.array) {
+                    if (row.receivedAt) {
+                        row.receivedAt = row.receivedAt + '000'
+                    }
+                    if (row.openedAt) {
+                        row.openedAt = row.openedAt + '000'
+                    }
                     CACHE_FOR_API.push(row)
                 }
             }

@@ -16,6 +16,7 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 
 
 export const ASSESTS_GROUP = {
@@ -202,11 +203,17 @@ export async function addCustomToken(tokenAddress) {
 
     if (BlocksoftDict.Currencies[checked.currencyCodePrefix + checked.currencyCode]) {
 
+        const oldContact = BlocksoftDict.Currencies[checked.currencyCodePrefix + checked.currencyCode].tokenAddress || BlocksoftDict.Currencies[checked.currencyCodePrefix + checked.currencyCode].tokenName
         showModal({
-            type: 'INFO_MODAL',
-            icon: 'INFO',
-            title: strings('modal.infoAddCustomAssetModal.attention.title'),
-            description: strings('modal.infoAddCustomAssetModal.attention.description')
+            type: 'YES_NO_MODAL',
+            title: strings('modal.infoAddCustomAssetModal.askReplace.title', {tokenName : checked.currencyCode}),
+            icon: 'WARNING',
+            description: strings('modal.infoAddCustomAssetModal.askReplace.description', {oldContact, newContract : checked.tokenAddress})
+        }, async () => {
+            await customCurrencyActions.replaceCustomCurrencyFromDict(oldContact, checked)
+            await customCurrencyActions.importCustomCurrenciesToDict()
+            await currencyActions.setCryptoCurrencies()
+            NavStore.reset('HomeScreen')
         })
 
         setLoaderStatus(false)
@@ -255,6 +262,8 @@ export async function addCustomToken(tokenAddress) {
         }
         Log.log('AddCustomTokenScreen.addToken secondStep error ' + e.message)
     }
+
+    await currencyActions.setCryptoCurrencies()
 
     setLoaderStatus(false)
 
