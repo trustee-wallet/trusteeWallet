@@ -910,7 +910,7 @@ class AccountTransactionScreen extends PureComponent {
                                 title={transactionHashToView.title}
                                 iconType='txID'
                                 subtitle={`${transactionHashToView.description.slice(0, 8)}...${transactionHashToView.description.slice(-8)}`}
-                                copyAction={() => this.handleSubContentPress({ plain: transactionHashToView.description })}
+                                copyAction={() => this.handleSubContentPress({ plain: transactionHashToView.linkUrl })}
                             />
                         )}
                         {transactionFeeToView && (
