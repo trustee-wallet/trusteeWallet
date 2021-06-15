@@ -45,6 +45,7 @@ const formatDict = async function(cryptoCurrency : any, account : any) {
         network : cryptoCurrency.network,
         currencySymbol : cryptoCurrency.currencySymbol,
         currencyName : cryptoCurrency.currencyName,
+        currencyRateScanTime : cryptoCurrency.currencyRateScanTime,
         walletHash : account.walletHash,
         accountId : account.accountId,
         addressFrom : account.address,

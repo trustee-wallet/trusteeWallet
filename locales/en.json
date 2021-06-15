@@ -477,6 +477,7 @@
     "scan": "Scanned %{time} min ago ",
     "justScan": "Just scanned",
     "soLong": "Last a long time ago",
+    "minutesAgo": " %{time} min ago ",
     "noTransactions": "You don’t have any transaction yet. But you can resolve this quickly, just tap on BUY button",
     "showMore": "Show more",
     "assetSettings": "Asset settings",

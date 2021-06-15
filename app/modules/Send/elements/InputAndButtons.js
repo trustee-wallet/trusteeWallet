@@ -343,7 +343,18 @@ class InputAndButtons extends PureComponent {
             equivalentValue = '0.00'
         }
 
-        const notEquivalentValue = `~ ${equivalentValue} ${inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode}`
+
+        const lastScan = this.props.sendScreenStoreDict.currencyRateScanTime
+        const timeNow = new Date().getTime()
+        const diffTime = Math.round((timeNow - lastScan) / 60000)
+
+        let diffTimeText = ''
+        if (diffTime > 2) {
+            diffTimeText = strings('account.minutesAgo', {time : diffTime})
+        }
+
+        const notEquivalentValue = `~ ${equivalentValue} ${inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode} ${diffTimeText} `
+
         return (
             <View>
                 <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
