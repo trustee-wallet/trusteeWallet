@@ -287,6 +287,8 @@
       "scannerSettings" : "Сканування",
       "scannerSubtitle": "Частота оновлення балансів",
       "scannerSubtitleSmall": "Швидкість оновлення балансів",
+      "faqSettings": "FAQ",
+      "faqSubtitle": "Питання що часто задаються",
       "toolTips": "Підказки",
       "configMode": "Конфіг",
       "testerMode": "Тестувальник"
@@ -360,7 +362,8 @@
       "contactSupportTitle": "Звернутись до служби підтримки",
       "contactSupportSubtitle": "Офіційний telegram канал",
       "contactSupportEmail": "або відправити Email",
-      "contactSupportEmailSubtitle": "Офіційний email contact@trustee.deals",
+      "contactSupportEmailSubtitle": "Офіційний email",
+      "contactSupportLoadingText" : "If telegram application is not opened - please search for %{bot} or write to email %{email}",
       "information": "Інформація",
       "copyright": "© BlockSoftLab Inc, 2021"
     },

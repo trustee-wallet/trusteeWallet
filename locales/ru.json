@@ -287,6 +287,8 @@
       "scannerSettings" : "Сканирование",
       "scannerSubtitle": "Частота обновления балансов",
       "scannerSubtitleSmall": "Скорость обновления балансов",
+      "faqSettings": "FAQ",
+      "faqSubtitle": "Частозадаваемые вопросы",
       "toolTips": "Подсказки",
       "configMode": "Конфиг",
       "testerMode": "Тестировщик"
@@ -360,7 +362,8 @@
       "contactSupportTitle": "Связаться со службой поддержки",
       "contactSupportSubtitle": "Официальный telegram канал",
       "contactSupportEmail": "или отправить Email",
-      "contactSupportEmailSubtitle": "Официальный email contact@trustee.deals",
+      "contactSupportEmailSubtitle": "Официальный email",
+      "contactSupportLoadingText" : "Если приложение telegram не открылось автоматически - пожайлуста напишите вручную боту %{bot} или используйте %{email}",
       "information": "Информация",
       "copyright": "© BlockSoftLab Inc, 2021"
     },

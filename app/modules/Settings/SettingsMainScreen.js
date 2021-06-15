@@ -8,7 +8,7 @@ import {
     Text,
     ScrollView,
     Vibration,
-    StyleSheet
+    StyleSheet, Linking
 } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
@@ -36,6 +36,7 @@ import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import { getWalletsNumber } from '@app/appstores/Stores/Wallet/selectors'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 class SettingsMainScreen extends PureComponent {
@@ -237,6 +238,10 @@ class SettingsMainScreen extends PureComponent {
 
     handleWalletConnect = () => { NavStore.goNext('WalletConnectScreen') }
 
+    handleFAQ = () => {
+        Linking.openURL(BlocksoftExternalSettings.getStatic('SOCIAL_LINK_FAQ'))
+    }
+
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
@@ -402,6 +407,13 @@ class SettingsMainScreen extends PureComponent {
                                 subtitle={strings('settings.other.scannerSubtitle')}
                                 iconType="scanning"
                                 onPress={this.handleChangeScanner}
+                                rightContent="arrow"
+                            />
+                            <ListItem
+                                title={strings('settings.other.faqSettings')}
+                                subtitle={strings('settings.other.faqSubtitle')}
+                                iconType="notifications"
+                                onPress={this.handleFAQ}
                                 rightContent="arrow"
                             />
                             <ListItem

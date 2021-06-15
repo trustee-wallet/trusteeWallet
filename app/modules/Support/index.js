@@ -120,7 +120,10 @@ class SupportScreen extends React.PureComponent {
         const { colors } = this.context
         return (
             <View style={[styles.error, { backgroundColor: colors.common.background }]}>
-                <Text style={[styles.errorText, { color: colors.common.text2 }]}>{strings('components.webview.error')}</Text>
+                <Text style={[styles.errorText, { color: colors.common.text2 }]}>{strings('settings.about.contactSupportTitle')}</Text>
+                <Text style={[styles.errorTextInner, { color: colors.common.text2 }]}>{strings('settings.about.contactSupportLoadingText',
+                    {bot: BlocksoftExternalSettings.getStatic('SUPPORT_BOT_NAME'), email : BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL')}
+                )}</Text>
             </View>
         )
     }
@@ -146,12 +149,18 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
+        padding: 16,
         justifyContent: 'center',
         alignItems: 'center'
     },
     errorText: {
         fontFamily: 'SFUIDisplay-SemiBold',
         fontSize: 18,
+        lineHeight: 20,
+    },
+    errorTextInner: {
+        fontFamily: 'SFUIDisplay-SemiBold',
+        fontSize: 16,
         lineHeight: 20,
     }
 })

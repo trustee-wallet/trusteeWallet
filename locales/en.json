@@ -287,6 +287,8 @@
       "scannerSettings": "Scanning",
       "scannerSubtitle": "Balance reload frequency",
       "scannerSubtitleSmall": "Balance reload speed",
+      "faqSettings": "FAQ",
+      "faqSubtitle": "Frequently asked questions",
       "toolTips": "Tooltips",
       "configMode": "Config",
       "testerMode": "Tester"
@@ -360,7 +362,8 @@
       "contactSupportTitle": "Contact support",
       "contactSupportSubtitle": "Official telegram channel",
       "contactSupportEmail": "or send Email",
-      "contactSupportEmailSubtitle": "Official email contact@trustee.deals",
+      "contactSupportEmailSubtitle": "Official email",
+      "contactSupportLoadingText" : "If telegram application is not opened - please search for %{bot} or write to email %{email}",
       "information": "Information",
       "copyright": "© BlockSoftLab Inc, 2021"
     },

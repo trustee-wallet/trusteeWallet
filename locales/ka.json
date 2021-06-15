@@ -281,6 +281,8 @@
       "scannerSettings": "სკანირება",
       "scannerSubtitle": "ბალანსების განახლების სიხშირე",
       "scannerSubtitleSmall": "ბალანსების განახლების სიჩქარე",
+      "faqSettings": "FAQ",
+      "faqSubtitle": "Frequently asked questions",
       "toolTips": "მინიშნებები",
       "configMode": "კონფიგურაცია",
       "testerMode": "ტესტირება"
@@ -352,7 +354,8 @@
       "contactSupportTitle": "დაკავშირება მხარდაჭერის სამსახურთან",
       "contactSupportSubtitle": "ოფიციალური telegram არხი",
       "contactSupportEmail": "or send Email",
-      "contactSupportEmailSubtitle": "Official email contact@trustee.deals",
+      "contactSupportEmailSubtitle": "Official email",
+      "contactSupportLoadingText" : "If telegram application is not opened - please search for %{bot} or write to email %{email}",
       "information": "ინფორმაცია",
       "copyright": "© BlockSoftLab Inc, 2021"
     },

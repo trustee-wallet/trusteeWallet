@@ -93,8 +93,13 @@ class AboutScreen extends PureComponent {
         NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.privacy') })
     }
 
-    handleSupport = () => {
-        Linking.openURL('mailto:contact@trustee.deals')
+    handleSupport = async () => {
+        const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
+    }
+
+    handleSupportEmail = () => {
+        Linking.openURL('mailto: ' + BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL'))
     }
 
     handleLogs = async () => {
@@ -202,7 +207,7 @@ class AboutScreen extends PureComponent {
                         />
                         <ListItem
                             title={strings('settings.about.contactSupportEmail')}
-                            subtitle={strings('settings.about.contactSupportEmailSubtitle')}
+                            subtitle={strings('settings.about.contactSupportEmailSubtitle') + ' ' + BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL')}
                             iconType="supportMail"
                             onPress={this.handleSupportEmail}
                             rightContent="arrow"
