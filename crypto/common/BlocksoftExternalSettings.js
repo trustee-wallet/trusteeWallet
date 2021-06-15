@@ -67,7 +67,7 @@ const CACHE = {
     'SOCIAL_LINK_INSTAGRAM': 'https://instagram.com/trustee_wallet/',
     'SOCIAL_LINK_VK': 'https://vk.com/trustee_wallet',
     'SOCIAL_LINK_GITHUB': 'https://github.com/trustee-wallet/trusteeWallet',
-    'SOCIAL_LINK_FAQ': 'https://github.com/trustee-wallet/trusteeWallet/wiki',
+    'SOCIAL_LINK_FAQ': 'https://trusteeglobal.com/faq/',
     'PRIVACY_POLICY_en': 'https://trusteeglobal.com/privacy-policy/?header_footer=none',
     'PRIVACY_POLICY_ru': 'https://trusteeglobal.com/ru/politika-konfidencialnosti/?header_footer=none',
     'PRIVACY_POLICY_uk': 'https://trusteeglobal.com/uk/poltika-konfidencijnosti/?header_footer=none',
