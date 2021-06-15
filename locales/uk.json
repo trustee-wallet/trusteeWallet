@@ -363,7 +363,7 @@
       "contactSupportSubtitle": "Офіційний telegram канал",
       "contactSupportEmail": "або відправити Email",
       "contactSupportEmailSubtitle": "Офіційний email",
-      "contactSupportLoadingText" : "If telegram application is not opened - please search for %{bot} or write to email %{email}",
+      "contactSupportLoadingText" : "Якщо у Вас не відкрився чат служби підтримки, будь ласка, зв'яжіться з нами на сайті %{site} або напишіть на пошту %{email}",
       "information": "Інформація",
       "copyright": "© BlockSoftLab Inc, 2021"
     },

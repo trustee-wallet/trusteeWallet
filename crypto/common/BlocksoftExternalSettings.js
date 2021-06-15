@@ -61,6 +61,7 @@ const CACHE = {
     'SUPPORT_BOT_NAME' : '@trustee_support_bot',
     'SUPPORT_EMAIL' : 'contact@trustee.deals',
     'navigationViewV3': 1,
+    'SOCIAL_LINK_SITE': 'trusteeglobal.com',
     'SOCIAL_LINK_TELEGRAM': 'https://t.me/trustee_deals',
     'SOCIAL_LINK_TWITTER': 'https://twitter.com/Trustee_Wallet',
     'SOCIAL_LINK_FACEBOOK': 'https://facebook.com/Trustee.Wallet/',

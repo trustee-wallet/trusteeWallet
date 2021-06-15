@@ -122,7 +122,7 @@ class SupportScreen extends React.PureComponent {
             <View style={[styles.error, { backgroundColor: colors.common.background }]}>
                 <Text style={[styles.errorText, { color: colors.common.text2 }]}>{strings('settings.about.contactSupportTitle')}</Text>
                 <Text style={[styles.errorTextInner, { color: colors.common.text2 }]}>{strings('settings.about.contactSupportLoadingText',
-                    {bot: BlocksoftExternalSettings.getStatic('SUPPORT_BOT_NAME'), email : BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL')}
+                    {site: BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE'), bot: BlocksoftExternalSettings.getStatic('SUPPORT_BOT_NAME'), email : BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL')}
                 )}</Text>
             </View>
         )
