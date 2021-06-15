@@ -126,6 +126,18 @@ const currencyActions = {
         }
     },
 
+    addOrShowMainCurrency : async (tokenType)  => {
+        if (tokenType === 'BITCOIN') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'BTC', newIsHidden : 0, currentIsHidden : 0})
+        } else if (tokenType === 'TRX' || tokenType === 'TRON') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'TRX', newIsHidden : 0, currentIsHidden : 0})
+        } else if (tokenType === 'BNB_SMART_20' || tokenType === 'BNB') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'BNB_SMART', newIsHidden : 0, currentIsHidden : 0})
+        } else {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'ETH', newIsHidden : 0, currentIsHidden : 0})
+        }
+    },
+
     addCurrency: async (currencyToAdd, isHidden = 0, isLoader = 1) => {
 
         isLoader ? setLoaderStatus(true) : null
