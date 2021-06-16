@@ -17,6 +17,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import Log from '@app/services/Log/Log'
 
 const TIME_DIFF = 300000
 
@@ -90,6 +91,10 @@ class AppLockScreenIdleTime {
         } else if (param.state === 'inactive') {
             MarketingEvent.UI_DATA.IS_ACTIVE = false
         } else {
+            Log.log('AppLockScreenIdleTime unlocked')
+            UpdateOneByOneDaemon.unstop()
+            UpdateAccountListDaemon.unstop()
+
             MarketingEvent.UI_DATA.IS_ACTIVE = true
             this._activeTime = new Date().getTime()
             clearFunction()
@@ -118,10 +123,7 @@ class AppLockScreenIdleTime {
             }
             MarketingEvent.UI_DATA.IS_ACTIVE = true
             this._backgroundTime = 0
-            if (!MarketingEvent.UI_DATA.IS_LOCKED) {
-                UpdateOneByOneDaemon.unstop()
-                UpdateAccountListDaemon.unstop()
-            }
+
             if (this._isBlur) {
                 setBlurStatus(false)
                 this._isBlur = false
