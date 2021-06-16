@@ -355,7 +355,8 @@
       "contactSupportSubtitle": "ოფიციალური telegram არხი",
       "contactSupportEmail": "or send Email",
       "contactSupportEmailSubtitle": "Official email",
-      "contactSupportLoadingText" : "If you have not opened the support chat, please contact us at %{site} or write to %{email}",
+      "contactSupportLoadingText" : "If you have not opened the support chat, please contact us at",
+      "contactSupportLoadingTextEmail": "or write to",
       "information": "ინფორმაცია",
       "copyright": "© BlockSoftLab Inc, 2021"
     },

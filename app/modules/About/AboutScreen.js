@@ -93,9 +93,8 @@ class AboutScreen extends PureComponent {
         NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.privacy') })
     }
 
-    handleSupport = async () => {
-        const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
-        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
+    handleSupport = () => {
+        this.props.navigation.jumpTo('SupportScreen')
     }
 
     handleSupportEmail = () => {

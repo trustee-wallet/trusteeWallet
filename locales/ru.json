@@ -363,7 +363,8 @@
       "contactSupportSubtitle": "Официальный telegram канал",
       "contactSupportEmail": "или отправить Email",
       "contactSupportEmailSubtitle": "Официальный email",
-      "contactSupportLoadingText" : "Если у Вас не открылся чат службы поддержки, пожалуйста, свяжитесь с нами на сайте %{site} или напишите на почту %{email}",
+      "contactSupportLoadingText" : "Если у Вас не открылся чат службы поддержки, пожалуйста, свяжитесь с нами на сайте",
+      "contactSupportLoadingTextEmail": "или напишите на почту",
       "information": "Информация",
       "copyright": "© BlockSoftLab Inc, 2021"
     },

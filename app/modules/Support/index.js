@@ -9,7 +9,8 @@ import {
     Text,
     StyleSheet,
     ActivityIndicator,
-    Linking
+    Linking,
+    TouchableOpacity
 } from 'react-native'
 
 import { WebView } from 'react-native-webview'
@@ -53,6 +54,20 @@ class SupportScreen extends React.PureComponent {
             return false
         } catch (err) {
             return true
+        }
+    }
+
+    handleSupportEmail = () => {
+        Linking.openURL('mailto: ' + BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL'))
+    }
+
+    handleSite = () => {
+        const link = BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE')
+
+        if (link.indexOf('https://') !== -1) {
+            Linking.openURL(BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE'))
+        } else {
+            Linking.openURL(`https://${BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE')}`)
         }
     }
 
@@ -121,9 +136,24 @@ class SupportScreen extends React.PureComponent {
         return (
             <View style={[styles.error, { backgroundColor: colors.common.background }]}>
                 <Text style={[styles.errorText, { color: colors.common.text2 }]}>{strings('settings.about.contactSupportTitle')}</Text>
-                <Text style={[styles.errorTextInner, { color: colors.common.text2 }]}>{strings('settings.about.contactSupportLoadingText',
-                    {site: BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE'), bot: BlocksoftExternalSettings.getStatic('SUPPORT_BOT_NAME'), email : BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL')}
-                )}</Text>
+                <View style={styles.errorDescription}>
+                    <Text style={[styles.errorTextInner, { color: colors.common.text2 }]}>
+                        {strings('settings.about.contactSupportLoadingText')}
+                    </Text>
+                    <TouchableOpacity onPress={this.handleSite}>
+                        <Text style={[styles.errorTextLink, { color: colors.common.checkbox.bgChecked }]}>
+                            {BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE')}
+                        </Text>
+                    </TouchableOpacity>
+                    <Text style={[styles.errorTextInner, { color: colors.common.text2, marginTop: 16 }]}>
+                        {strings('settings.about.contactSupportLoadingTextEmail')}
+                    </Text>
+                    <TouchableOpacity onPress={this.handleSupportEmail}>
+                        <Text style={[styles.errorTextLink, { color: colors.common.checkbox.bgChecked }]}>
+                            {BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL')}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         )
     }
@@ -162,5 +192,20 @@ const styles = StyleSheet.create({
         fontFamily: 'SFUIDisplay-SemiBold',
         fontSize: 16,
         lineHeight: 20,
+        textAlign: 'center'
+    },
+    errorTextLink: {
+        fontFamily: 'SFUIDisplay-SemiBold',
+        fontSize: 16,
+        lineHeight: 20,
+        textDecorationLine: 'underline'
+    },
+    errorDescription: {
+        marginTop: 16,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    link: {
+        marginTop: 16
     }
 })
