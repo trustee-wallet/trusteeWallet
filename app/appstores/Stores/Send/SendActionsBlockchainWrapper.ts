@@ -32,7 +32,6 @@ export namespace SendActionsBlockchainWrapper {
         } = selectedWallet
         const { address, currencyCode, derivationPath, accountJson } = account
 
-
         const newCountedFeesData = {
             currencyCode: currencyCode,
             walletHash: walletHash,
@@ -125,7 +124,13 @@ export namespace SendActionsBlockchainWrapper {
             if (config.debug.sendLogs) {
                 console.log('SendActionsBlockchainWrapper.getFeeRate starting')
             }
-            const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
+            let countedFees
+            try {
+                countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
+            } catch (e) {
+                e.message += ' while BlocksoftTransfer.getFeeRate'
+                throw e
+            }
             let selectedFee = false
             if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
                 // @ts-ignore
@@ -149,7 +154,7 @@ export namespace SendActionsBlockchainWrapper {
 
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
+                console.log('SendActionsBlockchainWrapper.getFeeRate error ' + e.message, e)
             }
             if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
                 showModal({

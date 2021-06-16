@@ -63,6 +63,9 @@ export namespace BlocksoftTransfer {
         if (config.debug.sendLogs) {
             console.log('BlocksoftTransfer.getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
         }
+        if (typeof data.derivationPath === 'undefined' || !data.derivationPath) {
+            throw new Error('BlocksoftTransfer.getFeeRate requires derivationPath ' + JSON.stringify(data))
+        }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
         let feesCount
         try {

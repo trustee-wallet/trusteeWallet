@@ -619,13 +619,21 @@ class AccountTransactionScreen extends PureComponent {
             return false
         }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
-            Log.log('AccountTransactionScreen.renderReplaceByFee could not remove', { account, transaction })
+            Log.log('AccountTransactionScreen.renderReplaceByFeeRemove could not remove', { account, transaction })
             return false
         }
         array.push({
             icon: 'canceled', title: strings('account.transactionScreen.removeRbf'), action: async () => {
-                setLoaderStatus(true)
-                await SendActionsStart.startFromTransactionScreenRemove(account, transaction)
+                try {
+                    setLoaderStatus(true)
+                    await SendActionsStart.startFromTransactionScreenRemove(account, transaction)
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('AccountTransactionScreen.renderReplaceByFeeRemove error ' + e.message )
+                    }
+                    Log.err('AccountTransactionScreen.renderReplaceByFeeRemove error ' + e.message )
+                    setLoaderStatus(false)
+                }
             }
         })
         return true
@@ -667,8 +675,16 @@ class AccountTransactionScreen extends PureComponent {
                         return false
                     }
                 }
-                setLoaderStatus(true)
-                await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
+                try {
+                    setLoaderStatus(true)
+                    await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('AccountTransactionScreen.renderReplaceByFee error ' + e.message )
+                    }
+                    Log.err('AccountTransactionScreen.renderReplaceByFee error ' + e.message )
+                    setLoaderStatus(false)
+                }
             }
         })
         return true

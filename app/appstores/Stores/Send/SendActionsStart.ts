@@ -56,8 +56,8 @@ const formatDict = async function(cryptoCurrency : any, account : any) {
         basicCurrencySymbol : account.basicCurrencySymbol,
         basicCurrencyCode : account.basicCurrencyCode,
         basicCurrencyRate : account.basicCurrencyRate,
-        feesBasicCurrencyRate : account.feeRates.basicCurrencyRate,
-        feesBasicCurrencySymbol : account.feeRates.basicCurrencySymbol,
+        feesBasicCurrencyRate : account.feeRates?.basicCurrencyRate || account.basicCurrencyRate,
+        feesBasicCurrencySymbol : account.feeRates?.basicCurrencySymbol || account.basicCurrencySymbol,
         feesCurrencyCode : account.feesCurrencyCode,
         feesCurrencySymbol : account.feesCurrencySymbol
     }
@@ -205,8 +205,11 @@ export namespace SendActionsStart {
     }
 
 
-    export const startFromTransactionScreenBoost = async (account : any, transaction : any) => {
-        const { cryptoCurrency } = findWalletPlus(account.currencyCode)
+    export const startFromTransactionScreenBoost = async (accountSelected : any, transaction : any) => {
+        const { cryptoCurrency, account } = findWalletPlus(accountSelected.currencyCode)
+        if (typeof account.derivationPath === 'undefined') {
+            throw new Error('SendActionsStart.startFromTransactionScreenBoost required account.derivationPath')
+        }
         const dict = await formatDict(cryptoCurrency, account)
 
         const ui = {
@@ -252,9 +255,11 @@ export namespace SendActionsStart {
         NavStore.goNext('ReceiptScreen')
     }
 
-    export const startFromTransactionScreenRemove = async (account : any, transaction : any) => {
-
-        const { cryptoCurrency } = findWalletPlus(account.currencyCode)
+    export const startFromTransactionScreenRemove = async (accountSelected : any, transaction : any) => {
+        const { cryptoCurrency, account } = findWalletPlus(accountSelected.currencyCode)
+        if (typeof account.derivationPath === 'undefined') {
+            throw new Error('SendActionsStart.startFromTransactionScreenBoost required account.derivationPath')
+        }
         const dict = await formatDict(cryptoCurrency, account)
 
         const ui = {
