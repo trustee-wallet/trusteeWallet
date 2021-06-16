@@ -298,8 +298,16 @@ export default {
                 CACHE_LAST_TIME = new Date().getTime()
                 CACHE_LAST_WALLET = MarketingEvent.DATA.LOG_WALLET
             }
-            if (params.source.indexOf('UpdateCurrencyRateDaemon') === -1 && typeof res.rates !== 'undefined' && res.rates) {
-                await UpdateCurrencyRateDaemon.updateCurrencyRate(params, res)
+
+            if (params.source.indexOf('UpdateCurrencyRateDaemon') === -1) {
+                if (typeof res.rates !== 'undefined' && res.rates) {
+                    Log.test('ApiProxy loaded but no rates and will update rates')
+                    await UpdateCurrencyRateDaemon.updateCurrencyRate(params, res)
+                } else {
+                    Log.test('ApiProxy loaded but no rates and skipped update rates')
+                }
+            } else {
+                Log.test('ApiProxy loaded from ' + params.source + ' and skipped update rates')
             }
             if (params.source.indexOf('UpdateCardsDaemon') === -1) {
                 await UpdateCardsDaemon.updateCardsDaemon(params, res)
@@ -317,6 +325,8 @@ export default {
                 await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon(params, res)
             }
 
+        } else {
+            Log.test('ApiProxy finish no data')
         }
         // console.log('ApiProxy finish ' + new Date().toISOString(), JSON.parse(JSON.stringify(params)))
         return res

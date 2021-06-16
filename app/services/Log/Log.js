@@ -23,11 +23,13 @@ const FULL_MAX_MESSAGE = 20000
 
 const LOGS_TXT = {
     DAEMON: '',
+    TEST : '',
     ALL: ''
 }
 
 const FULL_LOGS_TXT = {
     DAEMON: '',
+    TEST : '',
     ALL: ''
 }
 
@@ -36,6 +38,7 @@ class Log {
     constructor() {
         this.TG = new BlocksoftTg(changeableProd.tg.info.theBot, changeableProd.tg.info.appErrorsChannel)
         this.FS = {
+            TEST: new FileSystem({ fileEncoding: 'utf8', fileName: 'TestLog', fileExtension: 'txt' }),
             DAEMON: new FileSystem({ fileEncoding: 'utf8', fileName: 'DaemonLog', fileExtension: 'txt' }),
             ALL: new FileSystem({ fileEncoding: 'utf8', fileName: 'AppLog', fileExtension: 'txt' })
         }
@@ -62,6 +65,7 @@ class Log {
 
         this.TG_MSG = msg
 
+        await this.FS.TEST.checkOverflow()
         await this.FS.DAEMON.checkOverflow()
         await this.FS.ALL.checkOverflow()
     }
@@ -102,6 +106,10 @@ class Log {
 
     async daemon(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
         return this.log(txtOrObj, txtOrObj2, txtOrObj3, 'DAEMON')
+    }
+
+    async test(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
+        return this.log(txtOrObj, txtOrObj2, txtOrObj3, 'TEST')
     }
 
     errorTranslate(e, title, extend, additional = '') {
