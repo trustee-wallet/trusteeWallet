@@ -55,9 +55,11 @@ export default class BnbScannerProcessor {
         BlocksoftCryptoLog.log('BnbScannerProcessor.getTransactions started', address)
 
         const apiServer = await BlocksoftExternalSettings.getStatic('BNB_SERVER')
-
-        // @todo get last from db - 3 days
-        const linkTxs = `${apiServer}/api/v1/transactions/?address=${address}&startTime=1609452000000&txAsset=BNB` // 2021-01-01
+        
+        let linkTxs = `${apiServer}/api/v1/transactions/?address=${address}&txAsset=BNB` // 2021-01-01
+        if (scanData.account.balanceScanTime && scanData.account.balanceScanTime * 1 > 0) {
+            linkTxs += '&startTime=' + (scanData.account.balanceScanTime - 86400) * 1000 // 1 day
+        }
 
         const res = await BlocksoftAxios.getWithoutBraking(linkTxs)
         if (!res || typeof res.data === 'undefined' || !res.data) {
