@@ -230,7 +230,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         for (const tmp of order.params) {
                             let { type, value } = tmp
                             if (type === 'address') {
-                                value = value.replace(ADDRESS_PREFIX_REGEX, '0x')
+                                value = TronUtils.addressToHex(value).replace(ADDRESS_PREFIX_REGEX, '0x')
                             } else if (type === 'address[]') {
                                 value = value.map(v => TronUtils.addressToHex(v).replace(ADDRESS_PREFIX_REGEX, '0x'))
                             }

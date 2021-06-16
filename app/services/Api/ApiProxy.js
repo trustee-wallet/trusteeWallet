@@ -306,7 +306,6 @@ export default {
                     await UpdateCurrencyRateDaemon.updateCurrencyRate(params, res)
                 } else {
                     Log.test('ApiProxy loaded ' + realAction + ' but no rates and skipped update rates')
-                    Log.test(res)
                 }
             } else {
                 Log.test('ApiProxy loaded  ' + realAction + ' from ' + params.source + ' and skipped update rates')
