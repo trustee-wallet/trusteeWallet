@@ -254,6 +254,7 @@ export default {
             } else {
                 all = await _getAll(params)
             }
+            Log.test('ApiProxy loaded ' + realAction + ' params ' + JSON.stringify(params))
             let serverTimestamp = false
             try {
                 if (all && typeof all.data !== 'undefined' && typeof all.data.status !== 'undefined') {
@@ -301,13 +302,14 @@ export default {
 
             if (params.source.indexOf('UpdateCurrencyRateDaemon') === -1) {
                 if (typeof res.rates !== 'undefined' && res.rates) {
-                    Log.test('ApiProxy loaded but no rates and will update rates')
+                    Log.test('ApiProxy loaded  ' + realAction + ' has rates and will update rates')
                     await UpdateCurrencyRateDaemon.updateCurrencyRate(params, res)
                 } else {
-                    Log.test('ApiProxy loaded but no rates and skipped update rates')
+                    Log.test('ApiProxy loaded ' + realAction + ' but no rates and skipped update rates')
+                    Log.test(res)
                 }
             } else {
-                Log.test('ApiProxy loaded from ' + params.source + ' and skipped update rates')
+                Log.test('ApiProxy loaded  ' + realAction + ' from ' + params.source + ' and skipped update rates')
             }
             if (params.source.indexOf('UpdateCardsDaemon') === -1) {
                 await UpdateCardsDaemon.updateCardsDaemon(params, res)
