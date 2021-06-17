@@ -188,11 +188,13 @@ const styles = {
     button: {
         borderRadius: 8,
         borderWidth: 2,
-        width: 85,
+        minWidth: 85,
         height: 34,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        paddingLeft: 6,
+        paddingRight: 6
     },
     buttonText: {
         fontFamily: 'SFUIDisplay-Semibold',
