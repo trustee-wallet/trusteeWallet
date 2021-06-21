@@ -8,7 +8,7 @@ import { Platform } from 'react-native'
 import Intercom from 'react-native-intercom'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
-import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import InitScreen from '@app/modules/Init/InitScreen'
 
@@ -74,7 +74,6 @@ import { strings, sublocale } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
-import AsyncStorage from '@react-native-community/async-storage'
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 
 const Stack = createStackNavigator()
@@ -239,7 +238,6 @@ const TabBar = () => {
                 name='MarketScreen'
                 component={MarketStackScreen}
                 options={{
-                    unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.market'),
                     tabBarIcon: ({ color }) => (
                         <CustomIcon name="exchange" color={color} size={22} style={{ marginBottom: 3 }} />
@@ -255,7 +253,6 @@ const TabBar = () => {
                 name='CashbackScreen'
                 component={CashbackScreen}
                 options={{
-                    unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.earn'),
                     tabBarIcon: ({ color }) => (
                         <CustomIcon name="earn" color={color} size={22} style={{ marginBottom: 3 }} />
