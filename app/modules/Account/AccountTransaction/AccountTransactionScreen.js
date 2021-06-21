@@ -972,8 +972,8 @@ class AccountTransactionScreen extends PureComponent {
                                 <TouchableOpacity onPress={this.showMoreDetails} style={styles.showMore} hitSlop={HIT_SLOP}>
                                     <LetterSpacing textStyle={{ ...styles.viewShowMore, color: colors.common.checkbox.bgChecked }}
                                         text={strings('account.showMore').toUpperCase()} letterSpacing={1.5} />
-                                    <CustomIcon name={showMoreDetails ? 'down' : 'up'} color={colors.common.checkbox.bgChecked} size={20}
-                                        style={{ marginTop: showMoreDetails ? -4 : -1 }} />
+                                    <CustomIcon name={showMoreDetails ? 'up' : 'down'} color={colors.common.checkbox.bgChecked} size={20}
+                                        style={{ marginTop: showMoreDetails ? -1 : -4 }} />
                                 </TouchableOpacity>
                                 {showMoreDetails && (
                                     <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: colors.transactionScreen.backgroundItem }}>
@@ -986,7 +986,7 @@ class AccountTransactionScreen extends PureComponent {
                                                     isLink={item.isLink}
                                                     linkUrl={item.linkUrl}
                                                     withoutBack={true}
-                                                    handleLink={this.handleLink}
+                                                    handleLink={item.isLink ? this.handleLink : null}
                                                     copyAction={() => this.handleSubContentPress(item)}
                                                 />
                                             )

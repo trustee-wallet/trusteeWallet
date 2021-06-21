@@ -391,6 +391,14 @@ class MarketScreen extends PureComponent {
             }
             Log.log('Market/MainScreen send data', data)
 
+            if (data?.url) {
+                NavStore.goNext('SellCodeScreen', {
+                    url: data.url,
+                    data: data
+                })
+                return
+            }
+
             const limits = data.limits ? JSON.parse(data.limits) : false
 
             // const trusteeFee = data.trusteeFee ? JSON.parse(data.trusteeFee) : false
