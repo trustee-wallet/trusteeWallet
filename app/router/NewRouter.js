@@ -8,7 +8,7 @@ import { Platform } from 'react-native'
 import Intercom from 'react-native-intercom'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
 import InitScreen from '@app/modules/Init/InitScreen'
 
@@ -75,6 +75,7 @@ import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import AsyncStorage from '@react-native-community/async-storage'
+import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 
 const Stack = createStackNavigator()
 
@@ -146,6 +147,7 @@ const MarketStackScreen = () => {
         <MarketStack.Navigator initialRouteName='MarketScreen'>
             <MarketStack.Screen name='MarketScreen' component={MarketScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <MarketStack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <MarketStack.Screen name='SellCodeScreen' component={SellCodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }}/>
         </MarketStack.Navigator>
     )
 }
@@ -169,7 +171,6 @@ const startIntercom = async () => {
         const buff = Buffer.from(str, 'hex').toString('base64')
         // const buff2 = Buffer.from(buff, 'base64').toString('hex')
         // console.log(buff2.split('00000'))
-
         Intercom.displayMessageComposerWithInitialMessage(
             `
         ----------------------------------------    
@@ -196,6 +197,7 @@ const TabBar = () => {
             lazy={true}
             animationEnabled={true}
             tabBarOptions={{
+                lazy: true,
                 keyboardHidesTabBar: true,
                 activeTintColor: colors.common.checkbox.bgChecked,
                 inactiveTintColor: colors.common.text1,
@@ -225,6 +227,7 @@ const TabBar = () => {
             <Tab.Screen
                 name='HomeScreen'
                 component={HomeStackScreen}
+                initialParams={{ icon: 'wallet' }}
                 options={{
                     tabBarLabel: strings('dashboardStack.wallet'),
                     tabBarIcon: ({ color }) => (
@@ -236,6 +239,7 @@ const TabBar = () => {
                 name='MarketScreen'
                 component={MarketStackScreen}
                 options={{
+                    unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.market'),
                     tabBarIcon: ({ color }) => (
                         <CustomIcon name="exchange" color={color} size={22} style={{ marginBottom: 3 }} />
@@ -251,6 +255,7 @@ const TabBar = () => {
                 name='CashbackScreen'
                 component={CashbackScreen}
                 options={{
+                    unmountOnBlur: true,
                     tabBarLabel: strings('dashboardStack.earn'),
                     tabBarIcon: ({ color }) => (
                         <CustomIcon name="earn" color={color} size={22} style={{ marginBottom: 3 }} />
@@ -262,7 +267,6 @@ const TabBar = () => {
                     name='IntercomSupportScreen'
                     component={IntercomSupportScreen}
                     options={{
-                        unmountOnBlur: true,
                         tabBarLabel: strings('dashboardStack.support'),
                         tabBarIcon: ({ color }) => (
                             <CustomIcon name="support" color={color} size={22} style={{ marginBottom: 3 }} />

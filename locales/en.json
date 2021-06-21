@@ -333,7 +333,7 @@
       "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
       "needReinstallXMR"  : "Something wrong with XMR address generation - please, save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
-      "getMnemonicXMR" : "View secrets",
+      "getMnemonicXMR" : "View secret key",
       "availableTRX" : "Available",
       "frozenTRX" : "Frozen",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",

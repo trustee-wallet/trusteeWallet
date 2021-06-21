@@ -325,7 +325,7 @@
       "serverSendInputTitleXMR": "ან node.moneroworld.com:18089",
       "needReinstallXMR": "XMR მისამართის სისტემური შეცდომა. გთხოვთ, შეინახოთ მნემონური ფრაზა და თავიდან დააინსტალიროთ პროგრამა, ან დაუკავშირდეთ მხარდაჭერის ჯგუფს დეტალური ინსტრუქციებისთვის. ",
       "saveSettings": "შენახვა",
-      "getMnemonicXMR": "საიდუმლოებების ნახვა",
+      "getMnemonicXMR": "View secret key",
       "availableTRX": "ხელმისაწვდომია",
       "frozenTRX": "Застейкано",
       "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",

@@ -333,7 +333,7 @@
       "serverSendInputTitleXMR" : "або node.moneroworld.com:18089",
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти",
-      "getMnemonicXMR" : "Переглянути секрети",
+      "getMnemonicXMR" : "Переглянути секретний ключ",
       "availableTRX" : "Доступно",
       "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",
