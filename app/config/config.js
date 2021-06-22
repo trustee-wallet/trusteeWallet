@@ -81,7 +81,7 @@ const config = {
     proxy : {
         apiEndpoints : {
             baseURL : 'https://proxy.trustee.deals',
-            baseURLTest : 'https://proxytest.trustee.deals'
+            baseURLTest : 'https://proxy.trustee.deals'
         }
     },
 
