@@ -126,8 +126,12 @@ const currencyActions = {
         }
     },
 
-    addOrShowMainCurrency : async (tokenType)  => {
-        if (tokenType === 'BITCOIN') {
+    addOrShowMainCurrency : async (currencyCode, tokenType)  => {
+        if (currencyCode === 'VET') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'VTHO', newIsHidden : 0, currentIsHidden : 0})
+        } else if (currencyCode === 'VTHO') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'VET', newIsHidden : 0, currentIsHidden : 0})
+        } else if (tokenType === 'BITCOIN') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'BTC', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'TRX' || tokenType === 'TRON') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'TRX', newIsHidden : 0, currentIsHidden : 0})

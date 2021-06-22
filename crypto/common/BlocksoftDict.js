@@ -362,8 +362,8 @@ const Currencies = {
             transferProcessor: 'ETC',
             network: 'mainnet',
             decimals: 18,
-            currencyExplorerLink: 'https://explorer.ambrosus.com/address/',
-            currencyExplorerTxLink: 'https://explorer.ambrosus.com/tx/'
+            currencyExplorerLink: 'https://explorer.ambrosus.io/address/',
+            currencyExplorerTxLink: 'https://explorer.ambrosus.io/tx/'
         },
     BNB_SMART_ALPHA:
         {

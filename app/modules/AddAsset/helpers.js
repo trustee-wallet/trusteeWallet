@@ -164,7 +164,7 @@ export async function addCustomToken(tokenAddress) {
                 tokenAddress
             })
         }
-        currencyActions.addOrShowMainCurrency(tokenType)
+        currencyActions.addOrShowMainCurrency(checked.currencyCode, tokenType)
 
         Log.log('AddCustomTokenScreen.addToken checked ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked))
 

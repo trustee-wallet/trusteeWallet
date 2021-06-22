@@ -72,7 +72,6 @@ export namespace AppNewsActions {
             const transactionHash = notification.newsJson?.transactionHash || false
             const transactionStatus = notification.newsJson?.transactionStatus || false
             const currencyCode = notification.newsJson?.currencyCode || false
-            const orderTransactionHash = notification.newsJson?.payinTxHash || notification.newsJson?.payoutTxHash
             const orderHash = notification.newsJson?.orderHash || false
             if (title === '') {
                 title = notification?.newsCustomTitle || false
@@ -86,24 +85,8 @@ export namespace AppNewsActions {
                 newsName: notification.newsName,
                 createdAt: notification.newsCreated
             }
-            if (orderTransactionHash) {
-                NavStore.goNext('AccountTransactionScreen', {
-                    txData: {
-                        transactionHash : orderTransactionHash,
-                        orderHash,
-                        walletHash: notification.walletHash,
-                        notification: notificationToTx
-                    }
-                })
-                return false
-            } else if (orderHash) {
-                NavStore.goNext('AccountTransactionScreen', {
-                    txData: {
-                        orderHash,
-                        walletHash: notification.walletHash,
-                        notification: notificationToTx
-                    }
-                })
+            if (orderHash) {
+                NavStore.reset('MarketScreen', { screen: 'MarketScreen', params: { orderHash } })
                 return false
             } else if (transactionHash) {
                 NavStore.goNext('AccountTransactionScreen', {

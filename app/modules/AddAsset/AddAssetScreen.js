@@ -91,7 +91,7 @@ class AddAssetScreen extends React.PureComponent {
         Keyboard.dismiss()
         MarketingEvent.logEvent('gx_currency_add', { currencyCode: currencyToAdd.currencyCode }, 'GX')
         await currencyActions.addCurrency(currencyToAdd)
-        await currencyActions.addOrShowMainCurrency(tokenBlockchain)
+        await currencyActions.addOrShowMainCurrency(currencyToAdd.currencyCode, tokenBlockchain)
         this.prepareData()
     }
 
@@ -103,7 +103,7 @@ class AddAssetScreen extends React.PureComponent {
             MarketingEvent.logEvent('gx_currency_show', { currencyCode, source: 'AddAssetScreen' }, 'GX')
         }
         await currencyActions.toggleCurrencyVisibility({ currencyCode, newIsHidden, currentIsHidden : 0}) // add to all wallets
-        await currencyActions.addOrShowMainCurrency(tokenBlockchain)
+        await currencyActions.addOrShowMainCurrency(currencyCode, tokenBlockchain)
         this.prepareData()
     }
 
