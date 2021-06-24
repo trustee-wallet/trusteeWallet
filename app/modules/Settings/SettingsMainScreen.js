@@ -261,6 +261,8 @@ class SettingsMainScreen extends PureComponent {
         // @todo uncomment payment accounts
         return (
             <ScreenWrapper
+                leftType='back'
+                leftAction={this.handleBack}
                 rightType="close"
                 rightAction={this.handleBack}
                 title={strings('settings.title')}
