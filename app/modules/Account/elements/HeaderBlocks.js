@@ -57,7 +57,10 @@ class HeaderBlocks extends React.Component {
 
     actualOpen = async (address, forceLink = false) => {
         const { currencyExplorerLink } = this.props.cryptoCurrency
-        const actualLink = forceLink || currencyExplorerLink + address
+        let actualLink = forceLink || currencyExplorerLink + address
+        if (actualLink.indexOf('blockchair.com/ethereum/address') > 0) {
+            actualLink = forceLink || currencyExplorerLink + address.toLowerCase()
+        }
         // const supported = true // await Linking.canOpenURL(actualLink)
         try {
             let linkUrl = actualLink
