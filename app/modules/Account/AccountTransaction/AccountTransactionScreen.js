@@ -770,6 +770,7 @@ class AccountTransactionScreen extends PureComponent {
                                 inputTextColor={'#f4f4f4'}
                                 style={{ ...styles.input, color: colors.common.text2 }}
                                 placeholderTextColor={colors.common.text2}
+                                allowFontScaling={false}
                             />
                         </View>
                     :

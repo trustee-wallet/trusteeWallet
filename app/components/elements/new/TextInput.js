@@ -42,6 +42,7 @@ export default function Input(props) {
                         { backgroundColor: colors.common.textInput.bg, color: colors.common.textInput.text },
                         inputStyle
                     ]}
+                    allowFontScaling={false}
                     placeholder={placeholder}
                     placeholderTextColor={colors.common.textInput.placeholder}
                     autoCorrect={autoCorrect}

@@ -25,6 +25,7 @@ class FioChooseRecipient extends PureComponent {
                             <TextInput
                                 style={styles.input}
                                 onChangeText={text => console.log('Input changed')}
+                                allowFontScaling={false}
                             />
                         </View>
 

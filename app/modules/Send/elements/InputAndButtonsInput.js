@@ -183,6 +183,7 @@ class InputAndButtonsInput extends PureComponent {
                     maxLength={maxLength}
                     autoCorrect={true}
                     spellCheck={true}
+                    allowFontScaling={false}
                     />
             </View>
         )

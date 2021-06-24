@@ -312,6 +312,7 @@ class Input extends Component {
                             onFocus={() => {
                                 this.inputRef.focus()
                             }}
+                            allowFontScaling={false}
                         /> : null
                 }
                 {
