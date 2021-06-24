@@ -14,7 +14,6 @@
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
 #import "Orientation.h"
-#import "Intercom/intercom.h"
 
 @implementation AppDelegate
 
@@ -53,9 +52,6 @@
 
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-
-  // Intercom
-  [Intercom setApiKey:@"ios_sdk-920b14f9f20f416beba4964bf92b25199a99a4cf" forAppId:@"b0svulae"];
 
   return YES;
 }

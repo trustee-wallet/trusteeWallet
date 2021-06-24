@@ -5,7 +5,6 @@
  */
 import React from 'react'
 import { Platform } from 'react-native'
-import Intercom from 'react-native-intercom'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -66,7 +65,6 @@ import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
 import NotificationsSettingScreen from '@app/modules/Settings/NotificationsScreen'
 import SupportScreen from '@app/modules/Support/index'
-import IntercomSupportScreen from '@app/modules/Support/intercomSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/modules/theme/ThemeProvider'
@@ -151,40 +149,6 @@ const MarketStackScreen = () => {
     )
 }
 
-let registeredMessage = false
-const startIntercom = async () => {
-    let sub = sublocale()
-    if (sub !== 'uk' && sub !== 'ru') {
-        sub = 'en'
-    }
-
-    if (!registeredMessage || registeredMessage !== MarketingEvent.DATA.LOG_CASHBACK) {
-
-        const sign = await CashBackUtils.createWalletSignature(true)
-        Intercom.registerUnidentifiedUser()
-        Intercom.updateUser({
-            name : sign.cashbackToken,
-            language_override: sub
-        })
-        const str = `${sign.message}00000${sign.messageHash.substr(2)}00000${sign.signature.substr(2)}00000${sign.signedAddress.substr(2)}`
-        const buff = Buffer.from(str, 'hex').toString('base64')
-        // const buff2 = Buffer.from(buff, 'base64').toString('hex')
-        // console.log(buff2.split('00000'))
-        Intercom.displayMessageComposerWithInitialMessage(
-            `
-        ----------------------------------------    
-        Sig : ${buff}
-        Version : ${MarketingEvent.DATA.LOG_VERSION}
-        ----------------------------------------
-        
-        
-            `)
-        registeredMessage = sign.cashbackToken
-    } else {
-        Intercom.displayMessenger()
-    }
-
-}
 const TabBar = () => {
 
     const { colors } = useTheme()
@@ -259,22 +223,17 @@ const TabBar = () => {
                     )
                 }}
             />
-            {MarketingEvent.DATA.LOG_TESTER ?
+            {MarketingEvent.DATA.LOG_TESTER ? // here will be chat for testers
                 <Tab.Screen
-                    name='IntercomSupportScreen'
-                    component={IntercomSupportScreen}
+                    name='SupportScreen'
+                    component={SupportScreen}
                     options={{
+                        unmountOnBlur: true,
                         tabBarLabel: strings('dashboardStack.support'),
                         tabBarIcon: ({ color }) => (
                             <CustomIcon name="support" color={color} size={22} style={{ marginBottom: 3 }} />
                         )
                     }}
-                    listeners={({ navigation }) => ({
-                        tabPress: (e) => {
-                            e.preventDefault()
-                            startIntercom()
-                        },
-                    })}
                 />
                 :
                 <Tab.Screen
