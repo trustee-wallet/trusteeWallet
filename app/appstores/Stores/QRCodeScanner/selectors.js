@@ -1,8 +1,14 @@
 /**
- * @version 0.43
+ * @version 0.45
  */
 import { createSelector } from 'reselect'
 export const getQrCodeScannerConfig = createSelector(
-    [state => state.qrCodeScannerStore.config],
-    (data => data)
+    [state => state.qrCodeScannerStore],
+    (data => {
+        return {
+            flowType: data.flowType,
+            currencyCode : data.currencyCode,
+            callback : data.callback
+        }
+    })
 )

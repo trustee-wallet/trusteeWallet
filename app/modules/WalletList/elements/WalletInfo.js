@@ -20,7 +20,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import GradientView from '@app/components/elements/GradientView'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 
-import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import { saveSelectedBasicCurrencyCode } from '@app/appstores/Stores/Main/MainStoreActions'
 import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
@@ -95,13 +95,7 @@ class WalletInfo extends React.PureComponent {
 
     qrPermissionCallback = () => {
         Log.log('WalletInfo handleScanQr started')
-
-        setQRConfig({
-            name: strings('components.elements.input.qrName'),
-            successMessage: strings('components.elements.input.qrSuccess'),
-            type: 'MAIN_SCANNER'
-        })
-
+        setQRConfig({ flowType: QRCodeScannerFlowTypes.MAIN_SCANNER })
         NavStore.goNext('QRCodeScannerScreen')
     }
 

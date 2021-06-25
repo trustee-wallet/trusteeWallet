@@ -24,7 +24,7 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import NavStore from '@app/components/navigation/NavStore'
 
 import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
@@ -32,6 +32,7 @@ import TextInput from '@app/components/elements/new/TextInput'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
+import Toast from '@app/services/UI/Toast/Toast'
 
 class DetailsContent extends React.Component {
     state = {
@@ -66,7 +67,17 @@ class DetailsContent extends React.Component {
     handleChangeInviteLink = (value) => { this.setState(() => ({ inviteLink: value, inviteLinkError: false })) }
 
     handleQrCode = () => {
-        setQRConfig({ type: 'CASHBACK_LINK' })
+        setQRConfig({ flowType: QRCodeScannerFlowTypes.CASHBACK_LINK, callback : (data) => {
+            try {
+                this.setState(() => ({ inviteLink: data.qrCashbackLink, inviteLinkError: false }), () => {
+                    this.handleSubmitInviteLink()
+                })
+            } catch (e) {
+                Log.log('QRCodeScannerScreen callback error ' + e.message )
+                Toast.setMessage(e.message).show()
+            }
+            NavStore.goBack()
+        }})
         NavStore.goNext('QRCodeScannerScreen')
     }
 

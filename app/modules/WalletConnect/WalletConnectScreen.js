@@ -23,13 +23,14 @@ import { strings } from '@app/services/i18n'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
-import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import LinkInput from '@app/components/elements/NewInput'
 import AddressInput from '@app/components/elements/NewInput'
 import Update from '@app/daemons/Update'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import Toast from '@app/services/UI/Toast/Toast'
 
 class WalletConnectScreen extends PureComponent {
     constructor(props) {
@@ -57,15 +58,7 @@ class WalletConnectScreen extends PureComponent {
     componentDidMount() {
         const data = NavStore.getParamWrapper(this, 'walletConnect')
         if (data && typeof data.fullLink !== 'undefined' && data.fullLink) {
-            this.setState({
-                fullLink: data.fullLink,
-                qrFullLink: data.fullLink
-            }, () => {
-                this._init({ fullLink: data.fullLink })
-                if (this.linkInput) {
-                    this.linkInput.handleInput(data.fullLink, false)
-                }
-            })
+            this._setLink(data.fullLink)
         } else {
             this._init(false)
         }
@@ -74,16 +67,20 @@ class WalletConnectScreen extends PureComponent {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const data = NavStore.getParamWrapper(this, 'walletConnect')
         if (data && typeof data.fullLink !== 'undefined' && data.fullLink && data.fullLink !== this.state.qrFullLink) {
-            this.setState({
-                fullLink: data.fullLink,
-                qrFullLink: data.fullLink
-            }, () => {
-                this._init({ fullLink: data.fullLink })
-                if (this.linkInput) {
-                    this.linkInput.handleInput(data.fullLink, false)
-                }
-            })
+            this._setLink(data.fullLink)
         }
+    }
+
+    _setLink(fullLink) {
+        this.setState({
+            fullLink: fullLink,
+            qrFullLink: fullLink
+        }, () => {
+            this._init({ fullLink: fullLink })
+            if (this.linkInput) {
+                this.linkInput.handleInput(fullLink, false)
+            }
+        })
     }
 
     async _init(anyData) {
@@ -317,13 +314,15 @@ class WalletConnectScreen extends PureComponent {
 
     qrPermissionCallback = () => {
         Log.log('Settings qrPermissionCallback started')
-
-        setQRConfig({
-            name: strings('components.elements.input.qrName'),
-            successMessage: strings('components.elements.input.qrSuccess'),
-            type: 'MAIN_SCANNER'
-        })
-
+        setQRConfig({ flowType: QRCodeScannerFlowTypes.MAIN_SCANNER, callback : (data) => {
+            try {
+                this._setLink(data.fullLink)
+            } catch (e) {
+                Log.log('QRCodeScannerScreen callback error ' + e.message)
+                Toast.setMessage(e.message).show()
+            }
+            NavStore.goBack()
+        }})
         NavStore.goNext('QRCodeScannerScreen')
     }
 

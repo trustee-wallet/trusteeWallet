@@ -41,6 +41,9 @@ import Validator from '@app/services/UI/Validator/Validator'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import Toast from '@app/services/UI/Toast/Toast'
 
 
 const callWithDelay = _debounce(
@@ -67,7 +70,7 @@ class EnterMnemonicPhrase extends PureComponent {
             wordsProposed: [],
             error: null,
             phraseInputValue: '',
-            flowSubtype: ''
+            flowSubtype: '',
         }
     }
 
@@ -283,6 +286,19 @@ class EnterMnemonicPhrase extends PureComponent {
         }
     }
 
+    handleOpenQr = () => {
+        setQRConfig({ flowType: QRCodeScannerFlowTypes.ADD_MNEMONIC_SCANNER, callback : (data) => {
+            try {
+                this.handleInputPhrase(data)
+            } catch (e) {
+                Log.log('QRCodeScannerScreen callback error ' + e.message )
+                Toast.setMessage(e.message).show()
+            }
+            NavStore.goBack()
+        }})
+        NavStore.goNext('QRCodeScannerScreen')
+    }
+
     renderQrCode = () => {
         const { error, phraseInputValue } = this.state
         const { colors } = this.context
@@ -293,7 +309,7 @@ class EnterMnemonicPhrase extends PureComponent {
                 : colors.common.text1
 
         return (
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
                 <CustomIcon name={'qr'} size={20} color={iconColor} />
             </TouchableOpacity>
         )
@@ -342,13 +358,13 @@ class EnterMnemonicPhrase extends PureComponent {
                         />
                         <View style={{ marginTop: GRID_SIZE * 0.75 }}>
                             <TextInput
+                                compRef={ref => this.textInput = ref }
                                 autoCapitalize="none"
                                 inputStyle={!!error && { color: colors.createWalletScreen.importWallet.error }}
                                 placeholder={strings('walletCreate.phrasePlaceholder')}
                                 onChangeText={this.handleInputPhrase}
                                 value={phraseInputValue}
-                                compRef={ref => { this.textInput = ref }}
-                            // HelperAction={this.renderQrCode}
+                                HelperAction={this.renderQrCode}
                             />
                             {!!error && (
                                 <View style={[styles.errorContainer, { marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }]}>

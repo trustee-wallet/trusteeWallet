@@ -12,9 +12,11 @@ import NavStore from '@app/components/navigation/NavStore'
 import AddressInput from '@app/components/elements/NewInput'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 
-import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import { SendActionsContactBook } from '@app/appstores/Stores/Send/SendActionsContactBook'
+import Log from '@app/services/Log/Log'
+import Toast from '@app/services/UI/Toast/Toast'
 
 const addressInput = {
     id: 'address',
@@ -143,6 +145,15 @@ class InputAddress extends React.PureComponent {
 
     }
 
+    handleOpenQr = () => {
+        const { currencyCode } = this.props.sendScreenStoreDict
+        setQRConfig({ currencyCode: currencyCode, flowType: QRCodeScannerFlowTypes.SEND_SCANNER, callback: (data) => {
+            // actually updated in store but can recheck here or rerender if needed
+            NavStore.goBack()
+        }})
+        NavStore.goNext('QRCodeScannerScreen')
+    }
+
     render() {
         const { GRID_SIZE } = this.context
         const { currencySymbol, currencyCode, extendsProcessor, addressUiChecker, network } = this.props.sendScreenStoreDict
@@ -170,15 +181,7 @@ class InputAddress extends React.PureComponent {
                         onChangeText={this.handleChangeAddress}
                         callback={this.handleChangeAddress}
                         addressError={false}
-                        qrCallback={() => {
-                            setQRConfig({
-                                currencyCode: currencyCode,
-                                title: strings('modal.qrScanner.success.title'),
-                                description: strings('modal.qrScanner.success.description'),
-                                type: 'SEND_SCANNER'
-                            })
-                            NavStore.goNext('QRCodeScannerScreen')
-                        }}
+                        qrCallback={this.handleOpenQr}
                         validPlaceholder={true}
                     />
                 </View>
