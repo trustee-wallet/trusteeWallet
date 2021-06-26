@@ -25,12 +25,15 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
+import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+
 import LinkInput from '@app/components/elements/NewInput'
-import AddressInput from '@app/components/elements/NewInput'
-import Update from '@app/daemons/Update'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import Toast from '@app/services/UI/Toast/Toast'
+import { connect } from 'react-redux'
+
 
 class WalletConnectScreen extends PureComponent {
     constructor(props) {
@@ -50,7 +53,8 @@ class WalletConnectScreen extends PureComponent {
             accounts: [],
             transactions: [],
             fullLink: '',
-            qrFullLink: ''
+            qrFullLink: '',
+            noMoreLock : false
         }
         this.linkInput = React.createRef()
     }
@@ -71,10 +75,23 @@ class WalletConnectScreen extends PureComponent {
         }
     }
 
-    _setLink(fullLink) {
+    _setLink(fullLink, checkLock = true) {
+        if (!fullLink || fullLink === '') {
+            return false
+        }
+        if (checkLock && !this.state.noMoreLock) {
+            if (this.props.lockScreenStatus * 1 > 0) {
+                setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback : async () => {
+                    this._setLink(fullLink, false)
+                }})
+                NavStore.goNext('LockScreen')
+                return false
+            }
+        }
         this.setState({
             fullLink: fullLink,
-            qrFullLink: fullLink
+            qrFullLink: fullLink,
+            noMoreLock: checkLock === false
         }, () => {
             this._init({ fullLink: fullLink })
             if (this.linkInput) {
@@ -119,11 +136,20 @@ class WalletConnectScreen extends PureComponent {
         }
     }
 
-    async handleApplyLink() {
+    async handleApplyLink(checkLock = true) {
         try {
             const { fullLink } = this.state
             if (!fullLink || fullLink === '') {
                 return false
+            }
+            if (checkLock && !this.state.noMoreLock) {
+                if (this.props.lockScreenStatus * 1 > 0) {
+                    setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback : async () => {
+                        await this._init({ fullLink: fullLink })
+                    }})
+                    NavStore.goNext('LockScreen')
+                    return false
+                }
             }
             await this._init({ fullLink: fullLink })
         } catch (e) {
@@ -489,9 +515,16 @@ class WalletConnectScreen extends PureComponent {
     }
 }
 
+const mapStateToProps = (state) => {
+    return {
+        lockScreenStatus: getLockScreenStatus(state)
+    }
+}
+
 WalletConnectScreen.contextType = ThemeContext
 
-export default WalletConnectScreen
+export default connect(mapStateToProps, {})(WalletConnectScreen)
+
 
 const styles = StyleSheet.create({
     scrollViewContent: {

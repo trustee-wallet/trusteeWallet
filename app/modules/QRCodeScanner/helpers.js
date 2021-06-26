@@ -13,7 +13,6 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { decodeTransactionQrCode } from '@app/services/UI/Qr/QrScan'
 
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import store from '@app/store'
 
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
@@ -21,7 +20,7 @@ import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsU
 import { QRCodeScannerFlowTypes } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 
-export const finishProcess = async (param, qrCodeScannerConfig, lockScreenStatus) => {
+export const finishProcess = async (param, qrCodeScannerConfig) => {
     const { currencyCode, flowType, callback } = qrCodeScannerConfig
 
     if (flowType === QRCodeScannerFlowTypes.ADD_MNEMONIC_SCANNER) {
@@ -60,20 +59,10 @@ export const finishProcess = async (param, qrCodeScannerConfig, lockScreenStatus
     const res = await decodeTransactionQrCode(param, currencyCode)
 
     if (typeof res.data.isWalletConnect !== 'undefined' && res.data.isWalletConnect) {
-        if (lockScreenStatus * 1 > 0) {
-            lockScreenAction.setFlowType({
-                flowType: 'WALLET_CONNECT'
-            })
-            lockScreenAction.setBackData({
-                backData: { walletConnect: res.data.walletConnect }
-            })
-            NavStore.goNext('LockScreen')
+        if (callback) {
+            await callback(res.data.walletConnect)
         } else {
-            if (callback) {
-                await callback(res.data.walletConnect)
-            } else {
-                NavStore.goNext('WalletConnectScreen', { walletConnect: res.data.walletConnect })
-            }
+            NavStore.goNext('WalletConnectScreen', { walletConnect: res.data.walletConnect })
         }
     } else if (flowType === QRCodeScannerFlowTypes.ADD_CUSTOM_TOKEN_SCANNER) {
         if (callback) {

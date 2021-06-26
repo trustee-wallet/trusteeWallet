@@ -16,8 +16,9 @@ import AppNotificationPushSave from './AppNotificationPushSave'
 import AppNotificationPopup from './AppNotificationPopup'
 import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
-import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
+
 import { Platform } from 'react-native'
+import { setLockScreenConfig, LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 const ASYNC_CACHE_TITLE = 'pushTokenV2'
 const ASYNC_CACHE_TIME = 'pushTokenTime'
@@ -313,17 +314,14 @@ export default new class AppNotificationListener {
                 if (+lockScreen) {
                     await Log.log('PUSH _onMessage startMessage not null but lockScreen is needed', startMessage)
                     const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
-                    lockScreenAction.setFlowType({
-                        flowType: 'JUST_CALLBACK'
-                    })
-                    lockScreenAction.setActionCallback({
-                        actionCallback: async () => {
+
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
                             await Log.log('PUSH _onMessage startMessage after lock screen', unifiedPush)
                             if (await AppNewsActions.onOpen(unifiedPush, '', '', false)) {
                                 NavStore.reset('NotificationsScreen')
                             }
-                        }
-                    })
+                    }})
+
                     NavStore.goNext('LockScreenPop')
                 } else {
                     await Log.log('PUSH _onMessage startMessage not null', startMessage)

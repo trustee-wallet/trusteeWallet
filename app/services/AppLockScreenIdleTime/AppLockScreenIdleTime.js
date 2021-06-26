@@ -9,7 +9,6 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import store from '@app/store'
 
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { setBlurStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -105,13 +104,6 @@ class AppLockScreenIdleTime {
                 if (+lockScreenStatus && !MarketingEvent.UI_DATA.IS_LOCKED) {
                     UpdateOneByOneDaemon.stop()
                     UpdateAccountListDaemon.stop()
-                    lockScreenAction.setFlowType({
-                        flowType: ''
-                    })
-                    lockScreenAction.setActionCallback({
-                        actionCallback: () => {
-                        }
-                    })
                     MarketingEvent.UI_DATA.IS_LOCKED = true
                     MarketingEvent.UI_DATA.IS_ACTIVE = true
                     this._backgroundTime = 0

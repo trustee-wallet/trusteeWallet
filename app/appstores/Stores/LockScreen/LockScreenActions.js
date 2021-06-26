@@ -1,29 +1,28 @@
 /**
- * @version 0.42
+ * @version 0.45
  */
 import store from '@app/store'
 
 const { dispatch } = store
 
-const lockScreen = {
-    setFlowType: async (data) => {
-        dispatch({
-            type: 'SET_LOCK_SCREEN_FLOW_TYPE',
-            flowType: data.flowType
-        })
-    },
-    setBackData: async (data) => {
-        dispatch({
-            type: 'SET_LOCK_SCREEN_BACK_DATA',
-            backData: data.backData
-        })
-    },
-    setActionCallback: async (data) => {
-        dispatch({
-            type: 'SET_ACTION_CALLBACK',
-            actionCallback: data.actionCallback
-        })
-    }
+export const LockScreenFlowTypes = {
+    PUSH_POPUP_CALLBACK : 'PUSH_POPUP_CALLBACK',
+    JUST_CALLBACK : 'JUST_CALLBACK',
+    CREATE_PINCODE : 'CREATE_PINCODE',
+    DELETE_PINCODE : 'DELETE_PINCODE',
+    CHANGE_TOUCHID_STATUS : 'CHANGE_TOUCHID_STATUS',
+    CHANGE_ASKING_STATUS : 'CHANGE_ASKING_STATUS',
+    CHANGE_PINCODE_FIRST_STEP : 'CHANGE_PINCODE_FIRST_STEP'
 }
 
-export default lockScreen
+export function setLockScreenConfig(data) {
+    if (typeof data.flowType === 'undefined') {
+        throw new Error('LockScreenActions setLockScreenConfig updated type => flowType')
+    }
+    dispatch({
+        type: 'SET_LOCK_SCREEN_CONFIG',
+        flowType : data.flowType,
+        callback : data.callback || false
+    })
+}
+

@@ -24,7 +24,7 @@ import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import CustomIcon from '@app/components/elements/CustomIcon'
 
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -32,7 +32,6 @@ import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
-import UpdateWalletsDaemon from '@app/daemons/back/UpdateWalletsDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import Log from '@app/services/Log/Log'
 
@@ -71,8 +70,7 @@ class AdvancedWalletScreen extends PureComponent {
 
         const { lockScreenStatus } = this.props.settingsData
         if (needPassword && +lockScreenStatus) {
-            lockScreenAction.setFlowType({ flowType: 'CONFIRM_WALLET_PHRASE' })
-            lockScreenAction.setActionCallback({ actionCallback: this.handleOpenRecoveryPhrase })
+            setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : this.handleOpenRecoveryPhrase })
             NavStore.goNext('LockScreen')
             return
         }
@@ -98,8 +96,7 @@ class AdvancedWalletScreen extends PureComponent {
         const { totalBalance } = this.props.walletsGeneralData
         const { lockScreenStatus } = this.props.settingsData
         if (needPassword && +lockScreenStatus) {
-            lockScreenAction.setFlowType({ flowType: 'REMOVE_WALLET_PHRASE' })
-            lockScreenAction.setActionCallback({ actionCallback: this._actualDelete })
+            setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : this._actualDelete })
             NavStore.goNext('LockScreen')
             return
         }

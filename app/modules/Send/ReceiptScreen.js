@@ -29,7 +29,7 @@ import { showSendError, checkLoadedFee } from './receipt/helpers'
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 import { SendActionsEnd } from '@app/appstores/Stores/Send/SendActionsEnd'
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import  { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
@@ -99,8 +99,7 @@ class ReceiptScreen extends PureComponent {
             && typeof keystore.lockScreenStatus !== 'undefined' && +keystore.lockScreenStatus
         ) {
             if (passwordCheck) {
-                lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
-                lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
+                setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback: this.handleSend })
                 NavStore.goNext('LockScreen')
                 return
             }

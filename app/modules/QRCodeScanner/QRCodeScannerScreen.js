@@ -16,7 +16,6 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 
-import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import { getQrCodeScannerConfig } from '@app/appstores/Stores/QRCodeScanner/selectors'
 
@@ -41,7 +40,7 @@ class QRCodeScannerScreen extends PureComponent {
         try {
             UpdateOneByOneDaemon.unpause()
             UpdateOneByOneDaemon.unstop()
-            await finishProcess(param, this.props.qrCodeScannerConfig, this.props.lockScreenStatus)
+            await finishProcess(param, this.props.qrCodeScannerConfig)
         } catch (e) {
             Log.err('QRCodeScanner.onSuccess error ' + e.message)
             showModal({
@@ -153,7 +152,6 @@ class QRCodeScannerScreen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        lockScreenStatus: getLockScreenStatus(state),
         qrCodeScannerConfig: getQrCodeScannerConfig(state)
     }
 }

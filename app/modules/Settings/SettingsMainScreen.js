@@ -14,7 +14,7 @@ import {
 import NavStore from '@app/components/navigation/NavStore'
 import AsyncStorage from '@react-native-community/async-storage'
 
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import config from '@app/config/config'
@@ -80,16 +80,12 @@ class SettingsMainScreen extends PureComponent {
             const { lockScreenStatus } = this.props.settingsData
 
             if (+lockScreenStatus) {
-                lockScreenAction.setFlowType({
-                    flowType: 'DELETE_PINCODE'
-                })
+                setLockScreenConfig({flowType : LockScreenFlowTypes.DELETE_PINCODE})
                 NavStore.goNext('LockScreen')
             } else {
                 const isAllWalletBackUp = this.isAllWalletBackUp()
                 if (isAllWalletBackUp) {
-                    lockScreenAction.setFlowType({
-                        flowType: 'CREATE_PINCODE'
-                    })
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.CREATE_PINCODE})
                     NavStore.goNext('LockScreen')
                 } else {
                     showModal({
@@ -123,23 +119,17 @@ class SettingsMainScreen extends PureComponent {
     }
 
     handleChangeTouchIDStatus = () => {
-        lockScreenAction.setFlowType({
-            flowType: 'CHANGE_TOUCHID_STATUS'
-        })
+        setLockScreenConfig({flowType : LockScreenFlowTypes.CHANGE_TOUCHID_STATUS})
         NavStore.goNext('LockScreen')
     }
 
     changeAskWhenSending = () => {
-        lockScreenAction.setFlowType({
-            flowType: 'CHANGE_ASKING_STATUS'
-        })
+        setLockScreenConfig({flowType : LockScreenFlowTypes.CHANGE_ASKING_STATUS})
         NavStore.goNext('LockScreen')
     }
 
     handleChangePassword = () => {
-        lockScreenAction.setFlowType({
-            flowType: 'CHANGE_PASSWORD_FIRST_STEP'
-        })
+        setLockScreenConfig({flowType : LockScreenFlowTypes.CHANGE_PINCODE_FIRST_STEP})
         NavStore.goNext('LockScreen')
     }
 

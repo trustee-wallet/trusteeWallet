@@ -29,7 +29,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 
 const VISIBILITY_TIMEOUT = 4000
@@ -132,8 +132,7 @@ class BackupStep1Screen extends React.PureComponent {
             }, (needPassword = true) => {
                 const { lockScreenStatus } = this.props.settingsData
                 if (needPassword && +lockScreenStatus) {
-                    lockScreenAction.setFlowType({ flowType: 'CONFIRM_WALLET_PHRASE' })
-                    lockScreenAction.setActionCallback({ actionCallback: this.confirmDeleteWallet })
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : this.confirmDeleteWallet})
                     NavStore.goNext('LockScreen')
                     return
                 }
