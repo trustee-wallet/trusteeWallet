@@ -347,9 +347,9 @@ class InputAndButtons extends PureComponent {
         const lastScan = this.props.sendScreenStoreDict.currencyRateScanTime
         const timeNow = new Date().getTime()
         const diffTime = Math.round((timeNow - lastScan) / 60000)
-
+        
         let diffTimeText = ''
-        if (diffTime > 2) {
+        if (diffTime > 2 && this.props.sendScreenStoreDict.basicCurrencyRate) {
             diffTimeText = strings('account.minutesAgo', {time : diffTime})
         }
 
