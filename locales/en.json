@@ -803,7 +803,7 @@
     "addressError": "The recipient’s address is incorrect, please, check it",
     "notValidAmount": "Please, input amount",
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
-    "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
+    "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}. Click for more info ",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
     "domainResolution": {

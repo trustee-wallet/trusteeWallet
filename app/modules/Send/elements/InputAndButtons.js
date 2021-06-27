@@ -2,12 +2,12 @@
  * @version 0.41
  */
 import React, { PureComponent } from 'react'
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, Dimensions, StyleSheet, Linking } from 'react-native'
 import { connect } from 'react-redux'
 
 import { HIT_SLOP } from '@app/themes/HitSlop'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { strings } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
 import InputAndButtonsInput from '@app/modules/Send/elements/InputAndButtonsInput'
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
@@ -207,7 +207,7 @@ class InputAndButtons extends PureComponent {
             this.setState({
                 enoughFunds: {
                     isAvailable: true,
-                    messages: ''
+                    messages: false
                 }
             })
         }
@@ -222,22 +222,22 @@ class InputAndButtons extends PureComponent {
         const { balanceTotalPretty, balanceRaw, currencyCode, walletHash, addressFrom } = this.props.sendScreenStoreDict
 
         if (this.state.isCountingTransferAll) {
-            return 'Loading...'
+            return { msg: 'Loading...' }
         }
 
         if (balanceTotalPretty <= 0) {
-            return strings('send.notEnough')
+            return { msg: strings('send.notEnough') }
         }
 
         if (typeof this.valueInput.state === 'undefined' || this.valueInput.state.value === '' || this.valueInput.state.value === '0') {
-            return strings('send.notValidAmount')
+            return { msg: strings('send.notValidAmount') }
         }
 
         if (this.state.cryptoValue === '000000000' || this.state.cryptoValue === 0) {
             if (this.state.inputType === 'CRYPTO') {
-                return strings('send.notValidAmount')
+                return { msg: strings('send.notValidAmount') }
             } else {
-                return strings('send.notValidAmountInFiat')
+                return { msg: strings('send.notValidAmountInFiat') }
             }
         }
 
@@ -247,6 +247,7 @@ class InputAndButtons extends PureComponent {
             const parentCurrency = await DaemonCache.getCacheAccount(walletHash, extend.feesCurrencyCode)
             if (parentCurrency) {
                 let msg = false
+                let msgDetails = false
                 const parentBalance = parentCurrency.balance * 1
                 let symbol = ''
                 if (extend.feesCurrencyCode === 'BNB_SMART') {
@@ -268,13 +269,15 @@ class InputAndButtons extends PureComponent {
                     } else {
                         msg = strings('send.notEnoughForFee', { symbol })
                     }
+                    const sub = sublocale()
+                    msgDetails = 'https://blog.trusteeglobal.com/' + sub + '/nativnye-monety-chto-eto/'
                 }
                 if (msg) {
                     Log.log('Send.SendScreen.handleSendTransaction ' + currencyCode + ' from ' + addressFrom + ' parentBalance ' + extend.feesCurrencyCode + ' ' + symbol + ' not ok ' + parentBalance, parentCurrency)
                     if (config.debug.appErrors) {
                         console.log('Send.SendScreen.handleSendTransaction ' + currencyCode + ' from ' + addressFrom + ' parentBalance ' + extend.feesCurrencyCode + ' ' + symbol + ' not ok ' + parentBalance, parentCurrency)
                     }
-                    return msg
+                    return { msg, msgDetails }
                 }
             }
         }
@@ -288,6 +291,20 @@ class InputAndButtons extends PureComponent {
             return strings('send.notEnough')
         }
         return false
+    }
+
+    handleOpenLink = async (actualLink) => {
+        if (typeof actualLink === 'undefined' || !actualLink) return false
+        try {
+            let linkUrl = actualLink
+            if (linkUrl.indexOf('?') === -1) {
+                linkUrl += '?from=trustee'
+            }
+            Linking.openURL(linkUrl)
+        } catch (e) {
+            Log.err('InputAndButtons open URI error ' + e.message + ' ' + actualLink)
+        }
+
     }
 
     renderEnoughFundsError = () => {
@@ -304,16 +321,18 @@ class InputAndButtons extends PureComponent {
                         return (
                             <View key={index} style={style.texts}>
                                 <View style={style.texts__icon}>
-                                    <Icon
-                                        name='information-outline'
-                                        size={22}
-                                        color='#864DD9'
-                                    />
+                                    <TouchableOpacity onPress={() => this.handleOpenLink(item.msgDetails)}>
+                                        <Icon
+                                            name='information-outline'
+                                            size={22}
+                                            color='#864DD9'
+                                        />
+                                    </TouchableOpacity>
                                 </View>
                                 <View>
-                                    <TouchableOpacity delayLongPress={500} onLongPress={() => this.handleOkForce()}>
+                                    <TouchableOpacity onPress={() => this.handleOpenLink(item.msgDetails)}>
                                         <Text style={{ ...style.texts__item, color: colors.common.text3 }}>
-                                            {item}
+                                            {item.msg}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
@@ -347,10 +366,10 @@ class InputAndButtons extends PureComponent {
         const lastScan = this.props.sendScreenStoreDict.currencyRateScanTime
         const timeNow = new Date().getTime()
         const diffTime = Math.round((timeNow - lastScan) / 60000)
-        
+
         let diffTimeText = ''
         if (diffTime > 2 && this.props.sendScreenStoreDict.basicCurrencyRate) {
-            diffTimeText = strings('account.minutesAgo', {time : diffTime})
+            diffTimeText = strings('account.minutesAgo', { time: diffTime })
         }
 
         const notEquivalentValue = `~ ${equivalentValue} ${inputType !== 'CRYPTO' ? currencySymbol : basicCurrencyCode} ${diffTimeText} `
@@ -387,13 +406,13 @@ class InputAndButtons extends PureComponent {
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <View style={{ ...style.line, backgroundColor: colors.sendScreen.colorLine }} />
                     <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
-                        onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP}>
+                                      onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP}>
                         <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <LetterSpacing text={this.state.isCountingTransferAll ? 'Loading...' : notEquivalentValue} textStyle={{ ...style.notEquivalentValue, color: '#999999' }}
-                        letterSpacing={1.5} />
+                                   letterSpacing={1.5} />
                 </View>
                 {balanceTotalPretty > 0 && (
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: GRID_SIZE }}>
