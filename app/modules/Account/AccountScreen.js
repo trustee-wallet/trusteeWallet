@@ -441,6 +441,8 @@ class Account extends React.PureComponent {
                 <Header
                     leftType="back"
                     leftAction={this.closeAction}
+                    rightType="close"
+                    rightAction={this.closeAction}
                     title={this.getPrettyCurrencyName(selectedCryptoCurrencyData.currencyCode, selectedCryptoCurrencyData.currencyName)}
                     ExtraView={() => (
                         <BalanceHeader

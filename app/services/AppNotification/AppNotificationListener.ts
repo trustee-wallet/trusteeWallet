@@ -319,6 +319,8 @@ export default new class AppNotificationListener {
                             await Log.log('PUSH _onMessage startMessage after lock screen', unifiedPush)
                             if (await AppNewsActions.onOpen(unifiedPush, '', '', false)) {
                                 NavStore.reset('NotificationsScreen')
+                            }  else {
+                                NavStore.reset('TabBar')
                             }
                     }})
 

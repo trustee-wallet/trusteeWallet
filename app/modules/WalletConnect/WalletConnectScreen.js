@@ -341,13 +341,15 @@ class WalletConnectScreen extends PureComponent {
     qrPermissionCallback = () => {
         Log.log('Settings qrPermissionCallback started')
         setQRConfig({ flowType: QRCodeScannerFlowTypes.MAIN_SCANNER, callback : (data) => {
-            try {
-                this._setLink(data.fullLink)
-            } catch (e) {
-                Log.log('QRCodeScannerScreen callback error ' + e.message)
-                Toast.setMessage(e.message).show()
-            }
             NavStore.goBack()
+            setTimeout(() => {
+                    try {
+                        this._setLink(data.fullLink)
+                    } catch (e) {
+                        Log.log('QRCodeScannerScreen callback error ' + e.message)
+                        Toast.setMessage(e.message).show()
+                    }
+            }, 500)
         }})
         NavStore.goNext('QRCodeScannerScreen')
     }

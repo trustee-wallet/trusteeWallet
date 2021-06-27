@@ -40,7 +40,8 @@ class AccountSettingScreen extends React.PureComponent {
     }
 
     handleClose = () => {
-        NavStore.reset('HomeScreen')
+        NavStore.goBack()
+        NavStore.goBack()
     }
 
     render() {

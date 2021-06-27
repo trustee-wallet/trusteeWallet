@@ -6,6 +6,7 @@ import store from '@app/store'
 const { dispatch } = store
 
 export const LockScreenFlowTypes = {
+    INIT_POPUP : 'INIT_POPUP',
     PUSH_POPUP_CALLBACK : 'PUSH_POPUP_CALLBACK',
     JUST_CALLBACK : 'JUST_CALLBACK',
     CREATE_PINCODE : 'CREATE_PINCODE',

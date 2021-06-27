@@ -62,7 +62,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         if (callback) {
             await callback(res.data.walletConnect)
         } else {
-            NavStore.goNext('WalletConnectScreen', { walletConnect: res.data.walletConnect })
+            NavStore.reset('WalletConnectScreen', { walletConnect: res.data.walletConnect })
         }
     } else if (flowType === QRCodeScannerFlowTypes.ADD_CUSTOM_TOKEN_SCANNER) {
         if (callback) {

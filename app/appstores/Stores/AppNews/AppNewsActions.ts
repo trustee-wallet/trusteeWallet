@@ -39,6 +39,8 @@ export namespace AppNewsActions {
                     await Log.log('ACT/AppNewsActions onOpen after lock screen')
                     if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
                         NavStore.reset('NotificationsScreen')
+                    }  else {
+                        NavStore.reset('TabBar')
                     }
                 }})
                 NavStore.reset('LockScreenPop')
