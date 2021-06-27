@@ -15,11 +15,11 @@ export default {
                 let i = 0
                 let doBack = false
                 do {
+                    i++
                     const current = currentRoute()
                     if (current.name !== 'HomeScreen' && current.name !== 'HomeScreenPop') {
                         if (canGoBack()) {
                             goBack()
-                            i++
                             doBack = true
                         }
                     } else {

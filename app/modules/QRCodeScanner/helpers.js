@@ -18,6 +18,7 @@ import store from '@app/store'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 import { QRCodeScannerFlowTypes } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import Toast from '@app/services/UI/Toast/Toast'
 
 
 export const finishProcess = async (param, qrCodeScannerConfig) => {
@@ -59,8 +60,11 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
     const res = await decodeTransactionQrCode(param, currencyCode)
 
     if (typeof res.data.isWalletConnect !== 'undefined' && res.data.isWalletConnect) {
-        if (callback) {
-            await callback(res.data.walletConnect)
+        if (flowType === QRCodeScannerFlowTypes.WALLET_CONNECT_SCANNER && callback) {
+            NavStore.goBack()
+            setTimeout(() => {
+                callback(res.data.walletConnect)
+            }, 500)
         } else {
             NavStore.reset('WalletConnectScreen', { walletConnect: res.data.walletConnect })
         }
