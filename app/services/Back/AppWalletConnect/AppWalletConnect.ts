@@ -18,7 +18,10 @@ import { signTypedData_v4 } from 'eth-sig-util'
 
 import store from '@app/store'
 import config from '@app/config/config'
-import { setWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import {
+    setWalletConnectData,
+    setWalletConnectIsConnected
+} from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 
@@ -165,6 +168,7 @@ export namespace AppWalletConnect {
                 throw error
             }
             setWalletConnectIsConnected(WALLET_CONNECTOR.session.connected)
+            setWalletConnectData(WALLET_CONNECTOR_LINK)
         })
 
         WALLET_CONNECTOR.on('call_request', (error, payload) => {

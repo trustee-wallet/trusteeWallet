@@ -1,9 +1,10 @@
 /**
- * @version 0.43
+ * @version 0.45
  */
 
  const INITIAL_STATE = {
-    isConnected: false
+    isConnected: false,
+    fullLink: false
 }
 
 const walletConnectStoreReducer = (state = INITIAL_STATE, action) => {
@@ -11,7 +12,12 @@ const walletConnectStoreReducer = (state = INITIAL_STATE, action) => {
         case 'SET_WALLET_CONNECT_IS_CONNECTED':
             return {
                 ...state,
-                isConnected: action.isConnected
+                isConnected: action.isConnected,
+            }
+        case 'SET_WALLET_CONNECT_DATA':
+            return {
+                ... state,
+                fullLink : action.fullLink || false
             }
         default:
             return state

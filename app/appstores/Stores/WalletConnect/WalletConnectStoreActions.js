@@ -1,10 +1,9 @@
 /**
- * @version 0.43
+ * @version 0.45
  */
 import store from '@app/store'
 
 const { dispatch } = store
-
 
 export function setWalletConnectIsConnected(isConnected) {
     const oldData = store.getState().walletConnectStore.isConnected
@@ -14,5 +13,15 @@ export function setWalletConnectIsConnected(isConnected) {
     return dispatch({
         type: 'SET_WALLET_CONNECT_IS_CONNECTED',
         isConnected
+    })
+}
+export function setWalletConnectData(fullLink) {
+    const oldData = store.getState().walletConnectStore.fullLink
+    if (oldData === fullLink){
+        return false
+    }
+    return dispatch({
+        type : 'SET_WALLET_CONNECT_DATA',
+        fullLink
     })
 }

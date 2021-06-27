@@ -33,6 +33,7 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import Toast from '@app/services/UI/Toast/Toast'
 import { connect } from 'react-redux'
+import { getWalletConnectData } from '@app/appstores/Stores/WalletConnect/selectors'
 
 
 class WalletConnectScreen extends PureComponent {
@@ -52,56 +53,33 @@ class WalletConnectScreen extends PureComponent {
             peerStatus: false,
             accounts: [],
             transactions: [],
-            fullLink: '',
-            qrFullLink: '',
+            inputFullLink: '',
             noMoreLock : false
         }
         this.linkInput = React.createRef()
     }
 
     componentDidMount() {
-        const data = NavStore.getParamWrapper(this, 'walletConnect')
-        if (data && typeof data.fullLink !== 'undefined' && data.fullLink) {
-            this._setLink(data.fullLink)
-        } else {
-            this._init(false)
-        }
+        this._setLink(this.props.walletConnectData.fullLink)
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        const data = NavStore.getParamWrapper(this, 'walletConnect')
-        if (data && typeof data.fullLink !== 'undefined' && data.fullLink && data.fullLink !== this.state.qrFullLink) {
-            this._setLink(data.fullLink)
-        }
-    }
-
-    _setLink(fullLink, checkLock = true) {
-        if (!fullLink || fullLink === '') {
+    _setLink(fullLink) {
+        if (!fullLink || fullLink === '' || fullLink === this.state.inputFullLink) {
             return false
         }
-        if (checkLock && !this.state.noMoreLock) {
-            if (this.props.lockScreenStatus * 1 > 0) {
-                setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback : async () => {
-                    this._setLink(fullLink, false)
-                }})
-                NavStore.goNext('LockScreen')
-                return false
-            }
+        if (this.linkInput) {
+            this.setState({
+                inputFullLink : fullLink
+            })
+            this.linkInput.handleInput(fullLink, false)
+            setTimeout(() => {
+                this.handleApplyLink(true)
+            }, 500)
         }
-        this.setState({
-            fullLink: fullLink,
-            qrFullLink: fullLink,
-            noMoreLock: checkLock === false
-        }, () => {
-            this._init({ fullLink: fullLink })
-            if (this.linkInput) {
-                this.linkInput.handleInput(fullLink, false)
-            }
-        })
     }
 
     async _init(anyData) {
-        Log.log('WalletConnectScreen.init stateLink ' + this.state.fullLink, anyData)
+        Log.log('WalletConnectScreen.init props ' + this.props.walletConnectData.fullLink + ' stateLink ' + this.state.inputFullLink, anyData)
         try {
             const clientData = await AppWalletConnect.init(anyData,
                 this.handleSessionRequest,
@@ -138,20 +116,22 @@ class WalletConnectScreen extends PureComponent {
 
     async handleApplyLink(checkLock = true) {
         try {
-            const { fullLink } = this.state
-            if (!fullLink || fullLink === '') {
+            const { inputFullLink } = this.state
+            if (!inputFullLink || inputFullLink=== '') {
                 return false
             }
             if (checkLock && !this.state.noMoreLock) {
                 if (this.props.lockScreenStatus * 1 > 0) {
                     setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback : async () => {
-                        await this._init({ fullLink: fullLink })
+                        this.setState({noMoreLock : true}, () => {
+                            this._init({ fullLink: inputFullLink })
+                        })
                     }})
                     NavStore.goNext('LockScreen')
                     return false
                 }
             }
-            await this._init({ fullLink: fullLink })
+            await this._init({ fullLink: inputFullLink })
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('WalletConnect.handleApplyLink error ', e)
@@ -366,7 +346,7 @@ class WalletConnectScreen extends PureComponent {
     }
 
     handleChangeFullLink = (value) => {
-        this.setState(() => ({ fullLink: value.trim() }))
+        this.setState(() => ({ inputFullLink: value.trim() }))
     }
 
     render() {
@@ -516,7 +496,8 @@ class WalletConnectScreen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        lockScreenStatus: getLockScreenStatus(state)
+        lockScreenStatus: getLockScreenStatus(state),
+        walletConnectData : getWalletConnectData(state)
     }
 }
 

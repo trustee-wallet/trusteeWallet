@@ -19,6 +19,7 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 import { QRCodeScannerFlowTypes } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import Toast from '@app/services/UI/Toast/Toast'
+import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 
 export const finishProcess = async (param, qrCodeScannerConfig) => {
@@ -66,7 +67,11 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
                 callback(res.data.walletConnect)
             }, 500)
         } else {
-            NavStore.reset('WalletConnectScreen', { walletConnect: res.data.walletConnect })
+            NavStore.goBack()
+            setTimeout(() => {
+                setWalletConnectData(res.data.walletConnect.fullLink)
+                NavStore.goNext('WalletConnectScreen')
+            }, 100)
         }
     } else if (flowType === QRCodeScannerFlowTypes.ADD_CUSTOM_TOKEN_SCANNER) {
         if (callback) {
