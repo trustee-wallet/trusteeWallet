@@ -964,7 +964,10 @@
     "step0Screen": {
       "info": "აღმდგენი ფრაზა - ეს არის თქვენი აქტივების ერთადერთი საიდუმლო გასაღები. შეინახეთ ის სანდო ადგილას!",
       "showButton": "სანახავად დააჭირეთ ღილაკს და შეინარჩუნეთ ასეთ მდგომარეობაში",
-      "next": "შემდეგი"
+      "next": "შემდეგი",
+      "showQR" : "Get QR for import to another device",
+      "hideQR" : "Get words for backup",
+      "infoQR": "QR code reveal recovery phrase. Please dont send it to other people and dont store in Gallery!"
     },
     "step1Screen": {
       "title": "დადასტურება",

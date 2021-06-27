@@ -63,17 +63,9 @@ class AdvancedWalletScreen extends PureComponent {
         }
     }
 
-    handleOpenRecoveryPhrase = (needPassword = true) => {
+    handleOpenRecoveryPhrase = () => {
         const { walletHash, walletNumber } = this.props.selectedWalletData
         setFlowType({ flowType: 'BACKUP_WALLET', walletHash, walletNumber, source: 'AdvancedWalletScreen' })
-        setLoaderStatus(false)
-
-        const { lockScreenStatus } = this.props.settingsData
-        if (needPassword && +lockScreenStatus) {
-            setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : this.handleOpenRecoveryPhrase })
-            NavStore.goNext('LockScreen')
-            return
-        }
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'show' })
     }
 
