@@ -27,3 +27,11 @@ export function setLockScreenConfig(data) {
     })
 }
 
+export function resetLockScreen() {
+    dispatch({
+        type: 'SET_LOCK_SCREEN_CONFIG',
+        flowType : false,
+        callback : false
+    })
+}
+

@@ -17,7 +17,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import Log from '@app/services/Log/Log'
-import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { LockScreenFlowTypes, resetLockScreen, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 const TIME_DIFF = 300000
 
@@ -76,6 +76,7 @@ class AppLockScreenIdleTime {
 
             UpdateOneByOneDaemon.stop()
             UpdateAccountListDaemon.stop()
+            resetLockScreen()
 
             initFunction(() => {
                 const { lockScreenStatus } = store.getState().settingsStore.keystore
@@ -110,11 +111,12 @@ class AppLockScreenIdleTime {
                     this._backgroundTime = 0
                     this._isBlur = false
                     setBlurStatus(false)
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.INIT_POPUP})
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.INIT_POPUP, callback : false})
                     NavStore.reset('LockScreenPop')
                     return true
                 }
             }
+            resetLockScreen()
             MarketingEvent.UI_DATA.IS_ACTIVE = true
             this._backgroundTime = 0
 

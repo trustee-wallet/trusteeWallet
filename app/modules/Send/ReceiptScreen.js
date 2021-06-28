@@ -99,7 +99,10 @@ class ReceiptScreen extends PureComponent {
             && typeof keystore.lockScreenStatus !== 'undefined' && +keystore.lockScreenStatus
         ) {
             if (passwordCheck) {
-                setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback: this.handleSend })
+                setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback: async () => {
+                    Log.log('ReceiptScreen.handleSend callback called', uiErrorConfirmed)
+                    await this.handleSend(false, uiErrorConfirmed)
+                }})
                 NavStore.goNext('LockScreen')
                 return
             }
@@ -319,7 +322,7 @@ class ReceiptScreen extends PureComponent {
                     </View>
                     <TwoButtons
                         mainButton={{
-                            onPress: this.handleSend,
+                            onPress: () => this.handleSend(true, false),
                             title: strings(rawOnly ? 'send.receiptScreen.build' : 'send.receiptScreen.send'),
                             sendInProcess
                         }}
