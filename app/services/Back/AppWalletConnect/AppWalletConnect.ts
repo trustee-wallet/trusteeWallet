@@ -49,9 +49,9 @@ let WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
 let MAIN_CURRENCY_CODE = 'ETH'
 export namespace AppWalletConnect {
 
-    const _getAccount = async function() {
+    const _getAccounts = async function() {
         const { walletHash } = store.getState().mainStore.selectedWallet
-        const { chainId } = WALLET_CONNECTOR
+        const { chainId, peerMeta}  = WALLET_CONNECTOR
         const accountList = store.getState().accountStore.accountList
         if (!accountList || typeof accountList[walletHash] === 'undefined') {
             return false
@@ -76,7 +76,11 @@ export namespace AppWalletConnect {
             throw new Error('TURN ON ' + MAIN_CURRENCY_CODE)
         }
         const account = accountList[walletHash][MAIN_CURRENCY_CODE]
-        return account
+        if (peerMeta.description === "TrusteeConnect4Tron") {
+            return [accountList[walletHash]['TRX'], account]
+        } else {
+            return [account]
+        }
     }
 
     export const init = async function(
@@ -216,7 +220,8 @@ export namespace AppWalletConnect {
     export const approveRequest = async function(data: ITxData, payload: any) {
         try {
             Log.log('AppWalletConnect.approveRequest', data, payload)
-            const account = await _getAccount()
+            const accounts = await _getAccounts()
+            const account = accounts[0]
             const discoverFor = {
                 addressToCheck: data.from,
                 derivationPath: account.derivationPath,
@@ -303,7 +308,8 @@ export namespace AppWalletConnect {
     export const approveSignTyped = async function(data: any, payload: any) {
         try {
             Log.log('AppWalletConnect.approveSignTyped2', data, payload)
-            const account = await _getAccount()
+            const accounts = await _getAccounts()
+            const account = accounts[0]
             const discoverFor = {
                 addressToCheck: account.address,
                 derivationPath: account.derivationPath,
@@ -353,12 +359,15 @@ export namespace AppWalletConnect {
         Log.log('AppWalletConnect.approveSession', payload)
         BlocksoftCryptoLog.log('AppWalletConnect.approveSession', payload)
         const { chainId } = payload
-        const account = await _getAccount()
+        const accounts = await _getAccounts()
+        const account = accounts[0]
+        const tmp = []
+        for (const account of accounts) {
+            tmp.push(account.address)
+        }
         try {
             const data = {
-                accounts: [
-                    account.address
-                ],
+                accounts: tmp,
                 chainId: chainId && chainId > 0 ? chainId : 1
             }
             await WALLET_CONNECTOR.approveSession(data)

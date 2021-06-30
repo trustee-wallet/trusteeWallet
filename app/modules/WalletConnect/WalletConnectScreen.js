@@ -74,7 +74,7 @@ class WalletConnectScreen extends PureComponent {
             this.linkInput.handleInput(fullLink, false)
             setTimeout(() => {
                 this.handleApplyLink(true)
-            }, 500)
+            }, 2000)
         }
     }
 
