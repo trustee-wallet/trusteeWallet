@@ -18,14 +18,14 @@ import changeableTester from '@app/config/changeable.tester'
 
 import DeviceInfo from 'react-native-device-info'
 import appsFlyer from 'react-native-appsflyer'
-
+import idents from '@app/config/idents'
 
 let CACHE_TG_INITED = false
 let CACHE_BALANCE = {}
 let CACHE_APP_FLYER_ERROR = 0
 const CACHE_APP_FLYER_ERROR_TIME = 120000
 
-const ASYNC_CACHE_TITLE = 'pushTokenV2'
+
 
 class MarketingEvent {
     DATA = {
@@ -54,7 +54,7 @@ class MarketingEvent {
         this.TG = new BlocksoftTg(changeableProd.tg.info.spamBot)
 
         if (testerMode === false) {
-            testerMode = await AsyncStorage.getItem('testerMode')
+            testerMode = await AsyncStorage.getItem(idents.TESTER_MODE)
         }
         this.UI_DATA.IS_TESTER = testerMode
 
@@ -72,7 +72,7 @@ class MarketingEvent {
         this.DATA.LOG_DEV = !(this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER COMMIT_SHORT_SHA_PLACEHOLDER') === -1) ? 'TRUE' : false
         this.DATA.LOG_TESTER = changeable.tg.info.isTester ? 'TRUE' : false
         this.DATA.LOG_PLATFORM = Platform.OS + ' v' + Platform.Version
-        this.DATA.LOG_TOKEN = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
+        this.DATA.LOG_TOKEN = await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN)
 
         this.DATA.LOG_MODEL = ''
         try {
@@ -101,7 +101,7 @@ class MarketingEvent {
 
         // after this is a little bit long soooo we will pass variables any time we could
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
-        let tmp = await AsyncStorage.getItem('CACHE_BALANCE')
+        let tmp = await AsyncStorage.getItem(idents.EVENT_CACHE_BALANCE)
         if (tmp) {
             try {
                 tmp = JSON.parse(tmp)
@@ -237,7 +237,7 @@ class MarketingEvent {
             if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                 // already done
             } else {
-                this.DATA.LOG_TOKEN = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
+                this.DATA.LOG_TOKEN = await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN)
                 if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                     await this._reinitTgMessage()
                 }
@@ -299,12 +299,12 @@ class MarketingEvent {
         if (CACHE_BALANCE[cacheTitle] === -1) {
             sendEvent = true
             CACHE_BALANCE[cacheTitle] = totalBalance
-            await AsyncStorage.setItem('CACHE_BALANCE', JSON.stringify(CACHE_BALANCE))
+            await AsyncStorage.setItem(idents.EVENT_CACHE_BALANCE, JSON.stringify(CACHE_BALANCE))
 
         } else if (CACHE_BALANCE[cacheTitle] !== totalBalance) {
             sendEvent = true
             CACHE_BALANCE[cacheTitle] = totalBalance
-            await AsyncStorage.setItem('CACHE_BALANCE', JSON.stringify(CACHE_BALANCE))
+            await AsyncStorage.setItem(idents.EVENT_CACHE_BALANCE, JSON.stringify(CACHE_BALANCE))
         } else {
             // do nothing
         }

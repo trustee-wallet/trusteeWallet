@@ -18,7 +18,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import AsyncStorage from '@react-native-community/async-storage'
 import config from '@app/config/config'
-
+import idents from '@app/config/idents'
 class AddWalletScreen extends PureComponent {
 
     constructor() {
@@ -30,7 +30,7 @@ class AddWalletScreen extends PureComponent {
 
     // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
-        const devMode = await AsyncStorage.getItem('devMode')
+        const devMode = await AsyncStorage.getItem(idents.DEV_MODE)
         if (devMode && devMode.toString() === '1') {
             config.devMode = true
         }

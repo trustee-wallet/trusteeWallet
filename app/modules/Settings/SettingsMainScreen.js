@@ -37,6 +37,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
+import idents from '@app/config/idents'
 
 class SettingsMainScreen extends PureComponent {
     constructor() {
@@ -50,8 +51,8 @@ class SettingsMainScreen extends PureComponent {
 
     // eslint-disable-next-line camelcase
     async UNSAFE_componentWillMount() {
-        const devMode = await AsyncStorage.getItem('devMode')
-        const testerMode = await AsyncStorage.getItem('testerMode')
+        const devMode = await AsyncStorage.getItem(idents.DEV_MODE)
+        const testerMode = await AsyncStorage.getItem(idents.TESTER_MODE)
 
         if (devMode && devMode.toString() === '1') {
             config.devMode = true
@@ -163,7 +164,7 @@ class SettingsMainScreen extends PureComponent {
 
 
     handleToggleTester = async () => {
-        let testerMode = await AsyncStorage.getItem('testerMode')
+        let testerMode = await AsyncStorage.getItem(idents.TESTER_MODE)
 
         if (testerMode === 'TESTER') {
             testerMode = 'USER'
@@ -173,7 +174,7 @@ class SettingsMainScreen extends PureComponent {
             MarketingEvent.initMarketing(testerMode)
         }
 
-        await AsyncStorage.setItem('testerMode', testerMode)
+        await AsyncStorage.setItem(idents.TESTER_MODE, testerMode)
 
         Toast.setMessage(strings('settings.tester', { testerMode })).show()
 
@@ -194,7 +195,7 @@ class SettingsMainScreen extends PureComponent {
 
             Toast.setMessage('DEV MODE OFF').show()
 
-            await AsyncStorage.setItem('devMode', '0')
+            await AsyncStorage.setItem(idents.DEV_MODE, '0')
         } else {
             config.devMode = true
 
@@ -205,7 +206,7 @@ class SettingsMainScreen extends PureComponent {
 
             Toast.setMessage('DEV MODE').show()
 
-            await AsyncStorage.setItem('devMode', '1')
+            await AsyncStorage.setItem(idents.DEV_MODE, '1')
         }
 
         await AppNotificationListener.updateSubscriptions()

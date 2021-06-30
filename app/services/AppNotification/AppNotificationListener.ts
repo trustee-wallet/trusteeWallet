@@ -9,6 +9,7 @@ import { sublocale } from '../i18n'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import config from '../../config/config'
+import idents from '@app/config/idents'
 
 import NavStore from '../../components/navigation/NavStore'
 import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
@@ -20,9 +21,7 @@ import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeysto
 import { Platform } from 'react-native'
 import { setLockScreenConfig, LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
-const ASYNC_CACHE_TITLE = 'pushTokenV2'
-const ASYNC_CACHE_TIME = 'pushTokenTime'
-const ASYNC_ALL_CACHE = 'allPushTokens'
+
 const CACHE_VALID_TIME = 120000000 // 2000 minute
 
 
@@ -180,7 +179,7 @@ export default new class AppNotificationListener {
         const notifsStatus = settings && typeof settings.notifsStatus !== 'undefined' && settings.notifsStatus ? settings.notifsStatus : '1'
         const locale = settings && typeof settings.language !== 'undefined' && settings.language ? sublocale(settings.language) : sublocale()
         Log.log('settings ' + settings.language + ' locale ' + locale)
-        const devMode = await AsyncStorage.getItem('devMode')
+        const devMode = await AsyncStorage.getItem(idents.DEV_MODE)
         const isDev = devMode && devMode.toString() === '1'
 
 
@@ -224,9 +223,9 @@ export default new class AppNotificationListener {
     }
 
     async getToken(): Promise<string | null> {
-        let fcmToken: string | null = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
+        let fcmToken: string | null = await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN)
         // @ts-ignore
-        let time: number = 1 * (await AsyncStorage.getItem(ASYNC_CACHE_TIME))
+        let time: number = 1 * (await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN_TIME))
 
         const now = new Date().getTime()
         if (time && fcmToken) {
@@ -278,7 +277,7 @@ export default new class AppNotificationListener {
 
                 await Log.log('PUSH getToken subscribed token ' + fcmToken)
                 await this._onRefresh(fcmToken)
-                await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
+                await AsyncStorage.setItem(idents.FCM_CACHE_TOKEN_TIME, now + '')
             } else {
                 // Log.log('PUSH getToken1 cache result ', fcmToken)
             }
@@ -367,8 +366,8 @@ export default new class AppNotificationListener {
 
     _onRefresh = async (fcmToken: string): Promise<void> => {
         if (!fcmToken) return
-        await AsyncStorage.setItem(ASYNC_CACHE_TITLE, fcmToken)
-        let tmp = await AsyncStorage.getItem(ASYNC_ALL_CACHE)
+        await AsyncStorage.setItem(idents.FCM_CACHE_TOKEN, fcmToken)
+        let tmp = await AsyncStorage.getItem(idents.FCM_ALL_CACHE_TOKENS)
         let all = {}
         try {
             if (tmp != null) {
@@ -381,7 +380,7 @@ export default new class AppNotificationListener {
         // @ts-ignore
         all[fcmToken] = '1'
         Log.log('PUSH _onRefreshAll ', all)
-        await AsyncStorage.setItem(ASYNC_ALL_CACHE, JSON.stringify(all))
+        await AsyncStorage.setItem(idents.FCM_ALL_CACHE_TOKENS, JSON.stringify(all))
     }
 
     createRefreshListener = async (): Promise<void> => {

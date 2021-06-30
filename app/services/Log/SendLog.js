@@ -11,11 +11,13 @@ import { zip } from 'react-native-zip-archive'
 import FilePermissions from '../FileSystem/FilePermissions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
+import idents from '@app/config/idents'
+
 class SendLog {
     async getAll(basicText = '') {
         let deviceToken = ''
         try {
-            deviceToken = await AsyncStorage.getItem('allPushTokens')
+            deviceToken = await AsyncStorage.getItem(idents.FCM_ALL_CACHE_TOKENS)
         } catch (e) {
             // do nothing
         }
