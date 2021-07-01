@@ -254,6 +254,22 @@ const Currencies = {
                 'https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
         },
+        TRX_USDC:
+            {
+                    currencyType: 'token',
+                    currencyName: 'USDC TRC20',
+                    currencyCode: 'TRX_USDC',
+                    currencySymbol: 'USDC',
+                    extendsProcessor: 'TRX_USDC',
+                    addressUiChecker: 'TRX',
+                    ratesCurrencyCode: 'USDC',
+                    network: 'trx',
+                    decimals: 6,
+                    tokenBlockchain: 'TRON',
+                    tokenName: 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
+                    currencyExplorerLink: 'https://tronscan.org/#/address/',
+                    currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
+            },
     ETH_PAX:
         {
             currencyType: 'token',
