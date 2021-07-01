@@ -18,6 +18,7 @@ import toolTipsReducer from './Stores/ToolTips/ToolTipsStore'
 import appNewsStoreReducer from './Stores/AppNews/AppNewsReducer'
 import sendScreenStoreReducer from './Stores/Send/SendScreenStore'
 import walletConnectStoreReducer from '@app/appstores/Stores/WalletConnect/WalletConnectStore'
+import streamSupportStoreReducer from '@app/appstores/Stores/StreamSupport/StreamSupportStore'
 
 export default combineReducers({
     mainStore: mainStoreReducer,
@@ -34,5 +35,6 @@ export default combineReducers({
     toolTipsStore: toolTipsReducer,
     appNewsStore : appNewsStoreReducer,
     sendScreenStore: sendScreenStoreReducer,
-    walletConnectStore : walletConnectStoreReducer
+    walletConnectStore : walletConnectStoreReducer,
+    streamSupportStore : streamSupportStoreReducer
 })

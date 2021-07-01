@@ -65,14 +65,16 @@ import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
 import NotificationsSettingScreen from '@app/modules/Settings/NotificationsScreen'
 import SupportScreen from '@app/modules/Support/index'
+import StreamSupportScreen from '@app/modules/Support/streamSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/modules/theme/ThemeProvider'
-import { strings, sublocale } from '@app/services/i18n'
+import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
+import MarketingEventSingleton from '@app/services/Marketing/MarketingEvent'
+
 
 const Stack = createStackNavigator()
 
@@ -96,6 +98,8 @@ const HomeStackScreen = () => {
         <HomeStack.Navigator initialRouteName='HomeScreenPop'>
             <HomeStack.Screen name='HomeScreen' component={HomeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='HomeScreenPop' component={HomeScreen} options={{ headerShown: false }} />
+
+            <HomeStack.Screen name='StreamSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -135,6 +139,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='FioAddresses' component={FioAddresses} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioMainSettings' component={FioMainSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioSettings' component={FioSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
         </HomeStack.Navigator>
     )
 }
@@ -223,10 +228,10 @@ const TabBar = () => {
                     )
                 }}
             />
-            {MarketingEvent.DATA.LOG_TESTER ? // here will be chat for testers
+            {MarketingEvent.DATA.LOG_TESTER ?
                 <Tab.Screen
                     name='SupportScreen'
-                    component={SupportScreen}
+                    component={StreamSupportScreen}
                     options={{
                         unmountOnBlur: true,
                         tabBarLabel: strings('dashboardStack.support'),

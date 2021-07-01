@@ -44,7 +44,7 @@ class MarketingEvent {
         IS_LIGHT: '?',
         IS_LOCKED: false,
         IS_ACTIVE: true,
-        IS_TESTER : false
+        IS_TESTER : false,
     }
 
     /**
@@ -70,7 +70,8 @@ class MarketingEvent {
         this.DATA = {}
         this.DATA.LOG_VERSION = changeable.tg.info.version
         this.DATA.LOG_DEV = !(this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER COMMIT_SHORT_SHA_PLACEHOLDER') === -1) ? 'TRUE' : false
-        this.DATA.LOG_TESTER = changeable.tg.info.isTester ? 'TRUE' : false
+        this.DATA.LOG_TESTER = testerMode === 'TESTER' ? 'TRUE' : false
+
         this.DATA.LOG_PLATFORM = Platform.OS + ' v' + Platform.Version
         this.DATA.LOG_TOKEN = await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN)
 
