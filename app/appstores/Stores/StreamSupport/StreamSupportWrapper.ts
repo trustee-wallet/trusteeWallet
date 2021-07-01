@@ -163,11 +163,11 @@ export namespace StreamSupportWrapper {
 
         WEB_SOCKET.onclose = (e) => {
             if (e.code.toString() === '1000') {
-                console.log('StreamSupport.on close to reload ' + e.code, e.reason)
-                initWS(data)
+                Log.log('StreamSupport.on close to reload ' + e.code, e.reason)
             } else {
-                console.log('StreamSupport.on close ' + e.code, e.reason)
+                Log.log('StreamSupport.on close ' + e.code, e.reason)
             }
+            initWS(data)
         }
     }
 
