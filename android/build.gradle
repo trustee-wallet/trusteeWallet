@@ -10,7 +10,6 @@ buildscript {
     }
     repositories {
         google()
-        jcenter()
         maven {
             url 'https://maven.fabric.io/public'
         }
@@ -40,7 +39,6 @@ allprojects {
         }
 
         google()
-        jcenter()
         maven { url 'https://jitpack.io' }
         mavenCentral()
     }
