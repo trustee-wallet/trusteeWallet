@@ -279,6 +279,8 @@
       "scannerSettings": "სკანირება",
       "scannerSubtitle": "ბალანსების განახლების სიხშირე",
       "scannerSubtitleSmall": "ბალანსების განახლების სიჩქარე",
+      "loggingSettings": "Logging",
+      "loggingSubtitle": "Log to local files",
       "faqSettings": "FAQ",
       "faqSubtitle": "Frequently asked questions",
       "toolTips": "მინიშნებები",
@@ -1376,6 +1378,15 @@
     },
     "lastScan": "თქვენი ბალანსების ასლები შენახულია:",
     "helper": "თქვენ შეგიძლიათ შეარჩიოთ სიხშირე დამოუკიდებლად"
+  },
+  "loggingSettings": {
+    "title": "Logging",
+    "codes": {
+      "none": "No logging",
+      "all": "To local files"
+    },
+    "clean" : "Clean all files",
+    "helper": "You can choose logging yourself"
   },
   "repeat": {
     "receive": "მიღება"

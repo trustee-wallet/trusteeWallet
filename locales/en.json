@@ -283,6 +283,8 @@
       "localCurrency": "Local currency",
       "scannerSettings": "Scanning",
       "scannerSubtitle": "Balance reload frequency",
+      "loggingSettings": "Logging",
+      "loggingSubtitle": "Log to local files",
       "scannerSubtitleSmall": "Balance reload speed",
       "faqSettings": "FAQ",
       "faqSubtitle": "Frequently asked questions",
@@ -1406,6 +1408,15 @@
     },
     "lastScan": "Your balances have scanned at:",
     "helper": "But you can choose frequency yourself"
+  },
+  "loggingSettings": {
+    "title": "Logging",
+    "codes": {
+      "none": "No logging",
+      "all": "To local files"
+    },
+    "clean" : "Clean all files",
+    "helper": "You can choose logging yourself"
   },
   "repeat": {
     "receive": "Receive"

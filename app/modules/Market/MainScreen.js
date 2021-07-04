@@ -868,13 +868,18 @@ class MarketScreen extends PureComponent {
                                 scalesPageToFit={false}
                                 scrollEnabled={false}
                                 style={{ flex: 1 }}
-                                renderError={(e) => {
-                                    Log.err('Market.MainScreen.render error ' + e)
+                                renderError={(e, errorCode) => {
+                                    Log.err('Market.MainScreen.render error ' + e + ' code ' + errorCode)
                                     this.modal()
                                     NavStore.reset('TabBar')
                                 }}
                                 onError={(e) => {
-                                    Log.err('Market.MainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.description)
+                                    const eMsg = e.nativeEvent.title + ' ' + e.nativeEvent.description
+                                    if (eMsg.indexOf('net::ERR_TUNNEL_CONNECTION_FAILED') === -1) {
+                                        Log.err('Market.MainScreen.on error ' + eMsg)
+                                    } else {
+                                        Log.log('Market.MainScreen.on error ' + eMsg)
+                                    }
                                     this.modal()
                                     NavStore.reset('TabBar')
                                 }}

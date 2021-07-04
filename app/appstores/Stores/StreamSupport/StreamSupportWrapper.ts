@@ -142,9 +142,7 @@ export namespace StreamSupportWrapper {
                 } else if (newData.msg === 'changed' && newData.collection === 'stream-room-messages') {
                     StreamSupportActions.addMessage( newData.fields.args[0])
                 } else {
-                    if (config.debug.appErrors) {
-                        console.log('StreamSupport.on message ', newData)
-                    }
+                    // console.log('StreamSupport.on message ', newData)
                 }
             } catch (e) {
                 if (config.debug.appErrors) {
@@ -163,9 +161,9 @@ export namespace StreamSupportWrapper {
 
         WEB_SOCKET.onclose = (e) => {
             if (e.code.toString() === '1000') {
-                Log.log('StreamSupport.on close to reload ' + e.code, e.reason)
+                Log.log('StreamSupport.on close to reload ' + e.code + ' ' + e.reason)
             } else {
-                Log.log('StreamSupport.on close ' + e.code, e.reason)
+                Log.log('StreamSupport.on close ' + e.code + ' ' + e.reason)
             }
             initWS(data)
         }

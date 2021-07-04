@@ -137,7 +137,6 @@ export class BlocksoftKeysStorage {
         if (this._serviceWasInited) {
             return true
         }
-        BlocksoftCryptoLog.log('BlocksoftKeysStorage init started')
 
         const count = await this._getKeyValue('wallets_counter')
 
@@ -146,7 +145,6 @@ export class BlocksoftKeysStorage {
         this.publicWallets = []
         this.publicSelectedWallet = false
         let firstWallet = false
-        BlocksoftCryptoLog.log('BlocksoftKeysStorage countMnemonics ' + this._serviceWalletsCounter)
         if (this._serviceWalletsCounter > 0) {
             for (let i = 1; i <= this._serviceWalletsCounter; i++) {
                 const wallet = await this._getKeyValue('wallet_' + i)
@@ -160,18 +158,14 @@ export class BlocksoftKeysStorage {
                     firstWallet = wallet.pub
                 }
             }
-            BlocksoftCryptoLog.log('BlocksoftKeysStorage savedMnemonics', JSON.stringify(this.publicWallets))
         }
         const tmp = await this._getKeyValue('selected_hash')
         if (tmp && tmp.pub) {
             this.publicSelectedWallet = tmp.pub
-            BlocksoftCryptoLog.log('BlocksoftKeysStorage publicSelectedWallet by selected_hash', this.publicSelectedWallet)
         }
         if (!this.publicSelectedWallet || !this._serviceWallets[this.publicSelectedWallet]) {
             this.publicSelectedWallet = firstWallet
-            BlocksoftCryptoLog.log('BlocksoftKeysStorage publicSelectedWallet by recheck', this.publicSelectedWallet)
         }
-        BlocksoftCryptoLog.log('BlocksoftKeysStorage init ended')
         this._serviceWasInited = true
 
         if (this.publicSelectedWallet) {

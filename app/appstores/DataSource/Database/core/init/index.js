@@ -45,7 +45,6 @@ export default class DBInit {
         let updateError = false
         try {
             if (res.array.length !== 0) {
-                Log.log(this.#isEmptyStatus.success);
                 await this.#update();
                 return;
             }
@@ -58,7 +57,6 @@ export default class DBInit {
         for (let i = 0; i < initQuery.length; i++) {
             try {
                 await this.#db.setQueryString(initQuery[i].queryString).query();
-                Log.log(this.#createTableStatus.success);
             } catch (e) {
                 Log.err('DBInit error in insert');
                 Log.log(this.#createTableStatus.error);
@@ -94,9 +92,6 @@ export default class DBInit {
             await this.#db.setQueryString(`INSERT INTO settings ([paramValue],[paramKey]) VALUES (1, 'dbVersion')`).query(true);
         }
 
-        Log.log(this.#updateTableStatus.init);
-        Log.log('!!! UPDATING CURRENT VERSION ' + currentVersion + ' NEXT VERSION_2 ' + maxVersion);
-
         for (let i = currentVersion + 1; i <= maxVersion; i++) {
             if (!updateQuery[i]) continue;
             const { queryString, checkQueryString, checkQueryField, afterFunction } = updateQuery[i];
@@ -122,7 +117,6 @@ export default class DBInit {
                     Log.err('DBInit._update error ' + e.message)
                     throw new Error('DB update error')
                 } else {
-                    Log.log('DBInit._update warning ' + e.message)
                     await this.#db.setQueryString(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
                 }
             }
@@ -152,7 +146,6 @@ export default class DBInit {
      * @private
      */
     _initCurrency = async () => {
-        Log.log('DB/Init initCurrency called');
         try {
             const insertObjs = []
             let currencyCode
@@ -167,7 +160,6 @@ export default class DBInit {
                 })
             }
             await this.#db.setTableName('currency').setInsertData({ insertObjs }).insert();
-            Log.log('DB/Init initCurrency finished');
         } catch (e) {
             Log.err('DB/Init initCurrency error ' + e.message);
         }

@@ -230,8 +230,8 @@ export namespace SendActionsStart {
             if (typeof transaction.bseOrderId !== 'undefined') {
                 ui.bse.bseOrderId = transaction.bseOrderId
             }
-            if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson !== {}) {
-                if (transaction.transactionJson.bseMinCrypto !== 'undefined') {
+            if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson !== {} && transaction.transactionJson) {
+                if (typeof transaction.transactionJson.bseMinCrypto !== 'undefined') {
                     ui.bse.bseMinCrypto = transaction.transactionJson.bseMinCrypto
                 }
                 if (transaction.transactionJson.comment !== 'undefined') {

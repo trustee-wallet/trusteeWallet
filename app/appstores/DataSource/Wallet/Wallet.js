@@ -37,6 +37,10 @@ class Wallet {
             walletNumber = wallet.walletNumber * 1
         }
         const tmpWalletName = Database.escapeString(wallet.walletName)
+        const recheck = await Database.setQueryString(`SELECT wallet_name FROM wallet WHERE wallet_hash='${wallet.walletHash}'`).query()
+        if (recheck && recheck.array && recheck.array.length > 0) {
+            return true
+        }
         const sql = `INSERT INTO wallet (
         wallet_to_send_status, wallet_hash, wallet_name, 
         wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, 

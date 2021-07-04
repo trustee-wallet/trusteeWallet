@@ -464,7 +464,6 @@ class UpdateAccountListDaemon extends Update {
                     basicCurrencyCode,
                     walletHash : tmpWalletHash })
             }
-            Log.daemon('UpdateAccountListDaemon CACHE_WALLET_SUMS', DaemonCache.CACHE_WALLET_SUMS)
 
             if (typeof DaemonCache.CACHE_ALL_ACCOUNTS !== 'undefined') {
                 store.dispatch({

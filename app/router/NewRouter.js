@@ -60,6 +60,7 @@ import AdvancedWalletScreen from '@app/modules/Settings/AdvancedWalletScreen'
 import LocalCurrencyScreen from '@app/modules/Settings/LocalCurrencyScreen'
 import LanguageListScreen from '@app/modules/Settings/LanguageListScreen'
 import ScannerSettingsScreen from '@app/modules/Settings/ScannerSettingsScreen'
+import LoggingSettingsScreen from '@app/modules/Settings/LoggingSettingsScreen'
 import TermsOfUseScreen from '@app/modules/About/screens/TermsOfUseScreen'
 import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
@@ -73,7 +74,6 @@ import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
-import MarketingEventSingleton from '@app/services/Marketing/MarketingEvent'
 
 
 const Stack = createStackNavigator()
@@ -127,6 +127,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='LocalCurrencyScreen' component={LocalCurrencyScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='LanguageListScreen' component={LanguageListScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='ScannerSettingsScreen' component={ScannerSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='LoggingSettingsScreen' component={LoggingSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsSettingsScreen' component={NotificationsSettingScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='TermsOfUseScreen' component={TermsOfUseScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='PrivacyPolicyScreen' component={PrivacyPolicyScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

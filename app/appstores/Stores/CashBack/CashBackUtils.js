@@ -41,9 +41,6 @@ class CashBackUtils {
             firebaseUrl = await dynamicLinks().getInitialLink()
             await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() ' + JSON.stringify(firebaseUrl))
 
-            const tmp = Linking.getInitialURL()
-            await Log.log('SRV/CashBack init Linking.getInitialURL() ' + JSON.stringify(tmp))
-
             const tmp2 = await NativeLinking.getInitialURL()
             await Log.log('SRV/CashBack init NativeLinking.getInitialURL() ' + JSON.stringify(tmp2))
 

@@ -38,7 +38,6 @@ export default {
      * @returns {Promise<[{id, isHidden, currencyCode, currencySymbol, currencyName, tokenType, tokenAddress, tokenDecimals, tokenJson}]>}
      */
     getCustomCurrencies: async () => {
-        Log.daemon('DS/CustomCurrency getCustomCurrencies called')
         const res = await Database.setQueryString(`
                 SELECT
                 id, is_hidden AS isHidden,
@@ -52,8 +51,6 @@ export default {
                 token_json AS tokenJson,
                 is_added_to_api AS isAdded
                 FROM ${tableName}`).query()
-
-        Log.daemon('DS/CustomCurrency getCustomCurrencies finished')
 
         CACHE_FOR_API = []
         if (!res || !res.array || !res.array.length) {

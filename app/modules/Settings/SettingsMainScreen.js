@@ -138,6 +138,8 @@ class SettingsMainScreen extends PureComponent {
 
     handleChangeScanner = () => { NavStore.goNext('ScannerSettingsScreen') }
 
+    handleChangeLogging = () => { NavStore.goNext('LoggingSettingsScreen') }
+
     handleChangeLocalCurrency = () => { NavStore.goNext('LocalCurrencyScreen') }
 
     handleToggleConfig = () => {
@@ -385,6 +387,13 @@ class SettingsMainScreen extends PureComponent {
                                 subtitle={strings('settings.other.scannerSubtitle')}
                                 iconType="scanning"
                                 onPress={this.handleChangeScanner}
+                                rightContent="arrow"
+                            />
+                            <ListItem
+                                title={strings('settings.other.loggingSettings')}
+                                subtitle={strings('settings.other.loggingSubtitle')}
+                                iconType="shareLogs"
+                                onPress={this.handleChangeLogging}
                                 rightContent="arrow"
                             />
                             <ListItem

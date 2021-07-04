@@ -29,7 +29,7 @@ export const getSettingsScreenData = createSelector(
             lockScreenStatus : data.keystore.lockScreenStatus,
             touchIDStatus : data.keystore.touchIDStatus,
             askPinCodeWhenSending : data.keystore.askPinCodeWhenSending,
-
+            loggingCode : data.data.loggingCode || 'all'
         }
     })
 )
