@@ -10,7 +10,6 @@ buildscript {
     }
     repositories {
         google()
-        jcenter()
         maven {
             url 'https://maven.fabric.io/public'
         }
@@ -40,7 +39,13 @@ allprojects {
         }
 
         google()
-        jcenter()
+	jcenter() {
+    		content {
+        		includeModule("com.github.florent37", "singledateandtimepicker")	// Required by fioprotocol_fiosdk
+        		includeModule("com.jraska", "console")					// Required by fioprotocol_fiosdk
+        		includeModule("com.eightbitlab", "blurview")				// Required by react-native-community_blur
+    		}
+	}
         maven { url 'https://jitpack.io' }
         mavenCentral()
     }
