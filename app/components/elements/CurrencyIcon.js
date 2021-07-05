@@ -338,6 +338,8 @@ export default class ButtonLine extends PureComponent {
             case 'BNB_SMART':
             case 'ETC':
             case 'VET':
+            case 'SOL':
+            case 'AMB':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -472,8 +474,20 @@ export default class ButtonLine extends PureComponent {
                     </View>
                 )
 
-            case 'ETH_BNB':
             case 'ETH_USDC':
+            case 'TRX_USDC':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict['ETH_USDC'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name={'ETH_USDC'} style={{ color: colorDict['ETH_USDC'].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name={currencyCode === 'ETH_USDC' ? "ETH" : 'TRX'} style={{ color: colorDict[currencyCode === 'ETH_USDC' ? "ETH" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                            </View>
+                        </View>
+                    </View>
+                )
+
+            case 'ETH_BNB':
             case 'ETH_PAX':
             case 'ETH_DAI':
             case 'ETH_DAIM':
