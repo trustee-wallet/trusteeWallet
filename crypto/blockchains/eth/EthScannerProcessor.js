@@ -16,13 +16,15 @@ const CACHE_GET_MAX_BLOCK = {
     ETH: { max_block_number: 0, confirmations: 0 },
     BNB: { max_block_number: 0, confirmations: 0 },
     ETC: { max_block_number: 0, confirmations: 0 },
-    AMB: { max_block_number: 0, confirmations: 0 }
+    AMB: { max_block_number: 0, confirmations: 0 },
+    MATIC : { max_block_number: 0, confirmations: 0 },
 }
 const CACHE_BLOCK_NUMBER_TO_HASH = {
     ETH: {},
     BNB: {},
     ETC : {},
-    AMB : {}
+    AMB : {},
+    MATIC : {}
 }
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
@@ -30,7 +32,8 @@ const CACHE = {
     ETH: {},
     BNB: {},
     ETC : {},
-    AMB : {}
+    AMB : {},
+    MATIC : {}
 }
 
 export default class EthScannerProcessor extends EthBasic {
@@ -141,8 +144,8 @@ export default class EthScannerProcessor extends EthBasic {
                     return { balance, unconfirmed: 0, provider, time, balanceScanBlock: res.data.nonce }
                 }
             }
-
             balance = await this._web3.eth.getBalance(address)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' result ' + JSON.stringify(balance))
             provider = 'web3'
             time = 'now()'
             return { balance, unconfirmed: 0, provider, time }
@@ -210,13 +213,13 @@ export default class EthScannerProcessor extends EthBasic {
         await BlocksoftCryptoLog.log(logTitle + ' started ' + JSON.stringify(isInternal), link)
         const tmp = await BlocksoftAxios.getWithoutBraking(link)
         if (!tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.result === 'undefined') {
-            return []
+            return transactions
         }
         if (typeof tmp.data.result === 'string') {
             if (tmp.data.result.indexOf('API Key') === -1) {
                 throw new Error('Undefined txs etherscan ' + link + ' ' + tmp.data.result)
             } else {
-                return []
+                return transactions
             }
         }
 
