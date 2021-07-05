@@ -27,10 +27,10 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/rest-api/endpoints/push/push-token
     export const init = async function(data: any) {
-        Log.log('StreamSupport device token subscribe started ', data)
+        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
         if (MarketingEvent.DATA.LOG_TOKEN.indexOf('NO_GOOGLE') === -1) {
             try {
-                const response = await fetch(`${data.serverUrl}/api/v1/push.token`, {
+                const response = await fetch(`${serverUrl}/api/v1/push.token`, {
                     method: 'POST',
                     headers: {
                         'X-Auth-Token': data.userToken,
@@ -47,6 +47,9 @@ export namespace StreamSupportWrapper {
                 const res = await response.json()
                 Log.log('StreamSupport device token subscribe res ', res)
             } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('StreamSupport device token subscribe error ' + e.message)
+                }
                 Log.log('StreamSupport device token subscribe error ' + e.message)
             }
         }
@@ -60,7 +63,9 @@ export namespace StreamSupportWrapper {
         if (data === false) {
             data = store.getState().streamSupportStore
         }
-        const link = `${data.serverUrl}/api/v1/rooms.get`
+        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
+        const link = `${serverUrl}/api/v1/rooms.get`
+
         Log.log('StreamSupport getRoom ' + link)
         CACHE_ROOM_ID = false
         try {
@@ -92,7 +97,8 @@ export namespace StreamSupportWrapper {
         if (data === false) {
             data = store.getState().streamSupportStore
         }
-        const wsLink = 'wss://' + data.serverUrl.replace('https://', '') + '/websocket'
+        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
+        const wsLink = 'wss://' + serverUrl.replace('https://', '') + '/websocket'
         Log.log('StreamSupport initWS ' + wsLink)
 
         WEB_SOCKET = new WebSocket(wsLink)

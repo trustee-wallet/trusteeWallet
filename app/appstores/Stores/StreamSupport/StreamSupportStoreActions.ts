@@ -11,7 +11,6 @@ const { dispatch } = store
 export namespace StreamSupportActions {
 
     export const setData = async function(data: any) {
-        return false
         try {
             const oldData = store.getState().streamSupportStore
 
