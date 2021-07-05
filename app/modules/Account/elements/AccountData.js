@@ -73,7 +73,7 @@ class AccountData extends PureComponent {
                                         {balancePrettyPrep2 + ' ' + currencySymbol}
                                     </Text>
                                 </Text> :
-                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 40, height: 34 }} >****</Text>
+                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 40, height: 'auto' }}>****</Text>
                             }
                         </TouchableOpacity>
                     </View>

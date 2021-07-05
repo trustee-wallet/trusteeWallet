@@ -13,7 +13,8 @@ const INITIAL_STATE = {
     },
     loaderVisibility: false,
     blurVisibility: false,
-    currentScreen: {} // TODO: question - do we need this? it seems like unused
+    currentScreen: {}, // TODO: question - do we need this? it seems like unused
+    bseLink: null
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
@@ -65,6 +66,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
                     ...state.selectedWallet,
                     walletName: action.walletName
                 }
+            }
+        case 'SET_BSE_LINK':
+            return {
+                ...state,
+                bseLink: action.bseLink
             }
         default:
             return state

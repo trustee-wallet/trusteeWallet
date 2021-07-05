@@ -21,7 +21,7 @@ import GradientView from '@app/components/elements/GradientView'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { saveSelectedBasicCurrencyCode } from '@app/appstores/Stores/Main/MainStoreActions'
+import { saveSelectedBasicCurrencyCode, setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
@@ -115,6 +115,11 @@ class WalletInfo extends React.PureComponent {
         })
     }
 
+    changeWallet = (walletNumber) => {
+        cryptoWalletActions.setNextWallet(walletNumber, 'HomeScreen.WalletInfo')
+        setBseLink(null)
+    }
+
     render() {
         const {
             changeBalanceVisibility,
@@ -159,7 +164,7 @@ class WalletInfo extends React.PureComponent {
 
 
                                 {MarketingEvent.DATA.LOG_TESTER ? (
-                                        <TouchableOpacity onPress={() => cryptoWalletActions.setNextWallet(walletNumber, 'HomeScreen.WalletInfo')} hitSlop={HIT_SLOP}>
+                                        <TouchableOpacity onPress={() => this.changeWallet(walletNumber)} hitSlop={HIT_SLOP}>
                                             <LetterSpacing
                                                 text={'NEXT WALLET'}
                                                 textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}

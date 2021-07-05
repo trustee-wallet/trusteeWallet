@@ -125,7 +125,7 @@ export default class Header extends PureComponent {
                 <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
 
                 <Animated.View style={[styles.container, { backgroundColor: colors.common.header.bg, height }]}>
-                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE * 2 }]}>
+                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={styles.header__left}>
                             {this.getLeftAction()}
                         </View>
@@ -139,11 +139,11 @@ export default class Header extends PureComponent {
                         </View>
                     </View>
 
-                    {ExtraView && (
+                    {ExtraView ? (
                         <Animated.View style={[styles.extraView, { backgroundColor: colors.common.header.bg, opacity }]}>
                             <ExtraView />
                         </Animated.View>
-                    )}
+                    ) : null}
                 </Animated.View>
 
                 <View style={styles.shadow__container}>

@@ -122,6 +122,12 @@ export default {
             darkColor: '#2FB9B8'
         }
     },
+    'TRX_USDC': {
+        colors: {
+            mainColor: '#2A7FDB',
+            darkColor: '#2FB9B8'
+        }
+    },
     'BSV': {
         colors: {
             mainColor: '#C8102E',
@@ -606,6 +612,18 @@ export default {
         colors: {
             mainColor: '#070001',
             darkColor: '#B8B8B8'
+        }
+    },
+    'SOL': {
+        colors: {
+            mainColor: '#00FFA3',
+            darkColor: '#22DB98'
+        }
+    },
+    'AMB': {
+        colors: {
+            mainColor: '#341CBA',
+            darkColor: '#6E55F9'
         }
     },
     'DEFAULT': {

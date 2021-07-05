@@ -484,7 +484,7 @@
       "empty": "(empty)",
       "fee": "Fee",
       "feeIncome": "Sender Fee",
-      "txHash": "Transaction ID",
+      "txHash": "Hash transaction",
       "replacedTxHash": "Previous transaction hash",
       "from": "From",
       "to": "To",

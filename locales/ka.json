@@ -493,7 +493,7 @@
       "empty": "(ცარიელია)",
       "fee": "საკომისიო",
       "feeIncome": "გამგზავნის საკომისიო",
-      "txHash": "Transaction ID",
+      "txHash": "Hash transaction",
       "replacedTxHash": "წინა გარიგების ჰაში",
       "from": "გამგზავნი",
       "to": "მიმღები",

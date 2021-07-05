@@ -10,7 +10,7 @@ import {
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import { saveSelectedBasicCurrencyCode } from '@app/appstores/Stores/Main/MainStoreActions'
+import { saveSelectedBasicCurrencyCode, setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
 import { strings, sublocale } from '@app/services/i18n'
@@ -54,6 +54,7 @@ class LocalCurrencyScreen extends PureComponent {
 
     setLocalCurrencyCode = (currencyCode) => {
         saveSelectedBasicCurrencyCode(currencyCode)
+        setBseLink(null)
         this.handleClose()
     }
 

@@ -321,3 +321,10 @@ export function setSelectedWalletName(walletName) {
         walletName
     })
 }
+
+export function setBseLink(bseLink) {
+    dispatch({
+        type: 'SET_BSE_LINK',
+        bseLink
+    })
+}

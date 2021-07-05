@@ -41,6 +41,7 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 
 
 class AddAssetScreen extends React.PureComponent {
@@ -54,6 +55,13 @@ class AddAssetScreen extends React.PureComponent {
     }
 
     componentDidMount() {
+        const currencyCode = NavStore.getParamWrapper(this, 'currencyCode')
+        if (currencyCode) {
+            currencyCode.forEach(code => {
+                let item = this.props.assets.find(way => way.currencyCode === code)
+                item && this.handleChangeCurrencyStatus(item)
+            })
+        }
         this.prepareData()
     }
 
@@ -78,6 +86,7 @@ class AddAssetScreen extends React.PureComponent {
         } else {
             this.toggleCurrencyVisibility(currency.currencyCode, currency.isHidden * 1 > 0 ? 0 : 1, currency.isHidden, currency.tokenBlockchain)
         }
+        setBseLink(null)
     }
 
     handleAddCurrency = async (currencyToAdd, tokenBlockchain) => {
