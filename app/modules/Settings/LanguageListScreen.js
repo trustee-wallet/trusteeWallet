@@ -21,6 +21,7 @@ import { ThemeContext } from '@app/modules/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 
 
 class LanguageListScreen extends PureComponent {
@@ -41,6 +42,8 @@ class LanguageListScreen extends PureComponent {
         await settingsActions.setSettings('language', item.code)
 
         await AppNotificationListener.updateSubscriptionsLater()
+
+        setBseLink(null)
 
         this.handleBack()
 

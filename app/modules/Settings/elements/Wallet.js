@@ -20,6 +20,7 @@ import DaemonCache from '@app/daemons/DaemonCache'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 
 const smallDevice = Dimensions.get('screen').width < 370
 
@@ -61,6 +62,7 @@ class Wallet extends Component {
 
     handleSelectWallet = async () => {
         await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleSelectWallet')
+        setBseLink(null)
     }
 
     handleOpenAdvanced = () => {

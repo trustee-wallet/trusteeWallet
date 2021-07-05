@@ -38,6 +38,7 @@ import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 import idents from '@app/config/idents'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 
 class SettingsMainScreen extends PureComponent {
     constructor() {
@@ -142,6 +143,11 @@ class SettingsMainScreen extends PureComponent {
 
     handleChangeLocalCurrency = () => { NavStore.goNext('LocalCurrencyScreen') }
 
+    handleChangeTheme = (changeTheme) => {
+        changeTheme()
+        setBseLink(null)
+    }
+
     handleToggleConfig = () => {
         let mode
 
@@ -160,6 +166,8 @@ class SettingsMainScreen extends PureComponent {
         this.setState({
             mode
         })
+        
+        setBseLink(null)
 
         Vibration.vibrate(100)
     }
@@ -358,9 +366,9 @@ class SettingsMainScreen extends PureComponent {
                                 title={strings('settings.other.darkModeTitle')}
                                 subtitle={strings(`settings.other.${isLight ? 'darkModeDisabledSubtitle' : 'darkModeEnabledSubtitle'}`)}
                                 iconType="darkMode"
-                                onPress={changeTheme}
+                                onPress={() => this.handleChangeTheme(changeTheme)}
                                 rightContent="switch"
-                                switchParams={{ value: !isLight, onPress: changeTheme }}
+                                switchParams={{ value: !isLight, onPress: () => this.handleChangeTheme(changeTheme) }}
                             />
                             <ListItem
                                 title={strings('settings.other.notifications')}

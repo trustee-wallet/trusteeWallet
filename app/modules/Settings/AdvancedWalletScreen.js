@@ -25,7 +25,7 @@ import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import CustomIcon from '@app/components/elements/CustomIcon'
 
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setBseLink, setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
@@ -101,6 +101,7 @@ class AdvancedWalletScreen extends PureComponent {
             try {
                 await walletActions.removeWallet(walletHash)
                 await UpdateAccountListDaemon.updateAccountListDaemon({force : true, source : 'AdvancedWalletScreen'})
+                setBseLink(null)
                 NavStore.goBack()
                 setLoaderStatus(false)
             } catch (e) {

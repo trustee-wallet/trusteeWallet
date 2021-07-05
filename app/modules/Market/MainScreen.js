@@ -41,7 +41,7 @@ import { Camera } from '@app/services/Camera/Camera'
 import countriesDict from '@app/assets/jsons/other/country-codes'
 import Validator from '@app/services/UI/Validator/Validator'
 
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setBseLink, setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -54,7 +54,7 @@ import { Cards } from '@app/services/Cards/Cards'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
-import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getBseLink, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
@@ -62,7 +62,7 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
-let CASHE_TIME, CASHE_WALLET_HASH, CASHE_CONFIG
+let CASHE_TIME
 
 class MarketScreen extends PureComponent {
 
@@ -98,6 +98,8 @@ class MarketScreen extends PureComponent {
                 apiUrl
             })
         }, 10)
+
+        setBseLink(apiUrl)
     }
 
     refresh = async () => {
@@ -115,13 +117,11 @@ class MarketScreen extends PureComponent {
         const { isLight } = this.context
 
         CASHE_TIME = new Date()
-        CASHE_WALLET_HASH = this.props.selectedWalletData.walletHash
-        CASHE_CONFIG = config.exchange.mode
 
         if (this.props.navigation.dangerouslyGetParent()) {
             this.props.navigation.dangerouslyGetParent().addListener('tabPress', (e) => {
                 const currentTime = new Date()
-                if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || this.props.selectedWalletData.walletHash !== CASHE_WALLET_HASH || config.exchange.mode !== CASHE_CONFIG) {
+                if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || !this.props.bseLink) {
                     e.preventDefault()
                     NavStore.reset('MarketScreen')
                 }
@@ -262,6 +262,14 @@ class MarketScreen extends PureComponent {
         }
     }
 
+    handleAddCurrency = (currencyCode) => {
+        if (currencyCode) {
+            NavStore.goNext('HomeScreen', { screen: 'AddAssetScreen', params: { currencyCode: currencyCode } })
+        } else {
+            NavStore.goNext('HomeScreen', { screen: 'AddAssetScreen' })
+        }
+    }
+
     onMessage(event) {
 
         const { isLight } = this.context
@@ -271,7 +279,7 @@ class MarketScreen extends PureComponent {
             const {
                 error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, checkCamera, refreshControl, restart, share, txHash
+                useAllFunds, checkCamera, refreshControl, restart, share, txHash, needActivateCurrency
             } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
@@ -295,6 +303,10 @@ class MarketScreen extends PureComponent {
 
             if (checkCamera) {
                 this.checkCameraForWebView()
+            }
+
+            if (needActivateCurrency) {
+                this.handleAddCurrency(needActivateCurrency)
             }
 
             if (backToOld) {
@@ -922,6 +934,7 @@ MarketScreen.contextType = ThemeContext
 const mapStateToProps = (state) => {
     return {
         selectedWalletData: getSelectedWalletData(state),
+        bseLink: getBseLink(state)
     }
 }
 

@@ -75,3 +75,8 @@ export const getSelectedAccountTransactions = createSelector(
         }
     })
 )
+
+export const getBseLink = createSelector(
+    [state => state.mainStore.bseLink],
+    (data => data)
+)

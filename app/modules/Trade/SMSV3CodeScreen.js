@@ -128,6 +128,7 @@ class SMSV3CodeScreen extends PureComponent {
         Log.log('Trade.SMSV3CodeScreen.closeAction user click')
 
         if (this.state.additionalData.close) {
+            Log.log('Trade.SMSV3CodeScreen.backAction CLOSE')
             this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
         }
         NavStore.reset('HomeScreen')
@@ -137,6 +138,7 @@ class SMSV3CodeScreen extends PureComponent {
         Log.log('Trade.SMSV3CodeScreen.backAction user click')
 
         if (this.state.additionalData.close) {
+            Log.log('Trade.SMSV3CodeScreen.backAction BACK')
             this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
         }
         NavStore.goBack()
