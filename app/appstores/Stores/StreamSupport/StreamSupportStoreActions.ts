@@ -41,17 +41,19 @@ export namespace StreamSupportActions {
     export const allMessages = async function (tmps : any) {
         try {
             const messages = []
-            for (const tmp of tmps) {
-                const message = {
-                    _id: tmp._id,
-                    text: tmp.msg,
-                    createdAt: tmp.ts['$date'],
-                    user: {
-                        _id: tmp.u._id,
-                        name: tmp.u.username
+            if (typeof tmps !== 'undefined' && tmps) {
+                for (const tmp of tmps) {
+                    const message = {
+                        _id: tmp._id,
+                        text: tmp.msg,
+                        createdAt: tmp.ts['$date'],
+                        user: {
+                            _id: tmp.u._id,
+                            name: tmp.u.username
+                        }
                     }
+                    messages.push(message)
                 }
-                messages.push(message)
             }
             dispatch({
                 type: 'SET_STREAM_SUPPORT_LOADED',
@@ -60,7 +62,7 @@ export namespace StreamSupportActions {
             })
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log(new Date().toISOString() + '  StreamSupportActions allMessages error ' + e.message)
+                console.log(new Date().toISOString() + ' StreamSupportActions allMessages error ' + e.message)
             }
         }
     }

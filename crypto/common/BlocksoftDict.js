@@ -1307,9 +1307,9 @@ const Currencies = {
     TRX_SUN_NEW:
         {
             currencyType: 'token',
-            currencyName: 'SUN New',
+            currencyName: 'SUN',
             currencyCode: 'TRX_SUN_NEW',
-            currencySymbol: 'SUN New',
+            currencySymbol: 'SUN',
             extendsProcessor: 'TRX_USDT',
             addressUiChecker: 'TRX',
             ratesCurrencyCode: 'SUN_NEW',
