@@ -53,6 +53,7 @@ class LoggingSettingsScreen extends PureComponent {
             await Log.FS.TEST.cleanFile()
             await Log.FS.DAEMON.cleanFile()
             await BlocksoftCryptoLog.FS.cleanFile()
+            await Log.FS.ALL.cleanDir()
             Toast.setMessage('cleaned').show()
         } catch (e) {
             Toast.setMessage('error ' + e.message).show()
