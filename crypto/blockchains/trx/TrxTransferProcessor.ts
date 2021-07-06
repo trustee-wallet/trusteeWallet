@@ -426,7 +426,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
         }
 
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx tx', tx)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx token ' + this._tokenName  + ' tx', tx)
 
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx signed', tx)

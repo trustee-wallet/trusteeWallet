@@ -14,6 +14,8 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
     trxError(msg: string) {
         if (this._settings.currencyCode !== 'TRX' && msg.indexOf('AccountResourceInsufficient') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+        } else if (msg.indexOf('Validate TransferContract error, balance is not sufficient.') !== -1) {
+            throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
         } else if (msg.indexOf('balance is not sufficient') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
         } else if (msg.indexOf('account not exist') !== -1) {
