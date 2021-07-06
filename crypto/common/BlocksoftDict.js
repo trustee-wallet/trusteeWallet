@@ -1196,7 +1196,7 @@ const Currencies = {
     ETH_MATIC:
         {
             currencyType: 'token',
-            currencyName: 'Polygon',
+            currencyName: 'Polygon (Matic) ERC20',
             currencyCode: 'ETH_MATIC',
             currencySymbol: 'MATIC',
             extendsProcessor: 'ETH_TRUE_USD',
@@ -1208,6 +1208,24 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
+        },
+    MATIC:
+        {
+            currencyType: 'coin',
+            currencyName: 'Polygon (Matic) Network',
+            currencyCode: 'MATIC',
+            currencySymbol: 'MATIC',
+            ratesCurrencyCode: 'MATIC',
+            addressProcessor: 'ETH',
+            addressUiChecker: 'ETH',
+            scannerProcessor: 'ETH',
+            extendsProcessor: 'ETH',
+            prettyNumberProcessor: 'ETH',
+            transferProcessor: 'ETC',
+            network: 'mainnet',
+            decimals: 18,
+            currencyExplorerLink: 'https://polygonscan.com/address/',
+            currencyExplorerTxLink: 'https://polygonscan.com/tx/'
         },
     ETH_RSR:
         {

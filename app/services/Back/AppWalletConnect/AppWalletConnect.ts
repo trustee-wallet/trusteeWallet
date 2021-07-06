@@ -49,22 +49,28 @@ let WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
 let MAIN_CURRENCY_CODE = 'ETH'
 export namespace AppWalletConnect {
 
-    const _getAccounts = async function() {
+    const _getAccounts = async function(chainId = false) {
         const { walletHash } = store.getState().mainStore.selectedWallet
-        const { chainId, peerMeta}  = WALLET_CONNECTOR
+        const { peerMeta}  = WALLET_CONNECTOR
+        if (typeof chainId === 'undefined' || !chainId) {
+            chainId = WALLET_CONNECTOR.chainId || 0
+        }
         const accountList = store.getState().accountStore.accountList
         if (!accountList || typeof accountList[walletHash] === 'undefined') {
             return false
         }
 
         MAIN_CURRENCY_CODE = 'ETH'
-
+        
         if (chainId === 3) {
             MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
             WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         } else if (chainId === 56) {
             MAIN_CURRENCY_CODE = 'BNB_SMART'
             WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
+        } else if (chainId === 137) {
+            MAIN_CURRENCY_CODE = 'MATIC'
+            WEB3_LINK = BlocksoftExternalSettings.getStatic('MATIC_SERVER')
         } else {
             WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         }
@@ -220,7 +226,8 @@ export namespace AppWalletConnect {
     export const approveRequest = async function(data: ITxData, payload: any) {
         try {
             Log.log('AppWalletConnect.approveRequest', data, payload)
-            const accounts = await _getAccounts()
+            const { chainId } = payload
+            const accounts = await _getAccounts(chainId)
             const account = accounts[0]
             const discoverFor = {
                 addressToCheck: data.from,
@@ -308,7 +315,8 @@ export namespace AppWalletConnect {
     export const approveSignTyped = async function(data: any, payload: any) {
         try {
             Log.log('AppWalletConnect.approveSignTyped2', data, payload)
-            const accounts = await _getAccounts()
+            const { chainId } = payload
+            const accounts = await _getAccounts(chainId)
             const account = accounts[0]
             const discoverFor = {
                 addressToCheck: account.address,
@@ -359,7 +367,7 @@ export namespace AppWalletConnect {
         Log.log('AppWalletConnect.approveSession', payload)
         BlocksoftCryptoLog.log('AppWalletConnect.approveSession', payload)
         const { chainId } = payload
-        const accounts = await _getAccounts()
+        const accounts = await _getAccounts(chainId)
         const account = accounts[0]
         const tmp = []
         for (const account of accounts) {

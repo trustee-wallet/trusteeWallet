@@ -77,8 +77,6 @@ class App {
 
                     this.initStatus = 'createWallets'
 
-                    Log.log('ACT/App no wallets found')
-
                     NavStore.reset('WalletCreateScreen')
 
                     this.initStatus = 'WalletCreateScreen'

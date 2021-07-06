@@ -130,6 +130,35 @@ export default class EthBasic {
             this._mainTokenType = 'AMB_ERC_20'
             this._mainTokenBlockchain = 'Ambrosus Network'
             this._mainChainId = 16718 // 0x414e
+        } else if (settings.currencyCode === 'MATIC') {
+            this._web3Link = BlocksoftExternalSettings.getStatic('MATIC_SERVER')
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
+            this._etherscanApiPathInternal = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'MATIC'
+            this._mainTokenType = 'MATIC_ERC_20'
+            this._mainTokenBlockchain = 'Polygon Network'
+            this._mainChainId = 137
+        } else if (settings.currencyCode === 'RSK') {
+            this._web3Link = BlocksoftExternalSettings.getStatic('RSK_SERVER')
+
+            this._etherscanSuffix = false
+            this._etherscanApiPath = false
+            this._etherscanApiPathInternal = false
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'RSK'
+            this._mainTokenType = 'RSK_ERC_20'
+            this._mainTokenBlockchain = 'RSK Network'
+            this._mainChainId = 30
         } else {
 
             this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
