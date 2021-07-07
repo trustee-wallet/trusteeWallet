@@ -66,16 +66,8 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
     const activeTab = newTab || tabs.find(tab => tab.active)
     const newTabs = tabs.map(tab => ({ ...tab, active: tab.index === activeTab.index }))
 
-    const notAddedAssets = []
-    _forEach(BlocksoftDict.Currencies, (currency, currencyCode) => {
-        let tmpCurrency = assets.find(as => as.currencyCode === currencyCode)
-        if (typeof tmpCurrency === 'undefined') {
-            tmpCurrency = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currencyCode]))
-            tmpCurrency.isHidden = null
-            notAddedAssets.push(tmpCurrency)
-        }
-    })
-    const fullData = [...assets, ...notAddedAssets]
+    const fullData = prepareAssets(assets)
+    
     let data = []
 
     if (searchQuery) data = filterBySearchQuery(fullData, searchQuery)
@@ -105,6 +97,20 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
     }
 
     this.setState(() => ({ data, tabs: newTabs, searchQuery }))
+}
+
+export function prepareAssets(assets) {
+    const notAddedAssets = []
+    _forEach(BlocksoftDict.Currencies, (currency, currencyCode) => {
+        let tmpCurrency = assets.find(as => as.currencyCode === currencyCode)
+        if (typeof tmpCurrency === 'undefined') {
+            tmpCurrency = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currencyCode]))
+            tmpCurrency.isHidden = null
+            notAddedAssets.push(tmpCurrency)
+        }
+    })
+
+    return [...assets, ...notAddedAssets]
 }
 
 function filterBySearchQuery(assets, value) {
@@ -148,7 +154,7 @@ export async function addCustomToken(tokenAddress) {
                     description: strings('modal.infoAddCustomAssetModal.successAlready.description')
                 })
                 setLoaderStatus(false)
-                return {searchQuery : tokenAddress}
+                return { searchQuery: tokenAddress }
             }
             // tokenName
         }
@@ -176,7 +182,7 @@ export async function addCustomToken(tokenAddress) {
                 description: strings('modal.infoAddCustomAssetModal.error.description')
             })
             setLoaderStatus(false)
-            return {searchQuery : false}
+            return { searchQuery: false }
         }
 
 
@@ -196,7 +202,7 @@ export async function addCustomToken(tokenAddress) {
 
         setLoaderStatus(false)
 
-        return {searchQuery : false}
+        return { searchQuery: false }
     }
 
 
@@ -206,9 +212,9 @@ export async function addCustomToken(tokenAddress) {
         const oldContact = BlocksoftDict.Currencies[checked.currencyCodePrefix + checked.currencyCode].tokenAddress || BlocksoftDict.Currencies[checked.currencyCodePrefix + checked.currencyCode].tokenName
         showModal({
             type: 'YES_NO_MODAL',
-            title: strings('modal.infoAddCustomAssetModal.askReplace.title', {tokenName : checked.currencyCode}),
+            title: strings('modal.infoAddCustomAssetModal.askReplace.title', { tokenName: checked.currencyCode }),
             icon: 'WARNING',
-            description: strings('modal.infoAddCustomAssetModal.askReplace.description', {oldContact, newContract : checked.tokenAddress})
+            description: strings('modal.infoAddCustomAssetModal.askReplace.description', { oldContact, newContract: checked.tokenAddress })
         }, async () => {
             await customCurrencyActions.replaceCustomCurrencyFromDict(oldContact, checked)
             await customCurrencyActions.importCustomCurrenciesToDict()
@@ -218,7 +224,7 @@ export async function addCustomToken(tokenAddress) {
 
         setLoaderStatus(false)
 
-        return {searchQuery : false}
+        return { searchQuery: false }
     }
 
     try {
@@ -249,7 +255,7 @@ export async function addCustomToken(tokenAddress) {
         })
 
         setLoaderStatus(false)
-        return {searchQuery : false}
+        return { searchQuery: false }
     }
 
     await customCurrencyActions.importCustomCurrenciesToDict()
@@ -275,5 +281,5 @@ export async function addCustomToken(tokenAddress) {
     }, () => {
         NavStore.reset('HomeScreen')
     })
-    return {searchQuery : false}
+    return { searchQuery: false }
 }

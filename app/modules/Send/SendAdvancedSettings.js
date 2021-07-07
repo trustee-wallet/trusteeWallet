@@ -28,6 +28,7 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import Button from '@app/components/elements/new/buttons/Button'
 
 let CACHE_IS_COUNTING = false
 class SendAdvancedSettings extends React.PureComponent {
@@ -137,6 +138,8 @@ class SendAdvancedSettings extends React.PureComponent {
         return (
             <ScreenWrapper
                 title={strings('send.setting.title')}
+                leftType='back'
+                leftAction={this.handleBack}
             >
                 <ScrollView
                     ref={(ref) => {
@@ -202,15 +205,9 @@ class SendAdvancedSettings extends React.PureComponent {
 
                     </View>
                     <View style={{ marginTop: GRID_SIZE }}>
-                        <TwoButtons
-                            mainButton={{
-                                onPress: this.handleApply,
-                                title: strings('send.setting.apply')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: this.handleBack,
-                            }}
+                        <Button 
+                            onPress={this.handleApply}
+                            title={strings('send.setting.apply')}
                         />
                     </View>
 

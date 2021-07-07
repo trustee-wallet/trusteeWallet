@@ -235,6 +235,7 @@ class Input extends Component {
                         <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10}} >
                             <TextField
                                 ref={ref => this.inputRef = ref}
+                                allowFontScaling={false}
                                 keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
                                 tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
                                 labelHeight={styles.labelHeight}

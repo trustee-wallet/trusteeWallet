@@ -33,7 +33,8 @@ import {
     getTabs,
     ASSESTS_GROUP,
     prepareDataForDisplaying,
-    addCustomToken
+    addCustomToken,
+    prepareAssets
 } from './helpers'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -58,7 +59,7 @@ class AddAssetScreen extends React.PureComponent {
         const currencyCode = NavStore.getParamWrapper(this, 'currencyCode')
         if (currencyCode) {
             currencyCode.forEach(code => {
-                let item = this.props.assets.find(way => way.currencyCode === code)
+                let item = prepareAssets(this.props.assets).find(way => way.currencyCode === code)
                 item && this.handleChangeCurrencyStatus(item)
             })
         }
