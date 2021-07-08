@@ -85,11 +85,24 @@ export default class ButtonLine extends PureComponent {
                 )
 
             case 'TRX_SUN':
-            case 'TRX_SUN_NEW':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/TRX_SUN.png')} />
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <View style={{ marginTop: 1 }}>
+                                    <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                )
+            
+            case 'TRX_SUN_NEW':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@app/assets/images/currency/TRX_SUN_NEW.png')} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <View style={{ marginTop: 1 }}>
                                     <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />

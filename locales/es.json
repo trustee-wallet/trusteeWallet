@@ -57,7 +57,7 @@
   "walletCreateScreen": {
     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
     "createWallet": "Create wallet",
-    "importWallet": "Import wallet",
+    "importWallet": "Restore wallet",
     "acceptTerms": "You don`t agree with Terms of Service and Privacy Policy",
     "agreement1": "I have read, understand and agree to the",
     "terms": "Terms of use",
@@ -227,12 +227,12 @@
     "walletManagement": {
       "title": "Wallets management",
       "backup": "Backup wallet",
-      "import": "Import wallet",
+      "import": "Restore wallet",
       "create": "Create new wallet",
       "select": "Select wallet",
       "addWallet": {
         "title": "Add wallet",
-        "importTitle": "Import wallet",
+        "importTitle": "Restore wallet",
         "importSubtitle": "Add wallet with a recovery phrase",
         "createTitle": "Create new wallet"
       },
@@ -482,7 +482,7 @@
       "nonce": "Nonce",
       "delegatedNonce": "Delegated Nonce",
       "empty": "(empty)",
-      "fee": "Fee",
+      "fee": "Network fee",
       "feeIncome": "Sender Fee",
       "txHash": "Hash transaction",
       "replacedTxHash": "Previous transaction hash",
@@ -1014,12 +1014,12 @@
   "walletCreate": {
     "walletExist": "The wallet has been already imported.",
     "createTitle": "Create new wallet",
-    "importTitle": "Import wallet",
+    "importTitle": "Recovery wallet",
     "importGoogle": "Google Drive",
     "mnemonicPlaceholder": "Insert the entire recovery phrase or enter all words manually (usually 12 or 24 words)",
     "showMnemonicButton": "Click to watch",
     "phrasePlaceholder": "Recovery phrase",
-    "importButton": "Import wallet",
+    "importButton": "Restore wallet",
     "errors": {
       "phraseShouldBeLonger": "Recovery phrase should be longer than 11 words",
       "wordDoesNotExist": "Such word was not found in dictionary"
@@ -1669,5 +1669,12 @@
       "currencyCode": "UAH",
       "currency": "Ukrainian Hryvnia"
     }
+  },
+  "streemSupport": {
+    "sendDocs": "Send docs",
+    "sendLogs": "Send logs",
+    "takePhoto": "Take photo",
+    "chooseFromLibrary": "Choose from gallery",
+    "noMessages": "No messages yet"
   }
 }

@@ -57,7 +57,7 @@
   "walletCreateScreen": {
     "title": "იყიდე, გაყიდე, გადაცვალე ანონიმურად",
     "createWallet": "საფულის შექმნა",
-    "importWallet": "საფულის იმპორტი",
+    "importWallet": "Restore wallet",
     "acceptTerms": "თქვენ არ დაეთანხმეთ მომსახურების პირობებს და კონფიდენციალურობის პოლიტიკას",
     "agreement1": "წავიკითხე, გავიგე და თანახმა ვარ",
     "terms": "გამოყენების პირობები",
@@ -229,12 +229,12 @@
     "walletManagement": {
       "title": "საფულეების მართვა",
       "backup": "საფულის რეზერვირება",
-      "import": "საფულის იმპორტი",
+      "import": "Restore wallet",
       "create": "ახალი საფულის შექმნა",
       "select": "საფულის არჩევა",
       "addWallet": {
         "title": "საფულის დამატება",
-        "importTitle": "საფულის იმპორტი",
+        "importTitle": "Restore wallet",
         "importSubtitle": "საფულის დამატება აღსადგენი ფრაზით",
         "createTitle": "ახალი საფულის შქმნა"
       },
@@ -491,7 +491,7 @@
       "nonce": "Nonce",
       "delegatedNonce": "დელეგირებული Nonce",
       "empty": "(ცარიელია)",
-      "fee": "საკომისიო",
+      "fee": "Network fee",
       "feeIncome": "გამგზავნის საკომისიო",
       "txHash": "Hash transaction",
       "replacedTxHash": "წინა გარიგების ჰაში",
@@ -1018,12 +1018,12 @@
   "walletCreate": {
     "walletExist": "საფულე უკვე იმპორტირებულია აპლიკაციაში.",
     "createTitle": "საფულის გენერაცია",
-    "importTitle": "საფულის იმპორტი",
+    "importTitle": "Recovery wallet",
     "importGoogle": "Google Drive",
     "mnemonicPlaceholder": "ჩასვი აღმდგენი ფრაზა ან შეიყვანე ყველა სიტყვა სათითაოდ (ჩვეულებრივ 12 ან 24 სიტყვა)",
     "showMnemonicButton": "სანახავად დააჭირეთ ღილაკს",
     "phrasePlaceholder": "აღმდგენი ფრაზა",
-    "importButton": "საფულის იმპორტი",
+    "importButton": "Restore wallet",
     "errors": {
       "phraseShouldBeLonger": "აღმდგენი ფრაზა უნდა იყოს 11 სიტყვაზე მეტი",
       "wordDoesNotExist": "ასეთი სიტყვა არაა ლექსიკონში"
@@ -1678,5 +1678,12 @@
       "currencyCode": "UAH",
       "currency": "უკრაინული გრივნა"
     }
+  },
+  "streemSupport": {
+    "sendDocs": "Send docs",
+    "sendLogs": "Send logs",
+    "takePhoto": "Take photo",
+    "chooseFromLibrary": "Choose from gallery",
+    "noMessages": "No messages yet"
   }
 }

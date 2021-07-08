@@ -85,6 +85,11 @@ const config = {
         }
     },
 
+    aws: {
+        bucket: 'walletchatfiles',
+        folder: 'useruploads'
+    },
+
     debug: {
         appLogs: false, // set false to see usual logs in files only
         appDaemonLogs: false, // set false to see cron jobs logs in files only

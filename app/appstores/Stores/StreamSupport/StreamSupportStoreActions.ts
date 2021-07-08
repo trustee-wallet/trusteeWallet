@@ -50,7 +50,8 @@ export namespace StreamSupportActions {
                         user: {
                             _id: tmp.u._id,
                             name: tmp.u.username
-                        }
+                        },
+                        attachments: tmp?.attachments || null
                     }
                     messages.push(message)
                 }
@@ -76,7 +77,8 @@ export namespace StreamSupportActions {
                 user: {
                     _id: tmp.u._id,
                     name: tmp.u.username
-                }
+                },
+                attachments: tmp?.attachments || null
             }
             const oldData = store.getState().streamSupportStore
             const messages = [message]

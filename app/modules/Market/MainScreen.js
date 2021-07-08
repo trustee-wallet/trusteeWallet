@@ -293,6 +293,7 @@ class MarketScreen extends PureComponent {
             if (close) {
                 StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
                 NavStore.reset('HomeScreen')
+                setBseLink(null)
                 return
             }
 

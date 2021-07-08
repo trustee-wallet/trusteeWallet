@@ -57,7 +57,7 @@
    "walletCreateScreen": {
      "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
      "createWallet": "Створити гаманець",
-     "importWallet": "Імпортувати гаманець",
+     "importWallet": "Відновити гаманець",
      "acceptTerms": "Ви не погодились з Умовами надання послуг та Політикою конфіденційності",
      "agreement1": "Я прочитав, розумію та погоджуюсь з цим",
      "terms": "Умовами користування",
@@ -234,12 +234,12 @@
     "walletManagement": {
       "title": "Керування гаманцями",
       "backup": "Резервувати гаманець",
-      "import": "Імпортувати гаманець",
+      "import": "Відновити гаманець",
       "create": "Створити новий гаманець",
       "select": "Обрати гаманець",
       "addWallet": {
         "title": "Додати гаманець",
-        "importTitle": "Імпортувати гаманець",
+        "importTitle": "Відновити гаманець",
         "importSubtitle": "Додайте гаманець із фразою відновлення",
         "createTitle": "Створити новий гаманець"
       },
@@ -498,7 +498,7 @@
       "nonce": "Nonce",
       "delegatedNonce": "Делегований Nonce",
       "empty": "(пусто)",
-      "fee": "Комісія",
+      "fee": "Комісія мережі",
       "feeIncome": "Комісія відправника",
       "txHash": "Хеш транзакції",
       "replacedTxHash": "Попередній хеш транзакції",
@@ -1034,12 +1034,12 @@
   "walletCreate": {
     "walletExist": "Гаманець вже імпортований у додаток.",
     "createTitle": "Генерація гаманця",
-    "importTitle": "Імпорт гаманця",
+    "importTitle": "Відновлення гаманця",
     "importGoogle": "Google Drive",
     "mnemonicPlaceholder": "Вставте всю фразу відновлення або введіть усі слова вручну (зазвичай 12 або 24 слова)",
     "showMnemonicButton": "Натисніть, щоб подивитись",
     "phrasePlaceholder": "Фраза відновлення",
-    "importButton": "Імпортувати гаманець",
+    "importButton": "Відновити гаманець",
     "errors": {
       "phraseShouldBeLonger": "Фраза відновлення має бути довшою за 11 слів",
       "wordDoesNotExist": "Такого слова немає в словнику"
@@ -1709,5 +1709,12 @@
       "currencyCode":"UAH",
       "currency":"Українська гривня"
     }
+  },
+  "streemSupport": {
+    "sendDocs": "Надіслати документи",
+    "sendLogs": "Надіслати логи",
+    "takePhoto": "Зробити фото",
+    "chooseFromLibrary": "Вибрати з галереї",
+    "noMessages": "Повідомлень поки немає"
   }
 }

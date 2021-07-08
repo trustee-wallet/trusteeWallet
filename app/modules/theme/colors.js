@@ -32,7 +32,8 @@ export const lightColors = {
           text: '#404040',
           border: '#999',
           checked: '#864DD9',
-          uncheckedBg: '#DADADA'
+          uncheckedBg: '#DADADA',
+          arrow: '#F7F7F7'
         },
         switch: {
           bgActive: '#404040',
@@ -156,6 +157,21 @@ export const lightColors = {
     },
     toolTips: {
       background: '#F7F7F7',
+    },
+    bottomModal: {
+      bg: '#F5F5F5',
+      borderColor: '#DADADA'
+    },
+    streemChat: {
+      left: {
+        bg: '#E8E8E8',
+        color: '#404040',
+      },
+      right: {
+        bg: '#EAE3F4',
+        color: '#4E435F',
+      },
+      fileColor: '#4E435F'
     }
 };
 
@@ -193,7 +209,8 @@ export const darkColors = {
           text: '#DADADA',
           border: '#DADADA',
           checked: '#9E71E1',
-          uncheckedBg: '#353535'
+          uncheckedBg: '#353535',
+          arrow: '#DADADA'
         },
         switch: {
           bgActive: '#999',
@@ -317,5 +334,20 @@ export const darkColors = {
     },
     toolTips: {
       background: '#2E2E2E',
-    }
+    },
+    bottomModal: {
+      bg: '#6B6B6B',
+      borderColor: '#999999'
+    },
+    streemChat: {
+      left: {
+        bg: '#222222',
+        color: '#DADADA',
+      },
+      right: {
+        bg: 'rgba(134, 77, 217, 0.2)',
+        color: '#C1B8CE',
+      }
+    },
+    fileColor: '#C1B8CE'
 };
