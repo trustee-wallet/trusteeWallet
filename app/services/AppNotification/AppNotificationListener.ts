@@ -21,6 +21,7 @@ import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeysto
 import { Platform } from 'react-native'
 import { setLockScreenConfig, LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import { LANGUAGE_SETTINGS } from '@app/modules/Settings/helpers'
 
 
 const CACHE_VALID_TIME = 120000000 // 2000 minute
@@ -85,12 +86,11 @@ export default new class AppNotificationListener {
     }
 
     async _subscribe(topic: string, locale: string, isDev: boolean): Promise<void> {
-        const { languageList } = config.language
         if (DEBUG_NOTIFS) {
             Log.log('PUSH subscribe ' + topic + ' started ' + locale)
         }
 
-        for (const lang of languageList) {
+        for (const lang of LANGUAGE_SETTINGS) {
             const sub = sublocale(lang.code)
             if (sub === locale) {
                 if (DEBUG_NOTIFS) {
@@ -132,8 +132,6 @@ export default new class AppNotificationListener {
     }
 
     async _unsubscribe(topic: string): Promise<void> {
-        const { languageList } = config.language
-
         if (DEBUG_NOTIFS) {
             Log.log('PUSH unsubscribe ' + topic + ' started')
         }
@@ -145,7 +143,7 @@ export default new class AppNotificationListener {
         } else {
             await messaging().unsubscribeFromTopic(topic + '_android')
         }
-        for (const lang of languageList) {
+        for (const lang of LANGUAGE_SETTINGS) {
             const sub = sublocale(lang.code)
             await messaging().unsubscribeFromTopic(topic + '_' + sub)
             await messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
@@ -165,14 +163,13 @@ export default new class AppNotificationListener {
         if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
             return
         }
-        const { languageList } = config.language
         try {
             if (DEBUG_NOTIFS) {
                 await Log.log('PUSH rmvOld start')
             }
             await messaging().unsubscribeFromTopic('trustee_all')
             await messaging().unsubscribeFromTopic('trustee_dev')
-            for (const lang of languageList) {
+            for (const lang of LANGUAGE_SETTINGS) {
                 const sub = sublocale(lang.code)
                 await messaging().unsubscribeFromTopic('trustee_all_' + sub)
                 await messaging().unsubscribeFromTopic('trustee_dev_' + sub)
@@ -281,9 +278,9 @@ export default new class AppNotificationListener {
                     }
                 } catch (e) {
                     if (config.debug.appErrors) {
-                        console.log('PUSH getToken fcmToken error ' + e.message)
+                        console.log('PUSH getToken fcmToken error ' + e.message + ' ' + fcmToken)
                     }
-                    await Log.log('PUSH getToken fcmToken error ' + e.message)
+                    await Log.log('PUSH getToken fcmToken error ' + e.message + ' ' + fcmToken)
                 }
 
                 if (!fcmToken) {
