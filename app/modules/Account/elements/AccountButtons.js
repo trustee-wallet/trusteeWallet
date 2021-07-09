@@ -4,7 +4,7 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 
 import TransactionButton from './TransactionButton'

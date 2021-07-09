@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect'
 
 export const getIsBalanceVisible = createSelector(
-  [state => state.data],
-  (data => data.isBalanceVisible)
+    [state => state.data],
+    (data => data.isBalanceVisible)
 )
 
 export const getIsSegwit = createSelector(
@@ -24,12 +24,17 @@ export const getSettingsScreenData = createSelector(
     [state => state.settingsStore],
     (data => {
         return {
-            language : data.data.language,
-            localCurrency : data.data.local_currency,
-            lockScreenStatus : data.keystore.lockScreenStatus,
-            touchIDStatus : data.keystore.touchIDStatus,
-            askPinCodeWhenSending : data.keystore.askPinCodeWhenSending,
-            loggingCode : data.data.loggingCode || 'all'
+            language: data.data.language,
+            localCurrency: data.data.local_currency,
+            lockScreenStatus: data.keystore.lockScreenStatus,
+            touchIDStatus: data.keystore.touchIDStatus,
+            askPinCodeWhenSending: data.keystore.askPinCodeWhenSending,
+            loggingCode: data.data.loggingCode || 'all',
+            scannerCode: data.data.scannerCode || '1m',
+            notifsStatus: +data.data.notifsStatus,
+            transactionsNotifs: +data.data.transactionsNotifs,
+            exchangeRatesNotifs: +data.data.exchangeRatesNotifs,
+            newsNotifs: +data.data.newsNotifs
         }
     })
 )

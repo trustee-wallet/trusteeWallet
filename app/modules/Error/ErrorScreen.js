@@ -104,11 +104,6 @@ const ErrorScreen = (props) => {
     return (
         <View style={styles.wrapper}>
             <View style={styles.wrapper__content}>
-                {/* <Image */}
-                {/*    style={!PHONE ? styles.header__logo__phone : styles.header__logo} */}
-                {/*    resizeMode='stretch' */}
-                {/*    source={require('../assets/images/pic.png')}/> */}
-                {/* <SvgLogo width={699} height={399} /> //tablet */}
                 <SvgLogo width={WIDTH * 0.87} height={HEIGHT * 0.24} styles={styles}/>
                 <View style={styles.header__description}>
                     <Text style={!PHONE ? styles.header__title : stylesTablet.header__title__tablet}>

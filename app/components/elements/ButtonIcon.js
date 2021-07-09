@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 
 import { Image, Text, TouchableOpacity, View } from 'react-native'
 
-import QRCodeBtn from '../../assets/images/qrCodeBtn'
+import QRCodeBtn from '@assets/images/qrCodeBtn'
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 

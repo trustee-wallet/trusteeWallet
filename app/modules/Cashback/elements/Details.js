@@ -27,7 +27,7 @@ import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import TextInput from '@app/components/elements/new/TextInput'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'

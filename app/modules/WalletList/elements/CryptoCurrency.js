@@ -32,7 +32,7 @@ import Log from '@app/services/Log/Log'
 import { strings } from '@app/services/i18n'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
@@ -58,7 +58,7 @@ class CryptoCurrency extends React.PureComponent {
             status = 'setSelectedAccount started'
 
             await setSelectedAccount('CryptoCurrency.handleCurrencySelect')
-            
+
             await setSelectedAccountTransactions('CryptoCurrency.handleCurrencySelect')
 
             // Log.log('HomeScreen.Currency handleCurrencySelect finished ', cryptoCurrency)

@@ -15,7 +15,7 @@ import Log from '@app/services/Log/Log'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftPrettyLocalize from '@crypto/common/BlocksoftPrettyLocalize'
 
-import countries from '../../../assets/jsons/other/country-by-currency-code'
+import countries from '@assets/jsons/other/country-by-currency-code'
 import settingsActions from '../Settings/SettingsActions'
 import ApiRates from '@app/services/Api/ApiRates'
 import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'

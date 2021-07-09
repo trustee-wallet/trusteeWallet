@@ -16,12 +16,12 @@ import { strings, sublocale } from '@app/services/i18n'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import SliderImage1 from '@app/assets/images/slider/1.png'
-import SliderImage2 from '@app/assets/images/slider/2.png'
-import SliderImage3 from '@app/assets/images/slider/3.png'
-import SliderImage4 from '@app/assets/images/slider/4.png'
+import SliderImage1 from '@assets/images/slider/1.png'
+import SliderImage2 from '@assets/images/slider/2.png'
+import SliderImage3 from '@assets/images/slider/3.png'
+import SliderImage4 from '@assets/images/slider/4.png'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 

@@ -26,7 +26,7 @@ import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
 import { NOTIFIES_GROUP, ALLOWED_NOTIFICATIONS } from '@app/appstores/Stores/AppNews/AppNewsReducer'
 
 import { strings, sublocale } from '@app/services/i18n'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import Tabs from '@app/components/elements/new/Tabs'
 import ListItem from '@app/components/elements/new/list/ListItem/Notification'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'

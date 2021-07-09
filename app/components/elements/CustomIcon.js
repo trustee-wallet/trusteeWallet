@@ -3,6 +3,6 @@
  */
 import { createIconSetFromIcoMoon } from 'react-native-vector-icons'
 
-import icoMoonConfig from '../../assets/jsons/fonts/selection'
+import icoMoonConfig from '@assets/jsons/fonts/selection'
 
 export default createIconSetFromIcoMoon(icoMoonConfig)

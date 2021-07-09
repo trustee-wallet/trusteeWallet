@@ -18,7 +18,7 @@ import accountDS from '@app/appstores/DataSource/Account/Account'
 import Toast from '@app/services/UI/Toast/Toast'
 import Netinfo from '@app/services/Netinfo/Netinfo'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 

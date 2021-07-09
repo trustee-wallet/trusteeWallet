@@ -33,7 +33,7 @@ import MnemonicWord from '../WalletBackup/elements/MnemonicWord'
 import SelectedMnemonic from '../WalletBackup/elements/SelectedMnemonic'
 
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import MNEMONIC_DICTIONARY from '@app/services/UI/Validator/_words/english.json'
 import Validator from '@app/services/UI/Validator/Validator'

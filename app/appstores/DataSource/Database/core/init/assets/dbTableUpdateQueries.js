@@ -9,7 +9,7 @@ import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystor
 
 import Log from '@app/services/Log/Log';
 
-import countries from '@app/assets/jsons/other/country-codes';
+import countries from '@assets/jsons/other/country-codes';
 
 
 export default function getTableUpdateQueries() {
@@ -763,7 +763,7 @@ export default function getTableUpdateQueries() {
 			111: {
                 queryString: `ALTER TABLE card ADD COLUMN card_to_send_status INTEGER NULL`
             },
-			
+
 			112: {
                 queryString: `ALTER TABLE card ADD COLUMN card_create_wallet_hash VARCHAR(256) NULL`
             },
@@ -771,7 +771,7 @@ export default function getTableUpdateQueries() {
 			113: {
                 queryString: `ALTER TABLE wallet ADD COLUMN wallet_to_send_status INTEGER NULL`
             },
-			
+
 			114 : {
 				queryString: `ALTER TABLE wallet ADD COLUMN wallet_number INTEGER NULL`
 			},
@@ -788,7 +788,7 @@ export default function getTableUpdateQueries() {
                     }
                 }
 			},
-			
+
 			116: {
                 queryString: `ALTER TABLE card ADD COLUMN card_to_send_id INTEGER NULL`
             },

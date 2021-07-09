@@ -30,7 +30,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { getInit, getInitError } from '@app/appstores/Stores/Init/selectors'
 import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 class InitScreen extends React.PureComponent {
@@ -142,7 +142,7 @@ class InitScreen extends React.PureComponent {
                 <View style={{ flex: 1, justifyContent: 'center' }}>
                     <Image
                         style={styles.image}
-                        source={isLight ?  require('@app/assets/images/logo.png') : require('@app/assets/images/logoWhite.png')}
+                        source={isLight ?  require('@assets/images/logo.png') : require('@assets/images/logoWhite.png')}
                     />
                     <View style={{ marginTop: -70, marginBottom: 60 }}>
                         {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color={colors.initScreen.loader} /> :

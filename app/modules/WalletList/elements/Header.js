@@ -26,9 +26,9 @@ import Log from '@app/services/Log/Log'
 
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import WalletName from './WalletName/WalletName'
 

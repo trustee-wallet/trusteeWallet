@@ -21,7 +21,7 @@ import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import Log from '@app/services/Log/Log'
 import NavStore from '../navigation/NavStore'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 
 class Input extends Component {

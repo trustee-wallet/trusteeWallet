@@ -20,47 +20,6 @@ const config = {
             entryMarketURLTest: 'https://test.trustee.exchange'
         }
     },
-    language: {
-        languageList: [
-            {
-                code: 'en-US'
-            },
-            {
-                code: 'ru-RU'
-            },
-            {
-                code: 'uk-UA'
-            },
-            {
-                code: 'ka-GE'
-            }
-            /*
-            @todo de/es/fr languages
-            {
-                code : 'de-DE'
-            },
-            {
-                code: 'es-ES'
-            },
-            {
-                code : 'fr-FR'
-            }
-            */
-        ]
-    },
-    scanner: {
-        scannerSettings: [
-            {
-                code: '1min'
-            },
-            {
-                code: '10min'
-            },
-            {
-                code: 'none'
-            }
-        ]
-    },
     daemon: {
         updateTimes: {
             oneByOne: 5000, // 5 seconds

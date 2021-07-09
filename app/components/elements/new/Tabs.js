@@ -6,7 +6,7 @@ import {
     StyleSheet,
     TouchableOpacity
 } from 'react-native'
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 
 export default function Tabs(props) {

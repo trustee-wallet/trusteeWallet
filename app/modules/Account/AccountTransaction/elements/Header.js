@@ -8,7 +8,7 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 
 import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 import { strings } from '@app/services/i18n'
-import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 
 const getTransactionDate = (transaction) => {

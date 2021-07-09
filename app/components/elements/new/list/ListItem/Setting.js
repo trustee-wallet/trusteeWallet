@@ -13,7 +13,7 @@ import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIc
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import CustomIcon from '../../../CustomIcon'
 
-import { useTheme } from '../../../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 import { strings } from '../../../../../services/i18n'
 

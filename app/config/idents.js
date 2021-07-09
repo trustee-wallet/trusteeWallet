@@ -3,10 +3,6 @@
  */
 const idents = {
 
-    DEV_MODE : 'devModeNew',
-    TESTER_MODE : 'testerModeNew',
-
-
     FCM_CACHE_TOKEN_TIME : 'pushTokenTime',
     FCM_CACHE_TOKEN : 'pushTokenV2',
     FCM_ALL_CACHE_TOKENS : 'allPushTokens',

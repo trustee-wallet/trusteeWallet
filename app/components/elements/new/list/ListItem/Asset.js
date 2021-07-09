@@ -11,7 +11,7 @@ import { Switch } from 'react-native-switch'
 
 import CurrencyIcon from '../../../CurrencyIcon'
 
-import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 import { strings } from '@app/services/i18n'
 

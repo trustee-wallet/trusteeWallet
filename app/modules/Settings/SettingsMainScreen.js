@@ -1,18 +1,11 @@
 /**
- * @version 0.43
+ * @version 0.50
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import {
-    View,
-    Text,
-    ScrollView,
-    Vibration,
-    StyleSheet, Linking
-} from 'react-native'
+import { View, Text, ScrollView, Vibration, StyleSheet, Linking } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
-import AsyncStorage from '@react-native-community/async-storage'
 
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
@@ -25,7 +18,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
 import store from '@app/store'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
@@ -37,41 +30,21 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import idents from '@app/config/idents'
 import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
+import { LANGUAGE_SETTINGS } from './helpers'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 class SettingsMainScreen extends PureComponent {
-    constructor() {
-        super()
-        this.state = {
-            devMode: false,
-            mode: '',
-            testerMode: ''
-        }
-    }
 
-    // eslint-disable-next-line camelcase
-    async UNSAFE_componentWillMount() {
-        const devMode = await AsyncStorage.getItem(idents.DEV_MODE)
-        const testerMode = await AsyncStorage.getItem(idents.TESTER_MODE)
-
-        if (devMode && devMode.toString() === '1') {
-            config.devMode = true
-        }
-
-        if (typeof config.devMode !== 'undefined') {
-            this.setState({
-                devMode: true,
-                mode: config.exchange.mode,
-                testerMode: testerMode
-            })
-        }
+    state = {
+        devMode: trusteeAsyncStorage.getDevMode(),
+        mode: trusteeAsyncStorage.getDevMode() ? config.exchange.mode : '',
+        testerMode: trusteeAsyncStorage.getTesterMode() || ''
     }
 
     getLangCode = () => {
-        const { languageList } = config.language
         const { language } = this.props.settingsData
-        const tmpLanguage = languageList.find((item) => item.code.split('-')[0] === language.split('-')[0])
+        const tmpLanguage = LANGUAGE_SETTINGS.find((item) => item.code.split('-')[0] === language.split('-')[0])
         return typeof tmpLanguage === 'undefined' ? 'en-US' : tmpLanguage.code
     }
 
@@ -166,7 +139,7 @@ class SettingsMainScreen extends PureComponent {
         this.setState({
             mode
         })
-        
+
         setBseLink(null)
 
         Vibration.vibrate(100)
@@ -174,9 +147,8 @@ class SettingsMainScreen extends PureComponent {
 
 
     handleToggleTester = async () => {
-        let testerMode = await AsyncStorage.getItem(idents.TESTER_MODE)
-
-        if (testerMode === 'TESTER') {
+        let testerMode
+        if (this.state.testerMode === 'TESTER') {
             testerMode = 'USER'
             MarketingEvent.initMarketing(testerMode)
         } else {
@@ -184,7 +156,7 @@ class SettingsMainScreen extends PureComponent {
             MarketingEvent.initMarketing(testerMode)
         }
 
-        await AsyncStorage.setItem(idents.TESTER_MODE, testerMode)
+        trusteeAsyncStorage.setTesterMode(testerMode)
 
         Toast.setMessage(strings('settings.tester', { testerMode })).show()
 
@@ -195,20 +167,16 @@ class SettingsMainScreen extends PureComponent {
     }
 
     toggleDevMode = async () => {
-        if (config.devMode) {
-            config.devMode = false
-
+        if (this.state.devMode) {
             this.setState({
                 devMode: false,
-                mode: config.exchange.mode
+                mode: ''
             })
 
             Toast.setMessage('DEV MODE OFF').show()
 
-            await AsyncStorage.setItem(idents.DEV_MODE, '0')
+            await trusteeAsyncStorage.setDevMode('0')
         } else {
-            config.devMode = true
-
             this.setState({
                 devMode: true,
                 mode: config.exchange.mode
@@ -216,7 +184,7 @@ class SettingsMainScreen extends PureComponent {
 
             Toast.setMessage('DEV MODE').show()
 
-            await AsyncStorage.setItem(idents.DEV_MODE, '1')
+            await trusteeAsyncStorage.setDevMode('1')
         }
 
         await AppNotificationListener.updateSubscriptions()
@@ -437,7 +405,7 @@ const mapStateToProps = (state) => {
 
 SettingsMainScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(SettingsMainScreen)
+export default connect(mapStateToProps)(SettingsMainScreen)
 
 const styles = StyleSheet.create({
     scrollViewContent: {

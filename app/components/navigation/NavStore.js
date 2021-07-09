@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.50
  * https://reactnavigation.org/docs/navigating-without-navigation-prop
  * https://reactnavigation.org/docs/navigation-prop/
  */
@@ -59,13 +59,7 @@ export default {
         }
     },
 
-    goNext(routeName, params = null, reset = false) {
-        if (reset) {
-            console.log('navstore reset is depressed')
-            this.reset(routeName)
-            return false
-        }
-
+    goNext(routeName, params = null) {
         try {
             navigate(routeName, params)
         } catch (e) {

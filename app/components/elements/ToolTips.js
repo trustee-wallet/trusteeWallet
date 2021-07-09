@@ -12,7 +12,7 @@ import { strings } from '../../services/i18n'
 import ToolTipsActions from '../../appstores/Stores/ToolTips/ToolTipsActions'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 
-import { ThemeContext } from '../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import CustomIcon from './CustomIcon'
 
 

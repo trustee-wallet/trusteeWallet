@@ -32,7 +32,7 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
-import countriesDict from '@app/assets/jsons/other/country-codes'
+import countriesDict from '@assets/jsons/other/country-codes'
 import Validator from '@app/services/UI/Validator/Validator'
 import cardDS from '@app/appstores/DataSource/Card/Card'
 import { Cards } from '@app/services/Cards/Cards'
@@ -52,7 +52,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import config from '@app/config/config'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 

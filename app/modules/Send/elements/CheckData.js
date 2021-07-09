@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 
-import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 
@@ -28,12 +28,12 @@ const CheckData = (props) => {
         <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between', paddingTop: 22 }}>
             <TouchableOpacity style={{ width: '40%', flexDirection: 'row', alignItems: 'center' }} disabled={!iconCallback} onPress={() => iconCallback ? iconCallback() : null}>
                 <Text style={{...styles.name, color: colors.sendScreen.amount }}>{name}</Text>
-                    {icon && 
+                    {icon &&
                     <MaterialCommunityIcons
                         name="information-outline"
                         size={20}
                         color={'#864DD9'}
-                        style={{ paddingLeft: 2, marginTop: 3 }} 
+                        style={{ paddingLeft: 2, marginTop: 3 }}
                         />
                     }
             </TouchableOpacity>

@@ -16,7 +16,7 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { getQrCodeScannerConfig } from '@app/appstores/Stores/QRCodeScanner/selectors'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'

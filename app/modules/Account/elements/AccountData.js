@@ -6,7 +6,7 @@ import { Text, View, TouchableOpacity, StyleSheet } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import AccountButtons from './AccountButtons'
 

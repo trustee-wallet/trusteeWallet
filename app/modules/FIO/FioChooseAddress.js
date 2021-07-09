@@ -31,12 +31,12 @@ class FioChooseAddress extends PureComponent {
                             <ScrollView>
 
                                 <View style={styles.fio_item}>
-                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('@assets/images/fio-logo.png')} />
                                     <Text style={styles.fio_txt}>Fio Adress 1</Text>
                                 </View>
 
                                 <View style={styles.fio_item}>
-                                    <Image style={styles.fio_img} resize={'stretch'} source={require('../../assets/images/fio-logo.png')} />
+                                    <Image style={styles.fio_img} resize={'stretch'} source={require('@assets/images/fio-logo.png')} />
                                     <Text style={styles.fio_txt}>Fio Adress 2</Text>
                                 </View>
 

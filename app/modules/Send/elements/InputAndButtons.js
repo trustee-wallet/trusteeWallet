@@ -5,7 +5,7 @@ import React, { PureComponent } from 'react'
 import { View, Text, TouchableOpacity, Dimensions, StyleSheet, Linking } from 'react-native'
 import { connect } from 'react-redux'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { strings, sublocale } from '@app/services/i18n'
 
@@ -14,7 +14,7 @@ import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAn
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'

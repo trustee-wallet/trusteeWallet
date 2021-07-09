@@ -6,7 +6,7 @@ import { View, Text, ScrollView, Image, KeyboardAvoidingView, SafeAreaView, Touc
 import i18n, { strings } from '../../../services/i18n'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
 import Moment from 'moment';
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()

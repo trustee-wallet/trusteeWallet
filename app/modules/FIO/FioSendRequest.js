@@ -18,7 +18,7 @@ import config from '@app/config/config'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import Netinfo from '@app/services/Netinfo/Netinfo'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import TextInput from '@app/components/elements/new/TextInput'
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 import CustomIcon from '@app/components/elements/CustomIcon'

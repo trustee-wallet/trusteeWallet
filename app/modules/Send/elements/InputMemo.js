@@ -6,7 +6,7 @@ import { View, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
 import MemoInput from '@app/components/elements/NewInput'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { strings } from '@app/services/i18n'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'

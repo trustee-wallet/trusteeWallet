@@ -14,7 +14,7 @@ import NavStore from '../../../../components/navigation/NavStore'
 import { setFlowType } from '../../../../appstores/Stores/CreateWallet/CreateWalletActions'
 
 import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
-import { ThemeContext } from '../../../theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import styles from './styles'
 import { Colors } from 'react-native/Libraries/NewAppScreen'
 

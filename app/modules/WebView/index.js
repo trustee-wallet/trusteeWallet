@@ -19,7 +19,7 @@ import UrlParse from 'url-parse'
 import NavStore from '@app/components/navigation/NavStore'
 
 import { strings } from '@app/services/i18n'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import Log from '@app/services/Log/Log'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 

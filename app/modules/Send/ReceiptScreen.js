@@ -6,7 +6,7 @@ import { View, ScrollView, Text, StatusBar, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
 import { strings } from '@app/services/i18n'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import NavStore from '@app/components/navigation/NavStore'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'

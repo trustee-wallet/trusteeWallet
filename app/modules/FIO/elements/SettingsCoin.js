@@ -4,7 +4,7 @@
 import React, { Component } from 'react'
 import { View, Text,  Switch  } from 'react-native'
 import CurrencyIcon from '../../../components/elements/CurrencyIcon'
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 
 class SettingsCoin extends Component {

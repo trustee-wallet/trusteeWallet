@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.50
  * https://reactnavigation.org/docs/navigating-without-navigation-prop
  */
 import React from 'react'

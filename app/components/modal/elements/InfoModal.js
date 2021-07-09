@@ -12,7 +12,7 @@ import Button from '@app/components/elements/modal/Button'
 import Icon from '@app/components/elements/modal/Icon'
 import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import Toast from '@app/services/UI/Toast/Toast'

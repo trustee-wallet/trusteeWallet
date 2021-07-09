@@ -12,7 +12,7 @@ import Log from '../../../../services/Log/Log'
 import settingsActions from '../../../../appstores/Stores/Settings/SettingsActions'
 import UIDict from '../../../../services/UIDict/UIDict'
 
-import { ThemeContext } from '../../../theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
 

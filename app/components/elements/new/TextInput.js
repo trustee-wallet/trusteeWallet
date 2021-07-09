@@ -1,5 +1,5 @@
 /**
- * @version 0.44 
+ * @version 0.44
  */
 
 import React from 'react'
@@ -11,7 +11,7 @@ import {
     Animated
 } from 'react-native'
 
-import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 
 export default function Input(props) {

@@ -34,9 +34,9 @@ import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import CheckBox from '@app/components/elements/new/CheckBox'
 import CustomIcon from '@app/components/elements/CustomIcon'
 
-import ProgressAnimation from '@app/assets/jsons/animations/pieWithStroke.json'
+import ProgressAnimation from '@assets/jsons/animations/pieWithStroke.json'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -45,7 +45,7 @@ import { getLockScreenStatus, getSettingsScreenData } from '@app/appstores/Store
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import QrCodeBox from '@app/components/elements/QrCodeBox'
-import qrLogo from '@app/assets/images/logoWithWhiteBG.png'
+import qrLogo from '@assets/images/logoWithWhiteBG.png'
 
 const VISIBILITY_TIMEOUT = 4000
 

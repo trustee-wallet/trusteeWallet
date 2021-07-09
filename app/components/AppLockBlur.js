@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.50
  */
 import React from 'react'
 import { StyleSheet, View } from 'react-native'

@@ -2,7 +2,7 @@
  * @version 0.43
  */
 import React, { PureComponent } from 'react'
-import { ThemeContext } from '../theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'

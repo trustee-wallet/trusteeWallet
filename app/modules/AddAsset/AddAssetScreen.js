@@ -22,7 +22,7 @@ import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCod
 
 import { strings } from '@app/services/i18n'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
 import ListItem from '@app/components/elements/new/list/ListItem/Asset'

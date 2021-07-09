@@ -16,7 +16,7 @@ import DaemonCache from '@app/daemons/DaemonCache'
 import { getFioNames } from '@crypto/blockchains/fio/FioUtils'
 import Netinfo from '@app/services/Netinfo/Netinfo'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
@@ -98,7 +98,7 @@ class FioAddresses extends Component {
                                             borderBottomColor: colors.fio.borderColorLight
                                         }]} >
                                             <Image style={[styles.fio_img, { borderColor: colors.fio.borderColorLight }]} resize={'stretch'}
-                                                source={require('../../assets/images/fio-logo.png')} />
+                                                source={require('@assets/images/fio-logo.png')} />
                                             <Text style={[styles.fio_txt, { color: colors.common.text3 }]} >{address.fio_address}</Text>
                                         </View>
                                     </TouchableOpacity>

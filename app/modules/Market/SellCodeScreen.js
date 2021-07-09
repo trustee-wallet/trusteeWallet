@@ -73,7 +73,7 @@ class SellCodeScreen extends PureComponent {
             // eslint-disable-next-line no-new-func
             const getCode = new Function('data', 'Log', 'MarketingEvent', 'NavStore', 'setExchangeStatus', 'store', '_', 'state', 'that', 'BlocksoftAxios', 'axios', 'config', 'queryString', prepare)
             return getCode(param, Log, MarketingEvent, NavStore, this.setExchangeStatus, store, _, this.state, that, BlocksoftAxios, axios, config, queryString)
-        } 
+        }
         // else if (type === 'MSG') {
         //     // eslint-disable-next-line no-new-func
         //     const getCode = new Function('e', 'Log', 'showModal', 'setExchangeStatus', 'that', 'BlocksoftAxios', 'axios', 'config', prepare)
@@ -219,7 +219,7 @@ class SellCodeScreen extends PureComponent {
                                     width: 200,
                                     height: 200,
                                     marginTop: -50
-                                }} source={require('@app/assets/jsons/animations/loaderBlue.json')}
+                                }} source={require('@assets/jsons/animations/loaderBlue.json')}
                                     progress={this.state.progress} />
                             </View> : null
                     }

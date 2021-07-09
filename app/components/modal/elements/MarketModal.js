@@ -12,7 +12,7 @@ import Button from '@app/components/elements/modal/Button'
 import Icon from '@app/components/elements/modal/Icon'
 import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import CheckBox from '@app/components/elements/new/CheckBox'
 import AsyncStorage from '@react-native-community/async-storage'

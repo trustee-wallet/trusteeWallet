@@ -38,12 +38,12 @@ import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 import { strings } from '@app/services/i18n'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import AsyncStorage from '@react-native-community/async-storage'
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import Header from './elements/Header'
 import HeaderBlocks from './elements/HeaderBlocks'
@@ -51,8 +51,8 @@ import AccountButtons from './elements/AccountButtons'
 import Transaction from './elements/Transaction'
 import BalanceHeader from './elements/AccountData'
 
-import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
-import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
+import blackLoader from '@assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import Netinfo from '@app/services/Netinfo/Netinfo'

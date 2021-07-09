@@ -11,7 +11,7 @@ import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode'
 
 import NavStore from '@app/components/navigation/NavStore'
 import Header from '@app/components/elements/new/Header'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { strings } from '@app/services/i18n'
 
@@ -101,12 +101,12 @@ class LockScreen extends React.PureComponent {
                                 <Image
                                     style={styles.top__logo}
                                     resizeMode='stretch'
-                                    source={require('../../assets/images/logo.png')} />
+                                    source={require('@assets/images/logo.png')} />
                             ) : (
                                 <Image
                                     style={styles.top__logo}
                                     resizeMode='stretch'
-                                    source={require('../../assets/images/logoWhite.png')} />
+                                    source={require('@assets/images/logoWhite.png')} />
                             )
                             }
 

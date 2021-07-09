@@ -20,7 +20,7 @@ import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
 import config from '@app/config/config'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import styles from './styles'
 import DaemonCache from '@app/daemons/DaemonCache'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'

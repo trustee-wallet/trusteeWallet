@@ -12,7 +12,7 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import Netinfo from '@app/services/Netinfo/Netinfo'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'

@@ -13,7 +13,7 @@ import Loader from '@app/components/elements/LoaderItem'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import AsyncStorage from '@react-native-community/async-storage'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
@@ -27,7 +27,7 @@ import { strings } from '@app/services/i18n'
 
 import NavStore from '@app/components/navigation/NavStore'
 import CustomIcon from '@app/components/elements/CustomIcon'
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 class HeaderBlocks extends React.Component {
 

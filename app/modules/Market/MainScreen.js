@@ -38,7 +38,7 @@ import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import { Camera } from '@app/services/Camera/Camera'
 
-import countriesDict from '@app/assets/jsons/other/country-codes'
+import countriesDict from '@assets/jsons/other/country-codes'
 import Validator from '@app/services/UI/Validator/Validator'
 
 import { setBseLink, setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
@@ -49,7 +49,7 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import config from '@app/config/config'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { Cards } from '@app/services/Cards/Cards'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'

@@ -13,9 +13,9 @@ import {
 
 import CustomIcon from '../CustomIcon'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 export default class Header extends React.PureComponent {
 

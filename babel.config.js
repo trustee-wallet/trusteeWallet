@@ -2,6 +2,8 @@
 const ModuleResolverPlugin = ['module-resolver', {
     alias: {
         '@app': './app',
+        '@appV2' : './appV2',
+        '@assets' : './assets',
         '@crypto': './crypto'
     },
 }];

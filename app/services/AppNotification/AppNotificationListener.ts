@@ -20,6 +20,7 @@ import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeysto
 
 import { Platform } from 'react-native'
 import { setLockScreenConfig, LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 const CACHE_VALID_TIME = 120000000 // 2000 minute
@@ -202,8 +203,7 @@ export default new class AppNotificationListener {
         if (DEBUG_NOTIFS) {
             Log.log('settings ' + settings.language + ' locale ' + locale)
         }
-        const devMode = await AsyncStorage.getItem(idents.DEV_MODE)
-        const isDev = devMode && devMode.toString() === '1'
+        const isDev = trusteeAsyncStorage.getDevMode()
 
 
         await this._subscribe('trusteeAll', locale, isDev as boolean)

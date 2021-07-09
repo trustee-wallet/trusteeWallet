@@ -32,7 +32,7 @@ import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'

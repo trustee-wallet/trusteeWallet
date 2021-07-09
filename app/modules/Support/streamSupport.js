@@ -16,7 +16,7 @@ import { GiftedChat, Actions, Send, Avatar, Bubble, Composer, Time, InputToolbar
 
 import RNFS from 'react-native-fs';
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import { strings } from '@app/services/i18n'
@@ -329,7 +329,7 @@ class StreamSupportScreen extends PureComponent {
     sendLogs = async () => {
         try {
             const data = await SendLog.getAll('Support Chat', true)
-            
+
             const fileData = await RNFS.readFile(`file://${data.urls[0]}`, 'utf8') // utf8 - notworking
             await awsS3(this.props.streamSupportData.userName, `${this.props.streamSupportData.userName}.zip`, fileData)
             this.sheetRef.current.snapTo(1)

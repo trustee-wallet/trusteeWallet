@@ -168,7 +168,7 @@ class SMSV3CodeScreen extends PureComponent {
                                     width: 200,
                                     height: 200,
                                     marginTop: -50
-                                }} source={require('@app/assets/jsons/animations/loaderBlue.json')}
+                                }} source={require('@assets/jsons/animations/loaderBlue.json')}
                                     progress={this.state.progress} />
                             </View> : null
                     }

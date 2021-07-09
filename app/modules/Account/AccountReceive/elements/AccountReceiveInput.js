@@ -14,7 +14,7 @@ import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/Normalize
 
 import Log from '@app/services/Log/Log'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 
 class AccountReceiveInput extends Component {

@@ -10,7 +10,7 @@ import { strings } from '@app/services/i18n'
 
 import NavStore from '@app/components/navigation/NavStore'
 import AddressInput from '@app/components/elements/NewInput'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 

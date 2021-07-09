@@ -19,7 +19,7 @@ import EnterMnemonicPhrase from '@app/modules/WalletCreate/EnterMnemonicPhrase'
 
 import ErrorScreen from '@app/modules/Error/ErrorScreen'
 import HomeScreen from '@app/modules/WalletList/HomeScreen'
-import AboutScreen from '@app/modules/About/AboutScreen'
+import AboutScreen from '@app/modules/Settings/About/AboutScreen'
 import LockScreen from '@app/modules/LockScreen/LockScreen'
 import AddAssetScreen from '@app/modules/AddAsset/AddAssetScreen'
 import WebViewScreen from '@app/modules/WebView'
@@ -51,25 +51,24 @@ import FioMainSettings from '@app/modules/FIO/FioMainSettings'
 import FioSettings from '@app/modules/FIO/FioSettings'
 
 import SettingsMainScreen from '@app/modules/Settings/SettingsMainScreen'
-import WalletListScreen from '@app/modules/Settings/WalletListScreen'
-import AddWalletScreen from '@app/modules/Settings/AddWalletScreen'
-import BackupSearchWallet from '@app/modules/Settings/BackupSearchWalletScreen'
-import BackupSearchOne from '@app/modules/Settings/BackupSearchOneScreen'
+import WalletListScreen from '@app/modules/Settings/WalletList/WalletListScreen'
+import AddWalletScreen from '@app/modules/Settings/WalletList/AddWalletScreen'
+import BackupSearchWallet from '@app/modules/Settings/WalletList/BackupSearchWalletScreen'
+import BackupSearchOne from '@app/modules/Settings/WalletList/BackupSearchOneScreen'
+import AdvancedWalletScreen from '@app/modules/Settings/WalletList/AdvancedWalletScreen'
 
-import AdvancedWalletScreen from '@app/modules/Settings/AdvancedWalletScreen'
-import LocalCurrencyScreen from '@app/modules/Settings/LocalCurrencyScreen'
-import LanguageListScreen from '@app/modules/Settings/LanguageListScreen'
-import ScannerSettingsScreen from '@app/modules/Settings/ScannerSettingsScreen'
-import LoggingSettingsScreen from '@app/modules/Settings/LoggingSettingsScreen'
-import TermsOfUseScreen from '@app/modules/About/screens/TermsOfUseScreen'
-import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
+import LocalCurrencyScreen from '@app/modules/Settings/Subsettings/LocalCurrencyScreen'
+import LanguageListScreen from '@app/modules/Settings/Subsettings/LanguageListScreen'
+import ScannerSettingsScreen from '@app/modules/Settings/Subsettings/ScannerSettingsScreen'
+import LoggingSettingsScreen from '@app/modules/Settings/Subsettings/LoggingSettingsScreen'
+import NotificationsSettingScreen from '@app/modules/Settings/Subsettings/NotificationsScreen'
+
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
-import NotificationsSettingScreen from '@app/modules/Settings/NotificationsScreen'
 import SupportScreen from '@app/modules/Support/index'
 import StreamSupportScreen from '@app/modules/Support/streamSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
-import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -129,8 +128,6 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='ScannerSettingsScreen' component={ScannerSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='LoggingSettingsScreen' component={LoggingSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsSettingsScreen' component={NotificationsSettingScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='TermsOfUseScreen' component={TermsOfUseScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='PrivacyPolicyScreen' component={PrivacyPolicyScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='FioChooseRecipient' component={FioChooseRecipient} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioChooseAddress' component={FioChooseAddress} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

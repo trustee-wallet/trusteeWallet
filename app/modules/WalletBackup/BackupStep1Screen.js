@@ -22,7 +22,7 @@ import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import MnemonicWord from './elements/MnemonicWord'
 import SelectedMnemonic from './elements/SelectedMnemonic'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'

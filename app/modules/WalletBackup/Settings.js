@@ -28,7 +28,7 @@ import RadioButton from '@app/components/elements/new/RadioButton'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import ListItem from '@app/components/elements/new/list/ListItem/Basic'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import App from '@app/appstores/Actions/App/App'

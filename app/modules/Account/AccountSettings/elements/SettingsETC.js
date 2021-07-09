@@ -13,7 +13,7 @@ import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/
 import accountHdDS from '@app/appstores/DataSource/Account/AccountHd'
 import accountScanningDS from '@app/appstores/DataSource/Account/AccountScanning'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'

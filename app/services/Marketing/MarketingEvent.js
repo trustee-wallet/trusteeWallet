@@ -19,6 +19,7 @@ import changeableTester from '@app/config/changeable.tester'
 import DeviceInfo from 'react-native-device-info'
 import appsFlyer from 'react-native-appsflyer'
 import idents from '@app/config/idents'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 let CACHE_TG_INITED = false
 let CACHE_BALANCE = {}
@@ -54,7 +55,7 @@ class MarketingEvent {
         this.TG = new BlocksoftTg(changeableProd.tg.info.spamBot)
 
         if (testerMode === false) {
-            testerMode = await AsyncStorage.getItem(idents.TESTER_MODE)
+            testerMode = await trusteeAsyncStorage.getTesterMode()
         }
         this.UI_DATA.IS_TESTER = testerMode
 

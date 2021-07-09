@@ -12,9 +12,6 @@ import ru from '../../locales/ru.json'
 import uk from '../../locales/uk.json'
 
 import ka from '../../locales/ka.json'
-import de from '../../locales/de.json'
-import es from '../../locales/es.json'
-import fr from '../../locales/fr.json'
 
 i18n.defaultLocale = 'en'
 
@@ -33,7 +30,7 @@ if (Array.isArray(locales)) {
 }
 
 i18n.fallbacks = true
-i18n.translations = { en, ru, uk, ka, de, es, fr }
+i18n.translations = { en, ru, uk, ka }
 
 export function strings(name, params = {}) {
     return i18n.t(name, params)

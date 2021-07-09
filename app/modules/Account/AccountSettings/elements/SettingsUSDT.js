@@ -20,11 +20,11 @@ import Log from '../../../../services/Log/Log'
 import UpdateAccountBalanceAndTransactions from '../../../../daemons/back/UpdateAccountBalanceAndTransactions'
 import BlocksoftPrettyStrings from '../../../../../crypto/common/BlocksoftPrettyStrings'
 import Input from '../../../../components/elements/NewInput'
-import { ThemeContext } from '../../../theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import styles from './styles'
 import ListItem from '../../../../components/elements/new/list/ListItem/SubSetting'
 import CustomIcon from '../../../../components/elements/CustomIcon'
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 class SettingsUSDT extends Component {
 

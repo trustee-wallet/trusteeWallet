@@ -15,7 +15,7 @@ import {
 import { connect } from 'react-redux'
 import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import AsyncStorage from '@react-native-community/async-storage'
 
@@ -56,7 +56,7 @@ import HeaderTx from './elements/Header'
 import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getCashBackLinkFromDataAPi } from '@app/appstores/Stores/CashBack/selectors'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 
 let CACHE_RESCAN_TX = false

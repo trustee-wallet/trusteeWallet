@@ -31,9 +31,9 @@ import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { SIZE } from '../helpers'
 
