@@ -26,8 +26,7 @@ import WebViewScreen from '@app/modules/WebView'
 import NotificationsScreen from '@app/modules/Notifications'
 import QRCodeScannerScreen from '@app/modules/QRCodeScanner/QRCodeScannerScreen'
 import WalletConnectScreen from '@app/modules/WalletConnect/WalletConnectScreen'
-import MainV3DataScreen from '@app/modules/Trade/MainV3DataScreen'
-import SMSV3CodeScreen from '@app/modules/Trade/SMSV3CodeScreen'
+import SMSV3CodeScreen from '@app/modules/Market/SMSV3CodeScreen'
 import MarketScreen from '@app/modules/Market/MainScreen'
 import ExchangeV3Screen from '@app/modules/Exchange/MainV3DataScreen'
 import SendScreen from '@app/modules/Send/SendScreen'
@@ -103,7 +102,6 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='MainV3DataScreen' component={MainV3DataScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='ExchangeV3Screen' component={ExchangeV3Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendScreen' component={SendScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
