@@ -95,7 +95,7 @@ class App {
 
             this.initStatus = 'await customCurrencyActions.importCustomCurrenciesToDict()'
 
-            await settingsActions.getSettings()
+            await settingsActions.getSettings(true, false)
 
             this.initStatus = 'await settingsActions.getSettings()'
 

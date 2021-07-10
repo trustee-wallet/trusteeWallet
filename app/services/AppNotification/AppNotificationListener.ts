@@ -191,7 +191,7 @@ export default new class AppNotificationListener {
         if (DEBUG_NOTIFS) {
             Log.log('PUSH updateSubscriptions ' + fcmToken)
         }
-        const settings = await settingsActions.getSettings(false)
+        const settings = await settingsActions.getSettings(false, false)
         if (typeof settings === 'undefined' || !settings) {
             return
         }
@@ -262,6 +262,7 @@ export default new class AppNotificationListener {
             }
         }
 
+        await settingsActions.getSettings(false, false)
         const notifsSavedToken = await settingsActions.getSetting('notifsSavedToken')
         const notifsRmvOld = await settingsActions.getSetting('notifsRmvOld')
 

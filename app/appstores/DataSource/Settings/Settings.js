@@ -6,6 +6,8 @@ import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 
 const CACHE_SETTINGS = {}
+let CACHE_SETTINGS_INITED = false
+
 class Settings {
 
     setSettings = async (paramKey, paramValue) => {
@@ -27,12 +29,13 @@ class Settings {
         }
 
         CACHE_SETTINGS[paramKey] = {paramValue}
-
-        Log.log('DS/Settings setSettings ' + paramKey + ' finished')
         return true
     }
 
-    getSettings = async () => {
+    getSettings = async (reloadDB = true) => {
+        if (!reloadDB && CACHE_SETTINGS_INITED) {
+            return CACHE_SETTINGS
+        }
         const res = await Database.setQueryString(`SELECT * FROM settings`).query()
 
         let tmp
@@ -51,6 +54,7 @@ class Settings {
             await Database.setQueryString(`DELETE FROM settings WHERE id IN (${toRemove.join(',')})`).query()
         }
 
+        CACHE_SETTINGS_INITED = true
         return CACHE_SETTINGS
     }
 
@@ -64,7 +68,7 @@ class Settings {
         }
 
         const res = await Database.setQueryString(`SELECT * FROM settings WHERE [paramKey]='${key}'`).query()
-
+        console.log(`SELECT * FROM settings WHERE [paramKey]='${key}'`)
         if (!res.array || typeof res.array[0] === 'undefined') {
             CACHE_SETTINGS[key] = false
             return false

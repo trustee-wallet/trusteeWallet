@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 
 export const getIsBalanceVisible = createSelector(
     [state => state.data],
-    (data => data.isBalanceVisible)
+    (data => +data.isBalanceVisible === 1)
 )
 
 export const getIsSegwit = createSelector(
@@ -31,10 +31,11 @@ export const getSettingsScreenData = createSelector(
             askPinCodeWhenSending: data.keystore.askPinCodeWhenSending,
             loggingCode: data.data.loggingCode || 'all',
             scannerCode: data.data.scannerCode || '1m',
-            notifsStatus: +data.data.notifsStatus,
-            transactionsNotifs: +data.data.transactionsNotifs,
-            exchangeRatesNotifs: +data.data.exchangeRatesNotifs,
-            newsNotifs: +data.data.newsNotifs
+            notifsStatus: +data.data.notifsStatus === 1,
+            transactionsNotifs: +data.data.transactionsNotifs === 1,
+            exchangeRatesNotifs: +data.data.exchangeRatesNotifs === 1,
+            newsNotifs: +data.data.newsNotifs === 1,
+            isBalanceVisible : +data.data.isBalanceVisible === 1
         }
     })
 )

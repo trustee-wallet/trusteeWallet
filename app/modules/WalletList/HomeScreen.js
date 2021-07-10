@@ -52,6 +52,7 @@ import { getIsBlurVisible, getSelectedWalletData } from '@app/appstores/Stores/M
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 let CACHE_SET_WALLET_HASH = false
@@ -252,8 +253,7 @@ class HomeScreen extends React.PureComponent {
 
     changeBalanceVisibility = async () => {
         const newVisibilityValue = !this.state.isBalanceVisible
-        await AsyncStorage.setItem('isBalanceVisible', JSON.stringify(newVisibilityValue))
-        await settingsActions.getSettings()
+        settingsActions.setSettings('isBalanceVisible', newVisibilityValue)
         this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
     }
 
