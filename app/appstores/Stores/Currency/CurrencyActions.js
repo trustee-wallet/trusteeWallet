@@ -15,54 +15,15 @@ import Log from '@app/services/Log/Log'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftPrettyLocalize from '@crypto/common/BlocksoftPrettyLocalize'
 
-import countries from '@assets/jsons/other/country-by-currency-code'
-import settingsActions from '../Settings/SettingsActions'
-import ApiRates from '@app/services/Api/ApiRates'
 import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 const { dispatch } = store
 
-const BASIC_CURRENCIES_DICTS = {}
-
 const currencyActions = {
 
     init: async function () {
-        await currencyActions.reloadDict()
         await currencyActions.setCryptoCurrencies()
-        const currencyCode = await settingsActions.getSetting('local_currency')
-        currencyActions.setSelectedBasicCurrencyCode(currencyCode)
-    },
-
-    reloadDict: async function () {
-        const basicCurrencies = await ApiRates.getBasicCurrencies()
-        const basicCountries = {}
-        let tmp
-        for (tmp of countries) {
-            basicCountries[tmp.currencyCode] = tmp
-        }
-
-        for (tmp of basicCurrencies) {
-            BASIC_CURRENCIES_DICTS[tmp.currencyCode] = {
-                ...tmp,
-                ...basicCountries[tmp.currencyCode]
-            }
-        }
-    },
-
-    setSelectedBasicCurrencyCode: function (currencyCode) {
-        if (typeof BASIC_CURRENCIES_DICTS[currencyCode] === 'undefined') {
-            currencyCode = 'USD'
-        }
-
-        dispatch({
-            type: 'SET_SELECTED_BASIC_CURRENCY',
-            selectedBasicCurrency: BASIC_CURRENCIES_DICTS[currencyCode]
-        })
-    },
-
-    getBasicCurrencies: function () {
-        return BASIC_CURRENCIES_DICTS
     },
 
     updateCryptoCurrencies: async function (data) {

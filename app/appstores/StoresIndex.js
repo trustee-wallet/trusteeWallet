@@ -9,6 +9,7 @@ import createWalletStoreReducer from './Stores/CreateWallet/CreateWalletStore'
 import walletStoreReducer from './Stores/Wallet/WalletStore'
 import accountStoreReducer from './Stores/Account/AccountStore'
 import currencyStoreReducer from './Stores/Currency/CurrencyStore'
+import currencyBasicReducer from './Stores/CurrencyBasic/CurrencyBasicStore'
 import modalReducer from './Stores/Modal/ModalStore'
 import qrCodeScannerReducer from './Stores/QRCodeScanner/QRCodeScannerStore'
 import settingsReducer from './Stores/Settings/SettingsStore'
@@ -25,6 +26,7 @@ export default combineReducers({
     walletStore: walletStoreReducer,
     accountStore: accountStoreReducer,
     currencyStore: currencyStoreReducer,
+    currencyBasicStore : currencyBasicReducer,
     createWalletStore: createWalletStoreReducer,
     qrCodeScannerStore: qrCodeScannerReducer,
     modalStore: modalReducer,

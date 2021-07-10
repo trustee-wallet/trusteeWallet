@@ -85,18 +85,6 @@ export function setSelectedCryptoCurrency(data) {
     })
 }
 
-export async function saveSelectedBasicCurrencyCode(currencyCode) {
-    Log.log('ACT/MStore setSelectedBasicCurrency called ' + currencyCode)
-
-    await settingsActions.setSettings('local_currency', currencyCode)
-
-    await currencyActions.setSelectedBasicCurrencyCode(currencyCode)
-
-    await UpdateAccountListDaemon.forceDaemonUpdate()
-
-}
-
-
 export async function setSelectedAccount(source) {
     // console.log('ACT/MStore setSelectedAccount called ' + source)
 

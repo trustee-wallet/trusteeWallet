@@ -17,7 +17,6 @@ const defaultSettings = {
     transactionsNotifs : '1',
     exchangeRatesNotifs : '1',
     newsNotifs : '1',
-    notifsDevToken : '',
     isBalanceVisible : '1'
 }
 
@@ -78,7 +77,7 @@ const settingsActions = {
         try {
             const res = await settingsDS.setSettings(key, value)
             if (res) {
-                await settingsActions.getSettings()
+                await settingsActions.getSettings(true, false)
             }
         } catch (e) {
             Log.err('ACT/Settings setSettings ' + key + ' error ' + e.message)

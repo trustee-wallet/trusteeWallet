@@ -32,6 +32,7 @@ import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaem
 
 
 import config from '../../../config/config'
+import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBasicActions'
 
 if (Text.defaultProps == null) Text.defaultProps = {}
 Text.defaultProps.allowFontScaling = false
@@ -162,6 +163,8 @@ class App {
             await setSelectedWallet('ACT/App appRefreshWalletsStates called from ' + source)
 
             await currencyActions.init()
+
+            await currencyBasicActions.init()
 
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })

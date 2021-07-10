@@ -1,9 +1,7 @@
 /**
- * @version 0.9
+ * @version 0.50
  */
-import Database from '@app/appstores/DataSource/Database';
-
-import Log from '../../../services/Log/Log'
+import Database from '@app/appstores/DataSource/Database'
 
 const CACHE_SETTINGS = {}
 let CACHE_SETTINGS_INITED = false
@@ -19,11 +17,8 @@ class Settings {
 
         const dbParamValue = Database.escapeString(paramValue)
 
-        const updateRes = await Database.setQueryString(`
-            UPDATE settings
-            SET paramValue='${dbParamValue}'
-            WHERE paramKey='${paramKey}';
-        )`).query()
+        const sql = ` UPDATE settings  SET paramValue='${dbParamValue}'  WHERE paramKey='${paramKey}' `
+        const updateRes = await Database.setQueryString(sql).query()
         if(!updateRes.rowsAffected) {
             await Database.setQueryString(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('${paramKey}', '${dbParamValue}')`).query()
         }
@@ -68,7 +63,6 @@ class Settings {
         }
 
         const res = await Database.setQueryString(`SELECT * FROM settings WHERE [paramKey]='${key}'`).query()
-        console.log(`SELECT * FROM settings WHERE [paramKey]='${key}'`)
         if (!res.array || typeof res.array[0] === 'undefined') {
             CACHE_SETTINGS[key] = false
             return false

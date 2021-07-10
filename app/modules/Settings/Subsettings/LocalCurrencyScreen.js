@@ -7,66 +7,52 @@ import { ScrollView, StyleSheet } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import { saveSelectedBasicCurrencyCode, setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
-import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
+import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBasicActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import { strings, sublocale } from '@app/services/i18n'
+import { strings } from '@app/services/i18n'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+import { getCurrenciesBasic } from '@app/appstores/Stores/CurrencyBasic/selectors'
+
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 class LocalCurrencyScreen extends PureComponent {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            currencies: [],
-            viewCurrencies: [],
-        }
-    }
-
-    UNSAFE_componentWillMount() {
-        let basicCurrencies = currencyActions.getBasicCurrencies()
-        let currencies = []
-        let currencyCode
-        let suffix = sublocale()
-        for (currencyCode in basicCurrencies) {
-            let tmp = basicCurrencies[currencyCode]
-            if (typeof tmp.currencyNameSuffixed !== 'undefined' && typeof tmp.currencyNameSuffixed[suffix] !== 'undefined') {
-                tmp.currencyName = tmp.currencyNameSuffixed[suffix]
-            } else if (typeof tmp.currencyName === 'undefined') {
-                tmp.currencyName = strings(`currencyList.${currencyCode}.currency`)
-            }
-            currencies.push(tmp)
-        }
-
-        this.setState({
-            currencies,
-            viewCurrencies: currencies
-        })
-    }
-
-
     setLocalCurrencyCode = (currencyCode) => {
-        saveSelectedBasicCurrencyCode(currencyCode)
-        setBseLink(null)
-        this.handleClose()
+        try {
+            settingsActions.setSettings('local_currency', currencyCode)
+            currencyBasicActions.setSelectedBasicCurrencyCode(currencyCode)
+            setBseLink(null)
+            NavStore.goBack()
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('LocalCurrencyScreen.setLocalCurrencyCode error ' + e.message)
+            }
+            Log.log('LocalCurrencyScreen.setLocalCurrencyCode error ' + e.message)
+        }
     }
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => {
+        NavStore.goBack()
+    }
 
-    handleClose = () => { NavStore.reset('HomeScreen') }
+    handleClose = () => {
+        NavStore.goBack()
+        NavStore.goBack()
+    }
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.LocalCurrencyScreen')
 
-        const { local_currency: localCurrency } = this.props.settingsData
-
+        const { localCurrency } = this.props.settingsData
         const { GRID_SIZE } = this.context
-        const { viewCurrencies } = this.state
 
         return (
             <ScreenWrapper
@@ -82,13 +68,14 @@ class LocalCurrencyScreen extends PureComponent {
                     keyboardShouldPersistTaps="handled"
                 >
                     {
-                        viewCurrencies.map((item, index) => (
+                        this.props.currenciesBasic.map((item, index) => (
                             <ListItem
+                                key={item.currencyCode}
                                 checked={item.currencyCode === localCurrency}
                                 title={item.currencyName}
                                 subtitle={item.currencyCode}
                                 onPress={() => this.setLocalCurrencyCode(item.currencyCode)}
-                                last={viewCurrencies.length - 1 === index}
+                                last={this.props.currenciesBasic.length - 1 === index}
                             />
                         ))
                     }
@@ -101,6 +88,7 @@ class LocalCurrencyScreen extends PureComponent {
 const mapStateToProps = (state) => {
     return {
         settingsData: getSettingsScreenData(state),
+        currenciesBasic: getCurrenciesBasic(state)
     }
 }
 

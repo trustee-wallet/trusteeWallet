@@ -252,8 +252,9 @@ class HomeScreen extends React.PureComponent {
     }
 
     changeBalanceVisibility = async () => {
+        console.log('trigger')
         const newVisibilityValue = !this.state.isBalanceVisible
-        settingsActions.setSettings('isBalanceVisible', newVisibilityValue)
+        settingsActions.setSettings('isBalanceVisible', newVisibilityValue ? '1' : '0')
         this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
     }
 

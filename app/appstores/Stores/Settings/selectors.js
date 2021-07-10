@@ -1,3 +1,6 @@
+/**
+ * @version 0.50
+ */
 import { createSelector } from 'reselect'
 
 export const getIsBalanceVisible = createSelector(

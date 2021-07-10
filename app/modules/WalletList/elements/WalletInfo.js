@@ -21,7 +21,9 @@ import GradientView from '@app/components/elements/GradientView'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { saveSelectedBasicCurrencyCode, setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
+import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBasicActions'
+
 import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
@@ -77,7 +79,7 @@ class WalletInfo extends React.PureComponent {
                 await settingsActions.setSettings('local_currency_homescreen', selectedBasicCurrency.currencyCode)
                 CACHE_PREV_CURRENCY = selectedBasicCurrency.currencyCode
             }
-            await saveSelectedBasicCurrencyCode('USD')
+            await setSelectedBasicCurrencyCode('USD')
         } else {
             if (!CACHE_PREV_CURRENCY) {
                 CACHE_PREV_CURRENCY = await settingsActions.getSetting('local_currency_homescreen')
@@ -85,7 +87,7 @@ class WalletInfo extends React.PureComponent {
             if (!CACHE_PREV_CURRENCY) {
                 CACHE_PREV_CURRENCY = 'UAH'
             }
-            await saveSelectedBasicCurrencyCode(CACHE_PREV_CURRENCY)
+            await setSelectedBasicCurrencyCode(CACHE_PREV_CURRENCY)
         }
     }
 
