@@ -130,7 +130,7 @@ export namespace SendActionsStart {
             dict
         })
         await SendActionsBlockchainWrapper.getFeeRate(ui)
-        NavStore.goNext('HomeScreen', { screen: 'ReceiptScreen' })
+        NavStore.goNext('MarketReceiptScreen')
     }
 
     export const getTransferAllBalanceFromBSE = async (data : {
@@ -200,7 +200,7 @@ export namespace SendActionsStart {
             dict
         })
         await SendActionsBlockchainWrapper.getFeeRate(ui)
-        NavStore.goNext('HomeScreen', { screen: 'ReceiptScreen' })
+        NavStore.goNext('MarketReceiptScreen')
     }
 
 

@@ -583,7 +583,7 @@ class AccountTransactionScreen extends PureComponent {
 
     backAction = async () => {
         if (this.state.uiType === 'TRADE_SEND') {
-            NavStore.goNext('MarketScreen')
+            NavStore.reset('TabBar')
         } else if (this.state.toOpenAccountBack) {
             setSelectedCryptoCurrency(this.props.cryptoCurrency)
             await setSelectedAccount('AccountTransactionScreen.backAction')
@@ -591,14 +591,6 @@ class AccountTransactionScreen extends PureComponent {
             NavStore.reset('AccountScreen')
         } else {
             NavStore.goBack()
-        }
-    }
-
-    closeAction = () => {
-        if (this.state.uiType === 'TRADE_SEND') {
-            NavStore.reset('MarketScreen') // @todo here some param to reset all search
-        } else {
-            NavStore.reset('HomeScreen')
         }
     }
 
