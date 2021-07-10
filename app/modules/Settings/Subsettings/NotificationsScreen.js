@@ -12,7 +12,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { strings } from '@app/services/i18n'
 
 import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
-import { AppNewsActions }  from '@app/appstores/Stores/AppNews/AppNewsActions'
+import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
@@ -35,12 +35,14 @@ class NotificationsSettingScreen extends PureComponent {
     handleChangeNotifications = async () => {
         try {
             const { notifsStatus } = this.props.settingsData
-            await settingsActions.setSettings('notifsStatus', +notifsStatus ? '0' : '1')
-            await settingsActions.setSettings('transactionsNotifs', +notifsStatus ? '0' : '1')
-            await settingsActions.setSettings('exchangeRatesNotifs', +notifsStatus ? '0' : '1')
-            await settingsActions.setSettings('newsNotifs', +notifsStatus ? '0' : '1')
-            //await AppNotificationListener.updateSubscriptionsLater()
-            //AppNewsActions.updateSettings()
+            await settingsActions.setSettingKeyArray({
+                'notifsStatus': notifsStatus ? '0' : '1',
+                'transactionsNotifs': notifsStatus ? '0' : '1',
+                'exchangeRatesNotifs': notifsStatus ? '0' : '1',
+                'newsNotifs': notifsStatus ? '0' : '1'
+            })
+            await AppNotificationListener.updateSubscriptionsLater()
+            AppNewsActions.updateSettings()
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NotificationsScreen.handleChangeNotifications error ' + e.message)
@@ -50,21 +52,21 @@ class NotificationsSettingScreen extends PureComponent {
 
     handleChangeTransactions = async () => {
         const { transactionsNotifs } = this.props.settingsData
-        await settingsActions.setSettings('transactionsNotifs', +transactionsNotifs ? '0' : '1')
-        //await AppNotificationListener.updateSubscriptionsLater()
+        await settingsActions.setSettings('transactionsNotifs', transactionsNotifs ? '0' : '1')
+        await AppNotificationListener.updateSubscriptionsLater()
     }
 
     handleChangeRates = async () => {
         const { exchangeRatesNotifs } = this.props.settingsData
-        await settingsActions.setSettings('exchangeRatesNotifs', +exchangeRatesNotifs ? '0' : '1')
-       // await AppNotificationListener.updateSubscriptionsLater()
-       // AppNewsActions.updateSettings()
+        await settingsActions.setSettings('exchangeRatesNotifs', exchangeRatesNotifs ? '0' : '1')
+        await AppNotificationListener.updateSubscriptionsLater()
+        AppNewsActions.updateSettings()
     }
 
     handleChangeNews = async () => {
         const { newsNotifs } = this.props.settingsData
-        await settingsActions.setSettings('newsNotifs', +newsNotifs ? '0' : '1')
-        //await AppNotificationListener.updateSubscriptionsLater()
+        await settingsActions.setSettings('newsNotifs', newsNotifs ? '0' : '1')
+        await AppNotificationListener.updateSubscriptionsLater()
     }
 
     render() {
@@ -76,67 +78,72 @@ class NotificationsSettingScreen extends PureComponent {
             notifsStatus,
             transactionsNotifs,
             exchangeRatesNotifs,
-            newsNotifs,
+            newsNotifs
         } = this.props.settingsData
-        const notificationsEnabled = notifsStatus === '1'
-        const transactionsNotifications = transactionsNotifs === '1'
-        const exchangeRatesNotifications = exchangeRatesNotifs === '1'
-        const newsNotifications = newsNotifs === '1'
-
 
         return (
             <ScreenWrapper
-                leftType="back"
+                leftType='back'
                 leftAction={this.handleBack}
-                rightType="close"
+                rightType='close'
                 rightAction={this.handleClose}
                 title={strings('settings.notifications.title')}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollViewContent}
-                    keyboardShouldPersistTaps="handled"
+                    keyboardShouldPersistTaps='handled'
                 >
                     <View style={{ paddingHorizontal: GRID_SIZE }}>
 
                         <View style={{ marginVertical: GRID_SIZE }}>
                             <ListItem
                                 title={strings('settings.notifications.allNotificationsTitle')}
-                                iconType="notifications"
+                                iconType='notifications'
                                 onPress={this.handleChangeNotifications}
-                                rightContent="switch"
-                                switchParams={{ value: notificationsEnabled, onPress: this.handleChangeNotifications }}
+                                rightContent='switch'
+                                switchParams={{ value: notifsStatus, onPress: this.handleChangeNotifications }}
                                 last
                             />
                         </View>
 
                         <View style={{ marginVertical: GRID_SIZE }}>
-                            <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginBottom: GRID_SIZE / 2 }]}>{strings('settings.notifications.additional')}</Text>
+                            <Text style={[styles.blockTitle, {
+                                color: colors.common.text3,
+                                marginLeft: GRID_SIZE,
+                                marginBottom: GRID_SIZE / 2
+                            }]}>{strings('settings.notifications.additional')}</Text>
                             <ListItem
                                 title={strings('settings.notifications.transactionsTitle')}
                                 subtitle={strings('settings.notifications.transactionsSubtitle')}
-                                iconType="transactions"
+                                iconType='transactions'
                                 onPress={this.handleChangeTransactions}
-                                rightContent="switch"
-                                disabled={!notificationsEnabled}
-                                switchParams={{ value: notificationsEnabled && transactionsNotifications, onPress: this.handleChangeTransactions }}
+                                rightContent='switch'
+                                disabled={!notifsStatus}
+                                switchParams={{
+                                    value: notifsStatus && transactionsNotifs,
+                                    onPress: this.handleChangeTransactions
+                                }}
                             />
                             <ListItem
                                 title={strings('settings.notifications.exchangeRatesTitle')}
                                 subtitle={strings('settings.notifications.exchangeRateSubtitle')}
-                                iconType="exchangeRates"
+                                iconType='exchangeRates'
                                 onPress={this.handleChangeRates}
-                                rightContent="switch"
-                                disabled={!notificationsEnabled}
-                                switchParams={{ value: notificationsEnabled && exchangeRatesNotifications, onPress: this.handleChangeRates }}
+                                rightContent='switch'
+                                disabled={!notifsStatus}
+                                switchParams={{
+                                    value: notifsStatus && exchangeRatesNotifs,
+                                    onPress: this.handleChangeRates
+                                }}
                             />
                             <ListItem
                                 title={strings('settings.notifications.newsTitle')}
-                                iconType="news"
+                                iconType='news'
                                 onPress={this.handleChangeNews}
-                                rightContent="switch"
-                                disabled={!notificationsEnabled}
-                                switchParams={{ value: notificationsEnabled && newsNotifications, onPress: this.handleChangeNews }}
+                                rightContent='switch'
+                                disabled={!notifsStatus}
+                                switchParams={{ value: notifsStatus && newsNotifs, onPress: this.handleChangeNews }}
                                 last
                             />
                         </View>
@@ -150,7 +157,7 @@ class NotificationsSettingScreen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        settingsData: getSettingsScreenData(state),
+        settingsData: getSettingsScreenData(state)
     }
 }
 
@@ -160,13 +167,13 @@ export default connect(mapStateToProps)(NotificationsSettingScreen)
 
 const styles = StyleSheet.create({
     scrollViewContent: {
-        flexGrow: 1,
+        flexGrow: 1
     },
     blockTitle: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,
         lineHeight: 14,
         letterSpacing: 1.5,
-        textTransform: 'uppercase',
-    },
+        textTransform: 'uppercase'
+    }
 })

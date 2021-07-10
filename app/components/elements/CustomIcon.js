@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.50
  */
 import { createIconSetFromIcoMoon } from 'react-native-vector-icons'
 

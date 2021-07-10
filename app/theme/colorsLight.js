@@ -158,9 +158,6 @@ export const colorsLight = {
         warning: '#F59E6C',
         info: '#2A7FDB'
     },
-    toolTips: {
-        background: '#F7F7F7'
-    },
     bottomModal: {
         bg: '#F5F5F5',
         borderColor: '#DADADA'
