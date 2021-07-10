@@ -15,7 +15,8 @@ import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import CheckBox from '@app/components/elements/new/CheckBox'
-import AsyncStorage from '@react-native-community/async-storage'
+
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 class MarketModal extends Component {
 
@@ -35,7 +36,7 @@ class MarketModal extends Component {
         const { callback } = this.props
         const { notShowAgain } = this.state
 
-        AsyncStorage.setItem('smartSwapMsg', `${notShowAgain}`)
+        trusteeAsyncStorage.setSmartSwapMsg(notShowAgain ? '1' : '0')
         hideModal()
         callback()
     }

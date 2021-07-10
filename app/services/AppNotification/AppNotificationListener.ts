@@ -2,14 +2,12 @@
  * @version 0.30
  **/
 import messaging from '@react-native-firebase/messaging'
-import AsyncStorage from '@react-native-community/async-storage'
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
 
 import MarketingEvent from '../Marketing/MarketingEvent'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import config from '../../config/config'
-import idents from '@app/config/idents'
 
 import NavStore from '../../components/navigation/NavStore'
 import UpdateAppNewsDaemon from '../../daemons/back/UpdateAppNewsDaemon'
@@ -245,9 +243,9 @@ export default new class AppNotificationListener {
     }
 
     async getToken(): Promise<string | null> {
-        let fcmToken: string | null = await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN)
+        let fcmToken: string | null = await trusteeAsyncStorage.getFcmToken()
         // @ts-ignore
-        let time: number = 1 * (await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN_TIME))
+        let time: number = 1 * trusteeAsyncStorage.getFcmTokenTime()
 
         const now = new Date().getTime()
         if (time && fcmToken) {
@@ -302,7 +300,7 @@ export default new class AppNotificationListener {
                     await Log.log('PUSH getToken subscribed token ' + fcmToken)
                 }
                 await this._onRefresh(fcmToken)
-                await AsyncStorage.setItem(idents.FCM_CACHE_TOKEN_TIME, now + '')
+                trusteeAsyncStorage.setFcmTokenTime(now + '')
             } else {
                 // Log.log('PUSH getToken1 cache result ', fcmToken)
             }
@@ -411,8 +409,7 @@ export default new class AppNotificationListener {
 
     _onRefresh = async (fcmToken: string): Promise<void> => {
         if (!fcmToken) return
-        await AsyncStorage.setItem(idents.FCM_CACHE_TOKEN, fcmToken)
-        let tmp = await AsyncStorage.getItem(idents.FCM_ALL_CACHE_TOKENS)
+        let tmp = await trusteeAsyncStorage.getFcmTokensAll()
         let all = {}
         try {
             if (tmp != null) {
@@ -427,7 +424,7 @@ export default new class AppNotificationListener {
         if (DEBUG_NOTIFS) {
             Log.log('PUSH _onRefreshAll ', all)
         }
-        await AsyncStorage.setItem(idents.FCM_ALL_CACHE_TOKENS, JSON.stringify(all))
+        await trusteeAsyncStorage.setFcmTokensAll(all, fcmToken)
     }
 
     createRefreshListener = async (): Promise<void> => {

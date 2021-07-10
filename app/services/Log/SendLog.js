@@ -5,19 +5,18 @@ import Log from './Log'
 import { FileSystem } from '../FileSystem/FileSystem'
 import BlocksoftCryptoLog from '../../../crypto/common/BlocksoftCryptoLog'
 import { getSqlForExport, cleanupNotNeeded } from '@app/appstores/DataSource/Database'
-import AsyncStorage from '@react-native-community/async-storage'
 
 import { zip } from 'react-native-zip-archive'
 import FilePermissions from '../FileSystem/FilePermissions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-import idents from '@app/config/idents'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 class SendLog {
     async getAll(basicText = '') {
         let deviceToken = ''
         try {
-            deviceToken = await AsyncStorage.getItem(idents.FCM_ALL_CACHE_TOKENS)
+            deviceToken = trusteeAsyncStorage.getFcmTokensAll()
         } catch (e) {
             // do nothing
         }

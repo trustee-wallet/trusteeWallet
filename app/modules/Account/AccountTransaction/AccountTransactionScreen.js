@@ -17,8 +17,6 @@ import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import AsyncStorage from '@react-native-community/async-storage'
-
 import Log from '@app/services/Log/Log'
 
 import UIDict from '@app/services/UIDict/UIDict'
@@ -57,6 +55,7 @@ import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalle
 import { getCashBackLinkFromDataAPi } from '@app/appstores/Stores/CashBack/selectors'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import { HIT_SLOP } from '@app/theme/HitSlop'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 let CACHE_RESCAN_TX = false
@@ -385,7 +384,7 @@ class AccountTransactionScreen extends PureComponent {
                 icon: 'WARNING',
                 description: strings('account.externalLink.description')
             }, () => {
-                AsyncStorage.setItem('asked', now + '')
+               trusteeAsyncStorage.setExternalAsked(now + '')
                 this.props.cacheAsked = now
                 this.openLink(link)
             })

@@ -60,10 +60,11 @@ import Button from '@app/components/elements/new/buttons/Button'
 import blackLoader from '@assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import AsyncStorage from '@react-native-community/async-storage'
+
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -162,13 +163,8 @@ class AccountReceiveScreen extends React.PureComponent {
         try {
             await Netinfo.isInternetReachable()
 
-            // if (config.exchange.mode === 'PROD') {
-            //     NavStore.goNext('ExchangeV3ScreenStack')
-            // } else {
-            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
-            showMsg = showMsg ? JSON.parse(showMsg) : false
-
-            if (typeof showMsg === 'undefined' || !showMsg) {
+            const showMsg = trusteeAsyncStorage.getSmartSwapMsg() === '1'
+            if (!showMsg) {
                 showModal({
                     type: 'MARKET_MODAL',
                     icon: 'INFO',

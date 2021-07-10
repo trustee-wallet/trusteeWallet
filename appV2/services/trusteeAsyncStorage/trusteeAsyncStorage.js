@@ -10,29 +10,23 @@ class TrusteeAsyncStorage {
         this._inited = false
     }
 
-    init = async () => {
+    init = async (key) => {
         try {
-            console.log('read async ')
             const tmp = await AsyncStorage.getItem(ASYNC_STORE_KEY)
             if (tmp) {
                 const tmp2 = JSON.parse(tmp)
-                console.log(`
-                
-                trustee _init ${JSON.stringify(tmp2)}
-                `)
                 this._inited = tmp2
             } else {
                 this._inited = {}
             }
         } catch (e) {
-            console.log('read async error ' + e.message)
             this._inited = {}
         }
     }
 
     _get = async (key) => {
         if (!this._inited) {
-            await this.init()
+            await this.init(key)
         }
         return this._inited[key]
     }
@@ -76,6 +70,14 @@ class TrusteeAsyncStorage {
         return this._set('testerMode', value)
     }
 
+    getCashbackParent = async () => {
+        return this._get('parentTokenRechecked')
+    }
+
+    setCashbackParent = (value) => {
+        return this._set('parentTokenRechecked', value)
+    }
+
     getFirebaseUrl = async () => {
         return this._get('firebaseUrl')
     }
@@ -84,6 +86,70 @@ class TrusteeAsyncStorage {
         return this._set('firebaseUrl', value)
     }
 
+    getCacheBalance = async () => {
+        return this._get('CACHE_BALANCE')
+    }
+
+    setCacheBalance = (value) => {
+        return this._set('CACHE_BALANCE', value)
+    }
+
+    getExternalAsked = () => {
+        return this._getStatic('externalAsked')
+    }
+
+    setExternalAsked = (value) => {
+        return this._set('externalAsked', value)
+    }
+
+    getSendInputType = () => {
+        return this._getStatic('sendInputType')
+    }
+
+    setSendInputType = (value) => {
+        return this._set('sendInputType', value)
+    }
+
+    getSmartSwapMsg = () => {
+        return this._getStatic('smartSwapMsg')
+    }
+
+    setSmartSwapMsg = async (value) => {
+        return this._set('smartSwapMsg', value)
+    }
+
+    getIsViolet = async() => {
+        return this._get('isViolet')
+    }
+
+    setIsViolet = (value) => {
+        return this._set('isViolet', value)
+    }
+
+    getFcmTokenTime = () => {
+        return this._getStatic('pushTokenTime')
+    }
+
+    setFcmTokenTime = (value) => {
+        return this._set('pushTokenTime', value)
+    }
+
+    getFcmToken = async () => {
+        return this._get('pushToken')
+    }
+
+    getFcmTokensAll = () => {
+        return this._getStatic('pushTokensAll')
+    }
+
+    setFcmTokensAll = async (value, one) => {
+        if (!this._inited) {
+            this._inited = {}
+        }
+        this._inited['pushTokensAll'] = value
+        this._inited['pushToken'] = one
+        return AsyncStorage.setItem(ASYNC_STORE_KEY, JSON.stringify(this._inited))
+    }
 }
 
 const trusteeAsyncStorage = new TrusteeAsyncStorage()

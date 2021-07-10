@@ -16,7 +16,8 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import AsyncStorage from '@react-native-community/async-storage'
+
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 class BottomNavigation extends React.PureComponent {
@@ -25,10 +26,9 @@ class BottomNavigation extends React.PureComponent {
         try {
             await Netinfo.isInternetReachable()
 
-            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
-            showMsg = showMsg ? JSON.parse(showMsg) : false
+            const showMsg = trusteeAsyncStorage.getSmartSwapMsg() === '1'
 
-            if (typeof showMsg === 'undefined' || !showMsg) {
+            if (!showMsg) {
                 showModal({
                     type: 'MARKET_MODAL',
                     icon: 'INFO',

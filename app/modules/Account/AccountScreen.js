@@ -24,7 +24,7 @@ import AppLockBlur from '@app/components/AppLockBlur'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setSelectedAccount, setSelectedAccountTransactions } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import Log from '@app/services/Log/Log'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
@@ -40,7 +40,7 @@ import { strings } from '@app/services/i18n'
 
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import CustomIcon from '@app/components/elements/CustomIcon'
-import AsyncStorage from '@react-native-community/async-storage'
+
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -63,6 +63,7 @@ import { getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransaction
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
@@ -105,7 +106,7 @@ class Account extends React.PureComponent {
     }
 
     async _onLoad() {
-        CACHE_ASKED = await AsyncStorage.getItem('asked')
+        CACHE_ASKED = trusteeAsyncStorage.getExternalAsked()
         CACHE_CLICKED_BACK = false
     }
 
@@ -161,10 +162,8 @@ class Account extends React.PureComponent {
         try {
             await Netinfo.isInternetReachable()
 
-            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
-            showMsg = showMsg ? JSON.parse(showMsg) : false
-
-            if (typeof showMsg === 'undefined' || !showMsg) {
+            const showMsg = trusteeAsyncStorage.getSmartSwapMsg() === '1'
+            if (!showMsg) {
                 showModal({
                     type: 'MARKET_MODAL',
                     icon: 'INFO',

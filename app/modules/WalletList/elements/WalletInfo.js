@@ -11,7 +11,6 @@ import {
     TouchableOpacity, StyleSheet
 } from 'react-native'
 
-import AsyncStorage from '@react-native-community/async-storage'
 import Entypo from 'react-native-vector-icons/Entypo'
 import moment from 'moment'
 
@@ -38,6 +37,7 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { SIZE } from '../helpers'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 let CACHE_PREV_CURRENCY = false
@@ -56,12 +56,9 @@ class WalletInfo extends React.PureComponent {
     async UNSAFE_componentWillMount() {
 
         try {
-            AsyncStorage.getItem('isViolet').then(res => {
-                let isViolet = res
-                isViolet = isViolet !== null ? JSON.parse(isViolet) : false
-
+            trusteeAsyncStorage.getIsViolet().then(res => {
                 this.setState(({
-                    isViolet,
+                    isViolet : res === '1',
                 }))
             })
 
@@ -79,7 +76,7 @@ class WalletInfo extends React.PureComponent {
                 await settingsActions.setSettings('local_currency_homescreen', selectedBasicCurrency.currencyCode)
                 CACHE_PREV_CURRENCY = selectedBasicCurrency.currencyCode
             }
-            await setSelectedBasicCurrencyCode('USD')
+            await currencyBasicActions.setSelectedBasicCurrencyCode('USD')
         } else {
             if (!CACHE_PREV_CURRENCY) {
                 CACHE_PREV_CURRENCY = await settingsActions.getSetting('local_currency_homescreen')
@@ -87,7 +84,7 @@ class WalletInfo extends React.PureComponent {
             if (!CACHE_PREV_CURRENCY) {
                 CACHE_PREV_CURRENCY = 'UAH'
             }
-            await setSelectedBasicCurrencyCode(CACHE_PREV_CURRENCY)
+            await currencyBasicActions.setSelectedBasicCurrencyCode(CACHE_PREV_CURRENCY)
         }
     }
 
@@ -102,7 +99,7 @@ class WalletInfo extends React.PureComponent {
     }
 
     toggleViolet = async () => {
-        await AsyncStorage.setItem('isViolet', JSON.stringify(!this.state.isViolet))
+        trusteeAsyncStorage.setIsViolet(this.state.isViolet ? '0' : '1')
 
         Animated.timing(this.state.opacity, {
             toValue: 0,

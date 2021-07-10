@@ -4,7 +4,6 @@
 import crashlytics from '@react-native-firebase/crashlytics'
 import analytics from '@react-native-firebase/analytics'
 
-import AsyncStorage from '@react-native-community/async-storage'
 import { Platform } from 'react-native'
 
 import Log from '@app/services/Log/Log'
@@ -18,7 +17,6 @@ import changeableTester from '@app/config/changeable.tester'
 
 import DeviceInfo from 'react-native-device-info'
 import appsFlyer from 'react-native-appsflyer'
-import idents from '@app/config/idents'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 let CACHE_TG_INITED = false
@@ -74,7 +72,7 @@ class MarketingEvent {
         this.DATA.LOG_TESTER = testerMode === 'TESTER' ? 'TRUE' : false
 
         this.DATA.LOG_PLATFORM = Platform.OS + ' v' + Platform.Version
-        this.DATA.LOG_TOKEN = await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN)
+        this.DATA.LOG_TOKEN = await trusteeAsyncStorage.getFcmToken()
 
         this.DATA.LOG_MODEL = ''
         try {
@@ -103,14 +101,9 @@ class MarketingEvent {
 
         // after this is a little bit long soooo we will pass variables any time we could
         this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
-        let tmp = await AsyncStorage.getItem(idents.EVENT_CACHE_BALANCE)
+        const tmp = await trusteeAsyncStorage.getCacheBalance()
         if (tmp) {
-            try {
-                tmp = JSON.parse(tmp)
-                CACHE_BALANCE = tmp
-            } catch (e) {
-                // do nothing
-            }
+            CACHE_BALANCE = tmp
         }
     }
 
@@ -239,7 +232,7 @@ class MarketingEvent {
             if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                 // already done
             } else {
-                this.DATA.LOG_TOKEN = await AsyncStorage.getItem(idents.FCM_CACHE_TOKEN)
+                this.DATA.LOG_TOKEN = await trusteeAsyncStorage.getFcmToken()
                 if (typeof this.DATA.LOG_TOKEN !== 'undefined' && this.DATA.LOG_TOKEN) {
                     await this._reinitTgMessage()
                 }
@@ -301,12 +294,12 @@ class MarketingEvent {
         if (CACHE_BALANCE[cacheTitle] === -1) {
             sendEvent = true
             CACHE_BALANCE[cacheTitle] = totalBalance
-            await AsyncStorage.setItem(idents.EVENT_CACHE_BALANCE, JSON.stringify(CACHE_BALANCE))
+            trusteeAsyncStorage.setCacheBalance(CACHE_BALANCE)
 
         } else if (CACHE_BALANCE[cacheTitle] !== totalBalance) {
             sendEvent = true
             CACHE_BALANCE[cacheTitle] = totalBalance
-            await AsyncStorage.setItem(idents.EVENT_CACHE_BALANCE, JSON.stringify(CACHE_BALANCE))
+            trusteeAsyncStorage.setCacheBalance(CACHE_BALANCE)
         } else {
             // do nothing
         }

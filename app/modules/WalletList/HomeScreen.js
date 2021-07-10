@@ -17,7 +17,6 @@ import _isEqual from 'lodash/isEqual'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import CryptoCurrency from './elements/CryptoCurrency'
-import BottomNavigation from './elements/BottomNavigation'
 import WalletInfo from './elements/WalletInfo'
 import Header from './elements/Header'
 
@@ -52,7 +51,6 @@ import { getIsBlurVisible, getSelectedWalletData } from '@app/appstores/Stores/M
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
-import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 let CACHE_SET_WALLET_HASH = false
