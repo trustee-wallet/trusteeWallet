@@ -9,6 +9,7 @@ import config from '@app/config/config'
 import ApiProxy from '@app/services/Api/ApiProxy'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 class UpdateWalletsDaemon {
 
@@ -35,7 +36,7 @@ class UpdateWalletsDaemon {
 
         let asked = false
         if (!dataUpdate) {
-            const authHash = await cryptoWalletsDS.getSelectedWallet()
+            const authHash = await settingsActions.getSelectedWallet()
             if (!authHash) {
                 Log.daemon('UpdateWalletsDaemon skipped as no auth')
                 return false

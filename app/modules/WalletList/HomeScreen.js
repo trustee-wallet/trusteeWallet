@@ -27,7 +27,6 @@ import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccount
 import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import DaemonCache from '@app/daemons/DaemonCache'
-import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
@@ -53,7 +52,6 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 
 
-let CACHE_SET_WALLET_HASH = false
 let CACHE_IS_SCANNING = false
 
 async function storeCurrenciesOrder(walletHash, data) {
@@ -324,15 +322,8 @@ class HomeScreen extends React.PureComponent {
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
-        let {walletHash, walletNumber} = this.props.selectedWalletData
-        if (!walletHash || typeof walletHash === 'undefined') {
-            if (!CACHE_SET_WALLET_HASH) {
-                CACHE_SET_WALLET_HASH = true
-                walletHash = cryptoWalletActions.setFirstWallet()
-                Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
-                cryptoWalletActions.setSelectedWalletFromHome(walletHash, 'WalletList.HomeScreen', false)
-            }
-        }
+
+        const { walletNumber } = this.props.selectedWalletData
         const balanceData = this.getBalanceData()
 
         return (

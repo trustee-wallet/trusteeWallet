@@ -1,13 +1,10 @@
 /**
  * @version 0.9
  */
-import App from '@app/appstores/Actions/App/App'
 import Log from '@app/services/Log/Log'
 
 import { setLoaderStatus, setSelectedWallet } from '@app/appstores/Stores/Main/MainStoreActions'
 
-import cryptoWalletDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
-import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
@@ -46,10 +43,6 @@ const cryptoWalletActions = {
 
         try {
 
-            await cryptoWalletDS.setSelectedWallet(walletHash,  'ACT/CryptoWallet setSelectedWallet ' + source)
-
-            // await walletActions.setAvailableWallets()
-
             await setSelectedWallet('ACT/App appRefreshWalletsStates called from ' + source, walletHash)
 
             await MarketingEvent.reinitByWallet(walletHash)
@@ -67,52 +60,6 @@ const cryptoWalletActions = {
         if (loader) {
             setLoaderStatus(false)
         }
-    },
-
-    /**
-     * could be removed after mainStore refactor, check event before
-     * @param walletHash
-     * @param source
-     * @param loader
-     * @returns {Promise<boolean>}
-     */
-    setSelectedWalletFromHome: async (walletHash, source, loader = true) => {
-        MarketingEvent.logEvent('toCheck_setSelectedWalletFromHome')
-
-        if (loader) {
-            setLoaderStatus(true)
-        }
-
-        try {
-
-            const settings = await settingsActions.getSettings(false)
-            if (typeof settings.dbVersion === 'undefined' || !settings.dbVersion) {
-                return false
-            }
-
-            Log.log('ACT/CryptoWallet setSelectedWalletFromHome called', walletHash)
-
-            await cryptoWalletDS.setSelectedWallet(walletHash,  'ACT/CryptoWallet setSelectedWallet ' + source)
-
-            await App.refreshWalletsStore({firstTimeCall : 'setSelectedWalletHome', source : 'ACT/CryptoWallet setSelectedWallet ' + source, walletHash})
-
-            Log.log('ACT/CryptoWallet setSelectedWalletFromHome finished')
-
-        } catch (e) {
-
-            Log.err('ACT/CryptoWallet setSelectedWalletFromHome error' + e.message)
-
-        }
-
-        if (loader) {
-            setTimeout(() => {
-                setLoaderStatus(false)
-            }, 1000)
-        }
-    },
-
-    setFirstWallet() {
-        return cryptoWalletDS.getFirstWallet()
     }
 }
 

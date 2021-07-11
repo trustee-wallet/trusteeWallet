@@ -25,6 +25,7 @@ import Toast from '@app/services/UI/Toast/Toast'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 
 
@@ -60,7 +61,7 @@ class BackupSearchOneScreen extends React.PureComponent {
 
             setLoaderStatus(true)
 
-            const walletHash = await cryptoWalletsDS.getSelectedWallet()
+            const walletHash = await settingsActions.getSelectedWallet()
 
             const sql = `SELECT account.wallet_hash AS walletHash, account.currency_code AS currencyCode, account.address, account.derivation_path as derivationPath
             FROM account

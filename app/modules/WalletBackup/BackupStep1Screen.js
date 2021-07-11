@@ -30,6 +30,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 
 const VISIBILITY_TIMEOUT = 4000
@@ -63,7 +64,7 @@ class BackupStep1Screen extends React.PureComponent {
         let walletMnemonicDefault
         try {
             if (flowType === 'DELETE_WALLET') {
-                const selectedWallet = await cryptoWallets.getSelectedWallet()
+                const selectedWallet = await settingsActions.getSelectedWallet()
                 walletMnemonicDefault = await cryptoWallets.getWallet(selectedWallet, 'WalletBackup.BackupStep1Screen')
                 walletMnemonicDefault = walletMnemonicDefault.split(' ')
             } else {

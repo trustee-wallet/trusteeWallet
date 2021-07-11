@@ -31,6 +31,14 @@ const settingsActions = {
         }
     },
 
+    getSelectedWallet : async () => {
+        return settingsActions.getSetting('SELECTED_WALLET')
+    },
+
+    setSelectedWallet : async (walletHash) => {
+        return settingsActions.setSettings('SELECTED_WALLET', walletHash)
+    },
+
     getSettingStatic: (key) => {
         try {
             const tmp = settingsDS.getSettingStatic(key)

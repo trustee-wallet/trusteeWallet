@@ -17,6 +17,7 @@ import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import ApiProxyLoad from '@app/services/Api/ApiProxyLoad'
 import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const { dispatch } = store
 
@@ -62,7 +63,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
     let storedKey
 
-    const prevWallet = await cryptoWalletsDS.getSelectedWallet()
+    const prevWallet = await settingsActions.getSelectedWallet()
 
     try {
         Log.log('ACT/MStore proceedSaveGeneratedWallet called prevWallet ' + prevWallet)
@@ -156,7 +157,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
         await appTaskDS.clearTasks({ walletHash: storedKey })
 
         if (prevWallet && prevWallet !== storedKey) {
-            await cryptoWalletsDS.setSelectedWallet(prevWallet, 'ACT/MStore proceedSaveGeneratedWallet Revert')
+            await settingsActions.setSelectedWallet(prevWallet)
         }
 
         Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' prevWallet ' + prevWallet + ' error ' + e.message)

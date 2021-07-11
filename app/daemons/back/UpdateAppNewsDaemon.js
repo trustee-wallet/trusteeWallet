@@ -9,6 +9,7 @@ import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
 import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
 import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
 import store from '@app/store'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 let CACHE_NEWS_HASH = ''
 let CACHE_LAST_TIME = false
@@ -47,7 +48,7 @@ class UpdateAppNewsDaemon {
         }
         this._canUpdate = false
 
-        const walletHash = await cryptoWalletsDS.getSelectedWallet()
+        const walletHash = await settingsActions.getSelectedWallet()
         let res
         let asked = false
         if (!dataUpdate) {

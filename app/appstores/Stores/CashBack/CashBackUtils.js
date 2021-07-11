@@ -15,6 +15,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ApiProxy from '@app/services/Api/ApiProxy'
 import store from '@app/store'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
 
@@ -176,7 +177,7 @@ class CashBackUtils {
         try {
             let tmpAuthHash = _requestAuthHash
             if (!tmpAuthHash) {
-                tmpAuthHash = await cryptoWalletsDS.getSelectedWallet()
+                tmpAuthHash = await settingsActions.getSelectedWallet()
             }
             if (!tmpAuthHash) {
                 return false

@@ -10,6 +10,7 @@ import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
 
 import Log from '../../services/Log/Log'
 import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const STEPS_ORDER = [
     'UPDATE_PROXIED',
@@ -72,7 +73,7 @@ class UpdateOneByOneDaemon extends Update {
     updateOneByOneDaemon = async (params, level = 0) => {
         if (CACHE_STOPPED) return false
 
-        const tmpAuthHash = await cryptoWalletsDS.getSelectedWallet()
+        const tmpAuthHash = await settingsActions.getSelectedWallet()
         if (!tmpAuthHash) {
             return false
         }
