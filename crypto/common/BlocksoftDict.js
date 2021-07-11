@@ -254,22 +254,22 @@ const Currencies = {
                 'https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
         },
-        TRX_USDC:
-            {
-                    currencyType: 'token',
-                    currencyName: 'USDC TRC20',
-                    currencyCode: 'TRX_USDC',
-                    currencySymbol: 'USDC',
-                    extendsProcessor: 'TRX_USDC',
-                    addressUiChecker: 'TRX',
-                    ratesCurrencyCode: 'USDC',
-                    network: 'trx',
-                    decimals: 6,
-                    tokenBlockchain: 'TRON',
-                    tokenName: 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
-                    currencyExplorerLink: 'https://tronscan.org/#/address/',
-                    currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
-            },
+    TRX_USDC:
+        {
+            currencyType: 'token',
+            currencyName: 'USDC TRC20',
+            currencyCode: 'TRX_USDC',
+            currencySymbol: 'USDC',
+            extendsProcessor: 'TRX_USDC',
+            addressUiChecker: 'TRX',
+            ratesCurrencyCode: 'USDC',
+            network: 'trx',
+            decimals: 6,
+            tokenBlockchain: 'TRON',
+            tokenName: 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
+            currencyExplorerLink: 'https://tronscan.org/#/address/',
+            currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
+        },
     ETH_PAX:
         {
             currencyType: 'token',
@@ -1065,7 +1065,7 @@ const Currencies = {
     ETH_KNC:
         {
             currencyType: 'token',
-            currencyName: 'KyberNetwork',
+            currencyName: 'KyberNetwork (Old)',
             currencyCode: 'ETH_KNC',
             currencySymbol: 'KNC',
             extendsProcessor: 'ETH_TRUE_USD',
@@ -1076,6 +1076,21 @@ const Currencies = {
             tokenAddress: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
             currencyExplorerLink:
                 'https://etherscan.io/token/0xdd974d5c2e2928dea5f71b9825b8b646686bd200?a='
+        },
+    ETH_KNC_NEW:
+        {
+            currencyType: 'token',
+            currencyName: 'KyberNetwork',
+            currencyCode: 'ETH_KNC_NEW',
+            currencySymbol: 'KNC',
+            extendsProcessor: 'ETH_TRUE_USD',
+            addressUiChecker: 'ETH',
+            ratesCurrencyCode: 'KNC',
+            decimals: 18,
+            tokenBlockchain: 'ETHEREUM',
+            tokenAddress: '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202',
+            currencyExplorerLink:
+                'https://etherscan.io/token/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202?a='
         },
     BNB_SMART_LTC:
         {
