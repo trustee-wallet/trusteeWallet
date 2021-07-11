@@ -36,6 +36,7 @@ import ReceiptScreen from '@app/modules/Send/ReceiptScreen'
 
 import AccountScreen from '@app/modules/Account/AccountScreen'
 import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountSettingsScreen'
+import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPrivate/AccountSettingsPrivateScreen'
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
 import AccountTransactionCheckScreen from '@app/modules/Account/AccountTransactionCheck/AccountTransactionCheckScreen'
@@ -108,6 +109,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='ReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountScreen' component={AccountScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountSettings' component={AccountSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='AccountSettingsPrivate' component={AccountSettingsPrivateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountTransactionScreen' component={AccountTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountTransactionCheckScreen' component={AccountTransactionCheckScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
