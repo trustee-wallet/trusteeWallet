@@ -16,6 +16,8 @@ import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import { getSelectedAccountData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
+import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 
 class AccountSettingsPrivateScreen extends React.PureComponent {
     handleBack = () => {
@@ -30,7 +32,7 @@ class AccountSettingsPrivateScreen extends React.PureComponent {
 
     render() {
 
-        const { selectedWalletData, selectedAccountData } = this.props
+        const { selectedWalletData, selectedAccountData, settingsData } = this.props
 
         MarketingAnalytics.setCurrentScreen('Account.AccountSettingsPrivateScreen.' + selectedAccountData.currencyCode)
 
@@ -38,7 +40,7 @@ class AccountSettingsPrivateScreen extends React.PureComponent {
         if (selectedAccountData.currencyCode === 'XMR') {
             settingsComponent =
                 <SettingsPrivateXMR containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWalletData} account={selectedAccountData} />
+                    selectedWalletData={selectedWalletData} selectedAccountData={selectedAccountData} settingsData={settingsData}/>
         }
         return (
             <ScreenWrapper
@@ -67,6 +69,7 @@ const mapStateToProps = (state) => {
     return {
         selectedWalletData: getSelectedWalletData(state),
         selectedAccountData: getSelectedAccountData(state),
+        settingsData: getSettingsScreenData(state),
     }
 }
 

@@ -12,6 +12,8 @@ import { BlocksoftTransferPrivate } from '@crypto/actions/BlocksoftTransfer/Bloc
 import Database from '@app/appstores/DataSource/Database/main'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import NavStore from '@app/components/navigation/NavStore'
 
 
 class SettingsPrivateXMR extends Component {
@@ -25,8 +27,21 @@ class SettingsPrivateXMR extends Component {
     }
 
     componentDidMount = async () => {
+        this._init(true)
+    }
+
+    _init = async(needPassword = false) => {
+        const { lockScreenStatus } = this.props.settingsData
+        if (needPassword && +lockScreenStatus) {
+            setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : () => {
+                this._init(false)
+            }})
+            NavStore.goNext('LockScreen')
+            return
+        }
+
         try {
-            // @todo after demon refactor remove
+            // @todo after daemon refactor remove
             const findSql = `
                         SELECT
                             id, address,
@@ -36,7 +51,7 @@ class SettingsPrivateXMR extends Component {
                             currency_code AS currencyCode,
                             account_json AS accountJson
                         FROM account 
-                        WHERE address='${this.props.account.address}'`
+                        WHERE address='${this.props.selectedAccountData.address}'`
             let find = await Database.setQueryString(findSql).query()
             find = find.array[0]
             let accountJson = {}
@@ -46,8 +61,8 @@ class SettingsPrivateXMR extends Component {
 
             }
             const data = {
-                walletHash: this.props.wallet.walletHash,
-                currencyCode: this.props.account.currencyCode,
+                walletHash: this.props.selectedWalletData.walletHash,
+                currencyCode: this.props.selectedAccountData.currencyCode,
                 derivationPath: find.derivationPath,
                 accountJson
             }
@@ -60,7 +75,6 @@ class SettingsPrivateXMR extends Component {
                 derivationPath : find.derivationPath,
                 accountJson,
             })
-            console.log(res)
         } catch (e) {
             console.log('SettingsPrivateXMR initTransferPrivate error ' + e.message)
         }
@@ -107,7 +121,7 @@ class SettingsPrivateXMR extends Component {
                 <View>
                     <ListItem
                         title={'Address'}
-                        subtitle={this.props.account.address}
+                        subtitle={this.props.selectedAccountData.address}
                         iconType='keyMonero'
                         onPress={this.handlePrivate}
                     />
