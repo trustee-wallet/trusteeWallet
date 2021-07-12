@@ -38,6 +38,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { SIZE } from '../helpers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 
 let CACHE_PREV_CURRENCY = false
@@ -86,6 +87,7 @@ class WalletInfo extends React.PureComponent {
             }
             await currencyBasicActions.setSelectedBasicCurrencyCode(CACHE_PREV_CURRENCY)
         }
+        UpdateAccountListDaemon.updateAccountListDaemon({ force: true, source: 'HANDLE_HOMESCREEN' })
     }
 
     handleScanQr = () => checkQRPermission(this.qrPermissionCallback)

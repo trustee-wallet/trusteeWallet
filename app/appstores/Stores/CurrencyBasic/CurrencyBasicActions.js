@@ -44,7 +44,7 @@ const currencyBasicActions = {
             currencyCode = 'USD'
         }
         dispatch({
-            type: 'SET_SELECTED_CURRENCY_BASIC',
+            type: 'SET_SELECTED_BASIC_CURRENCY',
             selectedBasicCurrency: currenciesBasic[currencyCode]
         })
     }

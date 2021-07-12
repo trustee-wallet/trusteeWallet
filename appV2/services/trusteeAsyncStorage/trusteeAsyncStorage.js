@@ -37,9 +37,7 @@ class TrusteeAsyncStorage {
         }
         this._inited[key] = value
         AsyncStorage.setItem(ASYNC_STORE_KEY, JSON.stringify(this._inited))
-        console.log(`
-            trustee _set ${JSON.stringify(this._inited)}
-        `)
+        // console.log(`trustee _set ${JSON.stringify(this._inited)}`)
     }
 
     _getStatic = (key) => {
