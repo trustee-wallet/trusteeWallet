@@ -1048,18 +1048,33 @@ const Currencies = {
         },
     ETH_KNC:
         {
-            currencyType: 'token',
-            currencyName: 'KyberNetwork',
-            currencyCode: 'ETH_KNC',
-            currencySymbol: 'KNC',
-            extendsProcessor: 'ETH_TRUE_USD',
-            addressUiChecker: 'ETH',
-            ratesCurrencyCode: 'KNC',
-            decimals: 18,
-            tokenBlockchain: 'ETHEREUM',
-            tokenAddress: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
-            currencyExplorerLink:
-                'https://etherscan.io/token/0xdd974d5c2e2928dea5f71b9825b8b646686bd200?a='
+                currencyType: 'token',
+                currencyName: 'KyberNetwork (Old)',
+                currencyCode: 'ETH_KNC',
+                currencySymbol: 'KNC',
+                extendsProcessor: 'ETH_TRUE_USD',
+                addressUiChecker: 'ETH',
+                ratesCurrencyCode: 'KNC',
+                decimals: 18,
+                tokenBlockchain: 'ETHEREUM',
+                tokenAddress: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
+                currencyExplorerLink:
+                    'https://etherscan.io/token/0xdd974d5c2e2928dea5f71b9825b8b646686bd200?a='
+        },
+    ETH_KNC_NEW:
+        {
+                currencyType: 'token',
+                currencyName: 'KyberNetwork',
+                currencyCode: 'ETH_KNC_NEW',
+                currencySymbol: 'KNC',
+                extendsProcessor: 'ETH_TRUE_USD',
+                addressUiChecker: 'ETH',
+                ratesCurrencyCode: 'KNC',
+                decimals: 18,
+                tokenBlockchain: 'ETHEREUM',
+                tokenAddress: '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202',
+                currencyExplorerLink:
+                    'https://etherscan.io/token/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202?a='
         },
     BNB_SMART_LTC:
         {

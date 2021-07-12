@@ -806,8 +806,8 @@
     "addressError": "The recipient’s address is incorrect, please, check it",
     "notValidAmount": "Please, input amount",
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
-    "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}",
-    "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations",
+    "notEnoughForFee": "To send a token %{token}, you must have a positive balance of %{symbol} coin to pay the network fee",
+    "notEnoughForFeeConfirmed": "To send a token %{token}, you must have a positive confirmed balance of %{symbol} coin to pay the network fee, wait for the confirmation of the incoming transaction %{symbol}",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
     "domainResolution": {
       "resolving": "Resolving %{domain}...",

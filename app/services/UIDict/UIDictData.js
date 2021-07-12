@@ -608,6 +608,24 @@ export default {
             darkColor: '#B8B8B8'
         }
     },
+    'SOL': {
+        colors: {
+            mainColor: '#00FFA3',
+            darkColor: '#22DB98'
+        }
+    },
+    'AMB': {
+        colors: {
+            mainColor: '#341CBA',
+            darkColor: '#6E55F9'
+        }
+    },
+    'ETH_KNC_NEW': {
+        colors: {
+            mainColor: '#31CB9E',
+            darkColor: '#2FAA86'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',
