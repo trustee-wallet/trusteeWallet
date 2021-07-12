@@ -18,7 +18,7 @@ type DataCache = {
 }
 
 const CACHE_DOUBLE_TO: DataCache = {} as DataCache
-const CACHE_VALID_TIME = 20000 // 2 minute
+const CACHE_VALID_TIME = 120000 // 2 minute
 
 export namespace BlocksoftTransfer {
 
@@ -103,11 +103,17 @@ export namespace BlocksoftTransfer {
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
 
         try {
-            if (!data.transactionReplaceByFee && !data.transactionRemoveByFee && !data.transactionSpeedUp && typeof uiData !== 'undefined' && !uiData.uiErrorConfirmed && typeof CACHE_DOUBLE_TO[data.currencyCode] !== 'undefined') {
-                if (data.addressTo && CACHE_DOUBLE_TO[data.currencyCode].key === data.addressTo) {
-                    const diff = new Date().getTime() - CACHE_DOUBLE_TO[data.currencyCode].time
-                    if (diff < CACHE_VALID_TIME) {
-                        throw new Error('UI_CONFIRM_DOUBLE_SEND')
+            if (typeof CACHE_DOUBLE_TO[data.currencyCode] !== 'undefined') {
+                if (data.transactionReplaceByFee || data.transactionRemoveByFee || data.transactionSpeedUp) {
+                    // do nothing
+                } else if (typeof uiData === 'undefined' || !uiData || typeof uiData.uiErrorConfirmed === 'undefined' || !uiData.uiErrorConfirmed) {
+                    if (data.addressTo && CACHE_DOUBLE_TO[data.currencyCode].key === data.addressTo) {
+                        const time = new Date().getTime()
+                        const diff = time - CACHE_DOUBLE_TO[data.currencyCode].time
+                        if (diff < CACHE_VALID_TIME) {
+                            CACHE_DOUBLE_TO[data.currencyCode].time = time
+                            throw new Error('UI_CONFIRM_DOUBLE_SEND')
+                        }
                     }
                 }
             }

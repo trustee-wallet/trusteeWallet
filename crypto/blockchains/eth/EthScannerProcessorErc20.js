@@ -29,7 +29,7 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
      * @return {Promise<{balance, unconfirmed, provider}>}
      */
     async getBalanceBlockchain(address) {
-        BlocksoftCryptoLog.log('EthScannerProcessorErc20.getBalance ' + this._settings.currencyCode + ' started ' + address)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance started ' + address)
         // noinspection JSUnresolvedVariable
         try {
             let balance = 0
@@ -39,7 +39,7 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
             if (this._trezorServerCode) {
                 const res = await this._get(address)
                 if (!res || typeof res.data === 'undefined') return false
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance loaded from ' + res.provider + ' ' + res.time)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance loaded from ' + res.provider + ' ' + res.time)
                 const data = res.data
 
                 if (data && this._tokenAddress && typeof data.formattedTokens[this._tokenAddress] !== 'undefined' && typeof typeof data.formattedTokens[this._tokenAddress].balance !== 'undefined') {
@@ -51,6 +51,7 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
                 }
             }
             balance = await this._token.methods.balanceOf(address).call()
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance ' + address + ' result ' + JSON.stringify(balance))
             if (balance === []) return false
 
             provider = 'web3'
@@ -58,7 +59,7 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
             return { balance, unconfirmed: 0, provider, time }
 
         } catch (e) {
-            BlocksoftCryptoLog.log('EthScannerProcessorErc20.getBalance ' + this._settings.currencyCode + ' ' + address + ' error ' + e.message)
+            BlocksoftCryptoLog.log( this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance ' + address + ' error ' + e.message)
             return false
         }
 

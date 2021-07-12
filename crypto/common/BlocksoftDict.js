@@ -254,6 +254,22 @@ const Currencies = {
                 'https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
         },
+    TRX_USDC:
+        {
+            currencyType: 'token',
+            currencyName: 'USDC TRC20',
+            currencyCode: 'TRX_USDC',
+            currencySymbol: 'USDC',
+            extendsProcessor: 'TRX_USDC',
+            addressUiChecker: 'TRX',
+            ratesCurrencyCode: 'USDC',
+            network: 'trx',
+            decimals: 6,
+            tokenBlockchain: 'TRON',
+            tokenName: 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
+            currencyExplorerLink: 'https://tronscan.org/#/address/',
+            currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
+        },
     ETH_PAX:
         {
             currencyType: 'token',
@@ -1195,7 +1211,7 @@ const Currencies = {
     ETH_MATIC:
         {
             currencyType: 'token',
-            currencyName: 'Polygon',
+            currencyName: 'Polygon (Matic) ERC20',
             currencyCode: 'ETH_MATIC',
             currencySymbol: 'MATIC',
             extendsProcessor: 'ETH_TRUE_USD',
@@ -1207,6 +1223,24 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
+        },
+    MATIC:
+        {
+            currencyType: 'coin',
+            currencyName: 'Polygon (Matic) Network',
+            currencyCode: 'MATIC',
+            currencySymbol: 'MATIC',
+            ratesCurrencyCode: 'MATIC',
+            addressProcessor: 'ETH',
+            addressUiChecker: 'ETH',
+            scannerProcessor: 'ETH',
+            extendsProcessor: 'ETH',
+            prettyNumberProcessor: 'ETH',
+            transferProcessor: 'ETC',
+            network: 'mainnet',
+            decimals: 18,
+            currencyExplorerLink: 'https://polygonscan.com/address/',
+            currencyExplorerTxLink: 'https://polygonscan.com/tx/'
         },
     ETH_RSR:
         {

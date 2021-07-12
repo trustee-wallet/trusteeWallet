@@ -2,6 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import { hexToBn } from '../blockchains/eth/ext/estimateGas/util'
 import Log from '../../app/services/Log/Log'
 
+import BigIntXmr from '@crypto/blockchains/xmr/ext/vendor/biginteger'
 const Web3 = require('web3')
 
 class BlocksoftUtils {
@@ -333,6 +334,10 @@ class BlocksoftUtils {
             str = '0'.repeat(len - str.length) + str
         }
         return str
+    }
+
+    static hexToDecimalBigger(hex) {
+        return BigIntXmr.BigInteger(hex).toString()
     }
 }
 
