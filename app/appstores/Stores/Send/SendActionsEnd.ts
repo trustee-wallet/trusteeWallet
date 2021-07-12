@@ -157,12 +157,12 @@ export namespace SendActionsEnd {
                 }
             })
         } else if (uiType === 'TRADE_SEND') {
-            NavStore.goNext('AccountTransactionScreen', {
+            NavStore.goNext('HomeScreen', { screen: 'AccountTransactionScreen', params: {
                 txData: {
                     transactionHash: tx.transactionHash,
                     uiType
                 }
-            })
+            }})
         } else {
             // fio request etc - direct to receipt
             NavStore.goBack()
