@@ -82,7 +82,7 @@ class AccountScanning {
             account.wallet_hash AS walletHash,
             wallet.wallet_is_hd AS walletIsHd,
             account.address,
-
+            account.derivation_path AS derivationPath,
             account.transactions_scan_time AS transactionsScanTime,
             account.transactions_scan_log AS transactionsScanLog,
 
