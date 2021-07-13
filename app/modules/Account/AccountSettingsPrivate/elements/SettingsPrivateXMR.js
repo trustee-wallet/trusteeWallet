@@ -34,16 +34,8 @@ class SettingsPrivateXMR extends Component {
     }
 
     _init = async(needPassword = false) => {
-        const { lockScreenStatus } = this.props.settingsData
-        if (needPassword && +lockScreenStatus) {
-            setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : () => {
-                this._init(false)
-            }})
-            NavStore.goNext('LockScreen')
-            return
-        }
-
         try {
+            Log.log('SettingsPrivateXMR initTransferPrivate started')
             // @todo after daemon refactor remove
             const address = this.props.selectedAccountData.address
             const findSql = `
