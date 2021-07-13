@@ -109,6 +109,10 @@ export default {
             }
 
             if (typeof account.legacy !== 'undefined' && typeof account.segwit !== 'undefined') {
+                let legacy = account.legacy
+                if (account.legacy.substr(0, 1) === '3') {
+                    legacy = false // hmmm
+                }
                 resultAccount.legacyOrSegWit = btcLegacyOrSegWit
                 resultAccount.address = [
                     {
@@ -116,7 +120,7 @@ export default {
                         type: 'SEGWIT'
                     },
                     {
-                        address: account.legacy,
+                        address: legacy,
                         type: 'LEGACY'
                     }
                 ]
