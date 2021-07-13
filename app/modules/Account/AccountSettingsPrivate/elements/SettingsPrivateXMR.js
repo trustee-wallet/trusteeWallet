@@ -15,6 +15,8 @@ import Toast from '@app/services/UI/Toast/Toast'
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import NavStore from '@app/components/navigation/NavStore'
 
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 class SettingsPrivateXMR extends Component {
 
@@ -23,7 +25,8 @@ class SettingsPrivateXMR extends Component {
         privateViewKey : false,
         privateSpendKey : false,
         derivationPath : false,
-        accountJson:  false
+        accountJson:  false,
+        initError : false
     }
 
     componentDidMount = async () => {
@@ -34,14 +37,15 @@ class SettingsPrivateXMR extends Component {
         const { lockScreenStatus } = this.props.settingsData
         if (needPassword && +lockScreenStatus) {
             setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : () => {
-                this._init(false)
-            }})
+                    this._init(false)
+                }})
             NavStore.goNext('LockScreen')
             return
         }
 
         try {
             // @todo after daemon refactor remove
+            const address = this.props.selectedAccountData.address
             const findSql = `
                         SELECT
                             id, address,
@@ -51,8 +55,11 @@ class SettingsPrivateXMR extends Component {
                             currency_code AS currencyCode,
                             account_json AS accountJson
                         FROM account 
-                        WHERE address='${this.props.selectedAccountData.address}'`
+                        WHERE address='${address}'`
             let find = await Database.setQueryString(findSql).query()
+            if (!find || typeof find.array === 'undefined' || typeof find.array[0] === 'undefined') {
+                throw new Error('address ' + address + ' not found')
+            }
             find = find.array[0]
             let accountJson = {}
             try {
@@ -74,9 +81,14 @@ class SettingsPrivateXMR extends Component {
                 privateViewKey : keys[1],
                 derivationPath : find.derivationPath,
                 accountJson,
+                initError : false
             })
         } catch (e) {
-            console.log('SettingsPrivateXMR initTransferPrivate error ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('SettingsPrivateXMR initTransferPrivate error ' + e.message)
+            }
+            Log.log('SettingsPrivateXMR initTransferPrivate error ' + e.message)
+            this.setState({initError : e.message})
         }
     }
 
@@ -106,7 +118,19 @@ class SettingsPrivateXMR extends Component {
     }
 
     render() {
-
+        if (this.state.initError) {
+            return (
+                <>
+                    <View>
+                        <ListItem
+                            title={'Error'}
+                            subtitle={this.state.initError}
+                            onPress={() => this.handleCopy(this.state.initError)}
+                        />
+                    </View>
+                </>
+            )
+        }
         if (this.state.loading) {
             return (
                 <>
@@ -165,3 +189,4 @@ class SettingsPrivateXMR extends Component {
 SettingsPrivateXMR.contextType = ThemeContext
 
 export default connect(null, null, null, { forwardRef: true })(SettingsPrivateXMR)
+
