@@ -53,7 +53,7 @@ export namespace AppWalletConnect {
         const { walletHash } = store.getState().mainStore.selectedWallet
         const { peerMeta}  = WALLET_CONNECTOR
         if (typeof chainId === 'undefined' || !chainId) {
-            chainId = WALLET_CONNECTOR.chainId || 0
+            chainId = WALLET_CONNECTOR.chainId * 1 || 0
         }
         const accountList = store.getState().accountStore.accountList
         if (!accountList || typeof accountList[walletHash] === 'undefined') {
@@ -61,13 +61,16 @@ export namespace AppWalletConnect {
         }
 
         MAIN_CURRENCY_CODE = 'ETH'
-        
+
         if (chainId === 3) {
             MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
             WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         } else if (chainId === 56) {
             MAIN_CURRENCY_CODE = 'BNB_SMART'
             WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
+        } else if (chainId === 10) {
+            MAIN_CURRENCY_CODE = 'OPTIMISM'
+            WEB3_LINK = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
         } else if (chainId === 137) {
             MAIN_CURRENCY_CODE = 'MATIC'
             WEB3_LINK = BlocksoftExternalSettings.getStatic('MATIC_SERVER')

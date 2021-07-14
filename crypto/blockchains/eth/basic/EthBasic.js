@@ -116,6 +116,20 @@ export default class EthBasic {
             this._mainTokenType = 'ETC_ERC_20'
             this._mainTokenBlockchain = 'Ethereum Classic'
             this._mainChainId = 61 // https://ethereumclassic.org/development/porting
+        } else if (settings.currencyCode === 'OPTIMISM') {
+            this._web3Link = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
+
+            this._etherscanSuffix = false
+            this._etherscanApiPath = false
+            this._etherscanApiPathInternal = false
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'OPTIMISM'
+            this._mainTokenType = 'OPTI_ERC_20'
+            this._mainTokenBlockchain = 'Optimistic Ethereum'
+            this._mainChainId = 10 // https://community.optimism.io/docs/developers/metamask.html#connecting-with-chainid-link
         } else if (settings.currencyCode === 'AMB') {
             this._web3Link = BlocksoftExternalSettings.getStatic('AMB_SERVER')
 
