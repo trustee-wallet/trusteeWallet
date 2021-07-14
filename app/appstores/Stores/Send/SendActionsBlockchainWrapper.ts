@@ -128,7 +128,9 @@ export namespace SendActionsBlockchainWrapper {
             try {
                 countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
             } catch (e) {
-                e.message += ' while BlocksoftTransfer.getFeeRate'
+                if (e.message.indexOf('SERVER') === -1) {
+                    e.message += ' while BlocksoftTransfer.getFeeRate'
+                }
                 throw e
             }
             let selectedFee = false
