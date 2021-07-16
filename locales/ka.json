@@ -791,8 +791,8 @@
     "addressError": "მიმღების მისამართი არასწორია, გთხოვთ, შეამოწმოთ",
     "notValidAmount": "გთხოვთ, შეიყვანოთ თანხის ოდენობა",
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
-    "notEnoughForFee": "ტოკენების გასაგზავნად აუცილებელია ადგილობრივ ვალუტაში დადებითი ბალანსის არსებობა %{symbol}",
-    "notEnoughForFeeConfirmed": "ტოკენების გასაგზავნად აუცილებელია დადებითი დადასტურებული ბალანსი ადგილობრივ ვალუტაში %{symbol}, დაელოდეთ დადასტურებას",
+    "notEnoughForFee": "To send a token %{token}, you must have a positive balance of %{symbol} coin to pay the network fee",
+    "notEnoughForFeeConfirmed": "To send a token %{token}, you must have a positive confirmed balance of %{symbol} coin to pay the network fee, wait for the confirmation of the incoming transaction %{symbol}",
     "publicFioAddressNotFound": "%{symbol} საჯარო მისამართი არაა დაკავშირებული FIO მისამართთან",
     "domainResolution": {
       "resolving": "გადაჭრის %{domain}...",

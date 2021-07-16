@@ -5,7 +5,7 @@
  */
 import React from 'react'
 import { Platform } from 'react-native'
-import Intercom from 'react-native-intercom'
+
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -37,6 +37,7 @@ import ReceiptScreen from '@app/modules/Send/ReceiptScreen'
 
 import AccountScreen from '@app/modules/Account/AccountScreen'
 import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountSettingsScreen'
+import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPrivate/AccountSettingsPrivateScreen'
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
 import AccountTransactionCheckScreen from '@app/modules/Account/AccountTransactionCheck/AccountTransactionCheckScreen'
@@ -66,7 +67,6 @@ import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
 import NotificationsSettingScreen from '@app/modules/Settings/NotificationsScreen'
 import SupportScreen from '@app/modules/Support/index'
-import IntercomSupportScreen from '@app/modules/Support/intercomSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/modules/theme/ThemeProvider'
@@ -109,6 +109,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='ReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountScreen' component={AccountScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountSettings' component={AccountSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='AccountSettingsPrivate' component={AccountSettingsPrivateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountTransactionScreen' component={AccountTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountTransactionCheckScreen' component={AccountTransactionCheckScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -151,40 +152,6 @@ const MarketStackScreen = () => {
     )
 }
 
-let registeredMessage = false
-const startIntercom = async () => {
-    let sub = sublocale()
-    if (sub !== 'uk' && sub !== 'ru') {
-        sub = 'en'
-    }
-
-    if (!registeredMessage || registeredMessage !== MarketingEvent.DATA.LOG_CASHBACK) {
-
-        const sign = await CashBackUtils.createWalletSignature(true)
-        Intercom.registerUnidentifiedUser()
-        Intercom.updateUser({
-            name : sign.cashbackToken,
-            language_override: sub
-        })
-        const str = `${sign.message}00000${sign.messageHash.substr(2)}00000${sign.signature.substr(2)}00000${sign.signedAddress.substr(2)}`
-        const buff = Buffer.from(str, 'hex').toString('base64')
-        // const buff2 = Buffer.from(buff, 'base64').toString('hex')
-        // console.log(buff2.split('00000'))
-        Intercom.displayMessageComposerWithInitialMessage(
-            `
-        ----------------------------------------    
-        Sig : ${buff}
-        Version : ${MarketingEvent.DATA.LOG_VERSION}
-        ----------------------------------------
-        
-        
-            `)
-        registeredMessage = sign.cashbackToken
-    } else {
-        Intercom.displayMessenger()
-    }
-
-}
 const TabBar = () => {
 
     const { colors } = useTheme()
@@ -259,24 +226,7 @@ const TabBar = () => {
                     )
                 }}
             />
-            {MarketingEvent.DATA.LOG_TESTER ?
-                <Tab.Screen
-                    name='IntercomSupportScreen'
-                    component={IntercomSupportScreen}
-                    options={{
-                        tabBarLabel: strings('dashboardStack.support'),
-                        tabBarIcon: ({ color }) => (
-                            <CustomIcon name="support" color={color} size={22} style={{ marginBottom: 3 }} />
-                        )
-                    }}
-                    listeners={({ navigation }) => ({
-                        tabPress: (e) => {
-                            e.preventDefault()
-                            startIntercom()
-                        },
-                    })}
-                />
-                :
+
                 <Tab.Screen
                     name='SupportScreen'
                     component={SupportScreen}
@@ -288,7 +238,7 @@ const TabBar = () => {
                         )
                     }}
                 />
-            }
+            
         </Tab.Navigator>
     )
 }

@@ -4,7 +4,6 @@
  */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
-import BigIntXmr from '@crypto/blockchains/xmr/ext/vendor/biginteger'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 const API_PATH = 'https://sync-mainnet.vechain.org'
@@ -58,7 +57,7 @@ export default class VetScannerProcessor {
         }
         try {
             const hex = this._settings.currencyCode === 'VET' ? res.balance : res.energy
-            const balance = BigIntXmr.BigInteger(hex).toString()
+            const balance = BlocksoftUtils.hexToDecimalBigger(hex)
             return { balance, unconfirmed: 0, provider: 'vethor-node.vechain.com' }
         } catch (e) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' VeChain ScannerProcessor getBalanceBlockchain address ' + address + ' balance ' + JSON.stringify(res) + ' to hex error ' + e.message)
@@ -182,7 +181,7 @@ export default class VetScannerProcessor {
          * "clauseIndex":0
          */
 
-        const amount = BigIntXmr.BigInteger(transaction.amount).toString()
+        const amount = BlocksoftUtils.hexToDecimalBigger(transaction.amount)
         let formattedTime = transaction.meta.blockTimestamp
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.meta.blockTimestamp / 1000)
@@ -232,7 +231,7 @@ export default class VetScannerProcessor {
          * "clauseIndex": 5
          */
 
-        const amount = BigIntXmr.BigInteger(transaction.data).toString()
+        const amount = BlocksoftUtils.hexToDecimalBigger(transaction.data)
         let formattedTime = transaction.meta.blockTimestamp
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.meta.blockTimestamp / 1000)

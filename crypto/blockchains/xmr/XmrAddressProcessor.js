@@ -12,6 +12,8 @@ import MoneroMnemonic from './ext/MoneroMnemonic'
 import { soliditySha3 } from 'web3-utils'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BlocksoftSecrets from '@crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
+import config from '@app/config/config'
 
 const bitcoin = require('bitcoinjs-lib')
 const networksConstants = require('../../common/ext/networks-constants')
@@ -37,7 +39,22 @@ export default class XmrAddressProcessor {
      * @param {*} data.derivationType
      * @returns {Promise<{privateKey: string, address: string, addedData: *}>}
      */
-    async getAddress(privateKey, data = {}) {
+    async getAddress(privateKey, data = {}, superPrivateData = {}) {
+        let walletMnemonic = false
+        try {
+            walletMnemonic = await (BlocksoftSecrets.setCurrencyCode('XMR').setMnemonic(superPrivateData.mnemonic)).getWords()
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('XmrAddressProcessor.getAddress recheck mnemonic error ' + e.message)
+            }
+        }
+        if (!walletMnemonic) {
+            return {
+                address: 'invalidRecheck1',
+                privateKey: ''
+            }
+        }
+
         if (typeof data.derivationType !== 'undefined' && data.derivationType && data.derivationType !== 'main') {
             return false
         }
@@ -57,6 +74,12 @@ export default class XmrAddressProcessor {
         const secretViewKey = MoneroUtils.hash_to_scalar(secretSpendKey)
 
         const words = MoneroMnemonic.secret_spend_key_to_words(MoneroUtils.normString(secretSpendKey), typeof data.walletHash !== 'undefined' ? data.walletHash : 'none')
+        if (words !== walletMnemonic) {
+            return {
+                address: 'invalidRecheck2',
+                privateKey: ''
+            }
+        }
 
         const publicSpendKey = MoneroUtils.secret_key_to_public_key(secretSpendKey).toString('hex')
 

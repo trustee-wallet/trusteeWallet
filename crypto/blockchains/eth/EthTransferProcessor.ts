@@ -721,7 +721,16 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     logData.selectedFee.nonceLog = 'replacedByUi ' + uiData.selectedFee.nonceForTx + ' ' + (typeof logData.selectedFee.nonceLog !== 'undefined' ? logData.selectedFee.nonceLog : '')
                 }
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' nonceLog ' + logData.selectedFee.nonceLog)
-                result = await sender.send(tx, privateData, txRBF, logData)
+
+                try {
+                    result = await sender.send(tx, privateData, txRBF, logData)
+                } catch (e) {
+                    if (config.debug.cryptoErrors) {
+                        console.log(this._settings.currencyCode + ' EthTransferProcessor.sent while sender.send error ' + e.message)
+                    }
+                    throw e
+                }
+
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = this._mainCurrencyCode
                 await EthTmpDS.getCache(data.addressFrom)

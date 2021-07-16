@@ -110,7 +110,7 @@ export default class EthTxSendProvider {
 
         let result
         try {
-            if (this._mainCurrencyCode === 'BNB') {
+            if (this._mainCurrencyCode === 'BNB' || this._mainCurrencyCode === 'MATIC') {
                 /**
                  * {"blockHash": "0x01d48fd5de1ebb62275096f749acb6849bd97f3c050acb07358222cea0a527bc",
                  * "blockNumber": 5223318, "contractAddress": null,
@@ -148,6 +148,7 @@ export default class EthTxSendProvider {
                     console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx result', JSON.parse(JSON.stringify(res2.data)))
                 }
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx', typeof res2.data !== 'undefined' ? res2.data : res2)
+                throw new Error(res2.data)
             } catch (e2) {
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy error errorTx ' + e.message)
