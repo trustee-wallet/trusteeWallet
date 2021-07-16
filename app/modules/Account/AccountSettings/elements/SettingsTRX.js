@@ -315,6 +315,7 @@ class SettingsTRX extends Component {
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
                                 tintColor={'#7127ac'}
+                                paste={true}
                             />
                         </View>
                     </View>

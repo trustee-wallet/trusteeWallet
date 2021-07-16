@@ -303,7 +303,7 @@ class BackupStep0Screen extends PureComponent {
                     keyboardShouldPersistTaps='handled'
                 >
                     {visibilityQR &&
-                    <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
+                    <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
                         <View style={[styles.infoContainer, { marginBottom: GRID_SIZE }]}>
 
                             <Text style={[styles.infoText, { color: colors.common.text3 }]}>{strings('walletBackup.step0Screen.infoQR')}</Text>
@@ -333,7 +333,10 @@ class BackupStep0Screen extends PureComponent {
                             <TwoButtons
                                 mainButton={{
                                     onPress: () => this.handleQR(false),
-                                    title: strings('walletBackup.step0Screen.hideQR')
+                                    title: strings('walletBackup.step0Screen.hideQR'),
+                                    textStyle: {
+                                        textAlign: 'center'
+                                    }
                                 }}
                             />
                         </View>
@@ -403,7 +406,10 @@ class BackupStep0Screen extends PureComponent {
                                     <TwoButtons
                                         mainButton={{
                                             onPress: () => this.handleQR(true),
-                                            title: strings('walletBackup.step0Screen.showQR')
+                                            title: strings('walletBackup.step0Screen.showQR'),
+                                            textStyle: {
+                                                textAlign: 'center'
+                                            }
                                         }}
                                     />
                                 </View>

@@ -8,10 +8,17 @@ import {
     TextInput,
     View,
     StyleSheet,
-    Animated
+    Animated,
+    TouchableOpacity,
+    Keyboard,
+    Clipboard
 } from 'react-native'
 
+import QR from 'react-native-vector-icons/FontAwesome'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+
 import { useTheme } from '@app/theme/ThemeProvider'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 
 
 export default function Input(props) {
@@ -28,8 +35,23 @@ export default function Input(props) {
         HelperAction,
         compRef,
         onFocus,
+        paste,
+        qr,
+        qrCallback,
+        callback,
         ...nativeProps
     } = props
+
+    const handleReadFromClipboard = async () => {
+        const { callback } = props
+    
+        Keyboard.dismiss()
+        const clipboardContent = await Clipboard.getString()
+        if (typeof callback !== 'undefined') {
+            callback(clipboardContent)
+        }
+    
+    }
 
     return (
         <View>
@@ -38,7 +60,7 @@ export default function Input(props) {
                 <TextInput
                     style={[
                         styles.input,
-                        HelperAction && styles.inputWithHelper,
+                        (qr && paste) ? styles.inputWithBtns : (HelperAction || qr || paste) ? styles.inputWithHelper : null,
                         { backgroundColor: colors.common.textInput.bg, color: colors.common.textInput.text },
                         inputStyle
                     ]}
@@ -52,6 +74,20 @@ export default function Input(props) {
                     onFocus={onFocus}
                     {...nativeProps}
                 />
+                <View style={styles.actions}>
+                    {
+                        typeof paste !== 'undefined' && paste ?
+                            <TouchableOpacity onPress={handleReadFromClipboard} style={styles.actionBtn} hitSlop={{ top: 15, left: 15, right: 15, bottom: 15 }}>
+                                <MaterialCommunityIcons style={{ ...styles.actionBtn__icon, paddingTop: 2 }} name='content-paste' size={25} color={inputStyle?.color || colors.common.text1} />
+                            </TouchableOpacity> : null
+                    }
+                    {
+                        typeof qr !== 'undefined' && qr ?
+                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn} hitSlop={{ top: 15, left: 15, right: 15, bottom: 15 }}>
+                                <QR style={{ ...styles.actionBtn__icon, paddingTop: 2 }} name='qrcode' size={25} color={inputStyle?.color || colors.common.text1} />
+                            </TouchableOpacity> : null
+                    }
+                </View>
                 {HelperAction && (
                     <View style={styles.helper}>
                         <HelperAction />
@@ -88,6 +124,9 @@ const styles = StyleSheet.create({
     inputWithHelper: {
         paddingRight: 48
     },
+    inputWithBtns: {
+        paddingRight: 90
+    },
     label: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 16,
@@ -99,5 +138,17 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 16,
         zIndex: 20,
-    }
+    },
+    actions: {
+        position: 'absolute',
+        right: 16,
+        zIndex: 20,
+        height: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    actionBtn: {},
+    actionBtn__icon: {
+        marginLeft: 15,
+    },
 })

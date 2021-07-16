@@ -228,7 +228,6 @@ class DetailsContent extends React.Component {
                             </TouchableOpacity>
                         )}
                 </View>
-
                 {isEditing && (
                     <TextInput
                         autoCapitalize="none"
@@ -237,7 +236,8 @@ class DetailsContent extends React.Component {
                         placeholder={strings('cashback.enterInviteLinkPlaceholder')}
                         onChangeText={this.handleChangeInviteLink}
                         value={inviteLink}
-                        HelperAction={this.renderQrButton}
+                        qr={true}
+                        qrCallback={this.handleQrCode}
                         onBlur={this.handleSubmitInviteLink}
                     />
                 )}
@@ -300,21 +300,6 @@ class DetailsContent extends React.Component {
                     </View>
                 </View>
             </View>
-        )
-    }
-
-    renderQrButton = () => {
-        const { colors } = this.context
-        const { inviteLinkError } = this.state
-
-        return (
-            <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={this.handleQrCode}
-                hitSlop={{ top: 15, left: 15, right: 15, bottom: 15 }}
-            >
-                <CustomIcon name="qr" size={24} color={inviteLinkError ? colors.cashback.token : colors.common.text1} />
-            </TouchableOpacity>
         )
     }
 

@@ -85,7 +85,9 @@ export const colorsDark = {
         walletInfoTextViolet: '#F3E6FF',
         tabBarText: '#999',
         tabBarBackground: '#2e2e2e',
-        dateColorViolet: '#c4c4c4'
+        dateColorViolet: '#c4c4c4',
+        backupBg: 'rgba(134, 77, 217, 0.25)',
+        backupDescription: 'rgba(204, 180, 238, 0.75)'
     },
     createWalletScreen: {
         keyIcon: '#9E71E1',

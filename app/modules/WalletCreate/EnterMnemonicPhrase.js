@@ -364,7 +364,10 @@ class EnterMnemonicPhrase extends PureComponent {
                                 placeholder={strings('walletCreate.phrasePlaceholder')}
                                 onChangeText={this.handleInputPhrase}
                                 value={phraseInputValue}
-                                HelperAction={this.renderQrCode}
+                                paste={true}
+                                qr={true}
+                                qrCallback={this.handleOpenQr}
+                                callback={this.handleInputPhrase}
                             />
                             {!!error && (
                                 <View style={[styles.errorContainer, { marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }]}>

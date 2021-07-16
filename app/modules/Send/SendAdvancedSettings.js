@@ -186,6 +186,8 @@ class SendAdvancedSettings extends React.PureComponent {
                                 value={this.state.comment}
                                 placeholder={strings('send.setting.note')}
                                 onChangeText={this.onChangeComment}
+                                paste={true}
+                                callback={this.onChangeComment}
                             />
                         </View>
 

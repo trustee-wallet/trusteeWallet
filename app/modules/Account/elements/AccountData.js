@@ -2,7 +2,7 @@
  * @version 0.43
  */
 import React, { PureComponent } from 'react'
-import { Text, View, TouchableOpacity, StyleSheet } from 'react-native'
+import { Text, View, TouchableOpacity, StyleSheet, Platform } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
@@ -73,7 +73,7 @@ class AccountData extends PureComponent {
                                         {balancePrettyPrep2 + ' ' + currencySymbol}
                                     </Text>
                                 </Text> :
-                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 40, height: 'auto' }}>****</Text>
+                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 44, height: 'auto' }}>****</Text>
                             }
                         </TouchableOpacity>
                     </View>
@@ -106,7 +106,8 @@ const styles = StyleSheet.create({
     topContent__title_first: {
         fontSize: 30,
         fontFamily: 'Montserrat-Regular',
-        lineHeight: 38
+        lineHeight: 38,
+        paddingTop: Platform.OS === 'android' ? 5 : 0
     },
     topContent__title_last: {
         height: 32,

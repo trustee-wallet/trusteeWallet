@@ -65,6 +65,8 @@ export default class PromoCodeContent extends React.Component {
                     placeholder={strings('cashback.enterPromoPlaceholder')}
                     value={promoCode}
                     onChangeText={this.onChangeCode}
+                    paste={true}
+                    callback={this.onChangeCode}
                 />
                 <Button
                     title={strings('cashback.applyButton')}

@@ -644,6 +644,8 @@ class AccountReceiveScreen extends React.PureComponent {
                                     placeholder={strings('send.setting.note')}
                                     onChangeText={(value) => this.setState({ labelForQr: value })}
                                     onFocus={() => this.onFocus()}
+                                    paste={true}
+                                    callback={(value) => this.setState({ labelForQr: value })}
                                 />
                             </View>
                             <View style={{ alignSelf: 'center', width: '100%', marginTop: GRID_SIZE }}>
