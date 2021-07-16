@@ -31,12 +31,13 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import WalletName from './WalletName/WalletName'
+import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
 
 
 const headerHeight = 44
 const headerHeightSticky = 88
 
-class WalletInfo extends React.Component {
+class WalletInfo extends React.PureComponent {
     constructor(props) {
         super(props)
 
@@ -85,6 +86,8 @@ class WalletInfo extends React.Component {
 
     handleOpenNotifications = () => NavStore.goNext('NotificationsScreen')
 
+    handleWalletConnect = () => NavStore.goNext('WalletConnectScreen')
+
     handleClearNotifications = async () => {
         Vibration.vibrate(100)
         await AppNewsActions.markAllAsOpened()
@@ -104,6 +107,7 @@ class WalletInfo extends React.Component {
             originalVisibility,
             balanceData,
             hasNews,
+            walletConnected
         } = this.props
         const {
             hasStickyHeader,
@@ -135,6 +139,12 @@ class WalletInfo extends React.Component {
                                 <CustomIcon name={'notifications'} color={colors.common.text1} size={20} />
                                 {hasNews && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
                             </TouchableOpacity>
+                            {!walletConnected && (
+                                <TouchableOpacity style={[styles.settingsButton, { marginLeft: -8 } ]} onPress={this.handleWalletConnect}
+                                    hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}>
+                                    <CustomIcon name={'walletConnect'} color={colors.common.text1} size={26} />
+                                </TouchableOpacity>
+                            )}
                         </View>
 
                         <View style={styles.header__center}>
@@ -190,7 +200,8 @@ class WalletInfo extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        hasNews: state.appNewsStore.hasNews
+        hasNews: state.appNewsStore.hasNews,
+        walletConnected: getWalletConnectIsConnected(state)
     }
 }
 
@@ -267,8 +278,9 @@ const styles = StyleSheet.create({
     },
     header__left: {
         flex: 1,
-        alignItems: 'flex-start',
-        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+        // justifyContent: 'center',
         height: 44, // equal to "WalletName" component height
     },
     header__center: {

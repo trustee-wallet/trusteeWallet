@@ -50,6 +50,8 @@ class WalletInfo extends React.PureComponent {
         this.state = {
             opacity: new Animated.Value(1),
             isViolet: false,
+            height: new Animated.Value(0),
+            showBackupMsg: !this.props.walletIsBackedUp
         }
     }
 
@@ -121,6 +123,16 @@ class WalletInfo extends React.PureComponent {
         setBseLink(null)
     }
 
+    closeBackupMsg = () => {
+
+        Animated.timing(this.state.height, {
+            toValue: 1,
+            duration: 500
+        }).start(() => {
+            this.setState({ showBackupMsg: !this.state.showBackupMsg })
+        })
+    }
+
     render() {
         const {
             changeBalanceVisibility,
@@ -128,43 +140,67 @@ class WalletInfo extends React.PureComponent {
             isBalanceVisible,
             originalVisibility,
             balanceData,
-            walletNumber
+            walletNumber,
+            walletIsBackedUp
         } = this.props
-        const { isViolet } = this.state
+        const { isViolet, showBackupMsg } = this.state
         const { colors, GRID_SIZE } = this.context
         // @misha to optimize
         const date = new Date()
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
 
+        const backupAnimaStyle = {
+            transform: [
+                {
+                    scaleY: this.state.height.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 0]
+                    })
+                },
+                {
+                    translateY: this.state.height
+                }
+            ],
+            marginVertical: this.state.height.interpolate({
+                inputRange: [0, 1],
+                outputRange: [GRID_SIZE / 2, -68]
+            }),
+            opacity: this.state.height.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 0]
+            })
+        }
+
         return (
-            <Animated.View style={{ opacity: this.state.opacity, marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}>
-                <View style={styles.shadow__container}>
-                    <View style={styles.shadow__item} />
-                </View>
-                <TouchableOpacity
-                    style={styles.container}
-                    activeOpacity={1}
-                    onLongPress={this.toggleViolet}
-                    delayLongPress={5000}
-                >
-                    <GradientView
-                        style={styles.container__bg}
-                        array={isViolet ? colors.homeScreen.listItemVioletGradient : colors.homeScreen.listItemGradient}
-                        start={{ x: 1, y: 0 }}
-                        end={{ x: 1, y: 1 }}
+            <>
+                <Animated.View style={{ opacity: this.state.opacity, marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}>
+                    <View style={styles.shadow__container}>
+                        <View style={styles.shadow__item} />
+                    </View>
+                    <TouchableOpacity
+                        style={styles.container}
+                        activeOpacity={1}
+                        onLongPress={this.toggleViolet}
+                        delayLongPress={5000}
                     >
-                        <View style={styles.container__top}>
-                            <View style={styles.container__top__left}>
-                                <Text style={[
-                                    styles.container__title,
-                                    { color: isViolet ? colors.homeScreen.text1Violet : colors.common.text1 }
-                                ]}>
-                                    {strings('homeScreen.balance')}
-                                </Text>
+                        <GradientView
+                            style={styles.container__bg}
+                            array={isViolet ? colors.homeScreen.listItemVioletGradient : colors.homeScreen.listItemGradient}
+                            start={{ x: 1, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                        >
+                            <View style={styles.container__top}>
+                                <View style={styles.container__top__left}>
+                                    <Text style={[
+                                        styles.container__title,
+                                        { color: isViolet ? colors.homeScreen.text1Violet : colors.common.text1 }
+                                    ]}>
+                                        {strings('homeScreen.balance')}
+                                    </Text>
 
 
 
-                                {MarketingEvent.DATA.LOG_TESTER ? (
+                                    {MarketingEvent.DATA.LOG_TESTER ? (
                                         <TouchableOpacity onPress={() => this.changeWallet(walletNumber)} hitSlop={HIT_SLOP}>
                                             <LetterSpacing
                                                 text={'NEXT WALLET'}
@@ -173,71 +209,86 @@ class WalletInfo extends React.PureComponent {
                                             />
                                         </TouchableOpacity>
                                     )
-                                    :
-                                    <LetterSpacing
-                                        text={todayPrep}
-                                        textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
-                                        letterSpacing={1}
-                                    />
+                                        :
+                                        <LetterSpacing
+                                            text={todayPrep}
+                                            textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
+                                            letterSpacing={1}
+                                        />
 
-                                }
-                            </View>
-                            <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
-                                <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
-                                    <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
-                                    <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
-                                        {strings('settings.assets.addAsset').toUpperCase()}
-                                    </Text>
+                                    }
                                 </View>
-                            </TouchableOpacity>
-                        </View>
+                                <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
+                                    <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
+                                        <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
+                                        <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
+                                            {strings('settings.assets.addAsset').toUpperCase()}
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
 
-                        <View style={styles.walletInfo__content}>
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                style={styles.walletInfo__content__balance}
-                                onPressIn={() => triggerBalanceVisibility(true)}
-                                onPressOut={() => triggerBalanceVisibility(false)}
-                                disabled={originalVisibility}
-                                hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 100 : 20, bottom: 20 }}
-                            >
-                                {
-                                    isBalanceVisible ? (
-                                        <React.Fragment>
-                                            <TouchableOpacity onPress={this.handleChangeLocal}>
-                                                <Text style={[
-                                                    styles.walletInfo__text_small,
-                                                    styles.walletInfo__text_small_first,
-                                                    { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }
-                                                ]}>
-                                                    {balanceData.currencySymbol}
-                                                </Text>
-                                            </TouchableOpacity>
-                                            <Text style={[styles.walletInfo__text_middle, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
-                                            <Text style={[styles.walletInfo__text_small, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
-                                        </React.Fragment>
-                                    ) : (
+                            <View style={styles.walletInfo__content}>
+                                <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    style={styles.walletInfo__content__balance}
+                                    onPressIn={() => triggerBalanceVisibility(true)}
+                                    onPressOut={() => triggerBalanceVisibility(false)}
+                                    disabled={originalVisibility}
+                                    hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 100 : 20, bottom: 20 }}
+                                >
+                                    {
+                                        isBalanceVisible ? (
+                                            <React.Fragment>
+                                                <TouchableOpacity onPress={this.handleChangeLocal}>
+                                                    <Text style={[
+                                                        styles.walletInfo__text_small,
+                                                        styles.walletInfo__text_small_first,
+                                                        { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }
+                                                    ]}>
+                                                        {balanceData.currencySymbol}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                                <Text style={[styles.walletInfo__text_middle, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
+                                                <Text style={[styles.walletInfo__text_small, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
+                                            </React.Fragment>
+                                        ) : (
                                             <Text style={[
                                                 styles.walletInfo__text_middle,
                                                 styles.walletInfo__hiddenBalance,
                                                 { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }
                                             ]}>****</Text>
                                         )
-                                }
+                                    }
 
-                            </TouchableOpacity>
+                                </TouchableOpacity>
 
-                            <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
-                                {isBalanceVisible ? (
-                                    <CustomIcon name={'eye'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
-                                ) : (
-                                    <CustomIcon name={'eyeClosed'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
+                                    {isBalanceVisible ? (
+                                        <CustomIcon name={'eye'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                    ) : (
+                                        <CustomIcon name={'eyeClosed'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                     )}
+                                </TouchableOpacity>
+                            </View>
+                        </GradientView>
+                    </TouchableOpacity>
+                </Animated.View>
+                {(!walletIsBackedUp || showBackupMsg) &&
+                    <Animated.View style={[styles.container, backupAnimaStyle, { marginHorizontal: GRID_SIZE, backgroundColor: colors.homeScreen.backupBg, }]}>
+                        <View style={styles.backupWrapper}>
+                            <CustomIcon name='warningMessage' size={24} color={colors.walletManagment.walletItemBorderColor} style={styles.iconWrapper} />
+                            <View style={styles.description}>
+                                <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{strings('settings.walletList.backupNeeded')}</Text>
+                                <Text style={[styles.backupDescription, { color: colors.homeScreen.backupDescription }]}>{strings('settings.walletList.backupDescription')}</Text>
+                            </View>
+                            <TouchableOpacity onPress={this.closeBackupMsg} style={styles.close} hitSlop={HIT_SLOP}>
+                                <CustomIcon name='close' size={18} color={colors.common.button.text} />
                             </TouchableOpacity>
                         </View>
-                    </GradientView>
-                </TouchableOpacity>
-            </Animated.View>
+                    </Animated.View>
+                }
+            </>
         )
     }
 }
@@ -384,4 +435,34 @@ const styles = StyleSheet.create({
         marginRight: 2,
         marginTop: 1,
     },
+    backupWrapper: {
+        flex: 1,
+        flexDirection: 'row',
+        paddingHorizontal: 18,
+        paddingVertical: 16,
+        minHeight: 136
+    },
+    description: {
+        flex: 2,
+        flexDirection: 'column',
+        justifyContent: 'center',
+
+        paddingLeft: 10
+    },
+    backupDescription: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 16,
+        lineHeight: 20,
+        letterSpacing: 0.5,
+
+        paddingTop: 6
+    },
+    backupName: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        lineHeight: 17
+    },
+    iconWrapper: {
+        alignSelf: 'center'
+    }
 })

@@ -291,6 +291,7 @@
       "title": "ჩემი საფულეები",
       "addWallet": "საფულეს დამატება",
       "backupNeeded": "სარეზერვო ასლის შექმნა",
+      "backupDescription": "Your funds will be at risk. Backup Recovery phrase before using your wallet",
       "addedAssets": "აქტივების დამატება",
       "balance": "ბალანსი",
       "backup": "რეზერვის შექმნა",
@@ -1347,6 +1348,11 @@
     "receive": {
       "success": "წარმატება!",
       "addressCopiedSuccess": "საფულის მისამართი დაკოპირებულია!"
+    },
+    "walletDelete": {
+      "deleteWallet": "This operation is irreversible! In case you don't have backup of recovery phase the access to the wallet %{walletName} will be lost.",
+      "delete": "Do yoy want delete this wallet?",
+      "confirmDelete": "Do you really want to delete this wallet?"
     }
   },
   "lockScreen": {

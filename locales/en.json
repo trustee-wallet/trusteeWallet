@@ -295,7 +295,8 @@
     "walletList": {
       "title": "My wallets",
       "addWallet": "Add wallet",
-      "backupNeeded": "Back up needed",
+      "backupNeeded": "Backup needed",
+      "backupDescription": "Your funds will be at risk. Backup Recovery phrase before using your wallet",
       "addedAssets": "Added assets",
       "balance": "Balance",
       "backup": "Backup",
@@ -1374,7 +1375,7 @@
       "continue": "Continue"
     },
     "walletDelete": {
-      "deleteWallet": "Are you sure you want to delete this wallet? Make sure you back up your wallet.",
+      "deleteWallet": "This operation is irreversible! In case you don't have backup of recovery phase the access to the wallet %{walletName} will be lost.",
       "delete": "Do yoy want delete this wallet?",
       "confirmDelete": "Do you really want to delete this wallet?"
     }
