@@ -21,7 +21,6 @@ import Validator from '@app/services/UI/Validator/Validator'
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import { strings } from '@app/services/i18n'
-import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
@@ -38,7 +37,6 @@ import {
 } from './helpers'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import CustomIcon from '@app/components/elements/CustomIcon'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
@@ -213,11 +211,9 @@ class AddAssetScreen extends React.PureComponent {
                                                 placeholder={strings('assets.addCustomPlaceholder')}
                                                 onChangeText={this.handleChangeCustomAddress}
                                                 value={customAddress}
-                                                HelperAction={() => (
-                                                    <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
-                                                        <CustomIcon name={'qr'} size={20} color={colors.common.text1} />
-                                                    </TouchableOpacity>
-                                                )}
+                                                paste={true}
+                                                qr={true}
+                                                qrCallback={this.handleOpenQr}
                                             />
                                             <Button
                                                 containerStyle={{ marginTop: GRID_SIZE * 2 }}

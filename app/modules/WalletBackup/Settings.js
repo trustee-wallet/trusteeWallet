@@ -203,6 +203,8 @@ class BackupSettingsScreen extends PureComponent {
                             placeholder={strings('walletBackup.settingsScreen.walletNamePlaceholder')}
                             onChangeText={this.changeWalletName}
                             value={walletName}
+                            paste={true}
+                            callback={this.changeWalletName}
                         />
 
                         <View style={{ marginTop: GRID_SIZE * 1.5 }}>

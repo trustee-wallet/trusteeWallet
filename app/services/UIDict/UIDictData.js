@@ -626,6 +626,18 @@ export default {
             darkColor: '#6E55F9'
         }
     },
+    "MATIC": {
+        colors: {
+            mainColor: '#8247E5',
+            darkColor: '#8247E5'
+        }
+    },
+    'ETH_KNC_NEW': {
+        colors: {
+            mainColor: '#31CB9E',
+            darkColor: '#2FAA86'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

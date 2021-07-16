@@ -9,7 +9,6 @@ import {
     Text,
     ScrollView,
     Linking,
-    TextInput,
     TouchableOpacity
 } from 'react-native'
 import { connect } from 'react-redux'
@@ -56,6 +55,8 @@ import { getCashBackLinkFromDataAPi } from '@app/appstores/Stores/CashBack/selec
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+
+import TextInput from '@app/components/elements/new/TextInput'
 
 
 let CACHE_RESCAN_TX = false
@@ -723,6 +724,18 @@ class AccountTransactionScreen extends PureComponent {
         }, 100)
     }
 
+    handleCommentChange = (value) => {
+        const { commentToView } = this.state
+        
+        this.setState({
+            commentToView: {
+                ...commentToView,
+                description: value
+            },
+            commentEditable: true
+        })
+    }
+
     commentHandler = () => {
 
         const { commentToView, commentEditable } = this.state
@@ -742,26 +755,18 @@ class AccountTransactionScreen extends PureComponent {
                         </TouchableOpacity> :
                         <View style={{ ...styles.textInputWrapper, backgroundColor: colors.transactionScreen.comment }}>
                             <TextInput
-                                ref={ref => this.commentInput = ref}
+                                compRef={ref => this.commentInput = ref}
                                 placeholder={strings('account.transactionScreen.commentPlaceholder')}
                                 onBlur={() => this.onBlurComment(commentToView)}
-                                multiline={true}
-                                onChangeText={(value) => {
-                                    this.setState({
-                                        commentToView: {
-                                            ...commentToView,
-                                            description: value
-                                        },
-                                        commentEditable: true
-                                    })
-                                }}
+                                onChangeText={this.handleCommentChange}
                                 onFocus={this.onFocus}
                                 value={commentToView !== null ? commentToView.description : commentToView}
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
                                 style={{ ...styles.input, color: colors.common.text2 }}
                                 placeholderTextColor={colors.common.text2}
-                                allowFontScaling={false}
+                                paste={true}
+                                callback={this.handleCommentChange}
                             />
                         </View>
                     :

@@ -13,8 +13,13 @@ const InputAndButtonsPartBalanceButton = (props) => {
     const { text, action, inverse } = props
 
     return (
-        <TouchableOpacity style={{...styles.button, backgroundColor: inverse ? colors.common.text1 : colors.common.background, borderColor: colors.common.text1}} onPress={action}>
-            <Text style={{...styles.text, color: inverse ? colors.common.background : colors.common.text3 }} >{text}</Text>
+        <TouchableOpacity style={{
+            ...styles.button,
+            backgroundColor: inverse ? colors.common.text1 : colors.common.background,
+            borderColor: inverse ? '' : colors.common.text1,
+            borderWidth: inverse ? 0 : 2,
+        }} onPress={action}>
+            <Text style={{ ...styles.text, color: inverse ? colors.common.background : colors.common.text3 }} >{text}</Text>
         </TouchableOpacity>
     )
 }
@@ -23,7 +28,6 @@ export default InputAndButtonsPartBalanceButton
 
 const styles = StyleSheet.create({
     button: {
-        borderWidth: 2,
         height: 40,
         width: '22%',
         borderRadius: 10,

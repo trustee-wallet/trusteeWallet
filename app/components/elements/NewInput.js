@@ -226,7 +226,7 @@ class Input extends Component {
             }
         }
 
-        const inputWidth = ( fio || copy || paste || qr || info || tabInfo ) ? '75%' : '95%'
+        const inputWidth = ( paste && qr ) ? '75%' : ( fio || copy || paste || qr || info || tabInfo ) ? '85%' : '95%'
 
         return (
             <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
