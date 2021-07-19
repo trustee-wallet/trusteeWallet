@@ -263,7 +263,7 @@ class SettingsMainScreen extends PureComponent {
                             )}
                             <ListItem
                                 title={strings('settings.walletConnect.title')}
-                                subtitle={strings(`settings.walletConnect.${isWalletConnected ? 'activated' : 'disabled'}`)}
+                                subtitle={strings(`settings.walletConnect.${isWalletConnected.isConnected ? 'activated' : 'disabled'}`)}
                                 iconType="walletConnect"
                                 onPress={this.handleWalletConnect}
                                 rightContent="arrow"

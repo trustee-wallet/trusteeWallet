@@ -77,14 +77,14 @@ export default function Input(props) {
                 <View style={styles.actions}>
                     {
                         typeof paste !== 'undefined' && paste ?
-                            <TouchableOpacity onPress={handleReadFromClipboard} style={styles.actionBtn} hitSlop={{ top: 15, left: 15, right: 15, bottom: 15 }}>
-                                <MaterialCommunityIcons style={{ ...styles.actionBtn__icon, paddingTop: 2 }} name='content-paste' size={25} color={inputStyle?.color || colors.common.text1} />
+                            <TouchableOpacity onPress={handleReadFromClipboard} style={styles.actionBtn} hitSlop={{ top: 15, left: 15, right: 7, bottom: 15 }}>
+                                <MaterialCommunityIcons style={{ ...styles.actionBtn__icon, paddingTop: 2, paddingRight: qr ? 7 : 0 }} name='content-paste' size={25} color={inputStyle?.color || colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
-                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn} hitSlop={{ top: 15, left: 15, right: 15, bottom: 15 }}>
-                                <QR style={{ ...styles.actionBtn__icon, paddingTop: 2 }} name='qrcode' size={25} color={inputStyle?.color || colors.common.text1} />
+                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn} hitSlop={{ top: 15, left: 0, right: 15, bottom: 15 }}>
+                                <QR style={{ ...styles.actionBtn__icon, paddingTop: 2, paddingRight: 0 }} name='qrcode' size={25} color={inputStyle?.color || colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                 </View>
@@ -149,6 +149,6 @@ const styles = StyleSheet.create({
     },
     actionBtn: {},
     actionBtn__icon: {
-        marginLeft: 15,
+        paddingHorizontal: 7
     },
 })

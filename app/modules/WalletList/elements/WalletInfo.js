@@ -43,7 +43,7 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 let CACHE_PREV_CURRENCY = false
 
-class WalletInfo extends React.PureComponent {
+class WalletInfo extends React.Component {
 
     constructor(props) {
         super(props)
@@ -51,7 +51,8 @@ class WalletInfo extends React.PureComponent {
             opacity: new Animated.Value(1),
             isViolet: false,
             height: new Animated.Value(0),
-            showBackupMsg: !this.props.walletIsBackedUp
+            showBackupMsg: !this.props.walletIsBackedUp,
+            backupViewHeight: 0
         }
     }
 
@@ -124,12 +125,17 @@ class WalletInfo extends React.PureComponent {
     }
 
     closeBackupMsg = () => {
-
         Animated.timing(this.state.height, {
             toValue: 1,
             duration: 500
         }).start(() => {
             this.setState({ showBackupMsg: !this.state.showBackupMsg })
+        })
+    }
+
+    processBackupViewHeight = (e) => { 
+        this.setState({
+            backupViewHeight: e.nativeEvent.layout.height
         })
     }
 
@@ -163,7 +169,7 @@ class WalletInfo extends React.PureComponent {
             ],
             marginVertical: this.state.height.interpolate({
                 inputRange: [0, 1],
-                outputRange: [GRID_SIZE / 2, -68]
+                outputRange: [GRID_SIZE / 2, -(this.state.backupViewHeight / 2)]
             }),
             opacity: this.state.height.interpolate({
                 inputRange: [0, 1],
@@ -276,7 +282,7 @@ class WalletInfo extends React.PureComponent {
                 </Animated.View>
                 {(!walletIsBackedUp || showBackupMsg) &&
                     <Animated.View style={[styles.container, backupAnimaStyle, { marginHorizontal: GRID_SIZE, backgroundColor: colors.homeScreen.backupBg, }]}>
-                        <View style={styles.backupWrapper}>
+                        <View style={styles.backupWrapper} onLayout={this.processBackupViewHeight}>
                             <CustomIcon name='warningMessage' size={24} color={colors.walletManagment.walletItemBorderColor} style={styles.iconWrapper} />
                             <View style={styles.description}>
                                 <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{strings('settings.walletList.backupNeeded')}</Text>
@@ -439,8 +445,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         paddingHorizontal: 18,
-        paddingVertical: 16,
-        minHeight: 136
+        paddingVertical: 16
     },
     description: {
         flex: 2,
