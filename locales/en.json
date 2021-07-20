@@ -975,12 +975,12 @@
     "infoScreen": {
       "continue": "Continue",
       "text1": "TRUSTEE WALLET never sends your recovery phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a recovery phrase.",
-      "checkbox1": "I understand that if I lose my recovery phrase I will lose my funds",
+      "checkbox1": "I understand that if I lose this phrase, I will not have access to my balances. And I understand that by passing this phrase to anyone, I will lose my money",
       "checkbox2": "I understand that I must view my recovery phrase in private with no cameras and eyes around",
       "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
     "step0Screen": {
-      "info": "The recovery phrase is the only secret key to your assets. Store it securely!",
+      "info": "The recovery phrase (mnemonic phrase, seed phrase) is a secret key for accessing all the balances of your wallet. Keep it in a safe place and don't pass it to anyone!",
       "showButton": "Press and hold to reveal",
       "next": "Next",
       "showQR" : "Get QR for import to another device",
