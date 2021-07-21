@@ -139,7 +139,7 @@ class WalletInfo extends React.PureComponent {
                                 <CustomIcon name={'notifications'} color={colors.common.text1} size={20} />
                                 {hasNews && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
                             </TouchableOpacity>
-                            {walletConnected.isConnected && (
+                            {walletConnected && (
                                 <TouchableOpacity style={[styles.settingsButton, { marginLeft: -8 } ]} onPress={this.handleWalletConnect}
                                     hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}>
                                     <CustomIcon name={'walletConnect'} color={colors.common.text1} size={26} />

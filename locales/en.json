@@ -652,15 +652,14 @@
         "speedUpTransactionHash" : "SpeedUp Tx",
         "recepient": "Recepient",
         "destinationAddress": "Destination address",
-        "minerFee": "Miner fee",
-        "totalMinerFee": "Total miner fee",
+        "minerFee": "Network fee",
+        "totalMinerFee": "Total network fee",
         "customNonce": "Custom nonce",
         "nonce": "Nonce",
         "trusteeInfo": "Trustee does not charge any fees for cryptocurrency transactions",
         "send": "Send",
         "build" : "Build",
         "sending": "Sending"
-
     },
     "errors": {
      "UI_CONFIRM_DOUBLE_SEND": "The transaction has been sent to this address already, are you sure that you want to repeat the transaction?",

@@ -55,7 +55,7 @@ class MinerFee extends React.PureComponent {
         return (
             <>
                 <CheckData
-                    name={strings('confirmScreen.networkFee')}
+                    name={strings('send.receiptScreen.minerFee')}
                     value={`${feesPretty} ${feesCurrencySymbol}`}
                     subvalue={fiatFee}
                     callback={this.props.callback}
