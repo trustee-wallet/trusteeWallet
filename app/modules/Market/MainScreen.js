@@ -87,10 +87,10 @@ class MarketScreen extends PureComponent {
         this.setState({ inited: true })
 
         // here to do upload
-        const side = NavStore.getParamWrapper(this, 'side')
-        const currencyCode = NavStore.getParamWrapper(this, 'currencyCode')
+        const inCurrencyCode = NavStore.getParamWrapper(this, 'inCurrencyCode')
+        const outCurrencyCode = NavStore.getParamWrapper(this, 'outCurrencyCode')
         const orderHash = NavStore.getParamWrapper(this, 'orderHash')
-        const apiUrl = await ApiV3.initData('MARKET', currencyCode, side, orderHash)
+        const apiUrl = await ApiV3.initData('MARKET', inCurrencyCode, outCurrencyCode, orderHash)
 
         setTimeout(() => {
             this.setState({
@@ -119,6 +119,10 @@ class MarketScreen extends PureComponent {
         CASHE_TIME = new Date()
 
         if (this.props.navigation.dangerouslyGetParent()) {
+            this.props.navigation.dangerouslyGetParent().addListener('tabLongPress', (e) => {
+                NavStore.reset('MarketScreen')
+            });
+
             this.props.navigation.dangerouslyGetParent().addListener('tabPress', (e) => {
                 const currentTime = new Date()
                 if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || !this.props.bseLink) {

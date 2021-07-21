@@ -159,6 +159,8 @@ class Account extends React.PureComponent {
 
     handleBuy = async () => {
         const { currencyCode } = this.props.selectedCryptoCurrencyData
+        const { basicCurrencyCode } = this.props.selectedAccountData
+
         try {
             await Netinfo.isInternetReachable()
 
@@ -170,10 +172,16 @@ class Account extends React.PureComponent {
                     title: strings('modal.marketModal.title'),
                     description: strings('modal.marketModal.description'),
                 }, () => {
-                    NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode })
+                    this.props.navigation.jumpTo('MarketScreen', {screen: 'MarketScreen', params: {
+                        inCurrencyCode: basicCurrencyCode,
+                        outCurrencyCode: currencyCode
+                    }})
                 })
             } else {
-                NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode })
+                this.props.navigation.jumpTo('MarketScreen', {screen: 'MarketScreen', params: {
+                    inCurrencyCode: basicCurrencyCode,
+                    outCurrencyCode: currencyCode
+                }})
             }
 
             // }
