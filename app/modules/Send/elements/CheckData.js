@@ -11,6 +11,8 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 import { useTheme } from '@app/theme/ThemeProvider'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
+import { HIT_SLOP } from '@app/theme/HitSlop'
+
 
 const CheckData = (props) => {
 
@@ -21,13 +23,20 @@ const CheckData = (props) => {
         value,
         subvalue,
         icon,
-        iconCallback
+        callback
     } = props
 
     return (
         <View style={{ flexDirection: 'row', paddingHorizontal: 16, justifyContent: 'space-between', paddingTop: 22 }}>
-            <TouchableOpacity style={{ width: '40%', flexDirection: 'row', alignItems: 'center' }} disabled={!iconCallback} onPress={() => iconCallback ? iconCallback() : null}>
-                <Text style={{...styles.name, color: colors.sendScreen.amount }}>{name}</Text>
+            <TouchableOpacity style={{ width: '40%', flexDirection: 'row', alignItems: 'center' }} 
+                disabled={!callback} 
+                onPress={() => callback ? callback() : null}
+                hitSlop={HIT_SLOP}>
+                <Text style={[
+                        callback && styles.callbackStyle, 
+                        styles.name, 
+                        { color: callback ? colors.common.radioButton.checked : colors.sendScreen.amount }
+                    ]}>{name}</Text>
                     {icon &&
                     <MaterialCommunityIcons
                         name="information-outline"
@@ -67,5 +76,8 @@ const styles  = StyleSheet.create({
         fontSize: 12,
         lineHeight: 12,
         color: '#999999',
+    },
+    callbackStyle: {
+        textDecorationLine: 'underline'
     }
 })

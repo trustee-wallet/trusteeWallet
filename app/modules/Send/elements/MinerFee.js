@@ -55,11 +55,10 @@ class MinerFee extends React.PureComponent {
         return (
             <>
                 <CheckData
-                    name={strings('send.receiptScreen.minerFee')}
+                    name={strings('confirmScreen.networkFee')}
                     value={`${feesPretty} ${feesCurrencySymbol}`}
                     subvalue={fiatFee}
-                    icon={this.props.icon}
-                    iconCallback={this.props.iconCallback}
+                    callback={this.props.callback}
                 />
                 {
                     isOutputs ?
