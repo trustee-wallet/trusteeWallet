@@ -90,6 +90,10 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name={'walletConnect'} size={22} color={color} />
         case 'supportMail':
             return <CustomIcon name={'supportMail'} size={22} color={color} />
+        case 'faq': 
+            return <CustomIcon name={'faq'} size={22} color={color} />
+        case 'delete':
+            return <CustomIcon name={'delete'} size={22} color={color} />
         default: return null
     }
 }

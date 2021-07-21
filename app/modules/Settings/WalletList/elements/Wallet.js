@@ -3,8 +3,10 @@
  * to take balance from store for version up
  */
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
+
+import { SwipeRow } from 'react-native-swipe-list-view'
 
 import GradientView from '@app/components/elements/GradientView'
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -21,6 +23,9 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
+import RoundButton from '@app/components/elements/new/buttons/RoundButton'
+import { deleteWallet } from '../../helpers'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 const smallDevice = Dimensions.get('screen').width < 370
 
@@ -60,7 +65,9 @@ class Wallet extends Component {
         NavStore.goNext('BackupStep0Screen', { flowSubtype: 'backup' })
     }
 
-    handleSelectWallet = async () => {
+    handleSelectWallet = async (isSelected) => {
+        if (isSelected) return
+
         await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleSelectWallet')
         setBseLink(null)
     }
@@ -90,8 +97,52 @@ class Wallet extends Component {
         return { currencySymbol, beforeDecimal, afterDecimal }
     }
 
+    confirmDeleteWallet = async () => {
+        const { selectedWalletHash } = this.props
+        await deleteWallet(selectedWalletHash, 'WalletListScreen')
+    }
+
+    handleDelete = (balanceData) => {
+        const { selectedWalletHash, wallet, settingsData } = this.props
+        const { walletNumber, walletIsBackedUp } = wallet
+
+        showModal({
+            type: 'YES_NO_MODAL',
+            icon: 'WARNING',
+            title: strings('modal.titles.attention'),
+            description: strings('modal.walletDelete.deleteWallet', { walletName: wallet.walletName }),
+        }, async (needPassword = true) => {
+            if (walletIsBackedUp) {
+                setFlowType({ flowType: 'DELETE_WALLET', selectedWalletHash, walletNumber, source: 'WalletListScreen' })
+                NavStore.goNext('BackupStep1Screen', { flowSubtype: 'show' })
+            } else {
+                const { lockScreenStatus } = settingsData
+                if (needPassword && +lockScreenStatus) {
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : this.confirmDeleteWallet})
+                    NavStore.goNext('LockScreen')
+                    return
+                } else {
+                    if (((balanceData.beforeDecimal * 1) > 0 || (balanceData.afterDecimal * 1) > 0) && !walletIsBackedUp) {
+                        setTimeout(() => {
+                            showModal({
+                                type: 'YES_NO_MODAL',
+                                icon: 'WARNING',
+                                title: strings('modal.titles.attention'),
+                                description: strings('modal.walletDelete.notBackupPositiveBalance', { walletName: wallet.walletName }) + strings('modal.walletDelete.confirmDelete'),
+                            }, () => {
+                                this.confirmDeleteWallet()        
+                            })
+                        }, 0)
+                    } else {
+                        this.confirmDeleteWallet()
+                    }
+                }
+            }
+        })
+    }
+
     render() {
-        const { selectedWalletHash, wallet } = this.props
+        const { selectedWalletHash, wallet, walletsLength } = this.props
 
         const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility } = this.props
         const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
@@ -104,60 +155,74 @@ class Wallet extends Component {
         const { colors, GRID_SIZE } = this.context
 
         return (
-            <TouchableOpacity
-                style={[styles.bgContainer, isSelected && styles.activeContainer, { marginVertical: GRID_SIZE / 2, borderColor: colors.walletManagment.walletItemBorderColor }]}
-                disabled={isSelected}
-                onPress={this.handleSelectWallet}
+            <SwipeRow
+                leftOpenValue={50 + GRID_SIZE}
+                stopLeftSwipe={GRID_SIZE + 100}
+                disableLeftSwipe={true}
+                disableRightSwipe={isSelected && walletsLength > 1 ? false : true}
+                swipeToOpenPercent={30}
+                onRowPress={() => this.handleSelectWallet(isSelected)}
             >
-                <GradientView
-                    array={isSelected ? colors.walletManagment.walletItemBgActive : colors.walletManagment.walletItemBg}
-                    start={{ x: 1, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.container}
-                >
-                    <View style={[styles.balanceContainer, !isBackedUp && { flex: 1 }]}>
-                        <Text style={[styles.walletName, { color: colors.common.text3 }]} numberOfLines={1}>{wallet.walletName}</Text>
+                <View style={[styles.hiddenLayer, { paddingHorizontal: GRID_SIZE / 2 }]}>
+                    <RoundButton
+                        type="delete"
+                        noTitle
+                        onPress={() => this.handleDelete(balanceData)}
+                        size={42}
+                    />
+                </View>
+                <View style={[styles.bgContainer, isSelected && styles.activeContainer, { marginVertical: GRID_SIZE / 2, borderColor: colors.walletManagment.walletItemBorderColor }]}
+                    disabled={isSelected}>
+                    <GradientView
+                        array={isSelected ? colors.walletManagment.walletItemBgActive : colors.walletManagment.walletItemBg}
+                        start={{ x: 1, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.container}
+                    >
+                        <View style={[styles.balanceContainer, !isBackedUp && { flex: 1 }]}>
+                            <Text style={[styles.walletName, { color: colors.common.text3 }]} numberOfLines={1}>{wallet.walletName}</Text>
 
-                        <TouchableOpacity
-                            onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
-                            onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
-                            activeOpacity={1}
-                            disabled={originalVisibility}
-                            hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}
-                        >
-                            {finalIsBalanceVisible ? (
-                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <Text style={[styles.balanceCurrencySymbol, { color: colors.common.text1 }]}>{balanceData.currencySymbol}</Text>
-                                    <Text style={[styles.balanceBeforeDecimal, { color: colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
-                                    <Text style={[styles.balanceAfterDecimal, { color: colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
-                                </View>
-                            ) : (
-                                <Text style={[styles.balanceHidden, { color: colors.common.text1 }]}>****</Text>
-                            )}
-                        </TouchableOpacity>
-                    </View>
-                    {isBackedUp ? (
-                        <TouchableOpacity
-                            style={styles.advancedButton}
-                            hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
-                            activeOpacity={0.8}
-                            onPress={this.handleOpenAdvanced}
-                            disabled={!isSelected}
-                        >
-                            <CustomIcon name={'coinSettings'} size={20} color={isSelected ? colors.common.text1 : colors.common.text2} />
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity
-                            style={[styles.backupContainer, { borderColor: colors.walletManagment.walletItemBorderColor, paddingLeft: GRID_SIZE }, smallDevice && { flex: 1.5 }]}
-                            onPress={this.handleBackUpModal}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={[styles.backupText, { color: colors.walletManagment.walletItemBorderColor, marginRight: GRID_SIZE / 2 }]}>{strings('settings.walletList.backupNeeded')}</Text>
-                            <IconMaterial name="error-outline" size={22} color={colors.walletManagment.walletItemBorderColor} />
-                        </TouchableOpacity>
-                    )}
-                </GradientView>
-            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
+                                onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
+                                activeOpacity={1}
+                                disabled={originalVisibility}
+                                hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}
+                            >
+                                {finalIsBalanceVisible ? (
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <Text style={[styles.balanceCurrencySymbol, { color: colors.common.text1 }]}>{balanceData.currencySymbol}</Text>
+                                        <Text style={[styles.balanceBeforeDecimal, { color: colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
+                                        <Text style={[styles.balanceAfterDecimal, { color: colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
+                                    </View>
+                                ) : (
+                                    <Text style={[styles.balanceHidden, { color: colors.common.text1 }]}>****</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                        {isBackedUp ? (
+                            <TouchableOpacity
+                                style={styles.advancedButton}
+                                hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
+                                activeOpacity={0.8}
+                                onPress={this.handleOpenAdvanced}
+                                disabled={!isSelected}
+                            >
+                                <CustomIcon name={'coinSettings'} size={20} color={isSelected ? colors.common.text1 : colors.common.text2} />
+                            </TouchableOpacity>
+                        ) : (
+                            <TouchableOpacity
+                                style={[styles.backupContainer, { borderColor: colors.walletManagment.walletItemBorderColor, paddingLeft: GRID_SIZE }, smallDevice && { flex: 1.5 }]}
+                                onPress={this.handleBackUpModal}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={[styles.backupText, { color: colors.walletManagment.walletItemBorderColor, marginRight: GRID_SIZE / 2 }]}>{strings('settings.walletList.backupNeeded')}</Text>
+                                <IconMaterial name="error-outline" size={22} color={colors.walletManagment.walletItemBorderColor} />
+                            </TouchableOpacity>
+                        )}
+                    </GradientView>
+                </View>
+            </SwipeRow>
         )
     }
 }
@@ -247,5 +312,11 @@ const styles = StyleSheet.create({
         lineHeight: 17,
         letterSpacing: 1.75,
         flex: 1,
-    }
+    },
+    hiddenLayer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flex: 1,
+    },
 })

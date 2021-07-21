@@ -1,52 +1,5 @@
 {
   "appName": "Trustee",
-  "auth": {
-    "navigation": {
-      "title": "You are logged using: %{authMnemonicName}",
-      "description": "Passwordless authorization"
-    },
-    "logOut": "Log out"
-  },
-  "finishTradeScreen": {
-    "title": "Success!",
-    "description": "Your order was created. \n Once your transaction will get required confirmations it will be fulfilled accordingly.  \n You can monitor your order status in the orders history.",
-    "orderHistoryBtn": "Orders history"
-  },
-  "finishTradeErrorScreen": {
-    "title": "Bank did not confirm your payment!",
-    "description": "Order not paid"
-  },
-  "tooltips": {
-    "HOME_SCREEN_BUY_BTN_TIP": {
-      "title": "",
-      "description": "Here you can profitably buy crypto from a credit card in two clicks!"
-    },
-    "HOME_SCREEN_EXCHANGE_BTN_TIP": {
-      "title": "",
-      "description": "A clear and profitable cryptocurrency exchange!"
-    },
-    "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
-      "title": "",
-      "description": "Add required coins and tokens here"
-    },
-    "HOME_SCREEN_CRYPTO_BTN_TIP": {
-      "title": "",
-      "description": "Your anonymous bitcoin wallet: profitable to receive, buy and send bitcoins."
-    },
-    "ACCOUNT_SCREEN_ADDRESS_TIP": {
-      "title": "",
-      "description": "This is your %{currencyName} address - analog of card number for advanced users! "
-    },
-    "ACCOUNT_SCREEN_TRANSACTION_TIP": {
-      "title": "",
-      "description": "Here you can find all the info about your transactions and orders - let’s go!"
-    },
-    "buttons": {
-      "next": "Next",
-      "skip": "Skip",
-      "close": "Close"
-    }
-  },
   "homeScreen": {
     "balance": "Balance",
     "unconfirmed" : "Unconfirmed",
@@ -70,143 +23,12 @@
     "slider3": "Built-in monitoring of exchange offices",
     "slider4": "Hanging and expensive transactions"
   },
-  "exchangeScreen": {
-    "title": "Exchange",
-    "pickProvider": "Pick a provider",
-    "providerInformation": "Provider info",
-    "fee": "Fee",
-    "equivalent": "Equivalent: ~",
-    "exchangeAll": "Exchange all",
-    "min": "minimum:",
-    "max": "maximum:",
-    "exchangeBtn": "Exchange",
-    "payinAddress": "Sending address",
-    "payoutAddress": "Receiving address",
-    "date": "Date:",
-    "receiveAddressModal": {
-      "title": "Exchange for your own wallet?",
-      "description1": "Wallet",
-      "description2": "address"
-    },
-    "expiredModal": {
-      "title": "Expired",
-      "description": "20-minute interval for creating a transaction expired, please, create new order"
-    },
-    "noAddressModal": {
-      "title": "External Asset",
-      "description": "Your have selected asset not turned on in Trustee, please, turn it on or make transaction yourself"
-    },
-    "resendModal": {
-      "title": "Exchange not finished",
-      "description": "Send transaction to this address?"
-    },
-    "waitConfirmModal": {
-      "title": "Exchange is almost finished",
-      "description": "Transaction %{txHash} is already created, please, wait for network confirmations"
-    }
-  },
-  "exchangeConfirmScreen": {
-    "title": "Confirm",
-    "youWantToExchange": "You want to exchange",
-    "exchangeDetails": "Exchange details",
-    "exchangeBtn": "Exchange"
-  },
   "tradeScreen": {
-    "tryV3" : "Try new interface",
-    "titleV3" : "Exchange",
-    "youGet": "You get:",
-    "youGive": "You give:",
-    "crypto": "Crypto",
-    "fiat": "Fiat",
-    "pickPaySys": "Pick a payment method",
-    "pickPaySysSell": "Select a receipt method",
-    "worldwide": "Worldwide",
-    "fee": "Banking fee",
-    "selectSum": "Equivalent amount",
-    "custom": "Custom",
-    "limitsTitle": "Sorry, but there are some limits",
-    "minPurchase": "min purchase sum:",
-    "maxPurchase": "max purchase sum:",
-    "selectCrypto": "Select cryptocurrency",
-    "selectFiat": "Select fiat currency",
-    "submit": "Submit",
     "modalError": {
       "selectPhoto" : "Please, select photo from gallery",
-      "selectCryptocurrency": "Please, select cryptocurrency",
-      "selectWhatYouGet": "Please, select what you get",
-      "selectWhatYouGive": "Please, select what you give",
-      "selectPaymentSystem": "Please, select payment method",
-      "selectFiatTemplate": "Select fiat template",
-      "limit": "You are out of allowed limits",
-      "additionalData": "Please, fill additional data",
-      "notSupported": "This phone format is not supported.",
       "serviceUnavailable": "Service unavailable. Please, try again later",
-      "qrNotFoundInFile" : "Qr-code not found, please, try to reload file",
-      "UI_ERROR_CARD_NEEDED": {
-        "title": "Sorry...",
-        "desc" : "Please, select card or add new one"
-      },
-      "UI_ERROR_CARD_NEED_TAKE_PHOTO": {
-        "title" : "Please, take a photo card",
-        "desc" : "Should be a photo of the original card. When adding a virtual card, take a full-screen photo of your online banking account!"
-      },
-      "UI_ERROR_CARD_WAIT_VERIFICATION": {
-        "title": "Sorry...",
-        "desc" : "Please, wait. Photo is checking"
-      },
-      "UI_ERROR_CARD_CANCELED_VERIFICATION": {
-        "title": "Sorry...",
-        "desc": "Card verification failed. Please, try again"
-      }
-    },
-    "paymentInformation": "Payment method info",
-    "urkCardOnly": "Ukranian cards only!",
-    "rusCardOnly": "Russian & Belarusian cards!",
-    "worldwideOnly": "Worldwide",
-    "minAmount": "Min amount",
-    "maxAmount": "Max amount",
-    "RUB": "Russia & Belarus",
-    "KZ": "Kazakhstan",
-    "UAH": "Ukraine",
-    "QIWI": "QIWI wallet",
-    "ADVCASH": "Commission ADV",
-    "ADVCashName": "ADV account",
-    "PMName": "PM account",
-    "PayeerName": "PAYEER account",
-    "onlinePayment": "Online payment"
-  },
-  "confirmScreen": {
-    "title": "Confirm",
-    "rate": "Rate",
-    "fees": "Trade details",
-    "youWantToBuy": "You want to buy",
-    "youWantToSell": "You want to sell",
-    "providerFee": "Banking fee",
-    "outputFee": "Network fee",
-    "trusteeFee": "Trustee fee",
-    "networkFee": "network fee",
-    "info": "Info",
-    "withdrawAddress": "Destination address",
-    "withdrawCardNumber": "Card for payout",
-    "withdrawPhoneNumber": "Phone for payout",
-    "withdrawAdvAccountNumber": "Account for payout",
-    "total": "Total:",
-    "submitBtnBuy": "Buy",
-    "submitBtnSell": "Sell",
-    "edit": "Edit",
-    "confirmScreenBuy": "This payment method currently unavailable. Please, try another one.",
-    "confirmScreenSell": "This payment method currently unavailable. Please, try another one.",
-    "bottomInformation": "Please, pay attention, exchange rate is not fixed and might be changed following the market.",
-    "confirmScreenInvalidExchangeAmount": "Please, select bigger amount for exchange",
-    "confirmScreenInvalidExchangeAmountTooBig": "Please, select less amount for exchange",
-    "confirmScreenInvalidCard": "Please, select valid card",
-    "confirmScreenTimeout" : "Please, check Internet access and try again",
-    "confirmScreenInvalidOut" : "Invalid out account, please, check and try again",
-    "confirmScreenTemporaryOff" : "Temporary disabled destination on the provider side",
-    "confirmScreenAdvNotVerified" : "Email not verified, please, use verified ADV account and try again",
-    "confirmScreenInvalidAddress" : "System error of the trading pair on the provider side, please, try again",
-    "openLink" : "To go to payment, please, click directly on this link",
-    "openLinkError": "Not found default browser - link is copied to clipboard"
+      "qrNotFoundInFile" : "Qr-code not found, please, try to reload file"
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -247,7 +69,8 @@
         "title": "Wallet settings",
         "walletNameLabel": "Wallet name",
         "recoveryPhraseTitle": "Recovery phrase",
-        "recoveryPhraseSubtitle": "Your secret recovery phrase"
+        "recoveryPhraseSubtitle": "Your secret recovery phrase",
+        "deleteWallet": "Delete wallet"
       }
     },
     "security": {
@@ -436,7 +259,17 @@
       "info3Title": "What are the conditions of the affiliate program?",
       "info3Content": "Level 1 – 10% of the Trustee commission for purchases and sales of cryptocurrencies by invited users (activated from the first partner). The more friends install the wallet using your link, the more your income will be. Level 2 - activated when the structure's turnover exceeds 5000 USDT per week and will allow you to receive 10% of Trustee commissions from 2nd level users (partners of your partners).",
       "info4Title": "How to withdraw cashback and affiliate rewards?",
-      "info4Content": "The minimum withdrawal amount is 2 USDT"
+      "info4Content": "The minimum withdrawal amount is 2 USDT",
+      "info5Title": "Who can access the CPA program?",
+      "info5Content": "We value each user and are happy to reward them for effective actions to popularize Trustee Wallet. Each Trustee user automatically becomes a member of the CPA program.",
+      "info6Title": "How does the CPA program work?",
+      "info6Content": "For each new active installation of the application using your cashback link (when the invited user has made at least one purchase of cryptocurrencies from any bank card), the program participant receives a one-time reward.",
+      "info7Title": "What are the awards for the CPA program?",
+      "info7Content": "Level 1\nThe first purchase is up to $100. Reward - $2\n\nLevel 2\nThe amount of the first purchase is $100-$500. Reward - $5\n\nLevel 3\nThe first purchase is over $500. Reward - $10",
+      "info8Title": "How can invite users to Trustee?",
+      "info8Content": "Recommend Trustee Wallet to your friends and colleagues using your cashback link. You can use all types of traffic for inviting users: Contextual advertising, Email-mailing, advertising in social networks, Teaser networks, YouTube channels. More information on the link.",
+      "info9Title": "How can I withdraw CPA rewards?",
+      "info9Content": "The minimum withdrawal amount is 100 USDT"
     },
     "invitedBy": "Invited by",
     "mainTitle": "Invite your friends - earn cashback!",
@@ -675,99 +508,9 @@
     "btnTextConfirm": "Confirm"
   },
 
-  "exchangeInit": {
-    "ordersHistory": "Orders history",
-    "ordersNull": "You don`t have any orders yet."
-  },
   "exchange": {
-    "title": "Exchange",
-    "description": "This is the easiest way to buy or sell your cryptocurrency, you just have to select the crypto, its amount and the card that will be responsible for sending or receiving the UAH. Total amount you need to pay will contain some fee for using product, it will be calculated automatically. Please, note that the service is provided by means of integration with third-party partner services.",
-    "attention": "",
-    "buy": "Buy",
-    "sell": "Sell",
-    "exchange": "Exchange",
-    "to": "to",
-    "providerChanged": {
-      "title": "Provider changed",
-      "description": "Start the transaction again"
-    },
-    "ordersStatus": {
-      "exchange": {
-        "dex" : "DEX",
-        "pending_payin": "Replenishment expected",
-        "canceled_payin": "Replenishment canceled",
-        "refunded_order": "Refund was made",
-        "done_payin": "Replenishment was successful",
-        "wait_trade": "Exchange pending",
-        "done_trade": "Exchange done successful",
-        "wait_payout": "Payout pending",
-        "canceled_payout": "Payout failure",
-        "done_payout": "Payout was successful",
-        "wait_kyc": "KYC expected",
-        "stopped_order": "Order stopped on provider side",
-        "error_order": "An error occurred while execution. The order was processed manually."
-      },
-      "sell": {
-        "dex" : "DEX",
-        "pending_payin": "Replenishment expected",
-        "canceled_payin": "Replenishment canceled",
-        "refunded_order": "Refund was made",
-        "done_payin": "Replenishment was successful",
-        "wait_trade": "Exchange pending",
-        "done_trade": "Exchange done successful",
-        "wait_payout": "Payout pending",
-        "canceled_payout": "Payout failure",
-        "done_payout": "Payout was successful",
-        "wait_kyc": "KYC expected",
-        "stopped_order": "Order stopped on provider side",
-        "error_order": "An error occurred while execution. The order was processed manually."
-      },
-      "buy": {
-        "dex" : "DEX",
-        "pending_payin": "Replenishment expected",
-        "canceled_payin": "Replenishment canceled",
-        "refunded_order": "Refund was made",
-        "done_payin": "Replenishment was successful",
-        "wait_trade": "Exchange pending",
-        "done_trade": "Exchange done successful",
-        "wait_payout": "Payout pending",
-        "canceled_payout": "Payout failure",
-        "done_payout": "Payout was successful",
-        "wait_kyc": "KYC expected",
-        "stopped_order": "Order stopped on provider side",
-        "error_order": "An error occurred while execution. The order was processed manually."
-      }
-    },
     "mainData": {
-      "selectCurrency": "Select a cryptocurrency",
-      "selectPayment": "Select type of payment",
-      "estimateAmount": "Enter the amount",
-      "addCard": "ADD NEW CARD",
-      "address": "Your address:",
-      "titleBuy": "Buy crypto",
-      "titleSell": "Sell crypto",
-      "amount": "Enter amount",
-      "buyCrypto": "Buy in ETH",
-      "sellCrypto": "Sell in ETH",
-      "buyFiat": "Buy in UAH",
-      "sellFiat": "Sell in UAH",
-      "sellAll": "Sell all",
-      "equivalentCryptoBuy": "Purchase amount: ~",
-      "equivalentCryptoSell": "Sell amount:",
-      "equivalentFiat": "Amount: ~",
-      "minAmountToBuy": "Min amount to buy crypto:",
-      "minAmountToSell": "Min amount to sell crypto:",
-      "minExchange": "%{fiat}",
-      "maxAmountBuy": "The maximum amount of purchase from one card is %{maxAmountToBuy} %{fiatSymbol} per day in parts of %{maxAmountToBuyPart} %{fiatSymbol}",
-      "maxAmountSell": "Maximum amount of sale per card %{maxAmountToBuy} %{fiatSymbol} per day",
-      "maxFiat": "",
-      "next": "Next",
-      "blockedCard": "This card can`t be used.\nPlease, select another one",
-      "networkFee": "Network fee",
-      "paySystemFee": "Trustee fee",
-      "totalBuy": "Total to be paid",
-      "totalSell": "Total to be receive",
-      "moreInformation": "More information"
+      "amount": "Enter amount"
     }
   },
   "card": {
@@ -848,7 +591,7 @@
       "force": "Do anyway?"
     },
     "feeModal": {
-      "description": "The fee miners receive for confirming your transaction. The miner (network) fee is paid by the sender for the transfer of crypto assets to the recipient's address. This commission is calculated by the application based on the network data at the time of the transaction creation and does not depend on the transfer amount.\n\nImportant!\n The speed of confirmation of your transaction by miners directly depends from the size of the network fee. Please consider this information when manually changing the commission."
+      "description": "The network fee it is the payment that miners receive for confirming your transaction. The network fee (miners) is paid by the sender for the transfer of crypto assets to the recipient's address. This fee does not depend on the transfer amount and is calculated based on the network data at the time of the transaction creation.\n\nImportant!\n The speed of confirmation of your transaction by miners directly depends on the size of the network fee. Please consider this information when manually changing the commission."
     },
     "fee": {
       "smallFeeNoticeTitle": "Please, be careful",
@@ -913,7 +656,7 @@
         "totalMinerFee": "Total miner fee",
         "customNonce": "Custom nonce",
         "nonce": "Nonce",
-        "trusteeInfo": "Trustee does not charge a fee in cryptocurrency transactions",
+        "trusteeInfo": "Trustee does not charge any fees for cryptocurrency transactions",
         "send": "Send",
         "build" : "Build",
         "sending": "Sending"
@@ -1084,30 +827,7 @@
         "input": {
           "placeholder": "Enter ..."
         }
-      },
-      "input": {
-        "qrName": "wallet address",
-        "qrSuccess": "The wallet has been successfully scanned!"
-      },
-      "picker": {
-        "label": "Select a currency..."
-      },
-      "phoneInput": {
-        "phoneNumber": "Phone number",
-        "invalidFormat": "Invalid phone number"
-      },
-      "advInput": {
-        "advNumber": "Account number",
-        "invalidFormat": "Invalid account number"
-      },
-      "advEmail": {
-        "accountEmail": "Email",
-        "invalidFormat": "Invalid email"
       }
-    },
-    "navigation": {
-      "back": "Back",
-      "search": "Search..."
     },
     "webview": {
       "error": "Oops... Something went wrong"
@@ -1140,10 +860,6 @@
       "title": "Feature expected",
       "description": "Technology allows transactions that have 0 confirmations to be updated. This feature will allow you to modify published transactions that are in the process of being verified by miners. Can be updated both the transaction fee size and address of recepient. More details following the link."
     },
-    "enterCashbackTokenLink": {
-      "title": "Connect with Comrade!",
-      "description": "Please, enter the anonymous invitation link of the friend to connect your anonymous wallet to his structure. Note that the operation cannot be undone or changed."
-    },
     "cashbackTokenLinkModal": {
       "success": {
         "description": "Congratulations, your wallet successfully connected to your friend's structure. Wallets are linked using anonymous identifiers."
@@ -1151,12 +867,6 @@
     },
     "cashbackLinkEqualModal": {
       "description": "Sorry, it is not allowed to specify your own invitation link %{link}!"
-    },
-    "walletCreateSettingsModal": {
-      "title": "Wallet settings"
-    },
-    "sorryYourDeviceDoesntSupportModal": {
-      "description": "Sorry your phone %{agent} doesn't support this feature"
     },
     "cryptocurrencySynchronizing": {
       "title": "Sorry...",
@@ -1199,9 +909,6 @@
       "title": "Attention!",
       "description": "Recommended to use again addresses from last one with transactions"
     },
-    "cashbackDontWork": {
-      "description": "Your device does not support cashback"
-    },
     "infoSendAllModal": {
       "description": "It looks like you are trying to send your entire %{coin} balance. For correct processing, please click the '100%' button. Use it now now?"
     },
@@ -1217,33 +924,9 @@
       "try": "Try",
       "notNow": "Not now"
     },
-    "tbkModal": {
-      "enable": "Enable",
-      "disable": "Disable",
-      "title": "Trustee Booster Kit",
-      "statusEnable": "enabled",
-      "statusDisable": "disabled",
-      "cancel": "Cancel"
-    },
     "modalV3" : {
       "title": "Ooooops",
       "description": "The service is temporarily unavailable. Please, check your internet access and try again later"
-    },
-    "infoPayOrder": {
-      "error": {
-        "title": "Sorry...",
-        "description": "The order is not processed. Please, create new order"
-      }
-    },
-    "toggleBitcoinTypeAddressModal": {
-      "info": {
-        "title": "Info...",
-        "description": "Bitcoin view address type changed"
-      }
-    },
-    "infoBuyModal": {
-      "currencyNotAvailable": "Currently %{currencySymbol} not available for purchase",
-      "notAvailable": "Not available for purchase"
     },
     "disabledLockScreenModal": {
       "description": "You have unreserved wallets, so setting a PIN code is not allowed for the security of your assets."
@@ -1277,25 +960,11 @@
         "description": "Please, confirm replacing %{oldContact} with %{newContract} "
       }
     },
-    "licenseTerms": {
-      "title": "Legal documents",
-      "description": "    Please, read this so you know what you`re agreeing to",
-      "accept": "Agree",
-      "decline": "Decline"
-    },
     "selectCoinFio": {
       "title": "Select Coin for Request",
       "description": "Please, select a coin which you want request",
       "description2": "selected coin will be transfered to FIO request",
       "btn": "Select"
-    },
-    "login": {
-      "title": "Login/SignUp",
-      "description": "Get a special link, invite your friends and earn! 10% cashback from the commission of your exchanges and 10% from friends exchanges!",
-      "btn": {
-        "login": "Login",
-        "back": "Back"
-      }
     },
     "exchange": {
       "sorry": "Sorry....",
@@ -1312,10 +981,6 @@
     "infoDeleteCard": {
       "title": "Do you really want to remove the credit card?",
       "description": ""
-    },
-    "infoChoose": {
-      "decline": "Back",
-      "accept": "Ok"
     },
     "card": {
       "success": "Success!",
@@ -1377,7 +1042,8 @@
     "walletDelete": {
       "deleteWallet": "This operation is irreversible! In case you don't have backup of recovery phase the access to the wallet %{walletName} will be lost.",
       "delete": "Do yoy want delete this wallet?",
-      "confirmDelete": "Do you really want to delete this wallet?"
+      "confirmDelete": "Do you really want to delete this wallet?",
+      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
     }
   },
   "lockScreen": {

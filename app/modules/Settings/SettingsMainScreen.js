@@ -375,7 +375,7 @@ class SettingsMainScreen extends PureComponent {
                             <ListItem
                                 title={strings('settings.other.faqSettings')}
                                 subtitle={strings('settings.other.faqSubtitle')}
-                                iconType="notifications"
+                                iconType="faq"
                                 onPress={this.handleFAQ}
                                 rightContent="arrow"
                             />

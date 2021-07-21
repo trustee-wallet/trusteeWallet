@@ -1,52 +1,5 @@
 {
   "appName": "Trustee",
-  "auth": {
-    "navigation": {
-      "title": "თქვენ სისტემაში შეხვედით, როგორც: %{authMnemonicName}",
-      "description": "ავტორიზაცია პაროლის გარეშე"
-    },
-    "logOut": "გამოსვლა"
-  },
-  "finishTradeScreen": {
-    "title": "ვაშაა!",
-    "description": "თქვენი შეკვეთა შექმნილია. \n როგორც კი თქვენ მიერ განხორციელებული ტრანზაქცია გაივლის დადასტურებისთვის აუცილებელ პროცედურებს, ის შესაბამისად შესრულდება. \n თქვენ შეგიძლიათ თვალყური ადევნოთ თქვენი შეკვეთის სტატუსს შეკვეთების ისტორიაში.",
-    "orderHistoryBtn": "შეკვეთების ისტორია"
-  },
-  "finishTradeErrorScreen": {
-    "title": "ბანკმა არ დაადასტურა გადახდა!",
-    "description": "შეკვეთა გადახდილი არაა "
-  },
-  "tooltips": {
-    "HOME_SCREEN_BUY_BTN_TIP": {
-      "title": "",
-      "description": "აქ შეგიძლიათ სარფიანად შეიძინოთ კრიპტოვალუტა საკრედიტო ბარათით ორი დაწკაპუნებით!"
-    },
-    "HOME_SCREEN_EXCHANGE_BTN_TIP": {
-      "title": "",
-      "description": "კრიპტოვალუტების გაცვლა გასაგები და სარფიანი პირობებით!"
-    },
-    "HOME_SCREEN_ADD_CRYPTO_BTN_TIP": {
-      "title": "",
-      "description": "დაამატეთ საჭირო მონეტები და ტოკენები აქ."
-    },
-    "HOME_SCREEN_CRYPTO_BTN_TIP": {
-      "title": "",
-      "description": "თქვენი ანონიმური ბიტკოინ-საფულე: მიიღეთ, იყიდეთ და გააგზავნეთ ბიტკოინები."
-    },
-    "ACCOUNT_SCREEN_ADDRESS_TIP": {
-      "title": "",
-      "description": "ეს კი შენი პირადი %{currencyName} მისამართია - ბარათის ნომრის ანალოგი მოწინავე მომხმარებლებისთვის!"
-    },
-    "ACCOUNT_SCREEN_TRANSACTION_TIP": {
-      "title": "",
-      "description": "აქ შეგიძლია იპოვო ყველანაირი ინფორმაცია საკუთარი ტრანზაქციებისა და შეკვეთბის შესახებ!"
-    },
-    "buttons": {
-      "next": "შემდეგი",
-      "skip": "გამოტოვება",
-      "close": "დახურვა"
-    }
-  },
   "homeScreen": {
     "balance": "ბალანსი",
     "unconfirmed": "Unconfirmed",
@@ -70,143 +23,12 @@
     "slider3": "გაცვლითი პუნქტების ჩაშენებული მონიტორინგი",
     "slider4": "Зависшие и дорогие транзакции"
   },
-  "exchangeScreen": {
-    "title": "გაცვლა",
-    "pickProvider": "აირჩიეთ პროვაიდერი",
-    "providerInformation": "ინფორმაცია პროვაიდერის შესახებ",
-    "fee": "საკომისიო",
-    "equivalent": "ექვივალენტი: ~",
-    "exchangeAll": "ყველაფრის გაცვლა",
-    "min": "მინიმალური:",
-    "max": "მაქსიმალური:",
-    "exchangeBtn": "გაცვლა",
-    "payinAddress": "გამგზავნის მისამართი",
-    "payoutAddress": "მიმღების მისამართი",
-    "date": "თარიღი:",
-    "receiveAddressModal": {
-      "title": "გაცვლა საკუთარ საფულეზე?",
-      "description1": "აქტიური საფულე",
-      "description2": "მისამართი"
-    },
-    "expiredModal": {
-      "title": "დრო ამოიწურა",
-      "description": "20-წუთიანი ინტერვალი ტრანზაქციის შესაქმნელად დასრულდა, გთხოვთ, გააკეთოთ ახალი განაცხადი"
-    },
-    "noAddressModal": {
-      "title": "გარე აქტივი",
-      "description": "შერჩეული აქტივი არ არის ჩართული Trustee-ში - გთხოვთ, დაამატოთ ან დაასრულოთ ტრანზაქცია დამოუკიდებლად"
-    },
-    "resendModal": {
-      "title": "გაცვლა ვერ შესრულდა",
-      "description": "შევასრულო ტრანზაქცია ამ მისამართზე?"
-    },
-    "waitConfirmModal": {
-      "title": "გაცვლა თითქმის დასრულებულია",
-      "description": "ტრანზაქცია %{txHash} უკვე შექმნილია, გთხოვთ, დაელოდოთ ქსელის დასტურს"
-    }
-  },
-  "exchangeConfirmScreen": {
-    "title": "დადასტურება",
-    "youWantToExchange": "თქვენ გინდათ, გადაცვალოთ",
-    "exchangeDetails": "გადაცვლის დეტალები",
-    "exchangeBtn": "გადაცვლა"
-  },
   "tradeScreen": {
-    "tryV3": "სცადეთ ახალი ინტერფეისი",
-    "titleV3": "გაცვლა",
-    "youGet": "იღებთ:",
-    "youGive": "გასცემთ:",
-    "crypto": "კრიპტოვალუტა",
-    "fiat": "ფიატი",
-    "pickPaySys": "აირჩიეთ გადახდის მეთოდი",
-    "pickPaySysSell": "აირჩიეთ მიღების მეთოდი",
-    "worldwide": "სხვა ქვეყნები",
-    "fee": "ბანკის საკომისია",
-    "selectSum": "ექვივალენტური თანხა",
-    "custom": "სხვა",
-    "limitsTitle": "არის გარკვეული შეზღუდვები",
-    "minPurchase": "მინიმალური:",
-    "maxPurchase": "მაქსიმალური:",
-    "selectCrypto": "აირჩიეთ კრიპტოვალუტა",
-    "selectFiat": "აირჩიეთ ვალუტა",
-    "submit": "შემდეგი",
     "modalError": {
       "selectPhoto": "აირჩიეთ ბარათის ფოტო გალერეადან",
-      "selectCryptocurrency": "აირჩიეთ კრიპტოვალუტა",
-      "selectWhatYouGet": "აირჩიეთ, რა უნდა მიიღოთ",
-      "selectWhatYouGive": "აირჩიეთ, რა უნდა გასცეთ",
-      "selectPaymentSystem": "აირჩიეთ გადახდის მეთოდი",
-      "selectFiatTemplate": "Select fiat template error",
-      "limit": "თქვენ გასცდით დაშვებულ საზღვრებს",
-      "additionalData": "გთხოვთ, შეავსოთ მონაცემები",
-      "notSupported": "ტელეფონის ეს ფორმატი არ არის მხარდაჭერილი.",
       "serviceUnavailable": "სერვისი მიუწვდომელია. გთხოვთ, სცადოთ მოგვიანებით",
-      "qrNotFoundInFile": "Qr-კოდი არ მოიძებნა, გთხოვთ, გადატვირთოთ ფაილი.",
-      "UI_ERROR_CARD_NEEDED": {
-        "title": "ბოდიშს გიხდით,...",
-        "desc": "აირჩიეთ ბარათი ან დაამატეთ ახალი"
-      },
-      "UI_ERROR_CARD_NEED_TAKE_PHOTO": {
-        "title": "გთხვოთ, გადაუღოთ ბარათს ფოტო",
-        "desc": " ორიგინალი ბარათის ფოტო. ვირტუალური ბარათის დამატების შემთხვევაში, გადაიღეთ ონლაინბანკინგის პირადი კაბინეტის სრული ეკრანის ფოტო"
-      },
-      "UI_ERROR_CARD_WAIT_VERIFICATION": {
-        "title": "ბოდიშს გიხდით...",
-        "desc": "გთხოვთ, დაგველოდოთ. ფოტო მოწმდება"
-      },
-      "UI_ERROR_CARD_CANCELED_VERIFICATION": {
-        "title": "ბოდიში...",
-        "desc": "ბარათის შემოწმება ვერ მოხერხდა. გთხოვთ, კიდევ ერთხელ სცადოთ "
-      }
-    },
-    "paymentInformation": "ინფორმაცია გადახდის შესახებ",
-    "urkCardOnly": "მხოლოდ უკრაინული ბარათები!",
-    "rusCardOnly": "რუსული და ბელორუსული ბარათები!",
-    "worldwideOnly": "სხვა ქვეყნების ბარათები!",
-    "minAmount": "მინიმალური",
-    "maxAmount": "მაქსიმალური",
-    "RUB": "რუსეთი და ბელორუსი",
-    "KZ": "ყაზახეთი",
-    "UAH": "უკრაინა",
-    "QIWI": "QIWI საფულე",
-    "ADVCASH": "ADV-ს საკომისია",
-    "ADVCashName": "ADV-ს ანგარიში",
-    "PMName": "PM ექაუნთი",
-    "PayeerName": "PAYEER ექაუნთი",
-    "onlinePayment": "ონლაინ გადახდა"
-  },
-  "confirmScreen": {
-    "title": "დადასტურება",
-    "rate": "კურსი",
-    "fees": "შეთანხმების დეტალები",
-    "youWantToBuy": "ყიდულობთ",
-    "youWantToSell": "ყიდით",
-    "providerFee": "ბანკის სამკომისიო",
-    "outputFee": "ქსელის საკომისიო",
-    "trusteeFee": "Trustee-ის საკომისიო",
-    "networkFee": "ქსელის საკომისიო",
-    "info": "ინფორმაცია",
-    "withdrawAddress": "მიმღების მისამართი",
-    "withdrawCardNumber": "თანხის მისაღები ბარათი",
-    "withdrawPhoneNumber": "თანხის მისაღები ტელეფონი",
-    "withdrawAdvAccountNumber": "თანხის მისაღები ანგარიში",
-    "total": "ჯამი:",
-    "submitBtnBuy": "ყიდვა",
-    "submitBtnSell": "გაყიდვა",
-    "edit": "რედაქტირება",
-    "confirmScreenBuy": "თქვენ მიერ არჩეული გადახდის მეთოდი ამ მომენტისთვის მიუწვდომელია. გთხოვთ, სცადოთ სხვა.",
-    "confirmScreenSell": "თქვენ მიერ არჩეული გადახდის მეთოდი ამ მომენტისთვის მიუწვდომელია. გთხოვთ, სცადოთ სხვა.",
-    "bottomInformation": "გთხოვთ, მიაქციოთ ყურადღება, გაცვლითი კურსი არ არის ფიქსირებული და შესაძლოა შეიცვალოს პროცესში ბაზრიდან გამომდინარე.",
-    "confirmScreenInvalidExchangeAmount": "გთხოვთ, აარჩიოთ სხვა რაოდენობა გაცვლისთვის",
-    "confirmScreenInvalidExchangeAmountTooBig": "გთხოვთ, აარჩიოთ ნაკლები რაოდენობა გაცვლისთვის",
-    "confirmScreenInvalidCard": "გთხოვთ, გამოიყენოთ სხვა ბარათი",
-    "confirmScreenTimeout": "გთხოვთ, შეამოწმოთ ინტერნეტკავშირი და კიდევ  სცადოთ",
-    "confirmScreenInvalidOut": "თანხის მისაღები ანგარიში არასწორია. გთხოვთ, შეამოწმოთ და კიდევ სცადოთ ",
-    "confirmScreenAdvNotVerified": "ელფოსტა არ არის ვერიფიცირებული, გთხოვთ, გამოიყენოთ ვერიფიცირებული  ADV ანგარიში და კიდევ სცადოთ",
-    "confirmScreenTemporaryOff": "სავაჭრო წყვილი პროვაიდერის მხარეს დროებით გათიშულია",
-    "confirmScreenInvalidAddress": "სავაჭრო წყვილის სისტემური შეცდომა პროვაიდერის მხრიდან, გთხოვთ, სცადოთ მოგვიანებით ",
-    "openLink": "გადახდის სისტემაზე გადასასვლელად, გთხოვთ, მიჰყვეთ ბმულს ",
-    "openLinkError": "ბრაუზერი ვერ მოიძებნა - ბმულის ასლი შენახულია გაცვლის ბუფერში"
+      "qrNotFoundInFile": "Qr-კოდი არ მოიძებნა, გთხოვთ, გადატვირთოთ ფაილი."
+    }
   },
   "notifications": {
     "title": "შეტყობინებები",
@@ -242,7 +64,8 @@
         "title": "საფულის პარამეტრები",
         "walletNameLabel": "საფულის სახელი",
         "recoveryPhraseTitle": "აღსადგენი ფრაზა",
-        "recoveryPhraseSubtitle": "თქვენი საიდუმლო აღსადგენი ფრაზა"
+        "recoveryPhraseSubtitle": "თქვენი საიდუმლო აღსადგენი ფრაზა",
+        "deleteWallet": "Delete wallet"
       }
     },
     "security": {
@@ -429,7 +252,17 @@
       "info3Title": "როგორია პარტნიორული პროგრამების პირობები?",
       "info3Content": "დონე №1 – 10% Trustee-ს საკომისიოდან, რომელიც მიიღება მოწვეული მომხმარებელების მიერ კრიპტოვალუტების ყიდვა-გაყიდვიდან გამომდინარე (აქტიურდება პირველი პარტნიორიდან). რაც მეტი ადამიანი დააყენებს საფულეს თქვენი ბმულის საშუალებით, მით მეტი იქნება თქვენი შემოსავალი. დონე №2 – აქტიურდება კვირაში სტრუქტურის 5000 USDT -იანი ბრუნვის გადაჭარბების შემთხვევაში და იძლევა Trustee -ს საკომოსიოდან 10%-ის მიღების საშუალებას 2-ე დონის მომხმარებლებიდან (თქვენი პარტნიორების პარტნიორები).",
       "info4Title": "როგორ გავიტანოთ ქეშბექი და პარტნიორული ანაზღაურება?",
-      "info4Content": "გატანის მინიმალური ოდენობა- 2 USDT"
+      "info4Content": "გატანის მინიმალური ოდენობა- 2 USDT",
+      "info5Title": "Who can access the CPA program?",
+      "info5Content": "We value each user and are happy to reward them for effective actions to popularize Trustee Wallet. Each Trustee user automatically becomes a member of the CPA program.",
+      "info6Title": "How does the CPA program work?",
+      "info6Content": "For each new active installation of the application using your cashback link (when the invited user has made at least one purchase of cryptocurrencies from any bank card), the program participant receives a one-time reward.",
+      "info7Title": "What are the awards for the CPA program?",
+      "info7Content": "Level 1\nThe first purchase is up to $100. Reward - $2\n\nLevel 2\nThe amount of the first purchase is $100-$500. Reward - $5\n\nLevel 3\nThe first purchase is over $500. Reward - $10",
+      "info8Title": "How can invite users to Trustee?",
+      "info8Content": "Recommend Trustee Wallet to your friends and colleagues using your cashback link. You can use all types of traffic for inviting users: Contextual advertising, Email-mailing, advertising in social networks, Teaser networks, YouTube channels. More information on the link.",
+      "info9Title": "How can I withdraw CPA rewards?",
+      "info9Content": "The minimum withdrawal amount is 100 USDT"
     },
     "invitedBy": "მოწვეულია",
     "mainTitle": "მოიწვიე შენი მეგობრები - მიიღეთ ფულადი თანხა!",
@@ -661,99 +494,10 @@
     "btnTextReject": "უარყოფა",
     "btnTextConfirm": "დადასტურება"
   },
-  "exchangeInit": {
-    "ordersHistory": "ორდერების ისტორია",
-    "ordersNull": "თქვენ არ გაქვთ ორდერი."
-  },
+
   "exchange": {
-    "title": "გაცვლა",
-    "description": "კრიპტოვალუტების ყიდვა-გაყიდვის ყველაზე მარტივი მეთოდი. აირჩიეთ კრიპტოვალუტა, რაოდენობა და ბარათი. საერთო რაოდენობა მოიცავს საკომისიოს, რომელიც ითვლება ავტომატურად. მიაქციეთ ყურადღება, რომ მომსახურება წარმოდგენილია სხვა გარე პარტნიორი სერვისების ინტეგრაციის საშუალებების გამოყენებით.",
-    "attention": "",
-    "buy": "ყიდვა",
-    "sell": "გაყიდვა",
-    "exchange": "გაცვლა",
-    "to": "ზე",
-    "providerChanged": {
-      "title": "პროვაიდერი შეიცვალა",
-      "description": "დაიწყეთ ტრანზაქცია თავიდან"
-    },
-    "ordersStatus": {
-      "exchange": {
-        "dex" : "DEX",
-        "pending_payin": "შევსება მოლოდინის რეჟიმშია",
-        "canceled_payin": "შევსება უარყოფილია",
-        "refunded_order": "თანხა დაბრუნებულია",
-        "done_payin": "შევსება წარმატებით დასრულდა",
-        "wait_trade": "კონვერტაცია მოლოდინის რეჟიმშია",
-        "done_trade": "კონვერტაცია განხორციელდა წარმატებით",
-        "wait_payout": "მიმდინარეობს თანხის გატანის პროცესი",
-        "canceled_payout": "თანხის გატანისას წარმოიქმნა შეცდომა",
-        "done_payout": "თანხა გატანილია წარმატებით",
-        "wait_kyc": "KYC მოლოდინის რეჟიმშია",
-        "stopped_order": "ორდერი შეჩერებულია პროვაიდერის მხარეს",
-        "error_order": "შეცდომა შევსების დროს. ორდერი მუშავდებოდა ხელით."
-      },
-      "sell": {
-        "dex" : "DEX",
-        "pending_payin": "მიმდინარეობს შევსების პროცესი",
-        "canceled_payin": "შევსება გაუქმებულია",
-        "refunded_order": "განხორციელდა თანხის დაბრუნების პროცესი",
-        "done_payin": "შევსების პროცესი დასრულდა წარმატებით",
-        "wait_trade": "მიმდინარეობს კონვერტაციის პროცესი",
-        "done_trade": "კონვერტაცია დასრულდა წარმატებით",
-        "wait_payout": "მიმდინარეობს თანხის გატანის პროცესი",
-        "canceled_payout": "თანხის გატანის პროცესში წარმოიქმნა შეცდომა",
-        "done_payout": "თანხის გატანის პროცესი დასრულდა წარმატებით",
-        "wait_kyc": "KYC მოლოდინის რეჟიმშია",
-        "stopped_order": "ორდერი შეჩერებულია პროვაიდერის მხარეს",
-        "error_order": "შეცდომა შესრულების დროს. ორდერი მუშავდებოდა ხელით."
-      },
-      "buy": {
-        "dex" : "DEX",
-        "pending_payin": "მიმდინარეობს შევსების პროცესი",
-        "canceled_payin": "შევსება გაუქმებულია",
-        "refunded_order": "განხორციელდა თანხის დაბრუნება",
-        "done_payin": "შევსება დასრულდა წარმატებით",
-        "wait_trade": "მიმდინარეობის კონვერტაციის პროცესი",
-        "done_trade": "კონვერტაცია დასრულდა წარმატებით",
-        "wait_payout": "მიმდინარეობს თანხის გატანის პროცესი",
-        "canceled_payout": "გადარიცხვის შეცდომა",
-        "done_payout": "გადარიცხვამ ჩაიარა წარმატებით",
-        "wait_kyc": "KYC მოლოდინის რეჟიმშია",
-        "stopped_order": "ორდერი შეჩერებულია პროვაიდერის მხარეს",
-        "error_order": "შეცდომა შესრულების დროს. ორდერი მუშავდებოდა ხელით."
-      }
-    },
     "mainData": {
-      "selectCurrency": "კრიპტოვალუტის არჩევა",
-      "selectPayment": "გადახდის მეთოდის არჩევა",
-      "estimateAmount": "თანხის რაოდენობის შეყვანა",
-      "addCard": "დაამატეთ ბარათი",
-      "address": "კრიპტოვალუტის გაგზავნის მისამართი:",
-      "titleBuy": "ყიდვა",
-      "titleSell": "გაყიდვა",
-      "amount": "ჯამი",
-      "buyCrypto": "ყიდვა ETH",
-      "sellCrypto": "გაყიდვა ETH",
-      "buyFiat": "ყიდვა UAH",
-      "sellFiat": "გაყიდვა UAH",
-      "sellAll": "ყველას გაყიდვა",
-      "equivalentCryptoBuy": "ყიდვის თანხა: ~",
-      "equivalentCryptoSell": "გაყიდვის თანხა:",
-      "equivalentFiat": "რაოდენობა: ~",
-      "minAmountToBuy": "მინიმალური თანხა კრიპტოვალუტის საყიდლად:",
-      "minAmountToSell": "მინიმალური თანხა კრიპტოვალუტის გასაყიდად:",
-      "minExchange": "%{fiat}",
-      "maxAmountBuy": "ერთი ბარათიდან ყიდვის მაქსიმალური რაოდენობა %{maxAmountToBuy} %{fiatSymbol} დღეში, ნაწილობრივ %{maxAmountToBuyPart} %{fiatSymbol}",
-      "maxAmountSell": "ერთი ბარათიდან გაყიდვის მაქსიმალური რაოდენობა %{maxAmountToBuy} %{fiatSymbol} დღეში",
-      "maxFiat": "",
-      "next": "შემდეგი",
-      "blockedCard": "ეს ბარათი ვერ იქნება გამოყენებული.\n გთხოვთ, აირჩიეთ სხვა",
-      "networkFee": "ქსელის საკომისიო",
-      "paySystemFee": "Trustee-ს საკომისიო",
-      "totalBuy": "სულ გადასახდელია",
-      "totalSell": "გაყიდვის ჯამური თანხა",
-      "moreInformation": "მეტი ინფორმაცია"
+      "amount": "ჯამი"
     }
   },
   "card": {
@@ -834,7 +578,7 @@
       "force": "იძულებითი გაგზავნა?"
     },
     "feeModal": {
-      "description": "The fee miners receive for confirming your transaction. The miner (network) fee is paid by the sender for the transfer of crypto assets to the recipient's address. This commission is calculated by the application based on the network data at the time of the transaction creation and does not depend on the transfer amount.\n\nImportant!\n The speed of confirmation of your transaction by miners directly depends from the size of the network fee. Please consider this information when manually changing the commission."
+      "description": "The network fee it is the payment that miners receive for confirming your transaction. The network fee (miners) is paid by the sender for the transfer of crypto assets to the recipient's address. This fee does not depend on the transfer amount and is calculated based on the network data at the time of the transaction creation.\n\nImportant!\n The speed of confirmation of your transaction by miners directly depends on the size of the network fee. Please consider this information when manually changing the commission."
     },
     "fee": {
       "smallFeeNoticeTitle": "გთხოვთ, იყოთ ყურადღებით",
@@ -899,7 +643,7 @@
       "totalMinerFee": "მაინერის საერთო საკომისიო",
       "customNonce": "Custom nonce",
       "nonce": "Nonce",
-      "trusteeInfo": "Trustee does not charge a fee in cryptocurrency transactions",
+      "trusteeInfo": "Trustee does not charge any fees for cryptocurrency transactions",
       "send": "გაგზავნა",
       "build" : "Build",
       "sending": "იგზავნება"
@@ -1069,30 +813,7 @@
         "input": {
           "placeholder": "შეიყვანეთ ..."
         }
-      },
-      "input": {
-        "qrName": "საფულის მისამართი",
-        "qrSuccess": "საფულე დასკანერებულია წარმატებით!"
-      },
-      "picker": {
-        "label": "აირჩიეთ ვალუტა..."
-      },
-      "phoneInput": {
-        "phoneNumber": "ტელეფონის ნომერი",
-        "invalidFormat": "ტელეფონის ნომერი არასწორია"
-      },
-      "advInput": {
-        "accountNumber": "ანგარიშის ნომერი",
-        "invalidFormat": "ანგარიშის ნომერი არასწორია"
-      },
-      "advEmail": {
-        "accountEmail": "ელფოსტა",
-        "invalidFormat": "ელფოსტა არასწორია"
       }
-    },
-    "navigation": {
-      "back": "უკან დაბრუნება",
-      "search": "ძებნა..."
     },
     "webview": {
       "error": "უფს... მოხდა შეცდომა"
@@ -1125,10 +846,6 @@
       "title": "ფუნქცია მოლოდინის რეჟიმშია",
       "description": "ტექნოლოგიური ტრანზაქციები, რომელთაც 0 დადასტურება აქვს, შესაძლოა განახლდეს. მოცემული ფუნქცია იძლევა გამოქვეყნებული ტრანზაქციების მოდიფიცირების საშუალებას, რომელიც იმყოფება მაინერების დადასტურების პროცესში. ეს ნიშნავს, რომ შესაძლოა როგორც საკომისიოს ზომის გაზრდა ტრანზაქციისთვის, ასევე მიმღების მისამართის განახლება. მეტი დეტალი იხილეთ ბმულზე."
     },
-    "enterCashbackTokenLink": {
-      "title": "მეგობართან დაკავშირება!",
-      "description": "გთხოვთ, შეიყვანოთ  მეგობრის ანონიმური  ბმული-მოსაწვევი მის სტრუქტურასთან თქვენი ანონიმური საფულის მისაბმელად. მიაქციეთ ყურადღება, რომ ოპერაციის გაუქმება ან შეცვლა შეუძლებელია.."
-    },
     "cashbackTokenLinkModal": {
       "success": {
         "description": "გილოცავთ, თქვენი საფულე დამატებულია თქვენი მეგობრის სტრუქტურაში! საფულეები დაკავშირებულია ერთმანეთთან ანონიმური იდენტიფიკატორის საშუალებით."
@@ -1136,12 +853,6 @@
     },
     "cashbackLinkEqualModal": {
       "description": "ბოდიშს გიხდით, თქვენი საკუთარი ბმული-მოსაწვევის %{link} მითითება აკრძალულია!"
-    },
-    "walletCreateSettingsModal": {
-      "title": "საფულის პარამეტრები"
-    },
-    "sorryYourDeviceDoesntSupportModal": {
-      "description": "ბოდიშს გიხდით, თქვენი ტელეფონს %{agent} მოცემული ფუნქციის მხარდაჭერა"
     },
     "cryptocurrencySynchronizing": {
       "title": "ბოდიშს გიხდით...",
@@ -1184,9 +895,6 @@
       "title": "Attention!",
       "description": "Recommended to use again addresses from last one with transactions"
     },
-    "cashbackDontWork": {
-      "description": "ქეშბექი არაა მხარდაჭერილი მოწყობილობის მიერ"
-    },
     "infoSendAllModal": {
       "description": "როგორც ჩანს, თქვენ ცდილობთ მთელი თქვენი ბალანსის %{coin} გაგზავნას. კორექტული დამუშავებისთვის,გთხოვთ, გამოიყენოთ ფუნქცია 'ყველაფრის გაგზავნა'. გნებავთ ამ ფუნქციით სარგებლობა ახლა?"
     },
@@ -1202,33 +910,9 @@
       "try": "სცადეთ",
       "notNow": "ახლა არა"
     },
-    "tbkModal": {
-      "enable": "ჩართვა",
-      "disable": "გამორთვა",
-      "title": "Trustee Booster Kit",
-      "statusEnable": "ჩართულია",
-      "statusDisable": "გამორთულია",
-      "cancel": "გაუქმება"
-    },
     "modalV3": {
       "title": "უი",
       "description": "სერვისი დროებით მიუწვდომელია. გთხოვთ, შეამოწმოთ ინტერნეტკავშირი და სცადოთ, მოგვიანებით. "
-    },
-    "infoPayOrder": {
-      "error": {
-        "title": "უკაცრავად...",
-        "description": "ორდერი არ არის დამუშავებული. გთხოვთ, შექმენით ახალი"
-      }
-    },
-    "toggleBitcoinTypeAddressModal": {
-      "info": {
-        "title": "ინფორმაცია...",
-        "description": "Bitcoin-ის ნაჩვენები მისამართის ტიპი შეცვლილია"
-      }
-    },
-    "infoBuyModal": {
-      "currencyNotAvailable": "ვალუტის %{currencySymbol} ყიდვა არ არის ხელმისაწვდომი",
-      "notAvailable": "ყიდვა არ არის ხელმისაწვდომი"
     },
     "disabledLockScreenModal": {
       "description": "თქვენ გაქვთ არადარეზერვებული საფულეები, შესაბამისად, არ გაქვთ PIN-კოდის დაყენების უფლება თქვენი აქტივების უსაფრთხოდ შენახვისთვის."
@@ -1262,25 +946,11 @@
         "description": "Please, confirm replacing %{oldContact} with %{newContract} "
       }
     },
-    "licenseTerms": {
-      "title": "იურიდიული დოკუმენტები",
-      "description": "    გთხოვთ, წაიკითხოთ, რომ იცოდეთ, რას ეთანხმებით ",
-      "accept": "ვეთანხმები",
-      "decline": "არ ვეთანხმები"
-    },
     "selectCoinFio": {
       "title": "აირჩიეთ ვალუტა მოთხოვნისთვის",
       "description": "გთხოვთ, აირჩიეთ ვალუტა, რომლისთვისაც, გნებავთ, გააკეთოთ მოთხოვნა",
       "description2": "არჩეული ვალუტა გადაეცემა FIO მოთხოვნას",
       "btn": "არჩევა"
-    },
-    "login": {
-      "title": "შესვლა/რეგისტრაცია",
-      "description": "მიიღე სპეციალური ბმული, მოიწვიე მეგობრები და დაიწყე თანხის გამომუშავება! 10% ქეშბექი თქვენ მიერ შესრულებული გაცვლის პროცესების საკომისიოდან და 10% მეგობრების მიერ შესრულებული ტრანზაქციებიდან!",
-      "btn": {
-        "login": "შესვლა",
-        "back": "უკან დაბრუნება"
-      }
     },
     "exchange": {
       "sorry": "უკაცრავად...",
@@ -1297,10 +967,6 @@
     "infoDeleteCard": {
       "title": "ნამდვილად გსურთ რუკის წაშლა?",
       "description": ""
-    },
-    "infoChoose": {
-      "decline": "უკან",
-      "accept": "წაშლა"
     },
     "card": {
       "success": "წარმატება!",
@@ -1352,7 +1018,8 @@
     "walletDelete": {
       "deleteWallet": "This operation is irreversible! In case you don't have backup of recovery phase the access to the wallet %{walletName} will be lost.",
       "delete": "Do yoy want delete this wallet?",
-      "confirmDelete": "Do you really want to delete this wallet?"
+      "confirmDelete": "Do you really want to delete this wallet?",
+      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
     }
   },
   "lockScreen": {

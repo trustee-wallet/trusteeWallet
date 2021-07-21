@@ -31,6 +31,7 @@ import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { deleteWallet } from '../Settings/helpers'
 
 
 const VISIBILITY_TIMEOUT = 4000
@@ -122,6 +123,11 @@ class BackupStep1Screen extends React.PureComponent {
 
     handleBack = () => { NavStore.goBack() }
 
+    confirmDeleteWallet = async () => {
+        const { walletHash, source } = this.props.createWalletStore
+        await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen' ? true : false)
+    }
+
     handleDeleteWallet = () => {
         setTimeout(() => {
             showModal({
@@ -133,21 +139,14 @@ class BackupStep1Screen extends React.PureComponent {
             }, (needPassword = true) => {
                 const { lockScreenStatus } = this.props.settingsData
                 if (needPassword && +lockScreenStatus) {
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : this.confirmDeleteWallet})
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback: this.confirmDeleteWallet})
                     NavStore.goNext('LockScreen')
                     return
-                }
-
-                this.confirmDeleteWallet()
+                } else (
+                    this.confirmDeleteWallet()
+                )
             })
         }, 0)
-    }
-
-    confirmDeleteWallet = () => {
-        // TODO delete wallet and set another wallet
-
-        setLoaderStatus(false)
-
     }
 
     validateMnemonic = async () => {

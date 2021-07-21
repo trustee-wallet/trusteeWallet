@@ -16,7 +16,7 @@ import Wallet from './elements/Wallet'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
+import { getIsBalanceVisible, getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import { getWalletsGeneralData, getWalletsList } from '@app/appstores/Stores/Wallet/selectors'
@@ -118,6 +118,8 @@ class WalletListScreen extends PureComponent {
                                         isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
                                         originalVisibility={this.props.isBalanceVisible}
                                         triggerBalanceVisibility={this.triggerBalanceVisibility}
+                                        walletsLength={walletsList.length}
+                                        settingsData={this.props.settingsData}
                                     />
                                 )
                             })
@@ -136,7 +138,8 @@ const mapStateToProps = (state) => {
         selectedWalletData: getSelectedWalletData(state),
         walletsGeneralData: getWalletsGeneralData(state),
         walletsList: getWalletsList(state),
-        isBalanceVisible: getIsBalanceVisible(state.settingsStore)
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore),
+        settingsData: getSettingsScreenData(state)
     }
 }
 
