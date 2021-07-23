@@ -147,6 +147,7 @@ const MarketStackScreen = () => {
             <MarketStack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <MarketStack.Screen name='SellCodeScreen' component={SellCodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }}/>
             <MarketStack.Screen name='MarketReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <MarketStack.Screen name='MaketAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </MarketStack.Navigator>
     )
 }

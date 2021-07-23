@@ -150,8 +150,8 @@ export async function addCustomToken(tokenAddress) {
                 showModal({
                     type: 'INFO_MODAL',
                     icon: 'INFO',
-                    title: strings('modal.infoAddCustomAssetModal.successAlready.title'),
-                    description: strings('modal.infoAddCustomAssetModal.successAlready.description')
+                    title: strings('modal.infoAddCustomAssetModal.attention.title'),
+                    description: strings('modal.infoAddCustomAssetModal.attention.description')
                 })
                 setLoaderStatus(false)
                 return { searchQuery: tokenAddress }

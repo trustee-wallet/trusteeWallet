@@ -60,6 +60,8 @@ class ReceiptScreen extends PureComponent {
     }
 
     openAdvancedSettings = async () => {
+        const { uiType } = this.props.sendScreenStore.ui
+
         if (CACHE_IS_COUNTING) {
             return true
         }
@@ -69,7 +71,11 @@ class ReceiptScreen extends PureComponent {
             await SendActionsBlockchainWrapper.getFeeRate()
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
-            NavStore.goNext('SendAdvancedScreen')
+            if (uiType === 'TRADE_SEND') {
+                NavStore.goNext('MaketAdvancedScreen')
+            } else {
+                NavStore.goNext('SendAdvancedScreen')
+            }
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.openAdvancedSettings error ' + e.message)

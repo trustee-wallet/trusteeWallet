@@ -212,6 +212,7 @@ class AddAssetScreen extends React.PureComponent {
                                                 onChangeText={this.handleChangeCustomAddress}
                                                 value={customAddress}
                                                 paste={true}
+                                                callback={this.handleChangeCustomAddress}
                                                 qr={true}
                                                 qrCallback={this.handleOpenQr}
                                             />
