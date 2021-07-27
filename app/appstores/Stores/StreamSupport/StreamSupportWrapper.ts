@@ -163,6 +163,10 @@ export namespace StreamSupportWrapper {
                 console.log('StreamSupport.on error ' + e.message)
             }
             Log.log('StreamSupport.on error ' + e.message)
+
+            if (WEB_SOCKET.readyState === 3) { // 3 - The connection is closed or couldn't be opened.
+                initWS(data)
+            }
         }
 
         WEB_SOCKET.onclose = (e) => {
@@ -231,6 +235,14 @@ export namespace StreamSupportWrapper {
                 ]
             }
             WEB_SOCKET.send(JSON.stringify(newMessageCall))
+        }
+    }
+
+    export const getStatusSocketConnection = async function () {
+        if (WEB_SOCKET.readyState === 2) {
+            return true
+        } else {
+            return false
         }
     }
 }

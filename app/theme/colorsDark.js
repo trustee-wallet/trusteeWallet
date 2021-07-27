@@ -62,7 +62,8 @@ export const colorsDark = {
         background: '#FFF',
         token: '#9E71E1',
         detailsBg: '#252525',
-        howItWorksBg: '#2E2E2E'
+        howItWorksBg: '#2E2E2E',
+        chartBg: '#EAEAEA'
     },
     notifications: {
         newNotiesIndicator: '#9E71E1'
@@ -165,6 +166,7 @@ export const colorsDark = {
         borderColor: '#999999'
     },
     streemChat: {
+        inputToolBarBg: '#404040',
         left: {
             bg: '#222222',
             color: '#DADADA'

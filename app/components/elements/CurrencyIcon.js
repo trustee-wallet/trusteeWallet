@@ -353,6 +353,8 @@ export default class ButtonLine extends PureComponent {
             case 'VET':
             case 'SOL':
             case 'AMB':
+            case 'OPTIMISM':
+            case 'TON':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>

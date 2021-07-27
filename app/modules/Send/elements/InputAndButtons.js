@@ -124,7 +124,7 @@ class InputAndButtons extends PureComponent {
         } else {
             cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(transferAllBalance, 4), this.state.partBalance)
         }
-        if (currencyCode !== 'USDT' && currencyCode !== 'XRP' && currencyCode !== 'XLM') {
+        if (currencyCode !== 'USDT' && currencyCode !== 'XRP' && currencyCode !== 'XLM' && currencyCode !== 'BNB') {
             cryptoValue = BlocksoftUtils.round(cryptoValue)
         }
 

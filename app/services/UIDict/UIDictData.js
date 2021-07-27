@@ -638,6 +638,18 @@ export default {
             darkColor: '#2FAA86'
         }
     },
+    'OPTIMISM': {
+        colors: {
+            mainColor: '#FD4A46',
+            darkColor: '#E63E3A'
+        }
+    },
+    'TON': {
+        colors: {
+            mainColor: '#47A9F1',
+            darkColor: '#47A9F1'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

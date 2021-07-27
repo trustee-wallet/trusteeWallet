@@ -62,7 +62,8 @@ export const colorsLight = {
         background: '#F5F5F5',
         token: '#864DD9',
         detailsBg: '#EBEBEB',
-        howItWorksBg: '#F7F7F7'
+        howItWorksBg: '#F7F7F7',
+        chartBg: '#EAEAEA'
     },
     notifications: {
         newNotiesIndicator: '#864DD9'
@@ -165,6 +166,7 @@ export const colorsLight = {
         borderColor: '#DADADA'
     },
     streemChat: {
+        inputToolBarBg: '#EBEBEB',
         left: {
             bg: '#E8E8E8',
             color: '#404040'

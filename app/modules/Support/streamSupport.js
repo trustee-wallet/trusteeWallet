@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 
-import { GiftedChat, Actions, Send, Avatar, Bubble, Composer, Time, InputToolbar } from 'react-native-gifted-chat'
+import { GiftedChat, Actions, Send, Bubble, Composer, Time, InputToolbar } from 'react-native-gifted-chat'
 
 import RNFS from 'react-native-fs';
 
@@ -93,8 +93,18 @@ class StreamSupportScreen extends PureComponent {
         const { colors } = this.context
 
         return (
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.common.background }}>
-                <Composer {...props}
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.streemChat.inputToolBarBg }}>
+                <Composer 
+                    {...props}
+                    textInputStyle={{
+                        color: colors.common.text1,
+                        fontFamily: 'SFUIDisplay-Regular',
+                        fontStyle: 'normal',
+                        fontWeight: '500',
+                        fontSize: 14,
+                        lineHeight: 18,
+                        letterSpacing: 1
+                    }}
                     textInputAutoFocus={true}
                 />
             </View>
@@ -156,7 +166,7 @@ class StreamSupportScreen extends PureComponent {
                 containerStyle={{
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: colors.common.background,
+                    backgroundColor: colors.streemChat.inputToolBarBg,
                     paddingRight: 16
                 }}
                 handleOnPress={this.onPressSendBtn}
@@ -169,21 +179,23 @@ class StreamSupportScreen extends PureComponent {
     }
 
     renderChatEmpty = (props) => {
+        const { colors } = this.context
+
         return (
             <View style={{
                 flex: 1,
                 alignSelf: 'center',
                 justifyContent: 'center',
                 transform: [{ scaleY: -1 }]
-            }}
-            >
-                <Text style={styles.text}>{strings('streemSupport.noMessages')}</Text>
+            }}>
+                <Text style={[styles.text, { color: colors.common.text1 }]}>{strings('streemSupport.noMessages')}</Text>
             </View>
         )
     }
 
     renderBubble = (props) => {
         const { colors } = this.context
+        
         return (
             <Bubble
                 {...props}
@@ -245,7 +257,7 @@ class StreamSupportScreen extends PureComponent {
                     letterSpacing: 1
                 }}
                 containerStyle={{
-                    backgroundColor: colors.common.background,
+                    backgroundColor: colors.streemChat.inputToolBarBg,
                 }}
             />
         )
@@ -357,8 +369,9 @@ class StreamSupportScreen extends PureComponent {
         try {
             const res = await Camera.openCameraOrGallery('Support/streemSupport upload file')
 
-            let fileData = await RNFS.readFile("file:///" + (res.path.replace("file://", "")), 'base64') // utf8 not working
-            fileData = 'data:image/jpeg;base64,' + fileData
+            let fileData = await RNFS.readFile("file:///" + (res.path.replace("file://", "")), 'utf8') // utf8 not working
+            // fileData = 'data:image/jpeg;base64,' + fileData
+            console.log(fileData)
 
             await awsS3(this.props.streamSupportData.userName, `${this.props.streamSupportData.userName}.jpeg`, fileData)
             this.sheetRef.current.snapTo(1)
@@ -387,6 +400,11 @@ class StreamSupportScreen extends PureComponent {
         return (
             <ScreenWrapper
                 title={strings('settings.about.contactSupportTitle')}
+                leftType={'connect'}
+                leftAction={() => !StreamSupportWrapper.getStatusSocketConnection() ? StreamSupportWrapper.initWS() : null}
+                leftParams={{
+                    color: StreamSupportWrapper.getStatusSocketConnection() ? colors.common.checkbox.bgChecked : colors.common.text1
+                }}
             >
                 <View style={styles.container}>
                     <BottomSheet

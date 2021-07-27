@@ -47,9 +47,9 @@ class UpdateCashBackDataDaemon {
             data = dataUpdate
         }
 
-        // if (typeof data.cbChatToken !== 'undefined' && data.cbChatToken ) {
-        //    StreamSupportActions.setData(data.cbChatToken)
-        // }
+        if (typeof data.cbChatToken !== 'undefined' && data.cbChatToken ) {
+           StreamSupportActions.setData(data.cbChatToken)
+        }
 
         let customToken = CashBackUtils.getWalletToken()
         try {
