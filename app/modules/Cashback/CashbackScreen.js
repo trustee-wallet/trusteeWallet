@@ -10,7 +10,8 @@ import {
     ScrollView,
     StyleSheet,
     TouchableOpacity,
-    RefreshControl
+    RefreshControl,
+    FlatList
 } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -25,8 +26,6 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import QrCodeBox from '@app/components/elements/QrCodeBox'
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import RoundButton from '@app/components/elements/new/buttons/RoundButton'
-import PromoCodeContent from './elements/PromoCode'
 import DetailsContent from './elements/Details'
 import HowItWorks from './elements/HowItWorks'
 
@@ -38,13 +37,119 @@ import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import NavStore from '@app/components/navigation/NavStore'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
+import Tabs from '@app/components/elements/new/Tabs'
+import CashbackData from './elements/CashbackData'
+
 
 class CashbackScreen extends React.PureComponent {
     state = {
         selectedContent: null,
         promoCode: '',
         inviteLink: '',
-        refreshing: false
+        refreshing: false,
+
+        tabs: [
+            {
+                title: strings('notifications.tabAll'),
+                index: 0,
+                active: true
+            },
+            {
+                title: strings('notifications.tabNews'),
+                index: 1,
+                active: false
+            },
+            {
+                title: strings('notifications.tabNews'),
+                index: 2,
+                active: false
+            },
+        ],
+
+        flatlistData: []
+    }
+
+    componentDidMount() {
+
+        const { cashbackStore } = this.props
+
+        const time = cashbackStore.dataFromApi.time || false
+        let timePrep
+        if (time) {
+            const timeDate = new Date(time)
+            timePrep = timeDate.toLocaleTimeString()
+        }
+
+        const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || '0.00'
+        const cpaBalance = cashbackStore.dataFromApi.cpaBalance || '0.00'
+        
+        const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
+        const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
+
+        let cashbackParentToken = cashbackStore.dataFromApi.parentToken || false
+        if (!cashbackParentToken || cashbackParentToken === null) {
+            cashbackParentToken = cashbackStore.parentToken || ''
+        }
+        if (cashbackParentToken === cashbackToken || cashbackParentToken === cashbackLinkTitle) {
+            cashbackParentToken = ''
+        }
+
+        let flatlistData = [
+            {
+                title: strings('notifications.tabAll'),
+                subTitle: timePrep,
+                balance: cashbackBalance,
+                ExtraViewData: () => {
+                    return (
+                        <View>
+                            <Text>{'Invited'}</Text>
+                            <Text>{cashbackParentToken}</Text>
+                        </View>
+                    )
+                }
+            },
+            {
+                title: strings('notifications.tabAll'),
+                subTitle: 'Murzik',
+                balance: cashbackBalance,
+                ExtraViewData: () => {
+                    return (
+                        <View style={{ backgroundColor: 'red' }}>
+                            <Text>{'heisdklf kldsjfklsd jlfk s'}</Text>
+                        </View>
+                    )
+                }
+            },
+            {
+                title: strings('notifications.tabAll'),
+                subTitle: 'Murzik',
+                balance: cpaBalance,
+                ExtraViewData: () => {
+                    return (
+                        <View style={{ backgroundColor: 'red' }}>
+                            <Text>{'heisdklf kldsjfklsd jlfk s'}</Text>
+                        </View>
+                    )
+                }
+            },
+            {
+                title: strings('notifications.tabAll'),
+                subTitle: timePrep,
+                balance: '0.00',
+                ExtraViewData: () => {
+                    return (
+                        <View style={{ backgroundColor: 'red' }}>
+                            <Text>{'heisdklf kldsjfklsd jlfk s'}</Text>
+                        </View>
+                    )
+                }
+            }
+        ]
+
+        this.setState(() => ({
+            flatlistData
+        }))
+
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -99,6 +204,25 @@ class CashbackScreen extends React.PureComponent {
         })
     }
 
+    renderTabs = () => <Tabs tabs={this.state.tabs} changeTab={this.handleChangeTab} />
+
+    handleChangeTab = (newTab) => {
+        const newTabs = this.state.tabs.map(tab => ({
+            ...tab,
+            active: tab.index === newTab.index,
+        }))
+        this.setState(() => ({ tabs: newTabs }))
+    }
+
+    renderFlatlistItem = ({ item }) => {
+        console.log(item)
+        return (
+            <CashbackData
+                data={item}
+            />
+        )
+    }
+
     render() {
         MarketingAnalytics.setCurrentScreen('CashBackScreen')
         const {
@@ -120,6 +244,7 @@ class CashbackScreen extends React.PureComponent {
         return (
             <ScreenWrapper
                 title={strings('cashback.pageTitle')}
+                ExtraView={this.renderTabs}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
@@ -132,50 +257,43 @@ class CashbackScreen extends React.PureComponent {
                             tintColor={colors.common.text1}
                         />
                     }>
-                    <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
-                    <TouchableOpacity
-                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE }]}
-                        onPress={() => this.copyToClip(cashbackLink)}
-                        activeOpacity={0.8}
-                    >
-                        <QrCodeBox
-                            value={cashbackLink}
-                            size={150}
-                            color={colors.cashback.qrCode}
-                            backgroundColor={colors.cashback.background}
-                            onError={this.handleRenderQrError}
-                            style={styles.qrCode}
-                        />
-                        <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackLinkTitle} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
-                    </TouchableOpacity>
+                    {this.state.tabs[0].active && (
+                        <>
+                            <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
+                            <TouchableOpacity
+                                style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE }]}
+                                onPress={() => this.copyToClip(cashbackLink)}
+                                activeOpacity={0.8}
+                            >
+                                <QrCodeBox
+                                    value={cashbackLink}
+                                    size={150}
+                                    color={colors.cashback.qrCode}
+                                    backgroundColor={colors.cashback.background}
+                                    onError={this.handleRenderQrError}
+                                    style={styles.qrCode}
+                                />
+                                <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackLinkTitle} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
+                            </TouchableOpacity>
+                        </>
+                    )}
+                    {this.state.tabs[1].active && (
+                        <>
+                            <FlatList
+                                data={this.state.flatlistData}
+                                keyExtractor={({ index }) => index}
+                                horizontal={true}
+                                renderItem={this.renderFlatlistItem}
+                                showsHorizontalScrollIndicator={false}
+                            />
+                            {this.renderContent()}
+                        </>
+                    )}
 
-                    <View style={[styles.buttonsRow, { margin: GRID_SIZE * 2, marginTop: GRID_SIZE }]}>
-                        <RoundButton
-                            type="share"
-                            size={54}
-                            onPress={() => this.handlePressShare(cashbackLink)}
-                            containerStyle={styles.buttonContainer}
-                            title={!selectedContent && strings('cashback.shareButton')}
-                        />
-                        <RoundButton
-                            type={selectedContent === 'promo' ? 'close' : 'promo'}
-                            size={54}
-                            onPress={this.handlePressPromo}
-                            containerStyle={styles.buttonContainer}
-                            title={!selectedContent && strings('cashback.promoButton')}
-                        />
-                        <RoundButton
-                            type={selectedContent === 'details' ? 'close' : 'details'}
-                            size={54}
-                            onPress={this.handlePressDetails}
-                            containerStyle={styles.buttonContainer}
-                            title={!selectedContent && strings('cashback.detailsButton')}
-                        />
-                    </View>
+                    {this.state.tabs[2].active && (
+                        <HowItWorks />
+                    )}
 
-                    {this.renderContent()}
-
-                    <HowItWorks />
                 </ScrollView>
             </ScreenWrapper >
         )
@@ -184,100 +302,93 @@ class CashbackScreen extends React.PureComponent {
     renderContent = () => {
         const { selectedContent } = this.state
 
-        if (selectedContent === 'promo') {
-            return <PromoCodeContent />
-        }
-        if (selectedContent === 'details') {
-            const { cashbackStore } = this.props
+        const { cashbackStore } = this.props
 
-            const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
-            const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
+        const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
+        const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
 
-            const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
-            let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted
+        const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
+        let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted
 
-            let cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
-            let totalCashbackBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
+        let cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
+        let totalCashbackBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
 
-            let cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
-            let cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
-            let cpaLevel1 = cashbackStore.dataFromApi.cpaLevel1 || 0
-            let cpaLevel2 = cashbackStore.dataFromApi.cpaLevel2 || 0
-            let cpaLevel3 = cashbackStore.dataFromApi.cpaLevel3 || 0
+        let cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
+        let cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
+        let cpaLevel1 = cashbackStore.dataFromApi.cpaLevel1 || 0
+        let cpaLevel2 = cashbackStore.dataFromApi.cpaLevel2 || 0
+        let cpaLevel3 = cashbackStore.dataFromApi.cpaLevel3 || 0
 
-            let invitedUsers = cashbackStore.dataFromApi.invitedUsers || 0
-            let level2Users = cashbackStore.dataFromApi.level2Users || 0
+        let invitedUsers = cashbackStore.dataFromApi.invitedUsers || 0
+        let level2Users = cashbackStore.dataFromApi.level2Users || 0
 
-            let cashbackToShow = false
-            if (cashbackStore.dataFromApi.cashbackToken !== cashbackStore.dataFromApi.customToken) {
-                cashbackToShow = cashbackStore.dataFromApi.cashbackToken
-            }
-
-            let cashbackParentToken = cashbackStore.dataFromApi.parentToken || false
-            if (!cashbackParentToken || cashbackParentToken === null) {
-                cashbackParentToken = cashbackStore.parentToken || ''
-            }
-            if (cashbackParentToken === cashbackToken || cashbackParentToken === cashbackToShow || cashbackParentToken === cashbackLinkTitle) {
-                cashbackParentToken = ''
-            }
-
-
-            const time = cashbackStore.dataFromApi.time || false
-            let timePrep
-            if (time) {
-                const timeDate = new Date(time)
-                timePrep = timeDate.toLocaleTimeString()
-            }
-
-            if (typeof cashbackStore.dataFromApi.cashbackToken === 'undefined' || cashbackStore.dataFromApi.cashbackToken !== cashbackStore.cashbackToken) {
-                invitedUsers = '?'
-                level2Users = '?'
-                overalPrep = '?'
-                cashbackBalance = '?'
-                totalCashbackBalance = '?'
-                cpaTotalBalance = '?'
-                cpaBalance = '?'
-                cpaLevel1 = '?'
-                cpaLevel2 = '?'
-                cpaLevel3 = '?'
-            }
-
-            MarketingEvent.logEvent('taki_cashback_2_render', {
-                cashbackLink: cashbackStore.dataFromApi.cashbackLink || cashbackStore.cashbackLink || '',
-                invitedUsers,
-                level2Users,
-                cashbackBalance,
-                totalCashbackBalance,
-                overalPrep,
-                cashbackParentToken,
-                cpaBalance,
-                cpaTotalBalance,
-                cpaLevel1,
-                cpaLevel2,
-                cpaLevel3
-            })
-
-            return (
-                <DetailsContent
-                    currentBalance={cashbackBalance}
-                    wholeBalance={totalCashbackBalance}
-                    overalPrep={overalPrep}
-                    invitedUsers={invitedUsers}
-                    level2Users={level2Users}
-                    cashbackParentToken={cashbackParentToken}
-                    cashbackToShow={cashbackToShow}
-                    cpaBalance={cpaBalance}
-                    cpaTotalBalance={cpaTotalBalance}
-                    cpaLevel1={cpaLevel1}
-                    cpaLevel2={cpaLevel2}
-                    cpaLevel3={cpaLevel3}
-                    inviteLink={this.state.inviteLink}
-                    updatedTime={timePrep}
-                />
-            )
+        let cashbackToShow = false
+        if (cashbackStore.dataFromApi.cashbackToken !== cashbackStore.dataFromApi.customToken) {
+            cashbackToShow = cashbackStore.dataFromApi.cashbackToken
         }
 
-        return null
+        let cashbackParentToken = cashbackStore.dataFromApi.parentToken || false
+        if (!cashbackParentToken || cashbackParentToken === null) {
+            cashbackParentToken = cashbackStore.parentToken || ''
+        }
+        if (cashbackParentToken === cashbackToken || cashbackParentToken === cashbackToShow || cashbackParentToken === cashbackLinkTitle) {
+            cashbackParentToken = ''
+        }
+
+
+        const time = cashbackStore.dataFromApi.time || false
+        let timePrep
+        if (time) {
+            const timeDate = new Date(time)
+            timePrep = timeDate.toLocaleTimeString()
+        }
+
+        if (typeof cashbackStore.dataFromApi.cashbackToken === 'undefined' || cashbackStore.dataFromApi.cashbackToken !== cashbackStore.cashbackToken) {
+            invitedUsers = '?'
+            level2Users = '?'
+            overalPrep = '?'
+            cashbackBalance = '?'
+            totalCashbackBalance = '?'
+            cpaTotalBalance = '?'
+            cpaBalance = '?'
+            cpaLevel1 = '?'
+            cpaLevel2 = '?'
+            cpaLevel3 = '?'
+        }
+
+        MarketingEvent.logEvent('taki_cashback_2_render', {
+            cashbackLink: cashbackStore.dataFromApi.cashbackLink || cashbackStore.cashbackLink || '',
+            invitedUsers,
+            level2Users,
+            cashbackBalance,
+            totalCashbackBalance,
+            overalPrep,
+            cashbackParentToken,
+            cpaBalance,
+            cpaTotalBalance,
+            cpaLevel1,
+            cpaLevel2,
+            cpaLevel3
+        })
+
+        return (
+            <DetailsContent
+                currentBalance={cashbackBalance}
+                wholeBalance={totalCashbackBalance}
+                overalPrep={overalPrep}
+                invitedUsers={invitedUsers}
+                level2Users={level2Users}
+                cashbackParentToken={cashbackParentToken}
+                cashbackToShow={cashbackToShow}
+                cpaBalance={cpaBalance}
+                cpaTotalBalance={cpaTotalBalance}
+                cpaLevel1={cpaLevel1}
+                cpaLevel2={cpaLevel2}
+                cpaLevel3={cpaLevel3}
+                inviteLink={this.state.inviteLink}
+                updatedTime={timePrep}
+            />
+        )
     }
 }
 

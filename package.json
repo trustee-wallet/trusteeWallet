@@ -144,6 +144,7 @@
     "react-native-sqlite-helper": "1.1.0",
     "react-native-sqlite-storage": "^4.1.0",
     "react-native-svg": "^10.1.0",
+    "react-native-svg-charts": "^5.4.0",
     "react-native-svg-transformer": "^0.14.3",
     "react-native-swipe-list-view": "^3.2.3",
     "react-native-switch": "^2.0.0",
