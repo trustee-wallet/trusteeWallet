@@ -266,7 +266,7 @@ class BlocksoftAxios {
             }
             if (link.indexOf('/fees') !== -1 || link.indexOf('/rates') !== -1) {
                 timeOut = Math.round(timeOut / 2)
-            } else if (link.indexOf('proxy.trustee.deals') !== -1) {
+            } else if (link.indexOf('proxy.trustee.deals') !== -1 && link.indexOf('proxytest.trustee.deals') !== -1) {
                 timeOut = Math.round(timeOut / 3)
             }
             if (typeof CACHE_STARTED[link] !== 'undefined') {

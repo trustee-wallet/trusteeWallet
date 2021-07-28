@@ -53,9 +53,9 @@ class CashBackUtils {
 
             if (firebaseUrl && typeof firebaseUrl !== 'undefined' && firebaseUrl !== '') {
                 await Log.log('SRV/CashBack init firebaseUrl save ' + firebaseUrl)
-                await trusteeAsyncStorage.setFirebaseUrl(firebaseUrl)
+                await trusteeAsyncStorage.setFirebaseDynamicUrl(firebaseUrl)
             } else {
-                const tmp3 = await trusteeAsyncStorage.getFirebaseUrl()
+                const tmp3 = await trusteeAsyncStorage.getFirebaseDynamicUrl()
                 await Log.log('SRV/CashBack init firebaseUrl from saved ' + JSON.stringify(tmp3))
                 if (tmp3 && typeof tmp3 !== 'undefined') {
                     firebaseUrl = tmp3

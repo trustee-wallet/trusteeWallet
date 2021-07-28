@@ -87,7 +87,8 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             walletUseUnconfirmed : 1,
             walletCashback : cashbackToken
         }
-        if (source === 'IMPORT') {
+        const hasInternet = await ApiProxyLoad.hasInternet()
+        if (source === 'IMPORT' && hasInternet) {
             const res = await ApiProxyLoad.getSaved(storedKey, wallet.walletName)
 
             if (res && typeof res.forWalletsAll !== 'undefined' && typeof res.forWalletsAll[storedKey] !== 'undefined') {
@@ -124,7 +125,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             fullWallet.walletNumber = wallet.walletNumber
         }
 
-        if (source === 'IMPORT' && !fromSaved) {
+        if (source === 'IMPORT' && !fromSaved && hasInternet) {
             try {
                 const res = await WalletHDActions.hdFromTrezor({ walletHash: storedKey, force: false, currencyCode: 'BTC' }, 'IMPORT')
                 if (res) {
@@ -157,8 +158,6 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             await accountDS.clearAccounts({ walletHash: storedKey })
 
             await walletDS.clearWallet({ walletHash: storedKey })
-
-            await appTaskDS.clearTasks({ walletHash: storedKey })
 
             await appTaskDS.clearTasks({ walletHash: storedKey })
 

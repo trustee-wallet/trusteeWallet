@@ -45,7 +45,7 @@ const cryptoWallets = {
             }
             storedKey = await BlocksoftKeysStorage.saveMnemonic(prepared)
 
-            Log.log('DS/cryptoWallets saveWallet finished', storedKey)
+            Log.log('DS/cryptoWallets saveWallet finished ' + storedKey)
         } catch (e) {
             Log.err('DS/cryptoWallets saveWallet error ' + e.message)
         }

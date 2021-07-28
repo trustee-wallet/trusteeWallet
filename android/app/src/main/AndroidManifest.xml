@@ -17,7 +17,9 @@
       android:allowBackup="false"
       android:usesCleartextTraffic="true"
       android:requestLegacyExternalStorage="true"
-      android:theme="@style/AppTheme">
+      android:theme="@style/AppTheme"
+      android:largeHeap="true"
+    >
         <meta-data
                 android:name="com.google.firebase.messaging.default_notification_icon"
                 android:resource="@mipmap/ic_notification"/>

@@ -1,18 +1,41 @@
+/**
+ * @version 0.32
+ */
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-
-import { sublocale } from '@app/services/i18n'
-import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
-import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
 import config from '@app/config/config'
+import { sublocale } from '@app/services/i18n'
+
+import AppNotificationListener from '@app/services/AppNotification/AppNotificationListener'
 import ApiProxy from '@app/services/Api/ApiProxy'
+
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftKeysForRef from '@crypto/actions/BlocksoftKeysForRef/BlocksoftKeysForRef'
 
-export default {
+const ApiProxyLoad = {
+
+    hasInternet : async () => {
+        const { apiEndpoints } = config.proxy
+        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        const link = baseURL + `/internet`
+        try {
+            const all = await BlocksoftAxios._request(link, 'get')
+            if (all && typeof all.data !== 'undefined') {
+                if (typeof all.data.serverTimestamp !== 'undefined') {
+                    ApiProxy.checkServerTimestamp(all.data.serverTimestamp)
+                }
+                return true
+            }
+            return false
+        } catch (e) {
+            return false
+        }
+    },
 
     getSaved: async (walletHash, newWalletName = false) => {
         const { apiEndpoints } = config.proxy
+
         const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
         const exchangeMode = config.exchange.mode
 
@@ -64,7 +87,9 @@ export default {
             }
         }
 
-        const all = await BlocksoftAxios.post(link, allData)
+        const all = await BlocksoftAxios._request(link, 'post', allData)
         return all.data.data
     }
 }
+
+export default ApiProxyLoad

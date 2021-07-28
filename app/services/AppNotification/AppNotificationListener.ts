@@ -20,6 +20,7 @@ import { Platform } from 'react-native'
 import { setLockScreenConfig, LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { LANGUAGE_SETTINGS } from '@app/modules/Settings/helpers'
+import ApiProxyLoad from '@app/services/Api/ApiProxyLoad'
 
 
 const CACHE_VALID_TIME = 120000000 // 2000 minute
@@ -41,10 +42,13 @@ export default new class AppNotificationListener {
             return
         }
         this.initing = now
-        if (await this.checkPermission()) {
-            this.inited = true
-            await this.createRefreshListener()
-            await this.createMessageListener()
+        const hasInternet = await ApiProxyLoad.hasInternet()
+        if (hasInternet) {
+            if (await this.checkPermission()) {
+                this.inited = true
+                await this.createRefreshListener()
+                await this.createMessageListener()
+            }
         }
     }
 
@@ -84,6 +88,9 @@ export default new class AppNotificationListener {
     }
 
     async _subscribe(topic: string, locale: string, isDev: boolean): Promise<void> {
+        if (!this.inited) {
+            return
+        }
         if (DEBUG_NOTIFS) {
             Log.log('PUSH subscribe ' + topic + ' started ' + locale)
         }
@@ -130,6 +137,9 @@ export default new class AppNotificationListener {
     }
 
     async _unsubscribe(topic: string): Promise<void> {
+        if (!this.inited) {
+            return
+        }
         if (DEBUG_NOTIFS) {
             Log.log('PUSH unsubscribe ' + topic + ' started')
         }
@@ -158,6 +168,9 @@ export default new class AppNotificationListener {
     }
 
     async rmvOld(fcmToken: string = ''): Promise<void> {
+        if (!this.inited) {
+            return
+        }
         if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
             return
         }
@@ -183,6 +196,9 @@ export default new class AppNotificationListener {
     }
 
     async updateSubscriptions(fcmToken: string = ''): Promise<void> {
+        if (!this.inited) {
+            return
+        }
         if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
             return
         }
@@ -226,6 +242,9 @@ export default new class AppNotificationListener {
     }
 
     async updateSubscriptionsLater(): Promise<void> {
+        if (!this.inited) {
+            return
+        }
         if (DEBUG_NOTIFS) {
             await Log.log('PUSH updateSubscriptionsLater')
         }
@@ -409,7 +428,7 @@ export default new class AppNotificationListener {
 
     _onRefresh = async (fcmToken: string): Promise<void> => {
         if (!fcmToken) return
-        let tmp = await trusteeAsyncStorage.getFcmTokensAll()
+        let tmp = trusteeAsyncStorage.getFcmTokensAll()
         let all = {}
         try {
             if (tmp != null) {

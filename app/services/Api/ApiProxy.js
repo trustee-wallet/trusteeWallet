@@ -333,6 +333,11 @@ export default {
         return res
     },
 
+
+    async checkServerTimestamp(serverTimestamp) {
+        return _checkServerTimestamp(serverTimestamp)
+    },
+
     async getServerTimestampIfNeeded() {
         await Log.log('ApiProxy.getServerTimestampIfNeeded will ask time from server ' + (CACHE_SERVER_TIME_NEED_TO_ASK ? ' need ask ' : ' no ask'))
         if (!CACHE_SERVER_TIME_NEED_TO_ASK) {

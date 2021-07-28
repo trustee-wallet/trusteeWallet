@@ -76,11 +76,11 @@ class TrusteeAsyncStorage {
         return this._set('parentTokenRechecked', value)
     }
 
-    getFirebaseUrl = async () => {
+    getFirebaseDynamicUrl = async () => {
         return this._get('firebaseUrl')
     }
 
-    setFirebaseUrl = (value) => {
+    setFirebaseDynamicUrl = (value) => {
         return this._set('firebaseUrl', value)
     }
 
