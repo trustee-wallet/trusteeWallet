@@ -68,7 +68,7 @@ class Transaction {
         const sql = `SELECT id FROM transactions WHERE currency_code='${transaction.currencyCode}'
                         AND wallet_hash='${transaction.walletHash}'
                         AND transaction_hash='${transaction.transactionHash}' LIMIT 1`
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
         if (!res || res.array.length === 0) {
             if (typeof copy.createdAt === 'undefined' || !copy.createdAt) {
                 copy.createdAt = new Date().toISOString()
@@ -143,13 +143,13 @@ class Transaction {
             sql += ` AND currency_code='${transaction.currencyCode}' `
         }
 
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
 
     }
 
     removeTransactions = async (ids) => {
         const sql = `DELETE FROM transactions WHERE id IN (` + ids.join(',') + `)`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     }
 
     getTransactionsCount = async (params, source = '?') => {
@@ -196,7 +196,7 @@ class Transaction {
             `
         let res = []
         try {
-            res = await Database.setQueryString(sql).query()
+            res = await Database.query(sql)
             if (typeof res.array !== 'undefined') {
                 res = res.array
             }
@@ -303,7 +303,7 @@ class Transaction {
             `
         let res = []
         try {
-            res = await Database.setQueryString(sql).query()
+            res = await Database.query(sql)
             if (typeof res.array !== 'undefined') {
                 res = res.array
             }

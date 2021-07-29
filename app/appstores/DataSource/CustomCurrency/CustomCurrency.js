@@ -24,7 +24,7 @@ export default {
 
     savedCustomCurrenciesForApi : async (dataArray) => {
         const where = dataArray.join(', ')
-        await Database.setQueryString(` UPDATE  ${tableName} SET is_added_to_api = 1 WHERE (is_added_to_api IS NULL OR is_added_to_api=0) AND id IN (${where})`).query()
+        await Database.query(` UPDATE  ${tableName} SET is_added_to_api = 1 WHERE (is_added_to_api IS NULL OR is_added_to_api=0) AND id IN (${where})`)
         CACHE_FOR_API = []
         return true
     },
@@ -38,7 +38,7 @@ export default {
      * @returns {Promise<[{id, isHidden, currencyCode, currencySymbol, currencyName, tokenType, tokenAddress, tokenDecimals, tokenJson}]>}
      */
     getCustomCurrencies: async () => {
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
                 SELECT
                 id, is_hidden AS isHidden,
                 currency_code AS currencyCode,
@@ -50,7 +50,7 @@ export default {
                 token_decimals AS tokenDecimals,
                 token_json AS tokenJson,
                 is_added_to_api AS isAdded
-                FROM ${tableName}`).query()
+                FROM ${tableName}`)
 
         CACHE_FOR_API = []
         if (!res || !res.array || !res.array.length) {

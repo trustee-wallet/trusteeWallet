@@ -29,7 +29,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             WHERE wallet_hash = '${walletHash}
             AND currency_code='${mainCurrencyCode}'
         `
-        const resPub = await Database.setQueryString(sqlPub).query()
+        const resPub = await Database.query(sqlPub)
         if (resPub && resPub.array && resPub.array.length > 0) {
 
             const sql = `SELECT account.address
@@ -39,7 +39,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             AND derivation_type!='main'
             ORDER BY derivation_index ASC
         `
-            const res = await Database.setQueryString(sql).query()
+            const res = await Database.query(sql)
             for (const row of res.array) {
                 const prefix = row.address.indexOf(segwitPrefix) === 0 ? segwitPrefix : row.address.substr(0, 1)
                 await BlocksoftCryptoLog.log(currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getCache started HD CACHE_FOR_CHANGE ' + walletHash)
@@ -65,7 +65,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             WHERE account.wallet_hash = '${walletHash}'
             AND currency_code='${mainCurrencyCode}'
         `
-            const res = await Database.setQueryString(sql).query()
+            const res = await Database.query(sql)
             for (const row of res.array) {
                 // @ts-ignore
                 await BlocksoftCryptoLog.log(currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getUnspents started CACHE_FOR_CHANGE ' + walletHash)
@@ -110,7 +110,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             AND currency_code='${mainCurrencyCode}'
         `
         const totalUnspents = []
-        const resPub = await Database.setQueryString(sqlPub).query()
+        const resPub = await Database.query(sqlPub)
         if (resPub && resPub.array && resPub.array.length > 0) {
             for (const row of resPub.array) {
                 const unspents = await super.getUnspents(row.walletPub)
@@ -129,7 +129,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             AND derivation_type!='main'
             ORDER BY derivation_index ASC
         `
-            const res = await Database.setQueryString(sql).query()
+            const res = await Database.query(sql)
             for (const row of res.array) {
                 const walletHash = row.walletHash
                 const prefix = row.address.indexOf(segwitPrefix) === 0 ? segwitPrefix : row.address.substr(0, 1)
@@ -156,7 +156,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             WHERE account.wallet_hash = (SELECT wallet_hash FROM account WHERE address='${address}')
             AND currency_code='${mainCurrencyCode}'
         `
-            const res = await Database.setQueryString(sql).query()
+            const res = await Database.query(sql)
             for (const row of res.array) {
                 const walletHash = row.walletHash
                 const unspents = await super.getUnspents(row.address)

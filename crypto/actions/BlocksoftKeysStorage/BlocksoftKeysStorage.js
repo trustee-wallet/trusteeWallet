@@ -41,11 +41,6 @@ export class BlocksoftKeysStorage {
      */
     publicWallets = []
 
-    /**
-     * @type {string|boolean}
-     */
-    publicSelectedWallet = ''
-
     constructor(_serviceName = 'BlocksoftKeysStorage3') {
         this._serviceName = _serviceName
     }
@@ -74,31 +69,6 @@ export class BlocksoftKeysStorage {
         if (!res) return false
         return { 'pub': res.username, 'priv': res.password }
     }
-
-    // /**
-    //  * @return {Promise<*>}
-    //  * @public
-    //  */
-    // async getKeychainData() {
-    //
-    //     let serversArray = [
-    //         'wallets_counter',
-    //         'selected_hash'
-    //     ]
-    //
-    //     let count = await this._getKeyValue('wallets_counter')
-    //
-    //     this._serviceWalletsCounter = count && count.priv ? count.priv * 1 : 0
-    //     if (this._serviceWalletsCounter > 0) {
-    //         for (let i = 1; i <= this._serviceWalletsCounter; i++) {
-    //             serversArray.push('wallet_' + i)
-    //         }
-    //     }
-    //
-    //     for(let i = 0; i < serversArray.length; i++){
-    //         await Keychain.getInternalCredential(this._serviceName + '_' + serversArray[i])
-    //     }
-    // }
 
     /**
      * @param {string} key
@@ -144,7 +114,6 @@ export class BlocksoftKeysStorage {
         this._serviceWallets = {}
         this.publicWallets = []
         this.publicSelectedWallet = false
-        let firstWallet = false
         if (this._serviceWalletsCounter > 0) {
             for (let i = 1; i <= this._serviceWalletsCounter; i++) {
                 const wallet = await this._getKeyValue('wallet_' + i)
@@ -154,23 +123,22 @@ export class BlocksoftKeysStorage {
                 this._serviceWallets[wallet.pub] = wallet.priv
                 this._serviceWallets[i - 1] = wallet.priv
                 this.publicWallets.push(wallet.pub)
-                if (i === 1) {
-                    firstWallet = wallet.pub
-                }
             }
         }
+        this._serviceWasInited = true
+    }
+
+    async getOldSelectedWallet() {
+        this._init()
         const tmp = await this._getKeyValue('selected_hash')
+        let publicSelectedWallet = false
         if (tmp && tmp.pub) {
-            this.publicSelectedWallet = tmp.pub
+            publicSelectedWallet = tmp.pub
         }
         if (!this.publicSelectedWallet || !this._serviceWallets[this.publicSelectedWallet]) {
-            this.publicSelectedWallet = firstWallet
+            publicSelectedWallet = false
         }
-        this._serviceWasInited = true
-
-        if (this.publicSelectedWallet) {
-            await fioSdkWrapper.init(this.publicSelectedWallet)
-        }
+        return publicSelectedWallet
     }
 
     async reInit() {
@@ -228,73 +196,6 @@ export class BlocksoftKeysStorage {
     async getWallets() {
         await this._init()
         return this.publicWallets
-    }
-
-    /**
-     * public selected wallet hash
-     * @return {string}
-     */
-    async getSelectedWallet() {
-        await this._init()
-        return this.publicSelectedWallet
-    }
-
-    /**
-     * public select wallet hash
-     * @param {string} hashOrId
-     * @param {string} source
-     * @return {boolean}
-     */
-    async setSelectedWallet(hashOrId, source) {
-        await this._init()
-        const msg = 'BlocksoftKeysStorage setSelectedWallet ' + source + ' ' + hashOrId + ' '
-
-        let isChanged = false
-        if (!hashOrId || typeof hashOrId === 'undefined' || hashOrId === 'first') {
-            if (typeof this.publicWallets[0] === 'undefined') {
-                this._serviceWasInited = false
-                await this._init()
-                if (typeof this.publicWallets[0] === 'undefined') {
-                    throw new Error('System empty second try on setSelectedWallet')
-                }
-            }
-            if (!this.publicSelectedWallet || typeof this.publicSelectedWallet === 'undefined') {
-                hashOrId = this.publicWallets[0]
-                this.publicSelectedWallet = hashOrId
-            } else {
-                // do nothing
-            }
-            isChanged = true
-        } else {
-            if (!this._serviceWallets[hashOrId]) {
-                throw new Error('undefined wallet with hash ' + hashOrId)
-            }
-            try {
-                await this._setKeyValue('selected_hash', hashOrId)
-                this.publicSelectedWallet = hashOrId
-                isChanged = true
-            } catch (e) {
-                return this.publicSelectedWallet
-            }
-        }
-        BlocksoftCryptoLog.log(msg + 'new publicSelectedWallet = ' + this.publicSelectedWallet + ' ' + JSON.stringify({ isChanged }))
-
-        if (isChanged) {
-            await fioSdkWrapper.init(this.publicSelectedWallet)
-        }
-
-        return this.publicSelectedWallet
-    }
-
-    getFirstWallet() {
-        if (!this.publicSelectedWallet || typeof this.publicSelectedWallet === 'undefined') {
-            this.setSelectedWallet('first')
-            if (!this.publicWallets || typeof this.publicWallets[0] === 'undefined') {
-                return false
-            }
-            return this.publicWallets[0]
-        }
-        return this.publicSelectedWallet
     }
 
     /**

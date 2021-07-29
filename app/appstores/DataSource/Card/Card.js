@@ -18,7 +18,7 @@ const _getCards = async (where, couldCount) => {
     } else {
         where = ''
     }
-    const res = await Database.setQueryString(`
+    const res = await Database.query(`
                 SELECT
                 id,
                 card_to_send_status AS cardToSendStatus,
@@ -36,7 +36,7 @@ const _getCards = async (where, couldCount) => {
                 card_email AS cardEmail,
                 card_details_json AS cardDetailsJson,
                 card_check_status AS cardCheckStatus
-                FROM card ${where}`).query()
+                FROM card ${where}`)
     if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
         if (couldCount) {
             CACHE_TOTAL = 0
@@ -103,10 +103,10 @@ export default {
     },
 
     getCardVerificationJson: async (number) => {
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
                 SELECT
                 card_verification_json AS cardVerificationJson
-                FROM card WHERE number='${number}'`).query()
+                FROM card WHERE number='${number}'`)
         if (!res || typeof res.array === 'undefined' || res.array.length === 0) {
             return false
         }
@@ -142,7 +142,7 @@ export default {
                 SET number='REMOVED', card_name='REMOVED', card_to_send_status='${Math.round(new Date().getTime() / 1000)}'
                 WHERE id=${cardID}
                 `
-            await Database.setQueryString(sql).query(true)
+            await Database.query(sql, true)
             CACHE_TOTAL = CACHE_TOTAL - 1
             CACHE_FOR_API = {}
             CACHE_FOR_ALL = false
@@ -157,6 +157,6 @@ export default {
     },
 
     clearCards: async (data) => {
-        await Database.setQueryString(`DELETE FROM card WHERE card_create_wallet_hash='${data.walletHash}'`).query()
+        await Database.query(`DELETE FROM card WHERE card_create_wallet_hash='${data.walletHash}'`)
     }
 }

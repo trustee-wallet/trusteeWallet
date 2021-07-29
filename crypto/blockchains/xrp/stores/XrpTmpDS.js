@@ -15,12 +15,12 @@ class XrpTmpDS {
     _isSaved = false
 
     async getCache() {
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
                 SELECT id, tmp_key, tmp_val
                 FROM ${tableName}
                 WHERE currency_code='${this._currencyCode}'
                 AND tmp_key='${this._valKey}'
-                `).query()
+                `)
         let tmp = {}
         const idsToRemove = []
         if (res.array) {
@@ -40,7 +40,7 @@ class XrpTmpDS {
                 }
             }
             if (idsToRemove.length > 0) {
-                await Database.setQueryString(`DELETE FROM ${tableName} WHERE id IN (${idsToRemove.join(',')})`).query()
+                await Database.query(`DELETE FROM ${tableName} WHERE id IN (${idsToRemove.join(',')})`)
             }
         }
         return tmp
@@ -50,7 +50,7 @@ class XrpTmpDS {
         const tmp = Database.escapeString(JSON.stringify(value))
         const now = new Date().toISOString()
         if (this._isSaved) {
-            await Database.setQueryString(`UPDATE ${tableName} SET tmp_val='${tmp}' WHERE tmp_key='${this._valKey}' AND currency_code='${this._currencyCode}'`).query()
+            await Database.query(`UPDATE ${tableName} SET tmp_val='${tmp}' WHERE tmp_key='${this._valKey}' AND currency_code='${this._currencyCode}'`)
         } else {
             const prepared = [{
                 currency_code: this._currencyCode,

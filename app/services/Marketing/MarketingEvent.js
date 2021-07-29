@@ -18,6 +18,7 @@ import changeableTester from '@app/config/changeable.tester'
 import DeviceInfo from 'react-native-device-info'
 import appsFlyer from 'react-native-appsflyer'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 let CACHE_TG_INITED = false
 let CACHE_BALANCE = {}
@@ -100,7 +101,7 @@ class MarketingEvent {
         }
 
         // after this is a little bit long soooo we will pass variables any time we could
-        this.DATA.LOG_WALLET = await BlocksoftKeysStorage.getSelectedWallet()
+        this.DATA.LOG_WALLET = await settingsActions.getSelectedWallet('MarketingEvent')
         const tmp = await trusteeAsyncStorage.getCacheBalance()
         if (tmp) {
             CACHE_BALANCE = tmp

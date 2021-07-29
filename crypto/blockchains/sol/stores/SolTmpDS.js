@@ -17,7 +17,7 @@ class SolTmpDS {
                 WHERE currency_code='${this._currencyCode}'
                 AND address='${address}'
                 `
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
         const tmp = {}
         if (res.array) {
             for (const row of res.array) {
@@ -45,7 +45,7 @@ class SolTmpDS {
         WHERE address='${address}' AND tmp_key='${key}'
         AND currency_code='${this._currencyCode}'
         `
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     }
 }
 

@@ -68,7 +68,7 @@ class BackupSearchOneScreen extends React.PureComponent {
             WHERE wallet_hash='${walletHash}'
             ORDER BY account.id
         `
-            const res = await Database.setQueryString(sql).query()
+            const res = await Database.query(sql)
 
             const unique = {}
             const addresses = []

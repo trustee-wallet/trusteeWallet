@@ -11,8 +11,9 @@ const fetchJson = async (uri, opts = {}) => {
 
 export class FioSdkWrapper {
     sdk
-
-    async init(walletHash) {
+    walletHash = false
+    async init(walletHash, source) {
+        if (this.walletHash === walletHash) return false
         try {
             const res = await BlocksoftKeysStorage.getAddressCache(walletHash + 'SpecialFio')
             let publicKey, fioKey
@@ -20,7 +21,7 @@ export class FioSdkWrapper {
                 publicKey = res.address
                 fioKey = res.privateKey
             } else {
-                const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash, 'BlocksoftKeysStorage.setSelectedWallet init for Fio')
+                const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash, source + ' setSelectedWallet init for Fio')
                 let tmp = await FIOSDK.createPrivateKeyMnemonic(mnemonic)
                 fioKey = tmp.fioKey
                 tmp = FIOSDK.derivedPublicKey(fioKey)
@@ -29,6 +30,7 @@ export class FioSdkWrapper {
             }
             const link = BlocksoftExternalSettings.getStatic('FIO_BASE_URL')
             this.sdk = new FIOSDK(fioKey, publicKey, link, fetchJson)
+            this.walletHash = walletHash
             BlocksoftCryptoLog.log(`FioSdkWrapper.inited for ${walletHash}`)
         } catch (e) {
             if (config.debug.fioErrors) {

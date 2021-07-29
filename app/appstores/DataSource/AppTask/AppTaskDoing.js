@@ -13,7 +13,7 @@ export default {
     setStarted : async (appTask) => {
         const now = Math.round(new Date().getTime() / 1000)
         const sql = `UPDATE app_task SET task_started=${now} WHERE id = ${appTask.id}`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     },
 
     /**
@@ -26,7 +26,7 @@ export default {
         const now = Math.round(new Date().getTime() / 1000)
         appTask.taskLog = Database.escapeString(new Date().toISOString() + ' ' + appTask.taskLog.substr(0, 1000))
         const sql = `UPDATE app_task SET task_finished=${now}, task_log='${appTask.taskLog}' WHERE id = ${appTask.id}`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     },
 
     /**
@@ -72,7 +72,7 @@ export default {
         `
         let res = []
         try {
-            res = await Database.setQueryString(sql).query()
+            res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AppTaskDoing getTasksForRun finished as empty')
                 return false

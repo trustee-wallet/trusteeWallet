@@ -1,13 +1,13 @@
 
 import { deleteUserPinCode } from '@haskkor/react-native-pincode'
 
-import getInitialData from './assets/dbInitialData'
 import getTableQueries from './assets/dbTableQueries'
 import getTableUpdateQueries from './assets/dbTableUpdateQueries'
 
 import Log from '@app/services/Log/Log'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
+import settingsDS from '@app/appstores/DataSource/Settings/Settings'
 
 export default class DBInit {
     /**
@@ -16,7 +16,6 @@ export default class DBInit {
      */
     #db;
 
-    #initialData = getInitialData();
     #tableQueries = getTableQueries();
     #tableUpdateQueries = getTableUpdateQueries();
 
@@ -40,7 +39,7 @@ export default class DBInit {
 
     async init() {
         const { initQuery, isEmptyQuery } = this.#tableQueries;
-        const res = await this.#db.setQueryString(isEmptyQuery).query();
+        const res = await this.#db.query(isEmptyQuery)
         let countError = 0;
         let updateError = false
         try {
@@ -56,7 +55,7 @@ export default class DBInit {
 
         for (let i = 0; i < initQuery.length; i++) {
             try {
-                await this.#db.setQueryString(initQuery[i].queryString).query();
+                await this.#db.query(initQuery[i].queryString)
             } catch (e) {
                 Log.err('DBInit error in insert');
                 Log.log(this.#createTableStatus.error);
@@ -65,7 +64,7 @@ export default class DBInit {
         }
 
         if (countError === 0) {
-            const wallets = await this.#db.setQueryString('SELECT wallet_hash FROM wallet LIMIT 1').query();
+            const wallets = await this.#db.query('SELECT wallet_hash FROM wallet LIMIT 2')
             if (!wallets || !wallets.array || wallets.array.length === 0) {
                 deleteUserPinCode();
             }
@@ -85,11 +84,11 @@ export default class DBInit {
         const { updateQuery, maxVersion } = this.#tableUpdateQueries;
         let currentVersion = 0;
 
-        const res = await this.#db.setQueryString(`SELECT [paramValue] FROM settings WHERE [paramKey]='dbVersion'`).query(true);
+        const res = await this.#db.query(`SELECT [paramValue] FROM settings WHERE [paramKey]='dbVersion'`, true);
         if (res.array && res.array.length) {
             currentVersion = res.array[0].paramValue * 1; // this was THE TRICK
         } else {
-            await this.#db.setQueryString(`INSERT INTO settings ([paramValue],[paramKey]) VALUES (1, 'dbVersion')`).query(true);
+            await this.#db.query(`INSERT INTO settings ([paramValue],[paramKey]) VALUES (1, 'dbVersion')`, true);
         }
 
         for (let i = currentVersion + 1; i <= maxVersion; i++) {
@@ -98,26 +97,26 @@ export default class DBInit {
             try {
                 if (typeof queryString !== 'undefined') {
                     if (checkQueryString && checkQueryField) {
-                        let check = await this.#db.setQueryString(checkQueryString).query(true)
+                        let check = await this.#db.query(checkQueryString, true)
                         check = check.array[0]
                         if (check && typeof check[checkQueryField] === 'undefined') {
-                            await this.#db.setQueryString(queryString).query(true)
+                            await this.#db.query(queryString, true)
                         }
                     } else {
-                        await this.#db.setQueryString(queryString).query(true)
+                        await this.#db.query(queryString, true)
                     }
                 }
                 if (typeof afterFunction !== 'undefined') {
                     await afterFunction(this.#db)
                 }
-                await this.#db.setQueryString(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
+                await this.#db.query(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
             } catch (e) {
                 console.log(e)
                 if (e.message.indexOf('duplicate column name') === -1) {
                     Log.err('DBInit._update error ' + e.message)
                     throw new Error('DB update error')
                 } else {
-                    await this.#db.setQueryString(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
+                    await this.#db.query(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
                 }
             }
         }
@@ -129,16 +128,8 @@ export default class DBInit {
      * @private
      */
     _initSettings = async () => {
-        const { settings } = this.#initialData;
-        const { insertSettingsQuery } = this.#tableQueries;
         const { maxVersion } = this.#tableUpdateQueries;
-        let tmpQuery = '';
-        let prop;
-        for (prop in settings) {
-            tmpQuery = `('${prop}','${settings[prop]}'), ${tmpQuery}`;
-        }
-        const sql = `${insertSettingsQuery} ${tmpQuery} ('dbVersion', '${maxVersion}')`;
-        await this.#db.setQueryString(sql).query();
+        await settingsDS.setSettings('dbVersion', maxVersion)
     }
 
     /**

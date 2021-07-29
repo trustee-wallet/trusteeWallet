@@ -7,6 +7,37 @@ export default function getTableQueries() {
         insertSettingsQuery: 'INSERT INTO settings ([paramKey], [paramValue]) VALUES',
         initQuery: [
             {
+                tableName: 'wallet',
+                queryString: `CREATE TABLE IF NOT EXISTS wallet (
+                    wallet_hash VARCHAR(256) NOT NULL PRIMARY KEY,
+                    wallet_cashback VARCHAR(256) NULL,
+                    wallet_name VARCHAR(256) NOT NULL,
+                    wallet_is_backed_up INTEGER NULL,
+
+                    wallet_is_hd INTEGER NULL,
+                    wallet_use_unconfirmed INTEGER NULL,
+                    wallet_use_legacy INTEGER NULL,
+                    wallet_allow_replace_by_fee INTEGER NULL,
+
+                    wallet_json TEXT NULL,
+                    wallet_is_subscribed INTEGER NULL,
+                    wallet_is_subscribed_json TEXT NULL,
+
+                    wallet_is_hide_transaction_for_fee INTEGER NULL,
+					
+					wallet_number INTEGER NULL,
+					wallet_to_send_status INTEGER NULL
+                )`
+            },
+            {
+                tableName: 'settings',
+                queryString: `CREATE TABLE IF NOT EXISTS settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    [paramKey] VARCHAR(255),
+                    [paramValue] VARCHAR(255)
+                )`
+            },
+            {
                 tableName: 'app_task',
                 queryString: `CREATE TABLE IF NOT EXISTS app_task (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -198,30 +229,6 @@ export default function getTableQueries() {
             },
 
             {
-                tableName: 'wallet',
-                queryString: `CREATE TABLE IF NOT EXISTS wallet (
-                    wallet_hash VARCHAR(256) NOT NULL PRIMARY KEY,
-                    wallet_cashback VARCHAR(256) NULL,
-                    wallet_name VARCHAR(256) NOT NULL,
-                    wallet_is_backed_up INTEGER NULL,
-
-                    wallet_is_hd INTEGER NULL,
-                    wallet_use_unconfirmed INTEGER NULL,
-                    wallet_use_legacy INTEGER NULL,
-                    wallet_allow_replace_by_fee INTEGER NULL,
-
-                    wallet_json TEXT NULL,
-                    wallet_is_subscribed INTEGER NULL,
-                    wallet_is_subscribed_json TEXT NULL,
-
-                    wallet_is_hide_transaction_for_fee INTEGER NULL,
-					
-					wallet_number INTEGER NULL,
-					wallet_to_send_status INTEGER NULL
-                )`
-            },
-
-            {
                 tableName: 'wallet_pub',
                 queryString: `CREATE TABLE IF NOT EXISTS wallet_pub (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -360,14 +367,6 @@ export default function getTableQueries() {
                     tmp_sub_key VARCHAR(256) NULL,
                     tmp_val TEXT,
                     created_at DATETIME NULL
-                )`
-            },
-            {
-                tableName: 'settings',
-                queryString: `CREATE TABLE IF NOT EXISTS settings (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    [paramKey] VARCHAR(255),
-                    [paramValue] VARCHAR(255)
                 )`
             }
         ]

@@ -60,7 +60,7 @@ export default {
         let res = []
         const unique = {}
         try {
-            res = await Database.setQueryString(sql).query()
+            res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('WalletPubScanning getWalletPubsForScan finished as empty')
                 return false

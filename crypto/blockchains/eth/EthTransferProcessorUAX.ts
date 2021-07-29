@@ -349,6 +349,6 @@ export default class EthTransferProcessorUAX extends EthTransferProcessorErc20 i
     }
 
     async _saveDelegatedNonce(hash : string, nonce : number, fromAddress : string) {
-        await Database.setQueryString(`INSERT INTO transactions_scanners_tmp (currency_code, address, tmp_key, tmp_sub_key, tmp_val) VALUES ('ETH_UAX', '${fromAddress}', 'nonce', '${nonce}', '${hash}')`).query()
+        await Database.query(`INSERT INTO transactions_scanners_tmp (currency_code, address, tmp_key, tmp_sub_key, tmp_val) VALUES ('ETH_UAX', '${fromAddress}', 'nonce', '${nonce}', '${hash}')`)
     }
 }

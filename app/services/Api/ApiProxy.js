@@ -54,7 +54,7 @@ async function _getAll(params) {
     MarketingEvent.DATA.LOG_PARENT = parentToken
     let walletHash = MarketingEvent.DATA.LOG_WALLET
     if (!walletHash || walletHash === false) {
-        walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+        walletHash = await settingsActions.getSelectedWallet()
         MarketingEvent.DATA.LOG_WALLET = walletHash
     }
     MarketingEvent.reinitIfNever()

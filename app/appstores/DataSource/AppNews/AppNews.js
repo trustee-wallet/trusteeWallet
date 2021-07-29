@@ -26,7 +26,7 @@ export default {
         } else {
             sql = `UPDATE app_news SET news_removed=${now} WHERE news_name='${appNews.newsName}'`
         }
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     },
 
     /**
@@ -35,7 +35,7 @@ export default {
      */
     async setNewsNeedPopup(appNews) {
         const sql = `UPDATE app_news SET news_need_popup=${appNews.newsNeedPopup} WHERE id=${appNews.id}`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     },
 
     /**
@@ -93,7 +93,7 @@ export default {
             if (typeof appNews.walletHash !== 'undefined') {
                 sql += ` AND wallet_hash='${appNews.walletHash}'`
             }
-            await Database.setQueryString(sql).query()
+            await Database.query(sql)
             delete appNews.onlyOne
         }
         let isUpdate = false
@@ -116,7 +116,7 @@ export default {
                     where += ` AND (wallet_hash IS NULL OR wallet_hash = '')`
                 }
                 const saved = `SELECT id, news_name as newsName, news_server_hash AS newsServerHash, news_log, news_server_id AS serverId, news_received_at AS receivedAt, news_opened_at AS openedAt FROM app_news WHERE ${where}`
-                const tmp = await Database.setQueryString(saved).query()
+                const tmp = await Database.query(saved)
                 if (tmp && tmp.array && typeof tmp.array[0] !== 'undefined' && tmp.array[0]) {
                     found = tmp.array[0]
                 }
@@ -159,26 +159,26 @@ export default {
     },
 
     async clear() {
-        await Database.setQueryString('UPDATE ' + tableName + ' SET news_removed=1 WHERE news_removed IS NULL').query()
+        await Database.query('UPDATE ' + tableName + ' SET news_removed=1 WHERE news_removed IS NULL')
     },
 
     async shownPopup(id) {
         if (typeof id === 'undefined' || !id) return
-        await Database.setQueryString('UPDATE ' + tableName + ' SET news_shown_popup=1 WHERE id=' + id).query()
+        await Database.query('UPDATE ' + tableName + ' SET news_shown_popup=1 WHERE id=' + id)
     },
 
     async markAsOpened(id) {
         if (typeof id === 'undefined' || !id) return
         const now = Math.round(new Date().getTime() / 1000)
-        await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id=' + id).query()
+        await Database.query('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id=' + id)
     },
 
     async markAllAsOpened(ids = false) {
         const now = Math.round(new Date().getTime() / 1000)
         if (ids) {
-            await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id IN (' + ids.join(',') + ')').query()
+            await Database.query('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE id IN (' + ids.join(',') + ')')
         } else {
-            await Database.setQueryString('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE news_opened_at IS NULL').query()
+            await Database.query('UPDATE ' + tableName + ' SET news_to_send_status=1, news_opened_at=' + now + ' WHERE news_opened_at IS NULL')
         }
     },
 
@@ -216,7 +216,7 @@ export default {
 
         CACHE_FOR_API = CACHE_FOR_API_FROM_API === false ? [] : CACHE_FOR_API_FROM_API
         try {
-            const res = await Database.setQueryString(sql).query()
+            const res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('DS/AppNews getAppNewsForServer finished as empty')
             } else {
@@ -240,7 +240,7 @@ export default {
     async saveAppNewsSentForServer(ids) {
         if (typeof ids === 'undefined' || !ids || ids.length === 0) return
         const sql = 'UPDATE ' + tableName + ' SET news_to_send_status=0 WHERE id IN (' + ids.join(',') + ')'
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
         CACHE_FOR_API = false
     },
 
@@ -285,7 +285,7 @@ export default {
 
         let res = []
         try {
-            res = await Database.setQueryString(sql).query()
+            res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 return []
             }
@@ -389,7 +389,7 @@ export default {
 
         let res = []
         try {
-            res = await Database.setQueryString(sql).query()
+            res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AppNews getAppNews finished as empty')
                 return []

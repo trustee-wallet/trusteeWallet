@@ -56,7 +56,7 @@ export default {
      * @returns {Promise<{currencyCode, currencyRateUsd, currencyRateJson, currencyRateScanTime, priceProvider, priceChangePercentage24h, priceLastUpdate}[]>}
      */
     getCurrencies: async () => {
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
             SELECT
               is_hidden AS isHidden,
               currency_code AS currencyCode,
@@ -67,7 +67,7 @@ export default {
               price_change_percentage_24h AS priceChangePercentage24h,
               price_last_updated AS priceLastUpdate
             FROM ${tableName}
-        `).query()
+        `)
 
         if (!res || !res.array) {
             return false
@@ -92,7 +92,7 @@ export default {
      * @returns {Promise<[]>}
      */
     getCurrenciesCodesActivated: async () => {
-        const res = await Database.setQueryString(`SELECT currency_code AS currencyCode FROM ${tableName}`).query()
+        const res = await Database.query(`SELECT currency_code AS currencyCode FROM ${tableName}`)
 
         if (!res || !res.array) {
             return BlocksoftDict.Codes

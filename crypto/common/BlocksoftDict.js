@@ -1778,9 +1778,9 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         return false
     }
     if (currencyCode === 'ETH_LAND') {
-        Database.setQueryString(`DELETE FROM account WHERE currency_code='ETH_LAND'`).query()
-        Database.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
-        Database.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
+        Database.query(`DELETE FROM account WHERE currency_code='ETH_LAND'`)
+        Database.query(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`)
+        Database.query(`DELETE FROM currency WHERE currency_code='ETH_LAND'`)
     }
 
     if (typeof currencyCodeOrObject.currencyCode !== 'undefined') {

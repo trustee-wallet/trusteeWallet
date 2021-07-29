@@ -11,13 +11,13 @@ class XvgTmpDS {
     _currencyCode = 'XVG'
 
     async getCache(address) {
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
                 SELECT tmp_key, tmp_sub_key, tmp_val
                 FROM ${tableName}
                 WHERE currency_code='${this._currencyCode}'
                 AND address='${address}'
                 AND (tmp_sub_key='coins' OR tmp_sub_key='data')
-                `).query()
+                `)
         const tmp = {}
         if (res.array) {
             let row

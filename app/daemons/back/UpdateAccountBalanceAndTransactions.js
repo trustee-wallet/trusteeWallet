@@ -78,7 +78,7 @@ class UpdateAccountBalanceAndTransactions {
             }
 
             if (!allWallets && source !== 'BACK') {
-                params.walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+                params.walletHash = await settingsActions.getSelectedWallet('UpdateAccountBalanceAndTransactions')
             }
 
             tmpAction = 'params init'

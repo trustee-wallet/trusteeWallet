@@ -56,7 +56,7 @@ class SettingsPrivateXMR extends Component {
                             account_json AS accountJson
                         FROM account 
                         WHERE address='${address}'`
-            let find = await Database.setQueryString(findSql).query()
+            let find = await Database.query(findSql)
             if (!find || typeof find.array === 'undefined' || typeof find.array[0] === 'undefined') {
                 throw new Error('address ' + address + ' not found')
             }

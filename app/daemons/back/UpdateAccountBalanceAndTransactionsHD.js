@@ -51,7 +51,7 @@ class UpdateAccountBalanceAndTransactionsHD {
                 force
             }
             if (source !== 'BACK') {
-                params.walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+                params.walletHash = await settingsActions.getSelectedWallet('UpdateAccountBalanceAndTransactionsHD')
             }
 
             Log.daemon('UpdateAccountBalanceHD called ' + source + ' ' + JSON.stringify(params))

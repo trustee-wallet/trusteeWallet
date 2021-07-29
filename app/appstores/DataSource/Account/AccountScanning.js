@@ -54,11 +54,11 @@ class AccountScanning {
         if (params.walletHash) {
             where.push(`account.wallet_hash='${params.walletHash}'`)
             if (limit === 2) {
-                const countNotSync = await Database.setQueryString(`SELECT COUNT(*) AS cn
+                const countNotSync = await Database.query(`SELECT COUNT(*) AS cn
                  FROM account_balance
                  LEFT JOIN currency ON currency.currency_code=account_balance.currency_code
                  WHERE account_balance.wallet_hash='${params.walletHash}' AND (account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time=0)
-                 AND currency.is_hidden=0`).query()
+                 AND currency.is_hidden=0`)
                 if (countNotSync && countNotSync.array && typeof countNotSync.array[0] !== 'undefined' && typeof countNotSync.array[0].cn !== 'undefined') {
                     if (countNotSync.array[0].cn > 1) {
                         where.push(`(account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time =0 )`)
@@ -113,7 +113,7 @@ class AccountScanning {
         const uniqueAddresses = {}
         const idsToRemove = []
         try {
-            res = await Database.setQueryString(sql).query()
+            res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AccountScanning getAccountsForScan finished as empty')
                 return false
@@ -132,7 +132,7 @@ class AccountScanning {
                 }
                 const key = res[i].address + '_' + currencyCode
                 if (typeof uniqueAddresses[key] !== 'undefined') {
-                    await Database.setQueryString(`UPDATE transactions SET account_id=${uniqueAddresses[key]} WHERE account_id=${res[i].id}`).query()
+                    await Database.query(`UPDATE transactions SET account_id=${uniqueAddresses[key]} WHERE account_id=${res[i].id}`)
                     idsToRemove.push(res[i].id)
                     continue
                 }
@@ -156,8 +156,8 @@ class AccountScanning {
                 Log.daemon('AccountScanning getAccountsForScan unique check finished, found ' + idsToRemove.join(','))
                 Log.daemon('AccountScanning getAccountsForScan not removed', uniqueAddresses)
 
-                await Database.setQueryString(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`).query()
-                await Database.setQueryString(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`).query()
+                await Database.query(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`)
+                await Database.query(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`)
             }
         } catch (e) {
             Log.daemon('AccountScanning getAccountsForScan error ' + e.message, sql)
@@ -196,7 +196,7 @@ class AccountScanning {
 
         const indexedRes = {}
         try {
-            let res = await Database.setQueryString(sql).query()
+            let res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('AccountScanning getAddresses finished as empty')
                 return false

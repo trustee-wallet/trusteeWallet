@@ -3,16 +3,22 @@
  */
 import store from '@app/store'
 
-import SettingsDS from '@app/appstores/DataSource/Settings/Settings'
+import settingsDS from '@app/appstores/DataSource/Settings/Settings'
 import Log from '@app/services/Log/Log'
 import { SettingsKeystore } from './SettingsKeystore'
+import { fioSdkWrapper } from '@crypto/blockchains/fio/FioSdkWrapper'
 
-const settingsDS = new SettingsDS()
+import * as RNLocalize from 'react-native-localize'
 
 const { dispatch } = store
 
+const locales = RNLocalize.getLocales();
+
 const defaultSettings = {
-    language : 'en-US',
+    language : locales[0].languageTag,
+    local_currency: 'USD',
+    btc_legacy_or_segwit: 'segwit',
+
     notifsStatus : '1',
     transactionsNotifs : '1',
     exchangeRatesNotifs : '1',
@@ -31,8 +37,17 @@ const settingsActions = {
         }
     },
 
-    getSelectedWallet : async () => {
-        return settingsActions.getSetting('SELECTED_WALLET')
+    getSelectedWallet : async (source) => {
+        try {
+            // console.log(await settingsActions.getSettings())
+            const walletHash = await settingsActions.getSetting('SELECTED_WALLET')
+            if (walletHash) {
+                await fioSdkWrapper.init(walletHash, source)
+            }
+            return walletHash
+        } catch (e) {
+            Log.err('ACT/Settings getSelectedWallet ' + source + ' error ' + e.message)
+        }
     },
 
     setSelectedWallet : async (walletHash) => {
