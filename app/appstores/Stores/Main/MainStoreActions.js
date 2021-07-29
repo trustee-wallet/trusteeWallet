@@ -317,6 +317,32 @@ export async function setSelectedAccountTransactions(source) {
     }
 }
 
+export function setSelectedTransaction(tx, source) {
+    try {
+
+        const transactions = store.getState().mainStore.selectedAccountTransactions
+
+        const transactionsToView = transactions.transactionsToView.map(item => {
+            if (item.id === tx.id) {
+                return tx
+            }
+            return item
+        })
+
+        dispatch({
+            type: 'SET_SELECTED_ACCOUNT_TRANSACTIONS',
+            selectedAccountTransactions: {
+                transactionsToView,
+                transactionsLoaded: new Date().getTime()
+            }
+        })
+
+    } catch (e) {
+        e.message += ' while setSelectedTransaction from ' + source
+        throw e
+    }
+}
+
 export function setSelectedWalletName(walletName) {
     dispatch({
         type: 'SET_SELECTED_WALLET_NAME',

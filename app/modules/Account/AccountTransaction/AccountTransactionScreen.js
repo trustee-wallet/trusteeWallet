@@ -38,7 +38,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import GradientView from '@app/components/elements/GradientView'
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import config from '@app/config/config'
-import { setLoaderStatus, setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus, setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency, setSelectedTransaction } from '@app/appstores/Stores/Main/MainStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
@@ -574,8 +574,14 @@ class AccountTransactionScreen extends PureComponent {
                 }
             }
 
+            const tx = {
+                ...this.state.transaction,
+                ...transaction
+            }
+
             if (transactionJson === null || transactionJson.comment !== comment) {
                 await transactionDS.saveTransaction(transaction, updateID, 'onBlurComment')
+                setSelectedTransaction(tx, 'AccountTransactionScreen.onBlurComment')
             }
         } catch (e) {
             Log.err(`AccountScreen.Transaction/onBlurComment error ${e.message}; Transaction - ${JSON.stringify(this.state.transaction)}`)
@@ -718,7 +724,7 @@ class AccountTransactionScreen extends PureComponent {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 20 })
+                this.scrollView.scrollTo({ y: 120 })
             } catch (e) {
             }
         }, 100)

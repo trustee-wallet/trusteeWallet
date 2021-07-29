@@ -39,6 +39,7 @@ export default function Input(props) {
         qr,
         qrCallback,
         callback,
+        onBlur,
         ...nativeProps
     } = props
 
@@ -72,6 +73,7 @@ export default function Input(props) {
                     value={value}
                     ref={compRef}
                     onFocus={onFocus}
+                    onBlur={onBlur}
                     {...nativeProps}
                 />
                 <View style={styles.actions}>
