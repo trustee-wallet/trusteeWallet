@@ -13,12 +13,11 @@ import {
     Animated, Platform, StyleSheet
 } from 'react-native'
 
-import AntIcon from 'react-native-vector-icons/AntDesign'
-
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
-const headerHeight = Platform.OS === 'android' ? 49 : 44
+const headerHeight = 44
 const headerHeightSticky = Platform.OS === 'android' ? 144 : 148
 
 export default class Header extends PureComponent {
@@ -48,7 +47,7 @@ export default class Header extends PureComponent {
 
         switch (leftType) {
             case 'back': {
-                Icon = (props) => <AntIcon name="arrowleft" size={23} color={props.color} />
+                Icon = (props) => <CustomIcon name="arrow_back" size={20} color={props.color} />
             }
         }
 
@@ -72,7 +71,7 @@ export default class Header extends PureComponent {
 
         switch (rightType) {
             case 'close': {
-                Icon = (props) => <AntIcon name="close" size={23} color={props.color} />
+                Icon = (props) => <CustomIcon name="close" size={18} color={props.color} />
             }
         }
 

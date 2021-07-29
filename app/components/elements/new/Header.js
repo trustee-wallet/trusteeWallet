@@ -52,7 +52,7 @@ export default class Header extends React.PureComponent {
 
         return (
             <TouchableOpacity hitSlop={HIT_SLOP} onPress={() => leftParams ? leftAction(leftParams.close) : leftAction()}>
-                <Icon color={leftParams ? leftParams.color : colors.common.text1} />
+                <Icon color={leftParams && leftParams.color ? leftParams.color : colors.common.text1} />
             </TouchableOpacity>
         )
     }
