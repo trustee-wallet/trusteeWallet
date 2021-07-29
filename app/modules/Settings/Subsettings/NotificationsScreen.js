@@ -21,6 +21,9 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import config from '@app/config/config'
 
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+
 class NotificationsSettingScreen extends PureComponent {
 
     handleBack = () => {
@@ -32,14 +35,20 @@ class NotificationsSettingScreen extends PureComponent {
         NavStore.goBack()
     }
 
-    handleChangeNotifications = async () => {
+    async componentDidMount() {
+        if (MarketingEvent.DATA.LOG_TOKEN === 'NO_GOOGLE') {
+            await this.handleAllChangeNotifications('0')
+        }
+    }
+
+    handleChangeAllNotifications = async (value = false) => {
         try {
             const { notifsStatus } = this.props.settingsData
             await settingsActions.setSettingKeyArray({
-                'notifsStatus': notifsStatus ? '0' : '1',
-                'transactionsNotifs': notifsStatus ? '0' : '1',
-                'exchangeRatesNotifs': notifsStatus ? '0' : '1',
-                'newsNotifs': notifsStatus ? '0' : '1'
+                'notifsStatus': value ? value : notifsStatus ? '0' : '1',
+                'transactionsNotifs': value ? value : notifsStatus ? '0' : '1',
+                'exchangeRatesNotifs': value ? value : notifsStatus ? '0' : '1',
+                'newsNotifs': value ? value : notifsStatus ? '0' : '1'
             })
             await AppNotificationListener.updateSubscriptionsLater()
             AppNewsActions.updateSettings()
@@ -67,6 +76,21 @@ class NotificationsSettingScreen extends PureComponent {
         const { newsNotifs } = this.props.settingsData
         await settingsActions.setSettings('newsNotifs', newsNotifs ? '0' : '1')
         await AppNotificationListener.updateSubscriptionsLater()
+    }
+
+    handleChangeNotifications = async () => {
+        if (MarketingEvent.DATA.LOG_TOKEN === 'NO_GOOGLE') {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.titles.notification'),
+                description: strings('modal.notification.description')
+            })
+
+            return
+        }
+
+        await this.handleChangeAllNotifications()
     }
 
     render() {

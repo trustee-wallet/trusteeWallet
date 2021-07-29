@@ -844,7 +844,8 @@
   },
   "modal": {
     "titles": {
-      "attention": "Attention!"
+      "attention": "Attention!",
+      "notification": "Notification"
     },
     "close": "Close",
     "ok": "OK",
@@ -1043,6 +1044,9 @@
       "delete": "Do yoy want delete this wallet?",
       "confirmDelete": "Do you really want to delete this wallet?",
       "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
+    },
+    "notification": {
+      "description": "Unfortunately, your mobile device does not support receiving Push notifications"
     }
   },
   "lockScreen": {
