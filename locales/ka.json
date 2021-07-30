@@ -228,7 +228,8 @@
   },
   "cashback": {
     "pageTitle": "მოიწვიე მეგობრები",
-    "pageSubtitle": "გამოიმუშავე 30% საკომისიოდან Trustee Wallet-თან ერთად!",
+    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
+    "pageSubtitleText": "to 30%",
     "shareButton": "გაზიარება",
     "promoButton": "პრომოკოდი",
     "detailsButton": "დეტალები",

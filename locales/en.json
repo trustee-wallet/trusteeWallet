@@ -235,7 +235,8 @@
   },
   "cashback": {
     "pageTitle": "Invite your friends",
-    "pageSubtitle": "Earn up to 30% of commissions with Trustee Wallet!",
+    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
+    "pageSubtitleText": "to 30%",
     "shareButton": "Share",
     "promoButton": "Promocode",
     "detailsButton": "Details",

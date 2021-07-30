@@ -235,7 +235,8 @@
   },
   "cashback": {
     "pageTitle": "Приглашай друзей",
-    "pageSubtitle": "Зарабатывай вместе с Trustee Wallet до 30% от комиссий!",
+    "pageSubtitle": "Зарабативай от комиссии с Trustee Wallet!",
+    "pageSubtitleText": "до 30%",
     "shareButton": "Поделиться",
     "promoButton": "Промокод",
     "detailsButton": "Детали",

@@ -11,7 +11,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     RefreshControl,
-    FlatList
+    FlatList, ImageBackground, Image
 } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -82,7 +82,7 @@ class CashbackScreen extends React.PureComponent {
 
         const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || '0.00'
         const cpaBalance = cashbackStore.dataFromApi.cpaBalance || '0.00'
-        
+
         const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
         const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
 
@@ -259,22 +259,33 @@ class CashbackScreen extends React.PureComponent {
                     }>
                     {this.state.tabs[0].active && (
                         <>
-                            <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
-                            <TouchableOpacity
-                                style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE }]}
-                                onPress={() => this.copyToClip(cashbackLink)}
-                                activeOpacity={0.8}
+                            <ImageBackground
+                                style={styles.qrBg}
+                                source={require('@assets/images/qrBG.png')}
                             >
-                                <QrCodeBox
-                                    value={cashbackLink}
-                                    size={150}
-                                    color={colors.cashback.qrCode}
-                                    backgroundColor={colors.cashback.background}
-                                    onError={this.handleRenderQrError}
-                                    style={styles.qrCode}
-                                />
-                                <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token, marginTop: GRID_SIZE * 0.75 }]}>{cashbackLinkTitle} <CustomIcon name="copy" size={18} color={colors.cashback.token} /></Text>
-                            </TouchableOpacity>
+                                <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
+                                <Text style={styles.pageSubtitleText}>{strings('cashback.pageSubtitleText')}</Text>
+                                <Image style={styles.picProcent} source={require('@assets/images/picProcent.png')}/>
+                                <TouchableOpacity
+                                    style={[styles.qrCodeContainer, {marginVertical: GRID_SIZE}]}
+                                    onPress={() => this.copyToClip(cashbackLink)}
+                                    activeOpacity={0.8}
+                                >
+                                    <QrCodeBox
+                                        value={cashbackLink}
+                                        size={110}
+                                        color={colors.cashback.qrCode}
+                                        backgroundColor={colors.cashback.background}
+                                        onError={this.handleRenderQrError}
+                                        style={styles.qrCode}
+                                    />
+                                    <Text style={[styles.qrCodeTokenString, {
+                                        color: colors.cashback.token,
+                                        marginTop: GRID_SIZE * 0.75
+                                    }]}>{cashbackLinkTitle} <CustomIcon name="copy" size={18}
+                                                                        color={colors.cashback.token}/></Text>
+                                </TouchableOpacity>
+                            </ImageBackground>
                         </>
                     )}
                     {this.state.tabs[1].active && (
@@ -413,17 +424,35 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     pageSubtitle: {
+        flex: 1,
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 17,
-        lineHeight: 22,
-        textAlign: 'center'
+        fontSize: 22,
+        lineHeight: 27,
+        width: 200,
+        height: 100,
+        position: 'absolute',
+        top: -120
+    },
+    pageSubtitleText: {
+        position: 'absolute',
+        zIndex: 2,
+        top: -115,
+        left: 230,
+        width: 85,
+        fontSize: 40,
+        textAlign: 'center',
+        fontFamily: 'Montserrat-SemiBold',
+        fontStyle: 'normal'
     },
     qrCodeContainer: {
-        alignContent: 'center',
+        flex: 1,
         alignItems: 'center',
+        left: '30.5%',
+        position: 'absolute',
+        top: 20
     },
     qrCode: {
-        alignSelf: 'center'
+        alignSelf: 'center',
     },
     qrCodeTokenString: {
         fontFamily: 'Montserrat-SemiBold',
@@ -437,5 +466,22 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flex: 1
+    },
+    qrBg: {
+        flex: 1,
+        justifyContent: 'center',
+        alignSelf: 'center',
+        width: 375,
+        height: 375,
+        position: 'relative',
+        marginTop: 150
+    },
+    picProcent: {
+        position: 'absolute',
+        top: -165,
+        left: 185,
+        width: 220,
+        height: 220,
+        resizeMode: 'contain'
     }
 })
