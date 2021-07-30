@@ -4,11 +4,7 @@
 import analytics from '@react-native-firebase/analytics'
 
 import NavStore from '@app/components/navigation/NavStore'
-import {
-    setSelectedCryptoCurrency,
-    setSelectedAccount,
-    setSelectedAccountTransactions
-} from '@app/appstores/Stores/Main/MainStoreActions'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 import store from '@app/store'
 import Log from '@app/services/Log/Log'
 
@@ -157,6 +153,7 @@ export namespace SendActionsEnd {
                 }
             })
         } else if (uiType === 'TRADE_SEND') {
+            setBseLink(null)
             NavStore.goNext('HomeScreen', { screen: 'AccountTransactionScreen', params: {
                 txData: {
                     transactionHash: tx.transactionHash,
