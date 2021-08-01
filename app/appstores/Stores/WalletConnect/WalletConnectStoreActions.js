@@ -25,3 +25,16 @@ export function setWalletConnectData(fullLink) {
         fullLink
     })
 }
+export function setWalletConnectAccount(address, mainCurrencyCode) {
+    const oldData = store.getState().walletConnectStore.address
+    const oldCurrencyCode = store.getState().walletConnectStore.mainCurrencyCode
+    if (oldData === address && oldCurrencyCode === mainCurrencyCode){
+        return false
+    }
+    return dispatch({
+        type : 'SET_WALLET_CONNECT_ACCOUNT',
+        address,
+        mainCurrencyCode
+    })
+}
+

@@ -86,6 +86,7 @@ export default class EthBasic {
         }
 
         this._settings = settings
+        this._etherscanApiPathDeposits = false
 
 
         if (settings.currencyCode === 'BNB_SMART' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'BNB')) {
@@ -119,9 +120,10 @@ export default class EthBasic {
         } else if (settings.currencyCode === 'OPTIMISM') {
             this._web3Link = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
 
-            this._etherscanSuffix = false
-            this._etherscanApiPath = false
-            this._etherscanApiPathInternal = false
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://api.optimistic.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
+            this._etherscanApiPathInternal = `https://api.optimistic.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+            this._etherscanApiPathDeposits = 'https://api-optimistic.etherscan.io/api?module=account&action=getdeposittxs'
 
             this._trezorServer = false
             this._trezorServerCode = false

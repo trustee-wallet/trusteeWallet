@@ -51,7 +51,6 @@ class WalletConnectScreen extends PureComponent {
             },
             peerId: false,
             peerStatus: false,
-            accounts: [],
             transactions: [],
             inputFullLink: '',
             noMoreLock : false
@@ -93,7 +92,6 @@ class WalletConnectScreen extends PureComponent {
                     walletStarted: true,
                     peerStatus: clientData.connected,
                     chainId: clientData.chainId,
-                    accounts: clientData.accounts
                 }
                 if (typeof clientData.peerMeta !== 'undefined' && clientData.peerMeta && clientData.peerMeta !== '') {
                     stateData.peerMeta = clientData.peerMeta
@@ -105,9 +103,13 @@ class WalletConnectScreen extends PureComponent {
             }
         } catch (e) {
             if (config.debug.appErrors) {
+                console.log('WalletConnect.init error ' + e.message)
+            }
+            if (e.message.indexOf('URI format') === -1) {
+                Log.err('WalletConnect.init error ' + e.message)
+            } else {
                 Log.log('WalletConnect.init error ' + e.message)
             }
-            Log.err('WalletConnect.init error ' + e.message)
             this.setState({
                 walletStarted: false
             })
@@ -465,10 +467,10 @@ class WalletConnectScreen extends PureComponent {
                         />
 
                         {
-                            this.state.accounts && this.state.accounts.length > 0 ?
+                            this.props.walletConnectData.address ?
                                 <ListItem
-                                    title={BlocksoftPrettyStrings.makeCut(this.state.accounts[0], 10, 8)}
-                                    subtitle={'Change wallet to use another address'}
+                                    title={BlocksoftPrettyStrings.makeCut(this.props.walletConnectData.address, 10, 8)}
+                                    subtitle={this.props.walletConnectData.mainCurrencyCode === 'ETH' ? 'Ethereum Mainnet' : this.props.walletConnectData.mainCurrencyCode}
                                     iconType='pinCode'
                                 /> : null
                         }

@@ -4,7 +4,9 @@
 
  const INITIAL_STATE = {
     isConnected: false,
-    fullLink: false
+    fullLink: false,
+    address: false,
+    mainCurrencyCode : false
 }
 
 const walletConnectStoreReducer = (state = INITIAL_STATE, action) => {
@@ -18,6 +20,12 @@ const walletConnectStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ... state,
                 fullLink : action.fullLink || false
+            }
+        case 'SET_WALLET_CONNECT_ACCOUNT':
+            return {
+                ... state,
+                address : action.address || false,
+                mainCurrencyCode: action.mainCurrencyCode || false
             }
         default:
             return state
