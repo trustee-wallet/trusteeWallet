@@ -45,7 +45,11 @@ class TrusteeAsyncStorage {
     }
 
     getThemeSetting = async () => {
-        return this._get('themeSetting')
+        let res = await this._get('themeSetting')
+        if (typeof res === 'undefined' || res === false) {
+            res = await AsyncStorage.getItem('themeSetting')
+        }
+        return res
     }
 
     setThemeSetting = (value) => {

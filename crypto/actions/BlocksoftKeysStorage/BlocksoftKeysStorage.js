@@ -6,9 +6,8 @@
 import 'react-native'
 import * as Keychain from 'react-native-keychain'
 
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import { fioSdkWrapper } from '../../blockchains/fio/FioSdkWrapper'
-import config from '../../../app/config/config'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import config from '@app/config/config'
 
 export class BlocksoftKeysStorage {
 
@@ -125,6 +124,7 @@ export class BlocksoftKeysStorage {
                 this.publicWallets.push(wallet.pub)
             }
         }
+        console.log('wallets', this._serviceWallets)
         this._serviceWasInited = true
     }
 

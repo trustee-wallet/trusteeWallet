@@ -109,7 +109,7 @@ export default class DBInit {
                 if (typeof afterFunction !== 'undefined') {
                     await afterFunction(this.#db)
                 }
-                await this.#db.query(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
+                await this.#db.query(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`)
             } catch (e) {
                 console.log(e)
                 if (e.message.indexOf('duplicate column name') === -1) {

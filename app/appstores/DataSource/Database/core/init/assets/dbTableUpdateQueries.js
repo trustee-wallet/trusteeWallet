@@ -3,6 +3,7 @@ import axios from 'axios';
 import VersionCheck from 'react-native-version-check';
 
 import BlocksoftDict from '@crypto/common/BlocksoftDict';
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions';
 import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore';
@@ -11,10 +12,11 @@ import Log from '@app/services/Log/Log';
 
 import countries from '@assets/jsons/other/country-codes';
 
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 116,
+        maxVersion: 117,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -791,6 +793,19 @@ export default function getTableUpdateQueries() {
 
 			116: {
                 queryString: `ALTER TABLE card ADD COLUMN card_to_send_id INTEGER NULL`
+            },
+
+            117: {
+                afterFunction: async (dbInterface) => {
+                    try {
+                        const oldWallet = await BlocksoftKeysStorage.getOldSelectedWallet()
+                        if (oldWallet) {
+                            await settingsActions.setSelectedWallet(oldWallet)
+                        }
+                    } catch (e) {
+                        // do nothing
+                    }
+                }
             },
         }
     }
