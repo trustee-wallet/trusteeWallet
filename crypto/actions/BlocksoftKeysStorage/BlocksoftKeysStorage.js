@@ -124,7 +124,6 @@ export class BlocksoftKeysStorage {
                 this.publicWallets.push(wallet.pub)
             }
         }
-        console.log('wallets', this._serviceWallets)
         this._serviceWasInited = true
     }
 

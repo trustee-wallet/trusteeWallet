@@ -110,7 +110,7 @@ export default class EthTxSendProvider {
 
         let result
         try {
-            if (this._mainCurrencyCode === 'BNB' || this._mainCurrencyCode === 'MATIC') {
+            if (this._mainCurrencyCode === 'BNB' || this._mainCurrencyCode === 'MATIC' || !link) {
                 /**
                  * {"blockHash": "0x01d48fd5de1ebb62275096f749acb6849bd97f3c050acb07358222cea0a527bc",
                  * "blockNumber": 5223318, "contractAddress": null,
