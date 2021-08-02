@@ -7,6 +7,7 @@ export const colorsLight = {
         text1: '#404040',
         text2: '#999',
         text3: '#5c5c5c',
+        text4: '#DADADA',
         roundButtonBg: '#404040',
         roundButtonContent: '#f7f7f7',
         iconMarkBg: '#f9f9f9',

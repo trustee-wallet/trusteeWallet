@@ -33,8 +33,9 @@
   "notifications": {
     "title": "Уведомления",
     "newsTitle": "Новость",
-    "tabAll": "Все",
-    "tabNews": "Новости",
+    "tabInvite": "Invite",
+    "tabInfo": "Info",
+    "tabFaq": "Faq",
     "today": "Сегодня",
     "yesterday": "Вчера"
   },
@@ -244,6 +245,9 @@
     "enterInviteLinkPlaceholder": "Введите ссылку-приглашение",
     "applyButton": "Применить",
     "wholeBalance": "Всего заработано кешбэка",
+    "availableCashBack": "Доступный кэшбэк",
+    "balanceTitle": "Баланс",
+    "toWithdraw": "До вывода нужно:",
     "cpaCurrent": "Баланс CPA",
     "cpaTotal": "Всего CPA",
     "cpaLevel1": "CPA Уровень №1",

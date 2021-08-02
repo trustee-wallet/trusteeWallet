@@ -33,8 +33,9 @@
   "notifications": {
     "title": "შეტყობინებები",
     "newsTitle": "სიახლე",
-    "tabAll": "ყველა სიახლე",
-    "tabNews": "სიახლეები",
+    "tabInvite": "Invite",
+    "tabInfo": "Info",
+    "tabFaq": "FAQ",
     "today": "დღეს",
     "yesterday": "გუშინ"
   },
@@ -237,6 +238,9 @@
     "enterInviteLinkPlaceholder": "შეიყვანე მოსაწვევი ბმული",
     "applyButton": "დადასტურება",
     "wholeBalance": "სრული ბალანსი",
+    "availableCashBack": "Available cashback",
+    "balanceTitle": "Balance",
+    "toWithdraw": "to withdraw needed:",
     "cashbackBalance": "ქეშბექის ბალანსი",
     "cpaCurrent": "Current CPA",
     "cpaTotal": "Total CPA",

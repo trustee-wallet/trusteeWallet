@@ -33,8 +33,9 @@
    "notifications": {
      "title": "Cповіщення",
      "newsTitle": "Новина",
-     "tabAll": "Всі",
-     "tabNews": "Новини",
+     "tabInvite": "Invite",
+     "tabInfo": "Info",
+     "tabFaq": "Faq",
      "today": "Сьогодні",
      "yesterday": "Вчора"
    },
@@ -244,6 +245,9 @@
     "enterInviteLinkPlaceholder": "Введіть посилання-запрошення",
     "applyButton": "Застосувати",
     "wholeBalance": "Усього накопичено кешбеку",
+    "availableCashBack": "Доступний кешбек",
+    "balanceTitle": "Баланс",
+    "toWithdraw": "До диводу залишилось:",
     "cashbackBalance": "Баланс кешбеку",
     "cpaCurrent": "Баланс CPA",
     "cpaTotal": "Усього CPA",

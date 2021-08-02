@@ -35,9 +35,9 @@ const renderBalance = (balance, cashbackCurrency) => {
     return (
         <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
             <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
-                <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
+                <Text style={{ ...styles.topContent__title_first, color: colors.common.text1, marginTop: 10}} numberOfLines={1} >
                     {balancePrettyPrep1}
-                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
+                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, lineHeight: 32 }}>
                         {balancePrettyPrep2 + ' ' + cashbackCurrency}
                     </Text>
                 </Text>

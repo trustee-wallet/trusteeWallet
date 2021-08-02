@@ -33,8 +33,9 @@
   "notifications": {
     "title": "Notifications",
     "newsTitle": "News",
-    "tabAll": "All",
-    "tabNews": "News",
+    "tabInvite": "Invite",
+    "tabInfo": "Info",
+    "tabFaq": "Faq",
     "today": "Today",
     "yesterday": "Yesterday"
   },
@@ -244,6 +245,9 @@
     "enterInviteLinkPlaceholder": "Enter invite link",
     "applyButton": "Apply",
     "wholeBalance": "All balance",
+    "availableCashBack": "Available cashback",
+    "balanceTitle": "Balance",
+    "toWithdraw": "to withdraw needed:",
     "cashbackBalance": "Cashback balance",
     "cpaCurrent": "Current CPA",
     "cpaTotal": "Total CPA",

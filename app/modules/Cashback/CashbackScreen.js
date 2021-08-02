@@ -39,6 +39,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import Tabs from '@app/components/elements/new/Tabs'
 import CashbackData from './elements/CashbackData'
+import { ProgressCircle } from 'react-native-svg-charts'
 
 
 class CashbackScreen extends React.PureComponent {
@@ -50,23 +51,23 @@ class CashbackScreen extends React.PureComponent {
 
         tabs: [
             {
-                title: strings('notifications.tabAll'),
+                title: strings('notifications.tabInvite'),
                 index: 0,
-                active: true
-            },
-            {
-                title: strings('notifications.tabNews'),
-                index: 1,
                 active: false
             },
             {
-                title: strings('notifications.tabNews'),
+                title: strings('notifications.tabInfo'),
+                index: 1,
+                active: true
+            },
+            {
+                title: strings('notifications.tabFaq'),
                 index: 2,
                 active: false
             },
         ],
 
-        flatlistData: []
+        flatListData: []
     }
 
     componentDidMount() {
@@ -94,52 +95,69 @@ class CashbackScreen extends React.PureComponent {
             cashbackParentToken = ''
         }
 
-        let flatlistData = [
+        const flatListData = [
             {
-                title: strings('notifications.tabAll'),
+                title: strings('cashback.availableCashBack'),
                 subTitle: timePrep,
                 balance: cashbackBalance,
                 ExtraViewData: () => {
                     return (
                         <View>
-                            <Text>{'Invited'}</Text>
-                            <Text>{cashbackParentToken}</Text>
+                            <Text style={styles.inviteText}>{'Invited:'}</Text>
+                            <Text style={[styles.inviteToken, { color: this.context.colors.common.text1 }]}>mNDkwOTA {cashbackParentToken}</Text>
                         </View>
                     )
                 }
             },
             {
-                title: strings('notifications.tabAll'),
-                subTitle: 'Murzik',
+                title: strings('cashback.balanceTitle'),
+                subTitle: 'Cashback',
                 balance: cashbackBalance,
                 ExtraViewData: () => {
                     return (
-                        <View style={{ backgroundColor: 'red' }}>
-                            <Text>{'heisdklf kldsjfklsd jlfk s'}</Text>
+                        <View>
+                            <Text style={styles.withdrawInfo}>{strings('cashback.toWithdraw')}</Text>
                         </View>
                     )
                 }
             },
             {
-                title: strings('notifications.tabAll'),
-                subTitle: 'Murzik',
+                title: strings('cashback.balanceTitle'),
+                subTitle: 'Cpa',
                 balance: cpaBalance,
                 ExtraViewData: () => {
                     return (
-                        <View style={{ backgroundColor: 'red' }}>
-                            <Text>{'heisdklf kldsjfklsd jlfk s'}</Text>
+                        <View >
+                            <Text style={styles.withdrawInfo}>{strings('cashback.toWithdraw')}</Text>
                         </View>
                     )
                 }
             },
             {
-                title: strings('notifications.tabAll'),
+                title: strings('cashback.wholeBalance'),
                 subTitle: timePrep,
-                balance: '0.00',
+                balance: cashbackBalance + cpaBalance,
                 ExtraViewData: () => {
                     return (
-                        <View style={{ backgroundColor: 'red' }}>
-                            <Text>{'heisdklf kldsjfklsd jlfk s'}</Text>
+                        <View style={styles.circleView}>
+                            <View style={[styles.circleBox, {borderRightWidth: 1, borderRightColor: this.context.colors.common.text4}]}>
+                                <View style={{flex: 1}}>
+                                    <ProgressCircle style={styles.progressCircle} strokeWidth={3} progress={0.3} backgroundColor={this.context.colors.cashback.chartBg} progressColor={this.context.colors.cashback.token} />
+                                </View>
+                                <View style={styles.circleInfo}>
+                                    <Text style={[styles.circleTitle, { color: this.context.colors.common.text3 }]}>{'Cashback'}</Text>
+                                    <Text style={styles.circleProcent}>{'30%'}</Text>
+                                </View>
+                            </View>
+                            <View style={styles.circleBox}>
+                                <View style={{flex: 1}}>
+                                    <ProgressCircle style={styles.progressCircle} strokeWidth={3} progress={0.7} backgroundColor={this.context.colors.cashback.chartBg} progressColor={this.context.colors.cashback.token} />
+                                </View>
+                                <View style={styles.circleInfo}>
+                                    <Text style={[styles.circleTitle, { color: this.context.colors.common.text3 }]}>{'CPA'}</Text>
+                                    <Text style={styles.circleProcent}>{'70%'}</Text>
+                                </View>
+                            </View>
                         </View>
                     )
                 }
@@ -147,7 +165,7 @@ class CashbackScreen extends React.PureComponent {
         ]
 
         this.setState(() => ({
-            flatlistData
+            flatListData: flatListData
         }))
 
     }
@@ -291,7 +309,7 @@ class CashbackScreen extends React.PureComponent {
                     {this.state.tabs[1].active && (
                         <>
                             <FlatList
-                                data={this.state.flatlistData}
+                                data={this.state.flatListData}
                                 keyExtractor={({ index }) => index}
                                 horizontal={true}
                                 renderItem={this.renderFlatlistItem}
@@ -483,5 +501,63 @@ const styles = StyleSheet.create({
         width: 220,
         height: 220,
         resizeMode: 'contain'
+    },
+    inviteText: {
+        textAlign: 'center',
+        fontFamily: "Montserrat",
+        marginTop: 10,
+        fontSize: 10,
+        textTransform: 'uppercase',
+        color: '#999999',
+        lineHeight: 10,
+        letterSpacing: 0.5
+    },
+    inviteToken: {
+        marginTop: 6,
+        textAlign: 'center',
+        fontFamily: 'SF UI Display',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+    },
+    withdrawInfo: {
+        marginTop: 10,
+        marginLeft: 22,
+        fontSize: 10,
+        textTransform: 'uppercase',
+        color: '#999999',
+        lineHeight: 10,
+        letterSpacing: 0.5
+    },
+    progressCircle: {
+        flex: 1,
+        height: 40,
+        width: 40
+    },
+    circleView: {
+        flexDirection: 'row',
+    },
+    circleTitle: {
+        fontSize: 16,
+        fontFamily: 'Montserrat',
+        lineHeight: 16,
+        fontWeight: '600'
+    },
+    circleBox: {
+        flex: 1,
+        alignItems: 'flex-start',
+        flexDirection: 'row'
+    },
+    circleProcent: {
+        marginTop: 4,
+        fontFamily: 'SF UI Display',
+        fontWeight: 'bold',
+        fontSize: 15,
+        lineHeight: 15,
+        letterSpacing: 1.75,
+        color: '#999999'
+    },
+    circleInfo: {
+        flex: 1,
     }
 })
