@@ -170,7 +170,7 @@ export namespace StreamSupportWrapper {
         }
 
         WEB_SOCKET.onclose = (e) => {
-            if (e.code.toString() === '1000') {
+            if (typeof e.code !== 'undefined' && e.code.toString() === '1000') {
                 Log.log('StreamSupport.on close to reload ' + e.code + ' ' + e.reason)
             } else {
                 Log.log('StreamSupport.on close ' + e.code + ' ' + e.reason)
