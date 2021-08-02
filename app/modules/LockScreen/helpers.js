@@ -12,6 +12,7 @@ import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystor
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { setBlurStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import Log from '@app/services/Log/Log'
 
 export const finishProcess = async (lockScreenData, lockScreen) => {
     const { flowType, callback : actionCallback } = lockScreenData
@@ -21,9 +22,13 @@ export const finishProcess = async (lockScreenData, lockScreen) => {
     UpdateOneByOneDaemon.unstop()
     UpdateAccountListDaemon.unstop()
 
+    Log.log('LockScreen.finishProcess ' + flowType)
+
     if (flowType === LockScreenFlowTypes.JUST_CALLBACK) {
+        Log.log('LockScreen.finishProcess ' + flowType + ' gone to back')
         NavStore.goBack()
         setTimeout(() => {
+            Log.log('LockScreen.finishProcess ' + flowType + ' done callback')
             actionCallback(false)
         }, 500)
     } else if (flowType === LockScreenFlowTypes.INIT_POPUP) {
@@ -60,6 +65,7 @@ export const finishProcess = async (lockScreenData, lockScreen) => {
             })
         }
     } else {
+        Log.log('LockScreen.finishProcess ' + flowType + ' gone to reset')
         NavStore.reset('TabBar')
     }
 }
