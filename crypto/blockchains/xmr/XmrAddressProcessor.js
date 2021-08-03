@@ -42,7 +42,7 @@ export default class XmrAddressProcessor {
     async getAddress(privateKey, data = {}, superPrivateData = {}) {
         let walletMnemonic = false
         try {
-            walletMnemonic = await (BlocksoftSecrets.setCurrencyCode('XMR').setMnemonic(superPrivateData.mnemonic)).getWords()
+            walletMnemonic = await BlocksoftSecrets.getWords({currencyCode : 'XMR', mnemonic: superPrivateData.mnemonic})
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('XmrAddressProcessor.getAddress recheck mnemonic error ' + e.message)

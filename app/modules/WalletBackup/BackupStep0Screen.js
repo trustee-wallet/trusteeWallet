@@ -104,7 +104,7 @@ class BackupStep0Screen extends PureComponent {
                     }
                 }
                 if (flowType === 'BACKUP_WALLET_XMR') {
-                    walletMnemonic = await (BlocksoftSecrets.setCurrencyCode('XMR').setMnemonic(mnemonic)).getWords()
+                    walletMnemonic = await BlocksoftSecrets.getWords({currencyCode: 'XMR', mnemonic})
                 } else {
                     walletMnemonic = mnemonic
                 }

@@ -24,6 +24,7 @@ export default class XmrSecretsProcessor {
         const root = bip32.fromSeed(seed)
         const child = root.derivePath('m/44\'/128\'/0\'/0/0')
         const keyPair = bitcoin.ECPair.fromPrivateKey(child.privateKey, { network: BTC })
+
         const rawPrivateKey = keyPair.privateKey
         const rawSecretSpendKey = soliditySha3(rawPrivateKey)
         const rawSecretSpendKeyBuffer = Buffer.from(rawSecretSpendKey.substr(2), 'hex')

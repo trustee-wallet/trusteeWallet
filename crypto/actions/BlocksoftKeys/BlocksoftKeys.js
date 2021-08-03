@@ -191,7 +191,7 @@ class BlocksoftKeys {
                             publicKey: child.publicKey,
                             walletHash: data.walletHash,
                             derivationPath : derivation.path
-                        })
+                        }, data)
                         result.basicPrivateKey = child.privateKey.toString('hex')
                         result.basicPublicKey = child.publicKey.toString('hex')
                         result.path = derivation.path
@@ -346,7 +346,7 @@ class BlocksoftKeys {
          */
         const processor = await BlocksoftDispatcher.getAddressProcessor(data.currencyCode)
         processor.setBasicRoot(root)
-        return processor.getAddress(child.privateKey, {derivationPath : data.derivationPath, derivationIndex: data.derivationIndex, derivationType:  data.derivationType})
+        return processor.getAddress(child.privateKey, {derivationPath : data.derivationPath, derivationIndex: data.derivationIndex, derivationType:  data.derivationType}, data)
     }
 
     /**

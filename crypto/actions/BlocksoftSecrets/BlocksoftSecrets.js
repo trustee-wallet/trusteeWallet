@@ -12,56 +12,29 @@ class BlocksoftSecrets {
      * @private
      */
     _processor = {}
-    /**
-     * @type {{currencyCode}}
-     * @private
-     */
-    _data = {}
 
     /**
-     * @type {{mnemonic}}
-     * @private
+     * @param {string} params.currencyCode
+     * @param {string} params.mnemonic
+     * @return {Promise<{hash}>}
      */
-    _privateData = {}
+    async getWords(params) {
+        const currencyCode = params.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
 
-
-    /**
-     * @param {string} currencyCode
-     * @return {BlocksoftSecrets}
-     */
-    setCurrencyCode(currencyCode) {
-        this._data.currencyCode = currencyCode
         if (!this._processor[currencyCode]) {
             /**
              * @type {XmrSecretsProcessor}
              */
             this._processor[currencyCode] = BlocksoftDispatcher.getSecretsProcessor(currencyCode)
         }
-        return this
-    }
 
-
-    /**
-     * @param {string} mnemonic
-     * @return {BlocksoftSecrets}
-     */
-    setMnemonic(mnemonic) {
-        this._privateData.mnemonic = mnemonic
-        return this
-    }
-
-    /**
-     * @return {Promise<{hash}>}
-     */
-    async getWords() {
-        const currencyCode = this._data.currencyCode
-        if (!currencyCode) {
-            throw new Error('plz set currencyCode before calling')
-        }
         let res = ''
         try {
             BlocksoftCryptoLog.log(`BlocksoftSecrets.getWords ${currencyCode} started`)
-            res = await this._processor[currencyCode].getWords(this._privateData)
+            res = await this._processor[currencyCode].getWords(params)
             BlocksoftCryptoLog.log(`BlocksoftSecrets.getWords ${currencyCode} finished`)
         } catch (e) {
             // noinspection ES6MissingAwait

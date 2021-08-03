@@ -170,7 +170,6 @@ export default class XmrScannerProcessor {
      * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
      */
     async getBalanceBlockchainCache(address, additionalData, walletHash) {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor.getBalance started ' + address + ' of ' + walletHash)
         const res = await this._getCache(address, additionalData, walletHash)
         if (!res) {
             return false
@@ -185,7 +184,6 @@ export default class XmrScannerProcessor {
      * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
      */
     async getBalanceBlockchain(address, additionalData, walletHash) {
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor.getBalance started ' + address + ' of ' + walletHash)
         const res = await this._get(address, additionalData, walletHash)
         if (!res) {
             return false
