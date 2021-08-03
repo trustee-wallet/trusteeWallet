@@ -64,7 +64,8 @@ export const colorsDark = {
         token: '#9E71E1',
         detailsBg: '#252525',
         howItWorksBg: '#2E2E2E',
-        chartBg: '#4A4A4A'
+        chartBg: '#4A4A4A',
+        borderColor: '#2E2E2E'
     },
     notifications: {
         newNotiesIndicator: '#9E71E1'

@@ -237,7 +237,7 @@
   "cashback": {
     "pageTitle": "Приглашай друзей",
     "pageSubtitle": "Зарабативай от комиссии с Trustee Wallet!",
-    "pageSubtitleText": "до 30%",
+    "pageSubtitleText": "до",
     "shareButton": "Поделиться",
     "promoButton": "Промокод",
     "detailsButton": "Детали",
@@ -248,7 +248,8 @@
     "availableCashBack": "Доступный кэшбэк",
     "balanceTitle": "Баланс",
     "toWithdraw": "До вывода нужно:",
-    "cpaCurrent": "Баланс CPA",
+    "cashbackInfo": "Cashback info",
+    "cpaInfo": "CPA info",
     "cpaTotal": "Всего CPA",
     "cpaLevel1": "CPA Уровень №1",
     "cpaLevel2": "CPA Уровень №2",

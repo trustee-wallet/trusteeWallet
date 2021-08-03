@@ -11,8 +11,6 @@ import {
     Platform
 } from 'react-native'
 
-import { Pages } from 'react-native-pages'
-
 import { strings } from '@app/services/i18n'
 import Validator from '@app/services/UI/Validator/Validator'
 import Log from '@app/services/Log/Log'
@@ -64,20 +62,24 @@ class DetailsContent extends React.Component {
         this.setState(() => ({ isEditing: nextValue, inviteLink: '' }))
     }
 
-    handleChangeInviteLink = (value) => { this.setState(() => ({ inviteLink: value, inviteLinkError: false })) }
+    handleChangeInviteLink = (value) => {
+        this.setState(() => ({ inviteLink: value, inviteLinkError: false }))
+    }
 
     handleQrCode = () => {
-        setQRConfig({ flowType: QRCodeScannerFlowTypes.CASHBACK_LINK, callback : (data) => {
-            try {
-                this.setState(() => ({ inviteLink: data.qrCashbackLink, inviteLinkError: false }), () => {
-                    this.handleSubmitInviteLink()
-                })
-            } catch (e) {
-                Log.log('QRCodeScannerScreen callback error ' + e.message )
-                Toast.setMessage(e.message).show()
+        setQRConfig({
+            flowType: QRCodeScannerFlowTypes.CASHBACK_LINK, callback: (data) => {
+                try {
+                    this.setState(() => ({ inviteLink: data.qrCashbackLink, inviteLinkError: false }), () => {
+                        this.handleSubmitInviteLink()
+                    })
+                } catch (e) {
+                    Log.log('QRCodeScannerScreen callback error ' + e.message)
+                    Toast.setMessage(e.message).show()
+                }
+                NavStore.goBack()
             }
-            NavStore.goBack()
-        }})
+        })
         NavStore.goNext('QRCodeScannerScreen')
     }
 
@@ -165,35 +167,20 @@ class DetailsContent extends React.Component {
 
     render() {
         const {
-            isEditing,
-            inviteLinkError,
-            inviteLink
-        } = this.state
-        const {
             colors,
-            GRID_SIZE,
+            GRID_SIZE
         } = this.context
         const {
             overalPrep,
             invitedUsers,
             level2Users,
-            cashbackParentToken,
-            cashbackToShow
+            cashbackToShow,
+            selectedTitle
         } = this.props
 
         return (
             <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5, backgroundColor: colors.cashback.detailsBg }]}>
-                <Pages
-                    containerStyle={[styles.balanceSlider, { marginBottom: GRID_SIZE }]}
-                    indicatorColor={colors.common.text3}
-                    indicatorOpacity={0.25}
-                >
-                    {this.renderBalance('current', strings('cashback.cashbackBalance'), this.props.currentBalance)}
-                    {this.renderBalance('all', strings('cashback.wholeBalance'), this.props.wholeBalance)}
-                    {this.renderBalance('cpaCurrent',  strings('cashback.cpaCurrent'), this.props.cpaBalance)}
-                    {this.renderBalance('cpaAll',  strings('cashback.cpaTotal'), this.props.cpaTotalBalance)}
-                </Pages>
-
+                <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cashbackInfo')}</Text>
                 <View style={styles.textRow}>
                     <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.transAmount')}</Text>
                     <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{`${overalPrep} ${this.cashbackCurrency}`}</Text>
@@ -214,34 +201,6 @@ class DetailsContent extends React.Component {
                     </View>
                     : null
                 }
-                <View style={styles.textRow}>
-                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.invitedBy')}</Text>
-                    {cashbackParentToken ? (
-                        <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cashbackParentToken}</Text>
-                    ) : (
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                onPress={this.triggerEditing}
-                                hitSlop={{ top: 20, right: 30, bottom: 20, left: 20 }}
-                            >
-                                <Text style={[styles.textRowValue, { color: colors.cashback.token }]}>... <CustomIcon name="edit" size={16} color={colors.cashback.token} /></Text>
-                            </TouchableOpacity>
-                        )}
-                </View>
-                {isEditing && (
-                    <TextInput
-                        autoCapitalize="none"
-                        containerStyle={{ marginTop: GRID_SIZE }}
-                        inputStyle={inviteLinkError && { color: colors.cashback.token }}
-                        placeholder={strings('cashback.enterInviteLinkPlaceholder')}
-                        onChangeText={this.handleChangeInviteLink}
-                        value={inviteLink}
-                        qr={true}
-                        qrCallback={this.handleQrCode}
-                        onBlur={this.handleSubmitInviteLink}
-                    />
-                )}
-
                 <View style={styles.textRow}>
                     <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel1')}</Text>
                     <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel1}</Text>
@@ -276,7 +235,7 @@ class DetailsContent extends React.Component {
         const withLink = (type === 'current' || type === 'cpaCurrent')
         return (
             <View style={{ flex: 1 }}>
-                <View style={ withLink ? styles.currentBalanceTitleRow : styles.allBalanceTitleRow}>
+                <View style={withLink ? styles.currentBalanceTitleRow : styles.allBalanceTitleRow}>
                     <View>
                         <Text style={[styles.balanceTitle, { color: colors.common.text1, textAlign: withLink ? 'left' : 'center' }]}>{balanceTitle}</Text>
                         <Text style={[styles.balanceUpdatedAt, { color: colors.common.text2, textAlign: withLink ? 'left' : 'center' }]}>{`${strings('cashback.updated')} ${updatedTime}`}</Text>
@@ -317,7 +276,7 @@ class DetailsContent extends React.Component {
                     <Text style={{
                         paddingTop: 10,
                         paddingHorizontal: 10,
-                        fontFamily: 'SFUIDisplay-Semibold',
+                        fontFamily: 'SFUIDisplay-SemiBold',
                         color: '#4AA0EB'
                     }}>{bot}</Text>
                 </TouchableOpacity>
@@ -344,7 +303,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(DetailsContent)
 
 const styles = StyleSheet.create({
     container: {
-        borderRadius: 16,
+        borderRadius: 16
     },
     textRow: {
         flexDirection: 'row',
@@ -373,12 +332,12 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     allBalanceTitleRow: {
-        alignItems: 'center',
+        alignItems: 'center'
     },
     balanceTitle: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
-        lineHeight: 14,
+        lineHeight: 14
     },
     balanceUpdatedAt: {
         fontFamily: 'Montserrat-SemiBold',
@@ -402,13 +361,13 @@ const styles = StyleSheet.create({
         fontSize: 10,
         lineHeight: 12,
         letterSpacing: 0.5,
-        textTransform: 'uppercase',
+        textTransform: 'uppercase'
     },
     balanceValueContainer: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 10,
+        marginBottom: 10
     },
     balanceValueText: {
         flexDirection: 'row',
@@ -417,7 +376,7 @@ const styles = StyleSheet.create({
     balanceValue: {
         fontFamily: 'Montserrat-Medium',
         fontSize: 32,
-        lineHeight: 32,
+        lineHeight: 32
     },
     balanceValueLower: {
         fontFamily: 'Montserrat-Bold',
@@ -425,4 +384,11 @@ const styles = StyleSheet.create({
         lineHeight: 16,
         marginBottom: Platform.OS === 'android' ? 4.5 : 4
     },
+    mainTitle: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        lineHeight: 17,
+        textAlign: 'center',
+        marginBottom: 12
+    }
 })
