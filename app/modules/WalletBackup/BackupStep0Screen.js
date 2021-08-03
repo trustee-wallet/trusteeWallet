@@ -41,7 +41,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import { getLockScreenStatus, getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import QrCodeBox from '@app/components/elements/QrCodeBox'
@@ -89,7 +89,7 @@ class BackupStep0Screen extends PureComponent {
                     if (this.props.lockScreenStatus * 1 > 0) {
                         setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback : async () => {
                             await this._init(false)
-                        }})
+                        }}, 'BackupStep0Screen')
                         NavStore.goNext('LockScreen')
                         return false
                     }
@@ -445,7 +445,6 @@ class BackupStep0Screen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        settingsData: getSettingsScreenData(state),
         selectedWalletData: getSelectedWalletData(state),
         createWalletStore: state.createWalletStore,
         lockScreenStatus: getLockScreenStatus(state)

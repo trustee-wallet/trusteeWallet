@@ -2,6 +2,7 @@
  * @version 0.45
  */
 import store from '@app/store'
+import Log from '@app/services/Log/Log'
 
 const { dispatch } = store
 
@@ -16,7 +17,8 @@ export const LockScreenFlowTypes = {
     CHANGE_PINCODE_FIRST_STEP : 'CHANGE_PINCODE_FIRST_STEP'
 }
 
-export function setLockScreenConfig(data) {
+export function setLockScreenConfig(data, source = '') {
+    Log.test('LockScreen.setLockScreeenConfig ' + source, data)
     if (typeof data.flowType === 'undefined') {
         throw new Error('LockScreenActions setLockScreenConfig updated type => flowType')
     }
@@ -27,7 +29,8 @@ export function setLockScreenConfig(data) {
     })
 }
 
-export function resetLockScreen() {
+export function resetLockScreen(source) {
+    Log.test('LockScreen.resetLockScreen ' + source)
     dispatch({
         type: 'SET_LOCK_SCREEN_CONFIG',
         flowType : false,

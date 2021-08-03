@@ -76,7 +76,7 @@ class AppLockScreenIdleTime {
 
             UpdateOneByOneDaemon.stop()
             UpdateAccountListDaemon.stop()
-            resetLockScreen()
+            resetLockScreen('AppLockScreenIdleTime')
 
             initFunction(() => {
                 const { lockScreenStatus } = store.getState().settingsStore.keystore
@@ -116,7 +116,7 @@ class AppLockScreenIdleTime {
                     return true
                 }
             }
-            resetLockScreen()
+            resetLockScreen('AppLockScreenIdleTime')
             MarketingEvent.UI_DATA.IS_ACTIVE = true
             this._backgroundTime = 0
 

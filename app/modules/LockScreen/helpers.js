@@ -22,13 +22,13 @@ export const finishProcess = async (lockScreenData, lockScreen) => {
     UpdateOneByOneDaemon.unstop()
     UpdateAccountListDaemon.unstop()
 
-    Log.log('LockScreen.finishProcess ' + flowType)
+    Log.test('LockScreen.finishProcess ' + flowType)
 
     if (flowType === LockScreenFlowTypes.JUST_CALLBACK) {
-        Log.log('LockScreen.finishProcess ' + flowType + ' gone to back')
+        Log.test('LockScreen.finishProcess ' + flowType + ' gone to back')
         NavStore.goBack()
         setTimeout(() => {
-            Log.log('LockScreen.finishProcess ' + flowType + ' done callback')
+            Log.test('LockScreen.finishProcess ' + flowType + ' done callback')
             actionCallback(false)
         }, 500)
     } else if (flowType === LockScreenFlowTypes.INIT_POPUP) {
@@ -65,7 +65,7 @@ export const finishProcess = async (lockScreenData, lockScreen) => {
             })
         }
     } else {
-        Log.log('LockScreen.finishProcess ' + flowType + ' gone to reset')
+        Log.test('LockScreen.finishProcess ' + flowType + ' gone to reset')
         NavStore.reset('TabBar')
     }
 }

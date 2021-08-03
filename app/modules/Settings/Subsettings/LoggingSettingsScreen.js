@@ -22,6 +22,10 @@ import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import Toast from '@app/services/UI/Toast/Toast'
 import Log from '@app/services/Log/Log'
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import SendLog from '@app/services/Log/SendLog'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 const LOGGING_SETTINGS = [
     {
@@ -60,9 +64,58 @@ class LoggingSettingsScreen extends PureComponent {
         }
     }
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => {
+        NavStore.goBack()
+    }
 
-    handleClose = () => { NavStore.reset('HomeScreen') }
+    handleClose = () => {
+        NavStore.reset('HomeScreen')
+    }
+
+    handleLogs = async () => {
+        setLoaderStatus(true)
+
+        try {
+            const shareOptions = await SendLog.getAll()
+            if (shareOptions) {
+                await prettyShare(shareOptions)
+            }
+            setLoaderStatus(false)
+        } catch (e) {
+            try {
+                setLoaderStatus(false)
+
+                let text = e.message || JSON.stringify(e.error).substr(0, 100)
+                let log = e.message
+                if (typeof (e.error) !== 'undefined') {
+                    if (e.error.toString().indexOf('No Activity') !== -1) {
+                        text = strings('modal.walletLog.noMailApp')
+                    } else if (!text) {
+                        text = JSON.stringify(e.error).substr(0, 100)
+                    }
+                    log += ' ' + JSON.stringify(e.error)
+                }
+
+                if (typeof (e.error) !== 'undefined' && e.error.toString().indexOf('No Activity') !== -1) {
+                    text = strings('modal.walletLog.noMailApp')
+
+                }
+                if (text.indexOf('User did not share') !== -1) {
+                    text = strings('modal.walletLog.notComplited')
+                }
+                Log.err('SettingsMain.handleLogs error ' + log)
+                BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + log)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: false,
+                    title: strings('modal.walletLog.sorry'),
+                    description: text
+                })
+            } catch (e1) {
+                Log.err('SettingsMain.handleLogs error1 ' + e1.message)
+            }
+        }
+    }
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.LoggingSettingsScreen')
@@ -73,9 +126,9 @@ class LoggingSettingsScreen extends PureComponent {
 
         return (
             <ScreenWrapper
-                leftType="back"
+                leftType='back'
                 leftAction={this.handleBack}
-                rightType="close"
+                rightType='close'
                 rightAction={this.handleClose}
                 title={strings('loggingSettings.title')}
             >
@@ -83,7 +136,7 @@ class LoggingSettingsScreen extends PureComponent {
                     bounces={false}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE, paddingLeft: GRID_SIZE * 2 }]}
-                    keyboardShouldPersistTaps="handled"
+                    keyboardShouldPersistTaps='handled'
                 >
 
                     <View>
@@ -105,9 +158,17 @@ class LoggingSettingsScreen extends PureComponent {
                         key='clear'
                         title={strings(`loggingSettings.clean`)}
                         onPress={() => this.cleanAll()}
-                        iconType="shareLogs"
+                        iconType='shareLogs'
+                    />
+
+                    <ListItemMain
+                        title={strings('settings.about.shareLogsTitle')}
+                        subtitle={strings('settings.about.shareLogsSubtitle')}
+                        iconType='shareLogs'
+                        onPress={this.handleLogs}
                         last='true'
                     />
+
 
                 </ScrollView>
             </ScreenWrapper>
@@ -120,7 +181,7 @@ LoggingSettingsScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        settingsData: getSettingsScreenData(state),
+        settingsData: getSettingsScreenData(state)
     }
 }
 
@@ -128,13 +189,13 @@ export default connect(mapStateToProps)(LoggingSettingsScreen)
 
 const styles = StyleSheet.create({
     scrollViewContent: {
-        flexGrow: 1,
+        flexGrow: 1
     },
     text: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 15,
         lineHeight: 19,
         letterSpacing: 1.5,
-        flex: 2,
+        flex: 2
     }
 })

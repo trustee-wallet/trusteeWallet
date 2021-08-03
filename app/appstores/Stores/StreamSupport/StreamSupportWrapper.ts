@@ -115,7 +115,7 @@ export namespace StreamSupportWrapper {
         }
 
         WEB_SOCKET.onmessage = (e) => {
-            Log.log('StreamSupport.on message ' + e.data)
+            // Log.log('StreamSupport.on message ' + e.data)
             try {
                 const newData = JSON.parse(e.data)
                 if (newData.msg === 'connected') {
