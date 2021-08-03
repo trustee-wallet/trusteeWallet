@@ -3,7 +3,8 @@
  */
 const INITIAL_STATE = {
     flowType: '',
-    callback: false
+    callback: false,
+    timeLocked : 0
 }
 
 const lockScreenStoreReducer = (state = INITIAL_STATE, action) => {
@@ -12,7 +13,8 @@ const lockScreenStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 flowType: action.flowType,
-                callback: action.callback || false
+                callback: action.callback || false,
+                timeLocked : action.timeLocked || 0
             }
         default:
             break

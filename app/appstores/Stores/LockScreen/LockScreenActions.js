@@ -25,12 +25,16 @@ export function setLockScreenConfig(data, source = '') {
     dispatch({
         type: 'SET_LOCK_SCREEN_CONFIG',
         flowType : data.flowType,
+        timeLocked : new Date().getTime(),
         callback : data.callback || false
     })
 }
 
 export function resetLockScreen(source) {
-    Log.test('LockScreen.resetLockScreen ' + source)
+    const oldData = store.getState().lockScreenStore.flowType
+    const timeLocked = store.getState().lockScreenStore.timeLocked
+    const passedTime = timeLocked ? (new Date().getTime() - timeLocked) : ' no time '
+    Log.test('LockScreen.resetLockScreen ' + source + ' oldFlowType ' + oldData + ' passedTime ' + passedTime)
     dispatch({
         type: 'SET_LOCK_SCREEN_CONFIG',
         flowType : false,

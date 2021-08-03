@@ -65,7 +65,7 @@ class LockScreen extends React.PureComponent {
 
     renderHeader = () => {
         const { flowType } = this.props.lockScreen
-        if (flowType !== '' && flowType !== LockScreenFlowTypes.PUSH_POPUP_CALLBACK && flowType !== LockScreenFlowTypes.INIT_POPUP) {
+        if (flowType && flowType !== '' && flowType !== LockScreenFlowTypes.PUSH_POPUP_CALLBACK && flowType !== LockScreenFlowTypes.INIT_POPUP) {
             MarketingEvent.UI_DATA.IS_LOCKED = false
             return <Header
                 leftType='back'
