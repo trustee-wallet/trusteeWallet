@@ -76,7 +76,7 @@ class AddWalletScreen extends PureComponent {
                     <View style={{ padding: GRID_SIZE }}>
                         {this.state.devMode && (
                             <ListItem
-                                title={'Restore wallet'}
+                                title={'Restore Removed wallet'}
                                 subtitle={'only dev mode'}
                                 iconType="config"
                                 onPress={this.handleBackupSearchWallet}
