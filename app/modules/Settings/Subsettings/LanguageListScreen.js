@@ -42,7 +42,7 @@ class LanguageListScreen extends PureComponent {
 
         setBseLink(null)
 
-        this.handleBack()
+        this.handleClose()
 
     }
 
@@ -51,7 +51,7 @@ class LanguageListScreen extends PureComponent {
     }
 
     handleClose = () => {
-        NavStore.reset('HomeScreen')
+        NavStore.reset('TabBar')
     }
 
     render() {
