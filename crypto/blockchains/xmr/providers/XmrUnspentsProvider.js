@@ -10,10 +10,10 @@ export default class XmrUnspentsProvider {
     constructor(settings) {
         this._settings = settings
         this._link = false
-
+        this._cache = {}
     }
 
-    _init() {
+    init() {
         if (this._link) return false
         this._serverUrl = settingsActions.getSettingStatic('xmrServer')
         if (!this._serverUrl || this._serverUrl === 'false') {
@@ -29,25 +29,31 @@ export default class XmrUnspentsProvider {
         }
 
         this._link = link
+        this._cache = {}
     }
 
     async _getUnspents(params, fn) {
         try {
-            BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents', params)
-            this._init()
-            /*
-            const linkParams = {
-                address: params.address,
-                view_key: params.privViewKey,
-                amount: params.amount.toString(),
-                mixin: '10',
-                use_dust: true,
-                dust_threshold: '2000000000'
+            const key = JSON.stringify(params)
+            let res = {}
+            if (typeof this._cache[key] === 'undefined') {
+                BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents', key)
+                /*
+                const linkParams = {
+                    address: params.address,
+                    view_key: params.privViewKey,
+                    amount: params.amount.toString(),
+                    mixin: '10',
+                    use_dust: true,
+                    dust_threshold: '2000000000'
+                }
+                */
+                res = await BlocksoftAxios.post(this._link + 'get_unspent_outs', params)
+                BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents res ' + JSON.stringify(res.data).substr(0, 200))
+                this._cache[key] = res.data
+            } else {
+                res = {data : this._cache[key]}
             }
-            */
-
-            const res = await BlocksoftAxios.post(this._link + 'get_unspent_outs', params)
-            BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents res ' + JSON.stringify(res.data).substr(0, 200))
             if (typeof fn === 'undefined' || !fn) {
                 return res.data
             } else {
@@ -67,7 +73,6 @@ export default class XmrUnspentsProvider {
     async _getRandomOutputs(params, fn) {
         try {
             BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs', params)
-            this._init()
 
             /*
             const amounts = usingOuts.map(o => (o.rct ? '0' : o.amount.toString()))
