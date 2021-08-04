@@ -16,9 +16,9 @@ const getIcon = (icon) => {
 
     switch(icon) {
         case 'close':
-            return <CustomIcon name='close' size={18} color={colors.common.text2} />
+            return <CustomIcon name='close' size={25} color={colors.common.text2} />
         case 'more':
-            return <CustomIcon name='coinSettings' size={18} color={colors.common.text2} />
+            return <CustomIcon name='coinSettings' size={25} color={colors.common.text2} />
         default:
             return null
     }

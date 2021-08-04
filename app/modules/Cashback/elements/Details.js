@@ -18,7 +18,6 @@ import Log from '@app/services/Log/Log'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import CustomIcon from '@app/components/elements/CustomIcon'
 import NavStore from '@app/components/navigation/NavStore'
 
 import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
@@ -26,7 +25,6 @@ import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCod
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import TextInput from '@app/components/elements/new/TextInput'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
@@ -34,7 +32,6 @@ import Toast from '@app/services/UI/Toast/Toast'
 
 class DetailsContent extends React.Component {
     state = {
-        isEditing: false,
         inviteLinkError: false,
         inviteLink: ''
     }
@@ -174,45 +171,44 @@ class DetailsContent extends React.Component {
             overalPrep,
             invitedUsers,
             level2Users,
-            cashbackToShow,
             selectedTitle
         } = this.props
 
         return (
-            <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5, backgroundColor: colors.cashback.detailsBg }]}>
-                <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cashbackInfo')}</Text>
-                <View style={styles.textRow}>
-                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.transAmount')}</Text>
-                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{`${overalPrep} ${this.cashbackCurrency}`}</Text>
-                </View>
-                <View style={styles.textRow}>
-                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.friendsJoined')}</Text>
-                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{invitedUsers}</Text>
-                </View>
-                <View style={styles.textRow}>
-                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.level2UsersAmount')}</Text>
-                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{level2Users}</Text>
-                </View>
-                {cashbackToShow ?
-                    <View style={styles.textRow}>
-                        <Text
-                            style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cashbackToken')}</Text>
-                        <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cashbackToShow}</Text>
-                    </View>
-                    : null
-                }
-                <View style={styles.textRow}>
-                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel1')}</Text>
-                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel1}</Text>
-                </View>
-                <View style={styles.textRow}>
-                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel2')}</Text>
-                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel2}</Text>
-                </View>
-                <View style={styles.textRow}>
-                    <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
-                    <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel3}</Text>
-                </View>
+            <View style={styles.container}>
+                {selectedTitle === 'CASHBACK' ?
+                    <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5, backgroundColor: colors.cashback.detailsBg  }]}>
+                        <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cashbackInfo')}</Text>
+                        <View style={styles.textRow}>
+                            <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.transAmount')}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{`${overalPrep} ${this.cashbackCurrency}`}</Text>
+                        </View>
+                        <View style={styles.textRow}>
+                            <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.friendsJoined')}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{invitedUsers}</Text>
+                        </View>
+                        <View style={styles.textRow}>
+                            <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.level2UsersAmount')}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{level2Users}</Text>
+                        </View>
+                    </View> : null}
+                {selectedTitle === 'CPA' ?
+                    <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5, backgroundColor: colors.cashback.detailsBg  }]}>
+                        <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cpaInfo')}</Text>
+                        <View style={styles.textRow}>
+                            <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel1')}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel1}</Text>
+                        </View>
+                        <View style={styles.textRow}>
+                            <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel2')}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel2}</Text>
+                        </View>
+                        <View style={styles.textRow}>
+                            <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel3}</Text>
+                        </View>
+                    </View> : null}
+
             </View>
         )
     }
@@ -303,7 +299,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(DetailsContent)
 
 const styles = StyleSheet.create({
     container: {
-        borderRadius: 16
+        borderRadius: 16,
+        height: 180
     },
     textRow: {
         flexDirection: 'row',
