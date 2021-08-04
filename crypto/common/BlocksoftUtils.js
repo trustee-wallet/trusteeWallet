@@ -270,7 +270,8 @@ class BlocksoftUtils {
         let newVal = 0
         try {
             // noinspection JSUnresolvedVariable,JSCheckFunctionSignatures
-            newVal = Web3.utils.fromWei(val, 'gwei')
+            const tmp = val.split('.')
+            newVal = Web3.utils.fromWei(tmp[0], 'gwei')
         } catch (e) {
             e.message = JSON.stringify(val) + ' ' + e.message
             Log.err('BlocksoftUtils.toGwei error ' + e.message)
