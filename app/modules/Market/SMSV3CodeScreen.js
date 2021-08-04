@@ -131,7 +131,7 @@ class SMSV3CodeScreen extends PureComponent {
             Log.log('Trade.SMSV3CodeScreen.backAction CLOSE')
             this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
         }
-        NavStore.reset('HomeScreen')
+        NavStore.reset('TabBar')
     }
 
     backAction = () => {

@@ -107,11 +107,17 @@ export namespace StreamSupportWrapper {
         WEB_SOCKET.onopen = () => {
             Log.log('StreamSupport.on open ' + wsLink)
             // https://github.com/RocketChat/docs/issues/205
-            WEB_SOCKET.send(JSON.stringify({
-                'msg': 'connect',
-                'version': '1',
-                'support': ['1', 'pre2', 'pre1']
-            }))
+            try {
+                Log.log('StreamSupport.on open status connection ' + WEB_SOCKET.readyState)
+
+                WEB_SOCKET.send(JSON.stringify({
+                    'msg': 'connect',
+                    'version': '1',
+                    'support': ['1', 'pre2', 'pre1']
+                }))
+            } catch (e) {
+                Log.log('StreamSupport.on open error ' + e.message)
+            }
         }
 
         WEB_SOCKET.onmessage = (e) => {
@@ -185,22 +191,29 @@ export namespace StreamSupportWrapper {
 
         Log.log('StreamSupport subscribeToMessages ' + CACHE_ROOM_ID)
 
-        WEB_SOCKET.send(JSON.stringify({
-            'msg': 'method',
-            'method': 'loadHistory',
-            'id': IDENT_MESSAGE_LIST,
-            'params': [CACHE_ROOM_ID, null, 50, { '$date': 1480377601 }]
-        }))
+        Log.log('StreamSupport subscribeToMessages status connection ' + WEB_SOCKET.readyState)
 
-        WEB_SOCKET.send(JSON.stringify({
-            'msg': 'sub',
-            'id': data.userId + 'SUB',
-            'name': 'stream-room-messages',
-            'params': [
-                CACHE_ROOM_ID,
-                false
-            ]
-        }))
+        try {
+
+            WEB_SOCKET.send(JSON.stringify({
+                'msg': 'method',
+                'method': 'loadHistory',
+                'id': IDENT_MESSAGE_LIST,
+                'params': [CACHE_ROOM_ID, null, 50, { '$date': 1480377601 }]
+            }))
+
+            WEB_SOCKET.send(JSON.stringify({
+                'msg': 'sub',
+                'id': data.userId + 'SUB',
+                'name': 'stream-room-messages',
+                'params': [
+                    CACHE_ROOM_ID,
+                    false
+                ]
+            }))
+        } catch (e) {
+            Log.log('StreamSupport subscribeToMessages error ' + e.message)
+        }
     }
 
     // https://developer.rocket.chat/api/realtime-api/method-calls/create-private-groups
@@ -211,30 +224,37 @@ export namespace StreamSupportWrapper {
         if (data.roomId) {
             CACHE_ROOM_ID = data.roomId
         }
-        if (!CACHE_ROOM_ID) {
-            WEB_SOCKET.send(JSON.stringify({
-                'msg': 'method',
-                'method': 'createPrivateGroup',
-                'id': IDENT_GROUP_CREATE,
-                'params': [
-                    CHAT_PREFIX + data.userName,
-                    ADMINS
-                ]
-            }))
-            CACHE_TMP_DATA = sendData
-        } else {
-            const newMessageCall = {
-                'msg': 'method',
-                'method': 'sendMessage',
-                'id': IDENT_MESSAGE_CREATE,
-                'params': [
-                    {
-                        'rid': CACHE_ROOM_ID,
-                        'msg': sendData.text
-                    }
-                ]
+
+        Log.log('StreamSupport sendStreamSupportMessage status connection ' + WEB_SOCKET.readyState)
+
+        try {
+            if (!CACHE_ROOM_ID) {
+                WEB_SOCKET.send(JSON.stringify({
+                    'msg': 'method',
+                    'method': 'createPrivateGroup',
+                    'id': IDENT_GROUP_CREATE,
+                    'params': [
+                        CHAT_PREFIX + data.userName,
+                        ADMINS
+                    ]
+                }))
+                CACHE_TMP_DATA = sendData
+            } else {
+                const newMessageCall = {
+                    'msg': 'method',
+                    'method': 'sendMessage',
+                    'id': IDENT_MESSAGE_CREATE,
+                    'params': [
+                        {
+                            'rid': CACHE_ROOM_ID,
+                            'msg': sendData.text
+                        }
+                    ]
+                }
+                WEB_SOCKET.send(JSON.stringify(newMessageCall))
             }
-            WEB_SOCKET.send(JSON.stringify(newMessageCall))
+        } catch (e) {
+            Log.log('StreamSupport sendStreamSupportMessage error ' + e.message)
         }
     }
 
