@@ -211,7 +211,8 @@ class Transaction extends React.Component {
         NavStore.goNext('AccountTransactionScreen', {
             txData: {
                 transaction: tx
-            }
+            },
+            source : 'Transaction.transactionDetails'
         })
     }
 
@@ -243,7 +244,7 @@ class Transaction extends React.Component {
         const basicValueToView = wayType !== 'EXCHANGE' && typeof transaction.basicAmountPretty !== 'undefined' ?
             (transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty) : false
 
-        const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin' 
+        const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
         // end preformat
 
         return (

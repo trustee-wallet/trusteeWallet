@@ -386,7 +386,8 @@ class MarketScreen extends PureComponent {
                     screen: 'AccountTransactionScreen', params: {
                         txData: {
                             transactionHash: txHash
-                        }
+                        },
+                        source : 'Market/MainScreen.onMessage has txHash ' + JSON.stringify(txHash)
                     }
                 })
             }

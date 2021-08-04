@@ -93,7 +93,8 @@ export namespace AppNewsActions {
                         transactionStatus,
                         walletHash: notification.walletHash,
                         notification: notificationToTx
-                    }
+                    },
+                    source : 'AppNewsActions'
                 })
                 return false
             } else {

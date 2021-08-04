@@ -92,6 +92,8 @@ class AccountTransactionScreen extends PureComponent {
     async UNSAFE_componentWillMount() {
         try {
             const data = NavStore.getParamWrapper(this, 'txData')
+            const source = NavStore.getParamWrapper(this, 'source')
+            console.log('AccountTransactionScreen mount source ' + JSON.stringify(source))
 
             let { transactionHash, transactionStatus, currencyCode, orderHash, walletHash, transaction, notification, toOpenAccountBack, uiType } = data
             let tx
@@ -225,7 +227,7 @@ class AccountTransactionScreen extends PureComponent {
     init = (transaction, cryptoCurrency) => {
         this.rescanOnInit(cryptoCurrency)
 
-        Log.log('init transaction transaction', transaction)
+        Log.log('AccountTransactionScreen.init transaction', transaction)
         try {
 
             const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
@@ -732,7 +734,7 @@ class AccountTransactionScreen extends PureComponent {
 
     handleCommentChange = (value) => {
         const { commentToView } = this.state
-        
+
         this.setState({
             commentToView: {
                 ...commentToView,

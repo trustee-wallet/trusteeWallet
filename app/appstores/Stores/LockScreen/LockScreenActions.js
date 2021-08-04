@@ -18,7 +18,6 @@ export const LockScreenFlowTypes = {
 }
 
 export function setLockScreenConfig(data, source = '') {
-    Log.test('LockScreen.setLockScreeenConfig ' + source, data)
     if (typeof data.flowType === 'undefined') {
         throw new Error('LockScreenActions setLockScreenConfig updated type => flowType')
     }
@@ -37,7 +36,6 @@ export function resetLockScreen(diffToReset = 0, source) {
     if (timeLocked && passedTime < diffToReset) {
         return false
     }
-    Log.test('LockScreen.resetLockScreen ' + source + ' oldFlowType ' + oldData + ' passedTime ' + passedTime)
     dispatch({
         type: 'SET_LOCK_SCREEN_CONFIG',
         flowType : false,
