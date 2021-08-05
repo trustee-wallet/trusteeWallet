@@ -45,7 +45,7 @@ export default class BsvUnspentsProvider implements BlocksoftBlockchainTypes.Uns
         for (unspent of res.data.data.list) {
             sortedUnspents.push({
                 txid: unspent.tx_hash,
-                vout: unspent.tx_output_n,
+                vout: typeof unspent.tx_output_n === 'undefined' ? 0 : unspent.tx_output_n,
                 value: unspent.value.toString(),
                 height: 0,
                 confirmations : unspent.confirmations,
