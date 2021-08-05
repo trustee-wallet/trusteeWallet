@@ -11,7 +11,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     RefreshControl,
-    FlatList, ImageBackground, Image
+    FlatList, ImageBackground, Image, LayoutAnimation, Platform, UIManager
 } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -25,7 +25,7 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import QrCodeBox from '@app/components/elements/QrCodeBox'
-import { ThemeContext, useTheme } from '@app/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import DetailsContent from './elements/Details'
 import HowItWorks from './elements/HowItWorks'
 
@@ -42,7 +42,11 @@ import CashbackData from './elements/CashbackData'
 import { ProgressCircle } from 'react-native-svg-charts'
 import { ProgressBar } from 'react-native-paper'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import DetailsHeader from '@app/modules/Cashback/elements/DetailsHeader'
+import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
+import TextInput from '@app/components/elements/new/TextInput'
+import Validator from '@app/services/UI/Validator/Validator'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 class CashbackScreen extends React.PureComponent {
 
@@ -50,6 +54,7 @@ class CashbackScreen extends React.PureComponent {
         selectedContent: null,
         promoCode: '',
         inviteLink: '',
+        inviteLinkError: false,
         refreshing: false,
         selectedTitle: null,
 
@@ -69,10 +74,12 @@ class CashbackScreen extends React.PureComponent {
                 index: 2,
                 active: false
             }
-        ],
+        ]
     }
 
-    handleWithdraw = () => {
+    cashbackCurrency = 'USDT'
+
+    handleWithdrawCashback = () => {
         const { cashbackBalance = 0, minWithdraw } = this.props.cashbackStore.dataFromApi
 
         if (cashbackBalance < minWithdraw) {
@@ -92,8 +99,108 @@ class CashbackScreen extends React.PureComponent {
             })
         }
     }
+    triggerEditing = () => {
+        const nextValue = !this.state.isEditing
+        this.setState(() => ({ isEditing: nextValue, inviteLink: '' }))
+    }
+
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        if (nextProps.inviteLink) {
+            this.setState(() => ({ inviteLink: nextProps.inviteLink, inviteLinkError: false }), () => {
+                this.handleSubmitInviteLink()
+            })
+        }
+    }
+
+    handleChangeInviteLink = (value) => {
+        this.setState(() => ({ inviteLink: value, inviteLinkError: false }))
+    }
+
+    handleQrCode = () => {
+        setQRConfig({
+            flowType: QRCodeScannerFlowTypes.CASHBACK_LINK, callback: (data) => {
+                try {
+                    this.setState(() => ({ inviteLink: data.qrCashbackLink, inviteLinkError: false }), () => {
+                        this.handleSubmitInviteLink()
+                    })
+                } catch (e) {
+                    Log.log('QRCodeScannerScreen callback error ' + e.message)
+                    Toast.setMessage(e.message).show()
+                }
+                NavStore.goBack()
+            }
+        })
+        NavStore.goNext('QRCodeScannerScreen')
+    }
+
+    handleSubmitInviteLink = async () => {
+        const { inviteLink } = this.state
+        if (!inviteLink) {
+            return
+        }
+
+        let cashbackLink = this.props.cashbackStore.dataFromApi.cashbackLink || false
+        if (!cashbackLink || cashbackLink === '') {
+            cashbackLink = this.props.cashbackStore.cashbackLink || ''
+        }
+
+        const validationResult = await Validator.arrayValidation([{
+            type: 'CASHBACK_LINK',
+            value: inviteLink
+        }])
+
+        if (validationResult.status !== 'success') {
+            this.setState(() => ({ inviteLinkError: true }))
+            return
+        }
+
+        const tmp = inviteLink.split('/')
+        let cashbackParentToken = inviteLink
+        if (tmp.length > 0) {
+            cashbackParentToken = tmp[tmp.length - 1]
+        }
+        if (!cashbackParentToken || cashbackParentToken === '') {
+            return
+        }
+
+        if (cashbackLink === inviteLink
+            || cashbackParentToken === this.props.cashbackToken
+            || cashbackParentToken === this.props.cashbackStore.dataFromApi.cashbackToken
+            || cashbackParentToken === this.props.cashbackStore.dataFromApi.customToken
+        ) {
+            Log.log('CashbackLink inputParent for ' + cashbackLink + ' is equal ' + inviteLink)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('modal.cashbackLinkEqualModal.description', { link: inviteLink })
+            })
+            this.setState(() => ({ inviteLinkError: true }))
+            return
+        }
+
+        Log.log('CashbackLink inputParent for  ' + cashbackLink + ' res ', validationResult)
+
+        try {
+            await CashBackUtils.setParentToken(cashbackParentToken)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.walletBackup.success'),
+                description: strings('modal.cashbackTokenLinkModal.success.description')
+            })
+        } catch (e) {
+            Log.err('CashBackScreen.Details handleSubmitInviteLink error ' + e.message)
+        }
+    }
 
     componentDidMount() {
+
+        if (Platform.OS === 'android') {
+            if (UIManager.setLayoutAnimationEnabledExperimental) {
+                UIManager.setLayoutAnimationEnabledExperimental(true)
+            }
+        }
 
         const { cashbackStore } = this.props
 
@@ -111,24 +218,50 @@ class CashbackScreen extends React.PureComponent {
         const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
 
         let cashbackParentToken = cashbackStore.dataFromApi.parentToken || false
-        if (!cashbackParentToken || cashbackParentToken === null) {
+        if (!cashbackParentToken) {
             cashbackParentToken = cashbackStore.parentToken || ''
         }
         if (cashbackParentToken === cashbackToken || cashbackParentToken === cashbackLinkTitle) {
             cashbackParentToken = ''
         }
 
+        const {
+            colors,
+        } = this.context
+
+        const cashbackCondition = cashbackBalance >= 2
+
+        const cpaCondition = cpaBalance >= 100
+
+        const cashbackProcent = UtilsService.cutNumber(cashbackBalance / 2 * 100, 2)
+
+        const cpaProcent = UtilsService.cutNumber(UtilsService.getPercent(cpaBalance, 100), 2)
+
         const flatListData = [
 
             {
                 title: strings('cashback.availableCashBack'),
                 subTitle: 'updated ' + timePrep,
-                balance: cashbackBalance,
+                balance: cashbackBalance + cpaBalance,
                 ExtraViewData: () => {
                     return (
                         <View>
-                            <Text style={styles.inviteText}>{'Invited:'}</Text>
-                            <Text style={[styles.inviteToken, { color: this.context.colors.common.text1 }]}>mNDkwOTA {cashbackParentToken}</Text>
+                            {!cashbackParentToken ?
+                                <TextInput
+                                    autoCapitalize='none'
+                                    containerStyle={{ marginBottom: 10,  width: 280, marginLeft: 15 }}
+                                    placeholder={strings('cashback.enterPromoCode')}
+                                    onChangeText={this.handleChangeInviteLink}
+                                    value={this.state.inviteLink}
+                                    qr={true}
+                                    qrCallback={this.handleQrCode}
+                                    inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
+                                    onBlur={this.handleSubmitInviteLink}
+                                /> :
+                                <View>
+                                    <Text style={styles.inviteText}>{'Invited:'}</Text>
+                                    <Text style={[styles.inviteToken, { color: this.context.colors.common.text1 }]}>{cashbackParentToken}</Text>
+                                </View>}
                         </View>
                     )
                 }
@@ -139,23 +272,24 @@ class CashbackScreen extends React.PureComponent {
                 balance: cashbackBalance,
                 ExtraViewData: () => {
                     return (
-                        <View style={cashbackBalance / 2 === 1 ? styles.progressBarContainerFull : styles.progressBarContainer}>
+                        <View style={cashbackCondition ? styles.progressBarContainerFull : styles.progressBarContainer}>
                             <View>
                                 <Text style={styles.withdrawInfo}>{strings('cashback.toWithdraw')}</Text>
-                                <View style={styles.progressBarInProg}>
-                                    <ProgressBar progress={cashbackBalance / 2} style={[styles.progressBarLocation, cashbackBalance / 2 === 1 ? styles.progressBarEnd : styles.progressBarInProg, { backgroundColor: this.context.colors.cashback.chartBg }]} color={this.context.colors.cashback.token} />
+                                <View style={cashbackCondition ? styles.progressBarEnd : styles.progressBarInProg}>
+                                    <ProgressBar progress={cashbackBalance / 2} style={[styles.progressBarLocation, cashbackCondition ? styles.progressBarEnd : styles.progressBarInProg, { backgroundColor: this.context.colors.cashback.chartBg }]} color={this.context.colors.cashback.token} />
                                     <View>
-                                        <Text style={styles.progressProcent}>{ cashbackBalance + ' / 2 USDT'}</Text>
+                                        <Text style={styles.progressProcent}>{cashbackBalance + ' / 2 ' + this.cashbackCurrency}</Text>
                                     </View>
                                 </View>
                             </View>
-                            { cashbackBalance / 2 === 1 ? <TouchableOpacity
-                                activeOpacity={0.6}
-                                style={[styles.withdrawButton, { borderColor: this.context.colors.common.text3 }]}
-                                onPress={this.handleWithdraw}
-                            >
-                                <Text style={[styles.withdrawButtonText, { color: this.context.colors.common.text3 }]}>{strings('cashback.withdraw')}</Text>
-                            </TouchableOpacity> : null }
+                            {cashbackCondition ?
+                                <TouchableOpacity
+                                    activeOpacity={0.6}
+                                    style={[styles.withdrawButton, { borderColor: this.context.colors.common.text3 }]}
+                                    onPress={this.handleWithdrawCashback}
+                                >
+                                    <Text style={[styles.withdrawButtonText, { color: this.context.colors.common.text3 }]}>{strings('cashback.withdraw')}</Text>
+                                </TouchableOpacity> : null}
                         </View>
                     )
                 }
@@ -167,23 +301,24 @@ class CashbackScreen extends React.PureComponent {
 
                 ExtraViewData: () => {
                     return (
-                        <View style={cpaBalance / 100 === 1 ? styles.progressBarContainerFull : styles.progressBarContainer}>
+                        <View style={cpaCondition ? styles.progressBarContainerFull : styles.progressBarContainer}>
                             <View>
                                 <Text style={styles.withdrawInfo}>{strings('cashback.toWithdraw')}</Text>
-                                <View style={styles.progressBarEnd}>
-                                    <ProgressBar progress={cpaBalance / 100} style={[styles.progressBarLocation, cpaBalance / 100 === 1 ? styles.progressBarEnd : styles.progressBarInProg, { backgroundColor: this.context.colors.cashback.chartBg }]} color={this.context.colors.cashback.token} />
+                                <View style={cashbackCondition ? styles.progressBarEnd : styles.progressBarInProg}>
+                                    <ProgressBar progress={cpaBalance / 100} style={[styles.progressBarLocation, cpaCondition ? styles.progressBarEnd : styles.progressBarInProg, { backgroundColor: this.context.colors.cashback.chartBg }]} color={this.context.colors.cashback.token} />
                                     <View>
-                                        <Text style={styles.progressProcent}>{cpaBalance + ' / 100 USDT'}</Text>
+                                        <Text style={styles.progressProcent}>{cpaBalance + ' / 100 ' + this.cashbackCurrency}</Text>
                                     </View>
                                 </View>
                             </View>
-                            { cpaBalance / 100 === 1 ? <TouchableOpacity
-                                activeOpacity={0.6}
-                                style={[styles.withdrawButton, { borderColor: this.context.colors.common.text3 }]}
-                                onPress={this.handleWithdraw}
-                            >
-                                <Text style={[styles.withdrawButtonText, { color: this.context.colors.common.text3 }]}>{strings('cashback.withdraw')}</Text>
-                            </TouchableOpacity> : null }
+                            {cpaCondition ?
+                                <TouchableOpacity
+                                    activeOpacity={0.6}
+                                    style={[styles.withdrawButton, { borderColor: this.context.colors.common.text3 }]}
+                                    onPress={this.handleWithdrawCashback}
+                                >
+                                    <Text style={[styles.withdrawButtonText, { color: this.context.colors.common.text3 }]}>{strings('cashback.withdraw')}</Text>
+                                </TouchableOpacity> : null}
                         </View>
                     )
                 }
@@ -201,7 +336,7 @@ class CashbackScreen extends React.PureComponent {
                                 </View>
                                 <View style={styles.circleInfo}>
                                     <Text style={[styles.circleTitle, { color: this.context.colors.common.text3 }]}>{'Cashback'}</Text>
-                                    <Text style={styles.circleProcent}>{cashbackBalance / 2 * 100 + ' %'}</Text>
+                                    <Text style={styles.circleProcent}>{(cashbackProcent >= 100 ? '100' : cashbackProcent) + ' %'}</Text>
                                 </View>
                             </View>
                             <View style={styles.circleBox}>
@@ -210,7 +345,7 @@ class CashbackScreen extends React.PureComponent {
                                 </View>
                                 <View style={styles.circleInfo}>
                                     <Text style={[styles.circleTitle, { color: this.context.colors.common.text3 }]}>{'CPA'}</Text>
-                                    <Text style={styles.circleProcent}>{cpaBalance / 100 * 100 + ' %'}</Text>
+                                    <Text style={styles.circleProcent}>{(cpaProcent >= 100 ? '100' : cpaProcent) + ' %'}</Text>
                                 </View>
                             </View>
                         </View>
@@ -224,6 +359,7 @@ class CashbackScreen extends React.PureComponent {
         }))
 
     }
+
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         const qrCodeData = NavStore.getParamWrapper(this, 'qrData')
@@ -287,16 +423,18 @@ class CashbackScreen extends React.PureComponent {
         this.setState(() => ({ tabs: newTabs }))
     }
 
-    renderFlatListItem = ({ item }) => {
+    renderFlatListItem = ({ item, index }) => {
         return (
             <CashbackData
                 data={item}
+                margin={this.state.flatListData.length !== index + 1}
             />
         )
     }
 
     render() {
         MarketingAnalytics.setCurrentScreen('CashBackScreen')
+
         const {
             colors,
             GRID_SIZE
@@ -317,8 +455,6 @@ class CashbackScreen extends React.PureComponent {
         if (!cashbackLinkTitle || cashbackLinkTitle === '') {
             cashbackLinkTitle = cashbackStore.cashbackLinkTitle || ''
         }
-
-        // const withLink = (type === 'CASHBACK' || type === 'CPA')
 
         return (
             <ScreenWrapper
@@ -349,15 +485,15 @@ class CashbackScreen extends React.PureComponent {
                                 </View>
                                 <Image style={styles.picProcent} source={require('@assets/images/picProcent.png')} />
                                 <TouchableOpacity
-                                    style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE }]}
+                                    style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE / 2.5 }]}
                                     onPress={() => this.copyToClip(cashbackLink)}
                                     activeOpacity={0.8}
                                 >
                                     <QrCodeBox
                                         value={cashbackLink}
-                                        size={110}
+                                        size={120}
                                         color={colors.cashback.qrCode}
-                                        backgroundColor={'transparent'}
+                                        backgroundColor='transparent'
                                         onError={this.handleRenderQrError}
                                         style={styles.qrCode}
                                     />
@@ -376,36 +512,43 @@ class CashbackScreen extends React.PureComponent {
                                 data={this.state.flatListData}
                                 keyExtractor={({ index }) => index}
                                 horizontal={true}
-                                renderItem={this.renderFlatListItem}
+                                renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
                                 showsHorizontalScrollIndicator={false}
                             />
                             <View style={styles.switchableTabs}>
-                                <TouchableOpacity style={styles.switchableTabsLocation} onPress={() => this.setState({selectedTitle: this.state.selectedTitle === 'CASHBACK' ? null : 'CASHBACK'})}>
+                                <TouchableOpacity style={styles.switchableTabsLocation} onPress={() => {
+                                    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+                                    this.setState({ selectedTitle: this.state.selectedTitle === 'CASHBACK' ? null : 'CASHBACK' })
+                                }
+                                }>
                                     <View style={styles.switchableTabsContainer}>
                                         <View>
                                             <ProgressCircle style={styles.switchableCircle} strokeWidth={3.5} progress={cashbackBalance / 2} backgroundColor={colors.cashback.chartBg} progressColor={colors.cashback.token} />
                                         </View>
                                         <View style={styles.textContainer}>
                                             <Text style={[styles.switchableTabsText, { color: colors.common.text3 }]}>{'Cashback'}</Text>
-                                            <Text style={[styles.switchableTabsBalance]}>{cashbackBalance + ' USDT'}</Text>
+                                            <Text style={[styles.switchableTabsBalance]}>{cashbackBalance + ' ' + this.cashbackCurrency}</Text>
                                         </View>
                                     </View>
                                     <View>
-                                        <CustomIcon style={styles.switchableTabsIcons} name={ selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings' } size={25} color={colors.common.text1} />
+                                        <CustomIcon style={styles.switchableTabsIcons} name={selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings'} size={20} color={colors.common.text1} />
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.switchableTabsLocation} onPress={() => this.setState({selectedTitle: this.state.selectedTitle === 'CPA' ? null : 'CPA'})}>
+                                <TouchableOpacity style={[styles.switchableTabsLocation, { marginBottom: 20 }]} onPress={() => {
+                                    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+                                    this.setState({ selectedTitle: this.state.selectedTitle === 'CPA' ? null : 'CPA' })
+                                }}>
                                     <View style={styles.switchableTabsContainer}>
                                         <View>
                                             <ProgressCircle style={styles.switchableCircle} strokeWidth={3.5} progress={cpaBalance / 100} backgroundColor={colors.cashback.chartBg} progressColor={colors.cashback.token} />
                                         </View>
                                         <View style={styles.textContainer}>
                                             <Text style={[styles.switchableTabsText, { color: colors.common.text3 }]}>{'CPA'}</Text>
-                                            <Text style={[styles.switchableTabsBalance]}>{cpaBalance + ' USDT'}</Text>
+                                            <Text style={[styles.switchableTabsBalance]}>{cpaBalance + ' ' + this.cashbackCurrency}</Text>
                                         </View>
                                     </View>
                                     <View>
-                                        <CustomIcon style={styles.switchableTabsIcons} name={ selectedTitle === 'CPA' ? 'close' : 'coinSettings' } size={25} color={colors.common.text1} />
+                                        <CustomIcon style={styles.switchableTabsIcons} name={selectedTitle === 'CPA' ? 'close' : 'coinSettings'} size={20} color={colors.common.text1} />
                                     </View>
                                 </TouchableOpacity>
                             </View>
@@ -453,7 +596,6 @@ class CashbackScreen extends React.PureComponent {
         if (cashbackParentToken === cashbackToken || cashbackParentToken === cashbackToShow || cashbackParentToken === cashbackLinkTitle) {
             cashbackParentToken = ''
         }
-
 
 
         if (typeof cashbackStore.dataFromApi.cashbackToken === 'undefined' || cashbackStore.dataFromApi.cashbackToken !== cashbackStore.cashbackToken) {
@@ -514,18 +656,18 @@ const styles = StyleSheet.create({
         zIndex: 2,
         flex: 1,
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 22,
+        fontSize: 25,
         lineHeight: 27,
         width: 200,
-        height: 100,
+        height: 110,
         position: 'absolute',
-        top: -120
+        top: -115
     },
     PageSubtitleTextBox: {
         position: 'absolute',
         zIndex: 2,
-        top: -105,
-        left: 230,
+        top: -100,
+        left: 225,
         width: 85
     },
     pageSubtitleProcent: {
@@ -545,16 +687,16 @@ const styles = StyleSheet.create({
     qrCodeContainer: {
         flex: 1,
         alignItems: 'center',
-        left: 115,
+        left: 110,
         position: 'absolute',
-        top: 20
+        top: 30
     },
     qrCode: {
         alignSelf: 'center'
     },
     qrCodeTokenString: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 17,
+        fontSize: 20,
         lineHeight: 22,
         textAlign: 'center'
     },
@@ -569,17 +711,17 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignSelf: 'center',
-        width: 375,
-        height: 375,
+        width: 400,
+        height: 400,
         position: 'relative',
         marginTop: 150
     },
     picProcent: {
         position: 'absolute',
-        top: -165,
-        left: 185,
-        width: 220,
-        height: 220,
+        top: -150,
+        left: 190,
+        width: 200,
+        height: 200,
         resizeMode: 'contain'
     },
     inviteText: {
@@ -664,15 +806,15 @@ const styles = StyleSheet.create({
         color: '#999999'
     },
     progressBarContainer: {
-        marginTop: 5,
+        marginTop: 5
     },
     progressBarContainerFull: {
         marginTop: 5,
         flexDirection: 'row'
     },
     switchableTabs: {
-        marginBottom: 15,
-        marginTop: 20
+        marginBottom: 5,
+        marginTop: 10
     },
     switchableTabsText: {
         fontSize: 20,
@@ -707,20 +849,24 @@ const styles = StyleSheet.create({
         top: -38
     },
     withdrawButton: {
+        marginTop: 5,
+        marginLeft: 25,
         borderRadius: 6,
         borderWidth: 1.5,
-        width: 95,
-        height: 30,
         paddingVertical: 8,
         paddingHorizontal: 12,
-        marginTop: 8,
-        marginLeft: 20
+        width: 95,
+        height: 30
     },
     withdrawButtonText: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 10,
         lineHeight: 12,
         letterSpacing: 0.5,
+        textAlign: 'center',
+        justifyContent: 'center',
         textTransform: 'uppercase'
     },
+
+
 })

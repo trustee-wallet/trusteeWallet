@@ -300,7 +300,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(DetailsContent)
 const styles = StyleSheet.create({
     container: {
         borderRadius: 16,
-        height: 180
+        height: 160,
+        marginBottom: 20
     },
     textRow: {
         flexDirection: 'row',

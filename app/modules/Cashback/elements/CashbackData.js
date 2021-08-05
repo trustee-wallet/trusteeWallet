@@ -2,14 +2,13 @@ import React from 'react'
 import {
     View,
     Text,
-    StyleSheet,
     Dimensions,
 } from 'react-native'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 import GradientView from '@app/components/elements/GradientView'
 
-import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+// import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 const widthWindow = Dimensions.get('window').width
@@ -18,9 +17,9 @@ const renderBalance = (balance, cashbackCurrency) => {
 
     const { colors, GRID_SIZE } = useTheme()
 
-    let tmp = BlocksoftPrettyNumbers.makeCut(balance, 7, 'AccountScreen/renderBalance').separated
+    let tmp = BlocksoftPrettyNumbers.makeCut(balance, 7, 'CashbackScreen/renderBalance').separated
     if (typeof tmp.split === 'undefined') {
-        throw new Error('AccountScreen.renderBalance split is undefined')
+        throw new Error('CashbackScreen.renderBalance split is undefined')
     }
 
     tmp = tmp.slice(0, 11)
@@ -49,7 +48,8 @@ const renderBalance = (balance, cashbackCurrency) => {
 const CashbackData = (props) => {
 
     const {
-        data
+        data,
+        margin
     } = props
 
     const { title, subTitle, balance, ExtraViewData } = data
@@ -60,7 +60,7 @@ const CashbackData = (props) => {
 
 
     return (
-        <View style={styles.topContent}>
+        <View style={[styles.topContent, { marginRight: margin ? 16 : 0 }]}>
 
             <View style={styles.topContent__content}>
 
@@ -106,7 +106,6 @@ const styles = {
 
         width: '100%',
         height: 216,
-
         zIndex: 1,
 
         borderRadius: 16,
@@ -117,7 +116,7 @@ const styles = {
         height: 244,
         width: widthWindow * 0.75,
 
-        marginRight: 16,
+        // marginRight: 16,
         borderRadius: 16
     },
 

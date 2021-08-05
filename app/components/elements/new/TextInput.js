@@ -44,13 +44,13 @@ export default function Input(props) {
 
     const handleReadFromClipboard = async () => {
         const { callback } = props
-    
+
         Keyboard.dismiss()
         const clipboardContent = await Clipboard.getString()
         if (typeof callback !== 'undefined') {
             callback(clipboardContent)
         }
-    
+
     }
 
     return (
