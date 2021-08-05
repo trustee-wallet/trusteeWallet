@@ -279,9 +279,13 @@ export class BlocksoftKeysStorage {
     }
 
     async getAddressCache(hashOrId) {
-        const res = await this._getKeyValue('ar4_' + hashOrId)
-        if (!res) return false
-        return { address: res.pub, privateKey: res.priv }
+        try {
+            const res = await this._getKeyValue('ar4_' + hashOrId)
+            if (!res) return false
+            return { address: res.pub, privateKey: res.priv }
+        } catch (e) {
+            return false
+        }
     }
 
     async setAddressCache(hashOrId, res) {
