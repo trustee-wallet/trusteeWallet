@@ -18,8 +18,9 @@ let CACHE_BASIC = [
     { currencyCode: 'RUB' },
     { currencyCode: 'EUR' },
     { currencyCode: 'KZT' },
+    { currencyCode: 'NGN' },
     { currencyCode: 'USDT', currencyName: 'Usdt', symbol: '$*' },
-    { currencyCode: 'BTC', currencyName: 'Btc', symbol: 'BTC' }
+    { currencyCode: 'BTC', currencyName: 'Btc', symbol: 'BTC' },
 ]
 
 
