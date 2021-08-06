@@ -19,6 +19,7 @@ type DataCache = {
 
 const CACHE_DOUBLE_TO: DataCache = {} as DataCache
 const CACHE_VALID_TIME = 120000 // 2 minute
+const CACHE_DOUBLE_BSE = {}
 
 export namespace BlocksoftTransfer {
 
@@ -102,11 +103,19 @@ export namespace BlocksoftTransfer {
         }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
 
+        const bseOrderId = typeof uiData !== 'undefined' && uiData && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.bseOrderId !== 'undefined' ? uiData.selectedFee.bseOrderId : false
+        const uiErrorConfirmed = typeof uiData !== 'undefined' && uiData && typeof uiData.uiErrorConfirmed !== 'undefined' && uiData.uiErrorConfirmed
+
         try {
+            if (bseOrderId && typeof CACHE_DOUBLE_BSE[bseOrderId] !== 'undefined') {
+                if (!uiErrorConfirmed) {
+                    throw new Error('UI_CONFIRM_DOUBLE_BSE_SEND')
+                }
+            }
             if (typeof CACHE_DOUBLE_TO[data.currencyCode] !== 'undefined') {
                 if (data.transactionReplaceByFee || data.transactionRemoveByFee || data.transactionSpeedUp) {
                     // do nothing
-                } else if (typeof uiData === 'undefined' || !uiData || typeof uiData.uiErrorConfirmed === 'undefined' || !uiData.uiErrorConfirmed) {
+                } else if (!uiErrorConfirmed) {
                     if (data.addressTo && CACHE_DOUBLE_TO[data.currencyCode].key === data.addressTo) {
                         const time = new Date().getTime()
                         const diff = time - CACHE_DOUBLE_TO[data.currencyCode].time
@@ -140,6 +149,10 @@ export namespace BlocksoftTransfer {
                     time: new Date().getTime()
                 }
             }
+            if (bseOrderId) {
+                CACHE_DOUBLE_BSE[bseOrderId] = true
+            }
+            // if (typeof uiData.selectedFee !== 'undefined')
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('BlocksoftTransfer.sendTx error ' + e.message, e)
