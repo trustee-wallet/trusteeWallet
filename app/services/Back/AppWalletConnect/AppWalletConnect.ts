@@ -402,6 +402,7 @@ export namespace AppWalletConnect {
             WALLET_CONNECTOR.killSession({
                 message: 'You have rejected session in TrusteeWallet'
             })
+            setWalletConnectIsConnected(false)
         } catch (e) {
             Log.log('AppWalletConnect.killSession error ' + e.message)
         }
