@@ -1334,7 +1334,7 @@ const Currencies = {
             prettyNumberProcessor: 'USDT',
             network: 'mainnet',
             decimals: 8,
-            currencyExplorerLink: 'https://blockchair.com/steller/account/',
+            currencyExplorerLink: 'https://blockchair.com/stellar/account/',
             currencyExplorerTxLink: 'https://blockchair.com/stellar/transaction/'
         },
     TRX_SUN_NEW:
