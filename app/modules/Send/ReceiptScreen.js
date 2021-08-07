@@ -92,9 +92,6 @@ class ReceiptScreen extends PureComponent {
         }
 
         setLoaderStatus(false)
-        this.setState({
-            sendInProcess: true
-        })
 
         const { keystore } = this.props.settingsStore
 
@@ -113,6 +110,10 @@ class ReceiptScreen extends PureComponent {
                 return
             }
         }
+
+        this.setState({
+            sendInProcess: true
+        })
 
         CACHE_IS_SENDING = true
         const checkLoadedFeeResult = checkLoadedFee(this)
@@ -274,7 +275,7 @@ class ReceiptScreen extends PureComponent {
                 leftType='back'
                 leftAction={this.backAction}
                 rightType='close'
-                rightAction={this.closeAction}
+                rightAction={sendInProcess ? null : this.closeAction}
                 title={strings('send.receiptScreen.title')}
                 setStatusBar={() => StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')}
             >
@@ -329,7 +330,8 @@ class ReceiptScreen extends PureComponent {
                         }}
                         secondaryButton={{
                             type: 'settings',
-                            onPress: this.openAdvancedSettings
+                            onPress: this.openAdvancedSettings,
+                            disabled: sendInProcess
                         }}
                     />
                 </ScrollView>
