@@ -78,11 +78,12 @@ export default class EthBasic {
         switch (settings.network) {
             case 'mainnet':
             case 'ropsten':
+            case 'rinkeby':
             // case 'kovan' : case 'rinkeby' : case 'goerli' :
                 this._web3Link = `https://${settings.network}.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
                 break
             default:
-                throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", rinkeby". Got : ' + settings.network)
+                throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", "rinkeby". Got : ' + settings.network)
         }
 
         this._settings = settings
@@ -181,8 +182,16 @@ export default class EthBasic {
             this._etherscanApiPath = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
 
-            this._trezorServer = 'to_load'
-            this._trezorServerCode = settings.network === 'mainnet' ? 'ETH_TREZOR_SERVER' : 'ETH_ROPSTEN_TREZOR_SERVER'
+            if (settings.network === 'mainnet') {
+                this._trezorServer = 'to_load'
+                this._trezorServerCode = 'ETH_TREZOR_SERVER'
+            } else if (settings.network === 'ropsten') {
+                this._trezorServer = 'to_load'
+                this._trezorServerCode = 'ETH_ROPSTEN_TREZOR_SERVER'
+            } else {
+                this._trezorServer = false
+                this._trezorServerCode = false
+            }
 
             this._mainCurrencyCode = 'ETH'
             this._mainTokenType = 'ETH_ERC_20'

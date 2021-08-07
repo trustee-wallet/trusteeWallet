@@ -172,7 +172,7 @@ export default class EthScannerProcessor extends EthBasic {
         const address = scanData.account.address
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getTransactions started ' + address)
         let res = false
-        if (this._settings.currencyCode !== 'ETH_ROPSTEN' && this._trezorServerCode) {
+        if (this._settings.currencyCode !== 'ETH_ROPSTEN' && this._settings.currencyCode !== 'ETH_RINKEBY' && this._trezorServerCode) {
             try {
                 res = await this._get(address)
             } catch (e) {
@@ -196,7 +196,7 @@ export default class EthScannerProcessor extends EthBasic {
             }
             let link = this._etherscanApiPath + '&address=' + address
             let logTitle = this._settings.currencyCode + ' EthScannerProcessor.getTransactions etherscan '
-            transactions = await this._getFromEtherscan(address, link, logTitle, true, {})
+            transactions = await this._getFromEtherscan(address, link, logTitle, false, {})
             if (this._etherscanApiPathDeposits) {
                 link = this._etherscanApiPathDeposits + '&address=' + address
                 logTitle = this._settings.currencyCode + ' EthScannerProcessor.getTransactions etherscan deposits'
@@ -308,7 +308,7 @@ export default class EthScannerProcessor extends EthBasic {
         if (!result) {
             return transactions
         }
-        let address = _address.toLowerCase()
+        const address = _address.toLowerCase()
         let tx
         let maxNonce = -1
         let maxSuccessNonce = -1
@@ -571,6 +571,7 @@ export default class EthScannerProcessor extends EthBasic {
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.timeStamp)
         } catch (e) {
+            console.log('no timestamp2')
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }

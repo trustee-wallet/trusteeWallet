@@ -125,7 +125,7 @@ class AccountScanning {
                     if (currencyCode.indexOf('TRX') !== -1) {
                         params.currencyFamily = 'TRX'
                         return await this.getAccountsForScan(params)
-                    } else if (currencyCode.indexOf('ETH') !== -1 && currencyCode !== 'ETH_ROPSTEN' && currencyCode !== 'ETH_UAX') {
+                    } else if (currencyCode.indexOf('ETH') !== -1 && currencyCode !== 'ETH_ROPSTEN' && currencyCode !== 'ETH_RINKEBY' && currencyCode !== 'ETH_UAX') {
                         params.currencyFamily = 'ETH'
                         return await this.getAccountsForScan(params)
                     }

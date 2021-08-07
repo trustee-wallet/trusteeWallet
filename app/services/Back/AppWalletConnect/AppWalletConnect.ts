@@ -68,6 +68,9 @@ export namespace AppWalletConnect {
         if (chainId === 3) {
             MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
             WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
+        } if (chainId === 4) {
+            MAIN_CURRENCY_CODE = 'ETH_RINKEBY'
+            WEB3_LINK = `https://rinkeby.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         } else if (chainId === 56) {
             MAIN_CURRENCY_CODE = 'BNB_SMART'
             WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')

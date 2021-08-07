@@ -68,6 +68,12 @@ export default {
             darkColor: '#9042BA'
         }
     },
+    'ETH_RINKEBY': {
+        colors: {
+            mainColor: '#68268C',
+            darkColor: '#9042BA'
+        }
+    },
     'BTC': {
         colors: {
             mainColor: '#F79E1B',

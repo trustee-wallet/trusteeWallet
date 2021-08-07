@@ -950,6 +950,21 @@ const Currencies = {
             currencyExplorerLink: 'https://ropsten.etherscan.io/address/',
             currencyExplorerTxLink: 'https://ropsten.etherscan.io/tx/'
         },
+    ETH_RINKEBY:
+        {
+            currencyType: 'coin',
+            currencyName: 'Ethereum Rinkeby',
+            currencyCode: 'ETH_RINKEBY',
+            currencySymbol: 'ETH',
+            currencyIcon: 'ETH',
+            ratesCurrencyCode: 'SKIP',
+            extendsProcessor: 'ETH',
+            transferProcessor: 'ETH',
+            network: 'rinkeby',
+            decimals: 18,
+            currencyExplorerLink: 'https://rinkeby.etherscan.io/address/',
+            currencyExplorerTxLink: 'https://rinkeby.etherscan.io/tx/'
+        },
     ETH_LEND:
         {
             currencyType: 'token',
@@ -1185,24 +1200,24 @@ const Currencies = {
                 'https://etherscan.io/token/0xd26114cd6ee289accf82350c8d8487fedb8a0c07?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
         },
-    OPTIMISM :
-            {
-                    currencyType: 'coin',
-                    currencyName: 'Optimistic Ethereum',
-                    currencyCode: 'OPTIMISM',
-                    currencySymbol: 'ETH',
-                    ratesCurrencyCode: 'ETH',
-                    addressProcessor: 'ETH',
-                    addressUiChecker: 'ETH',
-                    scannerProcessor: 'ETH',
-                    extendsProcessor: 'ETH',
-                    prettyNumberProcessor: 'ETH',
-                    transferProcessor: 'ETC',
-                    network: 'mainnet',
-                    decimals: 18,
-                    currencyExplorerLink: 'https://optimistic.etherscan.io/address/',
-                    currencyExplorerTxLink: 'https://optimistic.etherscan.io/tx/'
-            },
+    OPTIMISM:
+        {
+            currencyType: 'coin',
+            currencyName: 'Optimistic Ethereum',
+            currencyCode: 'OPTIMISM',
+            currencySymbol: 'ETH',
+            ratesCurrencyCode: 'ETH',
+            addressProcessor: 'ETH',
+            addressUiChecker: 'ETH',
+            scannerProcessor: 'ETH',
+            extendsProcessor: 'ETH',
+            prettyNumberProcessor: 'ETH',
+            transferProcessor: 'ETC',
+            network: 'mainnet',
+            decimals: 18,
+            currencyExplorerLink: 'https://optimistic.etherscan.io/address/',
+            currencyExplorerTxLink: 'https://optimistic.etherscan.io/tx/'
+        },
     BNB_SMART_CAKE:
         {
             currencyType: 'token',

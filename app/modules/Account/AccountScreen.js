@@ -205,7 +205,7 @@ class Account extends React.PureComponent {
         UpdateOneByOneDaemon._canUpdate = false
 
         let needRefresh = false
-        if (currencyCode !== 'ETH_ROPSTEN') {
+        if (currencyCode !== 'ETH_ROPSTEN' && currencyCode !== 'ETH_RINKEBY') {
             try {
                 if (await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })) {
                     needRefresh = true

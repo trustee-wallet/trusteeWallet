@@ -532,7 +532,7 @@ export default class ButtonLine extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'ETH_KNC':
             case 'ETH_KNC_NEW':
                 return (
