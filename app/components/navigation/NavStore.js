@@ -51,6 +51,11 @@ export default {
         try {
            if (canGoBack()) {
                 goBack()
+           } else {
+               reset({
+                   index: 0,
+                   routes: [{ name: 'HomeScreen'}],
+               })
            }
         } catch (e) {
             if (config.debug.appErrors) {
