@@ -176,7 +176,7 @@ class BackupStep0Screen extends PureComponent {
         if (this.props.createWalletStore.mnemonicLength !== nextProps.createWalletStore.mnemonicLength) {
             this.scrollView.scrollTo?.({ x: 0, y: 0, animated: true })
 
-            const walletMnemonicArray = walletMnemonic.split('')
+            const walletMnemonicArray = walletMnemonic.split(' ')
             this.setState(() => ({
                 walletMnemonicArray,
                 walletMnemonic
@@ -316,7 +316,7 @@ class BackupStep0Screen extends PureComponent {
                                     value={this.state.walletMnemonic}
                                     size={200}
                                     color='#404040'
-                                    backgroundColor={'#F5F5F5'}
+                                    backgroundColor='#F5F5F5'
                                     logo={qrLogo}
                                     logoSize={70}
                                     logoBackgroundColor='transparent'
@@ -430,7 +430,8 @@ class BackupStep0Screen extends PureComponent {
                                             type: 'settings',
                                             onPress: this.openWalletSettings,
                                             onLongPress: this.handleCopyModal,
-                                            delayLongPress: 4000
+                                            delayLongPress: 4000,
+                                            disabled: !approvedBackup,
                                         } : undefined}
                                     />
                                 </View>
