@@ -33,6 +33,8 @@
    "notifications": {
      "title": "Cповіщення",
      "newsTitle": "Новина",
+     "tabAll": "Все",
+     "tabNews": "Новини",
      "tabInvite": "Invite",
      "tabInfo": "Info",
      "tabFaq": "Faq",
@@ -235,6 +237,8 @@
      "add": "Додати"
    },
   "cashback": {
+    "cashback": "Cashback",
+    "cpa": "CPA",
     "pageTitle": "Запрошуй друзів",
     "pageSubtitle": "Заробляй від комісії з Trustee Wallet!",
     "pageSubtitleText": "до",
@@ -243,7 +247,6 @@
     "detailsButton": "Деталі",
     "enterPromoPlaceholder": "Введіть промокод",
     "enterInviteLinkPlaceholder": "Введіть посилання-запрошення",
-    "enterPromoCode": "Введіть промокод",
     "applyButton": "Застосувати",
     "wholeBalance": "Усього накопичено кешбеку",
     "availableCashBack": "Доступний кешбек",

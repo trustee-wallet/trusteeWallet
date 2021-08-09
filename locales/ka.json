@@ -33,6 +33,8 @@
   "notifications": {
     "title": "შეტყობინებები",
     "newsTitle": "სიახლე",
+    "tabAll": "All",
+    "tabNews": "News",
     "tabInvite": "Invite",
     "tabInfo": "Info",
     "tabFaq": "FAQ",
@@ -228,6 +230,8 @@
     "add": "დამატება"
   },
   "cashback": {
+    "cashback": "Cashback",
+    "cpa": "CPA",
     "pageTitle": "მოიწვიე მეგობრები",
     "pageSubtitle": "Earn from the commission with Trustee Wallet!",
     "pageSubtitleText": "to",
@@ -236,7 +240,6 @@
     "detailsButton": "დეტალები",
     "enterPromoPlaceholder": "შეიყვანე პრომოკოდი",
     "enterInviteLinkPlaceholder": "შეიყვანე მოსაწვევი ბმული",
-    "enterPromoCode": "Enter promo code",
     "applyButton": "დადასტურება",
     "wholeBalance": "სრული ბალანსი",
     "availableCashBack": "Available cashback",

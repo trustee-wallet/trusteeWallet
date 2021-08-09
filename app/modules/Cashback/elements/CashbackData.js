@@ -60,7 +60,7 @@ const CashbackData = (props) => {
 
 
     return (
-        <View style={[styles.topContent, { marginRight: margin ? 16 : 0 }]}>
+        <View style={[styles.topContent, {marginLeft: margin ? 16 : 0}]}>
 
             <View style={styles.topContent__content}>
 
@@ -116,7 +116,7 @@ const styles = {
         height: 244,
         width: widthWindow * 0.75,
 
-        // marginRight: 16,
+        marginRight: 16,
         borderRadius: 16
     },
 

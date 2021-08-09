@@ -33,6 +33,8 @@
   "notifications": {
     "title": "Notifications",
     "newsTitle": "News",
+    "tabAll": "All",
+    "tabNews": "News",
     "tabInvite": "Invite",
     "tabInfo": "Info",
     "tabFaq": "Faq",
@@ -235,6 +237,8 @@
     "add": "Add"
   },
   "cashback": {
+    "cashback": "Cashback",
+    "cpa": "CPA",
     "pageTitle": "Invite your friends",
     "pageSubtitle": "Earn from the commission with Trustee Wallet!",
     "pageSubtitleText": "to",
@@ -243,7 +247,6 @@
     "detailsButton": "Details",
     "enterPromoPlaceholder": "Enter promocode",
     "enterInviteLinkPlaceholder": "Enter invite link",
-    "enterPromoCode": "Enter promo code",
     "applyButton": "Apply",
     "wholeBalance": "All balance",
     "availableCashBack": "Available cashback",
