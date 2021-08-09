@@ -1,5 +1,5 @@
 /**
- * @version 0.31
+ * @version 0.50
  * @author yura
  */
 import React from 'react'
@@ -20,17 +20,14 @@ import GradientView from '@app/components/elements/GradientView'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBasicActions'
 
-import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
-import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import { HIT_SLOP } from '@app/theme/HitSlop'
 
@@ -39,6 +36,9 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { SIZE } from '../helpers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import { getIsBackedUp } from '@app/appstores/Stores/Main/selectors'
+import InfoNotification from '@app/components/elements/new/InfoNotification'
+import { handleBackUpModal } from '@app/modules/Settings/helpers'
 
 
 let CACHE_PREV_CURRENCY = false
@@ -50,9 +50,7 @@ class WalletInfo extends React.Component {
         this.state = {
             opacity: new Animated.Value(1),
             isViolet: false,
-            height: new Animated.Value(0),
-            showBackupMsg: !this.props.walletIsBackedUp,
-            backupViewHeight: 0
+            showBackupMsg: !this.props.walletIsBackedUp
         }
     }
 
@@ -119,24 +117,12 @@ class WalletInfo extends React.Component {
         })
     }
 
-    changeWallet = (walletNumber) => {
-        cryptoWalletActions.setNextWallet(walletNumber, 'HomeScreen.WalletInfo')
-        setBseLink(null)
+    closeMsg = () => {
+        this.setState({ showBackupMsg: !this.state.showBackupMsg })
     }
 
-    closeBackupMsg = () => {
-        Animated.timing(this.state.height, {
-            toValue: 1,
-            duration: 500
-        }).start(() => {
-            this.setState({ showBackupMsg: !this.state.showBackupMsg })
-        })
-    }
-
-    processBackupViewHeight = (e) => { 
-        this.setState({
-            backupViewHeight: e.nativeEvent.layout.height
-        })
+    handleBackupModal = () => {
+        handleBackUpModal(this.props.selectedWalletData)        
     }
 
     render() {
@@ -146,36 +132,12 @@ class WalletInfo extends React.Component {
             isBalanceVisible,
             originalVisibility,
             balanceData,
-            walletNumber,
-            walletIsBackedUp
         } = this.props
         const { isViolet, showBackupMsg } = this.state
         const { colors, GRID_SIZE } = this.context
         // @misha to optimize
         const date = new Date()
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
-
-        const backupAnimaStyle = {
-            transform: [
-                {
-                    scaleY: this.state.height.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [1, 0]
-                    })
-                },
-                {
-                    translateY: this.state.height
-                }
-            ],
-            marginVertical: this.state.height.interpolate({
-                inputRange: [0, 1],
-                outputRange: [GRID_SIZE / 2, -(this.state.backupViewHeight / 2)]
-            }),
-            opacity: this.state.height.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, 0]
-            })
-        }
 
         return (
             <>
@@ -203,26 +165,13 @@ class WalletInfo extends React.Component {
                                     ]}>
                                         {strings('homeScreen.balance')}
                                     </Text>
+                                    
+                                    <LetterSpacing
+                                        text={todayPrep}
+                                        textStyle={[styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 }]}
+                                        letterSpacing={1}
+                                    />
 
-
-
-                                    {MarketingEvent.DATA.LOG_TESTER ? (
-                                        <TouchableOpacity onPress={() => this.changeWallet(walletNumber)} hitSlop={HIT_SLOP}>
-                                            <LetterSpacing
-                                                text={'NEXT WALLET'}
-                                                textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
-                                                letterSpacing={1}
-                                            />
-                                        </TouchableOpacity>
-                                    )
-                                        :
-                                        <LetterSpacing
-                                            text={todayPrep}
-                                            textStyle={Object.assign({}, styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 })}
-                                            letterSpacing={1}
-                                        />
-
-                                    }
                                 </View>
                                 <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
                                     <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
@@ -271,28 +220,22 @@ class WalletInfo extends React.Component {
 
                                 <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                     {isBalanceVisible ? (
-                                        <CustomIcon name={'eye'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                        <CustomIcon name='eye' size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                     ) : (
-                                        <CustomIcon name={'eyeClosed'} size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
+                                        <CustomIcon name='eyeClosed' size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                     )}
                                 </TouchableOpacity>
                             </View>
                         </GradientView>
                     </TouchableOpacity>
                 </Animated.View>
-                {(!walletIsBackedUp || showBackupMsg) &&
-                    <Animated.View style={[styles.container, backupAnimaStyle, { marginHorizontal: GRID_SIZE, backgroundColor: colors.homeScreen.backupBg, }]}>
-                        <View style={styles.backupWrapper} onLayout={this.processBackupViewHeight}>
-                            <CustomIcon name='warningMessage' size={24} color={colors.walletManagment.walletItemBorderColor} style={styles.iconWrapper} />
-                            <View style={styles.description}>
-                                <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{strings('settings.walletList.backupNeeded')}</Text>
-                                <Text style={[styles.backupDescription, { color: colors.homeScreen.backupDescription }]}>{strings('settings.walletList.backupDescription')}</Text>
-                            </View>
-                            <TouchableOpacity onPress={this.closeBackupMsg} style={styles.close} hitSlop={HIT_SLOP}>
-                                <CustomIcon name='close' size={18} color={colors.common.button.text} />
-                            </TouchableOpacity>
-                        </View>
-                    </Animated.View>
+                {(!this.props.walletIsBackedUp || showBackupMsg) &&
+                    <InfoNotification 
+                        title={strings('settings.walletList.backupNeeded')}
+                        subTitle={strings('settings.walletList.backupDescription')}
+                        closeCallback={this.closeMsg}
+                        onPress={this.handleBackupModal}
+                    />
                 }
             </>
         )
@@ -303,7 +246,8 @@ const mapStateToProps = (state) => {
     return {
         selectedBasicCurrency: state.mainStore.selectedBasicCurrency,
         cryptoCurrencies: state.currencyStore.cryptoCurrencies,
-        accountList: state.accountStore.accountList
+        accountList: state.accountStore.accountList,
+        walletIsBackedUp: getIsBackedUp(state)
     }
 }
 
@@ -440,34 +384,5 @@ const styles = StyleSheet.create({
     addAsset__icon: {
         marginRight: 2,
         marginTop: 1,
-    },
-    backupWrapper: {
-        flex: 1,
-        flexDirection: 'row',
-        paddingHorizontal: 18,
-        paddingVertical: 16
-    },
-    description: {
-        flex: 2,
-        flexDirection: 'column',
-        justifyContent: 'center',
-
-        paddingLeft: 10
-    },
-    backupDescription: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 16,
-        lineHeight: 20,
-        letterSpacing: 0.5,
-
-        paddingTop: 6
-    },
-    backupName: {
-        fontFamily: 'Montserrat-SemiBold',
-        fontSize: 17,
-        lineHeight: 17
-    },
-    iconWrapper: {
-        alignSelf: 'center'
     }
 })

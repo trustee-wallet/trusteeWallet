@@ -70,7 +70,9 @@
         "walletNameLabel": "Wallet name",
         "recoveryPhraseTitle": "Recovery phrase",
         "recoveryPhraseSubtitle": "Your secret recovery phrase",
-        "deleteWallet": "Delete wallet"
+        "deleteWallet": "Delete wallet",
+        "saveSeed": "Save your secret recovery phrase",
+        "canNotDelete": "The delete function is only available for backup wallets"
       }
     },
     "security": {
@@ -119,7 +121,7 @@
       "title": "My wallets",
       "addWallet": "Add wallet",
       "backupNeeded": "Backup needed",
-      "backupDescription": "Your funds will be at risk. Backup Recovery phrase before using your wallet",
+      "backupDescription": "Backup your Recovery phrase before using the wallet to keep your funds accessible in the event of a failure or loss of your mobile device",
       "addedAssets": "Added assets",
       "balance": "Balance",
       "backup": "Backup",
@@ -1041,7 +1043,7 @@
       "continue": "Continue"
     },
     "walletDelete": {
-      "deleteWallet": "This operation is irreversible! In case you don't have backup of recovery phase the access to the wallet %{walletName} will be lost.",
+      "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
       "confirmDelete": "Do you really want to delete this wallet?",
       "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "

@@ -322,8 +322,6 @@ class HomeScreen extends React.PureComponent {
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
-
-        const { walletNumber, walletIsBackedUp } = this.props.selectedWalletData
         const balanceData = this.getBalanceData()
 
         return (
@@ -361,8 +359,7 @@ class HomeScreen extends React.PureComponent {
                                     changeBalanceVisibility={this.changeBalanceVisibility}
                                     triggerBalanceVisibility={this.triggerBalanceVisibility}
                                     balanceData={balanceData}
-                                    walletNumber={walletNumber}
-                                    walletIsBackedUp={walletIsBackedUp}
+                                    selectedWalletData={this.props.selectedWalletData}
                                 />
                             )}
                             renderItem={({ item, drag, isActive }) => (

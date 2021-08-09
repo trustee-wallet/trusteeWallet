@@ -25,10 +25,11 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getSelectedWalletData, getIsBackedUp } from '@app/appstores/Stores/Main/selectors'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { getWalletsGeneralData, getWalletsNumber } from '@app/appstores/Stores/Wallet/selectors'
+import { handleBackup } from '../helpers'
 
 
 class AdvancedWalletScreen extends PureComponent {
@@ -67,13 +68,29 @@ class AdvancedWalletScreen extends PureComponent {
     handleEdit = () => { this.setState(() => ({ isEditing: true }), () => { this.inputRef.focus() }) }
 
     handleDelete = () => {
+        if (!this.props.walletIsBackedUp) {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.titles.attention'),
+                description: strings('settings.walletManagement.advanced.canNotDelete')
+            })
+            return
+        }
+
         showModal({
             type: 'YES_NO_MODAL',
             icon: 'WARNING',
             title: strings('modal.titles.attention'),
             description: strings('modal.walletDelete.deleteWallet', { walletName: this.state.walletName }),
-        },  () => {
-            this._actualDelete()
+            reverse: true,
+            oneButton: strings('walletBackup.infoScreen.continue'),
+            twoButton: strings('walletBackup.skipElement.cancel'),
+            noCallback: () => {
+                this._actualDelete()
+            }
+        }, () => {
+            hideModal()
         })
     }
 
@@ -94,20 +111,20 @@ class AdvancedWalletScreen extends PureComponent {
         const { colors, GRID_SIZE } = this.context
         const { isEditing, walletName } = this.state
 
-        const manyWallets = this.props.walletsLength > 1 ? true : false
+        const manyWallets = this.props.walletsLength > 1
 
         return (
             <ScreenWrapper
-                leftType="back"
+                leftType='back'
                 leftAction={this.handleBack}
-                rightType="close"
+                rightType='close'
                 rightAction={this.handleClose}
                 title={strings('settings.walletManagement.advanced.title')}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollViewContent}
-                    keyboardShouldPersistTaps="handled"
+                    keyboardShouldPersistTaps='handled'
                 >
                     <View style={{ padding: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
                         <View style={{ marginBottom: GRID_SIZE }}>
@@ -120,26 +137,39 @@ class AdvancedWalletScreen extends PureComponent {
                                     compRef={(ref) => { this.inputRef = ref }}
                                 />
                             ) : (
-                                <TouchableOpacity onPress={this.handleEdit} style={[styles.visibleLayer, { backgroundColor: colors.walletManagment.advanceWalletNameBg }]}>
-                                    <Text style={[styles.walletNameLabel, { color: colors.common.text2 }]}>{strings('settings.walletManagement.advanced.walletNameLabel')} <CustomIcon name="edit" color={colors.common.text2} size={14} /></Text>
+                                <TouchableOpacity
+                                    onPress={this.handleEdit}
+                                    style={[styles.visibleLayer, { backgroundColor: colors.walletManagment.advanceWalletNameBg }]}
+                                >
+                                    <Text style={[styles.walletNameLabel, { color: colors.common.text2 }]}>{strings('settings.walletManagement.advanced.walletNameLabel')} <CustomIcon name='edit' color={colors.common.text2} size={14} /></Text>
                                     <Text style={[styles.walletNameValue, { color: colors.common.text1 }]}>{walletName}</Text>
                                 </TouchableOpacity>
                             )}
                         </View>
-                        <ListItem
-                            title={strings('settings.walletManagement.advanced.recoveryPhraseTitle')}
-                            subtitle={strings('settings.walletManagement.advanced.recoveryPhraseSubtitle')}
-                            iconType="key"
-                            onPress={() => this.handleOpenRecoveryPhrase(true)}
-                            rightContent="arrow"
-                            last={!manyWallets}
-                        />
-                        {manyWallets && 
+                        {!this.props.walletIsBackedUp ?
+                            <ListItem
+                                title={strings('settings.walletManagement.backup')}
+                                subtitle={strings('settings.walletManagement.advanced.saveSeed')}
+                                iconType='key'
+                                onPress={() => handleBackup(this.props.selectedWalletData)}
+                                rightContent='arrow'
+                                last={!manyWallets}
+                            />
+                            :
+                            <ListItem
+                                title={strings('settings.walletManagement.advanced.recoveryPhraseTitle')}
+                                subtitle={strings('settings.walletManagement.advanced.recoveryPhraseSubtitle')}
+                                iconType='key'
+                                onPress={() => this.handleOpenRecoveryPhrase(true)}
+                                rightContent='arrow'
+                                last={!manyWallets}
+                            />}
+                        {manyWallets &&
                             <ListItem
                                 title={strings('settings.walletManagement.advanced.deleteWallet')}
-                                iconType="delete"
+                                iconType='delete'
                                 onPress={this.handleDelete}
-                                rightContent="arrow"
+                                rightContent='arrow'
                                 last={manyWallets}
                             />
                         }
@@ -157,7 +187,8 @@ const mapStateToProps = (state) => {
         selectedWalletData: getSelectedWalletData(state),
         walletsGeneralData: getWalletsGeneralData(state),
         settingsData: getSettingsScreenData(state),
-        walletsLength: getWalletsNumber(state)
+        walletsLength: getWalletsNumber(state),
+        walletIsBackedUp: getIsBackedUp(state)
     }
 }
 
