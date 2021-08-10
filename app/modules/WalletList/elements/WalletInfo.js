@@ -45,13 +45,9 @@ let CACHE_PREV_CURRENCY = false
 
 class WalletInfo extends React.Component {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            opacity: new Animated.Value(1),
-            isViolet: false,
-            showBackupMsg: !this.props.walletIsBackedUp
-        }
+    state = {
+        opacity: new Animated.Value(1),
+        isViolet: false
     }
 
     // eslint-disable-next-line camelcase
@@ -133,7 +129,7 @@ class WalletInfo extends React.Component {
             originalVisibility,
             balanceData,
         } = this.props
-        const { isViolet, showBackupMsg } = this.state
+        const { isViolet } = this.state
         const { colors, GRID_SIZE } = this.context
         // @misha to optimize
         const date = new Date()
@@ -229,13 +225,13 @@ class WalletInfo extends React.Component {
                         </GradientView>
                     </TouchableOpacity>
                 </Animated.View>
-                {(!this.props.walletIsBackedUp || showBackupMsg) &&
-                    <InfoNotification 
+                {!this.props.walletIsBackedUp ?
+                    <InfoNotification
                         title={strings('settings.walletList.backupNeeded')}
                         subTitle={strings('settings.walletList.backupDescription')}
                         closeCallback={this.closeMsg}
                         onPress={this.handleBackupModal}
-                    />
+                    /> : null
                 }
             </>
         )
@@ -251,15 +247,9 @@ const mapStateToProps = (state) => {
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
-
 WalletInfo.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(WalletInfo)
+export default connect(mapStateToProps)(WalletInfo)
 
 
 const styles = StyleSheet.create({
