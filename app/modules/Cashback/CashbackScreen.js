@@ -128,9 +128,11 @@ class CashbackScreen extends React.PureComponent {
                 ExtraViewData: () => {
                     return (
                         <Tab2
+                            cashbackStore={this.props.cashbackStore}
+                            progress={cashbackBalance / 2}
                             windowWidth={windowWidth}
                             condition={cashbackCondition}
-                            balance={cashbackBalance}
+                            balance={UtilsService.cutNumber(cashbackBalance, 2)}
                             minimalWithdraw={2}
                             currency={this.cashbackCurrency}
                         />
@@ -145,9 +147,10 @@ class CashbackScreen extends React.PureComponent {
                 ExtraViewData: () => {
                     return (
                         <Tab2
+                            progress={cpaBalance / 100}
                             windowWidth={windowWidth}
                             condition={cpaCondition}
-                            balance={cpaBalance}
+                            balance={UtilsService.cutNumber(cpaBalance, 2)}
                             minimalWithdraw={100}
                             currency={this.cashbackCurrency}
                         />
@@ -233,7 +236,7 @@ class CashbackScreen extends React.PureComponent {
         return (
             <CashbackData
                 data={item}
-                margin={this.state.flatListData.length !== index + 3}
+                margin={index === 0}
             />
         )
     }
@@ -290,7 +293,6 @@ class CashbackScreen extends React.PureComponent {
                     }>
                     {this.state.tabs[0].active && (
                         <QrCodePage
-
                             cashbackLink={cashbackLink}
                             cashbackLinkTitle={cashbackLinkTitle}
                         />
@@ -314,7 +316,7 @@ class CashbackScreen extends React.PureComponent {
                                     onPress={() => {
                                         this.handleSelectTitle('CASHBACK')
                                     }}
-                                    balance={cashbackBalance}
+                                    balance={UtilsService.cutNumber(cashbackBalance, 2)}
                                     currency={this.cashbackCurrency}
                                     progress={cashbackBalance / 2}
                                     icon={selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings'}
@@ -324,9 +326,9 @@ class CashbackScreen extends React.PureComponent {
                                     onPress={() => {
                                         this.handleSelectTitle('CPA')
                                     }}
-                                    balance={cpaBalance}
+                                    balance={UtilsService.cutNumber(cpaBalance, 2)}
                                     currency={this.cashbackCurrency}
-                                    progress={cpaBalance / 2}
+                                    progress={cpaBalance / 100}
                                     icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
                                 />
                             </View>

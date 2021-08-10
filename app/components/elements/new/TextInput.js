@@ -39,6 +39,7 @@ export default function Input(props) {
         qr,
         qrCallback,
         callback,
+        numberOfLines,
         ...nativeProps
     } = props
 
@@ -58,6 +59,7 @@ export default function Input(props) {
             {!!label && <Text style={[styles.label, { color: labelColor }]}>{label}</Text>}
             <Animated.View style={[styles.inputWrapper, containerStyle]}>
                 <TextInput
+                    numberOfLines={numberOfLines}
                     style={[
                         styles.input,
                         (qr && paste) ? styles.inputWithBtns : (HelperAction || qr || paste) ? styles.inputWithHelper : null,

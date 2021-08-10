@@ -17,7 +17,7 @@ import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
 import NavStore from '@app/components/navigation/NavStore'
 import Validator from '@app/services/UI/Validator/Validator'
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { ProgressBar } from 'react-native-paper'
@@ -26,7 +26,8 @@ import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import Api from '@app/services/Api/Api'
 import config from '@app/config/config'
-import { TelegramComponent } from '@app/modules/Cashback/elements/TelegramComponent'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 export class Tab1 extends React.Component {
 
@@ -59,7 +60,6 @@ export class Tab1 extends React.Component {
             }
         }
     }
-
 
     handleSubmitInviteLink = async () => {
         const { inviteLink } = this.state
@@ -220,11 +220,12 @@ export class Tab1 extends React.Component {
         return (
             <View>
                 {!cashbackParentToken ?
-                <View style={styles.refContainer}>
+                <View style={styles.inviteContainer}>
                     {!promoCondition ?
                         <TextInput
+                            numberOfLines={1}
                             autoCapitalize='none'
-                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.48 }}
                             inputStyle={inviteLinkError && { color: colors.cashback.token }}
                             placeholder={strings('cashback.enterInviteLinkPlaceholder')}
                             onChangeText={this.handleChangeInviteLink}
@@ -234,12 +235,13 @@ export class Tab1 extends React.Component {
                             onBlur={this.handleSubmitInviteLink}
                         /> :
                         <TextInput
+                            numberOfLines={1}
                             autoCapitalize='none'
-                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.48 }}
                             placeholder={strings('cashback.enterPromoPlaceholder')}
                             onChangeText={this.onChangeCode}
                             value={this.state.promoCode}
-                            onBlur={this.handlePressPromo}
+                            onBlur={promoOnPress}
                             inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
                         />}
                     <RoundButton
@@ -249,18 +251,19 @@ export class Tab1 extends React.Component {
                         containerStyle={[styles.buttonContainer, { marginRight: GRID_SIZE }]}
                     />
                 </View> :
-                <View style={styles.invited}>
+                <View style={styles.inviteContainer}>
                     {!promoCondition ?
                         <View>
                             <Text style={styles.inviteText}>{'Invited:'}</Text>
                             <Text style={[styles.inviteToken, { color: colors.common.text1 }]}>{cashbackParentToken}</Text>
                         </View> :
                         <TextInput
-                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
+                            numberOfLines={1}
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.48 }}
                             placeholder={strings('cashback.enterPromoPlaceholder')}
                             onChangeText={this.onChangeCode}
                             value={this.state.promoCode}
-                            onBlur={this.handlePressPromo}
+                            onBlur={promoOnPress}
                             inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
                         />}
                     <RoundButton
@@ -277,7 +280,29 @@ export class Tab1 extends React.Component {
 
 export class Tab2 extends React.Component {
 
-    handleWithdrawCashback = () => {
+    renderTelegramComponent = () => {
+        const link = BlocksoftExternalSettings.getStatic('SUPPORT_BOT')
+        const bot = BlocksoftExternalSettings.getStatic('SUPPORT_BOT_NAME')
+        MarketingEvent.logEvent('taki_cashback_withdraw', { link, screen: 'CASHBACK_WITHDRAW' })
+
+        return (
+            <View style={{ alignItems: 'center', width: '100%' }}>
+                <TouchableOpacity onPress={() => {
+                    hideModal()
+                    NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
+                }}>
+                    <Text style={{
+                        paddingTop: 10,
+                        paddingHorizontal: 10,
+                        fontFamily: 'SFUIDisplay-Semibold',
+                        color: '#4AA0EB'
+                    }}>{bot}</Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
+    handleWithdraw = () => {
         const { cashbackBalance = 0, minWithdraw } = this.props.cashbackStore.dataFromApi
 
         if (cashbackBalance < minWithdraw) {
@@ -285,18 +310,19 @@ export class Tab2 extends React.Component {
                 type: 'INFO_MODAL',
                 icon: false,
                 title: strings('modal.exchange.sorry'),
-                description: `${strings('cashback.minWithdraw')} ${minWithdraw} ${this.props.currency}`
+                description: `${strings('cashback.minWithdraw')} ${minWithdraw} ${this.cashbackCurrency}`
             })
         } else {
             showModal({
                 type: 'INFO_MODAL',
-                icon: null,
+                icon: false,
                 title: strings('modal.titles.attention'),
                 description: strings('cashback.performWithdraw'),
-                component: <TelegramComponent />
+                component: this.renderTelegramComponent
             })
         }
     }
+
 
     render() {
 
@@ -305,7 +331,8 @@ export class Tab2 extends React.Component {
             balance,
             minimalWithdraw,
             currency,
-            windowWidth
+            windowWidth,
+            progress
         } = this.props
 
         const {
@@ -316,9 +343,9 @@ export class Tab2 extends React.Component {
         return (
             <View style={condition ? styles.progressBarContainerFull : styles.progressBarContainer}>
                 <View>
-                    <Text style={styles.withdrawInfo}>{strings('cashback.toWithdraw')}</Text>
+                    <Text numberOfLines={1} style={[styles.withdrawInfo, { width: windowWidth.width * 0.41 }]}>{strings('cashback.toWithdraw')}</Text>
                     <View style={condition ? { width: windowWidth.width * 0.41 } : { width: windowWidth.width * 0.72 }}>
-                        <ProgressBar progress={balance / 2} style={[styles.progressBarLocation, { backgroundColor: colors.cashback.chartBg }]} color={colors.cashback.token} />
+                        <ProgressBar progress={progress} style={[styles.progressBarLocation, { backgroundColor: colors.cashback.chartBg }]} color={colors.cashback.token} />
                         <View>
                             <Text style={styles.progressProcent}>{balance + ' / ' + minimalWithdraw + ' ' + currency}</Text>
                         </View>
@@ -328,7 +355,7 @@ export class Tab2 extends React.Component {
                     <TouchableOpacity
                         activeOpacity={0.6}
                         style={[styles.withdrawButton, { borderColor: colors.common.text3, marginRight: GRID_SIZE }]}
-                        onPress={this.handleWithdrawCashback}
+                        onPress={this.handleWithdraw}
                     >
                         <Text style={[styles.withdrawButtonText, { color: colors.common.text3 }]}>{strings('cashback.withdraw')}</Text>
                     </TouchableOpacity> : null}
@@ -381,11 +408,7 @@ Tab2.contextType = ThemeContext
 Tab1.contextType = ThemeContext
 
 const styles = StyleSheet.create({
-    invited: {
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    refContainer: {
+    inviteContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between'
     },

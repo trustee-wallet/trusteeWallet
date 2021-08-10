@@ -48,8 +48,6 @@ class QrCodePage extends PureComponent {
             GRID_SIZE
         } = this.context
 
-        console.log(WINDOW_WIDTH)
-
         return(
             <>
                 <ImageBackground
@@ -63,7 +61,7 @@ class QrCodePage extends PureComponent {
                     </View>
                     <Image style={styles.picProcent} source={require('@assets/images/picProcent.png')} />
                     <TouchableOpacity
-                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE / 2.5, left: WINDOW_WIDTH * 0.276 }]}
+                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE / 2.5, left: WINDOW_WIDTH <= 390 ? WINDOW_WIDTH * 0.26 : WINDOW_WIDTH * 0.276 }]}
                         onPress={() => this.copyToClip(cashbackLink)}
                         activeOpacity={0.8}
                     >
@@ -149,7 +147,7 @@ const styles = StyleSheet.create({
     },
     picProcent: {
         position: 'absolute',
-        top: WINDOW_WIDTH >= 400 && WINDOW_WIDTH <= 450 ? -WINDOW_HEIGHT * 0.135 : -WINDOW_HEIGHT * 0.155,
+        top: WINDOW_WIDTH >= 400 && WINDOW_WIDTH <= 512 ? -WINDOW_HEIGHT * 0.135 : -WINDOW_HEIGHT * 0.155,
         left: WINDOW_WIDTH * 0.51,
         width: WINDOW_WIDTH * 0.42,
         height: WINDOW_WIDTH * 0.34

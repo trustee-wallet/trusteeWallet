@@ -66,7 +66,7 @@ const CashbackData = (props) => {
 
                 <View style={{ flexDirection: 'row' }} >
                     <View style={styles.header}>
-                        <Text style={[styles.header__title, { color: colors.common.text1 }]}>{title}</Text>
+                        <Text numberOfLines={1} style={[styles.header__title, { color: colors.common.text1 }]}>{title}</Text>
                         <Text style={styles.header__subTitle}>{subTitle}</Text>
                     </View>
                 </View>
@@ -177,6 +177,7 @@ const styles = {
     },
     header: {
         marginTop: 16,
+        marginRight: 16,
         marginLeft: 16
     },
     header__title: {
