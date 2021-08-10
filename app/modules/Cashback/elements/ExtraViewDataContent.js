@@ -1,7 +1,7 @@
 /**
-* @version 0.42
-* @author Vadym
-*/
+ * @version 0.42
+ * @author Vadym
+ */
 
 import React from 'react'
 import TextInput from '@app/components/elements/new/TextInput'
@@ -26,6 +26,7 @@ import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import Api from '@app/services/Api/Api'
 import config from '@app/config/config'
+import { TelegramComponent } from '@app/modules/Cashback/elements/TelegramComponent'
 
 export class Tab1 extends React.Component {
 
@@ -33,7 +34,7 @@ export class Tab1 extends React.Component {
         inviteLink: '',
         promoCode: '',
         selectedContent: null,
-        inviteLinkError: false
+        inviteLinkError: false,
     }
 
     // eslint-disable-next-line camelcase
@@ -120,7 +121,6 @@ export class Tab1 extends React.Component {
             Log.err('CashBackScreen.Details handleSubmitInviteLink error ' + e.message)
         }
     }
-
 
 
     handleChangeInviteLink = (value) => {
@@ -220,54 +220,56 @@ export class Tab1 extends React.Component {
         return (
             <View>
                 {!cashbackParentToken ?
-                    <View style={styles.refContainer}>
-                        {!promoCondition ?
-                            <TextInput
-                                autoCapitalize="none"
-                                containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
-                                inputStyle={inviteLinkError && { color: colors.cashback.token }}
-                                placeholder={strings('cashback.enterInviteLinkPlaceholder')}
-                                onChangeText={this.handleChangeInviteLink}
-                                value={inviteLink}
-                                qr={true}
-                                qrCallback={this.handleQrCode}
-                                onBlur={this.handleSubmitInviteLink}
-                            /> :
-                            <TextInput
-                                autoCapitalize='none'
-                                containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
-                                placeholder={strings('cashback.enterPromoPlaceholder')}
-                                onChangeText={this.onChangeCode}
-                                value={this.state.promoCode}
-                                inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
-                            />}
-                        <RoundButton
-                            type={this.state.selectedContent === 'promo' ? 'sendMessage' : 'promo'}
-                            size={50}
-                            onPress={promoOnPress}
-                            containerStyle={[styles.buttonContainer, { marginRight: GRID_SIZE }]}
-                        />
-                    </View> :
-                    <View style={styles.invited}>
-                        {!promoCondition ?
-                            <View>
-                                <Text style={styles.inviteText}>{'Invited:'}</Text>
-                                <Text style={[styles.inviteToken, { color: colors.common.text1 }]}>{cashbackParentToken}</Text>
-                            </View> :
-                            <TextInput
-                                containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
-                                placeholder={strings('cashback.enterPromoPlaceholder')}
-                                onChangeText={this.onChangeCode}
-                                value={this.state.promoCode}
-                                inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
-                            />}
-                        <RoundButton
-                            type={this.state.selectedContent === 'promo' ? 'sendMessage' : 'promo'}
-                            size={50}
-                            onPress={promoOnPress}
-                            containerStyle={[styles.buttonContainer, { marginRight: GRID_SIZE }]}
-                        />
-                    </View>}
+                <View style={styles.refContainer}>
+                    {!promoCondition ?
+                        <TextInput
+                            autoCapitalize='none'
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
+                            inputStyle={inviteLinkError && { color: colors.cashback.token }}
+                            placeholder={strings('cashback.enterInviteLinkPlaceholder')}
+                            onChangeText={this.handleChangeInviteLink}
+                            value={inviteLink}
+                            qr={true}
+                            qrCallback={this.handleQrCode}
+                            onBlur={this.handleSubmitInviteLink}
+                        /> :
+                        <TextInput
+                            autoCapitalize='none'
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
+                            placeholder={strings('cashback.enterPromoPlaceholder')}
+                            onChangeText={this.onChangeCode}
+                            value={this.state.promoCode}
+                            onBlur={this.handlePressPromo}
+                            inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
+                        />}
+                    <RoundButton
+                        type={this.state.selectedContent === 'promo' ? 'sendMessage' : 'promo'}
+                        size={50}
+                        onPress={promoOnPress}
+                        containerStyle={[styles.buttonContainer, { marginRight: GRID_SIZE }]}
+                    />
+                </View> :
+                <View style={styles.invited}>
+                    {!promoCondition ?
+                        <View>
+                            <Text style={styles.inviteText}>{'Invited:'}</Text>
+                            <Text style={[styles.inviteToken, { color: colors.common.text1 }]}>{cashbackParentToken}</Text>
+                        </View> :
+                        <TextInput
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.52 }}
+                            placeholder={strings('cashback.enterPromoPlaceholder')}
+                            onChangeText={this.onChangeCode}
+                            value={this.state.promoCode}
+                            onBlur={this.handlePressPromo}
+                            inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
+                        />}
+                    <RoundButton
+                        type={this.state.selectedContent === 'promo' ? 'sendMessage' : 'promo'}
+                        size={50}
+                        onPress={promoOnPress}
+                        containerStyle={[styles.buttonContainer, { marginRight: GRID_SIZE }]}
+                    />
+                </View>}
             </View>
         )
     }
@@ -283,7 +285,7 @@ export class Tab2 extends React.Component {
                 type: 'INFO_MODAL',
                 icon: false,
                 title: strings('modal.exchange.sorry'),
-                description: `${strings('cashback.minWithdraw')} ${minWithdraw} ${this.cashbackCurrency}`
+                description: `${strings('cashback.minWithdraw')} ${minWithdraw} ${this.props.currency}`
             })
         } else {
             showModal({
@@ -291,7 +293,7 @@ export class Tab2 extends React.Component {
                 icon: null,
                 title: strings('modal.titles.attention'),
                 description: strings('cashback.performWithdraw'),
-                component: this.renderTelegramComponent
+                component: <TelegramComponent />
             })
         }
     }

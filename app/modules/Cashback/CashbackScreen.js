@@ -10,7 +10,6 @@ import {
     StyleSheet,
     RefreshControl,
     FlatList,
-    LayoutAnimation,
     Platform,
     UIManager, Dimensions
 } from 'react-native'
@@ -47,12 +46,12 @@ class CashbackScreen extends React.PureComponent {
             {
                 title: strings('notifications.tabInvite'),
                 index: 0,
-                active: false
+                active: true
             },
             {
                 title: strings('notifications.tabInfo'),
                 index: 1,
-                active: true
+                active: false
             },
             {
                 title: strings('notifications.tabFaq'),
@@ -109,11 +108,13 @@ class CashbackScreen extends React.PureComponent {
 
             {
                 title: strings('cashback.availableCashBack'),
-                subTitle: 'updated ' + timePrep,
+                subTitle: strings('cashback.updated') + ' ' + timePrep,
                 balance: UtilsService.cutNumber(cashbackBalance + cpaBalance, 2),
                 ExtraViewData: () => {
                     return (
                         <Tab1
+                            cashbackStore={this.props.cashbackStore}
+                            cashbackTocen={this.props.cashbackToken}
                             windowWidth={windowWidth}
                             cashbackParentToken={cashbackParentToken}
                         />
@@ -155,7 +156,7 @@ class CashbackScreen extends React.PureComponent {
             },
             {
                 title: strings('cashback.wholeBalance'),
-                subTitle: 'updated ' + timePrep,
+                subTitle: strings('cashback.updated') + ' ' + timePrep,
                 balance: UtilsService.cutNumber(cashbackBalance + cpaBalance, 2),
                 ExtraViewData: () => {
                     return (
@@ -184,6 +185,15 @@ class CashbackScreen extends React.PureComponent {
                 this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
             }
         }
+    }
+
+    scrollDetails = (value) => {
+            setTimeout(() => {
+                try {
+                    this.scrollView.scrollTo({ y: this.state.selectedTitle === value ? 100 : -200 })
+                } catch (e) {
+                }
+            }, 300)
     }
 
     handlePressShare = (cashbackLink) => {
@@ -229,8 +239,8 @@ class CashbackScreen extends React.PureComponent {
     }
 
     handleSelectTitle = (value) => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
-        this.setState({selectedTitle: this.state.selectedTitle === value ? null : value})
+        this.scrollDetails(value)
+        this.setState({ selectedTitle: this.state.selectedTitle === value ? null : value })
     }
 
     render() {
@@ -261,8 +271,13 @@ class CashbackScreen extends React.PureComponent {
             <ScreenWrapper
                 title={strings('cashback.pageTitle')}
                 ExtraView={this.renderTabs}
+                rightAction={this.handlePressShare}
+                rightType='share'
             >
                 <ScrollView
+                    ref={(ref) => {
+                        this.scrollView = ref
+                    }}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={[styles.scrollViewContent, { paddingVertical: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }]}
                     keyboardShouldPersistTaps='handled'
@@ -282,18 +297,23 @@ class CashbackScreen extends React.PureComponent {
                     )}
                     {this.state.tabs[1].active && (
                         <>
-                            <FlatList
-                                data={this.state.flatListData}
-                                style={{marginHorizontal: -GRID_SIZE}}
-                                keyExtractor={({ index }) => index}
-                                horizontal={true}
-                                renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
-                                showsHorizontalScrollIndicator={false}
-                            />
+                            <View style={{ flex: 0.01 }}>
+                                <FlatList
+                                    data={this.state.flatListData}
+                                    style={{ marginHorizontal: -GRID_SIZE }}
+                                    keyExtractor={({ index }) => index}
+                                    ListFooterComponentStyle={styles.flatListFooter}
+                                    horizontal={true}
+                                    renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
+                                    showsHorizontalScrollIndicator={false}
+                                />
+                            </View>
                             <View style={styles.switchableTabs}>
                                 <DetailsHeader
                                     title={strings('cashback.cashback')}
-                                    onPress={() => {this.handleSelectTitle('CASHBACK')}}
+                                    onPress={() => {
+                                        this.handleSelectTitle('CASHBACK')
+                                    }}
                                     balance={cashbackBalance}
                                     currency={this.cashbackCurrency}
                                     progress={cashbackBalance / 2}
@@ -301,7 +321,9 @@ class CashbackScreen extends React.PureComponent {
                                 />
                                 <DetailsHeader
                                     title={strings('cashback.cpa')}
-                                    onPress={() => {this.handleSelectTitle('CPA')}}
+                                    onPress={() => {
+                                        this.handleSelectTitle('CPA')
+                                    }}
                                     balance={cpaBalance}
                                     currency={this.cashbackCurrency}
                                     progress={cpaBalance / 2}
@@ -387,6 +409,7 @@ const styles = StyleSheet.create({
         flexGrow: 1
     },
     switchableTabs: {
-        marginBottom: 5,
+        marginBottom: 5
     },
+    flatListFooter: {}
 })

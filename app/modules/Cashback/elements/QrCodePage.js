@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     PageSubtitleTextBox: {
         position: 'absolute',
         zIndex: 2,
-        top: -WINDOW_WIDTH * 0.23,
+        top: -WINDOW_WIDTH * 0.2,
         left: WINDOW_WIDTH * 0.57,
         width: WINDOW_WIDTH * 0.2125
     },
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-Medium',
         fontStyle: 'normal',
         textAlign: 'center',
-        fontSize: WINDOW_WIDTH * 0.0625,
+        fontSize: WINDOW_WIDTH * 0.05,
         color: '#ffffff'
     },
     qrCodeContainer: {
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     },
     picProcent: {
         position: 'absolute',
-        top: -WINDOW_HEIGHT * 0.155,
+        top: WINDOW_WIDTH >= 400 && WINDOW_WIDTH <= 450 ? -WINDOW_HEIGHT * 0.135 : -WINDOW_HEIGHT * 0.155,
         left: WINDOW_WIDTH * 0.51,
         width: WINDOW_WIDTH * 0.42,
         height: WINDOW_WIDTH * 0.34
