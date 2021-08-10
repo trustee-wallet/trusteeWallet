@@ -37,6 +37,9 @@ module.exports = [
     [ `44'/818`, "VET", "VET" ],
 
     [ `44'/501`, "SOL", "SOL" ],
+    [ `44'/5741564`, "WAVES", "Waves" ],
+    [ `44'/5741564`, "ASH", "Ash" ],
+
     /*
     [ 0x80000004, "RDD", "Reddcoin" ],
     [ 0x80000005, "DASH", "Dash (ex Darkcoin)" ],

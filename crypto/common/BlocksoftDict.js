@@ -5,13 +5,25 @@ import Database from '@app/appstores/DataSource/Database'
 const { RNFastCrypto } = NativeModules
 
 const VisibleCodes = [
-    'BTC', 'ETH', 'ETH_USDT', 'TRX', 'TRX_USDT' // add code here to show on start screen
+    'ASH' // 'WAVES', BTC', 'ETH', 'ETH_USDT', 'TRX', 'TRX_USDT' // add code here to show on start screen
 ]
 const Codes = [
-    'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
+    'ASH' // BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
 ]
 
 const Currencies = {
+    ASH:
+        {
+            currencyType: 'coin',
+            currencyName: 'AENEAS',
+            currencyCode: 'ASH',
+            currencySymbol: 'ASH',
+            addressProcessor: 'ASH',
+            scannerProcessor: 'ASH',
+            decimals: 8,
+            currencyExplorerLink: 'http://explorer.aeneas.id/address/',
+            currencyExplorerTxLink: 'http://explorer.aeneas.id/tx/'
+        },
     BTC:
         {
             currencyType: 'coin',
@@ -1598,6 +1610,19 @@ const Currencies = {
             decimals: 6,
             currencyExplorerLink: 'https://verge-blockchain.info/address/',
             currencyExplorerTxLink: 'https://verge-blockchain.info/tx/'
+        },
+    WAVES:
+        {
+            currencyType: 'coin',
+            currencyName: 'WAVES',
+            currencyCode: 'WAVES',
+            currencySymbol: 'WAVES',
+            addressProcessor: 'WAVES',
+            scannerProcessor: 'WAVES',
+            prettyNumberProcessor: 'UNIFIED',
+            decimals: 8,
+            currencyExplorerLink: 'https://wavesexplorer.com/address/',
+            currencyExplorerTxLink: 'https://wavesexplorer.com/tx/'
         },
     TRX_WINK:
         {
