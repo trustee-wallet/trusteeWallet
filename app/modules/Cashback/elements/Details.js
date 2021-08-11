@@ -14,10 +14,6 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 
 class DetailsContent extends React.Component {
-    state = {
-        inviteLinkError: false,
-        inviteLink: ''
-    }
 
     cashbackCurrency = 'USDT'
 
@@ -30,7 +26,10 @@ class DetailsContent extends React.Component {
             overalPrep,
             invitedUsers,
             level2Users,
-            selectedTitle
+            selectedTitle,
+            cpaLevel1,
+            cpaLevel2,
+            cpaLevel3
         } = this.props
 
         return (
@@ -56,15 +55,15 @@ class DetailsContent extends React.Component {
                         <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cpaInfo')}</Text>
                         <View style={styles.textRow}>
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel1')}</Text>
-                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel1}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel1}</Text>
                         </View>
                         <View style={styles.textRow}>
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel2')}</Text>
-                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel2}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel2}</Text>
                         </View>
                         <View style={styles.textRow}>
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
-                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{this.props.cpaLevel3}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel3}</Text>
                         </View>
                     </View> : null}
 
@@ -79,15 +78,10 @@ const mapStateToProps = (state) => {
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
-}
 
 DetailsContent.contextType = ThemeContext
 
-export default connect(mapStateToProps, mapDispatchToProps)(DetailsContent)
+export default connect(mapStateToProps)(DetailsContent)
 
 const styles = StyleSheet.create({
     container: {

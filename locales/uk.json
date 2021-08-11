@@ -237,6 +237,7 @@
      "add": "Додати"
    },
   "cashback": {
+    "invited": "Запрошений:",
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Запрошуй друзів",

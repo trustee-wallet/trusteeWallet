@@ -70,8 +70,13 @@ class CashbackScreen extends React.PureComponent {
                 UIManager.setLayoutAnimationEnabledExperimental(true)
             }
         }
+    }
+
+    renderExtraView = () => {
 
         const { cashbackStore } = this.props
+
+        const { GRID_SIZE } = this.context
 
         const time = cashbackStore.dataFromApi.time || false
         let timePrep
@@ -103,6 +108,7 @@ class CashbackScreen extends React.PureComponent {
         const cashbackProcent = UtilsService.cutNumber(cashbackBalance / 2 * 100, 2)
 
         const cpaProcent = UtilsService.cutNumber(UtilsService.getPercent(cpaBalance, 100), 2)
+
 
         const flatListData = [
 
@@ -174,10 +180,17 @@ class CashbackScreen extends React.PureComponent {
             }
         ]
 
-        this.setState(() => ({
-            flatListData: flatListData
-        }))
-
+        return (
+            <FlatList
+                data={flatListData}
+                style={{ marginHorizontal: -GRID_SIZE }}
+                keyExtractor={({ index }) => index}
+                ListFooterComponentStyle={styles.flatListFooter}
+                horizontal={true}
+                renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
+                showsHorizontalScrollIndicator={false}
+            />
+        )
     }
 
 
@@ -191,12 +204,12 @@ class CashbackScreen extends React.PureComponent {
     }
 
     scrollDetails = (value) => {
-            setTimeout(() => {
-                try {
-                    this.scrollView.scrollTo({ y: this.state.selectedTitle === value ? 100 : -200 })
-                } catch (e) {
-                }
-            }, 300)
+        setTimeout(() => {
+            try {
+                this.scrollView.scrollTo({ y: this.state.selectedTitle === value ? 100 : -200 })
+            } catch (e) {
+            }
+        }, 300)
     }
 
     handlePressShare = (cashbackLink) => {
@@ -300,15 +313,7 @@ class CashbackScreen extends React.PureComponent {
                     {this.state.tabs[1].active && (
                         <>
                             <View style={{ flex: 0.01 }}>
-                                <FlatList
-                                    data={this.state.flatListData}
-                                    style={{ marginHorizontal: -GRID_SIZE }}
-                                    keyExtractor={({ index }) => index}
-                                    ListFooterComponentStyle={styles.flatListFooter}
-                                    horizontal={true}
-                                    renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
-                                    showsHorizontalScrollIndicator={false}
-                                />
+                                {this.renderExtraView()}
                             </View>
                             <View style={styles.switchableTabs}>
                                 <DetailsHeader
@@ -389,7 +394,6 @@ class CashbackScreen extends React.PureComponent {
                 cpaLevel1={cpaLevel1}
                 cpaLevel2={cpaLevel2}
                 cpaLevel3={cpaLevel3}
-                inviteLink={this.state.inviteLink}
             />
         )
     }
@@ -400,7 +404,6 @@ const mapStateToProps = (state) => {
         cashbackStore: getCashBackData(state)
     }
 }
-
 
 CashbackScreen.contextType = ThemeContext
 

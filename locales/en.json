@@ -237,6 +237,7 @@
     "add": "Add"
   },
   "cashback": {
+    "invited": "Invited:",
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Invite your friends",

@@ -21,13 +21,13 @@ import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { ProgressBar } from 'react-native-paper'
-import { ProgressCircle } from 'react-native-svg-charts'
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import Api from '@app/services/Api/Api'
 import config from '@app/config/config'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import ProgressCircleBox from '@app/modules/Cashback/elements/ProgressCircleBox'
 
 export class Tab1 extends React.Component {
 
@@ -202,6 +202,8 @@ export class Tab1 extends React.Component {
 
         const promoOnPress = promoCondition ? !promoError ? this.handleApply : this.handlePressPromo : this.handlePressPromo
 
+        const promoOnBlur = !promoError ? null : this.handlePressPromo
+
         const {
             inviteLink,
             inviteLinkError
@@ -241,7 +243,7 @@ export class Tab1 extends React.Component {
                             placeholder={strings('cashback.enterPromoPlaceholder')}
                             onChangeText={this.onChangeCode}
                             value={this.state.promoCode}
-                            onBlur={promoOnPress}
+                            onBlur={promoOnBlur}
                             inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
                         />}
                     <RoundButton
@@ -254,7 +256,7 @@ export class Tab1 extends React.Component {
                 <View style={styles.inviteContainer}>
                     {!promoCondition ?
                         <View>
-                            <Text style={styles.inviteText}>{'Invited:'}</Text>
+                            <Text style={styles.inviteText}>{strings('cashback.invited')}</Text>
                             <Text style={[styles.inviteToken, { color: colors.common.text1 }]}>{cashbackParentToken}</Text>
                         </View> :
                         <TextInput
@@ -263,7 +265,7 @@ export class Tab1 extends React.Component {
                             placeholder={strings('cashback.enterPromoPlaceholder')}
                             onChangeText={this.onChangeCode}
                             value={this.state.promoCode}
-                            onBlur={promoOnPress}
+                            onBlur={promoOnBlur}
                             inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
                         />}
                     <RoundButton
@@ -345,7 +347,7 @@ export class Tab2 extends React.Component {
                 <View>
                     <Text numberOfLines={1} style={[styles.withdrawInfo, { width: windowWidth.width * 0.41 }]}>{strings('cashback.toWithdraw')}</Text>
                     <View style={condition ? { width: windowWidth.width * 0.41 } : { width: windowWidth.width * 0.72 }}>
-                        <ProgressBar progress={progress} style={[styles.progressBarLocation, { backgroundColor: colors.cashback.chartBg }]} color={colors.cashback.token} />
+                        <ProgressBar indeterminate={true} progress={progress} style={[styles.progressBarLocation, { backgroundColor: colors.cashback.chartBg }]} color={colors.cashback.token} />
                         <View>
                             <Text style={styles.progressProcent}>{balance + ' / ' + minimalWithdraw + ' ' + currency}</Text>
                         </View>
@@ -380,24 +382,17 @@ export class Tab3 extends React.Component {
 
         return (
             <View style={styles.circleView}>
-                <View style={[styles.circleBox, { borderRightWidth: 1, borderRightColor: colors.cashback.borderColor }]}>
-                    <View>
-                        <ProgressCircle style={styles.progressCircle} strokeWidth={3.5} progress={cashbackBalance / 2} backgroundColor={colors.cashback.chartBg} progressColor={colors.cashback.token} />
-                    </View>
-                    <View style={styles.circleInfo}>
-                        <Text style={[styles.circleTitle, { color: colors.common.text3 }]}>{'Cashback'}</Text>
-                        <Text style={styles.circleProcent}>{(cashbackProcent >= 100 ? '100' : cashbackProcent) + ' %'}</Text>
-                    </View>
-                </View>
-                <View style={styles.circleBox}>
-                    <View>
-                        <ProgressCircle style={styles.progressCircle} strokeWidth={3.5} progress={cpaBalance / 100} backgroundColor={colors.cashback.chartBg} progressColor={colors.cashback.token} />
-                    </View>
-                    <View style={styles.circleInfo}>
-                        <Text style={[styles.circleTitle, { color: colors.common.text3 }]}>{'CPA'}</Text>
-                        <Text style={styles.circleProcent}>{(cpaProcent >= 100 ? '100' : cpaProcent) + ' %'}</Text>
-                    </View>
-                </View>
+                <ProgressCircleBox
+                    additionalStyles={{ borderRightWidth: 1, borderRightColor: colors.cashback.borderColor }}
+                    progress={cashbackBalance / 2}
+                    title={strings('cashback.cashback')}
+                    procent={cashbackProcent}
+                />
+                <ProgressCircleBox
+                    progress={cpaBalance / 100}
+                    title={strings('cashback.cpa')}
+                    procent={cpaProcent}
+                />
             </View>
         )
     }
@@ -489,36 +484,8 @@ const styles = StyleSheet.create({
         letterSpacing: 0.7,
         color: '#999999'
     },
-    progressCircle: {
-        height: 34,
-        width: 34
-    },
     circleView: {
         flexDirection: 'row',
         marginTop: 10
     },
-    circleTitle: {
-        marginTop: 3,
-        fontSize: 14,
-        fontFamily: 'Montserrat-SemiBold',
-        lineHeight: 14
-    },
-    circleBox: {
-        flex: 1,
-        alignItems: 'flex-start',
-        flexDirection: 'row',
-        marginLeft: 17
-    },
-    circleProcent: {
-        marginTop: 4,
-        fontFamily: 'SFUIDisplay-Bold',
-        fontSize: 15,
-        lineHeight: 15,
-        letterSpacing: 1.75,
-        color: '#999999'
-    },
-    circleInfo: {
-        flex: 1,
-        marginLeft: 9
-    }
 })
