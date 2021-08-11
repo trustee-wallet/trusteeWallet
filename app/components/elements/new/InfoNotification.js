@@ -20,7 +20,7 @@ class InfoNotification extends React.Component {
 
     state = {
         viewHeight: 0,
-        height: new Animated.Value(0),
+        height: new Animated.Value(0)
     }
 
     processViewHeight = (e) => {
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16
     },
     iconWrapper: {
-        alignSelf: 'center'
+        alignSelf: 'flex-start',
     },
     description: {
         flex: 2,
@@ -131,7 +131,8 @@ const styles = StyleSheet.create({
     backupName: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
-        lineHeight: 17
+        lineHeight: 17,
+        paddingTop: 5
     },
     close: {
         height: 24
