@@ -351,7 +351,7 @@ export class Tab2 extends React.Component {
                     <View style={styles.progressBarLocation}>
                         <Progress.Bar
                             width={!condition ? windowWidth.width * 0.70 : windowWidth.width * 0.36}
-                            height={6}
+                            height={5}
                             borderRadius={4}
                             progress={progress}
                             useNativeDriver={true}

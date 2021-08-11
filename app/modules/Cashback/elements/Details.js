@@ -1,8 +1,9 @@
 /**
  * @version 0.42
+ * @author Vadym
  */
+
 import React from 'react'
-import { connect } from 'react-redux'
 import {
     View,
     Text,
@@ -11,7 +12,6 @@ import {
 } from 'react-native'
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 
 class DetailsContent extends React.Component {
 
@@ -72,19 +72,13 @@ class DetailsContent extends React.Component {
     }
 }
 
-const mapStateToProps = (state) => {
-    return {
-        cashbackStore: getCashBackData(state)
-    }
-}
-
-
 DetailsContent.contextType = ThemeContext
 
-export default connect(mapStateToProps)(DetailsContent)
+export default DetailsContent
 
 const styles = StyleSheet.create({
     container: {
+        marginTop: 5,
         position: 'relative',
         borderRadius: 16,
         height: 160,

@@ -1,5 +1,8 @@
-import CustomIcon from '@app/components/elements/CustomIcon'
-import { useTheme } from '@app/theme/ThemeProvider'
+/**
+ * @version 0.42
+ * @author Vadym
+ */
+
 import React from 'react'
 import {
     TouchableOpacity,
@@ -10,6 +13,9 @@ import {
 } from 'react-native'
 
 import { ProgressCircle } from 'react-native-svg-charts'
+
+import CustomIcon from '@app/components/elements/CustomIcon'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 const getIcon = (icon) => {
 

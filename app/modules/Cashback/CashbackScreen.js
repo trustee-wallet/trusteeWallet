@@ -13,6 +13,7 @@ import {
     Platform,
     UIManager, Dimensions
 } from 'react-native'
+
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { strings } from '@app/services/i18n'
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
@@ -27,6 +28,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import Tabs from '@app/components/elements/new/Tabs'
 import CashbackData from './elements/CashbackData'
+
 import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
 import QrCodePage from '@app/modules/Cashback/elements/QrCodePage'
 import { Tab1, Tab2, Tab3 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
@@ -85,8 +87,12 @@ class CashbackScreen extends React.PureComponent {
             timePrep = timeDate.toLocaleTimeString()
         }
 
-        const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || '0.00'
-        const cpaBalance = cashbackStore.dataFromApi.cpaBalance || '0.00'
+        if (typeof cashbackStore.dataFromApi.time === 'undefined' || cashbackStore.dataFromApi.time !== cashbackStore.time) {
+            timePrep = '-'
+        }
+
+        const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
+        const cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
 
         const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
         const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
@@ -134,7 +140,7 @@ class CashbackScreen extends React.PureComponent {
                     return (
                         <Tab2
                             cashbackStore={cashbackStore}
-                            progress={cashbackBalance / 100}
+                            progress={cashbackBalance / 2}
                             windowWidth={windowWidth}
                             condition={cashbackCondition}
                             balance={UtilsService.cutNumber(cashbackBalance, 2)}
@@ -270,8 +276,8 @@ class CashbackScreen extends React.PureComponent {
         } = this.state
         const { cashbackStore } = this.props
 
-        const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || '0.00'
-        const cpaBalance = cashbackStore.dataFromApi.cpaBalance || '0.00'
+        const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
+        const cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
 
         let cashbackLink = cashbackStore.dataFromApi.cashbackLink || false
         let cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
@@ -314,7 +320,6 @@ class CashbackScreen extends React.PureComponent {
                             <View style={{ flex: 0.01 }}>
                                 {this.renderExtraView()}
                             </View>
-                            <View style={styles.switchableTabs}>
                                 <DetailsHeader
                                     title={strings('cashback.cashback')}
                                     onPress={() => {
@@ -335,7 +340,6 @@ class CashbackScreen extends React.PureComponent {
                                     progress={cpaBalance / 100}
                                     icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
                                 />
-                            </View>
 
                             {this.renderContent()}
                         </>
@@ -412,8 +416,4 @@ const styles = StyleSheet.create({
     scrollViewContent: {
         flexGrow: 1
     },
-    switchableTabs: {
-        marginBottom: 5
-    },
-    flatListFooter: {}
 })

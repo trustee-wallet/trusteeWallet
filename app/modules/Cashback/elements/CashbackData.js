@@ -1,3 +1,8 @@
+/**
+ * @version 0.42
+ * @author Vadym
+ */
+
 import React from 'react'
 import {
     View,
@@ -8,7 +13,6 @@ import {
 import { useTheme } from '@app/theme/ThemeProvider'
 import GradientView from '@app/components/elements/GradientView'
 
-// import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 const widthWindow = Dimensions.get('window').width
