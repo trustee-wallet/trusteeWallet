@@ -5,7 +5,8 @@ import {
     TouchableOpacity,
     View,
     Text,
-    StyleSheet
+    StyleSheet,
+    LayoutAnimation
 } from 'react-native'
 
 import { ProgressCircle } from 'react-native-svg-charts'
@@ -43,7 +44,7 @@ const DetailsHeader = (props) => {
         <TouchableOpacity style={styles.switchableTabsLocation}
                           onPress={() => {
                               onPress()
-                              // LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
+                              LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
                           }}>
             <View style={styles.switchableTabsContainer}>
                 <ProgressCircle

@@ -109,7 +109,6 @@ class CashbackScreen extends React.PureComponent {
 
         const cpaProcent = UtilsService.cutNumber(UtilsService.getPercent(cpaBalance, 100), 2)
 
-
         const flatListData = [
 
             {
@@ -119,8 +118,8 @@ class CashbackScreen extends React.PureComponent {
                 ExtraViewData: () => {
                     return (
                         <Tab1
-                            cashbackStore={this.props.cashbackStore}
-                            cashbackTocen={this.props.cashbackToken}
+                            cashbackStore={cashbackStore}
+                            cashbackTocen={cashbackToken}
                             windowWidth={windowWidth}
                             cashbackParentToken={cashbackParentToken}
                         />
@@ -134,8 +133,8 @@ class CashbackScreen extends React.PureComponent {
                 ExtraViewData: () => {
                     return (
                         <Tab2
-                            cashbackStore={this.props.cashbackStore}
-                            progress={cashbackBalance / 2}
+                            cashbackStore={cashbackStore}
+                            progress={cashbackBalance / 100}
                             windowWidth={windowWidth}
                             condition={cashbackCondition}
                             balance={UtilsService.cutNumber(cashbackBalance, 2)}

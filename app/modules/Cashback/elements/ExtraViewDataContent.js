@@ -3,16 +3,19 @@
  * @author Vadym
  */
 
+import * as Progress from 'react-native-progress'
+
 import React from 'react'
-import TextInput from '@app/components/elements/new/TextInput'
-import { strings } from '@app/services/i18n'
 import {
     Text,
     View,
     StyleSheet,
     TouchableOpacity
 } from 'react-native'
+
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import TextInput from '@app/components/elements/new/TextInput'
+import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
 import NavStore from '@app/components/navigation/NavStore'
@@ -20,7 +23,6 @@ import Validator from '@app/services/UI/Validator/Validator'
 import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import { ProgressBar } from 'react-native-paper'
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import Api from '@app/services/Api/Api'
@@ -343,11 +345,20 @@ export class Tab2 extends React.Component {
         } = this.context
 
         return (
-            <View style={condition ? styles.progressBarContainerFull : styles.progressBarContainer}>
+            <View style={styles.progressBarContainer}>
                 <View>
                     <Text numberOfLines={1} style={[styles.withdrawInfo, { width: windowWidth.width * 0.41 }]}>{strings('cashback.toWithdraw')}</Text>
-                    <View style={condition ? { width: windowWidth.width * 0.41 } : { width: windowWidth.width * 0.72 }}>
-                        <ProgressBar indeterminate={true} progress={progress} style={[styles.progressBarLocation, { backgroundColor: colors.cashback.chartBg }]} color={colors.cashback.token} />
+                    <View style={styles.progressBarLocation}>
+                        <Progress.Bar
+                            width={!condition ? windowWidth.width * 0.70 : windowWidth.width * 0.36}
+                            height={6}
+                            borderRadius={4}
+                            progress={progress}
+                            useNativeDriver={true}
+                            color={colors.cashback.token}
+                            borderColor='transparent'
+                            unfilledColor={colors.cashback.chartBg}
+                        />
                         <View>
                             <Text style={styles.progressProcent}>{balance + ' / ' + minimalWithdraw + ' ' + currency}</Text>
                         </View>
@@ -435,9 +446,6 @@ const styles = StyleSheet.create({
         letterSpacing: 1
     },
     progressBarContainer: {
-        marginTop: 5
-    },
-    progressBarContainerFull: {
         marginTop: 5,
         flexDirection: 'row',
         justifyContent: 'space-between'
@@ -452,10 +460,8 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5
     },
     progressBarLocation: {
-        borderRadius: 5,
-        height: 6,
-        marginTop: 5,
-        marginLeft: 11
+        marginTop: 4,
+        marginLeft: 9
     },
     withdrawButton: {
         marginTop: 5,
@@ -476,8 +482,7 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase'
     },
     progressProcent: {
-        marginLeft: 11,
-        marginTop: 5,
+        marginTop: 7,
         fontFamily: 'SFUIDisplay-SemiBold',
         fontSize: 16,
         lineHeight: 18,

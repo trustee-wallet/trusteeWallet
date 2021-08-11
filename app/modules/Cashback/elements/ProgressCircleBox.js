@@ -31,7 +31,13 @@ const ProgressCircleBox = (props) => {
     return(
         <View style={[styles.circleBox, additionalStyles]}>
             <View>
-                <ProgressCircle style={styles.progressCircle} strokeWidth={3.5} progress={progress} backgroundColor={colors.cashback.chartBg} progressColor={colors.cashback.token} />
+                <ProgressCircle
+                    style={styles.progressCircle}
+                    strokeWidth={3.5}
+                    progress={progress}
+                    backgroundColor={colors.cashback.chartBg}
+                    progressColor={colors.cashback.token}
+                />
             </View>
             <View style={styles.circleInfo}>
                 <Text style={[styles.circleTitle, { color: colors.common.text3 }]}>{title}</Text>

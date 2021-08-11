@@ -13,6 +13,7 @@ import {
     StyleSheet,
     Dimensions
 } from 'react-native'
+
 import { strings } from '@app/services/i18n'
 import QrCodeBox from '@app/components/elements/QrCodeBox'
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -61,7 +62,7 @@ class QrCodePage extends PureComponent {
                     </View>
                     <Image style={styles.picProcent} source={require('@assets/images/picProcent.png')} />
                     <TouchableOpacity
-                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE / 2.5, left: WINDOW_WIDTH <= 390 ? WINDOW_WIDTH * 0.26 : WINDOW_WIDTH * 0.276 }]}
+                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE / 2.5, left: WINDOW_WIDTH <= 390 ? WINDOW_WIDTH * 0.272 : WINDOW_WIDTH * 0.276 }]}
                         onPress={() => this.copyToClip(cashbackLink)}
                         activeOpacity={0.8}
                     >
