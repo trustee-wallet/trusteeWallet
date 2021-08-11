@@ -187,7 +187,7 @@
       "contactSupportTitle": "Contact support",
       "contactSupportSubtitle": "Official telegram channel",
       "contactSupportEmail": "or send Email",
-      "contactSupportEmailSubtitle": "Official email",
+      "contactSupportEmailSubtitle": "Official Email",
       "contactSupportLoadingText" : "If you have not opened the support chat, please contact us at",
       "contactSupportLoadingTextEmail": "or write to",
       "information": "Information",
@@ -451,24 +451,24 @@
   },
 
   "FioChooseAddress": {
-    "title": "Choose Fio Address",
+    "title": "Choose FIO Address",
     "description": "Enter address to request payment from",
     "btnText": "Select FIO Address"
   },
   "FioAddresses": {
-    "title": "Fio Addresses",
+    "title": "FIO Addresses",
     "btnText": "Register address",
     "WebViewTitle": "Register address"
   },
   "FioSettings": {
-    "title": "Fio Settings",
+    "title": "FIO Settings",
     "description": "Choose wallets to connect to your FIO address",
     "Expire": "Expires",
     "connectAllWallets": "Connect all wallets",
     "btnText": "Save",
     "noFioTitle": "You need to register FIO address",
     "noFioDescription": "FIO address not registered",
-    "noFioBtn": "Register Fio Address",
+    "noFioBtn": "Register FIO Address",
     "serviceUnavailable": "Service unavailable. Please, try again later"
   },
 
@@ -484,7 +484,7 @@
     "fioSettings": "FIO Settings",
     "registerFioAddress": "Register FIO Address",
     "noCoinSelected": "You need to choose coin in which you make request",
-    "goToFioSettings": "You need go to Fio Settings and associate coins with your FIO address",
+    "goToFioSettings": "You need go to FIO Settings and associate coins with your FIO address",
     "needRegisterFio": "You need to register your FIO Address first "
   },
 
