@@ -29,6 +29,26 @@ const getSections = () => [
         title: strings('cashback.howItWorks.info4Title'),
         content: strings('cashback.howItWorks.info4Content'),
     },
+    {
+        title: strings('cashback.howItWorks.info5Title'),
+        content: strings('cashback.howItWorks.info5Content'),
+    },
+    {
+        title: strings('cashback.howItWorks.info6Title'),
+        content: strings('cashback.howItWorks.info6Content'),
+    },
+    {
+        title: strings('cashback.howItWorks.info7Title'),
+        content: strings('cashback.howItWorks.info7Content'),
+    },
+    {
+        title: strings('cashback.howItWorks.info8Title'),
+        content: strings('cashback.howItWorks.info8Content'),
+    },
+    {
+        title: strings('cashback.howItWorks.info9Title'),
+        content: strings('cashback.howItWorks.info9Content'),
+    }
 ]
 
 export default class HowItWorksContent extends React.Component {
@@ -67,9 +87,7 @@ export default class HowItWorksContent extends React.Component {
         } = this.context
 
         return (
-            <View style={{ marginTop: GRID_SIZE * 4 }}>
-                <Text style={[styles.blockTitle, { color: colors.common.text1 }]}>{strings('cashback.howItWorks.title')}</Text>
-
+            <View>
                 <Accordion
                     sections={this.sections}
                     activeSections={this.state.activeSections}
