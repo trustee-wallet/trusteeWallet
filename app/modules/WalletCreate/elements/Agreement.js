@@ -29,6 +29,7 @@ export default class Agreement extends React.PureComponent {
                     {this.getLink(strings('walletCreateScreen.terms'), handleTerms)}
                     {strings('walletCreateScreen.agreement2')}
                     {this.getLink(strings('walletCreateScreen.privacyPolicy'), handlePrivacyPolicy)}
+                    {strings('walletCreateScreen.agreement3')}
                 </Text>
             </View>
         )

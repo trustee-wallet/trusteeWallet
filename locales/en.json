@@ -12,10 +12,11 @@
     "createWallet": "Create wallet",
     "importWallet": "Restore wallet",
     "acceptTerms": "You don`t agree with Terms of Service and Privacy Policy",
-    "agreement1": "I have read, understand and agree to the",
+    "agreement1": "I agree with",
     "terms": "Terms of use",
     "agreement2": "and",
-    "privacyPolicy": "Privacy Policy",
+    "privacyPolicy": "Privacy Policy,",
+    "agreement3": "and consent to the processing of the Personal Data that I have provided",
     "termsTitle": "Terms of use",
     "privacyPolicyTitle": "Privacy Policy",
     "slider1": "Innovative security and anonymity technologies",
@@ -735,6 +736,8 @@
       "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
     "step0Screen": {
+      "phrase": "phrase",
+      "qr": "Qr",
       "info": "The recovery phrase (mnemonic phrase, seed phrase) is a secret key for accessing all the balances of your wallet. Keep it in a safe place and don't pass it to anyone!",
       "showButton": "Press and hold to reveal",
       "next": "Next",
