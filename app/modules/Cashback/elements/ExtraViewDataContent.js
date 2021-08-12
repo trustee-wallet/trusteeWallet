@@ -2,9 +2,6 @@
  * @version 0.42
  * @author Vadym
  */
-
-import * as Progress from 'react-native-progress'
-
 import React from 'react'
 import {
     Text,
@@ -12,6 +9,8 @@ import {
     StyleSheet,
     TouchableOpacity
 } from 'react-native'
+
+import { Bar } from 'react-native-progress'
 
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import TextInput from '@app/components/elements/new/TextInput'
@@ -349,14 +348,13 @@ export class Tab2 extends React.Component {
                 <View>
                     <Text numberOfLines={1} style={[styles.withdrawInfo, { width: windowWidth.width * 0.41 }]}>{strings('cashback.toWithdraw')}</Text>
                     <View style={styles.progressBarLocation}>
-                        <Progress.Bar
+                        <Bar
                             width={!condition ? windowWidth.width * 0.70 : windowWidth.width * 0.36}
                             height={5}
                             borderRadius={4}
+                            borderWidth={0}
                             progress={progress}
-                            useNativeDriver={true}
                             color={colors.cashback.token}
-                            borderColor='transparent'
                             unfilledColor={colors.cashback.chartBg}
                         />
                         <View>

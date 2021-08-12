@@ -85,9 +85,7 @@ class CashbackScreen extends React.PureComponent {
         if (time) {
             const timeDate = new Date(time)
             timePrep = timeDate.toLocaleTimeString()
-        }
-
-        if (typeof cashbackStore.dataFromApi.time === 'undefined' || cashbackStore.dataFromApi.time !== cashbackStore.time) {
+        } else {
             timePrep = '-'
         }
 
