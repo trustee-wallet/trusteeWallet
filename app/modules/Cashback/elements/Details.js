@@ -24,14 +24,15 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import NavStore from '@app/components/navigation/NavStore'
 
 import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import TextInput from '@app/components/elements/new/TextInput'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
+import Toast from '@app/services/UI/Toast/Toast'
 
 class DetailsContent extends React.Component {
     state = {
@@ -66,7 +67,17 @@ class DetailsContent extends React.Component {
     handleChangeInviteLink = (value) => { this.setState(() => ({ inviteLink: value, inviteLinkError: false })) }
 
     handleQrCode = () => {
-        setQRConfig({ type: 'CASHBACK_LINK' })
+        setQRConfig({ flowType: QRCodeScannerFlowTypes.CASHBACK_LINK, callback : (data) => {
+            try {
+                this.setState(() => ({ inviteLink: data.qrCashbackLink, inviteLinkError: false }), () => {
+                    this.handleSubmitInviteLink()
+                })
+            } catch (e) {
+                Log.log('QRCodeScannerScreen callback error ' + e.message )
+                Toast.setMessage(e.message).show()
+            }
+            NavStore.goBack()
+        }})
         NavStore.goNext('QRCodeScannerScreen')
     }
 
@@ -217,7 +228,6 @@ class DetailsContent extends React.Component {
                             </TouchableOpacity>
                         )}
                 </View>
-
                 {isEditing && (
                     <TextInput
                         autoCapitalize="none"
@@ -226,7 +236,8 @@ class DetailsContent extends React.Component {
                         placeholder={strings('cashback.enterInviteLinkPlaceholder')}
                         onChangeText={this.handleChangeInviteLink}
                         value={inviteLink}
-                        HelperAction={this.renderQrButton}
+                        qr={true}
+                        qrCallback={this.handleQrCode}
                         onBlur={this.handleSubmitInviteLink}
                     />
                 )}
@@ -289,21 +300,6 @@ class DetailsContent extends React.Component {
                     </View>
                 </View>
             </View>
-        )
-    }
-
-    renderQrButton = () => {
-        const { colors } = this.context
-        const { inviteLinkError } = this.state
-
-        return (
-            <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={this.handleQrCode}
-                hitSlop={{ top: 15, left: 15, right: 15, bottom: 15 }}
-            >
-                <CustomIcon name="qr" size={24} color={inviteLinkError ? colors.cashback.token : colors.common.text1} />
-            </TouchableOpacity>
         )
     }
 

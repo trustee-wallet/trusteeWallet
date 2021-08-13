@@ -14,7 +14,7 @@ import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { strings } from '@app/services/i18n'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 class YesNoModal extends React.PureComponent {
 
@@ -57,10 +57,10 @@ class YesNoModal extends React.PureComponent {
                     </View>
                     <View>
                         <Button onPress={this.handleNo} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
-                            {oneButton || reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
+                            {oneButton ? oneButton : reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
                         </Button>
                         <Button onPress={this.handleYes} style={{ backgroundColor: 'transparent', color: colors.modal.warning }}>
-                            {twoButton || reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
+                            {twoButton ? twoButton : reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
                         </Button>
                     </View>
                 </View>

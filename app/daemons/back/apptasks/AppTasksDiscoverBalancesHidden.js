@@ -24,7 +24,7 @@ class AppTasksDiscoverBalancesHidden {
             FROM account
             WHERE currency_code='${appTask.currencyCode}'
         LIMIT 1`
-        const tmp = await Database.setQueryString(sql).query()
+        const tmp = await Database.query(sql)
         if (!tmp || typeof tmp.array === 'undefined' || !tmp.array) return 'no account'
         const account = tmp.array[0]
         let addressToScan = account.address

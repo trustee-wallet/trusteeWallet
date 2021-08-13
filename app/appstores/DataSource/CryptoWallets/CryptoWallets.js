@@ -5,7 +5,6 @@ import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorag
 import BlocksoftKeysUtils from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
 
 import Log from '../../../services/Log/Log'
-import MarketingEvent from '../../../services/Marketing/MarketingEvent'
 
 
 const cryptoWallets = {
@@ -46,25 +45,11 @@ const cryptoWallets = {
             }
             storedKey = await BlocksoftKeysStorage.saveMnemonic(prepared)
 
-            Log.log('DS/cryptoWallets saveWallet finished', storedKey)
+            Log.log('DS/cryptoWallets saveWallet finished ' + storedKey)
         } catch (e) {
             Log.err('DS/cryptoWallets saveWallet error ' + e.message)
         }
         return storedKey
-    },
-
-    async getSelectedWallet() {
-        let storedSelectedWalletHash = null
-        try {
-            // Log.log('DS/cryptoWallets getSelectedWallet')
-
-            storedSelectedWalletHash = await BlocksoftKeysStorage.getSelectedWallet()
-
-            // Log.log('DS/cryptoWallets getSelectedWallet finished')
-        } catch (e) {
-            Log.err('DS/cryptoWallets getSelectedWallet error ' + e.message)
-        }
-        return storedSelectedWalletHash
     },
 
     async getWallet(walletHash, source) {
@@ -81,30 +66,12 @@ const cryptoWallets = {
         return storedWalletMnemonic
     },
 
-    getFirstWallet() {
-        return BlocksoftKeysStorage.getFirstWallet()
-    },
-
     async getAllWalletsText() {
         return BlocksoftKeysStorage.getAllWalletsText()
     },
 
     async getOneWalletText(walletHash, discoverPath, currencyCode) {
         return BlocksoftKeysStorage.getOneWalletText(walletHash, discoverPath, currencyCode)
-    },
-
-    async setSelectedWallet(walletHash, source) {
-        let storedSelectedWallet = null
-        try {
-            // Log.log('DS/cryptoWallets setSelectedWallet called ' + walletHash + ' from ' + source)
-
-            storedSelectedWallet = await BlocksoftKeysStorage.setSelectedWallet(walletHash, source)
-
-            // Log.log('DS/cryptoWallets setSelectedWallet finished ' + walletHash + ' from ' + source)
-        } catch (e) {
-            Log.err('DS/cryptoWallets setSelectedWallet error ' + e.message)
-        }
-        return storedSelectedWallet
     }
 }
 

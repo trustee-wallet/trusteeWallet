@@ -41,7 +41,7 @@ class EthRawDS {
         (is_removed=0 OR is_removed IS NULL)
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'`
-            const result = await Database.setQueryString(sql).query()
+            const result = await Database.query(sql)
             if (!result || !result.array || result.array.length === 0) {
                 return {}
             }
@@ -230,7 +230,7 @@ class EthRawDS {
         (is_removed=0 OR is_removed IS NULL)
         AND (currency_code='ETH' OR currency_code='ETH_ROPSTEN')
         AND transaction_hash='${data.transactionHash}'`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     }
 
     async cleanRaw(data) {
@@ -248,7 +248,7 @@ class EthRawDS {
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'
         AND transaction_unique_key='${data.transactionUnique}'`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     }
 
     async saveRaw(data) {
@@ -264,7 +264,7 @@ class EthRawDS {
         AND currency_code='${this._currencyCode}'
         AND address='${data.address.toLowerCase()}'
         AND transaction_unique_key='${data.transactionUnique.toLowerCase()}'`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
 
         const prepared = [{
             currency_code: this._currencyCode,

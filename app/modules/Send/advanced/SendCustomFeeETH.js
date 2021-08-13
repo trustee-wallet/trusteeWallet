@@ -14,7 +14,7 @@ import GasLimitAmountInput from '@app/components/elements/NewInput'
 // eslint-disable-next-line import/no-duplicates
 import Nonce from '@app/components/elements/NewInput'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'

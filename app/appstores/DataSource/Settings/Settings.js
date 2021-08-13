@@ -1,11 +1,11 @@
 /**
- * @version 0.9
+ * @version 0.50
  */
-import Database from '@app/appstores/DataSource/Database';
-
-import Log from '../../../services/Log/Log'
+import Database from '@app/appstores/DataSource/Database'
 
 const CACHE_SETTINGS = {}
+let CACHE_SETTINGS_INITED = false
+
 class Settings {
 
     setSettings = async (paramKey, paramValue) => {
@@ -17,23 +17,22 @@ class Settings {
 
         const dbParamValue = Database.escapeString(paramValue)
 
-        const updateRes = await Database.setQueryString(`
-            UPDATE settings
-            SET paramValue='${dbParamValue}'
-            WHERE paramKey='${paramKey}';
-        )`).query()
+        const sql = `UPDATE settings SET paramValue='${dbParamValue}' WHERE paramKey='${paramKey}' `
+        const updateRes = await Database.query(sql)
         if(!updateRes.rowsAffected) {
-            await Database.setQueryString(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('${paramKey}', '${dbParamValue}')`).query()
+            const sql2 = `INSERT INTO settings ([paramKey], [paramValue]) VALUES ('${paramKey}', '${dbParamValue}')`
+            await Database.query(sql2)
         }
 
         CACHE_SETTINGS[paramKey] = {paramValue}
-
-        Log.log('DS/Settings setSettings ' + paramKey + ' finished')
         return true
     }
 
-    getSettings = async () => {
-        const res = await Database.setQueryString(`SELECT * FROM settings`).query()
+    getSettings = async (reloadDB = true) => {
+        if (!reloadDB && CACHE_SETTINGS_INITED) {
+            return CACHE_SETTINGS
+        }
+        const res = await Database.query(`SELECT * FROM settings`)
 
         let tmp
         for (tmp of res.array) {
@@ -48,9 +47,10 @@ class Settings {
             }
         }
         if (toRemove && toRemove.length > 0) {
-            await Database.setQueryString(`DELETE FROM settings WHERE id IN (${toRemove.join(',')})`).query()
+            await Database.query(`DELETE FROM settings WHERE id IN (${toRemove.join(',')})`)
         }
 
+        CACHE_SETTINGS_INITED = true
         return CACHE_SETTINGS
     }
 
@@ -63,8 +63,8 @@ class Settings {
             return CACHE_SETTINGS[key]
         }
 
-        const res = await Database.setQueryString(`SELECT * FROM settings WHERE [paramKey]='${key}'`).query()
-
+        const sql = `SELECT [paramKey], [paramValue] FROM settings WHERE [paramKey]='${key}'`
+        const res = await Database.query(sql)
         if (!res.array || typeof res.array[0] === 'undefined') {
             CACHE_SETTINGS[key] = false
             return false
@@ -77,4 +77,4 @@ class Settings {
     }
 }
 
-export default Settings
+export default new Settings()

@@ -12,6 +12,7 @@ import changeableProd from '../../app/config/changeable.prod'
 import changeableTester from '../../app/config/changeable.tester'
 import { FileSystem } from '../../app/services/FileSystem/FileSystem'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const DEBUG = config.debug.cryptoLogs // set true to see usual logs in console
 
@@ -54,6 +55,9 @@ class BlocksoftCryptoLog {
     }
 
     async log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false) {
+        if (settingsActions.getSettingStatic('loggingCode') === 'none') {
+            return
+        }
         let line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line2 = ''
         if (txtOrObj && typeof txtOrObj !== 'undefined') {

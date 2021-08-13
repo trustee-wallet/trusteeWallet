@@ -34,7 +34,7 @@ async function replaceTx(old, txid, notReplacing) {
         if (oldTx) {
             // hidden_at need to set!
             BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions checked kuna already replacing in db ' + old + ' actual ' + txid + ' but need to hide old')
-            await Database.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
+            await Database.query(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`)
         } else {
             BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions checked kuna already replacing in db ' + old + ' actual ' + txid + ' and old is hidden')
         }
@@ -94,9 +94,9 @@ async function replaceTx(old, txid, notReplacing) {
                      SET transactions_other_hashes='${old}'
                      WHERE LOWER(transaction_hash)=LOWER('${txid}') AND currency_code='ETH_UAX'`
     }
-    await Database.setQueryString(updateSql).query()
+    await Database.query(updateSql)
     BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions put kuna update in db ' + old + ' actual ' + txid, updateSql)
-    await Database.setQueryString(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`).query()
+    await Database.query(`UPDATE transactions SET hidden_at = '${now}' WHERE LOWER(transaction_hash)=LOWER('${old}') AND currency_code='ETH_UAX'`)
     BlocksoftCryptoLog.log('EthUAXScannerProcessor.getTransactions put kuna dropped in db ' + old + ' actual ' + txid)
 
 }
@@ -132,7 +132,7 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
             WHERE currency_code='ETH_UAX'
             AND address='${address}'
             AND tmp_key='nonce'`
-        let saved = await Database.setQueryString(sql).query()
+        let saved = await Database.query(sql)
         if (saved && saved.array && saved.array.length > 0) {
             let tmp
             for (tmp of saved.array) {
@@ -148,7 +148,7 @@ export default class EthScannerProcessorUAX extends EthScannerProcessorErc20 {
                 FROM transactions WHERE currency_code='ETH_UAX'
                 AND (transactions_other_hashes IS NULL OR transactions_other_hashes = '')
                 AND hidden_at IS NULL`
-        saved = await Database.setQueryString(sql).query()
+        saved = await Database.query(sql)
         if (saved && saved.array && saved.array.length > 0) {
             let tmp
             for (tmp of saved.array) {

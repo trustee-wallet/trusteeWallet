@@ -80,7 +80,13 @@ class UpdateAccountListDaemon extends Update {
             const allWallets = currentStore.walletStore.wallets
             const selectedAccount = currentStore.mainStore.selectedAccount
 
-            const basicCurrency = currentStore.mainStore.selectedBasicCurrency
+            let basicCurrency = currentStore.mainStore.selectedBasicCurrency
+            if (!basicCurrency || typeof basicCurrency.symbol === 'undefined') {
+                basicCurrency = {
+                    currencyCode : 'USD',
+                    symbol : '$'
+                }
+            }
             const basicCurrencyCode = basicCurrency.currencyCode || 'USD'
 
             const walletPub = await walletPubDS.getWalletPubs()
@@ -297,7 +303,7 @@ class UpdateAccountListDaemon extends Update {
                     rate = tmpCurrency.currencyRateJson[basicCurrencyCode] || 0
                 }
                 if (currencyCode === 'BTC') {
-                    Log.daemon('UpdateAccountListDaemon rate BTC ' + rate)
+                    Log.daemon('UpdateAccountListDaemon rate BTC ' + rate + ' with ' + JSON.stringify(basicCurrency))
                 }
                 DaemonCache.CACHE_RATES[currencyCode] = {
                     basicCurrencyRate: rate,
@@ -464,7 +470,6 @@ class UpdateAccountListDaemon extends Update {
                     basicCurrencyCode,
                     walletHash : tmpWalletHash })
             }
-            Log.daemon('UpdateAccountListDaemon CACHE_WALLET_SUMS', DaemonCache.CACHE_WALLET_SUMS)
 
             if (typeof DaemonCache.CACHE_ALL_ACCOUNTS !== 'undefined') {
                 store.dispatch({

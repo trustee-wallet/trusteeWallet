@@ -13,9 +13,9 @@ import {
 
 import CustomIcon from '../CustomIcon'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 export default class Header extends React.PureComponent {
 
@@ -39,6 +39,11 @@ export default class Header extends React.PureComponent {
                         <CustomIcon name="arrow_back" size={20} color={props.color} />
                     )
                 }
+                case 'connect': {
+                    return (
+                        <CustomIcon name='reload' size={20} color={props.color} />
+                    )
+                }
                 default: return null
             }
         }
@@ -47,7 +52,7 @@ export default class Header extends React.PureComponent {
 
         return (
             <TouchableOpacity hitSlop={HIT_SLOP} onPress={() => leftParams ? leftAction(leftParams.close) : leftAction()}>
-                <Icon color={colors.common.text1} />
+                <Icon color={leftParams && leftParams.color ? leftParams.color : colors.common.text1} />
             </TouchableOpacity>
         )
     }

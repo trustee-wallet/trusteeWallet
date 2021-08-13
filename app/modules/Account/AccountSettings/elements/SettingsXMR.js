@@ -11,7 +11,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import { setFlowType } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 
 class SettingsXMR extends Component {

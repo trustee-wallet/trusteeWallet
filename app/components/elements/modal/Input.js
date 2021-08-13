@@ -14,7 +14,13 @@ export default class Input extends Component {
 
     render() {
         return (
-            <TextInput style={styles.input} placeholder={strings('components.elements.modal.input.placeholder')} onChangeText={(text) => this.props.handleInput(text)} value={this.props.value}/>
+            <TextInput 
+                style={styles.input} 
+                placeholder={strings('components.elements.modal.input.placeholder')} 
+                onChangeText={(text) => this.props.handleInput(text)} 
+                value={this.props.value}
+                allowFontScaling={false}
+            />
         )
     }
 }

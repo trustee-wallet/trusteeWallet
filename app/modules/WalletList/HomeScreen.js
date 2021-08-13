@@ -17,7 +17,6 @@ import _isEqual from 'lodash/isEqual'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import CryptoCurrency from './elements/CryptoCurrency'
-import BottomNavigation from './elements/BottomNavigation'
 import WalletInfo from './elements/WalletInfo'
 import Header from './elements/Header'
 
@@ -28,11 +27,10 @@ import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccount
 import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import DaemonCache from '@app/daemons/DaemonCache'
-import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
@@ -54,7 +52,6 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 
 
-let CACHE_SET_WALLET_HASH = false
 let CACHE_IS_SCANNING = false
 
 async function storeCurrenciesOrder(walletHash, data) {
@@ -251,9 +248,9 @@ class HomeScreen extends React.PureComponent {
     }
 
     changeBalanceVisibility = async () => {
+        console.log('trigger')
         const newVisibilityValue = !this.state.isBalanceVisible
-        await AsyncStorage.setItem('isBalanceVisible', JSON.stringify(newVisibilityValue))
-        await settingsActions.getSettings()
+        settingsActions.setSettings('isBalanceVisible', newVisibilityValue ? '1' : '0')
         this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
     }
 
@@ -325,15 +322,6 @@ class HomeScreen extends React.PureComponent {
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
-        let {walletHash, walletNumber} = this.props.selectedWalletData
-        if (!walletHash || typeof walletHash === 'undefined') {
-            if (!CACHE_SET_WALLET_HASH) {
-                CACHE_SET_WALLET_HASH = true
-                walletHash = cryptoWalletActions.setFirstWallet()
-                Log.log('HomeScreen empty wallet hash changed to ' + walletHash)
-                cryptoWalletActions.setSelectedWalletFromHome(walletHash, 'WalletList.HomeScreen', false)
-            }
-        }
         const balanceData = this.getBalanceData()
 
         return (
@@ -371,7 +359,7 @@ class HomeScreen extends React.PureComponent {
                                     changeBalanceVisibility={this.changeBalanceVisibility}
                                     triggerBalanceVisibility={this.triggerBalanceVisibility}
                                     balanceData={balanceData}
-                                    walletNumber={walletNumber}
+                                    selectedWalletData={this.props.selectedWalletData}
                                 />
                             )}
                             renderItem={({ item, drag, isActive }) => (
@@ -388,7 +376,6 @@ class HomeScreen extends React.PureComponent {
                             )}
                             keyExtractor={item => item.currencyCode}
                         />
-                        {/* <BottomNavigation /> */}
                     </View>
                 </SafeAreaView>
             </View>

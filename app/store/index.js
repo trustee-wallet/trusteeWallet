@@ -1,10 +1,10 @@
 /**
- * @version 0.9
+ * @version 0.50
  */
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
 
-import indexReducer from '../appstores/StoresIndex'
+import indexReducer from '@app/appstores/StoresIndex'
 
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 

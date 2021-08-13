@@ -3,7 +3,7 @@
  */
 import React from 'react'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 
@@ -58,8 +58,7 @@ class MinerFee extends React.PureComponent {
                     name={strings('send.receiptScreen.minerFee')}
                     value={`${feesPretty} ${feesCurrencySymbol}`}
                     subvalue={fiatFee}
-                    icon={this.props.icon}
-                    iconCallback={this.props.iconCallback}
+                    callback={this.props.callback}
                 />
                 {
                     isOutputs ?

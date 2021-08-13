@@ -21,7 +21,7 @@ import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import Log from '@app/services/Log/Log'
 import NavStore from '../navigation/NavStore'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 
 class Input extends Component {
@@ -226,7 +226,7 @@ class Input extends Component {
             }
         }
 
-        const inputWidth = ( fio || copy || paste || qr || info || tabInfo ) ? '75%' : '95%'
+        const inputWidth = ( paste && qr ) ? '75%' : ( fio || copy || paste || qr || info || tabInfo ) ? '85%' : '95%'
 
         return (
             <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
@@ -235,6 +235,7 @@ class Input extends Component {
                         <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10}} >
                             <TextField
                                 ref={ref => this.inputRef = ref}
+                                allowFontScaling={false}
                                 keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
                                 tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
                                 labelHeight={styles.labelHeight}

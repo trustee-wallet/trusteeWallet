@@ -21,7 +21,7 @@ import SettingsSOL from '@app/modules/Account/AccountSettings/elements/SettingsS
 
 import { strings } from '@app/services/i18n'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
@@ -40,7 +40,8 @@ class AccountSettingScreen extends React.PureComponent {
     }
 
     handleClose = () => {
-        NavStore.reset('HomeScreen')
+        NavStore.goBack()
+        NavStore.goBack()
     }
 
     render() {

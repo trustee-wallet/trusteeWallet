@@ -24,7 +24,7 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import QrCodeBox from '@app/components/elements/QrCodeBox'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import PromoCodeContent from './elements/PromoCode'
 import DetailsContent from './elements/Details'

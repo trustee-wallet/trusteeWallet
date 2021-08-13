@@ -9,15 +9,16 @@ import createWalletStoreReducer from './Stores/CreateWallet/CreateWalletStore'
 import walletStoreReducer from './Stores/Wallet/WalletStore'
 import accountStoreReducer from './Stores/Account/AccountStore'
 import currencyStoreReducer from './Stores/Currency/CurrencyStore'
+import currencyBasicReducer from './Stores/CurrencyBasic/CurrencyBasicStore'
 import modalReducer from './Stores/Modal/ModalStore'
 import qrCodeScannerReducer from './Stores/QRCodeScanner/QRCodeScannerStore'
 import settingsReducer from './Stores/Settings/SettingsStore'
 import lockScreenReducer from './Stores/LockScreen/LockScreenStore'
 import cashBackStoreReducer from './Stores/CashBack/CashBackStore'
-import toolTipsReducer from './Stores/ToolTips/ToolTipsStore'
 import appNewsStoreReducer from './Stores/AppNews/AppNewsReducer'
 import sendScreenStoreReducer from './Stores/Send/SendScreenStore'
 import walletConnectStoreReducer from '@app/appstores/Stores/WalletConnect/WalletConnectStore'
+import streamSupportStoreReducer from '@app/appstores/Stores/StreamSupport/StreamSupportStore'
 
 export default combineReducers({
     mainStore: mainStoreReducer,
@@ -25,14 +26,15 @@ export default combineReducers({
     walletStore: walletStoreReducer,
     accountStore: accountStoreReducer,
     currencyStore: currencyStoreReducer,
+    currencyBasicStore : currencyBasicReducer,
     createWalletStore: createWalletStoreReducer,
     qrCodeScannerStore: qrCodeScannerReducer,
     modalStore: modalReducer,
     settingsStore: settingsReducer,
     lockScreenStore: lockScreenReducer,
     cashBackStore: cashBackStoreReducer,
-    toolTipsStore: toolTipsReducer,
     appNewsStore : appNewsStoreReducer,
     sendScreenStore: sendScreenStoreReducer,
-    walletConnectStore : walletConnectStoreReducer
+    walletConnectStore : walletConnectStoreReducer,
+    streamSupportStore : streamSupportStoreReducer
 })

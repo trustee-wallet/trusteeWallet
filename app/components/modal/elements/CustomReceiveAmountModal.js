@@ -2,33 +2,32 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { View, TouchableOpacity, Dimensions, Text, Platform, ImageBackground, ScrollView } from 'react-native'
+import { View, TouchableOpacity, Dimensions, Text, Platform, ScrollView } from 'react-native'
 
 import { connect } from 'react-redux'
 import Modal from 'react-native-modal'
 
 import AntDesignIcon from 'react-native-vector-icons/AntDesign'
 
-import { hideModal, showModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import copyToClipboard from '../../../services/UI/CopyToClipboard/CopyToClipboard'
-import Toast from '../../../services/UI/Toast/Toast'
-import { strings } from '../../../services/i18n'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
 
-import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
-import Log from '../../../services/Log/Log'
-import Input from '../../../components/elements/Input'
-import RateEquivalent from '../../../services/UI/RateEquivalent/RateEquivalent'
-import AsyncStorage from '@react-native-community/async-storage'
-import UIDict from '../../../services/UIDict/UIDict'
-import { FileSystem } from '../../../services/FileSystem/FileSystem'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import Log from '@app/services/Log/Log'
+import Input from '@app/components/elements/Input'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
+import UIDict from '@app/services/UIDict/UIDict'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
 import Fontisto from 'react-native-vector-icons/Fontisto'
-import qrLogo from '../../../assets/images/logoWithWhiteBG.png'
+import qrLogo from '@assets/images/logoWithWhiteBG.png'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
-import QrCodeBox from '../../../components/elements/QrCodeBox'
-import prettyShare from '../../../services/UI/PrettyShare/PrettyShare'
-import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
-import { normalizeInputWithDecimals } from '../../../services/UI/Normalize/NormalizeInput'
+import QrCodeBox from '@app/components/elements/QrCodeBox'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')

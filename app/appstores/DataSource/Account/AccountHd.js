@@ -25,22 +25,22 @@ export default {
 
         const now = new Date().toISOString()
         const selectSql = `SELECT address, derivation_index, derivation_path, derivation_type, is_main FROM account WHERE address IN ('${params.newAddress}', '${params.oldAddress}') AND currency_code='${params.currencyCode}'`
-        let res = await Database.setQueryString(selectSql).query()
+        let res = await Database.query(selectSql)
         if (res.array && res.array.length > 1) {
             const sql = ` UPDATE account SET is_main=1, derivation_type='main', changes_log='${now} CHANGED MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.newAddress}'`
-            await Database.setQueryString(sql).query()
+            await Database.query(sql)
             const sql2 = ` UPDATE account SET is_main=0, derivation_type='no_scan', changes_log='${now} CHANGED NOT MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.oldAddress}'`
-            await Database.setQueryString(sql2).query()
+            await Database.query(sql2)
             Log.daemon('DS/AccountHD setMainAddress updated', params)
             return true
         }
 
-        res = await Database.setQueryString(`SELECT  address, derivation_index, derivation_path, derivation_type, is_main, currency_code FROM account WHERE address='${params.newAddress}' AND currency_code IN ('${params.basicCurrencyCode}')`).query()
+        res = await Database.query(`SELECT  address, derivation_index, derivation_path, derivation_type, is_main, currency_code FROM account WHERE address='${params.newAddress}' AND currency_code IN ('${params.basicCurrencyCode}')`)
         Log.daemon('res2', JSON.parse(JSON.stringify(res)))
         if (res.array && res.array.length > 0) {
             res = res.array[0]
         } else {
-            const xpub = await Database.setQueryString(`SELECT wallet_pub_value AS xpub FROM wallet_pub WHERE wallet_hash='${params.walletHash}' AND wallet_pub_type='btc.44'`).query()
+            const xpub = await Database.query(`SELECT wallet_pub_value AS xpub FROM wallet_pub WHERE wallet_hash='${params.walletHash}' AND wallet_pub_type='btc.44'`)
             Log.daemon('xpub', JSON.parse(JSON.stringify(xpub)))
             if (!xpub || !xpub.array || xpub.array.length < 1) {
                 throw new Error('no Xpub')
@@ -88,7 +88,7 @@ export default {
         await Database.setTableName('account').setInsertData({ insertObjs: [insert] }).insert()
 
         const sql = ` UPDATE account SET is_main=0, changes_log='${now} CHANGED NOT MAIN ${params.oldAddress} => ${params.newAddress} ' || changes_log WHERE currency_code='${params.currencyCode}' AND address='${params.oldAddress}'`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
 
         Log.daemon('DS/AccountHD setMainAddress inserted', params)
     },
@@ -120,7 +120,7 @@ export default {
 
         let total = { accountsTotal: 0, accountsIncludingUsed: 0, accountsDerivationIndex: -1 }
         try {
-            const res = await Database.setQueryString(sql).query(true)
+            const res = await Database.query(sql, true)
             if (!res || !res.array || !res.array.length) {
                  Log.daemon('DS/AccountHD getAccountsMaxForScanPub finished as empty')
                 return total
@@ -132,7 +132,7 @@ export default {
                         SELECT id, derivation_path AS derivationPath, derivation_index AS derivationIndex FROM account
                         ${where}
                     `
-                    const addresses = await Database.setQueryString(sql2).query()
+                    const addresses = await Database.query(sql2)
                     if (!addresses || !addresses.array || addresses.array.length === 0) {
                         return total
                     }
@@ -155,7 +155,7 @@ export default {
                         }
                         if (max > 0) {
                             const sql3 = `UPDATE account SET derivation_index=${max} WHERE id=${address.id}`
-                            await Database.setQueryString(sql3).query()
+                            await Database.query(sql3)
                              Log.daemon('DS/AccountHD getAccountsMaxForScanPub updated address ', sql3)
                         }
                     }
@@ -192,7 +192,7 @@ export default {
             LIMIT 1
         `
 
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
         if (!res || !res.array || !res.array.length) {
              Log.daemon('DS/AccountHD getAccountForChange finished as empty')
             return false
@@ -203,7 +203,7 @@ export default {
 
     countUsed: async (params) => {
         const sql = `SELECT COUNT(*) AS cn FROM account WHERE already_shown=1 AND wallet_hash='${params.walletHash}' AND currency_code='${params.currencyCode}'`
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
         if (!res || typeof res.array === 'undefined' || !res.array || typeof res.array[0] === 'undefined' || !res.array[0]) {
             return 0
         }
@@ -217,7 +217,7 @@ export default {
         } else {
             sql += ` AND address LIKE '1%' AND derivation_path LIKE 'm/84quote/0quote/0quote/0/%'`
         }
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
         if (!res || typeof res.array === 'undefined' || !res.array || typeof res.array[0] === 'undefined' || !res.array[0]) {
             return 0
         }
@@ -245,7 +245,7 @@ export default {
                 }
             }
             if (row.derivation_index * 1 !== max) {
-                await Database.setQueryString(`UPDATE account SET derivation_index=${max} WHERE id=${row.id}`).query()
+                await Database.query(`UPDATE account SET derivation_index=${max} WHERE id=${row.id}`)
             }
         }
         Log.log(`DS/AccountHD countGap maxNotUsed ${maxNotUsed} maxIndexUsed ${maxIndexUsed} maxIndexManualUsed ${maxIndexManualUsed}`)
@@ -257,7 +257,7 @@ export default {
         if (typeof params.maxIndexUsed !== 'undefined') {
             sql += ' AND derivation_index>' + params.maxIndexUsed
         }
-        const res = await Database.setQueryString(sql).query(true)
+        const res = await Database.query(sql, true)
         if (!res || typeof res.rowsAffected === 'undefined') {
             return 0
         }

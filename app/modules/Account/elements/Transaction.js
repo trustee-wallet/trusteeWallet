@@ -29,7 +29,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 import { strings } from '@app/services/i18n'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 class Transaction extends React.Component {
 
@@ -97,10 +97,23 @@ class Transaction extends React.Component {
         const { colors } = this.context
         if (transaction.transactionOfTrusteeWallet && transaction.transactionOfTrusteeWallet === 1)
             return (
-                <View style={{ marginLeft: 'auto', marginRight: 20 }}>
+                <View style={{ marginLeft: transaction?.bseOrderData ? 10 : 'auto', marginRight: 20 }}>
                     <CustomIcon name="shield" style={{ ...styles.transaction__top__type__icon, color: colors.accountScreen.transactions.transactionTitleColor }} />
                 </View>
             )
+    }
+
+    isBSEorder = () => {
+        const { styles } = this.state
+        const { transaction } = this.props
+        const { colors } = this.context
+        if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
+            return (
+                <View style={{ marginLeft: 'auto', marginRight: transaction.transactionOfTrusteeWallet && transaction.transactionOfTrusteeWallet === 1 ? 0 : 20 }}>
+                    <CustomIcon name="exchange" style={{ ...styles.transaction__top__type__icon, color: colors.accountScreen.transactions.transactionTitleColor }} />
+                </View>
+            )
+        }
     }
 
     renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
@@ -198,7 +211,8 @@ class Transaction extends React.Component {
         NavStore.goNext('AccountTransactionScreen', {
             txData: {
                 transaction: tx
-            }
+            },
+            source : 'Transaction.transactionDetails'
         })
     }
 
@@ -251,6 +265,7 @@ class Transaction extends React.Component {
                         <Text style={[styles.transaction__top__type, { color: isStatus ? currencyColor : colors.accountScreen.transactions.transactionTitleColor }]}>
                             {isStatus ? strings(`account.transactionStatuses.${transactionBlockchainStatus === 'confirming' ? 'confirming' : 'process'}`).toUpperCase() : blockConfirmations}
                         </Text>
+                        {this.isBSEorder()}
                         {this.ifTxsTW()}
                     </TouchableOpacity>
                     <View style={{ ...styles.transaction__content, backgroundColor: colors.accountScreen.transactions.transactionContentBack }}>

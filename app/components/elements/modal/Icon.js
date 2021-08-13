@@ -7,7 +7,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native'
 
 import CustomIcon from '../CustomIcon'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 class Icon extends Component {
 

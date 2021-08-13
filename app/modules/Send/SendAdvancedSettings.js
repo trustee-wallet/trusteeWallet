@@ -6,7 +6,7 @@ import { View, ScrollView, StyleSheet, Keyboard } from 'react-native'
 import { connect } from 'react-redux'
 
 import { strings } from '@app/services/i18n'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import NavStore from '@app/components/navigation/NavStore'
 
 import LetterSpacing from '@app/components/elements/LetterSpacing'
@@ -28,6 +28,7 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import Button from '@app/components/elements/new/buttons/Button'
 
 let CACHE_IS_COUNTING = false
 class SendAdvancedSettings extends React.PureComponent {
@@ -137,6 +138,8 @@ class SendAdvancedSettings extends React.PureComponent {
         return (
             <ScreenWrapper
                 title={strings('send.setting.title')}
+                leftType='back'
+                leftAction={this.handleBack}
             >
                 <ScrollView
                     ref={(ref) => {
@@ -183,6 +186,8 @@ class SendAdvancedSettings extends React.PureComponent {
                                 value={this.state.comment}
                                 placeholder={strings('send.setting.note')}
                                 onChangeText={this.onChangeComment}
+                                paste={true}
+                                callback={this.onChangeComment}
                             />
                         </View>
 
@@ -202,15 +207,9 @@ class SendAdvancedSettings extends React.PureComponent {
 
                     </View>
                     <View style={{ marginTop: GRID_SIZE }}>
-                        <TwoButtons
-                            mainButton={{
-                                onPress: this.handleApply,
-                                title: strings('send.setting.apply')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: this.handleBack,
-                            }}
+                        <Button
+                            onPress={this.handleApply}
+                            title={strings('send.setting.apply')}
                         />
                     </View>
 

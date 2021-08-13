@@ -7,9 +7,9 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
-import { strings } from '../../../services/i18n'
+import { strings } from '@app/services/i18n'
 
 
 export default function RadioButton(props) {

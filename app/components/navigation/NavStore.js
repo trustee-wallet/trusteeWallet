@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.50
  * https://reactnavigation.org/docs/navigating-without-navigation-prop
  * https://reactnavigation.org/docs/navigation-prop/
  */
@@ -15,11 +15,11 @@ export default {
                 let i = 0
                 let doBack = false
                 do {
+                    i++
                     const current = currentRoute()
                     if (current.name !== 'HomeScreen' && current.name !== 'HomeScreenPop') {
                         if (canGoBack()) {
                             goBack()
-                            i++
                             doBack = true
                         }
                     } else {
@@ -51,6 +51,11 @@ export default {
         try {
            if (canGoBack()) {
                 goBack()
+           } else {
+               reset({
+                   index: 0,
+                   routes: [{ name: 'HomeScreen'}],
+               })
            }
         } catch (e) {
             if (config.debug.appErrors) {
@@ -59,13 +64,7 @@ export default {
         }
     },
 
-    goNext(routeName, params = null, reset = false) {
-        if (reset) {
-            console.log('navstore reset is depressed')
-            this.reset(routeName)
-            return false
-        }
-
+    goNext(routeName, params = null) {
         try {
             navigate(routeName, params)
         } catch (e) {

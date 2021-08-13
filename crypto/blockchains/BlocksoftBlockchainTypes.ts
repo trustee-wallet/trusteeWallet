@@ -87,7 +87,8 @@ export namespace BlocksoftBlockchainTypes {
         feeForTxCurrencyAmount?: number,
         feeForTxDelegated?: number,
         blockchainData?: any
-        rawOnly?: boolean
+        rawOnly?: boolean,
+        bseOrderId ?: string
     }
 
     export interface CheckTransferHasErrorData {

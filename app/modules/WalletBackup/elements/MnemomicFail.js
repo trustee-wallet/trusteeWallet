@@ -14,7 +14,7 @@ import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
 
 import { strings } from '../../../../app/services/i18n'
 
-import { ThemeContext } from '../../../modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 class MnemomicFail extends Component {
 

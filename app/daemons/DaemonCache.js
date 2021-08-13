@@ -76,7 +76,7 @@ class DaemonCache {
 
     async _getFromDB(walletHash, currencyCode) {
         const sql = ` SELECT balance_fix AS balanceFix, balance_txt AS balanceTxt FROM account_balance WHERE currency_code='${currencyCode}' AND wallet_hash='${walletHash}'`
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
         if (!res || !res.array || res.array.length === 0) {
             return {balance : 0, from : 'noDb'}
         }

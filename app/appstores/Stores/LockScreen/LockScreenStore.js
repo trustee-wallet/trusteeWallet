@@ -1,28 +1,20 @@
 /**
- * @version 0.42
+ * @version 0.45
  */
 const INITIAL_STATE = {
     flowType: '',
-    backData: {},
-    actionCallback: () => {}
+    callback: false,
+    timeLocked : 0
 }
 
-const lockScreenReducer = (state = INITIAL_STATE, action) => {
+const lockScreenStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case 'SET_LOCK_SCREEN_FLOW_TYPE':
+        case 'SET_LOCK_SCREEN_CONFIG':
             return {
                 ...state,
-                flowType: action.flowType
-            }
-        case 'SET_LOCK_SCREEN_BACK_DATA':
-            return {
-                ...state,
-                backData: action.backData
-            }
-        case 'SET_ACTION_CALLBACK':
-            return {
-                ...state,
-                actionCallback: action.actionCallback
+                flowType: action.flowType,
+                callback: action.callback || false,
+                timeLocked : action.timeLocked || 0
             }
         default:
             break
@@ -31,4 +23,4 @@ const lockScreenReducer = (state = INITIAL_STATE, action) => {
     return state
 }
 
-export default lockScreenReducer
+export default lockScreenStoreReducer

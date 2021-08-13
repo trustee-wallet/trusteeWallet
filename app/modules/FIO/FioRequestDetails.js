@@ -15,7 +15,7 @@ import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import Log from '@app/services/Log/Log'
 import { connect } from 'react-redux'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 

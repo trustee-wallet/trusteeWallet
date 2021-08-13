@@ -32,9 +32,9 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
-import qrLogo from '@app/assets/images/logoWithWhiteBG.png'
+import qrLogo from '@assets/images/logoWithWhiteBG.png'
 
 import UIDict from '@app/services/UIDict/UIDict'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
@@ -44,7 +44,7 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { resolveChainCode } from '@crypto/blockchains/fio/FioUtils'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import Buttons from '@app/components/elements/new/buttons/Buttons'
@@ -57,13 +57,14 @@ import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
 import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
 
-import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
-import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
+import blackLoader from '@assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import AsyncStorage from '@react-native-community/async-storage'
+
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -162,13 +163,8 @@ class AccountReceiveScreen extends React.PureComponent {
         try {
             await Netinfo.isInternetReachable()
 
-            // if (config.exchange.mode === 'PROD') {
-            //     NavStore.goNext('ExchangeV3ScreenStack')
-            // } else {
-            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
-            showMsg = showMsg ? JSON.parse(showMsg) : false
-
-            if (typeof showMsg === 'undefined' || !showMsg) {
+            const showMsg = trusteeAsyncStorage.getSmartSwapMsg() === '1'
+            if (!showMsg) {
                 showModal({
                     type: 'MARKET_MODAL',
                     icon: 'INFO',
@@ -648,6 +644,8 @@ class AccountReceiveScreen extends React.PureComponent {
                                     placeholder={strings('send.setting.note')}
                                     onChangeText={(value) => this.setState({ labelForQr: value })}
                                     onFocus={() => this.onFocus()}
+                                    paste={true}
+                                    callback={(value) => this.setState({ labelForQr: value })}
                                 />
                             </View>
                             <View style={{ alignSelf: 'center', width: '100%', marginTop: GRID_SIZE }}>

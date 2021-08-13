@@ -13,12 +13,14 @@ import config from '../../../app/config/config'
 type DataCache = {
     [key in BlocksoftDictTypes.Code]: {
         key: string,
+        memo : string | boolean,
         time: number
     }
 }
 
 const CACHE_DOUBLE_TO: DataCache = {} as DataCache
 const CACHE_VALID_TIME = 120000 // 2 minute
+const CACHE_DOUBLE_BSE = {}
 
 export namespace BlocksoftTransfer {
 
@@ -32,7 +34,7 @@ export namespace BlocksoftTransfer {
         try {
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance started ${data.addressFrom} `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
-            const additionalDataTmp = {... additionalData}
+            const additionalDataTmp = { ...additionalData }
             let privateData = {} as BlocksoftBlockchainTypes.TransferPrivateData
             if (processor.needPrivateForFee()) {
                 privateData = await BlocksoftTransferPrivate.initTransferPrivate(data, additionalData)
@@ -71,7 +73,7 @@ export namespace BlocksoftTransfer {
         try {
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate started ${data.addressFrom} `)
             const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
-            const additionalDataTmp = {... additionalData}
+            const additionalDataTmp = { ...additionalData }
 
             let privateData = {} as BlocksoftBlockchainTypes.TransferPrivateData
             if (processor.needPrivateForFee()) {
@@ -88,7 +90,7 @@ export namespace BlocksoftTransfer {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.getFeeRate error ` + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' ' + e.message)
-                throw new Error('server.not.responding.network.prices.' + data.currencyCode + ' ' +  e.message)
+                throw new Error('server.not.responding.network.prices.' + data.currencyCode + ' ' + e.message)
             } else {
                 throw e
             }
@@ -102,20 +104,37 @@ export namespace BlocksoftTransfer {
         }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
 
+        const bseOrderId = typeof uiData !== 'undefined' && uiData && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.bseOrderId !== 'undefined' ? uiData.selectedFee.bseOrderId : false
+        const uiErrorConfirmed = typeof uiData !== 'undefined' && uiData && typeof uiData.uiErrorConfirmed !== 'undefined' && uiData.uiErrorConfirmed
+        const memo = typeof data !== 'undefined' && data && typeof data.memo !== 'undefined' ? data.memo : false
+
+        
         try {
-            if (typeof CACHE_DOUBLE_TO[data.currencyCode] !== 'undefined') {
-                if (data.transactionReplaceByFee || data.transactionRemoveByFee || data.transactionSpeedUp) {
-                    // do nothing
-                } else if (typeof uiData === 'undefined' || !uiData || typeof uiData.uiErrorConfirmed === 'undefined' || !uiData.uiErrorConfirmed) {
-                    if (data.addressTo && CACHE_DOUBLE_TO[data.currencyCode].key === data.addressTo) {
-                        const time = new Date().getTime()
-                        const diff = time - CACHE_DOUBLE_TO[data.currencyCode].time
-                        if (diff < CACHE_VALID_TIME) {
-                            CACHE_DOUBLE_TO[data.currencyCode].time = time
-                            throw new Error('UI_CONFIRM_DOUBLE_SEND')
+            if (data.transactionReplaceByFee || data.transactionRemoveByFee || data.transactionSpeedUp) {
+                // do nothing
+            } else {
+                if (bseOrderId) {
+                    // bse order
+                    if (typeof CACHE_DOUBLE_BSE[bseOrderId] !== 'undefined') {
+                        if (!uiErrorConfirmed) {
+                            throw new Error('UI_CONFIRM_DOUBLE_BSE_SEND')
                         }
                     }
                 }
+                // usual tx
+                if (typeof CACHE_DOUBLE_TO[data.currencyCode] !== 'undefined') {
+                    if (!uiErrorConfirmed) {
+                        if (data.addressTo && CACHE_DOUBLE_TO[data.currencyCode].key === data.addressTo && CACHE_DOUBLE_TO[data.currencyCode].memo === memo) {
+                            const time = new Date().getTime()
+                            const diff = time - CACHE_DOUBLE_TO[data.currencyCode].time
+                            if (diff < CACHE_VALID_TIME) {
+                                CACHE_DOUBLE_TO[data.currencyCode].time = time
+                                throw new Error('UI_CONFIRM_DOUBLE_SEND')
+                            }
+                        }
+                    }
+                }
+
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
@@ -137,9 +156,14 @@ export namespace BlocksoftTransfer {
             if (typeof uiData.selectedFee === 'undefined' || typeof uiData.selectedFee.rawOnly === 'undefined' || !uiData.selectedFee.rawOnly) {
                 CACHE_DOUBLE_TO[data.currencyCode] = {
                     key: data.addressTo,
+                    memo,
                     time: new Date().getTime()
                 }
             }
+            if (bseOrderId) {
+                CACHE_DOUBLE_BSE[bseOrderId] = true
+            }
+            // if (typeof uiData.selectedFee !== 'undefined')
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('BlocksoftTransfer.sendTx error ' + e.message, e)
@@ -154,7 +178,7 @@ export namespace BlocksoftTransfer {
     }
 
 
-    export const sendRawTx = async function(data: BlocksoftBlockchainTypes.DbAccount, rawTxHex : string, txRBF : any, logData : any): Promise<string> {
+    export const sendRawTx = async function(data: BlocksoftBlockchainTypes.DbAccount, rawTxHex: string, txRBF: any, logData: any): Promise<string> {
         let txResult = ''
         try {
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendRawTx started ${data.address} `)
@@ -175,7 +199,7 @@ export namespace BlocksoftTransfer {
     }
 
 
-    export const setMissingTx = async function(data: BlocksoftBlockchainTypes.DbAccount, dbTransaction : BlocksoftBlockchainTypes.DbTransaction): Promise<boolean> {
+    export const setMissingTx = async function(data: BlocksoftBlockchainTypes.DbAccount, dbTransaction: BlocksoftBlockchainTypes.DbTransaction): Promise<boolean> {
         let txResult = false
         try {
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.setMissing started ${data.address} `)
@@ -191,7 +215,7 @@ export namespace BlocksoftTransfer {
         return txResult
     }
 
-    export const canRBF = function (data:BlocksoftBlockchainTypes.DbAccount, dbTransaction: BlocksoftBlockchainTypes.DbTransaction, source: string) : boolean {
+    export const canRBF = function(data: BlocksoftBlockchainTypes.DbAccount, dbTransaction: BlocksoftBlockchainTypes.DbTransaction, source: string): boolean {
         let txResult = false
         try {
             // BlocksoftCryptoLog.log(`BlocksoftTransfer.canRBF ${data.currencyCode} from ${source} started ${data.address} `)
@@ -207,7 +231,7 @@ export namespace BlocksoftTransfer {
         return txResult
     }
 
-    export const checkSendAllModal = function (data: { currencyCode: any }) {
+    export const checkSendAllModal = function(data: { currencyCode: any }) {
         let checkSendAllModalResult = false
         try {
             // BlocksoftCryptoLog.log(`BlocksoftTransfer.checkSendAllModal ${data.currencyCode} started `)

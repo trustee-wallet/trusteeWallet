@@ -11,7 +11,7 @@ import { connect } from 'react-redux'
 import NavStore from '@app/components/navigation/NavStore'
 import config from '@app/config/config'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'

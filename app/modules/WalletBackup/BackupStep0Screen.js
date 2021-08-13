@@ -34,14 +34,18 @@ import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import CheckBox from '@app/components/elements/new/CheckBox'
 import CustomIcon from '@app/components/elements/CustomIcon'
 
-import ProgressAnimation from '@app/assets/jsons/animations/pieWithStroke.json'
+import ProgressAnimation from '@assets/jsons/animations/pieWithStroke.json'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import QrCodeBox from '@app/components/elements/QrCodeBox'
+import qrLogo from '@assets/images/logoWithWhiteBG.png'
 
 const VISIBILITY_TIMEOUT = 4000
 
@@ -56,16 +60,20 @@ class BackupStep0Screen extends PureComponent {
         this.state = {
             walletMnemonic: '',
             walletMnemonicArray: [],
-            needPasswordConfirm: false,
             isMnemonicVisible: false,
             approvedBackup: false,
             animationProgress: new Animated.Value(0),
             flowSubtype: '', // one of: 'backup', 'createFirst', 'createAnother', 'show'
-            visibilityTimer: null
+            visibilityTimer: null,
+            visibilityQR : false
         }
     }
 
     async componentDidMount() {
+        await this._init()
+    }
+
+    async _init(checkLock = true) {
         try {
             Log.log('WalletBackup.BackupStep0Screen.componentDidMount init')
 
@@ -75,24 +83,30 @@ class BackupStep0Screen extends PureComponent {
 
             let walletMnemonic = ''
             let mnemonic = ''
-            let needPasswordConfirm = false
             if (flowType === 'BACKUP_WALLET' || flowType === 'BACKUP_WALLET_XMR') {
-                const { lockScreenStatus } = this.props.settingsData
-                const selectedWallet = this.props.selectedWallet
-                if (selectedWallet && selectedWallet.walletHash) {
+
+                if (checkLock) {
+                    if (this.props.lockScreenStatus * 1 > 0) {
+                        setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback : async () => {
+                            await this._init(false)
+                        }}, 'BackupStep0Screen')
+                        NavStore.goNext('LockScreen')
+                        return false
+                    }
+                }
+
+                const { walletHash } = this.props.selectedWalletData
+                if (walletHash) {
                     try {
-                        mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(selectedWallet.walletHash, 'BackupStep0Screen.mount')
+                        mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(walletHash, 'BackupStep0Screen.mount')
                     } catch {
-                        Log.log('WalletBackup.BackupStep0Screen error mnemonic for ' + selectedWallet.walletHash)
+                        Log.log('WalletBackup.BackupStep0Screen error mnemonic for ' + walletHash)
                     }
                 }
                 if (flowType === 'BACKUP_WALLET_XMR') {
-                    walletMnemonic = await (BlocksoftSecrets.setCurrencyCode('XMR').setMnemonic(mnemonic)).getWords()
+                    walletMnemonic = await BlocksoftSecrets.getWords({currencyCode: 'XMR', mnemonic})
                 } else {
                     walletMnemonic = mnemonic
-                }
-                if (+lockScreenStatus) {
-                    needPasswordConfirm = true
                 }
                 if (!walletMnemonic || walletMnemonic === '') {
                     Log.log('WalletBackup.BackupStep0Screen no mnenonic for selected wallet')
@@ -148,7 +162,6 @@ class BackupStep0Screen extends PureComponent {
             this.setState({
                 walletMnemonic,
                 walletMnemonicArray,
-                needPasswordConfirm,
                 flowSubtype
             })
 
@@ -163,7 +176,7 @@ class BackupStep0Screen extends PureComponent {
         if (this.props.createWalletStore.mnemonicLength !== nextProps.createWalletStore.mnemonicLength) {
             this.scrollView.scrollTo?.({ x: 0, y: 0, animated: true })
 
-            const walletMnemonicArray = walletMnemonic.split('')
+            const walletMnemonicArray = walletMnemonic.split(' ')
             this.setState(() => ({
                 walletMnemonicArray,
                 walletMnemonic
@@ -201,14 +214,21 @@ class BackupStep0Screen extends PureComponent {
         NavStore.goBack()
     }
 
-    handleClose = (route) => {
+    handleClose = () => {
         NavStore.reset('TabBar')
         this.resetWalletStore()
     }
 
-    triggerMnemonicVisible = (visibility) => {
+    handleQR = (visibility) => {
+        this.setState({
+            visibilityQR : visibility
+        })
+    }
+
+    triggerMnemonicVisible = (visibility, checkLock = true) => {
         if (this.state.visibilityTimer) return
         const { source, walletNumber } = this.props.createWalletStore
+
         if (visibility) {
             this.setState(() => ({ isMnemonicVisible: visibility }), () => {
                 MarketingEvent.logEvent('gx_view_mnemonic_screen_tap_mnemonic', { walletNumber, source }, 'GX')
@@ -252,12 +272,14 @@ class BackupStep0Screen extends PureComponent {
     handleApproveBackup = () => { this.setState(state => ({ approvedBackup: !state.approvedBackup })) }
 
     render() {
-        const { walletMnemonicArray, isMnemonicVisible, approvedBackup, animationProgress, flowSubtype, visibilityTimer } = this.state
+        const { walletMnemonicArray, isMnemonicVisible, approvedBackup, animationProgress, flowSubtype, visibilityTimer,visibilityQR } = this.state
         const { flowType } = this.props.createWalletStore
 
+        const isInited = walletMnemonicArray.length > 0
         const isShowingPhrase = flowSubtype === 'show'
         const isCreate = flowSubtype === 'createFirst' || flowSubtype === 'createAnother'
         const isXMR = flowType === 'BACKUP_WALLET_XMR'
+
         const { GRID_SIZE, colors } = this.context
 
         MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep0Screen')
@@ -280,7 +302,49 @@ class BackupStep0Screen extends PureComponent {
                     contentContainerStyle={styles.scrollViewContent}
                     keyboardShouldPersistTaps='handled'
                 >
-                    {walletMnemonicArray &&
+                    {visibilityQR &&
+                    <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
+                        <View style={[styles.infoContainer, { marginBottom: GRID_SIZE }]}>
+
+                            <Text style={[styles.infoText, { color: colors.common.text3 }]}>{strings('walletBackup.step0Screen.infoQR')}</Text>
+
+                        </View>
+
+                        <View style={styles.wrapperQR}>
+                            <View style={styles.qr}>
+                                <QrCodeBox
+                                    value={this.state.walletMnemonic}
+                                    size={200}
+                                    color='#404040'
+                                    backgroundColor='#F5F5F5'
+                                    logo={qrLogo}
+                                    logoSize={70}
+                                    logoBackgroundColor='transparent'
+                                    onError={(e) => {
+                                        Log.err('BackupStep0Screen QRCode error ' + e.message)
+                                    }}
+                                />
+                            </View>
+                        </View>
+                        <View style={{
+                            paddingHorizontal: GRID_SIZE,
+                            paddingVertical: GRID_SIZE * 1.5
+                        }}>
+                            <TwoButtons
+                                mainButton={{
+                                    onPress: () => this.handleQR(false),
+                                    title: strings('walletBackup.step0Screen.hideQR'),
+                                    textStyle: {
+                                        textAlign: 'center'
+                                    }
+                                }}
+                            />
+                        </View>
+
+                    </View>
+                    }
+
+                    {!visibilityQR && walletMnemonicArray &&
                         <>
                             <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
                                 <View style={[styles.infoContainer, { marginBottom: GRID_SIZE }]}>
@@ -334,7 +398,24 @@ class BackupStep0Screen extends PureComponent {
                                 )}
                             </View>
 
-                            {!isShowingPhrase && !isXMR && (
+                            {isShowingPhrase && !isXMR && (
+                                <View style={{
+                                    paddingHorizontal: GRID_SIZE,
+                                    paddingVertical: GRID_SIZE * 1.5,
+                                }}>
+                                    <TwoButtons
+                                        mainButton={{
+                                            onPress: () => this.handleQR(true),
+                                            title: strings('walletBackup.step0Screen.showQR'),
+                                            textStyle: {
+                                                textAlign: 'center'
+                                            }
+                                        }}
+                                    />
+                                </View>
+                            )}
+
+                            {isInited && !isShowingPhrase && !isXMR && (
                                 <View style={{
                                     paddingHorizontal: GRID_SIZE,
                                     paddingVertical: GRID_SIZE * 1.5,
@@ -349,7 +430,8 @@ class BackupStep0Screen extends PureComponent {
                                             type: 'settings',
                                             onPress: this.openWalletSettings,
                                             onLongPress: this.handleCopyModal,
-                                            delayLongPress: 4000
+                                            delayLongPress: 4000,
+                                            disabled: !approvedBackup,
                                         } : undefined}
                                     />
                                 </View>
@@ -364,9 +446,9 @@ class BackupStep0Screen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        settingsData: getSettingsScreenData(state),
-        selectedWallet: state.mainStore.selectedWallet,
-        createWalletStore: state.createWalletStore
+        selectedWalletData: getSelectedWalletData(state),
+        createWalletStore: state.createWalletStore,
+        lockScreenStatus: getLockScreenStatus(state)
     }
 }
 
@@ -450,5 +532,27 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         justifyContent: 'center',
         alignItems: 'center'
-    }
+    },
+    wrapperQR: {
+        alignItems: 'center',
+    },
+    qr: {
+        position: 'relative',
+        backgroundColor: '#F5F5F5',
+        width: 250,
+        height: 250,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 24,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 3
+        },
+        shadowOpacity: 0.27,
+        shadowRadius: 4.65,
+
+        elevation: 6,
+
+    },
 })

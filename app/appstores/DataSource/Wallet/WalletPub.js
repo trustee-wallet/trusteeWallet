@@ -38,7 +38,7 @@ class WalletPub {
                     VALUES ('${walletPub.walletHash}', '${walletPub.currencyCode}', '${walletPub.walletPubType}','${walletPub.walletPubValue}', '${now}', '${now}',
                     ${walletPub.balance * 1}, '${walletPub.balance}', ${walletPub.unconfirmed * 1}, '${walletPub.unconfirmed}')`
         }
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
         CACHE[walletPub.walletHash] = false
     }
 
@@ -71,7 +71,7 @@ class WalletPub {
             where = ''
         }
 
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
         SELECT id,
         wallet_hash AS walletHash,
         wallet_pub_type AS walletPubType,
@@ -89,7 +89,7 @@ class WalletPub {
         transactions_scan_time AS transactionsScanTime
         FROM wallet_pub
         ${where}
-        `).query()
+        `)
         if (!res || !res.array || !res.array.length) return false
 
 
@@ -118,9 +118,9 @@ class WalletPub {
             let tmp
             for (tmp of toRemove) {
                 const sql3 = `UPDATE account SET wallet_pub_id=${tmp.to} WHERE wallet_pub_id=${tmp.old}`
-                await Database.setQueryString(sql3).query()
+                await Database.query(sql3)
                 const sql4 = `DELETE FROM wallet_pub WHERE id=${tmp.old}`
-                await Database.setQueryString(sql4).query()
+                await Database.query(sql4)
             }
         }
 

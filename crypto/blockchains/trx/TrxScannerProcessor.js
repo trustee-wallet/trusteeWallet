@@ -104,7 +104,7 @@ export default class TrxScannerProcessor {
             ORDER BY created_at DESC
             LIMIT 10
         `
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
         if (!res || typeof res.array === 'undefined' || !res.array || res.array.length === 0) {
             CACHE_PENDING_TXS = 'none'
             return false

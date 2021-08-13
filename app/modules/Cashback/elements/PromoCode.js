@@ -6,7 +6,7 @@ import { View } from 'react-native'
 
 import { strings } from '@app/services/i18n'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import Button from '@app/components/elements/new/buttons/Button'
 import TextInput from '@app/components/elements/new/TextInput'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
@@ -65,6 +65,8 @@ export default class PromoCodeContent extends React.Component {
                     placeholder={strings('cashback.enterPromoPlaceholder')}
                     value={promoCode}
                     onChangeText={this.onChangeCode}
+                    paste={true}
+                    callback={this.onChangeCode}
                 />
                 <Button
                     title={strings('cashback.applyButton')}

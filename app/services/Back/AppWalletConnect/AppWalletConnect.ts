@@ -18,7 +18,11 @@ import { signTypedData_v4 } from 'eth-sig-util'
 
 import store from '@app/store'
 import config from '@app/config/config'
-import { setWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import {
+    setWalletConnectData,
+    setWalletConnectAccount,
+    setWalletConnectIsConnected
+} from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 
@@ -46,9 +50,14 @@ let WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
 let MAIN_CURRENCY_CODE = 'ETH'
 export namespace AppWalletConnect {
 
-    const _getAccount = async function() {
+    const _getAccounts = async function(chainId = 0, throwErrorIfNoDict = true) {
+        console.log(`call chainId1 ` + JSON.stringify(chainId))
         const { walletHash } = store.getState().mainStore.selectedWallet
-        const { chainId } = WALLET_CONNECTOR
+        const { peerMeta }  = WALLET_CONNECTOR
+        if (typeof chainId === 'undefined' || !chainId) {
+            chainId = WALLET_CONNECTOR.chainId * 1 || 0
+        }
+        console.log(`call chainId2 ` + JSON.stringify(chainId))
         const accountList = store.getState().accountStore.accountList
         if (!accountList || typeof accountList[walletHash] === 'undefined') {
             return false
@@ -59,21 +68,41 @@ export namespace AppWalletConnect {
         if (chainId === 3) {
             MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
             WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
+        } if (chainId === 4) {
+            MAIN_CURRENCY_CODE = 'ETH_RINKEBY'
+            WEB3_LINK = `https://rinkeby.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         } else if (chainId === 56) {
             MAIN_CURRENCY_CODE = 'BNB_SMART'
             WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
+        } else if (chainId === 10) {
+            MAIN_CURRENCY_CODE = 'OPTIMISM'
+            WEB3_LINK = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
+        } else if (chainId === 137) {
+            MAIN_CURRENCY_CODE = 'MATIC'
+            WEB3_LINK = BlocksoftExternalSettings.getStatic('MATIC_SERVER')
         } else {
             WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
+            if (chainId !== 1 && throwErrorIfNoDict) {
+                throw new Error('Network ' + chainId + ' not supported')
+            }
         }
 
         WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
 
         Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' ' + WEB3_LINK)
-        if (typeof  accountList[walletHash][MAIN_CURRENCY_CODE] === 'undefined') {
+        if (typeof accountList[walletHash][MAIN_CURRENCY_CODE] === 'undefined' && typeof accountList[walletHash]['ETH'] === 'undefined') {
             throw new Error('TURN ON ' + MAIN_CURRENCY_CODE)
         }
-        const account = accountList[walletHash][MAIN_CURRENCY_CODE]
-        return account
+        const account = accountList[walletHash][MAIN_CURRENCY_CODE] || accountList[walletHash]['ETH']
+        let res = []
+        if (peerMeta.description === "TrusteeConnect4Tron") {
+            res = [accountList[walletHash]['TRX'], account]
+            setWalletConnectAccount(res[0].address, 'TRX')
+        } else {
+            res = [account]
+            setWalletConnectAccount(res[0].address, MAIN_CURRENCY_CODE)
+        }
+        return res
     }
 
     export const init = async function(
@@ -165,6 +194,7 @@ export namespace AppWalletConnect {
                 throw error
             }
             setWalletConnectIsConnected(WALLET_CONNECTOR.session.connected)
+            setWalletConnectData(WALLET_CONNECTOR_LINK)
         })
 
         WALLET_CONNECTOR.on('call_request', (error, payload) => {
@@ -173,7 +203,9 @@ export namespace AppWalletConnect {
                 if (error) {
                     throw error
                 }
-                if (payload.method === 'eth_signTypedData') {
+                if (payload.method === 'wallet_addEthereumChain') {
+                    autoChangeChain(payload)
+                } else if (payload.method === 'eth_signTypedData') {
                     sendSignTyped(JSON.parse(payload.params[1]), payload)
                 } else if (payload.method === 'personal_sign') {
                     sendSign(BlocksoftUtils.hexToUtf(payload.params[0]), payload)
@@ -209,10 +241,46 @@ export namespace AppWalletConnect {
         return { chainId, accounts, peerId, peerMeta, connected: false }
     }
 
+    // https://eips.ethereum.org/EIPS/eip-3085
+    // [{"blockExplorerUrls": ["https://explorer.optimism.io/"], "chainId": "0xa", "chainName": "Optimism", "nativeCurrency": {"decimals": 18, "name": "Optimistic ETH", "symbol": "ETH"}, "rpcUrls": ["https://mainnet.optimism.io"]}]
+    export const autoChangeChain = async function (payload: any) {
+        console.log('AppWalletConnect.autoChangeChain ', JSON.stringify(payload))
+        // @ts-ignore
+        const chainId = 1 * BlocksoftUtils.hexToDecimalWalletConnect(payload.params[0].chainId)
+        console.log('autoChangeChain ' + payload.params[0].chainId + ' => ' + chainId)
+        const id = payload.id
+        try {
+            // @ts-ignore
+            await _getAccounts(chainId, true)
+            WALLET_CONNECTOR.chainId = chainId
+        } catch (e) {
+            Log.err('AppWalletConnect.autoChangeChain _getAccount error ' + e.message)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: payload.params[0].chainName + ' not supported'
+            })
+            return false
+        }
+
+        try {
+            const resp = {
+                id,
+                result: null
+            }
+            await WALLET_CONNECTOR.approveRequest(resp)
+        } catch (e) {
+            Log.err('AppWalletConnect.autoChangeChain error ' + e.message)
+        }
+    }
+
     export const approveRequest = async function(data: ITxData, payload: any) {
         try {
             Log.log('AppWalletConnect.approveRequest', data, payload)
-            const account = await _getAccount()
+            const { chainId } = payload
+            const accounts = await _getAccounts(chainId)
+            const account = accounts[0]
             const discoverFor = {
                 addressToCheck: data.from,
                 derivationPath: account.derivationPath,
@@ -276,7 +344,9 @@ export namespace AppWalletConnect {
     export const approveSign = async function(message: string, payload: any) {
         try {
             Log.log('AppWalletConnect.approveSign', message, payload)
-            const account = await _getAccount()
+            const { chainId } = payload
+            const accounts = await _getAccounts(chainId)
+            const account = accounts[0]
             const discoverFor = {
                 addressToCheck: account.address,
                 derivationPath: account.derivationPath,
@@ -299,7 +369,9 @@ export namespace AppWalletConnect {
     export const approveSignTyped = async function(data: any, payload: any) {
         try {
             Log.log('AppWalletConnect.approveSignTyped2', data, payload)
-            const account = await _getAccount()
+            const { chainId } = payload
+            const accounts = await _getAccounts(chainId)
+            const account = accounts[0]
             const discoverFor = {
                 addressToCheck: account.address,
                 derivationPath: account.derivationPath,
@@ -333,6 +405,7 @@ export namespace AppWalletConnect {
             WALLET_CONNECTOR.killSession({
                 message: 'You have rejected session in TrusteeWallet'
             })
+            setWalletConnectIsConnected(false)
         } catch (e) {
             Log.log('AppWalletConnect.killSession error ' + e.message)
         }
@@ -349,12 +422,14 @@ export namespace AppWalletConnect {
         Log.log('AppWalletConnect.approveSession', payload)
         BlocksoftCryptoLog.log('AppWalletConnect.approveSession', payload)
         const { chainId } = payload
-        const account = await _getAccount()
+        const accounts = await _getAccounts(chainId)
+        const tmp = []
+        for (const account of accounts) {
+            tmp.push(account.address)
+        }
         try {
             const data = {
-                accounts: [
-                    account.address
-                ],
+                accounts: tmp,
                 chainId: chainId && chainId > 0 ? chainId : 1
             }
             await WALLET_CONNECTOR.approveSession(data)

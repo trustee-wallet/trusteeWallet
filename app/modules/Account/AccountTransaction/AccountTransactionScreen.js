@@ -9,15 +9,12 @@ import {
     Text,
     ScrollView,
     Linking,
-    TextInput,
     TouchableOpacity
 } from 'react-native'
 import { connect } from 'react-redux'
 import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-
-import AsyncStorage from '@react-native-community/async-storage'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import Log from '@app/services/Log/Log'
 
@@ -41,7 +38,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import GradientView from '@app/components/elements/GradientView'
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import config from '@app/config/config'
-import { setLoaderStatus, setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setLoaderStatus, setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency, setSelectedTransaction } from '@app/appstores/Stores/Main/MainStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
@@ -56,7 +53,10 @@ import HeaderTx from './elements/Header'
 import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getCashBackLinkFromDataAPi } from '@app/appstores/Stores/CashBack/selectors'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+
+import TextInput from '@app/components/elements/new/TextInput'
 
 
 let CACHE_RESCAN_TX = false
@@ -92,6 +92,8 @@ class AccountTransactionScreen extends PureComponent {
     async UNSAFE_componentWillMount() {
         try {
             const data = NavStore.getParamWrapper(this, 'txData')
+            const source = NavStore.getParamWrapper(this, 'source')
+            console.log('AccountTransactionScreen mount source ' + JSON.stringify(source))
 
             let { transactionHash, transactionStatus, currencyCode, orderHash, walletHash, transaction, notification, toOpenAccountBack, uiType } = data
             let tx
@@ -225,7 +227,7 @@ class AccountTransactionScreen extends PureComponent {
     init = (transaction, cryptoCurrency) => {
         this.rescanOnInit(cryptoCurrency)
 
-        Log.log('init transaction transaction', transaction)
+        Log.log('AccountTransactionScreen.init transaction', transaction)
         try {
 
             const fioMemo = DaemonCache.getFioMemo(cryptoCurrency.currencyCode)
@@ -385,7 +387,7 @@ class AccountTransactionScreen extends PureComponent {
                 icon: 'WARNING',
                 description: strings('account.externalLink.description')
             }, () => {
-                AsyncStorage.setItem('asked', now + '')
+               trusteeAsyncStorage.setExternalAsked(now + '')
                 this.props.cacheAsked = now
                 this.openLink(link)
             })
@@ -574,8 +576,14 @@ class AccountTransactionScreen extends PureComponent {
                 }
             }
 
+            const tx = {
+                ...this.state.transaction,
+                ...transaction
+            }
+
             if (transactionJson === null || transactionJson.comment !== comment) {
                 await transactionDS.saveTransaction(transaction, updateID, 'onBlurComment')
+                setSelectedTransaction(tx, 'AccountTransactionScreen.onBlurComment')
             }
         } catch (e) {
             Log.err(`AccountScreen.Transaction/onBlurComment error ${e.message}; Transaction - ${JSON.stringify(this.state.transaction)}`)
@@ -584,7 +592,7 @@ class AccountTransactionScreen extends PureComponent {
 
     backAction = async () => {
         if (this.state.uiType === 'TRADE_SEND') {
-            NavStore.goNext('MarketScreen')
+            NavStore.reset('TabBar')
         } else if (this.state.toOpenAccountBack) {
             setSelectedCryptoCurrency(this.props.cryptoCurrency)
             await setSelectedAccount('AccountTransactionScreen.backAction')
@@ -592,14 +600,6 @@ class AccountTransactionScreen extends PureComponent {
             NavStore.reset('AccountScreen')
         } else {
             NavStore.goBack()
-        }
-    }
-
-    closeAction = () => {
-        if (this.state.uiType === 'TRADE_SEND') {
-            NavStore.reset('MarketScreen') // @todo here some param to reset all search
-        } else {
-            NavStore.reset('HomeScreen')
         }
     }
 
@@ -726,10 +726,22 @@ class AccountTransactionScreen extends PureComponent {
 
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 20 })
+                this.scrollView.scrollTo({ y: 120 })
             } catch (e) {
             }
         }, 100)
+    }
+
+    handleCommentChange = (value) => {
+        const { commentToView } = this.state
+
+        this.setState({
+            commentToView: {
+                ...commentToView,
+                description: value
+            },
+            commentEditable: true
+        })
     }
 
     commentHandler = () => {
@@ -751,25 +763,18 @@ class AccountTransactionScreen extends PureComponent {
                         </TouchableOpacity> :
                         <View style={{ ...styles.textInputWrapper, backgroundColor: colors.transactionScreen.comment }}>
                             <TextInput
-                                ref={ref => this.commentInput = ref}
+                                compRef={ref => this.commentInput = ref}
                                 placeholder={strings('account.transactionScreen.commentPlaceholder')}
                                 onBlur={() => this.onBlurComment(commentToView)}
-                                multiline={true}
-                                onChangeText={(value) => {
-                                    this.setState({
-                                        commentToView: {
-                                            ...commentToView,
-                                            description: value
-                                        },
-                                        commentEditable: true
-                                    })
-                                }}
+                                onChangeText={this.handleCommentChange}
                                 onFocus={this.onFocus}
                                 value={commentToView !== null ? commentToView.description : commentToView}
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
                                 style={{ ...styles.input, color: colors.common.text2 }}
                                 placeholderTextColor={colors.common.text2}
+                                paste={true}
+                                callback={this.handleCommentChange}
                             />
                         </View>
                     :

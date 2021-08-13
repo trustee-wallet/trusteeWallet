@@ -22,14 +22,16 @@ import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import MnemonicWord from './elements/MnemonicWord'
 import SelectedMnemonic from './elements/SelectedMnemonic'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { deleteWallet } from '../Settings/helpers'
 
 
 const VISIBILITY_TIMEOUT = 4000
@@ -63,7 +65,7 @@ class BackupStep1Screen extends React.PureComponent {
         let walletMnemonicDefault
         try {
             if (flowType === 'DELETE_WALLET') {
-                const selectedWallet = await cryptoWallets.getSelectedWallet()
+                const selectedWallet = await settingsActions.getSelectedWallet()
                 walletMnemonicDefault = await cryptoWallets.getWallet(selectedWallet, 'WalletBackup.BackupStep1Screen')
                 walletMnemonicDefault = walletMnemonicDefault.split(' ')
             } else {
@@ -121,6 +123,11 @@ class BackupStep1Screen extends React.PureComponent {
 
     handleBack = () => { NavStore.goBack() }
 
+    confirmDeleteWallet = async () => {
+        const { walletHash, source } = this.props.createWalletStore
+        await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen' ? true : false)
+    }
+
     handleDeleteWallet = () => {
         setTimeout(() => {
             showModal({
@@ -132,22 +139,14 @@ class BackupStep1Screen extends React.PureComponent {
             }, (needPassword = true) => {
                 const { lockScreenStatus } = this.props.settingsData
                 if (needPassword && +lockScreenStatus) {
-                    lockScreenAction.setFlowType({ flowType: 'CONFIRM_WALLET_PHRASE' })
-                    lockScreenAction.setActionCallback({ actionCallback: this.confirmDeleteWallet })
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback: this.confirmDeleteWallet})
                     NavStore.goNext('LockScreen')
                     return
-                }
-
-                this.confirmDeleteWallet()
+                } else (
+                    this.confirmDeleteWallet()
+                )
             })
         }, 0)
-    }
-
-    confirmDeleteWallet = () => {
-        // TODO delete wallet and set another wallet
-
-        setLoaderStatus(false)
-
     }
 
     validateMnemonic = async () => {

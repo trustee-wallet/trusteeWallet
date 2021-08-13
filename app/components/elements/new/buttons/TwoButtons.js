@@ -11,7 +11,7 @@ import CustomIcon from '../../CustomIcon'
 
 import Button from './Button'
 
-import { useTheme } from '../../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 import { strings } from '../../../../services/i18n'
 

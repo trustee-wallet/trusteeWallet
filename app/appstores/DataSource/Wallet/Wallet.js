@@ -37,6 +37,10 @@ class Wallet {
             walletNumber = wallet.walletNumber * 1
         }
         const tmpWalletName = Database.escapeString(wallet.walletName)
+        const recheck = await Database.query(`SELECT wallet_name FROM wallet WHERE wallet_hash='${wallet.walletHash}'`)
+        if (recheck && recheck.array && recheck.array.length > 0) {
+            return true
+        }
         const sql = `INSERT INTO wallet (
         wallet_to_send_status, wallet_hash, wallet_name, 
         wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, 
@@ -47,7 +51,7 @@ class Wallet {
         ${wallet.walletAllowReplaceByFee || 1}, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1},
         ${walletNumber}
         )`
-        await Database.setQueryString(sql).query(true)
+        await Database.query(sql, true)
     }
 
     /**
@@ -58,7 +62,7 @@ class Wallet {
     clearWallet = async (wallet) => {
         Log.daemon('DS/Wallet clear wallet called ' + wallet.walletHash)
         const sql = `DELETE FROM wallet WHERE wallet_hash='${wallet.walletHash}'`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
         CACHE[wallet.walletHash] = false
         Log.daemon('DS/Wallet clear wallet finished ' + wallet.walletHash)
     }
@@ -166,7 +170,7 @@ class Wallet {
      * @returns {Promise<{id, walletHash, walletName, walletIsHd, walletIsBackedUp, walletUseUnconfirmed, walletIsHideTransactionForFee, walletAllowReplaceByFee}[]|*>}
      */
     getWallets = async () => {
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
                 SELECT
                 wallet_to_send_status AS walletToSendStatus,
                 wallet_hash AS walletHash,
@@ -179,7 +183,7 @@ class Wallet {
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
                 wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee,
                 wallet_number AS walletNumber
-                FROM wallet ORDER BY wallet_number`).query()
+                FROM wallet ORDER BY wallet_number`)
         if (!res || !res.array) {
             Log.log('DS/Wallet getWallets no result')
             return []
@@ -196,7 +200,7 @@ class Wallet {
             return wallet
         }
         const { cashbackToken } = await CashBackUtils.getByHash(wallet.walletHash, 'DS/Wallet getWallets redo')
-        await Database.setQueryString(`UPDATE wallet SET wallet_cashback='${cashbackToken}' WHERE wallet_hash='${wallet.walletHash}'`).query()
+        await Database.query(`UPDATE wallet SET wallet_cashback='${cashbackToken}' WHERE wallet_hash='${wallet.walletHash}'`)
         wallet.walletCashback = cashbackToken
         return wallet
     }
@@ -220,11 +224,12 @@ class Wallet {
      * @returns {Promise<string>}
      */
     hasWallet = async () => {
-        const res = await Database.setQueryString(`
-                SELECT
-                wallet_hash
-                FROM wallet LIMIT 1`).query()
-        return res && res.array && res.array[0]
+        try {
+            const res = await Database.query(`SELECT wallet_hash FROM wallet LIMIT 1`)
+            return res && res.array && res.array[0]
+        } catch (e) {
+            return false
+        }
     }
 
     /**
@@ -236,7 +241,7 @@ class Wallet {
             return CACHE[walletHash]
         }
 
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
                 SELECT
                 wallet_to_send_status AS walletToSendStatus,
                 wallet_hash AS walletHash,
@@ -249,7 +254,7 @@ class Wallet {
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
                 wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee,
                 wallet_number AS walletNumber
-                FROM wallet WHERE wallet_hash='${walletHash}' LIMIT 1`).query()
+                FROM wallet WHERE wallet_hash='${walletHash}' LIMIT 1`)
         if (!res || !res.array || res.array.length === 0) return false
 
         const wallet = this._prepWallet(res.array[0])

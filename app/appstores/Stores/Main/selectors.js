@@ -10,6 +10,11 @@ export const getIsBlurVisible = createSelector(
     (data => data)
 )
 
+export const getIsBackedUp = createSelector(
+    [state => state.mainStore.selectedWallet.walletIsBackedUp],
+    (data => data)
+)
+
 export const getSelectedWalletData = createSelector(
     [state => state.mainStore.selectedWallet],
     (data => {
@@ -74,4 +79,9 @@ export const getSelectedAccountTransactions = createSelector(
             transactionsLoaded : data.transactionsLoaded
         }
     })
+)
+
+export const getBseLink = createSelector(
+    [state => state.mainStore.bseLink],
+    (data => data)
 )

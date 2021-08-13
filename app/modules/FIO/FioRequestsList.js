@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import NavStore from '@app/components/navigation/NavStore'
 import Netinfo from '@app/services/Netinfo/Netinfo'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 class FioRequestsList extends Component {

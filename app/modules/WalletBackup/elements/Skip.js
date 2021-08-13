@@ -14,7 +14,7 @@ import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { strings } from '@app/services/i18n'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 class Skip extends React.PureComponent {
 

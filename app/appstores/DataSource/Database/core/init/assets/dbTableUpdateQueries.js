@@ -3,18 +3,20 @@ import axios from 'axios';
 import VersionCheck from 'react-native-version-check';
 
 import BlocksoftDict from '@crypto/common/BlocksoftDict';
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions';
 import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore';
 
 import Log from '@app/services/Log/Log';
 
-import countries from '@app/assets/jsons/other/country-codes';
+import countries from '@assets/jsons/other/country-codes';
 
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 116,
+        maxVersion: 117,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -28,7 +30,7 @@ export default function getTableUpdateQueries() {
                 queryString: `ALTER TABLE card ADD COLUMN country_code VARCHAR(32) NULL`, // if = 'ua' - ukraine
                 afterFunction: async (dbInterface) => {
                     try {
-                        const { array: cards } = await dbInterface.setQueryString('SELECT * FROM card').query()
+                        const { array: cards } = await dbInterface.query('SELECT * FROM card')
 
                         for (let i = 0; i < cards.length; i++) {
                             const link = `https://lookup.binlist.net/${cards[i].number}`
@@ -55,13 +57,13 @@ export default function getTableUpdateQueries() {
             },
             5: {
                 afterFunction: async (dbInterface) => {
-                    await dbInterface.setQueryString(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('local_currency', 'USD')`).query()
+                    await dbInterface.query(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('local_currency', 'USD')`)
                 }
             },
             6: {
                 queryString: `ALTER TABLE card ADD COLUMN currency VARCHAR(32) NULL`,
                 afterFunction: async (dbInterface) => {
-                    const { array: cards } = await dbInterface.setQueryString(`SELECT * FROM card`).query()
+                    const { array: cards } = await dbInterface.query(`SELECT * FROM card`)
 
                     for (let i = 0; i < cards.length; i++) {
 
@@ -84,7 +86,7 @@ export default function getTableUpdateQueries() {
             7: {
                 afterFunction: async (dbInterface) => {
                     try {
-                        const { array: cards } = await dbInterface.setQueryString('SELECT * FROM card').query()
+                        const { array: cards } = await dbInterface.query('SELECT * FROM card')
 
                         for (let i = 0; i < cards.length; i++) {
 
@@ -112,7 +114,7 @@ export default function getTableUpdateQueries() {
             },
             8: {
                 afterFunction: async (dbInterface) => {
-                    const { array: cards } = await dbInterface.setQueryString(`SELECT * FROM card`).query()
+                    const { array: cards } = await dbInterface.query(`SELECT * FROM card`)
 
                     for (let i = 0; i < cards.length; i++) {
 
@@ -141,9 +143,9 @@ export default function getTableUpdateQueries() {
             11: {
                 afterFunction: async (dbInterface) => {
 
-                    await dbInterface.setQueryString(`ALTER TABLE account_balance RENAME TO tmp`).query()
+                    await dbInterface.query(`ALTER TABLE account_balance RENAME TO tmp`)
 
-                    await dbInterface.setQueryString(`CREATE TABLE IF NOT EXISTS account_balance (
+                    await dbInterface.query(`CREATE TABLE IF NOT EXISTS account_balance (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
 
                         balance_fix DECIMAL(50,20) NULL,
@@ -156,22 +158,22 @@ export default function getTableUpdateQueries() {
 
                         FOREIGN KEY(wallet_hash) REFERENCES wallet(wallet_hash),
                         FOREIGN KEY(account_id) REFERENCES account(id)
-                    )`).query()
+                    )`)
 
-                    await dbInterface.setQueryString(`
+                    await dbInterface.query(`
                         INSERT INTO account_balance(balance_fix, balance_txt, balance_scan_time, status, currency_code, wallet_hash, account_id)
                         SELECT balance_fix, balance_txt, balance_scan_time, status, currency_code, wallet_hash, account_id
                         FROM tmp
-                    `).query()
+                    `)
 
-                    await dbInterface.setQueryString(`DROP TABLE tmp`).query()
+                    await dbInterface.query(`DROP TABLE tmp`)
                 }
             },
             12: {
                 afterFunction: async (dbInterface) => {
                     try {
 
-                        const { array: cryptocurrencies } = await dbInterface.setQueryString(`SELECT * FROM currency`).query()
+                        const { array: cryptocurrencies } = await dbInterface.query(`SELECT * FROM currency`)
                         const addedCryptocurrencies = []
 
                         let item, currencyCode
@@ -285,9 +287,9 @@ export default function getTableUpdateQueries() {
                 queryString: `ALTER TABLE account ADD COLUMN already_shown INTEGER NULL`,
                 afterFunction: async (dbInterface) => {
                     try {
-                        await dbInterface.setQueryString(`UPDATE account SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`).query()
-                        await dbInterface.setQueryString(`UPDATE account_balance SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`).query()
-                        await dbInterface.setQueryString(`UPDATE transactions SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`).query()
+                        await dbInterface.query(`UPDATE account SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`)
+                        await dbInterface.query(`UPDATE account_balance SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`)
+                        await dbInterface.query(`UPDATE transactions SET currency_code='BTC' WHERE currency_code='BTC_SEGWIT'`)
                         Log.log('DB/Update afterFunction - Migration 21 finish')
                     } catch (e) {
                         Log.err('DB/Update afterFunction - Migration 21 error', e)
@@ -366,11 +368,11 @@ export default function getTableUpdateQueries() {
                 queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_hide_transaction_for_fee TEXT NULL`,
                 afterFunction: async (dbInterface) => {
                     try {
-                        const { array: wallets } = await dbInterface.setQueryString('SELECT * FROM wallet').query()
+                        const { array: wallets } = await dbInterface.query('SELECT * FROM wallet')
 
                         if (wallets && wallets.length > 0) {
                             for (const wallet of wallets) {
-                                await dbInterface.setQueryString(`UPDATE wallet SET wallet_is_hide_transaction_for_fee=1 WHERE wallet_hash='${wallet.wallet_hash}'`).query()
+                                await dbInterface.query(`UPDATE wallet SET wallet_is_hide_transaction_for_fee=1 WHERE wallet_hash='${wallet.wallet_hash}'`)
                             }
                         }
 
@@ -489,7 +491,7 @@ export default function getTableUpdateQueries() {
                     try {
                         const version = VersionCheck.getCurrentVersion().split('.')[2]
                         if (version >= 407) {
-                            await dbInterface.setQueryString(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('btcShowTwoAddress', '1')`).query()
+                            await dbInterface.query(`INSERT INTO settings ([paramKey], [paramValue]) VALUES ('btcShowTwoAddress', '1')`)
                         }
                         Log.log('DB/Update afterFunction - Migration 53 finish')
                     } catch (e) {
@@ -683,7 +685,7 @@ export default function getTableUpdateQueries() {
                 afterFunction: async (dbInterface) => {
                     const lock = await SettingsKeystore.getLockScreenStatus()
                     if (lock !== '1') {
-                        const settings = await dbInterface.setQueryString('SELECT * FROM settings').query()
+                        const settings = await dbInterface.query('SELECT * FROM settings')
                         if (typeof settings.array !== 'undefined' && settings.array) {
                             for (const row of settings.array) {
                                 if (row.paramKey === 'lock_screen_status') {
@@ -763,7 +765,7 @@ export default function getTableUpdateQueries() {
 			111: {
                 queryString: `ALTER TABLE card ADD COLUMN card_to_send_status INTEGER NULL`
             },
-			
+
 			112: {
                 queryString: `ALTER TABLE card ADD COLUMN card_create_wallet_hash VARCHAR(256) NULL`
             },
@@ -771,26 +773,39 @@ export default function getTableUpdateQueries() {
 			113: {
                 queryString: `ALTER TABLE wallet ADD COLUMN wallet_to_send_status INTEGER NULL`
             },
-			
+
 			114 : {
 				queryString: `ALTER TABLE wallet ADD COLUMN wallet_number INTEGER NULL`
 			},
 
 			115: {
                 afterFunction: async (dbInterface) => {
-                    const wallets = await dbInterface.setQueryString('SELECT wallet_hash FROM wallet').query()
+                    const wallets = await dbInterface.query('SELECT wallet_hash FROM wallet')
 					let index = 0
                     if (typeof wallets.array !== 'undefined' && wallets.array) {
                         for (const row of wallets.array) {
 							index++
-                            await  await dbInterface.setQueryString(`UPDATE wallet SET wallet_number=${index} WHERE wallet_hash='${row.wallet_hash}'`).query()
+                            await  await dbInterface.query(`UPDATE wallet SET wallet_number=${index} WHERE wallet_hash='${row.wallet_hash}'`)
                         }
                     }
                 }
 			},
-			
+
 			116: {
                 queryString: `ALTER TABLE card ADD COLUMN card_to_send_id INTEGER NULL`
+            },
+
+            117: {
+                afterFunction: async (dbInterface) => {
+                    try {
+                        const oldWallet = await BlocksoftKeysStorage.getOldSelectedWallet()
+                        if (oldWallet) {
+                            await settingsActions.setSelectedWallet(oldWallet)
+                        }
+                    } catch (e) {
+                        // do nothing
+                    }
+                }
             },
         }
     }

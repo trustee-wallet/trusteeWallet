@@ -26,7 +26,7 @@ import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
 
 import config from '../../../../config/config'
 
-import { ThemeContext } from '../../../theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import styles from './styles'
 
 const CACHE_TIMEOUT = 3000
@@ -315,6 +315,7 @@ class SettingsTRX extends Component {
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
                                 tintColor={'#7127ac'}
+                                paste={true}
                             />
                         </View>
                     </View>

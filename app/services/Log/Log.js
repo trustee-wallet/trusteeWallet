@@ -14,6 +14,7 @@ import { FileSystem } from '../FileSystem/FileSystem'
 import { strings } from '../i18n'
 import { showModal } from '../../appstores/Stores/Modal/ModalActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const DEBUG = config.debug.appLogs // set true to see usual logs in console
 const DEBUG_DAEMON = config.debug.appDaemonLogs // set true to see cron jobs logs in console
@@ -157,6 +158,11 @@ class Log {
      * @returns {boolean}
      */
     async log(txtOrObj, txtOrObj2 = false, txtOrObj3 = false, LOG_SUBTYPE = 'ALL', LOG_AS_ERROR = false, LOG_WRITE_FILE = true) {
+
+        if (settingsActions.getSettingStatic('loggingCode') === 'none') {
+            return
+        }
+
         let line = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         let line2 = ''
         if (txtOrObj && typeof txtOrObj !== 'undefined') {

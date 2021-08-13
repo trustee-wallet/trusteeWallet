@@ -1,7 +1,6 @@
 
 import { createSelectorCreator, defaultMemoize } from 'reselect'
 import _isEqual from 'lodash/isEqual'
-import Log from '../../../services/Log/Log'
 
 const DEFAULT_ACCOUNT = {
   basicCurrencyRate: '', basicCurrencyBalance: '', basicCurrencySymbol: '', balancePretty: '', basicCurrencyBalanceNorm: ''
@@ -17,13 +16,14 @@ const selectAccountCurrency = (state, props) => {
   try {
     const currencyCode = props.cryptoCurrency.currencyCode
     const selectedWallet = state.mainStore.selectedWallet.walletHash
+
     if (typeof state.accountStore.accountList[selectedWallet] === 'undefined') {
-      Log.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency')
+      // Log.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency') // @todo redo UpdateAccountListDaemon
       return DEFAULT_ACCOUNT
       // throw new Error('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency')
     }
     if (typeof state.accountStore.accountList[selectedWallet][currencyCode] === 'undefined') {
-      Log.log('Undefined currencyCode ' + selectedWallet + '  ' + currencyCode + ' in Account.selectors.selectAccountCurrency')
+      // Log.log('Undefined currencyCode ' + selectedWallet + '  ' + currencyCode + ' in Account.selectors.selectAccountCurrency')
       return DEFAULT_ACCOUNT
       // throw new Error('Undefined currencyCode ' + selectedWallet + '  ' + currencyCode + ' in Account.selectors.selectAccountCurrency')
     }

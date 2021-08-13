@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react'
-import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 import { View, SafeAreaView } from 'react-native'
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 

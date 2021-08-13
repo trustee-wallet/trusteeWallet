@@ -4,11 +4,7 @@
 import analytics from '@react-native-firebase/analytics'
 
 import NavStore from '@app/components/navigation/NavStore'
-import {
-    setSelectedCryptoCurrency,
-    setSelectedAccount,
-    setSelectedAccountTransactions
-} from '@app/appstores/Stores/Main/MainStoreActions'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 import store from '@app/store'
 import Log from '@app/services/Log/Log'
 
@@ -127,7 +123,8 @@ export namespace SendActionsEnd {
                 txData: {
                     transactionHash: tx.transactionHash,
                     toOpenAccountBack: true
-                }
+                },
+                source : 'SendActionsEnd.transactionAction'
             })
         } else if (uiType === 'MAIN_SCANNER') {
             NavStore.reset('HomeScreen')
@@ -145,7 +142,8 @@ export namespace SendActionsEnd {
                 txData: {
                     transactionHash: tx.transactionHash,
                     uiType
-                }
+                },
+                source : 'SendActionsEnd.sendScanner'
             })
         } else if (uiType === 'ACCOUNT_SCREEN') {
             await NavStore.goBack()
@@ -154,15 +152,18 @@ export namespace SendActionsEnd {
                 txData: {
                     transactionHash: tx.transactionHash,
                     uiType
-                }
+                },
+                source : 'SendActionsEnd.AccountScreen'
             })
         } else if (uiType === 'TRADE_SEND') {
-            NavStore.goNext('AccountTransactionScreen', {
+            setBseLink(null)
+            NavStore.goNext('HomeScreen', { screen: 'AccountTransactionScreen', params: {
                 txData: {
                     transactionHash: tx.transactionHash,
                     uiType
-                }
-            })
+                },
+                    source : 'SendActionsEnd.TradeSend'
+            }})
         } else {
             // fio request etc - direct to receipt
             NavStore.goBack()

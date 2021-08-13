@@ -8,7 +8,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import { strings, sublocale } from '@app/services/i18n'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
@@ -35,17 +35,14 @@ export namespace AppNewsActions {
         try {
             if (checkLock && MarketingEvent.UI_DATA.IS_LOCKED) {
                 await Log.log('ACT/AppNewsActions onOpen need unlock')
-                lockScreenAction.setFlowType({
-                    flowType: 'JUST_CALLBACK'
-                })
-                lockScreenAction.setActionCallback({
-                    actionCallback: async () => {
-                        await Log.log('ACT/AppNewsActions onOpen after lock screen')
-                        if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
-                            NavStore.reset('NotificationsScreen')
-                        }
+                setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
+                    await Log.log('ACT/AppNewsActions onOpen after lock screen')
+                    if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
+                        NavStore.reset('NotificationsScreen')
+                    }  else {
+                        NavStore.reset('TabBar')
                     }
-                })
+                }})
                 NavStore.reset('LockScreenPop')
                 return false
             }
@@ -96,7 +93,8 @@ export namespace AppNewsActions {
                         transactionStatus,
                         walletHash: notification.walletHash,
                         notification: notificationToTx
-                    }
+                    },
+                    source : 'AppNewsActions'
                 })
                 return false
             } else {

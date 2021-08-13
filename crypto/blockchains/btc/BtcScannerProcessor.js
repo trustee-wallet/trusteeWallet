@@ -109,7 +109,7 @@ export default class BtcScannerProcessor {
                     FROM wallet_pub
                     WHERE wallet_hash = '${walletHash}'
                     AND currency_code='BTC'`
-        const resPub = await Database.setQueryString(sqlPub).query()
+        const resPub = await Database.query(sqlPub)
         CACHE_WALLET_PUBS[walletHash] = {}
         if (resPub && resPub.array && resPub.array.length > 0) {
             for (const row of resPub.array) {

@@ -9,7 +9,7 @@ import {
     TouchableOpacity,
 } from 'react-native'
 
-import { useTheme } from '@app/modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 

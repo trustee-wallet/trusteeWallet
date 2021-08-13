@@ -37,7 +37,7 @@ class AppTask {
     clearTasks = async (params) => {
         Log.daemon('DS/AppTask clear wallet called ' + params.walletHash)
         const sql = `DELETE FROM app_task WHERE wallet_hash='${params.walletHash}'`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
         Log.daemon('DS/AppTask clear wallet finished ' + params.walletHash)
     }
 
@@ -49,7 +49,7 @@ class AppTask {
     clearTasksByCurrencyAdd = async (params) => {
         Log.daemon('DS/AppTask clear currency called ' + params.currencyCode)
         const sql = `DELETE FROM app_task WHERE currency_code='${params.currencyCode}' AND task_name IN ('DAEMON_HAS_FOUND_BALANCE_NOT_ADDED', 'DAEMON_HAS_FOUND_BALANCE')`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
         Log.daemon('DS/AppTask clear currency finished ' + params.currencyCode)
     }
 }

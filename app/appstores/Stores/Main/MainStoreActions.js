@@ -7,11 +7,9 @@ import Log from '@app/services/Log/Log'
 
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import walletPubDS from '@app/appstores/DataSource/Wallet/WalletPub'
-import cryptoWalletsDS from '@app/appstores/DataSource/CryptoWallets/CryptoWallets'
 import accountDS from '@app/appstores/DataSource/Account/Account'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
-import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
 import DaemonCache from '@app/daemons/DaemonCache'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
@@ -25,30 +23,46 @@ import UIDict from '@app/services/UIDict/UIDict'
 
 const { dispatch } = store
 
-// @misha rething this selected wallet chain
 export async function setSelectedWallet(source, walletHash = false) {
     Log.log('ACT/MStore setSelectedWallet called ' + source)
 
+    let settingsWalletHash = false
     if (typeof walletHash === 'undefined' || !walletHash) {
-        walletHash = await cryptoWalletsDS.getSelectedWallet()
+        settingsWalletHash = await settingsActions.getSelectedWallet()
     }
-    if (!walletHash) {
-        return false
+    if (settingsWalletHash) {
+        walletHash = settingsWalletHash
     }
 
     const oldData = store.getState().walletStore.wallets
     let wallet = false
+    let lastWalletHash = false
+    let lastWallet = false
     if (oldData) {
         for (const tmp of oldData) {
+            lastWalletHash = tmp.walletHash
+            lastWallet = tmp
             if (tmp.walletHash === walletHash) {
                 wallet = tmp
                 break
             }
         }
     }
+    if (!walletHash) {
+        walletHash = lastWalletHash
+        wallet = lastWallet
+    }
     if (!wallet) {
         wallet = await walletDS.getWalletByHash(walletHash)
+        if (!wallet) {
+            walletHash = lastWalletHash
+            wallet = lastWallet
+        }
     }
+    if (settingsWalletHash !== walletHash) {
+        await settingsActions.setSelectedWallet(walletHash)
+    }
+
     dispatch({
         type: 'SET_SELECTED_WALLET',
         wallet
@@ -84,18 +98,6 @@ export function setSelectedCryptoCurrency(data) {
         selectedCryptoCurrency: data
     })
 }
-
-export async function saveSelectedBasicCurrencyCode(currencyCode) {
-    Log.log('ACT/MStore setSelectedBasicCurrency called ' + currencyCode)
-
-    await settingsActions.setSettings('local_currency', currencyCode)
-
-    await currencyActions.setSelectedBasicCurrencyCode(currencyCode)
-
-    await UpdateAccountListDaemon.forceDaemonUpdate()
-
-}
-
 
 export async function setSelectedAccount(source) {
     // console.log('ACT/MStore setSelectedAccount called ' + source)
@@ -315,9 +317,42 @@ export async function setSelectedAccountTransactions(source) {
     }
 }
 
+export function setSelectedTransaction(tx, source) {
+    try {
+
+        const transactions = store.getState().mainStore.selectedAccountTransactions
+
+        const transactionsToView = transactions.transactionsToView.map(item => {
+            if (item.id === tx.id) {
+                return tx
+            }
+            return item
+        })
+
+        dispatch({
+            type: 'SET_SELECTED_ACCOUNT_TRANSACTIONS',
+            selectedAccountTransactions: {
+                transactionsToView,
+                transactionsLoaded: new Date().getTime()
+            }
+        })
+
+    } catch (e) {
+        e.message += ' while setSelectedTransaction from ' + source
+        throw e
+    }
+}
+
 export function setSelectedWalletName(walletName) {
     dispatch({
         type: 'SET_SELECTED_WALLET_NAME',
         walletName
+    })
+}
+
+export function setBseLink(bseLink) {
+    dispatch({
+        type: 'SET_BSE_LINK',
+        bseLink
     })
 }

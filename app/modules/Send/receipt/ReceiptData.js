@@ -4,7 +4,7 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 
 import CheckData from '@app/modules/Send/elements/CheckData'
@@ -104,8 +104,7 @@ class ReceiptData extends React.PureComponent {
             <MinerFee
                 sendScreenStoreDict={this.props.sendScreenStoreDict}
                 sendScreenStoreSelectedFee={this.props.sendScreenStoreSelectedFee}
-                icon={'INFO'}
-                iconCallback={() => {
+                callback={() => {
                     showModal({
                         type: 'INFO_MODAL',
                         icon: null,
@@ -133,7 +132,7 @@ class ReceiptData extends React.PureComponent {
             }
 
             <View style={{ paddingHorizontal: GRID_SIZE, flexDirection: 'row', marginTop: 44 }}>
-                <CustomIcon name='shield' size={28} style={{ color: colors.sendScreen.amount }} />
+                <CustomIcon name='shield' size={28} style={{ color: colors.sendScreen.amount, alignSelf: 'center' }} />
                 <Text style={{ ...styles.info, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.trusteeInfo')}</Text>
             </View>
         </View>

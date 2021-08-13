@@ -950,6 +950,21 @@ const Currencies = {
             currencyExplorerLink: 'https://ropsten.etherscan.io/address/',
             currencyExplorerTxLink: 'https://ropsten.etherscan.io/tx/'
         },
+    ETH_RINKEBY:
+        {
+            currencyType: 'coin',
+            currencyName: 'Ethereum Rinkeby',
+            currencyCode: 'ETH_RINKEBY',
+            currencySymbol: 'ETH',
+            currencyIcon: 'ETH',
+            ratesCurrencyCode: 'SKIP',
+            extendsProcessor: 'ETH',
+            transferProcessor: 'ETH',
+            network: 'rinkeby',
+            decimals: 18,
+            currencyExplorerLink: 'https://rinkeby.etherscan.io/address/',
+            currencyExplorerTxLink: 'https://rinkeby.etherscan.io/tx/'
+        },
     ETH_LEND:
         {
             currencyType: 'token',
@@ -1064,33 +1079,33 @@ const Currencies = {
         },
     ETH_KNC:
         {
-                currencyType: 'token',
-                currencyName: 'KyberNetwork (Old)',
-                currencyCode: 'ETH_KNC',
-                currencySymbol: 'KNC',
-                extendsProcessor: 'ETH_TRUE_USD',
-                addressUiChecker: 'ETH',
-                ratesCurrencyCode: 'KNC',
-                decimals: 18,
-                tokenBlockchain: 'ETHEREUM',
-                tokenAddress: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
-                currencyExplorerLink:
-                    'https://etherscan.io/token/0xdd974d5c2e2928dea5f71b9825b8b646686bd200?a='
+            currencyType: 'token',
+            currencyName: 'KyberNetwork (Old)',
+            currencyCode: 'ETH_KNC',
+            currencySymbol: 'KNC',
+            extendsProcessor: 'ETH_TRUE_USD',
+            addressUiChecker: 'ETH',
+            ratesCurrencyCode: 'KNC',
+            decimals: 18,
+            tokenBlockchain: 'ETHEREUM',
+            tokenAddress: '0xdd974d5c2e2928dea5f71b9825b8b646686bd200',
+            currencyExplorerLink:
+                'https://etherscan.io/token/0xdd974d5c2e2928dea5f71b9825b8b646686bd200?a='
         },
     ETH_KNC_NEW:
         {
-                currencyType: 'token',
-                currencyName: 'KyberNetwork',
-                currencyCode: 'ETH_KNC_NEW',
-                currencySymbol: 'KNC',
-                extendsProcessor: 'ETH_TRUE_USD',
-                addressUiChecker: 'ETH',
-                ratesCurrencyCode: 'KNC',
-                decimals: 18,
-                tokenBlockchain: 'ETHEREUM',
-                tokenAddress: '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202',
-                currencyExplorerLink:
-                    'https://etherscan.io/token/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202?a='
+            currencyType: 'token',
+            currencyName: 'KyberNetwork',
+            currencyCode: 'ETH_KNC_NEW',
+            currencySymbol: 'KNC',
+            extendsProcessor: 'ETH_TRUE_USD',
+            addressUiChecker: 'ETH',
+            ratesCurrencyCode: 'KNC',
+            decimals: 18,
+            tokenBlockchain: 'ETHEREUM',
+            tokenAddress: '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202',
+            currencyExplorerLink:
+                'https://etherscan.io/token/0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202?a='
         },
     BNB_SMART_LTC:
         {
@@ -1184,6 +1199,24 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0xd26114cd6ee289accf82350c8d8487fedb8a0c07?a=',
             currencyExplorerTxLink: 'https://etherscan.io/tx/'
+        },
+    OPTIMISM:
+        {
+            currencyType: 'coin',
+            currencyName: 'Optimistic Ethereum',
+            currencyCode: 'OPTIMISM',
+            currencySymbol: 'ETH',
+            ratesCurrencyCode: 'ETH',
+            addressProcessor: 'ETH',
+            addressUiChecker: 'ETH',
+            scannerProcessor: 'ETH',
+            extendsProcessor: 'ETH',
+            prettyNumberProcessor: 'ETH',
+            transferProcessor: 'ETC',
+            network: 'mainnet',
+            decimals: 18,
+            currencyExplorerLink: 'https://optimistic.etherscan.io/address/',
+            currencyExplorerTxLink: 'https://optimistic.etherscan.io/tx/'
         },
     BNB_SMART_CAKE:
         {
@@ -1316,15 +1349,15 @@ const Currencies = {
             prettyNumberProcessor: 'USDT',
             network: 'mainnet',
             decimals: 8,
-            currencyExplorerLink: 'https://blockchair.com/steller/account/',
+            currencyExplorerLink: 'https://blockchair.com/stellar/account/',
             currencyExplorerTxLink: 'https://blockchair.com/stellar/transaction/'
         },
     TRX_SUN_NEW:
         {
             currencyType: 'token',
-            currencyName: 'SUN New',
+            currencyName: 'SUN',
             currencyCode: 'TRX_SUN_NEW',
-            currencySymbol: 'SUN New',
+            currencySymbol: 'SUN',
             extendsProcessor: 'TRX_USDT',
             addressUiChecker: 'TRX',
             ratesCurrencyCode: 'SUN_NEW',
@@ -1760,9 +1793,9 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         return false
     }
     if (currencyCode === 'ETH_LAND') {
-        Database.setQueryString(`DELETE FROM account WHERE currency_code='ETH_LAND'`).query()
-        Database.setQueryString(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`).query()
-        Database.setQueryString(`DELETE FROM currency WHERE currency_code='ETH_LAND'`).query()
+        Database.query(`DELETE FROM account WHERE currency_code='ETH_LAND'`)
+        Database.query(`DELETE FROM account_balance WHERE currency_code='ETH_LAND'`)
+        Database.query(`DELETE FROM currency WHERE currency_code='ETH_LAND'`)
     }
 
     if (typeof currencyCodeOrObject.currencyCode !== 'undefined') {

@@ -1,8 +1,10 @@
 /**
- * @version 0.9
+ * @version 0.50
  */
 const INITIAL_STATE = {
-    data: {},
+    data: {
+        isBalanceVisible : true
+    },
     keystore: {
         lockScreenStatus: '0',
         askPinCodeWhenSending: '0',

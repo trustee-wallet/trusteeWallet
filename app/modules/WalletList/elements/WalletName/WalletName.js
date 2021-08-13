@@ -7,7 +7,7 @@ import React, { PureComponent } from 'react'
 import { Dimensions, PixelRatio, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { connect } from 'react-redux'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { setSelectedWalletName } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'

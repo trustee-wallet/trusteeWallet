@@ -11,11 +11,12 @@ import NavStore from '@app/components/navigation/NavStore'
 import SettingsPrivateXMR from './elements/SettingsPrivateXMR'
 import { strings } from '@app/services/i18n'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import { getSelectedAccountData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 
 class AccountSettingsPrivateScreen extends React.PureComponent {

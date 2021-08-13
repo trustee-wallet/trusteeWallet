@@ -7,7 +7,7 @@ import Modal from 'react-native-modal'
 import { View, StyleSheet, Dimensions } from 'react-native'
 import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 const { height: WINDOW_HEIGHT, width: WINDOW_WIDTH } = Dimensions.get('window')
 

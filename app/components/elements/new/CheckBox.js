@@ -8,7 +8,7 @@ import {
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 import { strings } from '../../../services/i18n'
 

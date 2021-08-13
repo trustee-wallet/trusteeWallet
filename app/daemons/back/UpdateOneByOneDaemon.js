@@ -8,10 +8,9 @@ import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccou
 import UpdateAccountPendingTransactions from '@app/daemons/back/UpdateAccountPendingTransactions'
 import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
 
-import { AsyncStorage } from 'react-native'
-
 import Log from '../../services/Log/Log'
 import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const STEPS_ORDER = [
     'UPDATE_PROXIED',
@@ -52,11 +51,7 @@ class UpdateOneByOneDaemon extends Update {
     }
 
     init = async () => {
-        let tmp = await AsyncStorage.getItem('backDaemonStep')
-        tmp = tmp * 1
-        if (tmp > 0) {
-            this._currentStep = tmp
-        }
+        // nothing
     }
 
     stop = () => {
@@ -78,7 +73,7 @@ class UpdateOneByOneDaemon extends Update {
     updateOneByOneDaemon = async (params, level = 0) => {
         if (CACHE_STOPPED) return false
 
-        const tmpAuthHash = await cryptoWalletsDS.getSelectedWallet()
+        const tmpAuthHash = await settingsActions.getSelectedWallet()
         if (!tmpAuthHash) {
             return false
         }
@@ -99,8 +94,6 @@ class UpdateOneByOneDaemon extends Update {
                 this._currentStep = 0
             }
             const step = STEPS_ORDER[this._currentStep]
-            // console.log('STEP', step)
-            await AsyncStorage.setItem('backDaemonStep', this._currentStep + '')
             if (typeof CACHE_TIMES[step] !== 'undefined' && now - CACHE_TIMES[step] < CACHE_VALID_TIME[step]) {
                 // console.log(new Date().toISOString() + ' ' + this._currentStep + ' skipped ' + step)
                 this._canUpdate = true

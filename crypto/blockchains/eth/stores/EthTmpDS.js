@@ -14,18 +14,18 @@ class EthTmpDS {
     _currencyCode = 'ETH'
 
     async setSuccess(txHash) {
-        await Database.setQueryString(`UPDATE transactions SET transaction_status = 'success' WHERE transaction_hash='${txHash}' AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%') `).query()
+        await Database.query(`UPDATE transactions SET transaction_status = 'success' WHERE transaction_hash='${txHash}' AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%') `)
     }
 
     async getCache(scanAddress, toRemove = false) {
         const address = scanAddress.toLowerCase()
-        const res = await Database.setQueryString(`
+        const res = await Database.query(`
                 SELECT id, tmp_key, tmp_sub_key, tmp_val, created_at
                 FROM ${tableName}
                 WHERE currency_code='${this._currencyCode}'
                 AND address='${address}'
                 AND tmp_key='nonces'
-                `).query()
+                `)
         CACHE_TMP[address] = {}
         let maxValue = -1
         let maxScanned = -1
@@ -60,7 +60,7 @@ class EthTmpDS {
                         const txHash = tmp[1]
                         if (toRemove && typeof toRemove[txHash] !== 'undefined') {
                             console.log('remove ' + txHash)
-                            await Database.setQueryString(`DELETE FROM ${tableName} WHERE id=${row.id}`).query()
+                            await Database.query(`DELETE FROM ${tableName} WHERE id=${row.id}`)
                         } else {
                             if (val > maxSuccess) {
                                 forBalances[txHash] = val
@@ -75,13 +75,13 @@ class EthTmpDS {
         let queryLength = 0
         let queryTxs = []
         for (const txHash in forBalances) {
-            const tmps = await Database.setQueryString(`SELECT currency_code AS currencyCode,
+            const tmps = await Database.query(`SELECT currency_code AS currencyCode,
                         address_amount as addressAmount,
                         transaction_status as transactionStatus
                         FROM transactions
                         WHERE transaction_hash='${txHash}'
                         AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%')
-                        `).query()
+                        `)
             if (tmps && tmps.array && typeof tmps.array[0] !== 'undefined') {
                 let txCurrencyCode = ''
                 for (const tmp of tmps.array) {
@@ -149,7 +149,7 @@ class EthTmpDS {
         }
         const address = scanAddress.toLowerCase()
         const where = `WHERE currency_code='${this._currencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
-        await Database.setQueryString(`DELETE FROM ${tableName} ${where}`).query()
+        await Database.query(`DELETE FROM ${tableName} ${where}`)
         await this.getCache(address)
     }
 
@@ -162,12 +162,12 @@ class EthTmpDS {
         value = value * 1
 
         const where = `WHERE currency_code='${this._currencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
-        const res = await Database.setQueryString(`SELECT tmp_val FROM ${tableName} ${where}`).query()
+        const res = await Database.query(`SELECT tmp_val FROM ${tableName} ${where}`)
         if (res && res.array && res.array.length > 0) {
             if (res.array[0].tmp_val * 1 >= value) {
                 return true
             }
-            await Database.setQueryString(`DELETE FROM ${tableName} ${where}`).query()
+            await Database.query(`DELETE FROM ${tableName} ${where}`)
         }
 
         const prepared = [{

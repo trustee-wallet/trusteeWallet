@@ -78,14 +78,16 @@ export default class EthBasic {
         switch (settings.network) {
             case 'mainnet':
             case 'ropsten':
+            case 'rinkeby':
             // case 'kovan' : case 'rinkeby' : case 'goerli' :
                 this._web3Link = `https://${settings.network}.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
                 break
             default:
-                throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", rinkeby". Got : ' + settings.network)
+                throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", "rinkeby". Got : ' + settings.network)
         }
 
         this._settings = settings
+        this._etherscanApiPathDeposits = false
 
 
         if (settings.currencyCode === 'BNB_SMART' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'BNB')) {
@@ -116,6 +118,21 @@ export default class EthBasic {
             this._mainTokenType = 'ETC_ERC_20'
             this._mainTokenBlockchain = 'Ethereum Classic'
             this._mainChainId = 61 // https://ethereumclassic.org/development/porting
+        } else if (settings.currencyCode === 'OPTIMISM') {
+            this._web3Link = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://api.optimistic.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
+            this._etherscanApiPathInternal = `https://api.optimistic.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+            this._etherscanApiPathDeposits = 'https://api-optimistic.etherscan.io/api?module=account&action=getdeposittxs'
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'OPTIMISM'
+            this._mainTokenType = 'OPTI_ERC_20'
+            this._mainTokenBlockchain = 'Optimistic Ethereum'
+            this._mainChainId = 10 // https://community.optimism.io/docs/developers/metamask.html#connecting-with-chainid-link
         } else if (settings.currencyCode === 'AMB') {
             this._web3Link = BlocksoftExternalSettings.getStatic('AMB_SERVER')
 
@@ -165,8 +182,16 @@ export default class EthBasic {
             this._etherscanApiPath = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
 
-            this._trezorServer = 'to_load'
-            this._trezorServerCode = settings.network === 'mainnet' ? 'ETH_TREZOR_SERVER' : 'ETH_ROPSTEN_TREZOR_SERVER'
+            if (settings.network === 'mainnet') {
+                this._trezorServer = 'to_load'
+                this._trezorServerCode = 'ETH_TREZOR_SERVER'
+            } else if (settings.network === 'ropsten') {
+                this._trezorServer = 'to_load'
+                this._trezorServerCode = 'ETH_ROPSTEN_TREZOR_SERVER'
+            } else {
+                this._trezorServer = false
+                this._trezorServerCode = false
+            }
 
             this._mainCurrencyCode = 'ETH'
             this._mainTokenType = 'ETH_ERC_20'

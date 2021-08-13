@@ -2,7 +2,6 @@
  * @version 0.30
  **/
 import messaging from '@react-native-firebase/messaging'
-import AsyncStorage from '@react-native-community/async-storage'
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
 
@@ -16,14 +15,17 @@ import AppNotificationPushSave from './AppNotificationPushSave'
 import AppNotificationPopup from './AppNotificationPopup'
 import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
-import lockScreenAction from '../../appstores/Stores/LockScreen/LockScreenActions'
-import { Platform } from 'react-native'
 
-const ASYNC_CACHE_TITLE = 'pushTokenV2'
-const ASYNC_CACHE_TIME = 'pushTokenTime'
-const ASYNC_ALL_CACHE = 'allPushTokens'
+import { Platform } from 'react-native'
+import { setLockScreenConfig, LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import { LANGUAGE_SETTINGS } from '@app/modules/Settings/helpers'
+import ApiProxyLoad from '@app/services/Api/ApiProxyLoad'
+
+
 const CACHE_VALID_TIME = 120000000 // 2000 minute
 
+const DEBUG_NOTIFS = false
 
 const TOPICS = ['transactions', 'exchangeRates', 'news']
 
@@ -40,10 +42,13 @@ export default new class AppNotificationListener {
             return
         }
         this.initing = now
-        if (await this.checkPermission()) {
-            this.inited = true
-            await this.createRefreshListener()
-            await this.createMessageListener()
+        const hasInternet = await ApiProxyLoad.hasInternet()
+        if (hasInternet) {
+            if (await this.checkPermission()) {
+                this.inited = true
+                await this.createRefreshListener()
+                await this.createMessageListener()
+            }
         }
     }
 
@@ -59,12 +64,14 @@ export default new class AppNotificationListener {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                await Log.log('PUSH checkPermission error ' + e.message)
+                await console.log('PUSH checkPermission error ' + e.message)
             }
             await Log.log('PUSH checkPermission error ' + e.message)
         }
 
-        await Log.log('PUSH checkPermission result ' + JSON.stringify(res))
+        if (DEBUG_NOTIFS) {
+            await Log.log('PUSH checkPermission result ' + JSON.stringify(res))
+        }
         /*
         if (res) {
             await appNewsDS.setRemoved({ newsName: 'PUSH_NOTIFICATION_DISABLED' })
@@ -81,13 +88,19 @@ export default new class AppNotificationListener {
     }
 
     async _subscribe(topic: string, locale: string, isDev: boolean): Promise<void> {
-        const { languageList } = config.language
-        Log.log('PUSH subscribe ' + topic + ' started ' + locale)
+        if (!this.inited) {
+            return
+        }
+        if (DEBUG_NOTIFS) {
+            Log.log('PUSH subscribe ' + topic + ' started ' + locale)
+        }
 
-        for (const lang of languageList) {
+        for (const lang of LANGUAGE_SETTINGS) {
             const sub = sublocale(lang.code)
             if (sub === locale) {
-                Log.log('PUSH subscribe ' + topic + ' lang ' + locale)
+                if (DEBUG_NOTIFS) {
+                    Log.log('PUSH subscribe ' + topic + ' lang ' + locale)
+                }
                 await messaging().subscribeToTopic(topic)
                 await messaging().subscribeToTopic(topic + '_' + locale)
                 if (Platform.OS === 'ios') {
@@ -105,7 +118,9 @@ export default new class AppNotificationListener {
                     await messaging().unsubscribeFromTopic(topic + '_dev_' + locale)
                 }
             } else {
-                Log.log('PUSH subscribe ' + topic + ' unlang ' + sub)
+                if (DEBUG_NOTIFS) {
+                    Log.log('PUSH subscribe ' + topic + ' unlang ' + sub)
+                }
                 await messaging().unsubscribeFromTopic(topic + '_' + sub)
                 await messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
                 if (Platform.OS === 'ios') {
@@ -116,13 +131,18 @@ export default new class AppNotificationListener {
             }
         }
 
-        Log.log('PUSH subscribe ' + topic + ' finished')
+        if (DEBUG_NOTIFS) {
+            Log.log('PUSH subscribe ' + topic + ' finished')
+        }
     }
 
     async _unsubscribe(topic: string): Promise<void> {
-        const { languageList } = config.language
-
-        Log.log('PUSH unsubscribe ' + topic + ' started')
+        if (!this.inited) {
+            return
+        }
+        if (DEBUG_NOTIFS) {
+            Log.log('PUSH unsubscribe ' + topic + ' started')
+        }
 
         await messaging().unsubscribeFromTopic(topic)
         await messaging().unsubscribeFromTopic(topic + '_dev')
@@ -131,7 +151,7 @@ export default new class AppNotificationListener {
         } else {
             await messaging().unsubscribeFromTopic(topic + '_android')
         }
-        for (const lang of languageList) {
+        for (const lang of LANGUAGE_SETTINGS) {
             const sub = sublocale(lang.code)
             await messaging().unsubscribeFromTopic(topic + '_' + sub)
             await messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
@@ -142,24 +162,32 @@ export default new class AppNotificationListener {
             }
         }
 
-        Log.log('PUSH unsubscribe ' + topic + ' finished')
+        if (DEBUG_NOTIFS) {
+            Log.log('PUSH unsubscribe ' + topic + ' finished')
+        }
     }
 
     async rmvOld(fcmToken: string = ''): Promise<void> {
+        if (!this.inited) {
+            return
+        }
         if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
             return
         }
-        const { languageList } = config.language
         try {
-            await Log.log('PUSH rmvOld start')
+            if (DEBUG_NOTIFS) {
+                await Log.log('PUSH rmvOld start')
+            }
             await messaging().unsubscribeFromTopic('trustee_all')
             await messaging().unsubscribeFromTopic('trustee_dev')
-            for (const lang of languageList) {
+            for (const lang of LANGUAGE_SETTINGS) {
                 const sub = sublocale(lang.code)
                 await messaging().unsubscribeFromTopic('trustee_all_' + sub)
                 await messaging().unsubscribeFromTopic('trustee_dev_' + sub)
             }
-            await Log.log('PUSH rmvOld finished')
+            if (DEBUG_NOTIFS) {
+                await Log.log('PUSH rmvOld finished')
+            }
         } catch (e) {
             if (config.debug.appErrors) {
                 Log.log('PUSH rmvOld error ' + e.message)
@@ -168,19 +196,25 @@ export default new class AppNotificationListener {
     }
 
     async updateSubscriptions(fcmToken: string = ''): Promise<void> {
+        if (!this.inited) {
+            return
+        }
         if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
             return
         }
-        Log.log('PUSH updateSubscriptions ' + fcmToken)
-        const settings = await settingsActions.getSettings(false)
+        if (DEBUG_NOTIFS) {
+            Log.log('PUSH updateSubscriptions ' + fcmToken)
+        }
+        const settings = await settingsActions.getSettings(false, false)
         if (typeof settings === 'undefined' || !settings) {
             return
         }
         const notifsStatus = settings && typeof settings.notifsStatus !== 'undefined' && settings.notifsStatus ? settings.notifsStatus : '1'
         const locale = settings && typeof settings.language !== 'undefined' && settings.language ? sublocale(settings.language) : sublocale()
-        Log.log('settings ' + settings.language + ' locale ' + locale)
-        const devMode = await AsyncStorage.getItem('devMode')
-        const isDev = devMode && devMode.toString() === '1'
+        if (DEBUG_NOTIFS) {
+            Log.log('settings ' + settings.language + ' locale ' + locale)
+        }
+        const isDev = trusteeAsyncStorage.getDevMode()
 
 
         await this._subscribe('trusteeAll', locale, isDev as boolean)
@@ -208,7 +242,12 @@ export default new class AppNotificationListener {
     }
 
     async updateSubscriptionsLater(): Promise<void> {
-        await Log.log('PUSH updateSubscriptionsLater')
+        if (!this.inited) {
+            return
+        }
+        if (DEBUG_NOTIFS) {
+            await Log.log('PUSH updateSubscriptionsLater')
+        }
         await settingsActions.setSettings('notifsSavedToken', '')
         try {
             if (this.timer) {
@@ -223,25 +262,27 @@ export default new class AppNotificationListener {
     }
 
     async getToken(): Promise<string | null> {
-        let fcmToken: string | null = await AsyncStorage.getItem(ASYNC_CACHE_TITLE)
+        let fcmToken: string | null = await trusteeAsyncStorage.getFcmToken()
         // @ts-ignore
-        let time: number = 1 * (await AsyncStorage.getItem(ASYNC_CACHE_TIME))
+        let time: number = 1 * trusteeAsyncStorage.getFcmTokenTime()
 
         const now = new Date().getTime()
         if (time && fcmToken) {
             if (now - time > CACHE_VALID_TIME && fcmToken.indexOf('NO_GOOGLE') === -1) {
                 time = 0
                 fcmToken = ''
-                await Log.log('PUSH getToken cache invalidate ' + (now - time) + ' time ' + time)
+                if (DEBUG_NOTIFS) {
+                    await Log.log('PUSH getToken cache invalidate ' + (now - time) + ' time ' + time)
+                }
             } else {
                 // Log.log('PUSH getToken cache valid ' + (now - time) + ' time ' + time)
             }
         }
 
+        await settingsActions.getSettings(false, false)
         const notifsSavedToken = await settingsActions.getSetting('notifsSavedToken')
         const notifsRmvOld = await settingsActions.getSetting('notifsRmvOld')
 
-        // Log.log('notifsSavedToken', notifsSavedToken)
         try {
             if (!time || !fcmToken || fcmToken === '' || notifsSavedToken !== fcmToken) {
                 if (fcmToken) {
@@ -255,9 +296,9 @@ export default new class AppNotificationListener {
                     }
                 } catch (e) {
                     if (config.debug.appErrors) {
-                        Log.log('PUSH getToken fcmToken error ' + e.message)
+                        console.log('PUSH getToken fcmToken error ' + e.message + ' ' + fcmToken)
                     }
-                    await Log.log('PUSH getToken fcmToken error ' + e.message)
+                    await Log.log('PUSH getToken fcmToken error ' + e.message + ' ' + fcmToken)
                 }
 
                 if (!fcmToken) {
@@ -266,7 +307,7 @@ export default new class AppNotificationListener {
                         fcmToken = await messaging().getToken()
                     } catch (e) {
                         if (config.debug.appErrors) {
-                            Log.log('PUSH getToken fcmToken error ' + e.message)
+                            console.log('PUSH getToken fcmToken error ' + e.message)
                         }
                         await Log.log('PUSH getToken fcmToken error ' + e.message)
                         if (e.message.indexOf('MISSING_INSTANCEID_SERVICE') !== -1) {
@@ -274,10 +315,11 @@ export default new class AppNotificationListener {
                         }
                     }
                 }
-
-                await Log.log('PUSH getToken subscribed token ' + fcmToken)
+                if (DEBUG_NOTIFS) {
+                    await Log.log('PUSH getToken subscribed token ' + fcmToken)
+                }
                 await this._onRefresh(fcmToken)
-                await AsyncStorage.setItem(ASYNC_CACHE_TIME, now + '')
+                trusteeAsyncStorage.setFcmTokenTime(now + '')
             } else {
                 // Log.log('PUSH getToken1 cache result ', fcmToken)
             }
@@ -286,7 +328,7 @@ export default new class AppNotificationListener {
             MarketingEvent.DATA.LOG_TOKEN = fcmToken
         } catch (e) {
             if (config.debug.appErrors) {
-                Log.log('PUSH getToken error ' + e.message)
+                console.log('PUSH getToken error ' + e.message)
             }
             await Log.log('PUSH getToken error ' + e.message)
         }
@@ -299,6 +341,9 @@ export default new class AppNotificationListener {
             await this.getToken()
             return true
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('PUSH requestPermission rejected error ' + e.message)
+            }
             Log.log('PUSH requestPermission rejected error ' + e.message)
             return false
         }
@@ -311,29 +356,34 @@ export default new class AppNotificationListener {
             if (startMessage && typeof startMessage.messageId !== 'undefined') {
                 const lockScreen = await SettingsKeystore.getLockScreenStatus()
                 if (+lockScreen) {
-                    await Log.log('PUSH _onMessage startMessage not null but lockScreen is needed', startMessage)
+                    if (DEBUG_NOTIFS) {
+                        await Log.log('PUSH _onMessage startMessage not null but lockScreen is needed', startMessage)
+                    }
                     const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
-                    lockScreenAction.setFlowType({
-                        flowType: 'JUST_CALLBACK'
-                    })
-                    lockScreenAction.setActionCallback({
-                        actionCallback: async () => {
+
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
                             await Log.log('PUSH _onMessage startMessage after lock screen', unifiedPush)
                             if (await AppNewsActions.onOpen(unifiedPush, '', '', false)) {
                                 NavStore.reset('NotificationsScreen')
+                            }  else {
+                                NavStore.reset('TabBar')
                             }
-                        }
-                    })
+                    }})
+
                     NavStore.goNext('LockScreenPop')
                 } else {
-                    await Log.log('PUSH _onMessage startMessage not null', startMessage)
+                    if (DEBUG_NOTIFS) {
+                        await Log.log('PUSH _onMessage startMessage not null', startMessage)
+                    }
                     UpdateAppNewsDaemon.goToNotifications('AFTER_APP')
 
                     const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
 
                     await UpdateAppNewsDaemon.updateAppNewsDaemon()
 
-                    await Log.log('PUSH _onMessage startMessage unified', unifiedPush)
+                    if (DEBUG_NOTIFS) {
+                        await Log.log('PUSH _onMessage startMessage unified', unifiedPush)
+                    }
                     if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
                         await Log.log('PUSH _onMessage startMessage app is inited first')
                         if (await AppNewsActions.onOpen(unifiedPush)) {
@@ -345,21 +395,32 @@ export default new class AppNotificationListener {
                     }
                 }
 
-                await Log.log('PUSH _onMessage startMessage finished')
+                if (DEBUG_NOTIFS) {
+                    await Log.log('PUSH _onMessage startMessage finished')
+                }
             } else {
-                await Log.log('PUSH _onMessage startMessage is null', startMessage)
+                if (DEBUG_NOTIFS) {
+                    await Log.log('PUSH _onMessage startMessage is null', startMessage)
+                }
             }
         } catch (e) {
-            Log.err('PUSH _onMessage startMessage error ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('PUSH _onMessage startMessage error ' + e.message)
+            }
+            await Log.log('PUSH _onMessage startMessage error ' + e.message)
         }
 
         this.messageListener = messaging().onMessage(async (message) => {
-            await Log.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+            if (DEBUG_NOTIFS) {
+                await Log.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+            }
             await AppNotificationPopup.displayPush(message)
         })
 
         await messaging().onNotificationOpenedApp(async (message) => {
-            await Log.log('PUSH _onNotificationOpened inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+            if (DEBUG_NOTIFS) {
+                await Log.log('PUSH _onNotificationOpened inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+            }
             await AppNotificationPopup.onOpened(message)
         })
 
@@ -367,8 +428,7 @@ export default new class AppNotificationListener {
 
     _onRefresh = async (fcmToken: string): Promise<void> => {
         if (!fcmToken) return
-        await AsyncStorage.setItem(ASYNC_CACHE_TITLE, fcmToken)
-        let tmp = await AsyncStorage.getItem(ASYNC_ALL_CACHE)
+        let tmp = trusteeAsyncStorage.getFcmTokensAll()
         let all = {}
         try {
             if (tmp != null) {
@@ -380,17 +440,23 @@ export default new class AppNotificationListener {
         }
         // @ts-ignore
         all[fcmToken] = '1'
-        Log.log('PUSH _onRefreshAll ', all)
-        await AsyncStorage.setItem(ASYNC_ALL_CACHE, JSON.stringify(all))
+        if (DEBUG_NOTIFS) {
+            Log.log('PUSH _onRefreshAll ', all)
+        }
+        await trusteeAsyncStorage.setFcmTokensAll(all, fcmToken)
     }
 
     createRefreshListener = async (): Promise<void> => {
         /*
         * Triggered for data only payload in foreground
         * */
-        Log.log('PUSH _onRefresh inited')
+        if (DEBUG_NOTIFS) {
+            Log.log('PUSH _onRefresh inited')
+        }
         this.messageListener = messaging().onTokenRefresh((fcmToken) => {
-            Log.log('PUSH _onRefresh', fcmToken)
+            if (DEBUG_NOTIFS) {
+                Log.log('PUSH _onRefresh', fcmToken)
+            }
             this._onRefresh(fcmToken)
 
         })

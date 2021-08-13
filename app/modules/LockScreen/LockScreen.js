@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.45
  */
 import React from 'react'
 import { connect } from 'react-redux'
@@ -11,7 +11,7 @@ import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode'
 
 import NavStore from '@app/components/navigation/NavStore'
 import Header from '@app/components/elements/new/Header'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { strings } from '@app/services/i18n'
 
@@ -21,6 +21,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import { getLockScreenData } from '@app/appstores/Stores/LockScreen/selectors'
 import { getIsTouchIDStatus } from '@app/appstores/Stores/Settings/selectors'
 import { finishProcess } from '@app/modules/LockScreen/helpers'
+import { LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 
 class LockScreen extends React.PureComponent {
@@ -64,7 +65,7 @@ class LockScreen extends React.PureComponent {
 
     renderHeader = () => {
         const { flowType } = this.props.lockScreen
-        if (flowType !== '' && flowType !== 'JUST_CALLBACK') {
+        if (flowType && flowType !== '' && flowType !== LockScreenFlowTypes.PUSH_POPUP_CALLBACK && flowType !== LockScreenFlowTypes.INIT_POPUP) {
             MarketingEvent.UI_DATA.IS_LOCKED = false
             return <Header
                 leftType='back'
@@ -89,7 +90,7 @@ class LockScreen extends React.PureComponent {
 
         const { headerHeight } = this.state
 
-        const noTouchIDShow = (this.state.passwordState !== 'enter' || touchIDStatus === 0 || flowType === 'CHANGE_TOUCHID_STATUS')
+        const noTouchIDShow = (this.state.passwordState !== 'enter' || touchIDStatus === 0 || flowType === LockScreenFlowTypes.CHANGE_TOUCHID_STATUS)
         return (
             <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
                 {this.renderHeader()}
@@ -100,19 +101,21 @@ class LockScreen extends React.PureComponent {
                                 <Image
                                     style={styles.top__logo}
                                     resizeMode='stretch'
-                                    source={require('../../assets/images/logo.png')} />
+                                    source={require('@assets/images/logo.png')} />
                             ) : (
                                 <Image
                                     style={styles.top__logo}
                                     resizeMode='stretch'
-                                    source={require('../../assets/images/logoWhite.png')} />
+                                    source={require('@assets/images/logoWhite.png')} />
                             )
                             }
 
                         </View>
                         <PINCode
                             status={this.state.passwordState}
-                            finishProcess={() => finishProcess(this.props.lockScreen)}
+                            finishProcess={() => {
+                                finishProcess(this.props.lockScreen, this)
+                            }}
                             passwordLength={6}
                             timeLocked={300000}
                             maxAttempts={3}

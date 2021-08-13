@@ -11,9 +11,7 @@ import { Switch } from 'react-native-switch'
 
 import CurrencyIcon from '../../../CurrencyIcon'
 
-import { useTheme } from '@app/modules/theme/ThemeProvider'
-
-import { strings } from '@app/services/i18n'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 
 const getRightContent = (rightContent, params) => {
@@ -39,7 +37,7 @@ const getRightContent = (rightContent, params) => {
                     switchLeftPx={-5}
                     switchRightPx={-5}
                     outerCircleStyle={{ paddingRight: reversedValue ? 5 : 0, paddingLeft: reversedValue ? 0 : 5 }}
-                    innerCircleStyle={Object.assign({}, !disabled && styles.switchShadow, {borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive})}
+                    innerCircleStyle={[!disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive }]}
                 />
             )
         default: return null

@@ -109,6 +109,10 @@ export default {
             }
 
             if (typeof account.legacy !== 'undefined' && typeof account.segwit !== 'undefined') {
+                let legacy = account.legacy
+                if (account.legacy.substr(0, 1) === '3') {
+                    legacy = false // hmmm
+                }
                 resultAccount.legacyOrSegWit = btcLegacyOrSegWit
                 resultAccount.address = [
                     {
@@ -116,7 +120,7 @@ export default {
                         type: 'SEGWIT'
                     },
                     {
-                        address: account.legacy,
+                        address: legacy,
                         type: 'LEGACY'
                     }
                 ]
@@ -132,7 +136,7 @@ export default {
         return accounts
     },
 
-    async initData(type, currencyCode = false, side, orderHash = false) {
+    async initData(type, inCurrencyCode = false, outCurrencyCode = false, orderHash = false) {
 
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         let entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
@@ -180,9 +184,7 @@ export default {
             locale: sublocale(),
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
             wallets: [],
-            cards,
-            selectedCurrency: currencyCode,
-            sideWay: side
+            cards
         }
 
         try {
@@ -228,6 +230,8 @@ export default {
                 + '&locale=' + sublocale()
                 + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
+                + '&inCurrency=' + inCurrencyCode
+                + '&outCurrency=' + outCurrencyCode
                 + '&orderHash=' + orderHash
 
             await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))

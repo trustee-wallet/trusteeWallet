@@ -3,13 +3,12 @@
  */
 import NavStore from '@app/components/navigation/NavStore'
 
-import AsyncStorage from '@react-native-community/async-storage'
-
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
 import store from '@app/store'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 const { dispatch } = store
 
@@ -62,7 +61,7 @@ const formatDict = async function(cryptoCurrency : any, account : any) {
         feesCurrencySymbol : account.feesCurrencySymbol
     }
     if (CACHE_SEND_INPUT_TYPE === 'none') {
-        CACHE_SEND_INPUT_TYPE = (await AsyncStorage.getItem('sendInputType') !== 'CRYPTO') ? 'FIAT' : 'CRYPTO'
+        CACHE_SEND_INPUT_TYPE = trusteeAsyncStorage.getSendInputType() !== 'CRYPTO' ? 'FIAT' : 'CRYPTO'
     }
     dict.inputType = CACHE_SEND_INPUT_TYPE
     return dict
@@ -72,7 +71,7 @@ export namespace SendActionsStart {
 
     export const setBasicInputType = async (inputType : string) => {
         CACHE_SEND_INPUT_TYPE = inputType
-        AsyncStorage.setItem('sendInputType', inputType)
+        trusteeAsyncStorage.setSendInputType(inputType)
     }
 
     export const startFromAccountScreen = async (currencyCode : string, uiType = 'ACCOUNT_SCREEN') => {
@@ -131,7 +130,7 @@ export namespace SendActionsStart {
             dict
         })
         await SendActionsBlockchainWrapper.getFeeRate(ui)
-        NavStore.goNext('HomeScreen', { screen: 'ReceiptScreen' })
+        NavStore.goNext('MarketReceiptScreen')
     }
 
     export const getTransferAllBalanceFromBSE = async (data : {
@@ -201,7 +200,7 @@ export namespace SendActionsStart {
             dict
         })
         await SendActionsBlockchainWrapper.getFeeRate(ui)
-        NavStore.goNext('HomeScreen', { screen: 'ReceiptScreen' })
+        NavStore.goNext('MarketReceiptScreen')
     }
 
 
@@ -230,8 +229,8 @@ export namespace SendActionsStart {
             if (typeof transaction.bseOrderId !== 'undefined') {
                 ui.bse.bseOrderId = transaction.bseOrderId
             }
-            if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson !== {}) {
-                if (transaction.transactionJson.bseMinCrypto !== 'undefined') {
+            if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson !== {} && transaction.transactionJson) {
+                if (typeof transaction.transactionJson.bseMinCrypto !== 'undefined') {
                     ui.bse.bseMinCrypto = transaction.transactionJson.bseMinCrypto
                 }
                 if (transaction.transactionJson.comment !== 'undefined') {

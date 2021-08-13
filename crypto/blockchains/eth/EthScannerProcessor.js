@@ -19,6 +19,7 @@ const CACHE_GET_MAX_BLOCK = {
     AMB: { max_block_number: 0, confirmations: 0 },
     MATIC : { max_block_number: 0, confirmations: 0 },
     RSK : { max_block_number: 0, confirmations: 0 },
+    OPTIMISM : { max_block_number: 0, confirmations: 0 },
 }
 const CACHE_BLOCK_NUMBER_TO_HASH = {
     ETH: {},
@@ -26,7 +27,8 @@ const CACHE_BLOCK_NUMBER_TO_HASH = {
     ETC : {},
     AMB : {},
     MATIC : {},
-    RSK : {}
+    RSK : {},
+    OPTIMISM : {}
 }
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
@@ -36,7 +38,8 @@ const CACHE = {
     ETC : {},
     AMB : {},
     MATIC : {},
-    RSK : {}
+    RSK : {},
+    OPTIMISM : {}
 }
 
 export default class EthScannerProcessor extends EthBasic {
@@ -168,9 +171,8 @@ export default class EthScannerProcessor extends EthBasic {
     async getTransactionsBlockchain(scanData) {
         const address = scanData.account.address
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getTransactions started ' + address)
-
         let res = false
-        if (this._settings.currencyCode !== 'ETH_ROPSTEN' && this._trezorServerCode) {
+        if (this._settings.currencyCode !== 'ETH_ROPSTEN' && this._settings.currencyCode !== 'ETH_RINKEBY' && this._trezorServerCode) {
             try {
                 res = await this._get(address)
             } catch (e) {
@@ -189,16 +191,22 @@ export default class EthScannerProcessor extends EthBasic {
             transactions = await this._unifyTransactions(address, res.data.transactions, false, true, {})
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getTransactions trezor finished ' + address)
         } else {
+            if (!this._etherscanApiPath) {
+                BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthScannerProcessor.getTransactions no _etherscanApiPath')
+            }
             let link = this._etherscanApiPath + '&address=' + address
             let logTitle = this._settings.currencyCode + ' EthScannerProcessor.getTransactions etherscan '
-            let isInternal = false
+            transactions = await this._getFromEtherscan(address, link, logTitle, false, {})
+            if (this._etherscanApiPathDeposits) {
+                link = this._etherscanApiPathDeposits + '&address=' + address
+                logTitle = this._settings.currencyCode + ' EthScannerProcessor.getTransactions etherscan deposits'
+                transactions = await this._getFromEtherscan(address, link, logTitle, false, transactions)
+            }
 
-            transactions = await this._getFromEtherscan(address, link, logTitle, isInternal, {})
             if (this._useInternal) {
                 link = this._etherscanApiPathInternal + '&address=' + address
                 logTitle = this._settings.currencyCode + ' EthScannerProcessor.getTransactions etherscan forInternal'
-                isInternal = true
-                transactions = await this._getFromEtherscan(address, link, logTitle, isInternal, transactions)
+                transactions = await this._getFromEtherscan(address, link, logTitle, true, transactions)
             }
         }
         if (!transactions) {
@@ -300,7 +308,7 @@ export default class EthScannerProcessor extends EthBasic {
         if (!result) {
             return transactions
         }
-        let address = _address.toLowerCase()
+        const address = _address.toLowerCase()
         let tx
         let maxNonce = -1
         let maxSuccessNonce = -1
@@ -557,15 +565,26 @@ export default class EthScannerProcessor extends EthBasic {
         if (typeof transaction.timeStamp === 'undefined') {
             throw new Error(' no transaction.timeStamp error transaction data ' + JSON.stringify(transaction))
         }
-        let address = _address.toLowerCase()
+
+        const address = _address.toLowerCase()
         let formattedTime = transaction.timeStamp
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.timeStamp)
         } catch (e) {
+            console.log('no timestamp2')
             e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
             throw e
         }
-        if (isInternal) {
+
+        let addressAmount = transaction.value
+        if (typeof transaction.L1TxOrigin !== 'undefined') {
+            if (transaction.from === '0x0000000000000000000000000000000000000000') {
+                transaction.from = 'ETH: ' + transaction.L1TxOrigin
+            }
+            CACHE_BLOCK_NUMBER_TO_HASH[transaction.blockNumber] = transaction.blockHash
+            addressAmount = transaction.tokenValue
+            transaction.confirmations = 100
+        } else if (isInternal) {
             if (transaction.contractAddress !== '') {
                 return false
             }
@@ -602,7 +621,10 @@ export default class EthScannerProcessor extends EthBasic {
         // if (isInternal) {
         //    transactionStatus = 'internal_' + transactionStatus
         // }
-
+        let contractAddress = false
+        if (typeof transaction.contractAddress !== 'undefined') {
+            contractAddress = transaction.contractAddress.toLowerCase()
+        }
         const tx = {
             transactionHash: transaction.hash.toLowerCase(),
             blockHash: transaction.blockHash,
@@ -613,9 +635,9 @@ export default class EthScannerProcessor extends EthBasic {
             addressFrom: (address.toLowerCase() === transaction.from.toLowerCase()) ? '' : transaction.from,
             addressFromBasic: transaction.from.toLowerCase(),
             addressTo: (address.toLowerCase() === transaction.to.toLowerCase()) ? '' : transaction.to,
-            addressAmount: transaction.value,
+            addressAmount,
             transactionStatus: transactionStatus,
-            contractAddress: transaction.contractAddress.toLowerCase(),
+            contractAddress,
             inputValue: transaction.input
         }
         if (!isInternal) {

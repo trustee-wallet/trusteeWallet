@@ -55,6 +55,12 @@ export default class DogeTxBuilder implements BlocksoftBlockchainTypes.TxBuilder
     }
 
     async _getRawTxAddInput(txb: TransactionBuilder, i: number, input: BlocksoftBlockchainTypes.UnspentTx, nSequence: number): Promise<void> {
+        if (typeof input.vout === 'undefined') {
+            throw new Error('no input.vout')
+        }
+        if (typeof nSequence === 'undefined') {
+            throw new Error('no nSequence')
+        }
         txb.addInput(input.txid, input.vout, nSequence)
     }
 

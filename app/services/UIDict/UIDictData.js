@@ -68,6 +68,12 @@ export default {
             darkColor: '#9042BA'
         }
     },
+    'ETH_RINKEBY': {
+        colors: {
+            mainColor: '#68268C',
+            darkColor: '#9042BA'
+        }
+    },
     'BTC': {
         colors: {
             mainColor: '#F79E1B',
@@ -117,6 +123,12 @@ export default {
         }
     },
     'ETH_USDC': {
+        colors: {
+            mainColor: '#2A7FDB',
+            darkColor: '#2FB9B8'
+        }
+    },
+    'TRX_USDC': {
         colors: {
             mainColor: '#2A7FDB',
             darkColor: '#2FB9B8'
@@ -620,10 +632,28 @@ export default {
             darkColor: '#6E55F9'
         }
     },
+    "MATIC": {
+        colors: {
+            mainColor: '#8247E5',
+            darkColor: '#8247E5'
+        }
+    },
     'ETH_KNC_NEW': {
         colors: {
             mainColor: '#31CB9E',
             darkColor: '#2FAA86'
+        }
+    },
+    'OPTIMISM': {
+        colors: {
+            mainColor: '#FD4A46',
+            darkColor: '#E63E3A'
+        }
+    },
+    'TON': {
+        colors: {
+            mainColor: '#47A9F1',
+            darkColor: '#47A9F1'
         }
     },
     'DEFAULT': {

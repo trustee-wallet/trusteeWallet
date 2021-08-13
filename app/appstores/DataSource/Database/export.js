@@ -7,7 +7,7 @@ export async function getSqlForExport(fs) {
     const createdTs = new Date().getTime() - 480 * 3600000
     const createdAt = new Date(createdTs).toISOString() // 20 days
 
-    const tables = await (Database.setQueryString(`SELECT * FROM sqlite_master WHERE type='table' ORDER BY name`)).query()
+    const tables = await Database.query(`SELECT * FROM sqlite_master WHERE type='table' ORDER BY name`)
     if (!tables.array.length) {
         await fs.writeLine('no tables')
         return false
@@ -33,7 +33,7 @@ export async function getSqlForExport(fs) {
             const perPage = 20
             let totalPages = 0
             if (isPaging) {
-                const resCount = await (Database.setQueryString(`SELECT COUNT(*) AS cn FROM ${table.name}`)).query()
+                const resCount = await Database.query(`SELECT COUNT(*) AS cn FROM ${table.name}`)
                 if (resCount && resCount.array) {
                     totalPages = Math.floor(resCount.array[0].cn / perPage)
                 }
@@ -46,7 +46,7 @@ export async function getSqlForExport(fs) {
                         selectPagingSql += ' OFFSET ' + (perPage * i)
                     }
                 }
-                const res = await (Database.setQueryString(selectPagingSql)).query()
+                const res = await Database.query(selectPagingSql)
                 if (res.array.length) {
                     const keys = Object.keys(res.array[0])
                     let tableTmp = `INSERT INTO ${table.name} (${keys.join(', ')}) VALUES ` + '\n('

@@ -9,7 +9,7 @@ import { strings } from '@app/services/i18n'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 
 const getSections = () => [

@@ -7,7 +7,7 @@ import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import Log from '@app/services/Log/Log'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 

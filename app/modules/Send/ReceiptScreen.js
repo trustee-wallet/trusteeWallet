@@ -6,7 +6,7 @@ import { View, ScrollView, Text, StatusBar, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
 import { strings } from '@app/services/i18n'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import NavStore from '@app/components/navigation/NavStore'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
@@ -29,7 +29,7 @@ import { showSendError, checkLoadedFee } from './receipt/helpers'
 import { getSendScreenData } from '@app/appstores/Stores/Send/selectors'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 import { SendActionsEnd } from '@app/appstores/Stores/Send/SendActionsEnd'
-import lockScreenAction from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import  { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
@@ -60,6 +60,8 @@ class ReceiptScreen extends PureComponent {
     }
 
     openAdvancedSettings = async () => {
+        const { uiType } = this.props.sendScreenStore.ui
+
         if (CACHE_IS_COUNTING) {
             return true
         }
@@ -69,7 +71,11 @@ class ReceiptScreen extends PureComponent {
             await SendActionsBlockchainWrapper.getFeeRate()
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
-            NavStore.goNext('SendAdvancedScreen')
+            if (uiType === 'TRADE_SEND') {
+                NavStore.goNext('MaketAdvancedScreen')
+            } else {
+                NavStore.goNext('SendAdvancedScreen')
+            }
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.openAdvancedSettings error ' + e.message)
@@ -86,9 +92,6 @@ class ReceiptScreen extends PureComponent {
         }
 
         setLoaderStatus(false)
-        this.setState({
-            sendInProcess: true
-        })
 
         const { keystore } = this.props.settingsStore
 
@@ -99,12 +102,18 @@ class ReceiptScreen extends PureComponent {
             && typeof keystore.lockScreenStatus !== 'undefined' && +keystore.lockScreenStatus
         ) {
             if (passwordCheck) {
-                lockScreenAction.setFlowType({ flowType: 'CONFIRM_SEND_CRYPTO' })
-                lockScreenAction.setActionCallback({ actionCallback: this.handleSend })
+                setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback: async () => {
+                    Log.log('ReceiptScreen.handleSend callback called', uiErrorConfirmed)
+                    await this.handleSend(false, uiErrorConfirmed)
+                }})
                 NavStore.goNext('LockScreen')
                 return
             }
         }
+
+        this.setState({
+            sendInProcess: true
+        })
 
         CACHE_IS_SENDING = true
         const checkLoadedFeeResult = checkLoadedFee(this)
@@ -221,19 +230,14 @@ class ReceiptScreen extends PureComponent {
         await SendActionsEnd.endClose(this.props.sendScreenStore)
         const { uiType } = this.props.sendScreenStore.ui
         if (uiType === 'TRADE_SEND') {
-            NavStore.reset('MarketScreen') // @todo here some param to reset all search
+            NavStore.goBack()
         } else {
             NavStore.reset('HomeScreen')
         }
     }
 
     backAction = () => {
-        const { uiType } = this.props.sendScreenStore.ui
-        if (uiType === 'TRADE_SEND') {
-            NavStore.goNext('MarketScreen')
-        } else {
-            NavStore.goBack()
-        }
+        NavStore.goBack()
     }
 
     render() {
@@ -271,7 +275,7 @@ class ReceiptScreen extends PureComponent {
                 leftType='back'
                 leftAction={this.backAction}
                 rightType='close'
-                rightAction={this.closeAction}
+                rightAction={sendInProcess ? null : this.closeAction}
                 title={strings('send.receiptScreen.title')}
                 setStatusBar={() => StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')}
             >
@@ -320,13 +324,14 @@ class ReceiptScreen extends PureComponent {
                     </View>
                     <TwoButtons
                         mainButton={{
-                            onPress: this.handleSend,
+                            onPress: () => this.handleSend(true, false),
                             title: strings(rawOnly ? 'send.receiptScreen.build' : 'send.receiptScreen.send'),
                             sendInProcess
                         }}
                         secondaryButton={{
                             type: 'settings',
-                            onPress: this.openAdvancedSettings
+                            onPress: this.openAdvancedSettings,
+                            disabled: sendInProcess
                         }}
                     />
                 </ScrollView>

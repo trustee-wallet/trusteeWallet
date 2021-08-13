@@ -24,7 +24,7 @@ import copyToClipboard from '../../../../services/UI/CopyToClipboard/CopyToClipb
 import Toast from '../../../../services/UI/Toast/Toast'
 import BlocksoftPrettyStrings from '../../../../../crypto/common/BlocksoftPrettyStrings'
 
-import { ThemeContext } from '../../../theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import styles from './styles'
 
 import ListItem from '../../../../components/elements/new/list/ListItem/Setting'

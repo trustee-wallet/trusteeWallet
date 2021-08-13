@@ -3,20 +3,20 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { ActivityIndicator, Text, View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 
 import { strings } from '@app/services/i18n'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { BlocksoftTransferPrivate } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferPrivate'
 import Database from '@app/appstores/DataSource/Database/main'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import NavStore from '@app/components/navigation/NavStore'
-import Log from '@app/services/Log/Log'
 
 import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 class SettingsPrivateXMR extends Component {
 
@@ -34,8 +34,16 @@ class SettingsPrivateXMR extends Component {
     }
 
     _init = async(needPassword = false) => {
+        const { lockScreenStatus } = this.props.settingsData
+        if (needPassword && +lockScreenStatus) {
+            setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : () => {
+                    this._init(false)
+                }})
+            NavStore.goNext('LockScreen')
+            return
+        }
+
         try {
-            Log.log('SettingsPrivateXMR initTransferPrivate started')
             // @todo after daemon refactor remove
             const address = this.props.selectedAccountData.address
             const findSql = `
@@ -48,7 +56,7 @@ class SettingsPrivateXMR extends Component {
                             account_json AS accountJson
                         FROM account 
                         WHERE address='${address}'`
-            let find = await Database.setQueryString(findSql).query()
+            let find = await Database.query(findSql)
             if (!find || typeof find.array === 'undefined' || typeof find.array[0] === 'undefined') {
                 throw new Error('address ' + address + ' not found')
             }
@@ -181,3 +189,4 @@ class SettingsPrivateXMR extends Component {
 SettingsPrivateXMR.contextType = ThemeContext
 
 export default connect(null, null, null, { forwardRef: true })(SettingsPrivateXMR)
+

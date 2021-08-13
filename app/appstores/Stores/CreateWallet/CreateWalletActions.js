@@ -17,6 +17,8 @@ import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import ApiProxyLoad from '@app/services/Api/ApiProxyLoad'
 import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import config from '@app/config/config'
 
 const { dispatch } = store
 
@@ -62,7 +64,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
     let storedKey
 
-    const prevWallet = await cryptoWalletsDS.getSelectedWallet()
+    const prevWallet = await settingsActions.getSelectedWallet()
 
     try {
         Log.log('ACT/MStore proceedSaveGeneratedWallet called prevWallet ' + prevWallet)
@@ -85,7 +87,8 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             walletUseUnconfirmed : 1,
             walletCashback : cashbackToken
         }
-        if (source === 'IMPORT') {
+        const hasInternet = await ApiProxyLoad.hasInternet()
+        if (source === 'IMPORT' && hasInternet) {
             const res = await ApiProxyLoad.getSaved(storedKey, wallet.walletName)
 
             if (res && typeof res.forWalletsAll !== 'undefined' && typeof res.forWalletsAll[storedKey] !== 'undefined') {
@@ -122,11 +125,13 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             fullWallet.walletNumber = wallet.walletNumber
         }
 
-        if (source === 'IMPORT' && !fromSaved) {
+        if (source === 'IMPORT' && !fromSaved && hasInternet) {
             try {
-                await WalletHDActions.hdFromTrezor({ walletHash: storedKey, force: false, currencyCode: 'BTC' }, 'IMPORT')
-                await walletDS.updateWallet({ walletHash : storedKey, walletIsHd: 1 })
-                fullWallet.walletIsHd = 1
+                const res = await WalletHDActions.hdFromTrezor({ walletHash: storedKey, force: false, currencyCode: 'BTC' }, 'IMPORT')
+                if (res) {
+                    await walletDS.updateWallet({ walletHash: storedKey, walletIsHd: 1 })
+                    fullWallet.walletIsHd = 1
+                }
             } catch (e) {
                 // do nothing
             }
@@ -142,25 +147,32 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         await Log.log('ACT/MStore proceedSaveGeneratedWallet finished discover storedWallet ' + storedKey)
     } catch (e) {
-
-        Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' will clean by error ' + e.message)
-
-        // await cardDS.clearCards({ walletHash: storedKey })
-
-        await accountDS.clearAccounts({ walletHash: storedKey })
-
-        await walletDS.clearWallet({ walletHash: storedKey })
-
-        await appTaskDS.clearTasks({ walletHash: storedKey })
-
-        await appTaskDS.clearTasks({ walletHash: storedKey })
-
-        if (prevWallet && prevWallet !== storedKey) {
-            await cryptoWalletsDS.setSelectedWallet(prevWallet, 'ACT/MStore proceedSaveGeneratedWallet Revert')
+        if (config.debug.appErrors) {
+            console.log('ACT/MStore proceedSaveGeneratedWallet tryWallet error ' + e.message)
         }
+        try {
+            Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' will clean by error ' + e.message)
 
-        Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' prevWallet ' + prevWallet + ' error ' + e.message)
+            // await cardDS.clearCards({ walletHash: storedKey })
 
+            await accountDS.clearAccounts({ walletHash: storedKey })
+
+            await walletDS.clearWallet({ walletHash: storedKey })
+
+            await appTaskDS.clearTasks({ walletHash: storedKey })
+
+            if (prevWallet && prevWallet !== storedKey) {
+                await settingsActions.setSelectedWallet(prevWallet)
+            }
+
+            Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' prevWallet ' + prevWallet + ' error ' + e.message)
+
+        } catch (e2) {
+            if (config.debug.appErrors) {
+                console.log('ACT/MStore proceedSaveGeneratedWallet tryWallet error2 ' + e2.message)
+            }
+            Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet error2 ' + e2.message)
+        }
         throw e
     }
 

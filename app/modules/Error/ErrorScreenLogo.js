@@ -21,7 +21,7 @@ function SvgLogo(props) {
                 <Image
                     style={PHONE ? props.styles.header__logo__phone : props.styles.header__logo}
                     resizeMode='stretch'
-                    source={require('../../assets/images/pic.png')}/>
+                    source={require('@assets/images/pic.png')}/>
             </View>
         )
     }

@@ -24,7 +24,7 @@ import AppLockBlur from '@app/components/AppLockBlur'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setSelectedAccount, setSelectedAccountTransactions } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import Log from '@app/services/Log/Log'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
@@ -38,12 +38,12 @@ import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 import { strings } from '@app/services/i18n'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 import CustomIcon from '@app/components/elements/CustomIcon'
-import AsyncStorage from '@react-native-community/async-storage'
+
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import Header from './elements/Header'
 import HeaderBlocks from './elements/HeaderBlocks'
@@ -51,8 +51,8 @@ import AccountButtons from './elements/AccountButtons'
 import Transaction from './elements/Transaction'
 import BalanceHeader from './elements/AccountData'
 
-import blackLoader from '@app/assets/jsons/animations/refreshBlack.json'
-import whiteLoader from '@app/assets/jsons/animations/refreshWhite.json'
+import blackLoader from '@assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import Netinfo from '@app/services/Netinfo/Netinfo'
@@ -63,6 +63,7 @@ import { getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransaction
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
@@ -105,7 +106,7 @@ class Account extends React.PureComponent {
     }
 
     async _onLoad() {
-        CACHE_ASKED = await AsyncStorage.getItem('asked')
+        CACHE_ASKED = trusteeAsyncStorage.getExternalAsked()
         CACHE_CLICKED_BACK = false
     }
 
@@ -158,23 +159,29 @@ class Account extends React.PureComponent {
 
     handleBuy = async () => {
         const { currencyCode } = this.props.selectedCryptoCurrencyData
+        const { basicCurrencyCode } = this.props.selectedAccountData
+
         try {
             await Netinfo.isInternetReachable()
 
-            let showMsg = await AsyncStorage.getItem('smartSwapMsg')
-            showMsg = showMsg ? JSON.parse(showMsg) : false
-
-            if (typeof showMsg === 'undefined' || !showMsg) {
+            const showMsg = trusteeAsyncStorage.getSmartSwapMsg() === '1'
+            if (!showMsg) {
                 showModal({
                     type: 'MARKET_MODAL',
                     icon: 'INFO',
                     title: strings('modal.marketModal.title'),
                     description: strings('modal.marketModal.description'),
                 }, () => {
-                    NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode })
+                    this.props.navigation.jumpTo('MarketScreen', {screen: 'MarketScreen', params: {
+                        inCurrencyCode: basicCurrencyCode,
+                        outCurrencyCode: currencyCode
+                    }})
                 })
             } else {
-                NavStore.goNext('MarketScreen', { side: 'OUT', currencyCode })
+                this.props.navigation.jumpTo('MarketScreen', {screen: 'MarketScreen', params: {
+                    inCurrencyCode: basicCurrencyCode,
+                    outCurrencyCode: currencyCode
+                }})
             }
 
             // }
@@ -198,7 +205,7 @@ class Account extends React.PureComponent {
         UpdateOneByOneDaemon._canUpdate = false
 
         let needRefresh = false
-        if (currencyCode !== 'ETH_ROPSTEN') {
+        if (currencyCode !== 'ETH_ROPSTEN' && currencyCode !== 'ETH_RINKEBY') {
             try {
                 if (await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon({ force: true, source: 'ACCOUNT_REFRESH' })) {
                     needRefresh = true
@@ -441,6 +448,8 @@ class Account extends React.PureComponent {
                 <Header
                     leftType="back"
                     leftAction={this.closeAction}
+                    rightType="close"
+                    rightAction={this.closeAction}
                     title={this.getPrettyCurrencyName(selectedCryptoCurrencyData.currencyCode, selectedCryptoCurrencyData.currencyName)}
                     ExtraView={() => (
                         <BalanceHeader

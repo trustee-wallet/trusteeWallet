@@ -11,7 +11,7 @@ import { Linking } from 'react-native'
 import store from '@app/store'
 
 import Router from '@app/router'
-import { ThemeProvider } from '@app/modules/theme/ThemeProvider'
+import { ThemeProvider } from '@app/theme/ThemeProvider'
 
 import Application from '@app/appstores/Actions/App/App'
 import { SendDeepLinking } from '@app/appstores/Stores/Send/SendDeepLinking'

@@ -8,6 +8,7 @@ import ApiProxy from '@app/services/Api/ApiProxy'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import config from '@app/config/config'
+import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBasicActions'
 
 let CACHE_RATES_HASH = ''
 
@@ -17,8 +18,9 @@ let CACHE_BASIC = [
     { currencyCode: 'RUB' },
     { currencyCode: 'EUR' },
     { currencyCode: 'KZT' },
+    { currencyCode: 'NGN' },
     { currencyCode: 'USDT', currencyName: 'Usdt', symbol: '$*' },
-    { currencyCode: 'BTC', currencyName: 'Btc', symbol: 'BTC' }
+    { currencyCode: 'BTC', currencyName: 'Btc', symbol: 'BTC' },
 ]
 
 
@@ -77,7 +79,7 @@ export default {
             if (typeof res.rates.data.basicCurrencies !== 'undefined') {
                 if (!_isEqual(CACHE_BASIC, res.rates.data.basicCurrencies)) {
                     CACHE_BASIC = res.rates.data.basicCurrencies
-                    currencyActions.reloadDict()
+                    currencyBasicActions.reloadDict()
                 }
             }
         } catch (e) {

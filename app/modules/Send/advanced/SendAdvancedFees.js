@@ -4,7 +4,7 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 

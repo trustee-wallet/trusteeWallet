@@ -15,6 +15,10 @@ export async function decodeTransactionQrCode(param, currencyCode) {
     }
 
     Log.log('Utils.QR started', param)
+    if (typeof param.data === 'undefined' || !param.data) {
+        Log.log('Utils.QR no data, param', param)
+        return false
+    }
     try {
 
         MarketingEvent.logOnlyRealTime('qr_scan', param.data)
@@ -23,7 +27,9 @@ export async function decodeTransactionQrCode(param, currencyCode) {
         let tmp = param.data.split(':')
         if (tmp[0] === 'wc') {
             res.data.isWalletConnect = true
-            tmp = tmp[1].split('?')
+            if (typeof tmp[1] !== 'undefined') {
+                tmp = tmp[1].split('?')
+            }
             res.data.walletConnect = {
                 fullLink,
                 wc : tmp[0]
@@ -78,6 +84,8 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 res.data.currencyCode = 'BTC_TEST'
             } else if (network === 'ethereumropsten') {
                 res.data.currencyCode = 'ETH_ROPSTEN'
+            } else if (network === 'ethereumrinkeby') {
+                res.data.currencyCode = 'ETH_RINKEBY'
             } else if (network === 'monero') {
                 res.data.currencyCode = 'XMR'
             } else if (network === 'binance' || network === 'bnb') {

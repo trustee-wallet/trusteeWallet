@@ -180,7 +180,7 @@ class Account {
                         FROM ${tableName}
                         WHERE currency_code='${code}' AND address='${account.address}'`
 
-                    let find = await Database.setQueryString(findSql).query()
+                    let find = await Database.query(findSql)
                     if (find.array.length === 0) {
                         prepare.push(tmp)
                         Log.daemon('DS/Account insert accounts will add ' + code + ' ' + account.address + ' index ' + account.index + ' pubId ' + tmp.walletPubId)
@@ -191,19 +191,19 @@ class Account {
                         if (account.walletPubId && find.walletPubId !== account.walletPubId) {
                             const sql5 = `UPDATE ${tableName} SET derivation_type='${account.type}', derivation_index=${account.index}, wallet_pub_id=${account.walletPubId} WHERE id=${find.id}`
                             Log.daemon(sql5)
-                            await Database.setQueryString(sql5).query()
+                            await Database.query(sql5)
                             Log.daemon('DS/Account insert accounts update walletPubId 1 ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                             // Log.daemon('DS/Account insert accounts update walletPubId ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                         } else if (typeof params.walletPubId !== 'undefined' && find.walletPubId !== params.walletPubId) {
                             const sql5 = `UPDATE ${tableName} SET derivation_type='${account.type}', derivation_index=${account.index}, wallet_pub_id=${params.walletPubId} WHERE id=${find.id}`
                             Log.daemon(sql5)
-                            await Database.setQueryString(sql5).query()
+                            await Database.query(sql5)
                             Log.daemon('DS/Account insert accounts update walletPubId 2 ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                             // Log.daemon('DS/Account insert accounts update walletPubId ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                         } else if (find.derivationIndex !== account.index || find.derivationType !== account.type) {
                             const sql5 = `UPDATE ${tableName} SET derivation_type='${account.type}', derivation_index=${account.index} WHERE id=${find.id}`
                             Log.daemon(sql5)
-                            await Database.setQueryString(sql5).query()
+                            await Database.query(sql5)
                             Log.daemon('DS/Account insert accounts update type/index ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                             // Log.daemon('DS/Account insert accounts update type/index ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                         } else {
@@ -243,7 +243,7 @@ class Account {
                         FROM ${tableName}
                         WHERE currency_code='${account.currency_code}' AND address='${account.address}'`
 
-                const find = await Database.setQueryString(findSql).query()
+                const find = await Database.query(findSql)
                 if (!find || !find.array || !find.array.length) {
                     Log.daemon('DS/Account insert accounts recheck called ' + code + ' ' + account.address + ' not found')
                     SAVED_UNIQUE = {}
@@ -285,13 +285,13 @@ class Account {
                     wallet_pub_id AS walletPubId
                     FROM ${tableName}
                     WHERE currency_code IN ('${currencyCode}', '${account.currencyCode}') AND address='${account.address}'`
-        const find = await Database.setQueryString(findSql).query()
+        const find = await Database.query(findSql)
         if (find.array.length !== 0) {
             if (find.array[0].walletHash !== account.walletHash) {
-                await Database.setQueryString(`UPDATE ${tableName} SET wallet_hash='${account.walletHash}' WHERE id=${find.array[0].id}`).query()
+                await Database.query(`UPDATE ${tableName} SET wallet_hash='${account.walletHash}' WHERE id=${find.array[0].id}`)
             }
             if (find.array[0].currencyCode !== currencyCode) {
-                await Database.setQueryString(`UPDATE ${tableName} SET currency_code='${currencyCode}' WHERE id=${find.array[0].id}`).query()
+                await Database.query(`UPDATE ${tableName} SET currency_code='${currencyCode}' WHERE id=${find.array[0].id}`)
             }
             SAVED_UNIQUE[key] = 1
             Log.daemon('DS/Account insert account by privateKey already in db ' + account.currencyCode + ' ' + account.address + ' index ' + account.index + ' find', find)
@@ -311,7 +311,7 @@ class Account {
         }
         await Database.setTableName(tableName).setInsertData({ insertObjs: [tmp] }).insert()
 
-        const find2 = await Database.setQueryString(findSql).query()
+        const find2 = await Database.query(findSql)
         if (!find2 || find2.array.length === 0) {
             Log.log('!!!DS/Account insert account by privateKey not found after insert error ' + findSql, tmp)
         } else {
@@ -338,11 +338,11 @@ class Account {
     clearAccounts = async (params) => {
         Log.daemon('DS/Account clear accounts called ' + params.walletHash)
 
-        await Database.setQueryString(`DELETE FROM wallet_pub WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.query(`DELETE FROM wallet_pub WHERE wallet_hash='${params.walletHash}'`)
 
-        await Database.setQueryString(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.query(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`)
 
-        await Database.setQueryString(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.query(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`)
 
         Log.daemon('DS/Account clear accounts finished ' + params.walletHash)
     }
@@ -355,17 +355,17 @@ class Account {
     clearAccountsAll = async (params) => {
         Log.daemon('DS/Account clear accounts all called ' + params.walletHash)
 
-        await Database.setQueryString(`DELETE FROM wallet_pub WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.query(`DELETE FROM wallet_pub WHERE wallet_hash='${params.walletHash}'`)
 
-        await Database.setQueryString(`DELETE FROM transactions WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.query(`DELETE FROM transactions WHERE wallet_hash='${params.walletHash}'`)
 
-        await Database.setQueryString(`DELETE FROM transactions_raw`).query()
+        await Database.query(`DELETE FROM transactions_raw`)
 
-        await Database.setQueryString(`DELETE FROM app_news WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.query(`DELETE FROM app_news WHERE wallet_hash='${params.walletHash}'`)
 
-        await Database.setQueryString(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.query(`DELETE FROM account WHERE wallet_hash='${params.walletHash}'`)
 
-        await Database.setQueryString(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`).query()
+        await Database.query(`DELETE FROM account_balance WHERE wallet_hash='${params.walletHash}'`)
 
         Log.daemon('DS/Account clear accounts all finished ' + params.walletHash)
     }
@@ -402,7 +402,7 @@ class Account {
 
         let res = []
         try {
-            res = await Database.setQueryString(sql).query()
+            res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
                 Log.daemon('DS/Account getAccounts finished as empty')
                 return false
@@ -476,7 +476,7 @@ class Account {
             ORDER BY account.id
         `
 
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
 
         if (!res || !res.array || !res.array.length) {
             return []
@@ -531,7 +531,7 @@ class Account {
                             account,
                             inDb: uniqueAddresses[key]
                         })
-                        await Database.setQueryString(`UPDATE transactions SET account_id=${uniqueAddresses[key][account.address]} WHERE account_id=${account.id}`).query()
+                        await Database.query(`UPDATE transactions SET account_id=${uniqueAddresses[key][account.address]} WHERE account_id=${account.id}`)
                         idsToRemove.push(account.id)
                         continue
                     }
@@ -550,8 +550,8 @@ class Account {
         if (idsToRemove.length > 0) {
             Log.daemon('DS/Account getAccountData unique check finished, found ' + idsToRemove.join(','))
             Log.daemon('DS/Account getAccountData should not removed', uniqueAddresses)
-            await Database.setQueryString(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`).query()
-            await Database.setQueryString(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`).query()
+            await Database.query(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`)
+            await Database.query(`DELETE FROM account_balance WHERE account_id IN (${idsToRemove.join(',')})`)
         }
 
         return accounts
@@ -600,7 +600,7 @@ class Account {
             ${where}
         `
 
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
 
         if (!res || !res.array || !res.array.length) {
             return []
@@ -642,8 +642,7 @@ class Account {
      */
     massUpdateAccount = async (where, update) => {
         const sql = `UPDATE ${tableName} SET ${update} WHERE (${where})`
-
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     }
 
 }

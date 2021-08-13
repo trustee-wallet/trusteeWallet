@@ -54,7 +54,7 @@ async function _getAll(params) {
     MarketingEvent.DATA.LOG_PARENT = parentToken
     let walletHash = MarketingEvent.DATA.LOG_WALLET
     if (!walletHash || walletHash === false) {
-        walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+        walletHash = await settingsActions.getSelectedWallet()
         MarketingEvent.DATA.LOG_WALLET = walletHash
     }
     MarketingEvent.reinitIfNever()
@@ -254,7 +254,6 @@ export default {
             } else {
                 all = await _getAll(params)
             }
-            Log.test('ApiProxy loaded ' + realAction + ' params ' + JSON.stringify(params))
             let serverTimestamp = false
             try {
                 if (all && typeof all.data !== 'undefined' && typeof all.data.status !== 'undefined') {
@@ -302,13 +301,8 @@ export default {
 
             if (params.source.indexOf('UpdateCurrencyRateDaemon') === -1) {
                 if (typeof res.rates !== 'undefined' && res.rates) {
-                    Log.test('ApiProxy loaded  ' + realAction + ' has rates and will update rates')
                     await UpdateCurrencyRateDaemon.updateCurrencyRate(params, res)
-                } else {
-                    Log.test('ApiProxy loaded ' + realAction + ' but no rates and skipped update rates')
                 }
-            } else {
-                Log.test('ApiProxy loaded  ' + realAction + ' from ' + params.source + ' and skipped update rates')
             }
             if (params.source.indexOf('UpdateCardsDaemon') === -1) {
                 await UpdateCardsDaemon.updateCardsDaemon(params, res)
@@ -326,11 +320,14 @@ export default {
                 await UpdateTradeOrdersDaemon.updateTradeOrdersDaemon(params, res)
             }
 
-        } else {
-            Log.test('ApiProxy finish no data')
         }
         // console.log('ApiProxy finish ' + new Date().toISOString(), JSON.parse(JSON.stringify(params)))
         return res
+    },
+
+
+    async checkServerTimestamp(serverTimestamp) {
+        return _checkServerTimestamp(serverTimestamp)
     },
 
     async getServerTimestampIfNeeded() {

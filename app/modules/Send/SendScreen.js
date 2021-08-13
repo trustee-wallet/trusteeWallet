@@ -6,7 +6,7 @@ import { View, ScrollView, Keyboard } from 'react-native'
 import { connect } from 'react-redux'
 
 import { strings } from '@app/services/i18n'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import NavStore from '@app/components/navigation/NavStore'
 
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'

@@ -31,6 +31,7 @@ export namespace BlocksoftDictTypes {
         XVG = 'XVG',
         XRP = 'XRP',
         ETH_ROPSTEN = 'ETH_ROPSTEN',
+        ETH_RINKEBY = 'ETH_RINKEBY',
         TRX_USDT = 'TRX_USDT',
         TRX_BTT = 'TRX_BTT',
         ETH_OKB = 'ETH_OKB',

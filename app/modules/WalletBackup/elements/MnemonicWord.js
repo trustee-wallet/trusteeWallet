@@ -9,7 +9,7 @@ import {
 
 import Button from '../../../components/elements/new/buttons/Button'
 
-import { useTheme } from '../../../modules/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 import { strings } from '../../../services/i18n'
 

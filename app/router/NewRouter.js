@@ -6,7 +6,6 @@
 import React from 'react'
 import { Platform } from 'react-native'
 
-
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -20,17 +19,17 @@ import EnterMnemonicPhrase from '@app/modules/WalletCreate/EnterMnemonicPhrase'
 
 import ErrorScreen from '@app/modules/Error/ErrorScreen'
 import HomeScreen from '@app/modules/WalletList/HomeScreen'
-import AboutScreen from '@app/modules/About/AboutScreen'
+import AboutScreen from '@app/modules/Settings/About/AboutScreen'
 import LockScreen from '@app/modules/LockScreen/LockScreen'
 import AddAssetScreen from '@app/modules/AddAsset/AddAssetScreen'
 import WebViewScreen from '@app/modules/WebView'
 import NotificationsScreen from '@app/modules/Notifications'
 import QRCodeScannerScreen from '@app/modules/QRCodeScanner/QRCodeScannerScreen'
 import WalletConnectScreen from '@app/modules/WalletConnect/WalletConnectScreen'
-import MainV3DataScreen from '@app/modules/Trade/MainV3DataScreen'
-import SMSV3CodeScreen from '@app/modules/Trade/SMSV3CodeScreen'
+
+import SMSV3CodeScreen from '@app/modules/Market/SMSV3CodeScreen'
 import MarketScreen from '@app/modules/Market/MainScreen'
-import ExchangeV3Screen from '@app/modules/Exchange/MainV3DataScreen'
+
 import SendScreen from '@app/modules/Send/SendScreen'
 import SendAdvancedSettingsScreen from '@app/modules/Send/SendAdvancedSettings'
 import ReceiptScreen from '@app/modules/Send/ReceiptScreen'
@@ -40,7 +39,6 @@ import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountS
 import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPrivate/AccountSettingsPrivateScreen'
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
-import AccountTransactionCheckScreen from '@app/modules/Account/AccountTransactionCheck/AccountTransactionCheckScreen'
 
 
 import FioChooseRecipient from '@app/modules/FIO/FioChooseRecipient'
@@ -53,28 +51,29 @@ import FioMainSettings from '@app/modules/FIO/FioMainSettings'
 import FioSettings from '@app/modules/FIO/FioSettings'
 
 import SettingsMainScreen from '@app/modules/Settings/SettingsMainScreen'
-import WalletListScreen from '@app/modules/Settings/WalletListScreen'
-import AddWalletScreen from '@app/modules/Settings/AddWalletScreen'
-import BackupSearchWallet from '@app/modules/Settings/BackupSearchWalletScreen'
-import BackupSearchOne from '@app/modules/Settings/BackupSearchOneScreen'
+import WalletListScreen from '@app/modules/Settings/WalletList/WalletListScreen'
+import AddWalletScreen from '@app/modules/Settings/WalletList/AddWalletScreen'
+import BackupSearchWallet from '@app/modules/Settings/WalletList/BackupSearchWalletScreen'
+import BackupSearchOne from '@app/modules/Settings/WalletList/BackupSearchOneScreen'
+import AdvancedWalletScreen from '@app/modules/Settings/WalletList/AdvancedWalletScreen'
 
-import AdvancedWalletScreen from '@app/modules/Settings/AdvancedWalletScreen'
-import LocalCurrencyScreen from '@app/modules/Settings/LocalCurrencyScreen'
-import LanguageListScreen from '@app/modules/Settings/LanguageListScreen'
-import ScannerSettingsScreen from '@app/modules/Settings/ScannerSettingsScreen'
-import TermsOfUseScreen from '@app/modules/About/screens/TermsOfUseScreen'
-import PrivacyPolicyScreen from '@app/modules/About/screens/PrivacyPolicyScreen'
+import LocalCurrencyScreen from '@app/modules/Settings/Subsettings/LocalCurrencyScreen'
+import LanguageListScreen from '@app/modules/Settings/Subsettings/LanguageListScreen'
+import ScannerSettingsScreen from '@app/modules/Settings/Subsettings/ScannerSettingsScreen'
+import LoggingSettingsScreen from '@app/modules/Settings/Subsettings/LoggingSettingsScreen'
+import NotificationsSettingScreen from '@app/modules/Settings/Subsettings/NotificationsScreen'
+
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
-import NotificationsSettingScreen from '@app/modules/Settings/NotificationsScreen'
 import SupportScreen from '@app/modules/Support/index'
+import StreamSupportScreen from '@app/modules/Support/streamSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
-import { useTheme } from '@app/modules/theme/ThemeProvider'
-import { strings, sublocale } from '@app/services/i18n'
+import { useTheme } from '@app/theme/ThemeProvider'
+import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
+
 
 const Stack = createStackNavigator()
 
@@ -99,11 +98,11 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='HomeScreen' component={HomeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='HomeScreenPop' component={HomeScreen} options={{ headerShown: false }} />
 
+            <HomeStack.Screen name='StreamSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
             <HomeStack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='MainV3DataScreen' component={MainV3DataScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='ExchangeV3Screen' component={ExchangeV3Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendScreen' component={SendScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='ReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -111,7 +110,6 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountSettings' component={AccountSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountSettingsPrivate' component={AccountSettingsPrivateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountTransactionScreen' component={AccountTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='AccountTransactionCheckScreen' component={AccountTransactionCheckScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -126,9 +124,8 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='LocalCurrencyScreen' component={LocalCurrencyScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='LanguageListScreen' component={LanguageListScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='ScannerSettingsScreen' component={ScannerSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='LoggingSettingsScreen' component={LoggingSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsSettingsScreen' component={NotificationsSettingScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='TermsOfUseScreen' component={TermsOfUseScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='PrivacyPolicyScreen' component={PrivacyPolicyScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='FioChooseRecipient' component={FioChooseRecipient} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioChooseAddress' component={FioChooseAddress} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -138,6 +135,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='FioAddresses' component={FioAddresses} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioMainSettings' component={FioMainSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioSettings' component={FioSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
         </HomeStack.Navigator>
     )
 }
@@ -148,6 +146,8 @@ const MarketStackScreen = () => {
             <MarketStack.Screen name='MarketScreen' component={MarketScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <MarketStack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <MarketStack.Screen name='SellCodeScreen' component={SellCodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }}/>
+            <MarketStack.Screen name='MarketReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <MarketStack.Screen name='MaketAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </MarketStack.Navigator>
     )
 }
@@ -226,7 +226,19 @@ const TabBar = () => {
                     )
                 }}
             />
-
+            {MarketingEvent.DATA.LOG_TESTER ?
+                <Tab.Screen
+                    name='SupportScreen'
+                    component={StreamSupportScreen}
+                    options={{
+                        unmountOnBlur: true,
+                        tabBarLabel: strings('dashboardStack.support'),
+                        tabBarIcon: ({ color }) => (
+                            <CustomIcon name="support" color={color} size={22} style={{ marginBottom: 3 }} />
+                        )
+                    }}
+                />
+                :
                 <Tab.Screen
                     name='SupportScreen'
                     component={SupportScreen}

@@ -13,13 +13,12 @@ import {
     Animated, Platform, StyleSheet
 } from 'react-native'
 
-import AntIcon from 'react-native-vector-icons/AntDesign'
+import { HIT_SLOP } from '@app/theme/HitSlop'
+import { ThemeContext } from '@app/theme/ThemeProvider'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
-import { HIT_SLOP } from '@app/themes/HitSlop'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
-
-const headerHeight = Platform.OS === 'android' ? 49 : 44
-const headerHeightSticky = Platform.OS === 'android' ? 158 : 148
+const headerHeight = 44
+const headerHeightSticky = Platform.OS === 'android' ? 144 : 148
 
 export default class Header extends PureComponent {
 
@@ -48,7 +47,7 @@ export default class Header extends PureComponent {
 
         switch (leftType) {
             case 'back': {
-                Icon = (props) => <AntIcon name="arrowleft" size={23} color={props.color} />
+                Icon = (props) => <CustomIcon name="arrow_back" size={20} color={props.color} />
             }
         }
 
@@ -72,7 +71,7 @@ export default class Header extends PureComponent {
 
         switch (rightType) {
             case 'close': {
-                Icon = (props) => <AntIcon name="close" size={23} color={props.color} />
+                Icon = (props) => <CustomIcon name="close" size={18} color={props.color} />
             }
         }
 
@@ -125,7 +124,7 @@ export default class Header extends PureComponent {
                 <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
 
                 <Animated.View style={[styles.container, { backgroundColor: colors.common.header.bg, height }]}>
-                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE * 2 }]}>
+                    <View style={[styles.header, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={styles.header__left}>
                             {this.getLeftAction()}
                         </View>
@@ -139,11 +138,11 @@ export default class Header extends PureComponent {
                         </View>
                     </View>
 
-                    {ExtraView && (
+                    {ExtraView ? (
                         <Animated.View style={[styles.extraView, { backgroundColor: colors.common.header.bg, opacity }]}>
                             <ExtraView />
                         </Animated.View>
-                    )}
+                    ) : null}
                 </Animated.View>
 
                 <View style={styles.shadow__container}>

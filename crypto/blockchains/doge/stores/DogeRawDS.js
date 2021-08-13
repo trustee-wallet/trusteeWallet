@@ -33,7 +33,7 @@ class DogeRawDS {
         AND transaction_unique_key NOT LIKE 'json_%'
         AND (is_removed=0 OR is_removed IS NULL)
         `
-            const result = await Database.setQueryString(sql).query()
+            const result = await Database.query(sql)
             if (!result || !result.array || result.array.length === 0) {
                 return {}
             }
@@ -70,7 +70,7 @@ class DogeRawDS {
                         updateObj.removed_at = now
                     } catch (e) {
                         if (config.debug.cryptoErrors) {
-                            const dbTx = await Database.setQueryString(`SELECT * FROM transactions WHERE transaction_hash='${row.transactionHash}'`).query()
+                            const dbTx = await Database.query(`SELECT * FROM transactions WHERE transaction_hash='${row.transactionHash}'`)
                             if (config.debug.cryptoErrors) {
                                 console.log('DogeRawDS.getForAddress send error ' + e.message, JSON.parse(JSON.stringify(row)), dbTx, e)
                             }
@@ -79,11 +79,12 @@ class DogeRawDS {
                         if (e.message.indexOf('bad-txns-inputs-spent') !== -1 || e.message.indexOf('missing-inputs') !== -1 || e.message.indexOf('insufficient fee') !== -1) {
                             broadcastLog = ' sub-spent ' + e.message
                             updateObj.is_removed = 3
-                            await Database.setQueryString(`UPDATE transactions
+                            const sql = `UPDATE transactions
                             SET transaction_status='replaced', hidden_at='${now}'
                             WHERE transaction_hash='${row.transactionHash}'
                             AND (transaction_status='missing' OR transaction_status='new')
-                            `).query()
+                            `
+                            await Database.query(sql)
                         } else if (e.message.indexOf('already known') !== -1) {
                             broadcastLog = ' already known'
                         } else {
@@ -125,7 +126,7 @@ class DogeRawDS {
         AND currency_code='${data.currencyCode}'
         AND address='${data.address.toLowerCase()}'
         AND transaction_unique_key='${data.transactionUnique}'`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
     }
 
     async saveRaw(data) {
@@ -141,7 +142,7 @@ class DogeRawDS {
         AND currency_code='${data.currencyCode}'
         AND address='${data.address.toLowerCase()}'
         AND transaction_unique_key='${data.transactionUnique}'`
-        await Database.setQueryString(sql).query()
+        await Database.query(sql)
 
         const prepared = [{
             currency_code: data.currencyCode,
@@ -180,7 +181,7 @@ class DogeRawDS {
             FROM ${tableName}
             WHERE currency_code='${data.currencyCode}'
             AND transaction_unique_key='${prefix}_${data.transactionHash}' LIMIT 1`
-        const res = await Database.setQueryString(sql).query()
+        const res = await Database.query(sql)
         if (!res || !res.array || typeof res.array[0] === 'undefined' || typeof res.array[0].transactionRaw === 'undefined') {
             return false
         }

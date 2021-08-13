@@ -50,15 +50,21 @@ class Database {
    */
   #updateData = {};
 
+  #initStart = false;
+
   /**
    * ### Database starting
    */
   async start() {
     if (this.#db !== null) return;
     this.#db = await getSQLiteInstance();
-    let dbInit = new DBInit(this);
-    await dbInit.init();
-    dbInit = null;
+    if (!this.#initStart) {
+      this.#initStart = true
+      let dbInit = new DBInit(this);
+      await dbInit.init();
+      dbInit = null;
+      this.#initStart = false
+    }
   }
 
   /**
@@ -80,28 +86,21 @@ class Database {
   }
 
   /**
-   * @param {string} data
-   * @return {Database}
-   */
-  setQueryString = (data) => {
-    this.#queryString = data;
-    return this;
-  }
-
-  /**
    * @return {Promise}
    */
-  async query(throwError = false) {
-    if (this.#db === null) await this.start();
+  async query(sql, throwError = false) {
+    if (this.#db === null) {
+      await this.start();
+    }
 
     let res;
     const tmpArray = [];
     try {
       if (config.debug.appDBLogs) console.log('\n\n');
-      res = await this.#db.query.executeSql(this.#queryString);
+      res = await this.#db.query.executeSql(sql);
       if (config.debug.appDBLogs) console.log('\n\n');
     } catch (e) {
-      e.message = `DB QUERY ERROR: ${this.#queryString} ${e.message}`;
+      e.message = `DB QUERY ERROR: ${sql} ${e.message}`;
       e.code = 'ERROR_SYSTEM';
       // before db init sometimes
       if (e.message.indexOf('notifsSavedToken') === -1) {
@@ -121,7 +120,7 @@ class Database {
       tmpArray.push(res[0].rows.item(i));
     }
     const tmpRowsAffected = res[0].rowsAffected;
-    return { array: tmpArray, rowsAffected: tmpRowsAffected };
+    return { array: tmpArray, rowsAffected: tmpRowsAffected, sql };
   }
 
 

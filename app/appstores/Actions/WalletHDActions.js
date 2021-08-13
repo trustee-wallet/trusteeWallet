@@ -96,10 +96,10 @@ const walletHDActions = {
 
         if (!params.force) {
             if (!derivations) {
-                throw new Error('no derivations 1 found')
+                return false
             }
             if (derivations.BTC.length === 0 && derivations.BTC_SEGWIT.length === 0) {
-                throw new Error('no derivations 2 found')
+                return false
             }
         }
 

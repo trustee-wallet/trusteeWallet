@@ -18,11 +18,10 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import Validator from '@app/services/UI/Validator/Validator'
-import { setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import { strings } from '@app/services/i18n'
-import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
 import ListItem from '@app/components/elements/new/list/ListItem/Asset'
@@ -33,12 +32,15 @@ import {
     getTabs,
     ASSESTS_GROUP,
     prepareDataForDisplaying,
-    addCustomToken
+    addCustomToken,
+    prepareAssets
 } from './helpers'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import CustomIcon from '@app/components/elements/CustomIcon'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import Log from '@app/services/Log/Log'
+import Toast from '@app/services/UI/Toast/Toast'
+import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 
 
 class AddAssetScreen extends React.PureComponent {
@@ -52,16 +54,14 @@ class AddAssetScreen extends React.PureComponent {
     }
 
     componentDidMount() {
-        this.prepareData()
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        const data = NavStore.getParamWrapper(this, 'tokenData')
-        if (data && typeof data !== 'undefined' && typeof data.address !== 'undefined' && data.address) {
-            if (prevState.customAddress !== data.address) {
-                this.setState({ customAddress: data.address })
-            }
+        const currencyCode = NavStore.getParamWrapper(this, 'currencyCode')
+        if (currencyCode) {
+            currencyCode.forEach(code => {
+                let item = prepareAssets(this.props.assets).find(way => way.currencyCode === code)
+                item && this.handleChangeCurrencyStatus(item)
+            })
         }
+        this.prepareData()
     }
 
     prepareData = (assets = this.props.assets, newTab, searchQuery) => {
@@ -85,6 +85,7 @@ class AddAssetScreen extends React.PureComponent {
         } else {
             this.toggleCurrencyVisibility(currency.currencyCode, currency.isHidden * 1 > 0 ? 0 : 1, currency.isHidden, currency.tokenBlockchain)
         }
+        setBseLink(null)
     }
 
     handleAddCurrency = async (currencyToAdd, tokenBlockchain) => {
@@ -101,18 +102,22 @@ class AddAssetScreen extends React.PureComponent {
             MarketingEvent.logEvent('gx_currency_hide', { currencyCode, source: 'AddAssetScreen' }, 'GX')
         } else {
             MarketingEvent.logEvent('gx_currency_show', { currencyCode, source: 'AddAssetScreen' }, 'GX')
+            await currencyActions.addOrShowMainCurrency(currencyCode, tokenBlockchain)
         }
         await currencyActions.toggleCurrencyVisibility({ currencyCode, newIsHidden, currentIsHidden : 0}) // add to all wallets
-        await currencyActions.addOrShowMainCurrency(currencyCode, tokenBlockchain)
         this.prepareData()
     }
 
     handleOpenQr = () => {
-        setQRConfig({
-            title: strings('modal.qrScanner.success.title'),
-            description: strings('modal.qrScanner.success.description'),
-            type: 'ADD_CUSTOM_TOKEN_SCANNER'
-        })
+        setQRConfig({ flowType: QRCodeScannerFlowTypes.ADD_CUSTOM_TOKEN_SCANNER, callback : (data) => {
+            try {
+                this.setState({ customAddress: data })
+            } catch (e) {
+                Log.log('QRCodeScannerScreen callback error ' + e.message )
+                Toast.setMessage(e.message).show()
+            }
+            NavStore.goBack()
+        }})
         NavStore.goNext('QRCodeScannerScreen')
     }
 
@@ -206,11 +211,10 @@ class AddAssetScreen extends React.PureComponent {
                                                 placeholder={strings('assets.addCustomPlaceholder')}
                                                 onChangeText={this.handleChangeCustomAddress}
                                                 value={customAddress}
-                                                HelperAction={() => (
-                                                    <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
-                                                        <CustomIcon name={'qr'} size={20} color={colors.common.text1} />
-                                                    </TouchableOpacity>
-                                                )}
+                                                paste={true}
+                                                callback={this.handleChangeCustomAddress}
+                                                qr={true}
+                                                qrCallback={this.handleOpenQr}
                                             />
                                             <Button
                                                 containerStyle={{ marginTop: GRID_SIZE * 2 }}

@@ -78,7 +78,7 @@ class UpdateAccountBalanceAndTransactions {
             }
 
             if (!allWallets && source !== 'BACK') {
-                params.walletHash = await BlocksoftKeysStorage.getSelectedWallet()
+                params.walletHash = await settingsActions.getSelectedWallet('UpdateAccountBalanceAndTransactions')
             }
 
             tmpAction = 'params init'
@@ -227,7 +227,7 @@ class UpdateAccountBalanceAndTransactions {
 
             if (account.currencyCode === 'BTC') {
                 const additional = {}
-                if (account.walletIsHd) {
+                if (account.walletIsHd && account.derivationPath !== 'm/49quote/0quote/0/1/0') {
                     updateObj.balanceScanLog = account.address + ' should be HD '
                     updateObj.balanceScanError = ''
                     await accountBalanceDS.updateAccountBalance({ updateObj }, account)

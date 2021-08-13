@@ -12,8 +12,8 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import AsyncStorage from '@react-native-community/async-storage'
-import { ThemeContext } from '@app/modules/theme/ThemeProvider'
+
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
@@ -27,7 +27,8 @@ import { strings } from '@app/services/i18n'
 
 import NavStore from '@app/components/navigation/NavStore'
 import CustomIcon from '@app/components/elements/CustomIcon'
-import { HIT_SLOP } from '@app/themes/HitSlop'
+import { HIT_SLOP } from '@app/theme/HitSlop'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 class HeaderBlocks extends React.Component {
 
@@ -46,7 +47,7 @@ class HeaderBlocks extends React.Component {
                 icon: 'WARNING',
                 description: strings('account.externalLink.description')
             }, () => {
-                AsyncStorage.setItem('asked', now + '')
+                trusteeAsyncStorage.setExternalAsked(now + '')
                 this.props.cacheAsked = now
                 this.actualOpen(address, forceLink)
             })
@@ -57,7 +58,10 @@ class HeaderBlocks extends React.Component {
 
     actualOpen = async (address, forceLink = false) => {
         const { currencyExplorerLink } = this.props.cryptoCurrency
-        const actualLink = forceLink || currencyExplorerLink + address
+        let actualLink = forceLink || currencyExplorerLink + address
+        if (actualLink.indexOf('blockchair.com/ethereum/address') > 0) {
+            actualLink = forceLink || currencyExplorerLink + address.toLowerCase()
+        }
         // const supported = true // await Linking.canOpenURL(actualLink)
         try {
             let linkUrl = actualLink

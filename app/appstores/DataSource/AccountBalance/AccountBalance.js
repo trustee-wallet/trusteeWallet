@@ -22,7 +22,7 @@ export default {
             data.updateObj.balanceScanLog = data.updateObj.balanceScanLog.substr(0, 1000)
         }
         data.updateObj.balanceScanLog = Database.escapeString(data.updateObj.balanceScanLog)
-        const {array : find} = await Database.setQueryString(`SELECT account_id FROM ${tableName} WHERE account_id=${account.id}`).query()
+        const {array : find} = await Database.query(`SELECT account_id FROM ${tableName} WHERE account_id=${account.id}`)
         if (find.length > 0) {
             data.key = {accountId : account.id}
             await Database.setTableName(tableName).setUpdateData(data).update()

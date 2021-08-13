@@ -118,7 +118,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' proxyPriceCheck', proxyPriceCheck)
         }
 
-        let gasLimit
+        let gasLimit = 0
         try {
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
                 try {
@@ -151,6 +151,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     } else {
                         e.message += ' in EthEstimateGas in getFeeRate'
                         throw e
+                    }
+                }
+                if (this._mainCurrencyCode === 'OPTIMISM') {
+                    const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
+                    if (gasLimit < minGasLimit) {
+                        gasLimit = minGasLimit
                     }
                 }
             } else {
