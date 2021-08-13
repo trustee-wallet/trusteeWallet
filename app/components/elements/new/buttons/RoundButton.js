@@ -20,6 +20,7 @@ const ICON_SET = {
     send: props => <CustomIcon {...props} name="send" size={18} style={{ left: 0.5 }} />,
     hide: props => <CustomIcon {...props} name="hide" size={24} style={{ left: 0.5 }} />,
     telegram: props => <CustomIcon {...props} name="telegram" size={25} style={{ left: 0.5 }} />,
+    sendMessage: props => <CustomIcon {...props} name="sendMessage" size={25} style={{ left: 0.5 }} />,
     twitter: props => <CustomIcon {...props} name="twitter" size={25} style={{ left: 0.5 }} />,
     facebook: props => <CustomIcon {...props} name="facebook" size={25} style={{ left: 0.5 }} />,
     instagram: props => <CustomIcon {...props} name="insta" size={25} style={{ left: 0.5 }} />,
