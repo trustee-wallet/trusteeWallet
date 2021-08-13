@@ -2,6 +2,7 @@
  * @version 0.43
  * @description ksu jumping
  */
+
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -11,9 +12,8 @@ import {
     ScrollView,
     TouchableOpacity,
     Animated,
+    Dimensions
 } from 'react-native'
-
-import LottieView from 'lottie-react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -32,9 +32,6 @@ import Toast from '@app/services/UI/Toast/Toast'
 
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import CheckBox from '@app/components/elements/new/CheckBox'
-import CustomIcon from '@app/components/elements/CustomIcon'
-
-import ProgressAnimation from '@assets/jsons/animations/pieWithStroke.json'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -44,14 +41,19 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
-import QrCodeBox from '@app/components/elements/QrCodeBox'
-import qrLogo from '@assets/images/logoWithWhiteBG.png'
+
+import Tabs from '@app/components/elements/new/Tabs'
+import MnemonicQrCode from '@app/modules/WalletBackup/elements/MnemonicQrCode'
+import Message from '@app/components/elements/new/Message'
+import LottieView from 'lottie-react-native'
 
 const VISIBILITY_TIMEOUT = 4000
 
+const { width: WINDOW_WIDTH } = Dimensions.get('window')
+
 class BackupStep0Screen extends PureComponent {
 
-    scrollView;
+    scrollView
 
     headerProps = {}
 
@@ -65,12 +67,29 @@ class BackupStep0Screen extends PureComponent {
             animationProgress: new Animated.Value(0),
             flowSubtype: '', // one of: 'backup', 'createFirst', 'createAnother', 'show'
             visibilityTimer: null,
-            visibilityQR : false
+            visibilityQR: false,
+            isLoading: false,
+
+            tabs: [
+                {
+                    title: strings('walletBackup.step0Screen.phrase'),
+                    index: 0,
+                    active: true
+                },
+                {
+                    title: strings('walletBackup.step0Screen.qr'),
+                    index: 1,
+                    active: false
+                }
+            ]
         }
+
     }
 
     async componentDidMount() {
+        this.setState({ isLoading: true })
         await this._init()
+        this.setState({ isLoading: false })
     }
 
     async _init(checkLock = true) {
@@ -87,9 +106,11 @@ class BackupStep0Screen extends PureComponent {
 
                 if (checkLock) {
                     if (this.props.lockScreenStatus * 1 > 0) {
-                        setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback : async () => {
-                            await this._init(false)
-                        }}, 'BackupStep0Screen')
+                        setLockScreenConfig({
+                            flowType: LockScreenFlowTypes.JUST_CALLBACK, callback: async () => {
+                                await this._init(false)
+                            }
+                        }, 'BackupStep0Screen')
                         NavStore.goNext('LockScreen')
                         return false
                     }
@@ -104,7 +125,7 @@ class BackupStep0Screen extends PureComponent {
                     }
                 }
                 if (flowType === 'BACKUP_WALLET_XMR') {
-                    walletMnemonic = await BlocksoftSecrets.getWords({currencyCode: 'XMR', mnemonic})
+                    walletMnemonic = await BlocksoftSecrets.getWords({ currencyCode: 'XMR', mnemonic })
                 } else {
                     walletMnemonic = mnemonic
                 }
@@ -170,6 +191,7 @@ class BackupStep0Screen extends PureComponent {
         }
     }
 
+    // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(nextProps) {
         const { walletMnemonic } = nextProps.createWalletStore
 
@@ -183,6 +205,19 @@ class BackupStep0Screen extends PureComponent {
             }))
         }
     }
+
+    handleChangeTab = (newTab) => {
+        const newTabs = this.state.tabs.map(tab => ({
+            ...tab,
+            active: tab.index === newTab.index
+        }))
+        this.setState(() => ({ tabs: newTabs }))
+    }
+
+    renderTabs = () => <Tabs
+        tabs={this.state.tabs}
+        changeTab={this.handleChangeTab}
+    />
 
     // for developing and testing only
     handleCopyModal = () => {
@@ -217,12 +252,6 @@ class BackupStep0Screen extends PureComponent {
     handleClose = () => {
         NavStore.reset('TabBar')
         this.resetWalletStore()
-    }
-
-    handleQR = (visibility) => {
-        this.setState({
-            visibilityQR : visibility
-        })
     }
 
     triggerMnemonicVisible = (visibility, checkLock = true) => {
@@ -261,7 +290,7 @@ class BackupStep0Screen extends PureComponent {
 
         return (
             <View style={[styles.wordContainer, { backgroundColor: colors.createWalletScreen.showMnemonic.wordBg, marginHorizontal: GRID_SIZE * 0.75 }]}>
-                <View style={[styles.wordIndexContainer, { backgroundColor: colors.createWalletScreen.showMnemonic.wordIndexBg, }]}>
+                <View style={[styles.wordIndexContainer, { backgroundColor: colors.createWalletScreen.showMnemonic.wordIndexBg }]}>
                     <Text style={[styles.wordIndex, { color: colors.createWalletScreen.showMnemonic.wordIndexText }]}>{index + 1}</Text>
                 </View>
                 <Text style={[styles.word, { color: colors.common.text1, marginLeft: GRID_SIZE * 0.7 }]}>{wordToRender}</Text>
@@ -269,10 +298,20 @@ class BackupStep0Screen extends PureComponent {
         )
     }
 
-    handleApproveBackup = () => { this.setState(state => ({ approvedBackup: !state.approvedBackup })) }
+    handleApproveBackup = () => {
+        this.setState(state => ({ approvedBackup: !state.approvedBackup }))
+    }
 
     render() {
-        const { walletMnemonicArray, isMnemonicVisible, approvedBackup, animationProgress, flowSubtype, visibilityTimer,visibilityQR } = this.state
+        const {
+            walletMnemonicArray,
+            isMnemonicVisible,
+            approvedBackup,
+            animationProgress,
+            flowSubtype,
+            visibilityTimer,
+            isLoading
+        } = this.state
         const { flowType } = this.props.createWalletStore
 
         const isInited = walletMnemonicArray.length > 0
@@ -284,7 +323,7 @@ class BackupStep0Screen extends PureComponent {
 
         MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep0Screen')
 
-        const halfArrayNum = Math.ceil(walletMnemonicArray.length / 2);
+        const halfArrayNum = Math.ceil(walletMnemonicArray.length / 2)
 
 
         let infoText = strings('walletBackup.step0Screen.info')
@@ -295,149 +334,108 @@ class BackupStep0Screen extends PureComponent {
         return (
             <ScreenWrapper
                 {...this.headerProps}
+                ExtraView={isShowingPhrase || isXMR ? this.renderTabs : null}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    ref={ref => { this.scrollView = ref }}
+                    ref={ref => {
+                        this.scrollView = ref
+                    }}
                     contentContainerStyle={styles.scrollViewContent}
                     keyboardShouldPersistTaps='handled'
                 >
-                    {visibilityQR &&
-                    <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
-                        <View style={[styles.infoContainer, { marginBottom: GRID_SIZE }]}>
 
-                            <Text style={[styles.infoText, { color: colors.common.text3 }]}>{strings('walletBackup.step0Screen.infoQR')}</Text>
-
-                        </View>
-
-                        <View style={styles.wrapperQR}>
-                            <View style={styles.qr}>
-                                <QrCodeBox
-                                    value={this.state.walletMnemonic}
-                                    size={200}
-                                    color='#404040'
-                                    backgroundColor='#F5F5F5'
-                                    logo={qrLogo}
-                                    logoSize={70}
-                                    logoBackgroundColor='transparent'
-                                    onError={(e) => {
-                                        Log.err('BackupStep0Screen QRCode error ' + e.message)
-                                    }}
-                                />
-                            </View>
-                        </View>
-                        <View style={{
-                            paddingHorizontal: GRID_SIZE,
-                            paddingVertical: GRID_SIZE * 1.5
-                        }}>
-                            <TwoButtons
-                                mainButton={{
-                                    onPress: () => this.handleQR(false),
-                                    title: strings('walletBackup.step0Screen.hideQR'),
-                                    textStyle: {
-                                        textAlign: 'center'
-                                    }
-                                }}
-                            />
-                        </View>
-
-                    </View>
-                    }
-
-                    {!visibilityQR && walletMnemonicArray &&
-                        <>
-                            <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
-                                <View style={[styles.infoContainer, { marginBottom: GRID_SIZE }]}>
-                                    {visibilityTimer ? (
-                                        <LottieView color={colors.createWalletScreen.keyIcon} source={ProgressAnimation} style={{ width: 24, height: 24 }} progress={animationProgress} />
-                                    ) : (
-                                        <View style={[styles.keyCircle, { borderColor: colors.createWalletScreen.showMnemonic.showButtonText }]}>
-                                            <CustomIcon name={'recoveryPhrase'} size={16} color={colors.createWalletScreen.showMnemonic.showButtonText} />
+                    {this.state.tabs[0].active &&
+                    (walletMnemonicArray &&
+                        (!isLoading ?
+                            <>
+                                <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
+                                    <Message
+                                        progress={animationProgress}
+                                        timer={visibilityTimer}
+                                        name={'recoveryPhrase'}
+                                        text={infoText}
+                                    />
+                                    <TouchableOpacity
+                                        activeOpacity={1}
+                                        onLongPress={this.showMnemonic}
+                                        onPressIn={() => this.triggerMnemonicVisible(true)}
+                                        onPressOut={() => this.triggerMnemonicVisible(false)}
+                                        delayLongPress={2000}
+                                        delayPressIn={100}
+                                        disabled={isMnemonicVisible}
+                                    >
+                                        <View style={[styles.mnemonicContainer, { marginBottom: -(GRID_SIZE * 0.75), marginTop: GRID_SIZE }]}>
+                                            <View style={styles.mnemonicColumn}>
+                                                {walletMnemonicArray.slice(0, halfArrayNum).map(this.renderWord)}
+                                            </View>
+                                            <View style={styles.mnemonicColumn}>
+                                                {walletMnemonicArray.slice(halfArrayNum).map((item, i) => this.renderWord(item, halfArrayNum + i))}
+                                            </View>
                                         </View>
+                                        <Text
+                                            style={[
+                                                styles.showMnemonicButton,
+                                                {
+                                                    marginTop: GRID_SIZE * 2,
+                                                    marginBottom: GRID_SIZE * 2,
+                                                    color: colors.createWalletScreen.showMnemonic.showButtonText,
+                                                    opacity: isMnemonicVisible ? 0.5 : 1
+                                                }
+                                            ]}
+                                        >{strings('walletBackup.step0Screen.showButton')}</Text>
+                                    </TouchableOpacity>
+
+                                    {!isShowingPhrase && !isXMR && (
+                                        <CheckBox
+                                            checked={approvedBackup}
+                                            onPress={this.handleApproveBackup}
+                                            title={strings('walletBackup.infoScreen.checkbox1')}
+                                        />
                                     )}
-                                    <Text style={[styles.infoText, { color: colors.common.text3 }]}>{infoText}</Text>
                                 </View>
 
-                                <TouchableOpacity
-                                    activeOpacity={1}
-                                    onLongPress={this.showMnemonic}
-                                    onPressIn={() => this.triggerMnemonicVisible(true)}
-                                    onPressOut={() => this.triggerMnemonicVisible(false)}
-                                    delayLongPress={2000}
-                                    delayPressIn={100}
-                                    disabled={isMnemonicVisible}
-                                >
-                                    <View style={[styles.mnemonicContainer, { marginHorizontal: -(GRID_SIZE * 0.75) }]}>
-                                        <View style={styles.mnemonicColumn}>
-                                            {walletMnemonicArray.slice(0, halfArrayNum).map(this.renderWord)}
-                                        </View>
-                                        <View style={styles.mnemonicColumn}>
-                                            {walletMnemonicArray.slice(halfArrayNum).map((item, i) => this.renderWord(item, halfArrayNum + i))}
-                                        </View>
+                                {isInited && !isShowingPhrase && !isXMR && (
+                                    <View style={{
+                                        paddingHorizontal: GRID_SIZE,
+                                        paddingVertical: GRID_SIZE * 1.5
+                                    }}>
+                                        <TwoButtons
+                                            mainButton={{
+                                                disabled: !approvedBackup,
+                                                onPress: this.onNext,
+                                                title: strings('walletBackup.step0Screen.next')
+                                            }}
+                                            secondaryButton={isCreate ? {
+                                                type: 'settings',
+                                                onPress: this.openWalletSettings,
+                                                onLongPress: this.handleCopyModal,
+                                                delayLongPress: 4000,
+                                                disabled: !approvedBackup
+                                            } : undefined}
+                                        />
                                     </View>
-
-                                    <Text
-                                        style={[
-                                            styles.showMnemonicButton,
-                                            {
-                                                marginTop: GRID_SIZE * 2,
-                                                marginBottom: GRID_SIZE * 2,
-                                                color: colors.createWalletScreen.showMnemonic.showButtonText,
-                                                opacity: isMnemonicVisible ? 0.5 : 1
-                                            }
-                                        ]}
-                                    >{strings('walletBackup.step0Screen.showButton')}</Text>
-                                </TouchableOpacity>
-
-                                {!isShowingPhrase && !isXMR && (
-                                    <CheckBox
-                                        checked={approvedBackup}
-                                        onPress={this.handleApproveBackup}
-                                        title={strings('walletBackup.infoScreen.checkbox1')}
-                                    />
                                 )}
-                            </View>
-
-                            {isShowingPhrase && !isXMR && (
-                                <View style={{
-                                    paddingHorizontal: GRID_SIZE,
-                                    paddingVertical: GRID_SIZE * 1.5,
-                                }}>
-                                    <TwoButtons
-                                        mainButton={{
-                                            onPress: () => this.handleQR(true),
-                                            title: strings('walletBackup.step0Screen.showQR'),
-                                            textStyle: {
-                                                textAlign: 'center'
-                                            }
-                                        }}
-                                    />
-                                </View>
-                            )}
-
-                            {isInited && !isShowingPhrase && !isXMR && (
-                                <View style={{
-                                    paddingHorizontal: GRID_SIZE,
-                                    paddingVertical: GRID_SIZE * 1.5,
-                                }}>
-                                    <TwoButtons
-                                        mainButton={{
-                                            disabled: !approvedBackup,
-                                            onPress: this.onNext,
-                                            title: strings('walletBackup.step0Screen.next')
-                                        }}
-                                        secondaryButton={isCreate ? {
-                                            type: 'settings',
-                                            onPress: this.openWalletSettings,
-                                            onLongPress: this.handleCopyModal,
-                                            delayLongPress: 4000,
-                                            disabled: !approvedBackup,
-                                        } : undefined}
-                                    />
-                                </View>
-                            )}
-                        </>
+                            </> :
+                            <View style={styles.loader}>
+                                <LottieView
+                                    style={{
+                                        width: WINDOW_WIDTH * 0.7,
+                                        height: WINDOW_WIDTH * 0.7,
+                                    }}
+                                    autoPlay
+                                    loop
+                                    speed={3}
+                                    source={require('@assets/jsons/animations/loaderBlue.json')}
+                                />
+                            </View>)
+                        )
                     }
+                    {this.state.tabs[1].active && (
+                        <MnemonicQrCode
+                            walletMnemonic={this.state.walletMnemonic}
+                        />
+                    )}
                 </ScrollView>
             </ScreenWrapper>
         )
@@ -480,7 +478,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     mnemonicContainer: {
-        flexDirection: 'row',
+        flexDirection: 'row'
         // flexWrap: 'wrap'
     },
     mnemonicColumn: {
@@ -508,7 +506,7 @@ const styles = StyleSheet.create({
     wordIndex: {
         fontFamily: 'Montserrat-Semibold',
         fontSize: 10,
-        lineHeight: 13,
+        lineHeight: 13
     },
     word: {
         textAlign: 'center',
@@ -523,7 +521,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         lineHeight: 12,
         letterSpacing: 1.5,
-        textTransform: 'uppercase',
+        textTransform: 'uppercase'
     },
     keyCircle: {
         width: 24,
@@ -533,26 +531,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    wrapperQR: {
-        alignItems: 'center',
-    },
-    qr: {
-        position: 'relative',
-        backgroundColor: '#F5F5F5',
-        width: 250,
-        height: 250,
+    loader: {
+        width: '100%',
+        height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 24,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 3
-        },
-        shadowOpacity: 0.27,
-        shadowRadius: 4.65,
-
-        elevation: 6,
-
-    },
+        zIndex: 2,
+        backgroundColor: 'transparent'
+    }
 })
