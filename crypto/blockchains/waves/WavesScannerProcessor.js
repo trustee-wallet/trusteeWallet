@@ -86,7 +86,7 @@ export default class WavesScannerProcessor {
             transactionStatus = 'fail'
         }
         let formattedTime = transaction.timestamp
-        const blockConfirmations = Math.round((new Date().getTime() - transaction.timestamp) / 600000)
+        const blockConfirmations = Math.round((new Date().getTime() - transaction.timestamp) / 6000)
         try {
             formattedTime = new Date(transaction.timestamp).toISOString()
         } catch (e) {
