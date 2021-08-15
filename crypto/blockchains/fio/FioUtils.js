@@ -18,6 +18,18 @@ export const resolveChainCode = (currencyCode, currencySymbol) => {
     return chainCode
 }
 
+export const resolveChainToken = (currencyCode, extend) => {
+    if (extend.currencyCode === 'BNB_SMART') {
+        return 'SMART'
+    }
+    if (typeof extend.tokenBlockchain !== 'undefined') {
+        if (extend.tokenBlockchain === 'BNB') {
+            return 'SMART'
+        }
+    }
+    return extend.currencySymbol
+}
+
 export const resolveCryptoCodes = (currencyCode) => {
     let chainCode = currencyCode
     let currencySymbol = currencyCode
@@ -37,14 +49,15 @@ export const isFioAddressValid = (address) => {
         try {
             FIOSDK.isFioAddressValid(address)
             return true
-        } catch (e) {}
+        } catch (e) {
+        }
     }
     return false
 }
 
 export const isFioAddressRegistered = async (address) => {
     if (!isFioAddressValid(address)) {
-        return false;
+        return false
     }
 
     try {
@@ -69,7 +82,7 @@ export const getPubAddress = async (fioAddress, chainCode, tokenCode) => {
 export const getAccountFioName = async () => {
     try {
         const sdk = getFioSdk()
-        const fioPublicKey = sdk.getFioPublicKey();
+        const fioPublicKey = sdk.getFioPublicKey()
         const response = await getFioSdk().getFioNames(fioPublicKey)
         const addresses = response['fio_addresses'] || []
         return addresses[0]?.fio_address
@@ -110,7 +123,7 @@ export const getSentFioRequests = async (fioPublicKey, limit = 100, offset = 0) 
         BlocksoftCryptoLog.log(`FIO getSentFioRequests started ${fioPublicKey}`)
         const response = await getFioSdk().getSentFioRequests(limit, offset)
         const requests = response['requests'] || []
-        return requests.sort((a, b) => new Date(b.time_stamp) - new Date(a.time_stamp));
+        return requests.sort((a, b) => new Date(b.time_stamp) - new Date(a.time_stamp))
     } catch (e) {
         formatError('FIO getSentFioRequests', e)
         return []
@@ -122,7 +135,7 @@ export const getPendingFioRequests = async (fioPublicKey, limit = 100, offset = 
         BlocksoftCryptoLog.log(`FIO getPendingFioRequests started ${fioPublicKey}`)
         const response = await getFioSdk().getPendingFioRequests(limit, offset)
         const requests = response['requests'] || []
-        return requests.sort((a, b) => new Date(b.time_stamp) - new Date(a.time_stamp));
+        return requests.sort((a, b) => new Date(b.time_stamp) - new Date(a.time_stamp))
     } catch (e) {
         formatError('FIO getPendingFioRequests', e)
         return []
@@ -137,7 +150,7 @@ export const getPendingFioRequests = async (fioPublicKey, limit = 100, offset = 
  * @param tokenCode Token code to be used with that public address.
  * @param publicAddress The public address to be added to the FIO Address for the specified token.
  */
-export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, publicAddress}) => {
+export const addCryptoPublicAddress = async ({ fioName, chainCode, tokenCode, publicAddress }) => {
     try {
         const { fee = 0 } = await getFioSdk().getFeeForAddPublicAddress(fioName)
         const response = await getFioSdk().addPublicAddress(
@@ -158,7 +171,7 @@ export const addCryptoPublicAddress = async ({fioName, chainCode, tokenCode, pub
     }
 }
 
-export const addCryptoPublicAddresses = async ({fioName, publicAddresses}) => {
+export const addCryptoPublicAddresses = async ({ fioName, publicAddresses }) => {
     if (!publicAddresses || Object.keys(publicAddresses).length === 0) return true
 
     let isOK = true
@@ -183,7 +196,7 @@ export const addCryptoPublicAddresses = async ({fioName, publicAddresses}) => {
     return isOK
 }
 
-export const removeCryptoPublicAddresses = async ({fioName, publicAddresses}) => {
+export const removeCryptoPublicAddresses = async ({ fioName, publicAddresses }) => {
     if (!publicAddresses || Object.keys(publicAddresses).length === 0) return true
 
     let isOK = true
@@ -219,7 +232,7 @@ export const removeCryptoPublicAddresses = async ({fioName, publicAddresses}) =>
  * @param tokenCode Code of the token represented in amount requested.
  * @param memo
  */
-export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, memo}) => {
+export const requestFunds = async ({ payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, memo }) => {
     try {
         BlocksoftCryptoLog.log(`FIO requestFunds started ${payerFioAddress} -> ${payeeFioAddress} ${amount} ${tokenCode} (${chainCode})`)
         const { fee = 0 } = await getFioSdk().getFeeForNewFundsRequest(payeeFioAddress)
@@ -235,7 +248,7 @@ export const requestFunds = async ({payerFioAddress, payeeFioAddress, payeeToken
             null,
             null,
             null,
-            null,
+            null
         )
 
         await BlocksoftCryptoLog.log('FIO requestFunds result', response)
@@ -256,7 +269,7 @@ export const getTransactions = async (publicKey) => {
 
     try {
         const link = BlocksoftExternalSettings.getStatic('FIO_HISTORY_URL')
-        const accountHash = Fio.accountHash(publicKey);
+        const accountHash = Fio.accountHash(publicKey)
         const response = await BlocksoftAxios.post(link + 'get_actions', {
             'account_name': accountHash,
             'pos': -1
