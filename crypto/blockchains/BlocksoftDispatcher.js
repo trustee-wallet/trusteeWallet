@@ -59,6 +59,9 @@ import VetScannerProcessor from '@crypto/blockchains/vet/VetScannerProcessor'
 import SolAddressProcessor from '@crypto/blockchains/sol/SolAddressProcessor'
 import SolScannerProcessor from '@crypto/blockchains/sol/SolScannerProcessor'
 
+import WavesAddressProcessor from '@crypto/blockchains/waves/WavesAddressProcessor'
+import WavesScannerProcessor from '@crypto/blockchains/waves/WavesScannerProcessor'
+
 class BlocksoftDispatcher {
 
     /**
@@ -100,6 +103,8 @@ class BlocksoftDispatcher {
                 return new BnbAddressProcessor()
             case 'SOL':
                 return new SolAddressProcessor()
+            case 'WAVES':
+                return new WavesAddressProcessor()
             default:
                 throw new Error('Unknown addressProcessor ' + currencyDictSettings.addressProcessor)
         }
@@ -156,6 +161,8 @@ class BlocksoftDispatcher {
                 return new VetScannerProcessor(currencyDictSettings)
             case 'SOL':
                 return new SolScannerProcessor(currencyDictSettings)
+            case 'WAVES':
+                return new WavesScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }
