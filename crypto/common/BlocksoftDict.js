@@ -1335,7 +1335,7 @@ const Currencies = {
             network: 'mainnet',
             decimals: 9,
             currencyExplorerLink: 'https://explorer.solana.com/address/',
-            currencyExplorerTxLink: 'https://blockchair.com/ethereum/transaction/'
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
         },
     XLM:
         {
@@ -1602,7 +1602,7 @@ const Currencies = {
     WAVES:
         {
             currencyType: 'coin',
-            currencyName: 'WAVES',
+            currencyName: 'Waves',
             currencyCode: 'WAVES',
             currencySymbol: 'WAVES',
             addressProcessor: 'WAVES',
