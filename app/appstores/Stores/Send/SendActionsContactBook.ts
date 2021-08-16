@@ -5,6 +5,7 @@ import {
     isFioAddressValid,
     isFioAddressRegistered,
     resolveChainCode,
+    resolveChainToken,
     getPubAddress
 } from '@crypto/blockchains/fio/FioUtils'
 import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
@@ -88,22 +89,25 @@ export namespace SendActionsContactBook {
             }
 
             Log.log('SendActionsContactBook.getContactAddress isFioAddress checked ' + data.addressName)
+
+            const currencyCode = data.currencyCode
             if (await isFioAddressRegistered(data.addressName)) {
                 Log.log('SendActionsContactBook.getContactAddress isFioAddressRegistered checked ' + data.addressName)
 
                 const extend = BlocksoftDict.getCurrencyAllSettings(data.currencyCode)
-                const chainCode = resolveChainCode(data.currencyCode, extend.currencySymbol)
-                const publicFioAddress = await getPubAddress(data.addressName, chainCode, extend.currencySymbol)
+                const chainCode = resolveChainCode(currencyCode, extend.currencySymbol)
+                const chainToken = resolveChainToken(currencyCode, extend)
+                const publicFioAddress = await getPubAddress(data.addressName, chainCode, chainToken)
                 Log.log('SendActionsContactBook.getContactAddress public for ' + data.addressName + ' ' + chainCode + ' =>' + publicFioAddress)
                 if (!publicFioAddress || publicFioAddress === '0') {
-                    uiError = strings('send.publicFioAddressNotFound', { symbol: data.currencyCode })
+                    uiError = strings('send.publicFioAddressNotFound', { symbol: currencyCode })
                     isUiError = true
                 } else {
                     return publicFioAddress
                 }
             } else {
                 Log.log('SendActionsContactBook.getContactAddress isFioAddressRegistered no result ' + data.addressName)
-                uiError = strings('send.publicFioAddressNotFound', { symbol: data.currencyCode })
+                uiError = strings('send.publicFioAddressNotFound', { symbol: currencyCode })
                 isUiError = true
             }
 

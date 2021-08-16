@@ -1335,7 +1335,7 @@ const Currencies = {
             network: 'mainnet',
             decimals: 9,
             currencyExplorerLink: 'https://explorer.solana.com/address/',
-            currencyExplorerTxLink: 'https://blockchair.com/ethereum/transaction/'
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
         },
     XLM:
         {
@@ -1598,6 +1598,19 @@ const Currencies = {
             decimals: 6,
             currencyExplorerLink: 'https://verge-blockchain.info/address/',
             currencyExplorerTxLink: 'https://verge-blockchain.info/tx/'
+        },
+    WAVES:
+        {
+            currencyType: 'coin',
+            currencyName: 'Waves',
+            currencyCode: 'WAVES',
+            currencySymbol: 'WAVES',
+            addressProcessor: 'WAVES',
+            scannerProcessor: 'WAVES',
+            prettyNumberProcessor: 'UNIFIED',
+            decimals: 8,
+            currencyExplorerLink: 'https://wavesexplorer.com/address/',
+            currencyExplorerTxLink: 'https://wavesexplorer.com/tx/'
         },
     TRX_WINK:
         {

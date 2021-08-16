@@ -135,7 +135,7 @@ class BlocksoftKeys {
                 if (settings.extendsProcessor && this._bipHex[settings.extendsProcessor]) {
                     hexes.push(this._bipHex[settings.extendsProcessor])
                 } else {
-                    throw new Error('UNKNOWN_CURRENCY_CODE ' + currencyCode + ' AND NO SETTED addressCurrencyCode')
+                    throw new Error('UNKNOWN_CURRENCY_CODE ' + currencyCode + ' in bipHex AND NO SETTED addressCurrencyCode')
                 }
             }
 
@@ -254,7 +254,7 @@ class BlocksoftKeys {
                                 const path = suffix.suffix ? `m/${hex}'/${suffix.suffix}/${index}` :  `m/${hex}'/${index}${suffix.after}`
                                 let privateKey = false
                                 let publicKey = false
-                                if (currencyCode === 'SOL' || currencyCode === 'XLM' ) {
+                                if (currencyCode === 'SOL' || currencyCode === 'XLM' || currencyCode === 'WAVES' || currencyCode === 'ASH') {
                                     // @todo move to coin address processor
                                 } else {
                                     const child = root.derivePath(path)
