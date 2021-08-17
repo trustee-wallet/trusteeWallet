@@ -239,6 +239,12 @@
     "description": "Ethereum (ETH) and Tron (TRX) token/asset addresses are supported",
     "add": "Add"
   },
+  "nft": {
+    "all": "All",
+    "collections": "Collections",
+    "receive": "Receive",
+    "title": "NFT"
+  },
   "cashback": {
     "invited": "Invited:",
     "cashback": "Cashback",

@@ -239,6 +239,12 @@
     "description": "Поддерживаются адреса токенов / активов Ethereum (ETH) и Tron (TRX)",
     "add": "Добавить"
   },
+  "nft": {
+    "all": "Все",
+    "collections": "Колекции",
+    "receive": "Получить",
+    "title": "NFT"
+  },
   "cashback": {
     "invited": "Приглашен:",
     "cashback": "Cashback",

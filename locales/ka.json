@@ -232,6 +232,12 @@
     "description": "მხარდაჭერილია Ethereum-ისა (ETH) და Tron-ის (TRX)  ტოკენების / აქტივების მისამართები",
     "add": "დამატება"
   },
+  "nft": {
+    "all": "All",
+    "collections": "Collections",
+    "receive": "Receive",
+    "title": "NFT"
+  },
   "cashback": {
     "invite": "Invite:",
     "cashback": "Cashback",

@@ -8,7 +8,7 @@ import {
     RefreshControl,
     Vibration,
     FlatList,
-    StyleSheet
+    StyleSheet, TouchableOpacity, Text
 } from 'react-native'
 import { connect } from 'react-redux'
 import _orderBy from 'lodash/orderBy'
@@ -334,6 +334,11 @@ class HomeScreen extends React.PureComponent {
                     balanceData={balanceData}
                 />
                 <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]}>
+                    <TouchableOpacity style={{flex: 1, backgroundColor: 'red'}} onPress={() => NavStore.goNext('NftMainScreen')}>
+                        <Text>
+                            NFT
+                        </Text>
+                    </TouchableOpacity>
                     <View style={[styles.content, { backgroundColor: colors.common.background }]}>
                         <View style={styles.stub} />
                         <FlatList
