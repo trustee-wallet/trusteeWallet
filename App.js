@@ -6,7 +6,7 @@ import React from 'react'
 
 import { Provider } from 'react-redux'
 import { AppearanceProvider } from 'react-native-appearance'
-import { Linking } from 'react-native'
+import { Linking, Platform, UIManager } from 'react-native'
 
 import store from '@app/store'
 
@@ -34,6 +34,12 @@ export default class App extends React.Component {
     componentDidMount() {
         Application.init({ source: 'App.mount', onMount : true })
         Linking.addEventListener('url', (data) => SendDeepLinking.handleInitialURL(data.url))
+
+        if (Platform.OS === 'android') {
+            if (UIManager.setLayoutAnimationEnabledExperimental) {
+                UIManager.setLayoutAnimationEnabledExperimental(true)
+            }
+        }
     }
 
     render() {

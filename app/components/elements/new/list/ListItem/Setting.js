@@ -11,11 +11,9 @@ import { Switch } from 'react-native-switch'
 
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
-import CustomIcon from '../../../CustomIcon'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 import { useTheme } from '@app/theme/ThemeProvider'
-
-import { strings } from '../../../../../services/i18n'
 
 
 const getIcon = (iconType, color) => {
@@ -94,6 +92,10 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name={'faq'} size={22} color={color} />
         case 'delete':
             return <CustomIcon name={'delete'} size={22} color={color} />
+        case 'btc':
+            return <CustomIcon name='BTC' size={22} color={color} />
+        case 'eth':
+            return <CustomIcon name='ETH' size={22} color={color} />
         default: return null
     }
 }

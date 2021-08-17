@@ -57,6 +57,7 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 import TextInput from '@app/components/elements/new/TextInput'
+import { getExplorerLink } from '../helpers'
 
 
 let CACHE_RESCAN_TX = false
@@ -467,7 +468,8 @@ class AccountTransactionScreen extends PureComponent {
     prepareTransactionHashToView = (transaction, cryptoCurrency) => {
         if (!transaction.transactionHash) return null
         if (transaction.wayType === 'BUY' && transaction.bseOrderData !== false && transaction.bseOrderData.status.toUpperCase() !== 'DONE_PAYOUT') return null
-        let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? cryptoCurrency.currencyExplorerTxLink + transaction.transactionHash : ''
+
+        let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? getExplorerLink(cryptoCurrency.currencyCode, 'hash', transaction.transactionHash) : ''
 
         if (linkUrl.length !== 0 && linkUrl.indexOf('?') === -1) {
             linkUrl += '?from=trustee'
@@ -486,7 +488,7 @@ class AccountTransactionScreen extends PureComponent {
         const tmp = transaction.transactionsOtherHashes.split(',')
 
         return tmp.map(item => {
-            let linkUrl = cryptoCurrency.currencyExplorerTxLink + item
+            let linkUrl = getExplorerLink(cryptoCurrency.currencyCode, 'hash', item)
             if (linkUrl.indexOf('?') === -1) {
                 linkUrl += '?from=trustee'
             }

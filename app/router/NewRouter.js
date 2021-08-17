@@ -73,6 +73,7 @@ import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
+import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
 
 
 const Stack = createStackNavigator()
@@ -126,6 +127,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='ScannerSettingsScreen' component={ScannerSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='LoggingSettingsScreen' component={LoggingSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsSettingsScreen' component={NotificationsSettingScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='GlobalCoinSettings' component={GlobalCoinSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='FioChooseRecipient' component={FioChooseRecipient} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioChooseAddress' component={FioChooseAddress} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

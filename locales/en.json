@@ -214,7 +214,8 @@
       "text": "If you're seeing this, smth went wrong, please, send us logs via support or try to reload the app"
     },
     "config": "Config changed to: %{config}",
-    "tester": "Tester/user changed to: %{testerMode}"
+    "tester": "Tester/user changed to: %{testerMode}",
+    "blockchainExplorer": "Blockchain explorer"
   },
   "assets": {
     "title": "Add asset",

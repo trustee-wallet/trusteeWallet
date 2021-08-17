@@ -10,8 +10,7 @@ import {
     StyleSheet,
     RefreshControl,
     FlatList,
-    Platform,
-    UIManager, Dimensions
+    Dimensions
 } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -64,15 +63,6 @@ class CashbackScreen extends React.PureComponent {
     }
 
     cashbackCurrency = 'USDT'
-
-    componentDidMount() {
-
-        if (Platform.OS === 'android') {
-            if (UIManager.setLayoutAnimationEnabledExperimental) {
-                UIManager.setLayoutAnimationEnabledExperimental(true)
-            }
-        }
-    }
 
     renderExtraView = () => {
 
