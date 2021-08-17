@@ -205,6 +205,8 @@ class SettingsMainScreen extends PureComponent {
         Linking.openURL(BlocksoftExternalSettings.getStatic('SOCIAL_LINK_FAQ'))
     }
 
+    handleCoinSettings = () => { NavStore.goNext('GlobalCoinSettings') }
+
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
 
@@ -363,6 +365,12 @@ class SettingsMainScreen extends PureComponent {
                                 subtitle={strings('settings.other.scannerSubtitle')}
                                 iconType="scanning"
                                 onPress={this.handleChangeScanner}
+                                rightContent="arrow"
+                            />
+                            <ListItem
+                                title={strings('settings.blockchainExplorer')}
+                                iconType="about"
+                                onPress={this.handleCoinSettings}
                                 rightContent="arrow"
                             />
                             <ListItem
