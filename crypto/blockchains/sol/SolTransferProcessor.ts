@@ -51,7 +51,7 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
         // @ts-ignore
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' VetTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
 
         const fees = await this.getFeeRate(data, privateData, additionalData)
 

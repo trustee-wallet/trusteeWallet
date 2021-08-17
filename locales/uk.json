@@ -224,7 +224,7 @@
     "tabCustom": "Ще",
     "searchPlaceholder": "Пошук",
     "addCustomPlaceholder": "Адреса активу",
-    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
+    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB, Solana або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
     "noAssetsFound": "Активи не знайдено",
     "addAssetButton": "Додати актив",
     "mainTitle": "Додати актив",

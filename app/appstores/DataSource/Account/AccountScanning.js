@@ -48,7 +48,7 @@ class AccountScanning {
             where.push(`(account.currency_code!='BTC' OR account.derivation_path = 'm/49quote/0quote/0/1/0' OR wallet.wallet_hash NOT IN (SELECT wallet_hash FROM wallet_pub))`)
         }
         if (typeof params.currencyFamily !== 'undefined' && params.currencyFamily) {
-            where.push(`account.currency_code LIKE '${params.currencyFamily}%'`)
+            where.push(`(account.currency_code LIKE '${params.currencyFamily}_%' OR account.currency_code='${params.currencyFamily}')`)
             limit = 20
         }
         if (params.walletHash) {
@@ -122,11 +122,14 @@ class AccountScanning {
             for (let i = 0, ic = res.length; i < ic; i++) {
                 const currencyCode = res[i].currencyCode
                 if (limit === 2 && (typeof params.currencyFamily === 'undefined' || !params.currencyFamily)) {
-                    if (currencyCode.indexOf('TRX') !== -1) {
+                    if (currencyCode === 'TRX' || currencyCode.indexOf('TRX_') === 0) {
                         params.currencyFamily = 'TRX'
                         return await this.getAccountsForScan(params)
-                    } else if (currencyCode.indexOf('ETH') !== -1 && currencyCode !== 'ETH_ROPSTEN' && currencyCode !== 'ETH_RINKEBY' && currencyCode !== 'ETH_UAX') {
+                    } else if ((currencyCode === 'ETH' || currencyCode.indexOf('ETH_') === 0) && currencyCode !== 'ETH_ROPSTEN' && currencyCode !== 'ETH_RINKEBY' && currencyCode !== 'ETH_UAX') {
                         params.currencyFamily = 'ETH'
+                        return await this.getAccountsForScan(params)
+                    } else if (currencyCode === 'SOL' || currencyCode.indexOf('SOL_') === 0 ) {
+                        params.currencyFamily = 'SOL'
                         return await this.getAccountsForScan(params)
                     }
                 }
