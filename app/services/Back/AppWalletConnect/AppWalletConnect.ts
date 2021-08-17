@@ -51,13 +51,12 @@ let MAIN_CURRENCY_CODE = 'ETH'
 export namespace AppWalletConnect {
 
     const _getAccounts = async function(chainId = 0, throwErrorIfNoDict = true) {
-        console.log(`call chainId1 ` + JSON.stringify(chainId))
+
         const { walletHash } = store.getState().mainStore.selectedWallet
         const { peerMeta }  = WALLET_CONNECTOR
         if (typeof chainId === 'undefined' || !chainId) {
-            chainId = WALLET_CONNECTOR.chainId * 1 || 0
+            chainId = WALLET_CONNECTOR.chainId * 1 || 1
         }
-        console.log(`call chainId2 ` + JSON.stringify(chainId))
         const accountList = store.getState().accountStore.accountList
         if (!accountList || typeof accountList[walletHash] === 'undefined') {
             return false
@@ -132,7 +131,7 @@ export namespace AppWalletConnect {
                         peerMeta = WALLET_CONNECTOR.peerMeta
                         connected =  WALLET_CONNECTOR.connected
                     }
-                    return { chainId, accounts, peerId, peerMeta, connected }
+                    return { chainId : chainId || 1, accounts, peerId, peerMeta, connected }
                 }
             }
         } catch (e) {
@@ -399,13 +398,15 @@ export namespace AppWalletConnect {
         })
     }
 
-    export const killSession = function() {
+    export const killSession = async function() {
         Log.log('AppWalletConnect.killSession')
         try {
-            WALLET_CONNECTOR.killSession({
-                message: 'You have rejected session in TrusteeWallet'
-            })
             setWalletConnectIsConnected(false)
+            if (WALLET_CONNECTOR && typeof WALLET_CONNECTOR.killSession !== 'undefined') {
+                await WALLET_CONNECTOR.killSession({
+                    message: 'You have rejected session in TrusteeWallet'
+                })
+            }
         } catch (e) {
             Log.log('AppWalletConnect.killSession error ' + e.message)
         }
