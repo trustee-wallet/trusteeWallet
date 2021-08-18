@@ -7,7 +7,6 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import Log from '@app/services/Log/Log'
 
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import BlocksoftPrivateKeysUtils from '@crypto/common/BlocksoftPrivateKeysUtils'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
@@ -25,6 +24,7 @@ import {
 } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
+import { Web3Injected } from '@crypto/services/Web3Injected'
 
 const walletConnectCore = require("@walletconnect/core");
 const walletConnectISO = require("@walletconnect/iso-crypto")
@@ -43,10 +43,7 @@ class WalletConnect extends walletConnectCore.default {
 let WALLET_CONNECTOR: WalletConnect
 let WALLET_CONNECTOR_LINK: string | boolean = false
 
-const Web3 = require('web3')
-
-let WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
-let WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
+let WEB3 = Web3Injected('mainnet')
 let MAIN_CURRENCY_CODE = 'ETH'
 export namespace AppWalletConnect {
 
@@ -62,33 +59,13 @@ export namespace AppWalletConnect {
             return false
         }
 
-        MAIN_CURRENCY_CODE = 'ETH'
-
-        if (chainId === 3) {
-            MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
-            WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
-        } if (chainId === 4) {
-            MAIN_CURRENCY_CODE = 'ETH_RINKEBY'
-            WEB3_LINK = `https://rinkeby.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
-        } else if (chainId === 56) {
-            MAIN_CURRENCY_CODE = 'BNB_SMART'
-            WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
-        } else if (chainId === 10) {
-            MAIN_CURRENCY_CODE = 'OPTIMISM'
-            WEB3_LINK = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
-        } else if (chainId === 137) {
-            MAIN_CURRENCY_CODE = 'MATIC'
-            WEB3_LINK = BlocksoftExternalSettings.getStatic('MATIC_SERVER')
-        } else {
-            WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
-            if (chainId !== 1 && throwErrorIfNoDict) {
-                throw new Error('Network ' + chainId + ' not supported')
-            }
+        WEB3 = Web3Injected(chainId)
+        MAIN_CURRENCY_CODE = WEB3.MAIN_CURRENCY_CODE
+        if (chainId !== 1 && MAIN_CURRENCY_CODE === 'ETH' && throwErrorIfNoDict) {
+            throw new Error('Network ' + chainId + ' not supported')
         }
 
-        WEB3 = new Web3(new Web3.providers.HttpProvider(WEB3_LINK))
-
-        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' ' + WEB3_LINK)
+        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' ' + WEB3.LINK)
         if (typeof accountList[walletHash][MAIN_CURRENCY_CODE] === 'undefined' && typeof accountList[walletHash]['ETH'] === 'undefined') {
             throw new Error('TURN ON ' + MAIN_CURRENCY_CODE)
         }
@@ -243,10 +220,10 @@ export namespace AppWalletConnect {
     // https://eips.ethereum.org/EIPS/eip-3085
     // [{"blockExplorerUrls": ["https://explorer.optimism.io/"], "chainId": "0xa", "chainName": "Optimism", "nativeCurrency": {"decimals": 18, "name": "Optimistic ETH", "symbol": "ETH"}, "rpcUrls": ["https://mainnet.optimism.io"]}]
     export const autoChangeChain = async function (payload: any) {
-        console.log('AppWalletConnect.autoChangeChain ', JSON.stringify(payload))
+        Log.log('AppWalletConnect.autoChangeChain ', payload)
         // @ts-ignore
         const chainId = 1 * BlocksoftUtils.hexToDecimalWalletConnect(payload.params[0].chainId)
-        console.log('autoChangeChain ' + payload.params[0].chainId + ' => ' + chainId)
+        Log.log('autoChangeChain ' + payload.params[0].chainId + ' => ' + chainId)
         const id = payload.id
         try {
             // @ts-ignore

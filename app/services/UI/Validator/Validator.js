@@ -18,6 +18,7 @@ import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 import { isFioAddressValid } from '@crypto/blockchains/fio/FioUtils'
 import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
+import { isEnsAddressValid } from '@crypto/services/EnsUtils'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -31,7 +32,7 @@ async function _fioAddressValidation(obj) {
     if (!value || !type || !type.includes('_ADDRESS')) {
         return false
     }
-    return isFioAddressValid(value) || isUnstoppableAddressValid(value)
+    return isFioAddressValid(value) || isUnstoppableAddressValid(value) || isEnsAddressValid(value)
 }
 
 async function _userDataValidation(obj) {

@@ -17,15 +17,16 @@ import Log from '@app/services/Log/Log'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config'
 import store from '@app/store'
+import { getEnsAddress, isEnsAddressValid } from '@crypto/services/EnsUtils'
 
 
-const translateResolutionError = (domain : string, errorCode : ResolutionErrorCode, ticker : string) => {
-    switch(errorCode) {
+const translateResolutionError = (domain: string, errorCode: ResolutionErrorCode, ticker: string) => {
+    switch (errorCode) {
         case ResolutionErrorCode.UnregisteredDomain:
         case ResolutionErrorCode.RecordNotFound:
         case ResolutionErrorCode.UnspecifiedResolver: {
             const tkey = `validator.unstoppableErrors.${errorCode}`
-            return strings(tkey, {domain, ticker})
+            return strings(tkey, { domain, ticker })
         }
         default: {
             return errorCode
@@ -37,7 +38,7 @@ export namespace SendActionsContactBook {
 
     let DOMAIN_RESOLUTION = false
 
-    export const getContactAddressUnstoppable  = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
+    export const getContactAddressUnstoppable = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
         if (!isUnstoppableAddressValid(data.addressName)) {
             return false
         }
@@ -48,7 +49,7 @@ export namespace SendActionsContactBook {
                 DOMAIN_RESOLUTION = new Resolution()
             } catch (e) {
                 Log.log('SendActionsContactBook.getContactAddressUnstoppable init error' + e.message)
-                return  false
+                return false
             }
         }
         Log.log('SendActionsContactBook.getContactAddressUnstoppable checking ' + data.addressName)
@@ -69,6 +70,24 @@ export namespace SendActionsContactBook {
         return address
     }
 
+    export const getContactAddressEns = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
+        if (!isEnsAddressValid(data.addressName)) {
+            return false
+        }
+
+        console.log('SendActionsContactBook.getContactAddressEns checking ' + data.addressName)
+        let address = false
+        try {
+            // @ts-ignore
+            address = await getEnsAddress(data.addressName)
+            console.log('SendActionsContactBook.getContactAddressEns checked ' + address)
+        } catch (err) {
+            console.log('SendActionsContactBook.getContactAddressEns error ' + err.message)
+            throw err
+        }
+        return address
+    }
+
 
     export const getContactAddress = async function(data: { addressName: string, currencyCode: string }): Promise<string | boolean> {
 
@@ -84,9 +103,17 @@ export namespace SendActionsContactBook {
                     }
                 }
             }
-            if (!isFioAddressValid(data.addressName)) {
-                return getContactAddressUnstoppable(data)
+
+            let res = await getContactAddressUnstoppable(data)
+            if (res) {
+                return res
             }
+            res = await getContactAddressEns(data)
+            if (res) {
+                return res
+            }
+
+            if (!isFioAddressValid(data.addressName)) return false
 
             Log.log('SendActionsContactBook.getContactAddress isFioAddress checked ' + data.addressName)
 
