@@ -69,7 +69,8 @@ class AccountSettingScreen extends React.PureComponent {
                     wallet={selectedWallet} account={account} />
         } else if (account.currencyCode === 'ETH') {
             settingsComponent =
-                <SettingsETH containerStyle={{ overflow: 'hidden' }} />
+                <SettingsETH containerStyle={{ overflow: 'hidden' }}
+                    wallet={selectedWallet} account={account} />
         } else if (account.currencyCode === 'XMR') {
             settingsComponent =
                 <SettingsXMR containerStyle={{ overflow: 'hidden' }}
