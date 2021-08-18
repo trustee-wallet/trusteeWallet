@@ -87,7 +87,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
 
         let gasPrice = {}
-
+        
         let maxNonceLocal = await EthTmpDS.getMaxNonce(this._mainCurrencyCode, data.addressFrom)
         const ethAllowBlockedBalance = await settingsActions.getSetting('ethAllowBlockedBalance')
         const ethAllowLongQuery = await settingsActions.getSetting('ethAllowLongQuery')
@@ -118,6 +118,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' proxyPriceCheck', proxyPriceCheck)
         }
 
+        if (typeof this._web3.LINK === 'undefined') {
+            throw new Error('EthTransferProcessor need this._web3.LINK')
+        }
+
         let gasLimit = 0
         try {
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
@@ -126,9 +130,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     let i = 0
                     do {
                         try {
-
-                            gasLimit = await EthEstimateGas(this._web3Link, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
-
+                            gasLimit = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
                             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
 
                             // @ts-ignore
@@ -739,7 +741,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = this._mainCurrencyCode
-                await EthTmpDS.getCache(data.addressFrom)
+                await EthTmpDS.getCache(this._mainCurrencyCode, data.addressFrom)
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {

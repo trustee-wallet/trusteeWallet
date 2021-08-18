@@ -2,11 +2,9 @@
  * @version 0.5
  * https://etherscan.io/apis#accounts
  */
-import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
-import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
-import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
-
-const Web3 = require('web3')
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import { Web3Injected } from '@crypto/services/Web3Injected'
 
 export default class EthBasic {
     /**
@@ -14,12 +12,6 @@ export default class EthBasic {
      * @public
      */
     _web3
-
-    /**
-     * @type {string}
-     * @public
-     */
-    _web3Link
 
     /**
      * @type {string}
@@ -75,23 +67,12 @@ export default class EthBasic {
         if (typeof settings.network === 'undefined') {
             throw new Error('EthNetworked requires settings.network')
         }
-        switch (settings.network) {
-            case 'mainnet':
-            case 'ropsten':
-            case 'rinkeby':
-            // case 'kovan' : case 'rinkeby' : case 'goerli' :
-                this._web3Link = `https://${settings.network}.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
-                break
-            default:
-                throw new Error('while retrieving Ethereum address - unknown Ethereum network specified. Proper values are "mainnet", "ropsten", "kovan", "rinkeby". Got : ' + settings.network)
-        }
+
 
         this._settings = settings
         this._etherscanApiPathDeposits = false
 
-
         if (settings.currencyCode === 'BNB_SMART' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'BNB')) {
-            this._web3Link = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
 
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.bscscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
@@ -103,9 +84,9 @@ export default class EthBasic {
             this._mainCurrencyCode = 'BNB'
             this._mainTokenType = 'BNB_SMART_20'
             this._mainTokenBlockchain = 'Binance'
-            this._mainChainId = false
+            this._mainChainId = 56
+
         } else if (settings.currencyCode === 'ETC') {
-            this._web3Link = BlocksoftExternalSettings.getStatic('ETC_SERVER')
 
             this._etherscanSuffix = false
             this._etherscanApiPath = false
@@ -119,7 +100,6 @@ export default class EthBasic {
             this._mainTokenBlockchain = 'Ethereum Classic'
             this._mainChainId = 61 // https://ethereumclassic.org/development/porting
         } else if (settings.currencyCode === 'OPTIMISM') {
-            this._web3Link = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
 
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.optimistic.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
@@ -134,7 +114,6 @@ export default class EthBasic {
             this._mainTokenBlockchain = 'Optimistic Ethereum'
             this._mainChainId = 10 // https://community.optimism.io/docs/developers/metamask.html#connecting-with-chainid-link
         } else if (settings.currencyCode === 'AMB') {
-            this._web3Link = BlocksoftExternalSettings.getStatic('AMB_SERVER')
 
             this._etherscanSuffix = false
             this._etherscanApiPath = false
@@ -148,8 +127,6 @@ export default class EthBasic {
             this._mainTokenBlockchain = 'Ambrosus Network'
             this._mainChainId = 16718 // 0x414e
         } else if (settings.currencyCode === 'MATIC') {
-            this._web3Link = BlocksoftExternalSettings.getStatic('MATIC_SERVER')
-
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
@@ -163,8 +140,6 @@ export default class EthBasic {
             this._mainTokenBlockchain = 'Polygon Network'
             this._mainChainId = 137
         } else if (settings.currencyCode === 'RSK') {
-            this._web3Link = BlocksoftExternalSettings.getStatic('RSK_SERVER')
-
             this._etherscanSuffix = false
             this._etherscanApiPath = false
             this._etherscanApiPathInternal = false
@@ -199,9 +174,8 @@ export default class EthBasic {
             this._mainChainId = false
         }
 
-
-        // noinspection JSUnresolvedVariable
-        this._web3 = new Web3(new Web3.providers.HttpProvider(this._web3Link))
+        const type = this._mainChainId ? this._mainChainId : settings.network
+        this._web3 = Web3Injected(type)
         this._tokenAddress = false
     }
 

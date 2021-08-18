@@ -49,7 +49,7 @@ const transactionActions = {
             await transactionDS.saveTransaction(transaction, false,source)
 
             if (transaction.currencyCode.indexOf('ETH') !== -1) {
-                await EthTmpDS.getCache(transaction.addressFromBasic)
+                await EthTmpDS.getCache('ETH', transaction.addressFromBasic)
             }
 
             // account was not opened before or no tx could be done
@@ -112,7 +112,7 @@ const transactionActions = {
             await transactionDS.updateTransaction(transaction)
 
             if (transaction.currencyCode.indexOf('ETH') !== -1) {
-                await EthTmpDS.getCache(transaction.addressFromBasic)
+                await EthTmpDS.getCache('ETH', transaction.addressFromBasic)
             }
             /*
             const account = JSON.parse(JSON.stringify(store.getState().mainStore.selectedAccount))

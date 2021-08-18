@@ -7,22 +7,16 @@ const tableName = 'transactions_scanners_tmp'
 const CACHE_TMP = {}
 
 class EthTmpDS {
-    /**
-     * @type {string}
-     * @private
-     */
-    _currencyCode = 'ETH'
-
     async setSuccess(txHash) {
-        await Database.query(`UPDATE transactions SET transaction_status = 'success' WHERE transaction_hash='${txHash}' AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%') `)
+        await Database.query(`UPDATE transactions SET transaction_status = 'success' WHERE transaction_hash='${txHash}'`)
     }
 
-    async getCache(scanAddress, toRemove = false) {
+    async getCache(mainCurrencyCode, scanAddress, toRemove = false) {
         const address = scanAddress.toLowerCase()
         const res = await Database.query(`
                 SELECT id, tmp_key, tmp_sub_key, tmp_val, created_at
                 FROM ${tableName}
-                WHERE currency_code='${this._currencyCode}'
+                WHERE currency_code='${mainCurrencyCode}'
                 AND address='${address}'
                 AND tmp_key='nonces'
                 `)
@@ -126,12 +120,12 @@ class EthTmpDS {
     }
 
     async getMaxNonce(mainCurrencyCode, scanAddress) {
-        if (mainCurrencyCode === 'BNB') {
+        if (mainCurrencyCode !== 'ETH') {
             return false
         }
         const address = scanAddress.toLowerCase()
         // if (typeof CACHE_TMP[address] === 'undefined' || typeof CACHE_TMP[address]['maxValue'] === 'undefined') {
-            await this.getCache(address)
+            await this.getCache(mainCurrencyCode, address)
         //}
         return {
             maxValue: CACHE_TMP[address]['maxValue'],
@@ -144,24 +138,24 @@ class EthTmpDS {
     }
 
     async removeNonce(mainCurrencyCode, scanAddress, key) {
-        if (mainCurrencyCode === 'BNB') {
+        if (mainCurrencyCode !== 'ETH') {
             return false
         }
         const address = scanAddress.toLowerCase()
-        const where = `WHERE currency_code='${this._currencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
+        const where = `WHERE currency_code='${mainCurrencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
         await Database.query(`DELETE FROM ${tableName} ${where}`)
-        await this.getCache(address)
+        await this.getCache(mainCurrencyCode, address)
     }
 
     async saveNonce(mainCurrencyCode, scanAddress, key, value) {
-        if (mainCurrencyCode === 'BNB') {
+        if (mainCurrencyCode !== 'ETH') {
             return false
         }
         const address = scanAddress.toLowerCase()
         const now = new Date().toISOString()
         value = value * 1
 
-        const where = `WHERE currency_code='${this._currencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
+        const where = `WHERE currency_code='${mainCurrencyCode}' AND address='${address}' AND tmp_key='nonces' AND tmp_sub_key='${key}'`
         const res = await Database.query(`SELECT tmp_val FROM ${tableName} ${where}`)
         if (res && res.array && res.array.length > 0) {
             if (res.array[0].tmp_val * 1 >= value) {
@@ -171,7 +165,7 @@ class EthTmpDS {
         }
 
         const prepared = [{
-            currency_code: this._currencyCode,
+            currency_code: mainCurrencyCode,
             address: address.toLowerCase(),
             tmp_key: 'nonces',
             tmp_sub_key: key,
@@ -179,7 +173,7 @@ class EthTmpDS {
             created_at: now
         }]
         await Database.setTableName(tableName).setInsertData({ insertObjs: prepared }).insert()
-        await this.getCache(address)
+        await this.getCache(mainCurrencyCode, address)
     }
 }
 
