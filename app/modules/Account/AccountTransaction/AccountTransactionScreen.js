@@ -469,9 +469,8 @@ class AccountTransactionScreen extends PureComponent {
         if (!transaction.transactionHash) return null
         if (transaction.wayType === 'BUY' && transaction.bseOrderData !== false && transaction.bseOrderData.status.toUpperCase() !== 'DONE_PAYOUT') return null
 
-        let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? getExplorerLink(cryptoCurrency.currencyCode, 'hash', transaction.transactionHash) : ''
-
-        if (linkUrl.length !== 0 && linkUrl.indexOf('?') === -1) {
+        let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? getExplorerLink(cryptoCurrency.currencyCode, 'hash', transaction.transactionHash) : false
+        if (linkUrl && linkUrl.indexOf('?') === -1) {
             linkUrl += '?from=trustee'
         }
 
