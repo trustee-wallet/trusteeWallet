@@ -9,7 +9,7 @@ import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import NavStore from '@app/components/navigation/NavStore'
 
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setLoaderFromBse, setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
@@ -57,6 +57,7 @@ class ReceiptScreen extends PureComponent {
 
     componentDidMount = () => {
         setLoaderStatus(false)
+        setLoaderFromBse(false)
     }
 
     openAdvancedSettings = async () => {

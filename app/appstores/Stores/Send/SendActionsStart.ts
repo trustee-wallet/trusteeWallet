@@ -9,6 +9,7 @@ import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendAct
 
 import store from '@app/store'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import { setLoaderFromBse, setLoaderStatus } from '../Main/MainStoreActions'
 
 const { dispatch } = store
 
@@ -129,6 +130,7 @@ export namespace SendActionsStart {
             ui,
             dict
         })
+        setLoaderFromBse(true)
         await SendActionsBlockchainWrapper.getFeeRate(ui)
         NavStore.goNext('MarketReceiptScreen')
     }
@@ -199,6 +201,7 @@ export namespace SendActionsStart {
             ui,
             dict
         })
+        setLoaderFromBse(true)
         await SendActionsBlockchainWrapper.getFeeRate(ui)
         NavStore.goNext('MarketReceiptScreen')
     }

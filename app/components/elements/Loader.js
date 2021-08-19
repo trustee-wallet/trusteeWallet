@@ -1,14 +1,21 @@
 /**
- * @version 0.43
+ * @version 0.50
  */
 import React from 'react'
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { 
+    Platform, 
+    StyleSheet, 
+    TouchableOpacity, 
+    View, 
+    ActivityIndicator 
+} from 'react-native'
 import { connect } from 'react-redux'
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import { getIsLoaderVisible } from '@app/appstores/Stores/Main/selectors'
+import { getIsLoaderVisible, getLoaderStatusFromBse } from '@app/appstores/Stores/Main/selectors'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 const MAX_TIME = 60000
 
@@ -52,7 +59,10 @@ class Loader extends React.PureComponent {
 
     render() {
         const { isCloseEnable } = this.state
-        const { loaderVisibility } = this.props
+        const { loaderVisibility, loaderBse } = this.props
+
+        const { colors } = this.context
+
         return loaderVisibility ? (
             <View style={styles.wrapper}>
                 {
@@ -63,17 +73,26 @@ class Loader extends React.PureComponent {
                 }
                 {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color='#fff' /> : <MaterialIndicator size={30} color='#fff' />}
             </View>
+        ) : loaderBse ? (
+            <ActivityIndicator
+                size='large'
+                style={[styles.container, { backgroundColor: colors.common.header.bg }]}
+                color={this.context.colors.common.text2}
+            />
         ) : null
     }
 }
 
+Loader.contextType = ThemeContext
+
 const mapStateToProps = (state) => {
     return {
-        loaderVisibility: getIsLoaderVisible(state)
+        loaderVisibility: getIsLoaderVisible(state),
+        loaderBse: getLoaderStatusFromBse(state)
     }
 }
 
-export default connect(mapStateToProps, {})(Loader)
+export default connect(mapStateToProps)(Loader)
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -87,5 +106,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
         opacity: .5,
         overflow: 'hidden'
+    },
+    container: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })
