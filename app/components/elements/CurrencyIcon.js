@@ -17,6 +17,18 @@ import colorDict from '@app/services/UIDict/UIDictData'
 
 export default class ButtonLine extends PureComponent {
 
+    getBlockchain = (currencyCode) => {
+        if (currencyCode.indexOf('BNB_SMART_') !== -1) {
+            return 'BNB_SMART'
+        } else if (currencyCode.indexOf('ETH_') !== -1) {
+            return 'ETH'
+        } else if (currencyCode.indexOf('TRX_') !== -1) {
+            return 'TRX'
+        } else if (currencyCode.indexOf('SOL_') !== -1) {
+            return 'SOL'
+        }
+    }
+
     renderIcon = () => {
 
         const { currencyCode, containerStyle, markStyle, iconStyle } = this.props
@@ -35,6 +47,8 @@ export default class ButtonLine extends PureComponent {
         }
 
         const { colors, isLight } = this.context
+
+        const block = this.getBlockchain(currencyCode) || 'BTC'
 
         switch (currencyCode) {
 
@@ -117,8 +131,7 @@ export default class ButtonLine extends PureComponent {
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: 22, height: 22 }} resize={'stretch'} source={require('@assets/images/currency/ethSOUL.png')} />
-                            <View
-                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
@@ -130,8 +143,7 @@ export default class ButtonLine extends PureComponent {
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@assets/images/currency/ETH_HUOBI.png')} />
-                            <View
-                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
@@ -143,8 +155,7 @@ export default class ButtonLine extends PureComponent {
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@assets/images/currency/ETH_BTC.png')} />
-                            <View
-                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
@@ -156,8 +167,7 @@ export default class ButtonLine extends PureComponent {
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@assets/images/currency/ETH_1INCH.png')} />
-                            <View
-                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
@@ -169,8 +179,7 @@ export default class ButtonLine extends PureComponent {
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@assets/images/currency/ETH_SUSHI.png')} />
-                            <View
-                                style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
@@ -208,8 +217,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@assets/images/currency/BAT.png')} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -221,8 +229,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@assets/images/currency/BNB_SMART_CAKE.png')} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -244,8 +251,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@assets/images/currency/ETH_NEXO.png')} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -256,8 +262,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={require('@assets/images/currency/ETH_SHIB.png')} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -297,8 +302,7 @@ export default class ButtonLine extends PureComponent {
                             {currencyCode !== 'TRX' &&
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
-                                        <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                                     </View>
                                 </View>}
                         </View>
@@ -316,8 +320,7 @@ export default class ButtonLine extends PureComponent {
                             {currencyCode !== 'TRX' &&
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
-                                        <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : currencyCode.indexOf('ETH') !== -1 ? 'ETH' : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : currencyCode.indexOf('ETH') !== -1 ? 'ETH' : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                                     </View>
                                 </View>}
                         </View>
@@ -334,8 +337,7 @@ export default class ButtonLine extends PureComponent {
                             {currencyCode !== 'TRX' &&
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
-                                        <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : currencyCode.indexOf('ETH') !== -1 ? 'ETH' : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : currencyCode.indexOf('ETH') !== -1 ? 'ETH' : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                                     </View>
                                 </View>}
                         </View>
@@ -382,8 +384,7 @@ export default class ButtonLine extends PureComponent {
                             {currencyCode !== 'DOGE' &&
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
-                                        <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                                     </View>
                                 </View>}
                         </View>
@@ -399,8 +400,7 @@ export default class ButtonLine extends PureComponent {
                             {currencyCode !== 'LTC' &&
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
-                                        <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                                     </View>
                                 </View>}
                         </View>
@@ -417,8 +417,7 @@ export default class ButtonLine extends PureComponent {
                             {currencyCode !== 'ETH' &&
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
-                                        <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                                     </View>
                                 </View>}
                         </View>
@@ -436,8 +435,7 @@ export default class ButtonLine extends PureComponent {
                             {currencyCode !== 'BTC' && currencyCode !== 'BTC_TEST' &&
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
-                                        <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                                     </View>
                                 </View>}
                         </View>
@@ -461,16 +459,14 @@ export default class ButtonLine extends PureComponent {
             case 'TRX_USDT':
             case 'ETH_USDT':
             case 'BNB_SMART_USDT':
+                // case 'SOL_USDT':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <CustomIcon name="USDT" style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ? 'TRX' : currencyCode === 'BNB_SMART_USDT' ? 'BNB_SMART' : 'BTC'}
-                                    style={{
-                                        color: colorDict[currencyCode === 'ETH_USDT' ? "ETH" : currencyCode === 'TRX_USDT' ?
-                                            'TRX' : currencyCode === 'BNB_SMART_USDT' ? 'BNB_SMART' : 'BTC'].colors[isLight ? 'mainColor' : 'darkColor']
-                                    }} size={14} />
+                                <CustomIcon name={block}
+                                    style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -483,7 +479,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <CustomIcon name={'ETH_TRUE_USD'} style={{ color: colorDict['ETH_TRUE_USD'].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode === 'ETH_TRUE_USD' ? "ETH" : 'TRX'} style={{ color: colorDict[currencyCode === 'ETH_TRUE_USD' ? "ETH" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -496,7 +492,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <CustomIcon name={'ETH_USDC'} style={{ color: colorDict['ETH_USDC'].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode === 'ETH_USDC' ? "ETH" : 'TRX'} style={{ color: colorDict[currencyCode === 'ETH_USDC' ? "ETH" : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     </View>
@@ -555,8 +551,7 @@ export default class ButtonLine extends PureComponent {
                             {currencyCode !== 'MATIC' &&
                                 <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                     <View style={{ marginTop: 1 }}>
-                                        <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : currencyCode.indexOf('ETH') !== -1 ? 'ETH' : 'TRX'}
-                                            style={{ color: colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : currencyCode.indexOf('ETH') !== -1 ? 'ETH' : 'TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                                     </View>
                                 </View>}
                         </View>
@@ -570,8 +565,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <CustomIcon name={'UNI'} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -584,8 +578,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <CustomIcon name={'ChainLink'} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -598,8 +591,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <CustomIcon name={'SXP'} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -612,8 +604,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <CustomIcon name={'ALPHA'} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -638,8 +629,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <CustomIcon name={'BNB_SMART_USDT'} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -652,8 +642,7 @@ export default class ButtonLine extends PureComponent {
                         <View style={styles.icon__item}>
                             <CustomIcon name={'ETH_FTT'} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'} size={14}
-                                    color={colorDict[currencyCode.indexOf('BNB_SMART') !== -1 ? "BNB_SMART" : 'ETH'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -757,6 +746,18 @@ export default class ButtonLine extends PureComponent {
                             </View>
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name="TRX" style={{ color: colorDict['TRX'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                            </View>
+                        </View>
+                    )
+                case 'SOL':
+                    return (
+                        <View style={{ ...styles.icon, borderColor: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                            <View style={styles.icon__item}>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>No</Text>
+                                <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>Icon</Text>
+                            </View>
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name='SOL' style={{ color: colorDict['SOL'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     )
