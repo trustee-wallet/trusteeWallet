@@ -13,8 +13,6 @@ import {
 
 import Entypo from 'react-native-vector-icons/Entypo'
 import CustomIcon from '@app/components/elements/CustomIcon'
-import NavStore from '@app/components/navigation/NavStore'
-import { strings } from '@app/services/i18n'
 import { useTheme } from '@app/theme/ThemeProvider'
 
 const getIcon = (type, style) => {
@@ -31,10 +29,12 @@ const getIcon = (type, style) => {
 const BorderedButton = (props) => {
 
     const {
-        routeName,
         text,
         icon,
-        isViolet
+        isViolet,
+        containerStyles,
+        isBlack,
+        onPress
     } = props
 
     const {
@@ -42,11 +42,11 @@ const BorderedButton = (props) => {
     } = useTheme()
 
     return(
-        <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext(routeName)}>
-            <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
-                {getIcon(icon, [styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }])}
-                <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
-                    {strings(text).toUpperCase()}
+        <TouchableOpacity style={[styles.addAsset, containerStyles]} onPress={onPress}>
+            <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#404040' : colors.common.text1}]}>
+                {getIcon(icon, [styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#5C5C5C' : colors.common.text3 }])}
+                <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#5C5C5C' : colors.common.text3 }]}>
+                    {text}
                 </Text>
             </View>
         </TouchableOpacity>
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
 
         paddingHorizontal: 8,
         paddingVertical: 5,
-        paddingLeft: 4,
+
 
         borderRadius: 6,
         borderWidth: 1.5
@@ -77,7 +77,8 @@ const styles = StyleSheet.create({
     },
     addAsset__text: {
         fontSize: 10,
-        fontFamily: 'Montserrat-Bold'
+        fontFamily: 'Montserrat-Bold',
+        textTransform: 'uppercase',
     },
     addAsset__icon: {
         marginRight: 2,

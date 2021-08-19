@@ -75,6 +75,8 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen'
 
 import NftMainScreen from '@app/modules/NFT/NftMainScreen'
+import NftDetailedInfo from '@app/modules/NFT/NftDetailedInfo'
+import NftReceive from '@app/modules/NFT/NftReceive'
 
 
 const Stack = createStackNavigator()
@@ -139,7 +141,8 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='FioSettings' component={FioSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='NftMainScreen' component={NftMainScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='NftReceive' component={NftMainScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='NftReceive' component={NftReceive} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='NftDetailedInfo' component={NftDetailedInfo} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
         </HomeStack.Navigator>
     )

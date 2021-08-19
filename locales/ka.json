@@ -232,7 +232,11 @@
     "description": "მხარდაჭერილია Ethereum-ისა (ETH) და Tron-ის (TRX)  ტოკენების / აქტივების მისამართები",
     "add": "დამატება"
   },
-  "nft": {
+  "nftMainScreen": {
+    "receiveText": "Send only %{coin} to this address. Sending another coin may result in permanent lost",
+    "emptyNftText": "You don’t have any NFT yet. But you can get it now.",
+    "proof": "Proof ownership",
+    "info": "Info",
     "all": "All",
     "collections": "Collections",
     "receive": "Receive",

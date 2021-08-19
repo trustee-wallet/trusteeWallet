@@ -14,6 +14,7 @@ import {
 import GradientView from '@app/components/elements/GradientView'
 import { useTheme } from '@app/theme/ThemeProvider'
 import NftTokenInfo from '@app/modules/NFT/elements/NftTokenInfo'
+import NavStore from '@app/components/navigation/NavStore'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -25,6 +26,9 @@ const FlatListItem = (props) => {
         setLoading(false)
     }
 
+    const goNext = () => {
+        NavStore.goNext('NftDetailedInfo')
+    }
 
     const {
         GRID_SIZE,
@@ -33,54 +37,68 @@ const FlatListItem = (props) => {
 
     const {
         margin,
-        data
+        data,
+        numColumns
     } = props
 
     const { img, title, subTitle, ExtraViewData } = data
 
+    const widthItem = (WINDOW_WIDTH - GRID_SIZE * (numColumns + 1)) / numColumns
+
     return (
-        <TouchableOpacity style={[styles.topContent, {
-            marginLeft: margin ? 16 : 0,
-            marginRight: GRID_SIZE * 2,
-            marginBottom: GRID_SIZE
-        }]}>
-            <View style={[styles.topContent__content, { marginLeft: GRID_SIZE / 2 }]}>
-                    {loading ?
+        <>
+            <TouchableOpacity
+                onPress={goNext}
+                style={[styles.topContent, {
+                    height: widthItem * 1.4,
+                    marginLeft: margin ? GRID_SIZE : 0,
+                    marginRight: GRID_SIZE,
+                    marginBottom: GRID_SIZE
+                }]}>
+                <>
+                    <View style={[styles.topContent__content, { marginBottom: GRID_SIZE, width: widthItem - GRID_SIZE * 1.5 }]}>
+                        {loading ?
+                            <Image
+                                style={styles.img}
+                                onLoad={() => setLoad}
+                                source={{
+                                    ...img,
+                                    cache: 'only-if-cached'
+                                }}
+                                // resizeMode='center'
+                            /> :
+                            <ActivityIndicator
+                                style={styles.img}
+                                color={'#999999'}
+                            />
 
-                        <Image
-                            style={styles.img}
-                            onLoad={() => setLoad}
-                            source={require('@assets/images/logoWhite.png')}
-                            resizeMode='center'
-                        /> :
-                        <ActivityIndicator
-                            style={styles.img}
-                            color={'#999999'}
+                        }
+                        <NftTokenInfo
+                            title={title}
+                            subTitle={subTitle}
                         />
-
-                    }
-                <NftTokenInfo
-                    title={title}
-                    subTitle={subTitle}
-                />
-                {ExtraViewData && (
-                    <ExtraViewData />
-                )}
-            </View>
-            <GradientView
-                style={[styles.collectionItem, {
-                    width: (WINDOW_WIDTH - GRID_SIZE * 3) / 2
-                }]}
-                array={colors.accountScreen.containerBG}
-                start={styles.containerBG.start}
-                end={styles.containerBG.end}
-            />
-            <View style={[styles.topContent__bg, {
-                width: (WINDOW_WIDTH - GRID_SIZE * 3) / 2
-            }]}>
-                <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
-            </View>
-        </TouchableOpacity>
+                        {ExtraViewData && (
+                            <ExtraViewData />
+                        )}
+                    </View>
+                    <GradientView
+                        style={[styles.collectionItem, {
+                            height: widthItem * 1.4,
+                            width: widthItem
+                        }]}
+                        array={colors.accountScreen.containerBG}
+                        start={styles.containerBG.start}
+                        end={styles.containerBG.end}
+                    />
+                    <View style={[styles.topContent__bg, {
+                        height: widthItem * 1.4,
+                        width: widthItem
+                    }]}>
+                        <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
+                    </View>
+                </>
+            </TouchableOpacity>
+        </>
     )
 }
 
@@ -88,7 +106,6 @@ export default FlatListItem
 
 const styles = {
     collectionItem: {
-        height: 245,
         borderRadius: 20,
         position: 'absolute'
     },
@@ -100,17 +117,22 @@ const styles = {
         position: 'absolute',
         top: 0,
         left: 0,
-        height: 245,
+        // height: WINDOW_WIDTH * 0.6125,
         borderRadius: 16,
         zIndex: 0
     },
     topContent__content: {
+        marginHorizontal: 12,
+        flexGrow: 1,
+        flexDirection: 'column',
+        justifyContent: 'space-around',
         position: 'relative',
         zIndex: 2
     },
     topContent: {
         position: 'relative',
-        height: 245,
+        justifyContent: 'space-between',
+        // height: WINDOW_WIDTH * 0.6125,
         flex: 1
     },
     topContent__top: {
@@ -136,9 +158,6 @@ const styles = {
         borderTopRightRadius: 16,
         width: '100%',
         height: '40%',
-        alignItems: 'center',
-        justifyContent: 'center',
         resizeMode: 'center'
     }
-
 }

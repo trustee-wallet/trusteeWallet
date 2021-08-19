@@ -171,10 +171,10 @@ class WalletInfo extends React.Component {
 
                                 </View>
                                 <BorderedButton
-                                    text='settings.assets.addAsset'
+                                    text={strings('settings.assets.addAsset')}
                                     icon='plus'
                                     isViolet={isViolet}
-                                    routeName='AddAssetScreen'
+                                    onPress={() => NavStore.goNext('AddAssetScreen')}
                                 />
                             </View>
 

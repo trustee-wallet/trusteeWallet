@@ -37,7 +37,7 @@ const NftTokenValue = (props) => {
                 textStyle={{ backgroundColor: 'transparent' }}
             />
             <View style={styles.balanceContainer}>
-                <Text style={[styles.balance, {color: colors.common.text3}]}>{balance + ' ' + walletCurrency}</Text>
+                <Text numberOfLines={2} style={[styles.balance, {color: colors.common.text3}]}>{balance + ' ' + walletCurrency}</Text>
                 <Text style={styles.balanceData}>{currencySymbol + ' ' + balanceData}</Text>
             </View>
         </View>
@@ -48,6 +48,7 @@ export default NftTokenValue
 
 const styles = StyleSheet.create({
     currencyContainer: {
+        marginRight: 12,
         flexDirection: 'row',
         justifyContent: 'flex-start'
     },
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
         color: '#999999'
     },
     balanceContainer: {
-        marginLeft: 10
+        marginLeft: 10,
+        flex: 1
     }
 })
