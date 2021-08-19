@@ -334,7 +334,7 @@ class BackupStep0Screen extends PureComponent {
         return (
             <ScreenWrapper
                 {...this.headerProps}
-                ExtraView={isShowingPhrase || isXMR ? this.renderTabs : null}
+                ExtraView={isShowingPhrase || isXMR ? !isLoading ? this.renderTabs : null : null}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
