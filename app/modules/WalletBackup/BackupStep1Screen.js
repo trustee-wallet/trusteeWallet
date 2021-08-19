@@ -92,7 +92,6 @@ class BackupStep1Screen extends React.PureComponent {
     }
 
     handleSelectWord = (item, index) => {
-        Log.log('WalletBackup.BackupStep1Screen handleSelectWord')
         const walletMnemonicSorted = JSON.parse(JSON.stringify(this.state.walletMnemonicSorted))
         const walletMnemonicSelected = JSON.parse(JSON.stringify(this.state.walletMnemonicSelected))
         walletMnemonicSelected.push(item)
@@ -150,8 +149,6 @@ class BackupStep1Screen extends React.PureComponent {
     }
 
     validateMnemonic = async () => {
-        Log.log('WalletBackup.BackupStep1Screen validateMnemonic')
-
         const { flowType, walletHash, walletNumber, source } = this.props.createWalletStore
 
         if (this.state.walletMnemonicSorted.length) return true
@@ -255,7 +252,6 @@ class BackupStep1Screen extends React.PureComponent {
     }
 
     render() {
-        Log.log('WalletBackup.BackupStep1Screen render')
         MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep1Screen')
 
         const {
