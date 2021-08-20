@@ -39,6 +39,7 @@ export default class SolTokenProcessor {
                 tokenDecimals: tmp.decimals,
                 icon: tmp.logoURI,
                 description: tmp.website,
+                coingeckoId: tmp.coingeckoId,
                 provider: 'sol'
             }
         }

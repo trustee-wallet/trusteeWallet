@@ -170,6 +170,8 @@
       "rewardBalanceTRX": "ხელმისაწვდომია %{prettyReward} TRX",
       "claimTRX": "ჯილდოს მიღება",
       "refreshTRX": "გადატვირთვა",
+      "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
+      "waitToUnfreezeTRX" : "Please wait 72 hours from last freeze time",
       "allowLongQueryETH": "Allow pending transactions queue",
       "allowBlockedBalanceETH": "Allow reuse of pending transactions balance"
     },

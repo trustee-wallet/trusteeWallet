@@ -128,21 +128,31 @@ class SettingsTRX extends Component {
                 frozen_duration: 3,
                 resource: type
             }, 'freeze ' + freeze + ' for ' + type + ' of ' + address )
+
+            this.freezeAmountInput.handleInput('', false)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsTRX.handleFreeze error ', e)
             }
-            const msg = e.toString()
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: msg
-            })
-
-            this.handleScan()
+            this._wrapError(e)
         }
         setLoaderStatus(false)
+    }
+
+    _wrapError = (e) => {
+        let msg = e.toString()
+        if (msg.indexOf('less than 24 hours') !== -1) {
+            msg = strings('settings.walletList.waitToClaimTRX')
+        } else if (msg.indexOf('not time to unfreeze') !== -1) {
+            msg = strings('settings.walletList.waitToUnfreezeTRX')
+        }
+        showModal({
+            type: 'INFO_MODAL',
+            icon: null,
+            title: strings('modal.exchange.sorry'),
+            description: msg
+        })
+        this.handleScan()
     }
 
     handleUnFreeze = async (isAll, type) => {
@@ -162,14 +172,7 @@ class SettingsTRX extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsTRX.handleUnFreeze error ', e)
             }
-            const msg = e.toString()
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: msg
-            })
-            this.handleScan()
+            this._wrapError(e)
         }
         setLoaderStatus(false)
     }
@@ -202,14 +205,7 @@ class SettingsTRX extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsTRX.handleVote error ', e)
             }
-            const msg = e.toString()
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: msg
-            })
-            this.handleScan()
+            this._wrapError(e)
         }
         setLoaderStatus(false)
     }
@@ -230,17 +226,7 @@ class SettingsTRX extends Component {
             if (config.debug.cryptoErrors) {
                 console.log('SettingsTRX.handleGetReward error ', e)
             }
-            let msg = e.toString()
-            if (msg.indexOf('less than 24 hours') !== -1) {
-                msg = 'Last claim was less than 24 hours ago'
-            }
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: msg
-            })
-            this.handleScan()
+            this._wrapError(e)
         }
         setLoaderStatus(false)
     }
