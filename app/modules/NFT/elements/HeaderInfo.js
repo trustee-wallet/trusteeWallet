@@ -11,8 +11,8 @@ import {
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 import NavStore from '@app/components/navigation/NavStore'
 import { strings } from '@app/services/i18n'
-// import ButtonLine from '@app/components/elements/CurrencyIcon'
-
+import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
+import { useTheme } from '@app/theme/ThemeProvider'
 
 const HeaderInfo = () => {
 
@@ -20,16 +20,27 @@ const HeaderInfo = () => {
         NavStore.goNext('NftReceive')
     }
 
-    return(
-        <View style={styles.HeaderWrapper}>
-            {/* <ButtonLine currencyCode={'ETH'} /> */}
-            <BorderedButton
-                icon='plus'
-                text={strings('nftMainScreen.receive')}
-                onPress={handleReceive}
-                containerStyles={styles.button}
-            />
+    const {
+        GRID_SIZE
+    } = useTheme()
 
+    return (
+        <View style={[styles.HeaderWrapper, { marginTop: GRID_SIZE }]}>
+            <View style={{ flex: 1 }}>
+                <NftTokenValue
+                    walletCurrency='NFT'
+                    balance
+                    balanceData='3243544'
+                    currencySymbol='$'
+                />
+            </View>
+            <View style={{ marginTop: GRID_SIZE / 2 }}>
+                <BorderedButton
+                    icon='plus'
+                    text={strings('nftMainScreen.receive')}
+                    onPress={handleReceive}
+                />
+            </View>
         </View>
     )
 }
@@ -38,10 +49,8 @@ export default HeaderInfo
 
 const styles = StyleSheet.create({
     HeaderWrapper: {
-
-    },
-    button: {
-        width: '100%',
-        justifyContent: 'flex-end'
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     }
 })

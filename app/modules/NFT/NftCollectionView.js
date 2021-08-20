@@ -5,46 +5,22 @@
 
 import React from 'react'
 import {
-    View,
+    Dimensions,
     FlatList,
-    Dimensions
+    View
 } from 'react-native'
 
-import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import { strings } from '@app/services/i18n'
-import NavStore from '@app/components/navigation/NavStore'
-import HeaderInfo from '@app/modules/NFT/elements/HeaderInfo'
-import Tabs from '@app/components/elements/new/Tabs'
-import { ThemeContext } from '@app/theme/ThemeProvider'
 import FlatListItem from '@app/modules/NFT/elements/FlatListItem'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import NavStore from '@app/components/navigation/NavStore'
 import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
-import FlatListCollections from '@app/modules/NFT/elements/FlatListCollections'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
-class NftMainScreen extends React.PureComponent {
+class NftCollectionView extends React.PureComponent {
 
     state = {
-
         numColumns: WINDOW_WIDTH >= (182 * 3) + this.context.GRID_SIZE * 4 ? 3 : 2,
-
-        tabs: [
-            {
-                title: strings('nftMainScreen.all'),
-                index: 0,
-                active: true
-            },
-            {
-                title: strings('nftMainScreen.collections'),
-                index: 1,
-                active: false
-            }
-        ]
-    }
-
-
-    handleRefresh = () => {
-        // TODO refresh
     }
 
     handleBack = () => {
@@ -54,14 +30,6 @@ class NftMainScreen extends React.PureComponent {
     handleClose = () => {
         NavStore.reset('TabBar')
     }
-
-    renderHeaderInfo = () => <HeaderInfo />
-
-    renderTabs = () => <Tabs
-        tabs={this.state.tabs}
-        changeTab={this.handleChangeTab}
-        containerStyle={{ marginVertical: this.context.GRID_SIZE, justifyContent: 'space-evenly' }}
-    />
 
     renderFlatListItem = ({ item, index }) => {
 
@@ -78,47 +46,12 @@ class NftMainScreen extends React.PureComponent {
         )
     }
 
-    renderFlatListCollections = ({ item }) => {
-       return(
-           <FlatListCollections
-               data={item}
-           />
-       )
-    }
 
     renderFlatList = () => {
 
         const {
             numColumns,
-            tabs
         } = this.state
-
-        const flatListCollectionsData = [
-            {
-                img: 'https://reactjs.org/logo-og.png',
-                title: 'Cryptokitties',
-                quntity: 5,
-                walletCurrency: 'BTC'
-            },
-            {
-                img: 'https://personal.psu.edu/xqz5228/jpg.jpg',
-                title: 'Cryptokitties',
-                quntity: 5,
-                walletCurrency: 'ETH'
-            },
-            {
-                img: 'https://i.gifer.com/XOsX.gif',
-                title: 'Cryptokitties',
-                quntity: 5,
-                walletCurrency: 'MATIC'
-            },
-            {
-                img: 'https://i.gifer.com/XOsX.gif',
-                title: 'Cryptokitties',
-                quntity: 5,
-                walletCurrency: 'TRX'
-            }
-        ]
 
         const flatListData = [
             {
@@ -182,52 +115,28 @@ class NftMainScreen extends React.PureComponent {
                 }
             }
         ]
-        return (
+        return(
             <View>
-                {this.renderTabs()}
-                {tabs[0].active && (
-                    <FlatList
-                        data={flatListData}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingTop: this.context.GRID_SIZE }}
-                        renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
-                        horizontal={false}
-                        numColumns={numColumns}
-                    />
-                )}
-                {tabs[1].active && (
-                    <FlatList
-                        data={flatListCollectionsData}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingTop: this.context.GRID_SIZE }}
-                        renderItem={({ item }) => this.renderFlatListCollections({ item })}
-                        horizontal={false}
-                        numColumns={1}
-                    />
-                )}
-
+                <FlatList
+                    data={flatListData}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingTop: this.context.GRID_SIZE }}
+                    renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
+                    horizontal={false}
+                    numColumns={numColumns}
+                />
             </View>
         )
     }
 
-    handleChangeTab = (newTab) => {
-        const newTabs = this.state.tabs.map(tab => ({
-            ...tab,
-            active: tab.index === newTab.index
-        }))
-        this.setState(() => ({ tabs: newTabs }))
-    }
-
     render() {
-
-        return (
+        return(
             <ScreenWrapper
-                title={strings('nftMainScreen.title')}
+                title={'cryptokitties'}
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
-                ExtraView={this.renderHeaderInfo}
             >
                 {this.renderFlatList()}
             </ScreenWrapper>
@@ -235,6 +144,5 @@ class NftMainScreen extends React.PureComponent {
     }
 }
 
-NftMainScreen.contextType = ThemeContext
+export default NftCollectionView
 
-export default NftMainScreen

@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     buttonContainer: {
+        marginTop: 12,
         flex: 1
     },
 

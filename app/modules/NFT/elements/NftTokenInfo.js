@@ -21,15 +21,14 @@ const NftTokenInfo = (props) => {
 
     const {
         title,
-        subTitle
+        subTitle,
+        containerStyles
     } = props
 
-    return(
-        <View style={{ flexDirection: 'row', marginBottom: GRID_SIZE }}>
-            <View >
-                <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                <Text style={styles.subTitle}>{subTitle}</Text>
-            </View>
+    return (
+        <View style={{ marginBottom: GRID_SIZE, ...containerStyles }}>
+            <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+            <Text style={styles.subTitle}>{subTitle}</Text>
         </View>
     )
 }

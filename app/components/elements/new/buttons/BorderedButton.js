@@ -72,8 +72,7 @@ const styles = StyleSheet.create({
         borderWidth: 1.5
     },
     addAsset: {
-        paddingVertical: 19,
-        paddingLeft: 15
+
     },
     addAsset__text: {
         fontSize: 10,

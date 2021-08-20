@@ -63,7 +63,7 @@ class NftDetailedInfo extends React.PureComponent {
                     contentContainerStyle={styles.scrollViewContent}
                 >
                     <>
-                        <View style={[styles.imageContainer, styles.shadow, {
+                        <View style={[styles.imageContainer, {
                             width: WINDOW_WIDTH - GRID_SIZE * 2,
                             marginVertical: GRID_SIZE,
                             marginLeft: GRID_SIZE
@@ -73,38 +73,42 @@ class NftDetailedInfo extends React.PureComponent {
                                 source={require('@assets/images/logo.png')}
                                 resizeMode='center'
                             />
-                            <View style={[styles.buttonContainer, { right: GRID_SIZE }]}>
-                                <BorderedButton
-                                    isBlack={true}
-                                    containerStyles={styles.button}
-                                    icon='send'
-                                    text={strings('account.send')}
-                                    onPress={this.handleSend}
-                                />
-                            </View>
                         </View>
-                        <View style={styles.headerInfoContainer}>
-                            <View style={[styles.titleContainer, { marginLeft: GRID_SIZE }]}>
+                        <View>
+                            <View style={styles.titleContainer}>
                                 <NftTokenInfo
+                                    containerStyles={styles.title}
                                     title='Lucky Otaku'
                                     subTitle='# 732613'
                                 />
                             </View>
-                            <View style={[styles.currencyInfo, { marginTop: GRID_SIZE, marginRight: GRID_SIZE * 2 }]}>
-                                <NftTokenValue
-                                    walletCurrency='ETH'
-                                    balance='134312'
-                                    balanceData='67544677'
-                                    currencySymbol='$'
-                                />
+                            <View style={[styles.headerInfoContainer, { marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE }]}>
+                                <View style={styles.currencyInfo}>
+                                    <NftTokenValue
+                                        walletCurrency='ETH'
+                                        balance='134312'
+                                        balanceData='67544677'
+                                        currencySymbol='$'
+                                    />
+                                </View>
+                                <View style={styles.buttonContainer}>
+                                    <BorderedButton
+                                        containerStyles={styles.button}
+                                        icon='send'
+                                        text={strings('account.send')}
+                                        onPress={this.handleSend}
+                                    />
+                                </View>
                             </View>
-                        </View>
-                        <View style={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE * 2 }}>
-                            <Text style={[styles.infoText, { color: colors.common.text3 }]}>
-                                *hissing noises*! I'm 🍀 Lucky Otaku 🎉. In high school, I was voted most likely to work
-                                at NASA. I am 36% sphinx, 10% Foreign Film Director, and otherwise bad at math. I think
-                                you'll love me beclaws I have cattitude.
-                            </Text>
+                            <View style={{ marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE * 2 }}>
+                                <Text style={[styles.infoText, { color: colors.common.text3 }]}>
+                                    *hissing noises*! I'm 🍀 Lucky Otaku 🎉. In high school, I was voted most likely to
+                                    work
+                                    at NASA. I am 36% sphinx, 10% Foreign Film Director, and otherwise bad at math. I
+                                    think
+                                    you'll love me beclaws I have cattitude.
+                                </Text>
+                            </View>
                         </View>
                         <TouchableOpacity
                             style={styles.linkContainer}
@@ -144,38 +148,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         resizeMode: 'center'
     },
-    buttonContainer: {
-        position: 'absolute',
-        alignSelf: 'flex-end',
-    },
+    buttonContainer: {},
     imageContainer: {
         zIndex: 0,
-        position: 'relative',
         height: 260,
-        backgroundColor: '#FFE0E5',
         borderRadius: 20
-    },
-    shadow: {
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 4
-        },
-        shadowOpacity: 0.30,
-        shadowRadius: 4.65,
-
-        elevation: 8
     },
     button: {
         width: 'auto',
-        zIndex: 3
     },
     headerInfoContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
-    titleContainer: {},
-    currencyInfo: {},
+    titleContainer: {
+        flex: 1
+    },
+    currencyInfo: {
+        flex: 1
+    },
     infoText: {
         fontFamily: 'SFUIDisplay-SemiBold',
         fontSize: 15,
@@ -205,5 +196,10 @@ const styles = StyleSheet.create({
         marginVertical: 17,
         textAlign: 'center',
         color: '#F7F7F7'
+    },
+    title: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center'
     }
 })

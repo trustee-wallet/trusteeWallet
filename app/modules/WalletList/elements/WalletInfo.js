@@ -174,6 +174,7 @@ class WalletInfo extends React.Component {
                                     text={strings('settings.assets.addAsset')}
                                     icon='plus'
                                     isViolet={isViolet}
+                                    containerStyles={styles.button}
                                     onPress={() => NavStore.goNext('AddAssetScreen')}
                                 />
                             </View>
@@ -346,5 +347,9 @@ const styles = StyleSheet.create({
     },
     walletInfo__hiddenBalance: {
         lineHeight: 58
+    },
+    button: {
+        marginVertical: 19,
+        marginLeft: 15
     }
 })

@@ -240,6 +240,7 @@
     "add": "Add"
   },
   "nftMainScreen": {
+    "assets": "Assets",
     "receiveText": "Send only %{coin} to this address. Sending another coin may result in permanent lost",
     "emptyNftText": "You don’t have any NFT yet. But you can get it now.",
     "proof": "Proof ownership",

@@ -7,24 +7,43 @@ import React from 'react'
 import {
     Text,
     View,
-    StyleSheet
+    StyleSheet,
+    TouchableOpacity, Platform
 } from 'react-native'
 
-import { useTheme } from '@app/theme/ThemeProvider'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
+import { strings } from '@app/services/i18n'
+import { connect } from 'react-redux'
+import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
-const NftTokenValue = (props) => {
+class NftTokenValue extends React.Component{
 
-    const {
-        walletCurrency,
-        balance,
-        balanceData,
-        currencySymbol
-    } = props
+    state = {
+        isBalanceVisible: false
+    }
 
-    const {
-        colors
-    } = useTheme()
+
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
+    }
+
+    render() {
+
+        const {
+            walletCurrency,
+            balance,
+            balanceData,
+            currencySymbol
+        } = this.props
+
+        const {
+            colors
+        } = this.context
+
+        const originalVisibility = this.props.isBalanceVisible
+        const isBalanceVisible = this.state.isBalanceVisible || originalVisibility
+
 
     return (
         <View style={styles.currencyContainer}>
@@ -36,15 +55,39 @@ const NftTokenValue = (props) => {
                 textContainerStyle={{ bottom: -19 }}
                 textStyle={{ backgroundColor: 'transparent' }}
             />
-            <View style={styles.balanceContainer}>
-                <Text numberOfLines={2} style={[styles.balance, {color: colors.common.text3}]}>{balance + ' ' + walletCurrency}</Text>
-                <Text style={styles.balanceData}>{currencySymbol + ' ' + balanceData}</Text>
-            </View>
+            <TouchableOpacity
+                onPressIn={() => this.triggerBalanceVisibility(true)}
+                onPressOut={() => this.triggerBalanceVisibility(false)}
+                activeOpacity={1}
+                disabled={originalVisibility}
+                style={styles.balanceContainer}>
+                {isBalanceVisible ?
+                    <>
+                        <Text numberOfLines={2} style={[styles.balance, {
+                        color: colors.common.text3,
+                        fontSize: walletCurrency !== 'NFT' ? 13 : 18
+                    }]}>{walletCurrency !== 'NFT' ? (balance + ' ' + walletCurrency) : (walletCurrency + ' ' + strings('cashback.balanceTitle'))}</Text>
+                        <Text
+                            style={[styles.balanceData, { fontSize: walletCurrency !== 'NFT' ? 10 : 14 }]}>{currencySymbol + ' ' + balanceData}</Text>
+                    </>:
+                    <Text style={{...styles.accountDetail__text, color: colors.common.text1, fontSize: 24}}>****</Text>
+                }
+            </TouchableOpacity>
         </View>
     )
 }
+}
 
-export default NftTokenValue
+NftTokenValue.contextType = ThemeContext
+
+const mapStateToProps = (state) => {
+    return {
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore),
+    }
+}
+
+
+export default connect(mapStateToProps)(NftTokenValue)
 
 const styles = StyleSheet.create({
     currencyContainer: {
@@ -53,12 +96,10 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start'
     },
     balance: {
-        fontSize: 13,
         fontFamily: 'SFUIDisplay-Bold',
         letterSpacing: 1.75
     },
     balanceData: {
-        fontSize: 10,
         fontFamily: 'Montserrat-Bold',
         letterSpacing: 0.5,
         color: '#999999'
@@ -66,5 +107,11 @@ const styles = StyleSheet.create({
     balanceContainer: {
         marginLeft: 10,
         flex: 1
+    },
+    accountDetail__text: {
+        fontSize: 14,
+        height: Platform.OS === 'ios' ? 15 : 18,
+        fontFamily: 'SFUIDisplay-Semibold',
+        color: '#939393'
     }
 })

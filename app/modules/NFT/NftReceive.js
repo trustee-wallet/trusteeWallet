@@ -127,7 +127,7 @@ class NftReceive extends React.PureComponent {
                     {this.renderFlatList()}
                 </View>
                 <View style={[styles.tokenContainer, { marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>
-                    <TouchableOpacity onPress={() => this.copyToClip(token)} style={styles.qr}>
+                    <TouchableOpacity onPress={() => this.copyToLink(token)} style={styles.qr}>
                         <QrCodeBox
                             value={token}
                             size={WINDOW_WIDTH * 0.3254}
@@ -143,7 +143,7 @@ class NftReceive extends React.PureComponent {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.tokenWrapper, {
-                        backgroundColor: colors.nftScreen.tokenBg,
+                        backgroundColor: colors.cashback.detailsBg,
                         marginRight: GRID_SIZE
                         }]}
                         onPress={() => this.copyToLink(token)}

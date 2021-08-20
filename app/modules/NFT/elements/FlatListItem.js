@@ -3,6 +3,15 @@
  * @version 0.50
  */
 
+//  <CurrencyIcon
+//                     setBackground={true}
+//                     currencyCode={walletCurrency}
+//                     containerStyle={{ borderWidth: 0, width: 40, height: 40 }}
+//                     markStyle={{ top: 30 }}
+//                     textContainerStyle={{ bottom: -19 }}
+//                     textStyle={{ backgroundColor: 'transparent' }}
+//                 />
+
 import React, { useState } from 'react'
 import {
     View,
@@ -46,59 +55,58 @@ const FlatListItem = (props) => {
     const widthItem = (WINDOW_WIDTH - GRID_SIZE * (numColumns + 1)) / numColumns
 
     return (
-        <>
-            <TouchableOpacity
-                onPress={goNext}
-                style={[styles.topContent, {
-                    height: widthItem * 1.4,
-                    marginLeft: margin ? GRID_SIZE : 0,
-                    marginRight: GRID_SIZE,
-                    marginBottom: GRID_SIZE
-                }]}>
-                <>
-                    <View style={[styles.topContent__content, { marginBottom: GRID_SIZE, width: widthItem - GRID_SIZE * 1.5 }]}>
-                        {loading ?
-                            <Image
-                                style={styles.img}
-                                onLoad={() => setLoad}
-                                source={{
-                                    ...img,
-                                    cache: 'only-if-cached'
-                                }}
-                                // resizeMode='center'
-                            /> :
-                            <ActivityIndicator
-                                style={styles.img}
-                                color={'#999999'}
-                            />
 
-                        }
-                        <NftTokenInfo
-                            title={title}
-                            subTitle={subTitle}
-                        />
-                        {ExtraViewData && (
-                            <ExtraViewData />
-                        )}
-                    </View>
-                    <GradientView
-                        style={[styles.collectionItem, {
-                            height: widthItem * 1.4,
-                            width: widthItem
-                        }]}
-                        array={colors.accountScreen.containerBG}
-                        start={styles.containerBG.start}
-                        end={styles.containerBG.end}
+        <TouchableOpacity
+            onPress={goNext}
+            style={[styles.topContent, {
+                height: widthItem * 1.4,
+                marginLeft: margin ? GRID_SIZE : 0,
+                marginRight: GRID_SIZE,
+                marginVertical: GRID_SIZE
+            }]}>
+            <View style={[styles.topContent__content, {
+                marginBottom: GRID_SIZE,
+                width: widthItem - GRID_SIZE * 1.5
+            }]}>
+                {loading ?
+                    <Image
+                        style={styles.img}
+                        onLoad={() => setLoad}
+                        source={{
+                            uri: img,
+                            cache: 'only-if-cached'
+                        }}
+                    /> :
+                    <ActivityIndicator
+                        style={styles.img}
+                        color={'#999999'}
                     />
-                    <View style={[styles.topContent__bg, {
-                        height: widthItem * 1.4,
-                        width: widthItem
-                    }]}>
-                        <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
-                    </View>
-                </>
-            </TouchableOpacity>
-        </>
+
+                }
+                <NftTokenInfo
+                    title={title}
+                    subTitle={subTitle}
+                />
+                {ExtraViewData && (
+                    <ExtraViewData />
+                )}
+            </View>
+            <GradientView
+                style={[styles.collectionItem, {
+                    height: widthItem * 1.4,
+                    width: widthItem
+                }]}
+                array={colors.accountScreen.containerBG}
+                start={styles.containerBG.start}
+                end={styles.containerBG.end}
+            />
+            <View style={[styles.topContent__bg, {
+                height: widthItem * 1.4,
+                width: widthItem
+            }]}>
+                <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
+            </View>
+        </TouchableOpacity>
     )
 }
 
