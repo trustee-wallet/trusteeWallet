@@ -332,7 +332,7 @@ class InputAndButtons extends PureComponent {
                                 <View>
                                     <TouchableOpacity onPress={() => this.handleOpenLink(item.msgDetails)}>
                                         <Text style={{ ...style.texts__item, color: colors.common.text3 }}>
-                                            {item.msg}
+                                            {item.msg || item}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
