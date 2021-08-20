@@ -5,9 +5,78 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 import { PublicKey } from '@solana/web3.js/src/index'
-import { Account } from '@solana/web3.js'
+import { Account } from '@solana/web3.js/src/account'
+
+import config from '@app/config/config'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+
+const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+const OWNER_VALIDATION_PROGRAM_ID = '4MNPdKu9wFMvEeZBMt3Eipfs5ovVWTJb31pEXDJAAxX5'
 
 export default {
+
+    getTokenProgramID() {
+        return TOKEN_PROGRAM_ID
+    },
+
+    getOwnerValidationProgramId() {
+        return OWNER_VALIDATION_PROGRAM_ID
+    },
+
+    getAssociatedTokenProgramId() {
+        return ASSOCIATED_TOKEN_PROGRAM_ID
+    },
+
+    async findAssociatedTokenAddress(walletAddress, tokenMintAddress) {
+        try {
+            const seeds = [
+                new PublicKey(walletAddress).toBuffer(),
+                new PublicKey(TOKEN_PROGRAM_ID).toBuffer(),
+                new PublicKey(tokenMintAddress).toBuffer()
+            ]
+            const res =
+                await PublicKey.findProgramAddress(
+                    seeds,
+                    new PublicKey(
+                        ASSOCIATED_TOKEN_PROGRAM_ID
+                    )
+                )
+            return res[0].toBase58()
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SolUtils.findAssociatedTokenAddress ' + e.message)
+            }
+            throw new Error('SYSTEM_ERROR')
+        }
+    },
+
+    async getAccountInfo(address) {
+        let accountInfo = false
+        try {
+
+            const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
+            const checkData = {
+                'jsonrpc': '2.0',
+                'id': 1,
+                'method': 'getAccountInfo',
+                'params': [
+                    address,
+                    {
+                        'encoding': 'jsonParsed'
+                    }
+                ]
+            }
+            const res = await BlocksoftAxios._request(apiPath, 'POST', checkData)
+            accountInfo = res.data.result.value
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SolUtils.getAccountInfo ' + address + ' error ' + e.message)
+            }
+            BlocksoftCryptoLog.log('SolUtils.getAccountInfo ' + address + ' error ' + e.message)
+        }
+        return accountInfo
+    },
 
     isAddressValid(value) {
         new PublicKey(value)
@@ -27,7 +96,7 @@ export default {
             'params': [
                 raw,
                 {
-                    encoding : 'base64'
+                    encoding: 'base64'
                 }
             ]
         }

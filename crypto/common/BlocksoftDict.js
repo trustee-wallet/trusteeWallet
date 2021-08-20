@@ -1427,7 +1427,7 @@ const Currencies = {
     SOL_RAY:
         {
             currencyType: 'token',
-            transferProcessor: 'SOL',
+            transferProcessor: 'SOL_SPL',
             currencyName: 'Raydium',
             currencyCode: 'SOL_RAY',
             currencySymbol: 'RAY',
