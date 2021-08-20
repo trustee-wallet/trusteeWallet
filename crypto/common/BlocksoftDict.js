@@ -1180,15 +1180,15 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2?a='
         },
-    SOL_MANGO:
+    SOL_MNGO:
         {
             currencyType: 'token',
-            currencyName: 'MANGO',
-            currencyCode: 'SOL_MANGO',
-            currencySymbol: 'MANGO',
-            extendsProcessor: 'SOL_MANGO',
+            currencyName: 'MANGO Markets',
+            currencyCode: 'SOL_MNGO',
+            currencySymbol: 'MNGO',
+            extendsProcessor: 'SOL_MNGO',
             addressUiChecker: 'SOL',
-            ratesCurrencyCode: 'MANGO',
+            ratesCurrencyCode: 'MNGO',
             decimals: 6,
             tokenBlockchain: 'SOLANA',
             tokenAddress: 'MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac',
