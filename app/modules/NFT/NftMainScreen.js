@@ -60,8 +60,16 @@ class NftMainScreen extends React.PureComponent {
     renderTabs = () => <Tabs
         tabs={this.state.tabs}
         changeTab={this.handleChangeTab}
-        containerStyle={{ marginVertical: this.context.GRID_SIZE, justifyContent: 'space-evenly' }}
+        containerStyle={{ paddingVertical: this.context.GRID_SIZE, width: '50%', alignSelf: 'center' }}
     />
+
+    handleCollection = () => {
+        NavStore.goNext('NftCollectionView')
+    }
+
+    handleToken = () => {
+        NavStore.goNext('NftDetailedInfo')
+    }
 
     renderFlatListItem = ({ item, index }) => {
 
@@ -74,6 +82,7 @@ class NftMainScreen extends React.PureComponent {
                 numColumns={numColumns}
                 data={item}
                 margin={index % numColumns === 0}
+                onPress={this.handleToken}
             />
         )
     }
@@ -82,6 +91,7 @@ class NftMainScreen extends React.PureComponent {
        return(
            <FlatListCollections
                data={item}
+               onPress={this.handleCollection}
            />
        )
     }
@@ -97,25 +107,25 @@ class NftMainScreen extends React.PureComponent {
             {
                 img: 'https://reactjs.org/logo-og.png',
                 title: 'Cryptokitties',
-                quntity: 5,
+                numberAssets: 5,
                 walletCurrency: 'BTC'
             },
             {
                 img: 'https://personal.psu.edu/xqz5228/jpg.jpg',
                 title: 'Cryptokitties',
-                quntity: 5,
+                numberAssets: 5,
                 walletCurrency: 'ETH'
             },
             {
                 img: 'https://i.gifer.com/XOsX.gif',
                 title: 'Cryptokitties',
-                quntity: 5,
+                numberAssets: 5,
                 walletCurrency: 'MATIC'
             },
             {
                 img: 'https://i.gifer.com/XOsX.gif',
                 title: 'Cryptokitties',
-                quntity: 5,
+                numberAssets: 5,
                 walletCurrency: 'TRX'
             }
         ]
@@ -183,16 +193,17 @@ class NftMainScreen extends React.PureComponent {
             }
         ]
         return (
-            <View>
-                {this.renderTabs()}
+            <View style={{ flex: 1 }}>
                 {tabs[0].active && (
                     <FlatList
                         data={flatListData}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingTop: this.context.GRID_SIZE }}
-                        renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
+                        renderItem={this.renderFlatListItem}
                         horizontal={false}
                         numColumns={numColumns}
+                        ListHeaderComponent={this.renderTabs}
+                        keyExtractor={({ index }) => index}
                     />
                 )}
                 {tabs[1].active && (
@@ -200,9 +211,9 @@ class NftMainScreen extends React.PureComponent {
                         data={flatListCollectionsData}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingTop: this.context.GRID_SIZE }}
-                        renderItem={({ item }) => this.renderFlatListCollections({ item })}
-                        horizontal={false}
-                        numColumns={1}
+                        renderItem={this.renderFlatListCollections}
+                        ListHeaderComponent={this.renderTabs}
+                        keyExtractor={({ index }) => index}
                     />
                 )}
 

@@ -20,10 +20,11 @@ import {
     ActivityIndicator,
     TouchableOpacity
 } from 'react-native'
+
 import GradientView from '@app/components/elements/GradientView'
 import { useTheme } from '@app/theme/ThemeProvider'
 import NftTokenInfo from '@app/modules/NFT/elements/NftTokenInfo'
-import NavStore from '@app/components/navigation/NavStore'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -35,10 +36,6 @@ const FlatListItem = (props) => {
         setLoading(false)
     }
 
-    const goNext = () => {
-        NavStore.goNext('NftDetailedInfo')
-    }
-
     const {
         GRID_SIZE,
         colors
@@ -47,7 +44,8 @@ const FlatListItem = (props) => {
     const {
         margin,
         data,
-        numColumns
+        numColumns,
+        onPress
     } = props
 
     const { img, title, subTitle, ExtraViewData } = data
@@ -57,16 +55,17 @@ const FlatListItem = (props) => {
     return (
 
         <TouchableOpacity
-            onPress={goNext}
+            onPress={onPress}
+            hitSlop={HIT_SLOP}
             style={[styles.topContent, {
                 height: widthItem * 1.4,
                 marginLeft: margin ? GRID_SIZE : 0,
                 marginRight: GRID_SIZE,
-                marginVertical: GRID_SIZE
+                marginVertical: GRID_SIZE * 0.5
             }]}>
             <View style={[styles.topContent__content, {
                 marginBottom: GRID_SIZE,
-                width: widthItem - GRID_SIZE * 1.5
+                width: widthItem
             }]}>
                 {loading ?
                     <Image
@@ -74,22 +73,23 @@ const FlatListItem = (props) => {
                         onLoad={() => setLoad}
                         source={{
                             uri: img,
-                            cache: 'only-if-cached'
                         }}
                     /> :
                     <ActivityIndicator
                         style={styles.img}
-                        color={'#999999'}
+                        color='#999999'
                     />
 
                 }
-                <NftTokenInfo
-                    title={title}
-                    subTitle={subTitle}
-                />
-                {ExtraViewData && (
-                    <ExtraViewData />
-                )}
+                <View style={styles.descriptions}>
+                    <NftTokenInfo
+                        title={title}
+                        subTitle={subTitle}
+                    />
+                    {ExtraViewData && (
+                        <ExtraViewData />
+                    )}
+                </View>
             </View>
             <GradientView
                 style={[styles.collectionItem, {
@@ -130,10 +130,8 @@ const styles = {
         zIndex: 0
     },
     topContent__content: {
-        marginHorizontal: 12,
         flexGrow: 1,
         flexDirection: 'column',
-        justifyContent: 'space-around',
         position: 'relative',
         zIndex: 2
     },
@@ -162,10 +160,16 @@ const styles = {
         elevation: 0
     },
     img: {
+        alignItems: 'flex-start',
+        aligSelf: 'flex-start',
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         width: '100%',
         height: '40%',
-        resizeMode: 'center'
+    },
+    descriptions: {
+        flexGrow: 1, 
+        justifyContent: 'space-around',
+        marginHorizontal: 12
     }
 }

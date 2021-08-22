@@ -11,7 +11,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    Linking
 } from 'react-native'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -23,10 +24,27 @@ import NftTokenInfo from '@app/modules/NFT/elements/NftTokenInfo'
 import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
 import Button from '@app/components/elements/new/buttons/Button'
 
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import Log from '@app/services/Log/Log'
+
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 class NftDetailedInfo extends React.PureComponent {
+
+    state = {
+        heightPhoto: 260, // TODO procent of screen
+        sourceImg: 'https://upload.wikimedia.org/wikipedia/commons/0/09/Peach_Rinkysplash.jpg'
+    }
+
+    componentDidMount() {
+        Image.getSize(this.state.sourceImg, (height) => {
+            this.setState({
+                heightPhoto: height > 260 ? 260 : height
+            })
+        })
+    }
 
     handleBack = () => {
         NavStore.goBack()
@@ -36,8 +54,23 @@ class NftDetailedInfo extends React.PureComponent {
         // TODO send
     }
 
-    handleOpenLink = () => {
-        // TODO share
+    openLink = (link) => {
+        try {
+            Linking.openURL(link)
+        } catch (e) {
+            Log.err('NFT.NftDetailedInfo open URI error ' + e.message + ' ' + link)
+        }
+
+    }
+
+    handleShareLink = () => {
+        const shareOptions = {
+            title: 'Title 1',
+            message: 'description',
+            url: 'opensea nft link'
+        }
+        // MarketingEvent.logEvent('taki_cashback_3_copyToMoreStart', { 'cashbackLink' })
+        prettyShare(shareOptions, 'taki_cashback_4_copyToMoreFinish')
     }
 
     handleOpenQrCode = () => {
@@ -57,66 +90,66 @@ class NftDetailedInfo extends React.PureComponent {
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='share'
-                rightAction={this.handleOpenLink}
+                rightAction={this.handleShareLink}
             >
                 <ScrollView
                     contentContainerStyle={styles.scrollViewContent}
                 >
-                    <>
-                        <View style={[styles.imageContainer, {
+                    <View style={styles.container}>
+                        <View style={[{
                             width: WINDOW_WIDTH - GRID_SIZE * 2,
-                            marginVertical: GRID_SIZE,
-                            marginLeft: GRID_SIZE
+                            height: this.state.heightPhoto,
+                            marginTop: GRID_SIZE,
+                            marginLeft: GRID_SIZE,
+                            marginBottom: GRID_SIZE * 1.5
                         }]}>
                             <Image
                                 style={styles.img}
-                                source={require('@assets/images/logo.png')}
-                                resizeMode='center'
+                                source={{
+                                    uri: this.state.sourceImg
+                                }}
+                                resizeMode='contain'
                             />
                         </View>
-                        <View>
-                            <View style={styles.titleContainer}>
-                                <NftTokenInfo
-                                    containerStyles={styles.title}
-                                    title='Lucky Otaku'
-                                    subTitle='# 732613'
+                        <NftTokenInfo
+                            containerStyles={styles.title}
+                            title='Lucky Otaku'
+                            subTitle='# 732613'
+                        />
+                        <View style={[styles.headerInfoContainer, { marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE }]}>
+                            <View style={styles.currencyInfo}>
+                                <NftTokenValue
+                                    walletCurrency='ETH'
+                                    balance='134312'
+                                    balanceData='67544677'
+                                    currencySymbol='$'
                                 />
                             </View>
-                            <View style={[styles.headerInfoContainer, { marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE }]}>
-                                <View style={styles.currencyInfo}>
-                                    <NftTokenValue
-                                        walletCurrency='ETH'
-                                        balance='134312'
-                                        balanceData='67544677'
-                                        currencySymbol='$'
-                                    />
-                                </View>
-                                <View style={styles.buttonContainer}>
-                                    <BorderedButton
-                                        containerStyles={styles.button}
-                                        icon='send'
-                                        text={strings('account.send')}
-                                        onPress={this.handleSend}
-                                    />
-                                </View>
+                            <View style={styles.buttonContainer}>
+                                <BorderedButton
+                                    containerStyles={styles.button}
+                                    icon='send'
+                                    text={strings('account.send')}
+                                    onPress={this.handleSend}
+                                />
                             </View>
-                            <View style={{ marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE * 2 }}>
-                                <Text style={[styles.infoText, { color: colors.common.text3 }]}>
-                                    *hissing noises*! I'm 🍀 Lucky Otaku 🎉. In high school, I was voted most likely to
-                                    work
-                                    at NASA. I am 36% sphinx, 10% Foreign Film Director, and otherwise bad at math. I
-                                    think
-                                    you'll love me beclaws I have cattitude.
-                                </Text>
-                            </View>
+                        </View>
+                        <View style={{ marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE * 2 }}>
+                            <Text style={[styles.infoText, { color: colors.common.text3 }]}>
+                                *hissing noises*! I'm 🍀 Lucky Otaku 🎉. In high school, I was voted most likely to
+                                work
+                                at NASA. I am 36% sphinx, 10% Foreign Film Director, and otherwise bad at math. I
+                                think
+                                you'll love me beclaws I have cattitude.
+                            </Text>
                         </View>
                         <TouchableOpacity
                             style={styles.linkContainer}
-                            onPress={this.handleOpenLink}
+                            onPress={this.openLink}
                         >
                             <Text style={[styles.link, { color: colors.common.text1 }]}>View on OpenSea</Text>
                         </TouchableOpacity>
-                    </>
+                    </View>
                     <View style={{
                         paddingHorizontal: GRID_SIZE,
                         paddingVertical: GRID_SIZE * 1.5
@@ -141,28 +174,19 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'space-between'
     },
+    container: {
+        flex: 1
+    },
     img: {
-        flex: 1,
-        flexDirection: 'row',
-        alignSelf: 'center',
-        justifyContent: 'center',
-        resizeMode: 'center'
+        flex: 1
     },
     buttonContainer: {},
-    imageContainer: {
-        zIndex: 0,
-        height: 260,
-        borderRadius: 20
-    },
     button: {
         width: 'auto',
     },
     headerInfoContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between'
-    },
-    titleContainer: {
-        flex: 1
     },
     currencyInfo: {
         flex: 1

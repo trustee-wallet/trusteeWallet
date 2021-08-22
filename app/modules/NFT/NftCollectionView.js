@@ -14,6 +14,7 @@ import FlatListItem from '@app/modules/NFT/elements/FlatListItem'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
 import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -52,6 +53,8 @@ class NftCollectionView extends React.PureComponent {
         const {
             numColumns,
         } = this.state
+
+        const { GRID_SIZE } = this.context
 
         const flatListData = [
             {
@@ -120,10 +123,11 @@ class NftCollectionView extends React.PureComponent {
                 <FlatList
                     data={flatListData}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingTop: this.context.GRID_SIZE }}
-                    renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
+                    contentContainerStyle={{ paddingTop: GRID_SIZE }}
+                    renderItem={this.renderFlatListItem}
                     horizontal={false}
                     numColumns={numColumns}
+                    keyExtractor={({ index }) => index}
                 />
             </View>
         )
@@ -143,6 +147,8 @@ class NftCollectionView extends React.PureComponent {
         )
     }
 }
+
+NftCollectionView.contextType = ThemeContext
 
 export default NftCollectionView
 

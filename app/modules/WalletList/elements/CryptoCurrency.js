@@ -47,6 +47,11 @@ class CryptoCurrency extends React.PureComponent {
 
         let status = ''
         CACHE_CLICK = true
+
+        if (cryptoCurrency.currencyCode === 'NFT') {
+            NavStore.goNext('NftMainScreen')
+        }
+
         try {
 
             // Log.log('HomeScreen.Currency handleCurrencySelect inited ', cryptoCurrency)

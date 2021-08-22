@@ -10,8 +10,11 @@ import {
     StyleSheet,
     FlatList,
     Dimensions,
-    TouchableOpacity
+    TouchableOpacity,
+    Platform
 } from 'react-native'
+
+import { connect } from 'react-redux'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
@@ -25,13 +28,31 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 
+import accountScanningDS from '@app/appstores/DataSource/Account/AccountScanning'
+import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
+
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 class NftReceive extends React.PureComponent {
 
-    state={
-        coin: 'ETH',
-        token: '0xc1q8n0fq2r3wtsjpzyyy4g9kfmpkds2525mmc5gfv'
+    state = {
+        selectedAddress: {}
+    }
+
+    async componentDidMount() {
+        const res = await accountScanningDS.getAddresses({ currencyCode: `ETH`, walletHash: this.props.wallet.walletHash })
+
+        this.setState({
+            selectedAddress: {
+                currencyCode: 'ETH',
+                address: Object.keys(res)[0]
+            }
+        })
+
     }
 
     handleBack = () => {
@@ -39,7 +60,29 @@ class NftReceive extends React.PureComponent {
     }
 
     handleShare = () => {
-        // TODO share
+
+        const { selectedAddress } = this.state
+
+        try {
+            setLoaderStatus(true)
+            this.refSvg.toDataURL(async (data) => {
+                const message = `${selectedAddress.currencyCode} \n${selectedAddress.address}`
+
+                if (Platform.OS === 'android') {
+                    // noinspection ES6MissingAwait
+                    prettyShare({ message, url: `data:image/png;base64,${data}`, title: 'QR', type: 'image/png' })
+                } else {
+                    const fs = new FileSystem({ fileEncoding: 'base64', fileName: 'QR', fileExtension: 'jpg' })
+                    await fs.writeFile(data)
+                    // noinspection ES6MissingAwait
+                    prettyShare({ message, url: await fs.getPathOrBase64() })
+                }
+                setLoaderStatus(false)
+            })
+        } catch (e) {
+            setLoaderStatus(false)
+            Log.err('NftReceive handleShare error', e)
+        }
     }
 
     renderFlatListItem = ({ item, index }) => {
@@ -51,41 +94,49 @@ class NftReceive extends React.PureComponent {
         )
     }
 
+    handleSelectBlockchain = async (code) => {
+
+        const { wallet } = this.props
+
+        const res = await accountScanningDS.getAddresses({ currencyCode: code, walletHash: wallet.walletHash })
+
+        this.setState({
+            selectedAddress: {
+                currencyCode: code,
+                address: Object.keys(res)[0]
+            }
+        })
+    }
+
     renderFlatList = () => {
 
         const {
-            coin
+            selectedAddress
         } = this.state
 
         const flatListData = [
             {
                 text: 'ethereum',
-                inverse: coin === 'ETH',
-                action: () => this.setState({ coin: 'ETH' })
+                inverse: selectedAddress.currencyCode === 'ETH',
+                action: () => this.handleSelectBlockchain('ETH')
             },
             {
-                text: 'tron',
-                inverse: coin === 'TRX',
-                action: () => this.setState({ coin: 'TRX' })
+                text: 'bnb',
+                inverse: selectedAddress.currencyCode === 'BNB',
+                action: () => this.handleSelectBlockchain('BNB')
             },
             {
                 text: 'polygon',
-                inverse: coin === 'MATIC',
-                action: () => this.setState({ coin: 'MATIC' })
+                inverse: selectedAddress.currencyCode === 'MATIC',
+                action: () => this.handleSelectBlockchain('MATIC')
             },
-            {
-                text: 'monero',
-                inverse: coin === 'XMR',
-                action: () => this.setState({ coin: 'XMR' })
-            }
         ]
 
         return (
             <FlatList
                 data={flatListData}
-                keyExtractor={({ index }) => index}
                 horizontal={true}
-                renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
+                renderItem={this.renderFlatListItem}
                 showsHorizontalScrollIndicator={false}
             />
         )
@@ -99,8 +150,7 @@ class NftReceive extends React.PureComponent {
     render() {
 
         const {
-            coin,
-            token
+            selectedAddress
         } = this.state
 
         const {
@@ -127,9 +177,10 @@ class NftReceive extends React.PureComponent {
                     {this.renderFlatList()}
                 </View>
                 <View style={[styles.tokenContainer, { marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>
-                    <TouchableOpacity onPress={() => this.copyToLink(token)} style={styles.qr}>
+                    <TouchableOpacity onPress={() => this.copyToLink(selectedAddress.address)} style={styles.qr}>
                         <QrCodeBox
-                            value={token}
+                            getRef={ref => this.refSvg = ref}
+                            value={selectedAddress.address}
                             size={WINDOW_WIDTH * 0.3254}
                             color='#404040'
                             backgroundColor='#F5F5F5'
@@ -142,20 +193,12 @@ class NftReceive extends React.PureComponent {
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.tokenWrapper, {
-                        backgroundColor: colors.cashback.detailsBg,
-                        marginRight: GRID_SIZE
-                        }]}
-                        onPress={() => this.copyToLink(token)}
+                        style={[styles.tokenWrapper, { backgroundColor: colors.cashback.detailsBg, marginRight: GRID_SIZE }]}
+                        onPress={() => this.copyToLink(selectedAddress.address)}
                     >
-                        <Text style={[styles.tokenText, {
-                            color: colors.common.text1,
-                            marginHorizontal: GRID_SIZE
-                        }]}>{token}</Text>
+                        <Text style={[styles.tokenText, { color: colors.common.text1, marginHorizontal: GRID_SIZE }]}>{selectedAddress.address}</Text>
                         <View style={[styles.copyBtn, { marginTop: GRID_SIZE }]}>
-                            <Text style={[styles.qrCodeTokenString, {
-                                color: colors.cashback.token,
-                            }]}>
+                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
                                 {strings('account.receiveScreen.copy')}
                             </Text>
                             <CustomIcon name='copy' size={19} color={colors.cashback.token} />
@@ -163,7 +206,7 @@ class NftReceive extends React.PureComponent {
                     </TouchableOpacity>
                 </View>
                 <View style={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }}>
-                    <Text style={{...styles.emptyText, color: colors.common.text3 }}>{strings('nftMainScreen.receiveText', { coin: coin })}</Text>
+                    <Text style={{ ...styles.emptyText, color: colors.common.text3 }}>{strings('nftMainScreen.receiveText', { coin: selectedAddress.currencyCode })}</Text>
                 </View>
             </ScreenWrapper>
         )
@@ -172,7 +215,13 @@ class NftReceive extends React.PureComponent {
 
 NftReceive.contextType = ThemeContext
 
-export default NftReceive
+const mapStateToProps = (state) => {
+    return {
+        wallet: getSelectedWalletData(state),
+    }
+}
+
+export default connect(mapStateToProps)(NftReceive)
 
 const styles = StyleSheet.create({
     emptyText: {
@@ -202,7 +251,7 @@ const styles = StyleSheet.create({
         height: WINDOW_WIDTH * 0.3905,
         borderRadius: 16,
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'center'
     },
     tokenContainer: {
         flexDirection: 'row',
@@ -212,9 +261,11 @@ const styles = StyleSheet.create({
         fontFamily: 'SFUIDisplay-SemiBold',
         fontSize: 15,
         lineHeight: 19,
-        letterSpacing: 1.5
+        letterSpacing: 1.5,
+        textAlign: 'center'
     },
     qrCodeTokenString: {
+        alignSelf: 'center',
         textTransform: 'uppercase',
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,

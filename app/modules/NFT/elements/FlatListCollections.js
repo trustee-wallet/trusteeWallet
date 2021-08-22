@@ -16,15 +16,12 @@ import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import GradientView from '@app/components/elements/GradientView'
 import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
-import NavStore from '@app/components/navigation/NavStore'
+
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 const FlatListCollections = (props) => {
-
-    const goNext = () => {
-        NavStore.goNext('NftCollectionView')
-    }
 
     const {
         colors,
@@ -32,19 +29,21 @@ const FlatListCollections = (props) => {
     } = useTheme()
 
     const {
-        data
+        data,
+        onPress
     } = props
 
-    const { img, title, quntity, walletCurrency } = data
+    const { img, title, numberAssets, walletCurrency } = data
 
     return (
 
         <TouchableOpacity
-            onPress={goNext}
+            onPress={onPress}
+            hitSlop={HIT_SLOP}
             style={[styles.topContent, {
                 width: WINDOW_WIDTH - GRID_SIZE * 2,
                 marginLeft: GRID_SIZE,
-                marginBottom: 12
+                marginTop: 12
             }]}>
             <View style={[styles.topContent__content, { paddingHorizontal: GRID_SIZE, paddingVertical: 12 }]}>
 
@@ -52,15 +51,16 @@ const FlatListCollections = (props) => {
 
                 <View style={styles.text}>
                     <Text style={[styles.title, {color: colors.common.text1}]}>{title}</Text>
-                    <Text style={styles.subTitle}>{strings('nftMainScreen.assets') + ': ' + quntity}</Text>
+                    <Text style={styles.subTitle}>{strings('nftMainScreen.assets') + ': ' + numberAssets}</Text>
                 </View>
                 <CurrencyIcon
                     setBackground={true}
                     currencyCode={walletCurrency}
-                    containerStyle={{ borderWidth: 0, width: 40, height: 40, marginTop: 5 }}
+                    containerStyle={{ borderWidth: 0, width: 30, height: 30, alignSelf: 'center' }}
                     markStyle={{ top: 30 }}
                     textContainerStyle={{ bottom: -19 }}
                     textStyle={{ backgroundColor: 'transparent' }}
+                    iconStyle={{ fontSize: 18 }}
                 />
             </View>
             <GradientView
@@ -131,7 +131,7 @@ const styles = {
     text: {
         flex: 1,
         marginLeft: 12,
-        marginTop: 5
+        alignSelf: 'center'
     },
     title: {
         fontFamily: 'Montserrat-SemiBold',

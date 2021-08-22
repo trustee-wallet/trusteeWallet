@@ -11,9 +11,10 @@ import {
     TouchableOpacity, Platform
 } from 'react-native'
 
+import { connect } from 'react-redux'
+
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import { strings } from '@app/services/i18n'
-import { connect } from 'react-redux'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -50,10 +51,11 @@ class NftTokenValue extends React.Component{
             <CurrencyIcon
                 setBackground={true}
                 currencyCode={walletCurrency}
-                containerStyle={{ borderWidth: 0, width: 40, height: 40}}
+                containerStyle={{ borderWidth: 0, width: 30, height: 30 }}
                 markStyle={{ top: 30 }}
                 textContainerStyle={{ bottom: -19 }}
                 textStyle={{ backgroundColor: 'transparent' }}
+                iconStyle={{ fontSize: 18 }}
             />
             <TouchableOpacity
                 onPressIn={() => this.triggerBalanceVisibility(true)}
@@ -93,7 +95,8 @@ const styles = StyleSheet.create({
     currencyContainer: {
         marginRight: 12,
         flexDirection: 'row',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        alignItems: 'center'
     },
     balance: {
         fontFamily: 'SFUIDisplay-Bold',

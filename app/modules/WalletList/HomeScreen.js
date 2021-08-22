@@ -8,7 +8,7 @@ import {
     RefreshControl,
     Vibration,
     FlatList,
-    StyleSheet, TouchableOpacity, Text
+    StyleSheet
 } from 'react-native'
 import { connect } from 'react-redux'
 import _orderBy from 'lodash/orderBy'
@@ -118,7 +118,12 @@ class HomeScreen extends React.PureComponent {
 
             this.setState(state => ({
                 currenciesOrder,
-                data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+                data: [ ..._orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength), {
+                    currencyCode: "NFT", currencyExplorerLink: "https://blockchair.com/ru/bitcoin/address/", currencyExplorerTxLink: "https://blockchair.com/ru/bitcoin/transaction/", 
+                    currencyName: "NFT", currencyRateScanTime: 1629635914015, currencyRateUsd: 48977, currencySymbol: "NFT", currencyType: "coin", 
+                    decimals: 8, defaultPath: "m/44'/0'/0'/0/0", extendsProcessor: "BTC", isHidden: 0, maskedHidden: false, network: "mainnet", prettyNumberProcessor: "BTC", 
+                    priceChangePercentage24h: 0.5334, priceLastUpdate: "2021-08-20T19:29:07.000Z", priceLastUpdated: "2021-08-20T19:29:07.000Z", priceProvider: "gecko_coinmarket_kuna", scannerProcessor: "BTC"}
+                ]
             }))
         } catch (e) {
             Log.err(`HomeScreen getCurrenciesOrder error ${e.message}`)
