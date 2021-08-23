@@ -20,6 +20,8 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import Log from '@app/services/Log/Log'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
+import store from '@app/store'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 
 class SettingsSOL extends React.PureComponent {
@@ -76,6 +78,25 @@ class SettingsSOL extends React.PureComponent {
                 await accountHdDS.setMainAddress({ newAddress, oldAddress: account.address, currencyCode: 'SOL', basicCurrencyCode : 'SOL', walletHash: wallet.walletHash })
             } catch (e) {
                 Log.errDaemon('SettingsSOL.handleSetMain error setMainAddress ' + e.message)
+            }
+
+            try {
+                const { accountList } = store.getState().accountStore
+                if (typeof accountList[this.props.wallet.walletHash] !== 'undefined') {
+                    for (const subCurrencyCode in accountList[this.props.wallet.walletHash]) {
+                        const settings = BlocksoftDict.getCurrencyAllSettings(subCurrencyCode)
+                        if (typeof settings.addressCurrencyCode !== 'undefined' && typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'SOLANA' ) {
+                            console.log('!!!')
+                            try {
+                                await accountHdDS.setMainAddress({ newAddress, oldAddress: account.address, currencyCode: subCurrencyCode, basicCurrencyCode : 'SOL', walletHash: wallet.walletHash })
+                            } catch (e) {
+                                Log.errDaemon('SettingsSOL.handleSetMain error setMainAddress subCurrency ' + subCurrencyCode + ' ' + e.message)
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                Log.errDaemon('SettingsSOL.handleSetMain error setTokenAddresses ' + e.message)
             }
 
             try {

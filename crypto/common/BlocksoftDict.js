@@ -1186,7 +1186,7 @@ const Currencies = {
             currencyName: 'MANGO Markets',
             currencyCode: 'SOL_MNGO',
             currencySymbol: 'MNGO',
-            extendsProcessor: 'SOL_MNGO',
+            extendsProcessor: 'SOL_RAY',
             addressUiChecker: 'SOL',
             ratesCurrencyCode: 'MNGO',
             decimals: 6,

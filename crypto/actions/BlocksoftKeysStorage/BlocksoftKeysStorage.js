@@ -8,6 +8,7 @@ import * as Keychain from 'react-native-keychain'
 
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import config from '@app/config/config'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 export class BlocksoftKeysStorage {
 
@@ -275,6 +276,10 @@ export class BlocksoftKeysStorage {
     }
 
     getAddressCacheKey(walletHash, discoverPath, currencyCode) {
+        const settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        if (typeof settings.addressCurrencyCode !== 'undefined' && typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain !== 'BITCOIN' ) {
+            return walletHash + '_' + discoverPath + '_' + settings.addressCurrencyCode
+        }
         return walletHash + '_' + discoverPath + '_' + currencyCode
     }
 

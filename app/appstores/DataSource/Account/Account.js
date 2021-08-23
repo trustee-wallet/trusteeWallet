@@ -10,6 +10,7 @@ import currencyDS from '../Currency/Currency'
 
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import store from '@app/store'
 
 const tableName = 'account'
 let SAVED_UNIQUE = {}
@@ -130,17 +131,38 @@ class Account {
                 throw new Error('DS/Account discoverAddresses NO ACCOUNTS FOR ' + code)
             }
             const keyCode = code
-            const tmp = accounts[code]
+            let tmpAccounts = accounts[code]
             if (code === 'BTC_SEGWIT' || code === 'BTC_SEGWIT_COMPATIBLE') {
                 code = 'BTC'
             } else if (code === 'LTC_SEGWIT') {
                 code = 'LTC'
             }
-            Log.daemon('DS/Account discoverAddresses ' + source + ' accounts ' + code + ' length ' + tmp.length + ' fromIndex ' + fromIndex + ' firstAddress ' + tmp[0].address + ' ' + tmp[0].path + ' index ' + tmp[0].index)
-            for (account of tmp) {
-                const derivationPath = Database.escapeString(account.path)
-                const key = BlocksoftKeysStorage.getAddressCacheKey(params.walletHash, derivationPath, keyCode)
 
+            const settings = BlocksoftDict.getCurrencyAllSettings(code)
+            if (typeof settings.addressCurrencyCode !== 'undefined' && typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain !== 'BITCOIN' ) {
+                const { accountList } = store.getState().accountStore
+                if (typeof accountList[params.walletHash] !== 'undefined' && typeof accountList[params.walletHash][settings.addressCurrencyCode] !== 'undefined') {
+                    const tmpAccount = accountList[params.walletHash][settings.addressCurrencyCode]
+                    tmpAccounts = [{
+                        address: tmpAccount.address,
+                        index : tmpAccount.derivationIndex,
+                        path : tmpAccount.derivationPath,
+                        type : tmpAccount.derivationType,
+                        alreadyShown: tmpAccount.alreadyShown,
+                        addedData: tmpAccount.accountJson
+                    }]
+                } else if (typeof accounts[settings.addressCurrencyCode] !== 'undefined') {
+                    tmpAccounts = accounts[settings.addressCurrencyCode]
+                } else {
+                    // insert this one without main
+                }
+            }
+
+            Log.daemon('DS/Account discoverAddresses ' + source + ' accounts ' + code + ' length ' + tmpAccounts.length + ' fromIndex ' + fromIndex + ' firstAddress ' + tmpAccounts[0].address + ' ' + tmpAccounts[0].path + ' index ' + tmpAccounts[0].index)
+            for (account of tmpAccounts) {
+                const derivationPath = Database.escapeString(account.path)
+                const privateStorageKey = BlocksoftKeysStorage.getAddressCacheKey(params.walletHash, derivationPath, keyCode)
+                const uniqueDBKey = params.walletHash + '_' + derivationPath + '_' + keyCode
                 let accountJson = ''
                 if (typeof (account.addedData) !== 'undefined') {
                     accountJson = Database.escapeString(JSON.stringify(account.addedData))
@@ -167,7 +189,7 @@ class Account {
                 }
 
                 all.push(tmp)
-                if (typeof (SAVED_UNIQUE[key]) === 'undefined') {
+                if (typeof (SAVED_UNIQUE[uniqueDBKey]) === 'undefined') {
                     const findSql = `
                         SELECT
                             id, address,
@@ -185,7 +207,7 @@ class Account {
                         prepare.push(tmp)
                         Log.daemon('DS/Account insert accounts will add ' + code + ' ' + account.address + ' index ' + account.index + ' pubId ' + tmp.walletPubId)
                         // noinspection ES6MissingAwait
-                        BlocksoftKeysStorage.setAddressCache(key, account)
+                        BlocksoftKeysStorage.setAddressCache(privateStorageKey, account)
                     } else {
                         find = find.array[0]
                         if (account.walletPubId && find.walletPubId !== account.walletPubId) {
@@ -211,9 +233,9 @@ class Account {
                             // Log.daemon('!!!!!!!!!!!!DS/Account insert accounts not ok / already in db ' + code + ' ' + account.address + ' index ' + account.index + ' find', find)
                         }
                     }
-                    SAVED_UNIQUE[key] = 1
+                    SAVED_UNIQUE[uniqueDBKey] = 1
                 } else {
-                    Log.daemon('DS/Account insert account ' + key + ' not ok / already in cache', SAVED_UNIQUE[key])
+                    Log.daemon('DS/Account insert account ' + uniqueDBKey + '/' + privateStoregeKey + ' not ok / already in cache', SAVED_UNIQUE[privateStoregeKey])
                 }
             }
         }
@@ -263,8 +285,9 @@ class Account {
         const derivationPath = Database.escapeString(account.derivationPath)
         const tmpName = Database.escapeString('CREATED by InsertByPrivateKey at ' + new Date().toISOString())
 
-        const key = BlocksoftKeysStorage.getAddressCacheKey(account.walletHash, derivationPath, account.currencyCode)
-        if (!(typeof (SAVED_UNIQUE[key]) === 'undefined')) {
+        const uniqueDBKey = account.walletHash + '_' + derivationPath + '_' + account.currencyCode
+
+        if (!(typeof (SAVED_UNIQUE[uniqueDBKey]) === 'undefined')) {
             Log.daemon('DS/Account insert account by privateKey already in cache')
             return false
         }
@@ -293,7 +316,7 @@ class Account {
             if (find.array[0].currencyCode !== currencyCode) {
                 await Database.query(`UPDATE ${tableName} SET currency_code='${currencyCode}' WHERE id=${find.array[0].id}`)
             }
-            SAVED_UNIQUE[key] = 1
+            SAVED_UNIQUE[uniqueDBKey] = 1
             Log.daemon('DS/Account insert account by privateKey already in db ' + account.currencyCode + ' ' + account.address + ' index ' + account.index + ' find', find)
             return false
         }
@@ -325,7 +348,7 @@ class Account {
                 accountId: find2.array[0].id
             }
             await Database.setTableName('account_balance').setInsertData({ insertObjs: [tmp2] }).insert()
-            SAVED_UNIQUE[key] = 1
+            SAVED_UNIQUE[uniqueDBKey] = 1
         }
         Log.daemon('DS/Account insert account by privateKey add ' + account.address + ' index ' + account.index)
     }
@@ -394,6 +417,7 @@ class Account {
             account.id, account.address, account.name,
             account.derivation_type AS derivationType,
             account.derivation_path AS derivationPath,
+            account.derivation_index AS derivation_index,
             account.currency_code AS currencyCode,
             account.wallet_hash AS walletHash,
             account.account_json AS accountJson,
@@ -457,6 +481,7 @@ class Account {
             account_balance.account_id AS accountId,
             account.derivation_type AS derivationType,
             account.derivation_path AS derivationPath,
+            account.derivation_index AS derivationIndex,
             account.currency_code AS currencyCode,
             account.wallet_hash AS walletHash,
             account.account_json AS accountJson,

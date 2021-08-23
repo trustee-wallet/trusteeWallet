@@ -91,8 +91,9 @@ class AddAssetScreen extends React.PureComponent {
     handleAddCurrency = async (currencyToAdd, tokenBlockchain) => {
         Keyboard.dismiss()
         MarketingEvent.logEvent('gx_currency_add', { currencyCode: currencyToAdd.currencyCode }, 'GX')
-        await currencyActions.addCurrency(currencyToAdd)
-        await currencyActions.addOrShowMainCurrency(currencyToAdd.currencyCode, tokenBlockchain)
+        if (await currencyActions.addCurrency(currencyToAdd)) {
+            await currencyActions.addOrShowMainCurrency(currencyToAdd.currencyCode, tokenBlockchain)
+        }
         this.prepareData()
     }
 

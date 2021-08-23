@@ -139,7 +139,14 @@ class BackupSettingsScreen extends PureComponent {
                     }
                 })
             } catch (e) {
+                setLoaderStatus(false)
                 Log.err('WalletBackup.Skip error ' + e.message)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: e.message
+                })
             }
 
         })
