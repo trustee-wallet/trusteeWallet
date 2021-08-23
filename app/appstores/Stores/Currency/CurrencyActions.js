@@ -98,7 +98,7 @@ const currencyActions = {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'TRX', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'BNB_SMART_20' || tokenType === 'BNB') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'BNB_SMART', newIsHidden : 0, currentIsHidden : 0})
-        } else {
+        } else if (tokenType === 'ETH_ERC_20' || tokenType === 'ETHEREUM') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'ETH', newIsHidden : 0, currentIsHidden : 0})
         }
     },
