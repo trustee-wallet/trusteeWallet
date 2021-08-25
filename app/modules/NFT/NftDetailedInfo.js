@@ -24,7 +24,6 @@ import NftTokenInfo from '@app/modules/NFT/elements/NftTokenInfo'
 import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
 import Button from '@app/components/elements/new/buttons/Button'
 
-import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import Log from '@app/services/Log/Log'
 

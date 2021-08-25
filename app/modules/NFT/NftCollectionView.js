@@ -32,6 +32,10 @@ class NftCollectionView extends React.PureComponent {
         NavStore.reset('TabBar')
     }
 
+    handleToken = () => {
+        NavStore.goNext('NftDetailedInfo')
+    }
+
     renderFlatListItem = ({ item, index }) => {
 
         const {
@@ -40,6 +44,7 @@ class NftCollectionView extends React.PureComponent {
 
         return (
             <FlatListItem
+                onPress={this.handleToken}
                 numColumns={numColumns}
                 data={item}
                 margin={index % numColumns === 0}

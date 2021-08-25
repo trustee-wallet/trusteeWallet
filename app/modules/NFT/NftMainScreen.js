@@ -60,7 +60,7 @@ class NftMainScreen extends React.PureComponent {
     renderTabs = () => <Tabs
         tabs={this.state.tabs}
         changeTab={this.handleChangeTab}
-        containerStyle={{ paddingVertical: this.context.GRID_SIZE, width: '50%', alignSelf: 'center' }}
+        containerStyle={{ paddingVertical: this.context.GRID_SIZE, width: '60%', alignSelf: 'center' }}
     />
 
     handleCollection = () => {
