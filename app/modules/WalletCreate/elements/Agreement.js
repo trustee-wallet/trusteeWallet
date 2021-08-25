@@ -2,12 +2,15 @@
  * @version 0.43
  */
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import {
+    View,
+    Text,
+    StyleSheet
+} from 'react-native'
 
 import CheckBox from '@app/components/elements/new/CheckBox'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
-
 
 export default class Agreement extends React.PureComponent {
 
@@ -55,6 +58,8 @@ const styles = StyleSheet.create({
     titleContainer: {
         marginLeft: 12,
         paddingVertical: 4,
+        flexWrap: 'wrap',
+        flexDirection: 'row',
         flex: 1,
     },
     text: {
