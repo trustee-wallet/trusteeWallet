@@ -1,75 +1,48 @@
 /**
- * @version 0.5
+ * @version 0.52
+ * https://github.com/Blockstream/esplora/blob/master/API.md
  */
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import BlocksoftAxios from '../../common/BlocksoftAxios'
-import BlocksoftUtils from '../../common/BlocksoftUtils'
-import BtcTestFindAddressFunction from './basic/BtcTestFindAddressFunction'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import DogeFindAddressFunction from '@crypto/blockchains/doge/basic/DogeFindAddressFunction'
 
-const API_PATH = 'https://testnet-api.smartbit.com.au/v1/blockchain/address/'
-
-const CACHE_VALID_TIME = 30000 // 30 seconds
-const CACHE = {}
+const API_PATH = 'https://blockstream.info/testnet/api/'
 
 export default class BtcTestScannerProcessor {
 
-    /**
-     * @type {number}
-     * @private
-     */
-    _blocksToConfirm = 5
 
-    async _get(address) {
-        const now = new Date().getTime()
-        if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
-            return CACHE[address].data
-        }
-        const link = API_PATH + address
-        const res = await BlocksoftAxios.getWithoutBraking(link)
-        if (!res || !res.data) {
-            return false
-        }
-        if (typeof res.data.address === 'undefined') {
-            throw new Error('BtcTestScannerProcessor._get nothing loaded for address ' + link)
-        }
-
-        CACHE[address] = {
-            data: res.data.address,
-            time: now
-        }
-        return res.data.address
-    }
-
-    /**
-     * https://testnet-api.smartbit.com.au/v1/blockchain/address/mrEZPSepSrV2DveXpXnAyBMugUvUBhNiJS
+    /*
+     * https://blockstream.info/testnet/api/address/mtU4mYXfBRiTx1iUBWcCvUTr4CgRnRALaL
      * @param {string} address
      * @return {Promise<{int:balance, int:provider}>}
      */
     async getBalanceBlockchain(address) {
         BlocksoftCryptoLog.log('BtcTestScannerProcessor.getBalance started ' + address)
-        const res = await this._get(address)
-        if (!res || typeof res.confirmed === 'undefined') {
+        const res = await BlocksoftAxios.getWithoutBraking(API_PATH + 'address/' + address)
+        // console.log('res', res.data.chain_stats.funded_txo_sum) // spent_txo_sum
+        if (!res || typeof res.data === 'undefined' || typeof res.data.chain_stats === 'undefined' || typeof res.data.chain_stats.funded_txo_sum === 'undefined') {
             return false
         }
-        return {balance: res.confirmed.balance_int, unconfirmed: res.unconfirmed.balance_int, provider: 'smartbit.com.au' }
+        return { balance: res.data.chain_stats.funded_txo_sum, unconfirmed: 0, provider: 'blockstream.info' }
     }
 
     /**
-     * https://testnet-api.smartbit.com.au/v1/blockchain/address/mn5hqUL6kXUV4yocWxfJh9JGBv7mT3MgJe
+     * https://blockstream.info/testnet/api/address/mtU4mYXfBRiTx1iUBWcCvUTr4CgRnRALaL/txs
      * @param {string} scanData.account.address
      * @return {Promise<UnifiedTransaction[]>}
      */
     async getTransactionsBlockchain(scanData) {
         const address = scanData.account.address.trim()
         BlocksoftCryptoLog.log('BtcTestScannerProcessor.getTransactions started ' + address)
-        const res = await this._get(address)
-        if (!res || typeof res.transactions === 'undefined') {
+        const res = await BlocksoftAxios.getWithoutBraking(API_PATH + 'address/' + address + '/txs')
+        if (!res || typeof res.data === 'undefined' || !res.data) {
             return []
         }
         const transactions = []
         let tx
-        for (tx of res.transactions) {
-            const transaction = await  this._unifyTransaction(address, tx)
+        for (tx of res.data) {
+            const transaction = await this._unifyTransaction(address, tx)
             transactions.push(transaction)
         }
         BlocksoftCryptoLog.log('BtcTestScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
@@ -80,71 +53,62 @@ export default class BtcTestScannerProcessor {
      *
      * @param {string} address
      * @param {Object} transaction
-     * @param {string} transaction.txid "51be02df7de46e278c31607a6fb1af89de1c9268140a782fa91490a2ef62bedd"
-     * @param {string} transaction.hash "bbef21fa0dee19439cafc76697dec961e58f0f9f574b1496c1b9f61437a62cac"
-     * @param {string} transaction.block 1669542
-     * @param {string} transaction.confirmations 3
-     * @param {string} transaction.version "2"
-     * @param {string} transaction.locktime 1669541
-     * @param {string} transaction.time 1583938596
-     * @param {string} transaction.first_seen 1583937984
-     * @param {string} transaction.propagation null
-     * @param {string} transaction.double_spend false
-     * @param {string} transaction.size 226
-     * @param {string} transaction.vsize 145
-     * @param {string} transaction.input_amount "0.01443588"
-     * @param {string} transaction.input_amount_int 1443588
-     * @param {string} transaction.output_amount "0.01443443"
-     * @param {string} transaction.output_amount_int 1443443
-     * @param {string} transaction.fee "0.00000145"
-     * @param {string} transaction.fee_int 145
-     * @param {string} transaction.fee_size "1.00000000"
-     * @param {string} transaction.coinbase false
-     * @param {string} transaction.input_count 1
-     * @param {string} transaction.inputs [{…}]
-     * @param {string} transaction.output_count 2
-     * @param {string} transaction.outputs (2) [{…}, {…}]
-     * @param {string} transaction.tx_index 55131161
-     * @param {string} transaction.block_index 314
      * @return  {Promise<UnifiedTransaction>}
      * @private
      */
     async _unifyTransaction(address, transaction) {
+
         let showAddresses = false
         try {
-            showAddresses = await BtcTestFindAddressFunction(address, transaction)
+            showAddresses = await DogeFindAddressFunction([address], transaction)
         } catch (e) {
             e.message += ' transaction hash ' + JSON.stringify(transaction) + ' address ' + address
             throw e
         }
-
         let transactionStatus = 'new'
-        if (transaction.confirmations >= this._blocksToConfirm) {
-            transactionStatus = 'success'
-        } else if (transaction.confirmations > 0) {
-            transactionStatus = 'confirming'
+        let blockConfirmations = 0
+        let blockHash = ''
+        let blockNumber = ''
+        let formattedTime = 0
+        if (typeof transaction.status !== 'undefined') {
+            if (typeof transaction.status.block_hash !== 'undefined') {
+                blockHash = transaction.status.block_hash
+            }
+            if (typeof transaction.status.block_height !== 'undefined') {
+                blockNumber = transaction.status.block_height
+            }
+            if (typeof transaction.status.confirmed !== 'undefined') {
+                if (transaction.status.confirmed) {
+                    transactionStatus = 'success'
+                    blockConfirmations = 100
+                } else {
+                    transactionStatus = 'confirming'
+                }
+            }
+            if (typeof transaction.status.block_time !== 'undefined') {
+                try {
+                    formattedTime = BlocksoftUtils.toDate(transaction.status.block_time)
+                } catch (e) {
+                    e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
+                    throw e
+                }
+            }
         }
 
-        let formattedTime
-        try {
-            formattedTime = BlocksoftUtils.toDate(transaction.time)
-        } catch (e) {
-            e.message += ' timestamp error transaction data ' + JSON.stringify(transaction)
-            throw e
-        }
+
 
         return {
             transactionHash: transaction.txid,
-            blockHash: transaction.block,
-            blockNumber: +transaction.block,
+            blockHash,
+            blockNumber,
             blockTime: formattedTime,
-            blockConfirmations: transaction.confirmations,
+            blockConfirmations,
             transactionDirection: showAddresses.direction,
             addressFrom: showAddresses.from,
             addressTo: showAddresses.to,
             addressAmount: showAddresses.value,
             transactionStatus: transactionStatus,
-            transactionFee: transaction.fee_int
+            transactionFee: transaction.fee
         }
     }
 }

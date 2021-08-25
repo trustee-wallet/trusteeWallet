@@ -1,29 +1,39 @@
 /**
- * @version 0.5
+ * @version 0.52
  */
-import BtcTransferProcessor from '../btc/BtcTransferProcessor'
+import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
+import DogeTransferProcessor from '@crypto/blockchains/doge/DogeTransferProcessor'
+import BtcTestUnspentsProvider from '@crypto/blockchains/btc_test/providers/BtcTestUnspentsProvider'
+import BtcTestSendProvider from '@crypto/blockchains/btc_test/providers/BtcTestSendProvider'
+import DogeTxInputsOutputs from '@crypto/blockchains/doge/tx/DogeTxInputsOutputs'
+import DogeTxBuilder from '@crypto/blockchains/doge/tx/DogeTxBuilder'
 
-import BtcTestUnspentsProvider from './providers/BtcTestUnspentsProvider'
-import BtcTestSendProvider from './providers/BtcTestSendProvider'
+export default class BtcTestTransferProcessor extends DogeTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
-import BtcTxBuilder from '../btc/tx/BtcTxBuilder'
-import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
+    _trezorServerCode = 'NONE'
 
-export default class BtcTestTransferProcessor extends BtcTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
+    _builderSettings: BlocksoftBlockchainTypes.BuilderSettings = {
+        minOutputDustReadable: 0.000005,
+        minChangeDustReadable: 0.00001,
+        feeMaxForByteSatoshi: 10000, // for tx builder
+        feeMaxAutoReadable2: 0.2, // for fee calc,
+        feeMaxAutoReadable6: 0.1, // for fee calc
+        feeMaxAutoReadable12: 0.05, // for fee calc
+        changeTogether: true,
+        minRbfStepSatoshi: 10,
+        minSpeedUpMulti : 1.5
+    }
 
-    /**
-     * @type {number}
-     * @private
-     */
-    _maxDiffInOutReadable = 0.1
+    canRBF(data: BlocksoftBlockchainTypes.DbAccount, transaction: BlocksoftBlockchainTypes.DbTransaction): boolean {
+        return false
+    }
 
-    /**
-     * @type {{minOutputToBeDustedReadable: number, minChangeThresholdReadable: number, minFee: number}}
-     * @private
-     */
-    _inputsOutputsSettings = {
-        minFee : 500,
-        minOutputToBeDustedReadable: 0.00001,
-        minChangeThresholdReadable: 0.00001
+    _initProviders() {
+        if (this._initedProviders) return false
+        this.unspentsProvider = new BtcTestUnspentsProvider(this._settings, this._trezorServerCode)
+        this.sendProvider = new BtcTestSendProvider(this._settings, this._trezorServerCode)
+        this.txPrepareInputsOutputs = new DogeTxInputsOutputs(this._settings, this._builderSettings)
+        this.txBuilder = new DogeTxBuilder(this._settings, this._builderSettings)
+        this._initedProviders = true
     }
 }
