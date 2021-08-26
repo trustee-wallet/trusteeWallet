@@ -92,6 +92,7 @@ class BackupStep1Screen extends React.PureComponent {
     }
 
     handleSelectWord = (item, index) => {
+        Log.log('WalletBackup.BackupStep1Screen handleSelectWord')
         const walletMnemonicSorted = JSON.parse(JSON.stringify(this.state.walletMnemonicSorted))
         const walletMnemonicSelected = JSON.parse(JSON.stringify(this.state.walletMnemonicSelected))
         walletMnemonicSelected.push(item)
@@ -124,7 +125,7 @@ class BackupStep1Screen extends React.PureComponent {
 
     confirmDeleteWallet = async () => {
         const { walletHash, source } = this.props.createWalletStore
-        await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen' ? true : false)
+        await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen')
     }
 
     handleDeleteWallet = () => {
@@ -149,6 +150,8 @@ class BackupStep1Screen extends React.PureComponent {
     }
 
     validateMnemonic = async () => {
+        Log.log('WalletBackup.BackupStep1Screen validateMnemonic')
+
         const { flowType, walletHash, walletNumber, source } = this.props.createWalletStore
 
         if (this.state.walletMnemonicSorted.length) return true
@@ -252,6 +255,7 @@ class BackupStep1Screen extends React.PureComponent {
     }
 
     render() {
+        Log.log('WalletBackup.BackupStep1Screen render')
         MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep1Screen')
 
         const {
@@ -264,6 +268,8 @@ class BackupStep1Screen extends React.PureComponent {
         return (
             <ScreenWrapper
                 title={strings('walletBackup.step1Screen.title')}
+                leftType='back'
+                leftAction={this.handleBack}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
@@ -301,10 +307,6 @@ class BackupStep1Screen extends React.PureComponent {
                                 disabled: !!walletMnemonicSorted.length,
                                 onPress: this.onNext,
                                 title: strings('walletBackup.step1Screen.next')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: this.handleBack
                             }}
                         />
                     </View>

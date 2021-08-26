@@ -139,14 +139,7 @@ class BackupSettingsScreen extends PureComponent {
                     }
                 })
             } catch (e) {
-                setLoaderStatus(false)
                 Log.err('WalletBackup.Skip error ' + e.message)
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: null,
-                    title: strings('modal.exchange.sorry'),
-                    description: e.message
-                })
             }
 
         })
@@ -176,6 +169,8 @@ class BackupSettingsScreen extends PureComponent {
         return (
             <ScreenWrapper
                 title={strings('walletBackup.settingsScreen.title')}
+                leftType='back'
+                leftAction={this.handleBack}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
@@ -243,10 +238,6 @@ class BackupSettingsScreen extends PureComponent {
                                 disabled: !hasChanges,
                                 onPress: this.handleApply,
                                 title: strings('walletBackup.settingsScreen.apply')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: this.handleBack,
                             }}
                         />
                     </View>
