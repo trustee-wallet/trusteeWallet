@@ -108,7 +108,7 @@ export namespace BlocksoftTransfer {
         const uiErrorConfirmed = typeof uiData !== 'undefined' && uiData && typeof uiData.uiErrorConfirmed !== 'undefined' && uiData.uiErrorConfirmed
         const memo = typeof data !== 'undefined' && data && typeof data.memo !== 'undefined' ? data.memo : false
 
-        
+
         try {
             if (data.transactionReplaceByFee || data.transactionRemoveByFee || data.transactionSpeedUp) {
                 // do nothing
@@ -153,7 +153,7 @@ export namespace BlocksoftTransfer {
             const privateData = await BlocksoftTransferPrivate.initTransferPrivate(data, additionalData)
             txResult = await processor.sendTx(data, privateData, uiData)
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendTx got ${data.addressFrom} result is ok`)
-            if (typeof uiData.selectedFee === 'undefined' || typeof uiData.selectedFee.rawOnly === 'undefined' || !uiData.selectedFee.rawOnly) {
+            if (typeof uiData === 'undefined' || typeof uiData.selectedFee === 'undefined' || typeof uiData.selectedFee.rawOnly === 'undefined' || !uiData.selectedFee.rawOnly) {
                 CACHE_DOUBLE_TO[data.currencyCode] = {
                     key: data.addressTo,
                     memo,
