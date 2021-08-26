@@ -111,7 +111,7 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     stakePubkey : new PublicKey(data.blockchainData.stakeAddress),
                 }));*/
             } else if (data.addressTo === 'STAKE') {
-
+                const validator = BlocksoftExternalSettings.getStatic('SOL_VOTE_BEST')
                 const authorized = new Authorized(fromPubkey, fromPubkey)
 
                 // https://github.com/velas/JsWallet/blob/251ad92bb5c2cd9a62477746a3db934b6dce0c4b/velas/velas-staking.js
@@ -161,7 +161,7 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     StakeProgram.delegate({
                         stakePubkey: new PublicKey(stakeAddress),
                         authorizedPubkey: new PublicKey(data.addressFrom),
-                        votePubkey: new PublicKey('beefKGBWeSpHzYBHZXwp5So7wdQGX6mu4ZHCsH3uTar')
+                        votePubkey: new PublicKey(validator)
                     })
                 )
 
