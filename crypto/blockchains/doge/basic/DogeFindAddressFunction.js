@@ -34,11 +34,20 @@ export default async function DogeFindAddressFunction(addresses, transaction) {
     if (transaction.vin) {
         for (let i = 0, ic = transaction.vin.length; i < ic; i++) {
             let vinAddress
-            const vinValue = transaction.vin[i].value
+            let vinValue = transaction.vin[i].value
             if (typeof transaction.vin[i].addresses !== 'undefined') {
                 vinAddress = transaction.vin[i].addresses[0]
             } else if (typeof transaction.vin[i].addr !== 'undefined') {
                 vinAddress = transaction.vin[i].addr
+            } else if (
+                typeof transaction.vin[i].prevout !== 'undefined'
+            ) {
+                if (typeof transaction.vin[i].prevout.scriptpubkey_address !== 'undefined') {
+                    vinAddress = transaction.vin[i].prevout.scriptpubkey_address
+                }
+                if (typeof transaction.vin[i].prevout.value !== 'undefined') {
+                    vinValue = transaction.vin[i].prevout.value
+                }
             }
             if (vinAddress === address1 || vinAddress === address2) {
                 inputMyBN.add(vinValue)
@@ -65,8 +74,9 @@ export default async function DogeFindAddressFunction(addresses, transaction) {
                 voutAddress = transaction.vout[j].addresses[0]
             } else if (typeof transaction.vout[j].scriptPubKey !== 'undefined' && typeof transaction.vout[j].scriptPubKey.addresses !== 'undefined') {
                 voutAddress = transaction.vout[j].scriptPubKey.addresses[0]
+            } else if (typeof transaction.vout[j].scriptpubkey_address !== 'undefined') {
+                voutAddress = transaction.vout[j].scriptpubkey_address
             }
-
             if (voutAddress === address1 || voutAddress === address2) {
                 outputMyBN.add(voutValue)
             } else {

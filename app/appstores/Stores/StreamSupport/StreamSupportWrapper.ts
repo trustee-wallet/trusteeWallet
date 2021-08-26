@@ -138,7 +138,7 @@ export namespace StreamSupportWrapper {
                     if (CACHE_ROOM_ID) { // subscribe to the room
                         subscribeToMessages()
                     }
-                } else if (newData.msg === 'result' && newData.id === IDENT_MESSAGE_LIST) {
+                } else if (newData.msg === 'result' && newData.id === IDENT_MESSAGE_LIST && typeof newData.result !== 'undefined' && typeof newData.result.messages !== 'undefined') {
                     StreamSupportActions.allMessages(newData.result.messages)
                 } else if (newData.msg === 'result' && newData.id === IDENT_GROUP_CREATE) {
                     if (typeof newData.error !== 'undefined' && typeof newData.error.error !== 'undefined') {
