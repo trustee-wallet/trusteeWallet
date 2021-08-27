@@ -176,6 +176,7 @@ class CashbackScreen extends React.PureComponent {
         return (
             <FlatList
                 data={flatListData}
+                contentContainerStyle={{ paddingHorizontal: GRID_SIZE / 2 }}
                 style={{ marginHorizontal: -GRID_SIZE }}
                 keyExtractor={({ index }) => index}
                 ListFooterComponentStyle={styles.flatListFooter}
@@ -242,7 +243,6 @@ class CashbackScreen extends React.PureComponent {
         return (
             <CashbackData
                 data={item}
-                margin={index === 0}
             />
         )
     }
@@ -280,7 +280,7 @@ class CashbackScreen extends React.PureComponent {
             <ScreenWrapper
                 title={strings('cashback.pageTitle')}
                 ExtraView={this.renderTabs}
-                rightAction={this.handlePressShare}
+                rightAction={() => this.handlePressShare(cashbackLink)}
                 rightType='share'
             >
                 <ScrollView

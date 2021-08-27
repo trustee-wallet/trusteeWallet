@@ -496,6 +496,19 @@ module.exports = {
                 }
             }
         }
+        if ( array.type === 'CASHBACK_LINK' ) {
+            if (array.value.includes('trusteeglobal.com/')){
+                return {
+                    status: 'success',
+                    errorArr: []
+                }
+            }else {
+                return {
+                    status: 'fail',
+                    errorArr: resultArray
+                }
+            }
+        }
         if (resultArray && resultArray.length > 0) {
             if (array[0] && (await _fioAddressValidation(array[0]))) {
                 return {
