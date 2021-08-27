@@ -218,6 +218,7 @@ class CashbackScreen extends React.PureComponent {
     }
 
     handleRefresh = async () => {
+        console.log('start cashback')
         this.setState({
             refreshing: true
         })
@@ -256,8 +257,8 @@ class CashbackScreen extends React.PureComponent {
         MarketingAnalytics.setCurrentScreen('CashBackScreen')
 
         const {
-            colors,
-            GRID_SIZE
+            GRID_SIZE,
+            colors
         } = this.context
         const {
             selectedTitle
@@ -294,7 +295,10 @@ class CashbackScreen extends React.PureComponent {
                         <RefreshControl
                             refreshing={this.state.refreshing}
                             onRefresh={this.handleRefresh}
-                            tintColor={colors.common.text1}
+                            tintColor={colors.common.refreshControlIndicator}
+                            colors={[colors.common.refreshControlIndicator]}
+                            progressBackgroundColor={colors.common.refreshControlBg}
+                            progressViewOffset={-20}
                         />
                     }>
                     {this.state.tabs[0].active && (
