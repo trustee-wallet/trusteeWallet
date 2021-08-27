@@ -21,6 +21,7 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { feesTitles } from '@app/modules/Send/advanced/helpers'
 
 class SendCustomFeeETH extends React.PureComponent {
 
@@ -156,7 +157,8 @@ class SendCustomFeeETH extends React.PureComponent {
 
         const { colors, GRID_SIZE } = this.context
 
-        const feesCurrencySymbol = 'ETH'
+
+        const {feesCurrencySymbol} = feesTitles(this.props.currentSelectedFee, this.props.sendScreenStore.dict)
 
         const { feesBasicCurrencyRate, feesBasicCurrencySymbol } = this.props.sendScreenStore.dict
 
