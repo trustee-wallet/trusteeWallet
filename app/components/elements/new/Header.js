@@ -183,7 +183,6 @@ const styles = {
     extraView: {
         flex: 1,
         zIndex: 20,
-        paddingBottom: 15
     },
     header: {
         flexDirection: 'row',

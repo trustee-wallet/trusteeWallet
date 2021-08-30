@@ -180,7 +180,7 @@ class CashbackScreen extends React.PureComponent {
                 keyExtractor={({ index }) => index}
                 ListFooterComponentStyle={styles.flatListFooter}
                 horizontal={true}
-                renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
+                renderItem={this.renderFlatListItem}
                 showsHorizontalScrollIndicator={false}
             />
         )

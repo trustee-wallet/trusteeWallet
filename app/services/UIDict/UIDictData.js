@@ -622,7 +622,7 @@ export default {
     },
     'SOL': {
         colors: {
-            mainColor: '#00FFA3',
+            mainColor: '#15E99C',
             darkColor: '#22DB98'
         }
     },
@@ -654,6 +654,18 @@ export default {
         colors: {
             mainColor: '#47A9F1',
             darkColor: '#47A9F1'
+        }
+    },
+    "SOL_USDC": {
+        colors: {
+            mainColor: '#2A7FDB',
+            darkColor: '#2FB9B8'
+        }
+    },
+    'SOL_USDT': {
+        colors: {
+            mainColor: '#31D182',
+            darkColor: '#2D9D66'
         }
     },
     'DEFAULT': {

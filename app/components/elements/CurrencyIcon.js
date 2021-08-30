@@ -459,7 +459,7 @@ export default class ButtonLine extends PureComponent {
             case 'TRX_USDT':
             case 'ETH_USDT':
             case 'BNB_SMART_USDT':
-                // case 'SOL_USDT':
+            case 'SOL_USDT':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -487,6 +487,7 @@ export default class ButtonLine extends PureComponent {
 
             case 'ETH_USDC':
             case 'TRX_USDC':
+            case 'SOL_USDC':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict['ETH_USDC'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>

@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         paddingTop: 8,
+        paddingBottom: 16,
         marginBottom: -7, // negative value because of paddingBottom in ExtraView into Header component
     },
     tab: {
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 14,
-        lineHeight: 14,
+        lineHeight: 16,
         letterSpacing: 1,
         textAlign: 'center',
         textTransform: 'uppercase'

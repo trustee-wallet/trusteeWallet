@@ -174,11 +174,15 @@
       "waitToUnfreezeTRX" : "Please wait 72 hours from last freeze time",
       "allowLongQueryETH": "Allow pending transactions queue",
       "allowBlockedBalanceETH": "Allow reuse of pending transactions balance",
-      "enterToStakeSOL" : "enter stake amount SOL",
-      "stakeSOL" : "stake",
-      "unstakeSOL" : "unstake",
+      "enterToStakeSOL" : "Enter stake amount SOL",
+      "stakeSOL" : "Stake",
+      "unstakeSOL" : "Unstake",
       "selectAddress" : "Select Address to use",
-      "stakeBalance": "Stake Balance"
+      "stakeBalance": "Stake Balance",
+      "address": "Address",
+      "stake": "Stake",
+      "rentReserve": "Rent reserve",
+      "maxValue": "Max\nvalue"
     },
     "about": {
       "title": "საფულის შესახებ",

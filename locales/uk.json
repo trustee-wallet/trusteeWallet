@@ -181,11 +181,15 @@
       "waitToUnfreezeTRX" : "За умовами протоколу Tron розморожування можливе через 72 годин з моменту останньої заморозки",
       "allowLongQueryETH" : "Дозволити створювати чергу з непідтверджених транзакцій",
       "allowBlockedBalanceETH" : "Дозволити повторне використання балансу непідтверджених транзакцій",
-      "enterToStakeSOL" : "введіть кількість SOL",
-      "stakeSOL" : "в стейк",
-      "unstakeSOL" : "забрати",
+      "enterToStakeSOL" : "Введіть кількість SOL",
+      "stakeSOL" : "В стейк",
+      "unstakeSOL" : "Забрати",
       "selectAddress" : "Обрати адресу для використання",
-      "stakeBalance": "Стейк балансу"
+      "stakeBalance": "Стейк балансу",
+      "address": "Адреси",
+      "stake": "Стейк",
+      "rentReserve": "Орендна плата",
+      "maxValue": "Макс значення"
     },
     "about": {
       "title": "Про гаманець",
