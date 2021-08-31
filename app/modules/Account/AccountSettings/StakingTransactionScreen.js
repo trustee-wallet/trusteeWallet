@@ -30,12 +30,15 @@ import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 
 import Input from '@app/components/elements/NewInput'
 import stylesGlobal from '@app/modules/Account/AccountSettings/elements/styles'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import config from '@app/config/config'
 
 class StakingTransactionScreen extends PureComponent {
 
     state = {
         element: null,
-        unStake: null,
+        account : null,
         inputValue: null
     }
 
@@ -43,11 +46,11 @@ class StakingTransactionScreen extends PureComponent {
 
     componentDidMount() {
         const element = NavStore.getParamWrapper(this, 'stakingItem')
-        const unStake = NavStore.getParamWrapper(this, 'unStake')
+        const account = NavStore.getParamWrapper(this, 'stakingAccount')
 
         this.setState({
             element,
-            unStake
+            account
         })
     }
 
@@ -122,13 +125,66 @@ class StakingTransactionScreen extends PureComponent {
             Log
             Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + link)
         }
+    }
 
+    handleUnStake = async (value) => {
+
+        const { account, element } = this.state
+
+        const unStake = value === 'ALL' ? value : BlocksoftPrettyNumbers.setCurrencyCode('SOL').makeUnPretty(value)
+
+        showModal({
+            type: 'YES_NO_MODAL',
+            icon: 'WARNING',
+            title: strings('settings.walletList.unstakeSOL'),
+            description: element.stakeAddress + ' : ' + value + ' SOL'
+        }, async () => {
+            setLoaderStatus(true)
+            try {
+
+                const txData = {
+                    currencyCode: 'SOL',
+                    amount: unStake,
+                    walletHash: account.walletHash,
+                    derivationPath: account.derivationPath,
+                    addressFrom: account.address,
+                    addressTo: 'UNSTAKE_' + element.stakeAddress,
+                    blockchainData: element
+                }
+
+                const result = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed: true })
+                if (result) {
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: true,
+                        title: strings('modal.send.success'),
+                        description: result.transactionHash
+                    })
+                    const lastTransactions = this.state.lastTransactions
+                    lastTransactions.push({ transactionHash: result.transactionHash, type: 'UNSTAKE', amount: value })
+                    this.setState({ lastTransactions })
+                    NavStore.goBack()
+                }
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log('SettingsSOL.handleUnStake error ', e)
+                }
+                const msg = e.message.indexOf('SERVER_RESPONSE_') === -1 ? e.message : strings('send.errors.' + e.message)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: null,
+                    title: strings('modal.exchange.sorry'),
+                    description: msg
+                })
+            }
+            setLoaderStatus(false)
+        })
     }
 
     render() {
 
         const { GRID_SIZE, colors } = this.context
-        const { element, unStake } = this.state
+        const { element } = this.state
 
         return (
             <ScreenWrapper
@@ -182,10 +238,17 @@ class StakingTransactionScreen extends PureComponent {
                                     </View>
                                     <Button
                                         title={strings('settings.walletList.unstakeSOL')}
-                                        onPress={() => unStake(element, this.unStakeAmountInput.getValue())}
+                                        onPress={() => this.handleUnStake(this.unStakeAmountInput.getValue())}
                                         disabled={!this.state.element.active} //@Ksu need this???
                                     />
+
+                                    <Button
+                                        type='transparent'
+                                        title={strings('settings.walletList.allUnstakeSOL').toUpperCase()}
+                                        onPress={() => this.handleUnStake('ALL')}
+                                    />
                                 </View>
+
 
                             </View>
                         </> :

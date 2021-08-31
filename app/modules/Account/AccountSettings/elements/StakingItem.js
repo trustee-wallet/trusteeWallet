@@ -60,7 +60,7 @@ const StakingItem = (props) => {
                         </TouchableOpacity>
                     </View>
                     {
-                        inProcess && Platform.OS !== 'ios' ? (
+                        inProcess && Platform.OS !== 'ios' && typeof this.state !== 'undefined' && typeof this.state.height !== 'undefined' ? (
                             <BoxShadow
                                 setting={[
                                     styles.shadow__item__android,

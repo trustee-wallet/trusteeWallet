@@ -100,16 +100,19 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
         try {
             const fromPubkey = new PublicKey(data.addressFrom)
             if (data.addressTo.indexOf('UNSTAKE') === 0) {
-                tx.add(StakeProgram.withdraw({
-                    authorizedPubkey: fromPubkey,
-                    stakePubkey: new PublicKey(data.blockchainData.stakeAddress),
-                    lamports: data.amount * 1,
-                    toPubkey: fromPubkey
-                }))
-                /*tx.add(StakeProgram.deactivate({
-                    authorizedPubkey : fromPubkey,
-                    stakePubkey : new PublicKey(data.blockchainData.stakeAddress),
-                }));*/
+                if (data.amount === 'ALL') {
+                    tx.add(StakeProgram.deactivate({
+                        authorizedPubkey: fromPubkey,
+                        stakePubkey: new PublicKey(data.blockchainData.stakeAddress),
+                    }));
+                } else {
+                    tx.add(StakeProgram.withdraw({
+                        authorizedPubkey: fromPubkey,
+                        stakePubkey: new PublicKey(data.blockchainData.stakeAddress),
+                        lamports: data.amount * 1,
+                        toPubkey: fromPubkey
+                    }))
+                }
             } else if (data.addressTo === 'STAKE') {
                 const validator = BlocksoftExternalSettings.getStatic('SOL_VOTE_BEST')
                 const authorized = new Authorized(fromPubkey, fromPubkey)

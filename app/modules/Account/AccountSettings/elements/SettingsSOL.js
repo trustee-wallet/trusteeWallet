@@ -66,7 +66,13 @@ class SettingsSOL extends React.PureComponent {
             currentAddresses: false,
             currentAddressesLoaded: false,
             stakedAddresses: false,
-            lastTransactions: [],
+            lastTransactions: [
+                {
+                    transactionHash: '4pabGHmZyL3JwznQd5FHrBNqBbcKNesGbe5UXrq3ujPmeNqi8xpK3rJgRPajNTJZHPyE1vXXgRSVABXaEBfgcn18',
+                    type: 'UNSTAKE',
+                    amount: 10000
+                }
+            ],
             refreshing: false,
             clickRefresh: false,
             load: true,
@@ -244,60 +250,6 @@ class SettingsSOL extends React.PureComponent {
         setLoaderStatus(false)
     }
 
-    handleUnStake = async (item, value) => {
-
-        const { account } = this.props
-
-        const unStake = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makeUnPretty(value)
-
-        showModal({
-            type: 'YES_NO_MODAL',
-            icon: 'WARNING',
-            title: strings('settings.walletList.unstakeSOL'),
-            description: item.stakeAddress + ' : ' + value + ' SOL'
-        }, async () => {
-            setLoaderStatus(true)
-            try {
-
-                const txData = {
-                    currencyCode: 'SOL',
-                    amount: unStake,
-                    walletHash: account.walletHash,
-                    derivationPath: account.derivationPath,
-                    addressFrom: account.address,
-                    addressTo: 'UNSTAKE_' + item.stakeAddress,
-                    blockchainData: item
-                }
-
-                const result = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed: true })
-                if (result) {
-                    showModal({
-                        type: 'INFO_MODAL',
-                        icon: true,
-                        title: strings('modal.send.success'),
-                        description: result.transactionHash
-                    })
-                    const lastTransactions = this.state.lastTransactions
-                    lastTransactions.push({ transactionHash: result.transactionHash, type: 'UNSTAKE', amount: value })
-                    this.setState({ lastTransactions })
-                    NavStore.goBack()
-                }
-            } catch (e) {
-                if (config.debug.cryptoErrors) {
-                    console.log('SettingsSOL.handleUnStake error ', e)
-                }
-                const msg = e.message.indexOf('SERVER_RESPONSE_') === -1 ? e.message : strings('send.errors.' + e.message)
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: null,
-                    title: strings('modal.exchange.sorry'),
-                    description: msg
-                })
-            }
-            setLoaderStatus(false)
-        })
-    }
-
     renderTabs = () => <Tabs tabs={this.state.tabs} changeTab={this.handleChangeTab} />
 
     handleChangeTab = (newTab) => {
@@ -309,10 +261,11 @@ class SettingsSOL extends React.PureComponent {
     }
 
     handleStakeTransaction = (item) => {
+        const { account } = this.props
         if (item.type) {
             Linking.openURL('https://explorer.solana.com/tx/' + item.transactionHash)
         } else {
-            NavStore.goNext('StakingTransactionScreen', { stakingItem: item, unStake: this.handleUnStake })
+            NavStore.goNext('StakingTransactionScreen', { stakingItem: item, stakingAccount : account })
         }
     }
 
@@ -339,9 +292,9 @@ class SettingsSOL extends React.PureComponent {
         const { cryptoCurrency } = this.props
 
         const prettyStake = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(item.amount || item.diff)
-        const addressPrep = BlocksoftPrettyStrings.makeCut(item.stakeAddress, 10, 8)
 
-        const hashPrep = item.transactionHash ? BlocksoftPrettyStrings.makeCut(item.transactionHash, 10, 8) : null
+        const addressPrep = item.stakeAddress ? BlocksoftPrettyStrings.makeCut(item.stakeAddress, 10, 8) : false
+        const hashPrep = item.transactionHash ? BlocksoftPrettyStrings.makeCut(item.transactionHash, 10, 8) : false
 
         return (
             <StakingItem
@@ -349,7 +302,9 @@ class SettingsSOL extends React.PureComponent {
                 address={hashPrep || addressPrep}
                 amount={prettyStake}
                 currencyCode='SOL'
-                onPress={() => this.handleStakeTransaction(item)}
+                onPress={() => hashPrep
+                    ? Linking.openURL('https://explorer.solana.com/tx/' + item.transactionHash)
+                    : this.handleStakeTransaction(item)}
                 color={isLight ? cryptoCurrency.mainColor : cryptoCurrency.darkColor}
                 status={item.type ? strings('account.transactionStatuses.process') : item.status}
                 inProcess={item.type}
@@ -371,10 +326,6 @@ class SettingsSOL extends React.PureComponent {
             Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' end counting ' + cryptoValue)
             this.stakeAmountInput.handleInput(cryptoValue)
         })
-    }
-
-    handleUnStakeAll = () => {
-        // TODO
     }
 
     render() {
@@ -417,7 +368,7 @@ class SettingsSOL extends React.PureComponent {
                 {tabs[1].active &&
                     <>
                         <FlatList
-                            data={stakedAddresses ? [...lastTransactions, ...stakedAddresses] : stakedAddresses}
+                            data={stakedAddresses ? [...lastTransactions, ...stakedAddresses] : lastTransactions}
                             contentContainerStyle={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE }}
                             keyExtractor={item => item?.transactionHash ? item.transactionHash.toString() : item.stakeAddress.toString()}
                             showsVerticalScrollIndicator={false}
@@ -495,17 +446,10 @@ class SettingsSOL extends React.PureComponent {
                                             onPress={() => this.handleStake(false)}
                                         />
                                     </View>
-                                    <Button
-                                        type='transparent'
-                                        title={strings('settings.walletList.allUnstakeSOL').toUpperCase()}
-                                        // title={'Unstake ALL'.toUpperCase()}
-                                        onPress={() => this.handleUnStakeAll()}
-                                        disabled={!stakedAddresses.length}
-                                    />
 
                                     <View style={{ flexDirection: 'row', position: 'relative', justifyContent: 'space-between', alignItems: 'center', paddingBottom: GRID_SIZE / 2, paddingTop: GRID_SIZE }}>
                                         <View style={{ flexDirection: 'column' }} >
-                                            <Text style={[styles.transaction_title, { color: colors.common.text1, paddingLeft: GRID_SIZE }]}>{strings('account.history')}</Text>
+                                            <Text style={[styles.transaction_title, { color: colors.common.text1, paddingLeft: GRID_SIZE }]}>{strings('settings.walletList.stakeHistorySOL')}</Text>
                                         </View>
                                         <TouchableOpacity
                                             style={{ alignItems: 'center', marginRight: GRID_SIZE }}

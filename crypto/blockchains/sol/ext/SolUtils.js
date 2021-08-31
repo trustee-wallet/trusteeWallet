@@ -137,11 +137,14 @@ export default {
                     const deactivationEpoch = parsed.info.stake.delegation.deactivationEpoch || 0
                     const activationEpoch = parsed.info.stake.delegation.activationEpoch || 0
                     if (currentEpoch && currentEpoch*1 >= deactivationEpoch * 1) {
+                        item.order = 1
                         item.active = false
                         item.status = 'inactive'
                     } else if (currentEpoch && currentEpoch === activationEpoch) {
+                        item.order = 3
                         item.status = 'activating'
                     } else {
+                        item.order = 2
                         item.status = 'staked'
                     }
                 }
@@ -150,7 +153,11 @@ export default {
                 CACHE_STAKED[address].all[item.stakeAddress] = true
             }
             accountInfo.sort((a, b) => {
-                return BlocksoftUtils.diff(b.diff, a.diff) * 1
+                if (b.order === a.order) {
+                    return BlocksoftUtils.diff(b.diff, a.diff) * 1
+                } else {
+                    return b.order - a.order
+                }
             })
             CACHE_STAKED[address].active = accountInfo
         } catch (e) {
