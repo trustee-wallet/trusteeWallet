@@ -178,7 +178,7 @@
       "claimTRX" : "Claim Reward",
       "refreshTRX" : "Reload",
       "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
-      "waitToUnfreezeTRX" : "Please wait 72 hours from last freeze time",
+      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 72 hours from the moment of the last freezing",
       "allowLongQueryETH" : "Allow pending transactions queue",
       "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance",
       "enterToStakeSOL" : "Enter stake amount SOL",
