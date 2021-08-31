@@ -66,7 +66,7 @@ const HeaderTx = (props) => {
         }
     }
     return (
-        <View style={styles.wrapper}>
+        <View style={[styles.wrapper, { paddingBottom: GRID_SIZE }]}>
             <View style={{ flexDirection: 'row' }}>
                 <Text style={{ ...styles.txDirection, color: colors.common.text1 }}>
                     {capitalize(statusTxt)}
@@ -79,7 +79,7 @@ const HeaderTx = (props) => {
                 <Text
                     style={styles.date}>{getTransactionDate(transaction)}</Text>
             </View>
-            <View style={[styles.statusWrapper, { paddingHorizontal: GRID_SIZE }]}>
+            <View style={styles.statusWrapper}>
                 <View style={{ ...styles.statusLine, borderBottomColor: color }} />
                 <View style={{ paddingHorizontal: 17, backgroundColor: colors.common.header.bg }}>
                     <View style={{ ...styles.statusBlock, backgroundColor: color }}>

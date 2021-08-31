@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         textTransform: 'uppercase',
         color: '#999999',
-        lineHeight: 12,
+        lineHeight: 14,
         letterSpacing: 0.5
     },
     inviteToken: {

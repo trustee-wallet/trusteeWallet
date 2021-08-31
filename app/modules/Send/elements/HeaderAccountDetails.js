@@ -25,7 +25,7 @@ class HeaderAccountDetails extends React.PureComponent {
     }
 
     render() {
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
         const originalVisibility = this.props.ExtraViewParams.isBalanceVisible
         const isBalanceVisible = this.state.isBalanceVisible || originalVisibility
         const { currencySymbol, currencyName, currencyCode, balanceTotalPretty, basicCurrencyBalanceTotal, basicCurrencySymbol } = this.props.ExtraViewParams.sendScreenStoreDict
@@ -40,7 +40,7 @@ class HeaderAccountDetails extends React.PureComponent {
         }
 
         return (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingBottom: GRID_SIZE }}>
                 <View>
                     <CurrencyIcon currencyCode={currencyCode} />
                 </View>

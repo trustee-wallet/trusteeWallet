@@ -245,7 +245,7 @@ class AccountReceiveScreen extends React.PureComponent {
         const { balancePretty, basicCurrencyBalance, basicCurrencySymbol, isSynchronized } = this.props.selectedAccountData
         const isBalanceVisible = this.state.isBalanceVisibleTriggered ? this.state.isBalanceVisible : this.props.isBalanceVisible
 
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         const amountPrep = BlocksoftPrettyNumbers.makeCut(balancePretty).separated
         let sumPrep = amountPrep + ' ' + currencySymbol
@@ -256,7 +256,7 @@ class AccountReceiveScreen extends React.PureComponent {
         }
 
         return (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingBottom: GRID_SIZE }}>
                 <View>
                     <CurrencyIcon currencyCode={currencyCode}
                         containerStyle={{}} />

@@ -87,7 +87,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
 
         let gasPrice = {}
-        
+
         let maxNonceLocal = await EthTmpDS.getMaxNonce(this._mainCurrencyCode, data.addressFrom)
         const ethAllowBlockedBalance = await settingsActions.getSetting('ethAllowBlockedBalance')
         const ethAllowLongQuery = await settingsActions.getSetting('ethAllowLongQuery')
@@ -101,6 +101,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             ethAllowLongQuery,
             maxNonceLocal
         })
+
         if (typeof additionalData.gasPrice !== 'undefined') {
             if (typeof additionalData.gasPriceTitle !== 'undefined') {
                 // @ts-ignore
@@ -132,12 +133,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         try {
                             gasLimit = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
                             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
-
-                            // @ts-ignore
-                            MarketingEvent.logOnlyRealTime('v20_eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
-                                amount: data.amount + '',
-                                gasLimit
-                            })
                             ok = true
                         } catch (e1) {
                             ok = false
@@ -151,8 +146,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     if (e.message.indexOf('resolve host') !== -1) {
                         throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
                     } else {
-                        e.message += ' in EthEstimateGas in getFeeRate'
-                        throw e
+                        gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
+                        // e.message += ' in EthEstimateGas in getFeeRate'
+                        // throw e
                     }
                 }
                 if (this._mainCurrencyCode === 'OPTIMISM') {
@@ -168,6 +164,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } catch (e) {
             throw new Error(e.message + ' in get gasLimit')
         }
+        console.log(new Date().toISOString() + ' end estimation')
 
         let showBigGasNotice = false
         if (typeof additionalData === 'undefined' || typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee) {

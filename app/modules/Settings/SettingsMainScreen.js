@@ -39,7 +39,7 @@ class SettingsMainScreen extends PureComponent {
     state = {
         devMode: trusteeAsyncStorage.getDevMode(),
         mode: trusteeAsyncStorage.getDevMode() ? config.exchange.mode : '',
-        testerMode: trusteeAsyncStorage.getTesterMode() || ''
+        testerMode: trusteeAsyncStorage.getTesterModeStatic() || ''
     }
 
     getLangCode = () => {

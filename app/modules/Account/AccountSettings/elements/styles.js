@@ -126,7 +126,21 @@ const styles = {
     texts__icon: {
         marginRight: 10,
         transform: [{ rotate: '180deg' }]
-    }
+    },
+    stakeItem: {
+        flex: 1,
+        position: 'relative',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        height: 62,
+        marginBottom: 16,
+        paddingHorizontal: 16,
+        borderRadius: 18
+    },
+    transaction_title: {
+        fontSize: 17,
+        fontFamily: 'Montserrat-Bold'
+    },
 }
 
 export default styles

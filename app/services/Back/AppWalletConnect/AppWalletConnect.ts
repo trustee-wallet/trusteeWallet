@@ -410,7 +410,13 @@ export namespace AppWalletConnect {
                 accounts: tmp,
                 chainId: chainId && chainId > 0 ? chainId : 1
             }
-            await WALLET_CONNECTOR.approveSession(data)
+            try {
+                await WALLET_CONNECTOR.approveSession(data)
+            } catch (e1) {
+                if (e1.message.indexOf('Session currently connected') === -1) {
+                    throw e1
+                }
+            }
             await WALLET_CONNECTOR.updateSession(data)
             Log.log('AppWalletConnect.approveSession finish', data)
             BlocksoftCryptoLog.log('AppWalletConnect.approveSession finish', data)

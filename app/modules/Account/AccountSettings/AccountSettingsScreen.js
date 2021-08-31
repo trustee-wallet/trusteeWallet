@@ -1,11 +1,11 @@
 /**
- * @version 0.43
+ * @version 0.52
  * @author yura
  */
 import React from 'react'
 import { connect } from 'react-redux'
 
-import { ScrollView, View, StyleSheet } from 'react-native'
+import { ScrollView, View, StyleSheet, } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -24,16 +24,9 @@ import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import AccountSettingsHeader from './elements/Header'
 
 class AccountSettingScreen extends React.PureComponent {
-    constructor() {
-        super()
-        this.state = {
-            devMode: false,
-            mode: '',
-            testerMode: '',
-        }
-    }
 
     handleBack = () => {
         NavStore.goBack()
@@ -44,67 +37,135 @@ class AccountSettingScreen extends React.PureComponent {
         NavStore.goBack()
     }
 
+    renderSettingsComponent = () => {
+
+        const { selectedWallet, account, cryptoCurrency } = this.props
+
+        switch (account.currencyCode) {
+            case 'BTC':
+                return (
+                    <SettingsBTC
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                    />
+                )
+            case 'USDT':
+                return (
+                    <SettingsUSDT
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                    />
+                )
+            case 'XVG':
+                return (
+                    <SettingsXVG
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                    />
+                )
+            case 'ETC':
+                return (
+                    <SettingsETC
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                    />
+                )
+            case 'ETH':
+                return (
+                    <SettingsETH
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                    />
+                )
+            case 'XMR':
+                return (
+                    <SettingsXMR
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                    />
+                )
+            case 'TRX':
+                return (
+                    <SettingsTRX
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                    />
+                )
+            case 'BNB':
+                return (
+                    <SettingsBNB
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                    />
+                )
+            case 'SOL':
+                return (
+                    <SettingsSOL
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                        cryptoCurrency={cryptoCurrency}
+                    />
+                )
+            default:
+                return null
+        }
+
+    }
+
+    renderHeader = () => {
+
+        const { isLight } = this.context
+        const { cryptoCurrency } = this.props
+
+        return (
+            <AccountSettingsHeader
+                color={isLight ? cryptoCurrency.mainColor : cryptoCurrency.darkColor}
+            />
+        )
+    }
+
     render() {
 
-        const { selectedWallet, cryptoCurrency, account } = this.props
+        const { cryptoCurrency } = this.props
+
+        const { GRID_SIZE } = this.context
+
+        const isTabs = cryptoCurrency.currencyCode === 'SOL'
 
         MarketingAnalytics.setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
 
-        let settingsComponent = null
-        if (account.currencyCode === 'BTC') {
-            settingsComponent =
-                <SettingsBTC containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWallet} />
-        } else if (account.currencyCode === 'USDT') {
-            settingsComponent =
-                <SettingsUSDT containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWallet} account={account} />
-        } else if (account.currencyCode === 'XVG') {
-            settingsComponent =
-                <SettingsXVG containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWallet} account={account} />
-        } else if (account.currencyCode === 'ETC') {
-            settingsComponent =
-                <SettingsETC containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWallet} account={account} />
-        } else if (account.currencyCode === 'ETH') {
-            settingsComponent =
-                <SettingsETH containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWallet} account={account} />
-        } else if (account.currencyCode === 'XMR') {
-            settingsComponent =
-                <SettingsXMR containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWallet} account={account} />
-        } else if (account.currencyCode === 'TRX') {
-            settingsComponent =
-                <SettingsTRX containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWallet} account={account} />
-        } else if (account.currencyCode === 'BNB') {
-            settingsComponent =
-                <SettingsBNB containerStyle={{ overflow: 'hidden' }}
-                    wallet={selectedWallet} account={account} />
-        } else if (account.currencyCode === 'SOL') {
-            settingsComponent =
-                <SettingsSOL containerStyle={{ overflow: 'hidden' }}
-                             wallet={selectedWallet} account={account} />
-        }
         return (
             <ScreenWrapper
-                leftType="back"
+                leftType='back'
                 leftAction={this.handleBack}
-                rightType="close"
+                rightType='close'
                 rightAction={this.handleClose}
                 title={strings('settings.title')}
+                ExtraView={() => isTabs ? this.renderHeader() : null}
             >
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.scrollViewContent}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    <View style={{ marginTop: 20, marginHorizontal: 20 }}>
-                        {settingsComponent}
-                    </View>
-                </ScrollView>
+                {isTabs ?
+                    <>
+                        {this.renderSettingsComponent()}
+                    </>
+                    :
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.scrollViewContent}
+                        keyboardShouldPersistTaps='handled'
+                    >
+                        <View style={{ paddingTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
+                            {this.renderSettingsComponent()}
+                        </View>
+                    </ScrollView>
+                }
 
             </ScreenWrapper>
         )
@@ -121,17 +182,10 @@ const mapStateToProps = (state) => {
 
 AccountSettingScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(AccountSettingScreen)
+export default connect(mapStateToProps)(AccountSettingScreen)
 
 const styles = StyleSheet.create({
     scrollViewContent: {
         flexGrow: 1,
-    },
-    blockTitle: {
-        fontFamily: 'Montserrat-Bold',
-        fontSize: 12,
-        lineHeight: 14,
-        letterSpacing: 1.5,
-        textTransform: 'uppercase',
-    },
+    }
 })

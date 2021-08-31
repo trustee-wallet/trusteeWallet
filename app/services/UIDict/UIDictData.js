@@ -68,12 +68,6 @@ export default {
             darkColor: '#9042BA'
         }
     },
-    'ETH_RINKEBY': {
-        colors: {
-            mainColor: '#68268C',
-            darkColor: '#9042BA'
-        }
-    },
     'BTC': {
         colors: {
             mainColor: '#F79E1B',
@@ -622,7 +616,7 @@ export default {
     },
     'SOL': {
         colors: {
-            mainColor: '#00FFA3',
+            mainColor: '#15E99C',
             darkColor: '#22DB98'
         }
     },
@@ -654,6 +648,132 @@ export default {
         colors: {
             mainColor: '#47A9F1',
             darkColor: '#47A9F1'
+        }
+    },
+    "SOL_USDC": {
+        colors: {
+            mainColor: '#2A7FDB',
+            darkColor: '#2FB9B8'
+        }
+    },
+    'SOL_USDT': {
+        colors: {
+            mainColor: '#31D182',
+            darkColor: '#2D9D66'
+        }
+    },
+    'SOL_TULIP': {
+        colors: {
+            mainColor: '#3A9DA6',
+            darkColor: '#3A9DA6'
+        }
+    },
+    'SOL_MEDIA': {
+        colors: {
+            mainColor: '#252F77',
+            darkColor: '#4C59B8'
+        }
+    },
+    'SOL_MNGO': {
+        colors: {
+            mainColor: '#E54033',
+            darkColor: '#E54033'
+        }
+    },
+    'SOL_RAY': {
+        colors: {
+            mainColor: '#3773FE',
+            darkColor: '#3773FE'
+        }
+    },
+    'SOL_SLIM': {
+        colors: {
+            mainColor: '#C20FF6',
+            darkColor: '#C20FF6'
+        }
+    },
+    'SOL_STEP': {
+        colors: {
+            mainColor: '#118AB2',
+            darkColor: '#118AB2'
+        }
+    },
+    'SOL_OXY': {
+        colors: {
+            mainColor: '#2963ED',
+            darkColor: '#2963ED'
+        }
+    },
+    'SOL_COPE': {
+        colors: {
+            mainColor: '#161616',
+            darkColor: '#B8B8B8'
+        }
+    },
+    'SOL_FIDA': {
+        colors: {
+            mainColor: '#5858FF',
+            darkColor: '#5858FF'
+        }
+    },
+    'SOL_KIN': {
+        colors: {
+            mainColor: '#6F41E8',
+            darkColor: '#8F67F8'
+        }
+    },
+    'SOL_MAPS': {
+        colors: {
+            mainColor: '#77D563',
+            darkColor: '#89E276'
+        }
+    },
+    'SOL_MER': {
+        colors: {
+            mainColor: '#24C1AB',
+            darkColor: '#24C1AB'
+        }
+    },
+    'SOL_ORCA': {
+        colors: {
+            mainColor: '#161616',
+            darkColor: '#B8B8B8'
+        }
+    },
+    'SOL_PAI': {
+        colors: {
+            mainColor: '#FF852D',
+            darkColor: '#E68844'
+        }
+    },
+    'SOL_SBR': {
+        colors: {
+            mainColor: '#6764FB',
+            darkColor: '#6764FB'
+        }
+    },
+    'SOL_SRM': {
+        colors: {
+            mainColor: '#32C0D5',
+            darkColor: '#51C9DB'
+        }
+    },
+    'SOL_SNY': {
+        colors: {
+            mainColor: '#18EFB9',
+            darkColor: '#38CEA9'
+        }
+    },
+    'WAVES': {
+        colors: {
+            mainColor: '#0055FE',
+            darkColor: '#457FF1'
+        }
+    },
+    'ETH_RINKEBY': {
+        colors: {
+            mainColor: '#EC6A1C',
+            darkColor: '#EC6A1C'
         }
     },
     'DEFAULT': {

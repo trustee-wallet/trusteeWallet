@@ -35,6 +35,7 @@ const CACHE = {
     'BNB_SMART_SERVER' : 'https://bsc-dataseed1.binance.org:443',
     'BNB_SMART_PRICE' : 10000000000,
     'BNB_GAS_LIMIT' : 620000,
+    'ETH_MIN_GAS_LIMIT' : 42000,
     'ETH_INFURA' : '5e52e85aba6f483398c461c55b639a7b',
     'ETH_INFURA_PROJECT_ID' : 'c8b5c2ced3b041a8b55a1719b508ff08',
     'ETH_TREZOR_SERVER': ['https://eth1.trezor.io', 'https://eth2.trezor.io'],
