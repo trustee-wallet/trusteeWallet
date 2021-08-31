@@ -1,6 +1,6 @@
 /**
- * @version 0.42
- * @description ksu jumping
+ * @version 0.50
+ * @description Vadik
  */
 import React from 'react'
 import { connect } from 'react-redux'
@@ -11,6 +11,9 @@ import {
     Dimensions,
     View
 } from 'react-native'
+
+import { FlatList } from 'react-native-gesture-handler'
+import { TabView } from 'react-native-tab-view'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { strings } from '@app/services/i18n'
@@ -31,9 +34,6 @@ import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
 import QrCodePage from '@app/modules/Cashback/elements/QrCodePage'
 import { Tab1, Tab2, Tab3 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
 import DetailsHeader from '@app/modules/Cashback/elements/DetailsHeader'
-
-import { FlatList } from 'react-native-gesture-handler'
-import { SceneMap, TabView } from 'react-native-tab-view'
 
 class CashbackScreen extends React.PureComponent {
 
@@ -312,7 +312,7 @@ class CashbackScreen extends React.PureComponent {
                         progress={cpaBalance / 100}
                         icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
                     />
-                    {this.renderContent(this.state.selectedTitle)}
+                    {this.renderContent()}
                 </View>
 
         )
@@ -326,19 +326,25 @@ class CashbackScreen extends React.PureComponent {
         )
     }
 
-    renderScene = SceneMap({
-        first: this.renderFirstRoute,
-        second: this.renderSecondRoute,
-        third: this.renderThirdRoute
-    })
+    renderScene = ({route}) => {
+        switch(route.key) {
+            case 'first':
+                return this.renderFirstRoute()
+            case 'second':
+                return this.renderSecondRoute()
+            case 'third':
+                return this.renderThirdRoute()
+            default:
+                return null
+        }
+    }
 
     handleIndexChange = index => this.setState({ index });
 
     render() {
-        // console.log('index', this.state.index)
-        // console.log('routes', this.state.routes)
+
         MarketingAnalytics.setCurrentScreen('CashBackScreen')
-        console.log('rerender')
+
         const {
             colors,
             GRID_SIZE
@@ -387,7 +393,7 @@ class CashbackScreen extends React.PureComponent {
                         renderScene={this.renderScene}
                         renderHeader={null}
                         onIndexChange={this.handleIndexChange}
-                        renderTabBar={() => {return null}}
+                        renderTabBar={() => null}
                         useNativeDriver
                     />
                 </ScrollView>
@@ -395,10 +401,11 @@ class CashbackScreen extends React.PureComponent {
         )
     }
 
-    renderContent = (selectedTitle) => {
+    renderContent = () => {
 
-        console.log('here')
         const { cashbackStore } = this.props
+
+        const { selectedTitle } = this.state
 
         const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
         let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted
@@ -430,16 +437,15 @@ class CashbackScreen extends React.PureComponent {
         })
 
         return (
-            <View style={{ backgroundColor: selectedTitle ? 'green' : 'red', height: 100, width: 100 }} />
-            // <DetailsContent
-            //     selectedTitle={selectedTitle}
-            //     overalPrep={overalPrep}
-            //     invitedUsers={invitedUsers}
-            //     level2Users={level2Users}
-            //     cpaLevel1={cpaLevel1}
-            //     cpaLevel2={cpaLevel2}
-            //     cpaLevel3={cpaLevel3}
-            // />
+            <DetailsContent
+                selectedTitle={selectedTitle}
+                overalPrep={overalPrep}
+                invitedUsers={invitedUsers}
+                level2Users={level2Users}
+                cpaLevel1={cpaLevel1}
+                cpaLevel2={cpaLevel2}
+                cpaLevel3={cpaLevel3}
+            />
         )
     }
 }
