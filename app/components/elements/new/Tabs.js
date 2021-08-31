@@ -29,7 +29,7 @@ export default function Tabs(props) {
                     onPress={() => changeTab(tab)}
                 >
                     <View>
-                        <Text style={[styles.title, { color: tab.active ? colors.common.text1 : colors.common.text2 }]}>{tab.title}</Text>
+                        <Text style={[styles.title, { color: tab.active ? colors.common.text1 : colors.common.text2 }]} numberOfLines={1} >{tab.title}</Text>
                         {tab.hasNewNoties && <View style={[styles.newNotifiesIndicator, { backgroundColor: colors.notifications.newNotiesIndicator }]} />}
                     </View>
                     {tab.active && <View style={[styles.activeTabIndicator, { backgroundColor: colors.common.text3 }]} />}

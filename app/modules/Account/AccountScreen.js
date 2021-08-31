@@ -479,7 +479,10 @@ class Account extends React.PureComponent {
                         <RefreshControl
                             refreshing={this.state.refreshing}
                             onRefresh={this.handleRefresh}
-                            tintColor={colors.common.text1}
+                            tintColor={colors.common.refreshControlIndicator}
+                            colors={[colors.common.refreshControlIndicator]}
+                            progressBackgroundColor={colors.common.refreshControlBg}
+                            progressViewOffset={-20}
                         />
                     }
                     ListHeaderComponent={() => (
