@@ -20,7 +20,7 @@ class AccountSettingsHeader extends PureComponent {
         originalVisibility: false,
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.setState({
             isBalanceVisible: this.props.isBalanceVisible,
             originalVisibility: false,
@@ -35,8 +35,9 @@ class AccountSettingsHeader extends PureComponent {
         const { colors, GRID_SIZE } = this.context
 
         const { isBalanceVisible, originalVisibility } = this.state
+        const { color } = this.props
 
-        const { balancePretty, basicCurrencySymbol, basicCurrencyBalance, currencyCode} = this.props.selectedAccountData
+        const { balancePretty, basicCurrencySymbol, basicCurrencyBalance, currencyCode } = this.props.selectedAccountData
         const finalIsBalanceVisible = isBalanceVisible
 
         let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
@@ -67,7 +68,8 @@ class AccountSettingsHeader extends PureComponent {
                             <Text style={[styles.topContent__title_first, { color: colors.common.text1 }]} numberOfLines={1} >
                                 {balancePrettyPrep1}
                                 <Text style={[styles.topContent__title_last, { color: colors.common.text1 }]}>
-                                    {balancePrettyPrep2 + ' ' + currencyCode}
+                                    {balancePrettyPrep2 + ' '}
+                                    <Text style={{ color: color }}>{currencyCode}</Text>
                                 </Text>
                             </Text>
                         ) : (

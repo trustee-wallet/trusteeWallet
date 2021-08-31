@@ -121,8 +121,14 @@ class AccountSettingScreen extends React.PureComponent {
     }
 
     renderHeader = () => {
+
+        const { isLight } = this.context
+        const { cryptoCurrency } = this.props
+
         return (
-            <AccountSettingsHeader />
+            <AccountSettingsHeader
+                color={isLight ? cryptoCurrency.mainColor : cryptoCurrency.darkColor}
+            />
         )
     }
 

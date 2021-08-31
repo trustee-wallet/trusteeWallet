@@ -182,7 +182,7 @@
       "address": "Address",
       "stake": "Stake",
       "rentReserve": "Rent reserve",
-      "maxValue": "Max\nvalue"
+      "allUnstakeSOL": "Unstake all"
     },
     "about": {
       "title": "საფულის შესახებ",

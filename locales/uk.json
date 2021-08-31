@@ -189,7 +189,7 @@
       "address": "Адреси",
       "stake": "Стейк",
       "rentReserve": "Орендна плата",
-      "maxValue": "Макс значення"
+      "allUnstakeSOL": "Забрати все"
     },
     "about": {
       "title": "Про гаманець",

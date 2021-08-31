@@ -45,7 +45,6 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import NavStore from '@app/components/navigation/NavStore'
 
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
-import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 import Button from '@app/components/elements/new/buttons/Button'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import StakingItem from './StakingItem'
@@ -113,6 +112,12 @@ class SettingsSOL extends React.PureComponent {
 
     handleScan = async (force = false) => {
         const { account } = this.props
+
+        this.setState({
+            stakedAddresses: [],
+            load: true
+        })
+
         const stakedAddresses = await SolUtils.getAccountStaked(account.address, force)
         this.setState({
             stakedAddresses,
@@ -126,7 +131,7 @@ class SettingsSOL extends React.PureComponent {
             clickRefresh: click,
         })
 
-        this.handleScan(true)
+        await this.handleScan(true)
 
         this.setState({
             refreshing: false,
@@ -353,30 +358,23 @@ class SettingsSOL extends React.PureComponent {
     }
 
     handlePartBalance = (newPartBalance) => {
+        const { account } = this.props
+
+        const { balanceTotalPretty } = account
+
         // if newPartBalance = 4 = 100%
         Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' clicked')
         this.setState({
             partBalance: newPartBalance,
-        }, async () => {
-            Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' start counting')
-            const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
-            const val = this.transferAllCallback(res.transferAllBalance)
-            Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' end counting ' + val + ' with res ' + JSON.stringify(res))
+        }, () => {
+            const cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(balanceTotalPretty, 4), this.state.partBalance)
+            Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' end counting ' + cryptoValue)
+            this.stakeAmountInput.handleInput(cryptoValue)
         })
     }
 
-    transferAllCallback = (transferAllBalance) => {
-        let cryptoValue
-        if (this.state.partBalance === 4 || transferAllBalance === 0) {
-            cryptoValue = transferAllBalance
-        } else {
-            cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(transferAllBalance, 4), this.state.partBalance)
-        }
-
-        cryptoValue = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(cryptoValue)
-        this.stakeAmountInput.handleInput(cryptoValue)
-
-        return cryptoValue
+    handleUnStakeAll = () => {
+        // TODO
     }
 
     render() {
@@ -385,7 +383,6 @@ class SettingsSOL extends React.PureComponent {
         const { colors, GRID_SIZE, isLight } = this.context
 
         const { balanceTotalPretty } = account
-
 
         return (
             <View style={{ flexGrow: 1 }}>
@@ -397,7 +394,7 @@ class SettingsSOL extends React.PureComponent {
                                     data={currentAddresses}
                                     contentContainerStyle={{ paddingVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
                                     showsVerticalScrollIndicator={false}
-                                    keyExtractor={({ index }) => index}
+                                    keyExtractor={item => item.address.toString()}
                                     ListHeaderComponent={() => (
                                         <>
                                             <View style={{ paddingBottom: GRID_SIZE }}>
@@ -422,7 +419,7 @@ class SettingsSOL extends React.PureComponent {
                         <FlatList
                             data={stakedAddresses ? [...lastTransactions, ...stakedAddresses] : stakedAddresses}
                             contentContainerStyle={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE }}
-                            keyExtractor={({ index }) => index}
+                            keyExtractor={item => item?.transactionHash ? item.transactionHash.toString() : item.stakeAddress.toString()}
                             showsVerticalScrollIndicator={false}
                             keyboardShouldPersistTaps="handled"
                             refreshControl={
@@ -455,7 +452,7 @@ class SettingsSOL extends React.PureComponent {
                                     <View style={{ paddingBottom: GRID_SIZE }}>
                                         {this.renderTabs()}
                                     </View>
-                                    <View style={[styles.inputWrapper, { paddingBottom: GRID_SIZE * 1.5 }]}>
+                                    <View style={styles.inputWrapper}>
                                         <Input
                                             ref={ref => this.stakeAmountInput = ref}
                                             id='stakeAmount'
@@ -469,7 +466,7 @@ class SettingsSOL extends React.PureComponent {
                                     </View>
 
                                     {balanceTotalPretty > 0 && (
-                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
                                             <InputAndButtonsPartBalanceButton
                                                 action={() => this.handlePartBalance(1)}
                                                 text='25%'
@@ -494,10 +491,17 @@ class SettingsSOL extends React.PureComponent {
                                     )}
                                     <View style={{ paddingVertical: GRID_SIZE }}>
                                         <Button
-                                            title={strings('settings.walletList.stakeSOL')}
+                                            title={strings('settings.walletList.stakeSOL').toUpperCase()}
                                             onPress={() => this.handleStake(false)}
                                         />
                                     </View>
+                                    <Button
+                                        type='transparent'
+                                        title={strings('settings.walletList.allUnstakeSOL').toUpperCase()}
+                                        // title={'Unstake ALL'.toUpperCase()}
+                                        onPress={() => this.handleUnStakeAll()}
+                                        disabled={!stakedAddresses.length}
+                                    />
 
                                     <View style={{ flexDirection: 'row', position: 'relative', justifyContent: 'space-between', alignItems: 'center', paddingBottom: GRID_SIZE / 2, paddingTop: GRID_SIZE }}>
                                         <View style={{ flexDirection: 'column' }} >

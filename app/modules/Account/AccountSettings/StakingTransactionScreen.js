@@ -30,7 +30,6 @@ import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 
 import Input from '@app/components/elements/NewInput'
 import stylesGlobal from '@app/modules/Account/AccountSettings/elements/styles'
-import { HIT_SLOP } from '@app/theme/HitSlop'
 
 class StakingTransactionScreen extends PureComponent {
 
@@ -50,7 +49,6 @@ class StakingTransactionScreen extends PureComponent {
             element,
             unStake
         })
-        console.log(element)
     }
 
     handleBack = () => {
@@ -170,7 +168,7 @@ class StakingTransactionScreen extends PureComponent {
                                         text={strings('settings.walletList.unstakeSOL').toUpperCase() + ' SOL'}
                                         letterSpacing={1.5}
                                     />
-                                    <View style={[stylesGlobal.inputWrapper, { paddingVertical: GRID_SIZE, flexDirection: 'row', flex: 5 }]}>
+                                    <View style={[stylesGlobal.inputWrapper, { marginVertical: GRID_SIZE }]}>
                                         <Input
                                             ref={ref => this.unStakeAmountInput = ref}
                                             id='stakeAmount'
@@ -179,23 +177,13 @@ class StakingTransactionScreen extends PureComponent {
                                             inputBaseColor='#f4f4f4'
                                             inputTextColor='#f4f4f4'
                                             tintColor='#7127ac'
-                                            style={{ flex: 3.7 }}
+                                            paste={true}
                                         />
-                                        <TouchableOpacity
-                                            style={{ flex: 1.3, justifyContent: 'center' }}
-                                            onPress={() => {
-                                                this.unStakeAmountInput.handleInput(BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(element.diff))
-                                            }}
-                                            hitSlop={HIT_SLOP}
-                                        >
-                                            <Text style={[styles.text, { color: colors.common.text1 }]} numberOfLines={2} >
-                                                {strings('settings.walletList.maxValue').toUpperCase()}
-                                            </Text>
-                                        </TouchableOpacity>
                                     </View>
                                     <Button
                                         title={strings('settings.walletList.unstakeSOL')}
                                         onPress={() => unStake(element, this.unStakeAmountInput.getValue())}
+                                        disabled={!this.state.element.active} //@Ksu need this???
                                     />
                                 </View>
 

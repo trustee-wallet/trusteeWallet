@@ -189,7 +189,7 @@
       "address": "Адресса",
       "stake": "Стейк",
       "rentReserve": "Резерв аренды",
-      "maxValue": "Макс значение"
+      "allUnstakeSOL": "Забрать все"
     },
     "about": {
       "title": "О кошельке",
