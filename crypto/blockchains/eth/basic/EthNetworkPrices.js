@@ -30,9 +30,12 @@ let CACHE_PROXY_TIME = 0
 class EthNetworkPrices {
 
 
-    async getWithProxy(mainCurrencyCode, address, logData = {}) {
-        if (mainCurrencyCode === 'BNB') {
-            return false // @todo server side for BNB if needed
+    async getWithProxy(mainCurrencyCode, isTestnet, address, logData = {}) {
+        if (mainCurrencyCode !== 'ETH' || isTestnet) {
+            // @todo server side for other coins
+            return {
+                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData)
+            }
         }
         const { apiEndpoints } = config.proxy
         const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
@@ -48,6 +51,11 @@ class EthNetworkPrices {
         let index = 0
         do {
             try {
+                console.log({
+                    address,
+                    logData,
+                    marketingData: MarketingEvent.DATA
+                })
                 checkResult = await BlocksoftAxios.post(proxy, {
                     address,
                     logData,
@@ -86,7 +94,7 @@ class EthNetworkPrices {
 
         if (checkResult === false) {
             return {
-                gasPrice: await this.getOnlyFees(mainCurrencyCode, address, logData)
+                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData)
             }
         }
 
@@ -137,9 +145,14 @@ class EthNetworkPrices {
         return result
     }
 
-    async getOnlyFees(mainCurrencyCode, address, logData = {}) {
+    async getOnlyFees(mainCurrencyCode, isTestnet, address, logData = {}) {
         if (mainCurrencyCode === 'BNB') {
             return {'speed_blocks_2' : await BnbSmartNetworkPrices.getFees()}
+        } else {
+            const onePrice = BlocksoftExternalSettings.getStatic(isTestnet ? 'ETH_TESTNET_PRICE' : (mainCurrencyCode + '_PRICE'))
+            if (typeof onePrice !== 'undefined' && onePrice) {
+                return { 'speed_blocks_2': onePrice }
+            }
         }
         logData.resultFeeSource = 'fromCache'
         const now = new Date().getTime()
@@ -157,6 +170,7 @@ class EthNetworkPrices {
         let link = `${ESTIMATE_PATH}`
         let tmp = false
         try {
+            console.log('link ' + link)
             tmp = await BlocksoftAxios.getWithoutBraking(link, ESTIMATE_MAX_TRY)
             if (tmp.data && tmp.data.fastest) {
                 if (typeof tmp.data.gasPriceRange !== 'undefined') {

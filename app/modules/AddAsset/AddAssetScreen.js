@@ -288,7 +288,7 @@ class AddAssetScreen extends React.PureComponent {
         let isSearchTokenAddress = false
         if (searchQuery) {
             searchQuery =  searchQuery.trim()
-            if (searchQuery.indexOf('0x') === 0 && searchQuery.length === 42) {
+            if (searchQuery.toLowerCase().indexOf('0x') === 0 && searchQuery.length === 42) {
                 isSearchTokenAddress = true
             } else if (searchQuery.indexOf('T') === 0 && searchQuery.length === 34) {
                 isSearchTokenAddress = true

@@ -71,6 +71,7 @@ export default class EthBasic {
 
         this._settings = settings
         this._etherscanApiPathDeposits = false
+        this._isTestnet = false
 
         if (settings.currencyCode === 'BNB_SMART' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'BNB')) {
 
@@ -163,9 +164,11 @@ export default class EthBasic {
             } else if (settings.network === 'ropsten') {
                 this._trezorServer = 'to_load'
                 this._trezorServerCode = 'ETH_ROPSTEN_TREZOR_SERVER'
+                this._isTestnet = true
             } else {
                 this._trezorServer = false
                 this._trezorServerCode = false
+                this._isTestnet = true
             }
 
             this._mainCurrencyCode = 'ETH'

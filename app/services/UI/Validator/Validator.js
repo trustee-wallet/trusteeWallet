@@ -153,7 +153,7 @@ async function _userDataValidation(obj) {
             value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
-            } else if (!/^0x+[0-9a-fA-F]{40}$/.test(value)) {
+            } else if (!/^0[xX]+[0-9a-fA-F]{40}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
@@ -338,7 +338,7 @@ async function _userDataValidation(obj) {
         case 'TX_HASH':
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
-            } else if (!/^0x+[0-9a-fA-F]{64}$/.test(value)) {
+            } else if (!/^0[xX]+[0-9a-fA-F]{64}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
