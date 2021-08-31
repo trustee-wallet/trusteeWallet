@@ -5,12 +5,11 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import {
-    View,
     ScrollView,
     StyleSheet,
     RefreshControl,
-    FlatList,
-    Dimensions
+    Dimensions,
+    View
 } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -33,6 +32,9 @@ import QrCodePage from '@app/modules/Cashback/elements/QrCodePage'
 import { Tab1, Tab2, Tab3 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
 import DetailsHeader from '@app/modules/Cashback/elements/DetailsHeader'
 
+import { FlatList } from 'react-native-gesture-handler'
+import { SceneMap, TabView } from 'react-native-tab-view'
+
 class CashbackScreen extends React.PureComponent {
 
     state = {
@@ -42,24 +44,22 @@ class CashbackScreen extends React.PureComponent {
         inviteLinkError: false,
         refreshing: false,
         selectedTitle: null,
-
-        tabs: [
+        isLoading: false,
+        index: 0,
+        routes: [
             {
                 title: strings('notifications.tabInvite'),
-                index: 0,
-                active: true
+                key: 'first',
             },
             {
                 title: strings('notifications.tabInfo'),
-                index: 1,
-                active: false
+                key: 'second',
             },
             {
                 title: strings('notifications.tabFaq'),
-                index: 2,
-                active: false
+                key: 'third',
             }
-        ]
+        ],
     }
 
     cashbackCurrency = 'USDT'
@@ -218,7 +218,6 @@ class CashbackScreen extends React.PureComponent {
     }
 
     handleRefresh = async () => {
-        console.log('start cashback')
         this.setState({
             refreshing: true
         })
@@ -230,17 +229,15 @@ class CashbackScreen extends React.PureComponent {
         })
     }
 
-    renderTabs = () => <Tabs tabs={this.state.tabs} changeTab={this.handleChangeTab} />
+    renderTabs = () => <Tabs tabs={this.state.routes} changeTab={this.handleChangeTab} />
 
-    handleChangeTab = (newTab) => {
-        const newTabs = this.state.tabs.map(tab => ({
-            ...tab,
-            active: tab.index === newTab.index
-        }))
-        this.setState(() => ({ tabs: newTabs }))
+    handleChangeTab = (item) => {
+        this.setState({
+            index: this.state.routes.indexOf(item)
+        })
     }
 
-    renderFlatListItem = ({ item, index }) => {
+    renderFlatListItem = ({ item }) => {
         return (
             <CashbackData
                 data={item}
@@ -249,25 +246,107 @@ class CashbackScreen extends React.PureComponent {
     }
 
     handleSelectTitle = (value) => {
-        this.scrollDetails(value)
+        // this.scrollDetails(value)
+
         this.setState({ selectedTitle: this.state.selectedTitle === value ? null : value })
+        this.forceUpdate();
     }
 
-    render() {
-        MarketingAnalytics.setCurrentScreen('CashBackScreen')
+
+    renderFirstRoute = () => {
 
         const {
-            GRID_SIZE,
-            colors
-        } = this.context
+            cashbackStore
+        } = this.props
+        let cashbackLink = cashbackStore.dataFromApi.cashbackLink || false
+        let cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
+        if (!cashbackLink || cashbackLink === '') {
+            cashbackLink = cashbackStore.cashbackLink || ''
+        }
+        if (!cashbackLinkTitle || cashbackLinkTitle === '') {
+            cashbackLinkTitle = cashbackStore.cashbackLinkTitle || ''
+        }
+        return (
+            <View style={{marginHorizontal: 16}}>
+                <QrCodePage
+                    cashbackLink={cashbackLink}
+                    cashbackLinkTitle={cashbackLinkTitle}
+                />
+            </View>
+        )
+    }
+
+    renderSecondRoute = () => {
+
         const {
             selectedTitle
         } = this.state
+
         const { cashbackStore } = this.props
 
         const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
         const cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
 
+        return (
+                <View style={{ flexGrow: 1}}>
+                    <View style={{ flex: 0.01 }}>
+                        {this.renderExtraView()}
+                    </View>
+                    <DetailsHeader
+                        title={strings('cashback.cashback')}
+                        onPress={() => {
+                            this.handleSelectTitle('CASHBACK')
+                        }}
+                        balance={UtilsService.cutNumber(cashbackBalance, 2)}
+                        currency={this.cashbackCurrency}
+                        progress={cashbackBalance / 2}
+                        icon={selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings'}
+                    />
+                    <DetailsHeader
+                        title={strings('cashback.cpa')}
+                        onPress={() => {
+                            this.handleSelectTitle('CPA')
+                        }}
+                        balance={UtilsService.cutNumber(cpaBalance, 2)}
+                        currency={this.cashbackCurrency}
+                        progress={cpaBalance / 100}
+                        icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
+                    />
+                    {this.renderContent(this.state.selectedTitle)}
+                </View>
+
+        )
+    }
+
+    renderThirdRoute = () => {
+        return (
+            <View style={{marginHorizontal: 16}}>
+            <HowItWorks />
+            </View>
+        )
+    }
+
+    renderScene = SceneMap({
+        first: this.renderFirstRoute,
+        second: this.renderSecondRoute,
+        third: this.renderThirdRoute
+    })
+
+    handleIndexChange = index => this.setState({ index });
+
+    render() {
+        // console.log('index', this.state.index)
+        // console.log('routes', this.state.routes)
+        MarketingAnalytics.setCurrentScreen('CashBackScreen')
+        console.log('rerender')
+        const {
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        const {
+            cashbackStore
+        } = this.props
         let cashbackLink = cashbackStore.dataFromApi.cashbackLink || false
         let cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
         if (!cashbackLink || cashbackLink === '') {
@@ -284,6 +363,7 @@ class CashbackScreen extends React.PureComponent {
                 rightAction={() => this.handlePressShare(cashbackLink)}
                 rightType='share'
             >
+
                 <ScrollView
                     ref={(ref) => {
                         this.scrollView = ref
@@ -301,54 +381,23 @@ class CashbackScreen extends React.PureComponent {
                             progressViewOffset={-20}
                         />
                     }>
-                    {this.state.tabs[0].active && (
-                        <QrCodePage
-                            cashbackLink={cashbackLink}
-                            cashbackLinkTitle={cashbackLinkTitle}
-                        />
-                    )}
-                    {this.state.tabs[1].active && (
-                        <>
-                            <View style={{ flex: 0.01 }}>
-                                {this.renderExtraView()}
-                            </View>
-                                <DetailsHeader
-                                    title={strings('cashback.cashback')}
-                                    onPress={() => {
-                                        this.handleSelectTitle('CASHBACK')
-                                    }}
-                                    balance={UtilsService.cutNumber(cashbackBalance, 2)}
-                                    currency={this.cashbackCurrency}
-                                    progress={cashbackBalance / 2}
-                                    icon={selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings'}
-                                />
-                                <DetailsHeader
-                                    title={strings('cashback.cpa')}
-                                    onPress={() => {
-                                        this.handleSelectTitle('CPA')
-                                    }}
-                                    balance={UtilsService.cutNumber(cpaBalance, 2)}
-                                    currency={this.cashbackCurrency}
-                                    progress={cpaBalance / 100}
-                                    icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
-                                />
-
-                            {this.renderContent()}
-                        </>
-                    )}
-
-                    {this.state.tabs[2].active && (
-                        <HowItWorks />
-                    )}
-
+                    <TabView
+                        style={[styles.container, { marginHorizontal: -GRID_SIZE }]}
+                        navigationState={this.state}
+                        renderScene={this.renderScene}
+                        renderHeader={null}
+                        onIndexChange={this.handleIndexChange}
+                        renderTabBar={() => {return null}}
+                        useNativeDriver
+                    />
                 </ScrollView>
             </ScreenWrapper>
         )
     }
 
-    renderContent = () => {
-        const { selectedTitle } = this.state
+    renderContent = (selectedTitle) => {
 
+        console.log('here')
         const { cashbackStore } = this.props
 
         const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
@@ -381,15 +430,16 @@ class CashbackScreen extends React.PureComponent {
         })
 
         return (
-            <DetailsContent
-                selectedTitle={selectedTitle}
-                overalPrep={overalPrep}
-                invitedUsers={invitedUsers}
-                level2Users={level2Users}
-                cpaLevel1={cpaLevel1}
-                cpaLevel2={cpaLevel2}
-                cpaLevel3={cpaLevel3}
-            />
+            <View style={{ backgroundColor: selectedTitle ? 'green' : 'red', height: 100, width: 100 }} />
+            // <DetailsContent
+            //     selectedTitle={selectedTitle}
+            //     overalPrep={overalPrep}
+            //     invitedUsers={invitedUsers}
+            //     level2Users={level2Users}
+            //     cpaLevel1={cpaLevel1}
+            //     cpaLevel2={cpaLevel2}
+            //     cpaLevel3={cpaLevel3}
+            // />
         )
     }
 }
@@ -405,7 +455,10 @@ CashbackScreen.contextType = ThemeContext
 export default connect(mapStateToProps)(CashbackScreen)
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     scrollViewContent: {
         flexGrow: 1
-    },
+    }
 })

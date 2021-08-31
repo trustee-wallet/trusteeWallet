@@ -43,11 +43,12 @@ const DetailsHeader = (props) => {
     } = props
 
     const {
-        colors
+        colors,
+        GRID_SIZE
     } = useTheme()
 
     return (
-        <TouchableOpacity style={styles.switchableTabsLocation}
+        <TouchableOpacity style={[styles.switchableTabsLocation, { marginHorizontal: GRID_SIZE }]}
                           onPress={() => {
                               onPress()
                               LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
