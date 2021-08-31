@@ -1,6 +1,6 @@
 /**
  * @version 0.50
- * @description Vadik
+ * @author Vadym
  */
 import React from 'react'
 import { connect } from 'react-redux'
@@ -27,13 +27,15 @@ import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import NavStore from '@app/components/navigation/NavStore'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import Tabs from '@app/components/elements/new/Tabs'
+import Tabs from '@app/components/elements/new/newTabs'
 import CashbackData from './elements/CashbackData'
 
 import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
 import QrCodePage from '@app/modules/Cashback/elements/QrCodePage'
 import { Tab1, Tab2, Tab3 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
 import DetailsHeader from '@app/modules/Cashback/elements/DetailsHeader'
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 class CashbackScreen extends React.PureComponent {
 
@@ -49,17 +51,21 @@ class CashbackScreen extends React.PureComponent {
         routes: [
             {
                 title: strings('notifications.tabInvite'),
-                key: 'first',
+                key: 'first'
             },
             {
                 title: strings('notifications.tabInfo'),
-                key: 'second',
+                key: 'second'
             },
             {
                 title: strings('notifications.tabFaq'),
-                key: 'third',
+                key: 'third'
             }
         ],
+        tab1Height: SCREEN_WIDTH * 1.3,
+        tab2Height: SCREEN_WIDTH * 1.4999,
+        tab3Height: 'auto'
+
     }
 
     cashbackCurrency = 'USDT'
@@ -179,9 +185,8 @@ class CashbackScreen extends React.PureComponent {
                 contentContainerStyle={{ paddingHorizontal: GRID_SIZE / 2 }}
                 style={{ marginHorizontal: -GRID_SIZE }}
                 keyExtractor={({ index }) => index}
-                ListFooterComponentStyle={styles.flatListFooter}
                 horizontal={true}
-                renderItem={({ item, index }) => this.renderFlatListItem({ item, index })}
+                renderItem={this.renderFlatListItem}
                 showsHorizontalScrollIndicator={false}
             />
         )
@@ -204,6 +209,15 @@ class CashbackScreen extends React.PureComponent {
             } catch (e) {
             }
         }, 300)
+    }
+
+    scrollTabSwitch = () => {
+        setTimeout(() => {
+            try {
+                this.scrollView.scrollTo({ y: 0 })
+            } catch (e) {
+            }
+        }, 0)
     }
 
     handlePressShare = (cashbackLink) => {
@@ -229,12 +243,11 @@ class CashbackScreen extends React.PureComponent {
         })
     }
 
-    renderTabs = () => <Tabs tabs={this.state.routes} changeTab={this.handleChangeTab} />
+    renderTabs = () => <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} />
 
-    handleChangeTab = (item) => {
-        this.setState({
-            index: this.state.routes.indexOf(item)
-        })
+    handleTabChange = (index) => {
+        this.scrollTabSwitch()
+        this.setState({ index })
     }
 
     renderFlatListItem = ({ item }) => {
@@ -246,10 +259,8 @@ class CashbackScreen extends React.PureComponent {
     }
 
     handleSelectTitle = (value) => {
-        // this.scrollDetails(value)
-
+        this.scrollDetails(value)
         this.setState({ selectedTitle: this.state.selectedTitle === value ? null : value })
-        this.forceUpdate();
     }
 
 
@@ -267,7 +278,7 @@ class CashbackScreen extends React.PureComponent {
             cashbackLinkTitle = cashbackStore.cashbackLinkTitle || ''
         }
         return (
-            <View style={{marginHorizontal: 16}}>
+            <View style={{ marginHorizontal: 16 }}>
                 <QrCodePage
                     cashbackLink={cashbackLink}
                     cashbackLinkTitle={cashbackLinkTitle}
@@ -282,52 +293,54 @@ class CashbackScreen extends React.PureComponent {
             selectedTitle
         } = this.state
 
+        const {
+            GRID_SIZE
+        } = this.context
+
         const { cashbackStore } = this.props
 
         const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
         const cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
 
         return (
-                <View style={{ flexGrow: 1}}>
-                    <View style={{ flex: 0.01 }}>
-                        {this.renderExtraView()}
-                    </View>
-                    <DetailsHeader
-                        title={strings('cashback.cashback')}
-                        onPress={() => {
-                            this.handleSelectTitle('CASHBACK')
-                        }}
-                        balance={UtilsService.cutNumber(cashbackBalance, 2)}
-                        currency={this.cashbackCurrency}
-                        progress={cashbackBalance / 2}
-                        icon={selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings'}
-                    />
-                    <DetailsHeader
-                        title={strings('cashback.cpa')}
-                        onPress={() => {
-                            this.handleSelectTitle('CPA')
-                        }}
-                        balance={UtilsService.cutNumber(cpaBalance, 2)}
-                        currency={this.cashbackCurrency}
-                        progress={cpaBalance / 100}
-                        icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
-                    />
-                    {this.renderContent()}
-                </View>
+            <View style={{ marginHorizontal: GRID_SIZE }}>
+                {this.renderExtraView()}
+                <DetailsHeader
+                    title={strings('cashback.cashback')}
+                    onPress={() => {
+                        this.handleSelectTitle('CASHBACK')
+                    }}
+                    balance={UtilsService.cutNumber(cashbackBalance, 2)}
+                    currency={this.cashbackCurrency}
+                    progress={cashbackBalance / 2}
+                    icon={selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings'}
+                />
+                <DetailsHeader
+                    title={strings('cashback.cpa')}
+                    onPress={() => {
+                        this.handleSelectTitle('CPA')
+                    }}
+                    balance={UtilsService.cutNumber(cpaBalance, 2)}
+                    currency={this.cashbackCurrency}
+                    progress={cpaBalance / 100}
+                    icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
+                />
+                {this.renderContent()}
+            </View>
 
         )
     }
 
     renderThirdRoute = () => {
         return (
-            <View style={{marginHorizontal: 16}}>
-            <HowItWorks />
+            <View style={{ marginHorizontal: 16 }}>
+                <HowItWorks />
             </View>
         )
     }
 
-    renderScene = ({route}) => {
-        switch(route.key) {
+    renderScene = ({ route }) => {
+        switch (route.key) {
             case 'first':
                 return this.renderFirstRoute()
             case 'second':
@@ -339,7 +352,22 @@ class CashbackScreen extends React.PureComponent {
         }
     }
 
-    handleIndexChange = index => this.setState({ index });
+    handleSelectHeight = (index) => {
+        switch (index) {
+            case 0 : {
+                return this.state.tab1Height
+            }
+            case 1 : {
+                return this.state.tab2Height
+            }
+            case 2 : {
+                return this.state.tab3Height
+            }
+            default:
+                return null
+
+        }
+    }
 
     render() {
 
@@ -353,13 +381,10 @@ class CashbackScreen extends React.PureComponent {
         const {
             cashbackStore
         } = this.props
+
         let cashbackLink = cashbackStore.dataFromApi.cashbackLink || false
-        let cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
         if (!cashbackLink || cashbackLink === '') {
             cashbackLink = cashbackStore.cashbackLink || ''
-        }
-        if (!cashbackLinkTitle || cashbackLinkTitle === '') {
-            cashbackLinkTitle = cashbackStore.cashbackLinkTitle || ''
         }
 
         return (
@@ -388,11 +413,11 @@ class CashbackScreen extends React.PureComponent {
                         />
                     }>
                     <TabView
-                        style={[styles.container, { marginHorizontal: -GRID_SIZE }]}
+                        style={[styles.container, { marginHorizontal: -GRID_SIZE, height: this.handleSelectHeight(this.state.index) }]}
                         navigationState={this.state}
                         renderScene={this.renderScene}
                         renderHeader={null}
-                        onIndexChange={this.handleIndexChange}
+                        onIndexChange={this.handleTabChange}
                         renderTabBar={() => null}
                         useNativeDriver
                     />
@@ -462,7 +487,7 @@ export default connect(mapStateToProps)(CashbackScreen)
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1
     },
     scrollViewContent: {
         flexGrow: 1
