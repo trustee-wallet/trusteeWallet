@@ -180,7 +180,12 @@
       "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
       "waitToUnfreezeTRX" : "Please wait 72 hours from last freeze time",
       "allowLongQueryETH" : "Allow pending transactions queue",
-      "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance"
+      "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance",
+      "enterToStakeSOL" : "enter stake amount SOL",
+      "stakeSOL" : "stake",
+      "unstakeSOL" : "unstake",
+      "selectAddress" : "Select Address to use",
+      "stakeBalance": "Stake Balance"
     },
     "about": {
       "title": "About",
@@ -724,7 +729,8 @@
      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Transaction for speedup not found",
      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
      "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
-     "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation"
+     "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
     }
   },
   "walletBackup": {
@@ -746,7 +752,7 @@
       "next": "Next",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
-      "infoQR": "QR code reveal recovery phrase. Please dont send it to other people and dont store in Gallery!"
+      "infoQR": "QR code reveals recovery phrase. Please dont send it to other people and dont store in Gallery!"
     },
     "step1Screen": {
       "title": "Check",

@@ -180,7 +180,12 @@
       "waitToClaimTRX" : "Останній раз Ви отримали нагороду менш ніж 24 години тому",
       "waitToUnfreezeTRX" : "За умовами протоколу Tron розморожування можливе через 72 годин з моменту останньої заморозки",
       "allowLongQueryETH" : "Дозволити створювати чергу з непідтверджених транзакцій",
-      "allowBlockedBalanceETH" : "Дозволити повторне використання балансу непідтверджених транзакцій"
+      "allowBlockedBalanceETH" : "Дозволити повторне використання балансу непідтверджених транзакцій",
+      "enterToStakeSOL" : "введіть кількість SOL",
+      "stakeSOL" : "в стейк",
+      "unstakeSOL" : "забрати",
+      "selectAddress" : "Обрати адресу для використання",
+      "stakeBalance": "Стейк балансу"
     },
     "about": {
       "title": "Про гаманець",
@@ -726,7 +731,8 @@
       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Транзакцію для прискорення не знайдено",
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Недостатньо коштів TRX для відправки / ліміт безкоштовних вичерпано",
       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Недостатньо коштів VeChain Thor Token (VTHO) для відправки",
-      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції"
+      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостатньо коштів для відправки"
     }
   },
   "walletBackup": {
