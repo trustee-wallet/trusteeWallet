@@ -189,7 +189,8 @@
       "address": "Адреси",
       "stake": "Стейк",
       "rentReserve": "Орендна плата",
-      "allUnstakeSOL": "Забрати все"
+      "allUnstakeSOL": "Забрати все",
+      "stakeHistorySOL" : "Історія Стейку"
     },
     "about": {
       "title": "Про гаманець",

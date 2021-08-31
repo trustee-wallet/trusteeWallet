@@ -189,7 +189,8 @@
       "address": "Address",
       "stake": "Stake",
       "rentReserve": "Rent reserve",
-      "allUnstakeSOL": "Unstake all"
+      "allUnstakeSOL": "Unstake all",
+      "stakeHistorySOL" : "Stake History",
     },
     "about": {
       "title": "About",

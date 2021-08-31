@@ -189,7 +189,8 @@
       "address": "Адресса",
       "stake": "Стейк",
       "rentReserve": "Резерв аренды",
-      "allUnstakeSOL": "Забрать все"
+      "allUnstakeSOL": "Забрать все",
+      "stakeHistorySOL" : "История Стейка"
     },
     "about": {
       "title": "О кошельке",
