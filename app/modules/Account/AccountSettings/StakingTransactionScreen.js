@@ -39,7 +39,8 @@ class StakingTransactionScreen extends PureComponent {
     state = {
         element: null,
         account : null,
-        inputValue: null
+        inputValue: null,
+        lastTransactions: [],
     }
 
     unStakeAmountInput = React.createRef()
@@ -239,13 +240,13 @@ class StakingTransactionScreen extends PureComponent {
                                     <Button
                                         title={strings('settings.walletList.unstakeSOL')}
                                         onPress={() => this.handleUnStake(this.unStakeAmountInput.getValue())}
-                                        disabled={!this.state.element.active} //@Ksu need this???
                                     />
 
                                     <Button
                                         type='transparent'
                                         title={strings('settings.walletList.allUnstakeSOL').toUpperCase()}
                                         onPress={() => this.handleUnStake('ALL')}
+                                        disabled={!this.state.element.active} //@Ksu need this???
                                     />
                                 </View>
 

@@ -66,13 +66,7 @@ class SettingsSOL extends React.PureComponent {
             currentAddresses: false,
             currentAddressesLoaded: false,
             stakedAddresses: false,
-            lastTransactions: [
-                {
-                    transactionHash: '4pabGHmZyL3JwznQd5FHrBNqBbcKNesGbe5UXrq3ujPmeNqi8xpK3rJgRPajNTJZHPyE1vXXgRSVABXaEBfgcn18',
-                    type: 'UNSTAKE',
-                    amount: 10000
-                }
-            ],
+            lastTransactions: [],
             refreshing: false,
             clickRefresh: false,
             load: true,
