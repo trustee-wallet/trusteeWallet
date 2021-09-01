@@ -1,17 +1,13 @@
-
 import React from 'react'
 import {
     Text,
     TouchableOpacity,
     View,
-    StyleSheet,
+    StyleSheet
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
 import { useTheme } from '@app/theme/ThemeProvider'
-
-import { strings } from '../../../services/i18n'
-
 
 const getStyle = (checked, title) => {
     const { colors } = useTheme()
@@ -31,9 +27,10 @@ const getStyle = (checked, title) => {
 
     style.text.push({ color: colors.common.text3 })
     return style
-};
+}
 
 export default function CheckBox(props) {
+
     const {
         checked = null,
         onPress,
@@ -46,7 +43,7 @@ export default function CheckBox(props) {
     return (
         <TouchableOpacity style={[styles.container, { ...style }]} onPress={onPress} activeOpacity={0.8}>
             <View style={[preparedStyles.checkbox]}>
-                {checked && <Icon name="done" size={16} color={colors.common.background} />}
+                {checked && <Icon name='done' size={16} color={colors.common.background} />}
             </View>
             {typeof title === 'string' && <Text style={preparedStyles.text}>{title}</Text>}
             {typeof title === 'function' && title()}
@@ -57,7 +54,7 @@ export default function CheckBox(props) {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'center'
     },
     checkbox: {
         width: 24,
@@ -67,14 +64,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     unchecked: {
-        borderWidth: 1,
+        borderWidth: 1
     },
     text: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
         lineHeight: 18,
         marginLeft: 12,
-        letterSpacing: 1,
+        letterSpacing: 1
         // flex: 1,
     }
 })

@@ -52,8 +52,7 @@ const renderBalance = (balance, cashbackCurrency) => {
 const CashbackData = (props) => {
 
     const {
-        data,
-        margin
+        data
     } = props
 
     const { title, subTitle, balance, ExtraViewData } = data
@@ -64,7 +63,7 @@ const CashbackData = (props) => {
 
 
     return (
-        <View style={[styles.topContent, {marginLeft: margin ? 16 : 0}]}>
+        <View style={[styles.topContent, { marginHorizontal: 8 }]}>
 
             <View style={styles.topContent__content}>
 
@@ -84,7 +83,7 @@ const CashbackData = (props) => {
             </View>
 
             <GradientView
-                style={styles.bg}
+                style={ styles.bg }
                 array={colors.accountScreen.containerBG}
                 start={styles.containerBG.start}
                 end={styles.containerBG.end}
@@ -120,7 +119,6 @@ const styles = {
         height: 244,
         width: widthWindow * 0.75,
 
-        marginRight: 16,
         borderRadius: 16
     },
 

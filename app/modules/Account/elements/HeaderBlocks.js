@@ -30,6 +30,8 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
+import { getExplorerLink } from '../helpers'
+
 class HeaderBlocks extends React.Component {
 
     shouldComponentUpdate(nextProps) {
@@ -57,12 +59,9 @@ class HeaderBlocks extends React.Component {
     }
 
     actualOpen = async (address, forceLink = false) => {
-        const { currencyExplorerLink } = this.props.cryptoCurrency
-        let actualLink = forceLink || currencyExplorerLink + address
-        if (actualLink.indexOf('blockchair.com/ethereum/address') > 0) {
-            actualLink = forceLink || currencyExplorerLink + address.toLowerCase()
-        }
-        // const supported = true // await Linking.canOpenURL(actualLink)
+        const { currencyCode } = this.props.cryptoCurrency
+
+        const actualLink = forceLink || getExplorerLink(currencyCode, 'address', address)
         try {
             let linkUrl = actualLink
             if (linkUrl.indexOf('?') === -1) {

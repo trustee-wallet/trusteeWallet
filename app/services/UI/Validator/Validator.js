@@ -18,6 +18,7 @@ import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 import { isFioAddressValid } from '@crypto/blockchains/fio/FioUtils'
 import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
+import { isEnsAddressValid } from '@crypto/services/EnsUtils'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -31,7 +32,7 @@ async function _fioAddressValidation(obj) {
     if (!value || !type || !type.includes('_ADDRESS')) {
         return false
     }
-    return isFioAddressValid(value) || isUnstoppableAddressValid(value)
+    return isFioAddressValid(value) || isUnstoppableAddressValid(value) || isEnsAddressValid(value)
 }
 
 async function _userDataValidation(obj) {
@@ -152,7 +153,7 @@ async function _userDataValidation(obj) {
             value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
-            } else if (!/^0x+[0-9a-fA-F]{40}$/.test(value)) {
+            } else if (!/^0[xX]+[0-9a-fA-F]{40}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
@@ -337,7 +338,7 @@ async function _userDataValidation(obj) {
         case 'TX_HASH':
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
-            } else if (!/^0x+[0-9a-fA-F]{64}$/.test(value)) {
+            } else if (!/^0[xX]+[0-9a-fA-F]{64}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
@@ -492,6 +493,19 @@ module.exports = {
                 let validRes = await _userDataValidation(array[i])
                 if (validRes) {
                     resultArray.push(validRes)
+                }
+            }
+        }
+        if ( array.type === 'CASHBACK_LINK' ) {
+            if (array.value.includes('trusteeglobal.com/')){
+                return {
+                    status: 'success',
+                    errorArr: []
+                }
+            }else {
+                return {
+                    status: 'fail',
+                    errorArr: resultArray
                 }
             }
         }

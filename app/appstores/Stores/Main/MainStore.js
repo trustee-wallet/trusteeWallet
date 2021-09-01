@@ -14,7 +14,8 @@ const INITIAL_STATE = {
     loaderVisibility: false,
     blurVisibility: false,
     currentScreen: {}, // TODO: question - do we need this? it seems like unused
-    bseLink: null
+    bseLink: null,
+    loaderFromBse: false
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
@@ -71,6 +72,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 bseLink: action.bseLink
+            }
+        case 'SET_LOADER_BSE':
+            return {
+                ...state,
+                loaderFromBse: action.loaderFromBse
             }
         default:
             return state

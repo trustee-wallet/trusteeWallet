@@ -356,3 +356,10 @@ export function setBseLink(bseLink) {
         bseLink
     })
 }
+
+export function setLoaderFromBse(loaderFromBse) {
+    dispatch({
+        type: 'SET_LOADER_BSE',
+        loaderFromBse
+    })
+}

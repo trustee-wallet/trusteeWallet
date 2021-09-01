@@ -170,8 +170,20 @@
       "rewardBalanceTRX": "ხელმისაწვდომია %{prettyReward} TRX",
       "claimTRX": "ჯილდოს მიღება",
       "refreshTRX": "გადატვირთვა",
+      "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
+      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 72 hours from the moment of the last freezing",
       "allowLongQueryETH": "Allow pending transactions queue",
-      "allowBlockedBalanceETH": "Allow reuse of pending transactions balance"
+      "allowBlockedBalanceETH": "Allow reuse of pending transactions balance",
+      "enterToStakeSOL" : "Enter stake amount SOL",
+      "stakeSOL" : "Stake",
+      "unstakeSOL" : "Unstake",
+      "selectAddress" : "Select Address to use",
+      "stakeBalance": "Stake Balance",
+      "address": "Address",
+      "stake": "Stake",
+      "rentReserve": "Rent reserve",
+      "allUnstakeSOL": "Unstake all",
+      "stakeHistorySOL" : "Stake History"
     },
     "about": {
       "title": "საფულის შესახებ",
@@ -207,7 +219,8 @@
       "text": "თუ თქვენ ხედავთ შეცდომას, გთხოვთ, გამოგვიგზავნეთ ლოგები მხარდაჭერის სამსახურის გავლით ან გადატვირთეთ პროგრამა"
     },
     "config": "კონფიგურაცია შეცვლილია: %{config} -ზე",
-    "tester": "ტესტერი/მომხმარებელი შეცვლილია: %{testerMode}-ით"
+    "tester": "ტესტერი/მომხმარებელი შეცვლილია: %{testerMode}-ით",
+    "blockchainExplorer": "Blockchain explorer"
   },
   "assets": {
     "title": "აქტივის დამატება",
@@ -217,7 +230,7 @@
     "tabCustom": "მეტი",
     "searchPlaceholder": "ძიება",
     "addCustomPlaceholder": "აქტივის მისამართი",
-    "addCustomLabel": "თქვენ შეგიძლიათ დააამატოთ სტანდარტული ტოკენი, რომელიც შემუშავებულია ბლოკჩეინზე - Ethereum, BNB ან Tron. შეიყვანეთ ან დაასკანერეთ ახალი ტოკენი/აქტივი.",
+    "addCustomLabel": "თქვენ შეგიძლიათ დააამატოთ სტანდარტული ტოკენი, რომელიც შემუშავებულია ბლოკჩეინზე - Ethereum, BNB, Solana ან Tron. შეიყვანეთ ან დაასკანერეთ ახალი ტოკენი/აქტივი.",
     "noAssetsFound": "აქტივები ვერ მოიძებნა",
     "addAssetButton": "აქტივის დამატება",
     "mainTitle": "აქტივის დამატება",
@@ -719,7 +732,8 @@
       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP": "დასაჩქარებელი ტრანზაქცია ვერ მოიძებნა",
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
-      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation"
+      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
     }
   },
   "walletBackup": {
@@ -741,7 +755,7 @@
       "next": "შემდეგი",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
-      "infoQR": "QR code reveal recovery phrase. Please dont send it to other people and dont store in Gallery!"
+      "infoQR": "QR code reveals recovery phrase. Please dont send it to other people and dont store in Gallery!"
     },
     "step1Screen": {
       "title": "დადასტურება",

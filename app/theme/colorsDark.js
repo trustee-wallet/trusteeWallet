@@ -11,6 +11,8 @@ export const colorsDark = {
         roundButtonBg: '#6B6B6B',
         roundButtonContent: '#F7F7F7',
         iconMarkBg: '#303030',
+        refreshControlBg: '#2E2E2E',
+        refreshControlIndicator: '#dadada',
         button: {
             shadowColor: '#404040',
             bg: '#6B6B6B',

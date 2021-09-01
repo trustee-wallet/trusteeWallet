@@ -125,7 +125,7 @@ class BackupStep1Screen extends React.PureComponent {
 
     confirmDeleteWallet = async () => {
         const { walletHash, source } = this.props.createWalletStore
-        await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen' ? true : false)
+        await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen')
     }
 
     handleDeleteWallet = () => {
@@ -268,6 +268,8 @@ class BackupStep1Screen extends React.PureComponent {
         return (
             <ScreenWrapper
                 title={strings('walletBackup.step1Screen.title')}
+                leftType='back'
+                leftAction={this.handleBack}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
@@ -305,10 +307,6 @@ class BackupStep1Screen extends React.PureComponent {
                                 disabled: !!walletMnemonicSorted.length,
                                 onPress: this.onNext,
                                 title: strings('walletBackup.step1Screen.next')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: this.handleBack
                             }}
                         />
                     </View>

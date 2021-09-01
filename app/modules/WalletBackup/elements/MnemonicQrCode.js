@@ -30,7 +30,7 @@ const MnemonicQrCode = (props) => {
     } = useTheme()
 
     return(
-        <View style={{ paddingHorizontal: GRID_SIZE, paddingTop: GRID_SIZE * 1.5 }}>
+        <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
             <Message
                 name={'warningM'}
                 text={strings('walletBackup.step0Screen.infoQR')}

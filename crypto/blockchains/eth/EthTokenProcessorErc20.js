@@ -64,9 +64,6 @@ export default class EthTokenProcessorErc20 extends EthBasic {
         if (this._mainCurrencyCode !== 'ETH') {
             res.currencyCodePrefix = 'CUSTOM_' + this._mainTokenType + '_'
         }
-        if (config.debug.appErrors) {
-            console.log('EthTokenProcessorErc20 erc20.result ', JSON.parse(JSON.stringify(res)))
-        }
         return res
     }
 }

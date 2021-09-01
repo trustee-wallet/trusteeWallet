@@ -169,6 +169,8 @@ class BackupSettingsScreen extends PureComponent {
         return (
             <ScreenWrapper
                 title={strings('walletBackup.settingsScreen.title')}
+                leftType='back'
+                leftAction={this.handleBack}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
@@ -236,10 +238,6 @@ class BackupSettingsScreen extends PureComponent {
                                 disabled: !hasChanges,
                                 onPress: this.handleApply,
                                 title: strings('walletBackup.settingsScreen.apply')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: this.handleBack,
                             }}
                         />
                     </View>

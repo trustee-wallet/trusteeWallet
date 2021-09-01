@@ -23,7 +23,7 @@ import Toast from '@app/services/UI/Toast/Toast'
 import Log from '@app/services/Log/Log'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
+const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 class QrCodePage extends PureComponent {
 
@@ -40,8 +40,8 @@ class QrCodePage extends PureComponent {
     render() {
 
         const {
-            cashbackLink,
             cashbackLinkTitle,
+            cashbackLink
         } = this.props
 
         const {
@@ -56,13 +56,15 @@ class QrCodePage extends PureComponent {
                     source={require('@assets/images/qrBG.png')}
                 >
                     <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
-                    <View style={styles.PageSubtitleTextBox}>
-                        <Text style={styles.pageSubtitleText}>{strings('cashback.pageSubtitleText')}</Text>
-                        <Text style={styles.pageSubtitleProcent}>{'30%'}</Text>
+                    <View>
+                        <View style={styles.PageSubtitleTextBox}>
+                            <Text style={styles.pageSubtitleText}>{strings('cashback.pageSubtitleText')}</Text>
+                            <Text style={styles.pageSubtitleProcent}>{'30%'}</Text>
+                        </View>
+                        <Image style={styles.picProcent} source={require('@assets/images/picProcent.png')} />
                     </View>
-                    <Image style={styles.picProcent} source={require('@assets/images/picProcent.png')} />
                     <TouchableOpacity
-                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE / 2.5, left: WINDOW_WIDTH <= 390 ? WINDOW_WIDTH * 0.272 : WINDOW_WIDTH * 0.276 }]}
+                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE / 2.5 }]}
                         onPress={() => this.copyToClip(cashbackLink)}
                         activeOpacity={0.8}
                     >
@@ -103,8 +105,8 @@ const styles = StyleSheet.create({
     PageSubtitleTextBox: {
         position: 'absolute',
         zIndex: 2,
-        top: -WINDOW_WIDTH * 0.2,
-        left: WINDOW_WIDTH * 0.57,
+        top: WINDOW_WIDTH * -0.5,
+        left: WINDOW_WIDTH * 0.566,
         width: WINDOW_WIDTH * 0.2125
     },
     pageSubtitleProcent: {
@@ -125,13 +127,15 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         position: 'absolute',
-        top: WINDOW_WIDTH * 0.075
+        top: WINDOW_WIDTH * 0.075,
+        left: WINDOW_WIDTH * 0.23
     },
     qrCode: {
         alignSelf: 'center'
     },
     qrCodeTokenString: {
-        marginTop: 6,
+        width: WINDOW_WIDTH * 0.38,
+        marginTop: WINDOW_WIDTH * 0.015,
         justifyContent: 'space-between',
         fontFamily: 'Montserrat-SemiBold',
         fontSize: WINDOW_WIDTH * 0.042,
@@ -147,8 +151,8 @@ const styles = StyleSheet.create({
         marginTop: WINDOW_WIDTH * 0.32
     },
     picProcent: {
-        position: 'absolute',
-        top: WINDOW_WIDTH >= 400 && WINDOW_WIDTH <= 512 ? -WINDOW_HEIGHT * 0.135 : -WINDOW_HEIGHT * 0.155,
+        position: 'relative',
+        top: WINDOW_WIDTH * -0.57,
         left: WINDOW_WIDTH * 0.51,
         width: WINDOW_WIDTH * 0.42,
         height: WINDOW_WIDTH * 0.34
@@ -160,6 +164,5 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginTop: 12,
         flex: 1
-    },
-
+    }
 })

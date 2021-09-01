@@ -25,8 +25,8 @@ const customCurrencyActions = {
         if (typeof (currencyToAdd.tokenType) === 'undefined') {
             throw new Error('set tokenType')
         }
-        if (currencyToAdd.tokenType !== 'ETH_ERC_20' && currencyToAdd.tokenType !== 'BNB_SMART_20' && currencyToAdd.tokenType !== 'TRX') {
-            throw new Error('only ETH_ERC_20 / BNB_SMART_20 or TRX tokenType is supported')
+        if (currencyToAdd.tokenType !== 'ETH_ERC_20' && currencyToAdd.tokenType !== 'BNB_SMART_20' && currencyToAdd.tokenType !== 'TRX' && currencyToAdd.tokenType !== 'SOL') {
+            throw new Error('only ETH_ERC_20 / BNB_SMART_20 / SOL or TRX tokenType is supported')
         }
         if (typeof (currencyToAdd.tokenAddress) === 'undefined') {
             throw new Error('set tokenAddress')
@@ -34,8 +34,7 @@ const customCurrencyActions = {
         Log.log('ACT/CustomCurrency checkCustomCurrency started ' + currencyToAdd.tokenType + ' ' + currencyToAdd.tokenAddress)
         let res = false
         try {
-            BlocksoftTokenChecks.setTokenType(currencyToAdd.tokenType).setTokenAddress(currencyToAdd.tokenAddress)
-            res = await BlocksoftTokenChecks.getTokenDetails()
+            res = await BlocksoftTokenChecks.getTokenDetails(currencyToAdd)
             Log.log('ACT/CustomCurrency checkCustomCurrency finished ', JSON.stringify(res))
         } catch (e) {
             Log.log('ACT/CustomCurrency checkCustomCurrency error ' + e.message)
@@ -60,7 +59,7 @@ const customCurrencyActions = {
         if (typeof (currencyToAdd.tokenType) === 'undefined') {
             throw new Error('set tokenType')
         }
-        if (currencyToAdd.tokenType !== 'ETH_ERC_20' && currencyToAdd.tokenType !== 'TRX' && currencyToAdd.tokenType !== 'BNB_SMART_20') {
+        if (currencyToAdd.tokenType !== 'ETH_ERC_20' && currencyToAdd.tokenType !== 'TRX' && currencyToAdd.tokenType !== 'BNB_SMART_20' && currencyToAdd.tokenType !== 'SOL') {
             throw new Error('only ETH_ERC_20 or TRX tokenType is supported')
         }
         if (typeof (currencyToAdd.currencyCode) === 'undefined') {

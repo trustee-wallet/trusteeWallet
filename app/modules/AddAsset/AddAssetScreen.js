@@ -91,8 +91,9 @@ class AddAssetScreen extends React.PureComponent {
     handleAddCurrency = async (currencyToAdd, tokenBlockchain) => {
         Keyboard.dismiss()
         MarketingEvent.logEvent('gx_currency_add', { currencyCode: currencyToAdd.currencyCode }, 'GX')
-        await currencyActions.addCurrency(currencyToAdd)
-        await currencyActions.addOrShowMainCurrency(currencyToAdd.currencyCode, tokenBlockchain)
+        if (await currencyActions.addCurrency(currencyToAdd)) {
+            await currencyActions.addOrShowMainCurrency(currencyToAdd.currencyCode, tokenBlockchain)
+        }
         this.prepareData()
     }
 
@@ -124,29 +125,58 @@ class AddAssetScreen extends React.PureComponent {
     handleChangeCustomAddress = (value) => { this.setState(() => ({ customAddress: value })) }
 
     handleAddCustomToken = async (value) => {
-        Keyboard.dismiss();
-        const types = ['ETH_ADDRESS', 'TRX_ADDRESS', 'TRX_TOKEN']
+        Keyboard.dismiss()
         const customAddress = value.trim().split(/\s+/g).join('')
+
+        const validationETH = await Validator.userDataValidation({
+            type: 'ETH_ADDRESS',
+            id: 'address',
+            value: customAddress
+        })
+        if (validationETH === false) { // valid eth address
+            const result = await addCustomToken(customAddress, 'ETH_ERC_20')
+            if (result.searchQuery) {
+                this.handleSearch(result.searchQuery)
+            }
+            return false
+        }
+
+        const types = ['TRX_ADDRESS', 'TRX_TOKEN']
         const tmps = types.map(type => ({
             type,
             id: 'address',
             value: customAddress
         }))
         const validation = await Validator.arrayValidation(tmps)
-
         if (validation.errorArr.length !== types.length) {
-            const result = await addCustomToken(customAddress)
+            const result = await addCustomToken(customAddress, 'TRX')
             if (result.searchQuery) {
                 this.handleSearch(result.searchQuery)
             }
-        } else {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.exchange.sorry'),
-                description: strings('validator.invalidFormat')
-            })
+            return false
         }
+
+        const validationSOL = await Validator.userDataValidation({
+            type: 'SOL_ADDRESS',
+            id: 'address',
+            value: customAddress
+        })
+
+        if (validationSOL === false) { // valid address
+            const result = await addCustomToken(customAddress, 'SOL')
+            if (result.searchQuery) {
+                this.handleSearch(result.searchQuery)
+            }
+            return false
+        }
+
+        showModal({
+            type: 'INFO_MODAL',
+            icon: 'INFO',
+            title: strings('modal.exchange.sorry'),
+            description: strings('validator.invalidFormat')
+        })
+
     }
 
     updateOffset = (event) => {
@@ -258,7 +288,7 @@ class AddAssetScreen extends React.PureComponent {
         let isSearchTokenAddress = false
         if (searchQuery) {
             searchQuery =  searchQuery.trim()
-            if (searchQuery.indexOf('0x') === 0 && searchQuery.length === 42) {
+            if (searchQuery.toLowerCase().indexOf('0x') === 0 && searchQuery.length === 42) {
                 isSearchTokenAddress = true
             } else if (searchQuery.indexOf('T') === 0 && searchQuery.length === 34) {
                 isSearchTokenAddress = true

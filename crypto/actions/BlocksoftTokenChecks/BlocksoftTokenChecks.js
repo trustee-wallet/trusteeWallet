@@ -13,36 +13,17 @@ class BlocksoftTokenChecks {
     _processor = {}
 
     /**
-     * @type {{tokenType, tokenAddress}}
-     * @private
+     *
+     * @param data.tokenType
+     * @param data.tokenAddress
+     * @returns {Promise<{tokenAddress: *, currencyName: *, provider: string, tokenDecimals: *, icon: *, description: *, tokenType: string, currencyCode: *}|boolean|{tokenAddress: *, currencyName: *, provider: string, tokenDecimals: *, icon: boolean, description: boolean, tokenType: string, currencyCode: *}|*|undefined>}
      */
-    _data = {}
-
-    /**
-     * @param {string} tokenType
-     * @return {BlocksoftTokenChecks}
-     */
-    setTokenType(tokenType) {
-        this._data.tokenType = tokenType
-        if (!this._processor[tokenType]) {
-            this._processor[tokenType] = BlocksoftDispatcher.getTokenProcessor(tokenType)
-        }
-        return this
-    }
-
-    /**
-     * @param {string} tokenAddress
-     * @return {BlocksoftTokenChecks}
-     */
-    setTokenAddress(tokenAddress) {
-        this._data.tokenAddress = tokenAddress
-        return this
-    }
-
-
-    async getTokenDetails() {
+    async getTokenDetails(data) {
         try {
-            return this._processor[this._data.tokenType].getTokenDetails(this._data.tokenAddress)
+            if (!this._processor[data.tokenType]) {
+                this._processor[data.tokenType] = BlocksoftDispatcher.getTokenProcessor(data.tokenType)
+            }
+            return this._processor[data.tokenType].getTokenDetails(data.tokenAddress)
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             throw e

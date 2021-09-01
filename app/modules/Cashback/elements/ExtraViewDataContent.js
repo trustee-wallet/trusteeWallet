@@ -346,7 +346,7 @@ export class Tab2 extends React.Component {
         return (
             <View style={styles.progressBarContainer}>
                 <View>
-                    <Text numberOfLines={1} style={[styles.withdrawInfo, { width: windowWidth.width * 0.41 }]}>{strings('cashback.toWithdraw')}</Text>
+                    <Text numberOfLines={1} style={[styles.withdrawInfo, { width: condition ? windowWidth.width * 0.41 : windowWidth.width * 0.8 }]}>{strings('cashback.toWithdraw')}</Text>
                     <View style={styles.progressBarLocation}>
                         <Bar
                             width={!condition ? windowWidth.width * 0.70 : windowWidth.width * 0.36}
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         textTransform: 'uppercase',
         color: '#999999',
-        lineHeight: 12,
+        lineHeight: 14,
         letterSpacing: 0.5
     },
     inviteToken: {

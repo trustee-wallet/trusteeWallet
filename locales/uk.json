@@ -36,8 +36,8 @@
      "newsTitle": "Новина",
      "tabAll": "Все",
      "tabNews": "Новини",
-     "tabInvite": "Invite",
-     "tabInfo": "Info",
+     "tabInvite": "Поділитись",
+     "tabInfo": "Інфо",
      "tabFaq": "Faq",
      "today": "Сьогодні",
      "yesterday": "Вчора"
@@ -177,8 +177,20 @@
       "rewardBalanceTRX" : "Доступно %{prettyReward} TRX",
       "claimTRX" : "Забрати нагороду",
       "refreshTRX" : "Перезавантажити",
+      "waitToClaimTRX" : "Останній раз Ви отримали нагороду менш ніж 24 години тому",
+      "waitToUnfreezeTRX" : "За умовами протоколу Tron розморожування можливе через 72 години з моменту останньої заморозки",
       "allowLongQueryETH" : "Дозволити створювати чергу з непідтверджених транзакцій",
-      "allowBlockedBalanceETH" : "Дозволити повторне використання балансу непідтверджених транзакцій"
+      "allowBlockedBalanceETH" : "Дозволити повторне використання балансу непідтверджених транзакцій",
+      "enterToStakeSOL" : "Введіть кількість SOL",
+      "stakeSOL" : "В стейк",
+      "unstakeSOL" : "Забрати",
+      "selectAddress" : "Обрати адресу для використання",
+      "stakeBalance": "Стейк балансу",
+      "address": "Адреси",
+      "stake": "Стейк",
+      "rentReserve": "Орендна плата",
+      "allUnstakeSOL": "Забрати все",
+      "stakeHistorySOL" : "Історія Стейку"
     },
     "about": {
       "title": "Про гаманець",
@@ -214,7 +226,8 @@
       "text": "Якщо Ви бачите це, щось пішло не так, надішліть нам логи через підтримку або спробуйте перезавантажити додаток"
     },
     "config": "Конфіг змінений на: %{config}",
-    "tester": "Тестувальник/користувач змінений на: %{testerMode}"
+    "tester": "Тестувальник/користувач змінений на: %{testerMode}",
+    "blockchainExplorer": "Блокчейн оглядач"
   },
   "assets": {
     "title": "Додати актив",
@@ -224,7 +237,7 @@
     "tabCustom": "Ще",
     "searchPlaceholder": "Пошук",
     "addCustomPlaceholder": "Адреса активу",
-    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
+    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB, Solana або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
     "noAssetsFound": "Активи не знайдено",
     "addAssetButton": "Додати актив",
     "mainTitle": "Додати актив",
@@ -734,7 +747,8 @@
       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Транзакцію для прискорення не знайдено",
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Недостатньо коштів TRX для відправки / ліміт безкоштовних вичерпано",
       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Недостатньо коштів VeChain Thor Token (VTHO) для відправки",
-      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції"
+      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостатньо коштів для відправки"
     }
   },
   "walletBackup": {

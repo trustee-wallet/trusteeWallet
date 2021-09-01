@@ -16,26 +16,28 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 const getIcon = (iconType, color) => {
     switch (iconType) {
         case 'share':
-            return <CustomIcon name={'share'} color={color} size={20} />
+            return <CustomIcon name='share' color={color} size={20} />
         case 'support':
-            return <CustomIcon name={'reload'} color={color} size={20} />
+            return <CustomIcon name='reload' color={color} size={20} />
         case 'details':
-            return <CustomIcon name={'share'} color={color} size={20} />
+            return <CustomIcon name='share' color={color} size={20} />
         case 'notes':
-            return <CustomIcon name={'notes'} color={color} size={20} />
+            return <CustomIcon name='notes' color={color} size={20} />
         case 'card':
-            return <CustomIcon name={'card'} color={color} size={20} />
+            return <CustomIcon name='card' color={color} size={20} />
         case 'addressFrom':
         case 'addressTo':
         case 'exchangeTo':
         case 'self':
-            return <CustomIcon name={'user'} color={color} size={20} />
+            return <CustomIcon name='user' color={color} size={20} />
         case 'bse':
-            return <CustomIcon name={'swapLinked'} color={color} size={20} />
+            return <CustomIcon name='swapLinked' color={color} size={20} />
         case 'txFee':
-            return <CustomIcon name={'feeTxScreen'} color={color} size={20} />
+            return <CustomIcon name='feeTxScreen' color={color} size={20} />
         case 'txID':
-            return <CustomIcon name={'swapID2'} color={color} size={20} />
+            return <CustomIcon name='swapID2' color={color} size={20} />
+        case 'balance':
+            return <CustomIcon name='balance' color={color} size={20} />
         default: return null
     }
 }

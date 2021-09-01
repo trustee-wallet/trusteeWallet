@@ -1,10 +1,17 @@
 /**
- * @version 0.44
+ * @version 0.50
  * @author yura
  */
 
 import React, { PureComponent } from 'react'
-import { Dimensions, PixelRatio, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { 
+    Dimensions, 
+    PixelRatio, 
+    StyleSheet, 
+    TouchableOpacity, 
+    View, 
+    Text
+} from 'react-native'
 import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -18,6 +25,9 @@ import Input from '@app/components/elements/new/TextInput'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import Toast from '@app/services/UI/Toast/Toast'
 import { strings } from '@app/services/i18n'
+
+import CustomIcon from '@app/components/elements/CustomIcon'
+import NavStore from '@app/components/navigation/NavStore'
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
@@ -72,35 +82,45 @@ class WalletName extends PureComponent {
         }
     }
 
+    handleSelectWallet = () => {
+        NavStore.goNext('WalletListScreen')
+    }
+
     render() {
 
         const { walletHash, walletName } = this.props.selectedWallet
         const { isEditing } = this.state
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         return (
-            <View style={styles.wrapper}>
+            <TouchableOpacity
+                onPress={this.handleSelectWallet}
+                onLongPress={this.onLongPress}
+                delayLongPress={2000}
+                style={[styles.wrapper, { paddingHorizontal: GRID_SIZE }]}
+            >
                 <View style={styles.content}>
-                    <Input
-                        inputStyle={[styles.input, { color: colors.common.text1 }]}
-                        containerStyle={styles.container}
-                        compRef={ref => this.nameInputRef = ref}
-                        // placeholder={strings(`components.elements.modal.input.placeholder`).split('').join(String.fromCodePoint(parseInt('2006', 16)))}
-                        // placeholder={strings(`components.elements.modal.input.placeholder`)}
-                        placeholder=''
-                        editable={isEditing}
-                        selectionColor={colors.common.text2}
-                        onBlur={() => this.onBlurInput(walletHash, walletName)}
-                        onChangeText={(text) => this.onChangeName(text)}
-                        value={this.prepareWalletName(walletName, isEditing)}
-                    />
+                    {isEditing ?
+                        <Input
+                            inputStyle={[styles.input, { color: colors.common.text1 }]}
+                            containerStyle={styles.container}
+                            compRef={ref => this.nameInputRef = ref}
+                            // placeholder={strings(`components.elements.modal.input.placeholder`).split('').join(String.fromCodePoint(parseInt('2006', 16)))}
+                            // placeholder={strings(`components.elements.modal.input.placeholder`)}
+                            placeholder=''
+                            editable={isEditing}
+                            selectionColor={colors.common.text2}
+                            onBlur={() => this.onBlurInput(walletHash, walletName)}
+                            onChangeText={(text) => this.onChangeName(text)}
+                            value={this.prepareWalletName(walletName, isEditing)}
+                        /> :
+                        <View style={styles.selectorWrapper}>
+                            <Text style={[styles.input, { color: colors.common.text1 }]} numberOfLines={1}>{this.prepareWalletName(walletName, isEditing)}</Text>
+                            <CustomIcon name='downArrow' color={colors.common.text1} size={14} style={{ paddingLeft: GRID_SIZE / 2 }} />
+                        </View>
+                    }
                 </View>
-                {
-                    !isEditing ?
-                        <TouchableOpacity style={styles.touchableOpacity} onLongPress={this.onLongPress} />
-                        : null
-                }
-            </View>
+            </TouchableOpacity>
         )
     }
 
@@ -114,7 +134,7 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, {})(WalletName)
+export default connect(mapStateToProps)(WalletName)
 
 const styles = StyleSheet.create({
     wrapper: {
@@ -125,8 +145,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        minWidth: 150,
-        maxWidth: 220,
         height: '100%'
     },
     input: {
@@ -137,17 +155,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         paddingHorizontal: 0
     },
-    touchableOpacity: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 2
-    },
     container: {
-        minWidth: 150,
-        maxWidth: 220,
+        flex: 1,
         elevation: 0,
         shadowColor: 'transparent',
         shadowRadius: 0,
@@ -156,7 +165,9 @@ const styles = StyleSheet.create({
             width: 0,
             height: 0
         }
+    },
+    selectorWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center'
     }
 })
-
-

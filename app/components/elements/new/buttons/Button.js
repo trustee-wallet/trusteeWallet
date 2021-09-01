@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     text: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 16,
-        lineHeight: 16,
+        lineHeight: 18,
         letterSpacing: 0.5,
     },
     transparentButtonText: {

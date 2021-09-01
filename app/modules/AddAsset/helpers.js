@@ -67,7 +67,7 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
     const newTabs = tabs.map(tab => ({ ...tab, active: tab.index === activeTab.index }))
 
     const fullData = prepareAssets(assets)
-    
+
     let data = []
 
     if (searchQuery) data = filterBySearchQuery(fullData, searchQuery)
@@ -128,9 +128,7 @@ function filterBySearchQuery(assets, value) {
 }
 
 
-export async function addCustomToken(tokenAddress) {
-    let tokenType = tokenAddress.substr(0, 2) === '0x' ? 'ETH_ERC_20' : 'TRX' // more logic - into validation of input is enough
-
+export async function addCustomToken(tokenAddress, tokenType ) {
     Log.log('AddCustomTokenScreen.addToken start adding ' + tokenAddress + ' ' + tokenType)
 
     setLoaderStatus(true)
@@ -163,18 +161,30 @@ export async function addCustomToken(tokenAddress) {
             tokenType,
             tokenAddress
         })
-        if (!checked && tokenType === 'ETH_ERC_20') {
-            tokenType = 'BNB_SMART_20'
-            checked = await customCurrencyActions.checkCustomCurrency({
-                tokenType,
+        let checked2 = false
+        if (tokenType === 'ETH_ERC_20') {
+            checked2 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'BNB_SMART_20',
                 tokenAddress
             })
         }
-        currencyActions.addOrShowMainCurrency(checked.currencyCode, tokenType)
 
         Log.log('AddCustomTokenScreen.addToken checked ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked))
+        Log.log('AddCustomTokenScreen.addToken checked2 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked2))
 
-        if (!checked) {
+        if (checked2) {
+            if (checked) {
+                await _actualAdd(checked, tokenType, false)
+                return _actualAdd(checked2, 'BNB_SMART_20', true)
+            } else {
+                checked = checked2
+                tokenType = 'BNB_SMART_20'
+                return _actualAdd(checked, tokenType)
+            }
+        } else if (checked) {
+            return _actualAdd(checked, tokenType)
+
+        } else {
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -184,7 +194,6 @@ export async function addCustomToken(tokenAddress) {
             setLoaderStatus(false)
             return { searchQuery: false }
         }
-
 
     } catch (e) {
 
@@ -205,7 +214,11 @@ export async function addCustomToken(tokenAddress) {
         return { searchQuery: false }
     }
 
+}
 
+async function _actualAdd(checked, tokenType, isFinal = true) {
+
+    currencyActions.addOrShowMainCurrency(checked.currencyCode, tokenType)
 
     if (BlocksoftDict.Currencies[checked.currencyCodePrefix + checked.currencyCode]) {
 
@@ -269,17 +282,17 @@ export async function addCustomToken(tokenAddress) {
         Log.log('AddCustomTokenScreen.addToken secondStep error ' + e.message)
     }
 
-    await currencyActions.setCryptoCurrencies()
-
-    setLoaderStatus(false)
-
-    showModal({
-        type: 'INFO_MODAL',
-        icon: true,
-        title: strings('modal.infoAddCustomAssetModal.success.title'),
-        description: strings('modal.infoAddCustomAssetModal.success.description')
-    }, () => {
-        NavStore.reset('HomeScreen')
-    })
+    if (isFinal) {
+        await currencyActions.setCryptoCurrencies()
+        setLoaderStatus(false)
+        showModal({
+            type: 'INFO_MODAL',
+            icon: true,
+            title: strings('modal.infoAddCustomAssetModal.success.title'),
+            description: strings('modal.infoAddCustomAssetModal.success.description')
+        }, () => {
+            NavStore.reset('HomeScreen')
+        })
+    }
     return { searchQuery: false }
 }

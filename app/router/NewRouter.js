@@ -39,6 +39,7 @@ import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountS
 import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPrivate/AccountSettingsPrivateScreen'
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
+import StakingTransactionScreen from '@app/modules/Account/AccountSettings/StakingTransactionScreen'
 
 
 import FioChooseRecipient from '@app/modules/FIO/FioChooseRecipient'
@@ -72,12 +73,15 @@ import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import SellCodeScreen from '@app/modules/Market/SellCodeScreen'
 
 import NftMainScreen from '@app/modules/NFT/NftMainScreen'
 import NftDetailedInfo from '@app/modules/NFT/NftDetailedInfo'
 import NftReceive from '@app/modules/NFT/NftReceive'
 import NftCollectionView from '@app/modules/NFT/NftCollectionView'
+
+import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
+import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
+
 
 
 const Stack = createStackNavigator()
@@ -116,6 +120,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountSettingsPrivate' component={AccountSettingsPrivateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountTransactionScreen' component={AccountTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='StakingTransactionScreen' component={StakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
@@ -131,6 +136,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='ScannerSettingsScreen' component={ScannerSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='LoggingSettingsScreen' component={LoggingSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsSettingsScreen' component={NotificationsSettingScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='GlobalCoinSettings' component={GlobalCoinSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='FioChooseRecipient' component={FioChooseRecipient} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioChooseAddress' component={FioChooseAddress} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

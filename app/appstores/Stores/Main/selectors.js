@@ -85,3 +85,8 @@ export const getBseLink = createSelector(
     [state => state.mainStore.bseLink],
     (data => data)
 )
+
+export const getLoaderStatusFromBse = createSelector(
+    [state => state.mainStore.loaderFromBse],
+    (data => data)
+)

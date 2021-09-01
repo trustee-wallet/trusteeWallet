@@ -37,6 +37,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         let txRBFed = ''
         let txRBF = false
+        const addressToLower = data.addressTo.toLowerCase()
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate remove started ' + data.transactionRemoveByFee)
             txRBF = data.transactionRemoveByFee
@@ -48,7 +49,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
             txRBFed = 'usualSend'
-            if (data.addressTo !== '' && (data.addressTo.indexOf('0x') === -1 || data.addressTo.indexOf('0x') !== 0)) {
+            if (data.addressTo !== '' && (addressToLower.indexOf('0x') === -1 || addressToLower.indexOf('0x') !== 0)) {
                 throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
             }
         }
@@ -85,14 +86,13 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' no nonceForTx')
         }
 
-
         let gasPrice = {}
 
         let maxNonceLocal = await EthTmpDS.getMaxNonce(this._mainCurrencyCode, data.addressFrom)
         const ethAllowBlockedBalance = await settingsActions.getSetting('ethAllowBlockedBalance')
         const ethAllowLongQuery = await settingsActions.getSetting('ethAllowLongQuery')
 
-        const proxyPriceCheck = await EthNetworkPrices.getWithProxy(this._mainCurrencyCode, typeof data.addressFrom !== 'undefined' ? data.addressFrom : 'none', {
+        const proxyPriceCheck = await EthNetworkPrices.getWithProxy(this._mainCurrencyCode,  this._isTestnet, typeof data.addressFrom !== 'undefined' ? data.addressFrom : 'none', {
             data,
             additionalData,
             feesSource: 'EthTransferProcessor',
@@ -101,6 +101,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             ethAllowLongQuery,
             maxNonceLocal
         })
+
         if (typeof additionalData.gasPrice !== 'undefined') {
             if (typeof additionalData.gasPriceTitle !== 'undefined') {
                 // @ts-ignore
@@ -118,6 +119,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' proxyPriceCheck', proxyPriceCheck)
         }
 
+        if (typeof this._web3.LINK === 'undefined') {
+            throw new Error('EthTransferProcessor need this._web3.LINK')
+        }
+
         let gasLimit = 0
         try {
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
@@ -126,32 +131,27 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     let i = 0
                     do {
                         try {
-
-                            gasLimit = await EthEstimateGas(this._web3Link, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
-
+                            i++
+                            gasLimit = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
                             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
-
-                            // @ts-ignore
-                            MarketingEvent.logOnlyRealTime('v20_eth_gas_limit ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, {
-                                amount: data.amount + '',
-                                gasLimit
-                            })
-                            ok = true
                         } catch (e1) {
                             ok = false
-                            i++
                             if (i > 3) {
                                 throw e1
                             }
                         }
-                    } while (!ok)
+                    } while (!ok && i <= 5)
                 } catch (e) {
                     if (e.message.indexOf('resolve host') !== -1) {
                         throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
                     } else {
-                        e.message += ' in EthEstimateGas in getFeeRate'
-                        throw e
+                        gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
+                        // e.message += ' in EthEstimateGas in getFeeRate'
+                        // throw e
                     }
+                }
+                if (!gasLimit || typeof gasLimit !== 'undefined') {
+                    gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
                 }
                 if (this._mainCurrencyCode === 'OPTIMISM') {
                     const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
@@ -166,6 +166,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } catch (e) {
             throw new Error(e.message + ' in get gasLimit')
         }
+        console.log(new Date().toISOString() + ' end estimation')
 
         let showBigGasNotice = false
         if (typeof additionalData === 'undefined' || typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee) {
@@ -572,6 +573,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
 
         const fees = await this.getFeeRate(data, privateData, additionalData)
+        console.log(`
+        
+        
+        fees`, JSON.stringify(fees))
         if (!fees || fees.selectedFeeIndex < 0) {
             return {
                 selectedTransferAllBalance: '0',
@@ -608,6 +613,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         let txRBFed = ''
         let txRBF = false
+        const addressToLower = data.addressTo.toLowerCase()
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx started ' + data.transactionRemoveByFee)
             txRBF = data.transactionRemoveByFee
@@ -619,7 +625,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx started')
             txRBFed = 'usualSend'
-            if (data.addressTo !== '' && (data.addressTo.indexOf('0x') === -1 || data.addressTo.indexOf('0x') !== 0)) {
+            if (data.addressTo !== '' && (addressToLower.indexOf('0x') === -1 || addressToLower.indexOf('0x') !== 0)) {
                 throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
             }
         }
@@ -739,7 +745,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = this._mainCurrencyCode
-                await EthTmpDS.getCache(data.addressFrom)
+                await EthTmpDS.getCache(this._mainCurrencyCode, data.addressFrom)
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {

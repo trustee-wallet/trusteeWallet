@@ -9,7 +9,7 @@ import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import NavStore from '@app/components/navigation/NavStore'
 
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setLoaderFromBse, setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
@@ -57,6 +57,7 @@ class ReceiptScreen extends PureComponent {
 
     componentDidMount = () => {
         setLoaderStatus(false)
+        setLoaderFromBse(false)
     }
 
     openAdvancedSettings = async () => {
@@ -205,6 +206,8 @@ class ReceiptScreen extends PureComponent {
                 })
                 CACHE_IS_SENDING = false
                 try {
+                    UpdateOneByOneDaemon.unstop()
+                    UpdateAccountListDaemon.unstop()
                     await SendActionsEnd.endRedirect(tx, this.props.sendScreenStore)
                 } catch (e2) {
                     e2.message += ' while SendActionsEnd.endRedirect'
@@ -227,6 +230,8 @@ class ReceiptScreen extends PureComponent {
 
 
     closeAction = async () => {
+        UpdateOneByOneDaemon.unstop()
+        UpdateAccountListDaemon.unstop()
         await SendActionsEnd.endClose(this.props.sendScreenStore)
         const { uiType } = this.props.sendScreenStore.ui
         if (uiType === 'TRADE_SEND') {
@@ -237,12 +242,14 @@ class ReceiptScreen extends PureComponent {
     }
 
     backAction = () => {
+        UpdateOneByOneDaemon.unstop()
+        UpdateAccountListDaemon.unstop()
         NavStore.goBack()
     }
 
     render() {
-        UpdateOneByOneDaemon.pause()
-        UpdateAccountListDaemon.pause()
+        UpdateOneByOneDaemon.stop()
+        UpdateAccountListDaemon.stop()
         MarketingAnalytics.setCurrentScreen('Send.ReceiptScreen')
 
         const { colors, GRID_SIZE, isLight } = this.context

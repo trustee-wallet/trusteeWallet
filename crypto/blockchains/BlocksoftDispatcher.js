@@ -62,6 +62,9 @@ import SolScannerProcessor from '@crypto/blockchains/sol/SolScannerProcessor'
 import WavesAddressProcessor from '@crypto/blockchains/waves/WavesAddressProcessor'
 import WavesScannerProcessor from '@crypto/blockchains/waves/WavesScannerProcessor'
 
+import SolScannerProcessorSpl from '@crypto/blockchains/sol/SolScannerProcessorSpl'
+import SolTokenProcessor from '@crypto/blockchains/sol/SolTokenProcessor'
+
 class BlocksoftDispatcher {
 
     /**
@@ -161,6 +164,8 @@ class BlocksoftDispatcher {
                 return new VetScannerProcessor(currencyDictSettings)
             case 'SOL':
                 return new SolScannerProcessor(currencyDictSettings)
+            case 'SOL_SPL':
+                return new SolScannerProcessorSpl(currencyDictSettings)
             case 'WAVES':
                 return new WavesScannerProcessor(currencyDictSettings)
             default:
@@ -180,6 +185,8 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'BNB' })
             case 'TRX':
                 return new TrxTokenProcessor()
+            case 'SOL':
+                return new SolTokenProcessor()
             default:
                 throw new Error('Unknown tokenProcessor ' + tokenType)
         }

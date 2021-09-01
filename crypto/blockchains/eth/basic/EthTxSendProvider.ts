@@ -108,6 +108,7 @@ export default class EthTxSendProvider {
         }
         logData.checkResult = checkResult && typeof checkResult.data !== 'undefined' && checkResult.data ? JSON.parse(JSON.stringify(checkResult.data)) : false
 
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send will send')
         let result
         try {
             if (this._mainCurrencyCode === 'BNB' || this._mainCurrencyCode === 'MATIC' || !link) {
@@ -119,6 +120,7 @@ export default class EthTxSendProvider {
                  * "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                  * "status": true, "to": "0xf1cff704c6e6ce459e3e1544a9533cccbdad7b99", "transactionHash": "0x1fa5646517b625d422863e6c27082104e1697543a6f912421527bb171c6173f2", "transactionIndex": 95}
                  */
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction ', signData.rawTransaction)
                 const tmp = await this._web3.eth.sendSignedTransaction(signData.rawTransaction)
                 result = {
                     data: {
@@ -127,6 +129,7 @@ export default class EthTxSendProvider {
                 }
 
             } else {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send post ', signData.rawTransaction)
                 result = await BlocksoftAxios.post(link, signData.rawTransaction)
             }
             // @ts-ignore

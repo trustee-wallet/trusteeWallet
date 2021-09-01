@@ -20,7 +20,12 @@ import NavStore from '@app/components/navigation/NavStore'
 import { strings } from '@app/services/i18n'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setWalletMnemonic, setMnemonicLength, setWalletName, setFlowType } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+import {
+    setWalletMnemonic,
+    setMnemonicLength,
+    setWalletName,
+    setFlowType
+} from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
 import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
@@ -82,8 +87,12 @@ class BackupStep0Screen extends PureComponent {
                     active: false
                 }
             ]
-        }
-
+        };
+        this.value = new Animated.Value(0);
+        this.translateX = this.value.interpolate({
+            inputRange: [0, 0.4, 0.8, 1],
+            outputRange: [0, 20, -20, 0]
+        });
     }
 
     async componentDidMount() {
@@ -226,6 +235,10 @@ class BackupStep0Screen extends PureComponent {
     }
 
     onNext = () => {
+        if (!this.state.approvedBackup) {
+            this.handleAnimate()
+            return
+        }
         NavStore.goNext('BackupStep1Screen')
     }
 
@@ -234,6 +247,11 @@ class BackupStep0Screen extends PureComponent {
     // }
 
     openWalletSettings = () => {
+        if (!this.state.approvedBackup) {
+            this.handleAnimate()
+            return
+        }
+
         NavStore.goNext('BackupSettingsScreen')
     }
 
@@ -243,6 +261,7 @@ class BackupStep0Screen extends PureComponent {
         setFlowType({ flowType: '' })
         setMnemonicLength({ mnemonicLength: 0 })
     }
+
 
     handleBack = () => {
         this.resetWalletStore()
@@ -289,11 +308,19 @@ class BackupStep0Screen extends PureComponent {
         const wordToRender = this.state.isMnemonicVisible ? word : '--------'
 
         return (
-            <View style={[styles.wordContainer, { backgroundColor: colors.createWalletScreen.showMnemonic.wordBg, marginHorizontal: GRID_SIZE * 0.75 }]}>
-                <View style={[styles.wordIndexContainer, { backgroundColor: colors.createWalletScreen.showMnemonic.wordIndexBg }]}>
-                    <Text style={[styles.wordIndex, { color: colors.createWalletScreen.showMnemonic.wordIndexText }]}>{index + 1}</Text>
+            <View style={[styles.wordContainer, {
+                backgroundColor: colors.createWalletScreen.showMnemonic.wordBg,
+                marginHorizontal: GRID_SIZE * 0.75
+            }]}>
+                <View
+                    style={[styles.wordIndexContainer, { backgroundColor: colors.createWalletScreen.showMnemonic.wordIndexBg }]}>
+                    <Text
+                        style={[styles.wordIndex, { color: colors.createWalletScreen.showMnemonic.wordIndexText }]}>{index + 1}</Text>
                 </View>
-                <Text style={[styles.word, { color: colors.common.text1, marginLeft: GRID_SIZE * 0.7 }]}>{wordToRender}</Text>
+                <Text style={[styles.word, {
+                    color: colors.common.text1,
+                    marginLeft: GRID_SIZE * 0.7
+                }]}>{wordToRender}</Text>
             </View>
         )
     }
@@ -302,7 +329,19 @@ class BackupStep0Screen extends PureComponent {
         this.setState(state => ({ approvedBackup: !state.approvedBackup }))
     }
 
+    handleAnimate = () => {
+
+        this.value.setValue(0)
+
+        Animated.timing(this.value, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true
+        }).start()
+    }
+
     render() {
+
         const {
             walletMnemonicArray,
             isMnemonicVisible,
@@ -312,6 +351,7 @@ class BackupStep0Screen extends PureComponent {
             visibilityTimer,
             isLoading
         } = this.state
+
         const { flowType } = this.props.createWalletStore
 
         const isInited = walletMnemonicArray.length > 0
@@ -365,7 +405,10 @@ class BackupStep0Screen extends PureComponent {
                                         delayPressIn={100}
                                         disabled={isMnemonicVisible}
                                     >
-                                        <View style={[styles.mnemonicContainer, { marginBottom: -(GRID_SIZE * 0.75), marginTop: GRID_SIZE }]}>
+                                        <View style={[styles.mnemonicContainer, {
+                                            marginBottom: -(GRID_SIZE * 0.75),
+                                            marginTop: GRID_SIZE
+                                        }]}>
                                             <View style={styles.mnemonicColumn}>
                                                 {walletMnemonicArray.slice(0, halfArrayNum).map(this.renderWord)}
                                             </View>
@@ -387,11 +430,18 @@ class BackupStep0Screen extends PureComponent {
                                     </TouchableOpacity>
 
                                     {!isShowingPhrase && !isXMR && (
-                                        <CheckBox
-                                            checked={approvedBackup}
-                                            onPress={this.handleApproveBackup}
-                                            title={strings('walletBackup.infoScreen.checkbox1')}
-                                        />
+                                        <Animated.View style={{
+                                            transform: [{
+                                                translateX: this.translateX
+                                            }]
+                                        }}>
+                                            <CheckBox
+                                                animatedValue={this.animatedValue}
+                                                checked={approvedBackup}
+                                                onPress={this.handleApproveBackup}
+                                                title={strings('walletBackup.infoScreen.checkbox1')}
+                                            />
+                                        </Animated.View>
                                     )}
                                 </View>
 
@@ -402,7 +452,6 @@ class BackupStep0Screen extends PureComponent {
                                     }}>
                                         <TwoButtons
                                             mainButton={{
-                                                disabled: !approvedBackup,
                                                 onPress: this.onNext,
                                                 title: strings('walletBackup.step0Screen.next')
                                             }}
@@ -410,8 +459,7 @@ class BackupStep0Screen extends PureComponent {
                                                 type: 'settings',
                                                 onPress: this.openWalletSettings,
                                                 onLongPress: this.handleCopyModal,
-                                                delayLongPress: 4000,
-                                                disabled: !approvedBackup
+                                                delayLongPress: 4000
                                             } : undefined}
                                         />
                                     </View>
@@ -421,7 +469,7 @@ class BackupStep0Screen extends PureComponent {
                                 <LottieView
                                     style={{
                                         width: WINDOW_WIDTH * 0.7,
-                                        height: WINDOW_WIDTH * 0.7,
+                                        height: WINDOW_WIDTH * 0.7
                                     }}
                                     autoPlay
                                     loop
@@ -429,7 +477,7 @@ class BackupStep0Screen extends PureComponent {
                                     source={require('@assets/jsons/animations/loaderBlue.json')}
                                 />
                             </View>)
-                        )
+                    )
                     }
                     {this.state.tabs[1].active && (
                         <MnemonicQrCode
@@ -455,6 +503,9 @@ const mapDispatchToProps = (dispatch) => {
         dispatch
     }
 }
+
+// !approvedBackup ? this.onNext :
+// !approvedBackup ? this.openWalletSettings :
 
 BackupStep0Screen.contextType = ThemeContext
 

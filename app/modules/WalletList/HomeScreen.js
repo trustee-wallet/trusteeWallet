@@ -8,7 +8,7 @@ import {
     RefreshControl,
     Vibration,
     FlatList,
-    StyleSheet
+    StyleSheet,
 } from 'react-native'
 import { connect } from 'react-redux'
 import _orderBy from 'lodash/orderBy'
@@ -350,11 +350,13 @@ class HomeScreen extends React.PureComponent {
                             scrollEnabled={this.state.enableVerticalScroll}
                             refreshControl={
                                 <RefreshControl
-                                    style={styles.refreshControl}
                                     enabled={!this.state.isCurrentlyDraggable}
-                                    tintColor={colors.common.text1}
                                     refreshing={this.state.refreshing}
                                     onRefresh={this.handleRefresh}
+                                    tintColor={colors.common.refreshControlIndicator}
+                                    colors={[colors.common.refreshControlIndicator]}
+                                    progressBackgroundColor={colors.common.refreshControlBg}
+                                    progressViewOffset={-20}
                                 />
                             }
                             ListHeaderComponent={(
@@ -419,8 +421,5 @@ const styles = StyleSheet.create({
     list: {
         paddingBottom: 20,
         paddingTop: 10
-    },
-    refreshControl: {
-        marginTop: 0
     }
 })

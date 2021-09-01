@@ -177,8 +177,20 @@
       "rewardBalanceTRX" : "Available %{prettyReward} TRX",
       "claimTRX" : "Claim Reward",
       "refreshTRX" : "Reload",
+      "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
+      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 72 hours from the moment of the last freezing",
       "allowLongQueryETH" : "Allow pending transactions queue",
-      "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance"
+      "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance",
+      "enterToStakeSOL" : "Enter stake amount SOL",
+      "stakeSOL" : "Stake",
+      "unstakeSOL" : "Unstake",
+      "selectAddress" : "Select Address to use",
+      "stakeBalance": "Stake Balance",
+      "address": "Address",
+      "stake": "Stake",
+      "rentReserve": "Rent reserve",
+      "allUnstakeSOL": "Unstake all",
+      "stakeHistorySOL" : "Stake History",
     },
     "about": {
       "title": "About",
@@ -214,7 +226,8 @@
       "text": "If you're seeing this, smth went wrong, please, send us logs via support or try to reload the app"
     },
     "config": "Config changed to: %{config}",
-    "tester": "Tester/user changed to: %{testerMode}"
+    "tester": "Tester/user changed to: %{testerMode}",
+    "blockchainExplorer": "Blockchain explorer"
   },
   "assets": {
     "title": "Add asset",
@@ -224,7 +237,7 @@
     "tabCustom": "More",
     "searchPlaceholder": "Search",
     "addCustomPlaceholder": "Asset address",
-    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB or Tron blockchain. Please, enter or scan a new token / asset.",
+    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB, Solana or Tron blockchain. Please, enter or scan a new token / asset.",
     "noAssetsFound": "No assets found",
     "addAssetButton": "Add asset",
     "mainTitle": "Add asset",
@@ -732,7 +745,8 @@
      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Transaction for speedup not found",
      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
      "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
-     "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation"
+     "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
     }
   },
   "walletBackup": {
@@ -754,7 +768,7 @@
       "next": "Next",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
-      "infoQR": "QR code reveal recovery phrase. Please dont send it to other people and dont store in Gallery!"
+      "infoQR": "QR code reveals recovery phrase. Please dont send it to other people and dont store in Gallery!"
     },
     "step1Screen": {
       "title": "Check",
