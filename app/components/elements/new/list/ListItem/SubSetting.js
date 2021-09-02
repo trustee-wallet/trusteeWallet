@@ -11,7 +11,7 @@ import RadioButton from '../../RadioButton'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
-import { strings } from '../../../../../services/i18n'
+import ProcentView from '../../ProcentView'
 
 
 export default function SubSettingListItem(props) {
@@ -25,7 +25,8 @@ export default function SubSettingListItem(props) {
         withoutLine,
         checkedStyle,
         ExtraView,
-        ExtraViewParams
+        ExtraViewParams,
+        procentValue
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -51,13 +52,23 @@ export default function SubSettingListItem(props) {
                         </View>
                     </View>
                     {(ExtraView && checked) && (
-                        <ExtraView ExtraViewParams={ExtraViewParams}/>
+                        <ExtraView ExtraViewParams={ExtraViewParams} />
                     )}
                 </>
                 :
                 <View style={[styles.mainContent, last && styles.noBorder]}>
                     <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                        <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                        {procentValue ?
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                                <ProcentView
+                                    containerStyle={{ marginTop: -3 }}
+                                    value={procentValue}
+                                />
+                            </View>
+                            :
+                            <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                        }
                         {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                     </View>
                     <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>

@@ -15,7 +15,8 @@ const INITIAL_STATE = {
     blurVisibility: false,
     currentScreen: {}, // TODO: question - do we need this? it seems like unused
     bseLink: null,
-    loaderFromBse: false
+    loaderFromBse: false,
+    solValidator: {}
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
@@ -77,6 +78,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 loaderFromBse: action.loaderFromBse
+            }
+        case 'SET_SOL_VALIDATOR':
+            return {
+                ...state,
+                solValidator: action.solValidator
             }
         default:
             return state

@@ -190,7 +190,9 @@
       "stake": "Стейк",
       "rentReserve": "Орендна плата",
       "allUnstakeSOL": "Забрати все",
-      "stakeHistorySOL" : "Історія Стейку"
+      "stakeHistorySOL" : "Історія Стейку",
+      "selectSolValidator": "Оберіть валідатора",
+      "solValidator": "Валідатор"
     },
     "about": {
       "title": "Про гаманець",

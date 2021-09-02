@@ -363,3 +363,10 @@ export function setLoaderFromBse(loaderFromBse) {
         loaderFromBse
     })
 }
+
+export function setSolValidator(solValidator) {
+    dispatch({
+        type: 'SET_SOL_VALIDATOR',
+        solValidator
+    })
+}

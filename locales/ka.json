@@ -183,7 +183,9 @@
       "stake": "Stake",
       "rentReserve": "Rent reserve",
       "allUnstakeSOL": "Unstake all",
-      "stakeHistorySOL" : "Stake History"
+      "stakeHistorySOL" : "Stake History",
+      "selectSolValidator": "Select validator",
+      "solValidator": "Validator"
     },
     "about": {
       "title": "საფულის შესახებ",

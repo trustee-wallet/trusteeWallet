@@ -190,7 +190,9 @@
       "stake": "Стейк",
       "rentReserve": "Резерв аренды",
       "allUnstakeSOL": "Забрать все",
-      "stakeHistorySOL" : "История Стейка"
+      "stakeHistorySOL" : "История Стейка",
+      "selectSolValidator": "Выберите валидатора",
+      "solValidator": "Валидатор"
     },
     "about": {
       "title": "О кошельке",

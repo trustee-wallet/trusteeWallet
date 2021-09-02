@@ -40,6 +40,7 @@ import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPr
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
 import StakingTransactionScreen from '@app/modules/Account/AccountSettings/StakingTransactionScreen'
+import SolValidators from '@app/modules/Account/AccountSettings/SolValidators'
 
 
 import FioChooseRecipient from '@app/modules/FIO/FioChooseRecipient'
@@ -114,6 +115,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountTransactionScreen' component={AccountTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='StakingTransactionScreen' component={StakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='SolValidators' component={SolValidators} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
