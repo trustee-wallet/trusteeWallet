@@ -55,6 +55,8 @@ import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import Tabs from '@app/components/elements/new/Tabs'
+import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 class SettingsSOL extends React.PureComponent {
@@ -71,6 +73,15 @@ class SettingsSOL extends React.PureComponent {
             clickRefresh: false,
             load: true,
             partBalance: null,
+            voteAddresses: [],
+            selectedVoteAddress: {
+                address: '',
+                commission: false,
+                activatedStake: false,
+                name: false,
+                description: '',
+                website: ''
+            },
 
             tabs: [
                 {
@@ -82,7 +93,7 @@ class SettingsSOL extends React.PureComponent {
                     title: strings('settings.walletList.stake'),
                     index: 1,
                     active: false
-                },
+                }
             ]
         }
         this.stakeAmountInput = React.createRef()
@@ -106,7 +117,7 @@ class SettingsSOL extends React.PureComponent {
         }
         this.setState({
             currentAddresses,
-            currentAddressesLoaded: true,
+            currentAddressesLoaded: true
         })
     }
 
@@ -115,27 +126,45 @@ class SettingsSOL extends React.PureComponent {
 
         this.setState({
             stakedAddresses: [],
+            voteAddresses: [],
             load: true
         })
 
-        const stakedAddresses = await SolUtils.getAccountStaked(account.address, force)
-        this.setState({
+        const voteAddresses = await SolStakeUtils.getVoteAddresses()
+        const stakedAddresses = await SolStakeUtils.getAccountStaked(account.address, force)
+        const newData = {
             stakedAddresses,
+            voteAddresses,
             load: false
-        })
+        }
+        if (this.state.selectedVoteAddress.address === '') {
+            if (voteAddresses && voteAddresses.length > 0) {
+                newData.selectedVoteAddress = voteAddresses[0]
+            } else {
+                newData.selectedVoteAddress = {
+                    address: BlocksoftExternalSettings.getStatic('SOL_VOTE_BEST'),
+                    commission: false,
+                    activatedStake: false,
+                    name: false,
+                    description: '',
+                    website: ''
+                }
+            }
+        }
+        this.setState(newData)
     }
 
     handleRefresh = async (click = false) => {
         this.setState({
             refreshing: !click,
-            clickRefresh: click,
+            clickRefresh: click
         })
 
         await this.handleScan(true)
 
         this.setState({
             refreshing: false,
-            clickRefresh: false,
+            clickRefresh: false
         })
     }
 
@@ -214,7 +243,10 @@ class SettingsSOL extends React.PureComponent {
                 walletHash: account.walletHash,
                 derivationPath: account.derivationPath,
                 addressFrom: account.address,
-                addressTo: 'STAKE'
+                addressTo: 'STAKE',
+                blockchainData: {
+                    voteAddresses: this.state.selectedVoteAddress.address
+                }
             }
             const result = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed: true })
             if (result) {
@@ -259,7 +291,7 @@ class SettingsSOL extends React.PureComponent {
         if (item.type) {
             Linking.openURL('https://explorer.solana.com/tx/' + item.transactionHash)
         } else {
-            NavStore.goNext('StakingTransactionScreen', { stakingItem: item, stakingAccount : account })
+            NavStore.goNext('StakingTransactionScreen', { stakingItem: item, stakingAccount: account })
         }
     }
 
@@ -314,7 +346,7 @@ class SettingsSOL extends React.PureComponent {
         // if newPartBalance = 4 = 100%
         Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' clicked')
         this.setState({
-            partBalance: newPartBalance,
+            partBalance: newPartBalance
         }, () => {
             const cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(balanceTotalPretty, 4), this.state.partBalance)
             Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' end counting ' + cryptoValue)
@@ -332,139 +364,149 @@ class SettingsSOL extends React.PureComponent {
         return (
             <View style={{ flexGrow: 1 }}>
                 {tabs[0].active &&
-                    <>
-                        <View style={{ height: '100%' }}>
-                            {currentAddressesLoaded &&
-                                <FlatList
-                                    data={currentAddresses}
-                                    contentContainerStyle={{ paddingVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
-                                    showsVerticalScrollIndicator={false}
-                                    keyExtractor={item => item.address.toString()}
-                                    ListHeaderComponent={() => (
-                                        <>
-                                            <View style={{ paddingBottom: GRID_SIZE }}>
-                                                {this.renderTabs()}
-                                            </View>
-                                            <LetterSpacing
-                                                text={strings('settings.walletList.selectAddress').toUpperCase()}
-                                                textStyle={[styles.settings__title, { paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }]}
-                                                letterSpacing={1.5}
-                                            />
-                                        </>
-                                    )}
-                                    renderItem={this.renderItemAddress}
-                                />
-                            }
-                        </View>
-                    </>
-                }
-
-                {tabs[1].active &&
-                    <>
+                <>
+                    <View style={{ height: '100%' }}>
+                        {currentAddressesLoaded &&
                         <FlatList
-                            data={stakedAddresses ? [...lastTransactions, ...stakedAddresses] : lastTransactions}
-                            contentContainerStyle={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE }}
-                            keyExtractor={item => item?.transactionHash ? item.transactionHash.toString() : item.stakeAddress.toString()}
+                            data={currentAddresses}
+                            contentContainerStyle={{ paddingVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
                             showsVerticalScrollIndicator={false}
-                            keyboardShouldPersistTaps="handled"
-                            refreshControl={
-                                <RefreshControl
-                                    refreshing={this.state.refreshing}
-                                    onRefresh={this.handleRefresh}
-                                    tintColor={colors.common.text1}
-                                />
-                            }
-                            ListEmptyComponent={() => {
-                                if (load) {
-                                    return (
-                                        <ActivityIndicator
-                                            size='large'
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                paddingTop: GRID_SIZE
-                                            }}
-                                            color={this.context.colors.common.text2}
-                                        />
-                                    )
-                                } else {
-                                    return null
-                                }
-                            }}
+                            keyExtractor={item => item.address.toString()}
                             ListHeaderComponent={() => (
                                 <>
                                     <View style={{ paddingBottom: GRID_SIZE }}>
                                         {this.renderTabs()}
                                     </View>
-                                    <View style={styles.inputWrapper}>
-                                        <Input
-                                            ref={ref => this.stakeAmountInput = ref}
-                                            id='stakeAmount'
-                                            name={strings('settings.walletList.enterToStakeSOL')}
-                                            keyboardType='numeric'
-                                            inputBaseColor='#f4f4f4'
-                                            inputTextColor='#f4f4f4'
-                                            tintColor='#7127ac'
-                                            paste={true}
-                                        />
-                                    </View>
-
-                                    {balanceTotalPretty > 0 && (
-                                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
-                                            <InputAndButtonsPartBalanceButton
-                                                action={() => this.handlePartBalance(1)}
-                                                text='25%'
-                                                inverse={this.state.partBalance === 1}
-                                            />
-                                            <InputAndButtonsPartBalanceButton
-                                                action={() => this.handlePartBalance(2)}
-                                                text='50%'
-                                                inverse={this.state.partBalance === 2}
-                                            />
-                                            <InputAndButtonsPartBalanceButton
-                                                action={() => this.handlePartBalance(3)}
-                                                text='75%'
-                                                inverse={this.state.partBalance === 3}
-                                            />
-                                            <InputAndButtonsPartBalanceButton
-                                                action={() => this.handlePartBalance(4)}
-                                                text='100%'
-                                                inverse={this.state.partBalance === 4}
-                                            />
-                                        </View>
-                                    )}
-                                    <View style={{ paddingVertical: GRID_SIZE }}>
-                                        <Button
-                                            title={strings('settings.walletList.stakeSOL').toUpperCase()}
-                                            onPress={() => this.handleStake(false)}
-                                        />
-                                    </View>
-
-                                    <View style={{ flexDirection: 'row', position: 'relative', justifyContent: 'space-between', alignItems: 'center', paddingBottom: GRID_SIZE / 2, paddingTop: GRID_SIZE }}>
-                                        <View style={{ flexDirection: 'column' }} >
-                                            <Text style={[styles.transaction_title, { color: colors.common.text1, paddingLeft: GRID_SIZE }]}>{strings('settings.walletList.stakeHistorySOL')}</Text>
-                                        </View>
-                                        <TouchableOpacity
-                                            style={{ alignItems: 'center', marginRight: GRID_SIZE }}
-                                            onPress={() => this.handleRefresh(true)}
-                                            hitSlop={HIT_SLOP}
-                                        >
-                                            {this.state.clickRefresh ?
-                                                <LottieView
-                                                    style={{ width: 20, height: 20, }}
-                                                    source={isLight ? blackLoader : whiteLoader}
-                                                    autoPlay
-                                                    loop
-                                                /> :
-                                                <CustomIcon name='reloadTx' size={20} color={colors.common.text1} />}
-                                        </TouchableOpacity>
-                                    </View>
+                                    <LetterSpacing
+                                        text={strings('settings.walletList.selectAddress').toUpperCase()}
+                                        textStyle={[styles.settings__title, { paddingBottom: GRID_SIZE, color: colors.sendScreen.amount }]}
+                                        letterSpacing={1.5}
+                                    />
                                 </>
                             )}
-                            renderItem={this.renderStakeItem}
+                            renderItem={this.renderItemAddress}
                         />
-                    </>
+                        }
+                    </View>
+                </>
+                }
+
+                {tabs[1].active &&
+                <>
+                    <FlatList
+                        data={stakedAddresses ? [...lastTransactions, ...stakedAddresses] : lastTransactions}
+                        contentContainerStyle={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE }}
+                        keyExtractor={item => item?.transactionHash ? item.transactionHash.toString() : item.stakeAddress.toString()}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps='handled'
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this.handleRefresh}
+                                tintColor={colors.common.text1}
+                            />
+                        }
+                        ListEmptyComponent={() => {
+                            if (load) {
+                                return (
+                                    <ActivityIndicator
+                                        size='large'
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            paddingTop: GRID_SIZE
+                                        }}
+                                        color={this.context.colors.common.text2}
+                                    />
+                                )
+                            } else {
+                                return null
+                            }
+                        }}
+                        ListHeaderComponent={() => (
+                            <>
+                                <View style={{ paddingBottom: GRID_SIZE }}>
+                                    {this.renderTabs()}
+                                </View>
+                                <View style={styles.inputWrapper}>
+                                    <Input
+                                        ref={ref => this.stakeAmountInput = ref}
+                                        id='stakeAmount'
+                                        name={strings('settings.walletList.enterToStakeSOL')}
+                                        keyboardType='numeric'
+                                        inputBaseColor='#f4f4f4'
+                                        inputTextColor='#f4f4f4'
+                                        tintColor='#7127ac'
+                                        paste={true}
+                                    />
+                                </View>
+
+                                {balanceTotalPretty > 0 && (
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
+                                        <InputAndButtonsPartBalanceButton
+                                            action={() => this.handlePartBalance(1)}
+                                            text='25%'
+                                            inverse={this.state.partBalance === 1}
+                                        />
+                                        <InputAndButtonsPartBalanceButton
+                                            action={() => this.handlePartBalance(2)}
+                                            text='50%'
+                                            inverse={this.state.partBalance === 2}
+                                        />
+                                        <InputAndButtonsPartBalanceButton
+                                            action={() => this.handlePartBalance(3)}
+                                            text='75%'
+                                            inverse={this.state.partBalance === 3}
+                                        />
+                                        <InputAndButtonsPartBalanceButton
+                                            action={() => this.handlePartBalance(4)}
+                                            text='100%'
+                                            inverse={this.state.partBalance === 4}
+                                        />
+                                    </View>
+                                )}
+                                <View style={{ paddingVertical: GRID_SIZE }}>
+                                    <Button
+                                        title={
+                                            (this.state.selectedVoteAddress.name ? this.state.selectedVoteAddress.name : this.state.selectedVoteAddress.address)
+                                            + ' commission: ' + this.state.selectedVoteAddress.commission
+                                            + ' staked: ' + BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(this.state.selectedVoteAddress.activatedStake)}
+                                        // onPress={() => this.handleGoToSelect(false)} @todo with arrow
+                                    />
+                                </View>
+
+                                <View style={{ paddingVertical: GRID_SIZE }}>
+                                    <Button
+                                        title={strings('settings.walletList.stakeSOL').toUpperCase()}
+                                        onPress={() => this.handleStake(false)}
+                                    />
+                                </View>
+
+                                <View style={{ flexDirection: 'row', position: 'relative', justifyContent: 'space-between', alignItems: 'center', paddingBottom: GRID_SIZE / 2, paddingTop: GRID_SIZE }}>
+                                    <View style={{ flexDirection: 'column' }}>
+                                        <Text style={[styles.transaction_title, { color: colors.common.text1, paddingLeft: GRID_SIZE }]}>{strings('settings.walletList.stakeHistorySOL')}</Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={{ alignItems: 'center', marginRight: GRID_SIZE }}
+                                        onPress={() => this.handleRefresh(true)}
+                                        hitSlop={HIT_SLOP}
+                                    >
+                                        {this.state.clickRefresh ?
+                                            <LottieView
+                                                style={{ width: 20, height: 20 }}
+                                                source={isLight ? blackLoader : whiteLoader}
+                                                autoPlay
+                                                loop
+                                            /> :
+                                            <CustomIcon name='reloadTx' size={20} color={colors.common.text1} />}
+                                    </TouchableOpacity>
+                                </View>
+                            </>
+                        )}
+                        renderItem={this.renderStakeItem}
+                    />
+                </>
                 }
             </View>
         )

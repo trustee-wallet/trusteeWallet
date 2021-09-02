@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.52
  */
 
 // eslint-disable-next-line no-unused-vars
