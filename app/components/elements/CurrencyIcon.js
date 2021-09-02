@@ -29,6 +29,23 @@ export default class ButtonLine extends PureComponent {
         }
     }
 
+    getTokenBlockchain = (tokenBlockchain) => {
+        switch (tokenBlockchain) {
+            case 'ETHEREUM':
+                return 'ETH'
+            case 'TRON':
+                return 'TRX'
+            case 'BITCOIN':
+                return 'BTC'
+            case 'BNB':
+                return 'BNB_SMART'
+            case 'SOLANA':
+                return 'SOL'
+            default:
+                return null
+        }
+    }
+
     getImgPath = (currencyCode) => {
         switch (currencyCode) {
             case 'ETH_UAX':
@@ -640,6 +657,8 @@ export default class ButtonLine extends PureComponent {
         }
 
         if (typeof extend.addressCurrencyCode !== 'undefined') {
+            const blockChain = this.getTokenBlockchain(extend.tokenBlockchain)
+
             switch (extend.addressCurrencyCode) {
 
                 case 'ETH':
@@ -665,7 +684,7 @@ export default class ButtonLine extends PureComponent {
                                 <Text style={{ ...styles.icon__item__text, color: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'] }}>Icon</Text>
                             </View>
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                <CustomIcon name={blockChain} style={{ color: colorDict[blockChain].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
                             </View>
                         </View>
                     )
