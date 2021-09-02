@@ -64,8 +64,10 @@ class SolValidators extends PureComponent {
         NavStore.reset('HomeScreen')
     }
 
-    selectSolValidator = async (item) => {
-        await settingsActions.setSettings(`SOL_validator`, JSON.stringify(item))
+    selectSolValidator = (item) => {
+        if (JSON.stringify(this.state.selectedVoteAddress) === JSON.stringify(item)) return
+
+        settingsActions.getSettingStatic(`SOL_validator`, JSON.stringify(item))
         this.setState({
             selectedVoteAddress: item
         })

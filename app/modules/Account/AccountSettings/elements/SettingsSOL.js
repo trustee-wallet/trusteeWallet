@@ -478,18 +478,16 @@ class SettingsSOL extends React.PureComponent {
                                             />
                                         </View>
                                     )}
-                                    {!load &&
-                                        <View style={{ paddingVertical: GRID_SIZE }}>   
-                                            <MainListItem
-                                                title={strings('settings.walletList.solValidator')}
-                                                subtitle={validator.name ? validator.name : BlocksoftPrettyStrings.makeCut(validator.address, 8, 8)}
-                                                onPress={this.handleGoToSelect}
-                                                iconType='scanning'
-                                                rightContent="arrow"
-                                                last
-                                            />
-                                        </View>
-                                    }
+                                    <View style={{ paddingVertical: GRID_SIZE }}>
+                                        <MainListItem
+                                            title={strings('settings.walletList.solValidator')}
+                                            subtitle={validator.name ? validator.name : BlocksoftPrettyStrings.makeCut(validator.address, 8, 8)}
+                                            onPress={this.handleGoToSelect}
+                                            iconType='scanning'
+                                            rightContent="arrow"
+                                            last
+                                        />
+                                    </View>
 
                                     <View style={{ paddingVertical: GRID_SIZE }}>
                                         <Button
