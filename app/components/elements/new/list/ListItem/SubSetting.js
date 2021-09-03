@@ -26,7 +26,7 @@ export default function SubSettingListItem(props) {
         checkedStyle,
         ExtraView,
         ExtraViewParams,
-        procentValue
+        percentValue
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -58,12 +58,12 @@ export default function SubSettingListItem(props) {
                 :
                 <View style={[styles.mainContent, last && styles.noBorder]}>
                     <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                        {procentValue ?
+                        {percentValue ?
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                                 <ProcentView
                                     containerStyle={{ marginTop: -3 }}
-                                    value={procentValue}
+                                    value={percentValue}
                                 />
                             </View>
                             :

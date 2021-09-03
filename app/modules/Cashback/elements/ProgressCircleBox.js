@@ -20,7 +20,7 @@ const ProgressCircleBox = (props) => {
     const {
         additionalStyles,
         progress,
-        procent,
+        percent,
         title
     } = props
 
@@ -41,7 +41,7 @@ const ProgressCircleBox = (props) => {
             </View>
             <View style={styles.circleInfo}>
                 <Text style={[styles.circleTitle, { color: colors.common.text3 }]}>{title}</Text>
-                <Text style={styles.circleProcent}>{(procent >= 100 ? '100' : procent) + ' %'}</Text>
+                <Text style={styles.circleProcent}>{(percent >= 100 ? '100' : percent) + ' %'}</Text>
             </View>
         </View>
     )

@@ -65,9 +65,10 @@ class SolValidators extends PureComponent {
     }
 
     selectSolValidator = (item) => {
-        if (JSON.stringify(this.state.selectedVoteAddress) === JSON.stringify(item)) return
+        const tmp = JSON.stringify(item)
+        if (JSON.stringify(this.state.selectedVoteAddress) === tmp) return
 
-        settingsActions.getSettingStatic(`SOL_validator`, JSON.stringify(item))
+        settingsActions.setSettings('SOL_validator', tmp)
         this.setState({
             selectedVoteAddress: item
         })
@@ -80,11 +81,13 @@ class SolValidators extends PureComponent {
             <ListItem
                 key={index}
                 title={item.name || BlocksoftPrettyStrings.makeCut(item.address, 8, 8)}
-                subtitle={BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(item.activatedStake) + ' SOL'}
+                subtitle={
+                    BlocksoftPrettyNumbers.makeCut(BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(item.activatedStake), 2).separated + ' SOL '
+                }
                 onPress={() => this.selectSolValidator(item)}
                 checked={JSON.stringify(this.state.selectedVoteAddress) === JSON.stringify(item)}
                 last={this.state.selectedVoteAddress.length - 1 === index}
-                procentValue={item.commission}
+                percentValue={item.commission}
             />
         )
     }

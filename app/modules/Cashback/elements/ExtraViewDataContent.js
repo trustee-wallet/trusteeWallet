@@ -395,12 +395,12 @@ export class Tab3 extends React.Component {
                     additionalStyles={{ borderRightWidth: 1, borderRightColor: colors.cashback.borderColor }}
                     progress={cashbackBalance / 2}
                     title={strings('cashback.cashback')}
-                    procent={cashbackProcent}
+                    percent={cashbackProcent}
                 />
                 <ProgressCircleBox
                     progress={cpaBalance / 100}
                     title={strings('cashback.cpa')}
-                    procent={cpaProcent}
+                    percent={cpaProcent}
                 />
             </View>
         )
