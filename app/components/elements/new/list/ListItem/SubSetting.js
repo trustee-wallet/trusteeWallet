@@ -11,7 +11,7 @@ import RadioButton from '../../RadioButton'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
-import ProcentView from '../../ProcentView'
+import PercentView from '../../PercentView'
 
 
 export default function SubSettingListItem(props) {
@@ -61,7 +61,7 @@ export default function SubSettingListItem(props) {
                         {percentValue ?
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                                <ProcentView
+                                <PercentView
                                     containerStyle={{ marginTop: -3 }}
                                     value={percentValue}
                                 />
