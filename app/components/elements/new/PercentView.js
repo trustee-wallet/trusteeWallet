@@ -8,7 +8,7 @@ import { StyleSheet, View, Text } from 'react-native'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
-const ProcentView = (props) => {
+const PercentView = (props) => {
 
     const { colors } = useTheme()
 
@@ -26,7 +26,7 @@ const ProcentView = (props) => {
     )
 }
 
-export default ProcentView
+export default PercentView
 
 const styles = StyleSheet.create({
     container: {
