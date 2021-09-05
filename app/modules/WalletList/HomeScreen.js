@@ -43,13 +43,6 @@ import { strings } from '@app/services/i18n'
 
 let CACHE_IS_SCANNING = false
 
-/*
-no sorting - no order
-async function storeCurrenciesOrder(walletHash, data) {
-    AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
-}
-*/
-
 class HomeScreen extends React.PureComponent {
 
     constructor(props) {
@@ -199,7 +192,6 @@ class HomeScreen extends React.PureComponent {
     }
 
     changeBalanceVisibility = async () => {
-        console.log('trigger')
         const newVisibilityValue = !this.state.isBalanceVisible
         settingsActions.setSettings('isBalanceVisible', newVisibilityValue ? '1' : '0')
         this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))

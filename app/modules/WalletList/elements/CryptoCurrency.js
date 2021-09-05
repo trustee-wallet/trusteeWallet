@@ -45,12 +45,13 @@ class CryptoCurrency extends React.PureComponent {
 
         const { cryptoCurrency } = this.props
 
+        if (cryptoCurrency.currencyCode === 'NFT') {
+            NavStore.goNext('NftMainScreen', {cryptoCurrency})
+            return false
+        }
+
         let status = ''
         CACHE_CLICK = true
-
-        if (cryptoCurrency.currencyCode === 'NFT') {
-            NavStore.goNext('NftMainScreen')
-        }
 
         try {
 

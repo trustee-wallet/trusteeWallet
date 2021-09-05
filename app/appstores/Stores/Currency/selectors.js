@@ -12,7 +12,31 @@ export const getVisibleCurrencies = createSelector(
           selectedWalletNumber = selectedWalletNumber * 1
       }
       Log.log('ACT/Currency getVisibleCurrencies selectedWalletNumber ' + selectedWalletNumber)
-      return currencies.filter(c => {
+
+
+      const tmpNft = {
+          currencyCode: 'NFT',
+          currencyName: 'Ethereum NFT',
+          currencySymbol : 'NFT',
+          tokenBlockchain: 'ETHEREUM',
+          priceChangePercentage24h : null
+      }
+      const tmpNft2 = {
+          currencyCode: 'NFT',
+          currencyName: 'Tron NFT',
+          currencySymbol : 'NFT',
+          tokenBlockchain: 'TRON',
+          priceChangePercentage24h : null
+      }
+      const tmpNft3 = {
+          currencyCode: 'NFT',
+          currencyName: 'Matic NFT',
+          currencySymbol : 'NFT',
+          tokenBlockchain: 'MATIC',
+          priceChangePercentage24h : null
+      }
+
+      const tmp = currencies.filter(c => {
           if (c.isHidden === null) {
               c.maskedHidden = true
           } else {
@@ -25,5 +49,6 @@ export const getVisibleCurrencies = createSelector(
           }
           return !c.maskedHidden
       })
+      return [tmpNft, tmpNft2, tmpNft3, ...tmp]
   })
 )
