@@ -14,6 +14,8 @@ class DogeRawDS {
 
     _canUpdate = true
     async getForAddress(data) {
+        return false
+        // @todo refactor from server side
         if (!this._canUpdate) return false
         try {
             const sql = `
