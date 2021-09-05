@@ -128,27 +128,6 @@ class BackupStep1Screen extends React.PureComponent {
         await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen')
     }
 
-    handleDeleteWallet = () => {
-        setTimeout(() => {
-            showModal({
-                type: 'YES_NO_MODAL',
-                icon: 'WARNING',
-                title: strings('modal.titles.attention'),
-                description: strings('modal.walletDelete.confirmDelete'),
-                noCallback: this.init
-            }, (needPassword = true) => {
-                const { lockScreenStatus } = this.props.settingsData
-                if (needPassword && +lockScreenStatus) {
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback: this.confirmDeleteWallet})
-                    NavStore.goNext('LockScreen')
-                    return
-                } else (
-                    this.confirmDeleteWallet()
-                )
-            })
-        }, 0)
-    }
-
     validateMnemonic = async () => {
         Log.log('WalletBackup.BackupStep1Screen validateMnemonic')
 
@@ -165,8 +144,15 @@ class BackupStep1Screen extends React.PureComponent {
                 title: strings('modal.titles.attention'),
                 description: strings('modal.walletDelete.delete'),
                 noCallback: this.init
-            }, () => {
-                this.handleDeleteWallet()
+            }, (needPassword=true) => {
+                const { lockScreenStatus } = this.props.settingsData
+                if (needPassword && +lockScreenStatus) {
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback: this.confirmDeleteWallet})
+                    NavStore.goNext('LockScreen')
+                    return
+                } else (
+                    this.confirmDeleteWallet()
+                )
             })
 
         } else if (flowType === 'BACKUP_WALLET') {
