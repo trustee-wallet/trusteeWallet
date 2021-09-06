@@ -19,33 +19,29 @@ export const getVisibleCurrencies = createSelector(
             currencyName: 'Ethereum NFT',
             currencySymbol: 'NFT',
             tokenBlockchain: 'ETHEREUM',
-            currencyType: 'NFT',
-            currencyIcon: 'ETH',
-            addressUiChecker: 'ETH',
+            tokenBlockchainCode: 'ETH',
+            currencyType: 'NFT'
         }, {
             currencyCode: 'NFT_BNB',
             currencyName: 'BNB NFT',
             currencySymbol: 'NFT',
             tokenBlockchain: 'BNB',
-            currencyType: 'NFT',
-            currencyIcon: 'BNB_SMART',
-            addressUiChecker: 'ETH',
+            tokenBlockchainCode: 'BNB_SMART',
+            currencyType: 'NFT'
         }, {
             currencyCode: 'NFT_MATIC',
             currencyName: 'Matic NFT',
             currencySymbol: 'NFT',
             tokenBlockchain: 'MATIC',
-            currencyType: 'NFT',
-            currencyIcon: 'MATIC',
-            addressUiChecker: 'ETH',
+            tokenBlockchainCode: 'MATIC',
+            currencyType: 'NFT'
         }, {
             currencyCode: 'NFT_TRON',
             currencyName: 'Tron NFT',
             currencySymbol: 'NFT',
             tokenBlockchain: 'TRON',
-            currencyType: 'NFT',
-            currencyIcon: 'TRX',
-            addressUiChecker: 'TRX',
+            tokenBlockchainCode: 'TRX',
+            currencyType: 'NFT'
         }]
 
 
