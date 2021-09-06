@@ -89,7 +89,11 @@ export function setBlurStatus(visible) {
 
 
 export function setSelectedCryptoCurrency(data) {
-    const dict = new UIDict(data.currencyCode)
+    let currencyCode = data.currencyCode
+    if (typeof data.currencyType !== 'undefined') {
+        currencyCode = data.currencyIcon
+    }
+    const dict = new UIDict(currencyCode)
     data.mainColor = dict.settings.colors['mainColor']
     data.darkColor = dict.settings.colors['darkColor']
 

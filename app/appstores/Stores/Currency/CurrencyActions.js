@@ -78,9 +78,6 @@ const currencyActions = {
      * @returns {boolean}
      */
     checkIsCurrencySynchronized: (params) => {
-        if (params.cryptoCurrency.currencyCode === 'NFT') {
-            return true
-        }
         try {
             return !(typeof params.account === 'undefined' || !params.account.balanceScanTime)
         } catch (e) {
