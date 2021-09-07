@@ -379,7 +379,7 @@ class MarketScreen extends PureComponent {
             }
 
             if (share) {
-                const shareOptions = { message: share.title + share.desciption }
+                const shareOptions = { message: share.title + share.description }
                 prettyShare(shareOptions, 'murzik_share_transaction')
             }
 

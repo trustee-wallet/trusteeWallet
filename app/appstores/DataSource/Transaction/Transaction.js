@@ -179,6 +179,7 @@ class Transaction {
             order = ''
         } else {
             where.push(`hidden_at IS NULL`)
+            where.push(`transaction_hash !=''`)
         }
 
         // where.push(`'${source}' = '${source}'`)
@@ -247,6 +248,7 @@ class Transaction {
             where.push(`transaction_hash !=''`)
         } else {
             where.push(`(hidden_at IS NULL OR hidden_at='null')`)
+            where.push(`transaction_hash !=''`)
         }
 
         // where.push(`'${source}' = '${source}'`)
