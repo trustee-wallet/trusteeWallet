@@ -150,7 +150,7 @@ class NftReceive extends React.PureComponent {
     render() {
 
         const { tokenBlockchain, address } = this.state.selectedAddress
-        
+
         const {
             GRID_SIZE,
             colors

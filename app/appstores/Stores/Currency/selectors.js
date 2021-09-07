@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 import store from '@app/store'
 import Log from '@app/services/Log/Log'
+import Nfts from '@crypto/common/BlocksoftDictNfts'
 
 export const getVisibleCurrencies = createSelector(
     [state => state.currencyStore.cryptoCurrencies],
@@ -13,37 +14,9 @@ export const getVisibleCurrencies = createSelector(
         }
         Log.log('ACT/Currency getVisibleCurrencies selectedWalletNumber ' + selectedWalletNumber)
 
-
-        const tmpNft = [{
-            currencyCode: 'NFT_ETH',
-            currencyName: 'Ethereum NFT',
-            currencySymbol: 'NFT',
-            tokenBlockchain: 'ETHEREUM',
-            tokenBlockchainCode: 'ETH',
-            currencyType: 'NFT'
-        }, {
-            currencyCode: 'NFT_BNB',
-            currencyName: 'BNB NFT',
-            currencySymbol: 'NFT',
-            tokenBlockchain: 'BNB',
-            tokenBlockchainCode: 'BNB_SMART',
-            currencyType: 'NFT'
-        }, {
-            currencyCode: 'NFT_MATIC',
-            currencyName: 'Matic NFT',
-            currencySymbol: 'NFT',
-            tokenBlockchain: 'MATIC',
-            tokenBlockchainCode: 'MATIC',
-            currencyType: 'NFT'
-        }, {
-            currencyCode: 'NFT_TRON',
-            currencyName: 'Tron NFT',
-            currencySymbol: 'NFT',
-            tokenBlockchain: 'TRON',
-            tokenBlockchainCode: 'TRX',
-            currencyType: 'NFT'
-        }]
-
+        const tmpNfts = Nfts.Nfts.filter(c => {
+            return c.showOnHome
+        })
 
         const tmp = currencies.filter(c => {
             if (c.isHidden === null) {
@@ -58,6 +31,6 @@ export const getVisibleCurrencies = createSelector(
             }
             return !c.maskedHidden
         })
-        return [...tmpNft, ...tmp]
+        return [...tmpNfts, ...tmp]
     })
 )

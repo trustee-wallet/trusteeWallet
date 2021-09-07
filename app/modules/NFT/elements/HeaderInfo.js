@@ -14,7 +14,7 @@ import { strings } from '@app/services/i18n'
 import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
 import { useTheme } from '@app/theme/ThemeProvider'
 
-const HeaderInfo = () => {
+const HeaderInfo = (props) => {
 
     const handleReceive = () => {
         NavStore.goNext('NftReceive')
@@ -30,7 +30,7 @@ const HeaderInfo = () => {
                 <NftTokenValue
                     walletCurrency='NFT'
                     balance
-                    balanceData='3243544'
+                    balanceData={props.usdTotalPretty}
                     currencySymbol='$'
                 />
             </View>

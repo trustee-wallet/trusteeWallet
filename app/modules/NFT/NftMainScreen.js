@@ -19,6 +19,12 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import FlatListItem from '@app/modules/NFT/elements/FlatListItem'
 import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
 import FlatListCollections from '@app/modules/NFT/elements/FlatListCollections'
+import { getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { connect } from 'react-redux'
+import store from '@app/store'
+import BlocksoftTokenNfts from '@crypto/actions/BlocksoftTokenNfts/BlocksoftTokenNfts'
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -39,12 +45,43 @@ class NftMainScreen extends React.PureComponent {
                 index: 1,
                 active: false
             }
-        ]
+        ],
+
+        data: {
+            assets: [],
+            collections : [],
+            usdTotalPretty : ''
+        }
     }
 
 
-    handleRefresh = () => {
-        // TODO refresh
+    async componentDidMount() {
+        return this.handleRefresh()
+    }
+
+    handleRefresh = async () => {
+        try {
+            const { walletHash } = this.props.wallet
+            const { tokenBlockchainCode } = this.props.cryptoCurrency
+            const basicAccounts = store.getState().accountStore.accountList
+            let address = ''
+            if (typeof basicAccounts[walletHash] !== 'undefined') {
+                if (typeof basicAccounts[walletHash][tokenBlockchainCode] !== 'undefined') {
+                    address = basicAccounts[walletHash][tokenBlockchainCode].address
+                } else if (tokenBlockchainCode !== 'TRX') {
+                    address = basicAccounts[walletHash]['ETH'].address
+                }
+            }
+            const newData = await BlocksoftTokenNfts.getList({ tokenBlockchainCode, address })
+            if (newData) {
+                this.setState({ data: newData })
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('NftMainScreen.handleRefresh error ' + e.message)
+            }
+            Log.log('NftMainScreen.handleRefresh error ' + e.message)
+        }
     }
 
     handleBack = () => {
@@ -55,7 +92,9 @@ class NftMainScreen extends React.PureComponent {
         NavStore.reset('TabBar')
     }
 
-    renderHeaderInfo = () => <HeaderInfo />
+    renderHeaderInfo = () => {
+        return <HeaderInfo usdTotalPretty={this.state.data.usdTotalPretty}/>
+    }
 
     renderTabs = () => <Tabs
         tabs={this.state.tabs}
@@ -88,110 +127,42 @@ class NftMainScreen extends React.PureComponent {
     }
 
     renderFlatListCollections = ({ item }) => {
-       return(
-           <FlatListCollections
-               data={item}
-               onPress={this.handleCollection}
-           />
-       )
+        return (
+            <FlatListCollections
+                data={item}
+                onPress={this.handleCollection}
+            />
+        )
     }
 
     renderFlatList = () => {
 
         const {
             numColumns,
-            tabs
+            tabs,
+            data
         } = this.state
 
-        const flatListCollectionsData = [
-            {
-                img: 'https://reactjs.org/logo-og.png',
-                title: 'Cryptokitties',
-                numberAssets: 5,
-                walletCurrency: 'BTC'
-            },
-            {
-                img: 'https://personal.psu.edu/xqz5228/jpg.jpg',
-                title: 'Cryptokitties',
-                numberAssets: 5,
-                walletCurrency: 'ETH'
-            },
-            {
-                img: 'https://i.gifer.com/XOsX.gif',
-                title: 'Cryptokitties',
-                numberAssets: 5,
-                walletCurrency: 'MATIC'
-            },
-            {
-                img: 'https://i.gifer.com/XOsX.gif',
-                title: 'Cryptokitties',
-                numberAssets: 5,
-                walletCurrency: 'TRX'
-            }
-        ]
+        const flatListCollectionsData = data.collections
+        const flatListData = []
+        for (const asset of data.assets) {
+            flatListData.push({
+                img: asset.img,
+                title: asset.title,
+                subTitle: asset.subTitle,
+                ExtraViewData: () => {
+                    return (
+                        <NftTokenValue
+                            walletCurrency={asset.cryptoCurrencySymbol}
+                            balance={asset.cryptoValuePretty}
+                            balanceData={asset.usdValuePretty} // @vadym its very bad names of fields
+                            currencySymbol={'$'}
+                        />
+                    )
+                }
+            })
+        }
 
-        const flatListData = [
-            {
-                img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/128px-Bitcoin.svg.png',
-                title: 'Eiffel 65 - Blue',
-                subTitle: '# 732613',
-                ExtraViewData: () => {
-                    return (
-                        <NftTokenValue
-                            walletCurrency={'BTC'}
-                            balance={1246666643}
-                            balanceData={53674}
-                            currencySymbol={'$'}
-                        />
-                    )
-                }
-            },
-            {
-                img: 'https://i.gifer.com/XOsX.gif',
-                title: 'Eiffel 65 - Bluevb bvbn nbvbn v',
-                subTitle: '# 732613',
-                ExtraViewData: () => {
-                    return (
-                        <NftTokenValue
-                            walletCurrency={'ETH'}
-                            balance={12443}
-                            balanceData={53674}
-                            currencySymbol={'$'}
-                        />
-                    )
-                }
-            },
-            {
-                img: 'https://reactjs.org/logo-og.png',
-                title: 'Eiffel 65 - Blue',
-                subTitle: '# 732613',
-                ExtraViewData: () => {
-                    return (
-                        <NftTokenValue
-                            walletCurrency={'TRX'}
-                            balance={'12443'}
-                            balanceData={'53674'}
-                            currencySymbol={'$'}
-                        />
-                    )
-                }
-            },
-            {
-                img: 'https://reactjs.org/logo-og.png',
-                title: 'Eiffel 65 - Blue',
-                subTitle: '# 732613',
-                ExtraViewData: () => {
-                    return (
-                        <NftTokenValue
-                            walletCurrency={'MATIC'}
-                            balance={'12443'}
-                            balanceData={'53674'}
-                            currencySymbol={'$'}
-                        />
-                    )
-                }
-            }
-        ]
         return (
             <View style={{ flex: 1 }}>
                 {tabs[0].active && (
@@ -231,9 +202,10 @@ class NftMainScreen extends React.PureComponent {
 
     render() {
 
+        const { currencyName } = this.props.cryptoCurrency
         return (
             <ScreenWrapper
-                title={strings('nftMainScreen.title')}
+                title={currencyName}
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='close'
@@ -248,4 +220,12 @@ class NftMainScreen extends React.PureComponent {
 
 NftMainScreen.contextType = ThemeContext
 
-export default NftMainScreen
+const mapStateToProps = (state) => {
+    return {
+        wallet: getSelectedWalletData(state),
+        cryptoCurrency: getSelectedCryptoCurrencyData(state)
+    }
+}
+
+export default connect(mapStateToProps)(NftMainScreen)
+

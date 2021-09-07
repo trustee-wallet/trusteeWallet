@@ -64,6 +64,7 @@ import WavesScannerProcessor from '@crypto/blockchains/waves/WavesScannerProcess
 
 import SolScannerProcessorSpl from '@crypto/blockchains/sol/SolScannerProcessorSpl'
 import SolTokenProcessor from '@crypto/blockchains/sol/SolTokenProcessor'
+import EthTokenProcessorNft from '@crypto/blockchains/eth/EthTokenProcessorNft'
 
 class BlocksoftDispatcher {
 
@@ -189,6 +190,21 @@ class BlocksoftDispatcher {
                 return new SolTokenProcessor()
             default:
                 throw new Error('Unknown tokenProcessor ' + tokenType)
+        }
+    }
+
+    /**
+     * @param tokenBlockchainCode
+     * @returns {EthTokenProcessorNft}
+     */
+    getTokenNftsProcessor(tokenBlockchainCode) {
+        switch (tokenBlockchainCode) {
+            case 'ETH':
+                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain: 'ETHEREUM', tokenBlockchainCode : 'ETH' })
+            case 'MATIC':
+                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'BNB', tokenBlockchainCode : 'MATIC' })
+            default:
+                throw new Error('Unknown tokenProcessor ' + tokenBlockchainCode)
         }
     }
 

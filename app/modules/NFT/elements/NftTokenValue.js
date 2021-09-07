@@ -38,6 +38,9 @@ class NftTokenValue extends React.Component{
             currencySymbol
         } = this.props
 
+        if (!balanceData || balanceData === '') {
+            return null
+        }
         const {
             colors
         } = this.context
