@@ -46,6 +46,9 @@ class CryptoCurrency extends React.PureComponent {
 
         const { cryptoCurrency } = this.props
 
+        let status = ''
+        CACHE_CLICK = true
+
         if (typeof cryptoCurrency.currencyType !== 'undefined' && cryptoCurrency.currencyType === 'NFT') {
             try {
                 setSelectedCryptoCurrency(cryptoCurrency)
@@ -54,11 +57,10 @@ class CryptoCurrency extends React.PureComponent {
             } catch (e) {
                 Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)
             }
+
+            CACHE_CLICK = false
             return false
         }
-
-        let status = ''
-        CACHE_CLICK = true
 
         try {
 

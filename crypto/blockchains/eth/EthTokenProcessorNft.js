@@ -18,7 +18,7 @@ export default class EthTokenProcessorNft extends EthBasic {
      * @returns {Promise<void>}
      */
     async getListBlockchain(data) {
-        data.address = '0x6cdb97bf46d77233cc943264633c2ed56bcf6f1f'
+        // for tests only data.address = '0x6cdb97bf46d77233cc943264633c2ed56bcf6f1f'
         const link = API_PATH + 'assets?order_direction=desc&owner=' + data.address
         const result = await BlocksoftAxios.getWithoutBraking(link)
         if (!result || !result.data || typeof result.data.assets === 'undefined' || !result.data.assets || result.data.assets.length === 0) {
@@ -52,40 +52,25 @@ export default class EthTokenProcessorNft extends EthBasic {
                 img: tmp.image_thumbnail_url,
                 title: tmp.name || tmp.title,
                 subTitle: '',
+                desc : '',
                 cryptoCurrencySymbol: '',
                 cryptoValuePretty: '',
                 usdValuePretty: '',
                 permalink: tmp.permalink || false
             }
-            let collectionKey = ''
-            try {
-                if (typeof tmp.collection !== 'undefined') {
-                    collectionKey = tmp.collection.name + '_' + tmp.collection.payout_address
-                    if (typeof collections[collectionKey] === 'undefined') {
-                        collections[collectionKey] = {
-                            numberAssets: 1,
-                            title: tmp.collection.name,
-                            img: tmp.collection.banner_image_url || tmp.collection.image_url,
-                            walletCurrency: data.tokenBlockchainCode
-                        }
-                    } else {
-                        collections[collectionKey].numberAssets++
-                    }
-                }
-            } catch (e) {
-                console.log('EthTokenProcessorNft.getListBlockchain collection error ' + e.message)
-            }
-
             try {
                 if (!one.title || typeof one.title === 'undefined') {
                     if (typeof tmp.asset_contract.name !== 'undefined') {
                         one.title = tmp.asset_contract.name
                     }
                 }
+                if (typeof tmp.asset_contract.description !== 'undefined' && tmp.asset_contract.description) {
+                    one.desc = tmp.asset_contract.description
+                }
                 if (one.title.indexOf(tmp.token_id) === -1) {
                     one.subTitle = '#' + tmp.token_id
-                } else if (typeof tmp.asset_contract.description !== 'undefined' && tmp.asset_contract.description) {
-                    one.subTitle = tmp.asset_contract.description.length > 20 ? (tmp.asset_contract.description.substring(0, 20) + '...') : tmp.asset_contract.description
+                } else if (one.desc) {
+                    one.subTitle = one.desc.length > 20 ? (one.desc.substring(0, 20) + '...') : one.desc
                 }
             } catch (e) {
                 console.log('EthTokenProcessorNft.getListBlockchain name error ' + e.message)
@@ -113,6 +98,28 @@ export default class EthTokenProcessorNft extends EthBasic {
             } catch (e) {
                 console.log('EthTokenProcessorNft.getListBlockchain last_sale error ' + e.message, JSON.stringify(tmp))
             }
+
+            let collectionKey = ''
+            try {
+                if (typeof tmp.collection !== 'undefined') {
+                    collectionKey = tmp.collection.name + '_' + tmp.collection.payout_address
+                    if (typeof collections[collectionKey] === 'undefined') {
+                        collections[collectionKey] = {
+                            numberAssets: 1,
+                            title: tmp.collection.name,
+                            img: tmp.collection.banner_image_url || tmp.collection.image_url,
+                            walletCurrency: data.tokenBlockchainCode,
+                            assets : [one]
+                        }
+                    } else {
+                        collections[collectionKey].numberAssets++
+                        collections[collectionKey].assets.push(one)
+                    }
+                }
+            } catch (e) {
+                console.log('EthTokenProcessorNft.getListBlockchain collection error ' + e.message)
+            }
+
 
             formatted.push(one)
         }

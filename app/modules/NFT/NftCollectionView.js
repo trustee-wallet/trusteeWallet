@@ -22,6 +22,17 @@ class NftCollectionView extends React.PureComponent {
 
     state = {
         numColumns: WINDOW_WIDTH >= (182 * 3) + this.context.GRID_SIZE * 4 ? 3 : 2,
+        data : {
+            title : '?',
+            assets : []
+        }
+    }
+
+    componentDidMount() {
+        const data = NavStore.getParamWrapper(this, 'nftCollection')
+        this.setState({
+            data
+        })
     }
 
     handleBack = () => {
@@ -32,8 +43,8 @@ class NftCollectionView extends React.PureComponent {
         NavStore.reset('TabBar')
     }
 
-    handleToken = () => {
-        NavStore.goNext('NftDetailedInfo')
+    handleToken = (nftItem) => {
+        NavStore.goNext('NftDetailedInfo', {nftItem})
     }
 
     renderFlatListItem = ({ item, index }) => {
@@ -44,7 +55,7 @@ class NftCollectionView extends React.PureComponent {
 
         return (
             <FlatListItem
-                onPress={this.handleToken}
+                onPress={() => this.handleToken(item.data)}
                 numColumns={numColumns}
                 data={item}
                 margin={index % numColumns === 0}
@@ -57,72 +68,31 @@ class NftCollectionView extends React.PureComponent {
 
         const {
             numColumns,
+            data
         } = this.state
 
         const { GRID_SIZE } = this.context
 
-        const flatListData = [
-            {
-                img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/128px-Bitcoin.svg.png',
-                title: 'Eiffel 65 - Blue',
-                subTitle: '# 732613',
+        const flatListData = []
+        for (const asset of data.assets) {
+            flatListData.push({
+                data : asset,
+                img: asset.img,
+                title: asset.title,
+                subTitle: asset.subTitle,
                 ExtraViewData: () => {
                     return (
                         <NftTokenValue
-                            walletCurrency={'BTC'}
-                            balance={1246666643}
-                            balanceData={53674}
+                            walletCurrency={asset.cryptoCurrencySymbol}
+                            balance={asset.cryptoValuePretty}
+                            balanceData={asset.usdValuePretty} // @vadym its very bad names of fields
                             currencySymbol={'$'}
                         />
                     )
                 }
-            },
-            {
-                img: 'https://i.gifer.com/XOsX.gif',
-                title: 'Eiffel 65 - Bluevb bvbn nbvbn v',
-                subTitle: '# 732613',
-                ExtraViewData: () => {
-                    return (
-                        <NftTokenValue
-                            walletCurrency={'ETH'}
-                            balance={12443}
-                            balanceData={53674}
-                            currencySymbol={'$'}
-                        />
-                    )
-                }
-            },
-            {
-                img: 'https://reactjs.org/logo-og.png',
-                title: 'Eiffel 65 - Blue',
-                subTitle: '# 732613',
-                ExtraViewData: () => {
-                    return (
-                        <NftTokenValue
-                            walletCurrency={'TRX'}
-                            balance={'12443'}
-                            balanceData={'53674'}
-                            currencySymbol={'$'}
-                        />
-                    )
-                }
-            },
-            {
-                img: 'https://reactjs.org/logo-og.png',
-                title: 'Eiffel 65 - Blue',
-                subTitle: '# 732613',
-                ExtraViewData: () => {
-                    return (
-                        <NftTokenValue
-                            walletCurrency={'MATIC'}
-                            balance={'12443'}
-                            balanceData={'53674'}
-                            currencySymbol={'$'}
-                        />
-                    )
-                }
-            }
-        ]
+            })
+        }
+
         return(
             <View>
                 <FlatList
@@ -139,9 +109,10 @@ class NftCollectionView extends React.PureComponent {
     }
 
     render() {
+        const {title} = this.state.data
         return(
             <ScreenWrapper
-                title={'cryptokitties'}
+                title={title}
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='close'

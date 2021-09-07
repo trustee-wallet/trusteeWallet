@@ -102,12 +102,12 @@ class NftMainScreen extends React.PureComponent {
         containerStyle={{ paddingVertical: this.context.GRID_SIZE, width: '60%', alignSelf: 'center' }}
     />
 
-    handleCollection = () => {
-        NavStore.goNext('NftCollectionView')
+    handleCollection = (nftCollection) => {
+        NavStore.goNext('NftCollectionView', {nftCollection})
     }
 
-    handleToken = () => {
-        NavStore.goNext('NftDetailedInfo')
+    handleToken = (nftItem) => {
+        NavStore.goNext('NftDetailedInfo', {nftItem})
     }
 
     renderFlatListItem = ({ item, index }) => {
@@ -121,7 +121,7 @@ class NftMainScreen extends React.PureComponent {
                 numColumns={numColumns}
                 data={item}
                 margin={index % numColumns === 0}
-                onPress={this.handleToken}
+                onPress={() => this.handleToken(item.data)}
             />
         )
     }
@@ -130,7 +130,7 @@ class NftMainScreen extends React.PureComponent {
         return (
             <FlatListCollections
                 data={item}
-                onPress={this.handleCollection}
+                onPress={() => this.handleCollection(item)}
             />
         )
     }
@@ -147,6 +147,7 @@ class NftMainScreen extends React.PureComponent {
         const flatListData = []
         for (const asset of data.assets) {
             flatListData.push({
+                data : asset,
                 img: asset.img,
                 title: asset.title,
                 subTitle: asset.subTitle,

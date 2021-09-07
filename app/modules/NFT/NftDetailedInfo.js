@@ -33,16 +33,37 @@ const { width: WINDOW_WIDTH } = Dimensions.get('window')
 class NftDetailedInfo extends React.PureComponent {
 
     state = {
-        heightPhoto: 260, // TODO procent of screen
-        sourceImg: 'https://upload.wikimedia.org/wikipedia/commons/0/09/Peach_Rinkysplash.jpg'
+        heightPhoto: 260, // TODO percent of screen
+        data: {
+            contractAddress: '0x7d5773e8fee4bc9b679c1eb51b2597984c007682',
+            сontractSchema: 'ERC721',
+            cryptoCurrencySymbol: 'ETH',
+            cryptoValuePretty: '?',
+            id: 0,
+            img: '',
+            permalink: '',
+            subTitle: '',
+            title: '',
+            desc: '',
+            tokenBlockchainCode: 'ETH',
+            tokenId: '',
+            usdValuePretty: ''
+        }
     }
 
     componentDidMount() {
-        Image.getSize(this.state.sourceImg, (height) => {
-            this.setState({
-                heightPhoto: height > 260 ? 260 : height
-            })
+        const data = NavStore.getParamWrapper(this, 'nftItem')
+        this.setState({
+            data
         })
+
+        if (data.img) {
+            Image.getSize(data.img, (height) => {
+                this.setState({
+                    heightPhoto: height > 260 ? 260 : height
+                })
+            })
+        }
     }
 
     handleBack = () => {
@@ -53,7 +74,8 @@ class NftDetailedInfo extends React.PureComponent {
         // TODO send
     }
 
-    openLink = (link) => {
+    openLink = () => {
+        const link = this.state.data.permalink
         try {
             Linking.openURL(link)
         } catch (e) {
@@ -64,11 +86,10 @@ class NftDetailedInfo extends React.PureComponent {
 
     handleShareLink = () => {
         const shareOptions = {
-            title: 'Title 1',
-            message: 'description',
-            url: 'opensea nft link'
+            title: this.state.data.title,
+            message: this.state.data.subTitle,
+            url: this.state.data.permalink
         }
-        // MarketingEvent.logEvent('taki_cashback_3_copyToMoreStart', { 'cashbackLink' })
         prettyShare(shareOptions, 'taki_cashback_4_copyToMoreFinish')
     }
 
@@ -78,6 +99,7 @@ class NftDetailedInfo extends React.PureComponent {
 
     render() {
 
+        const {data} = this.state
         const {
             GRID_SIZE,
             colors
@@ -102,25 +124,26 @@ class NftDetailedInfo extends React.PureComponent {
                             marginLeft: GRID_SIZE,
                             marginBottom: GRID_SIZE * 1.5
                         }]}>
+                            {data.img && data.img !== '' ?
                             <Image
                                 style={styles.img}
                                 source={{
-                                    uri: this.state.sourceImg
+                                    uri: data.img
                                 }}
                                 resizeMode='contain'
-                            />
+                            /> : null}
                         </View>
                         <NftTokenInfo
                             containerStyles={styles.title}
-                            title='Lucky Otaku'
-                            subTitle='# 732613'
+                            title={data.title}
+                            subTitle={data.subTitle}
                         />
                         <View style={[styles.headerInfoContainer, { marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE }]}>
                             <View style={styles.currencyInfo}>
                                 <NftTokenValue
-                                    walletCurrency='ETH'
-                                    balance='134312'
-                                    balanceData='67544677'
+                                    walletCurrency={data.cryptoCurrencySymbol}
+                                    balance={data.cryptoValuePretty}
+                                    balanceData={data.usdValuePretty}
                                     currencySymbol='$'
                                 />
                             </View>
@@ -135,11 +158,7 @@ class NftDetailedInfo extends React.PureComponent {
                         </View>
                         <View style={{ marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE * 2 }}>
                             <Text style={[styles.infoText, { color: colors.common.text3 }]}>
-                                *hissing noises*! I'm 🍀 Lucky Otaku 🎉. In high school, I was voted most likely to
-                                work
-                                at NASA. I am 36% sphinx, 10% Foreign Film Director, and otherwise bad at math. I
-                                think
-                                you'll love me beclaws I have cattitude.
+                                {data.desc}
                             </Text>
                         </View>
                         <TouchableOpacity
@@ -181,7 +200,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {},
     button: {
-        width: 'auto',
+        width: 'auto'
     },
     headerInfoContainer: {
         flexDirection: 'row',
