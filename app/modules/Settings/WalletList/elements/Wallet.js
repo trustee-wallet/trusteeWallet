@@ -29,6 +29,9 @@ class Wallet extends Component {
     handleSelectWallet = async () => {
         await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleSelectWallet')
         setBseLink(null)
+        if (this.props.source === 'HomeScreen') {
+            NavStore.goBack()
+        }
     }
 
     handleOpenAdvanced = () => {
