@@ -20,8 +20,21 @@ const ScreenWrapper = (props) => {
     }
 
     const { colors } = useTheme()
-    const { title, rightAction, rightType, leftType, leftAction, leftParams, rightParams,
-        ExtraView, ExtraViewParams, withoutSafeArea, searchQuery, onSearch } = props
+    const {
+        title,
+        rightAction,
+        rightType,
+        leftType,
+        leftAction,
+        leftParams,
+        rightParams,
+        ExtraView,
+        ExtraViewParams,
+        withoutSafeArea,
+        searchQuery,
+        onSearch,
+        search
+    } = props
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -38,6 +51,7 @@ const ScreenWrapper = (props) => {
                 setHeaderHeight={setHeaderHeight}
                 searchQuery={searchQuery}
                 onSearch={onSearch}
+                search={search}
             />
             <KeyboardAwareView>
                 {withoutSafeArea ?

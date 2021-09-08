@@ -75,6 +75,20 @@ export namespace SendActionsStart {
         trusteeAsyncStorage.setSendInputType(inputType)
     }
 
+    export const startFromCustomBlockchainData = async (currencyCode : string, uiType = 'NFT_SCREEN') => {
+        const { cryptoCurrency, account } = findWalletPlus(currencyCode)
+        const dict = await formatDict(cryptoCurrency, account)
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
+        dispatch({
+            type: 'RESET_DATA',
+            ui: {
+                uiType
+            },
+            dict
+        })
+        NavStore.goNext('SendScreen')
+    }
+
     export const startFromAccountScreen = async (currencyCode : string, uiType = 'ACCOUNT_SCREEN') => {
         const { cryptoCurrency, account } = findWalletPlus(currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
@@ -104,6 +118,7 @@ export namespace SendActionsStart {
     }
 
     export const startFromDEX = async (data : {
+        addressTo : string,
         amount : string,
         currencyCode : string,
         dexCurrencyCode: string,

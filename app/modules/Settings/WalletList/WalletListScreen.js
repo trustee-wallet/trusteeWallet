@@ -53,6 +53,8 @@ class WalletListScreen extends PureComponent {
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.WalletListScreen')
 
+        const source = NavStore.getParamWrapper(this, 'source')
+
         const { walletsList } = this.props
         const { walletHash } =  this.props.selectedWalletData
         let { totalBalance, localCurrencySymbol } = this.props.walletsGeneralData
@@ -120,6 +122,7 @@ class WalletListScreen extends PureComponent {
                                         triggerBalanceVisibility={this.triggerBalanceVisibility}
                                         walletsLength={walletsList.length}
                                         settingsData={this.props.settingsData}
+                                        source={source}
                                     />
                                 )
                             })

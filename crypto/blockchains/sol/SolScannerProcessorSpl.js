@@ -1,10 +1,10 @@
 /**
- * @version 0.43
+ * @version 0.52
  */
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
-
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+
 import SolScannerProcessor from '@crypto/blockchains/sol/SolScannerProcessor'
 
 const CACHE_BALANCES = {}

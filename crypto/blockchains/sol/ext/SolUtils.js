@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.52
  */
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
@@ -9,13 +9,11 @@ import { Account } from '@solana/web3.js/src/account'
 
 import config from '@app/config/config'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
 const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
 const OWNER_VALIDATION_PROGRAM_ID = '4MNPdKu9wFMvEeZBMt3Eipfs5ovVWTJb31pEXDJAAxX5'
 
-const CACHE_STAKED = {}
 export default {
 
     getTokenProgramID() {
@@ -76,96 +74,6 @@ export default {
                 console.log('SolUtils.getAccountInfo ' + address + ' error ' + e.message)
             }
             BlocksoftCryptoLog.log('SolUtils.getAccountInfo ' + address + ' error ' + e.message)
-        }
-        return accountInfo
-    },
-
-    checkAccountStaked(address, subaddress) {
-        return typeof CACHE_STAKED[address].all[subaddress] !== 'undefined'
-    },
-
-    setAccountStaked(address, subaddress) {
-        CACHE_STAKED[address].all[subaddress] = true
-    },
-
-    // https://docs.solana.com/developing/clients/jsonrpc-api#getprogramaccounts
-    async getAccountStaked(address, isForce = false) {
-        let accountInfo = false
-        if (typeof CACHE_STAKED[address] === 'undefined' || isForce) {
-            CACHE_STAKED[address] = {
-                all: {},
-                active: []
-            }
-        }
-        try {
-            const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
-
-            const getEpoch = { 'jsonrpc': '2.0', 'id': 1, 'method': 'getEpochInfo' }
-            const resEpoch = await BlocksoftAxios._request(apiPath, 'POST', getEpoch)
-            const currentEpoch = resEpoch.data.result.epoch || 0
-
-            const checkData = {
-                'jsonrpc': '2.0',
-                'id': 1,
-                'method': 'getProgramAccounts',
-                'params': [
-                    'Stake11111111111111111111111111111111111111',
-                    {
-                        'encoding': 'jsonParsed',
-                        filters:
-                            [{
-                                memcmp: {
-                                    offset: 0xc,
-                                    bytes: address
-                                }
-                            }]
-                    }
-                ]
-            }
-            const res = await BlocksoftAxios._request(apiPath, 'POST', checkData)
-
-            accountInfo = []
-            for (const tmp of res.data.result) {
-                const parsed = tmp.account.data.parsed
-                const item = { amount: tmp.account.lamports, stakeAddress: tmp.pubkey, reserved: 0, active : true, status : '' }
-                if (typeof parsed.info !== 'undefined') {
-                    if (typeof typeof parsed.info.meta !== 'undefined') {
-                        if (typeof parsed.info.meta.rentExemptReserve !== 'undefined') {
-                            item.reserved = parsed.info.meta.rentExemptReserve
-                        }
-                    }
-                    const deactivationEpoch = parsed.info.stake.delegation.deactivationEpoch || 0
-                    const activationEpoch = parsed.info.stake.delegation.activationEpoch || 0
-                    if (currentEpoch && currentEpoch*1 >= deactivationEpoch * 1) {
-                        item.order = 1
-                        item.active = false
-                        item.status = 'inactive'
-                    } else if (currentEpoch && currentEpoch === activationEpoch) {
-                        item.order = 3
-                        item.status = 'activating'
-                    } else {
-                        item.order = 2
-                        item.status = 'staked'
-                    }
-                }
-                item.diff = BlocksoftUtils.diff(item.amount, item.reserved).toString()
-                accountInfo.push(item)
-                CACHE_STAKED[address].all[item.stakeAddress] = true
-            }
-            accountInfo.sort((a, b) => {
-                if (b.order === a.order) {
-                    return BlocksoftUtils.diff(b.diff, a.diff) * 1
-                } else {
-                    return b.order - a.order
-                }
-            })
-            CACHE_STAKED[address].active = accountInfo
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log('SolUtils.getAccountInfo ' + address + ' error ' + e.message)
-            }
-            BlocksoftCryptoLog.log('SolUtils.getAccountInfo ' + address + ' error ' + e.message)
-            return CACHE_STAKED[address].active
         }
         return accountInfo
     },

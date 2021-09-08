@@ -68,6 +68,14 @@ class InputAndButtons extends PureComponent {
     }
 
     componentDidUpdate(prevProps) {
+        if (prevProps.sendScreenStoreUi.isTransferAll !== this.props.sendScreenStoreUi.isTransferAll) {
+            if (!this.props.sendScreenStoreUi.isTransferAll && this.state.partBalance) {
+                this.setState({
+                    partBalance: 0
+                })
+            }
+        }
+
         if (this.valueInput && prevProps.sendScreenStoreUi.cryptoValue !== this.props.sendScreenStoreUi.cryptoValue) {
             this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
         }

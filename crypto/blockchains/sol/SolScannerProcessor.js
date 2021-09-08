@@ -1,18 +1,19 @@
 /**
- * @version 0.43
+ * @version 0.52
  */
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import SolTmpDS from './stores/SolTmpDS'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+
+import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
 
 import config from '@app/config/config'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const CACHE_FROM_DB = {}
 const CACHE_TXS = {}
-let CACHE_LAST_BLOCK = 0
 const CACHE_VALID_TIME = 120000
+let CACHE_LAST_BLOCK = 0
 
 export default class SolScannerProcessor {
 

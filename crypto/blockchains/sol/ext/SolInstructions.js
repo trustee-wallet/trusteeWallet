@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.52
  * https://github.com/project-serum/spl-token-wallet/blob/master/src/utils/tokens/instructions.js
  */
 import * as BufferLayout from '@solana/buffer-layout'

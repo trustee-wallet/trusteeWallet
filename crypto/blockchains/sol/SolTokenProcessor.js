@@ -1,11 +1,10 @@
 /**
- * @version 0.5
+ * @version 0.52
  */
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
-const TOKENS_LIST = 'https://raw.githubusercontent.com/solana-labs/token-list/main/src/tokens/solana.tokenlist.json'
 export default class SolTokenProcessor {
 
     /**
@@ -14,7 +13,7 @@ export default class SolTokenProcessor {
      */
     async getTokenDetails(tokenAddress) {
 
-        const res = await BlocksoftAxios.get(TOKENS_LIST)
+        const res = await BlocksoftAxios.get(BlocksoftExternalSettings.get('SOL_TOKENS_LIST'))
         if (!res || typeof res.data.tokens === 'undefined' || !res.data.tokens) {
             return false
         }

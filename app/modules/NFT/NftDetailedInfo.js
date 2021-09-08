@@ -29,6 +29,7 @@ import Log from '@app/services/Log/Log'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
 import { connect } from 'react-redux'
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
@@ -74,6 +75,7 @@ class NftDetailedInfo extends React.PureComponent {
     }
 
     handleSend = () => {
+        await SendActionsStart.startFromCustomBlockchainData(this.state.data.tokenBlockchainCode,
         // TODO send
     }
 

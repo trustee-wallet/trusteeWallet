@@ -83,7 +83,7 @@ class WalletName extends PureComponent {
     }
 
     handleSelectWallet = () => {
-        NavStore.goNext('WalletListScreen')
+        NavStore.goNext('WalletListScreen', { source: 'HomeScreen' })
     }
 
     render() {

@@ -116,6 +116,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
             }
             if (typeof parsed.amount !== 'undefined' && parsed.amount && parsed.amount * 1 > 0) {
                 newValue.cryptoValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(parsed.amount)
+                newValue.isTransferAll = false
             }
             if (typeof parsed.label !== 'undefined' && parsed.label && parsed.label !== '') {
                 newValue.memo = parsed.label

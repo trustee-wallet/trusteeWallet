@@ -10,7 +10,7 @@ let CACHE_SELECTED_FEE = false
 
 export namespace SendActionsUpdateValues {
 
-    export const setStepOne = (data : {cryptoValue : string, addressTo : string,  addressName: string, memo : string}) => {
+    export const setStepOne = (data : {cryptoValue : string, addressTo : string,  addressName: string, memo : string, isTransferAll : boolean}) => {
         dispatch({
             type: 'SET_DATA',
             ui: data

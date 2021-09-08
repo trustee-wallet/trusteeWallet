@@ -190,7 +190,9 @@
       "stake": "Стейк",
       "rentReserve": "Орендна плата",
       "allUnstakeSOL": "Забрати все",
-      "stakeHistorySOL" : "Історія Стейку"
+      "stakeHistorySOL" : "Історія Стейку",
+      "selectSolValidator": "Оберіть валідатора",
+      "solValidator": "Валідатор"
     },
     "about": {
       "title": "Про гаманець",
@@ -1086,7 +1088,6 @@
     "walletDelete": {
       "deleteWallet": "Дана операція видалить гаманець %{walletName} з додатку, для продовження підтвердіть Фразу відновлення",
       "delete": "Ви хочете видалити цей гаманець?",
-      "confirmDelete": "Ви дійсно хочете видалити цей гаманець?",
       "notBackupPositiveBalance": "Гаманець %{walletName} має позитивний баланс. Резервна копія етапу відновлення не створена. Доступ до активів буде втрачено. "
     },
     "notification": {

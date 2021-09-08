@@ -40,7 +40,7 @@ import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTr
 import store from '@app/store'
 import styles from '@app/modules/Account/AccountSettings/elements/styles'
 import config from '@app/config/config'
-import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
+
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -55,6 +55,12 @@ import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import Tabs from '@app/components/elements/new/Tabs'
+import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+
+import MainListItem from '@app/components/elements/new/list/ListItem/Setting'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { getSolValidator } from '@app/appstores/Stores/Main/selectors'
 
 
 class SettingsSOL extends React.PureComponent {
@@ -71,6 +77,15 @@ class SettingsSOL extends React.PureComponent {
             clickRefresh: false,
             load: true,
             partBalance: null,
+            voteAddresses: [],
+            selectedVoteAddress: {
+                address: '',
+                commission: false,
+                activatedStake: false,
+                name: false,
+                description: '',
+                website: ''
+            },
 
             tabs: [
                 {
@@ -82,7 +97,7 @@ class SettingsSOL extends React.PureComponent {
                     title: strings('settings.walletList.stake'),
                     index: 1,
                     active: false
-                },
+                }
             ]
         }
         this.stakeAmountInput = React.createRef()
@@ -106,7 +121,7 @@ class SettingsSOL extends React.PureComponent {
         }
         this.setState({
             currentAddresses,
-            currentAddressesLoaded: true,
+            currentAddressesLoaded: true
         })
     }
 
@@ -115,27 +130,46 @@ class SettingsSOL extends React.PureComponent {
 
         this.setState({
             stakedAddresses: [],
+            voteAddresses: [],
             load: true
         })
 
-        const stakedAddresses = await SolUtils.getAccountStaked(account.address, force)
-        this.setState({
+        const selectedVoteAddress = await settingsActions.getSetting('SOL_validator')
+        const voteAddresses = await SolStakeUtils.getVoteAddresses()
+        const stakedAddresses = await SolStakeUtils.getAccountStaked(account.address, force)
+        const newData = {
             stakedAddresses,
+            voteAddresses,
             load: false
-        })
+        }
+        if (selectedVoteAddress) {
+            newData.selectedVoteAddress = JSON.parse(selectedVoteAddress)
+        } else if (voteAddresses && voteAddresses.length > 0) {
+            newData.selectedVoteAddress = voteAddresses[0]
+        } else {
+            newData.selectedVoteAddress = {
+                address: BlocksoftExternalSettings.getStatic('SOL_VOTE_BEST'),
+                commission: false,
+                activatedStake: false,
+                name: false,
+                description: '',
+                website: ''
+            }
+        }
+        this.setState(newData)
     }
 
     handleRefresh = async (click = false) => {
         this.setState({
             refreshing: !click,
-            clickRefresh: click,
+            clickRefresh: click
         })
 
         await this.handleScan(true)
 
         this.setState({
             refreshing: false,
-            clickRefresh: false,
+            clickRefresh: false
         })
     }
 
@@ -196,7 +230,7 @@ class SettingsSOL extends React.PureComponent {
     handleStake = async () => {
         setLoaderStatus(true)
 
-        const { account } = this.props
+        const { account, solValidator } = this.props
 
         try {
 
@@ -207,6 +241,7 @@ class SettingsSOL extends React.PureComponent {
             const prettyStake = inputValidate.value
             const stake = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makeUnPretty(prettyStake)
 
+            const voteAddresses = solValidator?.address ? solValidator.address : this.state.selectedVoteAddress.address
 
             const txData = {
                 currencyCode: 'SOL',
@@ -214,7 +249,10 @@ class SettingsSOL extends React.PureComponent {
                 walletHash: account.walletHash,
                 derivationPath: account.derivationPath,
                 addressFrom: account.address,
-                addressTo: 'STAKE'
+                addressTo: 'STAKE',
+                blockchainData: {
+                    voteAddresses
+                }
             }
             const result = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed: true })
             if (result) {
@@ -259,7 +297,7 @@ class SettingsSOL extends React.PureComponent {
         if (item.type) {
             Linking.openURL('https://explorer.solana.com/tx/' + item.transactionHash)
         } else {
-            NavStore.goNext('StakingTransactionScreen', { stakingItem: item, stakingAccount : account })
+            NavStore.goNext('StakingTransactionScreen', { stakingItem: item, stakingAccount: account })
         }
     }
 
@@ -314,7 +352,7 @@ class SettingsSOL extends React.PureComponent {
         // if newPartBalance = 4 = 100%
         Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' clicked')
         this.setState({
-            partBalance: newPartBalance,
+            partBalance: newPartBalance
         }, () => {
             const cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(balanceTotalPretty, 4), this.state.partBalance)
             Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' end counting ' + cryptoValue)
@@ -322,12 +360,18 @@ class SettingsSOL extends React.PureComponent {
         })
     }
 
+    handleGoToSelect = () => {
+        NavStore.goNext('SolValidators')
+    }
+
     render() {
-        const { currentAddresses, currentAddressesLoaded, lastTransactions, stakedAddresses, load, tabs } = this.state
-        const { account } = this.props
+        const { currentAddresses, currentAddressesLoaded, lastTransactions, stakedAddresses, load, tabs, selectedVoteAddress } = this.state
+        const { account, solValidator } = this.props
         const { colors, GRID_SIZE, isLight } = this.context
 
         const { balanceTotalPretty } = account
+
+        const validator = solValidator && solValidator?.address ? solValidator : selectedVoteAddress
 
         return (
             <View style={{ flexGrow: 1 }}>
@@ -366,7 +410,7 @@ class SettingsSOL extends React.PureComponent {
                             contentContainerStyle={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE }}
                             keyExtractor={item => item?.transactionHash ? item.transactionHash.toString() : item.stakeAddress.toString()}
                             showsVerticalScrollIndicator={false}
-                            keyboardShouldPersistTaps="handled"
+                            keyboardShouldPersistTaps='handled'
                             refreshControl={
                                 <RefreshControl
                                     refreshing={this.state.refreshing}
@@ -435,6 +479,17 @@ class SettingsSOL extends React.PureComponent {
                                         </View>
                                     )}
                                     <View style={{ paddingVertical: GRID_SIZE }}>
+                                        <MainListItem
+                                            title={strings('settings.walletList.solValidator')}
+                                            subtitle={validator.name ? validator.name : BlocksoftPrettyStrings.makeCut(validator.address, 8, 8)}
+                                            onPress={this.handleGoToSelect}
+                                            iconType='scanning'
+                                            rightContent="arrow"
+                                            last
+                                        />
+                                    </View>
+
+                                    <View style={{ paddingVertical: GRID_SIZE }}>
                                         <Button
                                             title={strings('settings.walletList.stakeSOL').toUpperCase()}
                                             onPress={() => this.handleStake(false)}
@@ -442,7 +497,7 @@ class SettingsSOL extends React.PureComponent {
                                     </View>
 
                                     <View style={{ flexDirection: 'row', position: 'relative', justifyContent: 'space-between', alignItems: 'center', paddingBottom: GRID_SIZE / 2, paddingTop: GRID_SIZE }}>
-                                        <View style={{ flexDirection: 'column' }} >
+                                        <View style={{ flexDirection: 'column' }}>
                                             <Text style={[styles.transaction_title, { color: colors.common.text1, paddingLeft: GRID_SIZE }]}>{strings('settings.walletList.stakeHistorySOL')}</Text>
                                         </View>
                                         <TouchableOpacity
@@ -452,7 +507,7 @@ class SettingsSOL extends React.PureComponent {
                                         >
                                             {this.state.clickRefresh ?
                                                 <LottieView
-                                                    style={{ width: 20, height: 20, }}
+                                                    style={{ width: 20, height: 20 }}
                                                     source={isLight ? blackLoader : whiteLoader}
                                                     autoPlay
                                                     loop
@@ -474,4 +529,10 @@ class SettingsSOL extends React.PureComponent {
 
 SettingsSOL.contextType = ThemeContext
 
-export default connect(null, null, null, { forwardRef: true })(SettingsSOL)
+const mapStateToProps = state => {
+    return {
+        solValidator: getSolValidator(state)
+    }
+}
+
+export default connect(mapStateToProps, null, null, { forwardRef: true })(SettingsSOL)
