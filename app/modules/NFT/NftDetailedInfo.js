@@ -75,7 +75,7 @@ class NftDetailedInfo extends React.PureComponent {
     }
 
     handleSend = () => {
-        await SendActionsStart.startFromCustomBlockchainData(this.state.data.tokenBlockchainCode,
+        // await SendActionsStart.startFromCustomBlockchainData(this.state.data.tokenBlockchainCode,
         // TODO send
     }
 
