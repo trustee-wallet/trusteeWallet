@@ -254,7 +254,8 @@
     "all": "All",
     "collections": "Collections",
     "receive": "Receive",
-    "title": "NFT"
+    "title": "NFT",
+    "titleQR" : "Scan QR with Trustee"
   },
   "cashback": {
     "invite": "Invite:",

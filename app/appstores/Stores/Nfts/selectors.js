@@ -8,6 +8,7 @@ export const getNftsData = createSelector(
     (data => {
         return {
             address : data.address,
+            derivationPath : data.derivationPath,
             loaded : data.loaded,
             nfts: data.nfts
         }

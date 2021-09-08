@@ -261,7 +261,8 @@
     "all": "Всі",
     "collections": "Колекції",
     "receive": "Отримати",
-    "title": "NFT"
+    "title": "NFT",
+    "titleQR" : "Скануй QR з Trustee"
   },
   "cashback": {
     "invited": "Запрошений:",

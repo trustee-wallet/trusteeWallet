@@ -26,6 +26,9 @@ import Button from '@app/components/elements/new/buttons/Button'
 
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import Log from '@app/services/Log/Log'
+import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
+import { connect } from 'react-redux'
 
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
@@ -35,7 +38,7 @@ class NftDetailedInfo extends React.PureComponent {
     state = {
         heightPhoto: 260, // TODO percent of screen
         data: {
-            contractAddress: '0x7d5773e8fee4bc9b679c1eb51b2597984c007682',
+            contractAddress: '2',
             сontractSchema: 'ERC721',
             cryptoCurrencySymbol: 'ETH',
             cryptoValue: '?',
@@ -90,16 +93,24 @@ class NftDetailedInfo extends React.PureComponent {
             message: this.state.data.subTitle,
             url: this.state.data.permalink
         }
-        prettyShare(shareOptions, 'taki_cashback_4_copyToMoreFinish')
+        prettyShare(shareOptions, 'nft_copyToMoreFinish')
     }
 
     handleOpenQrCode = () => {
-        NavStore.goNext('QRCodeScannerScreen')
+        const forSignature = {
+            signAddress: this.props.nftsData.address,
+            derivationPath : this.props.nftsData.derivationPath,
+            walletHash: this.props.wallet.walletHash,
+            tokenId: this.state.data.tokenId,
+            tokenBlockchainCode: this.state.data.tokenBlockchainCode,
+            contractAddress: this.state.data.contractAddress
+        }
+        NavStore.goNext('NftDetailedInfoQR', { forSignature })
     }
 
     render() {
 
-        const {data} = this.state
+        const { data } = this.state
         const {
             GRID_SIZE,
             colors
@@ -125,13 +136,13 @@ class NftDetailedInfo extends React.PureComponent {
                             marginBottom: GRID_SIZE * 1.5
                         }]}>
                             {data.img && data.img !== '' ?
-                            <Image
-                                style={styles.img}
-                                source={{
-                                    uri: data.img
-                                }}
-                                resizeMode='contain'
-                            /> : null}
+                                <Image
+                                    style={styles.img}
+                                    source={{
+                                        uri: data.img
+                                    }}
+                                    resizeMode='contain'
+                                /> : null}
                         </View>
                         <NftTokenInfo
                             containerStyles={styles.title}
@@ -185,7 +196,14 @@ class NftDetailedInfo extends React.PureComponent {
 
 NftDetailedInfo.contextType = ThemeContext
 
-export default NftDetailedInfo
+const mapStateToProps = (state) => {
+    return {
+        wallet: getSelectedWalletData(state),
+        nftsData: getNftsData(state)
+    }
+}
+
+export default connect(mapStateToProps)(NftDetailedInfo)
 
 const styles = StyleSheet.create({
     scrollViewContent: {

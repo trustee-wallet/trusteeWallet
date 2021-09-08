@@ -55,6 +55,11 @@ class QRCodeScannerScreen extends PureComponent {
     }
 
     async handleOpenGallery() {
+        await finishProcess({
+            data: 'trusteenft:{"signed":{"message":"1631102332516nft","messageHash":"0xc86fc6319c38bb6c794e198ea5ebd3435148c06a0205fee34d56258e1f827f7e","signature":"0xfb5bda323c118b87ce569ad7df1e3d8f0fb5af426ddd34ddc471e9cac140f80271b6e161bf0eb3c3a7fa2b27a90824a120500e09bf7116b55feed84a7cdc6f4b1c"},"signAddress":"0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99","tokenId":1,"tokenBlockchainCode":"MATIC","contractAddress":"0x41442Ee4E2b3cE380911fF08Bb0f50a4037C2835"}'
+
+        })
+        return false
         try {
             const res = await openQrGallery()
             if (res) {

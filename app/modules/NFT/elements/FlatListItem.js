@@ -161,14 +161,14 @@ const styles = {
     },
     img: {
         alignItems: 'flex-start',
-        aligSelf: 'flex-start',
+        alignSelf: 'flex-start',
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         width: '100%',
         height: '40%',
     },
     descriptions: {
-        flexGrow: 1, 
+        flexGrow: 1,
         justifyContent: 'space-around',
         marginHorizontal: 12
     }

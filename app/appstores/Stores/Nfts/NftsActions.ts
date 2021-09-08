@@ -18,11 +18,14 @@ export namespace NftActions {
         const { tokenBlockchainCode } = tmp.selectedCryptoCurrency
         const basicAccounts = store.getState().accountStore.accountList
         let address = ''
+        let derivationPath = ''
         if (typeof basicAccounts[walletHash] !== 'undefined') {
             if (typeof basicAccounts[walletHash][tokenBlockchainCode] !== 'undefined') {
                 address = basicAccounts[walletHash][tokenBlockchainCode].address
+                derivationPath = basicAccounts[walletHash][tokenBlockchainCode].derivationPath
             } else if (tokenBlockchainCode !== 'TRX') {
                 address = basicAccounts[walletHash]['ETH'].address
+                derivationPath = basicAccounts[walletHash]['ETH'].derivationPath
             }
         }
         if (store.getState().nftsStore.address !== address) {
@@ -30,6 +33,7 @@ export namespace NftActions {
             dispatch({
                 type: 'SET_NFTS_LOADED',
                 address,
+                derivationPath,
                 loaded: false
             })
         }
