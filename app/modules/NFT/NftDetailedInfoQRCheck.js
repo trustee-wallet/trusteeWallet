@@ -1,13 +1,15 @@
 /**
  * @version 0.50
+ * @author yura
  */
 
 import React from 'react'
 import {
     View,
     StyleSheet,
-    Dimensions,
-    TouchableOpacity, Text
+    Text,
+    ScrollView,
+    ActivityIndicator
 } from 'react-native'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -20,7 +22,11 @@ import config from '@app/config/config'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { Web3Injected } from '@crypto/services/Web3Injected'
 
-const { width: WINDOW_WIDTH } = Dimensions.get('window')
+import TransactionItem from '../Account/AccountTransaction/elements/TransactionItem'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Toast from '@app/services/UI/Toast/Toast'
+
 
 const abi = require('@crypto/blockchains/eth/ext/erc721.js')
 
@@ -38,9 +44,9 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
             "tokenBlockchainCode": "MATIC",
             "tokenId": 1
         },
-        explorerLink : false,
+        explorerLink: false,
         checked: false,
-        checkedStatus : ''
+        checkedStatus: ''
     }
 
     async componentDidMount() {
@@ -70,7 +76,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
 
             const diff = new Date().getTime() - data.signed.message.replace('nft', '') * 1
             if (diff > 6000000) {
-            //    checkedStatus = 'timeouted' // uncomment after tests
+                //    checkedStatus = 'timeouted' // uncomment after tests
             }
             if (!checkedStatus) {
                 const signedDataHash = await web3.eth.accounts.hashMessage(data.signed.message)
@@ -90,15 +96,40 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                 checkedStatus = 'success'
             }
 
-            this.setState({ checked : true, checkedStatus })
+            this.setState({ checked: true, checkedStatus })
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NftDetailedInfoQRCheck checkMessage error ' + e.message)
             }
             Log.log('NftDetailedInfoQRCheck checkMessage error ' + e.message)
-            this.setState({ checked : true, checkedStatus : e.message})
+            this.setState({ checked: true, checkedStatus: e.message })
         }
         setLoaderStatus(false)
+    }
+
+    getStatusIcon = (msg) => {
+
+        const { colors } = this.context
+
+        switch (msg.toLowerCase()) {
+            case 'success':
+                return <CustomIcon name='check' size={48} color={colors.common.text1} />
+            case 'checking':
+                return <ActivityIndicator color={colors.common.text1} />
+            default:
+                return <CustomIcon name='close' size={36} color={colors.common.text1} />
+        }
+    }
+
+    handleSubContentPress = (item) => {
+        if (typeof item.plain !== 'undefined') {
+            copyToClipboard(item.plain)
+        } else if (item.isLink) {
+            copyToClipboard(item.isLink)
+        } else {
+            copyToClipboard(item.title + ': ' + item.description)
+        }
+        Toast.setMessage(strings('toast.copied')).show()
     }
 
 
@@ -112,9 +143,6 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
             colors
         } = this.context
 
-        if (!this.state.checked) {
-            // @todo show "checking"
-        }
         const message = !this.state.checked ? 'checking' : this.state.checkedStatus
 
         return (
@@ -123,61 +151,44 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                 leftType='back'
                 leftAction={this.handleBack}
             >
-                <View style={[styles.tokenContainer, { marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>
-                    <TouchableOpacity
-                        style={[styles.tokenWrapper, {
-                            backgroundColor: colors.cashback.detailsBg,
-                            marginRight: GRID_SIZE
-                        }]}
-                        onPress={() => this.copyToLink(this.state.data.contractAddress)}
-                    >
-                        <Text style={[styles.tokenText, {
-                            color: colors.common.text1,
-                            marginHorizontal: GRID_SIZE
-                        }]}>
-                            Contract: {this.state.data.contractAddress}
-                        </Text>
-
-                        <Text style={[styles.tokenText, {
-                            color: colors.common.text1,
-                            marginHorizontal: GRID_SIZE
-                        }]}>
-                            Token : {this.state.data.tokenId}
-                        </Text>
-
-                        <Text style={[styles.tokenText, {
-                            color: colors.common.text1,
-                            marginHorizontal: GRID_SIZE
-                        }]}>
-                            Blockchain : {this.state.data.tokenBlockchainCode}
-                        </Text>
-
-
-                        <Text style={[styles.tokenText, {
-                            color: colors.common.text1,
-                            marginHorizontal: GRID_SIZE
-                        }]}>
-                            Address : {this.state.data.signAddress}
-                        </Text>
-
-
-
-                        <Text style={[styles.tokenText, {
-                            color: colors.common.text1,
-                            marginHorizontal: GRID_SIZE
-                        }]}>
-                            Status : {message}
-                        </Text>
-
-                        <View style={[styles.copyBtn, { marginTop: GRID_SIZE }]}>
-                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
-                                {strings('account.receiveScreen.copy')}
-                            </Text>
-                            <CustomIcon name='copy' size={19} color={colors.cashback.token} />
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1, padding: GRID_SIZE }}
+                >
+                    <View style={styles.containerStatus}>
+                        <View style={[styles.statusIcon, { backgroundColor: colors.common.roundButtonBg }]}>
+                            {this.getStatusIcon(message)}
                         </View>
-                    </TouchableOpacity>
+                        <Text style={[styles.textStatus, { color: colors.common.text1 }]}>{strings('nftMainScreen.status') + ': ' + message.toString()}</Text>
+                    </View>
+                    {this.state.checked &&
+                        <>
+                            <TransactionItem
+                                title={strings('nftMainScreen.contract')}
+                                subtitle={BlocksoftPrettyStrings.makeCut(this.state.data.contractAddress, 8, 8)}
+                                iconType='self'
+                                copyAction={() => this.handleSubContentPress({ plain: this.state.data.contractAddress })}
+                            />
+                            <TransactionItem
+                                title={strings('nftMainScreen.tokenId')}
+                                subtitle={this.state.data.tokenId}
+                                iconType='txID'
+                            />
+                            <TransactionItem
+                                title={strings('nftMainScreen.blockchain')}
+                                subtitle={this.state.data.tokenBlockchainCode}
+                                iconType='self'
+                            />
+                            <TransactionItem
+                                title={strings('nftMainScreen.address')}
+                                subtitle={BlocksoftPrettyStrings.makeCut(this.state.data.signAddress, 8, 8)}
+                                iconType='self'
+                                copyAction={() => this.handleSubContentPress({ plain: this.state.data.signAddress })}
+                            />
+                        </>
+                    }
 
-                </View>
+                </ScrollView>
             </ScreenWrapper>
         )
     }
@@ -188,19 +199,16 @@ NftDetailedInfoQRCheck.contextType = ThemeContext
 export default NftDetailedInfoQRCheck
 
 const styles = StyleSheet.create({
-    emptyText: {
-        fontFamily: 'SFUIDisplay-SemiBold',
-        fontSize: 14,
-        lineHeight: 18,
-        letterSpacing: 1
+    containerStatus: {
+        justifyContent: 'center',
+        alignItems: 'center'
     },
-    qr: {
-        backgroundColor: '#F5F5F5',
-        width: WINDOW_WIDTH * 0.3905,
-
+    statusIcon: {
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 24,
+        width: 60,
+        height: 60,
+        borderRadius: 50,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -210,35 +218,11 @@ const styles = StyleSheet.create({
         shadowRadius: 4.65,
         elevation: 6
     },
-    tokenWrapper: {
-        width: WINDOW_WIDTH * 0.4905,
-        height: WINDOW_WIDTH * 0.3905,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    tokenContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    tokenText: {
-        fontFamily: 'SFUIDisplay-SemiBold',
-        fontSize: 15,
-        lineHeight: 19,
-        letterSpacing: 1.5,
-        textAlign: 'center'
-    },
-    qrCodeTokenString: {
-        alignSelf: 'center',
-        textTransform: 'uppercase',
-        fontFamily: 'Montserrat-Bold',
-        fontSize: 12,
-        lineHeight: 17,
-        letterSpacing: 1.5,
-        paddingRight: 4
-    },
-    copyBtn: {
-        flexDirection: 'row',
-        textAlign: 'center'
+    textStatus: {
+        paddingTop: 20,
+
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        lineHeight: 19
     }
 })

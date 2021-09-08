@@ -264,7 +264,12 @@
     "collections": "Collections",
     "receive": "Receive",
     "title": "NFT",
-    "titleQR" : "Scan QR with Trustee"
+    "titleQR" : "Scan QR with Trustee",
+    "status": "Status",
+    "contract": "Contract",
+    "tokenId": "Token ID",
+    "blockchain": "Blockchain",
+    "address": "Address"
   },
   "cashback": {
     "invited": "Invited:",

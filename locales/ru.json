@@ -264,7 +264,12 @@
     "collections": "Колекции",
     "receive": "Получить",
     "title": "NFT",
-    "titleQR" : "Сканируй QR из Trustee"
+    "titleQR" : "Сканируй QR из Trustee",
+    "status": "Статус",
+    "contract": "Адрес контракта",
+    "tokenId": "Токен ID",
+    "blockchain": "Блокчейн",
+    "address": "Адрес"
   },
   "cashback": {
     "invited": "Приглашен:",

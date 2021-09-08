@@ -5,9 +5,7 @@
 import React from 'react'
 import {
     View,
-    StyleSheet,
-    Dimensions,
-    TouchableOpacity, Text
+    StyleSheet
 } from 'react-native'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -23,9 +21,7 @@ import BlocksoftKeysForRef from '@crypto/actions/BlocksoftKeysForRef/BlocksoftKe
 import { BlocksoftTransferPrivate } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferPrivate'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
-import CustomIcon from '@app/components/elements/CustomIcon'
 
-const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 class NftDetailedInfoQR extends React.PureComponent {
 
@@ -38,7 +34,7 @@ class NftDetailedInfoQR extends React.PureComponent {
             tokenBlockchainCode: '',
             contractAddress: ''
         },
-        signed : false
+        signed: false
     }
 
     async componentDidMount() {
@@ -61,7 +57,7 @@ class NftDetailedInfoQR extends React.PureComponent {
             }
             const res = await BlocksoftTransferPrivate.initTransferPrivate(initData)
             const signed = await BlocksoftKeysForRef.signDataForApi(now, res.privateKey)
-            this.setState({signed})
+            this.setState({ signed })
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NftDetailedInfoQR signMessage error ' + e.message)
@@ -87,7 +83,6 @@ class NftDetailedInfoQR extends React.PureComponent {
             colors
         } = this.context
 
-        //  marginLeft: GRID_SIZE * 6 - @yura todo please
         if (!this.state.signed) {
             // @todo show "generating"
         }
@@ -98,7 +93,6 @@ class NftDetailedInfoQR extends React.PureComponent {
             tokenBlockchainCode: this.state.data.tokenBlockchainCode,
             contractAddress: this.state.data.contractAddress
         })
-        const subMessage = message.substring(0, 16) + '...'
 
         return (
             <ScreenWrapper
@@ -106,44 +100,22 @@ class NftDetailedInfoQR extends React.PureComponent {
                 leftType='back'
                 leftAction={this.handleBack}
             >
-                <View style={[styles.tokenContainer, { marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>
-                    <TouchableOpacity
-                        onPress={() => this.copyToLink(message)}
-                        style={styles.qr}
-                        activeOpacity={0.8}
-                    >
+                <View style={{ ...styles.tokenContainer, marginTop: GRID_SIZE * 2 }}>
+                    <View style={styles.qr}>
                         <QrCodeBox
                             getRef={ref => this.refSvg = ref}
                             value={message}
-                            size={WINDOW_WIDTH * 0.3254}
+                            size={200}
                             color='#404040'
                             backgroundColor='#F5F5F5'
                             logo={qrLogo}
-                            logoSize={WINDOW_WIDTH * 0.1175}
+                            logoSize={70}
                             logoBackgroundColor='transparent'
                             onError={(e) => {
-                                Log.err('MnemonicQrCode QRCode error ' + e.message)
+                                Log.err('AccountReceiveScreen QRCode error ' + e.message)
                             }}
                         />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.tokenWrapper, {
-                            backgroundColor: colors.cashback.detailsBg,
-                            marginRight: GRID_SIZE
-                        }]}
-                        onPress={() => this.copyToLink(message)}
-                    >
-                        <Text style={[styles.tokenText, {
-                            color: colors.common.text1,
-                            marginHorizontal: GRID_SIZE
-                        }]}>{subMessage}</Text>
-                        <View style={[styles.copyBtn, { marginTop: GRID_SIZE }]}>
-                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
-                                {strings('account.receiveScreen.copy')}
-                            </Text>
-                            <CustomIcon name='copy' size={19} color={colors.cashback.token} />
-                        </View>
-                    </TouchableOpacity>
+                    </View>
                 </View>
             </ScreenWrapper>
         )
@@ -155,18 +127,13 @@ NftDetailedInfoQR.contextType = ThemeContext
 export default NftDetailedInfoQR
 
 const styles = StyleSheet.create({
-    emptyText: {
-        fontFamily: 'SFUIDisplay-SemiBold',
-        fontSize: 14,
-        lineHeight: 18,
-        letterSpacing: 1
-    },
     qr: {
         backgroundColor: '#F5F5F5',
-        width: WINDOW_WIDTH * 0.3905,
 
         justifyContent: 'center',
         alignItems: 'center',
+        width: 250,
+        height: 250,
         borderRadius: 24,
         shadowColor: '#000',
         shadowOffset: {
@@ -177,35 +144,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4.65,
         elevation: 6
     },
-    tokenWrapper: {
-        width: WINDOW_WIDTH * 0.4905,
-        height: WINDOW_WIDTH * 0.3905,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
     tokenContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    tokenText: {
-        fontFamily: 'SFUIDisplay-SemiBold',
-        fontSize: 15,
-        lineHeight: 19,
-        letterSpacing: 1.5,
-        textAlign: 'center'
-    },
-    qrCodeTokenString: {
-        alignSelf: 'center',
-        textTransform: 'uppercase',
-        fontFamily: 'Montserrat-Bold',
-        fontSize: 12,
-        lineHeight: 17,
-        letterSpacing: 1.5,
-        paddingRight: 4
-    },
-    copyBtn: {
-        flexDirection: 'row',
-        textAlign: 'center'
+        flexGrow: 1,
+        alignItems: 'center'
     }
 })
