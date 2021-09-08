@@ -8,6 +8,7 @@ import {
     View,
     StyleSheet
 } from 'react-native'
+
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 import NavStore from '@app/components/navigation/NavStore'
 import { strings } from '@app/services/i18n'
@@ -25,7 +26,7 @@ const HeaderInfo = (props) => {
     } = useTheme()
 
     return (
-        <View style={[styles.HeaderWrapper, { marginTop: GRID_SIZE }]}>
+        <View style={[styles.HeaderWrapper, { paddingBottom: GRID_SIZE }]}>
             <View style={{ flex: 1 }}>
                 <NftTokenValue
                     walletCurrency='NFT'

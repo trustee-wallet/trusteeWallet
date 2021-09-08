@@ -3,15 +3,6 @@
  * @version 0.50
  */
 
-//  <CurrencyIcon
-//                     setBackground={true}
-//                     currencyCode={walletCurrency}
-//                     containerStyle={{ borderWidth: 0, width: 40, height: 40 }}
-//                     markStyle={{ top: 30 }}
-//                     textContainerStyle={{ bottom: -19 }}
-//                     textStyle={{ backgroundColor: 'transparent' }}
-//                 />
-
 import React, { useState } from 'react'
 import {
     View,

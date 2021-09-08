@@ -7,8 +7,10 @@ import React from 'react'
 import {
     View,
     FlatList,
-    Dimensions
+    Dimensions,
+    RefreshControl
 } from 'react-native'
+import { connect } from 'react-redux'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { strings } from '@app/services/i18n'
@@ -19,10 +21,10 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import FlatListItem from '@app/modules/NFT/elements/FlatListItem'
 import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
 import FlatListCollections from '@app/modules/NFT/elements/FlatListCollections'
+
 import { getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
-import { connect } from 'react-redux'
-import store from '@app/store'
+
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
@@ -32,7 +34,7 @@ const { width: WINDOW_WIDTH } = Dimensions.get('window')
 class NftMainScreen extends React.PureComponent {
 
     state = {
-
+        refreshing: false,
         numColumns: WINDOW_WIDTH >= (182 * 3) + this.context.GRID_SIZE * 4 ? 3 : 2,
 
         tabs: [
@@ -64,6 +66,18 @@ class NftMainScreen extends React.PureComponent {
             }
             Log.log('NftMainScreen.handleRefresh error ' + e.message)
         }
+    }
+
+    handleRefreshContent = async () => {
+        this.setState({
+            refreshing: true
+        })
+
+        await this.handleRefresh(true)
+
+        this.setState({
+            refreshing: false
+        })
     }
 
     handleBack = () => {
@@ -124,6 +138,8 @@ class NftMainScreen extends React.PureComponent {
             tabs
         } = this.state
 
+        const { colors } = this.context
+
         const flatListCollectionsData = this.props.nftsData.nfts.collections
         const flatListData = []
         for (const asset of this.props.nftsData.nfts.assets) {
@@ -151,22 +167,42 @@ class NftMainScreen extends React.PureComponent {
                     <FlatList
                         data={flatListData}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingTop: this.context.GRID_SIZE }}
+                        contentContainerStyle={{ paddingVertical: this.context.GRID_SIZE }}
                         renderItem={this.renderFlatListItem}
                         horizontal={false}
                         numColumns={numColumns}
                         ListHeaderComponent={this.renderTabs}
-                        keyExtractor={({ index }) => index}
+                        keyExtractor={(item, index) => index.toString() + item.data.title}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this.handleRefreshContent}
+                                tintColor={colors.common.refreshControlIndicator}
+                                colors={[colors.common.refreshControlIndicator]}
+                                progressBackgroundColor={colors.common.refreshControlBg}
+                                progressViewOffset={-20}
+                            />
+                        }
                     />
                 )}
                 {tabs[1].active && (
                     <FlatList
                         data={flatListCollectionsData}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingTop: this.context.GRID_SIZE }}
+                        contentContainerStyle={{ paddingVertical: this.context.GRID_SIZE }}
                         renderItem={this.renderFlatListCollections}
                         ListHeaderComponent={this.renderTabs}
                         keyExtractor={({ index }) => index}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this.handleRefreshContent}
+                                tintColor={colors.common.refreshControlIndicator}
+                                colors={[colors.common.refreshControlIndicator]}
+                                progressBackgroundColor={colors.common.refreshControlBg}
+                                progressViewOffset={-20}
+                            />
+                        }
                     />
                 )}
 
