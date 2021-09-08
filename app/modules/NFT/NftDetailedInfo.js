@@ -38,7 +38,7 @@ class NftDetailedInfo extends React.PureComponent {
             contractAddress: '0x7d5773e8fee4bc9b679c1eb51b2597984c007682',
             сontractSchema: 'ERC721',
             cryptoCurrencySymbol: 'ETH',
-            cryptoValuePretty: '?',
+            cryptoValue: '?',
             id: 0,
             img: '',
             permalink: '',
@@ -47,7 +47,7 @@ class NftDetailedInfo extends React.PureComponent {
             desc: '',
             tokenBlockchainCode: 'ETH',
             tokenId: '',
-            usdValuePretty: ''
+            usdValue: ''
         }
     }
 
@@ -142,8 +142,8 @@ class NftDetailedInfo extends React.PureComponent {
                             <View style={styles.currencyInfo}>
                                 <NftTokenValue
                                     walletCurrency={data.cryptoCurrencySymbol}
-                                    balance={data.cryptoValuePretty}
-                                    balanceData={data.usdValuePretty}
+                                    balance={data.cryptoValue}
+                                    balanceData={data.usdValue}
                                     currencySymbol='$'
                                 />
                             </View>

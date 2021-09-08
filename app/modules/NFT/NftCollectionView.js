@@ -84,8 +84,8 @@ class NftCollectionView extends React.PureComponent {
                     return (
                         <NftTokenValue
                             walletCurrency={asset.cryptoCurrencySymbol}
-                            balance={asset.cryptoValuePretty}
-                            balanceData={asset.usdValuePretty} // @vadym its very bad names of fields
+                            balance={asset.cryptoValue}
+                            balanceData={asset.usdValue} // @vadym its very bad names of fields
                             currencySymbol={'$'}
                         />
                     )

@@ -202,7 +202,7 @@ class BlocksoftDispatcher {
             case 'ETH':
                 return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain: 'ETHEREUM', tokenBlockchainCode : 'ETH' })
             case 'MATIC':
-                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'BNB', tokenBlockchainCode : 'MATIC' })
+                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'MATIC', tokenBlockchainCode : 'MATIC' })
             default:
                 throw new Error('Unknown tokenProcessor ' + tokenBlockchainCode)
         }

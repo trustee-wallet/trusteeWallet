@@ -20,11 +20,12 @@ import FlatListItem from '@app/modules/NFT/elements/FlatListItem'
 import NftTokenValue from '@app/modules/NFT/elements/NftTokenValue'
 import FlatListCollections from '@app/modules/NFT/elements/FlatListCollections'
 import { getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 import { connect } from 'react-redux'
 import store from '@app/store'
-import BlocksoftTokenNfts from '@crypto/actions/BlocksoftTokenNfts/BlocksoftTokenNfts'
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
+import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -45,37 +46,18 @@ class NftMainScreen extends React.PureComponent {
                 index: 1,
                 active: false
             }
-        ],
-
-        data: {
-            assets: [],
-            collections : [],
-            usdTotalPretty : ''
-        }
+        ]
     }
 
 
     async componentDidMount() {
-        return this.handleRefresh()
+        this.handleRefresh(false)
     }
 
-    handleRefresh = async () => {
+    handleRefresh = async (force = true) => {
         try {
-            const { walletHash } = this.props.wallet
-            const { tokenBlockchainCode } = this.props.cryptoCurrency
-            const basicAccounts = store.getState().accountStore.accountList
-            let address = ''
-            if (typeof basicAccounts[walletHash] !== 'undefined') {
-                if (typeof basicAccounts[walletHash][tokenBlockchainCode] !== 'undefined') {
-                    address = basicAccounts[walletHash][tokenBlockchainCode].address
-                } else if (tokenBlockchainCode !== 'TRX') {
-                    address = basicAccounts[walletHash]['ETH'].address
-                }
-            }
-            const newData = await BlocksoftTokenNfts.getList({ tokenBlockchainCode, address })
-            if (newData) {
-                this.setState({ data: newData })
-            }
+            const { address } = this.props.nftsData
+            await NftActions.getDataByAddress(address, force)
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NftMainScreen.handleRefresh error ' + e.message)
@@ -93,7 +75,7 @@ class NftMainScreen extends React.PureComponent {
     }
 
     renderHeaderInfo = () => {
-        return <HeaderInfo usdTotalPretty={this.state.data.usdTotalPretty}/>
+        return <HeaderInfo usdTotalPretty={this.props.nftsData.nfts.usdTotal}/>
     }
 
     renderTabs = () => <Tabs
@@ -139,13 +121,12 @@ class NftMainScreen extends React.PureComponent {
 
         const {
             numColumns,
-            tabs,
-            data
+            tabs
         } = this.state
 
-        const flatListCollectionsData = data.collections
+        const flatListCollectionsData = this.props.nftsData.nfts.collections
         const flatListData = []
-        for (const asset of data.assets) {
+        for (const asset of this.props.nftsData.nfts.assets) {
             flatListData.push({
                 data : asset,
                 img: asset.img,
@@ -155,8 +136,8 @@ class NftMainScreen extends React.PureComponent {
                     return (
                         <NftTokenValue
                             walletCurrency={asset.cryptoCurrencySymbol}
-                            balance={asset.cryptoValuePretty}
-                            balanceData={asset.usdValuePretty} // @vadym its very bad names of fields
+                            balance={asset.cryptoValue}
+                            balanceData={asset.usdValue} // @vadym its very bad names of fields
                             currencySymbol={'$'}
                         />
                     )
@@ -224,7 +205,8 @@ NftMainScreen.contextType = ThemeContext
 const mapStateToProps = (state) => {
     return {
         wallet: getSelectedWalletData(state),
-        cryptoCurrency: getSelectedCryptoCurrencyData(state)
+        cryptoCurrency: getSelectedCryptoCurrencyData(state),
+        nftsData : getNftsData(state)
     }
 }
 

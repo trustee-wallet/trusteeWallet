@@ -37,6 +37,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { SIZE } from '../helpers';
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import config from '@app/config/config'
+import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 
 let CACHE_CLICK = false
 class CryptoCurrency extends React.PureComponent {
@@ -52,7 +53,7 @@ class CryptoCurrency extends React.PureComponent {
         if (typeof cryptoCurrency.currencyType !== 'undefined' && cryptoCurrency.currencyType === 'NFT') {
             try {
                 setSelectedCryptoCurrency(cryptoCurrency)
-
+                await NftActions.getDataBySelectedCryptoCurrency()
                 NavStore.goNext('NftMainScreen')
             } catch (e) {
                 Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)

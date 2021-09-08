@@ -17,6 +17,7 @@ import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import { strings } from '@app/services/i18n'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 class NftTokenValue extends React.Component{
 
@@ -71,9 +72,9 @@ class NftTokenValue extends React.Component{
                         <Text numberOfLines={2} style={[styles.balance, {
                         color: colors.common.text3,
                         fontSize: walletCurrency !== 'NFT' ? 13 : 18
-                    }]}>{walletCurrency !== 'NFT' ? (balance + ' ' + walletCurrency) : (walletCurrency + ' ' + strings('cashback.balanceTitle'))}</Text>
+                    }]}>{walletCurrency !== 'NFT' ? (BlocksoftPrettyNumbers.makeCut(balance).separated + ' ' + walletCurrency) : (walletCurrency + ' ' + strings('cashback.balanceTitle'))}</Text>
                         <Text
-                            style={[styles.balanceData, { fontSize: walletCurrency !== 'NFT' ? 10 : 14 }]}>{currencySymbol + ' ' + balanceData}</Text>
+                            style={[styles.balanceData, { fontSize: walletCurrency !== 'NFT' ? 10 : 14 }]}>{currencySymbol + ' ' + BlocksoftPrettyNumbers.makeCut(balanceData).separated}</Text>
                     </>:
                     <Text style={{...styles.accountDetail__text, color: colors.common.text1, fontSize: 24}}>****</Text>
                 }
