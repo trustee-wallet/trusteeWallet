@@ -14,6 +14,7 @@ import {
     View,
     Linking
 } from 'react-native'
+import { connect } from 'react-redux'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { strings } from '@app/services/i18n'
@@ -28,7 +29,7 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import Log from '@app/services/Log/Log'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
-import { connect } from 'react-redux'
+
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 

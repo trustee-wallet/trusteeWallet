@@ -118,11 +118,11 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
 
         switch (msg.toLowerCase()) {
             case 'success':
-                return <CustomIcon name='check' size={48} color={colors.common.text1} />
+                return <CustomIcon name='check' size={48} color={colors.common.button.bg} />
             case 'checking':
-                return <ActivityIndicator color={colors.common.text1} />
+                return <ActivityIndicator color={colors.common.button.bg} />
             default:
-                return <CustomIcon name='close' size={36} color={colors.common.text1} />
+                return <CustomIcon name='close' size={36} color={colors.common.button.bg} />
         }
     }
 
@@ -161,7 +161,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                     contentContainerStyle={{ flexGrow: 1, padding: GRID_SIZE }}
                 >
                     <View style={styles.containerStatus}>
-                        <View style={[styles.statusIcon, { backgroundColor: colors.common.roundButtonBg }]}>
+                        <View style={[styles.statusIcon, { backgroundColor: colors.common.roundButtonContent }]}>
                             {this.getStatusIcon(message)}
                         </View>
                         <Text style={[styles.textStatus, { color: colors.common.text1 }]}>{strings('nftMainScreen.status') + ': ' + message.toString()}</Text>
@@ -172,7 +172,8 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                                 title={strings('nftMainScreen.contract')}
                                 subtitle={BlocksoftPrettyStrings.makeCut(this.state.data.contractAddress, 8, 8)}
                                 iconType='self'
-                                copyAction={() => this.handleSubContentPress({ plain: this.state.data.contractAddress })}
+                                isLink
+                                copyAction={() => this.handleSubContentPress({ plain: this.state.explorerLink })}
                             />
                             <TransactionItem
                                 title={strings('nftMainScreen.tokenId')}

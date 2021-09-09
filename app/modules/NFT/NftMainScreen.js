@@ -8,7 +8,8 @@ import {
     View,
     FlatList,
     Dimensions,
-    RefreshControl
+    RefreshControl,
+    ActivityIndicator
 } from 'react-native'
 import { connect } from 'react-redux'
 
@@ -35,6 +36,7 @@ class NftMainScreen extends React.PureComponent {
 
     state = {
         refreshing: false,
+        loading: true,
         numColumns: WINDOW_WIDTH >= (182 * 3) + this.context.GRID_SIZE * 4 ? 3 : 2,
 
         tabs: [
@@ -53,7 +55,11 @@ class NftMainScreen extends React.PureComponent {
 
 
     async componentDidMount() {
-        this.handleRefresh(false)
+        await this.handleRefresh(false)
+
+        this.setState({
+            loading: false
+        })
     }
 
     handleRefresh = async (force = true) => {
@@ -135,10 +141,11 @@ class NftMainScreen extends React.PureComponent {
 
         const {
             numColumns,
-            tabs
+            tabs,
+            loading
         } = this.state
 
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         const flatListCollectionsData = this.props.nftsData.nfts.collections
         const flatListData = []
@@ -154,7 +161,7 @@ class NftMainScreen extends React.PureComponent {
                             walletCurrency={asset.cryptoCurrencySymbol}
                             balance={asset.cryptoValue}
                             balanceData={asset.usdValue} // @vadym its very bad names of fields
-                            currencySymbol={'$'}
+                            currencySymbol='$'
                         />
                     )
                 }
@@ -183,6 +190,24 @@ class NftMainScreen extends React.PureComponent {
                                 progressViewOffset={-20}
                             />
                         }
+                        ListEmptyComponent={() => {
+                            if (loading) {
+                                return (
+                                    <ActivityIndicator
+                                        size='large'
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            paddingTop: GRID_SIZE
+                                        }}
+                                        color={this.context.colors.common.text2}
+                                    />
+                                )
+                            } else {
+                                return null
+                            }
+                        }}
                     />
                 )}
                 {tabs[1].active && (
@@ -203,6 +228,24 @@ class NftMainScreen extends React.PureComponent {
                                 progressViewOffset={-20}
                             />
                         }
+                        ListEmptyComponent={() => {
+                            if (loading) {
+                                return (
+                                    <ActivityIndicator
+                                        size='large'
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            paddingTop: GRID_SIZE
+                                        }}
+                                        color={this.context.colors.common.text2}
+                                    />
+                                )
+                            } else {
+                                return null
+                            }
+                        }}
                     />
                 )}
 

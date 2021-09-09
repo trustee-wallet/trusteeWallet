@@ -5,7 +5,10 @@
 import React from 'react'
 import {
     View,
-    StyleSheet, Text, ActivityIndicator, ScrollView
+    StyleSheet, 
+    Text, 
+    ActivityIndicator, 
+    ScrollView
 } from 'react-native'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -15,7 +18,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import QrCodeBox from '@app/components/elements/QrCodeBox'
 import qrLogo from '@assets/images/logoWithWhiteBG.png'
 import Log from '@app/services/Log/Log'
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+
 import config from '@app/config/config'
 import BlocksoftKeysForRef from '@crypto/actions/BlocksoftKeysForRef/BlocksoftKeysForRef'
 import { BlocksoftTransferPrivate } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferPrivate'
@@ -44,14 +47,13 @@ class NftDetailedInfoQR extends React.PureComponent {
         this.setState({
             data
         })
-        this.setState({ signed : false, signedStatus: 'signing' }, () => {
-            this.signMessage(data)
+        this.setState({ signed: false, signedStatus: 'signing' }, async () => {
+            await this.signMessage(data)
         })
     }
 
     async signMessage(data) {
         try {
-            setLoaderStatus(true)
             const now = new Date().getTime() + 'nft'
 
             const initData = {
@@ -69,7 +71,6 @@ class NftDetailedInfoQR extends React.PureComponent {
             Log.log('NftDetailedInfoQR signMessage error ' + e.message)
             this.setState({ signedStatus: e.message })
         }
-        setLoaderStatus(false)
     }
 
 
@@ -88,11 +89,11 @@ class NftDetailedInfoQR extends React.PureComponent {
 
         switch (msg.toLowerCase()) {
             case 'signed':
-                return <CustomIcon name='check' size={48} color={colors.common.text1} />
+                return <CustomIcon name='check' size={48} color={colors.common.button.bg} />
             case 'signing':
-                return <ActivityIndicator color={colors.common.text1} />
+                return <ActivityIndicator color={colors.common.button.bg} />
             default:
-                return <CustomIcon name='close' size={36} color={colors.common.text1} />
+                return <CustomIcon name='close' size={36} color={colors.common.button.bg} />
         }
     }
 
@@ -114,9 +115,6 @@ class NftDetailedInfoQR extends React.PureComponent {
             colors
         } = this.context
 
-        if (!this.state.signed) {
-
-        }
         const message = 'trusteenft:' + JSON.stringify({
             signed: this.state.signed,
             signAddress: this.state.data.signAddress,
@@ -131,13 +129,12 @@ class NftDetailedInfoQR extends React.PureComponent {
                 leftType='back'
                 leftAction={this.handleBack}
             >
-
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ flexGrow: 1, padding: GRID_SIZE }}
                 >
-                    <View style={{ ...styles.containerStatus, marginTop: GRID_SIZE * 2 }}>
-                        <View style={[styles.statusIcon, { backgroundColor: colors.common.roundButtonBg }]}>
+                    <View style={[styles.containerStatus, { marginTop: GRID_SIZE }]}>
+                        <View style={[styles.statusIcon, { backgroundColor: colors.common.roundButtonContent }]}>
                             {this.getStatusIcon(this.state.signedStatus)}
                         </View>
                         <Text style={[styles.textStatus, { color: colors.common.text1 }]}>
@@ -146,29 +143,26 @@ class NftDetailedInfoQR extends React.PureComponent {
                     </View>
 
                     {this.state.signed &&
-                    <View style={{ ...styles.qrContainer, marginTop: GRID_SIZE * 2 }}>
-                        <View style={styles.qr}>
-                            <QrCodeBox
-                                getRef={ref => this.refSvg = ref}
-                                value={message}
-                                size={200}
-                                color='#404040'
-                                backgroundColor='#F5F5F5'
-                                logo={qrLogo}
-                                logoSize={70}
-                                logoBackgroundColor='transparent'
-                                onError={(e) => {
-                                    Log.err('AccountReceiveScreen QRCode error ' + e.message)
-                                }}
-                            />
+                        <View style={[styles.qrContainer, { marginTop: GRID_SIZE * 2 }]}>
+                            <View style={styles.qr}>
+                                <QrCodeBox
+                                    getRef={ref => this.refSvg = ref}
+                                    value={message}
+                                    size={200}
+                                    color='#404040'
+                                    backgroundColor='#F5F5F5'
+                                    logo={qrLogo}
+                                    logoSize={70}
+                                    logoBackgroundColor='transparent'
+                                    onError={(e) => {
+                                        Log.err('AccountReceiveScreen QRCode error ' + e.message)
+                                    }}
+                                />
+                            </View>
                         </View>
-                    </View>
                     }
-
                 </ScrollView>
-
-
-            </ScreenWrapper>
+            </ScreenWrapper >
         )
     }
 }
