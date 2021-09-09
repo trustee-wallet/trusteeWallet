@@ -30,10 +30,12 @@ import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
 import { connect } from 'react-redux'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
+let CACHE_CLICK_SEND = false
 class NftDetailedInfo extends React.PureComponent {
 
     state = {
@@ -74,9 +76,34 @@ class NftDetailedInfo extends React.PureComponent {
         NavStore.goBack()
     }
 
-    handleSend = () => {
-        // await SendActionsStart.startFromCustomBlockchainData(this.state.data.tokenBlockchainCode,
-        // TODO send
+    handleSend = async () => {
+        if (CACHE_CLICK_SEND) return false
+        CACHE_CLICK_SEND = true
+        try {
+            await SendActionsStart.startFromCustomContractCallData({
+                currencyCode: this.state.data.tokenBlockchainCode,
+                contractCallData: {
+                    contractAddress : this.state.data.contractAddress,
+                    contractSchema : this.state.data.contractSchema || 'ERC721',
+                    contractAction : 'transferFrom',
+                    infoForUser: [
+                        {
+                            title: strings('nftMainScreen.contract'),
+                            subtitle: BlocksoftPrettyStrings.makeCut(this.state.data.contractAddress, 8, 8),
+                            iconType: 'self'
+                        },
+                        {
+                            title: strings('nftMainScreen.tokenId'),
+                            subtitle: this.state.data.tokenId,
+                            iconType: 'self'
+                        }
+                    ],
+                    tokenId: this.state.data.tokenId
+                }})
+        } catch (e) {
+
+        }
+        CACHE_CLICK_SEND = false
     }
 
     openLink = () => {

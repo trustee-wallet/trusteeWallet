@@ -17,9 +17,7 @@ export default class EthTokenProcessorNft extends EthBasic {
         if (this._settings.tokenBlockchain === 'MATIC') {
             return EthNftMatic(data)
         } else {
-            const data2 = {...data}
-            data2.address = '0x6cdb97bf46d77233cc943264633c2ed56bcf6f1f'
-            return EthNftOpensea(data2)
+            return EthNftOpensea(data)
         }
     }
 }
