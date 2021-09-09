@@ -379,10 +379,8 @@ export class Tab3 extends React.Component {
     render() {
 
         const {
-            cashbackBalance,
-            cashbackProcent,
-            cpaBalance,
-            cpaProcent
+            cashbackPercent,
+            cpaPercent
         } = this.props
 
         const {
@@ -393,14 +391,14 @@ export class Tab3 extends React.Component {
             <View style={styles.circleView}>
                 <ProgressCircleBox
                     additionalStyles={{ borderRightWidth: 1, borderRightColor: colors.cashback.borderColor }}
-                    progress={cashbackBalance / 2}
+                    progress={cashbackPercent / 100}
                     title={strings('cashback.cashback')}
-                    percent={cashbackProcent}
+                    percent={cashbackPercent}
                 />
                 <ProgressCircleBox
-                    progress={cpaBalance / 100}
+                    progress={cpaPercent / 100}
                     title={strings('cashback.cpa')}
-                    percent={cpaProcent}
+                    percent={cpaPercent}
                 />
             </View>
         )
