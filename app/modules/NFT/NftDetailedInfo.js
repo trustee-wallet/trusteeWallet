@@ -87,6 +87,11 @@ class NftDetailedInfo extends React.PureComponent {
                     contractAddress : this.state.data.contractAddress,
                     contractSchema : this.state.data.contractSchema || 'ERC721',
                     contractAction : 'transferFrom',
+                    contractActionParams : [
+                        this.props.nftsData.address,
+                        'addressTo',
+                        this.state.data.tokenId
+                    ],
                     infoForUser: [
                         {
                             title: strings('nftMainScreen.contract'),
@@ -98,8 +103,7 @@ class NftDetailedInfo extends React.PureComponent {
                             subtitle: this.state.data.tokenId,
                             iconType: 'self'
                         }
-                    ],
-                    tokenId: this.state.data.tokenId
+                    ]
                 }})
         } catch (e) {
 

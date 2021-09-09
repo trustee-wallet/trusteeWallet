@@ -118,6 +118,9 @@ export namespace SendActionsBlockchainWrapper {
             if (newCountedFeesData.isTransferAll) {
                 newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
             }
+            if (typeof uiData.contractCallData !== 'undefined') {
+                newCountedFeesData.contractCallData = uiData.contractCallData
+            }
             if (!store.getState().sendScreenStore.fromBlockchain.neverCounted && JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return { isTransferAll : newCountedFeesData.isTransferAll, amount : newCountedFeesData.amount, source : 'CACHE_COUNTED', addressTo : newCountedFeesData.addressTo}
             }
@@ -235,7 +238,7 @@ export namespace SendActionsBlockchainWrapper {
     export const actualSend = async (sendScreenStore : any, uiErrorConfirmed: any, selectedFee : any) => {
         const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
         const { ui } = sendScreenStore
-        const { bse, dexOrderData, rawOnly } = ui
+        const { bse, dexOrderData, rawOnly, contractCallData } = ui
         const { bseOrderId, bseMinCrypto } = bse
 
         if (selectedFee === false) {
@@ -249,6 +252,9 @@ export namespace SendActionsBlockchainWrapper {
         }
         if (typeof dexOrderData !== 'undefined') {
             newCountedFeesData.dexOrderData = dexOrderData
+        }
+        if (typeof contractCallData !== 'undefined') {
+            newCountedFeesData.contractCallData = contractCallData
         }
 
         newCountedFeesData.addressTo = ui.addressTo
