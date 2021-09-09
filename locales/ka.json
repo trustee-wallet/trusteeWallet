@@ -258,6 +258,8 @@
     "receive": "Receive",
     "title": "NFT",
     "titleQR" : "Scan QR with Trustee",
+    "signing": "Signature is creating, please wait - it only proofs that the current Address owns this NFT, so its secure to share with anyone",
+    "signed": "Signature only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "status": "Status",
     "contract": "Contract",
     "tokenId": "Token ID",

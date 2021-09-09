@@ -46,6 +46,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
         },
         explorerLink: false,
         checked: false,
+        checkedInfoShow : false,
         checkedStatus: ''
     }
 
@@ -72,12 +73,9 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
             setLoaderStatus(true)
 
             let checkedStatus = false
+            let checkedInfoShow = false
             const web3 = Web3Injected(data.tokenBlockchainCode)
 
-            const diff = new Date().getTime() - data.signed.message.replace('nft', '') * 1
-            if (diff > 6000000) {
-                //    checkedStatus = 'timeouted' // uncomment after tests
-            }
             if (!checkedStatus) {
                 const signedDataHash = await web3.eth.accounts.hashMessage(data.signed.message)
                 if (signedDataHash !== data.signed.messageHash) {
@@ -92,17 +90,24 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                 checkedStatus = 'owned by other address ' + owner
             }
 
-            if (!checkedStatus) {
-                checkedStatus = 'success'
+            const diff = new Date().getTime() - data.signed.message.replace('nft', '') * 1
+            if (diff > 360000) {
+                checkedStatus = 'owned by this address, but timeouted'
+                checkedInfoShow = true
             }
 
-            this.setState({ checked: true, checkedStatus })
+            if (!checkedStatus) {
+                checkedStatus = 'success'
+                checkedInfoShow = true
+            }
+
+            this.setState({ checked: true, checkedStatus, checkedInfoShow })
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NftDetailedInfoQRCheck checkMessage error ' + e.message)
             }
             Log.log('NftDetailedInfoQRCheck checkMessage error ' + e.message)
-            this.setState({ checked: true, checkedStatus: e.message })
+            this.setState({ checked: true, checkedStatus: e.message, checkedInfoShow : true })
         }
         setLoaderStatus(false)
     }
@@ -161,7 +166,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                         </View>
                         <Text style={[styles.textStatus, { color: colors.common.text1 }]}>{strings('nftMainScreen.status') + ': ' + message.toString()}</Text>
                     </View>
-                    {this.state.checked &&
+                    {this.state.checkedInfoShow &&
                         <>
                             <TransactionItem
                                 title={strings('nftMainScreen.contract')}

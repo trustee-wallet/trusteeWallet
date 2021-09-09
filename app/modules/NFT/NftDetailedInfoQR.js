@@ -5,7 +5,7 @@
 import React from 'react'
 import {
     View,
-    StyleSheet
+    StyleSheet, Text, ActivityIndicator, ScrollView
 } from 'react-native'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -21,6 +21,7 @@ import BlocksoftKeysForRef from '@crypto/actions/BlocksoftKeysForRef/BlocksoftKe
 import { BlocksoftTransferPrivate } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferPrivate'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 
 class NftDetailedInfoQR extends React.PureComponent {
@@ -34,7 +35,8 @@ class NftDetailedInfoQR extends React.PureComponent {
             tokenBlockchainCode: '',
             contractAddress: ''
         },
-        signed: false
+        signed: false,
+        signedStatus: 'signing'
     }
 
     async componentDidMount() {
@@ -42,7 +44,9 @@ class NftDetailedInfoQR extends React.PureComponent {
         this.setState({
             data
         })
-        this.signMessage(data)
+        this.setState({ signed : false, signedStatus: 'signing' }, () => {
+            this.signMessage(data)
+        })
     }
 
     async signMessage(data) {
@@ -53,16 +57,17 @@ class NftDetailedInfoQR extends React.PureComponent {
             const initData = {
                 walletHash: data.walletHash,
                 currencyCode: data.tokenBlockchainCode,
-                derivationPath: data.derivationPath,
+                derivationPath: data.derivationPath
             }
             const res = await BlocksoftTransferPrivate.initTransferPrivate(initData)
             const signed = await BlocksoftKeysForRef.signDataForApi(now, res.privateKey)
-            this.setState({ signed })
+            this.setState({ signed, signedStatus: 'signed' })
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NftDetailedInfoQR signMessage error ' + e.message)
             }
             Log.log('NftDetailedInfoQR signMessage error ' + e.message)
+            this.setState({ signedStatus: e.message })
         }
         setLoaderStatus(false)
     }
@@ -77,6 +82,32 @@ class NftDetailedInfoQR extends React.PureComponent {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
+    getStatusIcon = (msg) => {
+
+        const { colors } = this.context
+
+        switch (msg.toLowerCase()) {
+            case 'signed':
+                return <CustomIcon name='check' size={48} color={colors.common.text1} />
+            case 'signing':
+                return <ActivityIndicator color={colors.common.text1} />
+            default:
+                return <CustomIcon name='close' size={36} color={colors.common.text1} />
+        }
+    }
+
+    getStatusText = (msg) => {
+
+        switch (msg.toLowerCase()) {
+            case 'signed':
+                return strings('nftMainScreen.signed')
+            case 'signing':
+                return strings('nftMainScreen.signing')
+            default:
+                return msg
+        }
+    }
+
     render() {
         const {
             GRID_SIZE,
@@ -84,7 +115,7 @@ class NftDetailedInfoQR extends React.PureComponent {
         } = this.context
 
         if (!this.state.signed) {
-            // @todo show "generating"
+
         }
         const message = 'trusteenft:' + JSON.stringify({
             signed: this.state.signed,
@@ -100,23 +131,43 @@ class NftDetailedInfoQR extends React.PureComponent {
                 leftType='back'
                 leftAction={this.handleBack}
             >
-                <View style={{ ...styles.tokenContainer, marginTop: GRID_SIZE * 2 }}>
-                    <View style={styles.qr}>
-                        <QrCodeBox
-                            getRef={ref => this.refSvg = ref}
-                            value={message}
-                            size={200}
-                            color='#404040'
-                            backgroundColor='#F5F5F5'
-                            logo={qrLogo}
-                            logoSize={70}
-                            logoBackgroundColor='transparent'
-                            onError={(e) => {
-                                Log.err('AccountReceiveScreen QRCode error ' + e.message)
-                            }}
-                        />
+
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1, padding: GRID_SIZE }}
+                >
+                    <View style={{ ...styles.containerStatus, marginTop: GRID_SIZE * 2 }}>
+                        <View style={[styles.statusIcon, { backgroundColor: colors.common.roundButtonBg }]}>
+                            {this.getStatusIcon(this.state.signedStatus)}
+                        </View>
+                        <Text style={[styles.textStatus, { color: colors.common.text1 }]}>
+                            {this.getStatusText(this.state.signedStatus)}
+                        </Text>
                     </View>
-                </View>
+
+                    {this.state.signed &&
+                    <View style={{ ...styles.qrContainer, marginTop: GRID_SIZE * 2 }}>
+                        <View style={styles.qr}>
+                            <QrCodeBox
+                                getRef={ref => this.refSvg = ref}
+                                value={message}
+                                size={200}
+                                color='#404040'
+                                backgroundColor='#F5F5F5'
+                                logo={qrLogo}
+                                logoSize={70}
+                                logoBackgroundColor='transparent'
+                                onError={(e) => {
+                                    Log.err('AccountReceiveScreen QRCode error ' + e.message)
+                                }}
+                            />
+                        </View>
+                    </View>
+                    }
+
+                </ScrollView>
+
+
             </ScreenWrapper>
         )
     }
@@ -127,6 +178,37 @@ NftDetailedInfoQR.contextType = ThemeContext
 export default NftDetailedInfoQR
 
 const styles = StyleSheet.create({
+
+    containerStatus: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    statusIcon: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 60,
+        height: 60,
+        borderRadius: 50,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 3
+        },
+        shadowOpacity: 0.27,
+        shadowRadius: 4.65,
+        elevation: 6
+    },
+    textStatus: {
+        paddingTop: 20,
+
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        lineHeight: 19
+    },
+    qrContainer: {
+        flexGrow: 1,
+        alignItems: 'center'
+    },
     qr: {
         backgroundColor: '#F5F5F5',
 
@@ -143,9 +225,5 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.27,
         shadowRadius: 4.65,
         elevation: 6
-    },
-    tokenContainer: {
-        flexGrow: 1,
-        alignItems: 'center'
     }
 })
