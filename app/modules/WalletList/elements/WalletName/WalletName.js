@@ -156,7 +156,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 0
     },
     container: {
-        flex: 1,
         elevation: 0,
         shadowColor: 'transparent',
         shadowRadius: 0,
