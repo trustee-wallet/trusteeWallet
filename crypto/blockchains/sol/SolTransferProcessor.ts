@@ -115,9 +115,11 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     }))
                 }
             } else if (data.addressTo === 'STAKE') {
-
                 const validator = data.blockchainData.voteAddress
                 const authorized = new Authorized(fromPubkey, fromPubkey)
+                if (typeof validator === 'undefined' || !validator) {
+                    throw new Error('no validator field')
+                }
 
                 // https://github.com/velas/JsWallet/blob/251ad92bb5c2cd9a62477746a3db934b6dce0c4b/velas/velas-staking.js
                 // https://explorer.solana.com/tx/2ffmtkj3Yj51ZWCEHG6jb6s78F73eoiQdqURV7z65kSVLiPcm8Y9NE45FgfgwbddJD8kfgCiTpmrEu7J8WKpAQeE
