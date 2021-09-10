@@ -9,14 +9,18 @@ import {
     FlatList,
     Dimensions,
     RefreshControl,
-    ActivityIndicator
+    ActivityIndicator,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    Platform
 } from 'react-native'
 import { connect } from 'react-redux'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
-import HeaderInfo from '@app/modules/NFT/elements/HeaderInfo'
+
 import Tabs from '@app/components/elements/new/Tabs'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import FlatListItem from '@app/modules/NFT/elements/FlatListItem'
@@ -30,6 +34,12 @@ import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
 
+import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
+
+import CurrencyIcon from '@app/components/elements/CurrencyIcon'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
+import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
+
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 class NftMainScreen extends React.PureComponent {
@@ -37,6 +47,7 @@ class NftMainScreen extends React.PureComponent {
     state = {
         refreshing: false,
         loading: true,
+        isBalanceVisible: false,
         numColumns: WINDOW_WIDTH >= (182 * 3) + this.context.GRID_SIZE * 4 ? 3 : 2,
 
         tabs: [
@@ -94,8 +105,58 @@ class NftMainScreen extends React.PureComponent {
         NavStore.reset('TabBar')
     }
 
+    triggerBalanceVisibility = (value) => {
+        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
+    }
+
+    handleReceive = () => {
+        NavStore.goNext('NftReceive')
+    }
+
     renderHeaderInfo = () => {
-        return <HeaderInfo usdTotalPretty={this.props.nftsData.nfts.usdTotal}/>
+
+        const {
+            GRID_SIZE, colors
+        } = this.context
+
+        const originalVisibility = this.props.isBalanceVisible
+        const isBalanceVisible = this.state.isBalanceVisible || originalVisibility
+
+        return (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: GRID_SIZE }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                    <View>
+                        <CurrencyIcon currencyCode='NFT_ETH' />
+                    </View>
+                    <View style={styles.accountDetail__content}>
+                        <View style={{}}>
+                            <Text style={{ ...styles.accountDetail__title, color: colors.common.text1 }} numberOfLines={1}>
+                                NFT
+                            </Text>
+                            <TouchableOpacity
+                                onPressIn={() => this.triggerBalanceVisibility(true)}
+                                onPressOut={() => this.triggerBalanceVisibility(false)}
+                                activeOpacity={1}
+                                disabled={originalVisibility}
+                                hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
+                            >
+                                {isBalanceVisible ?
+                                    <LetterSpacing text={'$ ' + this.props.nftsData.nfts.usdTotal} textStyle={styles.accountDetail__text} letterSpacing={1} /> :
+                                    <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, fontSize: 24 }}>****</Text>
+                                }
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+                <View style={{ marginTop: GRID_SIZE / 2 }}>
+                    <BorderedButton
+                        icon='plus'
+                        text={strings('nftMainScreen.receive')}
+                        onPress={this.handleReceive}
+                    />
+                </View>
+            </View>
+        )
     }
 
     renderTabs = () => <Tabs
@@ -105,11 +166,11 @@ class NftMainScreen extends React.PureComponent {
     />
 
     handleCollection = (nftCollection) => {
-        NavStore.goNext('NftCollectionView', {nftCollection})
+        NavStore.goNext('NftCollectionView', { nftCollection })
     }
 
     handleToken = (nftItem) => {
-        NavStore.goNext('NftDetailedInfo', {nftItem})
+        NavStore.goNext('NftDetailedInfo', { nftItem })
     }
 
     renderFlatListItem = ({ item, index }) => {
@@ -151,7 +212,7 @@ class NftMainScreen extends React.PureComponent {
         const flatListData = []
         for (const asset of this.props.nftsData.nfts.assets) {
             flatListData.push({
-                data : asset,
+                data: asset,
                 img: asset.img,
                 title: asset.title,
                 subTitle: asset.subTitle,
@@ -285,9 +346,31 @@ const mapStateToProps = (state) => {
     return {
         wallet: getSelectedWalletData(state),
         cryptoCurrency: getSelectedCryptoCurrencyData(state),
-        nftsData : getNftsData(state)
+        nftsData: getNftsData(state),
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore)
     }
 }
 
 export default connect(mapStateToProps)(NftMainScreen)
+
+const styles = StyleSheet.create({
+    accountDetail: {
+        marginLeft: 31
+    },
+    accountDetail__content: {
+        flexDirection: 'row',
+
+        marginLeft: 16
+    },
+    accountDetail__title: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 18
+    },
+    accountDetail__text: {
+        fontSize: 14,
+        height: Platform.OS === 'ios' ? 15 : 18,
+        fontFamily: 'SFUIDisplay-Semibold',
+        color: '#939393'
+    }
+})
 
