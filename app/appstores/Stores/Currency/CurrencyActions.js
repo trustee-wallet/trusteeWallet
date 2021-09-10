@@ -217,8 +217,13 @@ const currencyActions = {
 
         try {
 
-            // binary from int - for support of old stored values
-            const selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
+            let { selectedWalletNumber } = store.getState().mainStore.selectedWallet
+            if (typeof selectedWalletNumber === 'undefined' || !selectedWalletNumber) {
+                selectedWalletNumber = 0
+            } else {
+                selectedWalletNumber = selectedWalletNumber * 1
+            }
+
             const currentIsHidden = Number(params.currentIsHidden || 0).toString(2).split('').reverse() // split to binary
             for (let i = 0; i <= MarketingEvent.DATA.LOG_WALLETS_COUNT; i++) {
                 if (typeof currentIsHidden[i] === 'undefined') {
