@@ -171,19 +171,19 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                             <TransactionItem
                                 title={strings('nftMainScreen.contract')}
                                 subtitle={BlocksoftPrettyStrings.makeCut(this.state.data.contractAddress, 8, 8)}
-                                iconType='self'
+                                iconType='contract'
                                 isLink
                                 copyAction={() => this.handleSubContentPress({ plain: this.state.explorerLink })}
                             />
                             <TransactionItem
                                 title={strings('nftMainScreen.tokenId')}
                                 subtitle={this.state.data.tokenId}
-                                iconType='txID'
+                                iconType='tokenId'
                             />
                             <TransactionItem
                                 title={strings('nftMainScreen.blockchain')}
                                 subtitle={this.state.data.tokenBlockchainCode}
-                                iconType='self'
+                                iconType='block'
                             />
                             <TransactionItem
                                 title={strings('nftMainScreen.address')}

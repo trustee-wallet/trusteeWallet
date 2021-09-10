@@ -96,12 +96,12 @@ class NftDetailedInfo extends React.PureComponent {
                         {
                             title: strings('nftMainScreen.contract'),
                             subtitle: BlocksoftPrettyStrings.makeCut(this.state.data.contractAddress, 8, 8),
-                            iconType: 'self'
+                            iconType: 'contract'
                         },
                         {
                             title: strings('nftMainScreen.tokenId'),
                             subtitle: this.state.data.tokenId,
-                            iconType: 'self'
+                            iconType: 'tokenId'
                         }
                     ]
                 }})
