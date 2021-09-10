@@ -83,7 +83,7 @@ export namespace SendActionsStart {
         const dict = await formatDict(cryptoCurrency, account)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
         const ui =  {
-            uiType : 'NFT_SEND',
+            uiType : 'NFT_SCREEN',
             contractCallData : data.contractCallData,
         }
         dispatch({

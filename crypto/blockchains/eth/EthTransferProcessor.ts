@@ -790,6 +790,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = this._mainCurrencyCode
+                result.transactionJson.txData = tx.data
                 await EthTmpDS.getCache(this._mainCurrencyCode, data.addressFrom)
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))

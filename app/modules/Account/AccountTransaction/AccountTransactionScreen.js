@@ -842,6 +842,10 @@ class AccountTransactionScreen extends PureComponent {
             return <View style={{ flex: 1, backgroundColor: colors.common.background }}><Text></Text></View>
         }
 
+        const { transactionJson } = transaction
+
+        const contractCallData = typeof transactionJson !== 'undefined' && transactionJson ? transactionJson.contractCallData : false
+
         // Log.log()
         // Log.log()
         // Log.log('AccountTransactionScreen.Transaction', JSON.stringify(transaction))
@@ -851,10 +855,6 @@ class AccountTransactionScreen extends PureComponent {
 
         const buttonsArray = []
 
-        // @ksu still need this?
-        // if (transaction.addressAmountPretty === '?') {
-        //     buttonsArray.splice(2, 1)
-        // }
 
         this.renderReplaceByFeeRemove(buttonsArray)
         this.renderReplaceByFee(buttonsArray)
@@ -889,6 +889,17 @@ class AccountTransactionScreen extends PureComponent {
                 >
                     <View>
                         {this.renderButtons(buttonsArray)}
+
+                        {typeof contractCallData !== 'undefined' && contractCallData && contractCallData.infoForUser.map((item) => {
+                            return (
+                                <TransactionItem
+                                    title={item.title}
+                                    subtitle={item.subtitle}
+                                    iconType={item.iconType}
+                                />
+                            )
+                        })}
+
                         {orderIdToView && (
                             <TransactionItem
                                 title={orderIdToView.title}

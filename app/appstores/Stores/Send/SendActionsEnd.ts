@@ -145,7 +145,7 @@ export namespace SendActionsEnd {
                 },
                 source : 'SendActionsEnd.sendScanner'
             })
-        } else if (uiType === 'ACCOUNT_SCREEN') {
+        } else if (uiType === 'ACCOUNT_SCREEN' || uiType === 'NFT_SCREEN') {
             await NavStore.goBack()
             await NavStore.goBack()
             NavStore.goNext('AccountTransactionScreen', {
@@ -180,12 +180,13 @@ export namespace SendActionsEnd {
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {
         const { currencyCode, accountId, walletHash, addressFrom } = sendScreenStore.dict
-        const { addressTo, cryptoValue, memo, comment, bse, tbk } = sendScreenStore.ui
+        const { addressTo, cryptoValue, memo, comment, bse, tbk, contractCallData } = sendScreenStore.ui
         const { selectedFee } = sendScreenStore.fromBlockchain
         const { bseMinCrypto } = bse
         const { transactionAction, transactionBoost } = tbk
 
         const now = new Date().toISOString()
+        console.log(' contractCallData ',  contractCallData )
 
         const logData = {
             walletHash: walletHash,
@@ -207,6 +208,10 @@ export namespace SendActionsEnd {
         if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto) {
             transactionJson.bseMinCrypto = bseMinCrypto
             logData.bseMinCrypto = bseMinCrypto.toString()
+        }
+        if (typeof contractCallData !== 'undefined' && contractCallData) {
+            transactionJson.contractCallData = contractCallData
+            logData.contractCallData = contractCallData
         }
         if (typeof tx.transactionJson !== 'undefined') {
             let key
