@@ -141,7 +141,7 @@ class SendScreenWithoutAmount extends PureComponent {
                     ref={(ref) => {
                         this.scrollView = ref
                     }}
-                    keyboardShouldPersistTaps={'handled'}
+                    keyboardShouldPersistTaps='handled'
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{
                         flexGrow: 1,
@@ -152,9 +152,10 @@ class SendScreenWithoutAmount extends PureComponent {
                 >
                     <View>
 
-                        {this.props.sendScreenStore.ui.contractCallData.infoForUser.map((item) => {
+                        {this.props.sendScreenStore.ui.contractCallData.infoForUser.map((item, index) => {
                             return (
                                 <TransactionItem
+                                    key={index}
                                     title={item.title}
                                     subtitle={item.subtitle}
                                     iconType={item.iconType}
@@ -218,4 +219,4 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, {})(SendScreenWithoutAmount)
+export default connect(mapStateToProps)(SendScreenWithoutAmount)

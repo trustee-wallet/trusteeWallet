@@ -35,6 +35,7 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import store from '@app/store'
+import Button from '@app/components/elements/new/buttons/Button'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -42,9 +43,9 @@ class NftReceive extends React.PureComponent {
 
     state = {
         selectedAddress: {
-            currencyCode : 'ETH',
-            address : '',
-            tokenBlockchain : 'ETHEREUM'
+            currencyCode: 'ETH',
+            address: '',
+            tokenBlockchain: 'ETHEREUM'
         }
     }
 
@@ -147,6 +148,10 @@ class NftReceive extends React.PureComponent {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
+    handleAddCustomToken = () => {
+        NavStore.goNext('AddNftAssetScreen')
+    }
+
     render() {
 
         const { tokenBlockchain, address } = this.state.selectedAddress
@@ -173,50 +178,50 @@ class NftReceive extends React.PureComponent {
                 <View style={{ marginTop: GRID_SIZE }}>
                     {this.renderFlatList()}
                 </View>
-                <View style={[styles.tokenContainer, { marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>
-                    <TouchableOpacity
-                        onPress={() => this.copyToLink(address)}
-                        style={styles.qr}
-                        activeOpacity={0.8}
-                    >
-                        <QrCodeBox
-                            getRef={ref => this.refSvg = ref}
-                            value={message}
-                            size={WINDOW_WIDTH * 0.3254}
-                            color='#404040'
-                            backgroundColor='#F5F5F5'
-                            logo={qrLogo}
-                            logoSize={WINDOW_WIDTH * 0.1175}
-                            logoBackgroundColor='transparent'
-                            onError={(e) => {
-                                Log.err('MnemonicQrCode QRCode error ' + e.message)
-                            }}
-                        />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.tokenWrapper, {
-                            backgroundColor: colors.cashback.detailsBg,
-                            marginRight: GRID_SIZE
-                        }]}
-                        onPress={() => this.copyToLink(address)}
-                    >
-                        <Text style={[styles.tokenText, {
-                            color: colors.common.text1,
-                            marginHorizontal: GRID_SIZE
-                        }]}>{address}</Text>
-                        <View style={[styles.copyBtn, { marginTop: GRID_SIZE }]}>
-                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
-                                {strings('account.receiveScreen.copy')}
-                            </Text>
-                            <CustomIcon name='copy' size={19} color={colors.cashback.token} />
-                        </View>
-                    </TouchableOpacity>
-                </View>
-                <View style={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }}>
-                    <Text style={{
-                        ...styles.emptyText,
-                        color: colors.common.text3
-                    }}>{strings('nftMainScreen.receiveText', { coin: tokenBlockchain })}</Text>
+                <View style={{ paddingHorizontal: GRID_SIZE }}>
+                    <View style={[styles.tokenContainer, { marginTop: GRID_SIZE * 1.5 }]}>
+                        <TouchableOpacity
+                            onPress={() => this.copyToLink(address)}
+                            style={styles.qr}
+                            activeOpacity={0.8}
+                        >
+                            <QrCodeBox
+                                getRef={ref => this.refSvg = ref}
+                                value={message}
+                                size={WINDOW_WIDTH * 0.3254}
+                                color='#404040'
+                                backgroundColor='#F5F5F5'
+                                logo={qrLogo}
+                                logoSize={WINDOW_WIDTH * 0.1175}
+                                logoBackgroundColor='transparent'
+                                onError={(e) => {
+                                    Log.err('MnemonicQrCode QRCode error ' + e.message)
+                                }}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.tokenWrapper, { backgroundColor: colors.cashback.detailsBg }]}
+                            onPress={() => this.copyToLink(address)}
+                        >
+                            <Text style={[styles.tokenText, { color: colors.common.text1, marginHorizontal: GRID_SIZE }]}>{address}</Text>
+                            <View style={[styles.copyBtn, { marginTop: GRID_SIZE }]}>
+                                <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
+                                    {strings('account.receiveScreen.copy')}
+                                </Text>
+                                <CustomIcon name='copy' size={19} color={colors.cashback.token} />
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE }}>
+                        <Text style={[styles.emptyText, { color: colors.common.text3 }]}>
+                            {strings('nftMainScreen.receiveText', { coin: tokenBlockchain })}
+                        </Text>
+                    </View>
+                    <Button
+                        containerStyle={{ marginTop: GRID_SIZE }}
+                        title={strings('assets.addAssetButton')}
+                        onPress={this.handleAddCustomToken}
+                    />
                 </View>
             </ScreenWrapper>
         )
