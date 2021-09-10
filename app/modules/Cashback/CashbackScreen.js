@@ -88,6 +88,9 @@ class CashbackScreen extends React.PureComponent {
         const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
         const cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
 
+        const cashbackTotalBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
+        const cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
+
         const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
         const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
 
@@ -105,9 +108,8 @@ class CashbackScreen extends React.PureComponent {
 
         const cpaCondition = cpaBalance >= 100
 
-        const cashbackProcent = UtilsService.cutNumber(cashbackBalance / 2 * 100, 2)
-
-        const cpaProcent = UtilsService.cutNumber(UtilsService.getPercent(cpaBalance, 100), 2)
+        const totalCashbackPercent = UtilsService.cutNumber(cashbackTotalBalance / (cashbackTotalBalance + cpaTotalBalance) * 100, 2) || 0
+        const totalCpaPercent = UtilsService.cutNumber(cpaTotalBalance / (cashbackTotalBalance + cpaTotalBalance) * 100, 2) || 0
 
         const flatListData = [
 
@@ -165,14 +167,12 @@ class CashbackScreen extends React.PureComponent {
             {
                 title: strings('cashback.wholeBalance'),
                 subTitle: strings('cashback.updated') + ' ' + timePrep,
-                balance: UtilsService.cutNumber(cashbackBalance + cpaBalance, 2),
+                balance: UtilsService.cutNumber(cashbackTotalBalance + cpaTotalBalance, 2),
                 ExtraViewData: () => {
                     return (
                         <Tab3
-                            cashbackBalance={cashbackBalance}
-                            cashbackProcent={cashbackProcent}
-                            cpaBalance={cpaBalance}
-                            cpaProcent={cpaProcent}
+                            cashbackPercent={totalCashbackPercent}
+                            cpaPercent={totalCpaPercent}
                         />
                     )
                 }
@@ -299,8 +299,8 @@ class CashbackScreen extends React.PureComponent {
 
         const { cashbackStore } = this.props
 
-        const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
-        const cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
+        const cashbackTotalBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
+        const cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
 
         return (
             <View style={{ marginHorizontal: GRID_SIZE }}>
@@ -310,9 +310,9 @@ class CashbackScreen extends React.PureComponent {
                     onPress={() => {
                         this.handleSelectTitle('CASHBACK')
                     }}
-                    balance={UtilsService.cutNumber(cashbackBalance, 2)}
+                    balance={UtilsService.cutNumber(cashbackTotalBalance, 2)}
                     currency={this.cashbackCurrency}
-                    progress={cashbackBalance / 2}
+                    progress={cashbackTotalBalance / (cashbackTotalBalance + cpaTotalBalance)}
                     icon={selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings'}
                 />
                 <DetailsHeader
@@ -320,9 +320,9 @@ class CashbackScreen extends React.PureComponent {
                     onPress={() => {
                         this.handleSelectTitle('CPA')
                     }}
-                    balance={UtilsService.cutNumber(cpaBalance, 2)}
+                    balance={UtilsService.cutNumber(cpaTotalBalance, 2)}
                     currency={this.cashbackCurrency}
-                    progress={cpaBalance / 100}
+                    progress={cpaTotalBalance / (cashbackTotalBalance + cpaTotalBalance)}
                     icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
                 />
                 {this.renderContent()}

@@ -241,7 +241,7 @@ class SettingsSOL extends React.PureComponent {
             const prettyStake = inputValidate.value
             const stake = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makeUnPretty(prettyStake)
 
-            const voteAddresses = solValidator?.address ? solValidator.address : this.state.selectedVoteAddress.address
+            const voteAddress = solValidator?.address ? solValidator.address : this.state.selectedVoteAddress.address
 
             const txData = {
                 currencyCode: 'SOL',
@@ -251,7 +251,7 @@ class SettingsSOL extends React.PureComponent {
                 addressFrom: account.address,
                 addressTo: 'STAKE',
                 blockchainData: {
-                    voteAddresses
+                    voteAddress
                 }
             }
             const result = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed: true })

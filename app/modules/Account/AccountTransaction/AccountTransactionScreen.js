@@ -708,14 +708,19 @@ class AccountTransactionScreen extends PureComponent {
     shareTransaction = () => {
         const { transaction, linkExplorer } = this.state
 
+        Log.log('AccountTransactionScreen.shareTransaction cashbackLink', this.props.cashBackData.cashbackLink)
+
         const shareOptions = { message: '' }
         if (transaction.transactionHash) {
             shareOptions.message += strings('account.transactionScreen.transactionHash') + ` ${linkExplorer}\n`
         }
-        shareOptions.message += strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackData.cashbackLink}\n` + strings('account.transactionScreen.thanks')
+        shareOptions.message = shareOptions.message + (this.props.cashBackData.cashbackLink ? strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackData.cashbackLink}\n` : '\n')
+
         if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
             shareOptions.message = strings(`account.transaction.orderId`) + ` ${transaction.bseOrderData.orderHash}\n` + shareOptions.message
         }
+        shareOptions.message += `\n${strings('account.transactionScreen.thanks')}`
+        
         // shareOptions.url = this.props.cashBackData.dataFromApi.cashbackLink
         prettyShare(shareOptions, 'taki_share_transaction')
     }
