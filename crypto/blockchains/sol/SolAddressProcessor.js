@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.52
  * not ok
  * https://github.com/solana-labs/browser-extension/blob/master/app/background/lib/wallet.ts#L37
  * ok

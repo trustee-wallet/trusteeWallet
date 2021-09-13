@@ -245,7 +245,7 @@ class AccountReceiveScreen extends React.PureComponent {
         const { balancePretty, basicCurrencyBalance, basicCurrencySymbol, isSynchronized } = this.props.selectedAccountData
         const isBalanceVisible = this.state.isBalanceVisibleTriggered ? this.state.isBalanceVisible : this.props.isBalanceVisible
 
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         const amountPrep = BlocksoftPrettyNumbers.makeCut(balancePretty).separated
         let sumPrep = amountPrep + ' ' + currencySymbol
@@ -256,7 +256,7 @@ class AccountReceiveScreen extends React.PureComponent {
         }
 
         return (
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingBottom: GRID_SIZE }}>
                 <View>
                     <CurrencyIcon currencyCode={currencyCode}
                         containerStyle={{}} />
@@ -590,13 +590,17 @@ class AccountReceiveScreen extends React.PureComponent {
                 >
                     <View style={{ ...styles.wrapper__content, marginTop: GRID_SIZE * 2 }}>
                         {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderSegWitLegacy() : null}
-                        <View style={styles.qr}>
+                        <TouchableOpacity
+                            style={styles.qr}
+                            onPress={this.copyToClip}
+                            activeOpacity={0.8}
+                        >
                             <QrCodeBox
                                 getRef={ref => this.refSvg = ref}
                                 value={customAmount ? this.createDataForQr(amountForQr, labelForQr) : this.getAddressForQR()}
                                 size={200}
                                 color='#404040'
-                                backgroundColor={'#F5F5F5'}
+                                backgroundColor='#F5F5F5'
                                 logo={qrLogo}
                                 logoSize={70}
                                 logoBackgroundColor='transparent'
@@ -604,7 +608,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                     Log.err('AccountReceiveScreen QRCode error ' + e.message)
                                 }}
                             />
-                        </View>
+                        </TouchableOpacity>
                         {fioName ? <Text>{fioName}</Text> : null}
                     </View>
                     {customAmount ?

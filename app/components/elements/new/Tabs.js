@@ -29,7 +29,7 @@ export default function Tabs(props) {
                     onPress={() => changeTab(tab)}
                 >
                     <View>
-                        <Text style={[styles.title, { color: tab.active ? colors.common.text1 : colors.common.text2 }]}>{tab.title}</Text>
+                        <Text style={[styles.title, { color: tab.active ? colors.common.text1 : colors.common.text2 }]} numberOfLines={1} >{tab.title}</Text>
                         {tab.hasNewNoties && <View style={[styles.newNotifiesIndicator, { backgroundColor: colors.notifications.newNotiesIndicator }]} />}
                     </View>
                     {tab.active && <View style={[styles.activeTabIndicator, { backgroundColor: colors.common.text3 }]} />}
@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         paddingTop: 8,
+        paddingBottom: 16,
         marginBottom: -7, // negative value because of paddingBottom in ExtraView into Header component
     },
     tab: {
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: 'Montserrat-Bold',
         fontSize: 14,
-        lineHeight: 14,
+        lineHeight: 16,
         letterSpacing: 1,
         textAlign: 'center',
         textTransform: 'uppercase'

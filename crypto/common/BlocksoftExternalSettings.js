@@ -12,6 +12,7 @@ const TREZOR_SERVERS = {}
 
 const CACHE = {
     'TRX_VOTE_BEST' : 'TV9QitxEJ3pdiAUAfJ2QuPxLKp9qTTR3og',
+    'SOL_VOTE_BEST' : 'CertusDeBmqN8ZawdkxK5kFGMwBXdudvWHYwtNgNhvLu',
     'ETH_LONG_QUERY' : 1,
     'ETH_BLOCKED_BALANCE_FORCE_QUIT' : 1,
     'ETH_LONG_QUERY_FORCE_QUIT' : 1,
@@ -22,6 +23,7 @@ const CACHE = {
     'BTG': { '2': 10, '6': 5, '12': 2 },
     'DOGE': { '2': 800000, '6': 600000, '12': 500000 },
     'DOGE_STATIC' : { 'useStatic' : true, 'speed_blocks_2' : 1, 'feeForAllInputs' : 3},
+    'BTC_TEST': { '2': 8, '6': 6, '12': 5 },
     'LTC': { '2': 8, '6': 5, '12': 2 },
     'XVG': { '2': 700, '6': 600, '12': 300 },
     'XVG_SEND_LINK' : 'https://api.vergecurrency.network/node/api/XVG/mainnet/tx/send',
@@ -33,6 +35,8 @@ const CACHE = {
     'BNB_SMART_SERVER' : 'https://bsc-dataseed1.binance.org:443',
     'BNB_SMART_PRICE' : 10000000000,
     'BNB_GAS_LIMIT' : 620000,
+    'ETH_MIN_GAS_LIMIT' : 42000,
+    'ETH_TESTNET_PRICE' : 6710000000,
     'ETH_INFURA' : '5e52e85aba6f483398c461c55b639a7b',
     'ETH_INFURA_PROJECT_ID' : 'c8b5c2ced3b041a8b55a1719b508ff08',
     'ETH_TREZOR_SERVER': ['https://eth1.trezor.io', 'https://eth2.trezor.io'],
@@ -62,6 +66,7 @@ const CACHE = {
     'RSK_GAS_LIMIT' : 620000,
     'SOL_SERVER' : 'https://api.mainnet-beta.solana.com',
     'SOL_PRICE' : 5000,
+    'SOL_TOKENS_LIST' : 'https://raw.githubusercontent.com/solana-labs/token-list/main/src/tokens/solana.tokenlist.json',
     'FIO_BASE_URL' : 'https://fio.eosphere.io/v1/',
     'FIO_HISTORY_URL': 'https://fio.eosphere.io/v1/history/',
     'FIO_REGISTRATION_URL' : 'https://reg.fioprotocol.io/ref/trustee?publicKey=',

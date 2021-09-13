@@ -125,28 +125,7 @@ class BackupStep1Screen extends React.PureComponent {
 
     confirmDeleteWallet = async () => {
         const { walletHash, source } = this.props.createWalletStore
-        await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen' ? true : false)
-    }
-
-    handleDeleteWallet = () => {
-        setTimeout(() => {
-            showModal({
-                type: 'YES_NO_MODAL',
-                icon: 'WARNING',
-                title: strings('modal.titles.attention'),
-                description: strings('modal.walletDelete.confirmDelete'),
-                noCallback: this.init
-            }, (needPassword = true) => {
-                const { lockScreenStatus } = this.props.settingsData
-                if (needPassword && +lockScreenStatus) {
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback: this.confirmDeleteWallet})
-                    NavStore.goNext('LockScreen')
-                    return
-                } else (
-                    this.confirmDeleteWallet()
-                )
-            })
-        }, 0)
+        await deleteWallet(walletHash, source, source === 'AdvancedWalletScreen')
     }
 
     validateMnemonic = async () => {
@@ -165,8 +144,15 @@ class BackupStep1Screen extends React.PureComponent {
                 title: strings('modal.titles.attention'),
                 description: strings('modal.walletDelete.delete'),
                 noCallback: this.init
-            }, () => {
-                this.handleDeleteWallet()
+            }, (needPassword=true) => {
+                const { lockScreenStatus } = this.props.settingsData
+                if (needPassword && +lockScreenStatus) {
+                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback: this.confirmDeleteWallet})
+                    NavStore.goNext('LockScreen')
+                    return
+                } else (
+                    this.confirmDeleteWallet()
+                )
             })
 
         } else if (flowType === 'BACKUP_WALLET') {
@@ -268,6 +254,8 @@ class BackupStep1Screen extends React.PureComponent {
         return (
             <ScreenWrapper
                 title={strings('walletBackup.step1Screen.title')}
+                leftType='back'
+                leftAction={this.handleBack}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
@@ -305,10 +293,6 @@ class BackupStep1Screen extends React.PureComponent {
                                 disabled: !!walletMnemonicSorted.length,
                                 onPress: this.onNext,
                                 title: strings('walletBackup.step1Screen.next')
-                            }}
-                            secondaryButton={{
-                                type: 'back',
-                                onPress: this.handleBack
                             }}
                         />
                     </View>

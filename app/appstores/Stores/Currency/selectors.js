@@ -5,7 +5,12 @@ import Log from '@app/services/Log/Log'
 export const getVisibleCurrencies = createSelector(
   [state => state.currencyStore.cryptoCurrencies],
   (currencies => {
-      const selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
+      let selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
+      if (typeof selectedWalletNumber === 'undefined' || !selectedWalletNumber) {
+          selectedWalletNumber = 0
+      } else {
+          selectedWalletNumber = selectedWalletNumber * 1
+      }
       Log.log('ACT/Currency getVisibleCurrencies selectedWalletNumber ' + selectedWalletNumber)
       return currencies.filter(c => {
           if (c.isHidden === null) {

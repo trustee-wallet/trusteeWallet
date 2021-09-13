@@ -10,6 +10,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import { colorsLight } from '@app/theme/colorsLight'
 import { colorsDark } from '@app/theme/colorsDark'
+import changeNavigationBarColor from 'react-native-navigation-bar-color'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -50,8 +51,11 @@ export class ThemeProvider extends React.Component {
 
     changeTheme = async () => {
         const newTheme = this.state.isLight ? 'dark' : 'light'
-        this.setState(() => ({ isLight: newTheme === 'light' }))
+        const isLight = newTheme === 'light'
+        const colors = isLight ? colorsLight : colorsDark
+        this.setState(() => ({ isLight }))
         await trusteeAsyncStorage.setThemeSetting(newTheme)
+        changeNavigationBarColor( colors.common.background, isLight )
     }
 
     render() {

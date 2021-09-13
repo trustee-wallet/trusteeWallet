@@ -1,21 +1,25 @@
 /**
- * @version 0.43
+ * @version 0.52
  */
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import SolTmpDS from './stores/SolTmpDS'
-
-import config from '@app/config/config'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
+import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
+
+import config from '@app/config/config'
+
 const CACHE_FROM_DB = {}
+const CACHE_TXS = {}
+const CACHE_VALID_TIME = 120000
 let CACHE_LAST_BLOCK = 0
 
 export default class SolScannerProcessor {
 
     constructor(settings) {
         this._settings = settings
+        this.tokenAddress = typeof settings.tokenAddress !== 'undefined' ? settings.tokenAddress : ''
     }
 
     /**
@@ -23,7 +27,7 @@ export default class SolScannerProcessor {
      * @return {Promise<{balance, provider}>}
      * https://docs.solana.com/developing/clients/jsonrpc-api#getaccountinfo
      * https://docs.solana.com/developing/clients/jsonrpc-api#getconfirmedsignaturesforaddress2
-     * curl https://solana-api.projectserum.com -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0", "id":1, "method":"getBalance", "params":["9mnBdsuL1x24HbU4oeNDBAYVAGg2vVndkRAc18kPNqCJ"]}'
+     * curl https://solana-api.projectserum.com -X POST -H "Content-Type: application/json" -d '{'jsonrpc":"2.0", "id":1, "method":"getBalance", "params":["9mnBdsuL1x24HbU4oeNDBAYVAGg2vVndkRAc18kPNqCJ']}'
      */
     async getBalanceBlockchain(address) {
         address = address.trim()
@@ -31,13 +35,13 @@ export default class SolScannerProcessor {
 
         let balance = 0
         try {
+            const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
             const data = {
                 'jsonrpc': '2.0',
                 'id': 1,
                 'method': 'getBalance',
                 'params': [address]
             }
-            const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
             const res = await BlocksoftAxios._request(apiPath, 'POST', data)
             if (typeof res.data.result === 'undefined' || typeof res.data.result.value === 'undefined') {
                 return false
@@ -58,13 +62,15 @@ export default class SolScannerProcessor {
      * @param  {string} scanData.account.address
      * @return {Promise<[UnifiedTransaction]>}
      * https://docs.solana.com/developing/clients/jsonrpc-api#getsignaturesforaddress
-     * curl https://api.mainnet-beta.solana.com  -X POST -H "Content-Type: application/json" -d '{"jsonrpc": "2.0","id": 1,"method": "getConfirmedSignaturesForAddress2","params": ["9mnBdsuL1x24HbU4oeNDBAYVAGg2vVndkRAc18kPNqCJ",{"limit": 1}]}'
+     * curl https://api.mainnet-beta.solana.com  -X POST -H "Content-Type: application/json" -d '{'jsonrpc": "2.0","id": 1,"method": "getConfirmedSignaturesForAddress2","params": ["9mnBdsuL1x24HbU4oeNDBAYVAGg2vVndkRAc18kPNqCJ",{"limit': 1}]}'
      */
     async getTransactionsBlockchain(scanData, source) {
         const address = scanData.account.address.trim()
+        const lastHashVar = address + this.tokenAddress
+        this._cleanCache()
         try {
-            if (typeof CACHE_FROM_DB[address] === 'undefined') {
-                CACHE_FROM_DB[address] = await SolTmpDS.getCache(address)
+            if (typeof CACHE_FROM_DB[lastHashVar] === 'undefined') {
+                CACHE_FROM_DB[lastHashVar] = await SolTmpDS.getCache(lastHashVar)
             }
 
             const data = {
@@ -78,8 +84,8 @@ export default class SolScannerProcessor {
                     }
                 ]
             }
-            if (CACHE_FROM_DB[address] && typeof CACHE_FROM_DB[address]['last_hash'] !== 'undefined') {
-                data.params[1].until = CACHE_FROM_DB[address]['last_hash']
+            if (CACHE_FROM_DB[lastHashVar] && typeof CACHE_FROM_DB[lastHashVar]['last_hash'] !== 'undefined') {
+                data.params[1].until = CACHE_FROM_DB[lastHashVar]['last_hash']
             }
             const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
             const res = await BlocksoftAxios._request(apiPath, 'POST', data)
@@ -87,7 +93,7 @@ export default class SolScannerProcessor {
                 return false
             }
 
-            const transactions = await this._unifyTransactions(address, res.data.result)
+            const transactions = await this._unifyTransactions(address, res.data.result, lastHashVar)
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor.getTransactions finished ' + address)
             return transactions
         } catch (e) {
@@ -96,7 +102,7 @@ export default class SolScannerProcessor {
         }
     }
 
-    async _unifyTransactions(address, result) {
+    async _unifyTransactions(address, result, lastHashVar) {
         const transactions = []
         let lastHash = false
         for (const tx of result) {
@@ -118,82 +124,132 @@ export default class SolScannerProcessor {
         }
 
         if (lastHash) {
-            if (!CACHE_FROM_DB[address]) {
-                CACHE_FROM_DB[address] = { 'last_hash': lastHash }
-                await SolTmpDS.saveCache(address, 'last_hash', lastHash)
-            } else if (typeof CACHE_FROM_DB[address]['last_hash'] === 'undefined') {
-                CACHE_FROM_DB[address]['last_hash'] = lastHash
-                await SolTmpDS.saveCache(address, 'last_hash', lastHash)
+            if (!CACHE_FROM_DB[lastHashVar]) {
+                CACHE_FROM_DB[lastHashVar] = { 'last_hash': lastHash }
+                await SolTmpDS.saveCache(lastHashVar, 'last_hash', lastHash)
+            } else if (typeof CACHE_FROM_DB[lastHashVar]['last_hash'] === 'undefined') {
+                CACHE_FROM_DB[lastHashVar]['last_hash'] = lastHash
+                await SolTmpDS.saveCache(lastHashVar, 'last_hash', lastHash)
             } else {
-                CACHE_FROM_DB[address]['last_hash'] = lastHash
-                await SolTmpDS.updateCache(address, 'last_hash', lastHash)
+                CACHE_FROM_DB[lastHashVar]['last_hash'] = lastHash
+                await SolTmpDS.updateCache(lastHashVar, 'last_hash', lastHash)
             }
         }
         return transactions
     }
 
-
-    async _unifyTransaction(address, transaction) {
-        /*
-        {
-        "blockTime": 1623178302,
-        "confirmationStatus": "finalized",
-        "err": null,
-        "memo": null,
-        "signature": "4HGoAFWdXTjhPNSb7KoMbu7U6FVWV294XcUzZkEhsH4QDjb2Uz4Cee6gDYMQfXBz1REFDN3oMw9Js7KijVPsfyQU",
-        "slot": 81979566
-        }
-
-        {
-            'blockTime': 1623091884,
-            'meta': {
-                'err': null, 'fee': 5000, 'innerInstructions': [],
-                'logMessages': ['Program 11111111111111111111111111111111 invoke [1]', 'Program 11111111111111111111111111111111 success'],
-                'postBalances': [1283684900, 7561, 1],
-                'postTokenBalances': [],
-                'preBalances': [1283699900, 0, 1],
-                'preTokenBalances': [], 'rewards': [{ 'lamports': -2439, 'postBalance': 7561, 'pubkey': 'DYVo413ddGxjo46JVVxctnTfKWTzdL3ohwvAF4VUv5D', 'rewardType': 'Rent' }], 'status': { 'Ok': null }
-            },
-            'slot': 81835384,
-            'transaction': {
-                'message': {
-                    'accountKeys': [
-                        '9mnBdsuL1x24HbU4oeNDBAYVAGg2vVndkRAc18kPNqCJ',
-                        'DYVo413ddGxjo46JVVxctnTfKWTzdL3ohwvAF4VUv5D',
-                        '11111111111111111111111111111111'],
-                    'header': {
-                        'numReadonlySignedAccounts': 0, 'numReadonlyUnsignedAccounts': 1, 'numRequiredSignatures': 1
-                    },
-                    'instructions': [{ 'accounts': [0, 1], 'data': '3Bxs43ZMjSRQLs6o', 'programIdIndex': 2 }],
-                    'recentBlockhash': '12pNW997Pzm6nxzYxwkX19fT4ynhKfWBeWy7NYAiUoYP'
-                }, 'signatures': ['4g7uvyQNuDEmjCJ9X954RCfj3PscSbf37vZaaQiUFXgRnnuE27xe731otdCyStpi55CoLv8Qeg3XgwDY8kr4TqYf']
+    _cleanCache() {
+        const now = new Date().getTime()
+        for (const key in CACHE_TXS) {
+            const t = (now - CACHE_TXS[key].now)
+            if (t > CACHE_VALID_TIME) {
+                delete CACHE_TXS[key]
             }
         }
-        */
+    }
+
+    async _unifyTransaction(address, transaction) {
+
         const data = {
             'jsonrpc': '2.0',
             'id': 1,
             'method': 'getConfirmedTransaction',
             'params': [
-                transaction.signature
+                transaction.signature,
+                {encoding : 'jsonParsed'}
             ]
         }
-        const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
-        const res = await BlocksoftAxios._request(apiPath, 'POST', data)
-        if (typeof res.data.result === 'undefined' || !res.data.result) {
-            return false
-        }
-        const additional = res.data.result
-        const addressFrom = additional.transaction.message.accountKeys[0]
-        const addressTo = additional.transaction.message.accountKeys[1]
-        const addressAmount = BlocksoftUtils.diff(additional.meta.postBalances[1], additional.meta.preBalances[1]).toString().replace('-', '')
 
-        if (addressFrom !== address && addressTo !== address) {
+        let additional
+        if (typeof CACHE_TXS[transaction.signature] === 'undefined') {
+            const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
+            const res = await BlocksoftAxios._request(apiPath, 'POST', data)
+            if (typeof res.data.result === 'undefined' || !res.data.result) {
+                return false
+            }
+            additional = res.data.result
+            CACHE_TXS[transaction.signature] = {data : additional, now : new Date().getTime() }
+        } else {
+            additional = CACHE_TXS[transaction.signature].data
+        }
+
+
+        let addressFrom = false
+        let addressTo = false
+        let addressAmount = 0
+        let anyFromAddress = false
+        let anyToAddress = false
+
+        const indexedPre = {}
+        const indexedPost = {}
+        const indexedCreated = {}
+
+        if (this.tokenAddress) {
+
+            for (const tmp of additional.meta.preTokenBalances) {
+                if (tmp.mint !== this.tokenAddress) continue
+                const realIndex = tmp.accountIndex
+                indexedPre[realIndex] = tmp.uiTokenAmount.amount
+            }
+
+            for (const tmp of additional.meta.postTokenBalances) {
+                if (tmp.mint !== this.tokenAddress) continue
+                const realIndex = tmp.accountIndex
+                indexedPost[realIndex] = tmp.uiTokenAmount.amount
+            }
+
+            for (const tmp of additional.transaction.message.instructions) {
+                if (tmp.program !== 'spl-associated-token-account') continue
+                indexedCreated[tmp.parsed.info.account] = tmp.parsed.info.wallet
+            }
+        } else {
             return false
         }
-        if (additional.meta.logMessages[0].indexOf('Program 11111111111111111111111111111111') === -1) {
+
+        for (let i = 0, ic = additional.transaction.message.accountKeys.length; i < ic; i++) {
+            const tmpAddress = additional.transaction.message.accountKeys[i]
+            if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
+            let tmpAmount = '0'
+            if (this.tokenAddress) {
+                const to = typeof indexedPost[i] !== 'undefined' ? indexedPost[i] : 0
+                const from = typeof indexedPre[i] !== 'undefined' ? indexedPre[i] : 0
+                tmpAmount = BlocksoftUtils.diff(to, from).toString()
+            } else {
+                tmpAmount = BlocksoftUtils.diff(additional.meta.postBalances[i], additional.meta.preBalances[i]).toString()
+            }
+
+            if (tmpAmount === '0') continue
+            if (tmpAddress.pubkey === address ||
+                (
+                    typeof indexedCreated[tmpAddress.pubkey] !== 'undefined' && indexedCreated[tmpAddress.pubkey] === address
+                )
+            ) {
+                if (tmpAmount.indexOf('-') === -1) {
+                    addressTo = tmpAddress.pubkey
+                    addressAmount = tmpAmount
+                } else {
+                    addressFrom = tmpAddress.pubkey
+                    addressAmount = tmpAmount.replace('-', '')
+                }
+            } else {
+                if (tmpAddress.signer) {
+                    anyFromAddress = tmpAddress.pubkey
+                } else {
+                    anyToAddress = tmpAddress.pubkey
+                }
+            }
+        }
+        if (!addressFrom && !addressTo) {
             return false
         }
+        if (anyFromAddress && !addressFrom) {
+            addressFrom = anyFromAddress
+        }
+        if (anyToAddress && !addressTo) {
+            addressTo = anyToAddress
+        }
+
+
         let formattedTime = transaction.blockTime
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.blockTime)
@@ -227,6 +283,7 @@ export default class SolScannerProcessor {
         if (typeof transaction.memo !== 'undefined' && transaction.memo) {
             tx.transactionJson = { memo: transaction.memo }
         }
+
         return tx
     }
 }

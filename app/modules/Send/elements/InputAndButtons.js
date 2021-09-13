@@ -40,6 +40,7 @@ const amountInput = {
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const USDT_LIMIT = 600
+let  CACHE_PART_BALANCE_CLICK = false
 
 class InputAndButtons extends PureComponent {
 
@@ -67,6 +68,14 @@ class InputAndButtons extends PureComponent {
     }
 
     componentDidUpdate(prevProps) {
+        if (prevProps.sendScreenStoreUi.isTransferAll !== this.props.sendScreenStoreUi.isTransferAll) {
+            if (!this.props.sendScreenStoreUi.isTransferAll && this.state.partBalance) {
+                this.setState({
+                    partBalance: 0
+                })
+            }
+        }
+
         if (this.valueInput && prevProps.sendScreenStoreUi.cryptoValue !== this.props.sendScreenStoreUi.cryptoValue) {
             this._setCryptoValue(this.props.sendScreenStoreUi.cryptoValue, this.props.sendScreenStoreDict.inputType)
         }
@@ -108,10 +117,17 @@ class InputAndButtons extends PureComponent {
             partBalance: newPartBalance,
             isCountingTransferAll: true
         }, async () => {
-            Log.log('Input.handlePartBalance ' + newPartBalance + ' start counting')
-            const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
-            const val = this.transferAllCallback(res.transferAllBalance)
-            Log.log('Input.handlePartBalance ' + newPartBalance + ' end counting ' + val + ' with res ' + JSON.stringify(res))
+            if (CACHE_PART_BALANCE_CLICK) return false
+            try {
+                CACHE_PART_BALANCE_CLICK = true
+                Log.log('Input.handlePartBalance ' + newPartBalance + ' start counting')
+                const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
+                const val = this.transferAllCallback(res.transferAllBalance)
+                Log.log('Input.handlePartBalance ' + newPartBalance + ' end counting ' + val + ' with res ' + JSON.stringify(res))
+            } catch (e) {
+               Log.err('Input.handlePartBalance ' + newPartBalance + ' end counting error ' + e.message)
+            }
+            CACHE_PART_BALANCE_CLICK = false
         })
 
     }
@@ -332,7 +348,7 @@ class InputAndButtons extends PureComponent {
                                 <View>
                                     <TouchableOpacity onPress={() => this.handleOpenLink(item.msgDetails)}>
                                         <Text style={{ ...style.texts__item, color: colors.common.text3 }}>
-                                            {item.msg}
+                                            {item.msg || item}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>

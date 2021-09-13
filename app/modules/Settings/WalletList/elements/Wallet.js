@@ -29,6 +29,9 @@ class Wallet extends Component {
     handleSelectWallet = async () => {
         await cryptoWalletActions.setSelectedWallet(this.props.wallet.walletHash, 'handleSelectWallet')
         setBseLink(null)
+        if (this.props.source === 'HomeScreen') {
+            NavStore.goBack()
+        }
     }
 
     handleOpenAdvanced = () => {
@@ -88,7 +91,8 @@ class Wallet extends Component {
                             onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
                             activeOpacity={1}
                             disabled={originalVisibility}
-                            hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}
+                            style={{ width: finalIsBalanceVisible ? '100%' : '30%' }}
+                            hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 20, bottom: 10, left: finalIsBalanceVisible ? 60 : 20 }}
                         >
                             {finalIsBalanceVisible ? (
                                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>

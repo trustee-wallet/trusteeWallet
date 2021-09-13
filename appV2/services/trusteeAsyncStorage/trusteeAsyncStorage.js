@@ -64,8 +64,12 @@ class TrusteeAsyncStorage {
         return this._set('devMode', value)
     }
 
-    getTesterMode = () => {
+    getTesterModeStatic = () => {
         return this._getStatic('testerMode')
+    }
+
+    getTesterMode = async () => {
+        return this._get('testerMode')
     }
 
     setTesterMode = (value) => {

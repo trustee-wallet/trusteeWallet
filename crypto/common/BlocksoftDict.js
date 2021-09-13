@@ -761,6 +761,21 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0xc00e94cb662c3520282e6f5717214004a7f26888?a='
         },
+    SOL_COPE:
+        {
+            currencyType: 'token',
+            currencyName: 'COPE',
+            currencyCode: 'SOL_COPE',
+            currencySymbol: 'COPE',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'COPE',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: '8HGyAAB1yoM1ttS7pXjHMa3dukTFGQggnFFH3hJZgzQh',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     ETH_CRO:
         {
             currencyType: 'token',
@@ -980,7 +995,21 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0x80fb784b7ed66730e8b1dbd9820afd29931aab03?a='
         },
-
+    SOL_FIDA:
+        {
+            currencyType: 'token',
+            currencyName: 'FIDA',
+            currencyCode: 'SOL_FIDA',
+            currencySymbol: 'FIDA',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'FIDA',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'EchesyfXePKdLtoiZSL8pBe8Myagyy8ZRqsACNCFGnvp',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     ETH_FTT:
         {
             currencyType: 'token',
@@ -1077,6 +1106,21 @@ const Currencies = {
             currencyExplorerLink: 'https://tronscan.org/#/address/',
             currencyExplorerTxLink: 'https://tronscan.org/#/transaction/'
         },
+    SOL_KIN:
+        {
+            currencyType: 'token',
+            currencyName: 'KIN',
+            currencyCode: 'SOL_KIN',
+            currencySymbol: 'KIN',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'KIN',
+            decimals: 5,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'kinXdEcpDQeHPEuQnqmUgtYykqKGVFq6CeVX5iAHJq6',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     ETH_KNC:
         {
             currencyType: 'token',
@@ -1135,6 +1179,66 @@ const Currencies = {
             tokenAddress: '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
             currencyExplorerLink:
                 'https://etherscan.io/token/0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2?a='
+        },
+    SOL_MNGO:
+        {
+            currencyType: 'token',
+            currencyName: 'MANGO Markets',
+            currencyCode: 'SOL_MNGO',
+            currencySymbol: 'MNGO',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'MNGO',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'MangoCzJ36AjZyKwVj3VnYU4GTonjfVEnJmvvWaxLac',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
+    SOL_MAPS:
+        {
+            currencyType: 'token',
+            currencyName: 'MAPS',
+            currencyCode: 'SOL_MAPS',
+            currencySymbol: 'MAPS',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'MAPS',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'MAPS41MDahZ9QdKXhVa4dWB9RuyfV4XqhyAZ8XcYepb',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
+    SOL_MEDIA:
+        {
+            currencyType: 'token',
+            currencyName: 'Media Network',
+            currencyCode: 'SOL_MEDIA',
+            currencySymbol: 'MEDIA',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'MEDIA',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'ETAtLmCmsoiEEKfNrHKJ2kYy3MoABhU6NQvpSfij5tDs',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
+    SOL_MER:
+        {
+            currencyType: 'token',
+            currencyName: 'Mercurial Finance',
+            currencyCode: 'SOL_MER',
+            currencySymbol: 'MER',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'MER',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'MERt85fc5boKw3BW1eYdxonEuJNvXbiMbs6hvheau5K',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
         },
     XMR:
         {
@@ -1218,6 +1322,51 @@ const Currencies = {
             currencyExplorerLink: 'https://optimistic.etherscan.io/address/',
             currencyExplorerTxLink: 'https://optimistic.etherscan.io/tx/'
         },
+    SOL_ORCA:
+        {
+            currencyType: 'token',
+            currencyName: 'ORCA',
+            currencyCode: 'SOL_ORCA',
+            currencySymbol: 'ORCA',
+            extendsProcessor: 'SOL_ORCA',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'ORCA',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
+    SOL_OXY:
+        {
+            currencyType: 'token',
+            currencyName: 'Oxygen Protocol',
+            currencyCode: 'SOL_OXY',
+            currencySymbol: 'OXY',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'OXY',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'z3dn17yLaGMKffVogeFHQ9zWVcXgqgf3PQnDsNs2g6M',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
+    SOL_PAI:
+        {
+            currencyType: 'token',
+            currencyName: 'PAI (Parrot)',
+            currencyCode: 'SOL_PAI',
+            currencySymbol: 'PAI',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'PAI',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'Ea5SjE2Y6yvCeW5dYTn7PYMuW5ikXkvbGdcmSnXeaLjS',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     BNB_SMART_CAKE:
         {
             currencyType: 'token',
@@ -1275,6 +1424,27 @@ const Currencies = {
             currencyExplorerLink: 'https://polygonscan.com/address/',
             currencyExplorerTxLink: 'https://polygonscan.com/tx/'
         },
+    SOL_RAY:
+        {
+            currencyType: 'token',
+            transferProcessor: 'SOL_SPL',
+            currencyName: 'Raydium',
+            currencyCode: 'SOL_RAY',
+            currencySymbol: 'RAY',
+            ratesCurrencyCode: 'RAY',
+            addressProcessor: 'SOL',
+            scannerProcessor: 'SOL_SPL',
+            prettyNumberProcessor: 'UNIFIED',
+            addressCurrencyCode: 'SOL',
+            addressUiChecker: 'SOL',
+            feesCurrencyCode: 'SOL',
+            network: 'sol',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     ETH_RSR:
         {
             currencyType: 'token',
@@ -1306,6 +1476,36 @@ const Currencies = {
             currencyExplorerLink: 'https://blockchair.com/ripple/account/',
             currencyExplorerTxLink: 'https://blockchair.com/ripple/transaction/'
         },
+    SOL_SBR:
+        {
+            currencyType: 'token',
+            currencyName: 'Saber Protocol Token',
+            currencyCode: 'SOL_SBR',
+            currencySymbol: 'SBR',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'SBR',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'Saber2gLauYim4Mvftnrasomsv6NvAuncvMEZwcLpD1',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
+    SOL_SRM:
+        {
+            currencyType: 'token',
+            currencyName: 'Serum',
+            currencyCode: 'SOL_SRM',
+            currencySymbol: 'SRM',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'SRM',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     ETH_SHIB:
         {
             currencyType: 'token',
@@ -1335,7 +1535,22 @@ const Currencies = {
             network: 'mainnet',
             decimals: 9,
             currencyExplorerLink: 'https://explorer.solana.com/address/',
-            currencyExplorerTxLink: 'https://blockchair.com/ethereum/transaction/'
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
+    SOL_SLIM:
+        {
+            currencyType: 'token',
+            currencyName: 'Solanium',
+            currencyCode: 'SOL_SLIM',
+            currencySymbol: 'SLIM',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'SLIM',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'xxxxa1sKNGwFtw2kFn8XauW9xq8hBZ5kVtcSesTT9fW',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
         },
     XLM:
         {
@@ -1351,6 +1566,21 @@ const Currencies = {
             decimals: 8,
             currencyExplorerLink: 'https://blockchair.com/stellar/account/',
             currencyExplorerTxLink: 'https://blockchair.com/stellar/transaction/'
+        },
+    SOL_STEP:
+        {
+            currencyType: 'token',
+            currencyName: 'Step',
+            currencyCode: 'SOL_STEP',
+            currencySymbol: 'STEP',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'STEP',
+            decimals: 9,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'StepAscQoEioFxxWGnh2sLBDFp9d8rvKz2Yp39iDpyT',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
         },
     TRX_SUN_NEW:
         {
@@ -1430,6 +1660,21 @@ const Currencies = {
             currencyExplorerLink:
                 'https://bscscan.com/token/0x47bead2563dcbf3bf2c9407fea4dc236faba485a?a='
         },
+    SOL_SNY:
+        {
+            currencyType: 'token',
+            currencyName: 'Synthetify',
+            currencyCode: 'SOL_SNY',
+            currencySymbol: 'SNY',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'SNY',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: '4dmKkXNHdgYsXqBHCuMikNQWwVomZURhYvkkX5c4pQ7y',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     ETH_SNX:
         {
             currencyType: 'token',
@@ -1489,6 +1734,21 @@ const Currencies = {
             currencyExplorerLink:
                 'https://etherscan.io/token/0xe1be5d3f34e89de342ee97e6e90d405884da6c677?a='
         },
+    SOL_TULIP:
+        {
+            currencyType: 'token',
+            currencyName: 'TULIP (Parrot)',
+            currencyCode: 'SOL_TULIP',
+            currencySymbol: 'TULIP',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'TULIP',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'TuLipcqtGVXP9XR62wM8WWCm6a9vhLs7T1uoWBk6FDs',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     BNB_SMART_UNI:
         {
             currencyType: 'token',
@@ -1547,6 +1807,36 @@ const Currencies = {
             currencyExplorerLink:
                 'https://bscscan.com/token/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d?a='
         },
+    SOL_USDC:
+        {
+            currencyType: 'token',
+            currencyName: 'USDC Solana',
+            currencyCode: 'SOL_USDC',
+            currencySymbol: 'USDC',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'USDC',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
+    SOL_USDT:
+        {
+            currencyType: 'token',
+            currencyName: 'USDT Solana',
+            currencyCode: 'SOL_USDT',
+            currencySymbol: 'USDT',
+            extendsProcessor: 'SOL_RAY',
+            addressUiChecker: 'SOL',
+            ratesCurrencyCode: 'USDT',
+            decimals: 6,
+            tokenBlockchain: 'SOLANA',
+            tokenAddress: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+            currencyExplorerLink: 'https://explorer.solana.com/address/',
+            currencyExplorerTxLink: 'https://explorer.solana.com/tx/'
+        },
     VET:
         {
             currencyType: 'coin',
@@ -1598,6 +1888,19 @@ const Currencies = {
             decimals: 6,
             currencyExplorerLink: 'https://verge-blockchain.info/address/',
             currencyExplorerTxLink: 'https://verge-blockchain.info/tx/'
+        },
+    WAVES:
+        {
+            currencyType: 'coin',
+            currencyName: 'Waves',
+            currencyCode: 'WAVES',
+            currencySymbol: 'WAVES',
+            addressProcessor: 'WAVES',
+            scannerProcessor: 'WAVES',
+            prettyNumberProcessor: 'UNIFIED',
+            decimals: 8,
+            currencyExplorerLink: 'https://wavesexplorer.com/address/',
+            currencyExplorerTxLink: 'https://wavesexplorer.com/tx/'
         },
     TRX_WINK:
         {
@@ -1760,6 +2063,12 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.tokenBlockchain = 'BNB'
         tmp.currencyExplorerLink = 'https://bscscan.com/token/' + currencyObject.tokenAddress + '?a='
+    } else if (currencyObject.tokenType === 'SOL') {
+        tmp.currencyCode = 'CUSTOM_SOL_' + currencyObject.currencyCode
+        tmp.extendsProcessor = 'SOL_RAY'
+        tmp.addressUiChecker = 'SOL'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'SOLANA'
     } else if (currencyObject.tokenType === 'ETH_ERC_20') {
         tmp.extendsProcessor = 'ETH_TRUE_USD'
         tmp.addressUiChecker = 'ETH'

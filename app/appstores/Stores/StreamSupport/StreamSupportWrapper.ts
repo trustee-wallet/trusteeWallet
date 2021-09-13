@@ -27,6 +27,7 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/rest-api/endpoints/push/push-token
     export const init = async function(data: any) {
+        if (!MarketingEvent.DATA.LOG_TESTER) return false
         const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
         if (MarketingEvent.DATA.LOG_TOKEN.indexOf('NO_GOOGLE') === -1) {
             try {
@@ -60,6 +61,7 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/rest-api/endpoints/rooms/get
     export const getRoom = async function(data: any = false) {
+        if (!MarketingEvent.DATA.LOG_TESTER) return false
         if (data === false) {
             data = store.getState().streamSupportStore
         }
@@ -94,6 +96,7 @@ export namespace StreamSupportWrapper {
     }
 
     export const initWS = async function(data: any = false) {
+        if (!MarketingEvent.DATA.LOG_TESTER) return false
         if (data === false) {
             data = store.getState().streamSupportStore
         }
@@ -138,7 +141,7 @@ export namespace StreamSupportWrapper {
                     if (CACHE_ROOM_ID) { // subscribe to the room
                         subscribeToMessages()
                     }
-                } else if (newData.msg === 'result' && newData.id === IDENT_MESSAGE_LIST) {
+                } else if (newData.msg === 'result' && newData.id === IDENT_MESSAGE_LIST && typeof newData.result !== 'undefined' && typeof newData.result.messages !== 'undefined') {
                     StreamSupportActions.allMessages(newData.result.messages)
                 } else if (newData.msg === 'result' && newData.id === IDENT_GROUP_CREATE) {
                     if (typeof newData.error !== 'undefined' && typeof newData.error.error !== 'undefined') {
@@ -187,6 +190,7 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/realtime-api/subscriptions/stream-room-messages
     export const subscribeToMessages = async function() {
+        if (!MarketingEvent.DATA.LOG_TESTER) return false
         const data = store.getState().streamSupportStore
 
         Log.log('StreamSupport subscribeToMessages ' + CACHE_ROOM_ID)
@@ -218,6 +222,7 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/realtime-api/method-calls/create-private-groups
     export const sendStreamSupportMessage = async function(data, sendData) {
+        if (!MarketingEvent.DATA.LOG_TESTER) return false
         if (data === false) {
             data = store.getState().streamSupportStore
         }

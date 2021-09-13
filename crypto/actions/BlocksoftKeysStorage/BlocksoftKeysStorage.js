@@ -8,6 +8,7 @@ import * as Keychain from 'react-native-keychain'
 
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import config from '@app/config/config'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 export class BlocksoftKeysStorage {
 
@@ -275,13 +276,17 @@ export class BlocksoftKeysStorage {
     }
 
     getAddressCacheKey(walletHash, discoverPath, currencyCode) {
+        const settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+        if (typeof settings.addressCurrencyCode !== 'undefined' && typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain !== 'BITCOIN' ) {
+            return walletHash + '_' + discoverPath + '_' + settings.addressCurrencyCode
+        }
         return walletHash + '_' + discoverPath + '_' + currencyCode
     }
 
     async getAddressCache(hashOrId) {
         try {
             const res = await this._getKeyValue('ar4_' + hashOrId)
-            if (!res) return false
+            if (!res || !res.priv || res.pub === res.priv) return false
             return { address: res.pub, privateKey: res.priv }
         } catch (e) {
             return false
@@ -289,6 +294,9 @@ export class BlocksoftKeysStorage {
     }
 
     async setAddressCache(hashOrId, res) {
+        if (typeof res.privateKey === 'undefined' || !res.privateKey) {
+            return false
+        }
         return this._setKeyValue('ar4_' + hashOrId, res.address, res.privateKey)
     }
 

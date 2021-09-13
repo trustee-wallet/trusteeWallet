@@ -1,4 +1,6 @@
-
+/**
+ * @version 0.52
+ */
 import Database from '@app/appstores/DataSource/Database';
 
 const tableName = ' transactions_scanners_tmp'

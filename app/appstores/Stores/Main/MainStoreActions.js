@@ -356,3 +356,17 @@ export function setBseLink(bseLink) {
         bseLink
     })
 }
+
+export function setLoaderFromBse(loaderFromBse) {
+    dispatch({
+        type: 'SET_LOADER_BSE',
+        loaderFromBse
+    })
+}
+
+export function setSolValidator(solValidator) {
+    dispatch({
+        type: 'SET_SOL_VALIDATOR',
+        solValidator
+    })
+}

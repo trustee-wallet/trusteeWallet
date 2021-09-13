@@ -12,11 +12,12 @@
     "createWallet": "საფულის შექმნა",
     "importWallet": "Restore wallet",
     "acceptTerms": "თქვენ არ დაეთანხმეთ მომსახურების პირობებს და კონფიდენციალურობის პოლიტიკას",
-    "agreement1": "წავიკითხე, გავიგე და თანახმა ვარ",
+    "agreement1": "I agree with",
     "terms": "გამოყენების პირობები",
     "agreement2": "და",
     "privacyPolicy": "კონფიდენციალურობის პოლიტიკა",
     "termsTitle": "გამოყენების პირობები",
+    "agreement3": "and consent to the processing of the Personal Data that I have provided",
     "privacyPolicyTitle": "კონფიდენციალურობის პოლიტიკა",
     "slider1": "უსაფრთხოებისა და ანონიმურობის ინოვაციური ტექნოლოგიები",
     "slider2": "უსაზღვრო შესაძლებლობები ინტუიტიურად გასაგებ დიზაინში",
@@ -33,8 +34,11 @@
   "notifications": {
     "title": "შეტყობინებები",
     "newsTitle": "სიახლე",
-    "tabAll": "ყველა სიახლე",
-    "tabNews": "სიახლეები",
+    "tabAll": "All",
+    "tabNews": "News",
+    "tabInvite": "Invite",
+    "tabInfo": "Info",
+    "tabFaq": "FAQ",
     "today": "დღეს",
     "yesterday": "გუშინ"
   },
@@ -166,8 +170,22 @@
       "rewardBalanceTRX": "ხელმისაწვდომია %{prettyReward} TRX",
       "claimTRX": "ჯილდოს მიღება",
       "refreshTRX": "გადატვირთვა",
+      "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
+      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 72 hours from the moment of the last freezing",
       "allowLongQueryETH": "Allow pending transactions queue",
-      "allowBlockedBalanceETH": "Allow reuse of pending transactions balance"
+      "allowBlockedBalanceETH": "Allow reuse of pending transactions balance",
+      "enterToStakeSOL" : "Enter stake amount SOL",
+      "stakeSOL" : "Stake",
+      "unstakeSOL" : "Unstake",
+      "selectAddress" : "Select Address to use",
+      "stakeBalance": "Stake Balance",
+      "address": "Address",
+      "stake": "Stake",
+      "rentReserve": "Rent reserve",
+      "allUnstakeSOL": "Unstake all",
+      "stakeHistorySOL" : "Stake History",
+      "selectSolValidator": "Select validator",
+      "solValidator": "Validator"
     },
     "about": {
       "title": "საფულის შესახებ",
@@ -203,7 +221,8 @@
       "text": "თუ თქვენ ხედავთ შეცდომას, გთხოვთ, გამოგვიგზავნეთ ლოგები მხარდაჭერის სამსახურის გავლით ან გადატვირთეთ პროგრამა"
     },
     "config": "კონფიგურაცია შეცვლილია: %{config} -ზე",
-    "tester": "ტესტერი/მომხმარებელი შეცვლილია: %{testerMode}-ით"
+    "tester": "ტესტერი/მომხმარებელი შეცვლილია: %{testerMode}-ით",
+    "blockchainExplorer": "Blockchain explorer"
   },
   "assets": {
     "title": "აქტივის დამატება",
@@ -213,7 +232,7 @@
     "tabCustom": "მეტი",
     "searchPlaceholder": "ძიება",
     "addCustomPlaceholder": "აქტივის მისამართი",
-    "addCustomLabel": "თქვენ შეგიძლიათ დააამატოთ სტანდარტული ტოკენი, რომელიც შემუშავებულია ბლოკჩეინზე - Ethereum, BNB ან Tron. შეიყვანეთ ან დაასკანერეთ ახალი ტოკენი/აქტივი.",
+    "addCustomLabel": "თქვენ შეგიძლიათ დააამატოთ სტანდარტული ტოკენი, რომელიც შემუშავებულია ბლოკჩეინზე - Ethereum, BNB, Solana ან Tron. შეიყვანეთ ან დაასკანერეთ ახალი ტოკენი/აქტივი.",
     "noAssetsFound": "აქტივები ვერ მოიძებნა",
     "addAssetButton": "აქტივის დამატება",
     "mainTitle": "აქტივის დამატება",
@@ -229,8 +248,12 @@
     "add": "დამატება"
   },
   "cashback": {
+    "invite": "Invite:",
+    "cashback": "Cashback",
+    "cpa": "CPA",
     "pageTitle": "მოიწვიე მეგობრები",
-    "pageSubtitle": "გამოიმუშავე 30% საკომისიოდან Trustee Wallet-თან ერთად!",
+    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
+    "pageSubtitleText": "to",
     "shareButton": "გაზიარება",
     "promoButton": "პრომოკოდი",
     "detailsButton": "დეტალები",
@@ -238,8 +261,11 @@
     "enterInviteLinkPlaceholder": "შეიყვანე მოსაწვევი ბმული",
     "applyButton": "დადასტურება",
     "wholeBalance": "სრული ბალანსი",
-    "cashbackBalance": "ქეშბექის ბალანსი",
-    "cpaCurrent": "Current CPA",
+    "availableCashBack": "Available cashback",
+    "balanceTitle": "Balance",
+    "toWithdraw": "to withdraw needed:",
+    "cashbackInfo": "Cashback info",
+    "cpaInfo": "CPA info",
     "cpaTotal": "Total CPA",
     "cpaLevel1": "CPA Level 1",
     "cpaLevel2": "CPA Level 2",
@@ -697,7 +723,8 @@
       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP": "დასაჩქარებელი ტრანზაქცია ვერ მოიძებნა",
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
-      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation"
+      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
     }
   },
   "walletBackup": {
@@ -712,12 +739,14 @@
       "text2": "ძალიან ფრთხილად იყავით აღმდგენ ფრაზასთან დაკავშირებით - ნებისმიერი, ვისაც ის ჩაუვარდება ხელში, შეძლებს მიიღოს წვდომა თქვენს რესურსთან და დახარჯოს საკუთარი შეხედულებისამებრ. გთხოვთ, არ გაანდოთ ის არავის არანაირ ვითარებაში!"
     },
     "step0Screen": {
+      "phrase": "phrase",
+      "qr": "Qr",
       "info": "აღმდგენი ფრაზა - ეს არის თქვენი აქტივების ერთადერთი საიდუმლო გასაღები. შეინახეთ ის სანდო ადგილას!",
       "showButton": "სანახავად დააჭირეთ ღილაკს და შეინარჩუნეთ ასეთ მდგომარეობაში",
       "next": "შემდეგი",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
-      "infoQR": "QR code reveal recovery phrase. Please dont send it to other people and dont store in Gallery!"
+      "infoQR": "QR code reveals recovery phrase. Please dont send it to other people and dont store in Gallery!"
     },
     "step1Screen": {
       "title": "დადასტურება",
@@ -1022,7 +1051,6 @@
     "walletDelete": {
       "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
-      "confirmDelete": "Do you really want to delete this wallet?",
       "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
     },
     "notification": {

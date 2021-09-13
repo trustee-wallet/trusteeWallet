@@ -7,9 +7,12 @@ export const colorsDark = {
         text1: '#dadada',
         text2: '#999',
         text3: '#B8B8B8',
+        text4: '#2E2E2E',
         roundButtonBg: '#6B6B6B',
         roundButtonContent: '#F7F7F7',
         iconMarkBg: '#303030',
+        refreshControlBg: '#2E2E2E',
+        refreshControlIndicator: '#dadada',
         button: {
             shadowColor: '#404040',
             bg: '#6B6B6B',
@@ -63,7 +66,8 @@ export const colorsDark = {
         token: '#9E71E1',
         detailsBg: '#252525',
         howItWorksBg: '#2E2E2E',
-        chartBg: '#EAEAEA'
+        chartBg: '#4A4A4A',
+        borderColor: '#2E2E2E'
     },
     notifications: {
         newNotiesIndicator: '#9E71E1'

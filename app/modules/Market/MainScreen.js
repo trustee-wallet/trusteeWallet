@@ -118,6 +118,8 @@ class MarketScreen extends PureComponent {
 
         CASHE_TIME = new Date()
 
+        this.init()
+
         if (this.props.navigation.dangerouslyGetParent()) {
             this.props.navigation.dangerouslyGetParent().addListener('tabLongPress', (e) => {
                 NavStore.reset('MarketScreen')
@@ -377,7 +379,7 @@ class MarketScreen extends PureComponent {
             }
 
             if (share) {
-                const shareOptions = { message: share.title + share.desciption }
+                const shareOptions = { message: share.title + share.description }
                 prettyShare(shareOptions, 'murzik_share_transaction')
             }
 
@@ -860,7 +862,6 @@ class MarketScreen extends PureComponent {
 
         const { colors, isLight } = this.context
 
-        this.init()
         MarketingAnalytics.setCurrentScreen('Market.MainScreen')
 
         const INJECTEDJAVASCRIPT = `const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); meta.setAttribute('name', 'viewport'); document.getElementsByTagName('head')[0].appendChild(meta)`

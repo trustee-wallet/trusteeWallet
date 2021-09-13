@@ -9,6 +9,7 @@ import {
     Text,
     StatusBar,
     SafeAreaView,
+    Keyboard
 } from 'react-native'
 
 import CustomIcon from '../CustomIcon'
@@ -16,6 +17,10 @@ import CustomIcon from '../CustomIcon'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
+
+import { strings } from '@app/services/i18n'
+import AntIcon from 'react-native-vector-icons/AntDesign'
+import TextInput from '@app/components/elements/new/TextInput'
 
 export default class Header extends React.PureComponent {
 
@@ -98,7 +103,16 @@ export default class Header extends React.PureComponent {
     processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
 
     render() {
-        const { title, setHeaderHeight, ExtraView, ExtraViewParams, setStatusBar } = this.props
+        const {
+            title,
+            ExtraView,
+            ExtraViewParams,
+            setStatusBar,
+            search,
+            onSearch,
+            searchQuery
+        } = this.props
+
         const {
             colors,
             isLight,
@@ -132,6 +146,18 @@ export default class Header extends React.PureComponent {
                     {ExtraView && (
                         <View style={[styles.extraView, { backgroundColor: colors.common.header.bg, paddingHorizontal: GRID_SIZE }]}>
                             <ExtraView ExtraViewParams={ExtraViewParams} />
+                        </View>
+                    )}
+                    {search && (
+                        <View style={[styles.extraView, { marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE }]}>
+                            <TextInput
+                                onBlur={Keyboard.dismiss}
+                                placeholder={strings('assets.searchPlaceholder')}
+                                containerStyle={{ height: 50 }}
+                                value={searchQuery}
+                                onChangeText={onSearch}
+                                HelperAction={() => <AntIcon name="search1" size={23} color={colors.common.text2} />}
+                            />
                         </View>
                     )}
                 </View>
@@ -183,7 +209,6 @@ const styles = {
     extraView: {
         flex: 1,
         zIndex: 20,
-        paddingBottom: 15
     },
     header: {
         flexDirection: 'row',
@@ -213,5 +238,5 @@ const styles = {
         letterSpacing: 1,
         textTransform: 'uppercase',
         textAlign: 'center'
-    },
+    }
 }

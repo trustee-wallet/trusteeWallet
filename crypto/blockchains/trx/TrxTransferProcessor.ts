@@ -96,6 +96,9 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             const res = await BlocksoftAxios.getWithoutBraking(link)
             let feeForTx = 0
             if (this._tokenName[0] === 'T') {
+                if (typeof res.data.bandwidth.assets !== 'undefined') {
+                    delete res.data.bandwidth.assets
+                }
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link, res.data.bandwidth)
                 if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
                     feeForTx = 49000
@@ -426,7 +429,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
         }
 
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx token ' + this._tokenName  + ' tx', tx)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx token ' + this._tokenName + ' tx', tx)
 
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx signed', tx)
@@ -447,7 +450,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('v20_trx_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
 
-        await (BlocksoftTransactions.resetTransactionsPending({account : {currencyCode : 'TRX'}}, 'AccountRunPending'))
+        await (BlocksoftTransactions.resetTransactionsPending({ account: { currencyCode: 'TRX' } }, 'AccountRunPending'))
 
         if (config.debug.cryptoErrors) {
             console.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx result', JSON.parse(JSON.stringify(result)))

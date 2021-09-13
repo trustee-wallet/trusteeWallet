@@ -12,10 +12,11 @@
     "createWallet": "Create wallet",
     "importWallet": "Restore wallet",
     "acceptTerms": "You don`t agree with Terms of Service and Privacy Policy",
-    "agreement1": "I have read, understand and agree to the",
+    "agreement1": "I agree with",
     "terms": "Terms of use",
     "agreement2": "and",
-    "privacyPolicy": "Privacy Policy",
+    "privacyPolicy": "Privacy Policy,",
+    "agreement3": "and consent to the processing of the Personal Data that I have provided",
     "termsTitle": "Terms of use",
     "privacyPolicyTitle": "Privacy Policy",
     "slider1": "Innovative security and anonymity technologies",
@@ -35,6 +36,9 @@
     "newsTitle": "News",
     "tabAll": "All",
     "tabNews": "News",
+    "tabInvite": "Invite",
+    "tabInfo": "Info",
+    "tabFaq": "Faq",
     "today": "Today",
     "yesterday": "Yesterday"
   },
@@ -173,8 +177,22 @@
       "rewardBalanceTRX" : "Available %{prettyReward} TRX",
       "claimTRX" : "Claim Reward",
       "refreshTRX" : "Reload",
+      "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
+      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 72 hours from the moment of the last freezing",
       "allowLongQueryETH" : "Allow pending transactions queue",
-      "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance"
+      "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance",
+      "enterToStakeSOL" : "Enter stake amount SOL",
+      "stakeSOL" : "Stake",
+      "unstakeSOL" : "Unstake",
+      "selectAddress" : "Select Address to use",
+      "stakeBalance": "Stake Balance",
+      "address": "Address",
+      "stake": "Stake",
+      "rentReserve": "Rent reserve",
+      "allUnstakeSOL": "Unstake all",
+      "stakeHistorySOL" : "Stake History",
+      "selectSolValidator": "Select validator",
+      "solValidator": "Validator"
     },
     "about": {
       "title": "About",
@@ -187,7 +205,7 @@
       "contactSupportTitle": "Contact support",
       "contactSupportSubtitle": "Official telegram channel",
       "contactSupportEmail": "or send Email",
-      "contactSupportEmailSubtitle": "Official email",
+      "contactSupportEmailSubtitle": "Official Email",
       "contactSupportLoadingText" : "If you have not opened the support chat, please contact us at",
       "contactSupportLoadingTextEmail": "or write to",
       "information": "Information",
@@ -210,7 +228,8 @@
       "text": "If you're seeing this, smth went wrong, please, send us logs via support or try to reload the app"
     },
     "config": "Config changed to: %{config}",
-    "tester": "Tester/user changed to: %{testerMode}"
+    "tester": "Tester/user changed to: %{testerMode}",
+    "blockchainExplorer": "Blockchain explorer"
   },
   "assets": {
     "title": "Add asset",
@@ -220,7 +239,7 @@
     "tabCustom": "More",
     "searchPlaceholder": "Search",
     "addCustomPlaceholder": "Asset address",
-    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB or Tron blockchain. Please, enter or scan a new token / asset.",
+    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB, Solana or Tron blockchain. Please, enter or scan a new token / asset.",
     "noAssetsFound": "No assets found",
     "addAssetButton": "Add asset",
     "mainTitle": "Add asset",
@@ -236,8 +255,12 @@
     "add": "Add"
   },
   "cashback": {
+    "invited": "Invited:",
+    "cashback": "Cashback",
+    "cpa": "CPA",
     "pageTitle": "Invite your friends",
-    "pageSubtitle": "Earn up to 30% of commissions with Trustee Wallet!",
+    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
+    "pageSubtitleText": "to",
     "shareButton": "Share",
     "promoButton": "Promocode",
     "detailsButton": "Details",
@@ -245,8 +268,11 @@
     "enterInviteLinkPlaceholder": "Enter invite link",
     "applyButton": "Apply",
     "wholeBalance": "All balance",
-    "cashbackBalance": "Cashback balance",
-    "cpaCurrent": "Current CPA",
+    "availableCashBack": "Available cashback",
+    "balanceTitle": "Balance",
+    "toWithdraw": "to withdraw needed:",
+    "cashbackInfo": "Cashback info",
+    "cpaInfo": "CPA info",
     "cpaTotal": "Total CPA",
     "cpaLevel1": "CPA Level 1",
     "cpaLevel2": "CPA Level 2",
@@ -451,24 +477,24 @@
   },
 
   "FioChooseAddress": {
-    "title": "Choose Fio Address",
+    "title": "Choose FIO Address",
     "description": "Enter address to request payment from",
     "btnText": "Select FIO Address"
   },
   "FioAddresses": {
-    "title": "Fio Addresses",
+    "title": "FIO Addresses",
     "btnText": "Register address",
     "WebViewTitle": "Register address"
   },
   "FioSettings": {
-    "title": "Fio Settings",
+    "title": "FIO Settings",
     "description": "Choose wallets to connect to your FIO address",
     "Expire": "Expires",
     "connectAllWallets": "Connect all wallets",
     "btnText": "Save",
     "noFioTitle": "You need to register FIO address",
     "noFioDescription": "FIO address not registered",
-    "noFioBtn": "Register Fio Address",
+    "noFioBtn": "Register FIO Address",
     "serviceUnavailable": "Service unavailable. Please, try again later"
   },
 
@@ -484,7 +510,7 @@
     "fioSettings": "FIO Settings",
     "registerFioAddress": "Register FIO Address",
     "noCoinSelected": "You need to choose coin in which you make request",
-    "goToFioSettings": "You need go to Fio Settings and associate coins with your FIO address",
+    "goToFioSettings": "You need go to FIO Settings and associate coins with your FIO address",
     "needRegisterFio": "You need to register your FIO Address first "
   },
 
@@ -710,7 +736,8 @@
      "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Transaction for speedup not found",
      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
      "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
-     "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation"
+     "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
     }
   },
   "walletBackup": {
@@ -725,12 +752,14 @@
       "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
     "step0Screen": {
+      "phrase": "phrase",
+      "qr": "Qr",
       "info": "The recovery phrase (mnemonic phrase, seed phrase) is a secret key for accessing all the balances of your wallet. Keep it in a safe place and don't pass it to anyone!",
       "showButton": "Press and hold to reveal",
       "next": "Next",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
-      "infoQR": "QR code reveal recovery phrase. Please dont send it to other people and dont store in Gallery!"
+      "infoQR": "QR code reveals recovery phrase. Please dont send it to other people and dont store in Gallery!"
     },
     "step1Screen": {
       "title": "Check",
@@ -1045,7 +1074,6 @@
     "walletDelete": {
       "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
-      "confirmDelete": "Do you really want to delete this wallet?",
       "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
     },
     "notification": {

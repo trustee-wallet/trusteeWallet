@@ -94,11 +94,13 @@ const currencyActions = {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'VET', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'BITCOIN') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'BTC', newIsHidden : 0, currentIsHidden : 0})
+        } else if (tokenType === 'SOLANA') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'SOL', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'TRX' || tokenType === 'TRON') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'TRX', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'BNB_SMART_20' || tokenType === 'BNB') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'BNB_SMART', newIsHidden : 0, currentIsHidden : 0})
-        } else {
+        } else if (tokenType === 'ETH_ERC_20' || tokenType === 'ETHEREUM') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'ETH', newIsHidden : 0, currentIsHidden : 0})
         }
     },
@@ -110,36 +112,54 @@ const currencyActions = {
         Log.log('ACT/Currency addCurrency started')
 
         let errorStepMsg = ''
-
+        let mainCurrencyNotAdded = true
         try {
             errorStepMsg = 'walletDS.getWallets started'
             const wallets = await walletDS.getWallets()
 
             const accountBalanceInsertObjs = []
 
+            let tmpCodes = [currencyToAdd.currencyCode]
+
+            const settings = BlocksoftDict.getCurrencyAllSettings(currencyToAdd.currencyCode)
+            if (typeof settings.addressCurrencyCode !== 'undefined' && typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain !== 'BITCOIN' ) {
+                const { accountList } = store.getState().accountStore
+                for (const wallet of wallets) {
+                    const walletHash = wallet.walletHash
+                    if (typeof accountList[walletHash] === 'undefined' || typeof accountList[walletHash][settings.addressCurrencyCode] === 'undefined') {
+                        tmpCodes = [settings.addressCurrencyCode, currencyToAdd.currencyCode]
+                        mainCurrencyNotAdded = false
+                        break
+                    }
+                }
+            }
+
             for (const wallet of wallets) {
 
                 const walletHash = wallet.walletHash
 
                 errorStepMsg = 'accountsDS.discoverAddresses started'
-                await accountDS.discoverAccounts({ walletHash, currencyCode: [currencyToAdd.currencyCode] }, 'CREATE_CURRENCY')
+
+                await accountDS.discoverAccounts({ walletHash, currencyCode: tmpCodes }, 'CREATE_CURRENCY')
                 errorStepMsg = 'accountsDS.discoverAddresses finished'
 
-                const dbAccounts = await accountDS.getAccounts({ walletHash, currencyCode: currencyToAdd.currencyCode })
-                if (dbAccounts && typeof dbAccounts[0] !== 'undefined' && typeof dbAccounts[0].id !== 'undefined') {
+                for (const tmpCode of tmpCodes) {
+                    const dbAccounts = await accountDS.getAccounts({ walletHash, currencyCode: tmpCode })
+                    if (dbAccounts && typeof dbAccounts[0] !== 'undefined' && typeof dbAccounts[0].id !== 'undefined') {
 
-                    const { id: insertID } = dbAccounts[0]
+                        const { id: insertID } = dbAccounts[0]
 
-                    accountBalanceInsertObjs.push({
-                        balanceFix: 0,
-                        unconfirmedFix: 0,
-                        balanceScanTime: 0,
-                        balanceScanLog: '',
-                        status: 0,
-                        currencyCode: currencyToAdd.currencyCode,
-                        walletHash: walletHash,
-                        accountId: insertID
-                    })
+                        accountBalanceInsertObjs.push({
+                            balanceFix: 0,
+                            unconfirmedFix: 0,
+                            balanceScanTime: 0,
+                            balanceScanLog: '',
+                            status: 0,
+                            currencyCode: tmpCode,
+                            walletHash: walletHash,
+                            accountId: insertID
+                        })
+                    }
                 }
             }
             if (accountBalanceInsertObjs && accountBalanceInsertObjs.length > 0) {
@@ -148,13 +168,20 @@ const currencyActions = {
                 errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
             }
 
-            const currencyInsertObjs = {
-                currencyCode: currencyToAdd.currencyCode,
-                currencyRateScanTime: 0,
-                isHidden: isHidden
+            for (const tmpCode of tmpCodes) {
+                const currencyInsertObjs = {
+                    currencyCode: tmpCode,
+                    currencyRateScanTime: 0,
+                    isHidden: isHidden
+                }
+                try {
+                    await currencyDS.insertCurrency({ insertObjs: [currencyInsertObjs] })
+                } catch (e) {
+                    Log.log('ACT/Currency addCurrency insertCurrency error ' + e.message + ' in ' + tmpCode)
+                }
             }
 
-            await currencyDS.insertCurrency({ insertObjs: [currencyInsertObjs] })
+
 
             await currencyActions.setCryptoCurrencies()
             await UpdateCurrencyRateDaemon.updateCurrencyRate({ source: 'ACT/Currency addCurrency' })
@@ -174,6 +201,7 @@ const currencyActions = {
         }
 
         setLoaderStatus(false)
+        return mainCurrencyNotAdded
     },
 
     /**

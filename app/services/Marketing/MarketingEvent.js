@@ -43,8 +43,7 @@ class MarketingEvent {
     UI_DATA = {
         IS_LIGHT: '?',
         IS_LOCKED: false,
-        IS_ACTIVE: true,
-        IS_TESTER : false,
+        IS_ACTIVE: true
     }
 
     /**
@@ -53,10 +52,9 @@ class MarketingEvent {
     async initMarketing(testerMode) {
         this.TG = new BlocksoftTg(changeableProd.tg.info.spamBot)
 
-        if (testerMode === false) {
+        if (typeof testerMode === 'undefined' || testerMode === false) {
             testerMode = await trusteeAsyncStorage.getTesterMode()
         }
-        this.UI_DATA.IS_TESTER = testerMode
 
         let changeable
         if (testerMode === 'TESTER') {
@@ -110,7 +108,7 @@ class MarketingEvent {
 
     async reinitIfNever() {
         if (CACHE_TG_INITED) return true
-        await this._reinitTgMessage(this.UI_DATA.IS_TESTER)
+        await this._reinitTgMessage(await trusteeAsyncStorage.getTesterMode())
     }
 
     async reinitByWallet(walletHash) {
@@ -124,7 +122,7 @@ class MarketingEvent {
         this.DATA.LOG_CASHBACK = CashBackUtils.getWalletToken()
         this.DATA.LOG_PARENT = CashBackUtils.getParentToken()
 
-        await this._reinitTgMessage(this.UI_DATA.IS_TESTER)
+        await this._reinitTgMessage(await trusteeAsyncStorage.getTesterMode())
     }
 
 
