@@ -28,7 +28,7 @@ const NftTokenInfo = (props) => {
     return (
         <View style={{ marginBottom: GRID_SIZE, ...containerStyles }}>
             <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-            <Text style={styles.subTitle}>{subTitle}</Text>
+            <Text style={[styles.subTitle, { paddingTop: GRID_SIZE }]}>{subTitle}</Text>
         </View>
     )
 }
@@ -40,11 +40,13 @@ const styles = StyleSheet.create({
         color: '#999999',
         fontFamily: 'SFUIDisplay-Bold',
         fontSize: 13,
+        lineHeight: 15,
         letterSpacing: 1.75,
         textTransform: 'uppercase'
     },
     title: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 17
+        fontSize: 17,
+        lineHeight: 19
     }
 })

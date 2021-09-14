@@ -221,6 +221,7 @@ class NftReceive extends React.PureComponent {
                         containerStyle={{ marginTop: GRID_SIZE }}
                         title={strings('assets.addAssetButton')}
                         onPress={this.handleAddCustomToken}
+                        disabled
                     />
                 </View>
             </ScreenWrapper>

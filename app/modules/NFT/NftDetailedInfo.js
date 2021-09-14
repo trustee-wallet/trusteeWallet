@@ -161,7 +161,7 @@ class NftDetailedInfo extends React.PureComponent {
                 <ScrollView
                     contentContainerStyle={styles.scrollViewContent}
                 >
-                    <View style={styles.container}>
+                    <View style={[styles.container, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={[{
                             width: WINDOW_WIDTH - GRID_SIZE * 2,
                             height: this.state.heightPhoto,
@@ -183,7 +183,7 @@ class NftDetailedInfo extends React.PureComponent {
                             title={data.title}
                             subTitle={data.subTitle}
                         />
-                        <View style={[styles.headerInfoContainer, { marginHorizontal: GRID_SIZE * 2, marginBottom: GRID_SIZE }]}>
+                        <View style={[styles.headerInfoContainer, { marginBottom: GRID_SIZE }]}>
                             <View style={styles.currencyInfo}>
                                 <NftTokenValue
                                     walletCurrency={data.cryptoCurrencySymbol}
