@@ -53,6 +53,22 @@
       "listSubtitle": "Accounts: %{number}"
     },
     "walletConnect": {
+      "stop": "Wallet Connect Stop",
+      "stopText": "Do you want to stop this session?",
+      "start": "Wallet Connect Start",
+      "startText": "Do you want to start this session?",
+      "transaction": "Wallet Connect Transaction Request",
+      "transactionText": "Do you want %{subtitle} (max tx cost: %{txPrice} ETH)",
+      "sign": "Wallet Connect Sign Request",
+      "signText": "Do you want to sign message ",
+      "signTyped": "Wallet Connect Sign Typed Request",
+      "signTypedText": "Do you want to sign message ",
+      "session": "Wallet Connect Session Request",
+      "sessionText": "Do you want to connect to ",
+      "notificationTitle": "Attention!",
+      "notificationText": "Make sure %{name} is safe. By interacting with this service you provide access to your funds!",
+      "disconnect": "Disconnect",
+      "connect": "Connect",
       "title": "Wallet connect",
       "activated": "Activated",
       "disabled": "Disabled"
