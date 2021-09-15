@@ -330,10 +330,9 @@ class CryptoCurrency extends React.PureComponent {
         if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && this.props.cryptoCurrency.currencyType === 'NFT') {
             return (
                 <SwipeRow
-                    leftOpenValue={140}
-                    rightOpenValue={-70}
-                    stopLeftSwipe={160}
-                    stopRightSwipe={-90}
+                    disableLeftSwipe
+                    leftOpenValue={70}
+                    stopLeftSwipe={90}
                     swipeToOpenPercent={5}
                     swipeToClosePercent={5}
                     setScrollEnabled={this.props.setScrollEnabled}

@@ -122,11 +122,11 @@ class NftDetailedInfo extends React.PureComponent {
     }
 
     handleShareLink = () => {
-        const shareOptions = {
-            title: this.state.data.title,
-            message: this.state.data.subTitle,
-            url: this.state.data.permalink
-        }
+        const shareOptions = { message: '' }
+        shareOptions.message += this.state.data.title + '\n' + this.state.data.subTitle + '\n\n'
+        shareOptions.message += this.state.data.permalink ? strings('account.transactionScreen.cashbackLink') + this.state.data.permalink : ''
+        shareOptions.message += `\n${strings('account.transactionScreen.thanks')}`
+
         prettyShare(shareOptions, 'nft_copyToMoreFinish')
     }
 
