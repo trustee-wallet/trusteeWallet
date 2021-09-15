@@ -17,13 +17,24 @@ import Button from '@app/components/elements/new/buttons/Button'
 import ReceiveFlatListItem from '@app/modules/NFT/elements/ReceiveFlatListItem'
 import ListItem from '@app/components/elements/new/list/ListItem/Asset'
 
-class AddNftAssetScreen extends PureComponent {
+import Nfts from '@crypto/common/BlocksoftDictNfts'
+import { addCustomToken } from '@app/modules/NFT/helpers'
+import { getNftCustomAssetsData } from '@app/appstores/Stores/NftCustomAssets/selectors'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+
+import Log from '@app/services/Log/Log'
+import Toast from '@app/services/UI/Toast/Toast'
+import { connect } from 'react-redux'
+
+class NftAddAssetScreen extends PureComponent {
 
     state = {
         customAddress: '',
         selectedBlockchain: {
-            currencyCode: 'ETH',
-            title: 'ETHEREUM'
+            currencyCode: 'NFT_MATIC',
+            tokenBlockchain: 'MATIC',
+            tokenBlockchainCode : 'MATIC',
+            title: 'MATIC'
         }
     }
 
@@ -40,13 +51,27 @@ class AddNftAssetScreen extends PureComponent {
     }
 
     handleOpenQr = () => {
-        // TODO
+        setQRConfig({ flowType: QRCodeScannerFlowTypes.ADD_CUSTOM_TOKEN_SCANNER, callback : (data) => {
+                try {
+                    this.setState({ customAddress: data })
+                } catch (e) {
+                    Log.log('QRCodeScannerScreen callback error ' + e.message )
+                    Toast.setMessage(e.message).show()
+                }
+                NavStore.goBack()
+            }})
+        NavStore.goNext('QRCodeScannerScreen')
     }
 
     handleSelectBlockchain = (selectedBlockchain) => {
         this.setState({
             selectedBlockchain
         })
+    }
+
+    handleAddCustomToken = () => {
+        const { customAddress, selectedBlockchain } = this.state
+        addCustomToken(customAddress, selectedBlockchain.currencyCode)
     }
 
     renderFlatList = () => {
@@ -56,31 +81,13 @@ class AddNftAssetScreen extends PureComponent {
         } = this.state
 
         const flatListData = []
-        // for (const tmp of this.props.cryptoCurrencies) {
-        //     if (typeof tmp.currencyType === 'undefined' || tmp.currencyType !== 'NFT') continue
-
-        // flatListData.push({
-        //     text: tmp.tokenBlockchain,
-        //     inverse: selectedAddress.currencyCode === tmp.currencyCode,
-        //     action: () => this.handleSelectBlockchain(tmp)
-        // })
-        // }
-
-        flatListData.push({
-            text: 'ETHEREUM',
-            inverse: selectedBlockchain?.currencyCode === 'ETH',
-            action: () => this.handleSelectBlockchain({ currencyCode: 'ETH', title: 'ETHEREUM' })
-        })
-        flatListData.push({
-            text: 'TRON',
-            inverse: selectedBlockchain?.currencyCode === 'TRX',
-            action: () => this.handleSelectBlockchain({ currencyCode: 'TRX', title: 'TRON' })
-        })
-        flatListData.push({
-            text: 'MATIC',
-            inverse: selectedBlockchain?.currencyCode === 'MATIC',
-            action: () => this.handleSelectBlockchain({ currencyCode: 'MATIC', title: 'MATIC' })
-        })
+        for (const tmp of Nfts.Nfts) {
+            flatListData.push({
+                text: tmp.tokenBlockchain,
+                inverse: selectedBlockchain?.currencyCode === tmp.currencyCode,
+                action: () => this.handleSelectBlockchain(tmp)
+            })
+        }
 
         return (
             <FlatList
@@ -109,7 +116,7 @@ class AddNftAssetScreen extends PureComponent {
                 subtitle={item.currencySymbol}
                 iconType={item.currencyCode}
                 onPress={() => this.handleChangeCurrencyStatus(item)}
-                rightContent="switch"
+                rightContent='switch'
                 switchParams={{ value: item.isHidden !== null && !item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
             />
         )
@@ -129,7 +136,7 @@ class AddNftAssetScreen extends PureComponent {
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
-                title={strings('assets.title')}
+                title={strings('nftAddAssetScreen.title')}
             >
                 <SafeAreaView style={[styles.content, { backgroundColor: colors.common.background }]}>
                     <FlatList
@@ -139,28 +146,34 @@ class AddNftAssetScreen extends PureComponent {
                         ListHeaderComponent={() => (
                             <>
                                 <View style={{ margin: GRID_SIZE }}>
-                                    <Text style={[styles.text, { color: colors.common.text3 }]}>{strings('assets.addCustomLabel')}</Text>
+                                    <Text style={[styles.text, { color: colors.common.text3 }]}>{strings('nftAddAssetScreen.addCustomLabel')}</Text>
                                 </View>
                                 <View style={{ marginBottom: GRID_SIZE }}>
                                     {this.renderFlatList()}
                                 </View>
-                                <View style={[styles.customAddressConent, { padding: GRID_SIZE }]}>
-                                    <TextInput
-                                        placeholder={strings('assets.addCustomPlaceholder')}
-                                        onChangeText={this.handleChangeCustomAddress}
-                                        value={customAddress}
-                                        paste={true}
-                                        callback={this.handleChangeCustomAddress}
-                                        qr={true}
-                                        qrCallback={this.handleOpenQr}
-                                    />
-                                    <Button
-                                        containerStyle={{ marginTop: GRID_SIZE * 2 }}
-                                        title={strings('assets.addAssetButton')}
-                                        onPress={() => this.handleAddCustomToken(customAddress)}
-                                        disabled={!customAddress}
-                                    />
-                                </View>
+                                {this.state.selectedBlockchain.tokenBlockchainCode === 'ETH' ?
+                                    <View style={[styles.customAddressContent, { padding: GRID_SIZE }]}>
+                                        <Text style={[styles.text, { color: colors.common.text3 }]}>{strings('nftAddAssetScreen.addCustomLabelOpenSea')}</Text>
+                                    </View>
+                                    :
+                                    <View style={[styles.customAddressContent, { padding: GRID_SIZE }]}>
+                                        <TextInput
+                                            placeholder={strings('nftAddAssetScreen.addCustomPlaceholder')}
+                                            onChangeText={this.handleChangeCustomAddress}
+                                            value={customAddress}
+                                            paste={true}
+                                            callback={this.handleChangeCustomAddress}
+                                            qr={true}
+                                            qrCallback={this.handleOpenQr}
+                                        />
+                                        <Button
+                                            containerStyle={{ marginTop: GRID_SIZE * 2 }}
+                                            title={strings('nftAddAssetScreen.addAssetButton')}
+                                            onPress={() => this.handleAddCustomToken(customAddress)}
+                                            disabled={!customAddress}
+                                        />
+                                    </View>
+                                }
                             </>
                         )}
                         renderItem={this.renderListItem}
@@ -171,13 +184,19 @@ class AddNftAssetScreen extends PureComponent {
     }
 }
 
-AddNftAssetScreen.contextType = ThemeContext
+NftAddAssetScreen.contextType = ThemeContext
 
-export default AddNftAssetScreen
+const mapStateToProps = (state) => {
+    return {
+        nftCustomAssetsData: getNftCustomAssetsData(state)
+    }
+}
+
+export default connect(mapStateToProps)(NftAddAssetScreen)
 
 const styles = StyleSheet.create({
-    customAddressConent: {
-        flex: 1,
+    customAddressContent: {
+        flex: 1
     },
     content: {
         flex: 1

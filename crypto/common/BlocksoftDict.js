@@ -2,7 +2,7 @@ import { NativeModules } from 'react-native'
 
 import Database from '@app/appstores/DataSource/Database'
 
-import CoinBlocksoftDict from '@assets/jsons/other/coinBlocksoftDict.json'
+import CoinBlocksoftDict from '@crypto/assets/coinBlocksoftDict.json'
 
 const { RNFastCrypto } = NativeModules
 

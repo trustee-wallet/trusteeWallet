@@ -42,7 +42,7 @@ import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 let CACHE_CLICK = false
 class CryptoCurrency extends React.PureComponent {
 
-    handleCurrencySelect = async () => {
+    handleCurrencySelect = async (screen) => {
         if (CACHE_CLICK) return
 
         const { cryptoCurrency } = this.props
@@ -54,7 +54,7 @@ class CryptoCurrency extends React.PureComponent {
             try {
                 setSelectedCryptoCurrency(cryptoCurrency)
                 await NftActions.getDataBySelectedCryptoCurrency()
-                NavStore.goNext('NftMainScreen')
+                NavStore.goNext(screen || 'NftMainScreen')
             } catch (e) {
                 Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)
             }
@@ -174,7 +174,7 @@ class CryptoCurrency extends React.PureComponent {
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
-                    onPress={() => this.handleCurrencySelect(props.accounts)}
+                    onPress={() => this.handleCurrencySelect()}
                     onLongPress={this.props.onDrag}
                     delayLongPress={3000}
                 >
@@ -247,6 +247,27 @@ class CryptoCurrency extends React.PureComponent {
     };
 
 
+    renderHiddenNFTLayer = () => {
+        return (
+            <View style={styles.hiddenLayer__container}>
+                <View style={styles.hiddenLayer__leftButtons__wrapper}>
+                    <RoundButton
+                        type="receive"
+                        containerStyle={styles.hiddenLayer__roundButton}
+                        onPress={() => this.handleCurrencySelect('NftReceive')}
+                        noTitle
+                    />
+                    {false && <RoundButton
+                        type="edit"
+                        containerStyle={styles.hiddenLayer__roundButton}
+                        onPress={() => this.handleCurrencySelect('NftAddAssetScreen')}
+                        noTitle
+                    />}
+                </View>
+            </View>
+        );
+    }
+
     renderNFTLayer = (props) => {
         const { colors } = this.context
         const cryptoCurrency = props.cryptoCurrency
@@ -262,7 +283,7 @@ class CryptoCurrency extends React.PureComponent {
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
-                    onPress={() => this.handleCurrencySelect(props.accounts)}
+                    onPress={() => this.handleCurrencySelect()}
                     onLongPress={this.props.onDrag}
                     delayLongPress={3000}
                 >
@@ -307,7 +328,20 @@ class CryptoCurrency extends React.PureComponent {
         if (typeof this.props === 'undefined') return <View />
 
         if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && this.props.cryptoCurrency.currencyType === 'NFT') {
-            return this.renderNFTLayer(this.props)
+            return (
+                <SwipeRow
+                    leftOpenValue={140}
+                    rightOpenValue={-70}
+                    stopLeftSwipe={160}
+                    stopRightSwipe={-90}
+                    swipeToOpenPercent={5}
+                    swipeToClosePercent={5}
+                    setScrollEnabled={this.props.setScrollEnabled}
+                >
+                    {this.renderHiddenNFTLayer()}
+                    {this.renderNFTLayer(this.props)}
+                </SwipeRow>
+            );
         }
 
         return (

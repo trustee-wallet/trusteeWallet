@@ -273,6 +273,13 @@
     "blockchain": "Blockchain",
     "address": "Address"
   },
+  "nftAddAssetScreen" : {
+    "title" : "Add NFT Asset",
+    "addCustomLabel": "You can add a standard NFT token developed on Matic blockchain. Please, enter or scan a new token / asset address.",
+    "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
+    "addCustomPlaceholder" : "NFT Asset Address",
+    "addAssetButton" : "Add asset"
+  },
   "cashback": {
     "invited": "Invited:",
     "cashback": "Cashback",

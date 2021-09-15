@@ -30,6 +30,15 @@ class BlocksoftTokenChecks {
         }
     }
 
+    /**
+     *
+     * @param data.nftType
+     * @param data.nftAddress
+     */
+    async getNftDetails(data) {
+        throw new Error('TODO')
+    }
+
 }
 
 const singleBlocksoftTokenChecks = new BlocksoftTokenChecks()

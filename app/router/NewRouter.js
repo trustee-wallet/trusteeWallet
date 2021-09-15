@@ -82,7 +82,7 @@ import NftDetailedInfoQR from '@app/modules/NFT/NftDetailedInfoQR'
 import NftDetailedInfoQRCheck from '@app/modules/NFT/NftDetailedInfoQRCheck'
 import NftReceive from '@app/modules/NFT/NftReceive'
 import NftCollectionView from '@app/modules/NFT/NftCollectionView'
-import AddNftAssetScreen from '@app/modules/NFT/AddNftAssetScreen';
+import NftAddAssetScreen from '@app/modules/NFT/NftAddAssetScreen';
 
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
@@ -160,7 +160,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='NftDetailedInfoQR' component={NftDetailedInfoQR} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NftDetailedInfoQRCheck' component={NftDetailedInfoQRCheck} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NftCollectionView' component={NftCollectionView} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='AddNftAssetScreen' component={AddNftAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='NftAddAssetScreen' component={NftAddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
         </HomeStack.Navigator>
     )

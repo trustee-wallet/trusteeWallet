@@ -37,6 +37,8 @@ import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import store from '@app/store'
 import Button from '@app/components/elements/new/buttons/Button'
 
+import Nfts from '@crypto/common/BlocksoftDictNfts'
+
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 class NftReceive extends React.PureComponent {
@@ -122,9 +124,7 @@ class NftReceive extends React.PureComponent {
         } = this.state
 
         const flatListData = []
-        for (const tmp of this.props.cryptoCurrencies) {
-            if (typeof tmp.currencyType === 'undefined' || tmp.currencyType !== 'NFT') continue
-
+        for (const tmp of Nfts.Nfts) {
             flatListData.push({
                 text: tmp.tokenBlockchain,
                 inverse: selectedAddress.currencyCode === tmp.currencyCode,
@@ -149,7 +149,7 @@ class NftReceive extends React.PureComponent {
     }
 
     handleAddCustomToken = () => {
-        NavStore.goNext('AddNftAssetScreen')
+        NavStore.goNext('NftAddAssetScreen')
     }
 
     render() {
@@ -217,12 +217,13 @@ class NftReceive extends React.PureComponent {
                             {strings('nftMainScreen.receiveText', { coin: tokenBlockchain })}
                         </Text>
                     </View>
-                    <Button
+
+                    {false && <Button
                         containerStyle={{ marginTop: GRID_SIZE }}
                         title={strings('assets.addAssetButton')}
                         onPress={this.handleAddCustomToken}
                         disabled
-                    />
+                    />}
                 </View>
             </ScreenWrapper>
         )
