@@ -106,7 +106,7 @@ export default class ButtonLine extends PureComponent {
 
     renderIcon = () => {
 
-        const { currencyCode, containerStyle, markStyle, iconStyle } = this.props
+        const { currencyCode, containerStyle, markStyle, iconStyle, setBackground } = this.props
 
         const fontSize = typeof iconStyle !== 'undefined' ? iconStyle.fontSize : 24
 
@@ -124,6 +124,10 @@ export default class ButtonLine extends PureComponent {
         const { colors, isLight } = this.context
 
         const block = this.getBlockchain(currencyCode) || 'BTC'
+
+        if (setBackground && currencyCode) {
+            tmpContainerStyle.backgroundColor = colorDict[currencyCode]?.colors[isLight ? 'mainColor' : 'darkColor'] + '1A'
+        }
 
         switch (currencyCode) {
 
@@ -603,6 +607,15 @@ export default class ButtonLine extends PureComponent {
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
                                 <CustomIcon name='SOL' size={14} color={colorDict['SOL'].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
+                        </View>
+                    </View>
+                )
+
+            case 'NFT_ETH':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name='nft' style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                         </View>
                     </View>
                 )

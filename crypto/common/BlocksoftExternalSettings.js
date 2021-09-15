@@ -58,7 +58,7 @@ const CACHE = {
     'OPTIMISM_PRICE' : 15000000,
     'OPTIMISM_GAS_LIMIT' : 2320100000,
     'OPTIMISM_MIN_GAS_LIMIT' : 23201000,
-    'MATIC_SERVER' : 'https://rpc-mainnet.maticvigil.com',
+    'MATIC_SERVER' : 'https://polygon-mainnet.infura.io/v3/71b9a7129c2a4ef292e4e73fb2629e7c',
     'MATIC_PRICE' : 1000000000,
     'MATIC_GAS_LIMIT' : 620000,
     'RSK_SERVER' : 'https://public-node.rsk.co',

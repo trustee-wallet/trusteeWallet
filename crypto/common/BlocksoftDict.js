@@ -12,7 +12,6 @@ const VisibleCodes = [
 const Codes = [
     'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'ETH_UAX', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
 ]
-
 const Currencies = CoinBlocksoftDict
 
 const CurrenciesForTests = {

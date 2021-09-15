@@ -31,6 +31,7 @@ import SMSV3CodeScreen from '@app/modules/Market/SMSV3CodeScreen'
 import MarketScreen from '@app/modules/Market/MainScreen'
 
 import SendScreen from '@app/modules/Send/SendScreen'
+import SendScreenWithoutAmount from '@app/modules/Send/SendScreenWithoutAmount'
 import SendAdvancedSettingsScreen from '@app/modules/Send/SendAdvancedSettings'
 import ReceiptScreen from '@app/modules/Send/ReceiptScreen'
 
@@ -74,8 +75,18 @@ import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+
+import NftMainScreen from '@app/modules/NFT/NftMainScreen'
+import NftDetailedInfo from '@app/modules/NFT/NftDetailedInfo'
+import NftDetailedInfoQR from '@app/modules/NFT/NftDetailedInfoQR'
+import NftDetailedInfoQRCheck from '@app/modules/NFT/NftDetailedInfoQRCheck'
+import NftReceive from '@app/modules/NFT/NftReceive'
+import NftCollectionView from '@app/modules/NFT/NftCollectionView'
+import AddNftAssetScreen from '@app/modules/NFT/AddNftAssetScreen';
+
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
+
 
 
 const Stack = createStackNavigator()
@@ -107,6 +118,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendScreen' component={SendScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='SendScreenWithoutAmount' component={SendScreenWithoutAmount} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='ReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountScreen' component={AccountScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -141,6 +153,14 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='FioAddresses' component={FioAddresses} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioMainSettings' component={FioMainSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='FioSettings' component={FioSettings} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <HomeStack.Screen name='NftMainScreen' component={NftMainScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='NftReceive' component={NftReceive} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='NftDetailedInfo' component={NftDetailedInfo} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='NftDetailedInfoQR' component={NftDetailedInfoQR} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='NftDetailedInfoQRCheck' component={NftDetailedInfoQRCheck} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='NftCollectionView' component={NftCollectionView} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='AddNftAssetScreen' component={AddNftAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
         </HomeStack.Navigator>
     )

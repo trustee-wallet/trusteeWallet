@@ -217,7 +217,7 @@ export default class EthBasic {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
         } else if (e.message.indexOf('already known') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.5 ' + e.message + ' for ' + data.addressFrom, logData)
-            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT')
         } else if (e.message.indexOf('infura') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.6 ' + e.message + ' for ' + data.addressFrom, logData)
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')

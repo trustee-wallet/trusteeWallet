@@ -2,19 +2,8 @@
  * @version 0.30
  */
 import React from 'react'
-import {
-    SafeAreaView,
-    View,
-    RefreshControl,
-    Vibration,
-    FlatList,
-    StyleSheet,
-} from 'react-native'
+import { SafeAreaView, View, RefreshControl, FlatList, StyleSheet} from 'react-native'
 import { connect } from 'react-redux'
-import _orderBy from 'lodash/orderBy'
-import _isEqual from 'lodash/isEqual'
-
-import AsyncStorage from '@react-native-community/async-storage'
 
 import CryptoCurrency from './elements/CryptoCurrency'
 import WalletInfo from './elements/WalletInfo'
@@ -54,10 +43,6 @@ import { strings } from '@app/services/i18n'
 
 let CACHE_IS_SCANNING = false
 
-async function storeCurrenciesOrder(walletHash, data) {
-    AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
-}
-
 class HomeScreen extends React.PureComponent {
 
     constructor(props) {
@@ -66,14 +51,10 @@ class HomeScreen extends React.PureComponent {
             refreshing: false,
             isBalanceVisible: true,
             originalVisibility: false,
-            originalData: [],
-            data: [],
-            currenciesOrder: [],
             isCurrentlyDraggable: false,
             hasStickyHeader: false,
             enableVerticalScroll: true
         }
-        this.getCurrenciesOrder()
         SendDeepLinking.initDeepLinking()
     }
 
@@ -83,46 +64,9 @@ class HomeScreen extends React.PureComponent {
 
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        let newState = null
-
-        if (!_isEqual(nextProps.currencies, prevState.originalData)) {
-            newState = {}
-            const currenciesOrder = prevState.currenciesOrder
-            const currenciesLength = nextProps.currencies.length
-            const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-            newState.data = data
-            newState.originalData = nextProps.currencies
-            const newOrder = data.map(c => c.currencyCode)
-            if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
-                newState.currenciesOrder = newOrder
-                storeCurrenciesOrder(nextProps.selectedWalletData.walletHash, newOrder)
-            }
-        }
-
-        return newState
-    }
-
     getBalanceVisibility = () => {
         const isBalanceVisible = this.props.isBalanceVisible
         this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
-    }
-
-    getCurrenciesOrder = async () => {
-        const { walletHash } = this.props.selectedWalletData
-        const walletToken = walletHash || ''
-        try {
-            const res = await AsyncStorage.getItem(`${walletToken}:currenciesOrder`)
-            const currenciesOrder = res !== null ? JSON.parse(res) : []
-            const currenciesLength = this.state.data.length
-
-            this.setState(state => ({
-                currenciesOrder,
-                data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-            }))
-        } catch (e) {
-            Log.err(`HomeScreen getCurrenciesOrder error ${e.message}`)
-        }
     }
 
     handleRefresh = async () => {
@@ -248,7 +192,6 @@ class HomeScreen extends React.PureComponent {
     }
 
     changeBalanceVisibility = async () => {
-        console.log('trigger')
         const newVisibilityValue = !this.state.isBalanceVisible
         settingsActions.setSettings('isBalanceVisible', newVisibilityValue ? '1' : '0')
         this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
@@ -256,19 +199,6 @@ class HomeScreen extends React.PureComponent {
 
     triggerBalanceVisibility = (value) => {
         this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
-    }
-
-    onDragBegin = () => {
-        Vibration.vibrate(100)
-        this.setState(() => ({ isCurrentlyDraggable: true }))
-    }
-
-    onDragEnd = ({ data }) => {
-        const { walletHash } = this.props.selectedWalletData
-        const walletToken = walletHash || ''
-        const currenciesOrder = data.map(c => c.currencyCode)
-        storeCurrenciesOrder(walletToken, currenciesOrder)
-        this.setState(() => ({ currenciesOrder, data, isCurrentlyDraggable: false }))
     }
 
     getBalanceData = () => {
@@ -338,7 +268,7 @@ class HomeScreen extends React.PureComponent {
                         <View style={styles.stub} />
                         <FlatList
                             ref={ref => { this._listRef = ref; }}
-                            data={this.state.data}
+                            data={this.props.currencies}
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={styles.list}
                             onScroll={this.updateOffset}

@@ -129,6 +129,7 @@ export namespace BlocksoftBlockchainTypes {
 
         blockchainData?: string,
         dexOrderData?:string,
+        contractCallData?: string,
 
         accountJson?: any,
         transactionJson?: any

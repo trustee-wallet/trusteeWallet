@@ -75,6 +75,25 @@ export namespace SendActionsStart {
         trusteeAsyncStorage.setSendInputType(inputType)
     }
 
+    export const startFromCustomContractCallData = async (data : {
+        currencyCode : string,
+        contractCallData: any
+    }) => {
+        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        const dict = await formatDict(cryptoCurrency, account)
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
+        const ui =  {
+            uiType : 'NFT_SCREEN',
+            contractCallData : data.contractCallData,
+        }
+        dispatch({
+            type: 'RESET_DATA',
+            ui,
+            dict
+        })
+        NavStore.goNext('SendScreenWithoutAmount')
+    }
+
     export const startFromAccountScreen = async (currencyCode : string, uiType = 'ACCOUNT_SCREEN') => {
         const { cryptoCurrency, account } = findWalletPlus(currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
@@ -104,6 +123,7 @@ export namespace SendActionsStart {
     }
 
     export const startFromDEX = async (data : {
+        addressTo : string,
         amount : string,
         currencyCode : string,
         dexCurrencyCode: string,

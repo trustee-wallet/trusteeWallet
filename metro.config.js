@@ -4,7 +4,8 @@ defaultSourceExts.push('cjs')
 extraNodeModules.sourceExts = defaultSourceExts
 module.exports = {
     resolver: {
-        extraNodeModules
+        extraNodeModules,
+        assetExts: ['png', 'jpeg', 'jpg']
     },
     transformer: {
         getTransformOptions: async () => ({

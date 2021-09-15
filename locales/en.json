@@ -254,6 +254,25 @@
     "description": "Ethereum (ETH) and Tron (TRX) token/asset addresses are supported",
     "add": "Add"
   },
+  "nftMainScreen": {
+    "assets": "Assets",
+    "receiveText": "Send only %{coin} to this address. Sending another coin may result in permanent lost",
+    "emptyNftText": "You don’t have any NFT yet. But you can get it now.",
+    "proof": "Proof ownership",
+    "info": "Info",
+    "all": "All",
+    "collections": "Collections",
+    "receive": "Receive",
+    "title": "NFT",
+    "titleQR" : "Scan QR with Trustee",
+    "signing": "Signature is creating, please wait - it only proofs that the current Address owns this NFT, so its secure to share with anyone",
+    "signed": "Signature only proofs that the current Address owns this NFT, so its secure to share with anyone",
+    "status": "Status",
+    "contract": "Contract",
+    "tokenId": "Token ID",
+    "blockchain": "Blockchain",
+    "address": "Address"
+  },
   "cashback": {
     "invited": "Invited:",
     "cashback": "Cashback",
