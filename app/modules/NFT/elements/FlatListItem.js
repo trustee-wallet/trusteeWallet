@@ -39,7 +39,7 @@ const FlatListItem = (props) => {
         onPress
     } = props
 
-    const { img, title, subTitle, ExtraViewData } = data
+    const { img, title, ExtraViewData } = data
 
     const widthItem = (WINDOW_WIDTH - GRID_SIZE * (numColumns + 1)) / numColumns
 
@@ -49,13 +49,13 @@ const FlatListItem = (props) => {
             onPress={onPress}
             hitSlop={HIT_SLOP}
             style={[styles.topContent, {
-                height: widthItem * 1.4,
+                height: widthItem * 1.1,
                 marginLeft: margin ? GRID_SIZE : 0,
                 marginRight: GRID_SIZE,
                 marginVertical: GRID_SIZE * 0.5
             }]}>
             <View style={[styles.topContent__content, {
-                marginBottom: GRID_SIZE,
+                paddingBottom: GRID_SIZE,
                 width: widthItem
             }]}>
                 {loading ?
@@ -75,7 +75,6 @@ const FlatListItem = (props) => {
                 <View style={styles.descriptions}>
                     <NftTokenInfo
                         title={title}
-                        subTitle={subTitle}
                     />
                     {ExtraViewData && (
                         <ExtraViewData />
@@ -84,7 +83,7 @@ const FlatListItem = (props) => {
             </View>
             <GradientView
                 style={[styles.collectionItem, {
-                    height: widthItem * 1.4,
+                    height: widthItem * 1.1,
                     width: widthItem
                 }]}
                 array={colors.accountScreen.containerBG}
@@ -92,7 +91,7 @@ const FlatListItem = (props) => {
                 end={styles.containerBG.end}
             />
             <View style={[styles.topContent__bg, {
-                height: widthItem * 1.4,
+                height: widthItem * 1.1,
                 width: widthItem
             }]}>
                 <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
@@ -156,11 +155,12 @@ const styles = {
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         width: '100%',
-        height: '40%',
+        height: '55%',
     },
     descriptions: {
         flexGrow: 1,
-        justifyContent: 'space-around',
-        marginHorizontal: 12
+        justifyContent: 'space-between',
+        marginHorizontal: 12,
+        marginTop: 12
     }
 }

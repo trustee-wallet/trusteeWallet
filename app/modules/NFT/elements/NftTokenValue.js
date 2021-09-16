@@ -19,7 +19,7 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-class NftTokenValue extends React.Component{
+class NftTokenValue extends React.Component {
 
     state = {
         isBalanceVisible: false
@@ -30,18 +30,39 @@ class NftTokenValue extends React.Component{
         this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
     }
 
+    getCurrencyCode = (walletCurrency, tokenBlockchainCode) => {
+        if (!walletCurrency && !tokenBlockchainCode) {
+            return ''
+        }
+
+        if (walletCurrency) {
+            return walletCurrency
+        } else {
+            switch (tokenBlockchainCode.toUpperCase()) {
+                case 'MATIC':
+                    return 'MATIC'
+                case 'ETHEREUM':
+                    return 'ETH'
+                case 'ROPSTEN':
+                    return 'ETH_ROPSTEN'
+                case 'TRON':
+                    return 'TRX'
+                default:
+                    return tokenBlockchainCode
+            }
+        }
+    }
+
     render() {
 
         const {
             walletCurrency,
             balance,
             balanceData,
-            currencySymbol
+            currencySymbol,
+            tokenBlockchainCode
         } = this.props
 
-        if (!balanceData || balanceData === '') {
-            return null
-        }
         const {
             colors
         } = this.context
@@ -49,39 +70,45 @@ class NftTokenValue extends React.Component{
         const originalVisibility = this.props.isBalanceVisible
         const isBalanceVisible = this.state.isBalanceVisible || originalVisibility
 
-
-    return (
-        <View style={styles.currencyContainer}>
-            <CurrencyIcon
-                setBackground={true}
-                currencyCode={walletCurrency}
-                containerStyle={{ borderWidth: 0, width: 30, height: 30 }}
-                markStyle={{ top: 30 }}
-                textContainerStyle={{ bottom: -19 }}
-                textStyle={{ backgroundColor: 'transparent' }}
-                iconStyle={{ fontSize: 18 }}
-            />
-            <TouchableOpacity
-                onPressIn={() => this.triggerBalanceVisibility(true)}
-                onPressOut={() => this.triggerBalanceVisibility(false)}
-                activeOpacity={1}
-                disabled={originalVisibility}
-                style={styles.balanceContainer}>
-                {isBalanceVisible ?
-                    <>
-                        <Text numberOfLines={2} style={[styles.balance, {
-                        color: colors.common.text3,
-                        fontSize: walletCurrency !== 'NFT' ? 13 : 18
-                    }]}>{walletCurrency !== 'NFT' ? (BlocksoftPrettyNumbers.makeCut(balance).separated + ' ' + walletCurrency) : (walletCurrency + ' ' + strings('cashback.balanceTitle'))}</Text>
-                        <Text
-                            style={[styles.balanceData, { fontSize: walletCurrency !== 'NFT' ? 10 : 14 }]}>{currencySymbol + ' ' + BlocksoftPrettyNumbers.makeCut(balanceData).separated}</Text>
-                    </>:
-                    <Text style={{...styles.accountDetail__text, color: colors.common.text1, fontSize: 24}}>****</Text>
-                }
-            </TouchableOpacity>
-        </View>
-    )
-}
+        return (
+            <View style={styles.currencyContainer}>
+                <CurrencyIcon
+                    setBackground={true}
+                    currencyCode={this.getCurrencyCode(walletCurrency, tokenBlockchainCode)}
+                    containerStyle={{ borderWidth: 0, width: 30, height: 30 }}
+                    markStyle={{ top: 30 }}
+                    textContainerStyle={{ bottom: -19 }}
+                    textStyle={{ backgroundColor: 'transparent' }}
+                    iconStyle={{ fontSize: 18 }}
+                />
+                {balanceData ?
+                    <TouchableOpacity
+                        onPressIn={() => this.triggerBalanceVisibility(true)}
+                        onPressOut={() => this.triggerBalanceVisibility(false)}
+                        activeOpacity={1}
+                        disabled={originalVisibility}
+                        style={styles.balanceContainer}>
+                        {isBalanceVisible ?
+                            <>
+                                <Text numberOfLines={2} style={[styles.balance, {
+                                    color: colors.common.text3,
+                                    fontSize: walletCurrency !== 'NFT' ? 13 : 18
+                                }]}>{walletCurrency !== 'NFT' ? (BlocksoftPrettyNumbers.makeCut(balance).separated + ' ' + walletCurrency) : (walletCurrency + ' ' + strings('cashback.balanceTitle'))}</Text>
+                                <Text
+                                    style={[styles.balanceData, { fontSize: walletCurrency !== 'NFT' ? 10 : 14 }]}>{currencySymbol + ' ' + BlocksoftPrettyNumbers.makeCut(balanceData).separated}</Text>
+                            </> :
+                            <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, fontSize: 24 }}>****</Text>
+                        }
+                    </TouchableOpacity>
+                    :
+                    <View style={styles.balanceContainer}>
+                        <Text numberOfLines={2} style={[styles.balance, { color: colors.common.text3, fontSize: 13 }]}>
+                            {tokenBlockchainCode}
+                        </Text>
+                    </View>}
+            </View>
+        )
+    }
 }
 
 NftTokenValue.contextType = ThemeContext
@@ -91,7 +118,6 @@ const mapStateToProps = (state) => {
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
     }
 }
-
 
 export default connect(mapStateToProps)(NftTokenValue)
 

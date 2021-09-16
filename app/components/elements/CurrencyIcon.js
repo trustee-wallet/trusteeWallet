@@ -269,8 +269,17 @@ export default class ButtonLine extends PureComponent {
                     </View>
                 )
 
-            case 'XVG':
             case 'ETH_ROPSTEN':
+            case 'ROPSTEN':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name='ETH_ROPSTEN' style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                        </View>
+                    </View>
+                )
+
+            case 'XVG':
             case 'BCH':
             case 'BSV':
             case 'XRP':
