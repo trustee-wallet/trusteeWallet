@@ -69,6 +69,8 @@
       "notificationText": "Make sure %{name} is safe. By interacting with this service you provide access to your funds!",
       "disconnect": "Disconnect",
       "connect": "Connect",
+      "placeholder": "There is will be your wallet address that you connected to",
+      "linkError": "WalletConnect link error. Please, check the correctness of the direct link",
       "title": "Wallet connect",
       "activated": "Activated",
       "disabled": "Disabled"

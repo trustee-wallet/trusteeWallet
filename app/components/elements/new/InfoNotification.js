@@ -47,7 +47,8 @@ class InfoNotification extends React.Component {
         const {
             title,
             subTitle,
-            onPress
+            onPress,
+            containerStyles
         } = this.props
 
         const { colors, GRID_SIZE } = this.context
@@ -75,7 +76,7 @@ class InfoNotification extends React.Component {
         }
 
         return (
-            <Animated.View style={[styles.container, backupAnimaStyle, { marginHorizontal: GRID_SIZE, backgroundColor: colors.homeScreen.backupBg }]}>
+            <Animated.View style={[styles.container, backupAnimaStyle, { marginHorizontal: GRID_SIZE, backgroundColor: colors.homeScreen.backupBg, ...containerStyles }]}>
                 <TouchableOpacity
                     onPress={onPress}
                     style={styles.backupWrapper}

@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         paddingTop: 8,
-        paddingBottom: 16,
         marginBottom: -7, // negative value because of paddingBottom in ExtraView into Header component
     },
     tab: {
