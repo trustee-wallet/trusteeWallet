@@ -191,7 +191,6 @@ class NftDetailedInfo extends React.PureComponent {
                             width: WINDOW_WIDTH - GRID_SIZE * 2,
                             height: this.state.heightPhoto,
                             marginTop: GRID_SIZE,
-                            marginLeft: GRID_SIZE,
                             marginBottom: GRID_SIZE * 1.5
                         }]}>
                             {data.img && data.img !== '' ?
@@ -211,6 +210,7 @@ class NftDetailedInfo extends React.PureComponent {
                         <View style={[styles.headerInfoContainer, { marginBottom: GRID_SIZE }]}>
                             <View style={styles.currencyInfo}>
                                 <NftTokenValue
+                                    tokenBlockchainCode={data.tokenBlockchainCode}
                                     walletCurrency={data.cryptoCurrencySymbol}
                                     balance={data.cryptoValue}
                                     balanceData={data.usdValue}

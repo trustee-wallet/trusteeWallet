@@ -36,7 +36,6 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import config from '@app/config/config'
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 
 let CACHE_CLICK = false
@@ -330,10 +329,9 @@ class CryptoCurrency extends React.PureComponent {
         if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && this.props.cryptoCurrency.currencyType === 'NFT') {
             return (
                 <SwipeRow
+                    disableLeftSwipe
                     leftOpenValue={140}
-                    rightOpenValue={-70}
                     stopLeftSwipe={160}
-                    stopRightSwipe={-90}
                     swipeToOpenPercent={5}
                     swipeToClosePercent={5}
                     setScrollEnabled={this.props.setScrollEnabled}

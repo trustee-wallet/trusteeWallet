@@ -83,6 +83,7 @@ class NftCollectionView extends React.PureComponent {
                 ExtraViewData: () => {
                     return (
                         <NftTokenValue
+                            tokenBlockchainCode={asset.tokenBlockchainCode}
                             walletCurrency={asset.cryptoCurrencySymbol}
                             balance={asset.cryptoValue}
                             balanceData={asset.usdValue} // @vadym its very bad names of fields

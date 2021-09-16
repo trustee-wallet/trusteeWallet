@@ -27,8 +27,10 @@ const NftTokenInfo = (props) => {
 
     return (
         <View style={{ marginBottom: GRID_SIZE, ...containerStyles }}>
-            <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-            <Text style={[styles.subTitle, { paddingTop: GRID_SIZE }]}>{subTitle}</Text>
+            <Text numberOfLines={1} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+            {!!subTitle && (
+                <Text style={[styles.subTitle, { paddingTop: GRID_SIZE }]}>{subTitle}</Text>
+            )}
         </View>
     )
 }
