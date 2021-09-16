@@ -265,8 +265,8 @@
     "receive": "Отримати",
     "title": "NFT",
     "titleQR" : "Скануй QR з Trustee",
-    "signing": "Пiдпис створюється, будь-ласка зачекайте - цей пiдпис лише пiдтверджує що ця адреса володiє цим NFT, тому Ви смiливо можете поширювати цей екран",
-    "signed":  "Пiдпис лише пiдтверджує що ця адреса володiє цим NFT, тому Ви смiливо можете поширювати цей екран",
+    "signing": "Пiдпис створюється, будь ласка, зачекайте - цей пiдпис лише пiдтверджує, що ця адреса володiє цим NFT, тому Ви смiливо можете поширювати цей екран",
+    "signed":  "Пiдпис лише пiдтверджує, що ця адреса володiє цим NFT, тому Ви смiливо можете поширювати цей екран",
     "status": "Статус",
     "contract": "Контракт колекції",
     "tokenId": "Токен ID",
@@ -275,14 +275,14 @@
     "ownershipProved": "Право власності підтверджено",
     "ownershipNotProved": "Право власності не підтверджено",
     "checking": "Перевіряється...",
-    "turnBasicAsset" : "For NFT transfer you need add %{asset} as it is used for transfer fee"
+    "turnBasicAsset" : "Для переказу NFT Вам потрібно додати %{asset} , оскільки він використовується для оплати комісії за переказ"
   },
   "nftAddAssetScreen" : {
-    "title" : "Add NFT Asset",
-    "addCustomLabel": "You can add a standard NFT token developed on Matic blockchain or Ropsten Testnet. Please, enter or scan a new token / asset address.",
-    "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
-    "addCustomPlaceholder" : "NFT Asset Address",
-    "addAssetButton" : "Add asset"
+    "title" : "Додати NFT актив",
+    "addCustomLabel": "Ви можете додати стандартний токен NFT, розроблений на Matic блокчейні чи Ropsten Testnet. Будь ласка, введіть або відскануйте нову адресу токену / активу.",
+    "addCustomLabelOpenSea" : "Токени Ethereum можна додати з OpenSea ",
+    "addCustomPlaceholder" : "Адреса активу NFT",
+    "addAssetButton" : "Додати актив"
   },
   "cashback": {
     "invited": "Запрошений:",
