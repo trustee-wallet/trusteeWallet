@@ -265,8 +265,8 @@
     "receive": "Получить",
     "title": "NFT",
     "titleQR" : "Сканируй QR из Trustee",
-    "signing": "Подпись создается, пожалуйста подождите - эта подпись только подтверждает что Адрес владеет данным NFT, поэтому Вы смело можете делиться этим экраном",
-    "signed": "Подпись только подтверждает что Адрес владеет данным NFT, поэтому Вы смело можете делиться этим экраном",
+    "signing": "Подпись создается, пожалуйста, подождите - эта подпись только подтверждает, что Адрес владеет данным NFT, поэтому Вы смело можете делиться этим экраном",
+    "signed": "Подпись только подтверждает, что Адрес владеет данным NFT, поэтому Вы смело можете делиться этим экраном",
     "status": "Статус",
     "contract": "Контракт коллекции",
     "tokenId": "Токен ID",
@@ -275,14 +275,14 @@
     "ownershipProved": "Право собственности доказано",
     "ownershipNotProved": "Право собственности не доказано",
     "checking": "Проверяется...",
-    "turnBasicAsset" : "For NFT transfer you need add %{asset} as it is used for transfer fee"
+    "turnBasicAsset" : "Для перевода NFT Вам необходимо добавить %{asset} , так как он используется для оплаты комиссии за перевод"
   },
   "nftAddAssetScreen" : {
-    "title" : "Add NFT Asset",
-    "addCustomLabel": "You can add a standard NFT token developed on Matic blockchain or Ropsten Testnet. Please, enter or scan a new token / asset address.",
-    "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
-    "addCustomPlaceholder" : "NFT Asset Address",
-    "addAssetButton" : "Add asset"
+    "title" : "Добавить NFT актив",
+    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейне Matic или в тестовой сети Ropsten. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
+    "addCustomLabelOpenSea" : "Токены Ethereum могут быть добавлены с OpenSea ",
+    "addCustomPlaceholder" : "Адрес актива NFT",
+    "addAssetButton" : "Добавить актив"
   },
   "cashback": {
     "invited": "Приглашен:",
