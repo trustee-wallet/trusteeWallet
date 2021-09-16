@@ -167,7 +167,7 @@ class App {
             await currencyBasicActions.init()
 
             // first step of init
-            // await Daemon.forceAll({ ...params, noCashbackApi: true })
+            await Daemon.forceAll({ ...params, noCashbackApi: true })
 
         } else if (firstTimeCall === 'second') {
             // second step of init
