@@ -268,10 +268,13 @@
     "signing": "Пiдпис створюється, будь-ласка зачекайте - цей пiдпис лише пiдтверджує що ця адреса володiє цим NFT, тому Ви смiливо можете поширювати цей екран",
     "signed":  "Пiдпис лише пiдтверджує що ця адреса володiє цим NFT, тому Ви смiливо можете поширювати цей екран",
     "status": "Статус",
-    "contract": "Адреса контракта",
+    "contract": "Контракт колекції",
     "tokenId": "Токен ID",
     "blockchain": "Блокчейн",
-    "address": "Адреса",
+    "address": "Адреса власника",
+    "ownershipProved": "Право власності підтверджено",
+    "ownershipNotProved": "Право власності не підтверджено",
+    "checking": "Перевіряється...",
     "turnBasicAsset" : "For NFT transfer you need add %{asset} as it is used for transfer fee"
   },
   "nftAddAssetScreen" : {

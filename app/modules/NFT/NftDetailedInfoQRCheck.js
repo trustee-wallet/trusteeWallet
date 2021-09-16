@@ -126,6 +126,18 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
         }
     }
 
+    getStatusText = (msg) => {
+
+        switch (msg.toLowerCase()) {
+            case 'success':
+                return strings('nftMainScreen.ownershipProved')
+            case 'checking':
+                return strings('nftMainScreen.checking')
+            default:
+                return strings('nftMainScreen.ownershipNotProved')
+        }
+    }
+
     handleSubContentPress = (item) => {
         if (typeof item.plain !== 'undefined') {
             copyToClipboard(item.plain)
@@ -164,7 +176,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                         <View style={[styles.statusIcon, { backgroundColor: colors.common.roundButtonContent }]}>
                             {this.getStatusIcon(message)}
                         </View>
-                        <Text style={[styles.textStatus, { color: colors.common.text1 }]}>{strings('nftMainScreen.status') + ': ' + message.toString()}</Text>
+                        <Text style={[styles.textStatus, { color: colors.common.text1 }]}>{this.getStatusText(message)}</Text>
                     </View>
                     {this.state.checkedInfoShow &&
                         <>

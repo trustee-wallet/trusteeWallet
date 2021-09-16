@@ -261,10 +261,13 @@
     "signing": "Signature is creating, please wait - it only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "signed": "Signature only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "status": "Status",
-    "contract": "Contract",
+    "contract": "Collection contract",
     "tokenId": "Token ID",
     "blockchain": "Blockchain",
-    "address": "Address",
+    "address": "Owned by address",
+    "ownershipProved": "Ownership proved",
+    "ownershipNotProved": "Ownership not proved",
+    "checking": "Checking...",
     "turnBasicAsset" : "For NFT transfer you need add %{asset} as it is used for transfer fee"
   },
   "nftAddAssetScreen" : {
