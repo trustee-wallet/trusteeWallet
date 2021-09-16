@@ -255,13 +255,13 @@
     "add": "Добавить"
   },
   "nftMainScreen": {
-    "assets": "Ресурсов",
+    "assets": "Активов",
     "receiveText": "Отправляйте только %{coin} на этот адрес. Отправка другой монеты может привести к её безвозвратной потере",
     "emptyNftText": "У вас еще нет NFT. Но вы можете получить его сейчас.",
     "proof": "Proof ownership",
     "info": "Информация",
     "all": "Все",
-    "collections": "Колекции",
+    "collections": "Коллекции",
     "receive": "Получить",
     "title": "NFT",
     "titleQR" : "Сканируй QR из Trustee",
@@ -275,7 +275,7 @@
     "ownershipProved": "Право собственности доказано",
     "ownershipNotProved": "Право собственности не доказано",
     "checking": "Проверяется...",
-    "turnBasicAsset" : "For NFT transfer you need add %{asset} as it is used for transfer fee"
+    "turnBasicAsset" : "Для перевода NFT Вам нужно добавить в кошелек монету %{asset} так как она используется для оплаты комиссий за перевод"
   },
   "nftAddAssetScreen" : {
     "title" : "Add NFT Asset",
