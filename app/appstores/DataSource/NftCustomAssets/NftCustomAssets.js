@@ -3,27 +3,32 @@
  */
 import Database from '@app/appstores/DataSource/Database'
 
+let CACHE = {}
 class NftCustomAssets {
 
-    saveNfts = async () => {
-        throw new Error('TODO')
+    saveCustomAsset = async (tmp) => {
+        if (typeof CACHE[tmp.nftType] !== 'undefined' && typeof CACHE[tmp.nftType][tmp.nftAddress] !== 'undefined') {
+            return false
+        }
+        await Database.setTableName('custom_nfts').setInsertData({ insertObjs: [tmp]}).insert()
+        return true
     }
 
-    getNftCustomAsset = async () => {
+    getCustomAssets = async () => {
         const sql = `SELECT id, nft_code AS nftCode, nft_symbol AS nftSymbol, nft_name AS nftName, nft_type AS nftType, nft_address AS nftAddress FROM custom_nfts`
         const res = await Database.query(sql, true)
         if (!res || !res.array || res.array.length === 0) {
             return false
         }
-        const tmps = {}
+        CACHE = {}
         for (const tmp of res.array) {
             tmp.nftName = Database.unEscapeString(tmp.nftName)
-            if (typeof tmps[tmp.nftType] === 'undefined') {
-                tmps[tmp.nftType] = {}
+            if (typeof CACHE[tmp.nftType] === 'undefined') {
+                CACHE[tmp.nftType] = {}
             }
-            tmps[tmp.nftType][tmp.nftAddress] = tmp
+            CACHE[tmp.nftType][tmp.nftAddress] = tmp
         }
-        return tmps
+        return CACHE
     }
 
 }

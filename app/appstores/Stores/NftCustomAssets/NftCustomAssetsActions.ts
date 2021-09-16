@@ -5,11 +5,28 @@ import store from '@app/store'
 import NftCustomAssets from '@app/appstores/DataSource/NftCustomAssets/NftCustomAssets'
 import Log from '@app/services/Log/Log'
 import BlocksoftTokenChecks from '@crypto/actions/BlocksoftTokenChecks/BlocksoftTokenChecks'
+import config from '@app/config/config'
 
 const { dispatch } = store
 
 
 export namespace NftCustomAssetsActions {
+
+    export const addCustomAsset = async function(nftToSave : any) {
+
+        if (!(await NftCustomAssets.saveCustomAsset(nftToSave))) {
+            return false
+        }
+
+        const customAssets = await NftCustomAssets.getCustomAssets()
+
+        dispatch({
+            type: 'SET_NFT_CUSTOM_ASSETS_LOADED',
+            customAssets,
+            loaded: true
+        })
+
+    }
 
     export const loadCustomAssets = async function() {
 
@@ -17,11 +34,11 @@ export namespace NftCustomAssetsActions {
             return false
         }
 
-        const assets = await NftCustomAssets.getNftCustomAsset()
+        const customAssets = await NftCustomAssets.getCustomAssets()
 
         dispatch({
             type: 'SET_NFT_CUSTOM_ASSETS_LOADED',
-            assets,
+            customAssets,
             loaded: true
         })
 
@@ -36,8 +53,8 @@ export namespace NftCustomAssetsActions {
         if (typeof (nftToAdd.nftType) === 'undefined') {
             throw new Error('set nftType')
         }
-        if (nftToAdd.nftType !== 'MATIC') {
-            throw new Error('only MATIC nftType is supported')
+        if (nftToAdd.nftType !== 'NFT_MATIC' && nftToAdd.nftType !== 'NFT_ROPSTEN') {
+            throw new Error('only MATIC / ROPSTEN nftType is supported')
         }
         if (typeof nftToAdd.nftAddress === 'undefined') {
             throw new Error('set ndtAddress')
@@ -48,6 +65,9 @@ export namespace NftCustomAssetsActions {
             res = await BlocksoftTokenChecks.getNftDetails(nftToAdd)
             Log.log('ACT/NftCustomAssets checkCustomAsset finished ', JSON.stringify(res))
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('ACT/NftCustomAssets checkCustomAsset error ' + e.message)
+            }
             Log.log('ACT/NftCustomAssets checkCustomAsset error ' + e.message)
             if (e.message.indexOf('SSL') !== -1) {
                 throw new Error('SERVER_RESPONSE_NO_SSL')

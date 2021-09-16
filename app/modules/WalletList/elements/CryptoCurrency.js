@@ -257,12 +257,12 @@ class CryptoCurrency extends React.PureComponent {
                         onPress={() => this.handleCurrencySelect('NftReceive')}
                         noTitle
                     />
-                    {false && <RoundButton
+                    <RoundButton
                         type="edit"
                         containerStyle={styles.hiddenLayer__roundButton}
                         onPress={() => this.handleCurrencySelect('NftAddAssetScreen')}
                         noTitle
-                    />}
+                    />
                 </View>
             </View>
         );

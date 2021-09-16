@@ -5,10 +5,11 @@ import store from '@app/store'
 import config from '@app/config/config'
 import BlocksoftTokenNfts from '@crypto/actions/BlocksoftTokenNfts/BlocksoftTokenNfts'
 import Nfts from '@app/appstores/DataSource/Nfts/Nfts'
+import Log from '@app/services/Log/Log'
 
 const { dispatch } = store
 
-const CODES = ['MATIC', 'ETH']
+const CODES = ['MATIC', 'ETH', 'ROPSTEN']
 
 export namespace NftActions {
 
@@ -48,13 +49,33 @@ export namespace NftActions {
                 usdTotal: 0
             }
 
+
+            const customAssets = store.getState().nftCustomAssetsStore.customAssets
             for (const tokenBlockchainCode of CODES) {
+                const tmpAssets = typeof customAssets !== 'undefined' && typeof customAssets['NFT_' + tokenBlockchainCode] !== 'undefined' ? customAssets['NFT_' + tokenBlockchainCode] : {}
+
+                const tmpAssetsArray = []
+                for (let tmp in tmpAssets) {
+                    tmpAssetsArray.push(tmp)
+                }
+
                 let tmp = Nfts.getNftsCache(tokenBlockchainCode, address)
-                if (force || !tmp) {
-                    tmp = await BlocksoftTokenNfts.getList({ tokenBlockchainCode, address })
-                    if (tmp) {
-                        Nfts.saveNfts(tokenBlockchainCode, address, tmp)
+                try {
+                    if (force || !tmp) {
+                        tmp = await BlocksoftTokenNfts.getList({
+                            tokenBlockchainCode,
+                            address,
+                            customAssets: tmpAssetsArray
+                        })
+                        if (tmp) {
+                            Nfts.saveNfts(tokenBlockchainCode, address, tmp)
+                        }
                     }
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' error ' + e.message)
+                    }
+                    Log.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' error ' + e.message)
                 }
                 if (typeof tmp.assets === 'undefined') continue
                 nfts.assets = [...nfts.assets, ...tmp.assets]

@@ -13,12 +13,14 @@ import store from '@app/store'
 
 const CACHE = {
     MATIC: {},
-    ETH: {}
+    ETH: {},
+    ROPSTEN : {}
 }
 
 const CACHE_TIME = {
     MATIC: {},
-    ETH: {}
+    ETH: {},
+    ROPSTEN : {}
 }
 
 const CACHE_VALID_TIME = 60000 // 1 minute

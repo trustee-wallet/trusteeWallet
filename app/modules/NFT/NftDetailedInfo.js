@@ -30,9 +30,11 @@ import Log from '@app/services/Log/Log'
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
 
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
-
+import config from '@app/config/config'
+import store from '@app/store'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -81,8 +83,29 @@ class NftDetailedInfo extends React.PureComponent {
         if (CACHE_CLICK_SEND) return false
         CACHE_CLICK_SEND = true
         try {
+            const currencyCode = this.state.data.tokenBlockchainCode
+            const { cryptoCurrencies } = store.getState().currencyStore
+            let found = false
+            for (const cryptoCurrency of cryptoCurrencies) {
+                if (cryptoCurrency.currencyCode == currencyCode) {
+                    found = true
+                    continue
+                }
+            }
+            if (!found) {
+                showModal({
+                    type: 'YES_NO_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.exchange.sorry'),
+                    description: strings('nftMainScreen.turnBasicAsset', {asset : currencyCode}),
+                }, () => {
+                    NavStore.goNext('AddAssetScreen')
+                })
+                CACHE_CLICK_SEND = false
+                return false
+            }
             await SendActionsStart.startFromCustomContractCallData({
-                currencyCode: this.state.data.tokenBlockchainCode,
+                currencyCode,
                 contractCallData: {
                     contractAddress : this.state.data.contractAddress,
                     contractSchema : this.state.data.contractSchema || 'ERC721',
@@ -106,7 +129,9 @@ class NftDetailedInfo extends React.PureComponent {
                     ]
                 }})
         } catch (e) {
-
+            if (config.debug.appErrors) {
+                console.log('NFT.NftDetailedInfo handleSend error ' + e.message)
+            }
         }
         CACHE_CLICK_SEND = false
     }

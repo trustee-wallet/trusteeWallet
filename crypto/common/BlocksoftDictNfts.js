@@ -26,6 +26,15 @@ const Nfts = [
         tokenBlockchainCode: 'MATIC',
         currencyType: 'NFT',
         showOnHome : false
+    },
+    {
+        currencyCode: 'NFT_ROPSTEN',
+        currencyName: 'Ropsten NFT',
+        currencySymbol: 'NFT',
+        tokenBlockchain: 'ROPSTEN',
+        tokenBlockchainCode: 'ROPSTEN',
+        currencyType: 'NFT',
+        showOnHome : false
     }
     /*
     {

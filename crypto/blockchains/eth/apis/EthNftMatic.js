@@ -5,18 +5,19 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
-const API_PATH = 'https://microscanners.trustee.deals/getMaticNfts/'
+const API_PATH = 'https://microscanners.trustee.deals/getAllNfts/'
 
 /**
  * https://microscanners.trustee.deals/getMaticNfts/0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99
+ * https://microscanners.trustee.deals/getAllNfts/0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99?
  * @param data.address
  * @param data.tokenBlockchainCode
+ * @param data.customAssets
  */
 export default async function(data) {
 
-    const link = API_PATH + data.address
+    const link = API_PATH + data.address + '?tokenBlockchainCode=' + data.tokenBlockchainCode + '&tokens=' + data.customAssets.join(',')
     const result = await BlocksoftAxios.getWithoutBraking(link)
-
 
     /**
      * @var tmp.animation_url
@@ -37,7 +38,7 @@ export default async function(data) {
                 id: tmp.id,
                 tokenId: tmp.token_index,
                 contractAddress: tmp.contract_address,
-                tokenBlockchainCode: tmp.token_blockchain_code || 'MATIC',
+                tokenBlockchainCode: tmp.token_blockchain_code || data.tokenBlockchainCode,
                 img: tmp.image,
                 title: tmp.name || tmp.title,
                 subTitle: '',

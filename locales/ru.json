@@ -271,7 +271,15 @@
     "contract": "Адрес контракта",
     "tokenId": "Токен ID",
     "blockchain": "Блокчейн",
-    "address": "Адрес"
+    "address": "Адрес",
+    "turnBasicAsset" : "For NFT transfer you need add %{asset} as it is used for transfer fee"
+  },
+  "nftAddAssetScreen" : {
+    "title" : "Add NFT Asset",
+    "addCustomLabel": "You can add a standard NFT token developed on Matic blockchain or Ropsten Testnet. Please, enter or scan a new token / asset address.",
+    "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
+    "addCustomPlaceholder" : "NFT Asset Address",
+    "addAssetButton" : "Add asset"
   },
   "cashback": {
     "invited": "Приглашен:",

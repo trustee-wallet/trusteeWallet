@@ -20,6 +20,7 @@ import ListItem from '@app/components/elements/new/list/ListItem/Asset'
 import Nfts from '@crypto/common/BlocksoftDictNfts'
 import { addCustomToken } from '@app/modules/NFT/helpers'
 import { getNftCustomAssetsData } from '@app/appstores/Stores/NftCustomAssets/selectors'
+import { NftCustomAssetsActions } from '@app/appstores/Stores/NftCustomAssets/NftCustomAssetsActions'
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
 import Log from '@app/services/Log/Log'
@@ -37,6 +38,11 @@ class NftAddAssetScreen extends PureComponent {
             title: 'MATIC'
         }
     }
+
+    async componentDidMount() {
+        NftCustomAssetsActions.loadCustomAssets()
+    }
+
 
     handleBack = () => {
         NavStore.goBack()

@@ -29,10 +29,12 @@ import FlatListCollections from '@app/modules/NFT/elements/FlatListCollections'
 
 import { getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
+import { NftCustomAssetsActions } from '@app/appstores/Stores/NftCustomAssets/NftCustomAssetsActions'
 
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
+
 
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
@@ -66,6 +68,8 @@ class NftMainScreen extends React.PureComponent {
 
 
     async componentDidMount() {
+        await NftCustomAssetsActions.loadCustomAssets()
+
         await this.handleRefresh(false)
 
         this.setState({
