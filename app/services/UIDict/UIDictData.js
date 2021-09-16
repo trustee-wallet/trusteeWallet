@@ -68,12 +68,6 @@ export default {
             darkColor: '#9042BA'
         }
     },
-    'ROPSTEN': {
-        colors: {
-            mainColor: '#68268C',
-            darkColor: '#9042BA'
-        }
-    },
     'BTC': {
         colors: {
             mainColor: '#F79E1B',

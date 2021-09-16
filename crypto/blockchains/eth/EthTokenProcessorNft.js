@@ -17,7 +17,7 @@ export default class EthTokenProcessorNft extends EthBasic {
     async getListBlockchain(data) {
 
         if (
-            this._settings.tokenBlockchain === 'MATIC' || this._settings.tokenBlockchainCode === 'ROPSTEN'
+            this._settings.tokenBlockchain === 'MATIC' || this._settings.tokenBlockchainCode === 'ETH_ROPSTEN'
         ) {
             return EthNftMatic(data)
         } else {

@@ -5,9 +5,9 @@
 import React from 'react'
 import {
     View,
-    StyleSheet, 
-    Text, 
-    ActivityIndicator, 
+    StyleSheet,
+    Text,
+    ActivityIndicator,
     ScrollView
 } from 'react-native'
 
@@ -25,6 +25,7 @@ import { BlocksoftTransferPrivate } from '@crypto/actions/BlocksoftTransfer/Bloc
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 import CustomIcon from '@app/components/elements/CustomIcon'
+import Database from '@app/appstores/DataSource/Database'
 
 
 class NftDetailedInfoQR extends React.PureComponent {
@@ -59,7 +60,7 @@ class NftDetailedInfoQR extends React.PureComponent {
             const initData = {
                 walletHash: data.walletHash,
                 currencyCode: data.tokenBlockchainCode,
-                derivationPath: data.derivationPath
+                derivationPath: Database.unEscapeString(data.derivationPath)
             }
             const res = await BlocksoftTransferPrivate.initTransferPrivate(initData)
             const signed = await BlocksoftKeysForRef.signDataForApi(now, res.privateKey)

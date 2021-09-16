@@ -39,6 +39,7 @@ export default async function(data) {
                 tokenId: tmp.token_index,
                 contractAddress: tmp.contract_address,
                 tokenBlockchainCode: tmp.token_blockchain_code || data.tokenBlockchainCode,
+                tokenBlockchain:  tmp.token_blockchain || data.tokenBlockchain,
                 img: tmp.image,
                 title: tmp.name || tmp.title,
                 subTitle: '',

@@ -32,7 +32,16 @@ const Nfts = [
         currencyName: 'Ropsten NFT',
         currencySymbol: 'NFT',
         tokenBlockchain: 'ROPSTEN',
-        tokenBlockchainCode: 'ROPSTEN',
+        tokenBlockchainCode: 'ETH_ROPSTEN',
+        currencyType: 'NFT',
+        showOnHome : false
+    },
+    {
+        currencyCode: 'NFT_RINKEBY',
+        currencyName: 'Rinkeby NFT',
+        currencySymbol: 'NFT',
+        tokenBlockchain: 'RINKEBY',
+        tokenBlockchainCode: 'ETH_RINKEBY',
         currencyType: 'NFT',
         showOnHome : false
     }

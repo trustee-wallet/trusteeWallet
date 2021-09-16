@@ -201,10 +201,12 @@ class BlocksoftDispatcher {
         switch (tokenBlockchainCode) {
             case 'ETH': case 'NFT_ETH':
                 return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain: 'ETHEREUM', tokenBlockchainCode : 'ETH' })
+            case 'ETH_RINKEBY': case 'NFT_RINKEBY':
+                return new EthTokenProcessorNft({ network: 'rinkeby', tokenBlockchain: 'RINKEBY', tokenBlockchainCode : 'ETH_RINKEBY' })
             case 'MATIC': case 'NFT_MATIC':
                 return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'MATIC', tokenBlockchainCode : 'MATIC' })
-            case 'ROPSTEN': case 'NFT_ROPSTEN':
-                return new EthTokenProcessorNft({ network: 'ropsten', tokenBlockchain : 'ROPSTEN', tokenBlockchainCode : 'ROPSTEN' })
+            case 'ETH_ROPSTEN': case 'NFT_ROPSTEN':
+                return new EthTokenProcessorNft({ network: 'ropsten', tokenBlockchain : 'ROPSTEN', tokenBlockchainCode : 'ETH_ROPSTEN' })
             default:
                 throw new Error('Unknown tokenProcessor ' + tokenBlockchainCode)
         }

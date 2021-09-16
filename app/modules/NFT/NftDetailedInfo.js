@@ -79,6 +79,26 @@ class NftDetailedInfo extends React.PureComponent {
         NavStore.goBack()
     }
 
+    getCurrencyTitle = (walletCurrency, tokenBlockchainCode) => {
+        if (!walletCurrency && !tokenBlockchainCode) {
+            return ''
+        }
+
+        if (walletCurrency) {
+            return walletCurrency
+        } else {
+            switch (tokenBlockchainCode.toUpperCase()) {
+                case 'ETH_ROPSTEN':
+                    return 'ROPSTEN'
+                case 'ETH_RINKEBY':
+                    return 'RINKEBY'
+                default:
+                    return tokenBlockchainCode
+            }
+        }
+    }
+
+
     handleSend = async () => {
         if (CACHE_CLICK_SEND) return false
         CACHE_CLICK_SEND = true
@@ -97,7 +117,7 @@ class NftDetailedInfo extends React.PureComponent {
                     type: 'YES_NO_MODAL',
                     icon: 'INFO',
                     title: strings('modal.exchange.sorry'),
-                    description: strings('nftMainScreen.turnBasicAsset', {asset : currencyCode}),
+                    description: strings('nftMainScreen.turnBasicAsset', {asset : this.getCurrencyTitle(false, currencyCode)}),
                 }, () => {
                     NavStore.goNext('AddAssetScreen')
                 })

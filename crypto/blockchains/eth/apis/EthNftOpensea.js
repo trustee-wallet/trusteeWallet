@@ -6,16 +6,23 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 const API_PATH = 'https://api.opensea.io/api/v1/'
-
+const API_TEST_PATH = 'https://testnets-api.opensea.io/api/v1/'
 /**
  * https://docs.opensea.io/reference/getting-assets
  * curl --request GET --url https://api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=20&owner=0x6cdb97bf46d77233cc943264633c2ed56bcf6f1f
+ * curl --request GET --url https://testnets-api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=20&owner=0x6cdb97bf46d77233cc943264633c2ed56bcf6f1f
  * @param data.address
  * @param data.tokenBlockchainCode
  */
 export default async function(data) {
 
-    const link = API_PATH + 'assets?order_direction=desc&owner=' + data.address
+    let link
+    if (data.tokenBlockchainCode === 'ETH_RINKEBY') {
+        link = API_TEST_PATH
+    } else {
+        link = API_PATH
+    }
+    link += 'assets?order_direction=desc&owner=' + data.address
     const result = await BlocksoftAxios.getWithoutBraking(link)
 
 
@@ -47,7 +54,8 @@ export default async function(data) {
                 tokenId: tmp.token_id,
                 contractAddress: '',
                 tokenBlockchainCode: data.tokenBlockchainCode,
-                img: tmp.image_thumbnail_url,
+                tokenBlockchain: data.tokenBlockchain,
+                img: tmp.image_preview_url,
                 title: tmp.name || tmp.title,
                 subTitle: '',
                 desc: '',
@@ -117,7 +125,6 @@ export default async function(data) {
             } catch (e) {
                 BlocksoftCryptoLog.log('EthTokenProcessorNft EthNftOpensea collection error ' + e.message)
             }
-
 
             formatted.push(one)
         }

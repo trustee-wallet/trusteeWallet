@@ -43,10 +43,27 @@ class NftTokenValue extends React.Component {
                     return 'MATIC'
                 case 'ETHEREUM':
                     return 'ETH'
-                case 'ROPSTEN':
-                    return 'ETH_ROPSTEN'
                 case 'TRON':
                     return 'TRX'
+                default:
+                    return tokenBlockchainCode
+            }
+        }
+    }
+
+    getCurrencyTitle = (walletCurrency, tokenBlockchainCode) => {
+        if (!walletCurrency && !tokenBlockchainCode) {
+            return ''
+        }
+
+        if (walletCurrency) {
+            return walletCurrency
+        } else {
+            switch (tokenBlockchainCode.toUpperCase()) {
+                case 'ETH_ROPSTEN':
+                    return 'ROPSTEN'
+                case 'ETH_RINKEBY':
+                    return 'RINKEBY'
                 default:
                     return tokenBlockchainCode
             }
@@ -103,7 +120,7 @@ class NftTokenValue extends React.Component {
                     :
                     <View style={styles.balanceContainer}>
                         <Text numberOfLines={2} style={[styles.balance, { color: colors.common.text3, fontSize: 13 }]}>
-                            {tokenBlockchainCode}
+                            {this.getCurrencyTitle(walletCurrency, tokenBlockchainCode)}
                         </Text>
                     </View>}
             </View>

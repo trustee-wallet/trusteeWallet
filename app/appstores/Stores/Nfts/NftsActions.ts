@@ -9,7 +9,7 @@ import Log from '@app/services/Log/Log'
 
 const { dispatch } = store
 
-const CODES = ['MATIC', 'ETH', 'ROPSTEN']
+const CODES = ['ETH_RINKEBY', 'MATIC', 'ETH', 'ETH_ROPSTEN']
 
 export namespace NftActions {
 
@@ -73,7 +73,7 @@ export namespace NftActions {
                     }
                 } catch (e) {
                     if (config.debug.appErrors) {
-                        console.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' error ' + e.message)
+                        console.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' error ' + e.message, e)
                     }
                     Log.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' error ' + e.message)
                 }
