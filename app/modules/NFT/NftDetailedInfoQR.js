@@ -8,6 +8,7 @@ import {
     StyleSheet,
     Text,
     ActivityIndicator,
+    TouchableOpacity,
     ScrollView
 } from 'react-native'
 
@@ -144,7 +145,9 @@ class NftDetailedInfoQR extends React.PureComponent {
                     </View>
 
                     {this.state.signed &&
-                        <View style={[styles.qrContainer, { marginTop: GRID_SIZE * 2 }]}>
+                        <TouchableOpacity style={[styles.qrContainer, { marginTop: GRID_SIZE * 2 }]}
+                            onPress={() => this.copyToLink(message)}
+                        >
                             <View style={styles.qr}>
                                 <QrCodeBox
                                     getRef={ref => this.refSvg = ref}
@@ -160,7 +163,7 @@ class NftDetailedInfoQR extends React.PureComponent {
                                     }}
                                 />
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     }
                 </ScrollView>
             </ScreenWrapper >

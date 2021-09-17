@@ -54,7 +54,14 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
         const tmpData = NavStore.getParamWrapper(this, 'jsonData')
         try {
             const data = JSON.parse(tmpData)
-            let explorerLink = data.tokenBlockchainCode === 'MATIC' ? 'https://polygonscan.com/token/' : 'https://etherscan.com/token/'
+            let explorerLink = 'https://etherscan.com/token/'
+            if (data.tokenBlockchainCode === 'MATIC') {
+                explorerLink = 'https://polygonscan.com/token/'
+            } else if (data.tokenBlockchainCode === 'ETH_ROPSTEN') {
+                explorerLink = 'https://ropsten.etherscan.io/token/'
+            } else if (data.tokenBlockchainCode === 'ETH_RINKEBY') {
+                explorerLink = 'https://rinkeby.etherscan.io/token/'
+            }
             explorerLink += data.contractAddress + '?a=' + data.tokenId
             this.setState({
                 data, explorerLink
@@ -65,6 +72,25 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                 console.log('NftDetailedInfoQRCheck mount error ' + e.message)
             }
             Log.log('NftDetailedInfoQRCheck mount error ' + e.message)
+        }
+    }
+
+    getCurrencyTitle = (walletCurrency, tokenBlockchainCode) => {
+        if (!walletCurrency && !tokenBlockchainCode) {
+            return ''
+        }
+
+        if (walletCurrency) {
+            return walletCurrency
+        } else {
+            switch (tokenBlockchainCode.toUpperCase()) {
+                case 'ETH_ROPSTEN':
+                    return 'ROPSTEN'
+                case 'ETH_RINKEBY':
+                    return 'RINKEBY'
+                default:
+                    return tokenBlockchainCode
+            }
         }
     }
 
@@ -91,7 +117,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
             }
 
             const diff = new Date().getTime() - data.signed.message.replace('nft', '') * 1
-            if (diff > 360000) {
+            if (diff > 36000000) {
                 checkedStatus = 'owned by this address, but timeouted'
                 checkedInfoShow = true
             }
@@ -194,7 +220,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                             />
                             <TransactionItem
                                 title={strings('nftMainScreen.blockchain')}
-                                subtitle={this.state.data.tokenBlockchainCode}
+                                subtitle={this.getCurrencyTitle(false, this.state.data.tokenBlockchainCode)}
                                 iconType='block'
                             />
                             <TransactionItem
