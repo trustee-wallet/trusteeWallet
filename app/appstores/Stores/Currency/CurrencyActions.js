@@ -216,12 +216,12 @@ const currencyActions = {
         Log.log('ACT/Currency toggleCurrencyVisibility called ', params)
 
         try {
-
-            let { selectedWalletNumber } = store.getState().mainStore.selectedWallet
-            if (typeof selectedWalletNumber === 'undefined' || !selectedWalletNumber) {
-                selectedWalletNumber = 0
+            
+            let { walletNumber } = store.getState().mainStore.selectedWallet
+            if (typeof walletNumber === 'undefined' || !walletNumber) {
+                walletNumber = 1
             } else {
-                selectedWalletNumber = selectedWalletNumber * 1
+                walletNumber = walletNumber * 1
             }
 
             const currentIsHidden = Number(params.currentIsHidden || 0).toString(2).split('').reverse() // split to binary
@@ -230,9 +230,9 @@ const currencyActions = {
                     currentIsHidden[i] = 0
                 }
             }
-            currentIsHidden[selectedWalletNumber] = params.newIsHidden
+            currentIsHidden[walletNumber] = params.newIsHidden
             const isHidden = parseInt(currentIsHidden.reverse().join(''), 2)
-            Log.log('ACT/Currency toggleCurrencyVisibility selectedWalletNumber ' + selectedWalletNumber + ' isHidden ' + isHidden, JSON.stringify(currentIsHidden))
+            Log.log('ACT/Currency toggleCurrencyVisibility selectedWallet walletNumber ' + walletNumber + ' isHidden ' + isHidden, JSON.stringify(currentIsHidden))
             await currencyDS.updateCurrency({
                 key: {
                     currencyCode: params.currencyCode

@@ -6,13 +6,14 @@ import Nfts from '@crypto/common/BlocksoftDictNfts'
 export const getVisibleCurrencies = createSelector(
     [state => state.currencyStore.cryptoCurrencies],
     (currencies => {
-        let { selectedWalletNumber } = store.getState().mainStore.selectedWallet
-        if (typeof selectedWalletNumber === 'undefined' || !selectedWalletNumber) {
-            selectedWalletNumber = 0
+        let { walletNumber } = store.getState().mainStore.selectedWallet
+        if (typeof walletNumber === 'undefined' || !walletNumber) {
+            walletNumber = 1
         } else {
-            selectedWalletNumber = selectedWalletNumber * 1
+            walletNumber = walletNumber * 1
         }
-        Log.log('ACT/Currency getVisibleCurrencies selectedWalletNumber ' + selectedWalletNumber)
+
+        Log.log('ACT/Currency getVisibleCurrencies selectedWallet walletNumber ' + walletNumber)
 
         const tmpNfts = Nfts.Nfts.filter(c => {
             return c.showOnHome
@@ -23,10 +24,10 @@ export const getVisibleCurrencies = createSelector(
                 c.maskedHidden = true
             } else {
                 const mask = Number(c.isHidden || 0).toString(2).split('').reverse() // split to binary
-                if (typeof mask[selectedWalletNumber] === 'undefined') {
+                if (typeof mask[walletNumber] === 'undefined') {
                     c.maskedHidden = mask.length === 1 ? (mask[mask.length - 1] === '1') : false
                 } else {
-                    c.maskedHidden = mask[selectedWalletNumber] === '1'
+                    c.maskedHidden = mask[walletNumber] === '1'
                 }
             }
             return !c.maskedHidden
