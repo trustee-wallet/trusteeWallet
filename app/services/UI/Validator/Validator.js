@@ -44,6 +44,7 @@ async function _userDataValidation(obj) {
     const name = (typeof obj.name === 'undefined') ? obj.id : obj.name
 
     let value = obj.value
+    console.log('xf', obj)
     let error = {}
 
     if (typeof value === 'undefined') {
@@ -394,9 +395,17 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'WALLET_CONNECT_LINK':
+            if (!value) {
+                error.msg = strings('validator.empty', {name: name})
+            }
+            break
+
         default:
             break
     }
+
+    console.log('dadad')
 
 
     if (typeof error.msg !== 'undefined') {
@@ -484,6 +493,8 @@ module.exports = {
         return _userDataValidation(obj)
     },
 
+
+
     arrayValidation: async function(array) {
         let resultArray = []
         if (!array || typeof (array) === 'undefined' || !array.length) {
@@ -493,6 +504,23 @@ module.exports = {
                 let validRes = await _userDataValidation(array[i])
                 if (validRes) {
                     resultArray.push(validRes)
+                }
+            }
+        }
+        console.log('value22', array.type)
+        if ( array.type === 'WALLET_CONNECT_LINK' ) {
+            console.log('1')
+            if ( array.value.include('wc:') ) {
+                console.log('w')
+                return {
+                    status: 'success',
+                    errorArr: []
+                }
+            }else {
+                console.log('3')
+                return {
+                    status: 'fail',
+                    errorArr: resultArray
                 }
             }
         }
