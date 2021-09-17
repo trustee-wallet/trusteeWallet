@@ -14,16 +14,19 @@ let CACHE_ALREADY_INITED = false
 export namespace SendDeepLinking {
 
     export const initDeepLinking = function(): boolean {
+        Log.log('SendDeepLinking.initDeepLinking start')
         if (CACHE_ALREADY_INITED) return false
         handleInitialURL(true, '')
         Linking.addEventListener('url', (data) => handleInitialURL(false, data.url))
         CACHE_ALREADY_INITED = true
+        Log.log('SendDeepLinking.initDeepLinking finished')
         return true
     }
 
     const handleInitialURL = async (needGetUrl: boolean, url: string) => {
         let initialURL = url
 
+        await Log.log('SendDeepLinking.handleInitialURL ' + url)
         try {
             if (needGetUrl) {
                 initialURL = await NativeLinking.getInitialURL()
