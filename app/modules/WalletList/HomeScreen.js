@@ -55,10 +55,15 @@ class HomeScreen extends React.PureComponent {
             hasStickyHeader: false,
             enableVerticalScroll: true
         }
-        SendDeepLinking.initDeepLinking()
     }
 
     componentDidMount() {
+        try {
+            await Log.log('WalletList.HomeScreen initDeepLinking ' + e.message)
+            SendDeepLinking.initDeepLinking()
+        } catch (e) {
+            await Log.log('WalletList.HomeScreen initDeepLinking error ' + e.message)
+        }
         setLoaderStatus(false)
         this.getBalanceVisibility()
 
