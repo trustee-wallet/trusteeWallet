@@ -115,16 +115,19 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     }))
                 }
             } else if (data.addressTo === 'STAKE') {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build start')
                 const validator = data.blockchainData.voteAddress
                 const authorized = new Authorized(fromPubkey, fromPubkey)
                 if (typeof validator === 'undefined' || !validator) {
                     throw new Error('no validator field')
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build authorized')
 
                 // https://github.com/velas/JsWallet/blob/251ad92bb5c2cd9a62477746a3db934b6dce0c4b/velas/velas-staking.js
                 // https://explorer.solana.com/tx/2ffmtkj3Yj51ZWCEHG6jb6s78F73eoiQdqURV7z65kSVLiPcm8Y9NE45FgfgwbddJD8kfgCiTpmrEu7J8WKpAQeE
                 await SolStakeUtils.getAccountStaked(data.addressFrom)
 
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build  createWithSeed started')
                 let start = 0
                 let lastSeed = await SolTmpDS.getCache(data.addressFrom)
                 if (typeof lastSeed !== 'undefined' && lastSeed && typeof lastSeed.seed !== 'undefined' && lastSeed.seed) {
@@ -145,6 +148,7 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         break
                     }
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build createWithSeed finished')
 
                 if (!stakeAddress) {
                     throw new Error('Stake address seed is not found')
