@@ -1617,8 +1617,8 @@
     buffer "~6.0.3"
 
 "@solana/web3.js@git+https://git@github.com/trustee-wallet/solana-web3.js.git":
-  version "0.0.0-development"
-  resolved "git+https://git@github.com/trustee-wallet/solana-web3.js.git#b957b68ae9de9349dfc48267b3a5d665760fd920"
+  version "0.0.1-development"
+  resolved "git+https://git@github.com/trustee-wallet/solana-web3.js.git#626665056389147825af2a9f982b59eec3207051"
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@solana/buffer-layout" "^3.0.0"
