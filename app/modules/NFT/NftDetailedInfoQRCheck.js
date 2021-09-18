@@ -102,29 +102,38 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
             let checkedInfoShow = false
             const web3 = Web3Injected(data.tokenBlockchainCode)
 
+            Log.log('NftDetailedInfoQRCheck checkMessage started ', data)
             if (!checkedStatus) {
                 const signedDataHash = await web3.eth.accounts.hashMessage(data.signed.message)
                 if (signedDataHash !== data.signed.messageHash) {
                     checkedStatus = 'hash not matching'
                 }
+                Log.log('NftDetailedInfoQRCheck checkMessage signedDataHash has warning ' + JSON.stringify(checkedStatus))
             }
-
 
             const token = new web3.eth.Contract(abi.ERC721, data.contractAddress)
-            const owner = await token.methods.ownerOf(data.tokenId).call()
-            if (owner.toLowerCase() !== data.signAddress.toLowerCase()) {
-                checkedStatus = 'owned by other address ' + owner
+            Log.log('NftDetailedInfoQRCheck checkMessage token inited')
+            if (!checkedStatus) {
+                const owner = await token.methods.ownerOf(data.tokenId).call()
+                if (owner.toLowerCase() !== data.signAddress.toLowerCase()) {
+                    checkedStatus = 'owned by other address ' + owner
+                }
+                Log.log('NftDetailedInfoQRCheck checkMessage ownerCheck has warning ' + JSON.stringify(checkedStatus))
             }
 
-            const diff = new Date().getTime() - data.signed.message.replace('nft', '') * 1
-            if (diff > 36000000) {
-                checkedStatus = 'owned by this address, but timeouted'
-                checkedInfoShow = true
+            if (!checkedStatus) {
+                const diff = new Date().getTime() - data.signed.message.replace('nft', '') * 1
+                if (diff > 36000000) {
+                    checkedStatus = 'owned by this address, but timeouted'
+                    checkedInfoShow = true
+                }
+                Log.log('NftDetailedInfoQRCheck checkMessage diffTime ' + diff + ' has warning ' + JSON.stringify(checkedStatus))
             }
 
             if (!checkedStatus) {
                 checkedStatus = 'success'
                 checkedInfoShow = true
+                Log.log('NftDetailedInfoQRCheck checkMessage success')
             }
 
             this.setState({ checked: true, checkedStatus, checkedInfoShow })
