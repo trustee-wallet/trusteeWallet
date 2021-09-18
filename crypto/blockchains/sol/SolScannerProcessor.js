@@ -105,21 +105,22 @@ export default class SolScannerProcessor {
     async _unifyTransactions(address, result, lastHashVar) {
         const transactions = []
         let lastHash = false
+        let hasError = false
         for (const tx of result) {
             try {
                 const transaction = await this._unifyTransaction(address, tx)
                 if (transaction) {
                     transactions.push(transaction)
-                    if (transaction.transactionStatus === 'success' && !lastHash) {
+                    if (transaction.transactionStatus === 'success' && !lastHash && !hasError) {
                         lastHash = transaction.transactionHash
                     }
                 }
             } catch (e) {
+                hasError = true
                 if (config.debug.appErrors) {
                     console.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransactions ' + tx.signature + ' error ' + e.message)
                 }
-                e.message += ' while _unify ' + tx.signature
-                throw e
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransactions ' + tx.signature + ' error ' + e.message)
             }
         }
 
@@ -163,12 +164,19 @@ export default class SolScannerProcessor {
         let additional
         if (typeof CACHE_TXS[transaction.signature] === 'undefined') {
             const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
-            const res = await BlocksoftAxios._request(apiPath, 'POST', data)
-            if (typeof res.data.result === 'undefined' || !res.data.result) {
-                return false
+            try {
+                const res = await BlocksoftAxios._request(apiPath, 'POST', data)
+                if (typeof res.data.result === 'undefined' || !res.data.result) {
+                    return false
+                }
+                additional = res.data.result
+                CACHE_TXS[transaction.signature] = {data : additional, now : new Date().getTime() }
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransaction ' + transaction.signature + ' request error ' + e.message)
+                }
+                throw e
             }
-            additional = res.data.result
-            CACHE_TXS[transaction.signature] = {data : additional, now : new Date().getTime() }
         } else {
             additional = CACHE_TXS[transaction.signature].data
         }
@@ -203,7 +211,7 @@ export default class SolScannerProcessor {
                 indexedCreated[tmp.parsed.info.account] = tmp.parsed.info.wallet
             }
         } else {
-            return false
+            // do nothing!
         }
 
         for (let i = 0, ic = additional.transaction.message.accountKeys.length; i < ic; i++) {
@@ -247,6 +255,9 @@ export default class SolScannerProcessor {
         }
         if (anyToAddress && !addressTo) {
             addressTo = anyToAddress
+        }
+        if (!addressTo) {
+            addressTo = 'System'
         }
 
 
