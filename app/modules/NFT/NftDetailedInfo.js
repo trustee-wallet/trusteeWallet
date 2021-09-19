@@ -195,6 +195,8 @@ class NftDetailedInfo extends React.PureComponent {
             colors
         } = this.context
 
+        const showLink = typeof data.permalink !== 'undefined' && data.permalink && data.permalink !== 'false' ? true : false
+
         return (
             <ScreenWrapper
                 title={strings('nftMainScreen.info')}
@@ -251,12 +253,14 @@ class NftDetailedInfo extends React.PureComponent {
                                 {data.desc}
                             </Text>
                         </View>
-                        <TouchableOpacity
-                            style={styles.linkContainer}
-                            onPress={this.openLink}
-                        >
-                            <Text style={[styles.link, { color: colors.common.text1 }]}>View on OpenSea</Text>
-                        </TouchableOpacity>
+                        { showLink && (
+                            <TouchableOpacity
+                                style={styles.linkContainer}
+                                onPress={this.openLink}
+                            >
+                                <Text style={[styles.link, { color: colors.common.text1 }]}>{strings('account.transactionScreen.viewExplorer')}</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                     <View style={{
                         paddingHorizontal: GRID_SIZE,
