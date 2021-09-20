@@ -115,7 +115,7 @@ class NftDetailedInfo extends React.PureComponent {
             if (!found) {
                 showModal({
                     type: 'YES_NO_MODAL',
-                    icon: 'INFO',
+                    icon: 'WARNING',
                     title: strings('modal.exchange.sorry'),
                     description: strings('nftMainScreen.turnBasicAsset', {asset : this.getCurrencyTitle(false, currencyCode)}),
                 }, () => {
@@ -199,7 +199,7 @@ class NftDetailedInfo extends React.PureComponent {
 
         return (
             <ScreenWrapper
-                title={strings('nftMainScreen.info')}
+                title={data.title || ' '}
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='share'
