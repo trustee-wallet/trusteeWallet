@@ -16,7 +16,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 118,
+        maxVersion: 119,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -824,6 +824,11 @@ export default function getTableUpdateQueries() {
 
                     is_added_to_api INTEGER NULL DEFAULT 0
                 )`
+            },
+            119: {
+                afterFunction: async (dbInterface) => {
+                    await dbInterface.query(`INSERT INTO currency (currency_code, is_hidden, currency_rate_json, currency_rate_scan_time) VALUES ('NFT', '0', '', '')`)
+                }
             }
         }
     }

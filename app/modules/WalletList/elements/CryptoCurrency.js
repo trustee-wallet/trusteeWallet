@@ -49,7 +49,7 @@ class CryptoCurrency extends React.PureComponent {
         let status = ''
         CACHE_CLICK = true
 
-        if (typeof cryptoCurrency.currencyType !== 'undefined' && cryptoCurrency.currencyType === 'NFT') {
+        if (typeof cryptoCurrency.currencyCode !== 'undefined' && cryptoCurrency.currencyCode === 'NFT') {
             try {
                 setSelectedCryptoCurrency(cryptoCurrency)
                 await NftActions.getDataBySelectedCryptoCurrency()
@@ -246,7 +246,7 @@ class CryptoCurrency extends React.PureComponent {
     };
 
 
-    renderHiddenNFTLayer = () => {
+    renderHiddenNFTLayer = (item) => {
         return (
             <View style={styles.hiddenLayer__container}>
                 <View style={styles.hiddenLayer__leftButtons__wrapper}>
@@ -266,7 +266,7 @@ class CryptoCurrency extends React.PureComponent {
                 <RoundButton
                     type="hide"
                     containerStyle={styles.hiddenLayer__roundButton}
-                    // onPress={this.props.handleHide} //TODO
+                    onPress={() => this.props.handleHide(item)}
                     noTitle
                 />
             </View>
@@ -332,7 +332,7 @@ class CryptoCurrency extends React.PureComponent {
         // TODO: change condition - still need?
         if (typeof this.props === 'undefined') return <View />
 
-        if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && this.props.cryptoCurrency.currencyType === 'NFT') {
+        if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && this.props.cryptoCurrency.currencyCode === 'NFT') {
             return (
                 <SwipeRow
                     leftOpenValue={140}
@@ -343,7 +343,7 @@ class CryptoCurrency extends React.PureComponent {
                     swipeToClosePercent={5}
                     setScrollEnabled={this.props.setScrollEnabled}
                 >
-                    {this.renderHiddenNFTLayer()}
+                    {this.renderHiddenNFTLayer(this.props.cryptoCurrency)}
                     {this.renderNFTLayer(this.props)}
                 </SwipeRow>
             );

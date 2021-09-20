@@ -1759,5 +1759,12 @@
 		"tokenAddress": "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e",
 		"currencyExplorerLink": "https://etherscan.io/token/0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
-	}
+	},
+    "NFT" : {
+        "currencyType": "coin",
+        "currencyName": "NFT",
+        "currencyCode": "NFT",
+        "currencySymbol": "NFT",
+        "isHidden": false
+    }
 }

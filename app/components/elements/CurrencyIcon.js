@@ -619,7 +619,7 @@ export default class ButtonLine extends PureComponent {
                     </View>
                 )
 
-            case 'NFT_ETH':
+            case 'NFT_ETH': case 'NFT':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>

@@ -1,7 +1,6 @@
 import { createSelector } from 'reselect'
 import store from '@app/store'
 import Log from '@app/services/Log/Log'
-import Nfts from '@crypto/common/BlocksoftDictNfts'
 
 export const getVisibleCurrencies = createSelector(
     [state => state.currencyStore.cryptoCurrencies],
@@ -14,10 +13,6 @@ export const getVisibleCurrencies = createSelector(
         }
 
         Log.log('ACT/Currency getVisibleCurrencies selectedWallet walletNumber ' + walletNumber)
-
-        const tmpNfts = Nfts.Nfts.filter(c => {
-            return c.showOnHome
-        })
 
         const tmp = currencies.filter(c => {
             if (c.isHidden === null) {
@@ -32,6 +27,6 @@ export const getVisibleCurrencies = createSelector(
             }
             return !c.maskedHidden
         })
-        return [...tmpNfts, ...tmp]
+        return [...tmp]
     })
 )

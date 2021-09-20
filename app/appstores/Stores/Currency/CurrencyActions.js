@@ -38,13 +38,9 @@ const currencyActions = {
 
         const currencies = await currencyDS.getCurrencies()
 
-        let currencyDBTmp
-        for (currencyDBTmp of currencies) {
-
+        function _push(prepare, currencyDBTmp) {
             const settings = BlocksoftDict.Currencies[currencyDBTmp.currencyCode]
-
-            if (typeof settings === 'undefined') continue
-
+            if (typeof settings === 'undefined') return
             let one
             if (typeof settings.extendsProcessor === 'undefined') {
                 one = {
@@ -62,6 +58,14 @@ const currencyActions = {
             one.currencyExplorerLink = BlocksoftPrettyLocalize.makeLink(one.currencyExplorerLink)
             one.currencyExplorerTxLink = BlocksoftPrettyLocalize.makeLink(one.currencyExplorerTxLink)
             prepare.push(one)
+        }
+        for (const currencyDBTmp of currencies) {
+            if (currencyDBTmp.currencyCode !== 'NFT') continue
+            _push(prepare, currencyDBTmp)
+        }
+        for (const currencyDBTmp of currencies) {
+            if (currencyDBTmp.currencyCode === 'NFT') continue
+            _push(prepare, currencyDBTmp)
         }
 
         dispatch({

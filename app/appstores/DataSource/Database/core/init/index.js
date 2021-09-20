@@ -141,9 +141,8 @@ export default class DBInit {
             const insertObjs = []
             let currencyCode
             for (currencyCode of BlocksoftDict.Codes) {
-                const settings = BlocksoftDict.Currencies[currencyCode]
                 insertObjs.push({
-                    currencyCode: settings.currencyCode,
+                    currencyCode: currencyCode,
                     currencyRateUsd: 0,
                     currencyRateJson: '',
                     currencyRateScanTime: '',

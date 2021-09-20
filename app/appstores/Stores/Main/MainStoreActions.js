@@ -90,7 +90,7 @@ export function setBlurStatus(visible) {
 
 export function setSelectedCryptoCurrency(data) {
     let currencyCode = data.currencyCode
-    if (data.currencyType === 'NFT') {
+    if (data.currencyCode === 'NFT') {
         currencyCode = data.tokenBlockchainCode
     }
     const dict = new UIDict(currencyCode)
