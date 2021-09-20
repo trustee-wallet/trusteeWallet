@@ -398,7 +398,10 @@ async function _userDataValidation(obj) {
         case 'WALLET_CONNECT_LINK':
             if (!value) {
                 error.msg = strings('validator.empty', {name: name})
+            } else if (!value.includes('wc:')) {
+                error.msg = strings('validator.invalidFormat', {name: name})
             }
+
             break
 
         default:
@@ -410,8 +413,10 @@ async function _userDataValidation(obj) {
 
     if (typeof error.msg !== 'undefined') {
         error.field = id
+        console.log('34')
         return error
     }
+    console.log('11')
     return false
 }
 
