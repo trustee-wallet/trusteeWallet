@@ -9,6 +9,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
 
 import config from '@app/config/config'
+import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 
 const CACHE_FROM_DB = {}
 const CACHE_TXS = {}
@@ -181,7 +182,6 @@ export default class SolScannerProcessor {
             additional = CACHE_TXS[transaction.signature].data
         }
 
-
         let addressFrom = false
         let addressTo = false
         let addressAmount = 0
@@ -191,9 +191,9 @@ export default class SolScannerProcessor {
         const indexedPre = {}
         const indexedPost = {}
         const indexedCreated = {}
+        const indexedAssociated = {}
 
         if (this.tokenAddress) {
-
             for (const tmp of additional.meta.preTokenBalances) {
                 if (tmp.mint !== this.tokenAddress) continue
                 const realIndex = tmp.accountIndex
@@ -210,14 +210,28 @@ export default class SolScannerProcessor {
                 if (tmp.program !== 'spl-associated-token-account') continue
                 indexedCreated[tmp.parsed.info.account] = tmp.parsed.info.wallet
             }
+
+            for (let i = 0, ic = additional.transaction.message.accountKeys.length; i < ic; i++) {
+                const tmpAddress = additional.transaction.message.accountKeys[i]
+                if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
+                const sourceAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
+                    tmpAddress.pubkey,
+                    this.tokenAddress
+                )
+                indexedAssociated[sourceAssociatedTokenAddress] = tmpAddress
+            }
         } else {
             // do nothing!
         }
 
+        let anySigner = false
         for (let i = 0, ic = additional.transaction.message.accountKeys.length; i < ic; i++) {
-            const tmpAddress = additional.transaction.message.accountKeys[i]
+            let tmpAddress = additional.transaction.message.accountKeys[i]
             if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
             let tmpAmount = '0'
+            if (typeof indexedAssociated[tmpAddress.pubkey] !== 'undefined') {
+                tmpAddress = indexedAssociated[tmpAddress.pubkey]
+            }
             if (this.tokenAddress) {
                 const to = typeof indexedPost[i] !== 'undefined' ? indexedPost[i] : 0
                 const from = typeof indexedPre[i] !== 'undefined' ? indexedPre[i] : 0
@@ -226,7 +240,12 @@ export default class SolScannerProcessor {
                 tmpAmount = BlocksoftUtils.diff(additional.meta.postBalances[i], additional.meta.preBalances[i]).toString()
             }
 
+            if (tmpAddress.pubkey && tmpAddress.signer) {
+                anySigner = tmpAddress.pubkey
+            }
+
             if (tmpAmount === '0') continue
+
             if (tmpAddress.pubkey === address ||
                 (
                     typeof indexedCreated[tmpAddress.pubkey] !== 'undefined' && indexedCreated[tmpAddress.pubkey] === address
@@ -246,6 +265,9 @@ export default class SolScannerProcessor {
                     anyToAddress = tmpAddress.pubkey
                 }
             }
+        }
+        if (!addressFrom) {
+            addressFrom = anySigner
         }
         if (!addressFrom && !addressTo) {
             return false
