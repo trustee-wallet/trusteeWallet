@@ -735,6 +735,7 @@
       "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Неможливо перевірити баланс нативної монети (%{symbol}). Будь ласка, перевірте доступ до інтернету!",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Занадто мала сума для транзакції",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для відправки транзакції",
+      "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "Недостатньо коштів для відправки транзакції (при валидації на сервері)",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Недостатньо коштів на балансі для сплати комісії мережі - будь ласка, використовуйте опцію \"Відправити Все \" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Недостатньо коштів на балансі для сплати делегованої транзакції - будь ласка, використовуйте звичайну відправку ERC20",
       "SERVER_RESPONSE_NO_RESPONSE" : "Мережа не приймає транзакцію - будь ласка, зачекайте доки замайняться інші транзакції",
