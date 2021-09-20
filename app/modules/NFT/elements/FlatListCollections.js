@@ -46,11 +46,12 @@ const FlatListCollections = (props) => {
                 marginTop: 12
             }]}>
             <View style={[styles.topContent__content, { paddingHorizontal: GRID_SIZE, paddingVertical: 12 }]}>
-
-                <Image resizeMode='center' style={styles.image} source={{ uri: img }} />
+                {img ?
+                    <Image resizeMode='center' style={styles.image} source={{ uri: img }} />
+                    : <View style={styles.image} />}
 
                 <View style={styles.text}>
-                    <Text style={[styles.title, {color: colors.common.text1}]}>{title}</Text>
+                    <Text style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                     <Text style={styles.subTitle}>{strings('nftMainScreen.assets') + ': ' + numberAssets}</Text>
                 </View>
                 <CurrencyIcon

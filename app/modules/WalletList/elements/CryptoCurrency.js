@@ -36,7 +36,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { SIZE } from '../helpers';
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
+import { getNumberOfAssets } from '@app/appstores/Stores/Nfts/selectors'
 
 let CACHE_CLICK = false
 class CryptoCurrency extends React.PureComponent {
@@ -49,10 +49,13 @@ class CryptoCurrency extends React.PureComponent {
         let status = ''
         CACHE_CLICK = true
 
+        if (!this.props.numberOfNftAssets) {
+            screen = 'NftReceive'
+        }
+
         if (typeof cryptoCurrency.currencyCode !== 'undefined' && cryptoCurrency.currencyCode === 'NFT') {
             try {
                 setSelectedCryptoCurrency(cryptoCurrency)
-                await NftActions.getDataBySelectedCryptoCurrency()
                 NavStore.goNext(screen || 'NftMainScreen')
             } catch (e) {
                 Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)
@@ -369,7 +372,8 @@ class CryptoCurrency extends React.PureComponent {
 CryptoCurrency.contextType = ThemeContext
 
 const mapStateToProps = (state, props) => ({
-    account: getAccountCurrency(state, props)
+    account: getAccountCurrency(state, props),
+    numberOfNftAssets: getNumberOfAssets(state)
 })
 
 export default connect(mapStateToProps)(CryptoCurrency)

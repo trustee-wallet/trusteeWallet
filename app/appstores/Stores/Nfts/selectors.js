@@ -14,3 +14,10 @@ export const getNftsData = createSelector(
         }
     })
 )
+
+export const getNumberOfAssets = createSelector(
+    [state => state.nftsStore.nfts.assets],
+    (data => {
+        return data.length
+    })
+)

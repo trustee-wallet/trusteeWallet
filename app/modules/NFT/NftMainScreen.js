@@ -70,8 +70,6 @@ class NftMainScreen extends React.PureComponent {
     async componentDidMount() {
         await NftCustomAssetsActions.loadCustomAssets()
 
-        await this.handleRefresh(false)
-
         this.setState({
             loading: false
         })

@@ -13,6 +13,11 @@ const CODES = ['ETH_RINKEBY', 'MATIC', 'ETH', 'ETH_ROPSTEN']
 
 export namespace NftActions {
 
+    export const init = async () => {
+        const address = await getDataBySelectedCryptoCurrency()
+        await getDataByAddress(address, true)
+    }
+
     export const getDataBySelectedCryptoCurrency = async function() {
         const tmp = store.getState().mainStore
         const { walletHash } = tmp.selectedWallet
@@ -38,6 +43,7 @@ export namespace NftActions {
                 loaded: false
             })
         }
+        return address
     }
 
     export const getDataByAddress = async function(address: any, force = false) {
@@ -53,7 +59,6 @@ export namespace NftActions {
             const customAssets = store.getState().nftCustomAssetsStore.customAssets
             for (const tokenBlockchainCode of CODES) {
                 const tmpAssets = typeof customAssets !== 'undefined' && typeof customAssets['NFT_' + tokenBlockchainCode] !== 'undefined' ? customAssets['NFT_' + tokenBlockchainCode] : {}
-
                 const tmpAssetsArray = []
                 for (let tmp in tmpAssets) {
                     tmpAssetsArray.push(tmp)

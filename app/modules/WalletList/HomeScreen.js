@@ -39,6 +39,8 @@ import { getIsBlurVisible, getSelectedWalletData } from '@app/appstores/Stores/M
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
+import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
+import { getNftsData, getNumberOfAssets } from '@app/appstores/Stores/Nfts/selectors'
 
 
 let CACHE_IS_SCANNING = false
@@ -57,16 +59,16 @@ class HomeScreen extends React.PureComponent {
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         try {
-            Log.log('WalletList.HomeScreen initDeepLinking ' + e.message)
+            Log.log('WalletList.HomeScreen initDeepLinking')
             SendDeepLinking.initDeepLinking()
         } catch (e) {
             Log.log('WalletList.HomeScreen initDeepLinking error ' + e.message)
         }
         setLoaderStatus(false)
         this.getBalanceVisibility()
-
+        await NftActions.init()
     }
 
     getBalanceVisibility = () => {
@@ -88,6 +90,12 @@ class HomeScreen extends React.PureComponent {
                 await UpdateAccountListDaemon.forceDaemonUpdate()
             } catch (e) {
                 Log.errDaemon('WalletList.HomeScreen handleRefresh error updateAccountListDaemon ' + e.message)
+            }
+
+            try {
+                await NftActions.getDataByAddress(this.props.nftsData.address, true)
+            } catch (e) {
+                Log.err('WalletList.HomeScreen handleRefresh error NftActions ' + e.message)
             }
 
             this.setState({ refreshing: false })
@@ -326,7 +334,9 @@ const mapStateToProps = (state) => {
         walletsGeneralData: getWalletsGeneralData(state),
         isBlurVisible: getIsBlurVisible(state),
         currencies: getVisibleCurrencies(state),
-        isBalanceVisible: getIsBalanceVisible(state.settingsStore)
+        isBalanceVisible: getIsBalanceVisible(state.settingsStore),
+        numberOfNftAssets: getNumberOfAssets(state),
+        nftsData: getNftsData(state)
     }
 }
 

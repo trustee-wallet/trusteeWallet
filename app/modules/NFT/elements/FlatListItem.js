@@ -3,12 +3,11 @@
  * @version 0.50
  */
 
-import React, { useState } from 'react'
+import React from 'react'
 import {
     View,
     Dimensions,
     Image,
-    ActivityIndicator,
     TouchableOpacity
 } from 'react-native'
 
@@ -20,12 +19,6 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 const FlatListItem = (props) => {
-
-    const [loading, setLoading] = useState(true)
-
-    const setLoad = () => {
-        setLoading(false)
-    }
 
     const {
         GRID_SIZE,
@@ -58,19 +51,14 @@ const FlatListItem = (props) => {
                 paddingBottom: GRID_SIZE,
                 width: widthItem
             }]}>
-                {loading ?
+                {img ?
                     <Image
                         style={styles.img}
-                        onLoad={() => setLoad}
                         source={{
                             uri: img,
                         }}
                     /> :
-                    <ActivityIndicator
-                        style={styles.img}
-                        color='#999999'
-                    />
-
+                    <View style={styles.img} />
                 }
                 <View style={styles.descriptions}>
                     <NftTokenInfo

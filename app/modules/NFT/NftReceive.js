@@ -38,6 +38,7 @@ import store from '@app/store'
 import Button from '@app/components/elements/new/buttons/Button'
 
 import Nfts from '@crypto/common/BlocksoftDictNfts'
+import { getNumberOfAssets } from '@app/appstores/Stores/Nfts/selectors'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -96,7 +97,7 @@ class NftReceive extends React.PureComponent {
     handleSelectBlockchain = async (data) => {
 
         const { walletHash } = this.props.wallet
-        const { currencyCode, tokenBlockchainCode, tokenBlockchain } = data
+        const { tokenBlockchainCode, tokenBlockchain } = data
         const basicAccounts = store.getState().accountStore.accountList
 
         let address = ''
@@ -110,7 +111,7 @@ class NftReceive extends React.PureComponent {
 
         this.setState({
             selectedAddress: {
-                currencyCode,
+                currencyCode: tokenBlockchainCode,
                 address,
                 tokenBlockchain
             }
@@ -127,7 +128,7 @@ class NftReceive extends React.PureComponent {
         for (const tmp of Nfts.Nfts) {
             flatListData.push({
                 text: tmp.tokenBlockchain,
-                inverse: selectedAddress.currencyCode === tmp.currencyCode,
+                inverse: selectedAddress.currencyCode === tmp.tokenBlockchainCode,
                 action: () => this.handleSelectBlockchain(tmp)
             })
         }
@@ -170,11 +171,13 @@ class NftReceive extends React.PureComponent {
                 rightType='share'
                 rightAction={this.handleShare}
             >
-                <View style={{ paddingTop: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }}>
-                    <Text style={[styles.emptyText, { color: colors.common.text3, marginBottom: GRID_SIZE }]}>
-                        {strings('nftMainScreen.emptyNftText')}
-                    </Text>
-                </View>
+                {!this.props.numberOfAssets &&
+                    <View style={{ paddingTop: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }}>
+                        <Text style={[styles.emptyText, { color: colors.common.text3, marginBottom: GRID_SIZE }]}>
+                            {strings('nftMainScreen.emptyNftText')}
+                        </Text>
+                    </View>
+                }
                 <View style={{ marginTop: GRID_SIZE }}>
                     {this.renderFlatList()}
                 </View>
@@ -235,7 +238,8 @@ const mapStateToProps = (state) => {
     return {
         wallet: getSelectedWalletData(state),
         cryptoCurrency: getSelectedCryptoCurrencyData(state),
-        cryptoCurrencies: getVisibleCurrencies(state)
+        cryptoCurrencies: getVisibleCurrencies(state),
+        numberOfAssets: getNumberOfAssets(state)
     }
 }
 
