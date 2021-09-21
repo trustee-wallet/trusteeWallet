@@ -611,7 +611,7 @@ const styles = StyleSheet.create({
     network: {
         position: 'absolute',
         alignSelf: 'flex-end',
-        width: 102,
+        width: 104,
         height: 30,
         backgroundColor: '#99999926',
         borderRadius: 8,

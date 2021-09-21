@@ -44,7 +44,6 @@ async function _userDataValidation(obj) {
     const name = (typeof obj.name === 'undefined') ? obj.id : obj.name
 
     let value = obj.value
-    console.log('xf', obj)
     let error = {}
 
     if (typeof value === 'undefined') {
@@ -408,15 +407,10 @@ async function _userDataValidation(obj) {
             break
     }
 
-    console.log('dadad')
-
-
     if (typeof error.msg !== 'undefined') {
         error.field = id
-        console.log('34')
         return error
     }
-    console.log('11')
     return false
 }
 
@@ -512,17 +506,13 @@ module.exports = {
                 }
             }
         }
-        console.log('value22', array.type)
         if ( array.type === 'WALLET_CONNECT_LINK' ) {
-            console.log('1')
             if ( array.value.include('wc:') ) {
-                console.log('w')
                 return {
                     status: 'success',
                     errorArr: []
                 }
             }else {
-                console.log('3')
                 return {
                     status: 'fail',
                     errorArr: resultArray

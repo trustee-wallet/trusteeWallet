@@ -15,11 +15,9 @@ import {
 import { FlatList } from 'react-native-gesture-handler'
 import { TabView } from 'react-native-tab-view'
 
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { strings } from '@app/services/i18n'
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import DetailsContent from './elements/Details'
 import HowItWorks from './elements/HowItWorks'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
@@ -32,7 +30,7 @@ import CashbackData from './elements/CashbackData'
 
 import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
 import QrCodePage from '@app/modules/Cashback/elements/QrCodePage'
-import { Tab1, Tab2, Tab3 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
+import { Tab2, Tab3 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
 import DetailsHeader from '@app/modules/Cashback/elements/DetailsHeader'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
@@ -45,7 +43,6 @@ class CashbackScreen extends React.PureComponent {
         inviteLink: '',
         inviteLinkError: false,
         refreshing: false,
-        selectedTitle: null,
         isLoading: false,
         index: 0,
         routes: [
@@ -63,9 +60,9 @@ class CashbackScreen extends React.PureComponent {
             }
         ],
         tab1Height: SCREEN_WIDTH * 1.3,
-        tab2Height: SCREEN_WIDTH * 1.4999,
-        tab3Height: 'auto'
-
+        tab2Height: SCREEN_WIDTH * 1.53,
+        tab3Height: 'auto',
+        selected: false
     }
 
     cashbackCurrency = 'USDT'
@@ -91,17 +88,6 @@ class CashbackScreen extends React.PureComponent {
         const cashbackTotalBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
         const cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
 
-        const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
-        const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
-
-        let cashbackParentToken = cashbackStore.dataFromApi.parentToken || false
-        if (!cashbackParentToken) {
-            cashbackParentToken = cashbackStore.parentToken || ''
-        }
-        if (cashbackParentToken === cashbackToken || cashbackParentToken === cashbackLinkTitle) {
-            cashbackParentToken = ''
-        }
-
         const windowWidth = Dimensions.get('window')
 
         const cashbackCondition = cashbackBalance >= 2
@@ -117,16 +103,7 @@ class CashbackScreen extends React.PureComponent {
                 title: strings('cashback.availableCashBack'),
                 subTitle: strings('cashback.updated') + ' ' + timePrep,
                 balance: UtilsService.cutNumber(cashbackBalance + cpaBalance, 2),
-                ExtraViewData: () => {
-                    return (
-                        <Tab1
-                            cashbackStore={cashbackStore}
-                            cashbackTocen={cashbackToken}
-                            windowWidth={windowWidth}
-                            cashbackParentToken={cashbackParentToken}
-                        />
-                    )
-                }
+                textInput: true
             },
             {
                 title: strings('cashback.balanceTitle'),
@@ -150,7 +127,6 @@ class CashbackScreen extends React.PureComponent {
                 title: strings('cashback.balanceTitle'),
                 subTitle: strings('cashback.cpa'),
                 balance: UtilsService.cutNumber(cpaBalance, 2),
-
                 ExtraViewData: () => {
                     return (
                         <Tab2
@@ -176,7 +152,7 @@ class CashbackScreen extends React.PureComponent {
                         />
                     )
                 }
-            }
+             }
         ]
 
         return (
@@ -192,7 +168,6 @@ class CashbackScreen extends React.PureComponent {
         )
     }
 
-
     componentDidUpdate(prevProps, prevState, snapshot) {
         const qrCodeData = NavStore.getParamWrapper(this, 'qrData')
         if (qrCodeData && typeof qrCodeData.qrCashbackLink !== 'undefined' && qrCodeData.qrCashbackLink) {
@@ -200,15 +175,6 @@ class CashbackScreen extends React.PureComponent {
                 this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
             }
         }
-    }
-
-    scrollDetails = (value) => {
-        setTimeout(() => {
-            try {
-                this.scrollView.scrollTo({ y: this.state.selectedTitle === value ? 100 : -200 })
-            } catch (e) {
-            }
-        }, 300)
     }
 
     scrollTabSwitch = () => {
@@ -258,12 +224,6 @@ class CashbackScreen extends React.PureComponent {
         )
     }
 
-    handleSelectTitle = (value) => {
-        this.scrollDetails(value)
-        this.setState({ selectedTitle: this.state.selectedTitle === value ? null : value })
-    }
-
-
     renderFirstRoute = () => {
 
         const {
@@ -287,47 +247,27 @@ class CashbackScreen extends React.PureComponent {
         )
     }
 
-    renderSecondRoute = () => {
+    onChangeCode = (value) => {
+        this.setState(() => ({ promoCode: value }))
+    }
 
-        const {
-            selectedTitle
-        } = this.state
+    renderSecondRoute = () => {
 
         const {
             GRID_SIZE
         } = this.context
 
-        const { cashbackStore } = this.props
-
-        const cashbackTotalBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
-        const cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
+        const {
+            cashbackStore
+        } = this.props
 
         return (
             <View style={{ marginHorizontal: GRID_SIZE }}>
                 {this.renderExtraView()}
                 <DetailsHeader
-                    title={strings('cashback.cashback')}
-                    onPress={() => {
-                        this.handleSelectTitle('CASHBACK')
-                    }}
-                    balance={UtilsService.cutNumber(cashbackTotalBalance, 2)}
-                    currency={this.cashbackCurrency}
-                    progress={cashbackTotalBalance / (cashbackTotalBalance + cpaTotalBalance)}
-                    icon={selectedTitle === 'CASHBACK' ? 'close' : 'coinSettings'}
+                    cashbackStore={cashbackStore}
                 />
-                <DetailsHeader
-                    title={strings('cashback.cpa')}
-                    onPress={() => {
-                        this.handleSelectTitle('CPA')
-                    }}
-                    balance={UtilsService.cutNumber(cpaTotalBalance, 2)}
-                    currency={this.cashbackCurrency}
-                    progress={cpaTotalBalance / (cashbackTotalBalance + cpaTotalBalance)}
-                    icon={selectedTitle === 'CPA' ? 'close' : 'coinSettings'}
-                />
-                {this.renderContent()}
             </View>
-
         )
     }
 
@@ -423,54 +363,6 @@ class CashbackScreen extends React.PureComponent {
                     />
                 </ScrollView>
             </ScreenWrapper>
-        )
-    }
-
-    renderContent = () => {
-
-        const { cashbackStore } = this.props
-
-        const { selectedTitle } = this.state
-
-        const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
-        let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted
-
-        let cpaLevel1 = cashbackStore.dataFromApi.cpaLevel1 || 0
-        let cpaLevel2 = cashbackStore.dataFromApi.cpaLevel2 || 0
-        let cpaLevel3 = cashbackStore.dataFromApi.cpaLevel3 || 0
-
-        let invitedUsers = cashbackStore.dataFromApi.invitedUsers || 0
-        let level2Users = cashbackStore.dataFromApi.level2Users || 0
-
-        if (typeof cashbackStore.dataFromApi.cashbackToken === 'undefined' || cashbackStore.dataFromApi.cashbackToken !== cashbackStore.cashbackToken) {
-            invitedUsers = '?'
-            level2Users = '?'
-            overalPrep = '?'
-            cpaLevel1 = '?'
-            cpaLevel2 = '?'
-            cpaLevel3 = '?'
-        }
-
-        MarketingEvent.logEvent('taki_cashback_2_render', {
-            cashbackLink: cashbackStore.dataFromApi.cashbackLink || cashbackStore.cashbackLink || '',
-            invitedUsers,
-            level2Users,
-            overalPrep,
-            cpaLevel1,
-            cpaLevel2,
-            cpaLevel3
-        })
-
-        return (
-            <DetailsContent
-                selectedTitle={selectedTitle}
-                overalPrep={overalPrep}
-                invitedUsers={invitedUsers}
-                level2Users={level2Users}
-                cpaLevel1={cpaLevel1}
-                cpaLevel2={cpaLevel2}
-                cpaLevel3={cpaLevel3}
-            />
         )
     }
 }

@@ -7,7 +7,7 @@ import {
     Text,
     View,
     StyleSheet,
-    TouchableOpacity
+    TouchableOpacity,
 } from 'react-native'
 
 import { Bar } from 'react-native-progress'
@@ -35,7 +35,6 @@ export class Tab1 extends React.Component {
     state = {
         inviteLink: '',
         promoCode: '',
-        selectedContent: null,
         inviteLinkError: false,
     }
 
@@ -49,8 +48,7 @@ export class Tab1 extends React.Component {
     }
 
     handlePressPromo = () => {
-        const { selectedContent } = this.state
-        this.setState(() => ({ selectedContent: selectedContent === 'promo' ? null : 'promo' }))
+        this.setState(() => ({ selectedContent: this.state.selectedContent === 'promo' ? null : 'promo' }))
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -203,7 +201,7 @@ export class Tab1 extends React.Component {
 
         const promoOnPress = promoCondition ? !promoError ? this.handleApply : this.handlePressPromo : this.handlePressPromo
 
-        const promoOnBlur = !promoError ? null : this.handlePressPromo
+        const promoOnBlur = !promoError ? this.handleApply : this.handlePressPromo
 
         const {
             inviteLink,
@@ -226,25 +224,20 @@ export class Tab1 extends React.Component {
                 <View style={styles.inviteContainer}>
                     {!promoCondition ?
                         <TextInput
-                            numberOfLines={1}
-                            autoCapitalize='none'
-                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.48 }}
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth * 0.48 }}
                             inputStyle={inviteLinkError && { color: colors.cashback.token }}
                             placeholder={strings('cashback.enterInviteLinkPlaceholder')}
                             onChangeText={this.handleChangeInviteLink}
                             value={inviteLink}
                             qr={true}
                             qrCallback={this.handleQrCode}
-                            onBlur={this.handleSubmitInviteLink}
                         /> :
                         <TextInput
                             numberOfLines={1}
-                            autoCapitalize='none'
-                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.48 }}
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth * 0.48 }}
                             placeholder={strings('cashback.enterPromoPlaceholder')}
                             onChangeText={this.onChangeCode}
                             value={this.state.promoCode}
-                            onBlur={promoOnBlur}
                             inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
                         />}
                     <RoundButton
@@ -262,7 +255,7 @@ export class Tab1 extends React.Component {
                         </View> :
                         <TextInput
                             numberOfLines={1}
-                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth.width * 0.48 }}
+                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth * 0.48 }}
                             placeholder={strings('cashback.enterPromoPlaceholder')}
                             onChangeText={this.onChangeCode}
                             value={this.state.promoCode}
