@@ -41,6 +41,7 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
+import NftReceiveComponent from './elements/NftReceiveComponent'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -48,7 +49,6 @@ class NftMainScreen extends React.PureComponent {
 
     state = {
         refreshing: false,
-        loading: true,
         isBalanceVisible: false,
         numColumns: WINDOW_WIDTH >= (182 * 3) + this.context.GRID_SIZE * 4 ? 3 : 2,
 
@@ -69,10 +69,6 @@ class NftMainScreen extends React.PureComponent {
 
     async componentDidMount() {
         await NftCustomAssetsActions.loadCustomAssets()
-
-        this.setState({
-            loading: false
-        })
     }
 
     handleRefresh = async (force = true) => {
@@ -161,11 +157,17 @@ class NftMainScreen extends React.PureComponent {
         )
     }
 
-    renderTabs = () => <Tabs
-        tabs={this.state.tabs}
-        changeTab={this.handleChangeTab}
-        containerStyle={{ paddingVertical: this.context.GRID_SIZE, width: '60%', alignSelf: 'center' }}
-    />
+    renderTabs = () => {
+        if (!this.props.nftsData.nfts.assets.length) return null
+
+        return (
+            <Tabs
+                tabs={this.state.tabs}
+                changeTab={this.handleChangeTab}
+                containerStyle={{ paddingVertical: this.context.GRID_SIZE, width: '60%', alignSelf: 'center' }}
+            />
+        )
+    }
 
     handleCollection = (nftCollection) => {
         NavStore.goNext('NftCollectionView', { nftCollection })
@@ -205,7 +207,6 @@ class NftMainScreen extends React.PureComponent {
         const {
             numColumns,
             tabs,
-            loading
         } = this.state
 
         const { colors, GRID_SIZE } = this.context
@@ -232,6 +233,21 @@ class NftMainScreen extends React.PureComponent {
             })
         }
 
+        if (!this.props.nftsData.loaded) {
+            return (
+                <ActivityIndicator
+                    size='large'
+                    style={{
+                        backgroundColor: 'transparent',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingTop: GRID_SIZE
+                    }}
+                    color={this.context.colors.common.text2}
+                />
+            )
+        }
+
         return (
             <View style={{ flex: 1 }}>
                 {tabs[0].active && (
@@ -254,24 +270,7 @@ class NftMainScreen extends React.PureComponent {
                                 progressViewOffset={-20}
                             />
                         }
-                        ListEmptyComponent={() => {
-                            if (loading) {
-                                return (
-                                    <ActivityIndicator
-                                        size='large'
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            paddingTop: GRID_SIZE
-                                        }}
-                                        color={this.context.colors.common.text2}
-                                    />
-                                )
-                            } else {
-                                return null
-                            }
-                        }}
+                        ListEmptyComponent={<NftReceiveComponent />}
                     />
                 )}
                 {tabs[1].active && (
@@ -292,24 +291,7 @@ class NftMainScreen extends React.PureComponent {
                                 progressViewOffset={-20}
                             />
                         }
-                        ListEmptyComponent={() => {
-                            if (loading) {
-                                return (
-                                    <ActivityIndicator
-                                        size='large'
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            paddingTop: GRID_SIZE
-                                        }}
-                                        color={this.context.colors.common.text2}
-                                    />
-                                )
-                            } else {
-                                return null
-                            }
-                        }}
+                        ListEmptyComponent={<NftReceiveComponent />}
                     />
                 )}
 
@@ -326,7 +308,6 @@ class NftMainScreen extends React.PureComponent {
     }
 
     render() {
-
         const { currencyName } = this.props.cryptoCurrency
         return (
             <ScreenWrapper
