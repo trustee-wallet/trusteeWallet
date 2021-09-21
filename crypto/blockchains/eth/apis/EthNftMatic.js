@@ -15,6 +15,7 @@ const API_PATH = 'https://microscanners.trustee.deals/getAllNfts/'
  * @param data.customAssets
  */
 export default async function(data) {
+    if (!data.address) return false
 
     const link = API_PATH + data.address + '?tokenBlockchainCode=' + data.tokenBlockchainCode + '&tokens=' + data.customAssets.join(',')
     const result = await BlocksoftAxios.getWithoutBraking(link)

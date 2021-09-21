@@ -33,7 +33,7 @@ class Wallet extends Component {
         if (this.props.source === 'HomeScreen') {
             NavStore.goBack()
         }
-        await NftActions.init()
+        await NftActions.init(false, this.props.wallet.walletHash) // wallet hash here helps as address else used from old wallet sometimes
     }
 
     handleOpenAdvanced = () => {

@@ -40,7 +40,7 @@ import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
-import { getNftsData, getNumberOfAssets } from '@app/appstores/Stores/Nfts/selectors'
+import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
 
 
 let CACHE_IS_SCANNING = false
@@ -68,7 +68,7 @@ class HomeScreen extends React.PureComponent {
         }
         setLoaderStatus(false)
         this.getBalanceVisibility()
-        await NftActions.init()
+        NftActions.init(false)
     }
 
     getBalanceVisibility = () => {
@@ -335,7 +335,6 @@ const mapStateToProps = (state) => {
         isBlurVisible: getIsBlurVisible(state),
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
-        numberOfNftAssets: getNumberOfAssets(state),
         nftsData: getNftsData(state)
     }
 }

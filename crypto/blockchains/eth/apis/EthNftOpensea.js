@@ -22,6 +22,7 @@ export default async function(data) {
     } else {
         link = API_PATH
     }
+    if (!data.address) return false
     link += 'assets?order_direction=desc&owner=' + data.address
     const result = await BlocksoftAxios.getWithoutBraking(link)
 
