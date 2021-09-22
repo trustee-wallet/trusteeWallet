@@ -15,6 +15,8 @@ import { PublicKey, SystemProgram, Transaction, StakeProgram, Authorized } from 
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
 import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
+import { Buffer } from 'buffer'
+import BlocksoftCryptoUtils from '@crypto/common/BlocksoftCryptoUtils'
 
 export default class SolTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
@@ -115,16 +117,19 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     }))
                 }
             } else if (data.addressTo === 'STAKE') {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build start')
                 const validator = data.blockchainData.voteAddress
                 const authorized = new Authorized(fromPubkey, fromPubkey)
                 if (typeof validator === 'undefined' || !validator) {
                     throw new Error('no validator field')
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build authorized')
 
                 // https://github.com/velas/JsWallet/blob/251ad92bb5c2cd9a62477746a3db934b6dce0c4b/velas/velas-staking.js
                 // https://explorer.solana.com/tx/2ffmtkj3Yj51ZWCEHG6jb6s78F73eoiQdqURV7z65kSVLiPcm8Y9NE45FgfgwbddJD8kfgCiTpmrEu7J8WKpAQeE
                 await SolStakeUtils.getAccountStaked(data.addressFrom)
 
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build createWithSeed started')
                 let start = 0
                 let lastSeed = await SolTmpDS.getCache(data.addressFrom)
                 if (typeof lastSeed !== 'undefined' && lastSeed && typeof lastSeed.seed !== 'undefined' && lastSeed.seed) {
@@ -132,11 +137,25 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 }
                 for (let i = 1; i <= 10000; i++) {
                     const tmpSeed = (i + start).toString()
-                    const stakeAccount = await PublicKey.createWithSeed(
-                        fromPubkey,
-                        tmpSeed,
-                        StakeProgram.programId
-                    )
+
+                    /*try {
+                        stakeAccount = await PublicKey.createWithSeed(
+                            fromPubkey,
+                            tmpSeed,
+                            StakeProgram.programId
+                        )
+                    } catch (e1) {
+                        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build createWithSeed error ' + e1.message)
+                    }*/
+
+                    const buffer = Buffer.concat([
+                       fromPubkey.toBuffer(),
+                       Buffer.from(tmpSeed),
+                       StakeProgram.programId.toBuffer(),
+                    ])
+                    const hash = Buffer.from(await BlocksoftCryptoUtils.sha256(buffer.toString('hex')), 'hex')
+                    const stakeAccount = new PublicKey(Buffer.from(hash, 'hex'))
+
                     stakeAddress = stakeAccount.toBase58()
                     const isUsed = SolStakeUtils.checkAccountStaked(data.addressFrom, stakeAddress)
                     if (!isUsed) {
@@ -145,6 +164,7 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         break
                     }
                 }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' build createWithSeed finished')
 
                 if (!stakeAddress) {
                     throw new Error('Stake address seed is not found')

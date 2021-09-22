@@ -340,6 +340,7 @@ class BlocksoftKeys {
     async discoverOne(data) {
         const seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
         const root = bip32.fromSeed(seed)
+        console.log('data.derivationPath ' + JSON.stringify(data.derivationPath))
         const child = root.derivePath(data.derivationPath)
         /**
          * @type {EthAddressProcessor|BtcAddressProcessor}

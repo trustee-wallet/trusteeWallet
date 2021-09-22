@@ -88,8 +88,10 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 res.data.currencyCode = 'ETH_RINKEBY'
             } else if (network === 'monero') {
                 res.data.currencyCode = 'XMR'
+            } else if (network === 'matic' || network === 'polygon') {
+                res.data.currencyCode = 'MATIC'
             } else if (network === 'binance' || network === 'bnb') {
-                res.data.currencyCode = 'XLM'
+                res.data.currencyCode = 'BNB'
             } else {
                 res.data.currencyCode = 'BTC'
             }
@@ -197,6 +199,11 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 if (res.data.currencyCode === 'BTC') {
                     res.data.currencyCode = 'USDT'
                 }
+            }
+        }
+        if (res.data.currencyCode === 'BNB' && res.data.address) {
+            if (res.data.address.toLowerCase().substring(0,2) === '0x') {
+                res.data.currencyCode = 'BNB_SMART'
             }
         }
 

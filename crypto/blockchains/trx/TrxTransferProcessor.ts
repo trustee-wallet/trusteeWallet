@@ -188,7 +188,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             throw new Error('TRX transaction required privateKey')
         }
 
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx started')
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx started ' + data.addressFrom + ' => ' + data.addressTo)
 
 
         const logData = {}
@@ -366,6 +366,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         fee_limit: 100000000,
                         call_value: 0
                     }
+                    await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx inited1' + data.addressFrom + ' => ' + data.addressTo + ' ' + link, params)
                     res = await BlocksoftAxios.post(link, params)
                 } else {
                     params = {
@@ -383,8 +384,10 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         link = this._tronNodePath + '/wallet/transferasset'
                     }
                     try {
+                        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx inited2 ' + data.addressFrom + ' => ' + data.addressTo + ' ' + link, params)
                         res = await BlocksoftAxios.post(link, params)
                     } catch (e) {
+                        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx result2' + data.addressFrom + ' => ' + data.addressTo + ' ' + link + ' ' + e.message)
                         if (e.message.indexOf('timeout of') !== -1 || e.message.indexOf('network') !== -1) {
                             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
                         } else {
@@ -396,6 +399,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
             // @ts-ignore
             if (typeof res.data.Error !== 'undefined') {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx error ' + data.addressFrom + ' => ' + data.addressTo + ' ', res.data)
                 // @ts-ignore
                 this.sendProvider.trxError(res.data.Error.message || res.data.Error)
             }

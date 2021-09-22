@@ -14,25 +14,28 @@ let CACHE_ALREADY_INITED = false
 export namespace SendDeepLinking {
 
     export const initDeepLinking = function(): boolean {
+        Log.log('SendDeepLinking.initDeepLinking start')
         if (CACHE_ALREADY_INITED) return false
         handleInitialURL(true, '')
-        Linking.addEventListener('url', (data) => handleInitialURL(false, data.url))
+        Linking.addEventListener('url', (data) => handleInitialURL(false, data))
         CACHE_ALREADY_INITED = true
+        Log.log('SendDeepLinking.initDeepLinking finished')
         return true
     }
 
-    const handleInitialURL = async (needGetUrl: boolean, url: string) => {
-        let initialURL = url
+    const handleInitialURL = async (needGetUrl: boolean, data : any) => {
+        let initialURL = (typeof data !== 'undefined' && typeof data.url !== 'undefined') ? data.url : ''
 
+        await Log.log('SendDeepLinking.handleInitialURL ' + JSON.stringify(data))
         try {
-            if (needGetUrl) {
+            if (needGetUrl || typeof initialURL === 'undefined' || initialURL === null || initialURL === '') {
                 initialURL = await NativeLinking.getInitialURL()
             }
         } catch (e) {
             Log.err('SendDeepLinking.handleInitialURL get error ' + e.message, initialURL)
             return
         }
-        await Log.log('SendDeepLinking.handleInitialURL get success', initialURL)
+        await Log.log('SendDeepLinking.handleInitialURL get success ' + JSON.stringify(initialURL))
 
         if (typeof initialURL === 'undefined' || initialURL === null) return
         try {

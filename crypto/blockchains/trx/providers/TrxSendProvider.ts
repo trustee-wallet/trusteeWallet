@@ -15,7 +15,7 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
         if (this._settings.currencyCode !== 'TRX' && msg.indexOf('AccountResourceInsufficient') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
         } else if (msg.indexOf('Validate TransferContract error, balance is not sufficient.') !== -1) {
-            throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+            throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE')
         } else if (msg.indexOf('balance is not sufficient') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
         } else if (msg.indexOf('account not exist') !== -1) {
@@ -23,7 +23,7 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
         } else if (msg.indexOf('Amount must greater than 0') !== -1) {
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST')
         } else if (msg.indexOf('assetBalance must be greater than 0') !== -1 || msg.indexOf('assetBalance is not sufficient') !== -1) {
-            throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+            throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE')
         } else {
             throw new Error(msg)
         }

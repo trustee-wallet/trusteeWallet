@@ -20,6 +20,7 @@ import config from '../../../app/config/config'
 import settingsActions from '../../../app/appstores/Stores/Settings/SettingsActions'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 import { sublocale } from '../../../app/services/i18n'
+import abi from './ext/erc721.js'
 
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -125,38 +126,71 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         let gasLimit = 0
         try {
+
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
-                try {
-                    let ok = false
-                    let i = 0
-                    do {
-                        try {
-                            i++
-                            gasLimit = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
-                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
-                        } catch (e1) {
-                            ok = false
-                            if (i > 3) {
-                                throw e1
+                if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
+                    if (typeof abi[data.contractCallData.contractSchema] === 'undefined') {
+                        throw new Error('Contract abi not found ' + data.contractCallData.contractSchema)
+                    }
+                    const token = new this._web3.eth.Contract(abi[data.contractCallData.contractSchema], data.contractCallData.contractAddress)
+
+                    gasLimit = 150000
+                    try {
+                        const tmpParams = data.contractCallData.contractActionParams
+                        for (let i = 0, ic = tmpParams.length; i<ic; i++) {
+                            if (tmpParams[i] === 'addressTo') {
+                                tmpParams[i] = data.addressTo
                             }
                         }
-                    } while (!ok && i <= 5)
-                } catch (e) {
-                    if (e.message.indexOf('resolve host') !== -1) {
-                        throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
-                    } else {
-                        gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
-                        // e.message += ' in EthEstimateGas in getFeeRate'
-                        // throw e
+                        gasLimit = await token.methods[data.contractCallData.contractAction](...tmpParams).estimateGas({ from: data.addressFrom })
+                        if (gasLimit) {
+                            gasLimit = BlocksoftUtils.mul(gasLimit, 1.5)
+                        }
+                    } catch (e) {
+                        if (config.debug.cryptoErrors) {
+                            console.log('EthTransferProcessor data.contractCallData error ' + e.message)
+                        }
+                        BlocksoftCryptoLog.log('EthTransferProcessor data.contractCallData error ' + e.message)
+                        // do nothing
                     }
-                }
-                if (!gasLimit || typeof gasLimit !== 'undefined') {
-                    gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
-                }
-                if (this._mainCurrencyCode === 'OPTIMISM') {
-                    const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
-                    if (gasLimit < minGasLimit) {
-                        gasLimit = minGasLimit
+
+                    if (gasLimit <= 150000) {
+                        gasLimit = 150000
+                    }
+
+                } else {
+                    try {
+                        let ok = false
+                        let i = 0
+                        do {
+                            try {
+                                i++
+                                gasLimit = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
+                            } catch (e1) {
+                                ok = false
+                                if (i > 3) {
+                                    throw e1
+                                }
+                            }
+                        } while (!ok && i <= 5)
+                    } catch (e) {
+                        if (e.message.indexOf('resolve host') !== -1) {
+                            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+                        } else {
+                            gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
+                            // e.message += ' in EthEstimateGas in getFeeRate'
+                            // throw e
+                        }
+                    }
+                    if (!gasLimit || typeof gasLimit !== 'undefined') {
+                        gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
+                    }
+                    if (this._mainCurrencyCode === 'OPTIMISM') {
+                        const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
+                        if (gasLimit < minGasLimit) {
+                            gasLimit = minGasLimit
+                        }
                     }
                 }
             } else {
@@ -573,10 +607,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
 
         const fees = await this.getFeeRate(data, privateData, additionalData)
-        console.log(`
-        
-        
-        fees`, JSON.stringify(fees))
+
         if (!fees || fees.selectedFeeIndex < 0) {
             return {
                 selectedTransferAllBalance: '0',
@@ -673,7 +704,21 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             value: data.amount
         }
 
-        if (typeof data.blockchainData !== 'undefined') {
+        if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
+            if (typeof abi[data.contractCallData.contractSchema] === 'undefined') {
+                throw new Error('Contract abi not found ' + data.contractCallData.contractSchema)
+            }
+            const token = new this._web3.eth.Contract(abi[data.contractCallData.contractSchema], data.contractCallData.contractAddress)
+
+            const tmpParams = data.contractCallData.contractActionParams
+            for (let i = 0, ic = tmpParams.length; i < ic; i++) {
+                if (tmpParams[i] === 'addressTo') {
+                    tmpParams[i] = data.addressTo
+                }
+            }
+            tx.to = data.contractCallData.contractAddress
+            tx.data = token.methods[data.contractCallData.contractAction](...tmpParams).encodeABI()
+        } else if (typeof data.blockchainData !== 'undefined') {
             tx.data = data.blockchainData // actual value for erc20 etc
         }
 
@@ -745,6 +790,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = this._mainCurrencyCode
+                result.transactionJson.txData = tx.data
                 await EthTmpDS.getCache(this._mainCurrencyCode, data.addressFrom)
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))

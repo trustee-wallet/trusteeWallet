@@ -60,6 +60,9 @@ export const colorsDark = {
             }
         }
     },
+    nftScreen: {
+        tokenBg: '#2E2E2E'
+    },
     cashback: {
         qrCode: '#000',
         background: '#FFF',

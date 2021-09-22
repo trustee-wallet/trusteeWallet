@@ -9,10 +9,10 @@ const CACHE_WEB3 = {}
 export const Web3Injected = (type) => {
     let WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
     let MAIN_CURRENCY_CODE = 'ETH'
-    if (type === 3 || type === 'ropsten') {
+    if (type === 3 || type === 'ropsten'  || type === 'ETH_ROPSTEN') {
         MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
         WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
-    } if (type === 4 || type === 'rinkeby') {
+    } if (type === 4 || type === 'rinkeby' || type === 'ETH_RINKEBY') {
         MAIN_CURRENCY_CODE = 'ETH_RINKEBY'
         WEB3_LINK = `https://rinkeby.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
     } else if (type === 56) {
@@ -21,7 +21,7 @@ export const Web3Injected = (type) => {
     } else if (type === 10) {
         MAIN_CURRENCY_CODE = 'OPTIMISM'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
-    } else if (type === 137) {
+    } else if (type === 137 || type === 'MATIC') {
         MAIN_CURRENCY_CODE = 'MATIC'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('MATIC_SERVER')
     } else if (type === 16718) {

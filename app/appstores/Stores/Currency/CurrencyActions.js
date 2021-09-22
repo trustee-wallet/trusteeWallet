@@ -38,13 +38,9 @@ const currencyActions = {
 
         const currencies = await currencyDS.getCurrencies()
 
-        let currencyDBTmp
-        for (currencyDBTmp of currencies) {
-
+        function _push(prepare, currencyDBTmp) {
             const settings = BlocksoftDict.Currencies[currencyDBTmp.currencyCode]
-
-            if (typeof settings === 'undefined') continue
-
+            if (typeof settings === 'undefined') return
             let one
             if (typeof settings.extendsProcessor === 'undefined') {
                 one = {
@@ -63,6 +59,14 @@ const currencyActions = {
             one.currencyExplorerTxLink = BlocksoftPrettyLocalize.makeLink(one.currencyExplorerTxLink)
             prepare.push(one)
         }
+        for (const currencyDBTmp of currencies) {
+            if (currencyDBTmp.currencyCode !== 'NFT') continue
+            _push(prepare, currencyDBTmp)
+        }
+        for (const currencyDBTmp of currencies) {
+            if (currencyDBTmp.currencyCode === 'NFT') continue
+            _push(prepare, currencyDBTmp)
+        }
 
         dispatch({
             type: 'SET_CRYPTO_CURRENCIES',
@@ -79,9 +83,7 @@ const currencyActions = {
      */
     checkIsCurrencySynchronized: (params) => {
         try {
-
             return !(typeof params.account === 'undefined' || !params.account.balanceScanTime)
-
         } catch (e) {
             Log.err('ACT/Currency checkIsCurrencySynchronized error ' + e.message, JSON.stringify(e))
         }
@@ -218,18 +220,23 @@ const currencyActions = {
         Log.log('ACT/Currency toggleCurrencyVisibility called ', params)
 
         try {
+            
+            let { walletNumber } = store.getState().mainStore.selectedWallet
+            if (typeof walletNumber === 'undefined' || !walletNumber) {
+                walletNumber = 1
+            } else {
+                walletNumber = walletNumber * 1
+            }
 
-            // binary from int - for support of old stored values
-            const selectedWalletNumber = store.getState().mainStore.selectedWallet.walletNumber
             const currentIsHidden = Number(params.currentIsHidden || 0).toString(2).split('').reverse() // split to binary
             for (let i = 0; i <= MarketingEvent.DATA.LOG_WALLETS_COUNT; i++) {
                 if (typeof currentIsHidden[i] === 'undefined') {
                     currentIsHidden[i] = 0
                 }
             }
-            currentIsHidden[selectedWalletNumber] = params.newIsHidden
+            currentIsHidden[walletNumber] = params.newIsHidden
             const isHidden = parseInt(currentIsHidden.reverse().join(''), 2)
-            Log.log('ACT/Currency toggleCurrencyVisibility selectedWalletNumber ' + selectedWalletNumber + ' isHidden ' + isHidden, JSON.stringify(currentIsHidden))
+            Log.log('ACT/Currency toggleCurrencyVisibility selectedWallet walletNumber ' + walletNumber + ' isHidden ' + isHidden, JSON.stringify(currentIsHidden))
             await currencyDS.updateCurrency({
                 key: {
                     currencyCode: params.currencyCode

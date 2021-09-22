@@ -64,6 +64,13 @@ export async function setSelectedWallet(source, walletHash = false) {
     }
 
     dispatch({
+        type: 'SET_NFTS_LOADED',
+        loaded: false,
+        nfts : false,
+        address : false
+    })
+
+    dispatch({
         type: 'SET_SELECTED_WALLET',
         wallet
     })

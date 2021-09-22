@@ -19,6 +19,8 @@ import appNewsStoreReducer from './Stores/AppNews/AppNewsReducer'
 import sendScreenStoreReducer from './Stores/Send/SendScreenStore'
 import walletConnectStoreReducer from '@app/appstores/Stores/WalletConnect/WalletConnectStore'
 import streamSupportStoreReducer from '@app/appstores/Stores/StreamSupport/StreamSupportStore'
+import nftsStoreReducer from '@app/appstores/Stores/Nfts/NftsStore'
+import nftCustomAssetsStoreReducer from '@app/appstores/Stores/NftCustomAssets/NftCustomAssetsStore'
 
 export default combineReducers({
     mainStore: mainStoreReducer,
@@ -36,5 +38,7 @@ export default combineReducers({
     appNewsStore : appNewsStoreReducer,
     sendScreenStore: sendScreenStoreReducer,
     walletConnectStore : walletConnectStoreReducer,
-    streamSupportStore : streamSupportStoreReducer
+    streamSupportStore : streamSupportStoreReducer,
+    nftsStore : nftsStoreReducer,
+    nftCustomAssetsStore : nftCustomAssetsStoreReducer
 })
