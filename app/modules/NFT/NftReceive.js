@@ -57,11 +57,6 @@ class NftReceive extends React.PureComponent {
         }
     }
 
-
-    handleAddCustomToken = () => {
-        NavStore.goNext('NftAddAssetScreen')
-    }
-
     render() {
         return (
             <ScreenWrapper

@@ -207,6 +207,7 @@ class NftDetailedInfo extends React.PureComponent {
             >
                 <ScrollView
                     contentContainerStyle={styles.scrollViewContent}
+                    showsVerticalScrollIndicator={false}
                 >
                     <View style={[styles.container, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={[{
