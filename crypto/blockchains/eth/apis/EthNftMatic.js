@@ -43,7 +43,7 @@ export default async function(data) {
                 tokenBlockchain:  tmp.token_blockchain || data.tokenBlockchain,
                 img: tmp.image,
                 title: tmp.name || tmp.title,
-                subTitle: '',
+                subTitle: tmp.subtitle || '',
                 desc: tmp.description || '',
                 cryptoCurrencySymbol: tmp.crypto_currency_symbol || '',
                 cryptoValue: tmp.crypto_value || '',
@@ -51,7 +51,7 @@ export default async function(data) {
                 permalink: tmp.permalink || false
             }
             try {
-                if (one.desc) {
+                if (one.desc && !one.subTitle) {
                     one.subTitle = one.desc.length > 20 ? (one.desc.substring(0, 20) + '...') : one.desc
                 }
             } catch (e) {
