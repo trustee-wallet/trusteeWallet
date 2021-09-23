@@ -53,6 +53,8 @@ target 'TrusteeWallet' do
 
   pod 'react-native-fast-crypto', :path => '../node_modules/react-native-fast-crypto', :binary => false
 
+  pod 'react-native-branch', :path => '../node_modules/react-native-branch'
+
   target 'TrusteeWalletTests' do
     inherit! :search_paths
     # Pods for testing

@@ -96,6 +96,7 @@
     "react-native-background-timer": "^2.1.1",
     "react-native-blocksoft-random": "git+https://git@github.com/trustee-wallet/react-native-blocksoft-random",
     "react-native-blur-overlay": "^1.0.7",
+    "react-native-branch": "^5.0.4",
     "react-native-camera": "^3.43.5",
     "react-native-collapsible": "1.5.3",
     "react-native-crypto": "git+https://github.com/trustee-wallet/react-native-crypto",
