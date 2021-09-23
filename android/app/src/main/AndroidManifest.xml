@@ -70,6 +70,18 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="wc" />
             </intent-filter>
+            <intent-filter>
+                <data android:scheme="branchandroid" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="uobg.app.link" />
+            </intent-filter>
         </activity>
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
         <receiver android:name="com.google.android.gms.measurement.AppMeasurementInstallReferrerReceiver"
@@ -80,6 +92,8 @@
             </intent-filter>
         </receiver>
         <service android:name="com.google.android.gms.analytics.CampaignTrackingService" android:enabled="true" android:exported="false" />
+        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_pdZCA7n8hLlwZdxQZnuxTplmyynGtAqP"/>
+        <meta-data android:name="io.branch.sdk.BranchKey.test" android:value="key_test_gc9DB1aZhVdyWpBQXcDFLokgytkHyvEX"/>
     </application>
 
 </manifest>

@@ -20,6 +20,8 @@ import androidx.multidex.MultiDexApplication;
 import java.security.Security;
 import android.webkit.WebView;
 
+import io.branch.rnbranch.RNBranchModule;
+
 public class MainApplication extends MultiDexApplication implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost =
@@ -55,6 +57,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this); // Remove this line if you don't want Flipper enabled
     WebView.setWebContentsDebuggingEnabled(true);
+    RNBranchModule.getAutoInstance(this);
   }
 
   /**
