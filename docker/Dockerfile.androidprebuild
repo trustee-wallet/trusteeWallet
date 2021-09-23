@@ -16,12 +16,13 @@ RUN apt-get -y update && \
     python3 -m pip install gplaycli && \
     rm -f ./get-pip.py && \
     curl -sL -o /usr/local/bin/apktool https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool && \
-    curl -sL -o /usr/local/bin/apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.5.0.jar && \
+    curl -sL -o /usr/local/bin/apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.6.0.jar && \
     chmod +x /usr/local/bin/apktool /usr/local/bin/apktool.jar && \
-    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.5.0/bundletool-all-1.5.0.jar && \
+    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.8.0/bundletool-all-1.8.0.jar && \
     chmod 644 bundletool.jar && \
     curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && \
     apt-get -y install nodejs && \
+    npm install --global yarn && \
     apt-get -y autoremove && \
     apt-get -y clean && \
     rm -rf /var/lib/apt/lists/*
@@ -36,20 +37,18 @@ RUN mkdir -p /${WDIR}/npm && \
 ADD package.json ./src
 
 RUN cd ./src && \
-    npm install --quiet --no-progress && \
-    npx jetifier && \
-    rm -f shim.js && ./node_modules/.bin/rn-nodeify --hack --install && \
+    yarn install --no-progress && \
     tar -c --use-compress-program=pigz -f /${WDIR}/npm/node_modules.tar.gz /${WDIR}/src/node_modules && \
     rm -rf /${WDIR}/src && \
     mkdir /${WDIR}/src
 
 RUN cd /${WDIR}/androidsdk/cmdline-tools/ && \
-    curl -s -o commandlinetools-linux.zip https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip && \
+    curl -s -o commandlinetools-linux.zip https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip && \
     unzip commandlinetools-linux.zip && \
     cd ./cmdline-tools/ && \
     mv ./* ../latest/ && \
     cd .. && \
-    rm -rf ./cmdline-tools && \
+    rm -rf ./cmdline-tools && rm -f commandlinetools-linux.zip && \
     ln -sf /trustee/androidsdk/cmdline-tools/latest/bin/sdkmanager /usr/bin/sdkmanager && \
     yes | sdkmanager --licenses
 
