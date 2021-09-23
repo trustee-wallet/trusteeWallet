@@ -34,7 +34,7 @@ RUN mkdir -p /${WDIR}/npm && \
     mkdir -p /${WDIR}/src && \
     mkdir -p /${WDIR}/androidsdk/cmdline-tools/latest
 
-ADD package.json ./src
+ADD . ./src
 
 RUN cd ./src && \
     yarn install --no-progress && \
