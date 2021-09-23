@@ -291,7 +291,7 @@ class ReceiptScreen extends PureComponent {
                     ref={(ref) => {
                         this.scrollView = ref
                     }}
-                    keyboardShouldPersistTaps={'handled'}
+                    keyboardShouldPersistTaps='handled'
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{
                         flexGrow: 1,
@@ -305,9 +305,10 @@ class ReceiptScreen extends PureComponent {
                             <Text style={{ ...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
 
 
-                            {typeof contractCallData !== 'undefined' && contractCallData.infoForUser.map((item) => {
+                            {typeof contractCallData !== 'undefined' && contractCallData.infoForUser.map((item, index) => {
                                 return (
                                     <TransactionItem
+                                        key={index}
                                         title={item.title}
                                         subtitle={item.subtitle}
                                         iconType={item.iconType}
@@ -322,7 +323,7 @@ class ReceiptScreen extends PureComponent {
                             {
                                 typeof bseOrderId !== 'undefined' && bseOrderId &&
                                     <LetterSpacing
-                                        text={`${basicCurrencySymbol} ${equivalentSeparated}`}
+                                        text={strings(`account.transaction.orderId`) + ' ' + bseOrderId}
                                         numberOfLines={1}
                                         textStyle={{ ...styles.notEquivalent, color: '#999999' }}
                                         letterSpacing={1} />
@@ -376,7 +377,7 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, {})(ReceiptScreen)
+export default connect(mapStateToProps)(ReceiptScreen)
 
 const styles = StyleSheet.create({
     title: {
