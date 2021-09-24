@@ -118,7 +118,7 @@ class WalletInfo extends React.Component {
     }
 
     handleBackupModal = () => {
-        handleBackUpModal(this.props.selectedWalletData)        
+        handleBackUpModal(this.props.selectedWalletData)
     }
 
     render() {
@@ -161,7 +161,7 @@ class WalletInfo extends React.Component {
                                     ]}>
                                         {strings('homeScreen.balance')}
                                     </Text>
-                                    
+
                                     <LetterSpacing
                                         text={todayPrep}
                                         textStyle={[styles.container__date, { color: isViolet ? colors.homeScreen.dateColorViolet : colors.common.text2 }]}
@@ -226,12 +226,14 @@ class WalletInfo extends React.Component {
                     </TouchableOpacity>
                 </Animated.View>
                 {!this.props.walletIsBackedUp ?
-                    <InfoNotification
-                        title={strings('settings.walletList.backupNeeded')}
-                        subTitle={strings('settings.walletList.backupDescription')}
-                        closeCallback={this.closeMsg}
-                        onPress={this.handleBackupModal}
-                    /> : null
+                    <View style={{ marginHorizontal: GRID_SIZE }}>
+                        <InfoNotification
+                            title={strings('settings.walletList.backupNeeded')}
+                            subTitle={strings('settings.walletList.backupDescription')}
+                            closeCallback={this.closeMsg}
+                            onPress={this.handleBackupModal}
+                        />
+                    </View> : null
                 }
             </>
         )
