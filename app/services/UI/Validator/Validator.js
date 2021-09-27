@@ -400,7 +400,11 @@ async function _userDataValidation(obj) {
             } else if (!value.includes('wc:')) {
                 error.msg = strings('validator.invalidFormat', {name: name})
             }
-
+            if (value.indexOf('URI format') === -1) {
+                error.msg = strings('validator.invalidFormat', {name: name})
+            } else {
+                error.msg = strings('validator.invalidFormat', {name: name})
+            }
             break
 
         default:
