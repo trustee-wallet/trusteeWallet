@@ -40,6 +40,12 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='balance' color={color} size={20} />
         case 'wallet':
             return <CustomIcon name='wallet' color={color} size={20} />
+        case 'contract':
+            return <CustomIcon name='contract2' color={color} size={20} />
+        case 'tokenId':
+            return <CustomIcon name='tokenID' color={color} size={20} />
+        case 'block':
+            return <CustomIcon name='blockchain' color={color} size={20} />
         default: return null
     }
 }

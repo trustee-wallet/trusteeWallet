@@ -368,7 +368,26 @@ export default function getTableQueries() {
                     tmp_val TEXT,
                     created_at DATETIME NULL
                 )`
-            }
+            },
+
+            {
+                tableName: 'custom_nfts',
+                queryString: `CREATE TABLE IF NOT EXISTS custom_nfts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                    is_hidden INTEGER NOT NULL DEFAULT 0,
+
+                    nft_code VARCHAR(32) NOT NULL,
+                    nft_symbol VARCHAR(32) NOT NULL,
+                    nft_name VARCHAR(256) NOT NULL,
+
+                    nft_type VARCHAR(32) NOT NULL,
+                    nft_address VARCHAR(256) NOT NULL,
+                    nft_json TEXT NULL,
+
+                    is_added_to_api INTEGER NULL DEFAULT 0
+                )`
+            },
         ]
     }
 }

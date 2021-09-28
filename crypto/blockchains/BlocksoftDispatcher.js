@@ -64,6 +64,7 @@ import WavesScannerProcessor from '@crypto/blockchains/waves/WavesScannerProcess
 
 import SolScannerProcessorSpl from '@crypto/blockchains/sol/SolScannerProcessorSpl'
 import SolTokenProcessor from '@crypto/blockchains/sol/SolTokenProcessor'
+import EthTokenProcessorNft from '@crypto/blockchains/eth/EthTokenProcessorNft'
 
 class BlocksoftDispatcher {
 
@@ -189,6 +190,25 @@ class BlocksoftDispatcher {
                 return new SolTokenProcessor()
             default:
                 throw new Error('Unknown tokenProcessor ' + tokenType)
+        }
+    }
+
+    /**
+     * @param tokenBlockchainCode
+     * @returns {EthTokenProcessorNft}
+     */
+    getTokenNftsProcessor(tokenBlockchainCode) {
+        switch (tokenBlockchainCode) {
+            case 'ETH': case 'NFT_ETH':
+                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain: 'ETHEREUM', tokenBlockchainCode : 'ETH' })
+            case 'ETH_RINKEBY': case 'NFT_RINKEBY':
+                return new EthTokenProcessorNft({ network: 'rinkeby', tokenBlockchain: 'RINKEBY', tokenBlockchainCode : 'ETH_RINKEBY' })
+            case 'MATIC': case 'NFT_MATIC':
+                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'MATIC', tokenBlockchainCode : 'MATIC' })
+            case 'ETH_ROPSTEN': case 'NFT_ROPSTEN':
+                return new EthTokenProcessorNft({ network: 'ropsten', tokenBlockchain : 'ROPSTEN', tokenBlockchainCode : 'ETH_ROPSTEN' })
+            default:
+                throw new Error('Unknown tokenProcessor ' + tokenBlockchainCode)
         }
     }
 

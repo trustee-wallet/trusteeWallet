@@ -111,7 +111,30 @@ export default class EthTxSendProvider {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send will send')
         let result
         try {
-            if (this._mainCurrencyCode === 'BNB' || this._mainCurrencyCode === 'MATIC' || !link) {
+            if (this._mainCurrencyCode === 'MATIC') {
+                /**
+                 * curl http://matic.trusteeglobal.com:8545 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0x..."],"id":83}'
+                 */
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.LINK, signData.rawTransaction)
+                const tmp = await BlocksoftAxios.postWithoutBraking(this._web3.LINK, {
+                    jsonrpc: '2.0',
+                    method: 'eth_sendRawTransaction',
+                    params: [signData.rawTransaction],
+                    id: 1
+                })
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.LINK + ' result ', tmp)
+                if (!tmp || typeof tmp.data === 'undefined') {
+                    throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+                }
+                if (typeof tmp.data.error !== 'undefined' && tmp.data.error) {
+                    throw new Error(typeof tmp.data.error.message !== 'undefined' ? tmp.data.error.message : tmp.data.error)
+                }
+                result = {
+                    data: {
+                        result: typeof tmp.data.result !== 'undefined' ? tmp.data.result : false
+                    }
+                }
+            } else if (this._mainCurrencyCode === 'BNB' || !link) {
                 /**
                  * {"blockHash": "0x01d48fd5de1ebb62275096f749acb6849bd97f3c050acb07358222cea0a527bc",
                  * "blockNumber": 5223318, "contractAddress": null,

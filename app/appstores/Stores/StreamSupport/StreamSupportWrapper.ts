@@ -29,7 +29,7 @@ export namespace StreamSupportWrapper {
     export const init = async function(data: any) {
         if (!MarketingEvent.DATA.LOG_TESTER) return false
         const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
-        if (MarketingEvent.DATA.LOG_TOKEN.indexOf('NO_GOOGLE') === -1) {
+        if (MarketingEvent.DATA.LOG_TOKEN.indexOf('NO_GOOGLE') === -1 && data.userToken) {
             try {
                 const response = await fetch(`${serverUrl}/api/v1/push.token`, {
                     method: 'POST',
@@ -51,7 +51,7 @@ export namespace StreamSupportWrapper {
                 if (config.debug.appErrors) {
                     console.log('StreamSupport device token subscribe error ' + e.message)
                 }
-                Log.log('StreamSupport device token subscribe error ' + e.message)
+                Log.log('StreamSupport device token subscribe error ' + e.message + ' ' + JSON.stringify(data))
             }
         }
 

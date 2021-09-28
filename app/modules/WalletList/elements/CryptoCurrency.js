@@ -40,13 +40,26 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 let CACHE_CLICK = false
 class CryptoCurrency extends React.PureComponent {
 
-    handleCurrencySelect = async () => {
+    handleCurrencySelect = async (screen) => {
         if (CACHE_CLICK) return
 
         const { cryptoCurrency } = this.props
 
         let status = ''
         CACHE_CLICK = true
+
+        if (typeof cryptoCurrency.currencyCode !== 'undefined' && cryptoCurrency.currencyCode === 'NFT') {
+            try {
+                setSelectedCryptoCurrency(cryptoCurrency)
+                NavStore.goNext(screen || 'NftMainScreen')
+            } catch (e) {
+                Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)
+            }
+
+            CACHE_CLICK = false
+            return false
+        }
+
         try {
 
             // Log.log('HomeScreen.Currency handleCurrencySelect inited ', cryptoCurrency)
@@ -158,7 +171,7 @@ class CryptoCurrency extends React.PureComponent {
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
-                    onPress={() => this.handleCurrencySelect(props.accounts)}
+                    onPress={() => this.handleCurrencySelect()}
                     onLongPress={this.props.onDrag}
                     delayLongPress={3000}
                 >
@@ -230,9 +243,109 @@ class CryptoCurrency extends React.PureComponent {
         )
     };
 
+
+    renderHiddenNFTLayer = (item) => {
+        return (
+            <View style={styles.hiddenLayer__container}>
+                <View style={styles.hiddenLayer__leftButtons__wrapper}>
+                    <RoundButton
+                        type="receive"
+                        containerStyle={styles.hiddenLayer__roundButton}
+                        onPress={() => this.handleCurrencySelect('NftReceive')}
+                        noTitle
+                    />
+                    <RoundButton
+                        type="edit"
+                        containerStyle={styles.hiddenLayer__roundButton}
+                        onPress={() => this.handleCurrencySelect('NftAddAssetScreen')}
+                        noTitle
+                    />
+                </View>
+                <RoundButton
+                    type="hide"
+                    containerStyle={styles.hiddenLayer__roundButton}
+                    onPress={() => this.props.handleHide(item)}
+                    noTitle
+                />
+            </View>
+        );
+    }
+
+    renderNFTLayer = (props) => {
+        const { colors } = this.context
+        const cryptoCurrency = props.cryptoCurrency
+
+        const currencyCode = cryptoCurrency.currencyCode || 'BTC'
+
+        return (
+            <View style={styles.container}>
+                <View style={styles.shadow__container}>
+                    <View style={[styles.shadow__item, this.props.isActive && styles.shadow__item__active]} />
+                </View>
+                <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
+                <TouchableOpacity
+                    activeOpacity={0.7}
+                    style={styles.cryptoList__item}
+                    onPress={() => this.handleCurrencySelect()}
+                    onLongPress={this.props.onDrag}
+                    delayLongPress={3000}
+                >
+                    <GradientView
+                        style={styles.cryptoList__item__content}
+                        array={colors.homeScreen.listItemGradient}
+                        start={{ x: 1, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                    >
+
+                        <CurrencyIcon
+                            currencyCode={currencyCode}
+                            containerStyle={styles.cryptoList__icoWrap}
+                            markStyle={styles.cryptoList__icon__mark}
+                            markTextStyle={styles.cryptoList__icon__mark__text}
+                            iconStyle={styles.cryptoList__icon}
+                        />
+
+                        <View style={styles.cryptoList__info}>
+                            <View style={styles.cryptoList__currency__balance}>
+                                <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>
+                                    {cryptoCurrency.currencySymbol}
+                                </Text>
+                            </View>
+
+                            <View style={styles.cryptoList__currency__rate}>
+                                <Text style={[styles.cryptoList__text, { color: colors.common.text2 }]}>
+                                    {cryptoCurrency.currencyName}
+                                </Text>
+                            </View>
+
+                        </View>
+
+                    </GradientView>
+                </TouchableOpacity>
+            </View>
+        )
+    };
+
     render() {
         // TODO: change condition - still need?
         if (typeof this.props === 'undefined') return <View />
+
+        if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && this.props.cryptoCurrency.currencyCode === 'NFT') {
+            return (
+                <SwipeRow
+                    leftOpenValue={140}
+                    rightOpenValue={-70}
+                    stopLeftSwipe={160}
+                    stopRightSwipe={-90}
+                    swipeToOpenPercent={5}
+                    swipeToClosePercent={5}
+                    setScrollEnabled={this.props.setScrollEnabled}
+                >
+                    {this.renderHiddenNFTLayer(this.props.cryptoCurrency)}
+                    {this.renderNFTLayer(this.props)}
+                </SwipeRow>
+            );
+        }
 
         return (
             <SwipeRow

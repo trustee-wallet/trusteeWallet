@@ -11,7 +11,6 @@ import {
     TouchableOpacity, StyleSheet
 } from 'react-native'
 
-import Entypo from 'react-native-vector-icons/Entypo'
 import moment from 'moment'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -39,6 +38,8 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import { getIsBackedUp } from '@app/appstores/Stores/Main/selectors'
 import InfoNotification from '@app/components/elements/new/InfoNotification'
 import { handleBackUpModal } from '@app/modules/Settings/helpers'
+
+import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 
 
 let CACHE_PREV_CURRENCY = false
@@ -169,14 +170,13 @@ class WalletInfo extends React.Component {
                                     />
 
                                 </View>
-                                <TouchableOpacity style={styles.addAsset} onPress={() => NavStore.goNext('AddAssetScreen')}>
-                                    <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>
-                                        <Entypo style={[styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]} size={13} name="plus" />
-                                        <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text3 }]}>
-                                            {strings('settings.assets.addAsset').toUpperCase()}
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity>
+                                <BorderedButton
+                                    text={strings('settings.assets.addAsset')}
+                                    icon='plus'
+                                    isViolet={isViolet}
+                                    containerStyles={styles.button}
+                                    onPress={() => NavStore.goNext('AddAssetScreen')}
+                                />
                             </View>
 
                             <View style={styles.walletInfo__content}>
@@ -350,31 +350,8 @@ const styles = StyleSheet.create({
     walletInfo__hiddenBalance: {
         lineHeight: 58
     },
-    addAsset: {
-        paddingVertical: 19,
-        paddingLeft: 15
-    },
-    addAsset__content: {
-        position: 'relative',
-
-        flexDirection: 'row',
-        alignItems: 'center',
-
-        height: 30,
-
-        paddingHorizontal: 8,
-        paddingVertical: 5,
-        paddingLeft: 4,
-
-        borderRadius: 6,
-        borderWidth: 1.5
-    },
-    addAsset__text: {
-        fontSize: 10,
-        fontFamily: 'Montserrat-Bold'
-    },
-    addAsset__icon: {
-        marginRight: 2,
-        marginTop: 1,
+    button: {
+        marginVertical: 19,
+        marginLeft: 15
     }
 })

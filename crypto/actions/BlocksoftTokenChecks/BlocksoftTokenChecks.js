@@ -30,6 +30,23 @@ class BlocksoftTokenChecks {
         }
     }
 
+    /**
+     *
+     * @param data.nftType
+     * @param data.nftAddress
+     */
+    async getNftDetails(data) {
+        try {
+            if (!this._processor[data.nftType]) {
+                this._processor[data.nftType] = BlocksoftDispatcher.getTokenNftsProcessor(data.nftType)
+            }
+            return this._processor[data.nftType].getNftDetails(data.nftAddress, data.nftType)
+        } catch (e) {
+            e.code = 'ERROR_SYSTEM'
+            throw e
+        }
+    }
+
 }
 
 const singleBlocksoftTokenChecks = new BlocksoftTokenChecks()

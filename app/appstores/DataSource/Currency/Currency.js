@@ -101,6 +101,7 @@ export default {
         const data = []
         let row
         for (row of res.array) {
+            if (row.currencyCode === 'NFT') continue
             data.push(row.currencyCode)
         }
         data.push('BTC_SEGWIT')

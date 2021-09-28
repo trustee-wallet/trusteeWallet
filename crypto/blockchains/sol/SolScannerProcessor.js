@@ -9,6 +9,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
 
 import config from '@app/config/config'
+import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 
 const CACHE_FROM_DB = {}
 const CACHE_TXS = {}
@@ -105,21 +106,22 @@ export default class SolScannerProcessor {
     async _unifyTransactions(address, result, lastHashVar) {
         const transactions = []
         let lastHash = false
+        let hasError = false
         for (const tx of result) {
             try {
                 const transaction = await this._unifyTransaction(address, tx)
                 if (transaction) {
                     transactions.push(transaction)
-                    if (transaction.transactionStatus === 'success' && !lastHash) {
+                    if (transaction.transactionStatus === 'success' && !lastHash && !hasError) {
                         lastHash = transaction.transactionHash
                     }
                 }
             } catch (e) {
+                hasError = true
                 if (config.debug.appErrors) {
                     console.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransactions ' + tx.signature + ' error ' + e.message)
                 }
-                e.message += ' while _unify ' + tx.signature
-                throw e
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransactions ' + tx.signature + ' error ' + e.message)
             }
         }
 
@@ -163,16 +165,22 @@ export default class SolScannerProcessor {
         let additional
         if (typeof CACHE_TXS[transaction.signature] === 'undefined') {
             const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
-            const res = await BlocksoftAxios._request(apiPath, 'POST', data)
-            if (typeof res.data.result === 'undefined' || !res.data.result) {
-                return false
+            try {
+                const res = await BlocksoftAxios._request(apiPath, 'POST', data)
+                if (typeof res.data.result === 'undefined' || !res.data.result) {
+                    return false
+                }
+                additional = res.data.result
+                CACHE_TXS[transaction.signature] = {data : additional, now : new Date().getTime() }
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransaction ' + transaction.signature + ' request error ' + e.message)
+                }
+                throw e
             }
-            additional = res.data.result
-            CACHE_TXS[transaction.signature] = {data : additional, now : new Date().getTime() }
         } else {
             additional = CACHE_TXS[transaction.signature].data
         }
-
 
         let addressFrom = false
         let addressTo = false
@@ -183,9 +191,9 @@ export default class SolScannerProcessor {
         const indexedPre = {}
         const indexedPost = {}
         const indexedCreated = {}
+        const indexedAssociated = {}
 
         if (this.tokenAddress) {
-
             for (const tmp of additional.meta.preTokenBalances) {
                 if (tmp.mint !== this.tokenAddress) continue
                 const realIndex = tmp.accountIndex
@@ -202,14 +210,28 @@ export default class SolScannerProcessor {
                 if (tmp.program !== 'spl-associated-token-account') continue
                 indexedCreated[tmp.parsed.info.account] = tmp.parsed.info.wallet
             }
+
+            for (let i = 0, ic = additional.transaction.message.accountKeys.length; i < ic; i++) {
+                const tmpAddress = additional.transaction.message.accountKeys[i]
+                if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
+                const sourceAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
+                    tmpAddress.pubkey,
+                    this.tokenAddress
+                )
+                indexedAssociated[sourceAssociatedTokenAddress] = tmpAddress
+            }
         } else {
-            return false
+            // do nothing!
         }
 
+        let anySigner = false
         for (let i = 0, ic = additional.transaction.message.accountKeys.length; i < ic; i++) {
-            const tmpAddress = additional.transaction.message.accountKeys[i]
+            let tmpAddress = additional.transaction.message.accountKeys[i]
             if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
             let tmpAmount = '0'
+            if (typeof indexedAssociated[tmpAddress.pubkey] !== 'undefined') {
+                tmpAddress = indexedAssociated[tmpAddress.pubkey]
+            }
             if (this.tokenAddress) {
                 const to = typeof indexedPost[i] !== 'undefined' ? indexedPost[i] : 0
                 const from = typeof indexedPre[i] !== 'undefined' ? indexedPre[i] : 0
@@ -218,7 +240,12 @@ export default class SolScannerProcessor {
                 tmpAmount = BlocksoftUtils.diff(additional.meta.postBalances[i], additional.meta.preBalances[i]).toString()
             }
 
+            if (tmpAddress.pubkey && tmpAddress.signer) {
+                anySigner = tmpAddress.pubkey
+            }
+
             if (tmpAmount === '0') continue
+
             if (tmpAddress.pubkey === address ||
                 (
                     typeof indexedCreated[tmpAddress.pubkey] !== 'undefined' && indexedCreated[tmpAddress.pubkey] === address
@@ -239,6 +266,9 @@ export default class SolScannerProcessor {
                 }
             }
         }
+        if (!addressFrom) {
+            addressFrom = anySigner
+        }
         if (!addressFrom && !addressTo) {
             return false
         }
@@ -247,6 +277,9 @@ export default class SolScannerProcessor {
         }
         if (anyToAddress && !addressTo) {
             addressTo = anyToAddress
+        }
+        if (!addressTo) {
+            addressTo = 'System'
         }
 
 

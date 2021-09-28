@@ -13,6 +13,9 @@ import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
 
 import android.graphics.Color;
 
+import io.branch.rnbranch.*;
+import android.content.Intent;
+
 public class MainActivity extends ReactActivity {
 
     @Override
@@ -48,14 +51,26 @@ public class MainActivity extends ReactActivity {
     }
 
     @Override
-        protected ReactActivityDelegate createReactActivityDelegate() {
-            return new ReactActivityDelegate(this, getMainComponentName()) {
-            @Override
-            protected ReactRootView createRootView() {
-                return new RNGestureHandlerEnabledRootView(MainActivity.this);
-                }
-            };
-        }
+    protected ReactActivityDelegate createReactActivityDelegate() {
+        return new ReactActivityDelegate(this, getMainComponentName()) {
+        @Override
+        protected ReactRootView createRootView() {
+            return new RNGestureHandlerEnabledRootView(MainActivity.this);
+            }
+        };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        RNBranchModule.initSession(getIntent().getData(), this);
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        RNBranchModule.onNewIntent(intent);
+    }
 
     protected String getMainComponentName() {
         return "TrusteeWallet";

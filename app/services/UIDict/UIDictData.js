@@ -776,6 +776,18 @@ export default {
             darkColor: '#EC6A1C'
         }
     },
+    'NFT_ETH': {
+        colors: {
+            mainColor: '#864DD9',
+            darkColor: '#9E71E1'
+        }
+    },
+    'NFT': {
+        colors: {
+            mainColor: '#864DD9',
+            darkColor: '#9E71E1'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

@@ -480,7 +480,11 @@ class UpdateAccountListDaemon extends Update {
             walletActions.setWalletsGeneralData(DaemonCache.CACHE_WALLET_TOTAL.balance, DaemonCache.CACHE_WALLET_TOTAL.basicCurrencySymbol)
 
             try {
-                if (selectedAccount && typeof selectedAccount !== 'undefined' && typeof selectedAccount.currencyCode !== 'undefined' && typeof selectedAccount.walletHash !== 'undefined') {
+                if (selectedAccount && typeof selectedAccount !== 'undefined'
+                    && typeof selectedAccount.currencyCode !== 'undefined'
+                    && typeof selectedAccount.walletHash !== 'undefined'
+                    && selectedAccount.currencyCode !== 'NFT'
+                ) {
                     if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode] === 'undefined') {
                         Log.daemon('UpdateAccountListDaemon error when no selected ' + selectedAccount.currencyCode)
                     } else {

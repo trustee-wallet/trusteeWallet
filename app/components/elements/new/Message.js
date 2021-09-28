@@ -1,3 +1,8 @@
+/**
+ * @version 0.43
+ * @author Vadym
+ */
+
 import React from 'react'
 import {
     StyleSheet,

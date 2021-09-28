@@ -24,7 +24,7 @@ class ReceiptData extends React.PureComponent {
         const { colors, GRID_SIZE } = this.context
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStoreDict
         const { blockchainData }= this.props.sendScreenStoreSelectedFee
-        const { addressTo, memo, comment, isFioRequest, bse, addressName, tbk } = this.props.sendScreenStoreUi
+        const { addressTo, memo, comment, isFioRequest, bse, addressName, tbk, contractCallData } = this.props.sendScreenStoreUi
         const { bseOrderId } = bse
         const { transactionAction, transactionBoost } = tbk
 
@@ -49,12 +49,11 @@ class ReceiptData extends React.PureComponent {
             }
         }
         return <View>
-            {typeof bseOrderId === 'undefined' || !bseOrderId ?
+            {(typeof bseOrderId === 'undefined' || !bseOrderId) && (typeof contractCallData === 'undefined' || !contractCallData) &&
                 <CheckData
                     name={strings('send.receiptScreen.rate', { currencyCode: currencySymbol })}
                     value={`${basicCurrencySymbol} ${BlocksoftPrettyNumbers.makeCut(basicCurrencyRate).separated}`}
                 />
-                : null
             }
             {transactionAction === 'transactionReplaceByFee' ?
                 <CheckData

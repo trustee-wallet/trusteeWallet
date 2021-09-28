@@ -38,6 +38,7 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
+import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
 
 
 let CACHE_IS_COUNTING = false
@@ -256,7 +257,7 @@ class ReceiptScreen extends PureComponent {
 
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
-        const { cryptoValue, bse, rawOnly } = this.props.sendScreenStore.ui
+        const { cryptoValue, bse, rawOnly, contractCallData } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
         const { sendInProcess } = this.state
 
@@ -290,7 +291,7 @@ class ReceiptScreen extends PureComponent {
                     ref={(ref) => {
                         this.scrollView = ref
                     }}
-                    keyboardShouldPersistTaps={'handled'}
+                    keyboardShouldPersistTaps='handled'
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{
                         flexGrow: 1,
@@ -302,20 +303,40 @@ class ReceiptScreen extends PureComponent {
                     <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{ ...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
-                            <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
+
+
+                            {typeof contractCallData !== 'undefined' && contractCallData.infoForUser.map((item, index) => {
+                                return (
+                                    <TransactionItem
+                                        key={index}
+                                        title={item.title}
+                                        subtitle={item.subtitle}
+                                        iconType={item.iconType}
+                                    />
+                                )
+                            })}
+
+                            {(typeof contractCallData === 'undefined' || !contractCallData) &&
+                                <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
+                            }
+
                             {
-                                typeof bseOrderId === 'undefined' || !bseOrderId ?
+                                typeof bseOrderId !== 'undefined' && bseOrderId &&
+                                    <LetterSpacing
+                                        text={strings(`account.transaction.orderId`) + ' ' + bseOrderId}
+                                        numberOfLines={1}
+                                        textStyle={{ ...styles.notEquivalent, color: '#999999' }}
+                                        letterSpacing={1} />
+                            }
+
+                            {
+                                (typeof bseOrderId === 'undefined' || !bseOrderId) && (typeof contractCallData === 'undefined' || !contractCallData) &&
                                     <LetterSpacing
                                         text={`${basicCurrencySymbol} ${equivalentSeparated}`}
                                         numberOfLines={1}
                                         textStyle={{ ...styles.notEquivalent, color: '#999999' }}
                                         letterSpacing={1} />
 
-                                    : <LetterSpacing
-                                        text={strings(`account.transaction.orderId`) + ' ' + bseOrderId}
-                                        numberOfLines={1}
-                                        textStyle={{ ...styles.notEquivalent, color: '#999999' }}
-                                        letterSpacing={1} />
                             }
                             <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                         </View>
@@ -356,7 +377,7 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, {})(ReceiptScreen)
+export default connect(mapStateToProps)(ReceiptScreen)
 
 const styles = StyleSheet.create({
     title: {
