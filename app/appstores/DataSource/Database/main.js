@@ -10,6 +10,7 @@ import {
   toPreparedObjects,
 } from './helpers';
 
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 class Database {
   /**
@@ -52,6 +53,10 @@ class Database {
 
   #initStart = false;
 
+  #maxVersion = 0;
+
+  #checkTries = 0;
+
   /**
    * ### Database starting
    */
@@ -61,11 +66,38 @@ class Database {
     if (!this.#initStart) {
       this.#initStart = true
       let dbInit = new DBInit(this);
-      await dbInit.init();
+      this.#maxVersion = await dbInit.init();
       dbInit = null;
       this.#initStart = false
     }
   }
+
+  async checkVersion() {
+    if (this.#checkTries > 100) return false
+
+    let savedVersion = settingsActions.getSettingStatic('dbVersion')
+    if (this.#maxVersion === 0) {
+      Log.log('DBI/checkVersion not inited maxVersion ' + this.#maxVersion + ' dbVersion ' + savedVersion)
+      return;
+    }
+    if (savedVersion.toString() === this.#maxVersion.toString()) {
+      this.#checkTries = 200
+      Log.log('DBI/checkVersion all ok maxVersion ' + this.#maxVersion + ' dbVersion ' + savedVersion)
+      return;
+    }
+    this.#checkTries++
+
+    Log.log('DBI/checkVersion checkTry ' + this.#checkTries + ' maxVersion ' + this.#maxVersion + ' dbVersion ' + savedVersion)
+    let dbInit = new DBInit(this);
+    this.#maxVersion = await dbInit.init(true)
+    dbInit = null;
+
+    savedVersion = await settingsActions.getSetting('dbVersion')
+    Log.log('DBI/checkVersion checkTry ' + this.#checkTries + ' newMaxVersion ' + this.#maxVersion + ' newDbVersion ' + savedVersion)
+  }
+
+
+
 
   /**
    * @param {string} badString
@@ -104,7 +136,11 @@ class Database {
       e.code = 'ERROR_SYSTEM';
       // before db init sometimes
       if (e.message.indexOf('notifsSavedToken') === -1) {
-        if (throwError) {
+        if (e.message.indexOf('no such column') !== -1) {
+          Log.err(e);
+          await this.checkVersion();
+          throw new Error('DB was updated: please try again');
+        } else if (throwError) {
           throw e;
         } else {
           Log.err(e);

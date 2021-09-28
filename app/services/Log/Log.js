@@ -376,6 +376,14 @@ class Log {
         } catch (e) {
 
         }
+
+        try {
+            msg += '\n\nDB VERSION ' + settingsActions.getSettingStatic('dbVersion')
+        } catch (e) {
+
+        }
+        console.log(msg)
+
         return msg
     }
 
