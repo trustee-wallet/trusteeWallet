@@ -77,7 +77,7 @@ class InfoNotification extends React.Component {
         }
 
         return (
-            <Animated.View style={[styles.container, backupAnimaStyle, containerStyles, { backgroundColor: colors.homeScreen.backupBg }]}>
+            <Animated.View style={[styles.container, backupAnimaStyle, containerStyles, { backgroundColor: colors.homeScreen.backupBg, marginTop: range ?(-this.state.viewHeight / 2) + GRID_SIZE : GRID_SIZE / 2 }]}>
                 <TouchableOpacity
                     onPress={onPress}
                     style={styles.backupWrapper}

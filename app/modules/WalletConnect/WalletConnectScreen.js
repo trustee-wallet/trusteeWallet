@@ -3,15 +3,15 @@
  * @author Vadym
  */
 import React, { PureComponent } from 'react'
-import { ThemeContext } from '@app/theme/ThemeProvider'
 import {
-    Dimensions,
     Image,
     ScrollView,
     StyleSheet,
     Text,
     View
 } from 'react-native'
+
+import { connect } from 'react-redux'
 
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import NavStore from '@app/components/navigation/NavStore'
@@ -39,7 +39,8 @@ import LinkInput from '@app/components/elements/NewInput'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import Toast from '@app/services/UI/Toast/Toast'
-import { connect } from 'react-redux'
+import { ThemeContext } from '@app/theme/ThemeProvider'
+
 import { getWalletConnectData } from '@app/appstores/Stores/WalletConnect/selectors'
 
 import InfoNotification from '@app/components/elements/new/InfoNotification'
@@ -48,7 +49,6 @@ import TransactionItem from '@app/modules/Account/AccountTransaction/elements/Tr
 import { getWalletName } from '@app/appstores/Stores/Main/selectors'
 import Message from '@app/components/elements/new/Message'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 class WalletConnectScreen extends PureComponent {
     constructor(props) {
@@ -374,13 +374,18 @@ class WalletConnectScreen extends PureComponent {
     }
 
     handleChangeFullLink = (value) => {
-        this.setState(() => ({ inputFullLink: value.trim(), linkError: false }))
+        this.setState({
+            inputFullLink: value.trim(),
+            linkError: false
+        })
     }
 
     render() {
+
         MarketingAnalytics.setCurrentScreen('WalletConnect')
         UpdateAccountListDaemon.pause()
         UpdateOneByOneDaemon.pause()
+        
         const {
             GRID_SIZE,
             colors
@@ -400,73 +405,69 @@ class WalletConnectScreen extends PureComponent {
                 title={strings('settings.walletConnect.title')}
             >
                 <ScrollView
-                    style={{ height: 'auto' }}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollViewContent}
                     keyboardShouldPersistTaps='handled'
                 >
-                    <View style={{ marginTop: GRID_SIZE, marginHorizontal: GRID_SIZE, flex: 1 }}>
-                        <>
-                            {
-                                <View style={{ overflow: 'hidden' }}>
-                                    <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, backgroundColor: colors.common.roundButtonContent }]}>
-                                        {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
-                                            <Image style={styles.image} source={{
-                                                uri: this.state.peerMeta.icons !== 'undefined' ? this.state.peerMeta.icons[this.state.peerMeta.name === 'Uniswap Interface' ? 1 : 0] : ''
-                                            }} /> : null
-                                        }
+                    <View style={{ marginTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
+                        <View style={{ overflow: 'hidden' }}>
+                            <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, backgroundColor: colors.common.roundButtonContent }]}>
+                                {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
+                                    <Image style={styles.image} source={{
+                                        uri: this.state.peerMeta.icons !== 'undefined' ? this.state.peerMeta.icons[this.state.peerMeta.name === 'Uniswap Interface' ? 1 : 0] : ''
+                                    }} /> : null
+                                }
+                            </View>
+                            {this.props.walletConnectData.mainCurrencyCode && peerStatus &&
+                                <View style={styles.network}>
+                                    <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
+                                        {this.props.walletConnectData.mainCurrencyCode === 'ETH' ? 'Mainnet' : this.props.walletConnectData.mainCurrencyCode}
+                                    </Text>
+                                </View>
+                            }
+                            <View style={{ marginBottom: GRID_SIZE * 2, marginTop: GRID_SIZE * 1.5 }}>
+                                {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
+                                    <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
+                                        <Text style={[styles.peerMetaName, { color: colors.common.text1 }]}>{this.state.peerMeta.name !== 'undefined' ? this.state.peerMeta.name : ''}</Text>
+                                        <Text style={styles.peerMetaUrl}>{typeof this.state.peerMeta.url !== 'undefined' ? this.state.peerMeta.url : ''}</Text>
+                                    </View> :
+                                    <Text style={styles.placeholder}>{strings('settings.walletConnect.placeholder')}</Text>
+                                }
+                            </View>
+                            {!peerStatus &&
+                                <>
+                                    <View style={styles.linkInput}>
+                                        <LinkInput
+                                            ref={component => this.linkInput = component}
+                                            id='direct_link'
+                                            name={strings('settings.walletConnect.inputPlaceholder')}
+                                            type='WALLET_CONNECT_LINK'
+                                            paste={true}
+                                            copy={false}
+                                            qr={true}
+                                            placeholder='wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'
+                                            onChangeText={this.handleChangeFullLink}
+                                            callback={this.handleChangeFullLink}
+                                            addressError={linkError}
+                                            qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
+                                            validPlaceholder={true}
+                                        />
                                     </View>
-                                    {this.props.walletConnectData.mainCurrencyCode && peerStatus &&
-                                    <View style={styles.network}>
-                                        <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
-                                            {this.props.walletConnectData.mainCurrencyCode === 'ETH' ? 'Mainnet' : this.props.walletConnectData.mainCurrencyCode}
-                                        </Text>
-                                    </View>
-                                    }
-                                    <View style={{ marginBottom: GRID_SIZE * 2, marginTop: GRID_SIZE * 1.5 }}>
-                                        {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
-                                            <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
-                                                <Text style={[styles.peerMetaName, { color: colors.common.text1 }]}>{this.state.peerMeta.name !== 'undefined' ? this.state.peerMeta.name : ''}</Text>
-                                                <Text style={styles.peerMetaUrl}>{typeof this.state.peerMeta.url !== 'undefined' ? this.state.peerMeta.url : ''}</Text>
-                                            </View> :
-                                            <Text style={styles.placeholder}>{strings('settings.walletConnect.placeholder')}</Text>
-                                        }
-                                    </View>
-                                    {!peerStatus &&
-                                    <>
-                                        <View style={styles.linkInput}>
-                                            <LinkInput
-                                                ref={component => this.linkInput = component}
-                                                id='direct_link'
-                                                name={strings('settings.walletConnect.inputPlaceholder')}
-                                                type='WALLET_CONNECT_LINK'
-                                                paste={true}
-                                                copy={false}
-                                                qr={true}
-                                                placeholder='wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'
-                                                onChangeText={this.handleChangeFullLink}
-                                                callback={this.handleChangeFullLink}
-                                                addressError={linkError}
-                                                qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
-                                                validPlaceholder={true}
-                                            />
-                                        </View>
-                                        {linkError &&
+                                    {linkError &&
                                         <Message
                                             name='warningM'
                                             timer={false}
                                             text={strings('settings.walletConnect.linkError')}
                                             containerStyles={{ marginTop: 12, marginHorizontal: GRID_SIZE }}
                                         />
-                                        }
-                                    </>
                                     }
-                                </View>
+                                </>
                             }
-
+                        </View>
+                        <View>
                             {
                                 peerStatus &&
-                                <View style={{ overflow: 'hidden', zIndex: 2 }}>
+                                <View style={{ zIndex: 2 }}>
                                     <TransactionItem
                                         title={this.props.walletName}
                                         subtitle={BlocksoftPrettyStrings.makeCut(this.props.walletConnectData.address, 8)}
@@ -479,12 +480,11 @@ class WalletConnectScreen extends PureComponent {
                                 peerStatus &&
                                 <InfoNotification
                                     range={true}
-                                    containerStyles={{ height: SCREEN_WIDTH * 0.35, marginTop: GRID_SIZE * 2, position: 'absolute', top: SCREEN_WIDTH * 0.45, width: '100%'}}
                                     title={strings('settings.walletConnect.notificationTitle')}
                                     subTitle={strings('settings.walletConnect.notificationText', { name: this.state.peerMeta.name })}
                                 />
                             }
-                        </>
+                        </View>
                         {
                             this.state.transactions ?
                                 this.state.transactions.map((item, index) => {
@@ -499,13 +499,12 @@ class WalletConnectScreen extends PureComponent {
                                 : null
                         }
                     </View>
-                    <View style={{ paddingVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
-                        <Button
-                            onPress={peerStatus ? this.handleStop : () => this.handleApplyLink(true).bind(this)}
-                            title={peerStatus ? strings('settings.walletConnect.disconnect') : strings('settings.walletConnect.connect')}
-                        />
-                    </View>
                 </ScrollView>
+                <Button
+                    containerStyle={{ marginVertical: GRID_SIZE * 1.5, marginHorizontal: GRID_SIZE }}
+                    onPress={peerStatus ? this.handleStop : () => this.handleApplyLink(true).bind(this)}
+                    title={peerStatus ? strings('settings.walletConnect.disconnect') : strings('settings.walletConnect.connect')}
+                />
             </ScreenWrapper>
         )
     }
@@ -521,12 +520,12 @@ const mapStateToProps = (state) => {
 
 WalletConnectScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(WalletConnectScreen)
+export default connect(mapStateToProps)(WalletConnectScreen)
 
 
 const styles = StyleSheet.create({
     scrollViewContent: {
-        flex: 1
+        flexGrow: 1
     },
     buttonHeader: {
         borderRadius: 10,
