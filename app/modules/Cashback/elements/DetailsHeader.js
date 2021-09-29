@@ -101,7 +101,8 @@ class DetailsHeader extends React.Component{
 
     _updateSections = activeSections => {
         this.setState({ activeSections });
-    };
+        this.props.scrollDetails(activeSections)
+    }
 
     render() {
 

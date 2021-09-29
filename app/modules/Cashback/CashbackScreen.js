@@ -60,7 +60,7 @@ class CashbackScreen extends React.PureComponent {
             }
         ],
         tab1Height: SCREEN_WIDTH * 1.3,
-        tab2Height: SCREEN_WIDTH * 1.53,
+        tab2Height: SCREEN_WIDTH * 1.55,
         tab3Height: 'auto',
         selected: false
     }
@@ -152,7 +152,7 @@ class CashbackScreen extends React.PureComponent {
                         />
                     )
                 }
-             }
+            }
         ]
 
         return (
@@ -186,6 +186,15 @@ class CashbackScreen extends React.PureComponent {
         }, 0)
     }
 
+    scrollDetails = (activeSection) => {
+        setTimeout(() => {
+            try {
+                this.scrollView.scrollTo({ y: activeSection.length !== 0 ? 200 : 0 })
+            } catch (e) {
+            }
+        }, 300)
+    }
+
     handlePressShare = (cashbackLink) => {
         this.setState(() => ({ selectedContent: null }))
         const shareOptions = {
@@ -213,7 +222,7 @@ class CashbackScreen extends React.PureComponent {
 
     handleTabChange = (index) => {
         this.scrollTabSwitch()
-        this.setState({ index })
+        this.setState({ index: index })
     }
 
     renderFlatListItem = ({ item }) => {
@@ -262,12 +271,13 @@ class CashbackScreen extends React.PureComponent {
         } = this.props
 
         return (
-            <View style={{ marginHorizontal: GRID_SIZE }}>
+            <ScrollView style={{ marginHorizontal: GRID_SIZE }}>
                 {this.renderExtraView()}
                 <DetailsHeader
                     cashbackStore={cashbackStore}
+                    scrollDetails={this.scrollDetails}
                 />
-            </View>
+            </ScrollView>
         )
     }
 
