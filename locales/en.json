@@ -730,7 +730,7 @@
      "SERVER_RESPONSE_BAD_INTERNET": "No access to internet",
      "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "Transaction was not found, please check your internet connection. Possible delays for updating information",
      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Insufficient balance of native currency %{symbol} to pay the network fee",
-     "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Only dust inputs - couldnt process - please use \"Send All\" to collect them together",
+     "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Only dust inputs - couldn't process - please use \"Send All\" to collect them together",
      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Native currency (%{symbol}) balance cannot be updated. Please check your internet connection",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount is too small",
      "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Insufficient balance to send the transaction",
@@ -952,7 +952,7 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron wallet is not activated. Activation requires to send any TRX to the wallet address - you can use it later for transactions"
+        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 5-7 TRX coins, which can later be used in other transactions"
       },
       "TOKEN": {
         "title": "Please, pay attention!",
