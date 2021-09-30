@@ -255,7 +255,7 @@ class ReceiptScreen extends PureComponent {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
-        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
+        const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
         const { cryptoValue, bse, rawOnly, contractCallData } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
@@ -263,7 +263,12 @@ class ReceiptScreen extends PureComponent {
 
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
-        const value = selectedFee.amountForTx !== 'undefined' && selectedFee.amountForTx ? selectedFee.amountForTx : cryptoValue
+        let value = cryptoValue
+        if (typeof countedFees.amountForTx !== 'undefined') {
+            value = countedFees.amountForTx
+        } else if (typeof selectedFee.amountForTx !== 'undefined' ) {
+            value = selectedFee.amountForTx
+        }
         const amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value)
 
         let amountPrettySeparated = 0

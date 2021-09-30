@@ -181,12 +181,18 @@ export namespace SendActionsEnd {
     export const saveTx = async (tx: any, sendScreenStore: any) => {
         const { currencyCode, accountId, walletHash, addressFrom } = sendScreenStore.dict
         const { addressTo, cryptoValue, memo, comment, bse, tbk, contractCallData } = sendScreenStore.ui
-        const { selectedFee } = sendScreenStore.fromBlockchain
+        const { selectedFee, countedFees } = sendScreenStore.fromBlockchain
         const { bseMinCrypto } = bse
         const { transactionAction, transactionBoost } = tbk
 
         const now = new Date().toISOString()
-        console.log(' contractCallData ',  contractCallData )
+
+        let value = cryptoValue
+        if (typeof countedFees.amountForTx !== 'undefined') {
+            value = countedFees.amountForTx
+        } else if (typeof selectedFee.amountForTx !== 'undefined' ) {
+            value = selectedFee.amountForTx
+        }
 
         const logData = {
             walletHash: walletHash,
@@ -194,7 +200,7 @@ export namespace SendActionsEnd {
             transactionHash: tx.transactionHash,
             addressTo: addressTo,
             addressFrom: addressFrom,
-            addressAmount: cryptoValue,
+            addressAmount: value,
             fee: JSON.stringify(selectedFee)
         }
 
