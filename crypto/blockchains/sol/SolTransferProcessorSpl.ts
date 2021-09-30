@@ -44,28 +44,15 @@ export default class SolTransferProcessorSpl extends SolTransferProcessor implem
             throw new Error('SPL transaction required addressTo')
         }
 
-        if (uiData && typeof uiData.uiErrorConfirmed !== 'undefined' &&
-            (
-                uiData.uiErrorConfirmed === 'UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE'
-                || uiData.uiErrorConfirmed === 'UI_CONFIRM_DOUBLE_SEND'
-            )
-        ) {
-            // do nothing
-        } else {
-            const balance = await (BlocksoftBalances.setCurrencyCode('SOL').setAddress(data.addressTo)).getBalance('SolSendTx')
-            if (!balance || typeof balance.balance === 'undefined' || balance.balance === 0) {
-                throw new Error('UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE')
-            }
-        }
-
         const sourceAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
             data.addressFrom,
             this._settings.tokenAddress
         )
         const sourceAccountInfo = await SolUtils.getAccountInfo(sourceAssociatedTokenAddress)
         if (!sourceAccountInfo || typeof sourceAccountInfo.lamports === 'undefined' || sourceAccountInfo.lamports * 1 === 0) {
-            throw new Error('Cannot send to address with zero ' + this._settings.currencyCode + ' balances')
+            throw new Error('Cannot send from address with zero SOL balance')
         }
+
 
 
         const tx = new Transaction()
@@ -83,7 +70,7 @@ export default class SolTransferProcessorSpl extends SolTransferProcessor implem
         } else {
 
             if (!destinationAccountInfo || typeof destinationAccountInfo.lamports === 'undefined' || destinationAccountInfo.lamports * 1 === 0) {
-                throw new Error('Cannot send to address with zero SOL balances')
+                throw new Error('Cannot send tokens to address with zero SOL balance')
             }
 
             const destinationAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
