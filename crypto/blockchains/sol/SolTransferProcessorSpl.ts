@@ -11,10 +11,45 @@ import { PublicKey, TransactionInstruction, Transaction } from '@solana/web3.js/
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import SolTransferProcessor from '@crypto/blockchains/sol/SolTransferProcessor'
 import SolInstructions from '@crypto/blockchains/sol/ext/SolInstructions'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 export default class SolTransferProcessorSpl extends SolTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
+    async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
+        const result: BlocksoftBlockchainTypes.FeeRateResult = {
+            selectedFeeIndex: -3,
+            shouldShowFees: false
+        } as BlocksoftBlockchainTypes.FeeRateResult
+
+
+        const destinationAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
+            data.addressTo,
+            this._settings.tokenAddress
+        )
+        const destinationAccountInfo = await SolUtils.getAccountInfo(destinationAssociatedTokenAddress)
+        let feeForTx = BlocksoftExternalSettings.getStatic('SOL_PRICE')  // ◎0.000005
+        if (
+            destinationAccountInfo && typeof destinationAccountInfo.owner !== 'undefined' && destinationAccountInfo.owner === SolUtils.getTokenProgramID()
+        ) {
+            // do nothing
+        } else {
+            // will create new account
+            feeForTx = BlocksoftExternalSettings.getStatic('SOL_PRICE_NEW_SPL')  // // ◎0.00203928 + 0.000005 = 0.00204428
+        }
+
+        result.fees = [
+            {
+                langMsg: 'xrp_speed_one',
+                feeForTx,
+                amountForTx: data.amount
+            }
+        ]
+        result.selectedFeeIndex = 0
+
+
+        return result
+    }
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
