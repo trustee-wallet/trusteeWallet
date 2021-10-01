@@ -54,7 +54,7 @@ export async function handleApplyLink(checkLock = true) {
     try {
         const { inputFullLink } = this.state
         if (!inputFullLink || inputFullLink === '') {
-            this.qrPermissionCallback()
+            return false
         }
         if (checkLock && !this.state.noMoreLock) {
             if (this.props.lockScreenStatus * 1 > 0) {
@@ -72,7 +72,6 @@ export async function handleApplyLink(checkLock = true) {
     } catch (e) {
         if (config.debug.cryptoErrors) {
             console.log('WalletConnect.handleApplyLink error ', e)
-            this.setState({ linkError: true })
         }
     }
 }
@@ -207,7 +206,6 @@ export function handleSendSignTyped(data, payload) {
         await AppWalletConnect.approveSignTyped(data, payload)
     })
 }
-
 
 // const handleStart = async () => {
 //     showModal({

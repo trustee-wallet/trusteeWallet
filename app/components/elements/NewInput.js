@@ -83,7 +83,7 @@ class Input extends Component {
             })
         } else {
             const validation = await Validator.arrayValidation([{ id, name, type, subtype, cuttype, value }])
-            console.log('value', validation)
+
             this.setState({
                 value,
                 errors: validation.errorArr

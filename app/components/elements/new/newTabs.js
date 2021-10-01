@@ -7,7 +7,8 @@ import {
     View,
     Text,
     StyleSheet,
-    TouchableOpacity
+    TouchableOpacity,
+    Platform
 } from 'react-native'
 import { useTheme } from '@app/theme/ThemeProvider'
 
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         paddingTop: 8,
-        paddingBottom: 16, // Vadim, left this style
+        paddingBottom: Platform.OS === 'ios' ? 16 : 0,
         marginBottom: -7, // negative value because of paddingBottom in ExtraView into Header component
     },
     tab: {

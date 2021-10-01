@@ -395,14 +395,10 @@ async function _userDataValidation(obj) {
             break
 
         case 'WALLET_CONNECT_LINK':
-            if (!value) {
-                error.msg = strings('validator.empty', {name: name})
-            } else if (!value.includes('wc:')) {
+            if (!value.includes('wc:')) {
                 error.msg = strings('validator.invalidFormat', {name: name})
             }
             if (value.indexOf('URI format') === -1) {
-                error.msg = strings('validator.invalidFormat', {name: name})
-            } else {
                 error.msg = strings('validator.invalidFormat', {name: name})
             }
             break
@@ -507,19 +503,6 @@ module.exports = {
                 let validRes = await _userDataValidation(array[i])
                 if (validRes) {
                     resultArray.push(validRes)
-                }
-            }
-        }
-        if ( array.type === 'WALLET_CONNECT_LINK' ) {
-            if ( array.value.include('wc:') ) {
-                return {
-                    status: 'success',
-                    errorArr: []
-                }
-            }else {
-                return {
-                    status: 'fail',
-                    errorArr: resultArray
                 }
             }
         }
