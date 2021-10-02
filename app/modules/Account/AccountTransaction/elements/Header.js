@@ -9,14 +9,8 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 import { strings } from '@app/services/i18n'
 import { useTheme } from '@app/theme/ThemeProvider'
+import BlocksoftPrettyDates from '@crypto/common/BlocksoftPrettyDates'
 
-
-const getTransactionDate = (transaction) => {
-    const datetime = new Date(transaction.createdAt)
-    return datetime.toTimeString().slice(0, 8) + ' ' +
-        (datetime.getDate().toString().length === 1 ? '0' + datetime.getDate() : datetime.getDate()) + '/' +
-        ((datetime.getMonth() + 1).toString().length === 1 ? '0' + (datetime.getMonth() + 1) : (datetime.getMonth() + 1)) + '/' + datetime.getFullYear()
-}
 
 const prepareStatusHeaderToView = (status) => {
     return strings(`account.transactionScreen.header.status.${status.toLowerCase()}`).toUpperCase()
@@ -77,7 +71,7 @@ const HeaderTx = (props) => {
             </View>
             <View style={{ paddingVertical: 8 }}>
                 <Text
-                    style={styles.date}>{getTransactionDate(transaction)}</Text>
+                    style={styles.date}>{BlocksoftPrettyDates.timestampToPretty(transaction.createdAt)}</Text>
             </View>
             <View style={styles.statusWrapper}>
                 <View style={{ ...styles.statusLine, borderBottomColor: color }} />

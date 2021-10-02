@@ -192,8 +192,9 @@
       "rentReserve": "Резерв аренды",
       "allUnstakeSOL": "Забрать все",
       "stakeHistorySOL" : "История Стейка",
-      "selectSolValidator": "Выберите валидатора",
-      "solValidator": "Валидатор"
+      "selectValidatorSOL": "Выберите валидатора",
+      "validatorSOL": "Валидатор",
+      "rewards" : "Награды"
     },
     "about": {
       "title": "О кошельке",

@@ -192,8 +192,9 @@
       "rentReserve": "Rent reserve",
       "allUnstakeSOL": "Unstake all",
       "stakeHistorySOL" : "Stake History",
-      "selectSolValidator": "Select validator",
-      "solValidator": "Validator"
+      "selectValidatorSOL": "Select validator",
+      "validatorSOL": "Validator",
+      "rewards" : "Rewards"
     },
     "about": {
       "title": "About",

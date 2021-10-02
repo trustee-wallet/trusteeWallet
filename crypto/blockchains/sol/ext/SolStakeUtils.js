@@ -74,13 +74,40 @@ export default {
         CACHE_STAKED[address].all[subaddress] = true
     },
 
+    // https://prod-api.solana.surf/v1/account/3siLSmroYvPHPZCrK5VYR3gmFhQFWefVGGpasXdzSPnn/stake-rewards
+    async getAccountRewards(address) {
+        if (typeof CACHE_STAKED[address] === 'undefined') {
+            CACHE_STAKED[address] = {
+                all: {},
+                active: [],
+                rewards : []
+            }
+        }
+        try {
+            const link = 'https://prod-api.solana.surf/v1/account/' + address + '/stake-rewards'
+            const res = await BlocksoftAxios.get(link)
+
+            if (res.data && typeof res.data[0] !== 'undefined') {
+                CACHE_STAKED[address].rewards = res.data
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SolStakeUtils.getAccountRewards ' + address + ' error ' + e.message)
+            }
+            BlocksoftCryptoLog.log('SolStakeUtils.getAccountRewards ' + address + ' error ' + e.message)
+        }
+        //{"amount": 96096, "apr": 7.044036109546499, "effectiveSlot": 99360012, "epoch": 229, "percentChange": 0.05205832165890872, "postBalance": 184689062, "timestamp": 1633153114},
+        return CACHE_STAKED[address].rewards
+    },
+
     // https://docs.solana.com/developing/clients/jsonrpc-api#getprogramaccounts
     async getAccountStaked(address, isForce = false) {
         let accountInfo = false
         if (typeof CACHE_STAKED[address] === 'undefined' || isForce) {
             CACHE_STAKED[address] = {
                 all: {},
-                active: []
+                active: [],
+                rewards : []
             }
         }
         try {
