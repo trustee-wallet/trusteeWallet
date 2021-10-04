@@ -6,7 +6,7 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
 
-import { transfer, broadcast } from '@waves/waves-transactions'
+import { transfer, broadcast } from '@waves/waves-transactions/src/index'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {

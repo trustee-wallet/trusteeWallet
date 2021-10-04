@@ -2365,10 +2365,9 @@
   resolved "https://registry.yarnpkg.com/@waves/ts-types/-/ts-types-1.0.5.tgz#0b0052d6355f00b9ce823d47927e74e82b842871"
   integrity sha512-6vSeVqsvH49DJHa4FzvPSa/yfpRVfbB0r4Zu6GjrXnwsxvF0uAoqQy60wbJxbRqYMLwch8jnBM1+ztZaJ9CAoA==
 
-"@waves/waves-transactions@^4.2.1-beta.1":
-  version "4.2.1-beta.1"
-  resolved "https://registry.yarnpkg.com/@waves/waves-transactions/-/waves-transactions-4.2.1-beta.1.tgz#a6b110ee4fd0144318885aec42722ee6371af1ef"
-  integrity sha512-vB7PMiOGMZwV5ZHrnLDxvpzmSfT4jtkaKLKUUf0/EvTqFZlTyBkdl1pF33+rP39q6Y88HCRJa5kF4UYlS5+xFQ==
+"@waves/waves-transactions@git+https://git@github.com/trustee-wallet/waves-transactions.git":
+  version "4.2.1"
+  resolved "git+https://git@github.com/trustee-wallet/waves-transactions.git#84d576cb7e4001fe72804bf6c0a24fca960a1eea"
   dependencies:
     "@waves/marshall" "^0.14.0"
     "@waves/node-api-js" "^1.2.3"
