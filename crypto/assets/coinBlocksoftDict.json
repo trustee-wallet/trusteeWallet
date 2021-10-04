@@ -319,6 +319,21 @@
 		"currencyExplorerLink": "https://etherscan.io/token/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	},
+	"ASH": {
+		"currencyType": "coin",
+		"currencyName": "Aeneas",
+		"currencyCode": "ASH",
+		"currencySymbol": "ASH",
+		"ratesCurrencyCode": "ASH",
+		"addressProcessor": "ASH",
+		"scannerProcessor": "WAVES",
+		"prettyNumberProcessor": "UNIFIED",
+		"transferProcessor": "WAVES",
+		"network": "mainnet",
+		"decimals": 8,
+		"currencyExplorerLink": "http://explorer.aeneas.id/address/",
+		"currencyExplorerTxLink": "http://explorer.aeneas.id/tx/"
+	},
 	"AMB": {
 		"currencyType": "coin",
 		"currencyName": "Ambrosus Network",

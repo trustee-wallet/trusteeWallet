@@ -3,8 +3,8 @@
  */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-const API_PATH = 'https://nodes.wavesnodes.com'
 export default class WavesScannerProcessor {
 
     constructor(settings) {
@@ -18,10 +18,15 @@ export default class WavesScannerProcessor {
      * @return {Promise<{balance, provider}>}
      */
     async getBalanceBlockchain(address) {
+        if (this._settings.currencyCode === 'ASH') {
+            this._apiPath = await BlocksoftExternalSettings.get('ASH_SERVER')
+        } else {
+            this._apiPath = await BlocksoftExternalSettings.get('WAVES_SERVER')
+        }
         address = address.trim()
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesScannerProcessor getBalanceBlockchain address ' + address)
 
-        const link = API_PATH + '/addresses/balance/details/' + address
+        const link = this._apiPath + '/addresses/balance/details/' + address
         const res = await BlocksoftAxios.get(link)
         if (!res) {
             return false
@@ -40,8 +45,13 @@ export default class WavesScannerProcessor {
      * @return {Promise<[UnifiedTransaction]>}
      */
     async getTransactionsBlockchain(scanData, source) {
+        if (this._settings.currencyCode === 'ASH') {
+            this._apiPath = await BlocksoftExternalSettings.get('ASH_SERVER')
+        } else {
+            this._apiPath = await BlocksoftExternalSettings.get('WAVES_SERVER')
+        }
         const address = scanData.account.address.trim()
-        const link = API_PATH + '/transactions/address/' + address + '/limit/100'
+        const link = this._apiPath + '/transactions/address/' + address + '/limit/100'
         const res = await BlocksoftAxios.get(link)
         if (!res || !res.data || typeof res.data[0] === 'undefined') {
             return false

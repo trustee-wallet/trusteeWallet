@@ -65,6 +65,7 @@ import WavesScannerProcessor from '@crypto/blockchains/waves/WavesScannerProcess
 import SolScannerProcessorSpl from '@crypto/blockchains/sol/SolScannerProcessorSpl'
 import SolTokenProcessor from '@crypto/blockchains/sol/SolTokenProcessor'
 import EthTokenProcessorNft from '@crypto/blockchains/eth/EthTokenProcessorNft'
+import AshAddressProcessor from '@crypto/blockchains/ash/AshAddressProcessor'
 
 class BlocksoftDispatcher {
 
@@ -109,6 +110,8 @@ class BlocksoftDispatcher {
                 return new SolAddressProcessor()
             case 'WAVES':
                 return new WavesAddressProcessor()
+            case 'ASH' :
+                return new AshAddressProcessor()
             default:
                 throw new Error('Unknown addressProcessor ' + currencyDictSettings.addressProcessor)
         }
