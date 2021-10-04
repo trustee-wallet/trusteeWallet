@@ -17,9 +17,28 @@ const CACHE_VOTES = {
 const CACHE_VALID_TIME = 12000000 // 200 minute
 
 const validatorsConstants = require('@crypto/blockchains/sol/ext/validators')
-const validators = {}
+
+const validators = {
+    time: 0,
+    data: {}
+}
 for (const tmp of validatorsConstants) {
-    validators[tmp.id] = tmp
+    validators.data[tmp.id] = tmp
+}
+
+
+const init = async () => {
+    const link = await BlocksoftExternalSettings.get('SOL_VALIDATORS_LIST')
+    const res = await BlocksoftAxios.get(link)
+    if (!res.data || typeof res.data[0] === 'undefined' || !res.data[0]) {
+        return false
+    }
+    validators.data = {}
+    for (const tmp of res.data) {
+        if (typeof tmp.id === 'undefined') continue
+        validators.data[tmp.id] = tmp
+    }
+    validators.time = new Date().getTime()
 }
 
 export default {
@@ -32,6 +51,9 @@ export default {
             if (CACHE_VOTES.time && now - CACHE_VOTES.time < CACHE_VALID_TIME) {
                 return CACHE_VOTES.data
             }
+            if (!validators.time) {
+                await init()
+            }
 
             const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
             const getVote = { 'jsonrpc': '2.0', 'id': 1, 'method': 'getVoteAccounts' }
@@ -41,12 +63,14 @@ export default {
             }
             CACHE_VOTES.data = []
             for (const tmp of resVote.data.result.current) {
-                const validator = { address: tmp.votePubkey, commission: tmp.commission, activatedStake: tmp.activatedStake, name : '', description : '', website : '' }
-                if (typeof validators[validator.address] !== 'undefined') {
-                    validator.name = validators[validator.address].name
-                    validator.description = validators[validator.address].description
-                    validator.website = validators[validator.address].website
-                }
+                const address = tmp.votePubkey
+                if (typeof validators.data[address] === 'undefined') continue
+
+                const validator = { address, commission: tmp.commission, activatedStake: tmp.activatedStake, name: '', description: '', website: '' }
+                validator.name = validators.data[validator.address].name
+                validator.description = validators.data[validator.address].description
+                validator.website = validators.data[validator.address].website
+
                 CACHE_VOTES.data.push(validator)
             }
             CACHE_VOTES.data.sort((a, b) => {
@@ -80,7 +104,7 @@ export default {
             CACHE_STAKED[address] = {
                 all: {},
                 active: [],
-                rewards : []
+                rewards: []
             }
         }
         try {
@@ -107,7 +131,7 @@ export default {
             CACHE_STAKED[address] = {
                 all: {},
                 active: [],
-                rewards : []
+                rewards: []
             }
         }
         try {
