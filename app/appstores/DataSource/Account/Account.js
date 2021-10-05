@@ -235,7 +235,7 @@ class Account {
                     }
                     SAVED_UNIQUE[uniqueDBKey] = 1
                 } else {
-                    Log.daemon('DS/Account insert account ' + uniqueDBKey + '/' + privateStoregeKey + ' not ok / already in cache', SAVED_UNIQUE[privateStoregeKey])
+                    Log.daemon('DS/Account insert account ' + uniqueDBKey + '/' + privateStorageKey + ' not ok / already in cache', SAVED_UNIQUE[privateStorageKey])
                 }
             }
         }
