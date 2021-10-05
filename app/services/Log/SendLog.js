@@ -25,9 +25,9 @@ class SendLog {
 
                 ↑↑↑ Send to: contact@trustee.deals ↑↑↑
 
-                ${deviceToken}
+                ${JSON.stringify(deviceToken)}
 
-                ${basicText}
+                ${JSON.stringify(basicText)}
 
                 --LOG--
                 ${Log.getHeaders()}
