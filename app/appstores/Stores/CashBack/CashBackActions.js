@@ -9,7 +9,7 @@ const { dispatch } = store
 
 const cashBackActions = {
 
-    updateAll : async (data) => {
+    updateAll : async (data, source) => {
         if (typeof data.cashbackLinkTitle !== 'undefined') {
             data.cashbackLink = cashBackSettings.getLink(data.cashbackLinkTitle)
         }

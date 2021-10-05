@@ -158,6 +158,8 @@ class App {
 
             await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall))
 
+            await CashBackUtils.init({},'ACT/App appRefreshWalletsStates called from' + source)
+
             await walletActions.setAvailableWallets()
 
             await setSelectedWallet('ACT/App appRefreshWalletsStates called from ' + source)
@@ -176,8 +178,6 @@ class App {
             await UpdateAccountListDaemon.forceDaemonUpdate(params)
 
             // await UpdateCashBackDataDaemon.updateCashBackDataDaemon({source : 'UpdateCashBackDataDaemon.AppHomeScreen'})
-
-            await CashBackUtils.init({},'ACT/App appRefreshWalletsStates init ' + firstTimeCall)
 
         } else {
             await Daemon.forceAll(params)
