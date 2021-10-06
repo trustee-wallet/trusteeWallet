@@ -382,7 +382,6 @@ class Log {
         } catch (e) {
 
         }
-        console.log(msg)
 
         return msg
     }

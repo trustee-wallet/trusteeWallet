@@ -13,7 +13,8 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 class SendLog {
-    async getAll(basicText = '') {
+    async getAll(basicText = '', params) {
+        const forceFileContent = typeof params.forceFileContent !== 'undefined' ? forceFileContent : false
         let deviceToken = ''
         try {
             deviceToken = trusteeAsyncStorage.getFcmTokensAll()
@@ -99,7 +100,7 @@ class SendLog {
                 const zipped = await this.actualZip(fs, zipFs)
                 Log.log('SendLog zip success ' + JSON.stringify(zipped))
                 urls = [
-                    await zipFs.getPathOrBase64()
+                    await zipFs.getPathOrBase64(forceFileContent)
                 ]
                 zipFsError = false
             } catch (e) {
@@ -108,7 +109,7 @@ class SendLog {
         }
         if (zipFsError) {
             urls = [
-                await fs.getPathOrBase64(),
+                await fs.getPathOrBase64(forceFileContent),
                 await Log.FS.ALL.getPathOrBase64(),
                 await Log.FS.DAEMON.getPathOrBase64(),
                 await BlocksoftCryptoLog.FS.getPathOrBase64()

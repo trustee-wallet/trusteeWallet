@@ -7,9 +7,9 @@ AWS.config.update(awsConfig)
 const S3 = new AWS.S3();
 
 export async function awsS3(cashbackToken, fileName, fileContent) {
-
+    let res
     try {
-        await S3.upload({
+        res = await S3.upload({
             Bucket: config.aws.bucket,
             Key: config.aws.folder + '/' + cashbackToken + '/' + fileName,
             Body: fileContent
@@ -18,5 +18,6 @@ export async function awsS3(cashbackToken, fileName, fileContent) {
     } catch (error) {
         console.log(error)
     }
+    return res
 
 }
