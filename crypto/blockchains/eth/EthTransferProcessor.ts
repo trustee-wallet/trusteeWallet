@@ -433,6 +433,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         newGasPrice = '0'
                     } else {
                         newGasPrice = newGasPrice.toString()
+                        newGasPrice = BlocksoftUtils.round(newGasPrice)
                     }
 
                     const tmp = {
