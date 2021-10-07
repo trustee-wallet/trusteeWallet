@@ -98,6 +98,8 @@ export default class ButtonLine extends PureComponent {
                 return require('@assets/images/currency/SOL_SLIM.png')
             case 'SOL_STEP':
                 return require('@assets/images/currency/SOL_STEP.png')
+            case 'ASH':
+                return require('@assets/images/currency/ASH.png')
 
             default:
                 return null
@@ -150,6 +152,7 @@ export default class ButtonLine extends PureComponent {
             case 'SOL_RAY':
             case 'SOL_SLIM':
             case 'SOL_STEP':
+            case 'ETH_OKB':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -161,18 +164,6 @@ export default class ButtonLine extends PureComponent {
                     </View>
                 )
 
-            case 'ETH_OKB':
-                return (
-                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
-                        <View style={styles.icon__item}>
-                            <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={this.getImgPath(currencyCode)} />
-                        </View>
-                        <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                            <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
-                        </View>
-                    </View>
-                )
-
             case 'XMR':
             case 'FIO':
             case 'VTHO':
@@ -180,6 +171,14 @@ export default class ButtonLine extends PureComponent {
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <Image style={{ width: fontSize, height: fontSize }} resize={'stretch'} source={this.getImgPath(currencyCode)} />
+                        </View>
+                    </View>
+                )
+            case 'ASH':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <Image style={{ width: 26, height: 26 }} resize='stretch' source={this.getImgPath(currencyCode)} />
                         </View>
                     </View>
                 )
@@ -619,7 +618,8 @@ export default class ButtonLine extends PureComponent {
                     </View>
                 )
 
-            case 'NFT_ETH': case 'NFT':
+            case 'NFT_ETH':
+            case 'NFT':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
