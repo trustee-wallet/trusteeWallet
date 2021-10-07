@@ -1534,7 +1534,7 @@
 		"currencyType": "token",
 		"currencyName": "Tether BEP20",
 		"currencyCode": "BNB_SMART_USDT",
-		"currencySymbol": "USDT",
+		"currencySymbol": "USDT (BSC-USD)",
 		"ratesCurrencyCode": "USDT",
 		"extendsProcessor": "BNB_SMART_CAKE",
 		"addressUiChecker": "ETH",
