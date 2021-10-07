@@ -123,18 +123,26 @@ class ReceiptScreen extends PureComponent {
 
         if (checkLoadedFeeResult.msg && CACHE_WARNING_NOTICE !== checkLoadedFeeResult.cacheWarningNoticeValue) {
             Log.log('countedFees notice' + JSON.stringify(checkLoadedFeeResult))
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.titles.attention'),
-                description: checkLoadedFeeResult.msg
-            }, async () => {
-                if (checkLoadedFeeResult.goBack) {
+            if (checkLoadedFeeResult.goBack) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'WARNING',
+                    title: strings('modal.titles.attention'),
+                    description: checkLoadedFeeResult.msg
+                }, async () => {
                     await SendActionsEnd.endRedirect(false, this.props.sendScreenStore)
-                } else {
+                })
+            } else {
+                showModal({
+                    type: 'YES_NO_MODAL',
+                    icon: 'WARNING',
+                    title: strings('modal.titles.attention'),
+                    description: checkLoadedFeeResult.msg
+                }, async () => {
                     CACHE_WARNING_NOTICE = checkLoadedFeeResult.cacheWarningNoticeValue
-                }
-            })
+                    await this.handleSend(false, uiErrorConfirmed)
+                })
+            }
             this.setState({
                 sendInProcess: false
             })

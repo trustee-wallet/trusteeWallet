@@ -305,6 +305,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         const keys = ['speed_blocks_12', 'speed_blocks_6', 'speed_blocks_2']
         let skippedByOld = false
         let prevGasPrice = 0
+        const feesOK = {}
         for (let index = 0; index <= 2; index++) {
             const key = keys[index]
             if (typeof gasPrice[key] === 'undefined') continue
@@ -372,6 +373,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 amountForTx: amount
             }
 
+            feesOK[titles[index]] = tmp.gasPrice
             if (BlocksoftUtils.diff(newGasPrice, prevGasPrice).indexOf('-') === -1 && newGasPrice !== prevGasPrice) {
                 prevGasPrice = tmp.gasPrice
                 BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate added feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit)
@@ -518,14 +520,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
         }
 
+
+
         if (!skippedByOld) {
-            let foundFast = false
-            for (const fee of result.fees) {
-                if (fee.langMsg === 'eth_speed_fast') {
-                    foundFast = true
-                }
-            }
-            if (!foundFast) {
+            if (typeof feesOK['eth_speed_fast'] === 'undefined') {
+                BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate showSmallFeeNotice reason ' + JSON.stringify(feesOK))
                 result.showSmallFeeNotice = new Date().getTime()
             }
         }
