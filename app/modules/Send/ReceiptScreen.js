@@ -92,6 +92,7 @@ class ReceiptScreen extends PureComponent {
         if (CACHE_IS_SENDING) {
             return true
         }
+        Log.log('ReceiptScreen.handleSend started')
 
         setLoaderStatus(false)
 
