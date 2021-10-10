@@ -13,7 +13,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 class SendLog {
-    async getAll(basicText = '', params) {
+    async getAll(basicText = '', params = {}) {
         const forceFileContent = typeof params.forceFileContent !== 'undefined' ? forceFileContent : false
         let deviceToken = ''
         try {
