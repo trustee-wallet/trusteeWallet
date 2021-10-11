@@ -65,6 +65,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -105,12 +106,18 @@ class AccountReceiveScreen extends React.PureComponent {
     getAddress = () => {
         const { settingAddressType, settingAddressTypeTriggered } = this.state
         const { isSegwit } = this.props
-        let { address, legacyAddress, segwitAddress } = this.props.selectedAccountData
+        let { address, legacyAddress, segwitAddress,  } = this.props.selectedAccountData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+
         const actualIsSegwit = settingAddressTypeTriggered ? (settingAddressType !== 'legacy') : isSegwit
         if (!actualIsSegwit && legacyAddress) {
             address = legacyAddress
-        } else if (segwitAddress) {
-            address = segwitAddress
+        } else {
+            if (currencyCode === 'BSV' || currencyCode === 'BCH') {
+                address = 'bitcoincash:' + BtcCashUtils.fromLegacyAddress(address)
+            } else if (segwitAddress) {
+                address = segwitAddress
+            }
         }
         Log.log('AccountReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType, actualIsSegwit })
         return address
@@ -319,15 +326,15 @@ class AccountReceiveScreen extends React.PureComponent {
         )
     }
 
-    renderSegWitLegacy = () => {
-
+    renderAddressLegacy = (newFormatTitle = 'SegWit') => {
+        // @todo isSegwit also for other new / legacy format switching
         try {
             const { settingAddressType, settingAddressTypeTriggered } = this.state
             const { isSegwit } = this.props
             const actualIsSegwit = settingAddressTypeTriggered ? (settingAddressType !== 'legacy') : isSegwit
             const tabs = [
                 {
-                    title: 'SegWit',
+                    title: newFormatTitle,
                     index: 0,
                     active: actualIsSegwit,
                     hasNewNoties: false,
@@ -348,7 +355,7 @@ class AccountReceiveScreen extends React.PureComponent {
                 </>
             )
         } catch (e) {
-            Log.err('AccountReceiveScreen.renderSegWitLegacy error ' + e.message)
+            Log.err('AccountReceiveScreen.renderAddressLegacy error ' + e.message)
         }
     }
 
@@ -559,8 +566,7 @@ class AccountReceiveScreen extends React.PureComponent {
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
-        const btcAddress = this.getAddress()
-
+        const shownAddress = this.getAddress()
         const buttonsArray = [
             { icon: 'edit', title: strings('account.receiveScreen.amount'), action: () => this.handleCustomReceiveAmount() },
             { icon: 'exchange', title: strings('dashboardStack.exchange'), action: () => this.handleExchange() },
@@ -589,7 +595,8 @@ class AccountReceiveScreen extends React.PureComponent {
                     }}
                 >
                     <View style={{ ...styles.wrapper__content, marginTop: GRID_SIZE * 2 }}>
-                        {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderSegWitLegacy() : null}
+                        {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
+                        {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
                         <TouchableOpacity
                             style={styles.qr}
                             onPress={this.copyToClip}
@@ -669,7 +676,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                     hitSlop={HIT_SLOP}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                         <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
-                                            <LetterSpacing text={currencyCode === 'BTC' || currencyCode === 'LTC' ? btcAddress : address} numberOfLines={2} containerStyle={{
+                                            <LetterSpacing text={shownAddress && shownAddress !== '' ? shownAddress : address} numberOfLines={2} containerStyle={{
                                                 flexWrap: 'wrap',
                                                 justifyContent: 'center'
                                             }} textStyle={{ ...styles.accountDetail__text, textAlign: 'center', color: colors.common.text1 }}
