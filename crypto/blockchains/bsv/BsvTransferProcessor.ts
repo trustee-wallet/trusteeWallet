@@ -1,16 +1,16 @@
 /**
- * @version 0.20
+ * @version 0.5
  */
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import DogeTransferProcessor from '../doge/DogeTransferProcessor'
-import BsvUnspentsProvider from './providers/BsvUnspentsProvider'
-import BsvSendProvider from './providers/BsvSendProvider'
 import DogeTxInputsOutputs from '../doge/tx/DogeTxInputsOutputs'
 import BsvTxBuilder from './tx/BsvTxBuilder'
+import DogeSendProvider from '@crypto/blockchains/doge/providers/DogeSendProvider'
+import BsvUnspentsProvider from './providers/BsvUnspentsProvider'
 
 export default class BsvTransferProcessor extends DogeTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
-    _trezorServerCode = 'NONE'
+    _trezorServerCode = 'BSV_TREZOR_SERVER'
 
     _builderSettings: BlocksoftBlockchainTypes.BuilderSettings = {
         minOutputDustReadable: 0.000005,
@@ -31,7 +31,7 @@ export default class BsvTransferProcessor extends DogeTransferProcessor implemen
     _initProviders() {
         if (this._initedProviders) return false
         this.unspentsProvider = new BsvUnspentsProvider(this._settings, this._trezorServerCode)
-        this.sendProvider = new BsvSendProvider(this._settings, this._trezorServerCode)
+        this.sendProvider = new DogeSendProvider(this._settings, this._trezorServerCode)
         this.txPrepareInputsOutputs = new DogeTxInputsOutputs(this._settings, this._builderSettings)
         this.txBuilder = new BsvTxBuilder(this._settings, this._builderSettings)
         this._initedProviders = true
