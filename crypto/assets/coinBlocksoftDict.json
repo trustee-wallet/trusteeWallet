@@ -81,15 +81,12 @@
 		"currencyCode": "ETH_UAX",
 		"currencySymbol": "UAX",
 		"extendsProcessor": "ETH_TRUE_USD",
-		"transferProcessor": "ETH_UAX",
-		"scannerProcessor": "ETH_UAX",
 		"delegatedTransfer": true,
 		"addressUiChecker": "ETH",
 		"ratesCurrencyCode": "UAH",
 		"decimals": 2,
 		"tokenBlockchain": "ETHEREUM",
 		"tokenAddress": "0x1Fc31488f28ac846588FFA201cDe0669168471bD",
-		"delegateAddress": "0x8826a55c94915870aceed4ea9f1186678fcbdaf6",
 		"currencyExplorerLink": "https://etherscan.io/token/0x1Fc31488f28ac846588FFA201cDe0669168471bD?a="
 	},
 	"TRX": {

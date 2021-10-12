@@ -19,7 +19,6 @@ import UsdtTransferProcessor from './usdt/UsdtTransferProcessor'
 import XrpTransferProcessor from './xrp/XrpTransferProcessor'
 import XlmTransferProcessor from './xlm/XlmTransferProcessor'
 import XvgTransferProcessor from './xvg/XvgTransferProcessor'
-import EthTransferProcessorUAX from './eth/EthTransferProcessorUAX'
 import XmrTransferProcessor from './xmr/XmrTransferProcessor'
 import FioTransferProcessor from './fio/FioTransferProcessor'
 import BnbTransferProcessor from './bnb/BnbTransferProcessor'
@@ -81,9 +80,6 @@ export namespace BlocksoftTransferDispatcher {
                 break
             case 'BNB_SMART_20':
                 CACHE_PROCESSORS[currencyCode] = new BnbSmartTransferProcessorErc20(currencyDictSettings)
-                break
-            case 'ETH_UAX':
-                CACHE_PROCESSORS[currencyCode] = new EthTransferProcessorUAX(currencyDictSettings)
                 break
             case 'LTC':
                 CACHE_PROCESSORS[currencyCode] = new LtcTransferProcessor(currencyDictSettings)

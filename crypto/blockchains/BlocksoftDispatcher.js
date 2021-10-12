@@ -24,7 +24,6 @@ import DogeScannerProcessor from './doge/DogeScannerProcessor'
 import EthAddressProcessor from './eth/EthAddressProcessor'
 import EthScannerProcessor from './eth/EthScannerProcessor'
 import EthScannerProcessorErc20 from './eth/EthScannerProcessorErc20'
-import EthScannerProcessorUAX from './eth/EthScannerProcessorUAX'
 import EthScannerProcessorSoul from './eth/forks/EthScannerProcessorSoul'
 import EthTokenProcessorErc20 from './eth/EthTokenProcessorErc20'
 
@@ -142,8 +141,6 @@ class BlocksoftDispatcher {
                 return new EthScannerProcessorErc20(currencyDictSettings)
             case 'BNB_SMART_20':
                 return new BnbSmartScannerProcessorErc20(currencyDictSettings)
-            case 'ETH_UAX':
-                return new EthScannerProcessorUAX(currencyDictSettings)
             case 'ETH_SOUL':
                 return new EthScannerProcessorSoul(currencyDictSettings)
             case 'LTC':
