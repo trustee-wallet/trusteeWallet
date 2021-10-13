@@ -187,6 +187,7 @@ class StakingTransactionScreen extends PureComponent {
         const { GRID_SIZE, colors } = this.context
         const { element } = this.state
 
+        const balancePretty = element ? BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(element.amount) : false
         return (
             <ScreenWrapper
                 leftType='back'
@@ -210,7 +211,7 @@ class StakingTransactionScreen extends PureComponent {
                                 />
                                 <TransactionItem
                                     title={strings('cashback.balanceTitle')}
-                                    subtitle={`${BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(element.amount)} SOL`}
+                                    subtitle={`${balancePretty} SOL`}
                                     iconType='balance'
                                 />
                                 <TouchableOpacity onPress={this.handleLink}>
@@ -238,16 +239,22 @@ class StakingTransactionScreen extends PureComponent {
                                         />
                                     </View>
                                     <Button
-                                        title={strings('settings.walletList.unstakeSOL')}
+                                        title={strings('settings.walletList.withdrawSOL')}
                                         onPress={() => this.handleUnStake(this.unStakeAmountInput.getValue())}
                                     />
 
-                                    <Button
-                                        type='transparent'
-                                        title={strings('settings.walletList.allUnstakeSOL').toUpperCase()}
-                                        onPress={() => this.handleUnStake('ALL')}
-                                        disabled={!this.state.element.active} //@Ksu need this???
-                                    />
+                                    {this.state.element.active ?
+                                        <Button
+                                            type='transparent'
+                                            title={strings('settings.walletList.deactivateSOL').toUpperCase()}
+                                            onPress={() => this.handleUnStake('ALL')}
+                                        /> :
+                                        <Button
+                                            type='transparent'
+                                            title={strings('settings.walletList.withdrawAllSOL').toUpperCase()}
+                                            onPress={() => this.handleUnStake(balancePretty)}
+                                        />
+                                    }
                                 </View>
 
 

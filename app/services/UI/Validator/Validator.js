@@ -56,6 +56,7 @@ async function _userDataValidation(obj) {
         return false
     }
 
+
     switch (type) {
 
         case 'OPTIONAL':
@@ -154,6 +155,15 @@ async function _userDataValidation(obj) {
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^0[xX]+[0-9a-fA-F]{40}$/.test(value)) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'ASH_ADDRESS':
+            value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (!(value.startsWith("Æx"))) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break

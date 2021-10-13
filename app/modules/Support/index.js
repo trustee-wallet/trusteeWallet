@@ -90,7 +90,8 @@ class SupportScreen extends React.PureComponent {
                         if (e.nativeEvent.description.indexOf('net::ERR_UNKNOWN_URL_SCHEME') !== -1) {
                             Linking.openURL(this.state.url)
                         } else {
-                            Log.err('Support.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
+                            // do nothing
+                            // Log.err('Support.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
                         }
                     }}
 

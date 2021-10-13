@@ -107,9 +107,9 @@ export namespace Camera {
 
     }
 
-    export const openCameraOrGallery = async (source: string): Promise<any> => {
+    export const openCameraOrGallery = async (source: string, onlyGallery : boolean = false): Promise<any> => {
         let response
-        if (await requestCameraOn(source)) {
+        if (!onlyGallery && await requestCameraOn(source)) {
             response = await getCameraPhoto(source)
         }
         if (typeof response === 'undefined' || typeof response.error !== 'undefined' || response.didCancel || typeof response.errorCode !== 'undefined') {

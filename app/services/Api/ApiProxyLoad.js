@@ -13,9 +13,16 @@ import ApiProxy from '@app/services/Api/ApiProxy'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftKeysForRef from '@crypto/actions/BlocksoftKeysForRef/BlocksoftKeysForRef'
 
+let CACHE_ASK_INTERNET = false
+let CACHE_ASK_RESULT = false
+
 const ApiProxyLoad = {
 
     hasInternet : async () => {
+        if (CACHE_ASK_INTERNET) {
+            return CACHE_ASK_RESULT
+        }
+        CACHE_ASK_INTERNET = true
         const { apiEndpoints } = config.proxy
         const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
         const link = baseURL + `/internet`
@@ -25,12 +32,15 @@ const ApiProxyLoad = {
                 if (typeof all.data.serverTimestamp !== 'undefined') {
                     ApiProxy.checkServerTimestamp(all.data.serverTimestamp)
                 }
-                return true
+                CACHE_ASK_RESULT = true
+            } else {
+                CACHE_ASK_RESULT = false
             }
-            return false
         } catch (e) {
-            return false
+            CACHE_ASK_RESULT = false
         }
+        CACHE_ASK_INTERNET = false
+        return CACHE_ASK_RESULT
     },
 
     getSaved: async (walletHash, newWalletName = false) => {

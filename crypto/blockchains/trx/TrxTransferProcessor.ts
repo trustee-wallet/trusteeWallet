@@ -227,22 +227,31 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 for (const order of data.dexOrderData) {
                     index++
                     let parameter = ''
-                    try {
+
+                    if (order.params) {
                         const types = []
                         const values = []
-                        for (const tmp of order.params) {
-                            let { type, value } = tmp
-                            if (type === 'address') {
-                                value = TronUtils.addressToHex(value).replace(ADDRESS_PREFIX_REGEX, '0x')
-                            } else if (type === 'address[]') {
-                                value = value.map(v => TronUtils.addressToHex(v).replace(ADDRESS_PREFIX_REGEX, '0x'))
+                        try {
+                            for (const tmp of order.params) {
+                                let type, value
+                                try {
+                                    type = tmp.type
+                                    value = tmp.value
+                                    if (type === 'address') {
+                                        value = TronUtils.addressToHex(value).replace(ADDRESS_PREFIX_REGEX, '0x')
+                                    } else if (type === 'address[]') {
+                                        value = value.map(v => TronUtils.addressToHex(v).replace(ADDRESS_PREFIX_REGEX, '0x'))
+                                    }
+                                    types.push(type)
+                                    values.push(value)
+                                } catch (e) {
+                                    throw new Error(e.message + ' type ' + type + ' tmp.value ' + tmp.value + ' value ' + value)
+                                }
                             }
-                            types.push(type)
-                            values.push(value)
+                            parameter = abiCoder.encode(types, values).replace(/^(0x)/, '')
+                        } catch (e) {
+                            throw new Error(e.message + ' in abiCoder')
                         }
-                        parameter = abiCoder.encode(types, values).replace(/^(0x)/, '')
-                    } catch (e) {
-                        throw new Error(e.message + ' in abiCoder')
                     }
 
                     let params

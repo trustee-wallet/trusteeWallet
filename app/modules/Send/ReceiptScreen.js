@@ -92,6 +92,7 @@ class ReceiptScreen extends PureComponent {
         if (CACHE_IS_SENDING) {
             return true
         }
+        Log.log('ReceiptScreen.handleSend started')
 
         setLoaderStatus(false)
 
@@ -122,18 +123,26 @@ class ReceiptScreen extends PureComponent {
 
         if (checkLoadedFeeResult.msg && CACHE_WARNING_NOTICE !== checkLoadedFeeResult.cacheWarningNoticeValue) {
             Log.log('countedFees notice' + JSON.stringify(checkLoadedFeeResult))
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.titles.attention'),
-                description: checkLoadedFeeResult.msg
-            }, async () => {
-                if (checkLoadedFeeResult.goBack) {
+            if (checkLoadedFeeResult.goBack) {
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'WARNING',
+                    title: strings('modal.titles.attention'),
+                    description: checkLoadedFeeResult.msg
+                }, async () => {
                     await SendActionsEnd.endRedirect(false, this.props.sendScreenStore)
-                } else {
+                })
+            } else {
+                showModal({
+                    type: 'YES_NO_MODAL',
+                    icon: 'WARNING',
+                    title: strings('modal.titles.attention'),
+                    description: checkLoadedFeeResult.msg
+                }, async () => {
                     CACHE_WARNING_NOTICE = checkLoadedFeeResult.cacheWarningNoticeValue
-                }
-            })
+                    await this.handleSend(false, uiErrorConfirmed)
+                })
+            }
             this.setState({
                 sendInProcess: false
             })
@@ -255,7 +264,7 @@ class ReceiptScreen extends PureComponent {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
-        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
+        const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
         const { cryptoValue, bse, rawOnly, contractCallData } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
@@ -263,7 +272,12 @@ class ReceiptScreen extends PureComponent {
 
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
-        const value = selectedFee.amountForTx !== 'undefined' && selectedFee.amountForTx ? selectedFee.amountForTx : cryptoValue
+        let value = cryptoValue
+        if (typeof countedFees.amountForTx !== 'undefined') {
+            value = countedFees.amountForTx
+        } else if (typeof selectedFee.amountForTx !== 'undefined' ) {
+            value = selectedFee.amountForTx
+        }
         const amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value)
 
         let amountPrettySeparated = 0

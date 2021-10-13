@@ -31,6 +31,7 @@ const V3_ENTRY_POINT_BUY = '/mobile-buy'
 const V3_ENTRY_POINT_CHECK = '/mobile-check'
 const V3_ENTRY_POINT_SET_STATUS = '/order/update-payment-status'
 const V3_ENTRY_POINT_MARKET = '/mobile-market'
+const V3_ENTRY_POINT_GET_TBK_STATUS = '/order/check-tbk-for-tx'
 
 const V3_KEY_PREFIX = 'TrusteeExchange'
 
@@ -272,6 +273,49 @@ export default {
             Log.err('ApiV3 getMobileCheck error ' + e.message)
             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
         }
+    },
+
+    getTBKDisable: async (transactionHash = '') => {
+
+        const { mode: exchangeMode, apiEndpoints } = config.exchange
+        const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
+
+        const sign = await CashBackUtils.createWalletSignature(true)
+
+        const cashbackToken = CashBackUtils.getWalletToken()
+
+        const data = {}
+
+        data.signData = sign
+        data.cashbackToken = cashbackToken
+        data.txsArray = [transactionHash]
+
+
+        let found = false
+        try {
+            const link = baseUrl + V3_ENTRY_POINT_GET_TBK_STATUS
+            Log.log('ApiV3 getTBKStatus axios ' + link + ' ' + transactionHash)
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' ApiV3 setTBKStatus start axios ' + link + ' ' + transactionHash)
+            }
+            const res = await BlocksoftAxios.post(link, data, false)
+            if (typeof res.data.txs !== 'undefined') {
+                for (const tmp of  res.data.txs ) {
+                    if (typeof tmp.txHash !== 'undefined' && tmp.txHash === transactionHash) {
+                        found = tmp.isDisableTBK
+                    }
+                }
+            }
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' ApiV3 setTBKStatus end', JSON.stringify(res.data))
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' ApiV3 getTBKStatus e.response.data', e)
+            }
+            Log.err('ApiV3 getTBKStatus e.response.data ' + e.response.data)
+        }
+        return found
     },
 
     setExchangeStatus: async (orderHash, status, transactionHash = '') => {

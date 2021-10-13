@@ -8,9 +8,9 @@ import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccou
 import UpdateAccountPendingTransactions from '@app/daemons/back/UpdateAccountPendingTransactions'
 import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
 
-import Log from '../../services/Log/Log'
-import cryptoWalletsDS from '../../appstores/DataSource/CryptoWallets/CryptoWallets'
+import Log from '@app/services/Log/Log'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import Database from '@app/appstores/DataSource/Database'
 
 const STEPS_ORDER = [
     'UPDATE_PROXIED',
@@ -71,6 +71,9 @@ class UpdateOneByOneDaemon extends Update {
     }
 
     updateOneByOneDaemon = async (params, level = 0) => {
+
+        await Database.checkVersion()
+
         if (CACHE_STOPPED) {
             return false
         }

@@ -125,7 +125,7 @@ class CashBackUtils {
             }
         }
         await Log.log('SRV/CashBack saved parent from AsyncStorage => ' + tmpParentToken, params)
-        await cashBackActions.updateAll(updateObj)
+        await cashBackActions.updateAll(updateObj, 'CashBackUtils.init')
         this.inited = true
     }
 
@@ -152,7 +152,7 @@ class CashBackUtils {
         if (data.customToken) {
             updateObj.cashbackLinkTitle = data.customToken
         }
-        await cashBackActions.updateAll(updateObj)
+        await cashBackActions.updateAll(updateObj, 'CashBackUtils.fromApi')
     }
 
     setParentToken = async (parentToken) => {
@@ -161,7 +161,7 @@ class CashBackUtils {
         }
         this.parentToken = parentToken
         await trusteeAsyncStorage.setCashbackParent(parentToken)
-        await cashBackActions.updateAll({ parentToken })
+        await cashBackActions.updateAll({ parentToken }, 'CashBackUtils.setParentToken')
     }
 
     getByHash = async (tmpHash, source) => {

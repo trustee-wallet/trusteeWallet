@@ -1,5 +1,5 @@
 /**
- * @version 0.20
+ * @version 0.5
  */
 import { BlocksoftBlockchainTypes } from '../../BlocksoftBlockchainTypes'
 import DogeTxBuilder from '../../doge/tx/DogeTxBuilder'

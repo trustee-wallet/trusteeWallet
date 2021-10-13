@@ -204,12 +204,6 @@ module.exports = [
     "website": "https://moonlet.xyz/"
   },
   {
-    "id": "GvZEwtCHZ7YtCkQCaLRVEXsyVvQkRDhJhQgB6akPme1e",
-    "name": "melea",
-    "description": "Secure and trusted Validator, Protection against DDoS attacks and high availability-. Validating since 2017",
-    "website": "https://meleatrust.com"
-  },
-  {
     "id": "H3GhqPMwvGLdxWg3QJGjXDSkFSJCsFk3Wx9XBTdYZykc",
     "name": "DokiaCapital",
     "description": "We operate an enterprise-grade infrastructure that is robust and secure. Downtime is not an option for us. Stake now and manage your reward.",

@@ -3,6 +3,7 @@
  * @version 0.5
  */
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
+import config from '@app/config/config'
 
 class BlocksoftTokenChecks {
 
@@ -23,8 +24,13 @@ class BlocksoftTokenChecks {
             if (!this._processor[data.tokenType]) {
                 this._processor[data.tokenType] = BlocksoftDispatcher.getTokenProcessor(data.tokenType)
             }
-            return this._processor[data.tokenType].getTokenDetails(data.tokenAddress)
+            const res = await this._processor[data.tokenType].getTokenDetails(data.tokenAddress)
+            // can log if needed
+            return res
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('BlocksoftTokenChecks.getTokenDetails error ' + e.message)
+            }
             e.code = 'ERROR_SYSTEM'
             throw e
         }

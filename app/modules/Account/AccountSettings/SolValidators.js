@@ -105,7 +105,7 @@ class SolValidators extends PureComponent {
 
         return (
             <ScreenWrapper
-                title={strings('settings.walletList.selectSolValidator')}
+                title={strings('settings.walletList.selectValidatorSOL')}
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='close'

@@ -37,15 +37,22 @@ export default class DBInit {
         this.#db = dbInterface;
     }
 
-    async init() {
+    async init(onlyUpdate = false) {
         const { initQuery, isEmptyQuery } = this.#tableQueries;
-        const res = await this.#db.query(isEmptyQuery)
+        const { maxVersion } = this.#tableUpdateQueries
+
+        if (!onlyUpdate) {
+            const res = await this.#db.query(isEmptyQuery)
+            if (res && typeof res.array !== 'undefined' && res.array.length !== 0) {
+                onlyUpdate = true
+            }
+        }
         let countError = 0;
         let updateError = false
         try {
-            if (res.array.length !== 0) {
+            if (onlyUpdate) {
                 await this.#update();
-                return;
+                return maxVersion;
             }
         } catch (e) {
             Log.err('DBInit error on update');
@@ -74,6 +81,8 @@ export default class DBInit {
             await this._initSettings();
             await this._initCurrency();
         }
+
+        return maxVersion;
     }
 
     /**

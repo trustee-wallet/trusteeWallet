@@ -61,6 +61,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import MainListItem from '@app/components/elements/new/list/ListItem/Setting'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { getSolValidator } from '@app/appstores/Stores/Main/selectors'
+import RewardItem from '@app/modules/Account/AccountSettings/RewardItem'
 
 
 class SettingsSOL extends React.PureComponent {
@@ -78,6 +79,7 @@ class SettingsSOL extends React.PureComponent {
             load: true,
             partBalance: null,
             voteAddresses: [],
+            rewards : [],
             selectedVoteAddress: {
                 address: '',
                 commission: false,
@@ -89,15 +91,20 @@ class SettingsSOL extends React.PureComponent {
 
             tabs: [
                 {
-                    title: strings('settings.walletList.address'),
+                    title: strings('settings.walletList.stake'),
                     index: 0,
                     active: true
                 },
                 {
-                    title: strings('settings.walletList.stake'),
+                    title: strings('settings.walletList.rewards'),
                     index: 1,
                     active: false
-                }
+                },
+                {
+                    title: strings('settings.walletList.address'),
+                    index: 2,
+                    active: false
+                },
             ]
         }
         this.stakeAmountInput = React.createRef()
@@ -127,36 +134,40 @@ class SettingsSOL extends React.PureComponent {
 
     handleScan = async (force = false) => {
         const { account } = this.props
+        const { address } = account
 
         this.setState({
             stakedAddresses: [],
             voteAddresses: [],
             load: true
-        })
+        }, async () => {
 
-        const selectedVoteAddress = await settingsActions.getSetting('SOL_validator')
-        const voteAddresses = await SolStakeUtils.getVoteAddresses()
-        const stakedAddresses = await SolStakeUtils.getAccountStaked(account.address, force)
-        const newData = {
-            stakedAddresses,
-            voteAddresses,
-            load: false
-        }
-        if (selectedVoteAddress) {
-            newData.selectedVoteAddress = JSON.parse(selectedVoteAddress)
-        } else if (voteAddresses && voteAddresses.length > 0) {
-            newData.selectedVoteAddress = voteAddresses[0]
-        } else {
-            newData.selectedVoteAddress = {
-                address: BlocksoftExternalSettings.getStatic('SOL_VOTE_BEST'),
-                commission: false,
-                activatedStake: false,
-                name: false,
-                description: '',
-                website: ''
+            const selectedVoteAddress = await settingsActions.getSetting('SOL_validator')
+            const voteAddresses = await SolStakeUtils.getVoteAddresses()
+            const stakedAddresses = await SolStakeUtils.getAccountStaked(address, force)
+            const rewards = await SolStakeUtils.getAccountRewards(address)
+            const newData = {
+                stakedAddresses,
+                voteAddresses,
+                rewards,
+                load: false
             }
-        }
-        this.setState(newData)
+            if (selectedVoteAddress) {
+                newData.selectedVoteAddress = JSON.parse(selectedVoteAddress)
+            } else if (voteAddresses && voteAddresses.length > 0) {
+                newData.selectedVoteAddress = voteAddresses[0]
+            } else {
+                newData.selectedVoteAddress = {
+                    address: BlocksoftExternalSettings.getStatic('SOL_VOTE_BEST'),
+                    commission: false,
+                    activatedStake: false,
+                    name: false,
+                    description: '',
+                    website: ''
+                }
+            }
+            this.setState(newData)
+        })
     }
 
     handleRefresh = async (click = false) => {
@@ -344,6 +355,30 @@ class SettingsSOL extends React.PureComponent {
         )
     }
 
+    renderRewards = ({ item, index }) => {
+        const { account } = this.props
+        const { address } = account
+
+        const { isLight } = this.context
+
+        const { cryptoCurrency } = this.props
+
+        const prettyStake = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(item.amount)
+
+        return (
+            <RewardItem
+                key={index}
+                epoch={item.epoch}
+                apr={item.apr}
+                timestamp={item.timestamp}
+                amount={prettyStake}
+                currencyCode='SOL'
+                onPress={() => Linking.openURL('https://solanabeach.io/address/' + address + '/stake-rewards')}
+                color={isLight ? cryptoCurrency.mainColor : cryptoCurrency.darkColor}
+            />
+        )
+    }
+
     handlePartBalance = (newPartBalance) => {
         const { account } = this.props
 
@@ -365,7 +400,7 @@ class SettingsSOL extends React.PureComponent {
     }
 
     render() {
-        const { currentAddresses, currentAddressesLoaded, lastTransactions, stakedAddresses, load, tabs, selectedVoteAddress } = this.state
+        const { currentAddresses, currentAddressesLoaded, lastTransactions, stakedAddresses, load, tabs, selectedVoteAddress, rewards } = this.state
         const { account, solValidator } = this.props
         const { colors, GRID_SIZE, isLight } = this.context
 
@@ -375,7 +410,7 @@ class SettingsSOL extends React.PureComponent {
 
         return (
             <View style={{ flexGrow: 1 }}>
-                {tabs[0].active &&
+                {tabs[2].active &&
                     <>
                         <View style={{ height: '100%' }}>
                             {currentAddressesLoaded &&
@@ -404,6 +439,71 @@ class SettingsSOL extends React.PureComponent {
                 }
 
                 {tabs[1].active &&
+                <>
+                    <FlatList
+                        data={rewards}
+                        contentContainerStyle={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE }}
+                        keyExtractor={item => item.epoch.toString()}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps='handled'
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this.handleRefresh}
+                                tintColor={colors.common.text1}
+                            />
+                        }
+                        ListEmptyComponent={() => {
+                            if (load) {
+                                return (
+                                    <ActivityIndicator
+                                        size='large'
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            paddingTop: GRID_SIZE
+                                        }}
+                                        color={this.context.colors.common.text2}
+                                    />
+                                )
+                            } else {
+                                return null
+                            }
+                        }}
+                        ListHeaderComponent={() => (
+                            <>
+                                <View style={{ paddingBottom: GRID_SIZE }}>
+                                    {this.renderTabs()}
+                                </View>
+
+                                <View style={{ flexDirection: 'row', position: 'relative', justifyContent: 'space-between', alignItems: 'center', paddingBottom: GRID_SIZE / 2, paddingTop: GRID_SIZE }}>
+                                    <View style={{ flexDirection: 'column' }}>
+                                        <Text style={[styles.transaction_title, { color: colors.common.text1, paddingLeft: GRID_SIZE }]}>{strings('settings.walletList.rewards')}</Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={{ alignItems: 'center', marginRight: GRID_SIZE }}
+                                        onPress={() => this.handleRefresh(true)}
+                                        hitSlop={HIT_SLOP}
+                                    >
+                                        {this.state.clickRefresh ?
+                                            <LottieView
+                                                style={{ width: 20, height: 20 }}
+                                                source={isLight ? blackLoader : whiteLoader}
+                                                autoPlay
+                                                loop
+                                            /> :
+                                            <CustomIcon name='reloadTx' size={20} color={colors.common.text1} />}
+                                    </TouchableOpacity>
+                                </View>
+                            </>
+                        )}
+                        renderItem={this.renderRewards}
+                    />
+                </>
+                }
+
+                {tabs[0].active &&
                     <>
                         <FlatList
                             data={stakedAddresses ? [...lastTransactions, ...stakedAddresses] : lastTransactions}
@@ -480,7 +580,7 @@ class SettingsSOL extends React.PureComponent {
                                     )}
                                     <View style={{ paddingVertical: GRID_SIZE }}>
                                         <MainListItem
-                                            title={strings('settings.walletList.solValidator')}
+                                            title={strings('settings.walletList.validatorSOL')}
                                             subtitle={validator.name ? validator.name : BlocksoftPrettyStrings.makeCut(validator.address, 8, 8)}
                                             onPress={this.handleGoToSelect}
                                             iconType='scanning'

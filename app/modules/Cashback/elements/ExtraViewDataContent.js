@@ -29,6 +29,7 @@ import config from '@app/config/config'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ProgressCircleBox from '@app/modules/Cashback/elements/ProgressCircleBox'
+import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
 
 export class Tab1 extends React.Component {
 
@@ -110,6 +111,7 @@ export class Tab1 extends React.Component {
 
         try {
             await CashBackUtils.setParentToken(cashbackParentToken)
+            UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',

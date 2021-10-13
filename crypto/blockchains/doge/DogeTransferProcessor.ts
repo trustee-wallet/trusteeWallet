@@ -470,6 +470,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 result.showSmallFeeNotice = new Date().getTime()
             }
         }
+        if (result.fees.length === 0) {
+            result.amountForTx = 0
+        }
         result.additionalData = { unspents }
         return result
     }
@@ -540,6 +543,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 nSequence: uiData.selectedFee.blockchainData.nSequence,
                 txAllowReplaceByFee: uiData.selectedFee.blockchainData.txAllowReplaceByFee,
                 feeForByte: uiData.selectedFee.feeForByte
+            }
+            if (typeof uiData.selectedFee.amountForTx !== 'undefined' && uiData.selectedFee.amountForTx) {
+                result.amountForTx = uiData.selectedFee.amountForTx
             }
             if (txRBF) {
                 await DogeRawDS.cleanRaw({
