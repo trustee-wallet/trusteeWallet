@@ -217,6 +217,19 @@ class WalletConnectScreen extends PureComponent {
         })
     }
 
+    getNetwork = (currencyCode) => {
+        switch (currencyCode) {
+            case 'ETH':
+                return 'Mainnet'
+            case 'ETH_ROPSTEN':
+                return 'Ropsten'
+            case 'ETH_RINKEBY':
+                return 'Rinkeby'
+            default:
+                return currencyCode
+        }
+    }
+
     render() {
 
         MarketingAnalytics.setCurrentScreen('WalletConnect')
@@ -258,7 +271,7 @@ class WalletConnectScreen extends PureComponent {
                             {this.props.walletConnectData.mainCurrencyCode && peerStatus &&
                                 <View style={styles.network}>
                                     <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
-                                        {this.props.walletConnectData.mainCurrencyCode === 'ETH' ? 'Mainnet' : this.props.walletConnectData.mainCurrencyCode}
+                                        {this.getNetwork(this.props.walletConnectData.mainCurrencyCode)}
                                     </Text>
                                 </View>
                             }
