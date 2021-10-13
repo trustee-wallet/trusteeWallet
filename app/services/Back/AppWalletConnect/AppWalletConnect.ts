@@ -49,7 +49,7 @@ export namespace AppWalletConnect {
 
     const _getAccounts = async function(chainId = 0, throwErrorIfNoDict = true) {
 
-        const { walletHash } = store.getState().mainStore.selectedWallet
+        const { walletHash, walletName } = store.getState().mainStore.selectedWallet
         const { peerMeta }  = WALLET_CONNECTOR
         if (typeof chainId === 'undefined' || !chainId) {
             chainId = WALLET_CONNECTOR.chainId * 1 || 1
@@ -73,10 +73,10 @@ export namespace AppWalletConnect {
         let res = []
         if (peerMeta.description === "TrusteeConnect4Tron") {
             res = [accountList[walletHash]['TRX'], account]
-            setWalletConnectAccount(res[0].address, 'TRX')
+            setWalletConnectAccount(res[0].address, 'TRX', walletName)
         } else {
             res = [account]
-            setWalletConnectAccount(res[0].address, MAIN_CURRENCY_CODE)
+            setWalletConnectAccount(res[0].address, MAIN_CURRENCY_CODE, walletName)
         }
         return res
     }

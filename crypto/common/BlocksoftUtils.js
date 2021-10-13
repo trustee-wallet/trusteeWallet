@@ -1,5 +1,5 @@
 import { BigNumber } from 'bignumber.js'
-import { hexToBn } from '../blockchains/eth/ext/estimateGas/util'
+import { hexToBn, bnToHex } from '../blockchains/eth/ext/estimateGas/util'
 import Log from '../../app/services/Log/Log'
 
 import BigIntXmr from '@crypto/blockchains/xmr/ext/vendor/biginteger'
@@ -327,6 +327,10 @@ class BlocksoftUtils {
 
     static hexToDecimalWalletConnect(hex) {
         return hexToBn(hex).toString()
+    }
+
+    static decimalToHexWalletConnect(decimal) {
+        return bnToHex(decimal)
     }
 
     static decimalToHex(decimal, len = 0) {

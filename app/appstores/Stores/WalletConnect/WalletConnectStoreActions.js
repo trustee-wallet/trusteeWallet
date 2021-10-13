@@ -25,7 +25,7 @@ export function setWalletConnectData(fullLink) {
         fullLink
     })
 }
-export function setWalletConnectAccount(address, mainCurrencyCode) {
+export function setWalletConnectAccount(address, mainCurrencyCode, walletName) {
     const oldData = store.getState().walletConnectStore.address
     const oldCurrencyCode = store.getState().walletConnectStore.mainCurrencyCode
     if (oldData === address && oldCurrencyCode === mainCurrencyCode){
@@ -34,7 +34,8 @@ export function setWalletConnectAccount(address, mainCurrencyCode) {
     return dispatch({
         type : 'SET_WALLET_CONNECT_ACCOUNT',
         address,
-        mainCurrencyCode
+        mainCurrencyCode,
+        walletName
     })
 }
 

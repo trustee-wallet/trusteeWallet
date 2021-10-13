@@ -75,6 +75,32 @@ export namespace SendActionsStart {
         trusteeAsyncStorage.setSendInputType(inputType)
     }
 
+    export const startFromWalletConnect = async (data : {
+        currencyCode : string,
+        walletConnectData : any,
+        payload : any
+    }) => {
+        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        const dict = await formatDict(cryptoCurrency, account)
+        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
+        
+        const ui =  {
+            uiType : 'WALLET_CONNECT',
+            addressTo : data.walletConnectData.to,
+            walletConnectData : data.walletConnectData,
+            payload : data.payload
+        }
+        dispatch({
+            type: 'RESET_DATA',
+            ui,
+            dict
+        })
+        
+        await SendActionsBlockchainWrapper.getFeeRateFromWalletConnect(ui)
+        
+        NavStore.goNext('ReceiptScreen')
+    }
+
     export const startFromCustomContractCallData = async (data : {
         currencyCode : string,
         contractCallData: any

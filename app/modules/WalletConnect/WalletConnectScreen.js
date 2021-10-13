@@ -41,7 +41,7 @@ import { getWalletConnectData } from '@app/appstores/Stores/WalletConnect/select
 import InfoNotification from '@app/components/elements/new/InfoNotification'
 import Button from '@app/components/elements/new/buttons/Button'
 import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
-import { getWalletName } from '@app/appstores/Stores/Main/selectors'
+
 import Message from '@app/components/elements/new/Message'
 
 import {
@@ -90,7 +90,9 @@ class WalletConnectScreen extends PureComponent {
                 inputFullLink: fullLink
             })
             this.linkInput.handleInput(fullLink, false)
-            this.handleLinkApply(true)
+            setTimeout(() => {
+                this.handleLinkApply(true)
+            }, 0)
         }
     }
 
@@ -163,7 +165,7 @@ class WalletConnectScreen extends PureComponent {
                 this.setState({ linkError: true })
             }
             if (e.message.indexOf('URI format') === -1) {
-                console.log('WalletConnect.init error ' + e.message)
+                Log.log('WalletConnect.init error ' + e.message)
                 this.setState({ linkError: true })
             } else {
                 Log.log('WalletConnect.init error ' + e.message)
@@ -221,7 +223,6 @@ class WalletConnectScreen extends PureComponent {
         UpdateAccountListDaemon.pause()
         UpdateOneByOneDaemon.pause()
 
-
         const {
             GRID_SIZE,
             colors
@@ -255,11 +256,11 @@ class WalletConnectScreen extends PureComponent {
                                 }
                             </View>
                             {this.props.walletConnectData.mainCurrencyCode && peerStatus &&
-                            <View style={styles.network}>
-                                <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
-                                    {this.props.walletConnectData.mainCurrencyCode === 'ETH' ? 'Mainnet' : this.props.walletConnectData.mainCurrencyCode}
-                                </Text>
-                            </View>
+                                <View style={styles.network}>
+                                    <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
+                                        {this.props.walletConnectData.mainCurrencyCode === 'ETH' ? 'Mainnet' : this.props.walletConnectData.mainCurrencyCode}
+                                    </Text>
+                                </View>
                             }
                             <View style={{ marginBottom: GRID_SIZE * 2, marginTop: GRID_SIZE * 1.5 }}>
                                 {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
@@ -271,33 +272,33 @@ class WalletConnectScreen extends PureComponent {
                                 }
                             </View>
                             {!peerStatus &&
-                            <>
-                                <View style={styles.linkInput}>
-                                    <LinkInput
-                                        ref={component => this.linkInput = component}
-                                        id='WALLET_CONNECT_LINK'
-                                        name={strings('settings.walletConnect.inputPlaceholder')}
-                                        type='WALLET_CONNECT_LINK'
-                                        paste={true}
-                                        copy={false}
-                                        qr={true}
-                                        placeholder='wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'
-                                        onChangeText={this.handleChangeFullLink}
-                                        callback={this.handleChangeFullLink}
-                                        addressError={linkError}
-                                        qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
-                                        validPlaceholder={true}
-                                    />
-                                </View>
-                                {linkError &&
-                                    <Message
-                                        name='warningM'
-                                        timer={false}
-                                        text={strings('settings.walletConnect.linkError')}
-                                        containerStyles={{ marginTop: 12, marginHorizontal: GRID_SIZE }}
-                                    />
-                                }
-                            </>
+                                <>
+                                    <View style={styles.linkInput}>
+                                        <LinkInput
+                                            ref={component => this.linkInput = component}
+                                            id='WALLET_CONNECT_LINK'
+                                            name={strings('settings.walletConnect.inputPlaceholder')}
+                                            type='WALLET_CONNECT_LINK'
+                                            paste={true}
+                                            copy={false}
+                                            qr={true}
+                                            placeholder='wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'
+                                            onChangeText={this.handleChangeFullLink}
+                                            callback={this.handleChangeFullLink}
+                                            addressError={linkError}
+                                            qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
+                                            validPlaceholder={true}
+                                        />
+                                    </View>
+                                    {linkError &&
+                                        <Message
+                                            name='warningM'
+                                            timer={false}
+                                            text={strings('settings.walletConnect.linkError')}
+                                            containerStyles={{ marginTop: 12, marginHorizontal: GRID_SIZE }}
+                                        />
+                                    }
+                                </>
                             }
                         </View>
                         <View>
@@ -305,7 +306,7 @@ class WalletConnectScreen extends PureComponent {
                                 peerStatus &&
                                 <View style={{ zIndex: 2 }}>
                                     <TransactionItem
-                                        title={this.props.walletName}
+                                        title={this.props.walletConnectData.walletName}
                                         subtitle={BlocksoftPrettyStrings.makeCut(this.props.walletConnectData.address, 8)}
                                         iconType='wallet'
                                     />
@@ -349,8 +350,7 @@ class WalletConnectScreen extends PureComponent {
 const mapStateToProps = (state) => {
     return {
         lockScreenStatus: getLockScreenStatus(state),
-        walletConnectData: getWalletConnectData(state),
-        walletName: getWalletName(state)
+        walletConnectData: getWalletConnectData(state)
     }
 }
 

@@ -164,6 +164,14 @@ export namespace SendActionsEnd {
                 },
                     source : 'SendActionsEnd.TradeSend'
             }})
+        } else if (uiType === 'WALLET_CONNECT') {
+            NavStore.goNext('AccountTransactionScreen', {
+                txData: {
+                    transactionHash: tx.transactionHash,
+                    uiType
+                },
+                source : 'SendActionsEnd.WalletConnect'
+            })
         } else {
             // fio request etc - direct to receipt
             NavStore.goBack()

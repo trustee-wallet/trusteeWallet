@@ -10,10 +10,8 @@ import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/
 import NavStore from '@app/components/navigation/NavStore'
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import EthNetworkPrices from '@crypto/blockchains/eth/basic/EthNetworkPrices'
-import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+
+import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 
 export async function handleParanoidLogout(isConnected, func) {
@@ -103,79 +101,10 @@ export function handleSessionRequest(data) {
 }
 
 export async function handleSendTransaction(data, payload) {
-    let value = 0
-    let decimals = 0
-    let txPrice = 0
-    try {
-        decimals = BlocksoftUtils.hexToDecimalWalletConnect(data.value)
-        value = BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty(decimals)
-    } catch (e) {
-        Log.log('WalletConnectScreen.handleSendTransaction value/decimals error ' + e.message)
-    }
-    try {
-        let gasPrice = 0
-        if (typeof data.gasPrice !== 'undefined') {
-            gasPrice = BlocksoftUtils.hexToDecimalWalletConnect(data.gasPrice)
-        }
-        if (gasPrice * 1 <= 0) {
-            const prices = await EthNetworkPrices.getOnlyFees(AppWalletConnect.getMainCurrencyCode(), false, data.from, { source: 'WalletConnectScreen' })
-            gasPrice = prices.speed_blocks_2
-        }
-        const gas = BlocksoftUtils.hexToDecimalWalletConnect(data.gas)
-        txPrice = BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty(BlocksoftUtils.mul(gasPrice, gas))
-    } catch (e) {
-        if (config.debug.cryptoErrors) {
-            console.log('WalletConnectScreen.handleSendTransaction txPrice error ' + e.message)
-        }
-        Log.log('WalletConnectScreen.handleSendTransaction txPrice error ' + e.message)
-    }
-    let subtitle
-    if (typeof data.data === 'undefined' || !data.data || data.data === '' || data.data === '0x') {
-        subtitle = 'send ' + value + ' ETH to ' + data.to
-    } else {
-        let message = BlocksoftPrettyStrings.makeCut(data.data, 10, 10)
-        try {
-            const tmp = BlocksoftUtils.hexToUtf(data.data)
-            if (tmp !== '') {
-                message = tmp
-            }
-        } catch (e) {
-
-        }
-        if (value.toString() === '0') {
-            subtitle = 'send data ' + message + ' to ' + data.to
-        } else {
-            subtitle = 'send ' + value + ' ETH with data ' + message + ' to ' + data.to
-        }
-    }
-    showModal({
-        type: 'YES_NO_MODAL',
-        icon: 'WARNING',
-        title: strings('settings.walletConnect.transaction'),
-        description: strings('settings.walletConnect.transactionText', { subtitle: this.state.peerMeta.name, txPrice: this.props.walletConnectData.mainCurrencyCode }),
-        noCallback: async () => {
-            await AppWalletConnect.rejectRequest(payload)
-        }
-    }, async () => {
-        try {
-            const transaction = await AppWalletConnect.approveRequest(data, payload)
-            if (transaction) {
-                transaction.subtitle = subtitle
-                const transactions = this.state.transactions
-                transactions.push(transaction)
-                this.setState({
-                    transactions: transactions
-                })
-            }
-        } catch (e) {
-            const msg = e.message.indexOf('SERVER_RESPONSE_') === -1 ? e.message : strings('send.errors.' + e.message)
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: msg
-            })
-        }
+    await SendActionsStart.startFromWalletConnect({
+        currencyCode: 'ETH',
+        walletConnectData: data,
+        payload
     })
 }
 

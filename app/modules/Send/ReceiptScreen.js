@@ -40,6 +40,9 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
 
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+
 
 let CACHE_IS_COUNTING = false
 let CACHE_IS_SENDING = false
@@ -69,6 +72,14 @@ class ReceiptScreen extends PureComponent {
         }
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
+
+        if (uiType === 'WALLET_CONNECT') {
+            setLoaderStatus(false)
+            CACHE_IS_COUNTING = false
+            NavStore.goNext('SendAdvancedScreen')
+            return
+        }
+
         try {
             await SendActionsBlockchainWrapper.getFeeRate()
             setLoaderStatus(false)
@@ -151,10 +162,22 @@ class ReceiptScreen extends PureComponent {
         }
 
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
+        const { uiType, payload, walletConnectData } = this.props.sendScreenStore.ui
+
         let tx = false
         let e = false
         try {
-            tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)
+            if (uiType === 'WALLET_CONNECT') {
+                // @ksu plz check this
+                const data = walletConnectData
+                data.gasPrice = BlocksoftUtils.decimalToHexWalletConnect(selectedFee.gasPrice)
+                data.gas = BlocksoftUtils.decimalToHexWalletConnect(selectedFee.gasLimit)
+                
+                tx = await AppWalletConnect.approveRequest(data ,payload)
+
+            } else {
+                tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)
+            }
         } catch (e1) {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.handleSend error ' + e1.message)
@@ -243,17 +266,35 @@ class ReceiptScreen extends PureComponent {
         UpdateOneByOneDaemon.unstop()
         UpdateAccountListDaemon.unstop()
         await SendActionsEnd.endClose(this.props.sendScreenStore)
-        const { uiType } = this.props.sendScreenStore.ui
+        const { uiType, payload } = this.props.sendScreenStore.ui
         if (uiType === 'TRADE_SEND') {
             NavStore.goBack()
         } else {
+            if (uiType === 'WALLET_CONNECT') {
+                try {
+                    await AppWalletConnect.rejectRequest(payload)
+                } catch (e) {
+                    Log.log('ReceiptScreen.closeAction WALLET_CONNECT error', e)
+                }
+                
+            }
             NavStore.reset('HomeScreen')
         }
     }
 
-    backAction = () => {
+    backAction = async () => {
         UpdateOneByOneDaemon.unstop()
         UpdateAccountListDaemon.unstop()
+
+        const { uiType, payload } = this.props.sendScreenStore.ui
+        if (uiType === 'WALLET_CONNECT') {
+            try {
+                await AppWalletConnect.rejectRequest(payload)
+            } catch (e) {
+                Log.log('ReceiptScreen.backAction WALLET_CONNECT error', e)
+            }
+        }
+
         NavStore.goBack()
     }
 

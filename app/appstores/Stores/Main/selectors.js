@@ -15,11 +15,6 @@ export const getIsBackedUp = createSelector(
     (data => data)
 )
 
-export const getWalletName = createSelector(
-    [state => state.mainStore.selectedWallet.walletName],
-    (data => data)
-)
-
 export const getSelectedWalletData = createSelector(
     [state => state.mainStore.selectedWallet],
     (data => {

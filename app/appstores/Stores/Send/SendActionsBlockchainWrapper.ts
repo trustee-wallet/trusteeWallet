@@ -12,6 +12,10 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
 
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+import EthNetworkPrices from '@crypto/blockchains/eth/basic/EthNetworkPrices'
+
 const { dispatch } = store
 
 const CACHE_DATA = {
@@ -265,5 +269,73 @@ export namespace SendActionsBlockchainWrapper {
         selectedFee.rawOnly = rawOnly || false
 
         return BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee }, CACHE_DATA.additionalData)
+    }
+
+    export const getFeeRateFromWalletConnect = async (uiData : any) => {
+
+        const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
+        newCountedFeesData.addressTo = uiData.addressTo
+        newCountedFeesData.isTransferAll = false
+
+        let walletConnectDecimal
+
+        try {
+            walletConnectDecimal = BlocksoftUtils.hexToDecimalWalletConnect(uiData.walletConnectData.value)
+        } catch (e) {
+            Log.log('SendActionsBlockchainWrapper walletConnectData value/decimals error ' + e.message)
+            walletConnectDecimal = 0
+        }
+
+        newCountedFeesData.amount = walletConnectDecimal
+
+        let txPrice = 0
+        let gasPrice = 0
+        let gas
+        try {
+            if (typeof uiData.walletConnectData.gasPrice !== 'undefined') {
+                gasPrice = BlocksoftUtils.hexToDecimalWalletConnect(uiData.walletConnectData.gasPrice)
+            }
+            if (gasPrice * 1 <= 0) {
+                const prices = await EthNetworkPrices.getOnlyFees(AppWalletConnect.getMainCurrencyCode(), false, uiData.walletConnectData.from, { source: 'WalletConnectScreen' })
+                gasPrice = prices.speed_blocks_2
+            }
+            gas = BlocksoftUtils.hexToDecimalWalletConnect(uiData.walletConnectData.gas)
+            txPrice = BlocksoftUtils.mul(gasPrice, gas)
+            // BlocksoftPrettyNumbers.setCurrencyCode('ETH').makePretty()
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SendActionsBlockchainWrapper.getFeeRateFromWalletConnect txPrice error ' + e.message)
+            }
+            Log.log('SendActionsBlockchainWrapper.getFeeRateFromWalletConnect txPrice error ' + e.message)
+        }
+
+        CACHE_DATA.countedFeesData = newCountedFeesData
+
+        const selectedFee = {
+            amountForTx : walletConnectDecimal,
+            feeForTx : txPrice,
+            gasPrice,
+            needSpeed : gasPrice,
+            gasLimit : gas,
+            gasPriceGwei : BlocksoftUtils.toUnified(gasPrice, 9),
+            isCustomFee : true,
+            isTransferAll : false
+        }
+
+        const countedFees = {
+            fees : [],
+            shouldShowFees : true,
+            selectedFeeIndex : 0
+        }
+
+        dispatch({
+            type: 'RESET_DATA_BLOCKCHAIN',
+            fromBlockchain: {
+                selectedFee,
+                countedFees,
+                neverCounted : false
+            }
+        })
+        
     }
 }
