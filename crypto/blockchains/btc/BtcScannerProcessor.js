@@ -79,7 +79,7 @@ export default class BtcScannerProcessor {
                 }
             }
         } else {
-            link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999&pageSize=20'
+            link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999&pageSize=80'
             res = await BlocksoftAxios.getWithoutBraking(link)
         }
 
