@@ -283,9 +283,9 @@ class WalletPub {
         Log.daemon(`LINK1 ${trezorServer}/api/v2/xpub/${xpubs[0]}?details=tokens&tokens=used&gap=9999`)
         Log.daemon(`LINK2 ${trezorServer}/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999`)
         Log.daemon(`LINK2 ${trezorServer}/api/v2/xpub/${xpubs[2]}?details=tokens&tokens=used&gap=9999`)
-        const importCheckUsed = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[0]}?details=tokens&tokens=used&gap=9999`)
-        const importCheckUsed1 = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999`)
-        const importCheckUsed2 = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[2]}?details=tokens&tokens=used&gap=9999`)
+        const importCheckUsed = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[0]}?details=tokens&tokens=used&gap=9999&pageSize=20`)
+        const importCheckUsed1 = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999&pageSize=20`)
+        const importCheckUsed2 = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[2]}?details=tokens&tokens=used&gap=9999&pageSize=20`)
         let toSave = false
         const xPubBalances = [
             {
