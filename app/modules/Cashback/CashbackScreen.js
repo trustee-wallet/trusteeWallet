@@ -158,7 +158,7 @@ class CashbackScreen extends React.PureComponent {
         return (
             <FlatList
                 data={flatListData}
-                contentContainerStyle={{ paddingHorizontal: GRID_SIZE / 2 }}
+                contentContainerStyle={{ paddingHorizontal: GRID_SIZE }}
                 style={{ marginHorizontal: -GRID_SIZE }}
                 keyExtractor={({ index }) => index}
                 horizontal={true}
@@ -271,7 +271,7 @@ class CashbackScreen extends React.PureComponent {
         } = this.props
 
         return (
-            <ScrollView style={{ marginHorizontal: GRID_SIZE }}>
+            <ScrollView style={{ paddingHorizontal: GRID_SIZE }}>
                 {this.renderExtraView()}
                 <DetailsHeader
                     cashbackStore={cashbackStore}
@@ -282,8 +282,12 @@ class CashbackScreen extends React.PureComponent {
     }
 
     renderThirdRoute = () => {
+        const {
+            GRID_SIZE
+        } = this.context
+
         return (
-            <View style={{ marginHorizontal: 16 }}>
+            <View style={{ paddingHorizontal: GRID_SIZE * 2 }}>
                 <HowItWorks />
             </View>
         )
@@ -350,7 +354,7 @@ class CashbackScreen extends React.PureComponent {
                         this.scrollView = ref
                     }}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={[styles.scrollViewContent, { paddingVertical: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }]}
+                    contentContainerStyle={[styles.scrollViewContent, { paddingVertical: GRID_SIZE * 1.5 }]}
                     keyboardShouldPersistTaps='handled'
                     refreshControl={
                         <RefreshControl

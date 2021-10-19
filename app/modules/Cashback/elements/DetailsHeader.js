@@ -63,7 +63,8 @@ class DetailsHeader extends React.Component{
     _renderHeader = (section, index, isActive) => {
 
         const {
-            colors
+            colors,
+            GRID_SIZE
         } = this.context
 
         return (
@@ -83,7 +84,7 @@ class DetailsHeader extends React.Component{
                         <Text style={[styles.switchableTabsBalance]}>{section.balance + ' ' + this.cashbackCurrency}</Text>
                     </View>
                 </View>
-                <View style={{ marginTop: 20 }}>
+                <View style={{ marginTop: 20, marginRight: GRID_SIZE }}>
                     <CustomIcon name={isActive ? 'up' : 'down'} color={colors.common.text1} size={20} />
                 </View>
             </View>

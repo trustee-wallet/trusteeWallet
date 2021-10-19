@@ -259,9 +259,9 @@ class WalletConnectScreen extends PureComponent {
                     contentContainerStyle={styles.scrollViewContent}
                     keyboardShouldPersistTaps='handled'
                 >
-                    <View style={{ marginTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
+                    <View style={{ marginTop: GRID_SIZE }}>
                         <View style={{ overflow: 'hidden' }}>
-                            <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, backgroundColor: colors.common.roundButtonContent }]}>
+                            <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE, backgroundColor: colors.common.roundButtonContent }]}>
                                 {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
                                     <Image style={styles.image} source={{
                                         uri: this.state.peerMeta.icons !== 'undefined' ? this.state.peerMeta.icons[0] : ''
@@ -269,13 +269,13 @@ class WalletConnectScreen extends PureComponent {
                                 }
                             </View>
                             {this.props.walletConnectData.mainCurrencyCode && peerStatus &&
-                                <View style={styles.network}>
+                                <View style={[styles.network, { right: GRID_SIZE }]}>
                                     <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
                                         {this.getNetwork(this.props.walletConnectData.mainCurrencyCode)}
                                     </Text>
                                 </View>
                             }
-                            <View style={{ marginBottom: GRID_SIZE * 2, marginTop: GRID_SIZE * 1.5 }}>
+                            <View style={{ marginBottom: GRID_SIZE * 2, marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }}>
                                 {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
                                     <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
                                         <Text style={[styles.peerMetaName, { color: colors.common.text1 }]}>{this.state.peerMeta.name !== 'undefined' ? this.state.peerMeta.name : ''}</Text>
@@ -286,7 +286,7 @@ class WalletConnectScreen extends PureComponent {
                             </View>
                             {!peerStatus &&
                                 <>
-                                    <View style={styles.linkInput}>
+                                    <View style={{ ...styles.linkInput, margin: GRID_SIZE }}>
                                         <LinkInput
                                             ref={component => this.linkInput = component}
                                             id='WALLET_CONNECT_LINK'
@@ -314,7 +314,7 @@ class WalletConnectScreen extends PureComponent {
                                 </>
                             }
                         </View>
-                        <View>
+                        <View style={{ paddingHorizontal: GRID_SIZE }}>
                             {
                                 peerStatus &&
                                 <View style={{ zIndex: 2 }}>
@@ -391,7 +391,6 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     linkInput: {
-        backgroundColor: 'red',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',

@@ -33,7 +33,7 @@ class DetailsContent extends React.Component {
         } = this.props
 
         return (
-            <View style={styles.container} >
+            <View style={[styles.container, { marginHorizontal: GRID_SIZE }]} >
                 {selectedTitle === 'CASHBACK' ?
                     <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5, backgroundColor: colors.cashback.detailsBg  }]}>
                         <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cashbackInfo')}</Text>
