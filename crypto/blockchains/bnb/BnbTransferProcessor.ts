@@ -31,7 +31,7 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
 
         const fees = await BnbNetworkPrices.getFees()
-        const feeForTx = BlocksoftUtils.toUnified(fees.send, 8)
+        const feeForTx = BlocksoftUtils.toUnified(fees.send.fee, 8)
         const result: BlocksoftBlockchainTypes.FeeRateResult = {
             selectedFeeIndex: 0,
             shouldShowFees : false,

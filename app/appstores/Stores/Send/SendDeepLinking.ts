@@ -1,13 +1,12 @@
 /**
  * @version 0.41
  */
-import { Linking } from 'react-native'
-import Log from '../../../services/Log/Log'
+import Log from '@app/services/Log/Log'
 
-import { decodeTransactionQrCode } from '../../../services/UI/Qr/QrScan'
+import { decodeTransactionQrCode } from '@app/services/UI/Qr/QrScan'
 import { SendActionsStart } from './SendActionsStart'
 
-const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
+import branch from 'react-native-branch'
 
 
 let CACHE_ALREADY_INITED = false
@@ -16,20 +15,26 @@ export namespace SendDeepLinking {
     export const initDeepLinking = function(): boolean {
         Log.log('SendDeepLinking.initDeepLinking start')
         if (CACHE_ALREADY_INITED) return false
-        handleInitialURL(true, '')
-        Linking.addEventListener('url', (data) => handleInitialURL(false, data))
+        branch.subscribe(({error, params}) => {
+            if (error) {
+                Log.log('SendDeepLinking.initDeepLinking branch error ', JSON.stringify(error))
+            }
+
+            handleInitialURL(false, params)
+        })
         CACHE_ALREADY_INITED = true
         Log.log('SendDeepLinking.initDeepLinking finished')
         return true
     }
 
     const handleInitialURL = async (needGetUrl: boolean, data : any) => {
-        let initialURL = (typeof data !== 'undefined' && typeof data.url !== 'undefined') ? data.url : ''
-
+        let initialURL = (typeof data !== 'undefined' && typeof data.$desktop_url !== 'undefined') ? data.$desktop_url : ''
         await Log.log('SendDeepLinking.handleInitialURL ' + JSON.stringify(data))
         try {
             if (needGetUrl || typeof initialURL === 'undefined' || initialURL === null || initialURL === '') {
-                initialURL = await NativeLinking.getInitialURL()
+                // initialURL = await NativeLinking.getInitialURL()
+                const branchData = await branch.getLatestReferringParams()
+                initialURL = branchData ? branchData.$desktop_url : ''
             }
         } catch (e) {
             Log.err('SendDeepLinking.handleInitialURL get error ' + e.message, initialURL)

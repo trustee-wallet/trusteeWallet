@@ -756,7 +756,7 @@
      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Native currency (%{symbol}) balance cannot be updated. Please check your internet connection",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount is too small",
      "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Insufficient balance to send the transaction",
-     "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "Balance of your %{symbol} wallet is less then sending amount. Rescan balance of %{symbol} and try again.",
+     "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "Balance of your %{symbol} wallet is less then sending amount. Please rescan balance of %{symbol} and try again.",
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Insufficient balance to pay the network fee - please use an option \"Send All\" ",
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Insufficient balance to pay the delegated transaction - please use ERC20 standard transaction",
      "SERVER_RESPONSE_NO_RESPONSE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined",

@@ -2,14 +2,14 @@
  * @version 0.9
  */
 
-import BlocksoftUtils from '../../common/BlocksoftUtils'
-import BlocksoftAxios from '../../common/BlocksoftAxios'
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 import BtcFindAddressFunction from './basic/BtcFindAddressFunction'
-import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
-import config from '../../../app/config/config'
-import Database from '@app/appstores/DataSource/Database';
+import config from '@app/config/config'
+import Database from '@app/appstores/DataSource/Database'
 
 const CACHE_VALID_TIME = 60000 // 60 seconds
 const CACHE = {}
@@ -56,11 +56,33 @@ export default class BtcScannerProcessor {
 
         const prefix = address.substr(0, 4)
 
-        let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999'
+        let link = ''
+        let res = false
         if (prefix === 'xpub' || prefix === 'zpub' || prefix === 'ypub') {
-            link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used'
+            link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used&pageSize=40'
+
+            try {
+                res = await BlocksoftAxios._request(link, 'get')
+            } catch (e) {
+                if (e.message.indexOf('"error":"internal server error"') !== -1) {
+                    CACHE[address] = {
+                        data : {
+                            balance : 0,
+                            unconfirmedBalance: 0,
+                            addresses : [],
+                            specialMark : 'badServer'
+                        },
+                        time: now,
+                        provider: 'trezor-badserver'
+                    }
+                    return CACHE[address]
+                }
+            }
+        } else {
+            link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999&pageSize=80'
+            res = await BlocksoftAxios.getWithoutBraking(link)
         }
-        const res = await BlocksoftAxios.getWithoutBraking(link)
+
         if (!res || !res.data) {
             await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
             CACHE[address] = {
@@ -131,11 +153,13 @@ export default class BtcScannerProcessor {
             return false
         }
         return {
+            address : address,
             balance: res.data.balance,
             unconfirmed: res.data.unconfirmedBalance,
             provider: res.provider,
             time: res.time,
-            addresses: res.data.addresses
+            addresses: res.data.addresses,
+            specialMark : typeof res.data.specialMark !== 'undefined' ? res.data.specialMark : false
         }
     }
 

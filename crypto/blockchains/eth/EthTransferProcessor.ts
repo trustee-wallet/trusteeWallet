@@ -162,10 +162,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     try {
                         let ok = false
                         let i = 0
+                        let gasLimitNew = false
                         do {
                             try {
                                 i++
-                                gasLimit = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                                gasLimitNew = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
                                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
                             } catch (e1) {
                                 ok = false
@@ -174,6 +175,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                                 }
                             }
                         } while (!ok && i <= 5)
+                        if (gasLimitNew && typeof gasLimitNew !== 'undefined' && gasLimitNew * 1 > 0) {
+                            gasLimit = gasLimitNew * 1
+                        }
                     } catch (e) {
                         if (e.message.indexOf('resolve host') !== -1) {
                             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
@@ -200,7 +204,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } catch (e) {
             throw new Error(e.message + ' in get gasLimit')
         }
-        console.log(new Date().toISOString() + ' end estimation')
 
         let showBigGasNotice = false
         if (typeof additionalData === 'undefined' || typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee) {
@@ -215,7 +218,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
 
         if (!gasLimit) {
-            throw new Error('invalid transaction (no gas limit)')
+            throw new Error('invalid transaction (no gas limit.2)')
         }
 
         // @ts-ignore
