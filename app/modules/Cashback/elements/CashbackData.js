@@ -7,7 +7,7 @@ import React from 'react'
 import {
     View,
     Text,
-    Dimensions
+    Dimensions, TouchableOpacity
 } from 'react-native'
 
 import { useTheme } from '@app/theme/ThemeProvider'
@@ -17,6 +17,12 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import { connect } from 'react-redux'
 import { Tab1 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
+
+import { HIT_SLOP } from '@app/theme/HitSlop'
+import LottieView from 'lottie-react-native'
+import blackLoader from '@assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 const widthWindow = Dimensions.get('window').width
 
@@ -56,7 +62,10 @@ const CashbackData = (props) => {
 
     const {
         data,
-        cashbackStore
+        cashbackStore,
+        refresh,
+        clickRefresh,
+        handleRefresh
     } = props
 
     const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
@@ -72,9 +81,14 @@ const CashbackData = (props) => {
 
     const { title, subTitle, balance, ExtraViewData, textInput } = data
 
-    const { colors } = useTheme()
+    const {
+        colors,
+        GRID_SIZE,
+        isLight
+    } = useTheme()
 
     const cashbackCurrency = 'USDT'
+
 
 
     return (
@@ -82,11 +96,20 @@ const CashbackData = (props) => {
 
             <View style={styles.topContent__content}>
 
-                <View style={{ flexDirection: 'row' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={styles.header}>
                         <Text numberOfLines={1} style={[styles.header__title, { color: colors.common.text1 }]}>{title}</Text>
                         <Text style={styles.header__subTitle}>{subTitle}</Text>
                     </View>
+                    { refresh &&
+                        <TouchableOpacity style={[styles.refreshBtn, { alignItems: 'flex-end', marginRight: GRID_SIZE, marginTop: GRID_SIZE }]} onPress={handleRefresh} hitSlop={HIT_SLOP}>
+                            {clickRefresh ?
+                                <LottieView style={{ width: 22, height: 22 }}
+                                            source={isLight ? blackLoader : whiteLoader}
+                                            autoPlay loop /> :
+                                <CustomIcon name={'reloadTx'} size={22} color={colors.common.text1} />}
+                        </TouchableOpacity>
+                    }
                 </View>
 
                 {renderBalance(balance, cashbackCurrency)}
@@ -210,12 +233,13 @@ const styles = {
     },
     header: {
         marginTop: 16,
-        marginRight: 16,
         marginLeft: 16
     },
     header__title: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 17
+        fontSize: 17,
+        lineHeight: 21,
+        width: widthWindow * 0.605
     },
     header__subTitle: {
         fontFamily: 'Montserrat-Bold',
@@ -224,7 +248,9 @@ const styles = {
         letterSpacing: 0.5,
         color: '#999999',
         textTransform: 'uppercase'
+    },
+    refreshBtn: {
+        
     }
-
 }
 

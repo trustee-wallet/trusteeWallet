@@ -43,6 +43,7 @@ class CashbackScreen extends React.PureComponent {
         inviteLink: '',
         inviteLinkError: false,
         refreshing: false,
+        clickRefresh: false,
         isLoading: false,
         index: 0,
         routes: [
@@ -103,7 +104,7 @@ class CashbackScreen extends React.PureComponent {
                 title: strings('cashback.availableCashBack'),
                 subTitle: strings('cashback.updated') + ' ' + timePrep,
                 balance: UtilsService.cutNumber(cashbackBalance + cpaBalance, 2),
-                textInput: true
+                textInput: true,
             },
             {
                 title: strings('cashback.balanceTitle'),
@@ -206,15 +207,17 @@ class CashbackScreen extends React.PureComponent {
         prettyShare(shareOptions, 'taki_cashback_4_copyToMoreFinish')
     }
 
-    handleRefresh = async () => {
+    handleRefresh = async (click = false) => {
         this.setState({
-            refreshing: true
+            refreshing: !click,
+            clickRefresh: click
         })
 
         await UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
 
         this.setState({
-            refreshing: false
+            refreshing: false,
+            clickRefresh: false
         })
     }
 
@@ -225,10 +228,13 @@ class CashbackScreen extends React.PureComponent {
         this.setState({ index: index })
     }
 
-    renderFlatListItem = ({ item }) => {
+    renderFlatListItem = ({ item, index }) => {
         return (
             <CashbackData
                 data={item}
+                refresh={index === 0}
+                clickRefresh={this.state.clickRefresh}
+                handleRefresh={() => this.handleRefresh(true)}
             />
         )
     }
