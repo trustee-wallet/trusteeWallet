@@ -744,7 +744,7 @@
       "SERVER_RESPONSE_BAD_INTERNET": "არ არის კავშირი ინტერნეტთან",
       "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "ტრანზაქცია ვერ მოიძებნა, გთხოვთ, შეამოწმოთ კავშირი ინტერნეტთან. შესაძლოა ადგილი ჰქონდეს დაყოვნებას ინფორმაციის გამოსახულების მიღების თვალსაზრისით ",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "ქსელის საკომისიოს დასაფარად ანგარიშზე არ ფიქსირდება საკმარისი რაოდენობის ადგილობრივი მონეტა %{symbol}",
-      "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Only dust inputs - couldnt process - please use \"Send All\" to collect them together",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Your wallet has accumulated many incoming transactions with small amounts. Please use the \"Send All\" button to send the transaction correctly",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "ვერ მოხერხდა ადგილობრივი მონეტის (%{symbol}) ბალანსის შემოწმება. გთხოვთ, შეამოწმოთ ინტერნეტკავშირი!",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "ძალიან მცირე თანხაა ტრანზაქციისთვის",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "ტრანზაქციის განსახორციელებლად თანხა არასაკმარისია",
