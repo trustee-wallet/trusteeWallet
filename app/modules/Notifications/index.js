@@ -8,7 +8,7 @@ import {
     Text,
     SectionList,
     StyleSheet,
-    RefreshControl,
+    RefreshControl
 } from 'react-native'
 
 import _forEach from 'lodash/forEach'
@@ -18,7 +18,7 @@ import moment from 'moment'
 import NavStore from '@app/components/navigation/NavStore'
 
 import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
-import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
+// import appNewsInitStore from '@app/appstores/Stores/AppNews/AppNewsInitStore'
 
 import Log from '@app/services/Log/Log'
 
@@ -32,10 +32,12 @@ import ListItem from '@app/components/elements/new/list/ListItem/Notification'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
 const getIconType = (notif) => {
     switch (notif.newsGroup) {
-        case (NOTIFIES_GROUP.NEWS): return 'news'
+        case (NOTIFIES_GROUP.NEWS):
+            return 'news'
         case (NOTIFIES_GROUP.RATES_CHANGING): {
             if (typeof notif.newsJson?.rateSide === 'boolean') return notif.newsJson.rateSide ? 'ratesUp' : 'ratesDown'
             return 'default'
@@ -47,7 +49,8 @@ const getIconType = (notif) => {
             if (notif.newsJson.payoutTxHash) return 'outgoing'
             return 'default'
         }
-        default: return 'default'
+        default:
+            return 'default'
     }
 }
 
@@ -67,13 +70,14 @@ class NotificationsScreen extends React.PureComponent {
                 active: false,
                 hasNewNoties: false,
                 group: NOTIFIES_GROUP.NEWS
-            },
+            }
         ],
         data: [],
-        isRefreshing: false
+        isRefreshing: false,
+        enableVerticalScroll: true
     }
 
-    currentLocale;
+    currentLocale
     allowedNotifications = ALLOWED_NOTIFICATIONS
 
     componentDidMount() {
@@ -81,6 +85,7 @@ class NotificationsScreen extends React.PureComponent {
         this.prepareData()
     }
 
+    // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(nextProps) {
         this.prepareData(nextProps.notifications)
     }
@@ -94,7 +99,7 @@ class NotificationsScreen extends React.PureComponent {
         })
 
         const filteredAlllowed = notifications.filter(notif => this.allowedNotifications.includes(notif.newsGroup))
-        filteredAlllowed.forEach((notification, i) => {
+        filteredAlllowed.forEach((notification) => {
             const timestamp = Number(notification.newsCreated)
             if (!isNaN(timestamp) && timestamp !== 0) {
                 notification.receivedAtDay = moment(timestamp).startOf('day').calendar()
@@ -141,7 +146,9 @@ class NotificationsScreen extends React.PureComponent {
         this.setState({ isRefreshing: false })
     }
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => {
+        NavStore.goBack()
+    }
 
     handleChangeTab = (newTab) => {
         if (newTab.group === NOTIFIES_GROUP.ALL) {
@@ -151,16 +158,28 @@ class NotificationsScreen extends React.PureComponent {
         }
         const newTabs = this.state.tabs.map(tab => ({
             ...tab,
-            active: tab.index === newTab.index,
+            active: tab.index === newTab.index
         }))
-        this.setState(() => ({ tabs: newTabs }), () => { this.prepareData() })
+        this.setState(() => ({ tabs: newTabs }), () => {
+            this.prepareData()
+        })
+    }
+
+    handlePressShare = (title, subtitle, url) => {
+        const shareOptions = {
+            title: title || subtitle,
+            message: !title ? subtitle : title + '\n' + subtitle + '\n' + url || ''
+        }
+        prettyShare(shareOptions, 'notification_share_item')
     }
 
     renderTabs = () => <Tabs tabs={this.state.tabs} changeTab={this.handleChangeTab} />
 
     renderListItem = ({ item, section, index }) => {
-        let title = item.newsCustomTitle || '';
-        let subtitle = item.newsCustomText || '';
+
+        const url = item.newsUrl || ''
+        let title = item.newsCustomTitle || ''
+        let subtitle = item.newsCustomText || ''
         const notifData = item.newsJson?.notification?.[this.currentLocale]
         if (notifData) {
             title = notifData.title
@@ -168,6 +187,8 @@ class NotificationsScreen extends React.PureComponent {
         }
         return (
             <ListItem
+                handlePressShare={() => this.handlePressShare(title, subtitle, url)}
+                onLongPress={this.props.onDrag}
                 title={title || subtitle}
                 subtitle={title ? subtitle : null}
                 iconType={getIconType(item)}
@@ -193,7 +214,7 @@ class NotificationsScreen extends React.PureComponent {
             <ScreenWrapper
                 leftType='back'
                 leftAction={this.handleBack}
-                rightType="close"
+                rightType='close'
                 rightAction={this.handleBack}
                 title={strings('notifications.title')}
                 ExtraView={this.renderTabs}
@@ -203,10 +224,12 @@ class NotificationsScreen extends React.PureComponent {
                     sections={data}
                     refreshControl={
                         <RefreshControl
-                            style={{ marginTop: GRID_SIZE, marginBottom: -GRID_SIZE * 1.5 }}
-                            tintColor={colors.common.text1}
                             refreshing={isRefreshing}
                             onRefresh={this.handleRefresh}
+                            tintColor={colors.common.refreshControlIndicator}
+                            colors={[colors.common.refreshControlIndicator]}
+                            progressBackgroundColor={colors.common.refreshControlBg}
+                            progressViewOffset={-20}
                         />
                     }
                     keyExtractor={notif => notif.id.toString()}
@@ -218,7 +241,7 @@ class NotificationsScreen extends React.PureComponent {
                     )}
                     renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
                 />
-            </ScreenWrapper >
+            </ScreenWrapper>
         )
     }
 }
@@ -247,6 +270,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         lineHeight: 14,
         letterSpacing: 1.5,
-        textTransform: 'uppercase',
-    },
+        textTransform: 'uppercase'
+    }
 })
