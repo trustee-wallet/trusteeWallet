@@ -75,7 +75,8 @@
       "title": "Wallet connect",
       "activated": "Activated",
       "disabled": "Disabled",
-      "changeNetwork": "Change Network"
+      "changeNetwork": "Change Network",
+      "turnBasicAsset" : "For WalletConnect you need add %{asset} as it is used in this transaction"
     },
     "walletManagement": {
       "title": "საფულეების მართვა",

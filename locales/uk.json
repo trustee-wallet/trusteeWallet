@@ -71,7 +71,8 @@
       "title": "Wallet connect",
       "activated": "Активовано",
       "disabled": "Відключено",
-      "changeNetwork": "Зміна мережі"
+      "changeNetwork": "Зміна мережі",
+      "turnBasicAsset" : "Для WalletConnect Вам потрібно додати %{asset} , оскільки він використовується для транзакції"
     },
     "paymentAccounts": {
       "listTitle": "Платіжні рахунки",

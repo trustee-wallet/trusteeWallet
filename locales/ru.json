@@ -75,7 +75,8 @@
       "title": "Wallet connect",
       "activated": "Активировано",
       "disabled": "Отключено",
-      "changeNetwork": "Изменить Сеть"
+      "changeNetwork": "Изменить Сеть",
+      "turnBasicAsset" : "Для WalletConnect Вам необходимо добавить %{asset}, так как он используется для этой транзакции"
     },
     "walletManagement": {
       "title": "Управление кошельками",

@@ -106,8 +106,8 @@ class WalletConnectScreen extends PureComponent {
         handleSendSignTyped.call(this, data, payload)
     }
 
-    handleTransactionSend = (data, payload) => {
-        handleSendTransaction.call(this, data, payload)
+    handleTransactionSend = (data, payload, mainCurrencyCode) => {
+        handleSendTransaction.call(this, data, payload, mainCurrencyCode)
     }
 
     handleRequest = (data) => {

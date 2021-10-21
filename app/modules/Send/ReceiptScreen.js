@@ -162,19 +162,13 @@ class ReceiptScreen extends PureComponent {
         }
 
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
-        const { uiType, payload, walletConnectData } = this.props.sendScreenStore.ui
+        const { uiType } = this.props.sendScreenStore.ui
 
         let tx = false
         let e = false
         try {
             if (uiType === 'WALLET_CONNECT') {
-                // @ksu plz check this
-                const data = walletConnectData
-                data.gasPrice = BlocksoftUtils.decimalToHexWalletConnect(selectedFee.gasPrice)
-                data.gas = BlocksoftUtils.decimalToHexWalletConnect(selectedFee.gasLimit)
-                
-                tx = await AppWalletConnect.approveRequest(data ,payload)
-
+                tx = await AppWalletConnect.approveRequest(this.props.sendScreenStore)
             } else {
                 tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)
             }
@@ -276,7 +270,7 @@ class ReceiptScreen extends PureComponent {
                 } catch (e) {
                     Log.log('ReceiptScreen.closeAction WALLET_CONNECT error', e)
                 }
-                
+
             }
             NavStore.reset('HomeScreen')
         }

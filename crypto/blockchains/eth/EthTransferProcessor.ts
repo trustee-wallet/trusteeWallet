@@ -113,7 +113,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else if (typeof additionalData.prices !== 'undefined' && additionalData.prices) {
             gasPrice = additionalData.prices
         } else if (proxyPriceCheck) {
-            gasPrice = typeof proxyPriceCheck.gasPrice !== 'undefined' && proxyPriceCheck.gasPrice ? proxyPriceCheck.gasPrice : { 'speed_blocks_12': '10' }
+            if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gasPrice !== 'undefined' && data.walletConnectData.gasPrice) {
+                gasPrice = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gasPrice)
+            }
+            if (!gasPrice) {
+                gasPrice = typeof proxyPriceCheck.gasPrice !== 'undefined' && proxyPriceCheck.gasPrice ? proxyPriceCheck.gasPrice : { 'speed_blocks_12': '10' }
+            }
             if (typeof proxyPriceCheck.maxNonceLocal !== 'undefined' && proxyPriceCheck.maxNonceLocal) {
                 maxNonceLocal = proxyPriceCheck.maxNonceLocal
             }
@@ -128,7 +133,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         try {
 
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
-                if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
+
+                if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
+                    gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(uiData.walletConnectData.gas)
+                } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
                     if (typeof abi[data.contractCallData.contractSchema] === 'undefined') {
                         throw new Error('Contract abi not found ' + data.contractCallData.contractSchema)
                     }
