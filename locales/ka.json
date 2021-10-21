@@ -74,7 +74,8 @@
       "linkError": "WalletConnect connection error. Please, check if the direct link is correct",
       "title": "Wallet connect",
       "activated": "Activated",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "changeNetwork": "Change Network"
     },
     "walletManagement": {
       "title": "საფულეების მართვა",

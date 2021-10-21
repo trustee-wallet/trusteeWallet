@@ -70,7 +70,8 @@
       "linkError": "Помилка підключення WalletConnect. Помилка підключення WalletConnect",
       "title": "Wallet connect",
       "activated": "Активовано",
-      "disabled": "Відключено"
+      "disabled": "Відключено",
+      "changeNetwork": "Зміна мережі"
     },
     "paymentAccounts": {
       "listTitle": "Платіжні рахунки",

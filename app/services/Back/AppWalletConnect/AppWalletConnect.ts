@@ -45,6 +45,7 @@ let WALLET_CONNECTOR_LINK: string | boolean = false
 
 let WEB3 = Web3Injected('mainnet')
 let MAIN_CURRENCY_CODE = 'ETH'
+let MAIN_CHAIN_ID = 1
 export namespace AppWalletConnect {
 
     const _getAccounts = async function(chainId = 0, throwErrorIfNoDict = true) {
@@ -61,11 +62,12 @@ export namespace AppWalletConnect {
 
         WEB3 = Web3Injected(chainId)
         MAIN_CURRENCY_CODE = WEB3.MAIN_CURRENCY_CODE
+        MAIN_CHAIN_ID = WEB3.MAIN_CHAIN_ID
         if (chainId !== 1 && MAIN_CURRENCY_CODE === 'ETH' && throwErrorIfNoDict) {
             throw new Error('Network ' + chainId + ' not supported')
         }
 
-        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' ' + WEB3.LINK)
+        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' id ' + MAIN_CHAIN_ID + WEB3.LINK)
         if (typeof accountList[walletHash][MAIN_CURRENCY_CODE] === 'undefined' && typeof accountList[walletHash]['ETH'] === 'undefined') {
             throw new Error('TURN ON ' + MAIN_CURRENCY_CODE)
         }
@@ -179,7 +181,7 @@ export namespace AppWalletConnect {
                 if (error) {
                     throw error
                 }
-                if (payload.method === 'wallet_addEthereumChain') {
+                if (payload.method === 'wallet_addEthereumChain' || payload.method === 'wallet_switchEthereumChain') {
                     autoChangeChain(payload)
                 } else if (payload.method === 'eth_signTypedData') {
                     sendSignTyped(JSON.parse(payload.params[1]), payload)
@@ -248,6 +250,34 @@ export namespace AppWalletConnect {
             await WALLET_CONNECTOR.approveRequest(resp)
         } catch (e) {
             Log.err('AppWalletConnect.autoChangeChain error ' + e.message)
+        }
+    }
+
+    export const manualChangeChain = async function (currencyCode: any) {
+        Log.log('AppWalletConnect.manualChangeChain ' + currencyCode)
+        try {
+            const accounts = await _getAccounts(currencyCode, true)
+            const tmp = []
+            for (const account of accounts) {
+                tmp.push(account.address)
+            }
+
+            WALLET_CONNECTOR.chainId = MAIN_CHAIN_ID
+            const data = {
+                accounts: tmp,
+                chainId: MAIN_CHAIN_ID && MAIN_CHAIN_ID> 0 ? MAIN_CHAIN_ID : 1
+            }
+            Log.log('AppWalletConnect.manualChangeChain will updateSession ' + JSON.stringify(data))
+            await WALLET_CONNECTOR.updateSession(data)
+        } catch (e) {
+            Log.err('AppWalletConnect.manualChangeChain _getAccount error ' + e.message)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: currencyCode + ' not supported'
+            })
+            return false
         }
     }
 

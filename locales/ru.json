@@ -74,7 +74,8 @@
       "linkError": "Ошибка подключения WalletConnect. Пожалуйста, проверьте правильность прямой ссылки",
       "title": "Wallet connect",
       "activated": "Активировано",
-      "disabled": "Отключено"
+      "disabled": "Отключено",
+      "changeNetwork": "Изменить Сеть"
     },
     "walletManagement": {
       "title": "Управление кошельками",
