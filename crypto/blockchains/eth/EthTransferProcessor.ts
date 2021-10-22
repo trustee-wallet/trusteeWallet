@@ -369,10 +369,17 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
             }
 
+            let gweiFee = 0
+            try {
+                gweiFee = newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : newGasPrice
+            } catch (e) {
+                BlocksoftCryptoLog.err('EthTxProcessor.getFeeRate newGasPrice to gwei error ' + e.message)
+            }
+
             const tmp = {
                 langMsg,
                 gasPrice: newGasPrice,
-                gasPriceGwei: newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : '0',
+                gasPriceGwei: gweiFee,
                 gasLimit: gasLimit.toString(),
                 feeForTx: fee.toString(),
                 nonceForTx,
@@ -449,10 +456,17 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         newGasPrice = BlocksoftUtils.round(newGasPrice)
                     }
 
+                    let gweiFee = 0
+                    try {
+                        gweiFee = newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : newGasPrice
+                    } catch (e) {
+                        BlocksoftCryptoLog.err('EthTxProcessor.getFeeRate newGasPrice2 to gwei error ' + e.message)
+                    }
+
                     const tmp = {
                         langMsg: title,
                         gasPrice: newGasPrice,
-                        gasPriceGwei: typeof newGasPrice !== 'undefined' && newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : '0',
+                        gasPriceGwei: gweiFee,
                         gasLimit: gasLimit.toString(),
                         feeForTx: fee.toString(),
                         amountForTx: amount,
@@ -508,10 +522,16 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 fee = fee.toString()
             }
             const needSpeed = typeof keys[index] !== 'undefined' && typeof gasPrice[keys[index]] !== 'undefined' ? gasPrice[keys[index]].toString() : '?'
+            let gweiFee = 0
+            try {
+                gweiFee = fee !== '0' ? BlocksoftUtils.toGwei(fee).toString() : fee
+            } catch (e) {
+                BlocksoftCryptoLog.err('EthTxProcessor.getFeeRate fee to gwei error ' + e.message)
+            }
             const tmp = {
                 langMsg: 'eth_speed_slowest',
                 gasPrice: fee,
-                gasPriceGwei: fee !== '0' ? BlocksoftUtils.toGwei(fee).toString() : fee,
+                gasPriceGwei: gweiFee,
                 gasLimit: gasLimit.toString(),
                 feeForTx,
                 amountForTx,
@@ -769,7 +789,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
                 logData.setNonce = oldNonce
                 tx.nonce = oldNonce
-                result = await sender.send(tx, privateData, txRBF, logData)
+                result = {transactionHash : '11111'} // await sender.send(tx, privateData, txRBF, logData)
                 if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
                     result.amountForTx = data.amount
                 }
@@ -821,7 +841,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
     async setMissingTx(data: BlocksoftBlockchainTypes.DbAccount, transaction: BlocksoftBlockchainTypes.DbTransaction): Promise<boolean> {
         if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson && typeof transaction.transactionJson.nonce !== 'undefined') {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferPRocessor.setMissingTx remove nonce ' + transaction.transactionJson.nonce + ' ' + transaction.transactionHash)
+            console.log(this._settings.currencyCode + ' EthTransferPRocessor.setMissingTx remove nonce ' + transaction.transactionJson.nonce + ' ' + transaction.transactionHash)
             await EthTmpDS.removeNonce(this._mainCurrencyCode, data.address, 'send_' + transaction.transactionHash)
         }
         MarketingEvent.logOnlyRealTime('v20_eth_tx_set_missing ' + this._settings.currencyCode + ' ' + data.address + ' => ' + transaction.addressTo, transaction)

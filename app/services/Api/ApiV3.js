@@ -299,7 +299,7 @@ export default {
                 console.log(new Date().toISOString() + ' ApiV3 setTBKStatus start axios ' + link + ' ' + transactionHash)
             }
             const res = await BlocksoftAxios.post(link, data, false)
-            if (typeof res.data.txs !== 'undefined') {
+            if (res && typeof res.data !== 'undefined' && typeof res.data.txs !== 'undefined') {
                 for (const tmp of  res.data.txs ) {
                     if (typeof tmp.txHash !== 'undefined' && tmp.txHash === transactionHash) {
                         found = tmp.isDisableTBK
@@ -313,7 +313,11 @@ export default {
             if (config.debug.appErrors) {
                 console.log(new Date().toISOString() + ' ApiV3 getTBKStatus e.response.data', e)
             }
-            Log.err('ApiV3 getTBKStatus e.response.data ' + e.response.data)
+            let msg =  e.message
+            if (typeof e.response !== 'undefined' && typeof e.response.data !== 'undefined') {
+                msg += ' ' + e.response.data
+            }
+            Log.err('ApiV3 getTBKStatus e.response.data ' + msg)
         }
         return found
     },

@@ -660,6 +660,9 @@ class AccountTransactionScreen extends PureComponent {
         if (account.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
             return false
         }
+        if (!transaction.addressTo || transaction.addressTo === '') {
+            transaction.addressTo = transaction.basicAddressTo || account.address
+        }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
             Log.log('AccountTransactionScreen.renderReplaceByFee could not replace', { account, transaction })
             return false
@@ -690,7 +693,12 @@ class AccountTransactionScreen extends PureComponent {
                         setLoaderStatus(false)
                         return false
                     }
-                    await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
+                    try {
+                        await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
+                    } catch (e) {
+                        e.message += ' while SendActionsStart.startFromTransactionScreenBoost'
+                        throw e
+                    }
                 } catch (e) {
                     if (config.debug.appErrors) {
                         console.log('AccountTransactionScreen.renderReplaceByFee error ' + e.message )

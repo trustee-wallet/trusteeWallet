@@ -32,8 +32,10 @@ class SendAdvancedFees extends React.PureComponent {
             }
         } else if (typeof item.gasPrice !== 'undefined') {
             devFee = BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.toGwei(item.gasPrice), 2).justCutted + ' gwei/gas '
-            if (needSpeed) {
+            if (needSpeed && needSpeed !== '?') {
                 needSpeed = ' rec. ' + BlocksoftPrettyNumbers.makeCut(BlocksoftUtils.toGwei(needSpeed), 2).justCutted + ' gwei/gas'
+            } else {
+                needSpeed = ''
             }
         }
         if (typeof item.blockchainData !== 'undefined' && item.blockchainData && typeof item.blockchainData.preparedInputsOutputs !== 'undefined') {
