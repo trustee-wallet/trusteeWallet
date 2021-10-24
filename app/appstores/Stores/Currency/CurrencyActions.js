@@ -104,7 +104,11 @@ const currencyActions = {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'BNB_SMART', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'ETH_ERC_20' || tokenType === 'ETHEREUM') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'ETH', newIsHidden : 0, currentIsHidden : 0})
+        } else if (tokenType === 'MATIC_ERC_20' || tokenType === 'MATIC') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'MATIC', newIsHidden : 0, currentIsHidden : 0})
         }
+
+
     },
 
     addCurrency: async (currencyToAdd, isHidden = 0, isLoader = 1) => {
@@ -220,7 +224,7 @@ const currencyActions = {
         Log.log('ACT/Currency toggleCurrencyVisibility called ', params)
 
         try {
-            
+
             let { walletNumber } = store.getState().mainStore.selectedWallet
             if (typeof walletNumber === 'undefined' || !walletNumber) {
                 walletNumber = 1

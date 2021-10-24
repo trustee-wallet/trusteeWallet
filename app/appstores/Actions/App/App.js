@@ -123,7 +123,7 @@ class App {
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
 
-            Daemon.start()
+                // Daemon.start()
             // console.log(new Date().toISOString() + ' done')
 
         } catch (e) {

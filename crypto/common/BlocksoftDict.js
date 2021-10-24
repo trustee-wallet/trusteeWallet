@@ -110,6 +110,13 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.tokenBlockchain = 'BNB'
         tmp.currencyExplorerLink = 'https://bscscan.com/token/' + currencyObject.tokenAddress + '?a='
+    } else if (currencyObject.tokenType === 'MATIC_ERC_20') {
+        tmp.currencyCode = 'CUSTOM_MATIC_ERC_20_' + currencyObject.currencyCode
+        tmp.extendsProcessor = 'MATIC_USDT'
+        tmp.addressUiChecker = 'ETH'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'MATIC'
+        tmp.currencyExplorerLink = 'https://polygonscan.com/token/' + currencyObject.tokenAddress + '?a='
     } else if (currencyObject.tokenType === 'SOL') {
         tmp.currencyCode = 'CUSTOM_SOL_' + currencyObject.currencyCode
         tmp.extendsProcessor = 'SOL_RAY'

@@ -127,7 +127,8 @@ export default class EthBasic {
             this._mainTokenType = 'AMB_ERC_20'
             this._mainTokenBlockchain = 'Ambrosus Network'
             this._mainChainId = 16718 // 0x414e
-        } else if (settings.currencyCode === 'MATIC') {
+        } else if (settings.currencyCode === 'MATIC' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'MATIC')) {
+
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`

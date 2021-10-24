@@ -133,7 +133,8 @@ export async function addCustomToken(tokenAddress, tokenType ) {
 
     setLoaderStatus(true)
 
-    let checked
+    let checked = false
+    let todoArray = []
     try {
         for (const dict in BlocksoftDict.Currencies) {
             if (
@@ -161,30 +162,34 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             tokenType,
             tokenAddress
         })
-        let checked2 = false
+        Log.log('AddCustomTokenScreen.addToken checked ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked))
+        if (checked) {
+           todoArray.push({ tokenType, checked })
+        }
+
         if (tokenType === 'ETH_ERC_20') {
-            checked2 = await customCurrencyActions.checkCustomCurrency({
+            const checked2 = await customCurrencyActions.checkCustomCurrency({
                 tokenType: 'BNB_SMART_20',
                 tokenAddress
             })
+            Log.log('AddCustomTokenScreen.addToken checked2 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked2))
+            if (checked2) {
+                todoArray.push({ tokenType : 'BNB_SMART_20', checked: checked2})
+            }
+
+            const checked3 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'MATIC_ERC_20',
+                tokenAddress
+            })
+            Log.log('AddCustomTokenScreen.addToken checked3 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked3))
+            if (checked3) {
+                todoArray.push({ tokenType : 'MATIC_ERC_20', checked : checked3})
+            }
         }
 
-        Log.log('AddCustomTokenScreen.addToken checked ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked))
-        Log.log('AddCustomTokenScreen.addToken checked2 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked2))
 
-        if (checked2) {
-            if (checked) {
-                await _actualAdd(checked, tokenType, false)
-                return _actualAdd(checked2, 'BNB_SMART_20', true)
-            } else {
-                checked = checked2
-                tokenType = 'BNB_SMART_20'
-                return _actualAdd(checked, tokenType)
-            }
-        } else if (checked) {
-            return _actualAdd(checked, tokenType)
-
-        } else {
+        const ic = todoArray.length
+        if (ic === 0) {
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -194,6 +199,11 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             setLoaderStatus(false)
             return { searchQuery: false }
         }
+
+        for (let i = 0; i<ic - 1; i++) {
+            await _actualAdd(todoArray[i].checked, todoArray[i].tokenType, false)
+        }
+        return _actualAdd(todoArray[ic - 1].checked, todoArray[ic - 1].tokenType, true)
 
     } catch (e) {
 
