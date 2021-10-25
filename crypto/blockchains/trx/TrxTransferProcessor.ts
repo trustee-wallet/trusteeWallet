@@ -19,6 +19,7 @@ import { strings, sublocale } from '@app/services/i18n'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import BlocksoftTransactions from '@crypto/actions/BlocksoftTransactions/BlocksoftTransactions'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 // https://developers.tron.network/docs/parameter-and-return-value-encoding-and-decoding
 const ethers = require('ethers')
@@ -28,7 +29,6 @@ const AbiCoder = ethers.utils.AbiCoder
 
 export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: any
-    private _tronNodePath: string
     private _tronscanProvider: TrxTronscanProvider
     private _trongridProvider: TrxTrongridProvider
     private _tokenName: string
@@ -37,7 +37,6 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     constructor(settings: any) {
         this._settings = settings
-        this._tronNodePath = 'https://api.trongrid.io'
         this._tronscanProvider = new TrxTronscanProvider()
         this._trongridProvider = new TrxTrongridProvider()
         this._tokenName = '_'
@@ -48,7 +47,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 this._isToken20 = true
             }
         }
-        this.sendProvider = new TrxSendProvider(this._settings, this._tronNodePath)
+        this.sendProvider = new TrxSendProvider(this._settings, 'TRX')
     }
 
     needPrivateForFee(): boolean {
@@ -201,6 +200,8 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
         logData.basicToken = this._tokenName
 
+
+        const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
         let tx
         if (typeof data.blockchainData !== 'undefined' && data.blockchainData) {
             tx = data.blockchainData
@@ -219,9 +220,8 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     e.message += ' inside TronUtils.addressToHex owner_address ' + data.addressFrom
                     throw e
                 }
-                const link = this._tronNodePath + '/wallet/triggersmartcontract'
 
-
+                const link = nodeLink + '/wallet/triggersmartcontract'
                 const total = data.dexOrderData.length
                 let index = 0
                 for (const order of data.dexOrderData) {
@@ -293,7 +293,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                             throw e
                         }
 
-                        const linkRecheck = 'https://api.trongrid.io/wallet/gettransactioninfobyid'
+                        const linkRecheck = nodeLink + '/wallet/gettransactioninfobyid'
                         let checks = 0
                         let mined = false
                         do {
@@ -365,7 +365,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 }
 
                 if (this._tokenName[0] === 'T') {
-                    link = this._tronNodePath + '/wallet/triggersmartcontract'
+                    link = nodeLink + '/wallet/triggersmartcontract'
                     const parameter = '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(BlocksoftUtils.round(data.amount), 20)
                     params = {
                         owner_address: ownerAddress,
@@ -386,12 +386,13 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     }
 
                     if (this._tokenName === '_') {
-                        link = this._tronNodePath + '/wallet/createtransaction'
+                        link = nodeLink + '/wallet/createtransaction'
                     } else {
                         // @ts-ignore
                         params.asset_name = '0x' + Buffer.from(this._tokenName).toString('hex')
-                        link = this._tronNodePath + '/wallet/transferasset'
+                        link = nodeLink + '/wallet/transferasset'
                     }
+
                     try {
                         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx inited2 ' + data.addressFrom + ' => ' + data.addressTo + ' ' + link, params)
                         res = await BlocksoftAxios.post(link, params)
