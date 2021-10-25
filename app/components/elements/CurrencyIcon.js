@@ -25,6 +25,8 @@ export default class ButtonLine extends PureComponent {
             return 'TRX'
         } else if (currencyCode.indexOf('SOL_') !== -1) {
             return 'SOL'
+        } else if (currencyCode.indexOf('MATIC_') !== -1) {
+            return 'ETH_MATIC'
         }
     }
 
@@ -40,6 +42,8 @@ export default class ButtonLine extends PureComponent {
                 return 'BNB_SMART'
             case 'SOLANA':
                 return 'SOL'
+            case 'MATIC':
+                return 'ETH_MATIC'
             default:
                 return null
         }
@@ -128,10 +132,6 @@ export default class ButtonLine extends PureComponent {
 
         if (setBackground && currencyCode) {
             tmpContainerStyle.backgroundColor = colorDict[currencyCode]?.colors[isLight ? 'mainColor' : 'darkColor'] + '1A'
-        }
-
-        if (typeof colorDict[currencyCode] === 'undefined') {
-            return <></>
         }
 
         switch (currencyCode) {
@@ -699,7 +699,6 @@ export default class ButtonLine extends PureComponent {
         if (typeof extend.addressCurrencyCode !== 'undefined') {
             const blockChain = this.getTokenBlockchain(extend.tokenBlockchain)
             const blockChainColors = extend.tokenBlockchain === 'BNB' ? colorDict['BNB_SMART'] : colorDict[blockChain]
-
             if (typeof blockChainColors === 'undefined') {
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict['XRP'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
