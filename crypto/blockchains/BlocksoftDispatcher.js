@@ -52,7 +52,6 @@ import FioScannerProcessor from './fio/FioScannerProcessor'
 
 import BnbAddressProcessor from './bnb/BnbAddressProcessor'
 import BnbScannerProcessor from './bnb/BnbScannerProcessor'
-import BnbSmartScannerProcessorErc20 from './bnb_smart/BnbSmartScannerProcessorErc20'
 import VetScannerProcessor from '@crypto/blockchains/vet/VetScannerProcessor'
 
 import SolAddressProcessor from '@crypto/blockchains/sol/SolAddressProcessor'
@@ -139,8 +138,6 @@ class BlocksoftDispatcher {
                 return new EthScannerProcessor(currencyDictSettings)
             case 'ETH_ERC_20':
                 return new EthScannerProcessorErc20(currencyDictSettings)
-            case 'BNB_SMART_20':
-                return new BnbSmartScannerProcessorErc20(currencyDictSettings)
             case 'ETH_SOUL':
                 return new EthScannerProcessorSoul(currencyDictSettings)
             case 'LTC':
@@ -184,6 +181,8 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain: 'ETHEREUM' })
             case 'BNB_SMART_20':
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'BNB' })
+            case 'MATIC_ERC_20':
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'MATIC' })
             case 'TRX':
                 return new TrxTokenProcessor()
             case 'SOL':

@@ -8,7 +8,8 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    View
+    View,
+    TouchableOpacity
 } from 'react-native'
 
 import { connect } from 'react-redux'
@@ -51,7 +52,8 @@ import {
     handleSendSignTyped,
     handleSendTransaction,
     handleSessionRequest,
-    handleStop
+    handleStop,
+    NETWORKS_SETTINGS
 } from '@app/modules/WalletConnect/helpers'
 
 
@@ -104,8 +106,8 @@ class WalletConnectScreen extends PureComponent {
         handleSendSignTyped.call(this, data, payload)
     }
 
-    handleTransactionSend = (data, payload) => {
-        handleSendTransaction.call(this, data, payload)
+    handleTransactionSend = (data, payload, mainCurrencyCode) => {
+        handleSendTransaction.call(this, data, payload, mainCurrencyCode)
     }
 
     handleRequest = (data) => {
@@ -217,17 +219,17 @@ class WalletConnectScreen extends PureComponent {
         })
     }
 
+    handleChangeNetwork = (currencyCode) => {
+        NavStore.goNext('WalletConnectChangeNetworkScreen')
+    }
+
     getNetwork = (currencyCode) => {
-        switch (currencyCode) {
-            case 'ETH':
-                return 'Mainnet'
-            case 'ETH_ROPSTEN':
-                return 'Ropsten'
-            case 'ETH_RINKEBY':
-                return 'Rinkeby'
-            default:
-                return currencyCode
+        for (const tmp of NETWORKS_SETTINGS) {
+            if (tmp.currencyCode === currencyCode) {
+                return tmp.networkTitle
+            }
         }
+        return currencyCode
     }
 
     render() {
@@ -268,13 +270,20 @@ class WalletConnectScreen extends PureComponent {
                                     }} /> : null
                                 }
                             </View>
-                            {this.props.walletConnectData.mainCurrencyCode && peerStatus &&
-                                <View style={[styles.network, { right: GRID_SIZE }]}>
-                                    <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
-                                        {this.getNetwork(this.props.walletConnectData.mainCurrencyCode)}
-                                    </Text>
-                                </View>
+                            { this.props.walletConnectData.mainCurrencyCode && peerStatus &&
+                                <TouchableOpacity
+                                    style={[styles.network, { right: GRID_SIZE }]}
+                                    onPress={this.handleChangeNetwork}
+                                    activeOpacity={0.8}
+                                >
+                                        <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
+                                            {this.getNetwork(this.props.walletConnectData.mainCurrencyCode)}
+                                        </Text>
+                                </TouchableOpacity>
                             }
+
+
+
                             <View style={{ marginBottom: GRID_SIZE * 2, marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }}>
                                 {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
                                     <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
@@ -471,5 +480,5 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 2,
         borderColor: '#999999'
-    }
+    },
 })

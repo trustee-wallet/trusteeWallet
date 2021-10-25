@@ -41,7 +41,6 @@ import Toast from '@app/services/UI/Toast/Toast'
 import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
 
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 
 let CACHE_IS_COUNTING = false
@@ -162,19 +161,13 @@ class ReceiptScreen extends PureComponent {
         }
 
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
-        const { uiType, payload, walletConnectData } = this.props.sendScreenStore.ui
+        const { uiType } = this.props.sendScreenStore.ui
 
         let tx = false
         let e = false
         try {
             if (uiType === 'WALLET_CONNECT') {
-                // @ksu plz check this
-                const data = walletConnectData
-                data.gasPrice = BlocksoftUtils.decimalToHexWalletConnect(selectedFee.gasPrice)
-                data.gas = BlocksoftUtils.decimalToHexWalletConnect(selectedFee.gasLimit)
-                
-                tx = await AppWalletConnect.approveRequest(data ,payload)
-
+                tx = await AppWalletConnect.approveRequest(this.props.sendScreenStore)
             } else {
                 tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)
             }
@@ -266,17 +259,17 @@ class ReceiptScreen extends PureComponent {
         UpdateOneByOneDaemon.unstop()
         UpdateAccountListDaemon.unstop()
         await SendActionsEnd.endClose(this.props.sendScreenStore)
-        const { uiType, payload } = this.props.sendScreenStore.ui
+        const { uiType, walletConnectPayload } = this.props.sendScreenStore.ui
         if (uiType === 'TRADE_SEND') {
             NavStore.goBack()
         } else {
             if (uiType === 'WALLET_CONNECT') {
                 try {
-                    await AppWalletConnect.rejectRequest(payload)
+                    await AppWalletConnect.rejectRequest(walletConnectPayload)
                 } catch (e) {
-                    Log.log('ReceiptScreen.closeAction WALLET_CONNECT error', e)
+                    Log.log('ReceiptScreen.closeAction WALLET_CONNECT error ' + e)
                 }
-                
+
             }
             NavStore.reset('HomeScreen')
         }
@@ -286,13 +279,15 @@ class ReceiptScreen extends PureComponent {
         UpdateOneByOneDaemon.unstop()
         UpdateAccountListDaemon.unstop()
 
-        const { uiType, payload } = this.props.sendScreenStore.ui
+        const { uiType, walletConnectPayload } = this.props.sendScreenStore.ui
         if (uiType === 'WALLET_CONNECT') {
             try {
-                await AppWalletConnect.rejectRequest(payload)
+                await AppWalletConnect.rejectRequest(walletConnectPayload)
             } catch (e) {
-                Log.log('ReceiptScreen.backAction WALLET_CONNECT error', e)
+                Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e)
             }
+        } else if (uiType === 'TRADE_SEND') {
+            await SendActionsEnd.endClose(this.props.sendScreenStore)
         }
 
         NavStore.goBack()

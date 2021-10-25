@@ -12,6 +12,20 @@ import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
+import store from '@app/store'
+
+export const NETWORKS_SETTINGS = [
+    {currencyCode : 'ETH', networkTitle : 'Mainnet'},
+    {currencyCode: 'MATIC', networkTitle: 'Polygon (Matic)'},
+    {currencyCode : 'BNB_SMART', networkTitle : 'BNB Smart Chain'},
+    {currencyCode : 'OPTIMISM', networkTitle : 'Optimism'},
+    {currencyCode : 'ETC', networkTitle : 'Ethereum Classic'},
+    {currencyCode: 'AMB', networkTitle: 'Ambrosus'},
+    {currencyCode : 'ETH_ROPSTEN', networkTitle : 'Ropsten'},
+    {currencyCode : 'ETH_RINKEBY', networkTitle : 'Rinkeby'},
+]
+
+
 
 
 export async function handleParanoidLogout(isConnected, func) {
@@ -100,11 +114,36 @@ export function handleSessionRequest(data) {
     })
 }
 
-export async function handleSendTransaction(data, payload) {
+export async function handleSendTransaction(data, payload, mainCurrencyCode) {
+    const { cryptoCurrencies } = store.getState().currencyStore
+    let found = false
+    for (const cryptoCurrency of cryptoCurrencies) {
+        if (cryptoCurrency.currencyCode == mainCurrencyCode) {
+            found = true
+            continue
+        }
+    }
+    if (!found) {
+        let title = mainCurrencyCode
+        for (const tmp of NETWORKS_SETTINGS) {
+            if (tmp.currencyCode === mainCurrencyCode) {
+                title = tmp.networkTitle
+            }
+        }
+        showModal({
+            type: 'YES_NO_MODAL',
+            icon: 'WARNING',
+            title: strings('modal.exchange.sorry'),
+            description: strings('settings.walletConnect.turnBasicAsset', {asset : title}),
+        }, () => {
+            NavStore.goNext('AddAssetScreen')
+        })
+        return false
+    }
     await SendActionsStart.startFromWalletConnect({
-        currencyCode: 'ETH',
+        currencyCode: mainCurrencyCode,
         walletConnectData: data,
-        payload
+        walletConnectPayload : payload
     })
 }
 

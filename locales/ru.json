@@ -74,7 +74,9 @@
       "linkError": "Ошибка подключения WalletConnect. Пожалуйста, проверьте правильность прямой ссылки",
       "title": "Wallet connect",
       "activated": "Активировано",
-      "disabled": "Отключено"
+      "disabled": "Отключено",
+      "changeNetwork": "Изменить Сеть",
+      "turnBasicAsset" : "Для WalletConnect Вам необходимо добавить %{asset}, так как он используется для этой транзакции"
     },
     "walletManagement": {
       "title": "Управление кошельками",
@@ -262,7 +264,7 @@
     "tabCustom": "Еще",
     "searchPlaceholder": "Поиск",
     "addCustomPlaceholder": "Адрес актива",
-    "addCustomLabel": "Вы можете добавить стандартный токен, разработанный на блокчейне Ethereum, BNB, Solana или Tron. Введите или сканируйте новый токен/актив.",
+    "addCustomLabel": "Вы можете добавить стандартный токен, разработанный на блокчейне Ethereum, BNB, Polygon, Solana или Tron. Введите или сканируйте новый токен/актив.",
     "noAssetsFound": "Активы не найдены",
     "addAssetButton": "Добавить актив",
     "mainTitle": "Добавить актив",
@@ -754,7 +756,7 @@
       "SERVER_RESPONSE_BAD_INTERNET" : "Нет доступа к интернету",
       "SERVER_RESPONSE_BAD_TX_TO_REPLACE" : "Транзакция не найдена, пожалуйста, проверьте доступ к интернету. Возможны задержки в отображении информации",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Недостаточно средств нативной монеты %{symbol} для оплаты комиссии сети",
-      "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Only dust inputs - couldnt process - please use \"Send All\" to collect them together",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Ваш кошелек накопил много входящих транзакций с маленькими суммами. Пожалуйста, используйте кнопку \"Send All\" для корректной отправки транзакции",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Не удалось проверить баланс нативной монеты (%{symbol}). Пожалуйста, проверьте доступ к интернету!",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Слишком маленькая сумма для транзакции",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Недостаточно средств для отправки транзакции",

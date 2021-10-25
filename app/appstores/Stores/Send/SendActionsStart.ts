@@ -5,11 +5,12 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
-import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
+import { getFeeRate, SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
 import store from '@app/store'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { setLoaderFromBse, setLoaderStatus } from '../Main/MainStoreActions'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 const { dispatch } = store
 
@@ -39,6 +40,7 @@ const findWalletPlus = function(currencyCode: string): { wallet: any, cryptoCurr
 const formatDict = async function(cryptoCurrency : any, account : any) {
     const dict = {
         inputType : '',
+        derivationPath : account.derivationPath,
         decimals : cryptoCurrency.decimals,
         extendsProcessor : cryptoCurrency.extendsProcessor,
         addressUiChecker : cryptoCurrency.addressUiChecker,
@@ -78,26 +80,29 @@ export namespace SendActionsStart {
     export const startFromWalletConnect = async (data : {
         currencyCode : string,
         walletConnectData : any,
-        payload : any
+        walletConnectPayload : any
     }) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        if (typeof account.derivationPath === 'undefined') {
+            throw new Error('SendActionsStart.startFromWalletConnect required account.derivationPath')
+        }
         const dict = await formatDict(cryptoCurrency, account)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
-        
         const ui =  {
             uiType : 'WALLET_CONNECT',
+            cryptoValue : data.walletConnectData.value ? BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value) : 0,
             addressTo : data.walletConnectData.to,
             walletConnectData : data.walletConnectData,
-            payload : data.payload
+            walletConnectPayload : data.walletConnectPayload
         }
         dispatch({
             type: 'RESET_DATA',
             ui,
             dict
         })
-        
-        await SendActionsBlockchainWrapper.getFeeRateFromWalletConnect(ui)
-        
+
+        await SendActionsBlockchainWrapper.getFeeRate(ui)
+
         NavStore.goNext('ReceiptScreen')
     }
 

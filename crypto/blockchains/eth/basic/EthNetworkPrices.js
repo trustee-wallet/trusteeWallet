@@ -51,11 +51,6 @@ class EthNetworkPrices {
         let index = 0
         do {
             try {
-                console.log({
-                    address,
-                    logData,
-                    marketingData: MarketingEvent.DATA
-                })
                 checkResult = await BlocksoftAxios.post(proxy, {
                     address,
                     logData,
@@ -170,7 +165,6 @@ class EthNetworkPrices {
         let link = `${ESTIMATE_PATH}`
         let tmp = false
         try {
-            console.log('link ' + link)
             tmp = await BlocksoftAxios.getWithoutBraking(link, ESTIMATE_MAX_TRY)
             if (tmp.data && tmp.data.fastest) {
                 if (typeof tmp.data.gasPriceRange !== 'undefined') {

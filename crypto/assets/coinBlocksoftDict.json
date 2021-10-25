@@ -304,7 +304,7 @@
 	},
 	"ETH_AAVE": {
 		"currencyType": "token",
-		"currencyName": "Aave Token",
+		"currencyName": "Aave ERC20",
 		"currencyCode": "ETH_AAVE",
 		"currencySymbol": "AAVE",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -315,6 +315,19 @@
 		"tokenAddress": "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9",
 		"currencyExplorerLink": "https://etherscan.io/token/0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+	"MATIC_AAVE": {
+		"currencyType": "token",
+		"currencyName": "AAVE Matic (Polygon)",
+		"currencyCode": "MATIC_AAVE",
+		"currencySymbol": "AAVE",
+		"ratesCurrencyCode": "AAVE",
+		"extendsProcessor": "MATIC_USDT",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0xd6df932a45c0f255f85145f286ea0b292b21c90b",
+		"decimals": 18,
+		"tokenBlockchain": "MATIC",
+		"currencyExplorerLink": "https://polygonscan.com/token/0xd6df932a45c0f255f85145f286ea0b292b21c90b?a="
 	},
 	"ASH": {
 		"currencyType": "coin",
@@ -823,6 +836,19 @@
 		"tokenBlockchain": "BNB",
 		"currencyExplorerLink": "https://bscscan.com/token/0x2170ed0880ac9a755fd29b2688956bd959f933f8?a="
 	},
+	"MATIC_ETH": {
+		"currencyType": "token",
+		"currencyName": "ETH Matic (Polygon)",
+		"currencyCode": "MATIC_ETH",
+		"currencySymbol": "ETH",
+		"ratesCurrencyCode": "ETH",
+		"extendsProcessor": "MATIC_USDT",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+		"decimals": 18,
+		"tokenBlockchain": "MATIC",
+		"currencyExplorerLink": "https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619?a="
+	},
 	"TRX_ETH": {
 		"currencyType": "token",
 		"currencyName": "ETH TRC20",
@@ -1238,7 +1264,7 @@
 		"currencyIcon": "BNB",
 		"currencySymbol": "CAKE",
 		"addressProcessor": "ETH",
-		"scannerProcessor": "BNB_SMART_20",
+		"scannerProcessor": "ETH_ERC_20",
 		"transferProcessor": "BNB_SMART_20",
 		"prettyNumberProcessor": "ETH_ERC_20",
 		"addressCurrencyCode": "ETH",
@@ -1282,6 +1308,19 @@
 		"decimals": 18,
 		"currencyExplorerLink": "https://polygonscan.com/address/",
 		"currencyExplorerTxLink": "https://polygonscan.com/tx/"
+	},
+	"MATIC_WMATIC": {
+		"currencyType": "token",
+		"currencyName": "Wrapped Matic (Polygon)",
+		"currencyCode": "MATIC_WMATIC",
+		"currencySymbol": "WMATIC",
+		"ratesCurrencyCode": "MATIC",
+		"extendsProcessor": "MATIC_USDT",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+		"decimals": 18,
+		"tokenBlockchain": "MATIC",
+		"currencyExplorerLink": "https://polygonscan.com/token/0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270?a="
 	},
 	"SOL_RAY": {
 		"currencyType": "token",
@@ -1628,6 +1667,19 @@
 		"tokenBlockchain": "BNB",
 		"currencyExplorerLink": "https://bscscan.com/token/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d?a="
 	},
+	"MATIC_USDC": {
+		"currencyType": "token",
+		"currencyName": "USDC Matic (Polygon)",
+		"currencyCode": "MATIC_USDC",
+		"currencySymbol": "USDC",
+		"ratesCurrencyCode": "USDC",
+		"extendsProcessor": "MATIC_USDT",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+		"decimals": 6,
+		"tokenBlockchain": "MATIC",
+		"currencyExplorerLink": "https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174?a="
+	},
 	"SOL_USDC": {
 		"currencyType": "token",
 		"currencyName": "USDC Solana",
@@ -1641,6 +1693,27 @@
 		"tokenAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 		"currencyExplorerLink": "https://explorer.solana.com/address/",
 		"currencyExplorerTxLink": "https://explorer.solana.com/tx/"
+	},
+	"MATIC_USDT": {
+		"currencyType": "token",
+		"currencyName": "USDT Matic (Polygon)",
+		"currencyCode": "MATIC_USDT",
+		"currencyIcon": "USDT",
+		"currencySymbol": "USDT",
+		"addressProcessor": "ETH",
+		"scannerProcessor": "ETH_ERC_20",
+		"transferProcessor": "BNB_SMART_20",
+		"prettyNumberProcessor": "ETH_ERC_20",
+		"addressCurrencyCode": "ETH",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "USDT",
+		"feesCurrencyCode": "MATIC",
+		"network": "mainnet",
+		"decimals": 6,
+		"tokenBlockchain": "MATIC",
+		"tokenAddress": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+		"currencyExplorerLink": "https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f?a=",
+		"currencyExplorerTxLink": "https://polygonscan.com/tx/"
 	},
 	"SOL_USDT": {
 		"currencyType": "token",

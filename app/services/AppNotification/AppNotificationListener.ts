@@ -25,7 +25,7 @@ import ApiProxyLoad from '@app/services/Api/ApiProxyLoad'
 
 const CACHE_VALID_TIME = 120000000 // 2000 minute
 
-const DEBUG_NOTIFS = false
+const DEBUG_NOTIFS = true
 
 const TOPICS = ['transactions', 'exchangeRates', 'news']
 
@@ -99,7 +99,7 @@ export default new class AppNotificationListener {
             const sub = sublocale(lang.code)
             if (sub === locale) {
                 if (DEBUG_NOTIFS) {
-                    Log.log('PUSH subscribe ' + topic + ' lang ' + locale)
+                    Log.log('PUSH subscribe ' + topic + ' lang ' + locale + ' isDEV ' + (isDev ? ' true ' : ' false '))
                 }
                 await messaging().subscribeToTopic(topic)
                 await messaging().subscribeToTopic(topic + '_' + locale)
@@ -119,7 +119,7 @@ export default new class AppNotificationListener {
                 }
             } else {
                 if (DEBUG_NOTIFS) {
-                    Log.log('PUSH subscribe ' + topic + ' unlang ' + sub)
+                    Log.log('PUSH subscribe ' + topic + ' unlang ' + sub + ' isDEV ' + (isDev ? ' true ' : ' false '))
                 }
                 await messaging().unsubscribeFromTopic(topic + '_' + sub)
                 await messaging().unsubscribeFromTopic(topic + '_dev_' + sub)
@@ -197,9 +197,15 @@ export default new class AppNotificationListener {
 
     async updateSubscriptions(fcmToken: string = ''): Promise<void> {
         if (!this.inited) {
+            if (DEBUG_NOTIFS) {
+                Log.log('PUSH updateSubscriptions NOT INITIED')
+            }
             return
         }
         if (fcmToken && fcmToken.indexOf('NO_GOOGLE') !== -1) {
+            if (DEBUG_NOTIFS) {
+                Log.log('PUSH updateSubscriptions NO_GOOGLE')
+            }
             return
         }
         if (DEBUG_NOTIFS) {
@@ -212,7 +218,7 @@ export default new class AppNotificationListener {
         const notifsStatus = settings && typeof settings.notifsStatus !== 'undefined' && settings.notifsStatus ? settings.notifsStatus : '1'
         const locale = settings && typeof settings.language !== 'undefined' && settings.language ? sublocale(settings.language) : sublocale()
         if (DEBUG_NOTIFS) {
-            Log.log('settings ' + settings.language + ' locale ' + locale)
+            Log.log('PUSH updateSubscriptions currentSettings ' + settings.language + ' locale ' + locale)
         }
         const isDev = trusteeAsyncStorage.getDevMode()
 

@@ -98,7 +98,7 @@ export default class XmrAddressProcessor {
                 generated_locally: true
             }
             const resLogin = await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin)
-            if (typeof resLogin.data === 'undefined' || !resLogin.data) {
+            if (typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
                 throw new Error('no data')
             }
         } catch (e) {

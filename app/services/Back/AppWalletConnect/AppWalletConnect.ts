@@ -45,6 +45,7 @@ let WALLET_CONNECTOR_LINK: string | boolean = false
 
 let WEB3 = Web3Injected('mainnet')
 let MAIN_CURRENCY_CODE = 'ETH'
+let MAIN_CHAIN_ID = 1
 export namespace AppWalletConnect {
 
     const _getAccounts = async function(chainId = 0, throwErrorIfNoDict = true) {
@@ -61,11 +62,12 @@ export namespace AppWalletConnect {
 
         WEB3 = Web3Injected(chainId)
         MAIN_CURRENCY_CODE = WEB3.MAIN_CURRENCY_CODE
-        if (chainId !== 1 && MAIN_CURRENCY_CODE === 'ETH' && throwErrorIfNoDict) {
+        MAIN_CHAIN_ID = WEB3.MAIN_CHAIN_ID
+        if (chainId !== 1 && chainId !== 'ETH' && MAIN_CURRENCY_CODE === 'ETH' && throwErrorIfNoDict) {
             throw new Error('Network ' + chainId + ' not supported')
         }
 
-        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' ' + WEB3.LINK)
+        Log.log('AppWalletConnect._getAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' id ' + MAIN_CHAIN_ID + WEB3.LINK)
         if (typeof accountList[walletHash][MAIN_CURRENCY_CODE] === 'undefined' && typeof accountList[walletHash]['ETH'] === 'undefined') {
             throw new Error('TURN ON ' + MAIN_CURRENCY_CODE)
         }
@@ -179,14 +181,14 @@ export namespace AppWalletConnect {
                 if (error) {
                     throw error
                 }
-                if (payload.method === 'wallet_addEthereumChain') {
+                if (payload.method === 'wallet_addEthereumChain' || payload.method === 'wallet_switchEthereumChain') {
                     autoChangeChain(payload)
                 } else if (payload.method === 'eth_signTypedData') {
                     sendSignTyped(JSON.parse(payload.params[1]), payload)
                 } else if (payload.method === 'personal_sign') {
                     sendSign(BlocksoftUtils.hexToUtf(payload.params[0]), payload)
                 } else if (payload.method === 'eth_sendTransaction') {
-                    sendTx(payload.params[0], payload)
+                    sendTx(payload.params[0], payload, MAIN_CURRENCY_CODE)
                 } else {
                     Log.log('AppWalletConnect.on call_request unknown method')
                     throw new Error('Please call developers to add support of method: ' + payload.method)
@@ -251,38 +253,75 @@ export namespace AppWalletConnect {
         }
     }
 
-    export const approveRequest = async function(data: ITxData, payload: any) {
+    export const manualChangeChain = async function (currencyCode: any) {
+        Log.log('AppWalletConnect.manualChangeChain ' + currencyCode)
         try {
-            Log.log('AppWalletConnect.approveRequest', data, payload)
-            const { chainId } = payload
-            const accounts = await _getAccounts(chainId)
-            const account = accounts[0]
+            const accounts = await _getAccounts(currencyCode, true)
+            const tmp = []
+            for (const account of accounts) {
+                tmp.push(account.address)
+            }
+
+            WALLET_CONNECTOR.chainId = MAIN_CHAIN_ID
+            const data = {
+                accounts: tmp,
+                chainId: MAIN_CHAIN_ID && MAIN_CHAIN_ID> 0 ? MAIN_CHAIN_ID : 1
+            }
+            Log.log('AppWalletConnect.manualChangeChain will updateSession ' + JSON.stringify(data))
+            await WALLET_CONNECTOR.updateSession(data)
+        } catch (e) {
+            Log.err('AppWalletConnect.manualChangeChain _getAccount error ' + e.message)
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: currencyCode + ' not supported'
+            })
+            return false
+        }
+    }
+
+    export const approveRequest = async function(sendScreenStore: any) {
+        try {
+
+            const { dict } = sendScreenStore
+            const { selectedFee } = sendScreenStore.fromBlockchain
+            const { walletConnectData, walletConnectPayload } = sendScreenStore.ui
+
             const discoverFor = {
-                addressToCheck: data.from,
-                derivationPath: account.derivationPath,
-                walletHash: account.walletHash,
-                currencyCode: account.currencyCode
+                addressToCheck: dict.addressFrom,
+                derivationPath: dict.derivationPath,
+                walletHash: dict.walletHash,
+                currencyCode: dict.currencyCode
             }
             const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'AppWalletConnect')
+            const tmpWeb3 = Web3Injected(dict.currencyCode)
+            walletConnectData.gas = selectedFee.gasLimit
+            walletConnectData.gasPrice = selectedFee.gasPrice
+            let nonce = false
+            if (typeof selectedFee.nonceForTx !== 'undefined' && selectedFee.nonceForTx) {
+                nonce = selectedFee.nonceForTx
+                walletConnectData.nonce = selectedFee.nonceForTx
+            }
 
-            const signData = await WEB3.eth.accounts.signTransaction(data, privateData.privateKey)
-            const nonce = BlocksoftUtils.hexToDecimalWalletConnect(data.nonce)
+            const signData = await tmpWeb3.eth.accounts.signTransaction(walletConnectData, privateData.privateKey)
+            if (!nonce) {
+                nonce = BlocksoftUtils.hexToDecimalWalletConnect(walletConnectData.nonce) // it appears only after sign if none before *)
+            }
+            const tmpStr = JSON.stringify(selectedFee) + ' nonce ' + nonce + ' from ' + dict.addressFrom + ' ' + signData.transactionHash
+            BlocksoftCryptoLog.log(dict.currencyCode + ' AppWalletConnect.send send fee ' + tmpStr)
 
-            BlocksoftCryptoLog.log(account.currencyCode + ' AppWalletConnect.send save nonce ' + nonce + ' from ' + data.from + ' ' + signData.transactionHash)
-            await EthTmpDS.saveNonce(MAIN_CURRENCY_CODE, data.from, 'send_' + signData.transactionHash, nonce)
-
-            MarketingEvent.logOnlyRealTime('v20_wallet_connect ' + signData.transactionHash, data)
             try {
-                const tmp = await WEB3.eth.sendSignedTransaction(signData.rawTransaction)
-                BlocksoftCryptoLog.log(account.currencyCode + ' AppWalletConnect.send send ok ' + nonce + ' from ' + data.from + ' ' + signData.transactionHash, tmp)
+                const tmp = await tmpWeb3.eth.sendSignedTransaction(signData.rawTransaction)
+                BlocksoftCryptoLog.log(dict.currencyCode + ' AppWalletConnect.send send ok ' + tmpStr, tmp)
             } catch (e) {
                 if (config.debug.cryptoErrors) {
-                    console.log(account.currencyCode + ' AppWalletConnect.send send error ' + e.message + nonce + ' from ' + data.from + ' ' + signData.transactionHash)
+                    console.log(dict.currencyCode + ' AppWalletConnect.send send error ' + e.message + ' ' + tmpStr)
                 }
-                BlocksoftCryptoLog.log(account.currencyCode + ' AppWalletConnect.send send error ' + e.message + nonce + ' from ' + data.from + ' ' + signData.transactionHash)
+                BlocksoftCryptoLog.log(dict.currencyCode + ' AppWalletConnect.send send error ' + e.message + ' ' + tmpStr)
                 let msg = e.message
                 if (e.message.indexOf('insufficient funds') !== -1) {
-                    msg = strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_FEE', {symbol :  MAIN_CURRENCY_CODE === 'ETH' ?  MAIN_CURRENCY_CODE  : 'BNB Smart Chain'})
+                    msg = strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_FEE', { symbol: dict.currencySymbol})
                 }
                 showModal({
                     type: 'INFO_MODAL',
@@ -290,23 +329,24 @@ export namespace AppWalletConnect {
                     title: strings('modal.exchange.sorry'),
                     description: msg
                 })
-                return false // somehow not catched up
+                return false
             }
 
+            await EthTmpDS.saveNonce(dict.currencyCode, dict.addressFrom, 'send_' + signData.transactionHash, nonce)
             await EthRawDS.saveRaw({
-                address: data.from,
-                currencyCode: account.currencyCode,
-                transactionUnique: account.address + '_' + nonce,
+                address : dict.addressFrom,
+                currencyCode : dict.currencyCode,
+                transactionUnique: dict.addressFrom + '_' + nonce,
                 transactionHash: signData.transactionHash,
                 transactionRaw: signData.rawTransaction
             })
 
             await WALLET_CONNECTOR.approveRequest({
-                id: payload.id,
+                id: walletConnectPayload.id,
                 result: signData.transactionHash
             })
 
-            EthRawDS.getForAddress(account)
+            EthRawDS.getForAddress({ address : dict.addressFrom, currencyCode : dict.currencyCode })
 
             return { transactionHash: signData.transactionHash }
         } catch (e) {
@@ -396,7 +436,7 @@ export namespace AppWalletConnect {
         })
     }
 
-    export const approveSession = async function(payload : any) {
+    export const approveSession = async function(payload: any) {
         Log.log('AppWalletConnect.approveSession', payload)
         BlocksoftCryptoLog.log('AppWalletConnect.approveSession', payload)
         const { chainId } = payload
