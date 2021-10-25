@@ -36,8 +36,7 @@ import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
 const getIconType = (notif) => {
     switch (notif.newsGroup) {
-        case (NOTIFIES_GROUP.NEWS):
-            return 'news'
+        case (NOTIFIES_GROUP.NEWS): return 'news'
         case (NOTIFIES_GROUP.RATES_CHANGING): {
             if (typeof notif.newsJson?.rateSide === 'boolean') return notif.newsJson.rateSide ? 'ratesUp' : 'ratesDown'
             return 'default'
@@ -49,8 +48,7 @@ const getIconType = (notif) => {
             if (notif.newsJson.payoutTxHash) return 'outgoing'
             return 'default'
         }
-        default:
-            return 'default'
+        default: return 'default'
     }
 }
 
@@ -237,7 +235,7 @@ class NotificationsScreen extends React.PureComponent {
                     contentContainerStyle={{ paddingTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }}
                     renderItem={this.renderListItem}
                     renderSectionHeader={({ section: { title } }) => (
-                        <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>
+                        <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE }]}>{title}</Text>
                     )}
                     renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
                 />

@@ -80,6 +80,7 @@ export default function SettingListItem(props) {
                     type="share"
                     containerStyle={styles.hiddenLayer__roundButton}
                     onPress={handlePressShare}
+                    defaultShadow={false}
                     noTitle
                 />
             </View>
@@ -110,7 +111,7 @@ export default function SettingListItem(props) {
                         )}
                     </View>
                 </TouchableOpacity>
-                {!last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
+                {!last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, paddingLeft: GRID_SIZE * 3 }} />}
             </View>
         </SwipeRow>
     )
@@ -118,7 +119,7 @@ export default function SettingListItem(props) {
 
 const styles = StyleSheet.create({
     hiddenLayer__roundButton: {
-        marginTop: 14.2,
+        paddingTop: 14.2,
         left: -0.5,
         alignItems: 'flex-start',
     },
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     },
     iconContainer: {
         height: 70.5,
-        marginRight: 8,
+        paddingRight: 8,
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
     },
     rightContent: {
         justifyContent: 'center',
-        marginLeft: 7
+        paddingLeft: 7
     },
     noBorder: {
         borderBottomWidth: 0
@@ -174,20 +175,10 @@ const styles = StyleSheet.create({
         lineHeight: 21
     },
     subtitle: {
-        marginTop: 5,
+        paddingTop: 5,
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 13,
         lineHeight: 15,
         letterSpacing: 1.75
-    },
-    switchShadow: {
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        shadowOffset: {
-            width: 0,
-            height: 4
-        },
-        elevation: 4
     }
 })
