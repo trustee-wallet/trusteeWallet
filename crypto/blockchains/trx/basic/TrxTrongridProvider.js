@@ -38,7 +38,7 @@ export default class TrxTrongridProvider {
         const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SOLIDITY_NODE')
         const link = nodeLink + '/walletsolidity/getaccount'
         const params = {address}
-        console.log('TrxTrongridProvider.get ' + link + ' ' + JSON.stringify(params))
+        BlocksoftCryptoLog.log('TrxTrongridProvider.get ' + link + ' ' + JSON.stringify(params))
         const res = await BlocksoftAxios.postWithoutBraking(link, params, BALANCE_MAX_TRY)
         if (!res || !res.data) {
             return false
