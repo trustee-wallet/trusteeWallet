@@ -284,7 +284,7 @@ class ReceiptScreen extends PureComponent {
             try {
                 await AppWalletConnect.rejectRequest(walletConnectPayload)
             } catch (e) {
-                Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e)
+                Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e.message)
             }
         } else if (uiType === 'TRADE_SEND') {
             await SendActionsEnd.endClose(this.props.sendScreenStore)
