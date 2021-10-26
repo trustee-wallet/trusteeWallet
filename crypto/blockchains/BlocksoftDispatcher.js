@@ -183,6 +183,8 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'BNB' })
             case 'MATIC_ERC_20':
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'MATIC' })
+            case 'FTM_ERC_20':
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'FTM' })
             case 'TRX':
                 return new TrxTokenProcessor()
             case 'SOL':

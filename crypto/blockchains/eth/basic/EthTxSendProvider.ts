@@ -115,7 +115,7 @@ export default class EthTxSendProvider {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send will send')
         let result
         try {
-            if (this._mainCurrencyCode === 'MATIC') {
+            if (this._mainCurrencyCode === 'MATIC' || this._mainCurrencyCode === 'FTM' || !link) {
                 /**
                  * curl http://matic.trusteeglobal.com:8545 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0x..."],"id":83}'
                  */
@@ -138,7 +138,7 @@ export default class EthTxSendProvider {
                         result: typeof tmp.data.result !== 'undefined' ? tmp.data.result : false
                     }
                 }
-            } else if (this._mainCurrencyCode === 'BNB' || !link) {
+            } else if (this._mainCurrencyCode === 'BNB') {
                 /**
                  * {"blockHash": "0x01d48fd5de1ebb62275096f749acb6849bd97f3c050acb07358222cea0a527bc",
                  * "blockNumber": 5223318, "contractAddress": null,

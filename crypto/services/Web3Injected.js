@@ -30,6 +30,10 @@ export const Web3Injected = (type) => {
         MAIN_CURRENCY_CODE = 'MATIC'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('MATIC_SERVER')
         MAIN_CHAIN_ID = 137
+    } else if (type === 250 || type === 'FTM') {
+        MAIN_CURRENCY_CODE = 'FTM'
+        WEB3_LINK = BlocksoftExternalSettings.getStatic('FTM_SERVER')
+        MAIN_CHAIN_ID = 250
     } else if (type === 16718 || type === 'AMB') {
         MAIN_CURRENCY_CODE = 'AMB'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('AMB_SERVER')

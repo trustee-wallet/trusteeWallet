@@ -65,6 +65,8 @@ const CACHE = {
     'MATIC_SERVER' : 'https://rpc-mainnet.maticvigil.com',
     'MATIC_PRICE' : 1000000000,
     'MATIC_GAS_LIMIT' : 620000,
+    'FTM_SERVER' : 'https://rpc.ftm.tools',
+    'FTM_GAS_LIMIT' : 620000,
     'RSK_SERVER' : 'https://public-node.rsk.co',
     'RSK_PRICE' : 5000000000,
     'RSK_GAS_LIMIT' : 620000,
