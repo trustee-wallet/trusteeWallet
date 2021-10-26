@@ -150,7 +150,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
 
 const ALL_SETTINGS = {}
 
-function getCurrencyAllSettings(currencyCodeOrObject) {
+function getCurrencyAllSettings(currencyCodeOrObject, source = '') {
     let currencyCode = currencyCodeOrObject
     if (typeof currencyCode === 'undefined' || !currencyCode) {
         return false
@@ -173,7 +173,7 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         settings = CurrenciesForTests[currencyCode]
     }
     if (!settings) {
-        throw new Error('Currency code not found in dict ' + JSON.stringify(currencyCode))
+        throw new Error('Currency code not found in dict ' + JSON.stringify(currencyCode) + ' from ' + source)
     }
     if (settings.extendsProcessor && Currencies[settings.extendsProcessor]) {
         const settingsParent = Currencies[settings.extendsProcessor]

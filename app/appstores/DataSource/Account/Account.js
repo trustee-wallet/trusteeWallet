@@ -126,6 +126,7 @@ class Account {
 
         const tmpName = Database.escapeString('CREATED by ' + source + ' at ' + new Date().toISOString())
 
+        let settings
         for (code of currencyCode) {
             if (typeof accounts[code] === 'undefined') {
                 throw new Error('DS/Account discoverAddresses NO ACCOUNTS FOR ' + code)
@@ -138,7 +139,12 @@ class Account {
                 code = 'LTC'
             }
 
-            const settings = BlocksoftDict.getCurrencyAllSettings(code)
+            try {
+                settings = BlocksoftDict.getCurrencyAllSettings(code, 'Account')
+            } catch (e) {
+                // do nothing
+                continue
+            }
             if (typeof settings.addressCurrencyCode !== 'undefined' && typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain !== 'BITCOIN' ) {
                 const { accountList } = store.getState().accountStore
                 if (typeof accountList[params.walletHash] !== 'undefined' && typeof accountList[params.walletHash][settings.addressCurrencyCode] !== 'undefined') {
@@ -200,7 +206,7 @@ class Account {
                             wallet_hash AS walletHash,
                             wallet_pub_id AS walletPubId
                         FROM ${tableName}
-                        WHERE currency_code='${code}' AND address='${account.address}'`
+                        WHERE currency_code='${code}' AND address='${account.address}' AND wallet_hash='${params.walletHash}'`
 
                     let find = await Database.query(findSql)
                     if (find.array.length === 0) {
