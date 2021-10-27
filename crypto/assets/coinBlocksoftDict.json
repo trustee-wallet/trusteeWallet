@@ -1038,7 +1038,7 @@
 		"currencyCode": "MATIC_FTM",
 		"currencySymbol": "FTM",
 		"ratesCurrencyCode": "MATIC",
-		"extendsProcessor": "MATIC_FTM",
+		"extendsProcessor": "MATIC_USDT",
 		"addressUiChecker": "ETH",
 		"tokenAddress": "0xc9c1c1c20b3658f8787cc2fd702267791f224ce1",
 		"decimals": 18,
