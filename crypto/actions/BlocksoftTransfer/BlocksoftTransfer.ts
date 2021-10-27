@@ -28,7 +28,9 @@ export namespace BlocksoftTransfer {
         if (config.debug.sendLogs) {
             console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance`, JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
         }
-        data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
+        if (typeof data.derivationPath !== 'undefined' && data.derivationPath) {
+            data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
+        }
         data.isTransferAll = true
         let transferAllCount
         try {
