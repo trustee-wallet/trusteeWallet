@@ -73,6 +73,7 @@ class SolValidators extends PureComponent {
         // console.log(JSON.stringify(searchQuery))
         this.selectSolValidator({ address: searchQuery})
     }
+    
     selectSolValidator = (item) => {
         const tmp = JSON.stringify(item)
         if (JSON.stringify(this.state.selectedVoteAddress) === tmp) return
