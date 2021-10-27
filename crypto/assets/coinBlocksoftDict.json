@@ -1506,6 +1506,18 @@
 		"currencyExplorerLink": "https://explorer.solana.com/address/",
 		"currencyExplorerTxLink": "https://explorer.solana.com/tx/"
 	},
+	"BNB_SMART_SHIB": {
+		"currencyType": "token",
+		"currencyName": "Shiba BEP20",
+		"currencyCode": "BNB_SMART_SHIB",
+		"currencySymbol": "SHIB",
+		"extendsProcessor": "BNB_SMART_CAKE",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "SHIB",
+		"tokenBlockchain": "BNB",
+		"tokenAddress": "0x2859e4544c4bb03966803b044a93563bd2d0dd4d",
+		"currencyExplorerLink": "https://bscscan.com/address/0x2859e4544c4bb03966803b044a93563bd2d0dd4d?a="
+	},
 	"ETH_SHIB": {
 		"currencyType": "token",
 		"currencyName": "Shiba ERC20",
@@ -1973,6 +1985,21 @@
 		"tokenAddress": "0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e",
 		"currencyExplorerLink": "https://etherscan.io/token/0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+	"TRX_EXON": {
+		"currencyType": "token",
+		"currencyName": "Exon Center",
+		"currencyCode": "TRX_EXON",
+		"currencySymbol": "EXON",
+		"extendsProcessor": "TRX_USDT",
+		"addressUiChecker": "TRX",
+		"ratesCurrencyCode": "EXON",
+		"network": "trx",
+		"decimals": 6,
+		"tokenBlockchain": "TRON",
+		"tokenName": "TRpfGv87u8tmdNW9rst5bpw6N7aEAE94Uh",
+		"currencyExplorerLink": "https://tronscan.org/#/address/",
+		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
 	},
     "NFT" : {
         "currencyType": "coin",
