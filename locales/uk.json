@@ -797,7 +797,9 @@
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Недостатньо коштів TRX для відправки / ліміт безкоштовних вичерпано",
       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Недостатньо коштів VeChain Thor Token (VTHO) для відправки",
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостатньо коштів для відправки"
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостатньо коштів для відправки",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Недостатня сума для відправки в стейк",
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не валідатор"
     }
   },
   "walletBackup": {

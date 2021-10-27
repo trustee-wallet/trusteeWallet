@@ -236,15 +236,21 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 console.log(e)
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' send error ' + e.message)
-            this.trxError(e.message)
+            this.trxError(e.message, data.addressTo)
         }
         return result
     }
 
 
-    trxError(msg: string) {
+    trxError(msg: string, addressTo : string) {
         if (msg.indexOf('insufficient funds for instruction') !== -1) {
-            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL')
+            if (addressTo === 'STAKE') {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL')
+            } else {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL')
+            }
+        } else if (msg.indexOf('incorrect program id for instruction') !== -1 && addressTo === 'STAKE') {
+            throw new Error('SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL')
         } else {
             throw new Error(msg)
         }

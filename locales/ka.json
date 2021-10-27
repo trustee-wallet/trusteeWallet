@@ -787,7 +787,9 @@
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
     }
   },
   "walletBackup": {

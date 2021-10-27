@@ -154,6 +154,7 @@ class SettingsSOL extends React.PureComponent {
                 load: false
             }
 
+            /*
             try {
                 const transferAllBalance = await BlocksoftTransfer.getTransferAllBalance({amount : balance, currencyCode: 'SOL', addressFrom: address })
                 newData.transferAllBalance = transferAllBalance
@@ -161,6 +162,7 @@ class SettingsSOL extends React.PureComponent {
                 Log.err('SettingsSOL.handleScan getTransferAllBalance error ' + e.message)
                 // nothing
             }
+            */
 
             if (selectedVoteAddress) {
                 newData.selectedVoteAddress = JSON.parse(selectedVoteAddress)
@@ -264,6 +266,7 @@ class SettingsSOL extends React.PureComponent {
             const stake = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makeUnPretty(prettyStake)
 
             let voteAddress = solValidator?.address ? solValidator.address : this.state.selectedVoteAddress.address
+            console.log('voteAddress ' + voteAddress)
             if (!voteAddress) {
                 voteAddress = await settingsActions.getSetting('SOL_validator')
             }
@@ -401,10 +404,12 @@ class SettingsSOL extends React.PureComponent {
         const { account } = this.props
         const { balance } = account
 
-        let transferAllBalance = balance - BlocksoftExternalSettings.getStatic('SOL_PRICE')
+        let transferAllBalance = balance - 3 * BlocksoftExternalSettings.getStatic('SOL_PRICE')
+        /*
         if (this.state.transferAllBalance && typeof this.state.transferAllBalance.fees !== 'undefined') {
             transferAllBalance = this.state.transferAllBalance.fees[this.state.transferAllBalance.selectedFeeIndex].amountForTx
         }
+        */
         // if newPartBalance = 4 = 100%
         Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' clicked')
         this.setState({

@@ -68,6 +68,11 @@ class SolValidators extends PureComponent {
         NavStore.reset('HomeScreen')
     }
 
+    selectSolValidatorFromSearch = (searchQuery) => {
+        // later - do validation if its actual validator - now its after stake try fail
+        // console.log(JSON.stringify(searchQuery))
+        this.selectSolValidator({ address: searchQuery})
+    }
     selectSolValidator = (item) => {
         const tmp = JSON.stringify(item)
         if (JSON.stringify(this.state.selectedVoteAddress) === tmp) return
@@ -98,7 +103,7 @@ class SolValidators extends PureComponent {
 
     onSearch = (value) => {
         this.setState({
-            searchQuery: value.toString().toLowerCase()
+            searchQuery: value.toString()
         })
     }
 
@@ -121,10 +126,10 @@ class SolValidators extends PureComponent {
               <TouchableOpacity style={{ marginTop: GRID_SIZE * 6}} onPress={Keyboard.dismiss}>
                 <Button
                   title={strings('settings.walletList.useCustomValidator') + searchQuery}
-                  onPress={() => this.selectSolValidator({ address: searchQuery})}
+                  onPress={() => this.selectSolValidatorFromSearch(searchQuery)}
                 />
               </TouchableOpacity>
-          )      
+          )
         }}
     }
 
@@ -132,6 +137,7 @@ class SolValidators extends PureComponent {
 
         const { loading, validators, searchQuery } = this.state
         const { GRID_SIZE } = this.context
+        const lowerCaseSearchQuery = searchQuery.toLowerCase()
 
         return (
             <ScreenWrapper
@@ -146,7 +152,7 @@ class SolValidators extends PureComponent {
             >
                 <View style={{ flex: 1 }}>
                     <FlatList
-                        data={searchQuery ? validators.filter(item => item?.name.toString().toLowerCase().includes(searchQuery) || item.address.toString().toLowerCase().includes(searchQuery)) : validators}
+                        data={searchQuery ? validators.filter(item => item?.name.toString().toLowerCase().includes(lowerCaseSearchQuery) || item.address.toString().toLowerCase().includes(lowerCaseSearchQuery)) : validators}
                         renderItem={this.renderItem}
                         contentContainerStyle={{ paddingVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
                         showsVerticalScrollIndicator={false}
