@@ -216,6 +216,7 @@
       "deactivateSOL": "Деактивировать",
       "stakeHistorySOL" : "История Стейка",
       "selectValidatorSOL": "Выберите валидатора",
+      "selectValidatorSOLCommission" : "Fee :",
       "validatorSOL": "Валидатор",
       "rewards" : "Награды"
     },

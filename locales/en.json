@@ -216,6 +216,7 @@
       "deactivateSOL": "Deactivate",
       "stakeHistorySOL" : "Stake History",
       "selectValidatorSOL": "Select validator",
+      "selectValidatorSOLCommission" : "Fee: ",
       "validatorSOL": "Validator",
       "rewards" : "Rewards"
     },
