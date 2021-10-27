@@ -218,7 +218,8 @@
       "selectValidatorSOL": "Выберите валидатора",
       "selectValidatorSOLCommission" : "Fee :",
       "validatorSOL": "Валидатор",
-      "rewards" : "Награды"
+      "rewards" : "Награды",
+      "useCustomValidator": "Использовать этот валидатор "
     },
     "about": {
       "title": "О кошельке",

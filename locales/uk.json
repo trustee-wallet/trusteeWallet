@@ -218,7 +218,8 @@
       "selectValidatorSOL": "Оберіть валідатора",
       "selectValidatorSOLCommission" : "Fee :",
       "validatorSOL": "Валідатор",
-      "rewards" : "Нагороди"
+      "rewards" : "Нагороди",
+      "useCustomValidator": "Використати цей валідатор "
     },
     "about": {
       "title": "Про гаманець",

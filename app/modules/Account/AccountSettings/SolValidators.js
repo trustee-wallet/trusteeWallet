@@ -8,7 +8,9 @@ import { connect } from 'react-redux'
 import {
     FlatList,
     View,
-    ActivityIndicator
+    ActivityIndicator,
+    TouchableOpacity,
+    Keyboard
 } from 'react-native'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -22,6 +24,8 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { setSolValidator } from '@app/appstores/Stores/Main/MainStoreActions'
 import { strings } from '@app/services/i18n'
+
+import Button from '@app/components/elements/new/buttons/Button'
 
 class SolValidators extends PureComponent {
 
@@ -98,6 +102,32 @@ class SolValidators extends PureComponent {
         })
     }
 
+    renderEmptyList = (searchQuery) => {
+
+        const { GRID_SIZE } = this.context
+
+        let isSearchTokenAddress = false
+        if (searchQuery) {
+            searchQuery =  searchQuery.trim()
+            if (searchQuery.length >= 38) {
+                isSearchTokenAddress = true
+            } else {
+                return null
+            }
+        }
+
+        {if (isSearchTokenAddress)  {
+          return(
+              <TouchableOpacity style={{ marginTop: GRID_SIZE * 6}} onPress={Keyboard.dismiss}>
+                <Button
+                  title={strings('settings.walletList.useCustomValidator') + searchQuery}
+                  onPress={() => this.selectSolValidator({ address: searchQuery})}
+                />
+              </TouchableOpacity>
+          )      
+        }}
+    }
+
     render() {
 
         const { loading, validators, searchQuery } = this.state
@@ -136,7 +166,7 @@ class SolValidators extends PureComponent {
                                     />
                                 )
                             } else {
-                                return null
+                                return this.renderEmptyList(searchQuery)
                             }
                         }}
                     />

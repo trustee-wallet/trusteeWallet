@@ -216,7 +216,8 @@
       "selectValidatorSOL": "Select validator",
       "selectValidatorSOLCommission" : "Fee :",
       "validatorSOL": "Validator",
-      "rewards" : "Rewards"
+      "rewards" : "Rewards",
+      "useCustomValidator": "Use this validator "
     },
     "about": {
       "title": "საფულის შესახებ",
