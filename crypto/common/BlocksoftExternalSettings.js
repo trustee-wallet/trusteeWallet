@@ -112,9 +112,9 @@ class BlocksoftExternalSettings {
         return CACHE
     }
 
-    async get(param, source) {
+    async get(param, source = '') {
         // BlocksoftCryptoLog.log('BlocksoftExternalSettings.get started ' + param + ' from ' + source)
-        await this._get('get ' + (typeof source !== 'undefined' ? source : param))
+        await this._get('get ' + (typeof source !== 'undefined' && source ? source : param))
         if (typeof CACHE[param] === 'undefined') return false
         return CACHE[param]
     }
