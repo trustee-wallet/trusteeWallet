@@ -152,7 +152,7 @@ class ReceiptScreen extends PureComponent {
                 })
             } else {
                 showModal({
-                    type: 'YES_NO_MODAL',
+                    type: checkLoadedFeeResult.modalType,
                     icon: 'WARNING',
                     title: strings('modal.titles.attention'),
                     description: checkLoadedFeeResult.msg
