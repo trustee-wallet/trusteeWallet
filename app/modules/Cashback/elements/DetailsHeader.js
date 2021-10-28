@@ -16,13 +16,10 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import DetailsContent from '@app/modules/Cashback/elements/Details'
-import { strings } from '@app/services/i18n'
-import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import Accordion from 'react-native-collapsible/Accordion'
 
 class DetailsHeader extends React.Component{
-
 
     state = {
         selected: false,
@@ -31,32 +28,6 @@ class DetailsHeader extends React.Component{
         height: new Animated.Value(0),
         activeSections: []
     }
-
-    getSections = () => {
-
-        const { cashbackStore } = this.props
-
-        const cashbackTotalBalance = cashbackStore?.dataFromApi.totalCashbackBalance || 0
-        const cpaTotalBalance = cashbackStore?.dataFromApi.cpaTotalBalance || 0
-
-        return [
-            {
-                title: strings('cashback.cashback'),
-                value: 'CASHBACK',
-                balance: UtilsService.cutNumber(cashbackTotalBalance, 2),
-                progress: cashbackTotalBalance / (cashbackTotalBalance + cpaTotalBalance)
-            },
-            {
-                title: strings('cashback.cpa'),
-                value: 'CPA',
-                balance: UtilsService.cutNumber(cpaTotalBalance, 2),
-                progress: cpaTotalBalance / (cashbackTotalBalance + cpaTotalBalance)
-            }
-
-        ]
-    }
-
-    sections = this.getSections()
 
     cashbackCurrency = 'USDT'
 
@@ -110,13 +81,12 @@ class DetailsHeader extends React.Component{
         return(
             <View>
                 <Accordion
-                    sections={this.sections}
+                    sections={this.props.sections}
                     renderHeader={this._renderHeader}
                     renderContent={this._renderContent}
                     onChange={this._updateSections}
                     activeSections={this.state.activeSections}
                     underlayColor="transparent"
-
                 />
             </View>
         )

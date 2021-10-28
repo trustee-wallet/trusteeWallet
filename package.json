@@ -98,7 +98,7 @@
     "react-native-blur-overlay": "^1.0.7",
     "react-native-branch": "^5.0.4",
     "react-native-camera": "^3.43.5",
-    "react-native-collapsible": "1.5.3",
+    "react-native-collapsible": "1.6.0",
     "react-native-crypto": "git+https://github.com/trustee-wallet/react-native-crypto",
     "react-native-dash": "0.0.11",
     "react-native-device-info": "^5.5.4",

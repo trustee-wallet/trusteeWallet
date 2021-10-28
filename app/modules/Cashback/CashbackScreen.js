@@ -68,6 +68,41 @@ class CashbackScreen extends React.PureComponent {
 
     cashbackCurrency = 'USDT'
 
+    renderDetailsHeader = () => {
+
+        const {
+            cashbackStore
+        } = this.props
+
+        let cashbackTotalBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
+        let cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
+
+        const getSections = [
+            {
+                title: strings('cashback.cashback'),
+                value: 'CASHBACK',
+                balance: UtilsService.cutNumber(cashbackTotalBalance, 2),
+                progress: cashbackTotalBalance / (cashbackTotalBalance + cpaTotalBalance)
+            },
+            {
+                title: strings('cashback.cpa'),
+                value: 'CPA',
+                balance: UtilsService.cutNumber(cpaTotalBalance, 2),
+                progress: cpaTotalBalance / (cashbackTotalBalance + cpaTotalBalance)
+            }
+        ]
+
+        return (
+            <DetailsHeader
+                cashbackStore={cashbackStore}
+                scrollDetails={this.scrollDetails}
+                cashbackTotalBalance={cashbackTotalBalance}
+                cpaTotalBalance={cpaTotalBalance}
+                sections={getSections}
+            />
+        )
+    }
+
     renderExtraView = () => {
 
         const { cashbackStore } = this.props
@@ -272,17 +307,10 @@ class CashbackScreen extends React.PureComponent {
             GRID_SIZE
         } = this.context
 
-        const {
-            cashbackStore
-        } = this.props
-
         return (
             <ScrollView style={{ paddingHorizontal: GRID_SIZE }}>
                 {this.renderExtraView()}
-                <DetailsHeader
-                    cashbackStore={cashbackStore}
-                    scrollDetails={this.scrollDetails}
-                />
+                {this.renderDetailsHeader()}
             </ScrollView>
         )
     }
