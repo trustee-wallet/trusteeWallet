@@ -5,6 +5,7 @@
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftDict from '../../common/BlocksoftDict'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 class BlocksoftBalances {
 
@@ -103,7 +104,7 @@ class BlocksoftBalances {
         }
         let hodl = 0
         if (currencyCode === 'XRP') {
-            hodl = 20
+            hodl = BlocksoftExternalSettings.getStatic('XRP_MIN')
         } else if (currencyCode === 'XLM') {
             hodl = 1
         }

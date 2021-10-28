@@ -777,8 +777,8 @@
      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee is too high - please adjust the fee manually or send more funds",
      "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Transaction fee per byte is too high - please adjust the fee manually",
      "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "Transactions to the same address are forbidden",
-     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Insufficient balance to make the transaction (Please keep not less than 20 XRP on balance)",
-     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Insufficient funds - send not less than 20 XRP to activate the receiving address",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Insufficient balance to make the transaction (Please keep not less than 10 XRP on balance)",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Insufficient funds - send not less than 10 XRP to activate the receiving address",
      "SERVER_RESPONSE_TAG_NEEDED_XRP": "Destination Tag is incorrect - please enter the correct Destination Tag to make the transaction",
      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "Insufficient BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": "Insufficient or unconfirmed BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
@@ -973,7 +973,7 @@
     "checkTransferHasError": {
       "XRP": {
         "title": "Please, pay attention!",
-        "description": "Your Ripple wallet is not activated. Activation requires to stake 20 XRP. According to Ripple protocol, this amount cannot be unlocked and will remain frozen in your account."
+        "description": "Your Ripple wallet is not activated. Activation requires to stake 10 XRP. According to Ripple protocol, this amount cannot be unlocked and will remain frozen in your account."
       },
       "XLM": {
         "title": "Please, pay attention!",

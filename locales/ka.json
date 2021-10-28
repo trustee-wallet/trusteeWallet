@@ -769,8 +769,8 @@
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "ძალიან მაღალია საკომისიო ტრანზაქციისთვის - გთხოვთ, აირჩიეთ საკომისიოს ოდენობა  ან მიუთითეთ თანხის დიდი რაოდენობა გადარიცხვისთვის ",
       "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Transaction fee per byte is too high - please adjust the fee manually",
       "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "ტრანზაქციები ერთსა და იმავე მისამართზე აკრძალულია",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "არაა საკმარისი თანხა გადასარიცხად (ბალანზე დატოვე არანაკლებ 20 XRP )",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "არასაკმარისი თანხა - გააგზავნეთ არანაკლებ 20 XRP მიმღების მისამართის აქტივაციისთვის",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "არაა საკმარისი თანხა გადასარიცხად (ბალანზე დატოვე არანაკლებ 10 XRP )",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "არასაკმარისი თანხა - გააგზავნეთ არანაკლებ 10 XRP მიმღების მისამართის აქტივაციისთვის",
       "SERVER_RESPONSE_TAG_NEEDED_XRP": "დანიშნულების ტეგი არასწორია - ტრანზაქციის გასაგზავნად გთხოვთ, შეიყვანოთ დანიშნულების სწორი ტეგი ",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "BTC-ს ბალანსი მიმაგრებულ USDT ბიტკოინ მისამართზე არასაკმარისია - გთხოვთ, გადაიტანოთ მასზე სატოშების მცირე რაოდნეობა ",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": " USDT-თან დაკავშირებულ ბიტკოინ მისამართზე ბალანსი არასაკმარისი ან დაუდასტურებელია - გთხოვთ, დაელოდოთ ან ჩართოთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",
@@ -965,7 +965,7 @@
     "checkTransferHasError": {
       "XRP": {
         "title": "გთხოვთ, მიაქციოთ ყურადღება!",
-        "description": "თქვენი საფულე Ripple არ არის გააქტიურებული. აქტივაცია მოითხოვს 20 XRP -ის ბლოკირებას. Ripple-ის პროტოკოლის მიხედვით, ამ თანხის განბლოკვა შეუძლებელია და ის ანგარიშზე დარჩება."
+        "description": "თქვენი საფულე Ripple არ არის გააქტიურებული. აქტივაცია მოითხოვს 10 XRP -ის ბლოკირებას. Ripple-ის პროტოკოლის მიხედვით, ამ თანხის განბლოკვა შეუძლებელია და ის ანგარიშზე დარჩება."
       },
       "XLM": {
         "title": "Please, pay attention!",
