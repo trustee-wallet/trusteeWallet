@@ -44,6 +44,7 @@ import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletC
 
 
 let CACHE_IS_COUNTING = false
+let CACHE_IS_SENDING_CLICKED = 0
 let CACHE_IS_SENDING = false
 let CACHE_WARNING_NOTICE = false
 
@@ -59,6 +60,8 @@ class ReceiptScreen extends PureComponent {
     }
 
     componentDidMount = () => {
+        CACHE_IS_SENDING = false
+        CACHE_IS_SENDING_CLICKED = 0
         setLoaderStatus(false)
         setLoaderFromBse(false)
     }
@@ -99,10 +102,12 @@ class ReceiptScreen extends PureComponent {
     }
 
     handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
-        if (CACHE_IS_SENDING) {
+        if (CACHE_IS_SENDING && passwordCheck && CACHE_IS_SENDING_CLICKED < 10) {
+            Log.log('ReceiptScreen.handleSend already clicked ' + CACHE_IS_SENDING_CLICKED)
+            CACHE_IS_SENDING_CLICKED++
             return true
         }
-        Log.log('ReceiptScreen.handleSend started')
+        Log.log('ReceiptScreen.handleSend started clicked ' + CACHE_IS_SENDING_CLICKED)
 
         setLoaderStatus(false)
 
@@ -127,8 +132,9 @@ class ReceiptScreen extends PureComponent {
         this.setState({
             sendInProcess: true
         })
-
         CACHE_IS_SENDING = true
+        CACHE_IS_SENDING_CLICKED = 0
+
         const checkLoadedFeeResult = checkLoadedFee(this)
 
         if (checkLoadedFeeResult.msg && CACHE_WARNING_NOTICE !== checkLoadedFeeResult.cacheWarningNoticeValue) {
@@ -140,6 +146,8 @@ class ReceiptScreen extends PureComponent {
                     title: strings('modal.titles.attention'),
                     description: checkLoadedFeeResult.msg
                 }, async () => {
+                    CACHE_IS_SENDING = false
+                    CACHE_IS_SENDING_CLICKED = 0
                     await SendActionsEnd.endRedirect(false, this.props.sendScreenStore)
                 })
             } else {
@@ -153,10 +161,11 @@ class ReceiptScreen extends PureComponent {
                     await this.handleSend(false, uiErrorConfirmed)
                 })
             }
+            CACHE_IS_SENDING = false
+            CACHE_IS_SENDING_CLICKED = 0
             this.setState({
                 sendInProcess: false
             })
-            CACHE_IS_SENDING = false
             return false
         }
 
@@ -192,10 +201,11 @@ class ReceiptScreen extends PureComponent {
             copyToClipboard(tx.raw)
             Toast.setMessage(strings('toast.copied')).show()
 
+            CACHE_IS_SENDING = false
+            CACHE_IS_SENDING_CLICKED = 0
             this.setState({
                 sendInProcess: false
             })
-            CACHE_IS_SENDING = false
             return false
         }
 
@@ -227,10 +237,11 @@ class ReceiptScreen extends PureComponent {
                     e2.message += ' while SendActionsEnd.saveTx'
                     throw e2
                 }
+                CACHE_IS_SENDING = false
+                CACHE_IS_SENDING_CLICKED = 0
                 this.setState({
                     sendInProcess: false
                 })
-                CACHE_IS_SENDING = false
                 try {
                     UpdateOneByOneDaemon.unstop()
                     UpdateAccountListDaemon.unstop()
@@ -247,10 +258,12 @@ class ReceiptScreen extends PureComponent {
                 Log.log('ReceiptScreen.handleSendSaveTx error ' + e1.message)
             }
         }
+
+        CACHE_IS_SENDING = false
+        CACHE_IS_SENDING_CLICKED = 0
         this.setState({
             sendInProcess: false
         })
-        CACHE_IS_SENDING = false
         return false
     }
 
