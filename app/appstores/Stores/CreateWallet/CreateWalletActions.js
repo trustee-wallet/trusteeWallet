@@ -139,11 +139,11 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         await walletActions.addAvailableWallets(fullWallet)
 
-        await cryptoWalletActions.setSelectedWallet(storedKey, 'ACT/MStore proceedSaveGeneratedWallet Revert', false)
-
         await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source }, source)
 
         await accountBalanceActions.initBalances(storedKey, source === 'IMPORT')
+
+        await cryptoWalletActions.setSelectedWallet(storedKey, 'ACT/MStore proceedSaveGeneratedWallet Revert', false)
 
         await Log.log('ACT/MStore proceedSaveGeneratedWallet finished discover storedWallet ' + storedKey)
     } catch (e) {
@@ -164,6 +164,8 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             if (prevWallet && prevWallet !== storedKey) {
                 await settingsActions.setSelectedWallet(prevWallet)
             }
+
+            await walletActions.setAvailableWallets()
 
             Log.log('ACT/MStore proceedSaveGeneratedWallet tryWallet ' + storedKey + ' prevWallet ' + prevWallet + ' error ' + e.message)
 

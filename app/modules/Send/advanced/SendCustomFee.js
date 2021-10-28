@@ -45,6 +45,7 @@ class SendCustomFee extends React.PureComponent {
             case 'BNB':
             case 'BNB_SMART':
             case 'MATIC':
+            case 'FTM':
             case 'OPTIMISM':
             case 'RSK':
             case 'AMB':

@@ -18,6 +18,7 @@ const CACHE_GET_MAX_BLOCK = {
     ETC: { max_block_number: 0, confirmations: 0 },
     AMB: { max_block_number: 0, confirmations: 0 },
     MATIC : { max_block_number: 0, confirmations: 0 },
+    FTM : { max_block_number: 0, confirmations: 0 },
     RSK : { max_block_number: 0, confirmations: 0 },
     OPTIMISM : { max_block_number: 0, confirmations: 0 },
 }
@@ -27,6 +28,7 @@ const CACHE_BLOCK_NUMBER_TO_HASH = {
     ETC : {},
     AMB : {},
     MATIC : {},
+    FTM : {},
     RSK : {},
     OPTIMISM : {}
 }
@@ -38,6 +40,7 @@ const CACHE = {
     ETC : {},
     AMB : {},
     MATIC : {},
+    FTM : {},
     RSK : {},
     OPTIMISM : {}
 }

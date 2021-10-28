@@ -13,6 +13,7 @@ import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import { XrpTxSendProvider } from './basic/XrpTxSendProvider'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 const FEE_DECIMALS = 6
@@ -36,7 +37,7 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     async checkTransferHasError(data: BlocksoftBlockchainTypes.CheckTransferHasErrorData): Promise<BlocksoftBlockchainTypes.CheckTransferHasErrorResult> {
         // @ts-ignore
-        if (data.amount && data.amount * 1 > 20) {
+        if (data.amount && data.amount * 1 > BlocksoftExternalSettings.getStatic('XRP_MIN')) {
             return { isOk: true }
         }
         /**
@@ -44,7 +45,7 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
          */
         const balanceProvider = BlocksoftDispatcher.getScannerProcessor(this._settings.currencyCode)
         const balanceRaw = await balanceProvider.getBalanceBlockchain(data.addressTo)
-        if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > 20) {
+        if (balanceRaw && typeof balanceRaw.balance !== 'undefined' && balanceRaw.balance > BlocksoftExternalSettings.getStatic('XRP_MIN')) {
             return { isOk: true }
         } else {
             return { isOk: false, code: 'XRP', address: data.addressTo }
@@ -110,7 +111,7 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XrpTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
         // noinspection EqualityComparisonWithCoercionJS
-        if (BlocksoftUtils.diff(balance, 20) <= 0) {
+        if (BlocksoftUtils.diff(balance, BlocksoftExternalSettings.getStatic('XRP_MIN')) <= 0) {
             return {
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -1,
@@ -133,7 +134,7 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
         }
         // @ts-ignore
-        result.fees[result.selectedFeeIndex].amountForTx = BlocksoftUtils.diff(result.fees[result.selectedFeeIndex].amountForTx, 20).toString()
+        result.fees[result.selectedFeeIndex].amountForTx = BlocksoftUtils.diff(result.fees[result.selectedFeeIndex].amountForTx, BlocksoftExternalSettings.getStatic('XRP_MIN')).toString()
         return {
             ...result,
             shouldShowFees : false,

@@ -8,7 +8,9 @@ import { connect } from 'react-redux'
 import {
     FlatList,
     View,
-    ActivityIndicator
+    ActivityIndicator,
+    TouchableOpacity,
+    Keyboard
 } from 'react-native'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -22,6 +24,8 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { setSolValidator } from '@app/appstores/Stores/Main/MainStoreActions'
 import { strings } from '@app/services/i18n'
+
+import Button from '@app/components/elements/new/buttons/Button'
 
 class SolValidators extends PureComponent {
 
@@ -64,6 +68,12 @@ class SolValidators extends PureComponent {
         NavStore.reset('HomeScreen')
     }
 
+    selectSolValidatorFromSearch = (searchQuery) => {
+        // later - do validation if its actual validator - now its after stake try fail
+        // console.log(JSON.stringify(searchQuery))
+        this.selectSolValidator({ address: searchQuery})
+    }
+    
     selectSolValidator = (item) => {
         const tmp = JSON.stringify(item)
         if (JSON.stringify(this.state.selectedVoteAddress) === tmp) return
@@ -87,21 +97,48 @@ class SolValidators extends PureComponent {
                 onPress={() => this.selectSolValidator(item)}
                 checked={JSON.stringify(this.state.selectedVoteAddress) === JSON.stringify(item)}
                 last={this.state.selectedVoteAddress.length - 1 === index}
-                percentValue={item.commission}
+                percentValue={strings('settings.walletList.selectValidatorSOLCommission') + item.commission}
             />
         )
     }
 
     onSearch = (value) => {
         this.setState({
-            searchQuery: value.toString().toLowerCase()
+            searchQuery: value.toString()
         })
+    }
+
+    renderEmptyList = (searchQuery) => {
+
+        const { GRID_SIZE } = this.context
+
+        let isSearchTokenAddress = false
+        if (searchQuery) {
+            searchQuery =  searchQuery.trim()
+            if (searchQuery.length >= 38) {
+                isSearchTokenAddress = true
+            } else {
+                return null
+            }
+        }
+
+        {if (isSearchTokenAddress)  {
+          return(
+              <TouchableOpacity style={{ marginTop: GRID_SIZE * 6}} onPress={Keyboard.dismiss}>
+                <Button
+                  title={strings('settings.walletList.useCustomValidator') + searchQuery}
+                  onPress={() => this.selectSolValidatorFromSearch(searchQuery)}
+                />
+              </TouchableOpacity>
+          )
+        }}
     }
 
     render() {
 
         const { loading, validators, searchQuery } = this.state
         const { GRID_SIZE } = this.context
+        const lowerCaseSearchQuery = searchQuery.toLowerCase()
 
         return (
             <ScreenWrapper
@@ -116,7 +153,7 @@ class SolValidators extends PureComponent {
             >
                 <View style={{ flex: 1 }}>
                     <FlatList
-                        data={searchQuery ? validators.filter(item => item?.name.toString().toLowerCase().includes(searchQuery) || item.address.toString().toLowerCase().includes(searchQuery)) : validators}
+                        data={searchQuery ? validators.filter(item => item?.name.toString().toLowerCase().includes(lowerCaseSearchQuery) || item.address.toString().toLowerCase().includes(lowerCaseSearchQuery)) : validators}
                         renderItem={this.renderItem}
                         contentContainerStyle={{ paddingVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
                         showsVerticalScrollIndicator={false}
@@ -136,7 +173,7 @@ class SolValidators extends PureComponent {
                                     />
                                 )
                             } else {
-                                return null
+                                return this.renderEmptyList(searchQuery)
                             }
                         }}
                     />

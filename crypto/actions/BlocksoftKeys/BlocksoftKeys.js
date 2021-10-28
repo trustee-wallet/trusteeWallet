@@ -117,9 +117,15 @@ class BlocksoftKeys {
         const mnemonicCache = data.mnemonic.toLowerCase()
         let bitcoinRoot = false
         let currencyCode
+        let settings
         for (currencyCode of toDiscover) {
             results[currencyCode] = []
-            const settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+            try {
+                settings = BlocksoftDict.getCurrencyAllSettings(currencyCode, 'BlocksoftKeys')
+            } catch (e) {
+                // do nothing for now
+                continue
+            }
 
             let hexes = []
             if (settings.addressCurrencyCode) {

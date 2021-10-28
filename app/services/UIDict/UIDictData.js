@@ -824,6 +824,12 @@ export default {
             darkColor: '#1F39BA'
         }
     },
+    'TRX_EXON': {
+        colors: {
+            mainColor: '#FDD807',
+            darkColor: '#FDD807'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

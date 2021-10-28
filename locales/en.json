@@ -216,8 +216,10 @@
       "deactivateSOL": "Deactivate",
       "stakeHistorySOL" : "Stake History",
       "selectValidatorSOL": "Select validator",
+      "selectValidatorSOLCommission" : "Fee: ",
       "validatorSOL": "Validator",
-      "rewards" : "Rewards"
+      "rewards" : "Rewards",
+      "useCustomValidator": "Use this validator "
     },
     "about": {
       "title": "About",
@@ -775,8 +777,8 @@
      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee is too high - please adjust the fee manually or send more funds",
      "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Transaction fee per byte is too high - please adjust the fee manually",
      "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "Transactions to the same address are forbidden",
-     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Insufficient balance to make the transaction (Please keep not less than 20 XRP on balance)",
-     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Insufficient funds - send not less than 20 XRP to activate the receiving address",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Insufficient balance to make the transaction (Please keep not less than 10 XRP on balance)",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Insufficient funds - send not less than 10 XRP to activate the receiving address",
      "SERVER_RESPONSE_TAG_NEEDED_XRP": "Destination Tag is incorrect - please enter the correct Destination Tag to make the transaction",
      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "Insufficient BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": "Insufficient or unconfirmed BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
@@ -793,7 +795,9 @@
      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
      "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
-     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
+     "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
+     "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
     }
   },
   "walletBackup": {
@@ -857,7 +861,8 @@
       "description": "Backup phrase is very important. You will not have access to your founds. Do you want to skip this step?",
       "cancel": "Cancel",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "continue": "Continue"
     },
     "descriptionXMR": "Anyone with your recovery phrase can access or spend your coins. This words are derived from main recovery phrase, so you could use it only to backup Monero"
   },
@@ -968,7 +973,7 @@
     "checkTransferHasError": {
       "XRP": {
         "title": "Please, pay attention!",
-        "description": "Your Ripple wallet is not activated. Activation requires to stake 20 XRP. According to Ripple protocol, this amount cannot be unlocked and will remain frozen in your account."
+        "description": "Your Ripple wallet is not activated. Activation requires to stake 10 XRP. According to Ripple protocol, this amount cannot be unlocked and will remain frozen in your account."
       },
       "XLM": {
         "title": "Please, pay attention!",
@@ -1093,6 +1098,7 @@
       "bseMinCrypto": "Exchange minimal amount value is %{limit}",
       "bseMinCryptoNoFee" : "Your balance is not enough for exchange minimal amount and fee",
       "bigGas" : "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
+      "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance" : "Your balance was used in previous unconfirmed transactions, you can use %{free}",
       "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",
       "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",

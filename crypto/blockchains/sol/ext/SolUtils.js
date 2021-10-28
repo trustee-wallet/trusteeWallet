@@ -9,10 +9,19 @@ import { Account } from '@solana/web3.js/src/account'
 
 import config from '@app/config/config'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const TOKEN_PROGRAM_ID = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
 const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
 const OWNER_VALIDATION_PROGRAM_ID = '4MNPdKu9wFMvEeZBMt3Eipfs5ovVWTJb31pEXDJAAxX5'
+
+const CACHE_VALID_TIME = 12000000 // 200 minute
+
+const CACHE_EPOCH = {
+    ts: 0,
+    value: 240
+}
+
 
 export default {
 
@@ -123,6 +132,35 @@ export default {
         const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
         const getRecentBlockhashRes = await BlocksoftAxios._request(apiPath, 'POST', getRecentBlockhashData)
         return getRecentBlockhashRes.data.result.value
+    },
+
+    async getEpoch() {
+        const now = new Date().getTime()
+        if (CACHE_EPOCH.ts > 0) {
+            if (now - CACHE_EPOCH.ts < CACHE_VALID_TIME) {
+                return CACHE_EPOCH.value
+            }
+        } else {
+            const tmp = settingsActions.getSettings('SOL_epoch')
+            if (tmp * 1 > CACHE_EPOCH.value) {
+                CACHE_EPOCH.value = tmp * 1
+            }
+        }
+        const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
+        const getEpoch = { 'jsonrpc': '2.0', 'id': 1, 'method': 'getEpochInfo' }
+        try {
+            const resEpoch = await BlocksoftAxios._request(apiPath, 'POST', getEpoch)
+            const tmp = resEpoch.data.result.epoch * 1
+            if (tmp > 0 && tmp !== CACHE_EPOCH.value) {
+                CACHE_EPOCH.value = tmp
+                settingsActions.setSettings('SOL_epoch', tmp)
+            }
+            CACHE_EPOCH.ts = now
+        } catch (e) {
+            BlocksoftCryptoLog.log('SolUtils.getEpoch error ' + e.message)
+            // nothing
+        }
+        return CACHE_EPOCH.value
     },
 
     async signTransaction(transaction, walletPrivKey, walletPubKey) {

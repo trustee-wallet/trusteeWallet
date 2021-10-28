@@ -141,6 +141,20 @@ export default class EthBasic {
             this._mainTokenType = 'MATIC_ERC_20'
             this._mainTokenBlockchain = 'Polygon Network'
             this._mainChainId = 137
+        } else if (settings.currencyCode === 'FTM' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'FTM')) {
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
+            this._etherscanApiPathInternal = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'FTM'
+            this._mainTokenType = 'FTM_ERC_20'
+            this._mainTokenBlockchain = 'Fantom Network'
+            this._mainChainId = 250
         } else if (settings.currencyCode === 'RSK') {
             this._etherscanSuffix = false
             this._etherscanApiPath = false

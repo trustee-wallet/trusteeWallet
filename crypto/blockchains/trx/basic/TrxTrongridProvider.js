@@ -4,8 +4,8 @@
  */
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-const BALANCE_PATH = 'https://api.trongrid.io/walletsolidity/getaccount?address='
 const BALANCE_MAX_TRY = 10
 
 const CACHE_TRONGRID = {}
@@ -34,9 +34,12 @@ export default class TrxTrongridProvider {
             }
         }
 
-        const link = BALANCE_PATH + address
-        BlocksoftCryptoLog.log('TrxTrongridProvider.get ' + link)
-        const res = await BlocksoftAxios.getWithoutBraking(link, BALANCE_MAX_TRY)
+        // curl -X POST  http://trx.trusteeglobal.com:8091/walletsolidity/getassetissuebyname -d
+        const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SOLIDITY_NODE')
+        const link = nodeLink + '/walletsolidity/getaccount'
+        const params = {address}
+        BlocksoftCryptoLog.log('TrxTrongridProvider.get ' + link + ' ' + JSON.stringify(params))
+        const res = await BlocksoftAxios.postWithoutBraking(link, params, BALANCE_MAX_TRY)
         if (!res || !res.data) {
             return false
         }

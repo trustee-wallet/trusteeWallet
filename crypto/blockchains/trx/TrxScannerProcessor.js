@@ -13,6 +13,7 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import config from '@app/config/config'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 let CACHE_PENDING_TXS = false
 
@@ -44,7 +45,8 @@ export default class TrxScannerProcessor {
         } else {
             address = await TronUtils.addressHexToStr(addressHex)
         }
-        let result = await this._tronscanProvider.get(address, this._tokenName)
+        const useTronscan = BlocksoftExternalSettings.getStatic('TRX_USE_TRONSCAN') === 'YES'
+        let result = useTronscan ? await this._tronscanProvider.get(address, this._tokenName) : false
         let subresult = false
         BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronScan ' + JSON.stringify(result))
 
@@ -110,12 +112,13 @@ export default class TrxScannerProcessor {
             return false
         }
 
+        const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SOLIDITY_NODE')
         let needUpdateBalance = -1
         if (lastBlock === false) {
             needUpdateBalance = 0
             try {
-                const linkBlock = 'https://api.trongrid.io/wallet/getnowblock'
-                const block = await BlocksoftAxios.get(linkBlock)
+                const link2 = nodeLink + '/wallet/getnowblock'
+                const block = await BlocksoftAxios.get(link2)
                 if (typeof block !== 'undefined' && block && typeof block.data !== 'undefined') {
                     lastBlock = block.data.block_header.raw_data.number
                 }
@@ -127,7 +130,7 @@ export default class TrxScannerProcessor {
         }
 
         for (const row of res.array) {
-            const linkRecheck = 'https://api.trongrid.io/wallet/gettransactioninfobyid'
+            const linkRecheck = nodeLink + '/wallet/gettransactioninfobyid'
             try {
                 const recheck = await BlocksoftAxios.post(linkRecheck, {
                     value: row.transactionHash

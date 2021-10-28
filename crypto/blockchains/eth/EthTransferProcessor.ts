@@ -103,7 +103,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             maxNonceLocal
         })
 
-        if (typeof additionalData.gasPrice !== 'undefined') {
+        if (typeof additionalData.gasPrice !== 'undefined' && additionalData.gasPrice) {
             if (typeof additionalData.gasPriceTitle !== 'undefined') {
                 // @ts-ignore
                 gasPrice[additionalData.gasPriceTitle] = additionalData.gasPrice
@@ -113,10 +113,14 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else if (typeof additionalData.prices !== 'undefined' && additionalData.prices) {
             gasPrice = additionalData.prices
         } else if (proxyPriceCheck) {
+            let tmp = 0
             if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gasPrice !== 'undefined' && data.walletConnectData.gasPrice) {
-                gasPrice = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gasPrice)
+                tmp = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gasPrice)
+                if (tmp > 0) {
+                    gasPrice = { 'speed_blocks_2': tmp }
+                }
             }
-            if (!gasPrice) {
+            if (!tmp) {
                 gasPrice = typeof proxyPriceCheck.gasPrice !== 'undefined' && proxyPriceCheck.gasPrice ? proxyPriceCheck.gasPrice : { 'speed_blocks_12': '10' }
             }
             if (typeof proxyPriceCheck.maxNonceLocal !== 'undefined' && proxyPriceCheck.maxNonceLocal) {
@@ -128,6 +132,14 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         if (typeof this._web3.LINK === 'undefined') {
             throw new Error('EthTransferProcessor need this._web3.LINK')
         }
+
+        BlocksoftCryptoLog.log(`
+        
+        
+        
+        
+        
+        gasPrice`, JSON.stringify(gasPrice))
 
         let gasLimit = 0
         try {
@@ -156,7 +168,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         }
                     } catch (e) {
                         if (config.debug.cryptoErrors) {
-                            console.log('EthTransferProcessor data.contractCallData error ' + e.message)
+                            BlocksoftCryptoLog.log('EthTransferProcessor data.contractCallData error ' + e.message)
                         }
                         BlocksoftCryptoLog.log('EthTransferProcessor data.contractCallData error ' + e.message)
                         // do nothing
@@ -814,7 +826,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     result = await sender.send(tx, privateData, txRBF, logData)
                 } catch (e) {
                     if (config.debug.cryptoErrors) {
-                        console.log(this._settings.currencyCode + ' EthTransferProcessor.sent while sender.send error ' + e.message)
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent while sender.send error ' + e.message)
                     }
                     throw e
                 }
@@ -827,7 +839,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTransferProcessor.sent error ' + e.message, tx)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent error ' + e.message, tx)
             }
             this.checkError(e, data, txRBF, logData)
         }
@@ -841,7 +853,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
     async setMissingTx(data: BlocksoftBlockchainTypes.DbAccount, transaction: BlocksoftBlockchainTypes.DbTransaction): Promise<boolean> {
         if (typeof transaction.transactionJson !== 'undefined' && transaction.transactionJson && typeof transaction.transactionJson.nonce !== 'undefined') {
-            console.log(this._settings.currencyCode + ' EthTransferPRocessor.setMissingTx remove nonce ' + transaction.transactionJson.nonce + ' ' + transaction.transactionHash)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferPRocessor.setMissingTx remove nonce ' + transaction.transactionJson.nonce + ' ' + transaction.transactionHash)
             await EthTmpDS.removeNonce(this._mainCurrencyCode, data.address, 'send_' + transaction.transactionHash)
         }
         MarketingEvent.logOnlyRealTime('v20_eth_tx_set_missing ' + this._settings.currencyCode + ' ' + data.address + ' => ' + transaction.addressTo, transaction)

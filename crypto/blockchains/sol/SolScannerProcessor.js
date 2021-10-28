@@ -36,6 +36,8 @@ export default class SolScannerProcessor {
 
         let balance = 0
         try {
+            await SolUtils.getEpoch()
+
             const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
             const data = {
                 'jsonrpc': '2.0',
@@ -44,6 +46,7 @@ export default class SolScannerProcessor {
                 'params': [address]
             }
             const res = await BlocksoftAxios._request(apiPath, 'POST', data)
+
             if (typeof res.data.result === 'undefined' || typeof res.data.result.value === 'undefined') {
                 return false
             }

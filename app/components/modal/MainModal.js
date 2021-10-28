@@ -49,7 +49,9 @@ class MainModal extends Component {
 
         switch (data.type) {
             case 'YES_NO_MODAL':
-                return <YesNoModal show={show} data={data} callback={callback}/>
+                return <YesNoModal show={show} data={data} callback={callback} yesTitle={'walletBackup.skipElement.yes'} noTitle={'walletBackup.skipElement.no'}/>
+            case 'CONTINUE_CANCEL_MODAL':
+                return <YesNoModal show={show} data={data} callback={callback} yesTitle={'walletBackup.skipElement.continue'} noTitle={'walletBackup.skipElement.cancel'}/>
             case 'CUSTOM_RECEIVE_AMOUNT_MODAL':
                 return <CustomReceiveAmountModal show={show} data={data} callback={callback}/>
             case 'MNEMONIC_FAIL_MODAL':

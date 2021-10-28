@@ -117,6 +117,13 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.tokenBlockchain = 'MATIC'
         tmp.currencyExplorerLink = 'https://polygonscan.com/token/' + currencyObject.tokenAddress + '?a='
+    } else if (currencyObject.tokenType === 'FTM_ERC_20') {
+        tmp.currencyCode = 'CUSTOM_FTM_ERC_20_' + currencyObject.currencyCode
+        tmp.extendsProcessor = 'FTM_USDC'
+        tmp.addressUiChecker = 'ETH'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'FTM'
+        tmp.currencyExplorerLink = 'https://ftmscan.com/token/' + currencyObject.tokenAddress + '?a='
     } else if (currencyObject.tokenType === 'SOL') {
         tmp.currencyCode = 'CUSTOM_SOL_' + currencyObject.currencyCode
         tmp.extendsProcessor = 'SOL_RAY'
@@ -150,7 +157,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
 
 const ALL_SETTINGS = {}
 
-function getCurrencyAllSettings(currencyCodeOrObject) {
+function getCurrencyAllSettings(currencyCodeOrObject, source = '') {
     let currencyCode = currencyCodeOrObject
     if (typeof currencyCode === 'undefined' || !currencyCode) {
         return false
@@ -173,7 +180,7 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         settings = CurrenciesForTests[currencyCode]
     }
     if (!settings) {
-        throw new Error('Currency code not found in dict ' + JSON.stringify(currencyCode))
+        throw new Error('Currency code not found in dict ' + JSON.stringify(currencyCode) + ' from ' + source)
     }
     if (settings.extendsProcessor && Currencies[settings.extendsProcessor]) {
         const settingsParent = Currencies[settings.extendsProcessor]

@@ -220,6 +220,13 @@ class BackupStep1Screen extends React.PureComponent {
                 })
             } catch (e) {
                 Log.err('WalletBackup.BackupStep1Screen.validateMnemonic error ' + e.message)
+                setLoaderStatus(false)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: false,
+                    title: strings('modal.send.fail'),
+                    description: e.message
+                })
             }
 
         }

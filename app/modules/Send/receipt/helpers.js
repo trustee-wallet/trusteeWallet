@@ -77,13 +77,20 @@ const checkLoadedFee = function(_this) {
         }
     }
 
+    let modalType = 'YES_NO_MODAL'
     if (!goBack) {
         if (
             (typeof selectedFee.isCustomFee === 'undefined' || !selectedFee.isCustomFee)
             && typeof countedFees.showBigGasNotice !== 'undefined' && countedFees.showBigGasNotice
         ) {
-            msg = strings('modal.send.bigGas', { gasLimit: selectedFee.gasLimit })
+
             goBack = BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT_FORCE_QUIT') > 0
+            if (goBack) {
+                msg = strings('modal.send.bigGas', { gasLimit: selectedFee.gasLimit })
+            } else {
+                msg = strings('modal.send.bigGasForceQuitOff', { gasLimit: selectedFee.gasLimit })
+                modalType = 'CONTINUE_CANCEL_MODAL'
+            }
             cacheWarningNoticeValue = countedFees.showBigGasNotice
         } else if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
             msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
@@ -118,7 +125,7 @@ const checkLoadedFee = function(_this) {
             }
         }
     }
-    return { msg, cacheWarningNoticeValue, goBack }
+    return { msg, cacheWarningNoticeValue, goBack, modalType }
 }
 export {
     showSendError, checkLoadedFee

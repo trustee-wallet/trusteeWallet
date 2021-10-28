@@ -214,8 +214,10 @@
       "deactivateSOL": "Deactivate",
       "stakeHistorySOL" : "Stake History",
       "selectValidatorSOL": "Select validator",
+      "selectValidatorSOLCommission" : "Fee :",
       "validatorSOL": "Validator",
-      "rewards" : "Rewards"
+      "rewards" : "Rewards",
+      "useCustomValidator": "Use this validator "
     },
     "about": {
       "title": "საფულის შესახებ",
@@ -767,8 +769,8 @@
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "ძალიან მაღალია საკომისიო ტრანზაქციისთვის - გთხოვთ, აირჩიეთ საკომისიოს ოდენობა  ან მიუთითეთ თანხის დიდი რაოდენობა გადარიცხვისთვის ",
       "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Transaction fee per byte is too high - please adjust the fee manually",
       "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "ტრანზაქციები ერთსა და იმავე მისამართზე აკრძალულია",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "არაა საკმარისი თანხა გადასარიცხად (ბალანზე დატოვე არანაკლებ 20 XRP )",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "არასაკმარისი თანხა - გააგზავნეთ არანაკლებ 20 XRP მიმღების მისამართის აქტივაციისთვის",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "არაა საკმარისი თანხა გადასარიცხად (ბალანზე დატოვე არანაკლებ 10 XRP )",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "არასაკმარისი თანხა - გააგზავნეთ არანაკლებ 10 XRP მიმღების მისამართის აქტივაციისთვის",
       "SERVER_RESPONSE_TAG_NEEDED_XRP": "დანიშნულების ტეგი არასწორია - ტრანზაქციის გასაგზავნად გთხოვთ, შეიყვანოთ დანიშნულების სწორი ტეგი ",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "BTC-ს ბალანსი მიმაგრებულ USDT ბიტკოინ მისამართზე არასაკმარისია - გთხოვთ, გადაიტანოთ მასზე სატოშების მცირე რაოდნეობა ",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": " USDT-თან დაკავშირებულ ბიტკოინ მისამართზე ბალანსი არასაკმარისი ან დაუდასტურებელია - გთხოვთ, დაელოდოთ ან ჩართოთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",
@@ -785,7 +787,9 @@
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
     }
   },
   "walletBackup": {
@@ -849,7 +853,8 @@
       "description": "სარეზერვო კოპირების ფრაზა ძალიან მნიშვნელოვანია. თქვენ არ გექნებათ წვდომა თქვენს ფულთან. გამოვტოვოთ ეს ნაბიჯი?",
       "cancel": "გაუქმება",
       "yes": "დიახ",
-      "no": "არა"
+      "no": "არა",
+      "continue": "Continue"
     },
     "descriptionXMR": "ნებისმიერს, ვისაც აქვს აღმდგენი ფრაზა, შეუძლია, მიიღოს წვდომა საფულესთან. ეს სიტყვები მიღებულიაა ძირითადი ფრაზიდან, ამიტომ თქვენ შეგიძლიათ მისი გამოყენება მხოლოდ Monero -ს ბექაფისთვის "
   },
@@ -960,7 +965,7 @@
     "checkTransferHasError": {
       "XRP": {
         "title": "გთხოვთ, მიაქციოთ ყურადღება!",
-        "description": "თქვენი საფულე Ripple არ არის გააქტიურებული. აქტივაცია მოითხოვს 20 XRP -ის ბლოკირებას. Ripple-ის პროტოკოლის მიხედვით, ამ თანხის განბლოკვა შეუძლებელია და ის ანგარიშზე დარჩება."
+        "description": "თქვენი საფულე Ripple არ არის გააქტიურებული. აქტივაცია მოითხოვს 10 XRP -ის ბლოკირებას. Ripple-ის პროტოკოლის მიხედვით, ამ თანხის განბლოკვა შეუძლებელია და ის ანგარიშზე დარჩება."
       },
       "XLM": {
         "title": "Please, pay attention!",
@@ -1085,6 +1090,7 @@
       "bseMinCrypto": "Exchange minimal amount value is %{limit}",
       "bseMinCryptoNoFee": "Your balance is not enough for exchange minimal amount and fee",
       "bigGas": "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
+      "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance": "Your balance was used in previous unconfirmed transactions, you can use %{free}",
       "feeSmallAmount": "Left for fee amount is too small - transaction could be take too long time to confirm",
       "longQuery": "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
