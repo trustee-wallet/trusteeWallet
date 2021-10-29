@@ -137,6 +137,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenBlockchain = 'ETHEREUM'
         tmp.currencyExplorerLink = 'https://etherscan.io/token/' + currencyObject.tokenAddress + '?a='
     } else if (currencyObject.tokenType === 'TRX') {
+        tmp.currencyCode = 'CUSTOM_TRX_' + currencyObject.currencyCode
         tmp.extendsProcessor = 'TRX_USDT'
         tmp.addressUiChecker = 'TRX'
         tmp.currencyIcon = 'TRX'
