@@ -216,6 +216,10 @@ class AddAssetScreen extends React.PureComponent {
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 renderItem={this.renderFlatListItem}
+                initialScrollIndex={this.state.tokenBlockchain}
+                getItemLayout={(data, index) => (
+                    {length: index, offset: 60 * index, index}
+                  )}
             />
         )
     }
@@ -245,6 +249,11 @@ class AddAssetScreen extends React.PureComponent {
     renderTokenHeader = (data) => {
 
         const { GRID_SIZE } = this.context 
+        
+        data = data.map(item => ({
+            data: item.data,
+            title: item.title === 'BINANCE SMART CHAIN (BEP-20)' ? item.title = 'BSC (BEP-20)' : item.title,
+        }))
 
         return(
             <View>  
