@@ -45,7 +45,7 @@ class NftDetailedInfo extends React.PureComponent {
         heightPhoto: 260, // TODO percent of screen
         data: {
             contractAddress: '2',
-            сontractSchema: 'ERC721',
+            contractSchema: 'ERC721',
             cryptoCurrencySymbol: 'ETH',
             cryptoValue: '?',
             id: 0,
