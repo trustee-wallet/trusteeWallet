@@ -308,10 +308,10 @@ class NftMainScreen extends React.PureComponent {
     }
 
     render() {
-        const { currencyName } = this.props.cryptoCurrency
+        // const { currencyName } = this.props.cryptoCurrency
         return (
             <ScreenWrapper
-                title={currencyName}
+                title={'NFT'}
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='close'

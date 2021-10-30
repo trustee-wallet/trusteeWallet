@@ -294,6 +294,7 @@
     "signed": "Signature only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "status": "Status",
     "contract": "Collection contract",
+    "contractSchema" : "Schema",
     "tokenId": "Token ID",
     "tokenQty" : "Qty",
     "blockchain": "Blockchain",
