@@ -297,6 +297,7 @@
     "status": "Status",
     "contract": "Collection contract",
     "tokenId": "Token ID",
+    "tokenQty" : "Qty",
     "blockchain": "Blockchain",
     "address": "Owned by address",
     "ownershipProved": "Ownership proved",

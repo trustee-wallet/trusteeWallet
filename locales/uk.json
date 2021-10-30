@@ -297,6 +297,7 @@
     "status": "Статус",
     "contract": "Контракт колекції",
     "tokenId": "Токен ID",
+    "tokenQty" : "Кількість",
     "blockchain": "Блокчейн",
     "address": "Адреса власника",
     "ownershipProved": "Право власності підтверджено",

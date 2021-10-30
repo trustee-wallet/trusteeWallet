@@ -28,7 +28,8 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 
 
-const abi = require('@crypto/blockchains/eth/ext/erc721.js')
+const abi721 = require('@crypto/blockchains/eth/ext/erc721.js')
+const abi1155 = require('@crypto/blockchains/eth/ext/erc1155')
 
 class NftDetailedInfoQRCheck extends React.PureComponent {
 
@@ -45,6 +46,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
             "tokenId": 1
         },
         explorerLink: false,
+        qty : 0,
         checked: false,
         checkedInfoShow : false,
         checkedStatus: ''
@@ -111,13 +113,36 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                 Log.log('NftDetailedInfoQRCheck checkMessage signedDataHash has warning ' + JSON.stringify(checkedStatus))
             }
 
-            const token = new web3.eth.Contract(abi.ERC721, data.contractAddress)
+            const token = new web3.eth.Contract(abi721.ERC721, data.contractAddress)
             Log.log('NftDetailedInfoQRCheck checkMessage token inited')
+
+            let qty = 0
             if (!checkedStatus) {
-                const owner = await token.methods.ownerOf(data.tokenId).call()
-                if (owner.toLowerCase() !== data.signAddress.toLowerCase()) {
-                    checkedStatus = 'owned by other address ' + owner
+                let owner = false
+                try {
+                    owner = await token.methods.ownerOf(data.tokenId).call()
+                    if (owner.toLowerCase() !== data.signAddress.toLowerCase()) {
+                        checkedStatus = 'owned by other address ' + owner
+                    }
+                } catch (e) {
+                    Log.log('NftDetailedInfoQRCheck checkMessage ownerCheck has error ' + e.message)
                 }
+
+                if (!owner) {
+                    try {
+                        const token2 = new web3.eth.Contract(abi1155.ERC1155, data.contractAddress)
+                        Log.log('NftDetailedInfoQRCheck checkMessage token2 inited')
+                        qty = await token2.methods.balanceOf(data.signAddress, data.tokenId).call()
+                        Log.log('NftDetailedInfoQRCheck checkMessage ownerCheck2 qty ' + JSON.stringify(qty))
+                        qty = qty * 1
+                        if (qty === 0 ) {
+                            checkedStatus = 'owned ' + qty
+                        }
+                    } catch (e) {
+                        Log.log('NftDetailedInfoQRCheck checkMessage ownerCheck2 has error ' + e.message)
+                    }
+                }
+
                 Log.log('NftDetailedInfoQRCheck checkMessage ownerCheck has warning ' + JSON.stringify(checkedStatus))
             }
 
@@ -136,13 +161,13 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                 Log.log('NftDetailedInfoQRCheck checkMessage success')
             }
 
-            this.setState({ checked: true, checkedStatus, checkedInfoShow })
+            this.setState({ checked: true, checkedStatus, checkedInfoShow, qty })
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('NftDetailedInfoQRCheck checkMessage error ' + e.message)
             }
             Log.log('NftDetailedInfoQRCheck checkMessage error ' + e.message)
-            this.setState({ checked: true, checkedStatus: e.message, checkedInfoShow : true })
+            this.setState({ checked: true, checkedStatus: e.message, checkedInfoShow : true, qty : 0 })
         }
         setLoaderStatus(false)
     }
@@ -227,6 +252,13 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                                 subtitle={this.state.data.tokenId}
                                 iconType='tokenId'
                             />
+                            {this.state.qty > 1 ?
+                            < TransactionItem
+                                title={strings('nftMainScreen.tokenQty')}
+                                subtitle={this.state.qty}
+                                iconType='tokenId'
+                                /> : null
+                            }
                             <TransactionItem
                                 title={strings('nftMainScreen.blockchain')}
                                 subtitle={this.getCurrencyTitle(false, this.state.data.tokenBlockchainCode)}
