@@ -20,7 +20,8 @@ import config from '../../../app/config/config'
 import settingsActions from '../../../app/appstores/Stores/Settings/SettingsActions'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 import { sublocale } from '../../../app/services/i18n'
-import abi from './ext/erc721.js'
+import abi721 from './ext/erc721.js'
+import abi1155 from './ext/erc1155'
 
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -149,10 +150,16 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
                     gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(uiData.walletConnectData.gas)
                 } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
-                    if (typeof abi[data.contractCallData.contractSchema] === 'undefined') {
-                        throw new Error('Contract abi not found ' + data.contractCallData.contractSchema)
+                    const schema = data.contractCallData.contractSchema
+                    let abiCode
+                    if (schema === 'ERC721') {
+                        abiCode = abi721.ERC721
+                    } else if (schema === 'ERC1155') {
+                        abiCode = abi1155.ERC1155
+                    } else {
+                        throw new Error('Contract abi not found ' + schema)
                     }
-                    const token = new this._web3.eth.Contract(abi[data.contractCallData.contractSchema], data.contractCallData.contractAddress)
+                    const token = new this._web3.eth.Contract(abiCode, data.contractCallData.contractAddress)
 
                     gasLimit = 150000
                     try {
@@ -748,22 +755,35 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
 
         if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
-            if (typeof abi[data.contractCallData.contractSchema] === 'undefined') {
-                throw new Error('Contract abi not found ' + data.contractCallData.contractSchema)
-            }
-            const token = new this._web3.eth.Contract(abi[data.contractCallData.contractSchema], data.contractCallData.contractAddress)
-
-            const tmpParams = data.contractCallData.contractActionParams
-            for (let i = 0, ic = tmpParams.length; i < ic; i++) {
-                if (tmpParams[i] === 'addressTo') {
-                    tmpParams[i] = data.addressTo
+            const schema = data.contractCallData.contractSchema
+            try {
+                let abiCode
+                if (schema === 'ERC721') {
+                    abiCode = abi721.ERC721
+                } else if (schema === 'ERC1155') {
+                    abiCode = abi1155.ERC1155
+                } else {
+                    throw new Error('Contract abi not found ' + schema)
                 }
+                const token = new this._web3.eth.Contract(abiCode, data.contractCallData.contractAddress)
+
+                const tmpParams = data.contractCallData.contractActionParams
+                for (let i = 0, ic = tmpParams.length; i < ic; i++) {
+                    if (tmpParams[i] === 'addressTo') {
+                        tmpParams[i] = data.addressTo
+                    }
+                }
+                tx.to = data.contractCallData.contractAddress
+                console.log('token.methods[data.contractCallData.contractAction] ' + JSON.stringify(token.methods[data.contractCallData.contractAction]))
+                tx.data = token.methods[data.contractCallData.contractAction](...tmpParams).encodeABI()
+            } catch (e) {
+                throw new Error(e.message + ' while encodeABI for ' + schema)
             }
-            tx.to = data.contractCallData.contractAddress
-            tx.data = token.methods[data.contractCallData.contractAction](...tmpParams).encodeABI()
         } else if (typeof data.blockchainData !== 'undefined') {
             tx.data = data.blockchainData // actual value for erc20 etc
         }
+
+        console.log('tx.data '  + tx.data)
 
         const sender = new EthTxSendProvider(this._web3, this._trezorServerCode, this._mainCurrencyCode, this._mainChainId, this._settings)
         const logData = JSON.parse(JSON.stringify(tx))

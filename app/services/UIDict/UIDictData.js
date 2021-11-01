@@ -224,13 +224,13 @@ export default {
             darkColor: '#93CA76'
         }
     },
-    "CUSTOM_TTCrypto": {
+    "CUSTOM_TRX_TTCrypto": {
         colors: {
             mainColor: '#1B1818',
             darkColor: '#C0C0C0'
         }
     },
-    "CUSTOM_XXP": {
+    "CUSTOM_TRX_XXP": {
         colors: {
             mainColor: '#FF7B2C',
             darkColor: '#FF7B2C'

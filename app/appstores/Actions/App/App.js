@@ -123,7 +123,7 @@ class App {
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
 
-                // Daemon.start()
+            Daemon.start()
             // console.log(new Date().toISOString() + ' done')
 
         } catch (e) {
@@ -158,7 +158,7 @@ class App {
 
             await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall))
 
-            await CashBackUtils.init({},'ACT/App appRefreshWalletsStates called from' + source)
+            await CashBackUtils.init({}, 'ACT/App appRefreshWalletsStates called from' + source)
 
             await walletActions.setAvailableWallets()
 
@@ -182,7 +182,7 @@ class App {
         } else {
             await Daemon.forceAll(params)
 
-            await CashBackUtils.init({}, 'ACT/App appRefreshWalletsStates init '  + firstTimeCall)
+            await CashBackUtils.init({}, 'ACT/App appRefreshWalletsStates init ' + firstTimeCall)
         }
 
         await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall) + ' finished')

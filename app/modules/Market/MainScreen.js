@@ -241,7 +241,7 @@ class MarketScreen extends PureComponent {
             const validate = await Validator.arrayValidation([
                 {
                     id: 'number',
-                    name: 'сard number',
+                    name: 'card number',
                     type: 'CARD_NUMBER',
                     value
                 }
