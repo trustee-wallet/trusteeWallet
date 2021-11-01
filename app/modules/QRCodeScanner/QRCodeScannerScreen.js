@@ -3,7 +3,7 @@
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Dimensions, Text, StyleSheet } from 'react-native'
+import { View, Dimensions, Text, StyleSheet, Animated, Easing } from 'react-native'
 import QRCodeScanner from 'react-native-qrcode-scanner'
 
 import NavStore from '@app/components/navigation/NavStore'
@@ -31,6 +31,15 @@ const SCREEN_WIDTH = Dimensions.get('window').width
 console.disableYellowBox = true
 
 class QRCodeScannerScreen extends PureComponent {
+
+    constructor() {
+        super()
+        this.value = new Animated.Value(0)
+        this.translateY = this.value.interpolate({
+            inputRange: [0, 0.5, 1],
+            outputRange: [SCREEN_WIDTH * 0.32, SCREEN_WIDTH * -0.32, SCREEN_WIDTH * 0.32]
+        })
+    }
 
     componentDidMount() {
         this.scanner.reactivate()
@@ -86,8 +95,29 @@ class QRCodeScannerScreen extends PureComponent {
         NavStore.goBack()
     }
 
+    makeSlideOutTranslation = () => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(this.value, {
+                    toValue: 1,
+                    duration: 3000,
+                    useNativeDriver: true,
+                    easing: Easing.linear()
+                }),
+                Animated.timing(this.value, {
+                    toValue: 0,
+                    duration: 3000,
+                    useNativeDriver: true,
+                    easing: Easing.linear()
+                })
+            ])
+        ).start()
+    }
+
     render() {
+
         MarketingAnalytics.setCurrentScreen('QRCodeScannerScreen.index')
+        this.makeSlideOutTranslation()
         return (
             <ScreenWrapper
                 leftType='back'
@@ -103,32 +133,34 @@ class QRCodeScannerScreen extends PureComponent {
                     }}
                     showMarker
                     onRead={this.onSuccess.bind(this)}
-                    cameraStyle={{ height: SCREEN_HEIGHT }}
+                    cameraStyle={{ height: SCREEN_HEIGHT, width: SCREEN_WIDTH }}
                     topViewStyle={{ height: 0, flex: 0 }} bottomViewStyle={{ height: 0, flex: 0 }}
                     customMarker={
                         <View style={styles.rectangleContainer}>
-                            <View style={styles.topOverlay}>
-                            </View>
+                            <View style={styles.topOverlay} />
                             <View style={{ flexDirection: 'row' }}>
                                 <View style={styles.leftAndRightOverlay} />
 
                                 <View style={styles.rectangle}>
                                     <View style={styles.rectangle__topLeft}>
-                                        <View style={styles.vertical}></View>
-                                        <View style={{ ...styles.horizontal, ...styles.rectangle__top_fix }}></View>
+                                        <View style={styles.vertical} />
+                                        <View style={{ ...styles.horizontal, ...styles.rectangle__top_fix }} />
                                     </View>
                                     <View style={styles.rectangle__topRight}>
-                                        <View style={styles.vertical}></View>
-                                        <View style={{ ...styles.horizontal, ...styles.rectangle__top_fix }}></View>
+                                        <View style={styles.vertical} />
+                                        <View style={{ ...styles.horizontal, ...styles.rectangle__top_fix }} />
                                     </View>
                                     <View style={styles.rectangle__bottomLeft}>
-                                        <View style={{ ...styles.horizontal, ...styles.rectangle__bottom_fix }}></View>
-                                        <View style={styles.vertical}></View>
+                                        <View style={{ ...styles.horizontal, ...styles.rectangle__bottom_fix }} />
+                                        <View style={styles.vertical} />
                                     </View>
                                     <View style={styles.rectangle__bottomRight}>
-                                        <View style={{ ...styles.horizontal, ...styles.rectangle__bottom_fix }}></View>
-                                        <View style={styles.vertical}></View>
+                                        <View style={{ ...styles.horizontal, ...styles.rectangle__bottom_fix }} />
+                                        <View style={styles.vertical} />
                                     </View>
+                                    <Animated.View
+                                        style={{ ...styles.scanBar, transform: [{ translateY: this.translateY }] }}
+                                    />
                                 </View>
 
                                 <View style={styles.leftAndRightOverlay} />
@@ -160,15 +192,15 @@ QRCodeScannerScreen.contextType = ThemeContext
 
 export default connect(mapStateToProps, {})(QRCodeScannerScreen)
 
-const overlayColor = 'transparent' // this gives us a black color with a 50% transparency
+const overlayColor = '#0000008A' // this gives us a black color with a 50% transparency
 
 const rectDimensions = SCREEN_WIDTH * 0.65 // this is equivalent to 255 from a 393 device width
 const rectBorderWidth = 0 // this is equivalent to 2 from a 393 device width
 const rectBorderColor = '#b995d8'
 
-const scanBarWidth = SCREEN_WIDTH * 0.46 // this is equivalent to 180 from a 393 device width
+const scanBarWidth = SCREEN_WIDTH * 0.65 // this is equivalent to 180 from a 393 device width
 const scanBarHeight = SCREEN_WIDTH * 0.0025 // this is equivalent to 1 from a 393 device width
-const scanBarColor = '#22ff00'
+const scanBarColor = '#fff'
 
 const styles = StyleSheet.create({
     rectangleContainer: {
@@ -252,7 +284,7 @@ const styles = StyleSheet.create({
     bottomOverlay: {
         flex: 1,
         width: '100%',
-        marginTop: 20,
+        paddingTop: 20,
         backgroundColor: overlayColor
     },
 
@@ -265,7 +297,8 @@ const styles = StyleSheet.create({
     scanBar: {
         width: scanBarWidth,
         height: scanBarHeight,
-        backgroundColor: scanBarColor
+        backgroundColor: scanBarColor,
+        opacity: 0.8,
     },
     text: {
         paddingLeft: 30,
@@ -274,5 +307,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: 'SFUIDisplay-Regular',
         color: '#e3e6e9'
+    },
+    blurViewStyle: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        top: 0
     }
 })
