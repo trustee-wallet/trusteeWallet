@@ -78,6 +78,7 @@ export async function handleApplyLink(checkLock = true) {
                     }
                 })
                 NavStore.goNext('LockScreen')
+                return
             }
         }
         await this._init({ fullLink: inputFullLink })
