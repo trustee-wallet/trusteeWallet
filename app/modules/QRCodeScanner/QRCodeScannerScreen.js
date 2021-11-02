@@ -285,7 +285,8 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         paddingTop: 20,
-        backgroundColor: overlayColor
+        backgroundColor: overlayColor,
+        zIndex: -1
     },
 
     leftAndRightOverlay: {
@@ -307,12 +308,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: 'SFUIDisplay-Regular',
         color: '#e3e6e9'
-    },
-    blurViewStyle: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        top: 0
     }
 })
