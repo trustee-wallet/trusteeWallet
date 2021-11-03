@@ -509,10 +509,13 @@
         }
       },
       "transactionHash": "Хеш транзакції:",
-      "cashbackLink": "Сайт:",
-      "thanks": "Дякуємо, що обрали Trustee Wallet!",
+      "cashbackLink": "Я використовую Trustee Wallet! Ось моє особисте посилання",
       "self": "Дана транзакція була відправлена на Вашу власну адресу",
-      "order": "До ордеру"
+      "order": "До ордеру",
+      "transactionSum": "Сумма відправки ",
+      "addresTo": "Отримувач ",
+      "addresFrom": "Відправник",
+      "blockConfirmations": "Кількість підтверджень "
       }
   },
 

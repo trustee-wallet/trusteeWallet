@@ -509,10 +509,13 @@
         }
       },
       "transactionHash": "Transaction hash:",
-      "cashbackLink": "Website:",
-      "thanks": "Thank you for choosing Trustee Wallet!",
+      "cashbackLink": "I’m using Trustee Wallet! Here is my personal link ",
       "self": "This transaction was send to your address",
-      "order": "To order"
+      "order": "To order",
+      "transactionSum": "Send amount ",
+      "addresTo": "Recipient ",
+      "addresFrom": "Sender",
+      "blockConfirmations": "Number of confirmations "
     }
   },
 

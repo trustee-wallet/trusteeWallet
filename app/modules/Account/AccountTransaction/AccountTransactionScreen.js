@@ -726,21 +726,30 @@ class AccountTransactionScreen extends PureComponent {
     }
 
     shareTransaction = () => {
-        const { transaction, linkExplorer } = this.state
+        const { transaction, linkExplorer, fromToView, addressToToView } = this.state
 
         Log.log('AccountTransactionScreen.shareTransaction cashbackLink', this.props.cashBackData.cashbackLink)
 
         const shareOptions = { message: '' }
+
         if (transaction.transactionHash) {
-            shareOptions.message += strings('account.transactionScreen.transactionHash') + ` ${linkExplorer}\n`
+            shareOptions.message += `\n${strings('account.transactionScreen.transactionHash')} ${linkExplorer}\n`
         }
-        shareOptions.message = shareOptions.message + (this.props.cashBackData.cashbackLink ? strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackData.cashbackLink}\n` : '\n')
+
+        shareOptions.message += `\n${strings('account.transactionScreen.transactionSum')} ${transaction.addressAmountNorm} ${transaction.currencyCode}\n`
+
+        fromToView ? 
+            shareOptions.message += `\n${strings('account.transactionScreen.addresFrom')} ${transaction.addressFrom}\n` :
+                addressToToView ? 
+                    shareOptions.message += `\n${strings('account.transactionScreen.addresTo')} ${transaction.addressTo}\n` : null
+
+        shareOptions.message += `\n${strings('account.transactionScreen.blockConfirmations')} ${transaction.blockConfirmations > 20 ? '20+' : transaction.blockConfirmations}\n`
 
         if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
-            shareOptions.message = strings(`account.transaction.orderId`) + ` ${transaction.bseOrderData.orderHash}\n` + shareOptions.message
+            shareOptions.message = strings(`account.transaction.orderId`) `${transaction.bseOrderData.orderHash}\n` + shareOptions.message
         }
-        shareOptions.message += `\n${strings('account.transactionScreen.thanks')}`
 
+        shareOptions.message += `\n${(this.props.cashBackData.cashbackLink ? strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackData.cashbackLink}\n` : '\n')}`
         // shareOptions.url = this.props.cashBackData.dataFromApi.cashbackLink
         prettyShare(shareOptions, 'taki_share_transaction')
     }
