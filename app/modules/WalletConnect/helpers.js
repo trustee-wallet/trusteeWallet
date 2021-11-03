@@ -14,6 +14,8 @@ import Log from '@app/services/Log/Log'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import store from '@app/store'
 
+import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+
 export const NETWORKS_SETTINGS = [
     {currencyCode : 'ETH', networkTitle : 'Mainnet'},
     {currencyCode: 'MATIC', networkTitle: 'Polygon (Matic)'},
@@ -37,10 +39,12 @@ export async function handleParanoidLogout(isConnected, func) {
             title: strings('settings.walletConnect.stop'),
             description: strings('settings.walletConnect.stopText') + this.state.peerMeta.name
         },  async () => {
-             await AppWalletConnect.killSession()
-             this.setState({
-                 peerStatus: false
-             })
+            await AppWalletConnect.killSession()
+            setWalletConnectData()
+            this.setState({
+                inputFullLink: '',
+                peerStatus: false
+            })
         })
     }
     func()
@@ -55,7 +59,9 @@ export async function handleStop(isConnected) {
             description: strings('settings.walletConnect.stopText') + this.state.peerMeta.name
         }, async () => {
             await AppWalletConnect.killSession()
+            setWalletConnectData()
             this.setState({
+                inputFullLink: '',
                 peerStatus: false
             })
         })
@@ -68,6 +74,7 @@ export async function handleApplyLink(checkLock = true) {
         if (!inputFullLink || inputFullLink === '') {
             return false
         }
+        
         if (checkLock && !this.state.noMoreLock) {
             if (this.props.lockScreenStatus * 1 > 0) {
                 setLockScreenConfig({

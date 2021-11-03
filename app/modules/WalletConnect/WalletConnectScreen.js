@@ -9,7 +9,8 @@ import {
     StyleSheet,
     Text,
     View,
-    TouchableOpacity
+    TouchableOpacity,
+    BackHandler
 } from 'react-native'
 
 import { connect } from 'react-redux'
@@ -80,6 +81,7 @@ class WalletConnectScreen extends PureComponent {
     }
 
     componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.handleLogout)
         this._setLink(this.props.walletConnectData.fullLink)
     }
 
@@ -115,6 +117,7 @@ class WalletConnectScreen extends PureComponent {
     }
 
     handleLinkApply = (checkLock) => {
+        checkLock = !this.props.walletConnectData.isConnected
         handleApplyLink.call(this, checkLock)
     }
 

@@ -166,9 +166,9 @@ const styles = StyleSheet.create({
         letterSpacing: 1
     },
     switchableCircle: {
-        padding: 5,
         width: 60,
-        height: 50
+        height: 60,
+        paddingLeft: 5
     },
     textContainer: {
 
@@ -180,7 +180,6 @@ const styles = StyleSheet.create({
         marginBottom: 13
     },
     circle: {
-        paddingRight: 12,
-        paddingBottom: 4,
-    }
+        paddingRight: 12
+        }
 })
