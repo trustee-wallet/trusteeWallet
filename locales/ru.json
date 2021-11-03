@@ -510,11 +510,14 @@
         }
       },
     "transactionHash": "Хэш транзакции:",
-    "cashbackLink": "Сайт:",
-    "thanks": "Спасибо, что выбрали кошелек Trustee Wallet!",
+    "cashbackLink": "Я использую кошелек Trustee Wallet! Вот моя личная ссылка ",
     "self": "Данная транзакция была отправлена ​​на собственный адрес",
-    "order": "К ордеру"
-    }
+    "order": "К ордеру",
+    "transactionSum": "Сумма отправки ",
+    "addresTo": "Получатель ",
+    "addresFrom": "Отправитель",
+    "blockConfirmations": "Количество подтверждений "
+  }
   },
 
   "fioMainSettings": {

@@ -507,10 +507,13 @@
         }
       },
       "transactionHash": "ტრანზაქციის ჰაში:",
-      "cashbackLink": "ქეშბექის ბმული:",
-      "thanks": "მადლობა, რომ აირჩიეთ Trustee Wallet!",
+      "cashbackLink": "I’m using Trustee Wallet! Here is my personal link",
       "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე",
-      "order": "To order"
+      "order": "To order",
+      "transactionSum": "Send amount ",
+      "addresTo": "Recipient ",
+      "addresFrom": "Sender",
+      "blockConfirmations": "Number of confirmations "
     }
   },
   "fioMainSettings": {
