@@ -285,7 +285,7 @@ class MarketScreen extends PureComponent {
             const {
                 error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, checkCamera, refreshControl, restart, share, txHash, needActivateCurrency
+                useAllFunds, checkCamera, refreshControl, restart, share, txHash, needActivateCurrency, checkApproveData
             } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
@@ -394,6 +394,10 @@ class MarketScreen extends PureComponent {
                 })
             }
 
+            if (checkApproveData) {
+                this.checkApprove(checkApproveData)
+            }
+
         } catch {
             Log.err('Market/MainScreen.onMessage parse error ', event.nativeEvent)
         }
@@ -488,6 +492,10 @@ class MarketScreen extends PureComponent {
             }
             throw e
         }
+    }
+
+    async checkApprove(data) {
+        // TODO check approve for DEX
     }
 
     async onTakePhoto(cardData) {
