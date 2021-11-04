@@ -122,6 +122,7 @@ const checkLoadedFee = function(_this) {
                     cacheWarningNoticeValue = countedFees.showSmallFeeNotice
                 }
                 msg += strings('modal.send.feeSmallAmount')
+                goBack = BlocksoftExternalSettings.getStatic('ETH_SMALL_FEE_FORCE_QUIT') > 0
             }
         }
     }
