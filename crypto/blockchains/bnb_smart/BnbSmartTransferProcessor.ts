@@ -11,7 +11,7 @@ import BnbSmartNetworkPrices from './basic/BnbSmartNetworkPrices'
 export default class BnbSmartTransferProcessor extends EthTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        additionalData.gasPrice = await BnbSmartNetworkPrices.getFees()
+        additionalData.gasPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPath)
         additionalData.gasPriceTitle = 'speed_blocks_2'
         return super.getFeeRate(data, privateData, additionalData)
     }

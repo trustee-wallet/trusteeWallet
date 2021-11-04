@@ -22,8 +22,10 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
         this._tokenAddress = settings.tokenAddress.toLowerCase()
         this._delegateAddress = (settings.delegateAddress || '').toLowerCase()
 
-        const tmp = this._etherscanApiPath.split('/')
-        this._etherscanApiPath = `https://${tmp[2]}/api?module=account&action=tokentx&sort=desc&contractaddress=${settings.tokenAddress}&apikey=YourApiKeyToken`
+        if (this._etherscanApiPath && typeof this._etherscanApiPath !== 'undefined') {
+            const tmp = this._etherscanApiPath.split('/')
+            this._etherscanApiPath = `https://${tmp[2]}/api?module=account&action=tokentx&sort=desc&contractaddress=${settings.tokenAddress}&apikey=YourApiKeyToken`
+        }
     }
 
     /**

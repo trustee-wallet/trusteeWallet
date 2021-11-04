@@ -102,7 +102,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             ethAllowBlockedBalance,
             ethAllowLongQuery,
             maxNonceLocal
-        })
+        }, this._etherscanApiPath)
 
         if (typeof additionalData.gasPrice !== 'undefined' && additionalData.gasPrice) {
             if (typeof additionalData.gasPriceTitle !== 'undefined') {
@@ -365,7 +365,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 } else {
                     if (tmp * 1 < 0) {
                         const tmpGasPrice = BlocksoftUtils.div(balance, gasLimit).toString()
-                        if (BlocksoftUtils.diff(tmpGasPrice, prevGasPrice).toString() * 1 > 0) {
+                        if (tmpGasPrice && BlocksoftUtils.diff(tmpGasPrice, prevGasPrice).toString() * 1 > 0) {
                             fee = balance
                             newGasPrice = tmpGasPrice.split('.')[0]
                             changedFeeByBalance = true
@@ -783,8 +783,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             tx.data = data.blockchainData // actual value for erc20 etc
         }
 
-        console.log('tx.data '  + tx.data)
-
         const sender = new EthTxSendProvider(this._web3, this._trezorServerCode, this._mainCurrencyCode, this._mainChainId, this._settings)
         const logData = JSON.parse(JSON.stringify(tx))
         logData.currencyCode = this._settings.currencyCode
@@ -821,7 +819,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
                 logData.setNonce = oldNonce
                 tx.nonce = oldNonce
-                result = {transactionHash : '11111'} // await sender.send(tx, privateData, txRBF, logData)
+                result = {transactionHash : await sender.send(tx, privateData, txRBF, logData) }
                 if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
                     result.amountForTx = data.amount
                 }

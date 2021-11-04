@@ -20,6 +20,9 @@ class BnbSmartNetworkPrices {
         if (typeof CACHE_FEES[mainCurrencyCode] !== 'undefined' && now - CACHE_FEES[mainCurrencyCode].ts < CACHE_VALID_TIME) {
             return CACHE_FEES[mainCurrencyCode].fee
         }
+        if (typeof etherscanApiPath === 'undefined' || !etherscanApiPath) {
+            throw new Error('BnbSmartNetworkPrices etherscanApiPath is ' + etherscanApiPath)
+        }
         const tmp = etherscanApiPath.split('/')
         const feesApiPath = `https://${tmp[2]}/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
         BlocksoftCryptoLog.log(mainCurrencyCode + ' BnbSmartNetworkPricesProvider.getFees no cache load')

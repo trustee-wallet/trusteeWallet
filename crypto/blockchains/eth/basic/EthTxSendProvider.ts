@@ -47,7 +47,12 @@ export default class EthTxSendProvider {
         if (this._mainChainId) {
             tx.chainId = this._mainChainId
         }
-        const signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
+        let signData = ''
+        try {
+            signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
+        } catch (e) {
+            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx signTransaction error ' + e.message)
+        }
 
         // @ts-ignore
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx signed', tx)

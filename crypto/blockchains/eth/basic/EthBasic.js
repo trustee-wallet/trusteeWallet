@@ -198,8 +198,11 @@ export default class EthBasic {
     }
 
     checkError(e, data, txRBF = false, logData = {}) {
-
-        if (e.message.indexOf('nonce too low') !== -1) {
+        console.log('msg ' + e.message)
+        if (e.message.indexOf('Transaction has been reverted by the EVM') !== -1) {
+            BlocksoftCryptoLog.log('EthBasic checkError0.0 ' + e.message + ' for ' + data.addressFrom, logData)
+            throw new Error('SERVER_RESPONSE_REVERTED_BY_EVM')
+        } else if (e.message.indexOf('nonce too low') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.1 ' + e.message + ' for ' + data.addressFrom, logData)
             let e2
             if (txRBF) {
@@ -215,10 +218,10 @@ export default class EthBasic {
             throw e2
         } else if (e.message.indexOf('gas required exceeds allowance') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.2 ' + e.message + ' for ' + data.addressFrom, logData)
-            if (this._settings.currencyCode === 'ETH') {
+            if (this._settings.tokenAddress === 'undefined' || !this._settings.tokenAddress) {
                 throw new Error('SERVER_RESPONSE_TOO_MUCH_GAS_ETH')
             } else {
-                throw new Error('SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC_20')
+                throw new Error('SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20')
             }
         } else if (e.message.indexOf('insufficient funds') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.3 ' + e.message + ' for ' + data.addressFrom, logData)

@@ -778,6 +778,7 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Занадто мала комісія за транзакцію для заміни",
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Транзакцію вже підтверджено",
       "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} вже використано в підтвердженій транзакції",
+      "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
       "SERVER_RESPONSE_NOT_CONNECTED": "Мережа не відповідає - будь ласка, повторіть операцію пізніше",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції і сплати мінімальної комісії",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте доки інші транзакції замайняться або увімкніть функцію \"Використовувати непідтверджені транзакції\" ",

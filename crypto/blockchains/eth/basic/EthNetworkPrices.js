@@ -30,11 +30,11 @@ let CACHE_PROXY_TIME = 0
 class EthNetworkPrices {
 
 
-    async getWithProxy(mainCurrencyCode, isTestnet, address, logData = {}) {
+    async getWithProxy(mainCurrencyCode, isTestnet, address, logData = {}, etherscanApiPath) {
         if (mainCurrencyCode !== 'ETH' || isTestnet) {
             // @todo server side for other coins
             return {
-                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData)
+                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData, etherscanApiPath)
             }
         }
         const { apiEndpoints } = config.proxy
@@ -89,7 +89,7 @@ class EthNetworkPrices {
 
         if (checkResult === false) {
             return {
-                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData)
+                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData, etherscanApiPath)
             }
         }
 
@@ -140,15 +140,22 @@ class EthNetworkPrices {
         return result
     }
 
-    async getOnlyFees(mainCurrencyCode, isTestnet, address, logData = {}) {
-        if (mainCurrencyCode === 'BNB') {
-            return {'speed_blocks_2' : await BnbSmartNetworkPrices.getFees()}
-        } else {
-            const onePrice = BlocksoftExternalSettings.getStatic(isTestnet ? 'ETH_TESTNET_PRICE' : (mainCurrencyCode + '_PRICE'))
-            if (typeof onePrice !== 'undefined' && onePrice) {
-                return { 'speed_blocks_2': onePrice }
+    async getOnlyFees(mainCurrencyCode, isTestnet, address, logData = {}, etherscanApiPath) {
+        if (!isTestnet && mainCurrencyCode !== 'ETH' && etherscanApiPath) {
+            try {
+                const tmpFee = await BnbSmartNetworkPrices.getFees(mainCurrencyCode, etherscanApiPath)
+                if (tmpFee * 1 > 0) {
+                   return {'speed_blocks_2' : tmpFee}
+                }
+            } catch (e) {
+                // do nothing
             }
         }
+        const onePrice = BlocksoftExternalSettings.getStatic(isTestnet ? 'ETH_TESTNET_PRICE' : (mainCurrencyCode + '_PRICE'))
+        if (typeof onePrice !== 'undefined' && onePrice) {
+             return { 'speed_blocks_2': onePrice }
+        }
+
         logData.resultFeeSource = 'fromCache'
         const now = new Date().getTime()
         if (CACHE_FEES_ETH && (now - CACHE_FEES_ETH_TIME) < CACHE_VALID_TIME) {

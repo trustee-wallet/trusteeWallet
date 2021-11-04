@@ -46,14 +46,13 @@ class EthTmpDS {
             }
             for (const row of res.array) {
                 const val = row.tmp_val * 1
-                if (row.tmp_sub_key === 'maxScanned' || row.tmp_sub_key === 'maxSuccess') {
+                if (row.tmp_sub_key === 'maxScanned' || row.tmp_sub_key === 'maxSuccess' || !row.tmp_sub_key || typeof row.tmp_sub_key === 'undefined') {
                     // do nothing
                 } else {
                     const tmp = row.tmp_sub_key.split('_')
                     if (typeof tmp[1] !== 'undefined') {
                         const txHash = tmp[1]
                         if (toRemove && typeof toRemove[txHash] !== 'undefined') {
-                            console.log('remove ' + txHash)
                             await Database.query(`DELETE FROM ${tableName} WHERE id=${row.id}`)
                         } else {
                             if (val > maxSuccess) {
