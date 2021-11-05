@@ -87,6 +87,7 @@ import NftAddAssetScreen from '@app/modules/NFT/NftAddAssetScreen';
 
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 
@@ -176,10 +177,20 @@ const MarketStackScreen = () => {
             <MarketStack.Screen name='SMSV3CodeScreen' component={SMSV3CodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <MarketStack.Screen name='SellCodeScreen' component={SellCodeScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }}/>
             <MarketStack.Screen name='MarketReceiptScreen' component={ReceiptScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <MarketStack.Screen name='MaketAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <MarketStack.Screen name='MarketAdvancedScreen' component={SendAdvancedSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </MarketStack.Navigator>
     )
 }
+
+const SupportStackScreen = () => {
+    return (
+        <MarketStack.Navigator initialRouteName='StreamSupportScreen'>
+            <MarketStack.Screen name='StreemSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <MarketStack.Screen name='SupportAboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+        </MarketStack.Navigator>
+    )
+}
+
 
 const TabBar = () => {
 
@@ -255,10 +266,10 @@ const TabBar = () => {
                     )
                 }}
             />
-            {MarketingEvent.DATA.LOG_TESTER ?
+            {BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 > 0 ?
                 <Tab.Screen
                     name='SupportScreen'
-                    component={StreamSupportScreen}
+                    component={SupportStackScreen}
                     options={{
                         unmountOnBlur: true,
                         tabBarLabel: strings('dashboardStack.support'),
