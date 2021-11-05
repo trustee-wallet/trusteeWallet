@@ -1466,6 +1466,7 @@
     "sendLogs": "Send logs",
     "takePhoto": "Take photo",
     "chooseFromLibrary": "Choose from gallery",
-    "noMessages": "No messages yet"
+    "noMessages": "No messages yet",
+    "sentFile": "File sent"
   }
 }
