@@ -49,7 +49,12 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
     }
     logData.bseOrderId = bseOrderId.toString()
 
-    ApiV3.setExchangeStatus(bseOrderId,'SUCCESS', transaction.transactionHash)
+    const params = { 
+        transactionHash: transaction.transactionHash,
+        orderHash: bseOrderId,
+        status: 'SUCCESS'
+    }
+    ApiV3.setExchangeStatus(params)
 
 
     // https://rnfirebase.io/reference/analytics#logPurchase
@@ -115,7 +120,7 @@ export namespace SendActionsEnd {
 
     export const endRedirect = async (tx: any, sendScreenStore: any) => {
         const { currencyCode } = sendScreenStore.dict
-        const { uiType, tbk } = sendScreenStore.ui
+        const { uiType, tbk, extraData } = sendScreenStore.ui
         const { transactionAction } = tbk
 
         if (typeof transactionAction !== 'undefined' && transactionAction !== '' && transactionAction) {
@@ -172,6 +177,14 @@ export namespace SendActionsEnd {
                 },
                 source : 'SendActionsEnd.WalletConnect'
             })
+            if (extraData?.txCode === 'APPROVE') {
+                setBseLink(null)
+                const params = {
+                    transactionHash: tx.transactionHash,
+                    nonce: tx?.transactionJson?.nonce
+                }
+                await endClose(sendScreenStore, params)
+            }
         } else {
             // fio request etc - direct to receipt
             NavStore.goBack()
@@ -179,11 +192,12 @@ export namespace SendActionsEnd {
 
     }
 
-    export const endClose = async (sendScreenStore : any) => {
-        const { bse } = sendScreenStore.ui
+    export const endClose = async (sendScreenStore : any, params : any = false) => {
+        const { bse, extraData } = sendScreenStore.ui
         const { bseOrderId } = bse
-        if (typeof bseOrderId === 'undefined' || !bseOrderId) return
-        return ApiV3.setExchangeStatus(bseOrderId, 'CLOSE')
+        let data = { extraData, ...params, orderHash: bseOrderId, status: 'CLOSE' }
+        if ((typeof bseOrderId === 'undefined' || !bseOrderId) && !extraData.txCode) return
+        return ApiV3.setExchangeStatus(data)
     }
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {

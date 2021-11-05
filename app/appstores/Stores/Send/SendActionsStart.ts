@@ -80,7 +80,8 @@ export namespace SendActionsStart {
     export const startFromWalletConnect = async (data : {
         currencyCode : string,
         walletConnectData : any,
-        walletConnectPayload : any
+        walletConnectPayload : any,
+        extraData : any
     }) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         if (typeof account.derivationPath === 'undefined') {
@@ -93,7 +94,8 @@ export namespace SendActionsStart {
             cryptoValue : data.walletConnectData.value ? BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value) : 0,
             addressTo : data.walletConnectData.to,
             walletConnectData : data.walletConnectData,
-            walletConnectPayload : data.walletConnectPayload
+            walletConnectPayload : data.walletConnectPayload,
+            extraData : data.extraData
         }
         dispatch({
             type: 'RESET_DATA',
@@ -102,8 +104,13 @@ export namespace SendActionsStart {
         })
 
         await SendActionsBlockchainWrapper.getFeeRate(ui)
+        setLoaderFromBse(false)
 
-        NavStore.goNext('ReceiptScreen')
+        if (data.extraData.fromMarketScreen) {
+            NavStore.goNext('MarketReceiptScreen')
+        } else {
+            NavStore.goNext('ReceiptScreen')
+        }
     }
 
     export const startFromCustomContractCallData = async (data : {

@@ -120,8 +120,8 @@ class SMSV3CodeScreen extends PureComponent {
         this.prepareFunction(this.state.navigation, newNavState, this, 'GENERAL')
     }
 
-    async setExchangeStatus(body, orderHash, status) {
-        Api.setExchangeStatus(orderHash, status)
+    async setExchangeStatus(body, data) {
+        Api.setExchangeStatus(data)
     }
 
     closeAction = () => {
@@ -129,7 +129,7 @@ class SMSV3CodeScreen extends PureComponent {
 
         if (this.state.additionalData.close) {
             Log.log('Trade.SMSV3CodeScreen.backAction CLOSE')
-            this.setExchangeStatus(this.state.api, this.state.orderHash, 'CLOSE')
+            this.setExchangeStatus(null, { orderHash: this.state.orderHash, status: 'CLOSE' })
         }
         NavStore.reset('TabBar')
     }
@@ -139,7 +139,7 @@ class SMSV3CodeScreen extends PureComponent {
 
         if (this.state.additionalData.close) {
             Log.log('Trade.SMSV3CodeScreen.backAction BACK')
-            this.setExchangeStatus(this.state.api, this.state.orderHash, 'BACK')
+            this.setExchangeStatus(null, { orderHash: this.state.orderHash, status: 'BACK' })
         }
         NavStore.goBack()
     }

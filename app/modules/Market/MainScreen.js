@@ -41,7 +41,7 @@ import { Camera } from '@app/services/Camera/Camera'
 import countriesDict from '@assets/jsons/other/country-codes'
 import Validator from '@app/services/UI/Validator/Validator'
 
-import { setBseLink, setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setBseLink, setLoaderFromBse, setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -494,8 +494,18 @@ class MarketScreen extends PureComponent {
         }
     }
 
-    async checkApprove(data) {
-        // TODO check approve for DEX
+    async checkApprove(approveData) {
+        setLoaderFromBse(true)
+        SendActionsStart.startFromWalletConnect({
+            currencyCode: approveData.currencyCode,
+            walletConnectData: approveData.data[0].params,
+            extraData: {
+                fromMarketScreen: true,
+                txCode: approveData.data[0].txCode,
+                providerName: approveData.provider,
+                currencyCode: approveData.currencyCode
+            }
+        })
     }
 
     async onTakePhoto(cardData) {
