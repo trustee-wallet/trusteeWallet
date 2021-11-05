@@ -216,9 +216,7 @@ class BackupStep1Screen extends React.PureComponent {
                         NavStore.goBack()
                     } else if (callback === 'InitScreen') {
                         setCallback({ callback: null })
-                        NavStore.goBack()
-                        NavStore.goBack()
-                        NavStore.goBack()
+                        NavStore.reset('InitScreen')
                     } else {
                         callback()
                         setCallback({ callback: null })
