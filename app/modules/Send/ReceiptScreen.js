@@ -192,14 +192,13 @@ class ReceiptScreen extends PureComponent {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.handleSend rawOnly ', JSON.stringify(tx))
             }
+            Log.log('ReceiptScreen.handleSend rawOnly ', JSON.stringify(tx))
             showModal({
                 type: 'INFO_MODAL',
                 icon: null,
-                title: strings('modal.titles.attention'),
+                title: strings('send.receiptScreen.rawTransactionResult'),
                 description: tx.raw
             })
-            copyToClipboard(tx.raw)
-            Toast.setMessage(strings('toast.copied')).show()
 
             CACHE_IS_SENDING = false
             CACHE_IS_SENDING_CLICKED = 0

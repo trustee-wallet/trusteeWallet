@@ -750,8 +750,8 @@
         "trusteeInfo": "Trustee не бере комісію за криптовалютні транзакції",
         "send": "Надіслати",
         "build" : "Побудувати",
-        "sending": "Відправка"
-
+        "sending": "Відправка",
+        "rawTransactionResult" : "Click to Copy"
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND" : "Транзакція на цю адресу вже відправлена, Ви впевнені, що хочете повторити транзакцію?",

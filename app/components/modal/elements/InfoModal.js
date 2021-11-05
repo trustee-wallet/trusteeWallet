@@ -74,6 +74,8 @@ class InfoModal extends React.PureComponent {
             shownColor = colors.modal.info
         }
 
+        const shownDescription = description && description.length > 1000 ? (description.substring(0, 1000) + '...') : description
+
         return (
             <Layout visible={show} noBackdropPress={noBackdropPress || false} >
                 <View>
@@ -86,7 +88,7 @@ class InfoModal extends React.PureComponent {
                     >
                     <View style={{ marginTop: 8, marginBottom: 15 }}>
                         <Text style={{...styles.text, color: colors.sendScreen.amount }}>
-                            {description}
+                            {shownDescription}
                         </Text>
                     </View>
                     </TouchableOpacity>

@@ -741,7 +741,8 @@
       "trusteeInfo": "Trustee does not charge any fees for cryptocurrency transactions",
       "send": "გაგზავნა",
       "build" : "Build",
-      "sending": "იგზავნება"
+      "sending": "იგზავნება",
+      "rawTransactionResult" : "Click to Copy"
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND": "აღნიშნულ მისამართზე ტრანზაქცია უკვე გაგზავნილია. დარწმუნებული ხართ, რომ გინდათ ხელახლა გაგზავნა?",

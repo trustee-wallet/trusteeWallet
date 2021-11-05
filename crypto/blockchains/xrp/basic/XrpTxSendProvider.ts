@@ -108,6 +108,16 @@ export class XrpTxSendProvider {
         })
     }
 
+    signTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txJson: any): Promise<string> {
+        const api = this._api
+        const keypair = {
+            privateKey: privateData.privateKey,
+            publicKey: data.accountJson.publicKey.toUpperCase()
+        }
+        const signed = api.sign(txJson, keypair)
+        return signed.signedTransaction
+    }
+
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txJson: any): Promise<{
         resultCode: string,
         resultMessage: string,
@@ -119,19 +129,12 @@ export class XrpTxSendProvider {
         const api = this._api
         let result
         try {
+            const signed = this.signTx(data, privateData, txJson)
+            BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx signed', signed)
             result = await new Promise((resolve, reject) => {
-
-                const keypair = {
-                    privateKey: privateData.privateKey,
-                    publicKey: data.accountJson.publicKey.toUpperCase()
-                }
-
-                const signed = api.sign(txJson, keypair)
-                BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx signed', signed)
-
                 api.connect().then(() => {
                     // https://xrpl.org/rippleapi-reference.html#submit
-                    api.submit(signed.signedTransaction).then((result: {
+                    api.submit(signed).then((result: {
                         resultCode: '',
                         resultMessage: ''
                     }) => {

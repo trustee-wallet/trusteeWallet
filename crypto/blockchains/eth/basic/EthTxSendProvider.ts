@@ -33,9 +33,9 @@ export default class EthTxSendProvider {
     }
 
 
-    async send(tx: BlocksoftBlockchainTypes.EthTx, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any }> {
+    async sign(tx: BlocksoftBlockchainTypes.EthTx, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any }> {
         // @ts-ignore
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx started', logData)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign started', logData)
         // noinspection JSUnresolvedVariable
         if (privateData.privateKey.substr(0, 2) !== '0x') {
             privateData.privateKey = '0x' + privateData.privateKey
@@ -47,16 +47,24 @@ export default class EthTxSendProvider {
         if (this._mainChainId) {
             tx.chainId = this._mainChainId
         }
-        let signData = ''
+        let signData = false
         try {
             signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
         } catch (e) {
-            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx signTransaction error ' + e.message)
+            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message)
         }
+        return signData.rawTransaction
+    }
+
+    async send(tx: BlocksoftBlockchainTypes.EthTx, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any }> {
+        // @ts-ignore
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx started', logData)
+
+        const rawTransaction = await this.sign(tx, privateData, txRBF, logData)
 
         // @ts-ignore
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx signed', tx)
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx hex', signData.rawTransaction)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSendTx hex', rawTransaction)
 
         let link = BlocksoftExternalSettings.getStatic(this._trezorServerCode + '_SEND_LINK')
         if (!link || link === '') {
@@ -81,7 +89,7 @@ export default class EthTxSendProvider {
         try {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy checkResult start ' + proxy, logData)
             checkResult = await BlocksoftAxios.post(proxy, {
-                raw: signData.rawTransaction,
+                raw: rawTransaction,
                 txRBF,
                 logData,
                 marketingData: MarketingEvent.DATA
@@ -124,11 +132,11 @@ export default class EthTxSendProvider {
                 /**
                  * curl http://matic.trusteeglobal.com:8545 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0x..."],"id":83}'
                  */
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.LINK, signData.rawTransaction)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.LINK, rawTransaction)
                 const tmp = await BlocksoftAxios.postWithoutBraking(this._web3.LINK, {
                     jsonrpc: '2.0',
                     method: 'eth_sendRawTransaction',
-                    params: [signData.rawTransaction],
+                    params: [rawTransaction],
                     id: 1
                 })
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.LINK + ' result ', tmp)
@@ -152,8 +160,8 @@ export default class EthTxSendProvider {
                  * "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                  * "status": true, "to": "0xf1cff704c6e6ce459e3e1544a9533cccbdad7b99", "transactionHash": "0x1fa5646517b625d422863e6c27082104e1697543a6f912421527bb171c6173f2", "transactionIndex": 95}
                  */
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction ', signData.rawTransaction)
-                const tmp = await this._web3.eth.sendSignedTransaction(signData.rawTransaction)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction ', rawTransaction)
+                const tmp = await this._web3.eth.sendSignedTransaction(rawTransaction)
                 result = {
                     data: {
                         result: typeof tmp.transactionHash !== 'undefined' ? tmp.transactionHash : false
@@ -161,8 +169,8 @@ export default class EthTxSendProvider {
                 }
 
             } else {
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send post ', signData.rawTransaction)
-                result = await BlocksoftAxios.post(link, signData.rawTransaction)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send post ', rawTransaction)
+                result = await BlocksoftAxios.post(link, rawTransaction)
             }
             // @ts-ignore
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', typeof result !== 'undefined' && result ? result.data : 'NO RESULT')
@@ -174,7 +182,7 @@ export default class EthTxSendProvider {
                 logData.error = e.message
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy errorTx start ' + errorProxy, logData)
                 const res2 = await BlocksoftAxios.post(errorProxy, {
-                    raw: signData.rawTransaction,
+                    raw: rawTransaction,
                     txRBF,
                     logData,
                     marketingData: MarketingEvent.DATA
@@ -229,7 +237,7 @@ export default class EthTxSendProvider {
             logData.txHash = transactionHash
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send proxy successTx start ' + successProxy, logData)
             checkResult = await BlocksoftAxios.post(successProxy, {
-                raw: signData.rawTransaction,
+                raw: rawTransaction,
                 txRBF,
                 logData,
                 marketingData: MarketingEvent.DATA
@@ -281,7 +289,7 @@ export default class EthTxSendProvider {
             currencyCode: this._settings.currencyCode,
             transactionUnique: tx.from + '_' + nonce,
             transactionHash,
-            transactionRaw: signData.rawTransaction,
+            transactionRaw: rawTransaction,
             transactionLog: logData
         })
 

@@ -749,7 +749,8 @@
         "trusteeInfo": "Trustee does not charge any fees for cryptocurrency transactions",
         "send": "Send",
         "build" : "Build",
-        "sending": "Sending"
+        "sending": "Sending",
+        "rawTransactionResult" : "Click to Copy"
     },
     "errors": {
      "UI_CONFIRM_DOUBLE_SEND": "The transaction has been sent to this address already, are you sure that you want to repeat the transaction?",

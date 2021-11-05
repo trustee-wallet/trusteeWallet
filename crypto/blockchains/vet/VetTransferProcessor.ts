@@ -158,6 +158,10 @@ export default class VetTransferProcessor implements BlocksoftBlockchainTypes.Tr
         if (!signedData || typeof signedData.rawTransaction === 'undefined' || !signedData.rawTransaction) {
             throw new Error('SYSTEM_ERROR')
         }
+        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+            return { rawOnly: uiData.selectedFee.rawOnly, raw : signedData.rawTransaction}
+        }
+
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             const send = await BlocksoftAxios.post(API_PATH + '/transactions', { raw: signedData.rawTransaction }, false)

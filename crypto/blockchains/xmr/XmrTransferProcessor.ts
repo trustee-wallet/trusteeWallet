@@ -204,6 +204,10 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const keys = privateData.privateKey.split('_')
         const privViewKey = keys[1]
 
+        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+            return { rawOnly: uiData.selectedFee.rawOnly, raw : uiData.selectedFee.blockchainData.rawTxHex}
+        }
+
         const send = await this.sendProvider.send({
             address: data.addressFrom,
             tx: uiData.selectedFee.blockchainData.rawTxHex,

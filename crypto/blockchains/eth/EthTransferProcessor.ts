@@ -819,13 +819,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
                 logData.setNonce = oldNonce
                 tx.nonce = oldNonce
-                result = {transactionHash : await sender.send(tx, privateData, txRBF, logData) }
-                if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
-                    result.amountForTx = data.amount
-                }
-                result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
-                result.transactionFeeCurrencyCode = 'ETH'
-                result.addressTo = data.addressTo === data.addressFrom ? '' : data.addressTo
             } else {
                 // @ts-ignore
                 if (typeof uiData.selectedFee.nonceForTx !== 'undefined'
@@ -839,16 +832,29 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     logData.selectedFee.nonceLog = 'replacedByUi ' + uiData.selectedFee.nonceForTx + ' ' + (typeof logData.selectedFee.nonceLog !== 'undefined' ? logData.selectedFee.nonceLog : '')
                 }
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' nonceLog ' + logData.selectedFee.nonceLog)
+            }
 
-                try {
-                    result = await sender.send(tx, privateData, txRBF, logData)
-                } catch (e) {
-                    if (config.debug.cryptoErrors) {
-                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent while sender.send error ' + e.message)
-                    }
-                    throw e
+            if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+                return { rawOnly: uiData.selectedFee.rawOnly, raw : await sender.sign(tx, privateData, txRBF, logData)}
+            }
+
+            try {
+                result = await sender.send(tx, privateData, txRBF, logData)
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent while ' + (txRBF ? 'txRbf':'usual') + ' sender.send error ' + e.message)
                 }
+                throw e
+            }
 
+            if (txRBF) {
+                if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
+                    result.amountForTx = data.amount
+                }
+                result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
+                result.transactionFeeCurrencyCode =  this._mainCurrencyCode
+                result.addressTo = data.addressTo === data.addressFrom ? '' : data.addressTo
+            } else {
                 result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
                 result.transactionFeeCurrencyCode = this._mainCurrencyCode
                 result.transactionJson.txData = tx.data

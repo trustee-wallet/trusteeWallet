@@ -91,7 +91,6 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
                 recipient: addressTo,
                 amount: data.amount,
             }
-
             signedData = transfer(money, { privateKey: privateData.privateKey })
 
         } catch (e) {
@@ -103,6 +102,9 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
             throw new Error('SYSTEM_ERROR')
         }
 
+        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+            return { rawOnly: uiData.selectedFee.rawOnly, raw : JSON.stringify(signedData)}
+        }
 
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
