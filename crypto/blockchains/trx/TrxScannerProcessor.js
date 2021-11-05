@@ -52,7 +52,23 @@ export default class TrxScannerProcessor {
 
         if (result === false || result === 0) {
             subresult = await this._tronscanProvider.get(address, '_')
-            result = await this._trongridProvider.get(addressHex, this._tokenName)
+
+            if (this._tokenName !== '_' && this._tokenName.substr(0, 1) === 'T') {
+                result = await this._tronscanProvider.get(address, this._tokenName)
+                /*const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+                const params = {
+                    'contract_address': this._tokenName,
+                    'address': address,
+                    'function_selector': 'balanceOf(address)',
+                    'owner_address': address,
+                    'visible': true
+                }
+                console.log('params ' + JSON.stringify(params))
+                const tmp = await BlocksoftAxios.post(sendLink + '/wallet/triggersmartcontract', params)
+                console.log('tmp', tmp)*/
+            } else {
+                result = await this._trongridProvider.get(addressHex, this._tokenName)
+            }
             BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronGrid ' + JSON.stringify(result))
         }
 

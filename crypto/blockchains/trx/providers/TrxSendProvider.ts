@@ -33,8 +33,8 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
     async _sendTx(tx: any, subtitle: string, txRBF: any, logData: any): Promise<{ transactionHash: string, logData : any }> {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxSendProvider._sendTx ' + subtitle + ' started ', logData)
 
-        const nodeLink = BlocksoftExternalSettings.getStatic(this._trezorServerCode + '_SEND_LINK')
-        const link = nodeLink + '/wallet/broadcasttransaction'
+        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+        const link = sendLink + '/wallet/broadcasttransaction'
         if (config.debug.cryptoErrors) {
             console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' TrxSendProvider._sendTx ' + subtitle + ' started check ')
         }

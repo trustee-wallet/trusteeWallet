@@ -201,7 +201,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         logData.basicToken = this._tokenName
 
 
-        const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
         let tx
         if (typeof data.blockchainData !== 'undefined' && data.blockchainData) {
             tx = data.blockchainData
@@ -221,7 +221,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     throw e
                 }
 
-                const link = nodeLink + '/wallet/triggersmartcontract'
+                const link = sendLink + '/wallet/triggersmartcontract'
                 const total = data.dexOrderData.length
                 let index = 0
                 for (const order of data.dexOrderData) {
@@ -293,7 +293,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                             throw e
                         }
 
-                        const linkRecheck = nodeLink + '/wallet/gettransactioninfobyid'
+                        const linkRecheck = sendLink + '/wallet/gettransactioninfobyid'
                         let checks = 0
                         let mined = false
                         do {
@@ -365,7 +365,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 }
 
                 if (this._tokenName[0] === 'T') {
-                    link = nodeLink + '/wallet/triggersmartcontract'
+                    link = sendLink + '/wallet/triggersmartcontract'
                     const parameter = '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(BlocksoftUtils.round(data.amount), 20)
                     params = {
                         owner_address: ownerAddress,
@@ -386,11 +386,11 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     }
 
                     if (this._tokenName === '_') {
-                        link = nodeLink + '/wallet/createtransaction'
+                        link = sendLink + '/wallet/createtransaction'
                     } else {
                         // @ts-ignore
                         params.asset_name = '0x' + Buffer.from(this._tokenName).toString('hex')
-                        link = nodeLink + '/wallet/transferasset'
+                        link = sendLink + '/wallet/transferasset'
                     }
 
                     try {
