@@ -153,7 +153,9 @@ class UpdateAccountBalanceAndTransactions {
                 console.log('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message, e)
             }
             Log.errDaemon('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message + ' ' + tmpAction)
+            return false
         }
+        return true
     }
 
     loadFioData = async (currencyCode) => {

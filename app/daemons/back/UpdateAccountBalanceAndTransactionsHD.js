@@ -77,9 +77,9 @@ class UpdateAccountBalanceAndTransactionsHD {
             }
 
             CACHE_LAST_TIME = new Date().getTime()
-
         } catch (e) {
             Log.errDaemon('UpdateAccountBalanceHD balanceError ' + source + ' ' + e.message)
+            return false
         }
         return true
     }
