@@ -55,7 +55,7 @@ export default class DBInit {
                 return maxVersion;
             }
         } catch (e) {
-            Log.err('DBInit error on update');
+            Log.err('DBInit error on update ' + e.message);
             updateError = true
             countError++;
         }
@@ -93,11 +93,23 @@ export default class DBInit {
         const { updateQuery, maxVersion } = this.#tableUpdateQueries;
         let currentVersion = 0;
 
-        const res = await this.#db.query(`SELECT [paramValue] FROM settings WHERE [paramKey]='dbVersion'`, true);
-        if (res.array && res.array.length) {
-            currentVersion = res.array[0].paramValue * 1; // this was THE TRICK
-        } else {
-            await this.#db.query(`INSERT INTO settings ([paramValue],[paramKey]) VALUES (1, 'dbVersion')`, true);
+        try {
+            const res = await this.#db.query(`SELECT [paramValue] FROM settings WHERE [paramKey]='dbVersion'`, true);
+            if (res.array && res.array.length) {
+                currentVersion = res.array[0].paramValue * 1; // this was THE TRICK
+            } else {
+                await this.#db.query(`INSERT INTO settings ([paramValue],[paramKey]) VALUES (1, 'dbVersion')`, true);
+            }
+        } catch (e) {
+            if (e.message.indexOf('no such table')) {
+                this.#db.query(`CREATE TABLE IF NOT EXISTS settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    [paramKey] VARCHAR(255),
+                    [paramValue] VARCHAR(255)
+                )`, true)
+            } else {
+                throw new Error(e.message + ' in SELECT currentVersion')
+            }
         }
 
         for (let i = currentVersion + 1; i <= maxVersion; i++) {
@@ -120,12 +132,11 @@ export default class DBInit {
                 }
                 await this.#db.query(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`)
             } catch (e) {
-                console.log(e)
                 if (e.message.indexOf('duplicate column name') === -1) {
                     Log.err('DBInit._update error ' + e.message)
                     throw new Error('DB update error')
                 } else {
-                    await this.#db.query(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`).query()
+                    await this.#db.query(`UPDATE settings SET paramValue='${i}' WHERE paramKey='dbVersion'`)
                 }
             }
         }
