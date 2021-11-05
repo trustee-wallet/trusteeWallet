@@ -12,9 +12,9 @@ const TREZOR_SERVERS = {}
 
 const CACHE = {
     'TRX_VOTE_BEST' : 'TV9QitxEJ3pdiAUAfJ2QuPxLKp9qTTR3og',
-    'TRX_SEND_LINK' : 'https://api.trongrid.io', // http://trx.trusteeglobal.com:8090
-    'TRX_SOLIDITY_NODE' : 'https://api.trongrid.io',
-    'TRX_USE_TRONSCAN' : 'YES',
+    'TRX_SEND_LINK' : 'http://trx.trusteeglobal.com:8090', // http://trx.trusteeglobal.com:8090
+    'TRX_SOLIDITY_NODE' : 'http://trx.trusteeglobal.com:8091',
+    'TRX_USE_TRONSCAN' : 0,
     'SOL_VOTE_BEST' : 'CertusDeBmqN8ZawdkxK5kFGMwBXdudvWHYwtNgNhvLu',
     'ETH_LONG_QUERY' : 1,
     'ETH_SMALL_FEE_FORCE_QUIT' : 1,

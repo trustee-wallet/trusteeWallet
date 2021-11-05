@@ -45,7 +45,7 @@ export default class TrxScannerProcessor {
         } else {
             address = await TronUtils.addressHexToStr(addressHex)
         }
-        const useTronscan = BlocksoftExternalSettings.getStatic('TRX_USE_TRONSCAN') === 'YES'
+        const useTronscan = BlocksoftExternalSettings.getStatic('TRX_USE_TRONSCAN') * 1 > 0
         let result = useTronscan ? await this._tronscanProvider.get(address, this._tokenName) : false
         let subresult = false
         BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronScan ' + JSON.stringify(result))
