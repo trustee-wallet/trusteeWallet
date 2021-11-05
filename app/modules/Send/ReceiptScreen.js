@@ -67,7 +67,7 @@ class ReceiptScreen extends PureComponent {
     }
 
     openAdvancedSettings = async () => {
-        const { uiType } = this.props.sendScreenStore.ui
+        const { uiType, extraData } = this.props.sendScreenStore.ui
 
         if (CACHE_IS_COUNTING) {
             return true
@@ -78,7 +78,11 @@ class ReceiptScreen extends PureComponent {
         if (uiType === 'WALLET_CONNECT') {
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
-            NavStore.goNext('SendAdvancedScreen')
+            if (extraData.txCode === 'APPROVE') {
+                NavStore.goNext('MarketAdvancedScreen')
+            } else {
+                NavStore.goNext('SendAdvancedScreen')
+            }
             return
         }
 
@@ -170,12 +174,12 @@ class ReceiptScreen extends PureComponent {
         }
 
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
-        const { uiType } = this.props.sendScreenStore.ui
+        const { uiType, extraData } = this.props.sendScreenStore.ui
 
         let tx = false
         let e = false
         try {
-            if (uiType === 'WALLET_CONNECT') {
+            if (uiType === 'WALLET_CONNECT' && !extraData.txCode) {
                 tx = await AppWalletConnect.approveRequest(this.props.sendScreenStore)
             } else {
                 tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)

@@ -32,6 +32,7 @@ const V3_ENTRY_POINT_CHECK = '/mobile-check'
 const V3_ENTRY_POINT_SET_STATUS = '/order/update-payment-status'
 const V3_ENTRY_POINT_MARKET = '/mobile-market'
 const V3_ENTRY_POINT_GET_TBK_STATUS = '/order/check-tbk-for-tx'
+const V3_ENTRY_POINT_APPROVE_TX_HASH = '/blockchain/set-approve-tx-hash'
 
 const V3_KEY_PREFIX = 'TrusteeExchange'
 
@@ -322,7 +323,7 @@ export default {
         return found
     },
 
-    setExchangeStatus: async (orderHash, status, transactionHash = '') => {
+    setExchangeStatus: async (params) => {
 
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         const baseUrl = exchangeMode === 'DEV' ? apiEndpoints.baseV3URLTest : apiEndpoints.baseV3URL
@@ -337,15 +338,19 @@ export default {
 
         data.cashbackToken = cashbackToken
 
-        data.orderHash = orderHash
-        data.transactionHash = transactionHash
-        data.paymentStatus = status
+        data.orderHash = params?.orderHash
+        data.transactionHash = params?.transactionHash || ''
+        data.paymentStatus = params?.status
+
+        data.nonce = params?.nonce || ''
+        data.providerName = params?.extraData?.providerName || ''
+        data.currencyCode = params?.extraData?.currencyCode || ''
 
         try {
-            const link = baseUrl + V3_ENTRY_POINT_SET_STATUS
-            Log.log('ApiV3 setExchangeStatus axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
+            const link = baseUrl + (data?.providerName ? V3_ENTRY_POINT_APPROVE_TX_HASH : V3_ENTRY_POINT_SET_STATUS)
+            Log.log('ApiV3 setExchangeStatus axios ' + link + ' ' + JSON.stringify(params))
             if (config.debug.appErrors) {
-                console.log(new Date().toISOString() + ' ApiV3 setExchangeStatus start axios ' + link + ' ' + orderHash + ' ' + transactionHash + ' status ' + status)
+                console.log(new Date().toISOString() + ' ApiV3 setExchangeStatus start axios ' + link + ' ' + JSON.stringify(params))
             }
             const res = await BlocksoftAxios.post(link, data, false)
             if (config.debug.appErrors) {
@@ -353,7 +358,7 @@ export default {
             }
             return res
         } catch (e) {
-            Log.err('ApiV3 setExchangeStatus e.response.data ' + e.response.data)
+            Log.err('ApiV3 setExchangeStatus e.response.data ' + JSON.stringify(e.response.data))
         }
     },
 

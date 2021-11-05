@@ -83,6 +83,7 @@ class ReceiptData extends React.PureComponent {
                 multiAddress.map((item, index) => {
                     return (
                         <CheckData
+                            key={index}
                             name={`${strings('send.receiptScreen.recepient')} ${index + 1}`}
                             value={BlocksoftPrettyStrings.makeCut(item, 6)}
                         />
