@@ -36,6 +36,7 @@ import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTr
 import config from '@app/config/config'
 
 import { getCashBackLinkFromDataAPi } from '@app/appstores/Stores/CashBack/selectors'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 class StakingTransactionScreen extends PureComponent {
 
@@ -122,13 +123,9 @@ class StakingTransactionScreen extends PureComponent {
 
     openLink = (link) => {
         try {
-            let linkUrl = link
-            if (linkUrl.indexOf('?') === -1) {
-                linkUrl += '?from=trustee'
-            }
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(link)
             Linking.openURL(linkUrl)
         } catch (e) {
-            Log
             Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + link)
         }
     }

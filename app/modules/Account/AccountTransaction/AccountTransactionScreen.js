@@ -59,6 +59,7 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 import TextInput from '@app/components/elements/new/TextInput'
 import { getExplorerLink } from '../helpers'
 import ApiV3 from '@app/services/Api/ApiV3'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 
 let CACHE_RESCAN_TX = false
@@ -402,10 +403,7 @@ class AccountTransactionScreen extends PureComponent {
 
     openLink = (link) => {
         try {
-            let linkUrl = link
-            if (linkUrl.indexOf('?') === -1) {
-                linkUrl += '?from=trustee'
-            }
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(link)
             Linking.openURL(linkUrl)
         } catch (e) {
             Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + link)
@@ -471,9 +469,7 @@ class AccountTransactionScreen extends PureComponent {
         if (transaction.wayType === 'BUY' && transaction.bseOrderData !== false && transaction.bseOrderData.status.toUpperCase() !== 'DONE_PAYOUT') return null
 
         let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? getExplorerLink(cryptoCurrency.currencyCode, 'hash', transaction.transactionHash) : false
-        if (linkUrl && linkUrl.indexOf('?') === -1) {
-            linkUrl += '?from=trustee'
-        }
+        linkUrl = BlocksoftPrettyStrings.makeFromTrustee(linkUrl)
 
         return {
             title: strings(`account.transaction.txHash`),
@@ -489,9 +485,7 @@ class AccountTransactionScreen extends PureComponent {
 
         return tmp.map(item => {
             let linkUrl = getExplorerLink(cryptoCurrency.currencyCode, 'hash', item)
-            if (linkUrl.indexOf('?') === -1) {
-                linkUrl += '?from=trustee'
-            }
+            linkUrl = BlocksoftPrettyStrings.makeFromTrustee(linkUrl)
 
             return {
                 title: strings(`account.transaction.replacedTxHash`),
@@ -738,9 +732,9 @@ class AccountTransactionScreen extends PureComponent {
 
         shareOptions.message += `\n${strings('account.transactionScreen.transactionSum')} ${transaction.addressAmountNorm} ${transaction.currencyCode}\n`
 
-        fromToView ? 
+        fromToView ?
             shareOptions.message += `\n${strings('account.transactionScreen.addresFrom')} ${transaction.addressFrom}\n` :
-                addressToToView ? 
+                addressToToView ?
                     shareOptions.message += `\n${strings('account.transactionScreen.addresTo')} ${transaction.addressTo}\n` : null
 
         shareOptions.message += `\n${strings('account.transactionScreen.blockConfirmations')} ${transaction.blockConfirmations > 20 ? '20+' : transaction.blockConfirmations}\n`

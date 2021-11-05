@@ -63,10 +63,7 @@ class HeaderBlocks extends React.Component {
 
         const actualLink = forceLink || getExplorerLink(currencyCode, 'address', address)
         try {
-            let linkUrl = actualLink
-            if (linkUrl.indexOf('?') === -1) {
-                linkUrl += '?from=trustee'
-            }
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(actualLink)
             Linking.openURL(linkUrl)
         } catch (e) {
             Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + actualLink)
