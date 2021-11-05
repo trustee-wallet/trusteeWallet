@@ -87,7 +87,7 @@ class ReceiptScreen extends PureComponent {
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
             if (uiType === 'TRADE_SEND') {
-                NavStore.goNext('MaketAdvancedScreen')
+                NavStore.goNext('MarketAdvancedScreen')
             } else {
                 NavStore.goNext('SendAdvancedScreen')
             }
