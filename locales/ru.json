@@ -1485,6 +1485,7 @@
     "sendLogs": "Отправить логи",
     "takePhoto": "Сделать фото",
     "chooseFromLibrary": "Выбрать з галереи",
-    "noMessages": "Сообщений пока нет"
+    "noMessages": "Сообщений пока нет",
+    "sentFile": "Файл отправлено"
   }
 }

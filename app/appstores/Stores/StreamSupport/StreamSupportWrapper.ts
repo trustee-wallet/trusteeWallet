@@ -1,3 +1,4 @@
+import { strings } from '@app/services/i18n';
 /**
  * @version 0.45
  */
@@ -145,7 +146,7 @@ export namespace StreamSupportWrapper {
                         subscribeToMessages()
                     }
                 } else if (newData.msg === 'result' && newData.id === IDENT_MESSAGE_LIST && typeof newData.result !== 'undefined' && typeof newData.result.messages !== 'undefined') {
-                    StreamSupportActions.allMessages(newData.result.messages)
+                    StreamSupportActions.allMessages(newData.result.messages.map((item: { msg: string | string[] }) => prettyMsgForFile(item)))
                 } else if (newData.msg === 'result' && newData.id === IDENT_GROUP_CREATE) {
                     if (typeof newData.error !== 'undefined' && typeof newData.error.error !== 'undefined') {
                         console.log('newData.error.error ' + newData.error.error)
@@ -159,9 +160,9 @@ export namespace StreamSupportWrapper {
                         throw new Error(' something wrong with room create')
                     }
                 } else if (newData.msg === 'result' && newData.id === IDENT_MESSAGE_CREATE) {
-                    StreamSupportActions.addMessage( newData.result)
+                    StreamSupportActions.addMessage(prettyMsgForFile(newData.result))
                 } else if (newData.msg === 'changed' && newData.collection === 'stream-room-messages') {
-                    StreamSupportActions.addMessage( newData.fields.args[0])
+                    StreamSupportActions.addMessage(prettyMsgForFile(newData.fields.args[0]))
                 } else {
                     // console.log('StreamSupport.on message ', newData)
                 }
@@ -270,10 +271,14 @@ export namespace StreamSupportWrapper {
     }
 
     export const getStatusSocketConnection = async function () {
-        if (WEB_SOCKET.readyState === 2) {
+        if (WEB_SOCKET.readyState === 1) {
             return true
         } else {
             return false
         }
+    }
+
+    const prettyMsgForFile = (obj: any) => {
+        return obj?.msg.indexOf('https://walletchatfiles.s3') === -1 ? obj : { ...obj, msg: strings('streemSupport.sentFile') }
     }
 }
