@@ -112,12 +112,12 @@ export default class TrxScannerProcessor {
             return false
         }
 
-        const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SOLIDITY_NODE')
+        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
         let needUpdateBalance = -1
         if (lastBlock === false) {
             needUpdateBalance = 0
             try {
-                const link2 = nodeLink + '/wallet/getnowblock'
+                const link2 = sendLink + '/wallet/getnowblock'
                 const block = await BlocksoftAxios.get(link2)
                 if (typeof block !== 'undefined' && block && typeof block.data !== 'undefined') {
                     lastBlock = block.data.block_header.raw_data.number
@@ -130,7 +130,7 @@ export default class TrxScannerProcessor {
         }
 
         for (const row of res.array) {
-            const linkRecheck = nodeLink + '/wallet/gettransactioninfobyid'
+            const linkRecheck = sendLink + '/wallet/gettransactioninfobyid'
             try {
                 const recheck = await BlocksoftAxios.post(linkRecheck, {
                     value: row.transactionHash
