@@ -508,6 +508,7 @@
       },
       "transactionHash": "ტრანზაქციის ჰაში:",
       "cashbackLink": "I’m using Trustee Wallet! Here is my personal link",
+      "website": "Website: ",
       "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე",
       "order": "To order",
       "transactionSum": "Send amount ",

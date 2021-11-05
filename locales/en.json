@@ -510,6 +510,7 @@
       },
       "transactionHash": "Transaction hash:",
       "cashbackLink": "I’m using Trustee Wallet! Here is my personal link ",
+      "website": "Website: ",
       "self": "This transaction was send to your address",
       "order": "To order",
       "transactionSum": "Send amount ",
