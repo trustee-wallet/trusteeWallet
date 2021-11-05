@@ -221,7 +221,7 @@ class Transaction {
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
-        let where = []
+        let  where = []
         if (params.walletHash) {
             where.push(`wallet_hash='${params.walletHash}'`)
         }

@@ -88,6 +88,10 @@ import NftAddAssetScreen from '@app/modules/NFT/NftAddAssetScreen';
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
 
+import TransactionFilter from '@app/modules/Account/elements/TransactionFilter';
+import TransactionCategories from '@app/modules/Account/elements/TransactionCategories';
+import TransactionAmountRange from '@app/modules/Account/elements/TransactionAmountRange';
+
 
 
 const Stack = createStackNavigator()
@@ -131,6 +135,9 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='StakingTransactionScreen' component={StakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolValidators' component={SolValidators} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='TransactionFilter' component={TransactionFilter} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='TransactionCategories' component={TransactionCategories} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='TransactionAmountRange' component={TransactionAmountRange} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 

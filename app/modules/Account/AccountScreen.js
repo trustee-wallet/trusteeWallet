@@ -12,6 +12,7 @@ import {
     TouchableOpacity,
     View,
     FlatList,
+    Dimensions
 } from 'react-native'
 
 import LottieView from 'lottie-react-native'
@@ -65,6 +66,10 @@ import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
+import TextInput from '@app/components/elements/NewInput'
+
+const {width: SCREEN_WIDTH} = Dimensions.get('window')
+
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
 let CACHE_TX_LOADED = 0
@@ -85,7 +90,10 @@ class Account extends React.PureComponent {
             isBalanceVisibleTriggered: false,
 
             hasStickyHeader: false,
+            isSeaching: false,
+            searchQuery: ''
         }
+        this.linkInput = React.createRef()
     }
 
     async componentDidMount() {
@@ -259,9 +267,23 @@ class Account extends React.PureComponent {
         })
     }
 
+    handleFilter = () => {
+        NavStore.goNext('TransactionFilter')
+    }
+
+    handleSearch = () => {
+        this.setState({
+            isSeaching: !this.state.isSeaching
+        })
+    }
+
+    onSearch = (value) => {
+        this.setState({ searchQuery: value })
+    }
+
     renderSynchronized = (allTransactionsToView) => {
         const { balanceScanTime, balanceScanError, isSynchronized } = this.props.selectedAccountData
-        let { transactionsToView } = this.state
+        let { transactionsToView, isSeaching } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
         }
@@ -286,7 +308,7 @@ class Account extends React.PureComponent {
         return (
             <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
                 <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
-                    <View style={{ flexDirection: 'column' }} >
+                    {!isSeaching ? <View style={{ flexDirection: 'column' }} >
                         <Text style={{ ...styles.transaction_title, color: colors.common.text1 }}>{strings('account.history')}</Text>
                         <View style={{ ...styles.scan, marginLeft: 16 }}>
                             {isSynchronized ?
@@ -309,14 +331,44 @@ class Account extends React.PureComponent {
                                 </View>
                             }
                         </View>
+                    </View> : 
+                    <View>
+                       <TextInput
+                            ref={component => this.linkInput = component}
+                            id='WALLET_CONNECT'
+                                            name={strings('settings.walletConnect.inputPlaceholder')}
+                                            type='WALLET_CONNECT_LINK'
+                                            paste={true}
+                                            copy={false}
+                                            qr={true}
+                                            placeholder='wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'
+                                            // onChangeText={this.handleChangeFullLink}
+                                            // callback={this.handleChangeFullLink}
+                                            // addressError={linkError}
+                                            // qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
+                                            validPlaceholder={true}
+                            // placeholder={strings('assets.searchPlaceholder')}
+                            // containerStyle={{ width: SCREEN_WIDTH * 0.72, marginTop: 1 }}
+                            // value={this.state.searchQuery}
+                            // onChangeText={this.onSearch}
+                            // HelperAction={() => <CustomIcon name="search" size={20} color={colors.common.text1} />}
+                        />
+                    </View>}
+                    <View style={[styles.scan, { marginTop: GRID_SIZE }]}>
+                        {!isSeaching && <TouchableOpacity style={ {alignItems: 'center', marginRight: GRID_SIZE }} onPress={this.handleSearch} hitSlop={HIT_SLOP}>
+                            <CustomIcon name={'search'} size={20} color={colors.common.text1} />
+                        </TouchableOpacity>}
+                        <TouchableOpacity style={{ alignItems: 'center', marginRight: GRID_SIZE }} onPress={() => !isSeaching ? this.handleRefresh(true) : this.handleSearch()} hitSlop={HIT_SLOP} >
+                            {this.state.clickRefresh ?
+                                <LottieView style={{ width: 20, height: 20, }}
+                                    source={isLight ? blackLoader : whiteLoader}
+                                    autoPlay loop /> :
+                                <CustomIcon name={!isSeaching ? 'reloadTx' : 'cancelTxHistory'} size={20} color={colors.common.text1} />}
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ alignItems: 'center', marginRight: GRID_SIZE }} onPress={this.handleFilter} hitSlop={HIT_SLOP}>
+                            <CustomIcon name={'settings'} size={20} color={colors.common.text1} />
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={{ ...styles.scan, alignItems: 'center', marginRight: GRID_SIZE }} onPress={() => this.handleRefresh(true)} hitSlop={HIT_SLOP} >
-                        {this.state.clickRefresh ?
-                            <LottieView style={{ width: 20, height: 20, }}
-                                source={isLight ? blackLoader : whiteLoader}
-                                autoPlay loop /> :
-                            <CustomIcon name={'reloadTx'} size={20} color={colors.common.text1} />}
-                    </TouchableOpacity>
                 </View>
                 {
                     allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0) && isSynchronized ?
@@ -397,6 +449,8 @@ class Account extends React.PureComponent {
         if (this.props.isBlurVisible) {
             return <AppLockBlur />
         }
+
+        console.log('rebdfewrgew')
 
         MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 
