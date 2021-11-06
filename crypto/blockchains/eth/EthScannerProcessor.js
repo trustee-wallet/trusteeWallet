@@ -651,7 +651,6 @@ export default class EthScannerProcessor extends EthBasic {
             inputValue: transaction.input
         }
         let nonce = transaction.nonce
-        console.log('recheck nonce ' + transaction.nonce)
         if (nonce * 1 === 0) {
             nonce = 0
         }
