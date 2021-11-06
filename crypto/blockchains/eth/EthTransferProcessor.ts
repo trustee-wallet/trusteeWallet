@@ -140,7 +140,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
 
                 if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
-                    gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(uiData.walletConnectData.gas)
+                    gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gas)
                 } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
                     const schema = data.contractCallData.contractSchema
                     let abiCode
