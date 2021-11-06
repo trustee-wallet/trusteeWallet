@@ -134,14 +134,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             throw new Error('EthTransferProcessor need this._web3.LINK')
         }
 
-        BlocksoftCryptoLog.log(`
-        
-        
-        
-        
-        
-        gasPrice`, JSON.stringify(gasPrice))
-
         let gasLimit = 0
         try {
 
