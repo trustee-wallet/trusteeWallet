@@ -14,7 +14,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import colorDict from '@app/services/UIDict/UIDictData'
 
-export default class ButtonLine extends PureComponent {
+export default class CurrencyIcon extends PureComponent {
 
     getBlockchain = (currencyCode) => {
         if (currencyCode.indexOf('BNB_SMART_') !== -1) {
@@ -166,7 +166,7 @@ export default class ButtonLine extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'ETH_SHIB':
             case 'BNB_SMART_SHIB':
                 return (
@@ -778,7 +778,7 @@ export default class ButtonLine extends PureComponent {
     }
 }
 
-ButtonLine.contextType = ThemeContext
+CurrencyIcon.contextType = ThemeContext
 
 const styles = {
     icon: {
