@@ -146,7 +146,7 @@ class ReceiptScreen extends PureComponent {
             if (checkLoadedFeeResult.goBack) {
                 showModal({
                     type: 'INFO_MODAL',
-                    icon: 'WARNING',
+                    icon: null,
                     title: strings('modal.titles.attention'),
                     description: checkLoadedFeeResult.msg
                 }, async () => {
@@ -173,8 +173,30 @@ class ReceiptScreen extends PureComponent {
             return false
         }
 
-        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
+        const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
         const { uiType, extraData } = this.props.sendScreenStore.ui
+        const { currencySymbol } = this.props.sendScreenStore.dict
+
+        if ((selectedFee?.amountForTx || countedFees?.amountForTx)) {
+            this.setState({
+                sendInProcess: false
+            })
+
+            let descriptionError
+            if (uiType === 'TRADE_SEND') {
+                descriptionError = strings('send.errors.UI_NOTHING_TO_TRANSFER_FROM_BSE', { symbol: currencySymbol })
+            } else {
+                descriptionError = strings('send.errors.SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE', { symbol: currencySymbol })
+            }
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.titles.attention'),
+                description: descriptionError
+            })
+            return false
+        }
 
         let tx = false
         let e = false
