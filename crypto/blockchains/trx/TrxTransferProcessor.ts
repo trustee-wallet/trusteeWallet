@@ -479,7 +479,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx token ' + this._tokenName + ' tx', tx)
 
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
-        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : JSON.stringify(tx)}
         }
 

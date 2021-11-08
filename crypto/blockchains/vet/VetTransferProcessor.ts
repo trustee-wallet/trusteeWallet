@@ -158,7 +158,7 @@ export default class VetTransferProcessor implements BlocksoftBlockchainTypes.Tr
         if (!signedData || typeof signedData.rawTransaction === 'undefined' || !signedData.rawTransaction) {
             throw new Error('SYSTEM_ERROR')
         }
-        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : signedData.rawTransaction}
         }
 

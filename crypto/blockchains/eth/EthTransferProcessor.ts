@@ -826,7 +826,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' nonceLog ' + logData.selectedFee.nonceLog)
             }
 
-            if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+            if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
                 return { rawOnly: uiData.selectedFee.rawOnly, raw : await sender.sign(tx, privateData, txRBF, logData)}
             }
 

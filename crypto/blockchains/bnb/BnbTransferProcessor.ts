@@ -96,7 +96,7 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         const raw = this._provider.serializeTx(transaction)
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx raw', raw)
-        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw }
         }
 

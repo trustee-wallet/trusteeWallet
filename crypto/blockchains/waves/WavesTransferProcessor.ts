@@ -102,7 +102,7 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
             throw new Error('SYSTEM_ERROR')
         }
 
-        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : JSON.stringify(signedData)}
         }
 
