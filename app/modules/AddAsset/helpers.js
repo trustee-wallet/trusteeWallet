@@ -124,7 +124,25 @@ function filterBySearchQuery(assets, value) {
         || (
             typeof as.tokenName !== 'undefined' && as.tokenName && as.tokenName.toLowerCase() === value
         )
-    ))
+    )).sort((a, b) => {
+        if (typeof a.tokenBlockchain === 'undefined' && typeof b.tokenBlockchain !== 'undefined') {
+            return -1
+        } else if (typeof b.tokenBlockchain === 'undefined' && typeof a.tokenBlockchain !== 'undefined') {
+            return 1
+        }
+        const nameA = a.currencyName.toLowerCase()
+        const nameB = b.currencyName.toLowerCase()
+        if (nameA.indexOf(value) === 0 && nameB.indexOf(value) !== 0) {
+            return -1
+        } else if (nameB.indexOf(value) === 0 && nameA.indexOf(value) !== 0) {
+            return 1
+        }
+        if (nameA < nameB)
+            return -1
+        if (nameA > nameB)
+            return 1
+        return 0
+    })
 }
 
 
