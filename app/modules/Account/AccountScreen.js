@@ -12,7 +12,8 @@ import {
     TouchableOpacity,
     View,
     FlatList,
-    Dimensions
+    Dimensions,
+    LayoutAnimation
 } from 'react-native'
 
 import LottieView from 'lottie-react-native'
@@ -90,8 +91,9 @@ class Account extends React.PureComponent {
             isBalanceVisibleTriggered: false,
 
             hasStickyHeader: false,
-            isSeaching: false,
-            searchQuery: ''
+            isSeaching: true,
+            searchQuery: '',
+            error: false
         }
         this.linkInput = React.createRef()
     }
@@ -271,14 +273,21 @@ class Account extends React.PureComponent {
         NavStore.goNext('TransactionFilter')
     }
 
-    handleSearch = () => {
-        this.setState({
-            isSeaching: !this.state.isSeaching
-        })
-    }
 
     onSearch = (value) => {
         this.setState({ searchQuery: value })
+    }
+
+    toggleSearch = () => {
+        
+        this.setState({ isSeaching: !this.state.isSeaching })
+    }
+
+    handleChangeText = (value) => {
+        this.setState({
+            searchQuery: value.trim(),
+            error: false
+        })
     }
 
     renderSynchronized = (allTransactionsToView) => {
@@ -305,60 +314,57 @@ class Account extends React.PureComponent {
             }
         }
 
+        console.log('ref', this.linkInput.value)
+
         return (
             <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
                 <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
-                    {!isSeaching ? <View style={{ flexDirection: 'column' }} >
-                        <Text style={{ ...styles.transaction_title, color: colors.common.text1 }}>{strings('account.history')}</Text>
-                        <View style={{ ...styles.scan, marginLeft: 16 }}>
-                            {isSynchronized ?
-                                <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2} >{diffTimeText}</Text>
-                                :
-                                <View style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    marginRight: 10,
-                                    marginTop: 2
-                                }}><Text style={{
-                                    ...styles.transaction__empty_text, ...{
-                                        marginLeft: 0,
+                    <View style={{ flexDirection: 'column' }} >
+                        {!isSeaching ?  
+                            <View style={{ marginBottom: 10 }}>
+                                <Text style={{ ...styles.transaction_title, color: colors.common.text1 }}>{strings('account.history')}</Text>
+                                <View style={{ ...styles.scan, marginLeft: 16 }}>
+                                    {isSynchronized ?
+                                    <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2} >{diffTimeText}</Text>
+                                    :
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
                                         marginRight: 10,
-                                        marginTop: 0,
-                                        color: colors.common.text1
-                                    }
-                                }}>{strings('homeScreen.synchronizing')}</Text>
-                                    <Loader size={14} color={'#999999'} />
+                                        marginTop: 2
+                                    }}><Text style={{
+                                        ...styles.transaction__empty_text, ...{
+                                            marginLeft: 0,
+                                            marginRight: 10,
+                                            marginTop: 0,
+                                            color: colors.common.text1
+                                        }
+                                    }}>{strings('homeScreen.synchronizing')}</Text>
+                                        <Loader size={14} color={'#999999'} />
+                                    </View>}
                                 </View>
-                            }
-                        </View>
-                    </View> : 
-                    <View>
-                       <TextInput
-                            ref={component => this.linkInput = component}
-                            id='WALLET_CONNECT'
-                                            name={strings('settings.walletConnect.inputPlaceholder')}
-                                            type='WALLET_CONNECT_LINK'
-                                            paste={true}
-                                            copy={false}
-                                            qr={true}
-                                            placeholder='wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'
-                                            // onChangeText={this.handleChangeFullLink}
-                                            // callback={this.handleChangeFullLink}
-                                            // addressError={linkError}
-                                            // qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
-                                            validPlaceholder={true}
-                            // placeholder={strings('assets.searchPlaceholder')}
-                            // containerStyle={{ width: SCREEN_WIDTH * 0.72, marginTop: 1 }}
-                            // value={this.state.searchQuery}
-                            // onChangeText={this.onSearch}
-                            // HelperAction={() => <CustomIcon name="search" size={20} color={colors.common.text1} />}
-                        />
-                    </View>}
+                            </View> : 
+                            <View style={ styles.textInput }>
+                                <TextInput
+                                    ref={input => {this.linkInput = input}}
+                                    style={{ width: SCREEN_WIDTH * 0.715, marginTop: -4 }}
+                                    name={strings('assets.searchPlaceholder')}
+                                    type='TRANSACTION_SEARCH'
+                                    id='TRANSACTION_SEARCH'
+                                    search={true}
+                                    onChangeText={this.handleChangeText}
+                                    // callback={this.handleChangeText}
+                                    func={this.handleChangeText}
+                                    addressError={this.state.error}
+                                    validPlaceholder={true}
+ />
+                            </View>}
+                    </View>
                     <View style={[styles.scan, { marginTop: GRID_SIZE }]}>
-                        {!isSeaching && <TouchableOpacity style={ {alignItems: 'center', marginRight: GRID_SIZE }} onPress={this.handleSearch} hitSlop={HIT_SLOP}>
+                        {!isSeaching && <TouchableOpacity style={ {alignItems: 'center', marginRight: GRID_SIZE }} onPress={this.toggleSearch} hitSlop={HIT_SLOP}>
                             <CustomIcon name={'search'} size={20} color={colors.common.text1} />
                         </TouchableOpacity>}
-                        <TouchableOpacity style={{ alignItems: 'center', marginRight: GRID_SIZE }} onPress={() => !isSeaching ? this.handleRefresh(true) : this.handleSearch()} hitSlop={HIT_SLOP} >
+                        <TouchableOpacity style={{ alignItems: 'center', marginRight: GRID_SIZE }} onPress={() => !isSeaching ? this.handleRefresh(true) : this.toggleSearch()} hitSlop={HIT_SLOP} >
                             {this.state.clickRefresh ?
                                 <LottieView style={{ width: 20, height: 20, }}
                                     source={isLight ? blackLoader : whiteLoader}
@@ -423,6 +429,7 @@ class Account extends React.PureComponent {
                 transactionsToView.push(transaction)
             }
         }
+        this.filterBySearchQuery(transactionsToView, this.state.searchQuery)
         CACHE_TX_LOADED = new Date().getTime()
 
         if (from === 0) {
@@ -445,12 +452,28 @@ class Account extends React.PureComponent {
         }
     }
 
+    filterBySearchQuery(assets, value) {
+        value = value.toLowerCase()
+        return assets.filter(as => (
+            as.addressFrom.toLowerCase().includes(value)
+            || as.addressTo.toLowerCase().includes(value)
+                || as.transactionHash.toLowerCase().includes(value)
+            || (
+                typeof as.addressFrom !== 'undefined' && as.addressFrom && as.addressFrom.toLowerCase() === value
+            )
+            || (
+                typeof as.addressTo !== 'undefined' && as.addressTo && as.addressTo.toLowerCase() === value
+            )
+            || (
+                typeof as.transactionHash !== 'undefined' && as.transactionHash && as.transactionHash.toLowerCase() === value
+            )
+        ))
+    }
+
     render() {
         if (this.props.isBlurVisible) {
             return <AppLockBlur />
         }
-
-        console.log('rebdfewrgew')
 
         MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 
@@ -670,5 +693,19 @@ const styles = {
 
         fontSize: 10,
         fontFamily: 'SFUIDisplay-Bold'
+    },
+    textInput: {
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+
+        elevation: 5
     }
 }

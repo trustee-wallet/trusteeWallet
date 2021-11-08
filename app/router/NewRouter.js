@@ -90,7 +90,7 @@ import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSet
 
 import TransactionFilter from '@app/modules/Account/elements/TransactionFilter';
 import TransactionCategories from '@app/modules/Account/elements/TransactionCategories';
-import TransactionAmountRange from '@app/modules/Account/elements/TransactionAmountRange';
+
 
 
 
@@ -137,8 +137,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='SolValidators' component={SolValidators} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='TransactionFilter' component={TransactionFilter} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='TransactionCategories' component={TransactionCategories} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='TransactionAmountRange' component={TransactionAmountRange} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-
+            
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='SettingsMainScreen' component={SettingsMainScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

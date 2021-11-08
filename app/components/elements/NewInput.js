@@ -23,6 +23,7 @@ import NavStore from '../navigation/NavStore'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
+import CustomIcon from './CustomIcon'
 
 class Input extends Component {
 
@@ -199,7 +200,9 @@ class Input extends Component {
             isTextarea = false,
             info,
             tabInfo,
-            addressError
+            addressError,
+            search,
+            func
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -227,7 +230,9 @@ class Input extends Component {
             }
         }
 
-        const inputWidth = ( paste && qr ) ? '75%' : ( fio || copy || paste || qr || info || tabInfo ) ? '85%' : '95%'
+        console.log('value', value)
+
+        const inputWidth = ( paste && qr ) ? '75%' : ( fio || copy || paste || qr || info || tabInfo || search ) ? '85%' : '95%'
 
         return (
             <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
@@ -283,6 +288,12 @@ class Input extends Component {
                         typeof fio !== 'undefined' && fio ?
                             <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
                                 <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
+                            </TouchableOpacity> : null
+                    }
+                    {
+                        typeof search !== 'undefined' && search ?
+                            <TouchableOpacity onPress={() => func()} style={{ marginRight: -8 }}>
+                                <CustomIcon name={'search'} size={20} style={{...styles.actionBtn__icon, paddingTop: 2}} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                     {

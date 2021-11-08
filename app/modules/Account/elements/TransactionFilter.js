@@ -15,6 +15,8 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+// import TransactionTimeArray from './TransactionTimeArray'
+import Button from '@app/components/elements/new/buttons/Button'
 
 class TransactionFilter extends React.PureComponent {
 
@@ -27,8 +29,19 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleAmountRange = () => {
-        NavStore.goNext('TransactionAmountRange')
+        NavStore.goNext('')
     }
+
+    // renderTimeFilther = () => {
+
+        
+
+    //     return(
+    //         <View style={{ flex: 1 }}>
+    //             <TransactionTimeArray sections={sections} />
+    //         </View>
+    //     )
+    // }
 
     render () {
 
@@ -63,28 +76,19 @@ class TransactionFilter extends React.PureComponent {
                     </View>
                     <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>date & data</Text>
                     <View>
+                    
                         <ListItem
                             title="Time array"
                             subtitle="Mar 2 - Mar 8"
                             iconType="timeForRate"
-                            rightContent="arrow"
-                            onPress={this.handleCategories}
                         />
                         <ListItem
                             title="Amount range"
                             subtitle="All amount"
                             iconType="balance"
-                            rightContent="arrow"
-                            onPress={this.handleAmountRange}
-                        />
-                        <ListItem
-                            title="Discard"
-                            subtitle="Cancel filter settings in date & amount categories"
-                            iconType="balance"
-                            rightContent="arrow"
-                            onPress={this.handleCategories}
                             last
                         />
+        
                     </View>
                     <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>Download transactions history</Text>
                     <View>
@@ -92,19 +96,22 @@ class TransactionFilter extends React.PureComponent {
                                 title="Download all"
                                 subtitle="Save all time transactions in CSV"
                                 iconType="downloadDoc"
-                                rightContent="arrow"
                                 onPress={this.handleCategories}
                         />
                         <ListItem
                             title="Download filtred"
                             subtitle="Save selected transactions in CSV"
                             iconType="downloadDoc"
-                            rightContent="arrow"
                             onPress={this.handleCategories}
                             last
                         />
                     </View>
                 </ScrollView>
+                <Button
+                    containerStyle={{ marginBottom: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}
+                    title="Apply"
+                    onPress={this.handleCategories}
+                />
             </ScreenWrapper> 
         )
     }
