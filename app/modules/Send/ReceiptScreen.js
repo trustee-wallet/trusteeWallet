@@ -173,31 +173,11 @@ class ReceiptScreen extends PureComponent {
             return false
         }
 
-        const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
+        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
         const { uiType, extraData } = this.props.sendScreenStore.ui
-        const { currencySymbol } = this.props.sendScreenStore.dict
 
-        if ((selectedFee?.amountForTx || countedFees?.amountForTx)) {
-            this.setState({
-                sendInProcess: false
-            })
-
-            let descriptionError
-            if (uiType === 'TRADE_SEND') {
-                descriptionError = strings('send.errors.UI_NOTHING_TO_TRANSFER_FROM_BSE', { symbol: currencySymbol })
-            } else {
-                descriptionError = strings('send.errors.SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE', { symbol: currencySymbol })
-            }
-
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.titles.attention'),
-                description: descriptionError
-            })
-            return false
-        }
-
+        console.log('do nothing!')
+        return false
         let tx = false
         let e = false
         try {
