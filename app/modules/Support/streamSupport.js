@@ -276,7 +276,7 @@ class StreamSupportScreen extends PureComponent {
         return (
             <>
                 {
-                    props.currentMessage.attachments ?
+                    props.currentMessage.attachments && props.currentMessage.attachments[0] && typeof props.currentMessage.attachments[0] !== 'undefined' ?
                         <View style={styles.customView}>
                             <View>
                                 {props.currentMessage.attachments[0]?.image_type ?
@@ -301,7 +301,7 @@ class StreamSupportScreen extends PureComponent {
                                     <View style={styles.fileWrapper}>
                                         <CustomIcon name='downloadDoc' color={colors.streemChat[props.position].color} size={28} style={{ paddingRight: 8 }} />
                                         <Text style={[styles.text, { color: colors.streemChat[props.position].color }]} numberOfLines={1}>
-                                            {props.currentMessage.attachments[0].title}
+                                            {props.currentMessage.attachments[0]?.title}
                                         </Text>
                                     </View>
                                 }
