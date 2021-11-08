@@ -393,7 +393,7 @@ class BackupStep0Screen extends PureComponent {
                                     <Message
                                         progress={animationProgress}
                                         timer={visibilityTimer}
-                                        name={'recoveryPhrase'}
+                                        name='recoveryPhrase'
                                         text={infoText}
                                     />
                                     <TouchableOpacity
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontFamily: 'Montserrat-Bold',
         fontSize: 12,
-        lineHeight: 12,
+        lineHeight: 15,
         letterSpacing: 1.5,
         textTransform: 'uppercase'
     },
