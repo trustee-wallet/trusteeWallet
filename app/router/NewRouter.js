@@ -277,7 +277,7 @@ const TabBar = () => {
                     }}
                 />
             
-        </Tab.Navigator>
+            }</Tab.Navigator>
     )
 }
 
