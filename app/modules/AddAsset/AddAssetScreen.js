@@ -311,12 +311,11 @@ class AddAssetScreen extends React.PureComponent {
                             <FlatList
                                 {...this.commonHeaderProps}
                                 ListEmptyComponent={null}
-                                ListHeaderComponentStyle={{ paddingHorizontal: GRID_SIZE * 2 }}
                                 data={data}
                                 ListHeaderComponent={!!searchQuery ? null : () => (
                                     <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
                                         {this.renderTabs(false)}
-                                        <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
+                                        <View style={[styles.customAddressConent, { marginHorizontal: GRID_SIZE }]}>
                                             <TextInput
                                                 label={strings('assets.addCustomLabel')}
                                                 labelColor={colors.common.text3}
