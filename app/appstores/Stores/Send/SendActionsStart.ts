@@ -11,6 +11,8 @@ import store from '@app/store'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { setLoaderFromBse, setLoaderStatus } from '../Main/MainStoreActions'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 const { dispatch } = store
 
@@ -82,34 +84,38 @@ export namespace SendActionsStart {
         walletConnectData : any,
         walletConnectPayload : any,
         extraData : any
-    }) => {
-        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
-        if (typeof account.derivationPath === 'undefined') {
-            throw new Error('SendActionsStart.startFromWalletConnect required account.derivationPath')
-        }
-        const dict = await formatDict(cryptoCurrency, account)
-        SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
-        const ui =  {
-            uiType : 'WALLET_CONNECT',
-            cryptoValue : data.walletConnectData.value ? BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value) : 0,
-            addressTo : data.walletConnectData.to,
-            walletConnectData : data.walletConnectData,
-            walletConnectPayload : data.walletConnectPayload,
-            extraData : data.extraData
-        }
-        dispatch({
-            type: 'RESET_DATA',
-            ui,
-            dict
-        })
+    }, uiType = 'WALLET_CONNECT') => {
+        try {
+            const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+            if (typeof account.derivationPath === 'undefined') {
+                throw new Error('SendActionsStart.startFromWalletConnect required account.derivationPath')
+            }
+            const dict = await formatDict(cryptoCurrency, account)
+            SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
+            const ui = {
+                uiType: uiType,
+                cryptoValue: data.walletConnectData.value ? BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value) : 0,
+                addressTo: data.walletConnectData.to,
+                walletConnectData: data.walletConnectData,
+                walletConnectPayload: data.walletConnectPayload,
+                extraData: data.extraData
+            }
 
-        await SendActionsBlockchainWrapper.getFeeRate(ui)
-        setLoaderFromBse(false)
+            dispatch({
+                type: 'RESET_DATA',
+                ui,
+                dict
+            })
 
-        if (data.extraData.fromMarketScreen) {
-            NavStore.goNext('MarketReceiptScreen')
-        } else {
-            NavStore.goNext('ReceiptScreen')
+            await SendActionsBlockchainWrapper.getFeeRate(ui)
+            if (uiType === 'TRADE_LIKE_WALLET_CONNECT') {
+                setLoaderFromBse(false)
+                NavStore.goNext('MarketReceiptScreen')
+            } else {
+                NavStore.goNext('ReceiptScreen')
+            }
+        } catch (e) {
+            Log.error(' SendActionsStart.startFromWalletConnect error ' + e.message)
         }
     }
 

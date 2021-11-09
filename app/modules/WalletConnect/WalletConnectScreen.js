@@ -189,6 +189,12 @@ class WalletConnectScreen extends PureComponent {
             inputFullLink: ''
         }, () => {
             AppWalletConnect.killSession()
+            if (this.linkInput) {
+                this.setState({
+                    inputFullLink: ''
+                })
+                this.linkInput.handleInput('', false)
+            }
         })
     }
 

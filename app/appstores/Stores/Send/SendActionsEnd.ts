@@ -17,6 +17,7 @@ import transactionActions from '@app/appstores/Actions/TransactionActions'
 
 import ApiV3 from '@app/services/Api/ApiV3'
 import { recordFioObtData } from '@crypto/blockchains/fio/FioUtils'
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
 const logFio = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
     const { fioRequestDetails } = sendScreenStore.ui
@@ -120,7 +121,7 @@ export namespace SendActionsEnd {
 
     export const endRedirect = async (tx: any, sendScreenStore: any) => {
         const { currencyCode } = sendScreenStore.dict
-        const { uiType, tbk, extraData } = sendScreenStore.ui
+        const { uiType, tbk, walletConnectPayload } = sendScreenStore.ui
         const { transactionAction } = tbk
 
         if (typeof transactionAction !== 'undefined' && transactionAction !== '' && transactionAction) {
@@ -170,6 +171,7 @@ export namespace SendActionsEnd {
                     source : 'SendActionsEnd.TradeSend'
             }})
         } else if (uiType === 'WALLET_CONNECT') {
+            await AppWalletConnect.approveRequest(walletConnectPayload, tx.transactionHash)
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash,
@@ -177,14 +179,14 @@ export namespace SendActionsEnd {
                 },
                 source : 'SendActionsEnd.WalletConnect'
             })
-            if (extraData?.txCode === 'APPROVE') {
-                setBseLink(null)
-                const params = {
-                    transactionHash: tx.transactionHash,
-                    nonce: tx?.transactionJson?.nonce
-                }
-                await endClose(sendScreenStore, params)
+        } else if (uiType === 'TRADE_LIKE_WALLET_CONNECT') {
+            setBseLink(null)
+            const params = {
+                transactionHash: tx.transactionHash,
+                nonce: tx?.transactionJson?.nonce
             }
+            await endClose(sendScreenStore, params)
+            NavStore.goBack()
         } else {
             // fio request etc - direct to receipt
             NavStore.goBack()
@@ -193,10 +195,13 @@ export namespace SendActionsEnd {
     }
 
     export const endClose = async (sendScreenStore : any, params : any = false) => {
-        const { bse, extraData } = sendScreenStore.ui
+        const { bse, extraData, walletConnectPayload, uiType } = sendScreenStore.ui
         const { bseOrderId } = bse
-        let data = { extraData, ...params, orderHash: bseOrderId, status: 'CLOSE' }
-        if ((typeof bseOrderId === 'undefined' || !bseOrderId) && !extraData.txCode) return
+        const data = { extraData, ...params, orderHash: bseOrderId, status: 'CLOSE' }
+        if (uiType === 'WALLET_CONNECT') {
+            await AppWalletConnect.rejectRequest(walletConnectPayload)
+        }
+        if (typeof bseOrderId === 'undefined' || !bseOrderId) return
         return ApiV3.setExchangeStatus(data)
     }
 

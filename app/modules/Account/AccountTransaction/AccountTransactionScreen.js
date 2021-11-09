@@ -587,7 +587,9 @@ class AccountTransactionScreen extends PureComponent {
     }
 
     backAction = async () => {
-        if (this.state.uiType === 'TRADE_SEND') {
+        if (this.state.uiType === 'WALLET_CONNECT') {
+            NavStore.reset('WalletConnectScreen')
+        } else if (this.state.uiType === 'TRADE_SEND' || this.state.uiType === 'TRADE_LIKE_WALLET_CONNECT') {
             NavStore.reset('TabBar')
         } else if (this.state.toOpenAccountBack) {
             setSelectedCryptoCurrency(this.props.cryptoCurrency)

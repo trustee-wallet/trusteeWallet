@@ -766,11 +766,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     }
                 }
                 tx.to = data.contractCallData.contractAddress
-                console.log('token.methods[data.contractCallData.contractAction] ' + JSON.stringify(token.methods[data.contractCallData.contractAction]))
                 tx.data = token.methods[data.contractCallData.contractAction](...tmpParams).encodeABI()
             } catch (e) {
                 throw new Error(e.message + ' while encodeABI for ' + schema)
             }
+        } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.data !== 'undefined') {
+           tx.data = data.walletConnectData.data
         } else if (typeof data.blockchainData !== 'undefined') {
             tx.data = data.blockchainData // actual value for erc20 etc
         }
@@ -839,16 +840,14 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 throw e
             }
 
+            result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
+            result.transactionFeeCurrencyCode =  this._mainCurrencyCode === 'BNB' ? 'BNB_SMART' : this._mainCurrencyCode
             if (txRBF) {
                 if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
                     result.amountForTx = data.amount
                 }
-                result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
-                result.transactionFeeCurrencyCode =  this._mainCurrencyCode
                 result.addressTo = data.addressTo === data.addressFrom ? '' : data.addressTo
             } else {
-                result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
-                result.transactionFeeCurrencyCode = this._mainCurrencyCode
                 result.transactionJson.txData = tx.data
                 await EthTmpDS.getCache(this._mainCurrencyCode, data.addressFrom)
             }

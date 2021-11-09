@@ -500,12 +500,11 @@ class MarketScreen extends PureComponent {
             currencyCode: approveData.currencyCode,
             walletConnectData: approveData.data[0].params,
             extraData: {
-                fromMarketScreen: true,
                 txCode: approveData.data[0].txCode,
                 providerName: approveData.provider,
                 currencyCode: approveData.currencyCode
             }
-        })
+        }, 'TRADE_LIKE_WALLET_CONNECT')
     }
 
     async onTakePhoto(cardData) {
