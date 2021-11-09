@@ -206,6 +206,8 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorNft({ network: 'rinkeby', tokenBlockchain: 'RINKEBY', tokenBlockchainCode : 'ETH_RINKEBY' })
             case 'MATIC': case 'NFT_MATIC':
                 return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'MATIC', tokenBlockchainCode : 'MATIC' })
+            case 'BNB': case 'NFT_BNB':
+                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'BNB', tokenBlockchainCode : 'BNB' })
             case 'ETH_ROPSTEN': case 'NFT_ROPSTEN':
                 return new EthTokenProcessorNft({ network: 'ropsten', tokenBlockchain : 'ROPSTEN', tokenBlockchainCode : 'ETH_ROPSTEN' })
             default:
