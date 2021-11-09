@@ -128,6 +128,9 @@ export namespace SendActionsBlockchainWrapper {
             if (typeof uiData.walletConnectData !== 'undefined') {
                 newCountedFeesData.walletConnectData = uiData.walletConnectData
             }
+            if (typeof uiData.dexOrderData !== 'undefined') {
+                newCountedFeesData.dexOrderData = uiData.dexOrderData
+            }
             if (!store.getState().sendScreenStore.fromBlockchain.neverCounted && JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return { isTransferAll : newCountedFeesData.isTransferAll, amount : newCountedFeesData.amount, source : 'CACHE_COUNTED', addressTo : newCountedFeesData.addressTo}
             }

@@ -39,7 +39,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         let txRBFed = ''
         let txRBF = false
-        const addressToLower = data.addressTo.toLowerCase()
+
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate remove started ' + data.transactionRemoveByFee)
             txRBF = data.transactionRemoveByFee
@@ -48,7 +48,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate resend started ' + data.transactionReplaceByFee)
             txRBF = data.transactionReplaceByFee
             txRBFed = 'RBFed'
+        } else if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate dex ' + data.addressFrom + ' started')
         } else {
+            const addressToLower = data.addressTo.toLowerCase()
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
             txRBFed = 'usualSend'
             if (data.addressTo !== '' && (addressToLower.indexOf('0x') === -1 || addressToLower.indexOf('0x') !== 0)) {
@@ -115,7 +118,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             gasPrice = additionalData.prices
         } else if (proxyPriceCheck) {
             let tmp = 0
-            if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gasPrice !== 'undefined' && data.walletConnectData.gasPrice) {
+            if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+                tmp = typeof data.dexOrderData[0].params.gasPrice !== 'undefined' ? data.dexOrderData[0].params.gasPrice : 0
+                if (tmp > 0) {
+                    gasPrice = { 'speed_blocks_2': tmp }
+                }
+            } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gasPrice !== 'undefined' && data.walletConnectData.gasPrice) {
                 tmp = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gasPrice)
                 if (tmp > 0) {
                     gasPrice = { 'speed_blocks_2': tmp }
@@ -139,7 +147,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
 
-                if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
+                if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+                    gasLimit = typeof data.dexOrderData[0].params.gas !== 'undefined' ? data.dexOrderData[0].params.gas : 0
+                } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
                     gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gas)
                 } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
                     const schema = data.contractCallData.contractSchema
@@ -665,7 +675,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
                 fees.selectedTransferAllBalanceETH = BlocksoftUtils.toEther(fees.fees[fees.selectedFeeIndex].amountForTx)
             } catch (e) {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance + ' error on logging ' + e.message)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + data.addressTo + ' error on logging ' + e.message)
             }
         }
         return {
@@ -695,8 +705,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx resend started ' + data.transactionReplaceByFee)
             txRBF = data.transactionReplaceByFee
             txRBFed = 'RBFed'
+        } else if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx dex ' + data.addressFrom + ' started')
+            txRBFed = 'dexSend'
         } else {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx started')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx ' + data.addressFrom + ' started')
             txRBFed = 'usualSend'
             if (data.addressTo !== '' && (addressToLower.indexOf('0x') === -1 || addressToLower.indexOf('0x') !== 0)) {
                 throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
@@ -746,7 +759,14 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             value: data.amount
         }
 
-        if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
+        if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+            if (typeof data.dexOrderData[0].params.data !== 'undefined') {
+                tx.data = data.dexOrderData[0].params.data
+            }
+            if (typeof data.dexOrderData[0].params.to !== 'undefined') {
+                tx.to = data.dexOrderData[0].params.to
+            }
+        } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
             const schema = data.contractCallData.contractSchema
             try {
                 let abiCode
@@ -771,7 +791,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 throw new Error(e.message + ' while encodeABI for ' + schema)
             }
         } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.data !== 'undefined') {
-           tx.data = data.walletConnectData.data
+            tx.data = data.walletConnectData.data
         } else if (typeof data.blockchainData !== 'undefined') {
             tx.data = data.blockchainData // actual value for erc20 etc
         }

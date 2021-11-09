@@ -136,21 +136,23 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressFrom data error ' + e.message)
             }
 
-            try {
-                const res2 = await BlocksoftAxios.post(link, {address : TronUtils.addressToHex(data.addressTo)})
-                const tronData2 = res2.data
-                delete tronData2.assetNetUsed
-                delete tronData2.assetNetLimit
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link + ' to ' + data.addressTo, tronData2)
-                if (typeof tronData2.freeNetLimit === 'undefined') {
-                    feeForTx = feeForTx * 1 + 1000000
+            if (typeof data.dexOrderData === 'undefined' || !data.dexOrderData) {
+                try {
+                    const res2 = await BlocksoftAxios.post(link, { address: TronUtils.addressToHex(data.addressTo) })
+                    const tronData2 = res2.data
+                    delete tronData2.assetNetUsed
+                    delete tronData2.assetNetLimit
+                    await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link + ' to ' + data.addressTo, tronData2)
+                    if (typeof tronData2.freeNetLimit === 'undefined') {
+                        feeForTx = feeForTx * 1 + 1000000
+                    }
+                } catch (e) {
+                    // do nothing
+                    if (config.debug.cryptoErrors) {
+                        console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressTo data error ' + e.message)
+                    }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressTo data error ' + e.message)
                 }
-            } catch (e) {
-                // do nothing
-                if (config.debug.cryptoErrors) {
-                    console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressTo data error ' + e.message)
-                }
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressTo data error ' + e.message)
             }
 
             if (feeForTx !== 0) {
