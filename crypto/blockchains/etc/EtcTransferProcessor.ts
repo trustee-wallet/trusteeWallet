@@ -10,8 +10,10 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 export default class EtcTransferProcessor extends EthTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        additionalData.gasPrice = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_PRICE')
-        additionalData.gasPriceTitle = 'speed_blocks_2'
+        if (typeof additionalData.gasPrice  === 'undefined' || !additionalData.gasPrice) {
+            additionalData.gasPrice = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_PRICE')
+            additionalData.gasPriceTitle = 'speed_blocks_2'
+        }
         return super.getFeeRate(data, privateData, additionalData)
     }
 
