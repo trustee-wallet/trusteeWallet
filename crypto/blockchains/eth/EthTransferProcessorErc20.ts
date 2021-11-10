@@ -42,6 +42,11 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
 
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
+        if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate dex ' + data.addressFrom + ' started')
+            return super.getFeeRate(data, privateData, additionalData)
+        }
+
         const tmpData = { ...data }
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate removeByFee no token ' + this._tokenAddress)
@@ -142,6 +147,10 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
+        if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx dex ' + data.addressFrom + ' started')
+            return super.sendTx(data, privateData, uiData)
+        }
         const tmpData = { ...data }
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx removeByFee no token ' + this._tokenAddress)

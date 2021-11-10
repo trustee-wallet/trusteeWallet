@@ -762,6 +762,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
             if (typeof data.dexOrderData[0].params.data !== 'undefined') {
                 tx.data = data.dexOrderData[0].params.data
+                if (typeof data.dexOrderData[0].params.value !== 'undefined') {
+                    tx.value = data.dexOrderData[0].params.value
+                } else {
+                    tx.value = 0
+                }
             }
             if (typeof data.dexOrderData[0].params.to !== 'undefined') {
                 tx.to = data.dexOrderData[0].params.to

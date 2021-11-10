@@ -220,7 +220,6 @@ class SettingsSOL extends React.PureComponent {
                     for (const subCurrencyCode in accountList[this.props.wallet.walletHash]) {
                         const settings = BlocksoftDict.getCurrencyAllSettings(subCurrencyCode)
                         if (typeof settings.addressCurrencyCode !== 'undefined' && typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'SOLANA') {
-                            console.log('!!!')
                             try {
                                 await accountHdDS.setMainAddress({ newAddress, oldAddress: account.address, currencyCode: subCurrencyCode, basicCurrencyCode: 'SOL', walletHash: wallet.walletHash })
                             } catch (e) {
