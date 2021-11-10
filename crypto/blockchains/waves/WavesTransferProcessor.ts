@@ -6,9 +6,8 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
 
-import { transfer, broadcast } from '@waves/waves-transactions'
-
-const API_PATH = 'https://nodes.wavesnodes.com'
+import { transfer, broadcast } from '@waves/waves-transactions/src/index'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
@@ -75,13 +74,21 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
             throw new Error('WAVES transaction required addressTo')
         }
 
+        let addressTo = data.addressTo
+        if (this._settings.currencyCode === 'ASH') {
+            this._apiPath = await BlocksoftExternalSettings.get('ASH_SERVER')
+            addressTo = addressTo.replace('Æx', '')
+        } else {
+            this._apiPath = await BlocksoftExternalSettings.get('WAVES_SERVER')
+        }
+
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx started ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount)
 
         let signedData = false
         try {
             const money = {
-                recipient: data.addressTo,
-                amount: data.amount
+                recipient: addressTo,
+                amount: data.amount,
             }
 
             signedData = transfer(money, { privateKey: privateData.privateKey })
@@ -99,7 +106,7 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             const resp = await new Promise((resolve, reject) => {
-                broadcast(signedData, API_PATH).then(resp => {
+                broadcast(signedData, this._apiPath).then(resp => {
                     resolve(resp)
                 })
             })

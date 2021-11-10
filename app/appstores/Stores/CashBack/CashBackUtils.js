@@ -17,6 +17,8 @@ import store from '@app/store'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
+import branch from 'react-native-branch'
+
 const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
 
 const CACHE_DATA_FROM_API = {}
@@ -43,12 +45,25 @@ class CashBackUtils {
             const tmp2 = await NativeLinking.getInitialURL()
             await Log.log('SRV/CashBack init NativeLinking.getInitialURL() ' + JSON.stringify(tmp2))
 
+            // Branch
+            let branchData
+            try {
+                branchData = await branch.getFirstReferringParams()
+                await Log.log('SRV/CashBack init branch.getFirstReferringParams() ' + JSON.stringify(branchData))
+            } catch (e) {
+                await Log.log('SRV/CashBack init branch.getFirstReferringParams() error ' + e.message)
+            }
+
             if (firebaseUrl && typeof firebaseUrl !== 'undefined') {
                 if (typeof firebaseUrl.url !== 'undefined' && firebaseUrl.url) {
                     firebaseUrl = firebaseUrl.url
                 }
             } else if (tmp2 && typeof tmp2 !== 'undefined' && tmp2 !== '') {
                 firebaseUrl = tmp2
+            } else if (branchData && typeof branchData !== 'undefined') {
+                if (branchData.$desktop_url && typeof branchData.$desktop_url !== 'undefined') {
+                    firebaseUrl = branchData.$desktop_url
+                }
             }
 
             if (firebaseUrl && typeof firebaseUrl !== 'undefined' && firebaseUrl !== '') {
@@ -110,7 +125,7 @@ class CashBackUtils {
             }
         }
         await Log.log('SRV/CashBack saved parent from AsyncStorage => ' + tmpParentToken, params)
-        await cashBackActions.updateAll(updateObj)
+        await cashBackActions.updateAll(updateObj, 'CashBackUtils.init')
         this.inited = true
     }
 
@@ -137,7 +152,7 @@ class CashBackUtils {
         if (data.customToken) {
             updateObj.cashbackLinkTitle = data.customToken
         }
-        await cashBackActions.updateAll(updateObj)
+        await cashBackActions.updateAll(updateObj, 'CashBackUtils.fromApi')
     }
 
     setParentToken = async (parentToken) => {
@@ -146,7 +161,7 @@ class CashBackUtils {
         }
         this.parentToken = parentToken
         await trusteeAsyncStorage.setCashbackParent(parentToken)
-        await cashBackActions.updateAll({ parentToken })
+        await cashBackActions.updateAll({ parentToken }, 'CashBackUtils.setParentToken')
     }
 
     getByHash = async (tmpHash, source) => {

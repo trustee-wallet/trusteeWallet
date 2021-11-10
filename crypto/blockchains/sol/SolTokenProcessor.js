@@ -12,8 +12,8 @@ export default class SolTokenProcessor {
      * @returns {Promise<{tokenAddress: *, currencyName: *, provider: string, tokenDecimals: *, icon: *, description: *, tokenType: string, currencyCode: *}|boolean>}
      */
     async getTokenDetails(tokenAddress) {
-
-        const res = await BlocksoftAxios.get(BlocksoftExternalSettings.get('SOL_TOKENS_LIST'))
+        const link = await BlocksoftExternalSettings.get('SOL_TOKENS_LIST')
+        const res = await BlocksoftAxios.get(link)
         if (!res || typeof res.data.tokens === 'undefined' || !res.data.tokens) {
             return false
         }

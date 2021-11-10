@@ -207,6 +207,7 @@ class NftDetailedInfo extends React.PureComponent {
             >
                 <ScrollView
                     contentContainerStyle={styles.scrollViewContent}
+                    showsVerticalScrollIndicator={false}
                 >
                     <View style={[styles.container, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={[{
@@ -262,16 +263,13 @@ class NftDetailedInfo extends React.PureComponent {
                             </TouchableOpacity>
                         )}
                     </View>
-                    <View style={{
-                        paddingHorizontal: GRID_SIZE,
-                        paddingVertical: GRID_SIZE * 1.5
-                    }}>
-                        <Button
-                            title={strings('nftMainScreen.proof')}
-                            onPress={this.handleOpenQrCode}
-                        />
-                    </View>
+                    <View style={{ paddingVertical: GRID_SIZE }} />
                 </ScrollView>
+                <Button
+                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE * 1.5 }}
+                    title={strings('nftMainScreen.proof')}
+                    onPress={this.handleOpenQrCode}
+                />
             </ScreenWrapper>
         )
     }
@@ -290,8 +288,7 @@ export default connect(mapStateToProps)(NftDetailedInfo)
 
 const styles = StyleSheet.create({
     scrollViewContent: {
-        flexGrow: 1,
-        justifyContent: 'space-between'
+        flexGrow: 1
     },
     container: {
         flex: 1

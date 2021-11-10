@@ -162,10 +162,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     try {
                         let ok = false
                         let i = 0
+                        let gasLimitNew = false
                         do {
                             try {
                                 i++
-                                gasLimit = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                                gasLimitNew = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
                                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
                             } catch (e1) {
                                 ok = false
@@ -174,6 +175,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                                 }
                             }
                         } while (!ok && i <= 5)
+                        if (gasLimitNew && typeof gasLimitNew !== 'undefined' && gasLimitNew * 1 > 0) {
+                            gasLimit = gasLimitNew * 1
+                        }
                     } catch (e) {
                         if (e.message.indexOf('resolve host') !== -1) {
                             throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
@@ -200,7 +204,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } catch (e) {
             throw new Error(e.message + ' in get gasLimit')
         }
-        console.log(new Date().toISOString() + ' end estimation')
 
         let showBigGasNotice = false
         if (typeof additionalData === 'undefined' || typeof additionalData.isCustomFee === 'undefined' || !additionalData.isCustomFee) {
@@ -215,7 +218,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
 
         if (!gasLimit) {
-            throw new Error('invalid transaction (no gas limit)')
+            throw new Error('invalid transaction (no gas limit.2)')
         }
 
         // @ts-ignore
@@ -305,6 +308,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         const keys = ['speed_blocks_12', 'speed_blocks_6', 'speed_blocks_2']
         let skippedByOld = false
         let prevGasPrice = 0
+        const feesOK = {}
         for (let index = 0; index <= 2; index++) {
             const key = keys[index]
             if (typeof gasPrice[key] === 'undefined') continue
@@ -372,6 +376,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 amountForTx: amount
             }
 
+            feesOK[titles[index]] = tmp.gasPrice
             if (BlocksoftUtils.diff(newGasPrice, prevGasPrice).indexOf('-') === -1 && newGasPrice !== prevGasPrice) {
                 prevGasPrice = tmp.gasPrice
                 BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate added feeForTx ' + titles[index] + ' ' + tmp.feeForTx + ' with gasPrice ' + tmp.gasPrice + ' / gasLimit ' + tmp.gasLimit)
@@ -433,6 +438,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         newGasPrice = '0'
                     } else {
                         newGasPrice = newGasPrice.toString()
+                        newGasPrice = BlocksoftUtils.round(newGasPrice)
                     }
 
                     const tmp = {
@@ -517,14 +523,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             }
         }
 
+
+
         if (!skippedByOld) {
-            let foundFast = false
-            for (const fee of result.fees) {
-                if (fee.langMsg === 'eth_speed_fast') {
-                    foundFast = true
-                }
-            }
-            if (!foundFast) {
+            if (typeof feesOK['eth_speed_fast'] === 'undefined') {
+                BlocksoftCryptoLog.log('EthTxProcessor.getFeeRate showSmallFeeNotice reason ' + JSON.stringify(feesOK))
                 result.showSmallFeeNotice = new Date().getTime()
             }
         }

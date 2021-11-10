@@ -51,10 +51,10 @@ export class FileSystem {
         }
     }
 
-    getPathOrBase64 = async (): Promise<string> => {
+    getPathOrBase64 = async (forceFileContent = false): Promise<string> => {
         let res
         try {
-            if (Platform.OS === 'android') {
+            if (Platform.OS === 'android' || forceFileContent) {
                 res = await RNFS.readFile(this.getPath(), 'base64')
                 let type = 'data:text/plain'
                 if (this._fileExtension === 'zip') {

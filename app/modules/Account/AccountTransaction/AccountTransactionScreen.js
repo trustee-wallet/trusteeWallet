@@ -58,6 +58,7 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 
 import TextInput from '@app/components/elements/new/TextInput'
 import { getExplorerLink } from '../helpers'
+import ApiV3 from '@app/services/Api/ApiV3'
 
 
 let CACHE_RESCAN_TX = false
@@ -678,6 +679,17 @@ class AccountTransactionScreen extends PureComponent {
                 }
                 try {
                     setLoaderStatus(true)
+                    const disable = await ApiV3.getTBKDisable(transaction.transactionHash)
+                    if (disable) {
+                        showModal({
+                            type: 'INFO_MODAL',
+                            icon: null,
+                            title: strings('modal.titles.attention'),
+                            description: strings('modal.send.noTBKprovider')
+                        })
+                        setLoaderStatus(false)
+                        return false
+                    }
                     await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
                 } catch (e) {
                     if (config.debug.appErrors) {
@@ -720,7 +732,7 @@ class AccountTransactionScreen extends PureComponent {
             shareOptions.message = strings(`account.transaction.orderId`) + ` ${transaction.bseOrderData.orderHash}\n` + shareOptions.message
         }
         shareOptions.message += `\n${strings('account.transactionScreen.thanks')}`
-        
+
         // shareOptions.url = this.props.cashBackData.dataFromApi.cashbackLink
         prettyShare(shareOptions, 'taki_share_transaction')
     }

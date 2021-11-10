@@ -30,7 +30,8 @@ export default async function DogeFindAddressFunction(addresses, transaction) {
     const uniqueTmp = {}
 
     const address1 = addresses[0]
-    const address2 = addresses[addresses.length - 1] // two is max for now
+    const address2 = typeof addresses[1] !== 'undefined' ? addresses[1] : addresses[0]
+    const address3 = addresses[addresses.length - 1] // three is max now
     if (transaction.vin) {
         for (let i = 0, ic = transaction.vin.length; i < ic; i++) {
             let vinAddress
@@ -49,7 +50,7 @@ export default async function DogeFindAddressFunction(addresses, transaction) {
                     vinValue = transaction.vin[i].prevout.value
                 }
             }
-            if (vinAddress === address1 || vinAddress === address2) {
+            if (vinAddress === address1 || vinAddress === address2 || vinAddress === address3) {
                 inputMyBN.add(vinValue)
             } else {
                 if (typeof uniqueTmp[vinAddress] === 'undefined') {
@@ -77,7 +78,7 @@ export default async function DogeFindAddressFunction(addresses, transaction) {
             } else if (typeof transaction.vout[j].scriptpubkey_address !== 'undefined') {
                 voutAddress = transaction.vout[j].scriptpubkey_address
             }
-            if (voutAddress === address1 || voutAddress === address2) {
+            if (voutAddress === address1 || voutAddress === address2 || voutAddress === address3) {
                 outputMyBN.add(voutValue)
             } else {
                 if (typeof uniqueTmp2[voutAddress] === 'undefined') {

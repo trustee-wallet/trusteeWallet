@@ -14,6 +14,7 @@
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
 #import "Orientation.h"
+#import <RNBranch/RNBranch.h>
 
 @implementation AppDelegate
 
@@ -28,7 +29,7 @@
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions{
 
-
+  [RNBranch initSessionWithLaunchOptions:launchOptions isReferrable:YES];
   [FIROptions defaultOptions].deepLinkURLScheme = @"com.trusteewallet";
   [FIRApp configure];
   // [RNFirebaseNotifications configure];
@@ -72,19 +73,18 @@ willPresentNotification:(UNNotification *)notification
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
-/*
-- (BOOL)application:(UIApplication *)application
-            openURL:(NSURL *)url
-            options:(NSDictionary<NSString *, id> *)options {
-    BOOL handledLink = [[RNFirebaseLinks instance] application:application openURL:url options:options];
-
-    if (!handledLink) {
-        handledLink = [RCTLinkingManager application:application openURL:url options:options];
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    if ([RNBranch application:app openURL:url options:options])  {
+        // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
     }
-
-    return handledLink;
+    return YES;
 }
 
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
+  return [RNBranch continueUserActivity:userActivity];
+}
+
+/*
 - (BOOL)application:(UIApplication *)application
 continueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void (^)(NSArray *))restorationHandler {

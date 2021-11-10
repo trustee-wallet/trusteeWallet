@@ -100,7 +100,12 @@ export default class UsdtScannerProcessor {
 
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance started ' + address)
         const tmp = await this._get(address)
-        if (typeof tmp === 'undefined' || !tmp || typeof tmp.data === 'undefined' || !tmp.data || typeof tmp.data.balance === 'undefined' || !tmp.data.balance) {
+        if (typeof tmp === 'undefined' || !tmp || typeof tmp.data === 'undefined') {
+            BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance bad tmp ', tmp)
+            return false
+        }
+        if (!tmp.data || typeof tmp.data.balance === 'undefined' || tmp.data.balance === false) {
+            BlocksoftCryptoLog.log('UsdtScannerProcessor.getBalance bad tmp.data ', tmp.data)
             return false
         }
         const balance = tmp.data.balance
@@ -116,11 +121,17 @@ export default class UsdtScannerProcessor {
         const address = scanData.account.address.trim()
         BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions started ' + address)
         let tmp = await this._get(address)
-        if (!tmp || typeof tmp.data === 'undefined' || !tmp.data) {
+        if (!tmp || typeof tmp.data === 'undefined') {
+            BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions bad tmp ', tmp)
             return []
         }
+        if (!tmp.data) {
+            BlocksoftCryptoLog.log('UsdtScannerProcessor.getTransactions bad tmp.data ', tmp.data)
+            return []
+        }
+        
         tmp = tmp.data
-        if (tmp.data) {
+        if (typeof tmp.data !== 'undefined') {
             tmp = tmp.data // wtf but ok to support old wallets
         }
         if (typeof tmp.txs === 'undefined') {

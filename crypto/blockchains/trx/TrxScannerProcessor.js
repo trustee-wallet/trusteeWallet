@@ -48,7 +48,7 @@ export default class TrxScannerProcessor {
         let subresult = false
         BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronScan ' + JSON.stringify(result))
 
-        if (result === false) {
+        if (result === false || result === 0) {
             subresult = await this._tronscanProvider.get(address, '_')
             result = await this._trongridProvider.get(addressHex, this._tokenName)
             BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronGrid ' + JSON.stringify(result))

@@ -11,10 +11,45 @@ import { PublicKey, TransactionInstruction, Transaction } from '@solana/web3.js/
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import SolTransferProcessor from '@crypto/blockchains/sol/SolTransferProcessor'
 import SolInstructions from '@crypto/blockchains/sol/ext/SolInstructions'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 export default class SolTransferProcessorSpl extends SolTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
+    async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
+        const result: BlocksoftBlockchainTypes.FeeRateResult = {
+            selectedFeeIndex: -3,
+            shouldShowFees: false
+        } as BlocksoftBlockchainTypes.FeeRateResult
+
+
+        const destinationAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
+            data.addressTo,
+            this._settings.tokenAddress
+        )
+        const destinationAccountInfo = await SolUtils.getAccountInfo(destinationAssociatedTokenAddress)
+        let feeForTx = BlocksoftExternalSettings.getStatic('SOL_PRICE')  // ◎0.000005
+        if (
+            destinationAccountInfo && typeof destinationAccountInfo.owner !== 'undefined' && destinationAccountInfo.owner === SolUtils.getTokenProgramID()
+        ) {
+            // do nothing
+        } else {
+            // will create new account
+            feeForTx = BlocksoftExternalSettings.getStatic('SOL_PRICE_NEW_SPL')  // // ◎0.00203928 + 0.000005 = 0.00204428
+        }
+
+        result.fees = [
+            {
+                langMsg: 'xrp_speed_one',
+                feeForTx,
+                amountForTx: data.amount
+            }
+        ]
+        result.selectedFeeIndex = 0
+
+
+        return result
+    }
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
@@ -44,28 +79,15 @@ export default class SolTransferProcessorSpl extends SolTransferProcessor implem
             throw new Error('SPL transaction required addressTo')
         }
 
-        if (uiData && typeof uiData.uiErrorConfirmed !== 'undefined' &&
-            (
-                uiData.uiErrorConfirmed === 'UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE'
-                || uiData.uiErrorConfirmed === 'UI_CONFIRM_DOUBLE_SEND'
-            )
-        ) {
-            // do nothing
-        } else {
-            const balance = await (BlocksoftBalances.setCurrencyCode('SOL').setAddress(data.addressTo)).getBalance('SolSendTx')
-            if (!balance || typeof balance.balance === 'undefined' || balance.balance === 0) {
-                throw new Error('UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE')
-            }
-        }
-
         const sourceAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
             data.addressFrom,
             this._settings.tokenAddress
         )
         const sourceAccountInfo = await SolUtils.getAccountInfo(sourceAssociatedTokenAddress)
         if (!sourceAccountInfo || typeof sourceAccountInfo.lamports === 'undefined' || sourceAccountInfo.lamports * 1 === 0) {
-            throw new Error('Cannot send to address with zero ' + this._settings.currencyCode + ' balances')
+            throw new Error('Cannot send from address with zero SOL balance')
         }
+
 
 
         const tx = new Transaction()
@@ -83,7 +105,7 @@ export default class SolTransferProcessorSpl extends SolTransferProcessor implem
         } else {
 
             if (!destinationAccountInfo || typeof destinationAccountInfo.lamports === 'undefined' || destinationAccountInfo.lamports * 1 === 0) {
-                throw new Error('Cannot send to address with zero SOL balances')
+                throw new Error('Cannot send tokens to address with zero SOL balance')
             }
 
             const destinationAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(

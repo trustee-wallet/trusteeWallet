@@ -46,7 +46,7 @@ export namespace StreamSupportWrapper {
                     })
                 })
                 const res = await response.json()
-                Log.log('StreamSupport device token subscribe res ', res)
+                // console.log('StreamSupport device token subscribe res ', res)
             } catch (e) {
                 if (config.debug.appErrors) {
                     console.log('StreamSupport device token subscribe error ' + e.message)
@@ -68,7 +68,7 @@ export namespace StreamSupportWrapper {
         const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
         const link = `${serverUrl}/api/v1/rooms.get`
 
-        Log.log('StreamSupport getRoom ' + link)
+        // console.log('StreamSupport getRoom ' + link)
         CACHE_ROOM_ID = false
         try {
             const response = await fetch(link, {
@@ -81,7 +81,7 @@ export namespace StreamSupportWrapper {
                 }
             })
             const res = await response.json()
-            Log.log('StreamSupport getRoom result ', res)
+            // console.log('StreamSupport getRoom result ', res)
             if (typeof res.update !== 'undefined') {
                 for (const room of res.update) {
                     if (room.fname === CHAT_PREFIX + data.userName) {
@@ -90,7 +90,7 @@ export namespace StreamSupportWrapper {
                 }
             }
         } catch (e) {
-            Log.log('StreamSupport getRoom ' + link + ' error ' + e.message)
+            console.log('StreamSupport getRoom ' + link + ' error ' + e.message)
         }
         StreamSupportActions.setRoom(CACHE_ROOM_ID)
     }
@@ -102,16 +102,16 @@ export namespace StreamSupportWrapper {
         }
         const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
         const wsLink = 'wss://' + serverUrl.replace('https://', '') + '/websocket'
-        Log.log('StreamSupport initWS ' + wsLink)
+        // console.log('StreamSupport initWS ' + wsLink)
 
         WEB_SOCKET = new WebSocket(wsLink)
         WEB_SOCKET_LINK = wsLink
 
         WEB_SOCKET.onopen = () => {
-            Log.log('StreamSupport.on open ' + wsLink)
+            // console.log('StreamSupport.on open ' + wsLink)
             // https://github.com/RocketChat/docs/issues/205
             try {
-                Log.log('StreamSupport.on open status connection ' + WEB_SOCKET.readyState)
+                // console.log('StreamSupport.on open status connection ' + WEB_SOCKET.readyState)
 
                 WEB_SOCKET.send(JSON.stringify({
                     'msg': 'connect',
@@ -119,12 +119,15 @@ export namespace StreamSupportWrapper {
                     'support': ['1', 'pre2', 'pre1']
                 }))
             } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('StreamSupport.on open error ' + e.message)
+                }
                 Log.log('StreamSupport.on open error ' + e.message)
             }
         }
 
         WEB_SOCKET.onmessage = (e) => {
-            // Log.log('StreamSupport.on message ' + e.data)
+            // console.log('StreamSupport.on message ' + e.data)
             try {
                 const newData = JSON.parse(e.data)
                 if (newData.msg === 'connected') {
@@ -146,6 +149,7 @@ export namespace StreamSupportWrapper {
                 } else if (newData.msg === 'result' && newData.id === IDENT_GROUP_CREATE) {
                     if (typeof newData.error !== 'undefined' && typeof newData.error.error !== 'undefined') {
                         console.log('newData.error.error ' + newData.error.error)
+
                     } else if (typeof newData.result.rid !== 'undefined') {
                         CACHE_ROOM_ID = newData.result.rid
                         StreamSupportActions.setRoom(CACHE_ROOM_ID)
@@ -154,6 +158,8 @@ export namespace StreamSupportWrapper {
                     } else {
                         throw new Error(' something wrong with room create')
                     }
+                } else if (newData.msg === 'result' && newData.id === IDENT_MESSAGE_CREATE) {
+                    StreamSupportActions.addMessage( newData.result)
                 } else if (newData.msg === 'changed' && newData.collection === 'stream-room-messages') {
                     StreamSupportActions.addMessage( newData.fields.args[0])
                 } else {
@@ -180,9 +186,9 @@ export namespace StreamSupportWrapper {
 
         WEB_SOCKET.onclose = (e) => {
             if (typeof e.code !== 'undefined' && e.code.toString() === '1000') {
-                Log.log('StreamSupport.on close to reload ' + e.code + ' ' + e.reason)
+                // console.log('StreamSupport.on close to reload ' + e.code + ' ' + e.reason)
             } else {
-                Log.log('StreamSupport.on close ' + e.code + ' ' + e.reason)
+                console.log('StreamSupport.on close ' + e.code + ' ' + e.reason)
             }
             initWS(data)
         }
@@ -193,9 +199,9 @@ export namespace StreamSupportWrapper {
         if (!MarketingEvent.DATA.LOG_TESTER) return false
         const data = store.getState().streamSupportStore
 
-        Log.log('StreamSupport subscribeToMessages ' + CACHE_ROOM_ID)
+        // console.log('StreamSupport subscribeToMessages ' + CACHE_ROOM_ID)
 
-        Log.log('StreamSupport subscribeToMessages status connection ' + WEB_SOCKET.readyState)
+        // console.log('StreamSupport subscribeToMessages status connection ' + WEB_SOCKET.readyState)
 
         try {
 
@@ -216,7 +222,7 @@ export namespace StreamSupportWrapper {
                 ]
             }))
         } catch (e) {
-            Log.log('StreamSupport subscribeToMessages error ' + e.message)
+            console.log('StreamSupport subscribeToMessages error ' + e.message)
         }
     }
 
@@ -230,7 +236,7 @@ export namespace StreamSupportWrapper {
             CACHE_ROOM_ID = data.roomId
         }
 
-        Log.log('StreamSupport sendStreamSupportMessage status connection ' + WEB_SOCKET.readyState)
+        // console.log('StreamSupport sendStreamSupportMessage status connection ' + (WEB_SOCKET && typeof WEB_SOCKET.readyState === 'undefined' ? JSON.stringify(WEB_SOCKET) : WEB_SOCKET.readyState))
 
         try {
             if (!CACHE_ROOM_ID) {
@@ -259,7 +265,7 @@ export namespace StreamSupportWrapper {
                 WEB_SOCKET.send(JSON.stringify(newMessageCall))
             }
         } catch (e) {
-            Log.log('StreamSupport sendStreamSupportMessage error ' + e.message)
+            console.log('StreamSupport sendStreamSupportMessage error ' + e.message)
         }
     }
 

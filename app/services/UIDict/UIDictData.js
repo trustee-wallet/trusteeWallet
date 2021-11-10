@@ -788,6 +788,12 @@ export default {
             darkColor: '#9E71E1'
         }
     },
+    'ASH': {
+        colors: {
+            mainColor: '#020F50',
+            darkColor: '#1F39BA'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

@@ -49,6 +49,9 @@ export default {
     },
 
     addressToHex: function(address) {
+        if (address.substr(0, 2) === '41') {
+            return address
+        }
         const bs58 = require('bs58')
         const decoded = bs58.decode(address.trim())
         return decoded.slice(0,21).toString('hex')

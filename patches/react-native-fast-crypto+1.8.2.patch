@@ -1,0 +1,16 @@
+diff --git a/node_modules/react-native-fast-crypto/android/build.gradle b/node_modules/react-native-fast-crypto/android/build.gradle
+index 680c06e..29c364c 100644
+--- a/node_modules/react-native-fast-crypto/android/build.gradle
++++ b/node_modules/react-native-fast-crypto/android/build.gradle
+@@ -51,11 +51,6 @@ android {
+     // If you want Gradle to package prebuilt native libraries
+     // with your APK, modify the default source set configuration
+     // to include the directory of your prebuilt .so files as follows.
+-    sourceSets {
+-        main {
+-            jniLibs.srcDirs 'jni/libs/'
+-        }
+-    }
+ }
+ 
+ repositories {

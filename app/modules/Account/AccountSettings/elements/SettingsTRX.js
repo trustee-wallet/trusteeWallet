@@ -145,6 +145,8 @@ class SettingsTRX extends Component {
             msg = strings('settings.walletList.waitToClaimTRX')
         } else if (msg.indexOf('not time to unfreeze') !== -1) {
             msg = strings('settings.walletList.waitToUnfreezeTRX')
+        } else if (msg.indexOf('frozenBalance must be more') !== -1) {
+            msg = strings('settings.walletList.minimalFreezeBalanceTRX')
         }
         showModal({
             type: 'INFO_MODAL',

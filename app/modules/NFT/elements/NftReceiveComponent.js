@@ -15,6 +15,7 @@ import {
 
 import { connect } from 'react-redux'
 
+import NavStore from '@app/components/navigation/NavStore'
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ReceiveFlatListItem from '@app/modules/NFT/elements/ReceiveFlatListItem'
@@ -116,6 +117,10 @@ class NftReceiveComponent extends PureComponent {
                 keyExtractor={({ index }) => index}
             />
         )
+    }
+
+    handleAddCustomToken = () => {
+        NavStore.goNext('NftAddAssetScreen')
     }
 
 

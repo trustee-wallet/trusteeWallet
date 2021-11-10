@@ -33,7 +33,9 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 
 import { Camera } from '@app/services/Camera/Camera'
 import { awsS3 } from '@app/appstores/Stores/StreamSupport/awsService';
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
+let CACHE_BUTTON_CLICKED = false
 class StreamSupportScreen extends PureComponent {
 
     sheetRef = createRef();
@@ -94,7 +96,7 @@ class StreamSupportScreen extends PureComponent {
 
         return (
             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.streemChat.inputToolBarBg }}>
-                <Composer 
+                <Composer
                     {...props}
                     textInputStyle={{
                         color: colors.common.text1,
@@ -195,7 +197,7 @@ class StreamSupportScreen extends PureComponent {
 
     renderBubble = (props) => {
         const { colors } = this.context
-        
+
         return (
             <Bubble
                 {...props}
@@ -312,74 +314,94 @@ class StreamSupportScreen extends PureComponent {
     renderInner = () => {
         const { colors } = this.context
 
+
+        // @todo onPress recheck in android!!!
         return (
             <View style={[styles.panel, { backgroundColor: colors.bottomModal.bg }]} >
-                <View style={{ alignItems: 'center' }}>
-                    <Text style={[styles.panelTitle, { color: colors.common.text1 }]}>{strings('streemSupport.sendDocs')}</Text>
-                </View>
-                <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]} onPress={this.sendLogs}>
-                    <CustomIcon name='logs' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.sendLogs')}</Text>
+                <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]}
+                                  onPress={this.sendLogs}>
+                    <CustomIcon onPress={this.sendLogs} name='logs' color={colors.common.text1} size={20} style={styles.iconWrapper} />
+                    <Text onPress={this.sendLogs} style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.sendLogs')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]} onPress={this.uploadFromCamera}>
-                    <CustomIcon name='camera' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.takePhoto')}</Text>
+                    <CustomIcon onPress={this.uploadFromCamera} name='camera' color={colors.common.text1} size={20} style={styles.iconWrapper} />
+                    <Text onPress={this.uploadFromCamera} style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.takePhoto')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]} onPress={this.uploadFromGallery}>
-                    <CustomIcon name='gallery' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.chooseFromLibrary')}</Text>
+                    <CustomIcon onPress={this.uploadFromGallery}name='gallery' color={colors.common.text1} size={20} style={styles.iconWrapper} />
+                    <Text onPress={this.uploadFromGallery} style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.chooseFromLibrary')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+               <TouchableOpacity
                     style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]}
-                    onPress={() => this.sheetRef.current.snapTo(1)}>
-                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('walletBackup.skipElement.cancel')}</Text>
+                    onPress={this.closeInner}>
+                    <Text onPress={this.closeInner} style={[styles.text2, { color: colors.common.text1 }]}>{strings('walletBackup.skipElement.cancel')}</Text>
                 </TouchableOpacity>
             </View >
         )
     }
 
-    sendLogs = async () => {
-        try {
-            const data = await SendLog.getAll('Support Chat', true)
-
-            const fileData = await RNFS.readFile(`file://${data.urls[0]}`, 'utf8') // utf8 - notworking
-            await awsS3(this.props.streamSupportData.userName, `${this.props.streamSupportData.userName}.zip`, fileData)
-            this.sheetRef.current.snapTo(1)
-        } catch (e) {
-            console.log('onPressLogs prepFile error ' + e.message)
-        }
-    }
-
-    uploadFromCamera = async () => {
-        if (!await Camera.checkCameraOn('Support/streemSupport upload file')) {
-            const res = await Camera.checkCameraOn('Support/streemSupport upload file')
-            if (!res) {
-                this.sheetRef.current.snapTo(1)
-                return
-            } else {
-
-                // TODO upload file
-            }
-            this.sheetRef.current.snapTo(1)
-        }
+    closeInner = () => {
         this.sheetRef.current.snapTo(1)
     }
 
-    uploadFromGallery = async () => {
-        try {
-            const res = await Camera.openCameraOrGallery('Support/streemSupport upload file')
-
-            let fileData = await RNFS.readFile("file:///" + (res.path.replace("file://", "")), 'utf8') // utf8 not working
-            // fileData = 'data:image/jpeg;base64,' + fileData
-            console.log(fileData)
-
-            await awsS3(this.props.streamSupportData.userName, `${this.props.streamSupportData.userName}.jpeg`, fileData)
-            this.sheetRef.current.snapTo(1)
-        } catch (e) {
-            Log.err('Support/streemSupport uploadFromGallery error', e)
+    _upload = async(filename, data) => {
+        const res = await awsS3(this.props.streamSupportData.userName, filename, data)
+        if (!res || typeof res === 'undefined' || typeof res.Location === 'undefined') {
+            throw new Error('File not uploaded')
         }
+        const message = {
+            text: res.Location,
+            user: {
+                _id: this.props.streamSupportData.userId
+            }
+        }
+        await this.onSend(message)
+        this.closeInner()
     }
 
+    sendLogs = async () => {
+        if (CACHE_BUTTON_CLICKED) return false
+        CACHE_BUTTON_CLICKED = true
+        try {
+            setLoaderStatus(true)
+            const data = await SendLog.getAll('Support Chat', {forceFileContent : true})
+            if (typeof data.urls[0] === 'undefined') {
+                throw new Error('Logs not built')
+            }
+            await this._upload(`${this.props.streamSupportData.userName}.zip`, data.urls[0])
+        } catch (e) {
+            Log.log('Support/streamSupport sendLogs error ' + e.message)
+            // @todo warning show
+        }
+        CACHE_BUTTON_CLICKED = false
+        setLoaderStatus(false)
+    }
+
+    uploadFromCamera = async () => {
+        return this.uploadFromCameraOrGallery(false)
+    }
+
+    uploadFromGallery = async () => {
+        return this.uploadFromCameraOrGallery(true)
+    }
+
+    uploadFromCameraOrGallery = async (onlyGallery) => {
+        if (CACHE_BUTTON_CLICKED) return false
+        CACHE_BUTTON_CLICKED = true
+        try {
+            setLoaderStatus(true)
+            const res = await Camera.openCameraOrGallery('Support/streamSupport uploadFromCameraOrGallery', onlyGallery)
+            if (typeof res.base64 === 'undefined') {
+                throw new Error('Photo not built')
+            }
+            await this._upload(`${this.props.streamSupportData.userName}.jpeg`, res.base64)
+        } catch (e) {
+            Log.log('Support/streamSupport uploadFromCameraOrGallery error ' + e.message)
+            // @todo warning show
+        }
+        CACHE_BUTTON_CLICKED = false
+        setLoaderStatus(false)
+    }
 
     renderHeader = () => {
         const { colors } = this.context

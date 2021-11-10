@@ -37,54 +37,55 @@ const FlatListItem = (props) => {
     const widthItem = (WINDOW_WIDTH - GRID_SIZE * (numColumns + 1)) / numColumns
 
     return (
-
-        <TouchableOpacity
-            onPress={onPress}
-            hitSlop={HIT_SLOP}
-            style={[styles.topContent, {
-                height: widthItem * 1.1,
-                marginLeft: margin ? GRID_SIZE : 0,
-                marginRight: GRID_SIZE,
-                marginVertical: GRID_SIZE * 0.5
-            }]}>
-            <View style={[styles.topContent__content, {
-                paddingBottom: GRID_SIZE,
-                width: widthItem
-            }]}>
-                {img ?
-                    <Image
-                        style={styles.img}
-                        source={{
-                            uri: img,
-                        }}
-                    /> :
-                    <View style={styles.img} />
-                }
-                <View style={styles.descriptions}>
-                    <NftTokenInfo
-                        title={title}
-                    />
-                    {ExtraViewData && (
-                        <ExtraViewData />
-                    )}
+        <View>
+            <TouchableOpacity
+                onPress={onPress}
+                hitSlop={HIT_SLOP}
+                style={[styles.topContent, {
+                    height: widthItem * 1.1,
+                    marginLeft: margin ? GRID_SIZE : 0,
+                    marginRight: GRID_SIZE,
+                    marginVertical: GRID_SIZE * 0.5
+                }]}>
+                <View style={[styles.topContent__content, {
+                    paddingBottom: GRID_SIZE,
+                    width: widthItem
+                }]}>
+                    {img ?
+                        <Image
+                            style={styles.img}
+                            source={{
+                                uri: img,
+                            }}
+                        /> :
+                        <View style={styles.img} />
+                    }
+                    <View style={styles.descriptions}>
+                        <NftTokenInfo
+                            title={title}
+                        />
+                        {ExtraViewData && (
+                            <ExtraViewData />
+                        )}
+                    </View>
                 </View>
-            </View>
-            <GradientView
-                style={[styles.collectionItem, {
+                <GradientView
+                    style={[styles.collectionItem, {
+                        height: widthItem * 1.1,
+                        width: widthItem
+                    }]}
+                    array={colors.accountScreen.containerBG}
+                    start={styles.containerBG.start}
+                    end={styles.containerBG.end}
+                />
+                <View style={[styles.topContent__bg, {
                     height: widthItem * 1.1,
                     width: widthItem
-                }]}
-                array={colors.accountScreen.containerBG}
-                start={styles.containerBG.start}
-                end={styles.containerBG.end}
-            />
-            <View style={[styles.topContent__bg, {
-                height: widthItem * 1.1,
-                width: widthItem
-            }]}>
-                <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
-            </View>
-        </TouchableOpacity>
+                }]}>
+                    <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
+                </View>
+            </TouchableOpacity>
+        </View>
     )
 }
 

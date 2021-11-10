@@ -137,24 +137,31 @@ class UpdateAccountBalanceAndTransactionsHD {
         }
         if (newBalance) {
             if (newBalance.balance * 1 !== walletPub.balance * 1 || newBalance.unconfirmed * 1 !== walletPub.unconfirmed * 1) {
-                updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
-                updateObj.balanceTxt = newBalance.balance // and string for any case
-                updateObj.unconfirmedFix = newBalance.unconfirmed || 0 // lets send to db totally not changed big number string
-                updateObj.unconfirmedTxt = newBalance.unconfirmed || '' // and string for any case
-                updateObj.balanceProvider = newBalance.provider
-                updateObj.balanceScanLog = 'all ok, new balance ' + newBalance.balance + ', old balance ' + walletPub.balance + ', ' + balanceError
+                if (typeof newBalance.specialMark !== 'undefined' && newBalance.specialMark === 'badServer' && walletPub.balance * 1 > 0) {
+                    updateObj.balanceScanLog = 'badServer so not changed, old balance ' + walletPub.balance + ', ' + balanceError
+                    if (typeof newBalance.provider !== 'undefined') {
+                        updateObj.balanceProvider = newBalance.provider
+                    }
+                } else {
+                    updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
+                    updateObj.balanceTxt = newBalance.balance // and string for any case
+                    updateObj.unconfirmedFix = newBalance.unconfirmed || 0 // lets send to db totally not changed big number string
+                    updateObj.unconfirmedTxt = newBalance.unconfirmed || '' // and string for any case
+                    updateObj.balanceProvider = newBalance.provider
+                    updateObj.balanceScanLog = 'all ok, new balance ' + newBalance.balance + ', old balance ' + walletPub.balance + ', ' + balanceError
 
-                const logData = {}
-                logData.walletHash = walletPub.walletHash
-                logData.currencyCode = walletPub.currencyCode
-                logData.address = walletPub.walletPubValue
-                logData.addressShort = walletPub.walletPubValue ? walletPub.walletPubValue.slice(0, 10) : 'none'
-                logData.balanceScanTime = walletPub.balanceScanTime + ''
-                logData.balanceProvider = walletPub.balanceProvider + ''
-                logData.balance = walletPub.balance + ''
-                logData.newBalanceProvider = walletPub.newBalanceProvider + ''
-                logData.newBalance = (newBalance.balance * 1) + ''
-                MarketingEvent.setBalance(logData.walletHash, logData.currencyCode, logData.newBalance, logData)
+                    const logData = {}
+                    logData.walletHash = walletPub.walletHash
+                    logData.currencyCode = walletPub.currencyCode
+                    logData.address = walletPub.walletPubValue
+                    logData.addressShort = walletPub.walletPubValue ? walletPub.walletPubValue.slice(0, 10) : 'none'
+                    logData.balanceScanTime = walletPub.balanceScanTime + ''
+                    logData.balanceProvider = walletPub.balanceProvider + ''
+                    logData.balance = walletPub.balance + ''
+                    logData.newBalanceProvider = walletPub.newBalanceProvider + ''
+                    logData.newBalance = (newBalance.balance * 1) + ''
+                    MarketingEvent.setBalance(logData.walletHash, logData.currencyCode, logData.newBalance, logData)
+                }
             } else {
                 updateObj.balanceScanLog = 'not changed, old balance ' + walletPub.balance + ', ' + balanceError
                 if (typeof newBalance.provider !== 'undefined') {

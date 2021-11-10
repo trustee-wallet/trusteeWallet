@@ -172,6 +172,7 @@
       "refreshTRX": "გადატვირთვა",
       "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
       "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 72 hours from the moment of the last freezing",
+      "minimalFreezeBalanceTRX" : "For freezing use more than 1 TRX",
       "allowLongQueryETH": "Allow pending transactions queue",
       "allowBlockedBalanceETH": "Allow reuse of pending transactions balance",
       "enterToStakeSOL" : "Enter stake amount SOL",
@@ -182,10 +183,13 @@
       "address": "Address",
       "stake": "Stake",
       "rentReserve": "Rent reserve",
-      "allUnstakeSOL": "Unstake all",
+      "withdrawSOL" : "Withdraw",
+      "withdrawAllSOL" : "Withdraw All",
+      "deactivateSOL": "Deactivate",
       "stakeHistorySOL" : "Stake History",
-      "selectSolValidator": "Select validator",
-      "solValidator": "Validator"
+      "selectValidatorSOL": "Select validator",
+      "validatorSOL": "Validator",
+      "rewards" : "Rewards"
     },
     "about": {
       "title": "საფულის შესახებ",
