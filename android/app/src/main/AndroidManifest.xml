@@ -74,79 +74,67 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="mainnet" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="litecoin" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="trx" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="testnet" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="bitcoincash" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="bitcoingold" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="bitcoinsv" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="dogecoin" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="ropsten" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="rinkeby" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="sol" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="verge" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="binancecoin" />
+                <data android:scheme="aion"/>
+                <data android:scheme="algorand"/>
+                <data android:scheme="aryacoin"/>
+                <data android:scheme="auroracoin"/>
+                <data android:scheme="avalanche"/>
+                <data android:scheme="blackcoin"/>
+                <data android:scheme="bnb"/>
+                <data android:scheme="bitcoincash"/>
+                <data android:scheme="bitcoingold"/>
+                <data android:scheme="bitcoinplus"/>
+                <data android:scheme="bitcoinsv"/>
+                <data android:scheme="bitcoinz"/>
+                <data android:scheme="callisto"/>
+                <data android:scheme="dash"/>
+                <data android:scheme="decred"/>
+                <data android:scheme="defcoin"/>
+                <data android:scheme="digibyte"/>
+                <data android:scheme="dogecoin"/>
+                <data android:scheme="donu"/>
+                <data android:scheme="einsteinium"/>
+                <data android:scheme="energi"/>
+                <data android:scheme="ethereum"/>
+                <data android:scheme="ethclassic"/>
+                <data android:scheme="fio"/>
+                <data android:scheme="firo"/>
+                <data android:scheme="gamecredits"/>
+                <data android:scheme="gcr"/>
+                <data android:scheme="gobyte"/>
+                <data android:scheme="groestlcoin"/>
+                <data android:scheme="helleniccoin"/>
+                <data android:scheme="horizen"/>
+                <data android:scheme="hydra"/>
+                <data android:scheme="komodo"/>
+                <data android:scheme="lbry"/>
+                <data android:scheme="litecoin"/>
+                <data android:scheme="litecoincash"/>
+                <data android:scheme="monacoin"/>
+                <data android:scheme="monero"/>
+                <data android:scheme="monkey"/>
+                <data android:scheme="navcoin"/>
+                <data android:scheme="nem"/>
+                <data android:scheme="newyorkcoin"/>
+                <data android:scheme="peercoin"/>
+                <data android:scheme="pivx"/>
+                <data android:scheme="poa"/>
+                <data android:scheme="putincoin"/>
+                <data android:scheme="reddcoin"/>
+                <data android:scheme="ripple"/>
+                <data android:scheme="smartcash"/>
+                <data android:scheme="smileycoin"/>
+                <data android:scheme="stratis"/>
+                <data android:scheme="syscoin"/>
+                <data android:scheme="tron"/>
+                <data android:scheme="unobtanium"/>
+                <data android:scheme="verge"/>
+                <data android:scheme="vertcoin"/>
+                <data android:scheme="viacoin"/>
+                <data android:scheme="whitecoin"/>
+                <data android:scheme="zcash"/>
+                <data android:scheme="zclassic"/>
+                <data android:scheme="zencash"/>
             </intent-filter>
         </activity>
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
