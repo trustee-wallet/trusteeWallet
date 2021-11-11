@@ -446,7 +446,11 @@
       "RBF": {
         "replaceByFeeBtn": "საკომისიოს გაზრდა",
         "willReplaceWithNewFee": "მიმდინარე ტრანზაქცია შეიცვლება ახლით, ახალი ჰაშით და უფრო მაღალი საკომისიოთი",
-        "notAllowed": "ტრანზაქცია შექმნილია შეცვლის შესაძლებლობის გარეშე ან უკვე დადასტურებულია"
+        "notAllowed": "ტრანზაქცია შექმნილია შეცვლის შესაძლებლობის გარეშე ან უკვე დადასტურებულია",
+        "alreadyRemovedByFee" : "You have used “return” %{min} minutes ago",
+        "alreadyReplacedByFee" : "You have used “booster” %{min} minutes ago",
+        "alreadyRemovedByFeeLessThen2Minutes" : "You have used “return” now",
+        "alreadyReplacedByFeeLessThen2Minutes" : "You have used “booster” now"
       },
       "CPFP": {
         "willSpeedUp": "თქვენ შეგიძლიათ დააჩქაროთ შემომავალი ტრანზაქცია თქვენივე თავისთვის დამატებითი ტრანზაქციის შექმნით  უფრო მაღალი საკომისიოს გადახდის გზით. საკომისიოს ოდენობა გამოითვლება ავტომატურად ორივე ტრანზაქციის თავისებურებების გათვალისწინებით. გაითვალისწინეთ, რომ მოცემულ შემთხვვაში ახალი ტრანზაქციის გადახდა მოგიწევთ თქვენივე ხარჯებით. "

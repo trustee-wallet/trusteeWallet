@@ -92,11 +92,23 @@ class AccountTransactionScreen extends PureComponent {
         }
     }
 
-    async UNSAFE_componentWillMount() {
+    async componentDidMount() {
+        this._onLoad()
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const data = NavStore.getParamWrapper(this, 'txData')
+        const { transactionHash } = data
+        if (typeof this.state.transaction.transactionHash !== 'undefined' && typeof transactionHash !== 'undefined' && this.state.transaction.transactionHash !== transactionHash ) {
+            this._onLoad()
+        }
+    }
+
+    async _onLoad() {
         try {
             const data = NavStore.getParamWrapper(this, 'txData')
             const source = NavStore.getParamWrapper(this, 'source')
-            console.log('AccountTransactionScreen mount source ' + JSON.stringify(source))
+            Log.log('AccountTransactionScreen mount source ' + JSON.stringify(source))
 
             let { transactionHash, transactionStatus, currencyCode, orderHash, walletHash, transaction, notification, toOpenAccountBack, uiType } = data
             let tx
@@ -201,7 +213,7 @@ class AccountTransactionScreen extends PureComponent {
                 }))
             }
         } catch (e) {
-            throw new Error(e.message + ' in TransactionScreen.UNSAFE_componentWillMount')
+            throw new Error(e.message + ' in TransactionScreen.componentDidMount')
         }
 
     }
@@ -849,6 +861,32 @@ class AccountTransactionScreen extends PureComponent {
         )
     }
 
+    renderRBFToView = (transaction) => {
+        if (typeof transaction.transactionJson === 'undefined') return null
+
+        if (transaction.transactionJson === null) {
+            return null
+        }
+
+        if (typeof transaction.transactionJson.isRbfTime !== 'undefined' && transaction.transactionJson.isRbfTime) {
+            let str = transaction.transactionJson.isRbfType === 'remove' ?
+                `account.transaction.RBF.alreadyRemovedByFee`
+                : `account.transaction.RBF.alreadyReplacedByFee`
+            const timeNow = new Date().getTime()
+            const diffTime = Math.round((timeNow - transaction.transactionJson.isRbfTime) / 60000)
+
+            if (diffTime < 2) {
+                str += 'LessThen2Minutes'
+            }
+            return <TransactionItem
+                title={strings(str, {min : diffTime > 120 ? '120+' : diffTime })}
+            />
+        }
+
+        return null
+
+    }
+
     handlerOrderDetails = () => {
         NavStore.reset('MarketScreen', { screen: 'MarketScreen', params: { orderHash: this.state.orderIdToView.description } })
     }
@@ -914,6 +952,8 @@ class AccountTransactionScreen extends PureComponent {
                 >
                     <View>
                         {this.renderButtons(buttonsArray)}
+
+                        {this.renderRBFToView(transaction)}
 
                         {typeof contractCallData !== 'undefined' && contractCallData && contractCallData.infoForUser.map((item) => {
                             return (

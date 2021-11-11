@@ -50,7 +50,7 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
     }
     logData.bseOrderId = bseOrderId.toString()
 
-    const params = { 
+    const params = {
         transactionHash: transaction.transactionHash,
         orderHash: bseOrderId,
         status: 'SUCCESS'
@@ -297,11 +297,14 @@ export namespace SendActionsEnd {
                 transactionsOtherHashes: txRBF,
                 transactionsScanLog: now + ' ' + txRBFed + ' ' + txRBF + ' => ' + tx.transactionHash + ' '
             }
+            transaction.transactionJson.isRbfTime = new Date().getTime()
             if (txRBFed === 'RBFremoved') {
                 transaction.addressTo = ''
                 transaction.addressToBasic = addressFrom
                 transaction.transactionDirection = 'self'
-                transaction.transactionJson.isRemovedByFee = true
+                transaction.transactionJson.isRbfType = 'remove'
+            } else {
+                transaction.transactionJson.isRbfType = 'replace'
             }
             await transactionActions.updateTransaction(transaction)
         } else {

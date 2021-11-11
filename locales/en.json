@@ -448,7 +448,11 @@
       "RBF": {
         "replaceByFeeBtn": "Update tx fee",
         "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
-        "notAllowed": "The transaction was created without the possibility of replacement or has already been confirmed"
+        "notAllowed": "The transaction was created without the possibility of replacement or has already been confirmed",
+        "alreadyRemovedByFee" : "You have used “return” %{min} minutes ago",
+        "alreadyReplacedByFee" : "You have used “booster” %{min} minutes ago",
+        "alreadyRemovedByFeeLessThen2Minutes" : "You have used “return” now",
+        "alreadyReplacedByFeeLessThen2Minutes" : "You have used “booster” now"
       },
       "CPFP" : {
         "willSpeedUp" : "You can speed up an incoming transaction by creating an additional transaction on your own, with a higher commission. The size of the commission will be calculated automatically, taking into account the features of both transactions.Please note, that in this case, payment for a new transaction will be at your expense"
