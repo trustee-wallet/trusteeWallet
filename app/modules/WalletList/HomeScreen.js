@@ -42,6 +42,8 @@ import { strings } from '@app/services/i18n'
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
 
+import receiveDeepLink from '@app/modules/WalletList/receiveDeepLink'
+
 
 let CACHE_IS_SCANNING = false
 
@@ -258,6 +260,9 @@ class HomeScreen extends React.PureComponent {
     };
 
     render() {
+
+        receiveDeepLink()
+
         if (this.props.isBlurVisible) {
             return  <AppLockBlur/>
         }

@@ -76,6 +76,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bnb"/>
+                <data android:scheme="bitcoincash"/>
+                <data android:scheme="bitcoingold"/>
+                <data android:scheme="bitcoinsv"/>
+                <data android:scheme="dogecoin"/>
+                <data android:scheme="ethereum"/>
+                <data android:scheme="ethclassic"/>
+                <data android:scheme="fio"/>
+                <data android:scheme="litecoin"/>
+                <data android:scheme="monero"/>
+                <data android:scheme="ripple"/>
+                <data android:scheme="tron"/>
+                <data android:scheme="verge"/>
+            </intent-filter>
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
