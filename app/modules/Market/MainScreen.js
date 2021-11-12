@@ -15,13 +15,16 @@ import {
     StyleSheet,
     Keyboard,
     ActivityIndicator,
-    SafeAreaView
+    SafeAreaView,
+    Linking
 } from 'react-native'
 
 import { WebView } from 'react-native-webview'
 import { CardIOModule } from 'react-native-awesome-card-io'
 import valid from 'card-validator'
 import _ from 'lodash'
+
+import RNFS from 'react-native-fs'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -285,7 +288,8 @@ class MarketScreen extends PureComponent {
             const {
                 error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
-                useAllFunds, checkCamera, refreshControl, restart, share, txHash, needActivateCurrency, checkApproveData
+                useAllFunds, checkCamera, refreshControl, restart, share, txHash, needActivateCurrency, checkApproveData, orderHistory,
+                openUrl
             } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
@@ -398,9 +402,49 @@ class MarketScreen extends PureComponent {
                 this.checkApprove(checkApproveData)
             }
 
+            if (orderHistory) {
+                this.saveOrderHistory(orderHistory)
+            }
+
+            if (openUrl) {
+                this.openUrl(openUrl)
+            }
+
         } catch {
             Log.err('Market/MainScreen.onMessage parse error ', event.nativeEvent)
         }
+    }
+
+    async saveOrderHistory (orderHistory) {
+        
+        const path = RNFS.DocumentDirectoryPath + '/logs/trusteeOrdersHistory.csv'
+        
+        // write the file
+        RNFS.writeFile(path, orderHistory.data, 'utf8')
+            .then(async () => {
+                Log.log('Market/MainScreen saveOrderHistory success save file ', path)
+                const fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'trusteeOrdersHistory', fileExtension: 'csv' });
+                
+                const shareOptions = {
+                    title: orderHistory.title,
+                    subject: orderHistory.subject,
+                    message: orderHistory.message,
+                    url: await fs.getPathOrBase64()
+                }
+
+                prettyShare(shareOptions)
+            })
+            .catch((err) => {
+                Log.err('Market/MainScreen saveOrderHistory error save file ', err.message)
+            });
+    }
+
+    async openUrl (openUrl) {
+        const available = await Linking.canOpenURL(openUrl)
+        Log.log('Market/MainScreen openUrl available link ', available)
+        
+        if (!available) return true
+        await Linking.openURL(openUrl)
     }
 
     async checkCameraForWebView() {
