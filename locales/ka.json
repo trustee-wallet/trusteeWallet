@@ -813,7 +813,7 @@
     "infoScreen": {
       "continue": "გაგრძელება",
       "text1": "TRUSTEE WALLET არ გააგზავნის თქვენს აღმდგენ ფრაზას არასდროს და არსად. ამიტომ, მოწყობილობის დაკარგვის ან დაზიანების შემთხვევაში, ერთადერთი გზა, მიიღოთ წვდომა თქვენს საშუალებებთან, არის აღმდგენი ფრაზის გამოყენება ",
-      "checkbox1": "მე მესმის, რომ მე სრულად ვარ პასუხისმგებელი აღდგენის ფრაზის უსაფრთხოებაზე და მისი დაკარგვის ან მესამე პირებისთვის გადაცემის შემთხვევაში, მე დავკარგავ ჩემს სახსრებს.",
+      "checkbox1": "I understand that I am fully responsible for the safety of the Recovery Phrase and in the event of its loss or transfer to third parties, I will lose my funds without the possibility of recovery.",
       "checkbox2": "მესმის, რომ აღმდგენ ფრაზას უნდა წავიკითხო მარტო, კამერების და უცხო პირების ირგვლივ ყოფნის გარეშე ",
       "text2": "ძალიან ფრთხილად იყავით აღმდგენ ფრაზასთან დაკავშირებით - ნებისმიერი, ვისაც ის ჩაუვარდება ხელში, შეძლებს მიიღოს წვდომა თქვენს რესურსთან და დახარჯოს საკუთარი შეხედულებისამებრ. გთხოვთ, არ გაანდოთ ის არავის არანაირ ვითარებაში!"
     },
@@ -1132,7 +1132,7 @@
     "walletDelete": {
       "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
-      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
+      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost forever. "
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"

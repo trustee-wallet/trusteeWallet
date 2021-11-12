@@ -821,7 +821,7 @@
     "infoScreen": {
       "continue": "Continue",
       "text1": "TRUSTEE WALLET never sends your recovery phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a recovery phrase.",
-      "checkbox1": "I understand that I am fully responsible for the safety of the Recovery Phrase and in the event of its loss or transfer to third parties, I will lose my funds.",
+      "checkbox1": "I understand that I am fully responsible for the safety of the Recovery Phrase and in the event of its loss or transfer to third parties, I will lose my funds without the possibility of recovery.",
       "checkbox2": "I understand that I must view my recovery phrase in private with no cameras and eyes around",
       "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
@@ -1150,7 +1150,7 @@
     "walletDelete": {
       "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
-      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
+      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost forever. "
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"
