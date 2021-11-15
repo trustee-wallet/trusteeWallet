@@ -5,6 +5,7 @@
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import { Web3Injected } from '@crypto/services/Web3Injected'
+import config from '@app/config/config'
 
 export default class EthBasic {
     /**
@@ -198,7 +199,9 @@ export default class EthBasic {
     }
 
     checkError(e, data, txRBF = false, logData = {}) {
-        console.log('msg ' + e.message)
+        if (config.debug.cryptoErrors) {
+            console.log('EthBasic Error ' + e.message)
+        }
         if (e.message.indexOf('Transaction has been reverted by the EVM') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.0 ' + e.message + ' for ' + data.addressFrom, logData)
             throw new Error('SERVER_RESPONSE_REVERTED_BY_EVM')

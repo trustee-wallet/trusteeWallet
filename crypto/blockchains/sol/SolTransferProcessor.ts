@@ -214,7 +214,7 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         // @ts-ignore
         const signedData = tx.serialize().toString('base64')
-        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : signedData}
         }
 

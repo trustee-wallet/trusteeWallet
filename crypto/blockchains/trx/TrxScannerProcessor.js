@@ -52,7 +52,29 @@ export default class TrxScannerProcessor {
 
         if (result === false || result === 0) {
             subresult = await this._tronscanProvider.get(address, '_')
-            result = await this._trongridProvider.get(addressHex, this._tokenName)
+
+            if (this._tokenName !== '_' && this._tokenName.substr(0, 1) === 'T') {
+                // https://developers.tron.network/docs/trc20-contract-interaction#balanceof
+                try {
+                    const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+                    const params = {
+                        "contract_address": await TronUtils.addressToHex(this._tokenName),
+                        "function_selector": "balanceOf(address)",
+                        "parameter": "0000000000000000000000" + addressHex,
+                        "owner_address": addressHex
+                    }
+                    const tmp = await BlocksoftAxios.post(sendLink + '/wallet/triggerconstantcontract', params)
+                    if (typeof tmp.data !== 'undefined' && typeof tmp.data.constant_result !== 'undefined') {
+                        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronwallet ' + JSON.stringify(tmp.data))
+                        return { balance: BlocksoftUtils.hexToDecimal('0x' + tmp.data.constant_result), unconfirmed: 0, provider: 'tronwallet-raw-call' }
+                    }
+                } catch (e) {
+                    BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' error tronwallet ' + e.message)
+                }
+                result = await this._tronscanProvider.get(address, this._tokenName)
+            } else {
+                result = await this._trongridProvider.get(addressHex, this._tokenName)
+            }
             BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronGrid ' + JSON.stringify(result))
         }
 
@@ -153,10 +175,10 @@ export default class TrxScannerProcessor {
     async _unifyFromReceipt(transaction, row, lastBlock) {
         /**
          * {"id":"fb7580e4bb6161e0812beb05cf4a1b6463ba55e33def5dd7f3f5c1561c91a49e","blockNumber":29134019,"blockTimeStamp":1617823467000,
-         * "receipt":{"origin_energy_usage":4783,"energy_usage_total":4783,"net_usage":345,"result":"OUT_OF_ENERGY"},
+         * "receipt":{'origin_energy_usage":4783,"energy_usage_total":4783,"net_usage":345,"result":"OUT_OF_ENERGY'},
          * "result":"FAILED"
          */
-        if (typeof transaction.blockNumber === 'undefined' || transaction.blockNumber*1 <= 1) return false
+        if (typeof transaction.blockNumber === 'undefined' || transaction.blockNumber * 1 <= 1) return false
 
         let transactionStatus = 'success'
         if (typeof transaction.result !== 'undefined' && transaction.result === 'FAILED') {
@@ -180,7 +202,7 @@ export default class TrxScannerProcessor {
             blockTime: formattedTime,
             blockConfirmations: lastBlock - transaction.blockNumber,
             transactionStatus,
-            transactionsScanLog : new Date().toISOString() + ' RECEIPT RECHECK ' + JSON.stringify(transaction) + ' ' + row.transactionsScanLog
+            transactionsScanLog: new Date().toISOString() + ' RECEIPT RECHECK ' + JSON.stringify(transaction) + ' ' + row.transactionsScanLog
         }, row.id, 'receipt')
         return transactionStatus === 'success'
     }

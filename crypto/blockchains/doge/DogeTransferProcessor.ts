@@ -534,7 +534,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         logData.pushLocale = sublocale()
         logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
 
-        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : uiData.selectedFee.blockchainData.rawTxHex }
         }
 

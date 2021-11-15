@@ -17,6 +17,7 @@ import transactionActions from '@app/appstores/Actions/TransactionActions'
 
 import ApiV3 from '@app/services/Api/ApiV3'
 import { recordFioObtData } from '@crypto/blockchains/fio/FioUtils'
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
 const logFio = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
     const { fioRequestDetails } = sendScreenStore.ui
@@ -49,7 +50,12 @@ const logSendSell = async function(transaction: any, tx: any, logData: any, send
     }
     logData.bseOrderId = bseOrderId.toString()
 
-    ApiV3.setExchangeStatus(bseOrderId,'SUCCESS', transaction.transactionHash)
+    const params = {
+        transactionHash: transaction.transactionHash,
+        orderHash: bseOrderId,
+        status: 'SUCCESS'
+    }
+    ApiV3.setExchangeStatus(params)
 
 
     // https://rnfirebase.io/reference/analytics#logPurchase
@@ -115,7 +121,7 @@ export namespace SendActionsEnd {
 
     export const endRedirect = async (tx: any, sendScreenStore: any) => {
         const { currencyCode } = sendScreenStore.dict
-        const { uiType, tbk } = sendScreenStore.ui
+        const { uiType, tbk, walletConnectPayload } = sendScreenStore.ui
         const { transactionAction } = tbk
 
         if (typeof transactionAction !== 'undefined' && transactionAction !== '' && transactionAction) {
@@ -165,6 +171,7 @@ export namespace SendActionsEnd {
                     source : 'SendActionsEnd.TradeSend'
             }})
         } else if (uiType === 'WALLET_CONNECT') {
+            await AppWalletConnect.approveRequest(walletConnectPayload, tx.transactionHash)
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash,
@@ -172,6 +179,14 @@ export namespace SendActionsEnd {
                 },
                 source : 'SendActionsEnd.WalletConnect'
             })
+        } else if (uiType === 'TRADE_LIKE_WALLET_CONNECT') {
+            setBseLink(null)
+            const params = {
+                transactionHash: tx.transactionHash,
+                nonce: tx?.transactionJson?.nonce
+            }
+            await endClose(sendScreenStore, params)
+            NavStore.goBack()
         } else {
             // fio request etc - direct to receipt
             NavStore.goBack()
@@ -179,11 +194,15 @@ export namespace SendActionsEnd {
 
     }
 
-    export const endClose = async (sendScreenStore : any) => {
-        const { bse } = sendScreenStore.ui
+    export const endClose = async (sendScreenStore : any, params : any = false) => {
+        const { bse, extraData, walletConnectPayload, uiType } = sendScreenStore.ui
         const { bseOrderId } = bse
+        const data = { extraData, ...params, orderHash: bseOrderId, status: 'CLOSE' }
+        if (uiType === 'WALLET_CONNECT') {
+            await AppWalletConnect.rejectRequest(walletConnectPayload)
+        }
         if (typeof bseOrderId === 'undefined' || !bseOrderId) return
-        return ApiV3.setExchangeStatus(bseOrderId, 'CLOSE')
+        return ApiV3.setExchangeStatus(data)
     }
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {
@@ -278,11 +297,14 @@ export namespace SendActionsEnd {
                 transactionsOtherHashes: txRBF,
                 transactionsScanLog: now + ' ' + txRBFed + ' ' + txRBF + ' => ' + tx.transactionHash + ' '
             }
+            transaction.transactionJson.isRbfTime = new Date().getTime()
             if (txRBFed === 'RBFremoved') {
                 transaction.addressTo = ''
                 transaction.addressToBasic = addressFrom
                 transaction.transactionDirection = 'self'
-                transaction.transactionJson.isRemovedByFee = true
+                transaction.transactionJson.isRbfType = 'remove'
+            } else {
+                transaction.transactionJson.isRbfType = 'replace'
             }
             await transactionActions.updateTransaction(transaction)
         } else {

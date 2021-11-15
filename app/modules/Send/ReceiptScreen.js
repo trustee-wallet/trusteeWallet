@@ -75,19 +75,12 @@ class ReceiptScreen extends PureComponent {
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
 
-        if (uiType === 'WALLET_CONNECT') {
-            setLoaderStatus(false)
-            CACHE_IS_COUNTING = false
-            NavStore.goNext('SendAdvancedScreen')
-            return
-        }
-
         try {
             await SendActionsBlockchainWrapper.getFeeRate()
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
-            if (uiType === 'TRADE_SEND') {
-                NavStore.goNext('MaketAdvancedScreen')
+            if (uiType === 'TRADE_SEND' || uiType === 'TRADE_LIKE_WALLET_CONNECT') {
+                NavStore.goNext('MarketAdvancedScreen')
             } else {
                 NavStore.goNext('SendAdvancedScreen')
             }
@@ -142,7 +135,7 @@ class ReceiptScreen extends PureComponent {
             if (checkLoadedFeeResult.goBack) {
                 showModal({
                     type: 'INFO_MODAL',
-                    icon: 'WARNING',
+                    icon: null,
                     title: strings('modal.titles.attention'),
                     description: checkLoadedFeeResult.msg
                 }, async () => {
@@ -170,16 +163,11 @@ class ReceiptScreen extends PureComponent {
         }
 
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
-        const { uiType } = this.props.sendScreenStore.ui
 
         let tx = false
         let e = false
         try {
-            if (uiType === 'WALLET_CONNECT') {
-                tx = await AppWalletConnect.approveRequest(this.props.sendScreenStore)
-            } else {
-                tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)
-            }
+            tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)
         } catch (e1) {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.handleSend error ' + e1.message)
@@ -314,7 +302,7 @@ class ReceiptScreen extends PureComponent {
 
         const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
-        const { cryptoValue, bse, rawOnly, contractCallData } = this.props.sendScreenStore.ui
+        const { cryptoValue, bse, rawOnly, contractCallData, walletConnectData } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
         const { sendInProcess } = this.state
 
@@ -379,7 +367,11 @@ class ReceiptScreen extends PureComponent {
                             })}
 
                             {(typeof contractCallData === 'undefined' || !contractCallData) &&
-                                <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
+                                (typeof walletConnectData === 'undefined' || typeof walletConnectData.data === 'undefined' || cryptoValue.toString() !== '0' )
+                                ?
+                                    <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
+                                :
+                                    <Text style={{ ...styles.value, color: color }}>{`WalletConnect ${currencySymbol}`}</Text>
                             }
 
                             {
@@ -392,7 +384,10 @@ class ReceiptScreen extends PureComponent {
                             }
 
                             {
-                                (typeof bseOrderId === 'undefined' || !bseOrderId) && (typeof contractCallData === 'undefined' || !contractCallData) &&
+                                (typeof bseOrderId === 'undefined' || !bseOrderId)
+                                && (typeof contractCallData === 'undefined' || !contractCallData)
+                                && (typeof walletConnectData === 'undefined' || typeof walletConnectData.data === 'undefined' || cryptoValue.toString() !== '0' )
+                                &&
                                     <LetterSpacing
                                         text={`${basicCurrencySymbol} ${equivalentSeparated}`}
                                         numberOfLines={1}

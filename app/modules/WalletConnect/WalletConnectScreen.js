@@ -189,6 +189,12 @@ class WalletConnectScreen extends PureComponent {
             inputFullLink: ''
         }, () => {
             AppWalletConnect.killSession()
+            if (this.linkInput) {
+                this.setState({
+                    inputFullLink: ''
+                })
+                this.linkInput.handleInput('', false)
+            }
         })
     }
 
@@ -268,7 +274,7 @@ class WalletConnectScreen extends PureComponent {
                         <View style={{ overflow: 'hidden' }}>
                             <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE, backgroundColor: colors.common.roundButtonContent }]}>
                                 {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
-                                    <Image style={styles.image} source={{
+                                    <Image style={styles.image} resizeMode='center' source={{
                                         uri: this.state.peerMeta.icons !== 'undefined' ? this.state.peerMeta.icons[0] : ''
                                     }} /> : null
                                 }

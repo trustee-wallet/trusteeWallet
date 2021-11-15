@@ -88,7 +88,7 @@ class InitScreen extends React.PureComponent {
         setLoaderStatus(true)
 
         try {
-            const shareOptions = await SendLog.getAll(this.props.initError)
+            const shareOptions = await SendLog.getAll('Init Error ' + this.props.initError)
             if (shareOptions) {
                 await prettyShare(shareOptions)
             }

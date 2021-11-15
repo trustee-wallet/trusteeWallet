@@ -34,6 +34,7 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import { Camera } from '@app/services/Camera/Camera'
 import { awsS3 } from '@app/appstores/Stores/StreamSupport/awsService';
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import NavStore from '@app/components/navigation/NavStore'
 
 let CACHE_BUTTON_CLICKED = false
 class StreamSupportScreen extends PureComponent {
@@ -275,7 +276,7 @@ class StreamSupportScreen extends PureComponent {
         return (
             <>
                 {
-                    props.currentMessage.attachments ?
+                    props.currentMessage.attachments && props.currentMessage.attachments[0] && typeof props.currentMessage.attachments[0] !== 'undefined' ?
                         <View style={styles.customView}>
                             <View>
                                 {props.currentMessage.attachments[0]?.image_type ?
@@ -300,7 +301,7 @@ class StreamSupportScreen extends PureComponent {
                                     <View style={styles.fileWrapper}>
                                         <CustomIcon name='downloadDoc' color={colors.streemChat[props.position].color} size={28} style={{ paddingRight: 8 }} />
                                         <Text style={[styles.text, { color: colors.streemChat[props.position].color }]} numberOfLines={1}>
-                                            {props.currentMessage.attachments[0].title}
+                                            {props.currentMessage.attachments[0]?.title}
                                         </Text>
                                     </View>
                                 }
@@ -447,7 +448,7 @@ class StreamSupportScreen extends PureComponent {
     getstatusConnection = async () => {
         return await StreamSupportWrapper.getStatusSocketConnection()
     }
-    
+
 
     render() {
         MarketingAnalytics.setCurrentScreen('StreamSupportScreen')
@@ -458,12 +459,14 @@ class StreamSupportScreen extends PureComponent {
 
         return (
             <ScreenWrapper
-                title={strings('settings.about.contactSupportTitle')}
+                title={strings('settings.about.contactSupportTitle') + ' ' + this.props.streamSupportData.userName}
                 leftType='connect'
                 leftAction={this.getstatusConnection() ? this.handleRefresh : () => {}}
                 leftParams={{
                     color: this.getstatusConnection() ? colors.common.checkbox.bgChecked : colors.common.text1
                 }}
+                rightType='about'
+                rightAction={() => NavStore.goNext('SupportAboutScreen')}
             >
                 <View style={styles.container}>
                     {refresh ?

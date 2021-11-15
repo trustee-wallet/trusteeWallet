@@ -172,9 +172,8 @@ export default class TrxTransactionsProvider {
                         }
 
                     } catch (e) {
-                        throw new Error(e.message + ' transaction-info for swap_income')
+                        BlocksoftCryptoLog.log('TrxTransactionsProvider._unifyTransaction tx ' + JSON.stringify(transaction) + ' error ' + e.message + ' transaction-info for swap_income')
                     }
-
                 } else {
                     addressAmount = transaction.contractData.call_value
                     txTokenName = '_'

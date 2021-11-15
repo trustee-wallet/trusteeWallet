@@ -14,6 +14,7 @@ import store from '@app/store'
 const CACHE = {
     MATIC: {},
     ETH: {},
+    BNB : {},
     ETH_ROPSTEN: {},
     ETH_RINKEBY: {}
 }
@@ -22,6 +23,7 @@ const CACHE = {
 const CACHE_TIME = {
     MATIC: {},
     ETH: {},
+    BNB : {},
     ETH_ROPSTEN: {},
     ETH_RINKEBY: {}
 }

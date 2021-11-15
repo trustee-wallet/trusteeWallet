@@ -12,8 +12,8 @@ export default class TrxNodeInfoProvider {
      */
     async getLastBlock() {
         try {
-            const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SOLIDITY_NODE')
-            const link = nodeLink + '/wallet/getnodeinfo'
+            const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+            const link = sendLink + '/wallet/getnodeinfo'
             let info = await BlocksoftAxios.getWithoutBraking(link, INFO_MAX_TRY)
             if (info && typeof info.data !== 'undefined' && typeof info.data.block !== 'undefined') {
                 info = info.data.block.split(',ID')

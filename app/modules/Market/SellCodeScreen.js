@@ -188,13 +188,13 @@ class SellCodeScreen extends PureComponent {
         }
     }
 
-    setExchangeStatus = async (orderHash, status) =>  {
-        Api.setExchangeStatus(orderHash, status)
+    setExchangeStatus = async (data) =>  {
+        Api.setExchangeStatus(data)
     }
 
     backAction = () => {
         Log.log('Trade.SellCodeScreen.backAction user click')
-        this.setExchangeStatus(this.state.dataSend.orderHash, 'BACK')
+        this.setExchangeStatus({orderHash: this.state.dataSend.orderHash, status: 'BACK'})
         NavStore.goBack()
     }
 

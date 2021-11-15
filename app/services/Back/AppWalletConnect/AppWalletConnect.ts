@@ -281,74 +281,12 @@ export namespace AppWalletConnect {
         }
     }
 
-    export const approveRequest = async function(sendScreenStore: any) {
+    export const approveRequest = async function(walletConnectPayload: any, transactionHash : any) {
         try {
-
-            const { dict } = sendScreenStore
-            const { selectedFee } = sendScreenStore.fromBlockchain
-            const { walletConnectData, walletConnectPayload } = sendScreenStore.ui
-
-            const discoverFor = {
-                addressToCheck: dict.addressFrom,
-                derivationPath: dict.derivationPath,
-                walletHash: dict.walletHash,
-                currencyCode: dict.currencyCode
-            }
-            const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'AppWalletConnect')
-            const tmpWeb3 = Web3Injected(dict.currencyCode)
-            walletConnectData.gas = selectedFee.gasLimit
-            walletConnectData.gasPrice = selectedFee.gasPrice
-            let nonce = false
-            if (typeof selectedFee.nonceForTx !== 'undefined' && selectedFee.nonceForTx) {
-                nonce = selectedFee.nonceForTx
-                walletConnectData.nonce = selectedFee.nonceForTx
-            }
-
-            const signData = await tmpWeb3.eth.accounts.signTransaction(walletConnectData, privateData.privateKey)
-            if (!nonce) {
-                nonce = BlocksoftUtils.hexToDecimalWalletConnect(walletConnectData.nonce) // it appears only after sign if none before *)
-            }
-            const tmpStr = JSON.stringify(selectedFee) + ' nonce ' + nonce + ' from ' + dict.addressFrom + ' ' + signData.transactionHash
-            BlocksoftCryptoLog.log(dict.currencyCode + ' AppWalletConnect.send send fee ' + tmpStr)
-
-            try {
-                const tmp = await tmpWeb3.eth.sendSignedTransaction(signData.rawTransaction)
-                BlocksoftCryptoLog.log(dict.currencyCode + ' AppWalletConnect.send send ok ' + tmpStr, tmp)
-            } catch (e) {
-                if (config.debug.cryptoErrors) {
-                    console.log(dict.currencyCode + ' AppWalletConnect.send send error ' + e.message + ' ' + tmpStr)
-                }
-                BlocksoftCryptoLog.log(dict.currencyCode + ' AppWalletConnect.send send error ' + e.message + ' ' + tmpStr)
-                let msg = e.message
-                if (e.message.indexOf('insufficient funds') !== -1) {
-                    msg = strings('send.errors.SERVER_RESPONSE_NOT_ENOUGH_FEE', { symbol: dict.currencySymbol})
-                }
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: null,
-                    title: strings('modal.exchange.sorry'),
-                    description: msg
-                })
-                return false
-            }
-
-            await EthTmpDS.saveNonce(dict.currencyCode, dict.addressFrom, 'send_' + signData.transactionHash, nonce)
-            await EthRawDS.saveRaw({
-                address : dict.addressFrom,
-                currencyCode : dict.currencyCode,
-                transactionUnique: dict.addressFrom + '_' + nonce,
-                transactionHash: signData.transactionHash,
-                transactionRaw: signData.rawTransaction
-            })
-
             await WALLET_CONNECTOR.approveRequest({
                 id: walletConnectPayload.id,
-                result: signData.transactionHash
+                result: transactionHash
             })
-
-            EthRawDS.getForAddress({ address : dict.addressFrom, currencyCode : dict.currencyCode })
-
-            return { transactionHash: signData.transactionHash }
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('AppWalletConnect.approveRequest error ' + e.message)

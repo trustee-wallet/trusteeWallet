@@ -9,6 +9,7 @@ import Log from '@app/services/Log/Log'
 
 import { StreamSupportActions } from '@app/appstores/Stores/StreamSupport/StreamSupportStoreActions'
 import config from '@app/config/config'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const CHAT_PREFIX = 'supportChatV4_'
 const ADMINS = ['ksu.dev', 'germes', 'testrocket1']
@@ -28,7 +29,7 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/rest-api/endpoints/push/push-token
     export const init = async function(data: any) {
-        if (!MarketingEvent.DATA.LOG_TESTER) return false
+        if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
         const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
         if (MarketingEvent.DATA.LOG_TOKEN.indexOf('NO_GOOGLE') === -1 && data.userToken) {
             try {
@@ -62,7 +63,7 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/rest-api/endpoints/rooms/get
     export const getRoom = async function(data: any = false) {
-        if (!MarketingEvent.DATA.LOG_TESTER) return false
+        if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
         if (data === false) {
             data = store.getState().streamSupportStore
         }
@@ -97,7 +98,7 @@ export namespace StreamSupportWrapper {
     }
 
     export const initWS = async function(data: any = false) {
-        if (!MarketingEvent.DATA.LOG_TESTER) return false
+        if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
         if (data === false) {
             data = store.getState().streamSupportStore
         }
@@ -160,8 +161,10 @@ export namespace StreamSupportWrapper {
                         throw new Error(' something wrong with room create')
                     }
                 } else if (newData.msg === 'result' && newData.id === IDENT_MESSAGE_CREATE) {
+                    // from the user
                     StreamSupportActions.addMessage(prettyMsgForFile(newData.result))
                 } else if (newData.msg === 'changed' && newData.collection === 'stream-room-messages') {
+                    // back from the room
                     StreamSupportActions.addMessage(prettyMsgForFile(newData.fields.args[0]))
                 } else {
                     // console.log('StreamSupport.on message ', newData)
@@ -197,7 +200,7 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/realtime-api/subscriptions/stream-room-messages
     export const subscribeToMessages = async function() {
-        if (!MarketingEvent.DATA.LOG_TESTER) return false
+        if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
         const data = store.getState().streamSupportStore
 
         // console.log('StreamSupport subscribeToMessages ' + CACHE_ROOM_ID)
@@ -229,7 +232,7 @@ export namespace StreamSupportWrapper {
 
     // https://developer.rocket.chat/api/realtime-api/method-calls/create-private-groups
     export const sendStreamSupportMessage = async function(data, sendData) {
-        if (!MarketingEvent.DATA.LOG_TESTER) return false
+        if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
         if (data === false) {
             data = store.getState().streamSupportStore
         }

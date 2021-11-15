@@ -52,23 +52,23 @@
       "inputPlaceholder": "Пряме посилання",
       "stop": "Відключення WalletConnect",
       "stopText": "Ви дійсно хочете перервати підключення з ",
-      "start": "Wallet Connect Start",
-      "startText": "Do you want to start this session?",
-      "transaction": "Wallet Connect Transaction Request",
-      "transactionText": "Do you want %{subtitle} (max tx cost: %{txPrice} ETH)",
-      "sign": "Wallet Connect Sign Request",
-      "signText": "Do you want to sign message ",
-      "signTyped": "Wallet Connect Sign Typed Request",
-      "signTypedText": "Do you want to sign message ",
+      "start": "WalletConnect Start",
+      "startText": "Ви хочете почати цей сеанс?",
+      "transaction": "Запит на транзакцію WalletConnect",
+      "transactionText": "Ви хочете %{subtitle} (max tx cost: %{txPrice} ETH)",
+      "sign": "Запит на підпис підключення WalletConnect",
+      "signText": "Ви хочете підписати повідомлення ",
+      "signTyped": "Запит із підписом WalletConnect",
+      "signTypedText": "Ви хочете підписати повідомлення ",
       "session": "Підключення WalletConnect",
       "sessionText": "Ви дійсно хочете підключити гаманець Trustee до ",
-      "notificationTitle": "Attention!",
-      "notificationText": "Make sure %{name} is safe. By interacting with this service you provide access to your funds!",
-      "disconnect": "Відключитися",
-      "connect": "Підключитися",
-      "placeholder": "There is will be your wallet address that you connected to",
-      "linkError": "Помилка підключення WalletConnect. Помилка підключення WalletConnect",
-      "title": "Wallet connect",
+      "notificationTitle": "Увага!",
+      "notificationText": "Переконайтесь, що %{name} безпечно. Взаємодіючи з цим сервісом, Ви надаєте доступ до своїх коштів!",
+      "disconnect": "Відключитись",
+      "connect": "Підключитись",
+      "placeholder": "Тут буде адреса гаманця, до якого Ви підключились",
+      "linkError": "Помилка підключення WalletConnect. Будь ласка,перевірте правильність прямого посилання",
+      "title": "WalletConnect",
       "activated": "Активовано",
       "disabled": "Відключено",
       "changeNetwork": "Зміна мережі",
@@ -448,7 +448,11 @@
       "RBF": {
         "replaceByFeeBtn": "Збільшити комісію",
         "willReplaceWithNewFee": "Поточна транзакція буде замінена новою, з новим хешем та більш високою комісією",
-        "notAllowed": "Транзакція створена без можливості заміни або вже підтверджена"
+        "notAllowed": "Транзакція створена без можливості заміни або вже підтверджена",
+        "alreadyRemovedByFee" : "Ви застосували “повернення”  %{min} хвилин тому",
+        "alreadyReplacedByFee" : "Ви застосували ”прискорення” %{min} хвилин тому",
+        "alreadyRemovedByFeeLessThen2Minutes" : "Ви застосували “повернення” щойно",
+        "alreadyReplacedByFeeLessThen2Minutes" : "Ви застосували ”прискорення” щойно"
       },
       "CPFP" : {
         "willSpeedUp" : "Ви можете прискорити вхідну транзакцію, створивши додаткову транзакцію самому собі, з більш високою комісією. Розмір комісії буде розрахований автоматично, враховуючи особливості обох транзакцій. Зверніть увагу, що в даному випадку оплата нової транзакції буде за Ваш рахунок"
@@ -510,12 +514,13 @@
       },
       "transactionHash": "Хеш транзакції:",
       "cashbackLink": "Я використовую Trustee Wallet! Ось моє особисте посилання",
+      "website": "Сайт: ",
       "self": "Дана транзакція була відправлена на Вашу власну адресу",
       "order": "До ордеру",
-      "transactionSum": "Сумма відправки ",
+      "transactionSum": "Сума відправки ",
       "addresTo": "Отримувач ",
-      "addresFrom": "Відправник",
-      "blockConfirmations": "Кількість підтверджень "
+      "addresFrom": "Відправник ",
+      "blockConfirmations": "Поточна кількість підтверджень "
       }
   },
 
@@ -768,6 +773,8 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Занадто мала сума для транзакції",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER" : "Недостатньо коштів для відправки транзакції",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "Баланс Вашого %{symbol} гаманця менший за cуму відправки. Будь ласка, оновіть баланс %{symbol} та спробуйте ще раз.",
+      "UI_CORRECTED_AMOUNT" : "Баланс Вашого %{symbol} гаманця відрізняється від cуми відправки. Будь ласка, підтвердіть відправку %{amount} %{symbol}",
+      "UI_CORRECTED_AMOUNT_BSE": "Баланс Вашого %{symbol} гаманця менше суми, що надсилається. Будь ласка, оновіть баланс %{symbol} і повторіть обмінну операцію.",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE" : "Недостатньо коштів на балансі для сплати комісії мережі - будь ласка, використовуйте опцію \"Відправити Все \" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE" : "Недостатньо коштів на балансі для сплати делегованої транзакції - будь ласка, використовуйте звичайну відправку ERC20",
       "SERVER_RESPONSE_NO_RESPONSE" : "Мережа не приймає транзакцію - будь ласка, зачекайте доки замайняться інші транзакції",
@@ -778,7 +785,7 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Занадто мала комісія за транзакцію для заміни",
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Транзакцію вже підтверджено",
       "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} вже використано в підтвердженій транзакції",
-      "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
+      "SERVER_RESPONSE_REVERTED_BY_EVM" : "Транзакція відмінена EVM - будь ласка, перевірте код контракту",
       "SERVER_RESPONSE_NOT_CONNECTED": "Мережа не відповідає - будь ласка, повторіть операцію пізніше",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції і сплати мінімальної комісії",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте доки інші транзакції замайняться або увімкніть функцію \"Використовувати непідтверджені транзакції\" ",
@@ -815,15 +822,15 @@
     "infoScreen": {
       "continue": "Продовжити",
       "text1": "TRUSTEE WALLET ніколи і нікуди не надсилає фразу відновлення. Тому, у випадку втрати чи виходу пристрою з ладу, єдиним способом отримати доступ до Ваших коштів є використання фрази відновлення",
-      "checkbox1": "Я розумію, що у разі втрати цієї фрази, не матиму доступу до своїх балансів. І розумію, що передавши цю фразу будь-кому, я позбудуся своїх коштів.",
+      "checkbox1": "Я розумію, що повністю несу відповідальність за збереження Фрази відновлення і в разі її втрати або передачі третім особам я втрачу свої кошти без можливості відновлення.",
       "checkbox2": "Я розумію, що повинен переглядати фразу відновлення приватно, без камер та сторонних осіб",
       "text2": "Будьте дуже обережні з фразою відновлення - кожен, хто має її, може отримати доступ до Ваших коштів і витратити їх. Будь ласка, ні в якому разі, нікому не повідомляйте фразу відновлення!"
     },
     "step0Screen": {
       "phrase": "Фраза",
       "qr": "Qr",
-      "info": "Фраза відновлення (мнемонічна фраза, seed фраза) - це секретний ключ доступу до всіх балансів Вашого гаманця. Зберігайте її в надійному місці та нікому не передавайте!",
-      "showButton": "Натисніть і утримуйте, щоб побачити",
+      "info": "Фраза відновлення (мнемонічна фраза, seed-фраза) – це секретний ключ доступу до всіх балансів Вашого гаманця. Запишіть її, дотримуючись порядку слів, надійно збережіть та нікому не передавайте!",
+      "showButton": "Натисніть і утримуйте тут, щоб подивитись фразу",
       "next": "Далі",
       "showQR" : "Показати QR для імпорту на інший пристрій",
       "hideQR" : "Показати фразу відновлення",
@@ -831,8 +838,8 @@
     },
     "step1Screen": {
       "title": "Підтвердження",
-      "placeholder": "Будь ласка, натисніть слова у правильному порядку, щоб підтвердити фразу відновлення. Щоб видалити слово з поля, натисніть на нього ще раз",
-      "showButton": "Натисніть і утримуйте, щоб побачити",
+      "placeholder": "Введіть слова, дотримуючись їхнього порядку, щоб підтвердити фразу відновлення.\nНатисніть на слово, якщо потрібно видалити його з поля",
+      "showButton": "Натисніть і утримуйте тут, щоб подивитись фразу",
       "next": "Далі"
     },
     "settingsScreen": {
@@ -1144,7 +1151,7 @@
     "walletDelete": {
       "deleteWallet": "Дана операція видалить гаманець %{walletName} з додатку, для продовження підтвердіть Фразу відновлення",
       "delete": "Ви хочете видалити цей гаманець?",
-      "notBackupPositiveBalance": "Гаманець %{walletName} має позитивний баланс. Резервна копія фрази відновлення не створена. Доступ до активів буде втрачено. "
+      "notBackupPositiveBalance": "Гаманець %{walletName} має позитивний баланс. Резервна копія фрази відновлення не створена. Доступ до активів буде втрачено назавжди. "
     },
     "notification": {
       "description": "На жаль, Ваш мобільний пристрій не підтримує отримання Push-повідомлень"

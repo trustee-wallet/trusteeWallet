@@ -56,13 +56,13 @@
       "inputPlaceholder": "Direct link",
       "stop": "Disable WalletConnect",
       "stopText": "Are you sure you want to stop the connection with ",
-      "start": "Wallet Connect Start",
+      "start": "WalletConnect Start",
       "startText": "Do you want to start this session?",
       "transaction": "Transaction request",
       "transactionText": "Are you sure you want to allow %{subtitle} to use your %{txPrice} for transactions?",
-      "sign": "Wallet Connect Sign Request",
+      "sign": "WalletConnect Sign Request",
       "signText": "Do you want to sign message ",
-      "signTyped": "Wallet Connect Sign Typed Request",
+      "signTyped": "WalletConnect Sign Typed Request",
       "signTypedText": "Do you want to sign message ",
       "session": "WalletConnect connection",
       "sessionText": "Are you sure you want to connect your Trustee wallet to ",
@@ -72,7 +72,7 @@
       "connect": "Connect",
       "placeholder": "There is will be your wallet address that you connected to",
       "linkError": "WalletConnect connection error. Please, check if the direct link is correct",
-      "title": "Wallet connect",
+      "title": "WalletConnect",
       "activated": "Activated",
       "disabled": "Disabled",
       "changeNetwork": "Change Network",
@@ -446,7 +446,11 @@
       "RBF": {
         "replaceByFeeBtn": "საკომისიოს გაზრდა",
         "willReplaceWithNewFee": "მიმდინარე ტრანზაქცია შეიცვლება ახლით, ახალი ჰაშით და უფრო მაღალი საკომისიოთი",
-        "notAllowed": "ტრანზაქცია შექმნილია შეცვლის შესაძლებლობის გარეშე ან უკვე დადასტურებულია"
+        "notAllowed": "ტრანზაქცია შექმნილია შეცვლის შესაძლებლობის გარეშე ან უკვე დადასტურებულია",
+        "alreadyRemovedByFee" : "You have used “return” %{min} minutes ago",
+        "alreadyReplacedByFee" : "You have used “booster” %{min} minutes ago",
+        "alreadyRemovedByFeeLessThen2Minutes" : "You have used “return” now",
+        "alreadyReplacedByFeeLessThen2Minutes" : "You have used “booster” now"
       },
       "CPFP": {
         "willSpeedUp": "თქვენ შეგიძლიათ დააჩქაროთ შემომავალი ტრანზაქცია თქვენივე თავისთვის დამატებითი ტრანზაქციის შექმნით  უფრო მაღალი საკომისიოს გადახდის გზით. საკომისიოს ოდენობა გამოითვლება ავტომატურად ორივე ტრანზაქციის თავისებურებების გათვალისწინებით. გაითვალისწინეთ, რომ მოცემულ შემთხვვაში ახალი ტრანზაქციის გადახდა მოგიწევთ თქვენივე ხარჯებით. "
@@ -508,12 +512,13 @@
       },
       "transactionHash": "ტრანზაქციის ჰაში:",
       "cashbackLink": "I’m using Trustee Wallet! Here is my personal link",
+      "website": "Website: ",
       "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე",
       "order": "To order",
-      "transactionSum": "Send amount ",
+      "transactionSum": "Amount send",
       "addresTo": "Recipient ",
-      "addresFrom": "Sender",
-      "blockConfirmations": "Number of confirmations "
+      "addresFrom": "Sender ",
+      "blockConfirmations": "Current number of confirmations "
     }
   },
   "fioMainSettings": {
@@ -759,6 +764,8 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "ძალიან მცირე თანხაა ტრანზაქციისთვის",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "ტრანზაქციის განსახორციელებლად თანხა არასაკმარისია",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "ტრანზაქციის განსახორციელებლად თანხა არასაკმარისია (server validation)",
+      "UI_CORRECTED_AMOUNT" : "Balance of your %{symbol} wallet is different then sending amount, please confirm sending %{amount} %{symbol}",
+      "UI_CORRECTED_AMOUNT_BSE": "თქვენი %{symbol} საფულის ბალანსი ნაკლებია გასაგზავნი თანხაზე. გთხოვთ, განაახლოთ თქვენი %{symbol} ბალანსი და გაიმეოროთ გაცვლის ოპერაცია.",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "ბალანსზე არ არის საკმარისი თანხა ქსელის საკომისიოს დასაფარად - გთხოვთ, გამოიყენეთ ფუნქცია \"ყველას გაგზავნა\" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "ბალანსზე არაა საკმარისი თანხა დელეგირებული ტრანზაქციის განსახორციელებლად - გთხოვთ, გამოიყენეთ ჩვეულებრივი გადარიცხვა ERC20",
       "SERVER_RESPONSE_NO_RESPONSE": "ქსელი არ იღებს ტრანზაქციას - გთხოვთ, დაელოდოთ, სანამ სხვა ტრანზაქციები დადასტურდება",
@@ -806,15 +813,15 @@
     "infoScreen": {
       "continue": "გაგრძელება",
       "text1": "TRUSTEE WALLET არ გააგზავნის თქვენს აღმდგენ ფრაზას არასდროს და არსად. ამიტომ, მოწყობილობის დაკარგვის ან დაზიანების შემთხვევაში, ერთადერთი გზა, მიიღოთ წვდომა თქვენს საშუალებებთან, არის აღმდგენი ფრაზის გამოყენება ",
-      "checkbox1": "მესმის, რომ თუ დავკარგავ აღმდგენ ფრრაზას, დავკარგავ ჩემს რესურსებს ",
+      "checkbox1": "I understand that I am fully responsible for the safety of the Recovery Phrase and in the event of its loss or transfer to third parties, I will lose my funds without the possibility of recovery.",
       "checkbox2": "მესმის, რომ აღმდგენ ფრაზას უნდა წავიკითხო მარტო, კამერების და უცხო პირების ირგვლივ ყოფნის გარეშე ",
       "text2": "ძალიან ფრთხილად იყავით აღმდგენ ფრაზასთან დაკავშირებით - ნებისმიერი, ვისაც ის ჩაუვარდება ხელში, შეძლებს მიიღოს წვდომა თქვენს რესურსთან და დახარჯოს საკუთარი შეხედულებისამებრ. გთხოვთ, არ გაანდოთ ის არავის არანაირ ვითარებაში!"
     },
     "step0Screen": {
       "phrase": "phrase",
       "qr": "Qr",
-      "info": "აღმდგენი ფრაზა - ეს არის თქვენი აქტივების ერთადერთი საიდუმლო გასაღები. შეინახეთ ის სანდო ადგილას!",
-      "showButton": "სანახავად დააჭირეთ ღილაკს და შეინარჩუნეთ ასეთ მდგომარეობაში",
+      "info": "აღდგენის ფრაზა (მნემონური ფრაზა, სათესლე ფრაზა) არის საიდუმლო წვდომის გასაღები თქვენს საფულეში არსებულ ყველა ნაშთზე. ჩაწერეთ სიტყვების თანმიმდევრობის დაცვით, უსაფრთხოდ შეინახეთ და არავის გადასცემთ!",
+      "showButton": "დააწკაპუნეთ და გააჩერეთ აქ ფრაზის სანახავად",
       "next": "შემდეგი",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
@@ -822,8 +829,8 @@
     },
     "step1Screen": {
       "title": "დადასტურება",
-      "placeholder": "გთხოვთ, სწორი თანმიმდევრობით დააჭიროთ სიტყვებს, რომ დაადასტუროთ აღმდგენი ფრაზა. ველიდან სიტყვის წასაშლელად კიდევ ერთხელ დააჭირეთ მას. ",
-      "showButton": "სანახავად დააჭირეთ ღილაკს და შეინარჩუნეთ ასეთ მდგომარეობაში",
+      "placeholder": "ჩაწერეთ სიტყვები სწორი თანმიმდევრობით აღდგენის ფრაზის დასადასტურებლად.\nდააწკაპუნეთ სიტყვაზე, თუ გსურთ მისი ამოღება ველიდან",
+      "showButton": "დააწკაპუნეთ და გააჩერეთ აქ ფრაზის სანახავად",
       "next": "შემდეგი"
     },
     "settingsScreen": {
@@ -1125,7 +1132,7 @@
     "walletDelete": {
       "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
-      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
+      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost forever. "
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"

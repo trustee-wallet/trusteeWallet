@@ -167,7 +167,7 @@ class BlocksoftUtils {
         if (number === '+') {
             return this.fromUnified(parts[0], power)
         } else {
-            return '0.' + ('0'.repeat(power)) + first[0] + first[1]
+            return '0.' + ('0'.repeat(power - 1)) + first[0] + (typeof first[1] !== 'undefined' ? first[1] : '')
         }
     }
 

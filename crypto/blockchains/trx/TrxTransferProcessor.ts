@@ -90,38 +90,71 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             selectedFeeIndex: -3,
             shouldShowFees: false
         } as BlocksoftBlockchainTypes.FeeRateResult
+
         try {
-            const link = 'https://apilist.tronscan.org/api/account?address=' + data.addressFrom
-            const res = await BlocksoftAxios.getWithoutBraking(link)
+            const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+            const link = sendLink + '/wallet/getaccountresource'
+
             let feeForTx = 0
-            if (this._tokenName[0] === 'T') {
-                if (typeof res.data.bandwidth.assets !== 'undefined') {
-                    delete res.data.bandwidth.assets
-                }
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link, res.data.bandwidth)
-                if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
-                    feeForTx = 49000
+            try {
+                const res = await BlocksoftAxios.post(link, { address: TronUtils.addressToHex(data.addressFrom) })
+                const tronData = res.data
+                delete tronData.assetNetUsed
+                delete tronData.assetNetLimit
+                tronData.netRemaining = typeof tronData.NetLimit !== 'undefined' ? (tronData.NetLimit * 1 - tronData.NetUsed * 1) : (tronData.freeNetLimit * 1 - tronData.freeNetUsed * 1)
+                tronData.energyRemaining = typeof tronData.EnergyLimit !== 'undefined' ? (tronData.EnergyLimit * 1 - tronData.EnergyUsed * 1) : 0
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link + ' from ' + data.addressFrom, tronData)
+                if (this._tokenName[0] === 'T') {
+                    if (tronData.netRemaining <= 0) {
+                        feeForTx = 49000
+                    } else {
+                        const diffB = 350 - tronData.netRemaining
+                        if (diffB > 0) {
+                            feeForTx = BlocksoftUtils.mul(49000, BlocksoftUtils.div(diffB, 350))
+                        }
+                    }
+                    if (tronData.energyRemaining <= 0 ) {
+                        feeForTx = feeForTx * 1 + 4148340
+                    } else {
+                        const diffE = 29631 - tronData.energyRemaining
+                        if (diffE > 0) {
+                            feeForTx = feeForTx * 1 + BlocksoftUtils.mul(4148340, BlocksoftUtils.div(diffE / 29631)) * 1
+                        }
+                    }
+                    await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx)
                 } else {
-                    const diffB = 350 - res.data.bandwidth.freeNetRemaining.toString() * 1
-                    if (diffB > 0) {
-                        feeForTx = BlocksoftUtils.mul(49000, BlocksoftUtils.div(diffB, 350))
+                    // @ts-ignore
+                    if (tronData.netRemaining <= 0) {
+                        feeForTx = 100000
                     }
                 }
-                if (res.data.bandwidth.energyRemaining.toString() === '0') {
-                    feeForTx = feeForTx * 1 + 4148340
-                } else {
-                    const diffE = 29631 - res.data.bandwidth.energyRemaining.toString() * 1
-                    if (diffE > 0) {
-                        feeForTx = feeForTx * 1 + BlocksoftUtils.mul(4148340, BlocksoftUtils.div(diffE / 29631)) * 1
-                    }
+            } catch (e) {
+                // do nothing
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressFrom data error ' + e.message)
                 }
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx)
-            } else {
-                // @ts-ignore
-                if (res.data.bandwidth.freeNetRemaining.toString() === '0') {
-                    feeForTx = 100000
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressFrom data error ' + e.message)
+            }
+
+            if (typeof data.dexOrderData === 'undefined' || !data.dexOrderData) {
+                try {
+                    const res2 = await BlocksoftAxios.post(link, { address: TronUtils.addressToHex(data.addressTo) })
+                    const tronData2 = res2.data
+                    delete tronData2.assetNetUsed
+                    delete tronData2.assetNetLimit
+                    await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result ' + link + ' to ' + data.addressTo, tronData2)
+                    if (typeof tronData2.freeNetLimit === 'undefined') {
+                        feeForTx = feeForTx * 1 + 1000000
+                    }
+                } catch (e) {
+                    // do nothing
+                    if (config.debug.cryptoErrors) {
+                        console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressTo data error ' + e.message)
+                    }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressTo data error ' + e.message)
                 }
             }
+
             if (feeForTx !== 0) {
                 result.fees = [
                     {
@@ -130,9 +163,11 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         amountForTx: data.amount
                     }
                 ]
+                /*
                 if (res.data.balance * 1 < feeForTx * 1) {
                     throw new Error('SERVER_RESPONSE_BANDWITH_ERROR_TRX')
                 }
+                */
                 result.selectedFeeIndex = 0
             }
         } catch (e) {
@@ -201,7 +236,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         logData.basicToken = this._tokenName
 
 
-        const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
         let tx
         if (typeof data.blockchainData !== 'undefined' && data.blockchainData) {
             tx = data.blockchainData
@@ -221,7 +256,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     throw e
                 }
 
-                const link = nodeLink + '/wallet/triggersmartcontract'
+                const link = sendLink + '/wallet/triggersmartcontract'
                 const total = data.dexOrderData.length
                 let index = 0
                 for (const order of data.dexOrderData) {
@@ -293,7 +328,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                             throw e
                         }
 
-                        const linkRecheck = nodeLink + '/wallet/gettransactioninfobyid'
+                        const linkRecheck = sendLink + '/wallet/gettransactioninfobyid'
                         let checks = 0
                         let mined = false
                         do {
@@ -365,7 +400,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 }
 
                 if (this._tokenName[0] === 'T') {
-                    link = nodeLink + '/wallet/triggersmartcontract'
+                    link = sendLink + '/wallet/triggersmartcontract'
                     const parameter = '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(BlocksoftUtils.round(data.amount), 20)
                     params = {
                         owner_address: ownerAddress,
@@ -386,11 +421,11 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     }
 
                     if (this._tokenName === '_') {
-                        link = nodeLink + '/wallet/createtransaction'
+                        link = sendLink + '/wallet/createtransaction'
                     } else {
                         // @ts-ignore
                         params.asset_name = '0x' + Buffer.from(this._tokenName).toString('hex')
-                        link = nodeLink + '/wallet/transferasset'
+                        link = sendLink + '/wallet/transferasset'
                     }
 
                     try {
@@ -446,7 +481,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTxProcessor.sendTx token ' + this._tokenName + ' tx', tx)
 
         tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
-        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : JSON.stringify(tx)}
         }
 

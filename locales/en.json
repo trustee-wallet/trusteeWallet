@@ -56,13 +56,13 @@
       "inputPlaceholder": "Direct Link",
       "stop": "Disable WalletConnect",
       "stopText": "Are you sure you want to stop the connection with ",
-      "start": "Wallet Connect Start",
+      "start": "WalletConnect Start",
       "startText": "Do you want to start this session?",
       "transaction": "Transaction request",
       "transactionText": "Are you sure you want to allow %{subtitle} to use your %{txPrice} for transactions?",
-      "sign": "Wallet Connect Sign Request",
+      "sign": "WalletConnect Sign Request",
       "signText": "Do you want to sign message ",
-      "signTyped": "Wallet Connect Sign Typed Request",
+      "signTyped": "WalletConnect Sign Typed Request",
       "signTypedText": "Do you want to sign message ",
       "session": "WalletConnect connection",
       "sessionText": "Are you sure you want to connect your Trustee wallet to ",
@@ -72,7 +72,7 @@
       "connect": "Connect",
       "placeholder": "There is will be your wallet address that you connected to",
       "linkError": "WalletConnect connection error. Please, check if the direct link is correct",
-      "title": "Wallet connect",
+      "title": "Walletconnect",
       "activated": "Activated",
       "disabled": "Disabled",
       "changeNetwork": "Change Network",
@@ -448,7 +448,11 @@
       "RBF": {
         "replaceByFeeBtn": "Update tx fee",
         "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
-        "notAllowed": "The transaction was created without the possibility of replacement or has already been confirmed"
+        "notAllowed": "The transaction was created without the possibility of replacement or has already been confirmed",
+        "alreadyRemovedByFee" : "You have used “return” %{min} minutes ago",
+        "alreadyReplacedByFee" : "You have used “booster” %{min} minutes ago",
+        "alreadyRemovedByFeeLessThen2Minutes" : "You have used “return” now",
+        "alreadyReplacedByFeeLessThen2Minutes" : "You have used “booster” now"
       },
       "CPFP" : {
         "willSpeedUp" : "You can speed up an incoming transaction by creating an additional transaction on your own, with a higher commission. The size of the commission will be calculated automatically, taking into account the features of both transactions.Please note, that in this case, payment for a new transaction will be at your expense"
@@ -510,12 +514,13 @@
       },
       "transactionHash": "Transaction hash:",
       "cashbackLink": "I’m using Trustee Wallet! Here is my personal link ",
-      "self": "This transaction was send to your address",
+      "website": "Website: ",
+      "self": "This transaction was send to your own address",
       "order": "To order",
-      "transactionSum": "Send amount ",
+      "transactionSum": "Amount send",
       "addresTo": "Recipient ",
-      "addresFrom": "Sender",
-      "blockConfirmations": "Number of confirmations "
+      "addresFrom": "Sender ",
+      "blockConfirmations": "Current number of confirmations "
     }
   },
 
@@ -767,6 +772,8 @@
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount is too small",
      "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Insufficient balance to send the transaction",
      "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "Balance of your %{symbol} wallet is less then sending amount. Please rescan balance of %{symbol} and try again.",
+     "UI_CORRECTED_AMOUNT" : "Balance of your %{symbol} wallet is different then sending amount, please confirm sending %{amount} %{symbol}",
+     "UI_CORRECTED_AMOUNT_BSE": "The balance of your %{symbol} wallet is less than the amount to be sent. Please, update your %{symbol} balance and repeat the swap operation.",
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Insufficient balance to pay the network fee - please use an option \"Send All\" ",
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Insufficient balance to pay the delegated transaction - please use ERC20 standard transaction",
      "SERVER_RESPONSE_NO_RESPONSE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined",
@@ -814,15 +821,15 @@
     "infoScreen": {
       "continue": "Continue",
       "text1": "TRUSTEE WALLET never sends your recovery phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a recovery phrase.",
-      "checkbox1": "I understand that if I lose this phrase, I will not have access to my balances. And I understand that by passing this phrase to anyone, I will lose my money",
+      "checkbox1": "I understand that I am fully responsible for the safety of the Recovery Phrase and in the event of its loss or transfer to third parties, I will lose my funds without the possibility of recovery.",
       "checkbox2": "I understand that I must view my recovery phrase in private with no cameras and eyes around",
       "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
     "step0Screen": {
       "phrase": "phrase",
       "qr": "Qr",
-      "info": "The recovery phrase (mnemonic phrase, seed phrase) is a secret key for accessing all the balances of your wallet. Keep it in a safe place and don't pass it to anyone!",
-      "showButton": "Press and hold to reveal",
+      "info": "The Recovery Phrase (mnemonic phrase, seed-phrase) is the secret access key to all balances in your wallet. Write it down, observing the word order, save it securely and do not pass it on to anyone!",
+      "showButton": "Press and hold here to see the phrase",
       "next": "Next",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
@@ -830,8 +837,8 @@
     },
     "step1Screen": {
       "title": "Check",
-      "placeholder": "Please, tap each word in the correct order to verify recovery phrase. To remove word from field tap on it again",
-      "showButton": "Press and hold to reveal",
+      "placeholder": "Enter the words in the correct order to confirm the Recovery Phrase.\nTap on a word if you want to remove it from the field",
+      "showButton": "Press and hold here to see the phrase",
       "next": "Next"
     },
     "settingsScreen": {
@@ -1143,7 +1150,7 @@
     "walletDelete": {
       "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
-      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
+      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost forever. "
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"

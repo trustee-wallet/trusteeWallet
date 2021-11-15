@@ -190,7 +190,7 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
             throw new Error('SERVER_RESPONSE_BAD_CODE')
         }
 
-        if (typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined'&& typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : this._provider.signTx(data, privateData, txJson)}
         }
 

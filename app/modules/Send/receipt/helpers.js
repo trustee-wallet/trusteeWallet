@@ -57,8 +57,8 @@ const showSendError = function(e, _this, passwordCheck) {
 
 const checkLoadedFee = function(_this) {
     const { countedFees, selectedFee } = _this.props.sendScreenStore.fromBlockchain
-    const { currencyCode } = _this.props.sendScreenStore.dict
-    const { bse, cryptoValue } = _this.props.sendScreenStore.ui
+    const { currencyCode, currencySymbol } = _this.props.sendScreenStore.dict
+    const { bse, cryptoValue, uiType } = _this.props.sendScreenStore.ui
     const { bseMinCrypto, bseOrderId } = bse
 
     let msg = false
@@ -76,6 +76,23 @@ const checkLoadedFee = function(_this) {
             cacheWarningNoticeValue = 'bseMinCrypto_' + bseOrderId + '_' + cryptoValue
         }
     }
+
+    let value = cryptoValue
+    if (typeof countedFees.amountForTx !== 'undefined') {
+        value = countedFees.amountForTx
+    } else if (typeof selectedFee.amountForTx !== 'undefined' ) {
+        value = selectedFee.amountForTx
+    }
+    if (value.toString() !== cryptoValue.toString()) {
+        Log.log('SendingValue ' + value.toString() + ' != ' + cryptoValue.toString())
+        if (uiType === 'TRADE_SEND') {
+            msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount : BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
+            goBack = true
+        } else {
+            msg = strings('send.errors.UI_CORRECTED_AMOUNT', { symbol: currencySymbol, amount : BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
+        }
+    }
+
 
     let modalType = 'YES_NO_MODAL'
     if (!goBack) {
