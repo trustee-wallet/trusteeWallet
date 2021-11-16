@@ -37,6 +37,7 @@ import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 
 const SOCIAL_LINKS = [
@@ -72,8 +73,10 @@ class AboutScreen extends PureComponent {
         NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.privacy') })
     }
 
-    handleSupport = () => {
-        this.props.navigation.jumpTo('SupportScreen')
+    handleSupport = async () => {
+        const link = BlocksoftExternalSettings.get('SUPPORT_BOT')
+        MarketingEvent.logEvent('taki_support', { link, screen: 'SETTINGS' })
+        NavStore.goNext('BotSupportScreen', { url: link, title: strings('settings.about.contactSupportTitle'), backOnClose: true })
     }
 
     handleSupportEmail = () => {

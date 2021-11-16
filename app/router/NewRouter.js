@@ -68,7 +68,7 @@ import LoggingSettingsScreen from '@app/modules/Settings/Subsettings/LoggingSett
 import NotificationsSettingScreen from '@app/modules/Settings/Subsettings/NotificationsScreen'
 
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
-import SupportScreen from '@app/modules/Support/index'
+import BotSupportScreen from '@app/modules/Support/botSupport'
 import StreamSupportScreen from '@app/modules/Support/streamSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -114,6 +114,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='HomeScreenPop' component={HomeScreen} options={{ headerShown: false }} />
 
             <HomeStack.Screen name='StreamSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='BotSupportScreen' component={BotSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

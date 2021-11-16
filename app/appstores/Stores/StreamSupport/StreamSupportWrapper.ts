@@ -198,7 +198,7 @@ export namespace StreamSupportWrapper {
             if (typeof e.code !== 'undefined' && e.code.toString() === '1000') {
                 // console.log('StreamSupport.on close to reload ' + e.code + ' ' + e.reason)
             } else {
-                console.log('StreamSupport.on close ' + e.code + ' ' + e.reason)
+                console.log('StreamSupport.on close ' + ' ' + e.reason, e)
             }
             initWS(data)
         }

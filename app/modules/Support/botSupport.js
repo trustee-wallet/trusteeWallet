@@ -18,13 +18,12 @@ import UrlParse from 'url-parse'
 
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import Log from '@app/services/Log/Log'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-class SupportScreen extends React.PureComponent {
+class BotSupportScreen extends React.PureComponent {
     state = {
         url: ' ',
         title: ' ',
@@ -160,9 +159,9 @@ class SupportScreen extends React.PureComponent {
     }
 }
 
-SupportScreen.contextType = ThemeContext
+BotSupportScreen.contextType = ThemeContext
 
-export default SupportScreen
+export default BotSupportScreen
 
 const styles = StyleSheet.create({
     loader: {
