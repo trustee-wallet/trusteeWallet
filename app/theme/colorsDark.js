@@ -172,7 +172,7 @@ export const colorsDark = {
         bg: '#6B6B6B',
         borderColor: '#999999'
     },
-    streemChat: {
+    streamChat: {
         inputToolBarBg: '#404040',
         left: {
             bg: '#222222',
