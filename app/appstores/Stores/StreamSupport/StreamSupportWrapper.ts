@@ -99,6 +99,8 @@ export namespace StreamSupportWrapper {
 
     export const initWS = async function(data: any = false) {
         if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
+        await Log.log('StreamSupport initWS')
+
         if (data === false) {
             data = store.getState().streamSupportStore
         }
@@ -114,7 +116,6 @@ export namespace StreamSupportWrapper {
             // https://github.com/RocketChat/docs/issues/205
             try {
                 // console.log('StreamSupport.on open status connection ' + WEB_SOCKET.readyState)
-
                 WEB_SOCKET.send(JSON.stringify({
                     'msg': 'connect',
                     'version': '1',
@@ -124,7 +125,12 @@ export namespace StreamSupportWrapper {
                 if (config.debug.appErrors) {
                     console.log('StreamSupport.on open error ' + e.message)
                 }
-                Log.log('StreamSupport.on open error ' + e.message)
+                if (e.message === 'INVALID_STATE_ERR') {
+                    Log.log('StreamSupport.on open error ' + e.message + ' as invalid')
+                    initWS(data)
+                } else {
+                    Log.log('StreamSupport.on open error ' + e.message + ' do smthing')
+                }
             }
         }
 
@@ -169,11 +175,11 @@ export namespace StreamSupportWrapper {
                 } else {
                     // console.log('StreamSupport.on message ', newData)
                 }
-            } catch (e) {
+            } catch (e1) {
                 if (config.debug.appErrors) {
-                    console.log('StreamSupport.on message ' + e.data + ' error ' + e.message)
+                    console.log('StreamSupport.on message ' + e.data + ' error ' + e1.message)
                 }
-                Log.log('StreamSupport.on message ' + e.data + ' error ' + e.message)
+                Log.log('StreamSupport.on message ' + e.data + ' error ' + e1.message)
             }
         }
 
@@ -282,6 +288,6 @@ export namespace StreamSupportWrapper {
     }
 
     const prettyMsgForFile = (obj: any) => {
-        return obj?.msg.indexOf('https://walletchatfiles.s3') === -1 ? obj : { ...obj, msg: strings('streemSupport.sentFile') }
+        return obj?.msg.indexOf('https://walletchatfiles.s3') === -1 ? obj : { ...obj, msg: strings('streamSupport.sentFile') }
     }
 }

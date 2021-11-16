@@ -1468,7 +1468,7 @@
       "currency": "უკრაინული გრივნა"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Send docs",
     "sendLogs": "Send logs",
     "takePhoto": "Take photo",

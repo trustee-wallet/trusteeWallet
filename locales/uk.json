@@ -1487,7 +1487,7 @@
       "currency":"Українська гривня"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Надіслати документи",
     "sendLogs": "Надіслати логи",
     "takePhoto": "Зробити фото",
