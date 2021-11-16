@@ -41,6 +41,7 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
+import { SendReceiveDeepLinking } from '@app/appstores/Stores/Send/SendReceiveDeepLinking'
 
 
 let CACHE_IS_SCANNING = false
@@ -261,6 +262,9 @@ class HomeScreen extends React.PureComponent {
         if (this.props.isBlurVisible) {
             return  <AppLockBlur/>
         }
+
+        SendReceiveDeepLinking.receiveDeepLink()
+
         const { colors } = this.context
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')

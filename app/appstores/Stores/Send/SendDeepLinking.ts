@@ -19,7 +19,6 @@ export namespace SendDeepLinking {
             if (error) {
                 Log.log('SendDeepLinking.initDeepLinking branch error ', JSON.stringify(error))
             }
-
             handleInitialURL(false, params)
         })
         CACHE_ALREADY_INITED = true
