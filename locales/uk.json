@@ -1494,6 +1494,7 @@
     "chooseFromLibrary": "Вибрати з галереї",
     "noMessages": "Повідомлень поки що немає",
     "sentFile": "Файл надіслано",
-    "getRoomError" : "Помилка завантаження"
+    "getRoomError" : "Помилка завантаження",
+    "sendMessageError" : "Connection error while message sending"
   }
 }

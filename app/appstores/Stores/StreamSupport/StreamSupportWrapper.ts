@@ -12,8 +12,8 @@ import config from '@app/config/config'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-const CHAT_PREFIX = 'supportChatV4_'
-const ADMINS = ['ksu.dev', 'germes', 'testrocket1']
+const CHAT_PREFIX = 'supportChat_'
+const ADMINS = ['ksu.dev']
 
 let WEB_SOCKET = false
 let WEB_SOCKET_LINK = false
@@ -31,7 +31,7 @@ export namespace StreamSupportWrapper {
     // https://developer.rocket.chat/api/rest-api/endpoints/push/push-token
     export const init = async function(data: any) {
         if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
-        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
+        const serverUrl = data.serverUrl || 'https://chat.trustee.deals'
         if (MarketingEvent.DATA.LOG_TOKEN.indexOf('NO_GOOGLE') === -1 && data.userToken) {
             try {
                 const response = await fetch(`${serverUrl}/api/v1/push.token`, {
@@ -68,7 +68,7 @@ export namespace StreamSupportWrapper {
         if (data === false) {
             data = store.getState().streamSupportStore
         }
-        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
+        const serverUrl = data.serverUrl || 'https://chat.trustee.deals'
         const link = `${serverUrl}/api/v1/rooms.get`
 
         // console.log('StreamSupport getRoom ' + link)
@@ -126,7 +126,7 @@ export namespace StreamSupportWrapper {
         if (data === false) {
             data = store.getState().streamSupportStore
         }
-        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
+        const serverUrl = data.serverUrl || 'https://chat.trustee.deals'
         const wsLink = 'wss://' + serverUrl.replace('https://', '') + '/websocket'
         // console.log('StreamSupport initWS ' + wsLink)
 
@@ -271,6 +271,9 @@ export namespace StreamSupportWrapper {
         // console.log('StreamSupport sendStreamSupportMessage status connection ' + (WEB_SOCKET && typeof WEB_SOCKET.readyState === 'undefined' ? JSON.stringify(WEB_SOCKET) : WEB_SOCKET.readyState))
 
         try {
+            if (typeof WEB_SOCKET.send === 'undefined') {
+                throw new Error('WEB_SOCKET.send is undefined')
+            }
             if (!CACHE_ROOM_ID) {
                 WEB_SOCKET.send(JSON.stringify({
                     'msg': 'method',
@@ -297,7 +300,19 @@ export namespace StreamSupportWrapper {
                 WEB_SOCKET.send(JSON.stringify(newMessageCall))
             }
         } catch (e) {
-            console.log('StreamSupport sendStreamSupportMessage error ' + e.message)
+            if (config.debug.appErrors) {
+                cconsole.log('StreamSupport sendStreamSupportMessage error ' + e.message)
+            }
+            Log.log('StreamSupport sendStreamSupportMessage error ' + e.message)
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('streamSupport.sendRoomError') + ': ' + e.message,
+            })
+
+
         }
     }
 

@@ -1475,6 +1475,7 @@
     "chooseFromLibrary": "Choose from gallery",
     "noMessages": "No messages yet",
     "sentFile": "File sent",
-    "getRoomError" : "Load messages error"
+    "getRoomError" : "Load messages error",
+    "sendMessageError" : "Connection error while message sending"
   }
 }
