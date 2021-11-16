@@ -10,6 +10,7 @@ import Log from '@app/services/Log/Log'
 import { StreamSupportActions } from '@app/appstores/Stores/StreamSupport/StreamSupportStoreActions'
 import config from '@app/config/config'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 const CHAT_PREFIX = 'supportChatV4_'
 const ADMINS = ['ksu.dev', 'germes', 'testrocket1']
@@ -72,6 +73,8 @@ export namespace StreamSupportWrapper {
 
         // console.log('StreamSupport getRoom ' + link)
         CACHE_ROOM_ID = false
+        let resTxt = ''
+        let res
         try {
             const response = await fetch(link, {
                 method: 'GET',
@@ -82,7 +85,16 @@ export namespace StreamSupportWrapper {
                     'Accept': 'application/json'
                 }
             })
-            const res = await response.json()
+            resTxt = await response.text()
+            try {
+                res = JSON.parse(resTxt)
+            } catch (e) {
+                if (typeof resTxt === 'undefined' || !resTxt) {
+                    throw e
+                }
+                const tmp = resTxt.split('title>')
+                throw new Error(typeof tmp[1] !== 'undefined' ? tmp[1] : resTxt)
+            }
             // console.log('StreamSupport getRoom result ', res)
             if (typeof res.update !== 'undefined') {
                 for (const room of res.update) {
@@ -92,7 +104,17 @@ export namespace StreamSupportWrapper {
                 }
             }
         } catch (e) {
-            console.log('StreamSupport getRoom ' + link + ' error ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('StreamSupport getRoom ' + link + ' error ' + e.message)
+            }
+            Log.log('StreamSupport getRoom ' + link + ' error ' + e.message)
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('streamSupport.getRoomError') + ': ' + e.message,
+            })
         }
         StreamSupportActions.setRoom(CACHE_ROOM_ID)
     }

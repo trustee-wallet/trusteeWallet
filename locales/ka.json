@@ -1474,6 +1474,7 @@
     "takePhoto": "Take photo",
     "chooseFromLibrary": "Choose from gallery",
     "noMessages": "No messages yet",
-    "sentFile": "File sent"
+    "sentFile": "File sent",
+    "getRoomError" : "Load messages error"
   }
 }

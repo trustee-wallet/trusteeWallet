@@ -1493,6 +1493,7 @@
     "takePhoto": "Сделать фото",
     "chooseFromLibrary": "Выбрать из галереи",
     "noMessages": "Сообщений пока нет",
-    "sentFile": "Файл отправлен"
+    "sentFile": "Файл отправлен",
+    "getRoomError" : "Ошибка загрузки"
   }
 }
