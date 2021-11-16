@@ -103,16 +103,16 @@ export const getFilterData = createSelector(
     [state => state.mainStore.filter],
     (data => {
         return {
-            startTime: data.startTime,
-            endTime: data.endTime,
-            startAmount: data.startTime,
-            endAmount: data.endAmount,
-            searchQuery: data.searchQuery,
-            cancel: data.cancel,
-            freezing: data.freezing,
-            contractIncome: data.contractIncome,
-            contractOutcome: data.contractOutcome,
-            swap: data.swap
+            startTime: data?.startTime || null,
+            endTime: data?.endTime || null,
+            startAmount: data?.startAmount || null,
+            endAmount: data?.endAmount || null,
+            searchQuery: data?.searchQuery || null,
+            cancel: data?.cancel || null,
+            freezing: data?.freezing || null,
+            contractIncome: data?.contractIncome || null,
+            contractOutcome: data?.contractOutcome || null,
+            swap: data?.swap || null
         }
     })
 )

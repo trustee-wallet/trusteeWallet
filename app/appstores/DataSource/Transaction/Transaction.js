@@ -235,9 +235,6 @@ class Transaction {
      */
     getTransactions = async (params, source = '?') => {
 
-        
-        console.log(params)
-
         let  where = []
         if (params.walletHash) {
             where.push(`wallet_hash='${params.walletHash}'`)
@@ -258,39 +255,50 @@ class Transaction {
            where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id!='' AND bse_order_id IS NOT NULL AND bse_order_id!='null'))`)
            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
-        if (typeof params.startTime !== 'undefined' && typeof params.endTime !== 'undefined') {
-            where.push(`created_at >= ${params.startTime} AND created_at <= ${params.endTime}` )
+        
+        // date filter
+        if (typeof params.startTime !== 'undefined' && params.startTime) {
+            where.push(`created_at>='${params.startTime}'`)
         }
-        if (params.startAmount && params.endAmount) {
-            console.log('1')
-            where.push(`address_amount >= ${params.startAmount} AND address_amount <= ${params.endAmount}`)
+        if (typeof params.endTime !== 'undefined' && params.endTime) {
+            where.push(`created_at<='${params.endTime}'`)
         }
-        if (params.income) {
+
+        // amount filter
+        if (typeof params.startAmount !== 'undefined' && params.startAmount) {
+            where.push(`address_amount >= ${params.startAmount}`)
+        }
+        if (typeof params.endAmount !== 'undefined' && params.endAmount) {
+            where.push(`address_amount <= ${params.endAmount}`)
+        }
+        
+        // way filterj
+        if (typeof params.income !== 'undefined' && params.income) {
             where.push(`transaction_direction NOT IN ('income')`)
-        } else if (params.outcome) {
+        } 
+        if (typeof params.outcome !== 'undefined' && params.outcome) {
             where.push(`transaction_direction NOT IN ('outcome')`)
-        } else if (params.income && params.outcome) {
-            where.push(`transaction_direction NOT IN ('income', 'outcome')`)
         }
-        if (params.searchQuery) {
+
+        if (typeof params.searchQuery !== 'undefined' && params.searchQuery) {
             where.push(`(address_from LIKE ${params.searchQuery} OR adress_to OR LIKE ${params.searchQuery} transaction_hash LIKE ${params.searchQuery}`)
         }
-        if (params.freezing) {
+        if (typeof params.freezing !== 'undefined' && params.freezing) {
             where.push(`transaction_direction NOT IN ('freeze')`)
         }
-        if (params.canceled) {
+        if (typeof params.canceled !== 'undefined' && params.canceled) {
             where.push(`transaction_direction NOT IN ('canceled')`)
         }
-        if (params.contractIncome) {
+        if (typeof params.contractIncome !== 'undefined' && params.contractIncome) {
             where.push(`transaction_direction NOT IN ('contract_income')`)
         }
-        if (params.contractOutcome) {
+        if (typeof params.contractOutcome !== 'undefined' && params.contractOutcome) {
             where.push(`transaction_direction NOT IN ('contract_outcome')`)
         }
-        if (params.swap) {
+        if (typeof params.swap !== 'undefined' && params.swap) {
             where.push(`order_hash NOT IN ('bse_order_data')`)
         }
-        if (params.reward) {
+        if (typeof params.reward !== 'undefined' && params.reward) {
             where.push(`transaction_direction NOT IN ('reward')`)
         }
         let order = ' ORDER BY created_at DESC, id DESC'

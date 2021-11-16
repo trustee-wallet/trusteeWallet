@@ -300,27 +300,25 @@ export async function setSelectedAccountTransactions(source) {
             walletHash: account.walletHash,
             currencyCode: account.currencyCode,
             limitFrom: 0,
-            limitPerPage: 1
-        }
-        const filterParams = {
-            startTime: filter.startTime,
-            endTime: filter.endTime,
-            startAmount: filter.startAmount,
-            endAmount: filter.endAmount,
-            income: filter.income,
-            outcome: filter.outcome,
-            searchQuery: filter.searchQuery,
-            cancel: filter.cancel,
-            freezing: filter.freezing,
-            contractIncome: filter.contractIncome,
-            contractOutcome: filter.contractOutcome,
-            swap: filter.swap,
-            reward: filter.reward
+            limitPerPage: 1,
+            startTime: filter?.startTime || null,
+            endTime: filter?.endTime || null,
+            startAmount: filter?.startAmount || null,
+            endAmount: filter?.endAmount || null,
+            income: filter?.income || null,
+            outcome: filter?.outcome || null,
+            searchQuery: filter?.searchQuery || null,
+            cancel: filter?.cancel || null,
+            freezing: filter?.freezing || null,
+            contractIncome: filter?.contractIncome || null,
+            contractOutcome: filter?.contractOutcome || null,
+            swap: filter?.swap || null,
+            reward: filter?.reward || null
         }
         if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
             params.minAmount = 0
         }
-        const tmp = await transactionDS.getTransactions(params, filterParams, 'ACT/MStore setSelectedAccount.transactionInfinity list')
+        const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
                 transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, account.currencyCode)

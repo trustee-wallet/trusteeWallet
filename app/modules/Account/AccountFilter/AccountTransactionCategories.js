@@ -8,10 +8,15 @@ import {
     StyleSheet,
     ScrollView
 } from 'react-native'
+
+import { connect } from 'react-redux'
+
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+
+import { getFilterData } from '@app/appstores/Stores/Main/selectors'
 
 class TransactionCategories extends React.PureComponent {
 
@@ -67,13 +72,13 @@ class TransactionCategories extends React.PureComponent {
                 rightContent: "checkbox"
             },
             {
-                active: true, 
+                active: true,
                 title: "Contract income",
                 iconType: "contractIncome",
                 rightContent: "checkbox"
             },
             {
-                active: true, 
+                active: true,
                 title: "Contract outcome",
                 iconType: "contractOutcome",
                 rightContent: "checkbox",
@@ -93,61 +98,69 @@ class TransactionCategories extends React.PureComponent {
 
     handleSelectAllTrue = () => {
         this.setState(state => ({
-            categoriesData: state.categoriesData.map(all => ({...all, active: true})),
+            categoriesData: state.categoriesData.map(all => ({ ...all, active: true })),
             isAllActive: true
         }))
     }
 
+    // ??
     handleSelectAllFalse = () => {
         this.setState(state => ({
-            categoriesData: state.categoriesData.map(all => ({...all, active: false}))
+            categoriesData: state.categoriesData.map(all => ({ ...all, active: false }))
         }))
     }
 
     handleSelectCategory = (title) => {
         const { categoriesData } = this.state
         this.setState({
-            categoriesData: categoriesData.map(el => el.title === title ? ({...el, active: !el.active}) : el)
+            categoriesData: categoriesData.map(el => el.title === title ? ({ ...el, active: !el.active }) : el)
         })
     }
 
-    handleCheckForActive = () => {
-        this.state.categoriesData.map(el => !el.active && this.setState({
-            isAllActive: false
-        }))
+    handleSelectAll = () => {
+        // Vadym, how many call setState
+        // this.state.categoriesData.map(el => !el.active && this.setState({
+        //     isAllActive: false
+        // }))
+
+        // maybe this better??
+        this.setState({
+            isAllActive: !this.state.isAllActive
+        })
+
     }
 
     renderCategoriesFlatList = () => {
 
         const { colors } = this.context
 
-        const { 
+        const {
             categoriesData
         } = this.state
 
-        return(
-            categoriesData.map((item, index) => <ListItem 
-                                                    title={item.title}
-                                                    iconType={item.iconType}
-                                                    last={item.last}
-                                                    customIconStyle={{backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark}}
-                                                    rightContent={item.rightContent}
-                                                    onPress={index === 0 ? item.active ? this.handleSelectAllFalse : this.handleSelectAllTrue : () => this.handleSelectCategory(item.title)}
-                                                    onPressCheckBox={index === 0 ? item.active ? this.handleSelectAllFalse : this.handleSelectAllTrue : () => this.handleSelectCategory(item.title)}
-                                                    isVisibleDone={false}
-                                                    checked={item.active}
-                                                />
+        return (
+            categoriesData.map((item, index) => (
+                <ListItem
+                    key={index}
+                    title={item.title}
+                    iconType={item.iconType}
+                    last={item.last}
+                    customIconStyle={{ backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark }}
+                    rightContent={item.rightContent}
+                    onPress={index === 0 ? this.handleSelectAll : () => this.handleSelectCategory(item.title)}
+                    // onPressCheckBox={index === 0 ? this.handleSelectAll : () => this.handleSelectCategory(item.title)} // Vadym, need this? work without this callback
+                    isVisibleDone={false}
+                    checked={item.active}
+                />)
             )
         )
     }
 
     render() {
 
-        this.handleCheckForActive()
-
         const { GRID_SIZE } = this.context
- 
-        return(
+
+        return (
             <ScreenWrapper
                 title="Categories"
                 leftType="back"
@@ -169,7 +182,13 @@ class TransactionCategories extends React.PureComponent {
 
 TransactionCategories.contextType = ThemeContext
 
-export default TransactionCategories
+const mapStateToProps = (state) => {
+    return {
+        filterData: getFilterData(state)
+    }
+}
+
+export default connect(mapStateToProps)(TransactionCategories)
 
 const styles = StyleSheet.create({
     scrollViewContent: {

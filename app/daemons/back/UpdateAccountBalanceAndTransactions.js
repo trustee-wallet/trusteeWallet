@@ -202,7 +202,6 @@ class UpdateAccountBalanceAndTransactions {
 
         let newBalance = false
         let addressToScan = account.address
-        const filter = store.getState().mainStore.filter
 
         Log.daemon('UpdateAccountBalanceAndTransactions _accountRun init ' + account.id + ' ' + account.currencyCode + ' ' + account.address)
 
@@ -356,7 +355,7 @@ class UpdateAccountBalanceAndTransactions {
 
         let transactionUpdateObj
         try {
-            transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, account, 'RECHECK ' + source, filter)
+            transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, account, 'RECHECK ' + source)
         } catch (e) {
             e.message += ' while AccountTransactionsRecheck'
             throw e

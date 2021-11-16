@@ -203,7 +203,9 @@ class Input extends Component {
             addressError,
             search,
             func,
-            text
+            text,
+            containerStyle,
+            inputStyle
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -237,7 +239,7 @@ class Input extends Component {
             <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
                 {
                     show ?
-                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10}} >
+                        <View style={[containerStyle, { backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10}]}>
                             <TextField
                                 ref={ref => this.inputRef = ref}
                                 allowFontScaling={false}
@@ -248,17 +250,17 @@ class Input extends Component {
                                 lineWidth={0}
                                 activeLineWidth={0}
                                 placeholder={placeholder}
-                                placeholderTextColor="#999999"
-                                placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
+                                placeholderTextColor='#999999'
+                                placeholderStyle={{ ...styles.fontFamily, ...inputStyle, fontFamily: 'Montserrat-Semibold' }}
                                 value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
-                                returnKeyLabel={'Buy'}
+                                returnKeyLabel='Buy'
                                 onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
                                 }}
                                 autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
                                 disabled={isDisabled}
-                                disabledLineType={'none'}
+                                disabledLineType='none'
                                 onChangeText={(value) => this.handleInput(value)}
-                                style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount } : { ...styles.fontFamily, color: addressError && error ? '#864DD9' : colors.sendScreen.amount }}
+                                style={noEdit ? { ...styles.fontFamily, ...inputStyle, color: colors.sendScreen.amount } : { ...styles.fontFamily, ...inputStyle, color: addressError && error ? '#864DD9' : colors.sendScreen.amount }}
                                 multiline={isTextarea}
                                 autoCorrect={false}
                                 spellCheck={false}

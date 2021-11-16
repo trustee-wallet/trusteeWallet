@@ -8,9 +8,11 @@ import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/
 import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
 import config from '../../../config/config'
 
+import store from '@app/store'
+
 const CACHE_TO_REMOVE = {} // couldnt remove on first scan - as BTC is scanned in few accounts
 
-export default async function AccountTransactionsRecheck(newTransactions, account, source, filter) {
+export default async function AccountTransactionsRecheck(newTransactions, account, source) {
 
     const transactionUpdateObj = {
         transactionsScanTime: Math.round(new Date().getTime() / 1000)
@@ -28,25 +30,28 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
     const dbTransactions = {}
     const toRemove = []
     const dbNonces = {}
+
+    const filter = store.getState().mainStore.filter
+
     try {
         const tmps = await transactionDS.getTransactions({
             currencyCode: account.currencyCode,
             walletHash: account.walletHash,
             noOrder: true,
             noOld : true,
-            startTime: filter.startTime,
-            endTime: filter.endTime,
-            startAmount: filter.startAmount,
-            endAmount: filter.endAmount,
-            income: filter.income,
-            outcome: filter.outcome,
-            searchQuery: filter.searchQuery,
-            cancel: filter.cancel,
-            freezing: filter.freezing,
-            contractIncome: filter.contractIncome,
-            contractOutcome: filter.contractOutcome,
-            swap: filter.swap,
-            reward: filter.reward
+            startTime: filter?.startTime || null,
+            endTime: filter?.endTime || null,
+            startAmount: filter?.startAmount || null,
+            endAmount: filter?.endAmount || null,
+            income: filter?.income || null,
+            outcome: filter?.outcome || null,
+            searchQuery: filter?.searchQuery || null,
+            cancel: filter?.cancel || null,
+            freezing: filter?.freezing || null,
+            contractIncome: filter?.contractIncome || null,
+            contractOutcome: filter?.contractOutcome || null,
+            swap: filter?.swap || null,
+            reward: filter?.reward || null
         },  'AccountTransactionsRecheck dbTransactions ' + source)
         if (tmps && tmps.length > 0) {
             let tmp

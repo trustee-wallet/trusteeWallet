@@ -18,6 +18,8 @@ import {
 
 import LottieView from 'lottie-react-native'
 
+import _isEqual from 'lodash/isEqual'
+
 import GradientView from '@app/components/elements/GradientView'
 import NavStore from '@app/components/navigation/NavStore'
 import Loader from '@app/components/elements/LoaderItem'
@@ -114,6 +116,12 @@ class Account extends React.PureComponent {
         }
 
         this._onLoad()
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!_isEqual(prevProps.filterData, this.props.filterData)) {
+            this.loadTransactions(0)
+        }
     }
 
     async _onLoad() {
@@ -280,6 +288,7 @@ class Account extends React.PureComponent {
     }
 
     toggleSearch = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
         this.setState({ 
             isSeaching: !this.state.isSeaching,
             searchQuery: ''
@@ -356,10 +365,10 @@ class Account extends React.PureComponent {
                                     </View>}
                                 </View>
                             </View> : 
-                            <View style={ styles.textInput }>
+                            <View style={styles.textInput}>
                                 <TextInput
                                     ref={input => {this.linkInput = input}}
-                                    style={{ width: SCREEN_WIDTH * 0.715, marginTop: -4 }}
+                                    style={{ width: SCREEN_WIDTH * 0.715 }}
                                     name={strings('assets.searchPlaceholder')}
                                     type='TRANSACTION_SEARCH'
                                     id='TRANSACTION_SEARCH'
@@ -420,38 +429,24 @@ class Account extends React.PureComponent {
         const { walletIsHideTransactionForFee } = this.props.selectedWalletData
         const { walletHash } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
-        const {startTime, endTime, startAmount, endAmount, income, outcome, searchQuery, cancel, freezing, contractIncome, contracnOutcome, swap, reward} = this.props.filterData
+        const filter = this.props.filterData
 
-        const params = {
+        let params = {
             walletHash,
             currencyCode,
             limitFrom: from,
             limitPerPage: perPage
         }
-        const filter = {
-            startTime,
-            endTime,
-            startAmount,
-            endAmount,
-            income,
-            outcome,
-            searchQuery,
-            cancel,
-            freezing,
-            contractIncome,
-            contracnOutcome,
-            swap,
-            reward
-        }
         if (walletIsHideTransactionForFee) {
             params.minAmount = 0
         }
-        if (!this.props.filterData.includes('undefined')) {
+        if (typeof filter !== 'undefined' && Object.keys(filter)) {
             params = {
                 ...params,
                 ...filter
             }
         }
+
         const tmp = await transactionDS.getTransactions(params, 'AccountScreen.loadTransactions list')
         const transactionsToView = []
         let filteredTransactions = []
@@ -467,14 +462,11 @@ class Account extends React.PureComponent {
         if (this.state.searchQuery !== '') {
             filteredTransactions = this.filterBySearchQuery(transactionsToView, this.state.searchQuery)
         }
-
-        console.log(transactionsToView)
             
         CACHE_TX_LOADED = new Date().getTime()
 
         if (from === 0) {
-            this.setState((state) => ({ transactionsToView: this.state.searchQuery !== '' ? filteredTransactions : transactionsToView })) // from start reload
-            console.log(this.state.transactionsToView)
+            this.setState((state) => ({ transactionsToView: transactionsToView })) // from start reload
         } else {
             this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView) }))
         }
@@ -493,8 +485,7 @@ class Account extends React.PureComponent {
         }
     }
 
-    //d2884dd42808150753dd09d8d74783d1a3ff0a490451fabd62e5976db5743914
-
+    // need to query db
     filterBySearchQuery(transactions, searchQuery) {
         searchQuery = searchQuery.toLowerCase()
 
@@ -564,7 +555,6 @@ class Account extends React.PureComponent {
             }
             MarketingEvent.logEvent('view_account', logData)
         }
-
 
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
@@ -742,17 +732,17 @@ const styles = {
         fontFamily: 'SFUIDisplay-Bold'
     },
     textInput: {
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
+        // height: 50,
         borderRadius: 10,
+        elevation: 8,
+        // marginTop: 32,
         shadowColor: '#000',
+        shadowRadius: 16,
+        shadowOpacity: 0.1,
         shadowOffset: {
             width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-
-        elevation: 5
+            height: 0
+        }
     }
 }

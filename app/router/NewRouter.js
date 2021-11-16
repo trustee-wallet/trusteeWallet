@@ -89,8 +89,8 @@ import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import TransactionFilter from '@app/modules/Account/elements/TransactionFilter';
-import TransactionCategories from '@app/modules/Account/elements/TransactionCategories';
+import TransactionFilter from '@app/modules/Account/AccountFilter/AccountTransactionFilter';
+import TransactionCategories from '@app/modules/Account/AccountFilter/AccountTransactionCategories';
 
 
 
