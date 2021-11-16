@@ -218,9 +218,26 @@ class Transaction {
      * @param {string} params.currencyCode
      * @param {string} params.accountId
      * @param {string} params.noOrder
-     * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
+     * @param {string} params.startTime
+     * @param {string} params.endTime
+     * @param {string} params.startAmount
+     * @param {string} params.endAmount
+     * @param {string} params.income
+     * @param {string} params.outcome
+     * @param {string} params.searchQuery
+     * @param {string} params.cancel
+     * @param {string} params.freezing
+     * @param {string} params.contractIncome
+     * @param {string} params.contractOutcome
+     * @param {string} params.swap
+     * @param {string} params.reward
+     * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson, startTime, endTime, startAmount, endAmount, income, outcome, searchQuery, cancel, freezing, contractIncome, contractOutcome, swap, reward }]>}
      */
     getTransactions = async (params, source = '?') => {
+
+        
+        console.log(params)
+
         let  where = []
         if (params.walletHash) {
             where.push(`wallet_hash='${params.walletHash}'`)
@@ -238,10 +255,44 @@ class Transaction {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
         if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
-           where.push(`((address_amount>${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id!='' AND bse_order_id IS NOT NULL AND bse_order_id!='null'))`)
+           where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id!='' AND bse_order_id IS NOT NULL AND bse_order_id!='null'))`)
            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
-
+        if (typeof params.startTime !== 'undefined' && typeof params.endTime !== 'undefined') {
+            where.push(`created_at >= ${params.startTime} AND created_at <= ${params.endTime}` )
+        }
+        if (params.startAmount && params.endAmount) {
+            console.log('1')
+            where.push(`address_amount >= ${params.startAmount} AND address_amount <= ${params.endAmount}`)
+        }
+        if (params.income) {
+            where.push(`transaction_direction NOT IN ('income')`)
+        } else if (params.outcome) {
+            where.push(`transaction_direction NOT IN ('outcome')`)
+        } else if (params.income && params.outcome) {
+            where.push(`transaction_direction NOT IN ('income', 'outcome')`)
+        }
+        if (params.searchQuery) {
+            where.push(`(address_from LIKE ${params.searchQuery} OR adress_to OR LIKE ${params.searchQuery} transaction_hash LIKE ${params.searchQuery}`)
+        }
+        if (params.freezing) {
+            where.push(`transaction_direction NOT IN ('freeze')`)
+        }
+        if (params.canceled) {
+            where.push(`transaction_direction NOT IN ('canceled')`)
+        }
+        if (params.contractIncome) {
+            where.push(`transaction_direction NOT IN ('contract_income')`)
+        }
+        if (params.contractOutcome) {
+            where.push(`transaction_direction NOT IN ('contract_outcome')`)
+        }
+        if (params.swap) {
+            where.push(`order_hash NOT IN ('bse_order_data')`)
+        }
+        if (params.reward) {
+            where.push(`transaction_direction NOT IN ('reward')`)
+        }
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
             order = ''
@@ -251,7 +302,8 @@ class Transaction {
             where.push(`transaction_hash !=''`)
         }
 
-        // where.push(`'${source}' = '${source}'`)
+        // where.push(`(address_from OR adress_to OR transaction_hash) LIKE ('d2884dd42808150753d')`)
+        // where.push(`'${source}' = '${source})
 
         if (where.length > 0) {
             where = ' WHERE ' + where.join(' AND ')

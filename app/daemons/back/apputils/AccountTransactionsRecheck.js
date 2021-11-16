@@ -10,7 +10,7 @@ import config from '../../../config/config'
 
 const CACHE_TO_REMOVE = {} // couldnt remove on first scan - as BTC is scanned in few accounts
 
-export default async function AccountTransactionsRecheck(newTransactions, account, source) {
+export default async function AccountTransactionsRecheck(newTransactions, account, source, filter) {
 
     const transactionUpdateObj = {
         transactionsScanTime: Math.round(new Date().getTime() / 1000)
@@ -33,8 +33,21 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
             currencyCode: account.currencyCode,
             walletHash: account.walletHash,
             noOrder: true,
-            noOld : true
-        }, 'AccountTransactionsRecheck dbTransactions ' + source)
+            noOld : true,
+            startTime: filter.startTime,
+            endTime: filter.endTime,
+            startAmount: filter.startAmount,
+            endAmount: filter.endAmount,
+            income: filter.income,
+            outcome: filter.outcome,
+            searchQuery: filter.searchQuery,
+            cancel: filter.cancel,
+            freezing: filter.freezing,
+            contractIncome: filter.contractIncome,
+            contractOutcome: filter.contractOutcome,
+            swap: filter.swap,
+            reward: filter.reward
+        },  'AccountTransactionsRecheck dbTransactions ' + source)
         if (tmps && tmps.length > 0) {
             let tmp
             for (tmp of tmps) {

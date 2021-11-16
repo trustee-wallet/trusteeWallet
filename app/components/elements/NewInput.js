@@ -202,7 +202,8 @@ class Input extends Component {
             tabInfo,
             addressError,
             search,
-            func
+            func,
+            text
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -230,9 +231,7 @@ class Input extends Component {
             }
         }
 
-        console.log('value', value)
-
-        const inputWidth = ( paste && qr ) ? '75%' : ( fio || copy || paste || qr || info || tabInfo || search ) ? '85%' : '95%'
+        const inputWidth = ( paste && qr || paste && search ) ? '75%' : ( fio || search || copy || paste || qr || info || tabInfo || text ) ? '85%' : '95%'
 
         return (
             <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
@@ -291,10 +290,10 @@ class Input extends Component {
                             </TouchableOpacity> : null
                     }
                     {
-                        typeof search !== 'undefined' && search ?
-                            <TouchableOpacity onPress={() => func()} style={{ marginRight: -8 }}>
-                                <CustomIcon name={'search'} size={20} style={{...styles.actionBtn__icon, paddingTop: 2}} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableOpacity> : null
+                        typeof text !== 'undefined' && text ?
+                        <Text styles={[styles.text, styles.actionBtn__icon, { paddingTop: 2, flex: 1, color: colors.common.text3 }]}>
+                            {text}
+                        </Text> : null
                     }
                     {
                         typeof copy !== 'undefined' && copy ?
@@ -304,7 +303,7 @@ class Input extends Component {
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
-                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
+                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn, { marginRight: search ? -8 : 0}]}>
                                 <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
@@ -323,6 +322,12 @@ class Input extends Component {
                                     color={error ? '#864DD9' : colors.common.text1}
                                     style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }}
                                 />
+                            </TouchableOpacity> : null
+                    }
+                    {
+                        typeof search !== 'undefined' && search ?
+                            <TouchableOpacity onPress={() => func()} style={{ marginRight: -8 }}>
+                                <CustomIcon name={'search'} size={20} style={{...styles.actionBtn__icon, paddingTop: 2}} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                 </View>
@@ -559,4 +564,9 @@ const styles = {
             position: 'absolute',
         }
     },
+    text: {
+        fontFamily: 'Montserrat-SemiBold',
+        letterSpacing: 0.5,
+        fontSize: 16
+    }
 }

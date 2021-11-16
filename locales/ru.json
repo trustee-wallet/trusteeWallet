@@ -521,8 +521,9 @@
     "transactionSum": "Сумма отправки ",
     "addresTo": "Получатель ",
     "addresFrom": "Отправитель",
-    "blockConfirmations": "Текущее количество подтверждений "
-  }
+    "blockConfirmations": "Текущее количество подтверждений ",
+    "transactionAmount": "%{currencyCode} amount"
+    }
   },
 
   "fioMainSettings": {

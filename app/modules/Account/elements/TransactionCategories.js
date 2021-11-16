@@ -12,92 +12,109 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
-import Button from '@app/components/elements/new/buttons/Button'
 
 class TransactionCategories extends React.PureComponent {
 
     state = {
-        selected: [],
         categoriesData: [
             {
-                id: 1,
+                active: true,
                 title: "SELECT ALL",
                 rightContent: "checkbox",
                 last: true
+
             },
             {
-                id: 1,
+                active: true,
                 title: "Income",
                 iconType: "inTxHistory",
                 rightContent: "checkbox"
             },
             {
-                id: 2,
+                active: true,
                 title: "Outcome",
                 iconType: "outTxHistory",
                 rightContent: 'checkbox'
             },
             {
-                id: 3,
+                active: true,
                 title: "Fees",
                 iconType: "feeTxScreen",
                 rightContent: "checkbox"
             },
             {
-                id: 4,
+                active: true,
                 title: "Canceled",
                 iconType: "cancelTxHistory",
                 rightContent: "checkbox"
             },
             {
-                id: 5,
+                active: true,
                 title: "Swap",
                 iconType: "exchange",
                 rightContent: "checkbox"
             },
             {
-                id: 6,
+                active: true,
                 title: "Freezing",
-                iconType: "OPTIMISM",
+                iconType: "freezing",
                 rightContent: "checkbox"
             },
             {
-                id: 7,
-                title: "Contact income",
-                iconType: "notes",
+                active: true,
+                title: "Reward",
+                iconType: "reward",
                 rightContent: "checkbox"
             },
             {
-                id: 8,
-                title: "Contact outcome",
-                iconType: "notes",
+                active: true, 
+                title: "Contract income",
+                iconType: "contractIncome",
+                rightContent: "checkbox"
+            },
+            {
+                active: true, 
+                title: "Contract outcome",
+                iconType: "contractOutcome",
                 rightContent: "checkbox",
                 last: true
             }
-        ]
+        ],
+        isAllActive: true
     }
 
     handleBack = () => {
         NavStore.goBack()
     }
 
-    handleSelectCategory = (id) => {
-        
-        const { selected } = this.state
-
-        if (selected.includes(id)) {
-            selected.filter((item, index) => item[index].id !== id)
-        } else {
-            this.setState({
-                selected: [...selected, {id: id}]
-            })
-        } 
+    handleClose = () => {
+        NavStore.reset('HomeScreen')
     }
 
-    handleDiscard = () => {
+    handleSelectAllTrue = () => {
+        this.setState(state => ({
+            categoriesData: state.categoriesData.map(all => ({...all, active: true})),
+            isAllActive: true
+        }))
+    }
+
+    handleSelectAllFalse = () => {
+        this.setState(state => ({
+            categoriesData: state.categoriesData.map(all => ({...all, active: false}))
+        }))
+    }
+
+    handleSelectCategory = (title) => {
+        const { categoriesData } = this.state
         this.setState({
-            selected: []
+            categoriesData: categoriesData.map(el => el.title === title ? ({...el, active: !el.active}) : el)
         })
+    }
+
+    handleCheckForActive = () => {
+        this.state.categoriesData.map(el => !el.active && this.setState({
+            isAllActive: false
+        }))
     }
 
     renderCategoriesFlatList = () => {
@@ -105,7 +122,6 @@ class TransactionCategories extends React.PureComponent {
         const { colors } = this.context
 
         const { 
-            selected,
             categoriesData
         } = this.state
 
@@ -116,9 +132,10 @@ class TransactionCategories extends React.PureComponent {
                                                     last={item.last}
                                                     customIconStyle={{backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark}}
                                                     rightContent={item.rightContent}
-                                                    onPress={() => this.handleSelectCategory(categoriesData[index].id)}
+                                                    onPress={index === 0 ? item.active ? this.handleSelectAllFalse : this.handleSelectAllTrue : () => this.handleSelectCategory(item.title)}
+                                                    onPressCheckBox={index === 0 ? item.active ? this.handleSelectAllFalse : this.handleSelectAllTrue : () => this.handleSelectCategory(item.title)}
                                                     isVisibleDone={false}
-                                                    checked={categoriesData[index].id === selected}
+                                                    checked={item.active}
                                                 />
             )
         )
@@ -126,14 +143,9 @@ class TransactionCategories extends React.PureComponent {
 
     render() {
 
-        const { 
-            categoriesData,
-            selected
-        } = this.state
+        this.handleCheckForActive()
 
         const { GRID_SIZE } = this.context
-
-        console.log('selected', selected)
  
         return(
             <ScreenWrapper
@@ -141,7 +153,7 @@ class TransactionCategories extends React.PureComponent {
                 leftType="back"
                 leftAction={this.handleBack}
                 rightType="close"
-                rightAction={this.handleBack}
+                rightAction={this.handleClose}
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
@@ -150,17 +162,6 @@ class TransactionCategories extends React.PureComponent {
                 >
                     {this.renderCategoriesFlatList()}
                 </ScrollView>
-                { selected.length > 0 && <Button
-                    containerStyle={{ marginHorizontal: GRID_SIZE }}
-                    title="Discard"
-                    onPress={this.handleDiscard}
-                    type="transparent"
-                />}
-                <Button
-                    containerStyle={{ marginBottom: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}
-                    title="Apply"
-                    onPress={this.handleCategories}
-                />
             </ScreenWrapper>
         )
     }

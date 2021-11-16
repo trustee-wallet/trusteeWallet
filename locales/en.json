@@ -520,7 +520,8 @@
       "transactionSum": "Amount send",
       "addresTo": "Recipient ",
       "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations "
+      "blockConfirmations": "Current number of confirmations ",
+      "transactionAmount": "%{currencyCode} amount"
     }
   },
 

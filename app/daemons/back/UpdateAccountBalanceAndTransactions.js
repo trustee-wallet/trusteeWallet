@@ -202,6 +202,7 @@ class UpdateAccountBalanceAndTransactions {
 
         let newBalance = false
         let addressToScan = account.address
+        const filter = store.getState().mainStore.filter
 
         Log.daemon('UpdateAccountBalanceAndTransactions _accountRun init ' + account.id + ' ' + account.currencyCode + ' ' + account.address)
 
@@ -333,7 +334,7 @@ class UpdateAccountBalanceAndTransactions {
                 if (account.walletIsHd && account.currencyCode !== 'LTC') {
                     additional.walletPub = true // actually not needed pub - just flag
                 }
-                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional }, 'AccountRunTransactionsBtc')
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional },  'AccountRunTransactionsBtc')
             } else {
                 newTransactions = await BlocksoftTransactions.getTransactions({ account, additional: account.accountJson }, 'AccountRunTransactions')
             }
@@ -355,7 +356,7 @@ class UpdateAccountBalanceAndTransactions {
 
         let transactionUpdateObj
         try {
-            transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, account, 'RECHECK ' + source)
+            transactionUpdateObj = await AccountTransactionsRecheck(newTransactions, account, 'RECHECK ' + source, filter)
         } catch (e) {
             e.message += ' while AccountTransactionsRecheck'
             throw e

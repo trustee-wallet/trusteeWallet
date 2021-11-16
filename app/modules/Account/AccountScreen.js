@@ -61,7 +61,7 @@ import Netinfo from '@app/services/Netinfo/Netinfo'
 
 import { diffTimeScan } from './helpers'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
-import { getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getFilterData, getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
@@ -91,11 +91,12 @@ class Account extends React.PureComponent {
             isBalanceVisibleTriggered: false,
 
             hasStickyHeader: false,
-            isSeaching: true,
+            isSeaching: false,
             searchQuery: '',
             error: false
         }
         this.linkInput = React.createRef()
+        this.handleSearch = this.handleSearch.bind(this)
     }
 
     async componentDidMount() {
@@ -279,8 +280,11 @@ class Account extends React.PureComponent {
     }
 
     toggleSearch = () => {
-        
-        this.setState({ isSeaching: !this.state.isSeaching })
+        this.setState({ 
+            isSeaching: !this.state.isSeaching,
+            searchQuery: ''
+        })
+        this.loadTransactions(0)
     }
 
     handleChangeText = (value) => {
@@ -288,6 +292,16 @@ class Account extends React.PureComponent {
             searchQuery: value.trim(),
             error: false
         })
+    }
+
+    handleSearch = async () => {
+        if (!this.linkInput?.getValue() ? '' : this.linkInput.getValue()) {
+            const text = this.linkInput.getValue()
+            this.setState({
+                searchQuery: text
+            })
+            this.loadTransactions(0)
+        }
     }
 
     renderSynchronized = (allTransactionsToView) => {
@@ -313,8 +327,6 @@ class Account extends React.PureComponent {
                 diffTimeText += '\n' + strings(balanceScanError)
             }
         }
-
-        console.log('ref', this.linkInput.value)
 
         return (
             <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
@@ -353,11 +365,11 @@ class Account extends React.PureComponent {
                                     id='TRANSACTION_SEARCH'
                                     search={true}
                                     onChangeText={this.handleChangeText}
-                                    // callback={this.handleChangeText}
-                                    func={this.handleChangeText}
+                                    func={this.handleSearch}
+                                    paste={true}
                                     addressError={this.state.error}
                                     validPlaceholder={true}
- />
+                                />
                             </View>}
                     </View>
                     <View style={[styles.scan, { marginTop: GRID_SIZE }]}>
@@ -372,7 +384,7 @@ class Account extends React.PureComponent {
                                 <CustomIcon name={!isSeaching ? 'reloadTx' : 'cancelTxHistory'} size={20} color={colors.common.text1} />}
                         </TouchableOpacity>
                         <TouchableOpacity style={{ alignItems: 'center', marginRight: GRID_SIZE }} onPress={this.handleFilter} hitSlop={HIT_SLOP}>
-                            <CustomIcon name={'settings'} size={20} color={colors.common.text1} />
+                            <CustomIcon name={'filter'} size={20} color={colors.common.text1} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -408,7 +420,7 @@ class Account extends React.PureComponent {
         const { walletIsHideTransactionForFee } = this.props.selectedWalletData
         const { walletHash } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
-
+        const {startTime, endTime, startAmount, endAmount, income, outcome, searchQuery, cancel, freezing, contractIncome, contracnOutcome, swap, reward} = this.props.filterData
 
         const params = {
             walletHash,
@@ -416,11 +428,33 @@ class Account extends React.PureComponent {
             limitFrom: from,
             limitPerPage: perPage
         }
+        const filter = {
+            startTime,
+            endTime,
+            startAmount,
+            endAmount,
+            income,
+            outcome,
+            searchQuery,
+            cancel,
+            freezing,
+            contractIncome,
+            contracnOutcome,
+            swap,
+            reward
+        }
         if (walletIsHideTransactionForFee) {
             params.minAmount = 0
         }
+        if (!this.props.filterData.includes('undefined')) {
+            params = {
+                ...params,
+                ...filter
+            }
+        }
         const tmp = await transactionDS.getTransactions(params, 'AccountScreen.loadTransactions list')
         const transactionsToView = []
+        let filteredTransactions = []
 
         if (tmp && tmp.length > 0) {
             const account = store.getState().mainStore.selectedAccount
@@ -429,11 +463,18 @@ class Account extends React.PureComponent {
                 transactionsToView.push(transaction)
             }
         }
-        this.filterBySearchQuery(transactionsToView, this.state.searchQuery)
+        
+        if (this.state.searchQuery !== '') {
+            filteredTransactions = this.filterBySearchQuery(transactionsToView, this.state.searchQuery)
+        }
+
+        console.log(transactionsToView)
+            
         CACHE_TX_LOADED = new Date().getTime()
 
         if (from === 0) {
-            this.setState((state) => ({ transactionsToView: transactionsToView })) // from start reload
+            this.setState((state) => ({ transactionsToView: this.state.searchQuery !== '' ? filteredTransactions : transactionsToView })) // from start reload
+            console.log(this.state.transactionsToView)
         } else {
             this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView) }))
         }
@@ -452,22 +493,27 @@ class Account extends React.PureComponent {
         }
     }
 
-    filterBySearchQuery(assets, value) {
-        value = value.toLowerCase()
-        return assets.filter(as => (
-            as.addressFrom.toLowerCase().includes(value)
-            || as.addressTo.toLowerCase().includes(value)
-                || as.transactionHash.toLowerCase().includes(value)
+    //d2884dd42808150753dd09d8d74783d1a3ff0a490451fabd62e5976db5743914
+
+    filterBySearchQuery(transactions, searchQuery) {
+        searchQuery = searchQuery.toLowerCase()
+
+        const txs = transactions.filter(as => (
+            as.addressFrom.toLowerCase().includes(searchQuery)
+            || as.addressTo.toLowerCase().includes(searchQuery)
+                || as.transactionHash.toLowerCase().includes(searchQuery)
             || (
-                typeof as.addressFrom !== 'undefined' && as.addressFrom && as.addressFrom.toLowerCase() === value
+                typeof as.addressFrom !== 'undefined' && as.addressFrom && as.addressFrom.toLowerCase() === searchQuery
             )
             || (
-                typeof as.addressTo !== 'undefined' && as.addressTo && as.addressTo.toLowerCase() === value
+                typeof as.addressTo !== 'undefined' && as.addressTo && as.addressTo.toLowerCase() === searchQuery
             )
             || (
-                typeof as.transactionHash !== 'undefined' && as.transactionHash && as.transactionHash.toLowerCase() === value
+                typeof as.transactionHash !== 'undefined' && as.transactionHash && as.transactionHash.toLowerCase() === searchQuery
             )
         ))
+
+        return txs
     }
 
     render() {
@@ -629,7 +675,8 @@ const mapStateToProps = (state) => {
         selectedAccountTransactions: getSelectedAccountTransactions(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
         isSegwit: getIsSegwit(state),
-        isBlurVisible: getIsBlurVisible(state)
+        isBlurVisible: getIsBlurVisible(state),
+        filterData: getFilterData(state)
     }
 }
 

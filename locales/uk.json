@@ -520,8 +520,9 @@
       "transactionSum": "Сума відправки ",
       "addresTo": "Отримувач ",
       "addresFrom": "Відправник ",
-      "blockConfirmations": "Поточна кількість підтверджень "
-      }
+      "blockConfirmations": "Поточна кількість підтверджень ",
+      "transactionAmount": "%{currencyCode} amount"     
+    }
   },
 
    "fioMainSettings": {

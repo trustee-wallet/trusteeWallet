@@ -110,14 +110,26 @@ const getIcon = (iconType, color) => {
         case 'downloadDoc':
             return <CustomIcon name='downloadDoc' size={22} color={color} />
         case 'exchange':
-            return <CustomIcon name='exchange' size={16} color={color} />
-        case 'timeForRate':
-            return <CustomIcon name='timeForRate' size={22} color={color} />
+            return <CustomIcon name='exchange' size={20} color={color} />
+        case 'categories':
+            return <CustomIcon name='categories' size={20} color={color} />
+        case 'timeArray':
+            return <CustomIcon name='timeArray' size={20} color={color} />
+        case 'amountRange':
+            return <CustomIcon name='amountRange' size={26} color={color} />  
+        case 'freezing':
+            return <CustomIcon name='freezing' size={22} color={color} />  
+        case 'reward':
+            return <CustomIcon name='reward' size={22} color={color} />
+        case 'contractIncome':
+            return <CustomIcon name='contractIncome' size={20} color={color} />
+        case 'contractOutcome':
+            return <CustomIcon name='contractOutcome' size={20} color={color} />  
         default: return null
     }
 }
 
-const getRightContent = (rightContent, params, isVisibleDone, checked, color) => {
+const getRightContent = (rightContent, params, color, isVisibleDone, checked, onPressCheckBox) => {
     const { onPress, value, disabled } = params
     const { colors } = useTheme()
     // next value needed to corret switch component rendering
@@ -151,7 +163,7 @@ const getRightContent = (rightContent, params, isVisibleDone, checked, color) =>
         case 'arrow_up':
             return <CustomIcon name={'up'} size={18} color={color} />
         case 'checkbox':
-            return <CheckBox isVisibleDone={isVisibleDone} checked={checked} />
+            return <CheckBox isVisibleDone={isVisibleDone} checked={checked} onPress={onPressCheckBox} />
         
         default: return null
     }
@@ -175,7 +187,8 @@ export default function SettingListItem(props) {
         ExtraViewParams,
         customIconStyle,
         isVisibleDone,
-        checked
+        checked,
+        onPressCheckBox
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -231,7 +244,7 @@ export default function SettingListItem(props) {
                         </View>
                         {!!rightContent && (
                             <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
-                                {getRightContent(rightContent, { ...switchParams, isVisibleDone, checked, disabled })}
+                                {getRightContent(rightContent, { ...switchParams, disabled }, null, isVisibleDone, checked, onPressCheckBox)}
                             </View>
                         )}
                     </View>
