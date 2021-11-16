@@ -138,6 +138,8 @@ class WalletInfo extends React.Component {
 
         return (
             <>
+                {!this.props.constructorMode ?
+                <>
                 <Animated.View style={{ opacity: this.state.opacity, marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}>
                     <View style={styles.shadow__container}>
                         <View style={styles.shadow__item} />
@@ -225,8 +227,9 @@ class WalletInfo extends React.Component {
                         </GradientView>
                     </TouchableOpacity>
                 </Animated.View>
+                
                 {!this.props.walletIsBackedUp ?
-                    <View style={{ marginHorizontal: GRID_SIZE }}>
+                    <View style={{ marginHorizontal: this.props.constructorMode ? 0 : GRID_SIZE }}>
                         <InfoNotification
                             title={strings('settings.walletList.backupNeeded')}
                             subTitle={strings('settings.walletList.backupDescription')}
@@ -235,6 +238,8 @@ class WalletInfo extends React.Component {
                         />
                     </View> : null
                 }
+                </>
+                : null}
             </>
         )
     }
