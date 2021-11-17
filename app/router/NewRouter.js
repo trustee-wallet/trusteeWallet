@@ -281,7 +281,7 @@ const TabBar = () => {
                 :
                 <Tab.Screen
                     name='SupportScreen'
-                    component={SupportScreen}
+                    component={BotSupportScreen}
                     options={{
                         unmountOnBlur: true,
                         tabBarLabel: strings('dashboardStack.support'),
