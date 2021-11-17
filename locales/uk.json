@@ -430,6 +430,7 @@
       "income": "Вхідна",
       "self" : "Собі",
       "freeze" : "Заморожено",
+      "unfreeze" : "Розморожено",
       "claim" : "Винагорода",
       "swap_income" : "Contract Вхідна",
       "swap_outcome" : "Contract Вихідна",

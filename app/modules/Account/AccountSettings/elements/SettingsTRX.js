@@ -69,7 +69,8 @@ class SettingsTRX extends Component {
 
         const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('SettingsTRX'))
 
-        const tmp = await BlocksoftAxios.postWithoutBraking('https://api.trongrid.io/wallet/getReward', { address })
+        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+        const tmp = await BlocksoftAxios.postWithoutBraking(sendLink + '/wallet/getReward', { address })
         if (typeof tmp.data === 'undefined' || typeof tmp.data.reward === 'undefined') {
             Log.log('SettingsTRX.handleScan noReward', tmp)
         } else if (balance) {
@@ -122,7 +123,7 @@ class SettingsTRX extends Component {
                 freeze = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makeUnPretty(inputValidate.value)
             }
 
-            await this._sendTx('https://api.trongrid.io/wallet/freezebalance', {
+            await this._sendTx('/wallet/freezebalance', {
                 owner_address: TronUtils.addressToHex(address),
                 frozen_balance: freeze * 1,
                 frozen_duration: 3,
@@ -166,7 +167,7 @@ class SettingsTRX extends Component {
         const address = account.address
 
         try {
-            await this._sendTx('https://api.trongrid.io/wallet/unfreezebalance', {
+            await this._sendTx('/wallet/unfreezebalance', {
                 owner_address: TronUtils.addressToHex(address),
                 resource: type
             }, 'unfreeze for ' + type + ' of ' + address )
@@ -194,7 +195,7 @@ class SettingsTRX extends Component {
 
         try {
             const voteAddress = BlocksoftExternalSettings.getStatic('TRX_VOTE_BEST')
-            await this._sendTx('https://api.trongrid.io/wallet/votewitnessaccount', {
+            await this._sendTx('/wallet/votewitnessaccount', {
                 owner_address: TronUtils.addressToHex(address),
                 votes: [
                     {
@@ -221,7 +222,7 @@ class SettingsTRX extends Component {
         const address = account.address
 
         try {
-            await this._sendTx('https://api.trongrid.io/wallet/withdrawbalance', {
+            await this._sendTx('/wallet/withdrawbalance', {
                 owner_address: TronUtils.addressToHex(address)
             }, 'withdrawbalance to ' + address)
         } catch (e) {
@@ -233,8 +234,10 @@ class SettingsTRX extends Component {
         setLoaderStatus(false)
     }
 
-    _sendTx = async (link, params, langMsg) => {
+    _sendTx = async (shortLink, params, langMsg) => {
 
+        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+        const link = sendLink + shortLink
         const tmp = await BlocksoftAxios.post(link, params)
         let blockchainData
         if (typeof tmp.data !== 'undefined') {

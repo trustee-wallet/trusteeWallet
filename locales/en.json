@@ -429,6 +429,7 @@
       "outcome": "Outcome",
       "income": "Income",
       "freeze" : "Freeze",
+      "unfreeze" : "UnFreeze",
       "claim" : "Claim",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",

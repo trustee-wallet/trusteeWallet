@@ -431,6 +431,7 @@
       "income": "Входящая",
       "self" : "Себе",
       "freeze" : "Заморозка",
+      "unfreeze" : "Разморозка",
       "claim" : "Награда",
       "swap_income" : "Contract Входящая",
       "swap_outcome" : "Contract Исходящая",

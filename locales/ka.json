@@ -428,6 +428,7 @@
       "income": "შემოსული",
       "self": "სელფი",
       "freeze": "გაყინვა",
+      "unfreeze" : "UnFreeze",
       "claim": "ჯილდო",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
