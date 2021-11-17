@@ -52,21 +52,23 @@ class QrCodePage extends PureComponent {
             GRID_SIZE
         } = this.context
 
-        return(
+        return (
             <>
                 <ImageBackground
                     style={styles.qrBg}
                     source={require('@assets/images/bgQR2.png')}
                 >
                     <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginLeft: GRID_SIZE * 1.5, marginTop: GRID_SIZE }]}>{strings('cashback.pageSubtitle')}</Text>
-                        <View style={[styles.pageSubtitleTextBox, { marginTop: Platform.OS === 'ios' ? GRID_SIZE : 12 }]}>
-                            <Text style={[styles.pageSubtitleText, { color: colors.common.text1 }]}>{strings('cashback.pageSubtitleText')}</Text>
-                            <Text style={[styles.pageSubtitleProcent, { color: colors.common.text1}]}>{'30%'}</Text>
-                        </View>
-                        <Image style={[styles.donut1, { marginTop: -GRID_SIZE * 2.5 }]} source={require('@assets/images/donut1.png')} />
+                    <View style={[styles.pageSubtitleTextBox, { marginTop: Platform.OS === 'ios' ? GRID_SIZE * 0.8 : 12 }]}>
+                        <Text style={[styles.pageSubtitleText, { color: colors.common.text1 }]}>{strings('cashback.pageSubtitleText')}</Text>
+                        <Text style={[styles.pageSubtitleProcent, { color: colors.common.text1 }]}>{'30%'}</Text>
+                    </View>
+
+                    <Image style={[styles.donut1, { marginTop: Platform.OS === 'ios' ? -GRID_SIZE * 4 : -GRID_SIZE * 2.5 }]} source={require('@assets/images/donut1.png')} />
+                    
                     <View style={styles.qrCodeContainer}>
                         <TouchableOpacity
-                            style={[styles.qrBox, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE, backgroundColor: '#F5F5F5' }]}
+                            style={[styles.qrBox, { padding: GRID_SIZE, backgroundColor: '#F5F5F5' }]}
                             onPress={() => this.copyToClip(cashbackLink)}
                             activeOpacity={0.7}
                         >
@@ -82,7 +84,7 @@ class QrCodePage extends PureComponent {
                             />
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE}]}
+                            style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE }]}
                             onPress={() => this.copyToClip(cashbackLink)}
                             activeOpacity={0.8}
                         >
@@ -145,17 +147,17 @@ const styles = StyleSheet.create({
     },
     qrBox: {
         flex: 1,
-        
+
         borderRadius: 24,
         shadowColor: "#000",
         shadowOffset: {
-        	width: 0,
-        	height: 3,
+            width: 0,
+            height: 3,
         },
         shadowOpacity: 0.27,
         shadowRadius: 4.65,
 
-        elevation: 6,  
+        elevation: 6,
     },
     qrCode: {
         alignSelf: 'center'
@@ -171,8 +173,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         position: 'relative',
         width: WINDOW_WIDTH,
-        height: WINDOW_HEIGHT,
-        
+        height: WINDOW_HEIGHT
     },
     donut1: {
         position: 'relative',
@@ -210,14 +211,14 @@ const styles = StyleSheet.create({
         width: WINDOW_WIDTH * 0.38,
         height: WINDOW_HEIGHT * 0.2,
         left: WINDOW_WIDTH * 0.78,
-        top: WINDOW_HEIGHT * 0.48,
+        top: WINDOW_HEIGHT * (Platform.OS === 'ios' ? 0.44 : 0.48),
         resizeMode: 'contain'
     },
     donuts: {
         position: 'absolute',
         width: WINDOW_WIDTH * 0.6,
         height: WINDOW_HEIGHT * 0.3,
-        bottom: WINDOW_HEIGHT * 0.11,
+        bottom: WINDOW_HEIGHT * (Platform.OS === 'ios' ? 0.16 : 0.11),
         left: -WINDOW_WIDTH * 0.11,
         resizeMode: 'contain'
     }
