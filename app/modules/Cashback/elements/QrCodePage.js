@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     pageSubtitleTextBox: {
         position: 'absolute',
         zIndex: 2,
-        top: WINDOW_WIDTH * -0.33,
+        top: WINDOW_HEIGHT * -0.09,
         left: WINDOW_WIDTH * 0.772,
         width: WINDOW_WIDTH * 0.2125
     },
@@ -141,8 +141,7 @@ const styles = StyleSheet.create({
     },
     qrCodeContainer: {
         position: 'absolute',
-        marginTop: WINDOW_WIDTH * 0.25,
-        top: WINDOW_WIDTH * 0.075,
+        top: WINDOW_HEIGHT * 0.17,
         left: WINDOW_WIDTH * 0.23,
         alignItems: 'center'
     },
@@ -180,7 +179,7 @@ const styles = StyleSheet.create({
     },
     donut1: {
         position: 'relative',
-        top: WINDOW_WIDTH * -0.47,
+        top: WINDOW_HEIGHT * -0.16,
         left: WINDOW_WIDTH * 0.64,
         width: WINDOW_WIDTH * 0.47,
         height: WINDOW_WIDTH * 0.47,
@@ -214,7 +213,7 @@ const styles = StyleSheet.create({
         width: WINDOW_WIDTH * 0.38,
         height: WINDOW_WIDTH * 0.38,
         left: WINDOW_WIDTH * 0.78,
-        top: WINDOW_WIDTH * 0.2,
+        top: WINDOW_HEIGHT * 0.11,
         resizeMode: 'contain'
     },
     donuts: {
