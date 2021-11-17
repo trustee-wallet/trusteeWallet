@@ -70,8 +70,8 @@ class CashbackScreen extends React.PureComponent {
             cashbackStore
         } = this.props
 
-        let cashbackTotalBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
-        let cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
+        const cashbackTotalBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
+        const cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
 
         const getSections = [
             {
@@ -339,15 +339,12 @@ class CashbackScreen extends React.PureComponent {
 
     handleSelectHeight = (index) => {
         switch (index) {
-            case 0 : {
+            case 0:
                 return this.state.tab1Height
-            }
-            case 1 : {
+            case 1:
                 return this.state.tab2Height
-            }
             default:
                 return null
-
         }
     }
 
@@ -376,13 +373,10 @@ class CashbackScreen extends React.PureComponent {
                 rightAction={() => this.handlePressShare(cashbackLink)}
                 rightType='share'
             >
-
                 <ScrollView
-                    ref={(ref) => {
-                        this.scrollView = ref
-                    }}
+                    ref={ref => this.scrollView = ref}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={[styles.scrollViewContent]}
+                    contentContainerStyle={styles.scrollViewContent}
                     keyboardShouldPersistTaps='handled'
                     refreshControl={
                         <RefreshControl

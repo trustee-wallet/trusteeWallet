@@ -69,7 +69,7 @@ class QrCodePage extends PureComponent {
                         <TouchableOpacity
                             style={[styles.qrBox, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE, backgroundColor: '#F5F5F5' }]}
                             onPress={() => this.copyToClip(cashbackLink)}
-                            
+                            activeOpacity={0.7}
                         >
                             <QrCodeBox
                                 value={cashbackLink}
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     pageSubtitleTextBox: {
         position: 'absolute',
         zIndex: 2,
-        top: WINDOW_WIDTH * -0.17,
+        top: WINDOW_WIDTH * -0.33,
         left: WINDOW_WIDTH * 0.772,
         width: WINDOW_WIDTH * 0.2125
     },
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     },
     donut1: {
         position: 'relative',
-        top: WINDOW_WIDTH * -0.3,
+        top: WINDOW_WIDTH * -0.47,
         left: WINDOW_WIDTH * 0.64,
         width: WINDOW_WIDTH * 0.47,
         height: WINDOW_WIDTH * 0.47,

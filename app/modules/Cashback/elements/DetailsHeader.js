@@ -4,11 +4,7 @@
  */
 
 import React from 'react'
-import {
-    Animated,
-    StyleSheet,
-    View
-} from 'react-native'
+import { Animated, View } from 'react-native'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -78,16 +74,14 @@ class DetailsHeader extends React.Component{
     render() {
 
         return(
-            <View>
-                <Accordion
-                    sections={this.props.sections}
-                    renderHeader={this._renderHeader}
-                    renderContent={this._renderContent}
-                    onChange={this._updateSections}
-                    activeSections={this.state.activeSections}
-                    underlayColor="transparent"
-                />
-            </View>
+            <Accordion
+                sections={this.props.sections}
+                renderHeader={this._renderHeader}
+                renderContent={this._renderContent}
+                onChange={this._updateSections}
+                activeSections={this.state.activeSections}
+                underlayColor="transparent"
+            />
         )
     }
 
@@ -128,17 +122,15 @@ class DetailsHeader extends React.Component{
         })
 
         return (
-            <View>
-                <DetailsContent
-                    selectedTitle={value}
-                    overalPrep={overalPrep}
-                    invitedUsers={invitedUsers}
-                    level2Users={level2Users}
-                    cpaLevel1={cpaLevel1}
-                    cpaLevel2={cpaLevel2}
-                    cpaLevel3={cpaLevel3}
-                />
-            </View>
+            <DetailsContent
+                selectedTitle={value}
+                overalPrep={overalPrep}
+                invitedUsers={invitedUsers}
+                level2Users={level2Users}
+                cpaLevel1={cpaLevel1}
+                cpaLevel2={cpaLevel2}
+                cpaLevel3={cpaLevel3}
+            />
         )
     }
 }
@@ -146,39 +138,3 @@ class DetailsHeader extends React.Component{
 DetailsHeader.contextType = ThemeContext
 
 export default DetailsHeader
-
-const styles = StyleSheet.create({
-    switchableTabsText: {
-        fontSize: 20,
-        lineHeight: 20,
-        fontFamily: 'Montserrat-SemiBold',
-        marginBottom: 2
-    },
-    switchableTabsContainer: {
-        flexDirection: 'row'
-    },
-    switchableTabsBalance: {
-        fontSize: 16,
-        lineHeight: 16,
-        fontFamily: 'SFUIDisplay-Regular',
-        color: '#999999',
-        letterSpacing: 1
-    },
-    switchableCircle: {
-        width: 60,
-        height: 60,
-        paddingLeft: 5
-    },
-    textContainer: {
-
-        marginTop: 11
-    },
-    switchableTabsLocation: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 13
-    },
-    circle: {
-        paddingRight: 12
-        }
-})

@@ -81,9 +81,7 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel3}</Text>
                         </View>
-                        <TouchableOpacity
-                            onPress={() => this.handleOpenLink(this.state.cpaLink)}
-                        >
+                        <TouchableOpacity onPress={() => this.handleOpenLink(this.state.cpaLink)}>
                             <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
                         </TouchableOpacity>
                     </View> : null}

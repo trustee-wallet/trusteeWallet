@@ -32,10 +32,9 @@ const ProgressCircleBox = (props) => {
 
     return(
         <View style={[styles.circleBox, additionalStyles]}>
-            <View>
-                <Text style={[styles.circleProcent, { color: colors.common.text1 }]}>{(cashbackPercent >= 100 ? '100' : cashbackPercent) + ' %'}</Text>
+            <View style={styles.percentWrapper}>
+                <Text style={[styles.circlePercent, { color: colors.common.text1 }]}>{(cashbackPercent >= 100 ? '100' : cashbackPercent) + ' %'}</Text>
                 <Text style={styles.circleTitle}>{cashbackTitle}</Text>
-                
             </View>
             <View style={[styles.circle, { transform: [ { scaleX: -1 } ] }]}>
                 <ProgressCircle
@@ -46,8 +45,8 @@ const ProgressCircleBox = (props) => {
                     progressColor={colors.cashback.token}
                 />
             </View>
-            <View>
-                <Text style={[styles.circleProcent, {color: colors.common.text1}]}>{(cpaPercent >= 100 ? '100' : cpaPercent) + ' %'}</Text>
+            <View style={styles.percentWrapper}>
+                <Text style={[styles.circlePercent, { color: colors.common.text1, textAlign: 'left' }]}>{(cpaPercent >= 100 ? '100' : cpaPercent) + ' %'}</Text>
                 <Text style={[styles.circleTitle, { textAlign: 'left' }]}>{cpaTitle}</Text>
             </View>
         </View>
@@ -74,7 +73,7 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
         color: '#999999'
     },
-    circleProcent: {
+    circlePercent: {
         marginTop: 4,
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
@@ -85,5 +84,8 @@ const styles = StyleSheet.create({
         paddingRight: 2,
         paddingBottom: 2,
         marginRight: 5
+    },
+    percentWrapper: {
+        minWidth: 80
     }
 })
