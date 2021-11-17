@@ -7,17 +7,16 @@ import React from 'react'
 import {
     Animated,
     StyleSheet,
-    Text,
     View
 } from 'react-native'
 
-import { ProgressCircle } from 'react-native-svg-charts'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import DetailsContent from '@app/modules/Cashback/elements/Details'
-import CustomIcon from '@app/components/elements/CustomIcon'
 import Accordion from 'react-native-collapsible/Accordion'
+
+import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
 class DetailsHeader extends React.Component{
 
@@ -39,34 +38,34 @@ class DetailsHeader extends React.Component{
         } = this.context
 
         return (
-            <View style={styles.switchableTabsLocation}>
-                <View style={styles.switchableTabsContainer}>
-                    <View style={styles.circle}>
-                        <ProgressCircle
-                            style={styles.switchableCircle}
-                            strokeWidth={3.5}
-                            progress={section.progress}
-                            backgroundColor={colors.cashback.chartBg}
-                            progressColor={colors.cashback.token}
-                        />
-                    </View>
-                    <View style={styles.textContainer}>
-                        <Text style={[styles.switchableTabsText, { color: colors.common.text3 }]}>{section.title}</Text>
-                        <Text style={[styles.switchableTabsBalance]}>{section.balance + ' ' + this.cashbackCurrency}</Text>
-                    </View>
-                </View>
-                <View style={{ marginTop: 20, marginRight: GRID_SIZE }}>
-                    <CustomIcon name={isActive ? 'up' : 'down'} color={colors.common.text1} size={20} />
-                </View>
+            <View style={{ marginHorizontal: GRID_SIZE }}>
+                <ListItem
+                    iconType={section.iconType}
+                    title={section.title}
+                    subtitle={section.balance}
+                    rightContent={isActive ? 'arrow_up' : 'arrow_down'}
+                    color={colors.common.text1}
+                    onPress={() => null}
+                    disabled
+                    opacityWithDisabled
+                    last
+                />
+                {index === 0 && !isActive && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }}/>}
             </View>
         )
     }
 
-    _renderContent = (section) => {
+    _renderContent = (section, index) => {
+
+        const {
+            colors,
+            GRID_SIZE
+        } = this.context
 
         return (
             <View>
                 {this.renderContent(section.value)}
+                {index === 0 && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }}/>}
             </View>
         );
     };

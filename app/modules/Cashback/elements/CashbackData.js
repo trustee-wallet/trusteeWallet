@@ -92,7 +92,7 @@ const CashbackData = (props) => {
 
 
     return (
-        <View style={[styles.topContent, { marginHorizontal: 8 }]}>
+        <View style={[styles.topContent, { marginRight: GRID_SIZE, marginLeft: refresh ? GRID_SIZE : 0  }]}>
 
             <View style={styles.topContent__content}>
 
@@ -115,7 +115,11 @@ const CashbackData = (props) => {
                 {renderBalance(balance, cashbackCurrency)}
 
                 {ExtraViewData && (
-                    <ExtraViewData />
+                    <View style={{ marginTop: -GRID_SIZE }}>
+                        <ExtraViewData />
+                    </View>
+                    
+
                 )}
 
                 {textInput && (
@@ -162,7 +166,7 @@ const styles = {
         left: 0,
 
         width: '100%',
-        height: 216,
+        height: 190,
         zIndex: 1,
 
         borderRadius: 16
@@ -170,7 +174,7 @@ const styles = {
     topContent: {
         position: 'relative',
 
-        height: 244,
+        height: 206,
         width: widthWindow * 0.75,
 
         borderRadius: 16
@@ -186,7 +190,7 @@ const styles = {
         top: 0,
         left: 0,
         width: '100%',
-        height: 206,
+        height: 180,
         borderRadius: 16,
 
         zIndex: 0

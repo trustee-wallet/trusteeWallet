@@ -18,20 +18,21 @@ import { TabView } from 'react-native-tab-view'
 import { strings } from '@app/services/i18n'
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import HowItWorks from './elements/HowItWorks'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import NavStore from '@app/components/navigation/NavStore'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import Tabs from '@app/components/elements/new/newTabs'
+import Tabs from '@app/components/elements/new/cashbackTabs'
 import CashbackData from './elements/CashbackData'
 
 import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
 import QrCodePage from '@app/modules/Cashback/elements/QrCodePage'
 import { Tab2, Tab3 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
 import DetailsHeader from '@app/modules/Cashback/elements/DetailsHeader'
+
+import InfoNotification from '@app/components/elements/new/InfoNotification'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -48,21 +49,16 @@ class CashbackScreen extends React.PureComponent {
         index: 0,
         routes: [
             {
-                title: strings('notifications.tabInvite'),
+                title: strings('notifications.cashbackTabInvite'),
                 key: 'first'
             },
             {
                 title: strings('notifications.tabInfo'),
                 key: 'second'
-            },
-            {
-                title: strings('notifications.tabFaq'),
-                key: 'third'
             }
         ],
         tab1Height: SCREEN_WIDTH * 1.3,
-        tab2Height: SCREEN_WIDTH * 1.55,
-        tab3Height: 'auto',
+        tab2Height: SCREEN_WIDTH * 1.64,
         selected: false
     }
 
@@ -81,14 +77,14 @@ class CashbackScreen extends React.PureComponent {
             {
                 title: strings('cashback.cashback'),
                 value: 'CASHBACK',
-                balance: UtilsService.cutNumber(cashbackTotalBalance, 2),
-                progress: cashbackTotalBalance / (cashbackTotalBalance + cpaTotalBalance)
+                balance: `${UtilsService.cutNumber(cashbackTotalBalance, 2)} ${this.cashbackCurrency}`,
+                iconType: 'earn'
             },
             {
                 title: strings('cashback.cpa'),
                 value: 'CPA',
-                balance: UtilsService.cutNumber(cpaTotalBalance, 2),
-                progress: cpaTotalBalance / (cashbackTotalBalance + cpaTotalBalance)
+                balance: `${UtilsService.cutNumber(cpaTotalBalance, 2)} ${this.cashbackCurrency}`,
+                iconType: 'cpa'
             }
         ]
 
@@ -133,6 +129,9 @@ class CashbackScreen extends React.PureComponent {
         const totalCashbackPercent = UtilsService.cutNumber(cashbackTotalBalance / (cashbackTotalBalance + cpaTotalBalance) * 100, 2) || 0
         const totalCpaPercent = UtilsService.cutNumber(cpaTotalBalance / (cashbackTotalBalance + cpaTotalBalance) * 100, 2) || 0
 
+        const cashbackPercent = UtilsService.cutNumber(cashbackBalance / 2 * 100, 2) || 0
+        const cpaPercent = UtilsService.cutNumber(cpaBalance / 100 * 100, 2) || 0
+
         const flatListData = [
 
             {
@@ -142,12 +141,13 @@ class CashbackScreen extends React.PureComponent {
                 textInput: true,
             },
             {
-                title: strings('cashback.balanceTitle'),
-                subTitle: strings('cashback.cashback'),
+                title: strings('cashback.cashback'),
+                subTitle: strings('cashback.balanceTitle'),
                 balance: UtilsService.cutNumber(cashbackBalance, 2),
                 ExtraViewData: () => {
                     return (
                         <Tab2
+                            procent={cashbackPercent}
                             cashbackStore={cashbackStore}
                             progress={cashbackBalance / 2}
                             windowWidth={windowWidth}
@@ -160,12 +160,13 @@ class CashbackScreen extends React.PureComponent {
                 }
             },
             {
-                title: strings('cashback.balanceTitle'),
-                subTitle: strings('cashback.cpa'),
+                title: strings('cashback.cpa'),
+                subTitle: strings('cashback.balanceTitle'),
                 balance: UtilsService.cutNumber(cpaBalance, 2),
                 ExtraViewData: () => {
                     return (
                         <Tab2
+                            procent={cpaPercent}
                             progress={cpaBalance / 100}
                             windowWidth={windowWidth}
                             condition={cpaCondition}
@@ -308,24 +309,22 @@ class CashbackScreen extends React.PureComponent {
         } = this.context
 
         return (
-            <ScrollView style={{ paddingHorizontal: GRID_SIZE }}>
+            <ScrollView style={{ paddingHorizontal: GRID_SIZE * 1.5, marginTop: GRID_SIZE }}>
                 {this.renderExtraView()}
-                {this.renderDetailsHeader()}
+                <View style={{marginTop: -GRID_SIZE, marginHorizontal: GRID_SIZE}}>
+                    <InfoNotification
+                        range={true}
+                        withoutClosing={true}
+                        subTitle={strings('cashback.cashbackMessage')}
+                    />
+                </View>
+                <View style={{ marginTop: GRID_SIZE * 4 }}>
+                    {this.renderDetailsHeader()}
+                </View>
             </ScrollView>
         )
     }
 
-    renderThirdRoute = () => {
-        const {
-            GRID_SIZE
-        } = this.context
-
-        return (
-            <View style={{ paddingHorizontal: GRID_SIZE * 2 }}>
-                <HowItWorks />
-            </View>
-        )
-    }
 
     renderScene = ({ route }) => {
         switch (route.key) {
@@ -333,8 +332,6 @@ class CashbackScreen extends React.PureComponent {
                 return this.renderFirstRoute()
             case 'second':
                 return this.renderSecondRoute()
-            case 'third':
-                return this.renderThirdRoute()
             default:
                 return null
         }
@@ -347,9 +344,6 @@ class CashbackScreen extends React.PureComponent {
             }
             case 1 : {
                 return this.state.tab2Height
-            }
-            case 2 : {
-                return this.state.tab3Height
             }
             default:
                 return null
@@ -388,7 +382,7 @@ class CashbackScreen extends React.PureComponent {
                         this.scrollView = ref
                     }}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={[styles.scrollViewContent, { paddingVertical: GRID_SIZE * 1.5 }]}
+                    contentContainerStyle={[styles.scrollViewContent]}
                     keyboardShouldPersistTaps='handled'
                     refreshControl={
                         <RefreshControl

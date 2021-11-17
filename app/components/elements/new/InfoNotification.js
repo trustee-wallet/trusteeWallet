@@ -49,7 +49,8 @@ class InfoNotification extends React.Component {
             subTitle,
             onPress,
             containerStyles,
-            range
+            range,
+            withoutClosing = false
         } = this.props
 
         const { colors, GRID_SIZE } = this.context
@@ -85,15 +86,16 @@ class InfoNotification extends React.Component {
                     onPress={onPress}
                     style={styles.backupWrapper}
                     onLayout={this.processViewHeight}
+                    disabled={withoutClosing}
                 >
-                    <CustomIcon name='warningMessage' size={24} color={colors.walletManagment.walletItemBorderColor} style={styles.iconWrapper} />
+                    {!withoutClosing && <CustomIcon name='warningMessage' size={24} color={colors.walletManagment.walletItemBorderColor} style={styles.iconWrapper} />}
                     <View style={styles.description}>
-                        <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{title}</Text>
+                        {title && <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{title}</Text>}
                         <Text style={[styles.backupDescription, { color: colors.homeScreen.backupDescription }]}>{subTitle}</Text>
                     </View>
-                    <TouchableOpacity onPress={this.close} style={styles.close} hitSlop={HIT_SLOP}>
+                    {!withoutClosing && <TouchableOpacity onPress={this.close} style={styles.close} hitSlop={HIT_SLOP}>
                         <CustomIcon name='close' size={18} color={colors.common.button.text} />
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
                 </TouchableOpacity>
             </Animated.View>
         )
