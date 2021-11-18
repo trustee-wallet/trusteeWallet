@@ -98,3 +98,8 @@ export const getSolValidator = createSelector(
     [state => state.mainStore.solValidator],
     (data => data)
 )
+
+export const getSortValue = createSelector(
+    [state => state.mainStore.sortValue],
+    (data => data)
+)

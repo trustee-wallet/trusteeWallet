@@ -5,7 +5,17 @@
     "unconfirmed" : "Unconfirmed",
     "today": "Today",
     "changedLastDay": "In the last 24 hours",
-    "synchronizing": "Synchronization"
+    "synchronizing": "Synchronization",
+    "settings": "Display settings",
+    "sorting": "Sorting",
+    "sort": {
+      "byTrustee": "By Trustee",
+      "custom": "Custom",
+      "byName": "By name",
+      "byValue": "By value",
+      "firstCoin": "First coins",
+      "firstToken": "First tokens"
+    }
   },
   "walletCreateScreen": {
     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
@@ -434,6 +444,7 @@
       "swap_outcome" : "Contract Outcome",
       "self": "Self",
       "exchange": "Exchange",
+      "swap": "Swap",
       "buy": "Buy",
       "sell": "Sell",
       "mobile_phone": "Mobile phone",

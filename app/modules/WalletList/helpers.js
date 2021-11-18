@@ -1,5 +1,8 @@
 import { Dimensions, PixelRatio } from 'react-native'
 
+import _sortBy from 'lodash/sortBy'
+import _orderBy from 'lodash/orderBy'
+
 import NavStore from '@app/components/navigation/NavStore'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
@@ -18,6 +21,8 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import DaemonCache from '@app/daemons/DaemonCache'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { getAccountList } from '@app/appstores/Stores/Account/selectors'
+import store from '@app/store'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -204,6 +209,36 @@ const handleCurrencySelect = async (props, screen) => {
   CACHE_CLICK = false
 }
 
+const getSortedData = (array, currentArray, filter) => {
+
+  const accountList = getAccountList(store.getState())
+
+  switch (filter) {
+      case 'byTrustee':
+          return array
+      case 'byName':
+          return _sortBy(currentArray, 'currencyName')
+      case 'custom':
+          return currentArray
+      case 'byValue':
+          // eslint-disable-next-line no-case-declarations
+          let sortedAccount = _orderBy(accountList, function (obj) {
+              return parseInt(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
+          }, 'desc').map(item => item.currencyCode)
+          
+          sortedAccount = _orderBy(array, x => {
+              return sortedAccount.indexOf(x.currencyCode) !== -1 ? sortedAccount.indexOf(x.currencyCode) : currentArray.length
+          })
+          return sortedAccount
+      // case 'coinFirst':
+      //     return _groupBy(array, 'currencyType')
+      // case 'tokenFirst':
+      //     return _groupBy(array, 'currencyType').reverse()
+      default:
+          return currentArray
+  }
+}
+
 export {
   SIZE,
   handleHide,
@@ -211,5 +246,6 @@ export {
   handleReceive,
   handleLateRefresh,
   getBalanceData,
-  handleCurrencySelect
+  handleCurrencySelect,
+  getSortedData
 }

@@ -5,7 +5,17 @@
     "unconfirmed": "Unconfirmed",
     "today": "დღეს",
     "changedLastDay": "ბოლო 24 საათში",
-    "synchronizing": "სინქრონიზაცია"
+    "synchronizing": "სინქრონიზაცია",
+    "settings": "Display settings",
+    "sorting": "Sorting",
+    "sort": {
+      "byTrustee": "By Trustee",
+      "custom": "Custom",
+      "byName": "By name",
+      "byValue": "By value",
+      "firstCoin": "First coins",
+      "firstToken": "First tokens"
+    }
   },
   "walletCreateScreen": {
     "title": "იყიდე, გაყიდე, გადაცვალე ანონიმურად",

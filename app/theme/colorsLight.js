@@ -95,7 +95,8 @@ export const colorsLight = {
         tabBarBackground: '#f7f7f7',
         dateColorViolet: '#c4c4c4',
         backupBg: '#ede4f9',
-        backupDescription: '#aa82e4'
+        backupDescription: '#aa82e4',
+        listItemBorderGradient: ['#fff', '#864DD9', '#fff']
     },
     createWalletScreen: {
         keyIcon: '#864DD9',

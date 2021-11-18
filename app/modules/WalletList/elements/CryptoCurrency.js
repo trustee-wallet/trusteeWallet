@@ -35,6 +35,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { SIZE, handleCurrencySelect } from '../helpers';
 import CustomIcon from '@app/components/elements/CustomIcon'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 
 class CryptoCurrency extends React.PureComponent {
@@ -44,20 +45,15 @@ class CryptoCurrency extends React.PureComponent {
     }
 
     componentDidMount() {
-        Animated.loop(
-            // Animated.sequence([
+        if (typeof this.props !== 'undefined' && this.props.cryptoCurrency.currencyCode === 'NFT' && !this.props.constructorMode) {
+            Animated.loop(
                 Animated.timing(this.state.corner, {
                     toValue: 360,
                     duration: 7000,
                     useNativeDriver: true
-                }),
-            //     Animated.timing(this.state.corner, {
-            //         toValue: 0,
-            //         duration: 4000,
-            //         useNativeDriver: true
-            //     })
-            // ]),
-        ).start()
+                })
+            ).start()
+        }
     }
 
     renderSynchronization = () => (
@@ -139,7 +135,7 @@ class CryptoCurrency extends React.PureComponent {
                 <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    style={styles.cryptoList__item}
+                    style={[styles.cryptoList__item, { transform: [{scale: this.props.isActive ? 1.02 : 1}] }]}
                     onPress={() => handleCurrencySelect(this.props)}
                     disabled={this.props.constructorMode}
                 >
@@ -211,7 +207,8 @@ class CryptoCurrency extends React.PureComponent {
                                 style={styles.dragBtns}
                                 activeOpacity={0.7}
                                 onLongPress={this.props.onDrag}
-                                delayLongPress={1000}
+                                delayLongPress={100}
+                                hitSlop={HIT_SLOP}
                             >
                                 <CustomIcon name='dots' color={colors.common.text1} size={20} />
                             </TouchableOpacity>
@@ -266,21 +263,18 @@ class CryptoCurrency extends React.PureComponent {
                 <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    style={styles.cryptoList__item}
+                    style={[styles.cryptoList__item, { transform: [{scale: this.props.isActive ? 1.02 : 1}] }]}
                     onPress={() => handleCurrencySelect(this.props)}
                     disabled={this.props.constructorMode}
                 >
-                    <AnimatedLinearGradient
+                    {/* <AnimatedLinearGradient
                         style={{padding: 2, borderRadius: SIZE }}
-                        // array={['white', '#864DD9', 'white']}
-                        array={['#404040', '#9E71E1', '#404040']}
-                        // start={{x: 0, y: 0}} 
-                        // end={{x: 1, y: 1}}
+                        array={colors.homeScreen.listItemBorderGradient}
                         locations={[0.3, 0.7, 1]}
                         useAngle={true}
                         angle={this.state.corner}
                         angleCenter={{ x: 0.5, y: 0.5}}
-                    >
+                    > */}
                     <GradientView
                         style={[styles.cryptoList__item__content, { paddingLeft: SIZE - 2 }]}
                         array={colors.homeScreen.listItemGradient}
@@ -309,8 +303,19 @@ class CryptoCurrency extends React.PureComponent {
                                 </Text>
                             </View>
                         </View>
+                        {!this.props.constructorMode ? null :
+                            <TouchableOpacity
+                                style={styles.dragBtns}
+                                activeOpacity={0.7}
+                                onLongPress={this.props.onDrag}
+                                delayLongPress={100}
+                                hitSlop={HIT_SLOP}
+                            >
+                                <CustomIcon name='dots' color={colors.common.text1} size={20} />
+                            </TouchableOpacity>
+                        }
                         </GradientView>
-                    </AnimatedLinearGradient>
+                    {/* </AnimatedLinearGradient> */}
                 </TouchableOpacity>
             </View>
         )

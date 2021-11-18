@@ -148,6 +148,22 @@ class TrusteeAsyncStorage {
         return this._getStatic('pushTokensAll')
     }
 
+    getSortValue = () => {
+        return this._get('sortValue')
+    }
+
+    setSortValue = (value) => {
+        return this._set('sortValue', value)
+    }
+
+    getCurrenciesList = () => {
+        return this._get('currenciesOrder')
+    }
+
+    setCurrenciesList = (value) => {
+        return this._set('currenciesOrder', value)
+    }
+
     setFcmTokensAll = async (value, one) => {
         if (!this._inited) {
             this._inited = {}

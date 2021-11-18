@@ -7,20 +7,12 @@ import {
     View, 
     RefreshControl, 
     StyleSheet, 
-    FlatList, 
-    LayoutAnimation, 
-    Vibration,
-    ScrollView
+    FlatList
 } from 'react-native'
 import { connect } from 'react-redux'
 
 import { useScrollToTop } from '@react-navigation/native'
 
-import DraggableFlatList from 'react-native-draggable-flatlist'
-
-import AsyncStorage from '@react-native-community/async-storage'
-import _sortBy from 'lodash/sortBy'
-import _groupBy from 'lodash/groupBy'
 import _orderBy from 'lodash/orderBy'
 import _isEqual from 'lodash/isEqual'
 
@@ -45,16 +37,14 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import AppLockBlur from '@app/components/AppLockBlur'
 
-import { getIsBlurVisible, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getIsBlurVisible, getSelectedWalletData, getSortValue } from '@app/appstores/Stores/Main/selectors'
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
-import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData } from './helpers'
+import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData, getSortedData } from './helpers'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
-async function storeCurrenciesOrder(walletHash, data) {
-    AsyncStorage.setItem(`${walletHash}:currenciesOrder`, JSON.stringify(data))
-}
 
 class HomeScreen extends React.PureComponent {
 
@@ -70,7 +60,7 @@ class HomeScreen extends React.PureComponent {
             constructorMode: false,
             originalData: [],
             data: [],
-            currenciesOrder: [],
+            currenciesOrder: []
         }
         this.getCurrenciesOrder()
     }
@@ -88,7 +78,7 @@ class HomeScreen extends React.PureComponent {
             const newOrder = data.map(c => c.currencyCode)
             if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
                 newState.currenciesOrder = newOrder
-                storeCurrenciesOrder(nextProps.selectedWalletData.walletHash, newOrder)
+                trusteeAsyncStorage.setCurrenciesList(JSON.stringify(newOrder))
             }
         }
 
@@ -96,9 +86,8 @@ class HomeScreen extends React.PureComponent {
     }
 
     getCurrenciesOrder = async () => {
-        const { walletHash } = this.props.selectedWalletData || ''
         try {
-            const res = await AsyncStorage.getItem(`${walletHash}:currenciesOrder`)
+            const res = await trusteeAsyncStorage.getCurrenciesList()
             const currenciesOrder = res !== null ? JSON.parse(res) : []
             const currenciesLength = this.state.data.length
 
@@ -112,7 +101,6 @@ class HomeScreen extends React.PureComponent {
     }
 
     async componentDidMount() {
-        this.props.navigation.dangerouslyGetParent().setOptions({tabBarVisible: true })
         try {
             Log.log('WalletList.HomeScreen initDeepLinking')
             SendDeepLinking.initDeepLinking()
@@ -171,9 +159,7 @@ class HomeScreen extends React.PureComponent {
 
     updateOffset = (offset) => {
         // const newOffset = Math.round(offset)
-        // offset.nativeEvent.contentOffset.y //for FlatLisst
-        if (this.state.constructorMode) return
-        const newOffset = Math.round(offset)
+        const newOffset = Math.round(offset.nativeEvent.contentOffset.y)
         if (!this.state.hasStickyHeader && newOffset > 110) this.setState(() => ({ hasStickyHeader: true }))
         if (this.state.hasStickyHeader && newOffset < 110) this.setState(() => ({ hasStickyHeader: false }))
     }
@@ -188,29 +174,6 @@ class HomeScreen extends React.PureComponent {
             this.setState(() => ({ enableVerticalScroll: value }))
         }
     };
-
-    triggerConstructorMode = () => {
-        this.props.navigation.dangerouslyGetParent().setOptions({tabBarVisible: this.state.constructorMode })
-        const customConfig = {
-            ...LayoutAnimation.Presets.linear,
-            duration: 250 // this need
-            // duration: 1000
-        }
-        LayoutAnimation.configureNext(customConfig)
-        this.setState({ constructorMode: !this.state.constructorMode })
-    }
-
-    onDragBegin = () => {
-        Vibration.vibrate(100)
-        this.setState(() => ({ isCurrentlyDraggable: true }))
-    }
-
-    onDragEnd = ({ data }) => {
-        const { walletHash } = this.props.selectedWalletData
-        const currenciesOrder = data.map(c => c.currencyCode)
-        storeCurrenciesOrder(walletHash, currenciesOrder)
-        this.setState({ data, isCurrentlyDraggable: false })
-    }
 
     render() {
         if (this.props.isBlurVisible) {
@@ -230,18 +193,17 @@ class HomeScreen extends React.PureComponent {
                     originalVisibility={this.state.originalVisibility}
                     triggerBalanceVisibility={this.triggerBalanceVisibility}
                     balanceData={balanceData}
-                    constructorMode={this.state.constructorMode}
-                    title='hello Trustee world'
-                    triggerConstructorMode={this.triggerConstructorMode}
                 />
                 <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]} />
                     <View style={[styles.content, { backgroundColor: colors.common.background }]}>
                         <View style={styles.stub} />
-                            <DraggableFlatList
-                                data={this.state.data}
-                                extraData={this.state.data}
+                            <FlatList
+                                ref={this.props.scrollRef}
+                                data={getSortedData(this.state.originalData, this.state.data, this.props.sortValue)}
+                                showsVerticalScrollIndicator={false}
                                 contentContainerStyle={styles.list}
-                                // debug
+                                onScroll={this.updateOffset}
+                                scrollEnabled={this.state.enableVerticalScroll}
                                 refreshControl={
                                     <RefreshControl
                                         enabled={!this.state.constructorMode}
@@ -253,26 +215,16 @@ class HomeScreen extends React.PureComponent {
                                         progressViewOffset={-20}
                                     />
                                 }
-                                onScroll={this.updateOffset}
-                                onScrollOffsetChange={this.updateOffset}
-                                scrollEnabled={this.state.enableVerticalScroll}
-                                showsVerticalScrollIndicator={false}
-                                scrollEventThrottle={16}
-                                ListHeaderComponent={() => {
-                                    if (this.state.constructorMode) return <View />
-
-                                    return (
-                                        <WalletInfo
-                                            isBalanceVisible={this.state.isBalanceVisible}
-                                            originalVisibility={this.state.originalVisibility}
-                                            changeBalanceVisibility={this.changeBalanceVisibility}
-                                            triggerBalanceVisibility={this.triggerBalanceVisibility}
-                                            balanceData={balanceData}
-                                            selectedWalletData={this.props.selectedWalletData}
-                                            constructorMode={this.state.constructorMode}
-                                        />
-                                    )}
-                                }
+                                ListHeaderComponent={(
+                                    <WalletInfo
+                                        isBalanceVisible={this.state.isBalanceVisible}
+                                        originalVisibility={this.state.originalVisibility}
+                                        changeBalanceVisibility={this.changeBalanceVisibility}
+                                        triggerBalanceVisibility={this.triggerBalanceVisibility}
+                                        balanceData={balanceData}
+                                        selectedWalletData={this.props.selectedWalletData}
+                                    />
+                                )}
                                 renderItem={({ item, drag, isActive }) => (
                                     <CryptoCurrency
                                         cryptoCurrency={item}
@@ -283,13 +235,9 @@ class HomeScreen extends React.PureComponent {
                                         handleSend={account => handleSend(item, account)}
                                         handleHide={() => handleHide(item)}
                                         setScrollEnabled={this.setScrollEnabled}
-                                        constructorMode={this.state.constructorMode}
                                     />
                                 )}
                                 keyExtractor={item => item.currencyCode}
-                                onDragEnd={this.onDragEnd}
-                                onDragBegin={this.onDragBegin}
-                                
                             />
                     </View>
             </View>
@@ -304,7 +252,8 @@ const mapStateToProps = (state) => {
         isBlurVisible: getIsBlurVisible(state),
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
-        nftsData: getNftsData(state)
+        nftsData: getNftsData(state),
+        sortValue: getSortValue(state)
     }
 }
 

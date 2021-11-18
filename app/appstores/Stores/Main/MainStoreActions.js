@@ -377,3 +377,10 @@ export function setSolValidator(solValidator) {
         solValidator
     })
 }
+
+export function setSortValue(sortValue) {
+    dispatch({
+        type: 'SET_SORT_VALUE',
+        sortValue
+    })
+}
