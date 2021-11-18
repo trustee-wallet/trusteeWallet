@@ -27,7 +27,6 @@ class TransactionCategories extends React.PureComponent {
                 title: "SELECT ALL",
                 rightContent: "checkbox",
                 last: true
-
             },
             {
                 active: true,
@@ -96,20 +95,6 @@ class TransactionCategories extends React.PureComponent {
         NavStore.reset('HomeScreen')
     }
 
-    handleSelectAllTrue = () => {
-        this.setState(state => ({
-            categoriesData: state.categoriesData.map(all => ({ ...all, active: true })),
-            isAllActive: true
-        }))
-    }
-
-    // ??
-    handleSelectAllFalse = () => {
-        this.setState(state => ({
-            categoriesData: state.categoriesData.map(all => ({ ...all, active: false }))
-        }))
-    }
-
     handleSelectCategory = (title) => {
         const { categoriesData } = this.state
         this.setState({
@@ -118,15 +103,10 @@ class TransactionCategories extends React.PureComponent {
     }
 
     handleSelectAll = () => {
-        // Vadym, how many call setState
-        // this.state.categoriesData.map(el => !el.active && this.setState({
-        //     isAllActive: false
-        // }))
-
-        // maybe this better??
-        this.setState({
+        this.setState(state => ({
+            categoriesData: state.categoriesData.map(all => ({ ...all, active: !this.state.isAllActive })),
             isAllActive: !this.state.isAllActive
-        })
+        }))
 
     }
 
@@ -148,7 +128,6 @@ class TransactionCategories extends React.PureComponent {
                     customIconStyle={{ backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark }}
                     rightContent={item.rightContent}
                     onPress={index === 0 ? this.handleSelectAll : () => this.handleSelectCategory(item.title)}
-                    // onPressCheckBox={index === 0 ? this.handleSelectAll : () => this.handleSelectCategory(item.title)} // Vadym, need this? work without this callback
                     isVisibleDone={false}
                     checked={item.active}
                 />)

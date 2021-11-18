@@ -42,12 +42,16 @@ class TransactionFilter extends React.PureComponent {
         openEndTime: false,
         openStartAmount: false,
         openEndAmount: false,
-        startAmount: this.props.filterData?.startAmount || '',
-        endAmount: this.props.filterData?.endAmount || '',
+        startAmount: this.props.filterData?.startAmount ? this.getPrettyAmount(this.props.filterData?.startAmount) : '',
+        endAmount: this.props.filterData?.endAmount ? this.getPrettyAmount(this.props.filterData?.endAmount) : '',
     }
 
     startAmountInput = React.createRef()
     endAmountInput = React.createRef()
+
+    getPrettyAmount = (amount) => {
+        return BlocksoftPrettyNumbers.setCurrencyCode(this.props.selectedCryptoCurrencyData.currencyCode).makePretty(amount)
+    }
 
     handleBack = () => {
         NavStore.goBack()
