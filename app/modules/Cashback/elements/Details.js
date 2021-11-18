@@ -16,14 +16,11 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import NavStore from '@app/components/navigation/NavStore'
 
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+
 class DetailsContent extends React.Component {
 
     cashbackCurrency = '$'
-
-    state = {
-        cashbackLink: 'https://trusteeglobal.com/ru/programma-loyalnosti/',
-        cpaLink: 'https://trusteeglobal.com/ru/cpa/'
-    }
 
     handleOpenLink = (link) => {
         NavStore.goNext('WebViewScreen', { url: link, title: strings('cashback.howItWorks.title') })
@@ -61,7 +58,7 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{level2Users}</Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => this.handleOpenLink(this.state.cashbackLink)}
+                            onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CASHBACK_LINK'))}
                             activeOpacity={0.7}
                         > 
                             <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
@@ -81,7 +78,7 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel3}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => this.handleOpenLink(this.state.cpaLink)}>
+                        <TouchableOpacity onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CPA_LINK'))}>
                             <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
                         </TouchableOpacity>
                     </View> : null}
