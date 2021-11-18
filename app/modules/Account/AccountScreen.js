@@ -288,7 +288,6 @@ class Account extends React.PureComponent {
     }
 
     toggleSearch = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
         this.setState({ 
             isSeaching: !this.state.isSeaching,
             searchQuery: ''
@@ -344,7 +343,8 @@ class Account extends React.PureComponent {
                         {!isSeaching ?  
                             <View style={{ marginBottom: 10 }}>
                                 <Text style={{ ...styles.transaction_title, color: colors.common.text1 }}>{strings('account.history')}</Text>
-                                <View style={{ ...styles.scan, marginLeft: 16 }}>
+                                <View style={{ ...styles.scan, marginLeft: 16}}>
+                                                          
                                     {isSynchronized ?
                                     <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2} >{diffTimeText}</Text>
                                     :
@@ -365,13 +365,15 @@ class Account extends React.PureComponent {
                                     </View>}
                                 </View>
                             </View> : 
-                            <View style={styles.textInput}>
+                            <View style={[styles.textInput, { height: 50, marginBottom: 5 }]}>
                                 <TextInput
                                     ref={input => {this.linkInput = input}}
                                     style={{ width: SCREEN_WIDTH * 0.715 }}
                                     name={strings('assets.searchPlaceholder')}
                                     type='TRANSACTION_SEARCH'
                                     id='TRANSACTION_SEARCH'
+                                    containerStyle={{ height: 50 }}
+                                    inputStyle={{ marginTop: -6 }}
                                     search={true}
                                     onChangeText={this.handleChangeText}
                                     func={this.handleSearch}

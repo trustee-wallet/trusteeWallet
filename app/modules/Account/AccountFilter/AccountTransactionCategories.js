@@ -17,6 +17,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
 import { getFilterData } from '@app/appstores/Stores/Main/selectors'
+import { strings } from '@app/services/i18n'
 
 class TransactionCategories extends React.PureComponent {
 
@@ -24,61 +25,61 @@ class TransactionCategories extends React.PureComponent {
         categoriesData: [
             {
                 active: true,
-                title: "SELECT ALL",
+                title: strings('account.transaction.selectAll'),
                 rightContent: "checkbox",
                 last: true
             },
             {
                 active: true,
-                title: "Income",
+                title: strings('account.transaction.income'),
                 iconType: "inTxHistory",
                 rightContent: "checkbox"
             },
             {
                 active: true,
-                title: "Outcome",
+                title: strings('account.transaction.outcome'),
                 iconType: "outTxHistory",
                 rightContent: 'checkbox'
             },
             {
                 active: true,
-                title: "Fees",
+                title: strings('account.transaction.fee'),
                 iconType: "feeTxScreen",
                 rightContent: "checkbox"
             },
             {
                 active: true,
-                title: "Canceled",
+                title: strings('account.transaction.cancel'),
                 iconType: "cancelTxHistory",
                 rightContent: "checkbox"
             },
             {
                 active: true,
-                title: "Swap",
+                title: strings('account.transaction.swap'),
                 iconType: "exchange",
                 rightContent: "checkbox"
             },
             {
                 active: true,
-                title: "Freezing",
+                title: strings('account.transaction.freeze'),
                 iconType: "freezing",
                 rightContent: "checkbox"
             },
             {
                 active: true,
-                title: "Reward",
+                title: strings('account.transaction.reward'),
                 iconType: "reward",
                 rightContent: "checkbox"
             },
             {
                 active: true,
-                title: "Contract income",
+                title: strings('account.transaction.swap_income'),
                 iconType: "contractIncome",
                 rightContent: "checkbox"
             },
             {
                 active: true,
-                title: "Contract outcome",
+                title: strings('account.transaction.swap_outcome'),
                 iconType: "contractOutcome",
                 rightContent: "checkbox",
                 last: true
@@ -141,7 +142,7 @@ class TransactionCategories extends React.PureComponent {
 
         return (
             <ScreenWrapper
-                title="Categories"
+                title={strings('account.transaction.categoriesTitle')}
                 leftType="back"
                 leftAction={this.handleBack}
                 rightType="close"

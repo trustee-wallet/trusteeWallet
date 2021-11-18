@@ -9,7 +9,6 @@ import {
     Text,
     ScrollView,
     StyleSheet,
-    Dimensions,
     LayoutAnimation
 } from 'react-native'
 
@@ -20,17 +19,31 @@ import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import Button from '@app/components/elements/new/buttons/Button'
-import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 import DatePicker from 'react-native-date-picker'
-import TextInput from '@app/components/elements/NewInput'
 import { strings } from '@app/services/i18n'
 
 import { getFilterData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
-import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
+import TextAndButton from '@app/components/elements/new/TextAndButton'
+import InputAndButton from '@app/components/elements/new/InputAndButton'
+
+var CustomLayoutAnimation = {
+    duration: 800,
+    create: {
+        type: LayoutAnimation.Types.linear,
+        property: LayoutAnimation.Properties.opacity,
+    },
+    update: {
+        type: LayoutAnimation.Types.spring,
+        springDamping: 1.2
+    },
+    delate: {
+        type: LayoutAnimation.Types.linear,
+        property: LayoutAnimation.Properties.opacity,
+    }
+  };
 
 class TransactionFilter extends React.PureComponent {
 
@@ -66,7 +79,7 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleOpenContent = (title) => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+        LayoutAnimation.configureNext(CustomLayoutAnimation);
         this.setState({
             selectedContent: title === this.state.selectedContent ? null : title,
             openEndTime: false,
@@ -75,7 +88,7 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleOpenStartTime = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+        LayoutAnimation.configureNext(CustomLayoutAnimation);
         this.setState({
             startTime: this.state.openStartTime ? this.state.startTime : new Date(),
             openStartTime: !this.state.openStartTime
@@ -83,7 +96,7 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleOpenEndTime = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+        LayoutAnimation.configureNext(CustomLayoutAnimation);
         this.setState({
             endTime: this.state.openEndTime ? this.state.endTime : new Date(),
             openEndTime: !this.state.openEndTime
@@ -122,21 +135,21 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleOpenStartAmount = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+        LayoutAnimation.configureNext(CustomLayoutAnimation);
         this.setState({
             openStartAmount: !this.state.openStartAmount
         })
     }
 
     handleOpenEndAmount = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+        LayoutAnimation.configureNext(CustomLayoutAnimation);
         this.setState({
             openEndAmount: !this.state.openEndAmount
         })
     }
 
     handleSetStartAmount = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+        LayoutAnimation.configureNext(CustomLayoutAnimation);
         const startAmount = this.startAmountInput.getValue()
         this.setState({
             startAmount: startAmount,
@@ -145,7 +158,7 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleSetEndAmount = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+        LayoutAnimation.configureNext(CustomLayoutAnimation);
         const endAmount = this.endAmountInput.getValue()
         this.setState({
             endAmount: endAmount,
@@ -200,17 +213,13 @@ class TransactionFilter extends React.PureComponent {
             <View>
                 {content === 'TIME' ? <View>
                     <View style={{ marginBottom: GRID_SIZE * 1.5 }}>
-                        <View style={styles.inputPosition}>
-                            <Text style={[styles.categoriesText, { color: colors.common.text3, marginBottom: GRID_SIZE }]}>Start date</Text>
-                            <BorderedButton
-                                text={startTime ? this.getCurrentDate(startTime) : 'Pick date'}
-                                containerStyles={[styles.inputButton, { marginBottom: GRID_SIZE }]}
-                                customTextStyles={styles.btnText}
-                                onPress={this.handleOpenStartTime}
-                            />
-                        </View>
+                        <TextAndButton
+                            title={strings('account.transaction.startDate')}
+                            buttonText={startTime ? this.getCurrentDate(startTime) : strings('account.transaction.pickDate')}
+                            onPress={this.handleOpenStartTime}
+                        />  
                         {this.state.openStartTime &&
-                            <View style={{ backgroundColor: '#F5F5F5', marginBottom: GRID_SIZE * 1.2, borderRadius: 14 }}>
+                            <View style={{ backgroundColor: '#F5F5F5', marginTop: GRID_SIZE, borderRadius: 14 }}>
                                 <DatePicker
                                     date={startTime}
                                     mode='date'
@@ -218,18 +227,15 @@ class TransactionFilter extends React.PureComponent {
                                     onDateChange={this.handleSaveStartDate}
                                 />
                             </View>}
-                        {/* you need to make a separate component */}
-                        <View style={[styles.inputPosition, { marginBottom: GRID_SIZE }]}>
-                            <Text style={[styles.categoriesText, { color: colors.common.text3 }]}>End date</Text>
-                            <BorderedButton
-                                text={endTime ? this.getCurrentDate(endTime) : 'Pick date'}
-                                containerStyles={[styles.inputButton, { marginRight: -2 }]}
-                                customTextStyles={styles.btnText}
+                        <View style={{ marginTop: GRID_SIZE }}>
+                            <TextAndButton
+                                title={strings('account.transaction.endDate')}
+                                buttonText={endTime ? this.getCurrentDate(endTime) : strings('account.transaction.pickDate')}
                                 onPress={this.handleOpenEndTime}
-                            />
+                            />  
                         </View>
                         {this.state.openEndTime &&
-                            <View style={{ backgroundColor: '#F5F5F5', borderRadius: 14 }}>
+                            <View style={{ backgroundColor: '#F5F5F5', marginTop: GRID_SIZE, borderRadius: 14 }}>
                                 <DatePicker
                                     date={endTime}
                                     mode='date'
@@ -237,9 +243,9 @@ class TransactionFilter extends React.PureComponent {
                                     onDateChange={e => this.handleSaveEndDate(e)}
                                 />
                             </View>}
-                        <View style={styles.buttonContainer}>
+                        <View style={[styles.buttonContainer, { marginTop: GRID_SIZE * 1.5 }]}>
                             <Button
-                                title="Discard"
+                                title={strings('account.transaction.discard')}
                                 containerStyle={styles.discardButton}
                                 onPress={this.handleDiscardDate}
                             />
@@ -249,85 +255,33 @@ class TransactionFilter extends React.PureComponent {
                 {content === 'AMOUNT' ?
                     <>
                         <View style={{ flex: 1, flexDirection: 'column' }}>
-                            <View style={styles.inputPosition}>
-                                <Text style={[styles.categoriesText, { color: colors.common.text3 }]}>Start amount</Text>
-                                <BorderedButton
-                                    text={this.state.startAmount === '' ? 'Set amount' : `${this.state.startAmount} ${currencySymbol}`}
-                                    containerStyles={[styles.inputButton]}
-                                    customTextStyles={styles.btnText}
-                                    onPress={this.handleOpenStartAmount}
-                                />
-                            </View>
-                            {/* you need to make a separate component */}
-                            {this.state.openStartAmount &&
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginLeft: GRID_SIZE * 1.5 }}>
-                                    <View style={[styles.amountInput, { marginVertical: GRID_SIZE, width: SCREEN_WIDTH * 0.6, height: 50 }]}>
-                                        <TextInput
-                                            ref={input => { this.startAmountInput = input }}
-                                            name={strings('account.transactionScreen.transactionAmount', { currencyCode: currencySymbol })}
-                                            type='TRANSACTION_AMOUNT_START'
-                                            id='TRANSACTION_AOUNT_START'
-                                            validPlaceholder={true}
-                                            // text={currencyCode} // I think this need btn crypto/fiat, not text
-                                            keyboardType='numeric' // Vadim, for Iphone this better
-                                            containerStyle={{ height: 50 }}
-                                            inputStyle={{ marginTop: -6 }}
-                                        />
-                                    </View>
-                                    <TwoButtons
-                                        secondaryButton={{
-                                            type: 'sendMessage',
-                                            onPress: this.handleSetStartAmount,
-                                            inverted: true,
-                                            additionalSecondaryStyles: {
-                                                marginLeft: GRID_SIZE,
-                                                marginVertical: GRID_SIZE,
-                                                width: 50,
-                                                height: 50
-                                            }
-                                        }}
-                                    />
-                                </View>}
-                            <View style={styles.inputPosition}>
-                                <Text style={[styles.categoriesText, { color: colors.common.text3 }]}>End amount</Text>
-                                <BorderedButton
-                                    text={this.state.endAmount === '' ? 'Set amount' : `${this.state.endAmount} ${currencySymbol}`}
-                                    containerStyles={[styles.inputButton, { marginRight: -2 }]}
-                                    customTextStyles={styles.btnText}
+                            <TextAndButton
+                                title={strings('account.transaction.startAmount')}
+                                buttonText={this.state.startAmount === '' ? strings('account.transaction.setAmount') : `${this.state.startAmount} ${currencySymbol}`}
+                                onPress={this.handleOpenStartAmount}
+                            />    
+                            {this.state.openStartAmount &&    
+                                <InputAndButton
+                                    ref={this.startAmountInput} 
+                                    placeholder={strings('account.transactionScreen.transactionAmount', { currencyCode: currencySymbol })}
+                                    onPress={this.handleSetStartAmount}
+                                />}
+                            <View style={{ marginTop: GRID_SIZE }}>
+                                 <TextAndButton
+                                    title={strings('account.transaction.endAmount')}
+                                    buttonText={this.state.endAmount === '' ? strings('account.transaction.setAmount') : `${this.state.endAmount} ${currencySymbol}`}
                                     onPress={this.handleOpenEndAmount}
-                                />
+                                />    
                             </View>
                             {this.state.openEndAmount &&
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                                    <View style={{ marginTop: GRID_SIZE, width: SCREEN_WIDTH * 0.55, marginRight: -GRID_SIZE, marginLeft: GRID_SIZE * 1.5 }}>
-                                        <TextInput
-                                            ref={input => { this.endAmountInput = input }}
-                                            style={styles.textInput}
-                                            name={strings('account.transactionScreen.transactionAmount', { currencyCode: currencySymbol })}
-                                            type='TRANSACTION_AMOUNT_END'
-                                            id='TRANSACTION_AMOUNT_END'
-                                            validPlaceholder={true}
-                                            text={currencySymbol}
-                                            keyboardType='numeric'
-                                        />
-                                    </View>
-                                    <TwoButtons
-                                        secondaryButton={{
-                                            type: 'sendMessage',
-                                            onPress: this.handleSetEndAmount,
-                                            inverted: true,
-                                            additionalSecondaryStyles: {
-                                                marginTop: GRID_SIZE,
-                                                marginLeft: GRID_SIZE,
-                                                width: 50,
-                                                height: 50
-                                            }
-                                        }}
-                                    />
-                                </View>}
-                            <View style={styles.buttonContainer}>
+                                <InputAndButton
+                                    ref={this.endAmountInput} 
+                                    placeholder={strings('account.transactionScreen.transactionAmount', { currencyCode: currencySymbol })}
+                                    onPress={this.handleSetEndAmount}
+                                />} 
+                            <View style={[styles.buttonContainer, { marginTop: GRID_SIZE * 1.5 }]}>
                                 <Button
-                                    title="Discard"
+                                    title={strings('account.transaction.discard')}
                                     containerStyle={styles.discardButton}
                                     onPress={this.handleDiscardAmount}
                                 />
@@ -357,7 +311,7 @@ class TransactionFilter extends React.PureComponent {
 
         return (
             <ScreenWrapper
-                title="Filter"
+                title={strings('account.transaction.filterTitle')}
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType="close"
@@ -368,10 +322,10 @@ class TransactionFilter extends React.PureComponent {
                     contentContainerStyle={[styles.scrollViewContent, { marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE * 2 }]}
                     keyboardShouldPersistTaps='handled'
                 >
-                    <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>transaction Categories</Text>
+                    <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('account.transaction.transactionCategories')}</Text>
                     <View>
                         <ListItem
-                            title="Categories"
+                            title={strings('account.transaction.categoriesTitle')}
                             subtitle="4 selected"
                             iconType="categories"
                             rightContent="arrow"
@@ -379,10 +333,10 @@ class TransactionFilter extends React.PureComponent {
                             last
                         />
                     </View>
-                    <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>date & data</Text>
+                    <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>{strings('account.transaction.dateAmount')}</Text>
                     <View>
                         <ListItem
-                            title="Time array"
+                            title={strings('account.transaction.timeArray')}
                             // subtitle={startTime && endTime ? startTime.toString().split(' ')[1] + ' ' + startTime.getDate() + ', ' + startTime.getFullYear() + ' - ' + endTime.toString().split(' ')[1] + ' ' + endTime.getDate() + ', ' + endTime.getFullYear() : ''}
                             iconType="timeArray"
                             rightContent={selectedContent === 'TIME' ? 'arrow_up' : 'arrow_down'}
@@ -391,8 +345,8 @@ class TransactionFilter extends React.PureComponent {
                         />
                         {selectedContent === 'TIME' && this.renderContent('TIME')}
                         <ListItem
-                            title="Amount range"
-                            subtitle="All amount"
+                            title={strings('account.transaction.amountRange')}
+                            subtitle={strings('account.transaction.allAmount')}
                             iconType="amountRange"
                             rightContent={selectedContent === 'AMOUNT' ? 'arrow_up' : 'arrow_down'}
                             onPress={() => this.handleOpenContent('AMOUNT')}
@@ -401,10 +355,10 @@ class TransactionFilter extends React.PureComponent {
                         {selectedContent === 'AMOUNT' && this.renderContent('AMOUNT')}
                     </View>
                     <View>
-                        <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>Download transactions history</Text>
+                        <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>{strings('account.transaction.downloadTransactionsHistory')}</Text>
                         <ListItem
-                            title="Download"
-                            subtitle="Save all time transactions in CSV"
+                            title={strings('modal.infoUpdateModal.download')}
+                            subtitle={strings('account.transaction.saveInCsv')}
                             iconType="downloadDoc"
                             onPress={this.handlePickDate}
                             last
@@ -443,58 +397,13 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5,
         textTransform: 'uppercase'
     },
-    categoriesText: {
-        fontFamily: 'Montserrat-SemiBold',
-        fontSize: 14,
-        lineHeight: 17,
-    },
-    inputPosition: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        marginLeft: 10
-    },
-    inputButton: {
-        minWidth: 120,
-        maxWidth: 150,
-        minHeight: 28,
-    },
     discardButton: {
         height: 32,
-        width: 120
+        minWidth: 120,
+        maxWidth: 150
     },
     buttonContainer: {
         alignItems: 'center',
         justifyContent: 'center'
-    },
-    textInput: {
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.20,
-        shadowRadius: 1.41,
-
-        elevation: 2,
-    },
-    btnText: {
-        fontFamily: 'Montserrat-Bold',
-        fontSize: 14,
-        lineHeight: 18,
-        textTransform: 'none',
-    },
-    amountInput: {
-        justifyContent: 'center',
-        borderRadius: 10,
-        elevation: 10,
-        shadowColor: '#000',
-        shadowRadius: 16,
-        shadowOpacity: 0.1,
-        shadowOffset: {
-            width: 0,
-            height: 0
-        },
     }
 })

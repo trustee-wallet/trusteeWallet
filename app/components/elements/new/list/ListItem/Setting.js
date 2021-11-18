@@ -243,7 +243,7 @@ export default function SettingListItem(props) {
                         </View>
                         {!!rightContent && (
                             <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
-                                {getRightContent(rightContent, { ...switchParams, disabled, onPress, checked }, null, isVisibleDone)}
+                                {getRightContent(rightContent, { ...switchParams, disabled, onPress, checked }, colors.common.text1, isVisibleDone)}
                             </View>
                         )}
                     </View>
