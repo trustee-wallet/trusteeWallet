@@ -149,7 +149,7 @@ class TrusteeAsyncStorage {
     }
 
     getSortValue = () => {
-        return this._get('sortValue')
+        return this._getStatic('sortValue')
     }
 
     setSortValue = (value) => {

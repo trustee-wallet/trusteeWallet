@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 
 import DraggableFlatList from 'react-native-draggable-flatlist'
 
-import _orderBy from 'lodash/orderBy'
 import _isEqual from 'lodash/isEqual'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -17,9 +16,8 @@ import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 import CryptoCurrency from '../elements/CryptoCurrency'
-import { getSortedData } from '../helpers'
+import { getCurrenciesOrder, getSortedData, getDerivedState } from '../helpers'
 
-import Log from '@app/services/Log/Log'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import { setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
@@ -33,52 +31,23 @@ class HomeDragScreen extends PureComponent {
             isCurrentlyDraggable: false,
             originalData: [],
             data: [],
-            currenciesOrder: []
+            currenciesOrder: [],
+            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
         }
 
-        this.getCurrenciesOrder()
+        // getCurrenciesOrder()
+        getCurrenciesOrder(this)
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        let newState = null
-
-        if (!_isEqual(nextProps.currencies, prevState.originalData)) {
-            newState = {}
-            const currenciesOrder = prevState.currenciesOrder
-            const currenciesLength = nextProps.currencies.length
-            const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-            newState.data = data
-            newState.originalData = nextProps.currencies
-            const newOrder = data.map(c => c.currencyCode)
-            if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
-                newState.currenciesOrder = newOrder
-                trusteeAsyncStorage.setCurrenciesList(JSON.stringify(newOrder))
-            }
-        }
-
-        return newState
+        return getDerivedState(nextProps, prevState)
     }
 
     componentDidUpdate(prevProps){
         if (!_isEqual(prevProps.sortValue, this.props.sortValue)) {
             this.setState({
-                data: getSortedData(this.state.originalData, this.state.data, this.props.sortValue)
+                sortValue: this.props.sortValue
             })
-        }
-    }
-
-    getCurrenciesOrder = async () => {
-        try {
-            const res = await trusteeAsyncStorage.getCurrenciesList()
-            const currenciesOrder = res !== null ? JSON.parse(res) : []
-            const currenciesLength = this.state.data.length
-
-            this.setState(state => ({
-                currenciesOrder,
-                data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-            }))
-        } catch (e) {
-            Log.err(`HomeScreen getCurrenciesOrder error ${e.message}`)
         }
     }
 
@@ -118,8 +87,8 @@ class HomeDragScreen extends PureComponent {
                 rightAction={this.handlRightAction}
             >
                 <DraggableFlatList
-                    data={getSortedData(this.state.originalData, this.state.data, this.props.sortValue)}
-                    extraData={getSortedData(this.state.originalData, this.state.data, this.props.sortValue)}
+                    data={getSortedData(this.state.originalData, this.state.data, this.state.sortValue)}
+                    extraData={getSortedData(this.state.originalData, this.state.data, this.state.sortValue)}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingVertical: GRID_SIZE }}
                     autoscrollSpeed={300}

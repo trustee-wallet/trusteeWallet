@@ -2,6 +2,7 @@ import { Dimensions, PixelRatio } from 'react-native'
 
 import _sortBy from 'lodash/sortBy'
 import _orderBy from 'lodash/orderBy'
+import _isEqual from 'lodash/isEqual'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -23,6 +24,7 @@ import DaemonCache from '@app/daemons/DaemonCache'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 import store from '@app/store'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -239,6 +241,46 @@ const getSortedData = (array, currentArray, filter) => {
   }
 }
 
+const getCurrenciesOrder = async (that) => {
+  try {
+      if (that.state.sortValue === 'custom') {
+          const res = await trusteeAsyncStorage.getCurrenciesList()
+          const currenciesOrder = res !== null ? JSON.parse(res) : []
+          const currenciesLength = that.state.data.length
+
+          that.setState(state => ({
+              currenciesOrder,
+              data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+          }))
+      }
+  } catch (e) {
+      Log.err(`WalletList helper getCurrenciesOrder error ${e.message}`)
+  }
+}
+
+const getDerivedState = (nextProps, prevState) => {
+  let newState = null
+
+  if (!_isEqual(nextProps.currencies, prevState.originalData)) {
+      newState = {}
+      const currenciesOrder = prevState.currenciesOrder
+      const currenciesLength = nextProps.currencies.length
+      const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+      
+      newState.originalData = nextProps.currencies
+      newState.data = nextProps.sortValue ? getSortedData(nextProps.currencies, data, nextProps.sortValue) : data
+      newState.sortValue = nextProps.sortValue || prevState.sortValue
+      
+      const newOrder = data.map(c => c.currencyCode)
+      if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
+          newState.currenciesOrder = newOrder
+          trusteeAsyncStorage.setCurrenciesList(JSON.stringify(newOrder))
+      }
+  }
+
+  return newState
+}
+
 export {
   SIZE,
   handleHide,
@@ -247,5 +289,7 @@ export {
   handleLateRefresh,
   getBalanceData,
   handleCurrencySelect,
-  getSortedData
+  getSortedData,
+  getCurrenciesOrder,
+  getDerivedState
 }

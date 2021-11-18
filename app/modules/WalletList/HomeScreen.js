@@ -13,7 +13,6 @@ import { connect } from 'react-redux'
 
 import { useScrollToTop } from '@react-navigation/native'
 
-import _orderBy from 'lodash/orderBy'
 import _isEqual from 'lodash/isEqual'
 
 import CryptoCurrency from './elements/CryptoCurrency'
@@ -42,7 +41,7 @@ import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
-import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData, getSortedData } from './helpers'
+import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData, getSortedData, getCurrenciesOrder, getDerivedState } from './helpers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
@@ -60,44 +59,14 @@ class HomeScreen extends React.PureComponent {
             constructorMode: false,
             originalData: [],
             data: [],
-            currenciesOrder: []
+            currenciesOrder: [],
+            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
         }
-        this.getCurrenciesOrder()
+        getCurrenciesOrder(this)
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
-        let newState = null
-
-        if (!_isEqual(nextProps.currencies, prevState.originalData)) {
-            newState = {}
-            const currenciesOrder = prevState.currenciesOrder
-            const currenciesLength = nextProps.currencies.length
-            const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-            newState.data = data
-            newState.originalData = nextProps.currencies
-            const newOrder = data.map(c => c.currencyCode)
-            if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
-                newState.currenciesOrder = newOrder
-                trusteeAsyncStorage.setCurrenciesList(JSON.stringify(newOrder))
-            }
-        }
-
-        return newState
-    }
-
-    getCurrenciesOrder = async () => {
-        try {
-            const res = await trusteeAsyncStorage.getCurrenciesList()
-            const currenciesOrder = res !== null ? JSON.parse(res) : []
-            const currenciesLength = this.state.data.length
-
-            this.setState(state => ({
-                currenciesOrder,
-                data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-            }))
-        } catch (e) {
-            Log.err(`HomeScreen getCurrenciesOrder error ${e.message}`)
-        }
+        return getDerivedState(nextProps, prevState)
     }
 
     async componentDidMount() {
@@ -107,9 +76,25 @@ class HomeScreen extends React.PureComponent {
         } catch (e) {
             Log.log('WalletList.HomeScreen initDeepLinking error ' + e.message)
         }
+
+        if (this.state.sortValue) {
+            this.setState({
+                data: getSortedData(this.state.originalData, this.state.data, this.state.sortValue)
+            })
+        }
+
         setLoaderStatus(false)
         this.getBalanceVisibility()
         NftActions.init(false)
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!_isEqual(prevProps.sortValue, this.props.sortValue)) {
+            this.setState({
+                data: getSortedData(this.state.originalData, this.state.data, this.props.sortValue),
+                sortValue: this.props.sortValue
+            })
+        }
     }
 
     getBalanceVisibility = () => {
@@ -199,7 +184,7 @@ class HomeScreen extends React.PureComponent {
                         <View style={styles.stub} />
                             <FlatList
                                 ref={this.props.scrollRef}
-                                data={getSortedData(this.state.originalData, this.state.data, this.props.sortValue)}
+                                data={this.state.data}
                                 showsVerticalScrollIndicator={false}
                                 contentContainerStyle={styles.list}
                                 onScroll={this.updateOffset}
