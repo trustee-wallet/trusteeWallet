@@ -68,14 +68,13 @@ import LoggingSettingsScreen from '@app/modules/Settings/Subsettings/LoggingSett
 import NotificationsSettingScreen from '@app/modules/Settings/Subsettings/NotificationsScreen'
 
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
-import SupportScreen from '@app/modules/Support/index'
+import BotSupportScreen from '@app/modules/Support/botSupport'
 import StreamSupportScreen from '@app/modules/Support/streamSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
-import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import NftMainScreen from '@app/modules/NFT/NftMainScreen'
 import NftDetailedInfo from '@app/modules/NFT/NftDetailedInfo'
@@ -115,6 +114,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='HomeScreenPop' component={HomeScreen} options={{ headerShown: false }} />
 
             <HomeStack.Screen name='StreamSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='BotSupportScreen' component={BotSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -185,7 +185,7 @@ const MarketStackScreen = () => {
 const SupportStackScreen = () => {
     return (
         <MarketStack.Navigator initialRouteName='StreamSupportScreen'>
-            <MarketStack.Screen name='StreemSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <MarketStack.Screen name='StreamSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <MarketStack.Screen name='SupportAboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </MarketStack.Navigator>
     )
@@ -281,7 +281,7 @@ const TabBar = () => {
                 :
                 <Tab.Screen
                     name='SupportScreen'
-                    component={SupportScreen}
+                    component={BotSupportScreen}
                     options={{
                         unmountOnBlur: true,
                         tabBarLabel: strings('dashboardStack.support'),

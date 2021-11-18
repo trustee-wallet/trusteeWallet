@@ -157,7 +157,7 @@ class BackupSettingsScreen extends PureComponent {
     handleSupport = async () => {
         const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
         MarketingEvent.logEvent('taki_support', { link, screen: 'SETTINGS' })
-        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle'), backOnClose: true })
+        NavStore.goNext('BotSupportScreen', { url: link, title: strings('settings.about.contactSupportTitle'), backOnClose: true })
     }
 
     render() {

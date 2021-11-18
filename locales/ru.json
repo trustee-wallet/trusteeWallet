@@ -432,6 +432,7 @@
       "income": "Входящая",
       "self" : "Себе",
       "freeze" : "Заморозка",
+      "unfreeze" : "Разморозка",
       "claim" : "Награда",
       "swap_income" : "Contract Входящая",
       "swap_outcome" : "Contract Исходящая",
@@ -1488,12 +1489,14 @@
       "currency": "Украинская гривна"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Отправить документы",
     "sendLogs": "Отправить логи",
     "takePhoto": "Сделать фото",
     "chooseFromLibrary": "Выбрать из галереи",
     "noMessages": "Сообщений пока нет",
-    "sentFile": "Файл отправлен"
+    "sentFile": "Файл отправлен",
+    "getRoomError" : "Ошибка загрузки",
+    "sendMessageError" : "Connection error while message sending"
   }
 }

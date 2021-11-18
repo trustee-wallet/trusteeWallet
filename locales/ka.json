@@ -429,6 +429,7 @@
       "income": "შემოსული",
       "self": "სელფი",
       "freeze": "გაყინვა",
+      "unfreeze" : "UnFreeze",
       "claim": "ჯილდო",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
@@ -1469,12 +1470,14 @@
       "currency": "უკრაინული გრივნა"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Send docs",
     "sendLogs": "Send logs",
     "takePhoto": "Take photo",
     "chooseFromLibrary": "Choose from gallery",
     "noMessages": "No messages yet",
-    "sentFile": "File sent"
+    "sentFile": "File sent",
+    "getRoomError" : "Load messages error",
+    "sendMessageError" : "Connection error while message sending"
   }
 }
