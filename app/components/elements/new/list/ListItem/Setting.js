@@ -96,6 +96,10 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='BTC' size={22} color={color} />
         case 'eth':
             return <CustomIcon name='ETH' size={22} color={color} />
+        case 'cpa':
+            return <CustomIcon name='cpa' size={22} color={color} />
+        case 'earn':
+            return <CustomIcon name='earn' size={22} color={color} />
         default: return null
     }
 }
@@ -152,9 +156,13 @@ export default function SettingListItem(props) {
         delayLongPress = 5000,
         type,
         ExtraView,
-        ExtraViewParams
+        ExtraViewParams,
+        color,
+        opacityWithDisabled
     } = props
     const { colors, GRID_SIZE } = useTheme()
+
+
 
     if (type === 'dropdown') {
         return (
@@ -198,17 +206,17 @@ export default function SettingListItem(props) {
                     activeOpacity={0.8}
                     disabled={disabled}
                 >
-                    <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }]}>
+                    <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1 }]}>
                         {getIcon(iconType, colors.common.listItem.basic.iconColorLight)}
                     </View>
                     <View style={styles.mainContent}>
-                        <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
+                        <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
                             <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                             {!!subtitle && <Text numberOfLines={4} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
                         {!!rightContent && (
-                            <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
-                                {getRightContent(rightContent, { ...switchParams, disabled })}
+                            <View style={[styles.rightContent, { opacity: !opacityWithDisabled ? disabled || disabledRightContent ? 0.3 : 1 : 1 }]}>
+                                {getRightContent(rightContent, { ...switchParams, disabled }, color)}
                             </View>
                         )}
                     </View>

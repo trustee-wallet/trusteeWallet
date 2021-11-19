@@ -103,7 +103,9 @@ const CACHE = {
     'TERMS_ru': 'https://trusteeglobal.com/ru/usloviya-ispolzovaniya/?header_footer=none',
     'TERMS_uk': 'https://trusteeglobal.com/uk/umovi-vikoristannya/?header_footer=none',
     'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95,
-    'ROCKET_CHAT_USE' : 1
+    'ROCKET_CHAT_USE' : 0,
+    'HOW_WORK_CASHBACK_LINK' : 'https://trusteeglobal.com/programma-loyalnosti/',
+    'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/'
 }
 
 

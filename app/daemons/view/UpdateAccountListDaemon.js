@@ -302,6 +302,9 @@ class UpdateAccountListDaemon extends Update {
                 } else {
                     rate = tmpCurrency.currencyRateJson[basicCurrencyCode] || 0
                 }
+                if (rate.toString().indexOf('e-')) {
+                    rate = BlocksoftUtils.fromENumber(rate.toString())
+                }
                 if (currencyCode === 'BTC') {
                     Log.daemon('UpdateAccountListDaemon rate BTC ' + rate + ' with ' + JSON.stringify(basicCurrency))
                 }

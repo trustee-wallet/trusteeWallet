@@ -20,8 +20,10 @@ const ProgressCircleBox = (props) => {
     const {
         additionalStyles,
         progress,
-        percent,
-        title
+        cashbackPercent,
+        cpaPercent,
+        cashbackTitle,
+        cpaTitle
     } = props
 
     const {
@@ -30,18 +32,22 @@ const ProgressCircleBox = (props) => {
 
     return(
         <View style={[styles.circleBox, additionalStyles]}>
-            <View style={styles.circle}>
+            <View style={styles.percentWrapper}>
+                <Text style={[styles.circlePercent, { color: colors.common.text1 }]}>{(cashbackPercent >= 100 ? '100' : cashbackPercent) + ' %'}</Text>
+                <Text style={styles.circleTitle}>{cashbackTitle}</Text>
+            </View>
+            <View style={[styles.circle, { transform: [ { scaleX: -1 } ] }]}>
                 <ProgressCircle
                     style={styles.progressCircle}
                     strokeWidth={3.5}
                     progress={progress}
-                    backgroundColor={colors.cashback.chartBg}
+                    backgroundColor={ progress ? colors.cashback.circleBg : colors.createWalletScreen.showMnemonic.wordIndexText}
                     progressColor={colors.cashback.token}
                 />
             </View>
-            <View>
-                <Text style={[styles.circleTitle, { color: colors.common.text3 }]}>{title}</Text>
-                <Text style={styles.circleProcent}>{(percent >= 100 ? '100' : percent) + ' %'}</Text>
+            <View style={styles.percentWrapper}>
+                <Text style={[styles.circlePercent, { color: colors.common.text1, textAlign: 'left' }]}>{(cpaPercent >= 100 ? '100' : cpaPercent) + ' %'}</Text>
+                <Text style={[styles.circleTitle, { textAlign: 'left' }]}>{cpaTitle}</Text>
             </View>
         </View>
     )
@@ -51,10 +57,8 @@ export default ProgressCircleBox
 
 const styles = StyleSheet.create({
     circleBox: {
-        flex: 1,
-            alignItems: 'flex-start',
-            flexDirection: 'row',
-            marginLeft: 17
+        flexDirection: 'row',
+        justifyContent: 'space-evenly'
     },
     progressCircle: {
         height: 45,
@@ -62,21 +66,26 @@ const styles = StyleSheet.create({
     },
     circleTitle: {
         marginTop: 3,
+        fontFamily: 'SFUIDisplay-SemiBold',
         fontSize: 14,
-        fontFamily: 'Montserrat-SemiBold',
-        lineHeight: 14
-    },
-    circleProcent: {
-        marginTop: 4,
-        fontFamily: 'SFUIDisplay-Bold',
-        fontSize: 15,
-        lineHeight: 15,
-        letterSpacing: 1.75,
+        lineHeight: 18,
+        textAlign: 'right',
+        letterSpacing: 1,
         color: '#999999'
+    },
+    circlePercent: {
+        marginTop: 4,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        lineHeight: 20,
+        textAlign: 'right'
     },
     circle: {
         paddingRight: 2,
         paddingBottom: 2,
         marginRight: 5
+    },
+    percentWrapper: {
+        minWidth: 80
     }
 })
