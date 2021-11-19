@@ -30,55 +30,55 @@ class TransactionCategories extends React.PureComponent {
                 last: true
             },
             {
-                active: true,
+                active: this.props.filterData?.income || null,
                 title: strings('account.transaction.income'),
                 iconType: "inTxHistory",
                 rightContent: "checkbox"
             },
             {
-                active: true,
+                active: this.props.filterData?.outcome || null,
                 title: strings('account.transaction.outcome'),
                 iconType: "outTxHistory",
                 rightContent: 'checkbox'
             },
             {
-                active: true,
+                active: this.props.filterData?.fee || null,
                 title: strings('account.transaction.fee'),
                 iconType: "feeTxScreen",
                 rightContent: "checkbox"
             },
             {
-                active: true,
+                active: this.props.filterData?.canceled || null,
                 title: strings('account.transaction.cancel'),
                 iconType: "cancelTxHistory",
                 rightContent: "checkbox"
             },
             {
-                active: true,
+                active: this.props.filterData?.swap || null,
                 title: strings('account.transaction.swap'),
                 iconType: "exchange",
                 rightContent: "checkbox"
             },
             {
-                active: true,
+                active: this.props.filterData?.freezing,
                 title: strings('account.transaction.freeze'),
                 iconType: "freezing",
                 rightContent: "checkbox"
             },
             {
-                active: true,
+                active: this.props.filterData?.reward,
                 title: strings('account.transaction.reward'),
                 iconType: "reward",
                 rightContent: "checkbox"
             },
             {
-                active: true,
+                active: this.props.filterData?.contractIncome,
                 title: strings('account.transaction.swap_income'),
                 iconType: "contractIncome",
                 rightContent: "checkbox"
             },
             {
-                active: true,
+                active: this.props.filterData?.contractOutcome,
                 title: strings('account.transaction.swap_outcome'),
                 iconType: "contractOutcome",
                 rightContent: "checkbox",
@@ -87,6 +87,10 @@ class TransactionCategories extends React.PureComponent {
         ],
         isAllActive: true
     }
+
+    toggleAll = () => {
+        state.categoriesData.map(el => el.active = true)
+    } 
 
     handleBack = () => {
         NavStore.goBack()

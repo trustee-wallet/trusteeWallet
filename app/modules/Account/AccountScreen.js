@@ -71,6 +71,8 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 
 import TextInput from '@app/components/elements/NewInput'
 
+import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
+
 const {width: SCREEN_WIDTH} = Dimensions.get('window')
 
 let CACHE_ASKED = false
@@ -94,7 +96,7 @@ class Account extends React.PureComponent {
 
             hasStickyHeader: false,
             isSeaching: false,
-            searchQuery: '',
+            searchQuery: this.props.filterData?.startAmount || '',
             error: false
         }
         this.linkInput = React.createRef()
@@ -290,9 +292,13 @@ class Account extends React.PureComponent {
     toggleSearch = () => {
         this.setState({ 
             isSeaching: !this.state.isSeaching,
-            searchQuery: ''
         })
-        this.loadTransactions(0)
+
+        const filter = {
+            searchQuery: ''
+        }
+
+        setFilter(filter)
     }
 
     handleChangeText = (value) => {
@@ -305,10 +311,10 @@ class Account extends React.PureComponent {
     handleSearch = async () => {
         if (!this.linkInput?.getValue() ? '' : this.linkInput.getValue()) {
             const text = this.linkInput.getValue()
-            this.setState({
+            const filter = {
                 searchQuery: text
-            })
-            this.loadTransactions(0)
+            }
+            setFilter(filter)
         }
     }
 
@@ -451,7 +457,6 @@ class Account extends React.PureComponent {
 
         const tmp = await transactionDS.getTransactions(params, 'AccountScreen.loadTransactions list')
         const transactionsToView = []
-        let filteredTransactions = []
 
         if (tmp && tmp.length > 0) {
             const account = store.getState().mainStore.selectedAccount
@@ -459,10 +464,6 @@ class Account extends React.PureComponent {
                 transaction = transactionActions.preformatWithBSEforShow(transactionActions.preformat(transaction, { account }), transaction.bseOrderData, currencyCode)
                 transactionsToView.push(transaction)
             }
-        }
-        
-        if (this.state.searchQuery !== '') {
-            filteredTransactions = this.filterBySearchQuery(transactionsToView, this.state.searchQuery)
         }
             
         CACHE_TX_LOADED = new Date().getTime()
@@ -485,28 +486,6 @@ class Account extends React.PureComponent {
             default:
                 return currencyName
         }
-    }
-
-    // need to query db
-    filterBySearchQuery(transactions, searchQuery) {
-        searchQuery = searchQuery.toLowerCase()
-
-        const txs = transactions.filter(as => (
-            as.addressFrom.toLowerCase().includes(searchQuery)
-            || as.addressTo.toLowerCase().includes(searchQuery)
-                || as.transactionHash.toLowerCase().includes(searchQuery)
-            || (
-                typeof as.addressFrom !== 'undefined' && as.addressFrom && as.addressFrom.toLowerCase() === searchQuery
-            )
-            || (
-                typeof as.addressTo !== 'undefined' && as.addressTo && as.addressTo.toLowerCase() === searchQuery
-            )
-            || (
-                typeof as.transactionHash !== 'undefined' && as.transactionHash && as.transactionHash.toLowerCase() === searchQuery
-            )
-        ))
-
-        return txs
     }
 
     render() {

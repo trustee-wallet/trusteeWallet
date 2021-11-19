@@ -281,7 +281,7 @@ class Transaction {
         }
 
         if (typeof params.searchQuery !== 'undefined' && params.searchQuery) {
-            where.push(`(address_from LIKE ${params.searchQuery} OR adress_to OR LIKE ${params.searchQuery} transaction_hash LIKE ${params.searchQuery}`)
+            where.push(`(address_from = ${params.searchQuery} OR adress_to = ${params.searchQuery} OR transaction_hash = ${params.searchQuery}`)
         }
         if (typeof params.freezing !== 'undefined' && params.freezing) {
             where.push(`transaction_direction NOT IN ('freeze')`)
