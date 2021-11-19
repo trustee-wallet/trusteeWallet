@@ -216,7 +216,7 @@ const getSortedData = (array, currentArray, accountList, filter) => {
     case 'byTrustee':
       return array
     case 'byName':
-      return _sortBy(currentArray, 'currencyCode')
+      return _sortBy(currentArray, 'currencySymbol')
     case 'custom':
       return currentArray
     case 'byValue': {
