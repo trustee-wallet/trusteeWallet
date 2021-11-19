@@ -813,7 +813,7 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостатньо коштів для відправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Недостатня сума для відправки в стейк",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не валідатор"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не є валідатором"
     }
   },
   "walletBackup": {
@@ -997,7 +997,7 @@
       },
       "TRX_20": {
         "title": "Будь ласка, зверніть увагу!",
-        "description": "Ваш гаманець Tron (TRX) не активований. Для активації достатньо поповнити адресу Tron на 5-7 монет TRX, які в подальшому можуть бути використані в інших транзакціях "
+        "description": "Ваш гаманець Tron (TRX) не активований. Для активації достатньо поповнити адресу Tron на 10 монет TRX, які в подальшому можуть бути використані в інших транзакціях "
       },
       "TOKEN": {
         "title": "Будь ласка, зверніть увагу!",
@@ -1496,6 +1496,6 @@
     "noMessages": "Повідомлень поки що немає",
     "sentFile": "Файл надіслано",
     "getRoomError" : "Помилка завантаження",
-    "sendMessageError" : "Connection error while message sending"
+    "sendMessageError" : "Нестабільне підключення до мережі під час надсилання повідомлення"
   }
 }
