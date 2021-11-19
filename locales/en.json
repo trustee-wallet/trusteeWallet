@@ -997,7 +997,7 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 5-7 TRX coins, which can later be used in other transactions"
+        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 10 TRX coins, which can later be used in other transactions"
       },
       "TOKEN": {
         "title": "Please, pay attention!",
@@ -1496,6 +1496,6 @@
     "noMessages": "No messages yet",
     "sentFile": "File sent",
     "getRoomError" : "Load messages error",
-    "sendMessageError" : "Connection error while message sending"
+    "sendMessageError" : "Unstable network connection when sending a message"
   }
 }
