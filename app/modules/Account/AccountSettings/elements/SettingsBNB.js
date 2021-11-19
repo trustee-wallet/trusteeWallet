@@ -25,6 +25,8 @@ import styles from './styles'
 import DaemonCache from '@app/daemons/DaemonCache'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
+import BnbNetworkPrices from '@crypto/blockchains/bnb/basic/BnbNetworkPrices'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 let CACHE_SENDING = false
 
 class SettingsBNB extends React.PureComponent {
@@ -39,7 +41,8 @@ class SettingsBNB extends React.PureComponent {
             bnbAll: false,
             smartAll: false,
             amountError: false,
-            amountErrorText: ''
+            amountErrorText: '',
+            crossBindFee : ''
         }
         this.smartAmountInput = React.createRef()
     }
@@ -54,6 +57,7 @@ class SettingsBNB extends React.PureComponent {
 
         const smart = await DaemonCache.getCacheAccount(walletHash, 'BNB_SMART')
         const bnb = await DaemonCache.getCacheAccount(walletHash, 'BNB')
+        const fees = await BnbNetworkPrices.getFees()
 
         this.setState({
             smartAddress: smart.address,
@@ -61,7 +65,8 @@ class SettingsBNB extends React.PureComponent {
             bnbAddress: bnb.address,
             bnbBalancePretty: bnb.balancePretty,
             smartAll: smart,
-            bnbAll: bnb
+            bnbAll: bnb,
+            crossBindFee : typeof fees['crossBind']!== 'undefined' ? BlocksoftUtils.toUnified(fees['crossBind'].fee, 10) : false
         })
         this.handleScan()
     }
@@ -180,6 +185,10 @@ class SettingsBNB extends React.PureComponent {
     render() {
         const { colors, GRID_SIZE } = this.context
 
+        let fee = ''
+        if (this.state.crossBindFee) {
+            fee = '(fee ' + this.state.crossBindFee + ' BNB)'
+        }
         return (
             <>
                 <View>
@@ -219,7 +228,7 @@ class SettingsBNB extends React.PureComponent {
                     <View style={{ paddingTop: 5, flexDirection: 'row' }}>
                         <TouchableOpacity style={{ paddingLeft: 15, paddingRight: 15, flex: 2 }} onPress={() => this.handleToSmart()}>
                             <View style={{ ...styles.buttonHeader, backgroundColor: colors.accountScreen.trxButtonBackgroundColor, borderColor: colors.accountScreen.trxButtonBorderColor }}>
-                                <LetterSpacing text={'Get BNB Smart'} letterSpacing={0.5} numberOfLines={2}
+                                <LetterSpacing text={'Get BNB Smart ' + fee} letterSpacing={0.5} numberOfLines={2}
                                                textStyle={{ color: colors.common.text1 }} />
                             </View>
                         </TouchableOpacity>

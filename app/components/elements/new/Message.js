@@ -30,7 +30,7 @@ const Message = (props) => {
 
     return (
         <View style={[styles.infoContainer, containerStyles]}>
-            {timer ? (
+            {timer || false ? (
                 <LottieView color={colors.createWalletScreen.keyIcon} source={ProgressAnimation} style={{ width: 24, height: 24 }} progress={progress} />
             ) : (
                 <View style={[styles.keyCircle, { borderColor: colors.createWalletScreen.showMnemonic.showButtonText }]}>

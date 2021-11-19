@@ -9,7 +9,7 @@ import Log from '@app/services/Log/Log'
 
 const { dispatch } = store
 
-const CODES = ['ETH_RINKEBY', 'MATIC', 'ETH', 'ETH_ROPSTEN']
+const CODES = ['ETH_RINKEBY', 'MATIC', 'ETH', 'BNB', 'ETH_ROPSTEN']
 
 export namespace NftActions {
 
@@ -53,15 +53,12 @@ export namespace NftActions {
     }
 
     export const getDataByAddress = async function(address: any, force = false) {
+        const nfts = {
+            assets: [],
+            collections: [],
+            usdTotal: 0
+        }
         try {
-
-            const nfts = {
-                assets: [],
-                collections: [],
-                usdTotal: 0
-            }
-
-
             const customAssets = store.getState().nftCustomAssetsStore.customAssets
             const now = new Date().getTime()
             for (const tokenBlockchainCode of CODES) {
@@ -70,8 +67,15 @@ export namespace NftActions {
                 for (let tmp in tmpAssets) {
                     tmpAssetsArray.push(tmp)
                 }
-
-                let tmp = Nfts.getNftsCache(tokenBlockchainCode, address)
+                let tmp
+                try {
+                    tmp = Nfts.getNftsCache(tokenBlockchainCode, address)
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' getNftsCache error ' + e.message, e)
+                    }
+                    Log.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' getNftsCache error ' + e.message)
+                }
                 try {
                     if (force || (!tmp || typeof tmp.loaded === 'undefined' || (now - tmp.loaded > 360000))) {
                         tmp = await BlocksoftTokenNfts.getList({
@@ -95,7 +99,14 @@ export namespace NftActions {
                 nfts.collections = [...nfts.collections, ...tmp.collections]
                 nfts.usdTotal = nfts.usdTotal * 1 + tmp.usdTotal * 1
             }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log(new Date().toISOString() + ' NftsActions getData error ' + e.message)
+            }
+            Log.log('NftsActions getData error ' + e.message)
+        }
 
+        try {
             dispatch({
                 type: 'SET_NFTS_LOADED',
                 loaded: true,
@@ -104,8 +115,9 @@ export namespace NftActions {
             })
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log(new Date().toISOString() + ' NftsActions getData error ' + e.message)
+                console.log(new Date().toISOString() + ' NftsActions getData dispatch error ' + e.message)
             }
+            Log.log('NftsActions getData dispatch error ' + e.message)
         }
     }
 }

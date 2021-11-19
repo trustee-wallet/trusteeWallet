@@ -129,7 +129,6 @@ class SettingsETH extends Component {
         const { ethAllowLongQuery = '0', ethAllowBlockedBalance = '0' } = settingsStore
         const { currentAddresses, currentAddressesLoaded } = this.state
 
-        console.log(currentAddresses)
         return (
             <>
                 <View>

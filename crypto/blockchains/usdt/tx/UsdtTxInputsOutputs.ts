@@ -103,7 +103,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
                 })
             }
         }
-        const tmp = typeof additionalData.balance !== 'undefined' && additionalData.balance ? { balance: additionalData.balance } : DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
+        const tmp = typeof additionalData.balance !== 'undefined' && additionalData.balance ? { balance: additionalData.balance } : DaemonCache.getCacheAccountStatic(data.walletHash, 'USDT')
         let needOneOutput = false
         if (tmp.balance > 0) {
             const diff = BlocksoftUtils.diff(tmp.balance, data.amount)

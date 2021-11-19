@@ -13,6 +13,7 @@ import {
     StyleSheet,
     Linking
 } from 'react-native'
+import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -33,6 +34,9 @@ import stylesGlobal from '@app/modules/Account/AccountSettings/elements/styles'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import config from '@app/config/config'
+
+import { getCashBackLinkFromDataAPi } from '@app/appstores/Stores/CashBack/selectors'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 class StakingTransactionScreen extends PureComponent {
 
@@ -63,7 +67,9 @@ class StakingTransactionScreen extends PureComponent {
 
         const shareOptions = { message: '' }
 
-        shareOptions.message += `https://explorer.solana.com/address/${this.state.element.stakeAddress}\n${strings('account.transactionScreen.thanks')}`
+        shareOptions.message += `https://explorer.solana.com/address/${this.state.element.stakeAddress}\n`
+
+        shareOptions.message += `\n${ strings('account.transactionScreen.cashbackLink')} ${this.props.cashBackData.cashbackLink}\n`
 
         prettyShare(shareOptions, 'solana_share_stakedAddress')
     }
@@ -117,13 +123,9 @@ class StakingTransactionScreen extends PureComponent {
 
     openLink = (link) => {
         try {
-            let linkUrl = link
-            if (linkUrl.indexOf('?') === -1) {
-                linkUrl += '?from=trustee'
-            }
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(link)
             Linking.openURL(linkUrl)
         } catch (e) {
-            Log
             Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + link)
         }
     }
@@ -272,7 +274,13 @@ class StakingTransactionScreen extends PureComponent {
 
 StakingTransactionScreen.contextType = ThemeContext
 
-export default StakingTransactionScreen
+const mapStateToProps = (state) => {
+    return{
+        cashBackData: getCashBackLinkFromDataAPi(state),
+    }
+}
+
+export default connect(mapStateToProps)(StakingTransactionScreen)
 
 const styles = StyleSheet.create({
     viewExplorer: {

@@ -192,7 +192,6 @@ class SendAdvancedSettings extends React.PureComponent {
                         </View>
 
                         {
-                            currencyCode === 'XLM' ?
                             <View style={{ marginVertical: GRID_SIZE }}>
                                 <ListItem
                                     title={strings('send.fee.getRaw')}
@@ -202,7 +201,6 @@ class SendAdvancedSettings extends React.PureComponent {
                                     switchParams={{ value: !!this.state.rawOnly, onPress: this.handleRawOnly }}
                                 />
                             </View>
-                            : null
                         }
 
                     </View>

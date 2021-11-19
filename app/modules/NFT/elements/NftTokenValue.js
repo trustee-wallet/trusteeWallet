@@ -74,6 +74,7 @@ class NftTokenValue extends React.Component {
 
         const {
             walletCurrency,
+            tokenQty,
             balance,
             balanceData,
             currencySymbol,
@@ -117,6 +118,12 @@ class NftTokenValue extends React.Component {
                             <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, fontSize: 24 }}>****</Text>
                         }
                     </TouchableOpacity>
+                    :
+                 tokenQty && tokenQty > 1 ?
+                     <View style={styles.balanceContainer}>
+                         <Text numberOfLines={2} style={[styles.balance, { color: colors.common.text3, fontSize: 13 }]}>{strings('nftMainScreen.tokenQty')}: {tokenQty} </Text>
+                     </View>
+
                     :
                     <View style={styles.balanceContainer}>
                         <Text numberOfLines={2} style={[styles.balance, { color: colors.common.text3, fontSize: 13 }]}>

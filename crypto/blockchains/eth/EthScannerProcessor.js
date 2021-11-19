@@ -18,6 +18,7 @@ const CACHE_GET_MAX_BLOCK = {
     ETC: { max_block_number: 0, confirmations: 0 },
     AMB: { max_block_number: 0, confirmations: 0 },
     MATIC : { max_block_number: 0, confirmations: 0 },
+    FTM : { max_block_number: 0, confirmations: 0 },
     RSK : { max_block_number: 0, confirmations: 0 },
     OPTIMISM : { max_block_number: 0, confirmations: 0 },
 }
@@ -27,6 +28,7 @@ const CACHE_BLOCK_NUMBER_TO_HASH = {
     ETC : {},
     AMB : {},
     MATIC : {},
+    FTM : {},
     RSK : {},
     OPTIMISM : {}
 }
@@ -38,6 +40,7 @@ const CACHE = {
     ETC : {},
     AMB : {},
     MATIC : {},
+    FTM : {},
     RSK : {},
     OPTIMISM : {}
 }
@@ -289,6 +292,9 @@ export default class EthScannerProcessor extends EthBasic {
         }
 
         tx.nonce = BlocksoftUtils.hexToDecimal(tx.nonce)
+        if (tx.nonce * 1 === 0) {
+            tx.nonce = 0
+        }
         tx.status = BlocksoftUtils.hexToDecimal(tx.status)
         tx.gas = BlocksoftUtils.hexToDecimal(tx.gas)
         tx.gasPrice = BlocksoftUtils.hexToDecimal(tx.gasPrice)
@@ -411,8 +417,12 @@ export default class EthScannerProcessor extends EthBasic {
         }
         let amount = transaction.value
 
+        let nonce = transaction.ethereumSpecific.nonce
+        if (nonce * 1 === 0) {
+            nonce = 0
+        }
         const additional = {
-            nonce: transaction.ethereumSpecific.nonce || '',
+            nonce,
             gas: transaction.ethereumSpecific.gasLimit || '',
             gasPrice: transaction.ethereumSpecific.gasPrice || '',
             gasUsed: transaction.ethereumSpecific.gasUsed || ''
@@ -640,9 +650,13 @@ export default class EthScannerProcessor extends EthBasic {
             contractAddress,
             inputValue: transaction.input
         }
+        let nonce = transaction.nonce
+        if (nonce * 1 === 0) {
+            nonce = 0
+        }
         if (!isInternal) {
             const additional = {
-                nonce: transaction.nonce,
+                nonce,
                 gas: transaction.gas,
                 gasPrice: transaction.gasPrice,
                 cumulativeGasUsed: transaction.cumulativeGasUsed,

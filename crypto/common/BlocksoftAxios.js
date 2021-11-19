@@ -251,6 +251,10 @@ class BlocksoftAxios {
 
     async _request(link, method = 'get', data = {}, emptyIsBad = false, errSend = true) {
         let tmp
+        let cacheMD = link
+        if (typeof data !== 'undefined') {
+            cacheMD += ' ' + JSON.stringify(data)
+        }
         try {
             // noinspection JSUnresolvedFunction
             const instance = axios.create()
@@ -271,17 +275,16 @@ class BlocksoftAxios {
             } else if (link.indexOf('proxy.trustee.deals') !== -1 && link.indexOf('proxytest.trustee.deals') !== -1) {
                 timeOut = Math.round(timeOut / 3)
             }
-            if (typeof CACHE_STARTED[link] !== 'undefined') {
+            if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {
                 const now = new Date().getTime()
-                const timeMsg = ' timeout ' + CACHE_STARTED[link].timeOut + ' started ' + CACHE_STARTED[link].time + ' diff ' + (now - CACHE_STARTED[link].time)
+                const timeMsg = ' timeout ' + CACHE_STARTED[cacheMD].timeOut + ' started ' + CACHE_STARTED[cacheMD].time + ' diff ' + (now - CACHE_STARTED[cacheMD].time)
                 BlocksoftCryptoLog.log('PREV CALL WILL BE CANCELED ' + timeMsg)
-                await CACHE_STARTED_CANCEL[link].cancel('PREV CALL CANCELED ' + timeMsg)
+                await CACHE_STARTED_CANCEL[cacheMD].cancel('PREV CALL CANCELED ' + timeMsg)
             }
             instance.defaults.timeout = timeOut
             instance.defaults.cancelToken = cancelSource.token
-            CACHE_STARTED[link] = { time: new Date().getTime(), timeOut }
-            CACHE_STARTED_CANCEL[link] = cancelSource
-            await BlocksoftCryptoLog.log('STARTED ' + JSON.stringify(CACHE_STARTED))
+            CACHE_STARTED[cacheMD] = { time: new Date().getTime(), timeOut }
+            CACHE_STARTED_CANCEL[cacheMD] = cancelSource
             if (method === 'get') {
                 tmp = await instance.get(link)
             } else {
@@ -292,10 +295,9 @@ class BlocksoftAxios {
                 throw new Error('BlocksoftAxios.' + method + ' ' + link + ' status: ' + tmp.status + ' data: ' + tmp.data)
             }
 
-            if (typeof CACHE_STARTED[link] !== 'undefined') {
-                delete CACHE_STARTED[link]
-                delete CACHE_STARTED_CANCEL[link]
-                BlocksoftCryptoLog.log('FINISHED OK, LEFT ' + JSON.stringify(CACHE_STARTED))
+            if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {
+                delete CACHE_STARTED[cacheMD]
+                delete CACHE_STARTED_CANCEL[cacheMD]
             }
             /* let txt = tmp.data
             if (typeof txt === 'string') {
@@ -316,9 +318,8 @@ class BlocksoftAxios {
             CACHE_TIMEOUT_ERRORS = 0
         } catch (e) {
 
-            if (typeof CACHE_STARTED[link] !== 'undefined') {
-                delete CACHE_STARTED[link]
-                BlocksoftCryptoLog.log('FINISHED BAD, LEFT', CACHE_STARTED)
+            if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {
+                delete CACHE_STARTED[cacheMD]
             }
             let subdata = {}
             if (typeof e.response === 'undefined' || typeof e.response.data === 'undefined') {

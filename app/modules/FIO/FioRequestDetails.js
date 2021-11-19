@@ -69,6 +69,13 @@ class FioRequestDetails extends Component {
 
         const { colors } = this.context
 
+        let shownCurrencyCode = this.state.requestDetailData?.content?.token_code !== this.state.requestDetailData?.content?.chain_code
+            ? `${this.state.requestDetailData?.content?.chain_code}_${this.state.requestDetailData?.content?.token_code}`
+            : this.state.requestDetailData?.content?.token_code
+        if (typeof shownCurrencyCode === 'undefined') {
+            Log.log('FioRequestDetails render error currencyCode ' + JSON.stringify(this.state.requestDetailData))
+            shownCurrencyCode = 'FIO'
+        }
         return (
             <ScreenWrapper
                 leftType="back"
@@ -87,7 +94,7 @@ class FioRequestDetails extends Component {
                         <View style={styles.info__section}>
                             <View style={[styles.info__section__content, { backgroundColor: colors.fio.requestItemBg, borderColor: colors.fio.borderColorLight, }]} >
                                 <View style={[styles.flex__container, styles.flex__start]}>
-                                    <CurrencyIcon currencyCode={this.state.requestDetailData?.content?.token_code !== this.state.requestDetailData?.content?.chain_code ? `${this.state.requestDetailData?.content?.chain_code}_${this.state.requestDetailData?.content?.token_code}` : this.state.requestDetailData?.content?.token_code}
+                                    <CurrencyIcon currencyCode={shownCurrencyCode}
                                         containerStyle={styles.cryptoList__icoWrap}
                                         markStyle={styles.cryptoList__icon__mark}
                                         markTextStyle={styles.cryptoList__icon__mark__text}

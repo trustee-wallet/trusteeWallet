@@ -5,6 +5,7 @@
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import { Web3Injected } from '@crypto/services/Web3Injected'
+import config from '@app/config/config'
 
 export default class EthBasic {
     /**
@@ -127,7 +128,8 @@ export default class EthBasic {
             this._mainTokenType = 'AMB_ERC_20'
             this._mainTokenBlockchain = 'Ambrosus Network'
             this._mainChainId = 16718 // 0x414e
-        } else if (settings.currencyCode === 'MATIC') {
+        } else if (settings.currencyCode === 'MATIC' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'MATIC')) {
+
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
@@ -140,6 +142,20 @@ export default class EthBasic {
             this._mainTokenType = 'MATIC_ERC_20'
             this._mainTokenBlockchain = 'Polygon Network'
             this._mainChainId = 137
+        } else if (settings.currencyCode === 'FTM' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'FTM')) {
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
+            this._etherscanApiPathInternal = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'FTM'
+            this._mainTokenType = 'FTM_ERC_20'
+            this._mainTokenBlockchain = 'Fantom Network'
+            this._mainChainId = 250
         } else if (settings.currencyCode === 'RSK') {
             this._etherscanSuffix = false
             this._etherscanApiPath = false
@@ -183,8 +199,13 @@ export default class EthBasic {
     }
 
     checkError(e, data, txRBF = false, logData = {}) {
-
-        if (e.message.indexOf('nonce too low') !== -1) {
+        if (config.debug.cryptoErrors) {
+            console.log('EthBasic Error ' + e.message)
+        }
+        if (e.message.indexOf('Transaction has been reverted by the EVM') !== -1) {
+            BlocksoftCryptoLog.log('EthBasic checkError0.0 ' + e.message + ' for ' + data.addressFrom, logData)
+            throw new Error('SERVER_RESPONSE_REVERTED_BY_EVM')
+        } else if (e.message.indexOf('nonce too low') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.1 ' + e.message + ' for ' + data.addressFrom, logData)
             let e2
             if (txRBF) {
@@ -200,10 +221,10 @@ export default class EthBasic {
             throw e2
         } else if (e.message.indexOf('gas required exceeds allowance') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.2 ' + e.message + ' for ' + data.addressFrom, logData)
-            if (this._settings.currencyCode === 'ETH') {
+            if (this._settings.tokenAddress === 'undefined' || !this._settings.tokenAddress) {
                 throw new Error('SERVER_RESPONSE_TOO_MUCH_GAS_ETH')
             } else {
-                throw new Error('SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC_20')
+                throw new Error('SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20')
             }
         } else if (e.message.indexOf('insufficient funds') !== -1) {
             BlocksoftCryptoLog.log('EthBasic checkError0.3 ' + e.message + ' for ' + data.addressFrom, logData)

@@ -52,7 +52,7 @@ const handleLogs = async () => {
     setLoaderStatus(true)
 
     try {
-        const shareOptions = await SendLog.getAll(CACHE_ERROR)
+        const shareOptions = await SendLog.getAll('Cache Error ' + CACHE_ERROR)
         if (shareOptions) {
             await prettyShare(shareOptions)
         }

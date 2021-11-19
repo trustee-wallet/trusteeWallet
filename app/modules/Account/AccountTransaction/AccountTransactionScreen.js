@@ -59,6 +59,7 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 import TextInput from '@app/components/elements/new/TextInput'
 import { getExplorerLink } from '../helpers'
 import ApiV3 from '@app/services/Api/ApiV3'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 
 let CACHE_RESCAN_TX = false
@@ -91,11 +92,23 @@ class AccountTransactionScreen extends PureComponent {
         }
     }
 
-    async UNSAFE_componentWillMount() {
+    async componentDidMount() {
+        this._onLoad()
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const data = NavStore.getParamWrapper(this, 'txData')
+        const { transactionHash } = data
+        if (typeof this.state.transaction.transactionHash !== 'undefined' && typeof transactionHash !== 'undefined' && this.state.transaction.transactionHash !== transactionHash ) {
+            this._onLoad()
+        }
+    }
+
+    async _onLoad() {
         try {
             const data = NavStore.getParamWrapper(this, 'txData')
             const source = NavStore.getParamWrapper(this, 'source')
-            console.log('AccountTransactionScreen mount source ' + JSON.stringify(source))
+            Log.log('AccountTransactionScreen mount source ' + JSON.stringify(source))
 
             let { transactionHash, transactionStatus, currencyCode, orderHash, walletHash, transaction, notification, toOpenAccountBack, uiType } = data
             let tx
@@ -200,7 +213,7 @@ class AccountTransactionScreen extends PureComponent {
                 }))
             }
         } catch (e) {
-            throw new Error(e.message + ' in TransactionScreen.UNSAFE_componentWillMount')
+            throw new Error(e.message + ' in TransactionScreen.componentDidMount')
         }
 
     }
@@ -402,10 +415,7 @@ class AccountTransactionScreen extends PureComponent {
 
     openLink = (link) => {
         try {
-            let linkUrl = link
-            if (linkUrl.indexOf('?') === -1) {
-                linkUrl += '?from=trustee'
-            }
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(link)
             Linking.openURL(linkUrl)
         } catch (e) {
             Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + link)
@@ -471,9 +481,7 @@ class AccountTransactionScreen extends PureComponent {
         if (transaction.wayType === 'BUY' && transaction.bseOrderData !== false && transaction.bseOrderData.status.toUpperCase() !== 'DONE_PAYOUT') return null
 
         let linkUrl = typeof cryptoCurrency.currencyExplorerTxLink !== 'undefined' ? getExplorerLink(cryptoCurrency.currencyCode, 'hash', transaction.transactionHash) : false
-        if (linkUrl && linkUrl.indexOf('?') === -1) {
-            linkUrl += '?from=trustee'
-        }
+        linkUrl = BlocksoftPrettyStrings.makeFromTrustee(linkUrl)
 
         return {
             title: strings(`account.transaction.txHash`),
@@ -489,9 +497,7 @@ class AccountTransactionScreen extends PureComponent {
 
         return tmp.map(item => {
             let linkUrl = getExplorerLink(cryptoCurrency.currencyCode, 'hash', item)
-            if (linkUrl.indexOf('?') === -1) {
-                linkUrl += '?from=trustee'
-            }
+            linkUrl = BlocksoftPrettyStrings.makeFromTrustee(linkUrl)
 
             return {
                 title: strings(`account.transaction.replacedTxHash`),
@@ -593,7 +599,9 @@ class AccountTransactionScreen extends PureComponent {
     }
 
     backAction = async () => {
-        if (this.state.uiType === 'TRADE_SEND') {
+        if (this.state.uiType === 'WALLET_CONNECT') {
+            NavStore.reset('WalletConnectScreen')
+        } else if (this.state.uiType === 'TRADE_SEND' || this.state.uiType === 'TRADE_LIKE_WALLET_CONNECT') {
             NavStore.reset('TabBar')
         } else if (this.state.toOpenAccountBack) {
             setSelectedCryptoCurrency(this.props.cryptoCurrency)
@@ -660,6 +668,9 @@ class AccountTransactionScreen extends PureComponent {
         if (account.currencyCode === 'BTC' && transaction.addressTo.indexOf('OMNI') !== -1) {
             return false
         }
+        if (!transaction.addressTo || transaction.addressTo === '') {
+            transaction.addressTo = transaction.basicAddressTo || account.address
+        }
         if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
             Log.log('AccountTransactionScreen.renderReplaceByFee could not replace', { account, transaction })
             return false
@@ -690,7 +701,12 @@ class AccountTransactionScreen extends PureComponent {
                         setLoaderStatus(false)
                         return false
                     }
-                    await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
+                    try {
+                        await SendActionsStart.startFromTransactionScreenBoost(account, transaction)
+                    } catch (e) {
+                        e.message += ' while SendActionsStart.startFromTransactionScreenBoost'
+                        throw e
+                    }
                 } catch (e) {
                     if (config.debug.appErrors) {
                         console.log('AccountTransactionScreen.renderReplaceByFee error ' + e.message )
@@ -718,21 +734,30 @@ class AccountTransactionScreen extends PureComponent {
     }
 
     shareTransaction = () => {
-        const { transaction, linkExplorer } = this.state
+        const { transaction, linkExplorer, fromToView, addressToToView } = this.state
 
         Log.log('AccountTransactionScreen.shareTransaction cashbackLink', this.props.cashBackData.cashbackLink)
 
         const shareOptions = { message: '' }
+
         if (transaction.transactionHash) {
-            shareOptions.message += strings('account.transactionScreen.transactionHash') + ` ${linkExplorer}\n`
+            shareOptions.message += `\n${strings('account.transactionScreen.transactionHash')} ${linkExplorer}\n`
         }
-        shareOptions.message = shareOptions.message + (this.props.cashBackData.cashbackLink ? strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackData.cashbackLink}\n` : '\n')
+
+        shareOptions.message += `\n${strings('account.transactionScreen.transactionSum')} ${transaction.addressAmountNorm} ${transaction.currencyCode}\n`
+
+        fromToView ?
+            shareOptions.message += `\n${strings('account.transactionScreen.addresFrom')} ${transaction.addressFrom}\n` :
+                addressToToView ?
+                    shareOptions.message += `\n${strings('account.transactionScreen.addresTo')} ${transaction.addressTo}\n` : null
+
+        shareOptions.message += `\n${strings('account.transactionScreen.blockConfirmations')} ${transaction.blockConfirmations > 20 ? '20+' : transaction.blockConfirmations}\n`
 
         if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
-            shareOptions.message = strings(`account.transaction.orderId`) + ` ${transaction.bseOrderData.orderHash}\n` + shareOptions.message
+            shareOptions.message = strings(`account.transaction.orderId`) `${transaction.bseOrderData.orderHash}\n` + shareOptions.message
         }
-        shareOptions.message += `\n${strings('account.transactionScreen.thanks')}`
 
+        shareOptions.message += `\n${(this.props.cashBackData.cashbackLink ? strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackData.cashbackLink}\n` : '\n')}`
         // shareOptions.url = this.props.cashBackData.dataFromApi.cashbackLink
         prettyShare(shareOptions, 'taki_share_transaction')
     }
@@ -836,6 +861,32 @@ class AccountTransactionScreen extends PureComponent {
         )
     }
 
+    renderRBFToView = (transaction) => {
+        if (typeof transaction.transactionJson === 'undefined') return null
+
+        if (transaction.transactionJson === null) {
+            return null
+        }
+
+        if (typeof transaction.transactionJson.isRbfTime !== 'undefined' && transaction.transactionJson.isRbfTime) {
+            let str = transaction.transactionJson.isRbfType === 'remove' ?
+                `account.transaction.RBF.alreadyRemovedByFee`
+                : `account.transaction.RBF.alreadyReplacedByFee`
+            const timeNow = new Date().getTime()
+            const diffTime = Math.round((timeNow - transaction.transactionJson.isRbfTime) / 60000)
+
+            if (diffTime < 2) {
+                str += 'LessThen2Minutes'
+            }
+            return <TransactionItem
+                title={strings(str, {min : diffTime > 120 ? '120+' : diffTime })}
+            />
+        }
+
+        return null
+
+    }
+
     handlerOrderDetails = () => {
         NavStore.reset('MarketScreen', { screen: 'MarketScreen', params: { orderHash: this.state.orderIdToView.description } })
     }
@@ -901,6 +952,8 @@ class AccountTransactionScreen extends PureComponent {
                 >
                     <View>
                         {this.renderButtons(buttonsArray)}
+
+                        {this.renderRBFToView(transaction)}
 
                         {typeof contractCallData !== 'undefined' && contractCallData && contractCallData.infoForUser.map((item) => {
                             return (

@@ -7,13 +7,22 @@ import React from 'react'
 import {
     View,
     Text,
-    Dimensions,
+    Dimensions, TouchableOpacity
 } from 'react-native'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 import GradientView from '@app/components/elements/GradientView'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
+import { connect } from 'react-redux'
+import { Tab1 } from '@app/modules/Cashback/elements/ExtraViewDataContent'
+
+import { HIT_SLOP } from '@app/theme/HitSlop'
+import LottieView from 'lottie-react-native'
+import blackLoader from '@assets/jsons/animations/refreshBlack.json'
+import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 const widthWindow = Dimensions.get('window').width
 
@@ -38,9 +47,9 @@ const renderBalance = (balance, cashbackCurrency) => {
     return (
         <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
             <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
-                <Text style={{ ...styles.topContent__title_first, color: colors.common.text1, marginTop: 10, fontSize: 40}} numberOfLines={1} >
+                <Text style={{ ...styles.topContent__title_first, color: colors.common.text1, marginTop: 10, fontSize: 40 }} numberOfLines={1}>
                     {balancePrettyPrep1}
-                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, lineHeight: 40, fontSize: 20}}>
+                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, lineHeight: 40, fontSize: 20 }}>
                         {balancePrettyPrep2 + ' ' + cashbackCurrency}
                     </Text>
                 </Text>
@@ -52,14 +61,34 @@ const renderBalance = (balance, cashbackCurrency) => {
 const CashbackData = (props) => {
 
     const {
-        data
+        data,
+        cashbackStore,
+        refresh,
+        clickRefresh,
+        handleRefresh
     } = props
 
-    const { title, subTitle, balance, ExtraViewData } = data
+    const cashbackToken = cashbackStore.dataFromApi.cashbackToken || cashbackStore.cashbackToken
+    const cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
 
-    const { colors } = useTheme()
+    let cashbackParentToken = cashbackStore.dataFromApi.parentToken || false
+    if (!cashbackParentToken) {
+        cashbackParentToken = cashbackStore.parentToken || ''
+    }
+    if (cashbackParentToken === cashbackToken || cashbackParentToken === cashbackLinkTitle) {
+        cashbackParentToken = ''
+    }
+
+    const { title, subTitle, balance, ExtraViewData, textInput } = data
+
+    const {
+        colors,
+        GRID_SIZE,
+        isLight
+    } = useTheme()
 
     const cashbackCurrency = 'USDT'
+
 
 
     return (
@@ -67,11 +96,20 @@ const CashbackData = (props) => {
 
             <View style={styles.topContent__content}>
 
-                <View style={{ flexDirection: 'row' }} >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={styles.header}>
                         <Text numberOfLines={1} style={[styles.header__title, { color: colors.common.text1 }]}>{title}</Text>
                         <Text style={styles.header__subTitle}>{subTitle}</Text>
                     </View>
+                    { refresh &&
+                        <TouchableOpacity style={[styles.refreshBtn, { alignItems: 'flex-end', marginRight: GRID_SIZE, marginTop: GRID_SIZE }]} onPress={handleRefresh} hitSlop={HIT_SLOP}>
+                            {clickRefresh ?
+                                <LottieView style={{ width: 22, height: 22 }}
+                                            source={isLight ? blackLoader : whiteLoader}
+                                            autoPlay loop /> :
+                                <CustomIcon name={'reloadTx'} size={22} color={colors.common.text1} />}
+                        </TouchableOpacity>
+                    }
                 </View>
 
                 {renderBalance(balance, cashbackCurrency)}
@@ -80,10 +118,20 @@ const CashbackData = (props) => {
                     <ExtraViewData />
                 )}
 
+                {textInput && (
+                    <Tab1
+                        windowWidth={widthWindow}
+                        cashbackParentToken={cashbackParentToken}
+                    />
+                )
+
+
+                }
+
             </View>
 
             <GradientView
-                style={ styles.bg }
+                style={styles.bg}
                 array={colors.accountScreen.containerBG}
                 start={styles.containerBG.start}
                 end={styles.containerBG.end}
@@ -95,7 +143,13 @@ const CashbackData = (props) => {
     )
 }
 
-export default CashbackData
+const mapStateToProps = (state) => {
+    return {
+        cashbackStore: getCashBackData(state)
+    }
+}
+
+export default connect(mapStateToProps)(CashbackData)
 
 const styles = {
     containerBG: {
@@ -111,7 +165,7 @@ const styles = {
         height: 216,
         zIndex: 1,
 
-        borderRadius: 16,
+        borderRadius: 16
     },
     topContent: {
         position: 'relative',
@@ -124,7 +178,7 @@ const styles = {
 
     topContent__content: {
         position: 'relative',
-        zIndex: 2,
+        zIndex: 2
     },
 
     topContent__bg: {
@@ -158,14 +212,14 @@ const styles = {
 
     topContent__top: {
         position: 'relative',
-        alignItems: 'center',
+        alignItems: 'center'
     },
     topContent__title: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 20,
-        marginTop: 16,
+        marginTop: 16
     },
     topContent__title_first: {
         fontSize: 32,
@@ -179,12 +233,13 @@ const styles = {
     },
     header: {
         marginTop: 16,
-        marginRight: 16,
         marginLeft: 16
     },
     header__title: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
+        lineHeight: 21,
+        width: widthWindow * 0.605
     },
     header__subTitle: {
         fontFamily: 'Montserrat-Bold',
@@ -194,6 +249,8 @@ const styles = {
         color: '#999999',
         textTransform: 'uppercase'
     },
-
+    refreshBtn: {
+        
+    }
 }
 

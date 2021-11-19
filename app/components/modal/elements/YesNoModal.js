@@ -41,6 +41,15 @@ class YesNoModal extends React.PureComponent {
 
         const { title, icon, description, reverse, oneButton, twoButton } = this.props.data
 
+        let {yesTitle, noTitle} = this.props
+        if (typeof this.props.data.yesTitle !== 'undefined' && this.props.data.yesTitle) {
+            yesTitle = this.props.data.yesTitle
+        }
+
+        if (typeof this.props.data.noTitle !== 'undefined' && this.props.data.noTitle) {
+            noTitle = this.props.data.noTitle
+        }
+
         const { colors } = this.context
 
         return (
@@ -57,10 +66,10 @@ class YesNoModal extends React.PureComponent {
                     </View>
                     <View>
                         <Button onPress={this.handleNo} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
-                            {oneButton ? oneButton : reverse ? strings('walletBackup.skipElement.yes') : strings('walletBackup.skipElement.no')}
+                            {oneButton ? oneButton : reverse ? strings(yesTitle) : strings(noTitle)}
                         </Button>
                         <Button onPress={this.handleYes} style={{ backgroundColor: 'transparent', color: colors.modal.warning }}>
-                            {twoButton ? twoButton : reverse ? strings('walletBackup.skipElement.no') : strings('walletBackup.skipElement.yes')}
+                            {twoButton ? twoButton : reverse ? strings(noTitle) : strings(yesTitle)}
                         </Button>
                     </View>
                 </View>

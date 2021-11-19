@@ -33,7 +33,7 @@ class DetailsContent extends React.Component {
         } = this.props
 
         return (
-            <View style={styles.container}>
+            <View style={[styles.container, { marginHorizontal: GRID_SIZE }]} >
                 {selectedTitle === 'CASHBACK' ?
                     <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5, backgroundColor: colors.cashback.detailsBg  }]}>
                         <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cashbackInfo')}</Text>
@@ -78,11 +78,10 @@ export default DetailsContent
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 5,
+        marginVertical: 5,
         position: 'relative',
         borderRadius: 16,
-        height: 160,
-        marginBottom: 60
+        height: 'auto',
     },
     textRow: {
         flexDirection: 'row',

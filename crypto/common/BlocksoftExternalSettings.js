@@ -12,12 +12,16 @@ const TREZOR_SERVERS = {}
 
 const CACHE = {
     'TRX_VOTE_BEST' : 'TV9QitxEJ3pdiAUAfJ2QuPxLKp9qTTR3og',
+    'TRX_SEND_LINK' : 'http://trx.trusteeglobal.com:8090', // http://trx.trusteeglobal.com:8090/wallet
+    'TRX_SOLIDITY_NODE' : 'http://trx.trusteeglobal.com:8091', //  http://trx.trusteeglobal.com:8091/walletsolidity
+    'TRX_USE_TRONSCAN' : 0,
     'SOL_VOTE_BEST' : 'CertusDeBmqN8ZawdkxK5kFGMwBXdudvWHYwtNgNhvLu',
     'ETH_LONG_QUERY' : 1,
+    'ETH_SMALL_FEE_FORCE_QUIT' : 1,
     'ETH_BLOCKED_BALANCE_FORCE_QUIT' : 1,
     'ETH_LONG_QUERY_FORCE_QUIT' : 1,
     'ETH_GAS_LIMIT' : 120000,
-    'ETH_GAS_LIMIT_FORCE_QUIT' : 1,
+    'ETH_GAS_LIMIT_FORCE_QUIT' : 0,
     'BCH': { '2': 2, '6': 1, '12': 1 },
     'BSV': { '2': 2, '6': 1, '12': 1 },
     'BTG': { '2': 10, '6': 5, '12': 2 },
@@ -28,6 +32,7 @@ const CACHE = {
     'XVG': { '2': 700, '6': 600, '12': 300 },
     'XVG_SEND_LINK' : 'https://api.vergecurrency.network/node/api/XVG/mainnet/tx/send',
     'XRP_SERVER' : 'wss://s1.ripple.com',
+    'XRP_MIN' : 10,
     'XLM_SERVER' : 'https://horizon.stellar.org',
     'XLM_SERVER_PRICE' : 100,
     'XLM_SEND_LINK' : 'https://horizon.stellar.org/transactions',
@@ -62,6 +67,8 @@ const CACHE = {
     'MATIC_SERVER' : 'https://rpc-mainnet.maticvigil.com',
     'MATIC_PRICE' : 1000000000,
     'MATIC_GAS_LIMIT' : 620000,
+    'FTM_SERVER' : 'https://rpc.ftm.tools',
+    'FTM_GAS_LIMIT' : 620000,
     'RSK_SERVER' : 'https://public-node.rsk.co',
     'RSK_PRICE' : 5000000000,
     'RSK_GAS_LIMIT' : 620000,
@@ -95,7 +102,8 @@ const CACHE = {
     'TERMS_en': 'https://trusteeglobal.com/terms-of-use/?header_footer=none',
     'TERMS_ru': 'https://trusteeglobal.com/ru/usloviya-ispolzovaniya/?header_footer=none',
     'TERMS_uk': 'https://trusteeglobal.com/uk/umovi-vikoristannya/?header_footer=none',
-    'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95
+    'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95,
+    'ROCKET_CHAT_USE' : 0
 }
 
 
@@ -106,9 +114,9 @@ class BlocksoftExternalSettings {
         return CACHE
     }
 
-    async get(param, source) {
+    async get(param, source = '') {
         // BlocksoftCryptoLog.log('BlocksoftExternalSettings.get started ' + param + ' from ' + source)
-        await this._get('get ' + (typeof source !== 'undefined' ? source : param))
+        await this._get('get ' + (typeof source !== 'undefined' && source ? source : param))
         if (typeof CACHE[param] === 'undefined') return false
         return CACHE[param]
     }

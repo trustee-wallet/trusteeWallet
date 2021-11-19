@@ -10,6 +10,14 @@ class BlocksoftPrettyStrings {
         if (ln < size + sizeEnd + 3) return str
         return str.substring(0, size) + '...' + str.substring(ln - sizeEnd)
     }
+
+    makeFromTrustee(link) {
+        let linkUrl = link
+        if (linkUrl.indexOf('?') === -1) {
+            linkUrl += '?from=trustee'
+        }
+        return linkUrl
+    }
 }
 
 export default new BlocksoftPrettyStrings()

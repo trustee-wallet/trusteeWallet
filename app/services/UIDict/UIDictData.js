@@ -128,6 +128,12 @@ export default {
             darkColor: '#2FB9B8'
         }
     },
+    'MATIC_USDC': {
+        colors: {
+            mainColor: '#2A7FDB',
+            darkColor: '#2FB9B8'
+        }
+    },
     'BSV': {
         colors: {
             mainColor: '#C8102E',
@@ -218,13 +224,13 @@ export default {
             darkColor: '#93CA76'
         }
     },
-    "CUSTOM_TTCrypto": {
+    "CUSTOM_TRX_TTCrypto": {
         colors: {
             mainColor: '#1B1818',
             darkColor: '#C0C0C0'
         }
     },
-    "CUSTOM_XXP": {
+    "CUSTOM_TRX_XXP": {
         colors: {
             mainColor: '#FF7B2C',
             darkColor: '#FF7B2C'
@@ -320,6 +326,12 @@ export default {
             darkColor: '#8247E5'
         }
     },
+    "MATIC_WMATIC": {
+        colors: {
+            mainColor: '#8247E5',
+            darkColor: '#8247E5'
+        }
+    },
     "ETH_BAT": {
         colors: {
             mainColor: '#9E1F63',
@@ -363,6 +375,12 @@ export default {
         }
     },
     "ETH_AAVE": {
+        colors: {
+            mainColor: '#2EBAC6',
+            darkColor: '#2DB1BC'
+        }
+    },
+    "MATIC_AAVE": {
         colors: {
             mainColor: '#2EBAC6',
             darkColor: '#2DB1BC'
@@ -471,6 +489,12 @@ export default {
         }
     },
     "TRX_ETH": {
+        colors: {
+            mainColor: '#1EB3E4',
+            darkColor: '#208FB4'
+        }
+    },
+    "MATIC_ETH": {
         colors: {
             mainColor: '#1EB3E4',
             darkColor: '#208FB4'
@@ -650,6 +674,12 @@ export default {
             darkColor: '#47A9F1'
         }
     },
+    'MATIC_USDT': {
+        colors: {
+            mainColor: '#31D182',
+            darkColor: '#2D9D66'
+        }
+    },
     "SOL_USDC": {
         colors: {
             mainColor: '#2A7FDB',
@@ -792,6 +822,12 @@ export default {
         colors: {
             mainColor: '#020F50',
             darkColor: '#1F39BA'
+        }
+    },
+    'TRX_EXON': {
+        colors: {
+            mainColor: '#FDD807',
+            darkColor: '#FDD807'
         }
     },
     'DEFAULT': {

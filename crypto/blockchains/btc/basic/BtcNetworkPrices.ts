@@ -59,7 +59,7 @@ export default class BtcNetworkPrices implements BlocksoftBlockchainTypes.Networ
             // noinspection ES6MissingAwait
             MarketingEvent.logEvent('estimate_fee_btc_result', logData)
             // @ts-ignore
-            BlocksoftCryptoLog.log('BtcNetworkPricesProvider ' + currencyCode + ' used cache', CACHE_FEES_BTC)
+            BlocksoftCryptoLog.log('BtcNetworkPricesProvider ' + currencyCode + ' used cache ' + JSON.stringify(CACHE_FEES_BTC))
             return CACHE_FEES_BTC
         }
 

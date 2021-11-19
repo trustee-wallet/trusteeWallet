@@ -48,7 +48,8 @@ export default function ButtonIcon(props) {
         noTitle,
         size = 42,
         shadowStyle,
-        title
+        title,
+        defaultShadow
     } = props
     const { colors } = useTheme()
     const Icon = ICON_SET[type];
@@ -59,6 +60,7 @@ export default function ButtonIcon(props) {
                 onPress={onPress}
                 style={[
                     styles.roundButton,
+                    defaultShadow ? styles.shadow : null,
                     shadowStyle,
                     {
                         backgroundColor: colors.common.roundButtonBg,
@@ -87,16 +89,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 21,
-
-        shadowColor: '#000',
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-        shadowOffset: {
-            width: 0,
-            height: 3
-        },
-
-        elevation: 10
     },
     text: {
         position: 'absolute',
@@ -107,4 +99,15 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5,
         textAlign: 'center'
     },
+    shadow: {
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        shadowOffset: {
+            width: 0,
+            height: 3
+        },
+
+        elevation: 10
+    }
 })

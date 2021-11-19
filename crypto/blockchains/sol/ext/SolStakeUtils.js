@@ -7,6 +7,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import config from '@app/config/config'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 
 
 const CACHE_STAKED = {}
@@ -136,10 +137,7 @@ export default {
         }
         try {
             const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
-
-            const getEpoch = { 'jsonrpc': '2.0', 'id': 1, 'method': 'getEpochInfo' }
-            const resEpoch = await BlocksoftAxios._request(apiPath, 'POST', getEpoch)
-            const currentEpoch = resEpoch.data.result.epoch || 0
+            const currentEpoch = SolUtils.getEpoch()
 
             const checkData = {
                 'jsonrpc': '2.0',

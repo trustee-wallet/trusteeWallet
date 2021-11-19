@@ -16,7 +16,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 119,
+        maxVersion: 124,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -829,7 +829,71 @@ export default function getTableUpdateQueries() {
                 afterFunction: async (dbInterface) => {
                     await dbInterface.query(`INSERT INTO currency (currency_code, is_hidden, currency_rate_json, currency_rate_scan_time) VALUES ('NFT', '0', '', '')`)
                 }
-            }
+            },
+
+            120: {
+                afterFunction: async (dbInterface) => {
+                    const res = await dbInterface.query(`SELECT currency_code FROM custom_currency WHERE token_type='TRX'`)
+                    if (res && res.array) {
+                        console.log('dbUpdate TRX tokens 1 ' + JSON.stringify(res.array))
+                        for (const row of res.array) {
+                            await dbInterface.query(`UPDATE currency SET currency_code='CUSTOM_TRX_${row.currency_code}' WHERE currency_code='CUSTOM_${row.currency_code}'`)
+                        }
+                    }
+                }
+            },
+
+            121: {
+                afterFunction: async (dbInterface) => {
+                    const res = await dbInterface.query(`SELECT currency_code FROM custom_currency WHERE token_type='TRX'`)
+                    if (res && res.array) {
+                        console.log('dbUpdate TRX tokens 2 ' + JSON.stringify(res.array))
+                        for (const row of res.array) {
+                            await dbInterface.query(`UPDATE account SET currency_code='CUSTOM_TRX_${row.currency_code}' WHERE currency_code='CUSTOM_${row.currency_code}'`)
+                        }
+                    }
+                }
+            },
+
+            122: {
+                afterFunction: async (dbInterface) => {
+                    const res = await dbInterface.query(`SELECT currency_code FROM custom_currency WHERE token_type='TRX'`)
+                    if (res && res.array) {
+                        console.log('dbUpdate TRX tokens 3 ' + JSON.stringify(res.array))
+                        for (const row of res.array) {
+                            await dbInterface.query(`UPDATE account_balance SET currency_code='CUSTOM_TRX_${row.currency_code}' WHERE currency_code='CUSTOM_${row.currency_code}'`)
+                        }
+                    }
+                }
+            },
+
+            123: {
+                afterFunction: async (dbInterface) => {
+                    const res = await dbInterface.query(`SELECT currency_code FROM custom_currency WHERE token_type='TRX'`)
+                    if (res && res.array) {
+                        console.log('dbUpdate TRX tokens 4 ' + JSON.stringify(res.array))
+                        for (const row of res.array) {
+                            await dbInterface.query(`UPDATE transactions SET currency_code='CUSTOM_TRX_${row.currency_code}' WHERE currency_code='CUSTOM_${row.currency_code}'`)
+                        }
+                    }
+                }
+            },
+
+            124: {
+                afterFunction: async (dbInterface) => {
+                    const res = await dbInterface.query(`SELECT currency_code, token_address FROM custom_currency WHERE token_type='TRX'`)
+                    if (res && res.array) {
+                        console.log('dbUpdate TRX tokens 5 ' + JSON.stringify(res.array))
+                        for (const row of res.array) {
+                            if (row.token_address.indexOf('0x') !== -1) {
+                                await dbInterface.query(`DELETE FROM custom_currency WHERE token_type='TRX' AND token_address='${row.token_address}'`)
+                            } else {
+                                await dbInterface.query(`UPDATE custom_currency SET currency_code='CUSTOM_TRX_${row.currency_code}' WHERE currency_code='CUSTOM_${row.currency_code}'`)
+                            }
+                        }
+                    }
+                }
+            },
         }
     }
 }

@@ -69,7 +69,7 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
             return res
         }
 
-        const tmp = DaemonCache.getCacheAccountStatiс(data.walletHash, 'USDT')
+        const tmp = DaemonCache.getCacheAccountStatic(data.walletHash, 'USDT')
         if (tmp.balance === '0' || tmp.balance === 0) {
             return res
         }

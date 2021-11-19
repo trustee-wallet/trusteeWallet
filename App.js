@@ -6,7 +6,7 @@ import React from 'react'
 
 import { Provider } from 'react-redux'
 import { AppearanceProvider } from 'react-native-appearance'
-import { Linking, Platform, UIManager } from 'react-native'
+import { Platform, UIManager } from 'react-native'
 
 import store from '@app/store'
 
@@ -14,7 +14,6 @@ import Router from '@app/router'
 import { ThemeProvider } from '@app/theme/ThemeProvider'
 
 import Application from '@app/appstores/Actions/App/App'
-import { SendDeepLinking } from '@app/appstores/Stores/Send/SendDeepLinking'
 
 import appsFlyer from 'react-native-appsflyer'
 
@@ -33,7 +32,6 @@ export default class App extends React.Component {
 
     componentDidMount() {
         Application.init({ source: 'App.mount', onMount : true })
-        Linking.addEventListener('url', (data) => SendDeepLinking.handleInitialURL(data.url))
 
         if (Platform.OS === 'android') {
             if (UIManager.setLayoutAnimationEnabledExperimental) {

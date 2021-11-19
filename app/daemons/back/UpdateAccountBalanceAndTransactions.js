@@ -153,7 +153,9 @@ class UpdateAccountBalanceAndTransactions {
                 console.log('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message, e)
             }
             Log.errDaemon('UpdateAccountBalanceAndTransactions balance error ' + source + ' ' + e.message + ' ' + tmpAction)
+            return false
         }
+        return true
     }
 
     loadFioData = async (currencyCode) => {
@@ -251,6 +253,9 @@ class UpdateAccountBalanceAndTransactions {
                 balanceError = ' found in one ' + JSON.stringify(newBalance)
             }
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('UpdateAccountBalanceAndTransactions newBalance from ' + source + ' loaded ' + account.currencyCode + ' ' + addressToScan + ' error ' + e.message)
+            }
             balanceError = ' found balanceError ' + e.message
         }
 

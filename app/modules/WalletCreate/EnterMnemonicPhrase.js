@@ -156,7 +156,12 @@ class EnterMnemonicPhrase extends PureComponent {
                 noBackdropPress: true,
             }, async () => {
                 if (callback === null || !callback) {
-                    NavStore.reset('TabBar')
+                    if (this.state.flowSubtype === 'importAnother') {
+                        NavStore.goBack()
+                        NavStore.goBack()
+                    } else {
+                        NavStore.reset('TabBar')
+                    }
                 } else if (callback === 'InitScreen') {
                     setCallback({ callback: null })
                     NavStore.reset('InitScreen')

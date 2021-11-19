@@ -8,8 +8,10 @@ import BnbSmartNetworkPrices from './basic/BnbSmartNetworkPrices'
 export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessorErc20 implements BlocksoftBlockchainTypes.TransferProcessor {
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        additionalData.gasPrice = await BnbSmartNetworkPrices.getFees()
-        additionalData.gasPriceTitle = 'speed_blocks_2'
+        if (typeof additionalData.gasPrice  === 'undefined' || !additionalData.gasPrice) {
+            additionalData.gasPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPath)
+            additionalData.gasPriceTitle = 'speed_blocks_2'
+        }
         const result = await super.getFeeRate(data, privateData, additionalData)
         result.shouldShowFees = true
         return result
@@ -21,8 +23,9 @@ export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessor
         if (balance > 0) {
             return { isOk: true }
         } else {
+            const title = this._mainCurrencyCode === 'BNB' ? 'BNB Smart Chain' : this._mainCurrencyCode
             // @ts-ignore
-            return { isOk: false, code: 'TOKEN', parentBlockchain: 'BNB Smart Chain' , parentCurrency: 'BNB Smart Chain' }
+            return { isOk: false, code: 'TOKEN', parentBlockchain: title, parentCurrency: title }
         }
     }
 

@@ -77,6 +77,11 @@ export default class Header extends React.PureComponent {
                         <CustomIcon name="close" size={18} color={props.color} />
                     )
                 }
+                case 'about': {
+                    return (
+                        <CustomIcon name="about" size={18} color={props.color} />
+                    )
+                }
                 case 'gallery': {
                     return (
                         <CustomIcon name="gallery" size={24} color={props.color} />

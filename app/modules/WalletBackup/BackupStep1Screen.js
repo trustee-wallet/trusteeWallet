@@ -168,7 +168,9 @@ class BackupStep1Screen extends React.PureComponent {
                 description: strings('modal.walletBackup.seedConfirm'),
                 noBackdropPress: true
             }, () => {
-                NavStore.reset('TabBar')
+                NavStore.goBack()
+                NavStore.goBack()
+                NavStore.goBack()
             })
         } else {
             const { walletName, walletMnemonic, callback, source, walletNumber } = this.props.createWalletStore
@@ -209,7 +211,9 @@ class BackupStep1Screen extends React.PureComponent {
                     noBackdropPress: true
                 }, async () => {
                     if (callback === null || !callback) {
-                        NavStore.reset('TabBar')
+                        NavStore.goBack()
+                        NavStore.goBack()
+                        NavStore.goBack()
                     } else if (callback === 'InitScreen') {
                         setCallback({ callback: null })
                         NavStore.reset('InitScreen')
@@ -220,6 +224,13 @@ class BackupStep1Screen extends React.PureComponent {
                 })
             } catch (e) {
                 Log.err('WalletBackup.BackupStep1Screen.validateMnemonic error ' + e.message)
+                setLoaderStatus(false)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: false,
+                    title: strings('modal.send.fail'),
+                    description: e.message
+                })
             }
 
         }

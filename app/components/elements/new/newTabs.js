@@ -7,7 +7,8 @@ import {
     View,
     Text,
     StyleSheet,
-    TouchableOpacity
+    TouchableOpacity,
+    Platform
 } from 'react-native'
 import { useTheme } from '@app/theme/ThemeProvider'
 
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
     tab: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
     },
     title: {
         fontFamily: 'Montserrat-Bold',

@@ -12,6 +12,10 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
 
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+import EthNetworkPrices from '@crypto/blockchains/eth/basic/EthNetworkPrices'
+
 const { dispatch } = store
 
 const CACHE_DATA = {
@@ -120,6 +124,12 @@ export namespace SendActionsBlockchainWrapper {
             }
             if (typeof uiData.contractCallData !== 'undefined') {
                 newCountedFeesData.contractCallData = uiData.contractCallData
+            }
+            if (typeof uiData.walletConnectData !== 'undefined') {
+                newCountedFeesData.walletConnectData = uiData.walletConnectData
+            }
+            if (typeof uiData.dexOrderData !== 'undefined') {
+                newCountedFeesData.dexOrderData = uiData.dexOrderData
             }
             if (!store.getState().sendScreenStore.fromBlockchain.neverCounted && JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
                 return { isTransferAll : newCountedFeesData.isTransferAll, amount : newCountedFeesData.amount, source : 'CACHE_COUNTED', addressTo : newCountedFeesData.addressTo}

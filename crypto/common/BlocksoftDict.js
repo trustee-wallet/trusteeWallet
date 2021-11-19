@@ -7,10 +7,10 @@ import CoinBlocksoftDict from '@crypto/assets/coinBlocksoftDict.json'
 const { RNFastCrypto } = NativeModules
 
 const VisibleCodes = [
-    'NFT', 'BTC', 'ETH', 'ETH_USDT', 'TRX', 'TRX_USDT' // add code here to show on start screen
+    'NFT', 'BTC', 'ETH', 'TRX', 'TRX_USDT', 'BNB_SMART', 'MATIC' // add code here to show on start screen
 ]
 const Codes = [
-    'NFT', 'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
+    'NFT', 'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'MATIC', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
 ]
 const Currencies = CoinBlocksoftDict
 
@@ -110,6 +110,20 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.tokenBlockchain = 'BNB'
         tmp.currencyExplorerLink = 'https://bscscan.com/token/' + currencyObject.tokenAddress + '?a='
+    } else if (currencyObject.tokenType === 'MATIC_ERC_20') {
+        tmp.currencyCode = 'CUSTOM_MATIC_ERC_20_' + currencyObject.currencyCode
+        tmp.extendsProcessor = 'MATIC_USDT'
+        tmp.addressUiChecker = 'ETH'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'MATIC'
+        tmp.currencyExplorerLink = 'https://polygonscan.com/token/' + currencyObject.tokenAddress + '?a='
+    } else if (currencyObject.tokenType === 'FTM_ERC_20') {
+        tmp.currencyCode = 'CUSTOM_FTM_ERC_20_' + currencyObject.currencyCode
+        tmp.extendsProcessor = 'FTM_USDC'
+        tmp.addressUiChecker = 'ETH'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'FTM'
+        tmp.currencyExplorerLink = 'https://ftmscan.com/token/' + currencyObject.tokenAddress + '?a='
     } else if (currencyObject.tokenType === 'SOL') {
         tmp.currencyCode = 'CUSTOM_SOL_' + currencyObject.currencyCode
         tmp.extendsProcessor = 'SOL_RAY'
@@ -123,6 +137,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenBlockchain = 'ETHEREUM'
         tmp.currencyExplorerLink = 'https://etherscan.io/token/' + currencyObject.tokenAddress + '?a='
     } else if (currencyObject.tokenType === 'TRX') {
+        tmp.currencyCode = 'CUSTOM_TRX_' + currencyObject.currencyCode
         tmp.extendsProcessor = 'TRX_USDT'
         tmp.addressUiChecker = 'TRX'
         tmp.currencyIcon = 'TRX'
@@ -143,7 +158,7 @@ function addAndUnifyCustomCurrency(currencyObject) {
 
 const ALL_SETTINGS = {}
 
-function getCurrencyAllSettings(currencyCodeOrObject) {
+function getCurrencyAllSettings(currencyCodeOrObject, source = '') {
     let currencyCode = currencyCodeOrObject
     if (typeof currencyCode === 'undefined' || !currencyCode) {
         return false
@@ -166,7 +181,7 @@ function getCurrencyAllSettings(currencyCodeOrObject) {
         settings = CurrenciesForTests[currencyCode]
     }
     if (!settings) {
-        throw new Error('Currency code not found in dict ' + JSON.stringify(currencyCode))
+        throw new Error('Currency code not found in dict ' + JSON.stringify(currencyCode) + ' from ' + source)
     }
     if (settings.extendsProcessor && Currencies[settings.extendsProcessor]) {
         const settingsParent = Currencies[settings.extendsProcessor]

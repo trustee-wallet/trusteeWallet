@@ -45,7 +45,7 @@ class NftDetailedInfo extends React.PureComponent {
         heightPhoto: 260, // TODO percent of screen
         data: {
             contractAddress: '2',
-            сontractSchema: 'ERC721',
+            contractSchema: 'ERC721',
             cryptoCurrencySymbol: 'ETH',
             cryptoValue: '?',
             id: 0,
@@ -56,6 +56,7 @@ class NftDetailedInfo extends React.PureComponent {
             desc: '',
             tokenBlockchainCode: 'ETH',
             tokenId: '',
+            tokenQty : 0,
             usdValue: ''
         }
     }
@@ -124,21 +125,40 @@ class NftDetailedInfo extends React.PureComponent {
                 CACHE_CLICK_SEND = false
                 return false
             }
+            const contractSchema = this.state.data.contractSchema || 'ERC721'
+            let contractAction = 'transferFrom'
+            let contractActionParams = [
+                this.props.nftsData.address,
+                'addressTo',
+                this.state.data.tokenId
+            ]
+            if (contractSchema === 'ERC1155') {
+                contractAction = 'safeTransferFrom'
+                contractActionParams = [
+                    this.props.nftsData.address,
+                    'addressTo',
+                    this.state.data.tokenId,
+                    1, // amount!
+                    '0x'
+                ]
+            }
+
             await SendActionsStart.startFromCustomContractCallData({
                 currencyCode,
                 contractCallData: {
                     contractAddress : this.state.data.contractAddress,
-                    contractSchema : this.state.data.contractSchema || 'ERC721',
-                    contractAction : 'transferFrom',
-                    contractActionParams : [
-                        this.props.nftsData.address,
-                        'addressTo',
-                        this.state.data.tokenId
-                    ],
+                    contractSchema,
+                    contractAction,
+                    contractActionParams,
                     infoForUser: [
                         {
                             title: strings('nftMainScreen.contract'),
                             subtitle: BlocksoftPrettyStrings.makeCut(this.state.data.contractAddress, 8, 8),
+                            iconType: 'contract'
+                        },
+                        {
+                            title: strings('nftMainScreen.contractSchema'),
+                            subtitle: BlocksoftPrettyStrings.makeCut(this.state.data.contractSchema),
                             iconType: 'contract'
                         },
                         {
@@ -169,8 +189,8 @@ class NftDetailedInfo extends React.PureComponent {
     handleShareLink = () => {
         const shareOptions = { message: '' }
         shareOptions.message += this.state.data.title + '\n' + this.state.data.subTitle + '\n\n'
-        shareOptions.message += this.state.data.permalink ? strings('account.transactionScreen.cashbackLink') + this.state.data.permalink : ''
-        shareOptions.message += `\n${strings('account.transactionScreen.thanks')}`
+        shareOptions.message += this.state.data.permalink ? strings('account.transactionScreen.website') + this.state.data.permalink : ''
+        
 
         prettyShare(shareOptions, 'nft_copyToMoreFinish')
     }
@@ -234,6 +254,7 @@ class NftDetailedInfo extends React.PureComponent {
                             <View style={styles.currencyInfo}>
                                 <NftTokenValue
                                     tokenBlockchainCode={data.tokenBlockchainCode}
+                                    tokenQty={data.tokenQty}
                                     walletCurrency={data.cryptoCurrencySymbol}
                                     balance={data.cryptoValue}
                                     balanceData={data.usdValue}

@@ -117,9 +117,15 @@ class BlocksoftKeys {
         const mnemonicCache = data.mnemonic.toLowerCase()
         let bitcoinRoot = false
         let currencyCode
+        let settings
         for (currencyCode of toDiscover) {
             results[currencyCode] = []
-            const settings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
+            try {
+                settings = BlocksoftDict.getCurrencyAllSettings(currencyCode, 'BlocksoftKeys')
+            } catch (e) {
+                // do nothing for now
+                continue
+            }
 
             let hexes = []
             if (settings.addressCurrencyCode) {
@@ -340,7 +346,6 @@ class BlocksoftKeys {
     async discoverOne(data) {
         const seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
         const root = bip32.fromSeed(seed)
-        console.log('data.derivationPath ' + JSON.stringify(data.derivationPath))
         const child = root.derivePath(data.derivationPath)
         /**
          * @type {EthAddressProcessor|BtcAddressProcessor}

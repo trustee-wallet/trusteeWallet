@@ -52,7 +52,6 @@ import FioScannerProcessor from './fio/FioScannerProcessor'
 
 import BnbAddressProcessor from './bnb/BnbAddressProcessor'
 import BnbScannerProcessor from './bnb/BnbScannerProcessor'
-import BnbSmartScannerProcessorErc20 from './bnb_smart/BnbSmartScannerProcessorErc20'
 import VetScannerProcessor from '@crypto/blockchains/vet/VetScannerProcessor'
 
 import SolAddressProcessor from '@crypto/blockchains/sol/SolAddressProcessor'
@@ -139,8 +138,6 @@ class BlocksoftDispatcher {
                 return new EthScannerProcessor(currencyDictSettings)
             case 'ETH_ERC_20':
                 return new EthScannerProcessorErc20(currencyDictSettings)
-            case 'BNB_SMART_20':
-                return new BnbSmartScannerProcessorErc20(currencyDictSettings)
             case 'ETH_SOUL':
                 return new EthScannerProcessorSoul(currencyDictSettings)
             case 'LTC':
@@ -184,6 +181,10 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain: 'ETHEREUM' })
             case 'BNB_SMART_20':
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'BNB' })
+            case 'MATIC_ERC_20':
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'MATIC' })
+            case 'FTM_ERC_20':
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'FTM' })
             case 'TRX':
                 return new TrxTokenProcessor()
             case 'SOL':
@@ -205,6 +206,8 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorNft({ network: 'rinkeby', tokenBlockchain: 'RINKEBY', tokenBlockchainCode : 'ETH_RINKEBY' })
             case 'MATIC': case 'NFT_MATIC':
                 return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'MATIC', tokenBlockchainCode : 'MATIC' })
+            case 'BNB': case 'NFT_BNB':
+                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'BNB', tokenBlockchainCode : 'BNB' })
             case 'ETH_ROPSTEN': case 'NFT_ROPSTEN':
                 return new EthTokenProcessorNft({ network: 'ropsten', tokenBlockchain : 'ROPSTEN', tokenBlockchainCode : 'ETH_ROPSTEN' })
             default:

@@ -40,8 +40,11 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
 
+import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+
 
 let CACHE_IS_COUNTING = false
+let CACHE_IS_SENDING_CLICKED = 0
 let CACHE_IS_SENDING = false
 let CACHE_WARNING_NOTICE = false
 
@@ -57,6 +60,8 @@ class ReceiptScreen extends PureComponent {
     }
 
     componentDidMount = () => {
+        CACHE_IS_SENDING = false
+        CACHE_IS_SENDING_CLICKED = 0
         setLoaderStatus(false)
         setLoaderFromBse(false)
     }
@@ -69,12 +74,13 @@ class ReceiptScreen extends PureComponent {
         }
         setLoaderStatus(true)
         CACHE_IS_COUNTING = true
+
         try {
             await SendActionsBlockchainWrapper.getFeeRate()
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
-            if (uiType === 'TRADE_SEND') {
-                NavStore.goNext('MaketAdvancedScreen')
+            if (uiType === 'TRADE_SEND' || uiType === 'TRADE_LIKE_WALLET_CONNECT') {
+                NavStore.goNext('MarketAdvancedScreen')
             } else {
                 NavStore.goNext('SendAdvancedScreen')
             }
@@ -89,10 +95,12 @@ class ReceiptScreen extends PureComponent {
     }
 
     handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
-        if (CACHE_IS_SENDING) {
+        if (CACHE_IS_SENDING && passwordCheck && CACHE_IS_SENDING_CLICKED < 10) {
+            Log.log('ReceiptScreen.handleSend already clicked ' + CACHE_IS_SENDING_CLICKED)
+            CACHE_IS_SENDING_CLICKED++
             return true
         }
-        Log.log('ReceiptScreen.handleSend started')
+        Log.log('ReceiptScreen.handleSend started clicked ' + CACHE_IS_SENDING_CLICKED)
 
         setLoaderStatus(false)
 
@@ -117,8 +125,9 @@ class ReceiptScreen extends PureComponent {
         this.setState({
             sendInProcess: true
         })
-
         CACHE_IS_SENDING = true
+        CACHE_IS_SENDING_CLICKED = 0
+
         const checkLoadedFeeResult = checkLoadedFee(this)
 
         if (checkLoadedFeeResult.msg && CACHE_WARNING_NOTICE !== checkLoadedFeeResult.cacheWarningNoticeValue) {
@@ -126,15 +135,17 @@ class ReceiptScreen extends PureComponent {
             if (checkLoadedFeeResult.goBack) {
                 showModal({
                     type: 'INFO_MODAL',
-                    icon: 'WARNING',
+                    icon: null,
                     title: strings('modal.titles.attention'),
                     description: checkLoadedFeeResult.msg
                 }, async () => {
+                    CACHE_IS_SENDING = false
+                    CACHE_IS_SENDING_CLICKED = 0
                     await SendActionsEnd.endRedirect(false, this.props.sendScreenStore)
                 })
             } else {
                 showModal({
-                    type: 'YES_NO_MODAL',
+                    type: checkLoadedFeeResult.modalType,
                     icon: 'WARNING',
                     title: strings('modal.titles.attention'),
                     description: checkLoadedFeeResult.msg
@@ -143,14 +154,16 @@ class ReceiptScreen extends PureComponent {
                     await this.handleSend(false, uiErrorConfirmed)
                 })
             }
+            CACHE_IS_SENDING = false
+            CACHE_IS_SENDING_CLICKED = 0
             this.setState({
                 sendInProcess: false
             })
-            CACHE_IS_SENDING = false
             return false
         }
 
         const { selectedFee } = this.props.sendScreenStore.fromBlockchain
+
         let tx = false
         let e = false
         try {
@@ -167,19 +180,19 @@ class ReceiptScreen extends PureComponent {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.handleSend rawOnly ', JSON.stringify(tx))
             }
+            Log.log('ReceiptScreen.handleSend rawOnly ', JSON.stringify(tx))
             showModal({
                 type: 'INFO_MODAL',
                 icon: null,
-                title: strings('modal.titles.attention'),
+                title: strings('send.receiptScreen.rawTransactionResult'),
                 description: tx.raw
             })
-            copyToClipboard(tx.raw)
-            Toast.setMessage(strings('toast.copied')).show()
 
+            CACHE_IS_SENDING = false
+            CACHE_IS_SENDING_CLICKED = 0
             this.setState({
                 sendInProcess: false
             })
-            CACHE_IS_SENDING = false
             return false
         }
 
@@ -211,10 +224,11 @@ class ReceiptScreen extends PureComponent {
                     e2.message += ' while SendActionsEnd.saveTx'
                     throw e2
                 }
+                CACHE_IS_SENDING = false
+                CACHE_IS_SENDING_CLICKED = 0
                 this.setState({
                     sendInProcess: false
                 })
-                CACHE_IS_SENDING = false
                 try {
                     UpdateOneByOneDaemon.unstop()
                     UpdateAccountListDaemon.unstop()
@@ -231,10 +245,12 @@ class ReceiptScreen extends PureComponent {
                 Log.log('ReceiptScreen.handleSendSaveTx error ' + e1.message)
             }
         }
+
+        CACHE_IS_SENDING = false
+        CACHE_IS_SENDING_CLICKED = 0
         this.setState({
             sendInProcess: false
         })
-        CACHE_IS_SENDING = false
         return false
     }
 
@@ -243,17 +259,37 @@ class ReceiptScreen extends PureComponent {
         UpdateOneByOneDaemon.unstop()
         UpdateAccountListDaemon.unstop()
         await SendActionsEnd.endClose(this.props.sendScreenStore)
-        const { uiType } = this.props.sendScreenStore.ui
+        const { uiType, walletConnectPayload } = this.props.sendScreenStore.ui
         if (uiType === 'TRADE_SEND') {
             NavStore.goBack()
         } else {
+            if (uiType === 'WALLET_CONNECT') {
+                try {
+                    await AppWalletConnect.rejectRequest(walletConnectPayload)
+                } catch (e) {
+                    Log.log('ReceiptScreen.closeAction WALLET_CONNECT error ' + e)
+                }
+
+            }
             NavStore.reset('HomeScreen')
         }
     }
 
-    backAction = () => {
+    backAction = async () => {
         UpdateOneByOneDaemon.unstop()
         UpdateAccountListDaemon.unstop()
+
+        const { uiType, walletConnectPayload } = this.props.sendScreenStore.ui
+        if (uiType === 'WALLET_CONNECT') {
+            try {
+                await AppWalletConnect.rejectRequest(walletConnectPayload)
+            } catch (e) {
+                Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e.message)
+            }
+        } else if (uiType === 'TRADE_SEND') {
+            await SendActionsEnd.endClose(this.props.sendScreenStore)
+        }
+
         NavStore.goBack()
     }
 
@@ -266,7 +302,7 @@ class ReceiptScreen extends PureComponent {
 
         const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
-        const { cryptoValue, bse, rawOnly, contractCallData } = this.props.sendScreenStore.ui
+        const { cryptoValue, bse, rawOnly, contractCallData, walletConnectData } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
         const { sendInProcess } = this.state
 
@@ -331,7 +367,11 @@ class ReceiptScreen extends PureComponent {
                             })}
 
                             {(typeof contractCallData === 'undefined' || !contractCallData) &&
-                                <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
+                                (typeof walletConnectData === 'undefined' || typeof walletConnectData.data === 'undefined' || cryptoValue.toString() !== '0' )
+                                ?
+                                    <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
+                                :
+                                    <Text style={{ ...styles.value, color: color }}>{`WalletConnect ${currencySymbol}`}</Text>
                             }
 
                             {
@@ -344,7 +384,10 @@ class ReceiptScreen extends PureComponent {
                             }
 
                             {
-                                (typeof bseOrderId === 'undefined' || !bseOrderId) && (typeof contractCallData === 'undefined' || !contractCallData) &&
+                                (typeof bseOrderId === 'undefined' || !bseOrderId)
+                                && (typeof contractCallData === 'undefined' || !contractCallData)
+                                && (typeof walletConnectData === 'undefined' || typeof walletConnectData.data === 'undefined' || cryptoValue.toString() !== '0' )
+                                &&
                                     <LetterSpacing
                                         text={`${basicCurrencySymbol} ${equivalentSeparated}`}
                                         numberOfLines={1}

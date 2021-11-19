@@ -57,8 +57,8 @@ const showSendError = function(e, _this, passwordCheck) {
 
 const checkLoadedFee = function(_this) {
     const { countedFees, selectedFee } = _this.props.sendScreenStore.fromBlockchain
-    const { currencyCode } = _this.props.sendScreenStore.dict
-    const { bse, cryptoValue } = _this.props.sendScreenStore.ui
+    const { currencyCode, currencySymbol } = _this.props.sendScreenStore.dict
+    const { bse, cryptoValue, uiType } = _this.props.sendScreenStore.ui
     const { bseMinCrypto, bseOrderId } = bse
 
     let msg = false
@@ -77,13 +77,37 @@ const checkLoadedFee = function(_this) {
         }
     }
 
+    let value = cryptoValue
+    if (typeof countedFees.amountForTx !== 'undefined') {
+        value = countedFees.amountForTx
+    } else if (typeof selectedFee.amountForTx !== 'undefined' ) {
+        value = selectedFee.amountForTx
+    }
+    if (value.toString() !== cryptoValue.toString()) {
+        Log.log('SendingValue ' + value.toString() + ' != ' + cryptoValue.toString())
+        if (uiType === 'TRADE_SEND') {
+            msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount : BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
+            goBack = true
+        } else {
+            msg = strings('send.errors.UI_CORRECTED_AMOUNT', { symbol: currencySymbol, amount : BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
+        }
+    }
+
+
+    let modalType = 'YES_NO_MODAL'
     if (!goBack) {
         if (
             (typeof selectedFee.isCustomFee === 'undefined' || !selectedFee.isCustomFee)
             && typeof countedFees.showBigGasNotice !== 'undefined' && countedFees.showBigGasNotice
         ) {
-            msg = strings('modal.send.bigGas', { gasLimit: selectedFee.gasLimit })
+
             goBack = BlocksoftExternalSettings.getStatic('ETH_GAS_LIMIT_FORCE_QUIT') > 0
+            if (goBack) {
+                msg = strings('modal.send.bigGas', { gasLimit: selectedFee.gasLimit })
+            } else {
+                msg = strings('modal.send.bigGasForceQuitOff', { gasLimit: selectedFee.gasLimit })
+                modalType = 'CONTINUE_CANCEL_MODAL'
+            }
             cacheWarningNoticeValue = countedFees.showBigGasNotice
         } else if (typeof countedFees.showBlockedBalanceNotice !== 'undefined' && countedFees.showBlockedBalanceNotice) {
             msg = strings('modal.send.blockedBalance', { free: countedFees.showBlockedBalanceFree })
@@ -115,10 +139,11 @@ const checkLoadedFee = function(_this) {
                     cacheWarningNoticeValue = countedFees.showSmallFeeNotice
                 }
                 msg += strings('modal.send.feeSmallAmount')
+                goBack = BlocksoftExternalSettings.getStatic('ETH_SMALL_FEE_FORCE_QUIT') > 0
             }
         }
     }
-    return { msg, cacheWarningNoticeValue, goBack }
+    return { msg, cacheWarningNoticeValue, goBack, modalType }
 }
 export {
     showSendError, checkLoadedFee

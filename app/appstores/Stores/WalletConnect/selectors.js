@@ -16,7 +16,8 @@ export const getWalletConnectData = createSelector(
             isConnected : data.isConnected,
             fullLink: data.fullLink,
             address: data.address,
-            mainCurrencyCode: data.mainCurrencyCode
+            mainCurrencyCode: data.mainCurrencyCode,
+            walletName: data.walletName
         }
     })
 )

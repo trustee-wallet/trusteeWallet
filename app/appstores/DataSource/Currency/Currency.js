@@ -48,7 +48,11 @@ export default {
      * @returns {Promise<void>}
      */
     insertCurrency: async (data) => {
-        await Database.setTableName(tableName).setInsertData(data).insert()
+        try {
+            await Database.setTableName(tableName).setInsertData(data).insert()
+        } catch (e) {
+            // do nothing
+        }
     },
 
     /**

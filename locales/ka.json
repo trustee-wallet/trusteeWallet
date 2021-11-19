@@ -52,6 +52,32 @@
       "listTitle": "ანგარიშები",
       "listSubtitle": "ანგარიშები: %{number}"
     },
+    "walletConnect": {
+      "inputPlaceholder": "Direct link",
+      "stop": "Disable WalletConnect",
+      "stopText": "Are you sure you want to stop the connection with ",
+      "start": "WalletConnect Start",
+      "startText": "Do you want to start this session?",
+      "transaction": "Transaction request",
+      "transactionText": "Are you sure you want to allow %{subtitle} to use your %{txPrice} for transactions?",
+      "sign": "WalletConnect Sign Request",
+      "signText": "Do you want to sign message ",
+      "signTyped": "WalletConnect Sign Typed Request",
+      "signTypedText": "Do you want to sign message ",
+      "session": "WalletConnect connection",
+      "sessionText": "Are you sure you want to connect your Trustee wallet to ",
+      "notificationTitle": "Attention!",
+      "notificationText": "Make sure %{name} is safe. By interacting with this service you provide access to your funds!",
+      "disconnect": "Disconnect",
+      "connect": "Connect",
+      "placeholder": "There is will be your wallet address that you connected to",
+      "linkError": "WalletConnect connection error. Please, check if the direct link is correct",
+      "title": "WalletConnect",
+      "activated": "Activated",
+      "disabled": "Disabled",
+      "changeNetwork": "Change Network",
+      "turnBasicAsset" : "For WalletConnect you need add %{asset} as it is used in this transaction"
+    },
     "walletManagement": {
       "title": "საფულეების მართვა",
       "backup": "საფულის რეზერვირება",
@@ -188,8 +214,10 @@
       "deactivateSOL": "Deactivate",
       "stakeHistorySOL" : "Stake History",
       "selectValidatorSOL": "Select validator",
+      "selectValidatorSOLCommission" : "Fee :",
       "validatorSOL": "Validator",
-      "rewards" : "Rewards"
+      "rewards" : "Rewards",
+      "useCustomValidator": "Use this validator "
     },
     "about": {
       "title": "საფულის შესახებ",
@@ -236,7 +264,7 @@
     "tabCustom": "მეტი",
     "searchPlaceholder": "ძიება",
     "addCustomPlaceholder": "აქტივის მისამართი",
-    "addCustomLabel": "თქვენ შეგიძლიათ დააამატოთ სტანდარტული ტოკენი, რომელიც შემუშავებულია ბლოკჩეინზე - Ethereum, BNB, Solana ან Tron. შეიყვანეთ ან დაასკანერეთ ახალი ტოკენი/აქტივი.",
+    "addCustomLabel": "თქვენ შეგიძლიათ დააამატოთ სტანდარტული ტოკენი, რომელიც შემუშავებულია ბლოკჩეინზე - Ethereum, BNB, Polygon, Solana ან Tron. შეიყვანეთ ან დაასკანერეთ ახალი ტოკენი/აქტივი.",
     "noAssetsFound": "აქტივები ვერ მოიძებნა",
     "addAssetButton": "აქტივის დამატება",
     "mainTitle": "აქტივის დამატება",
@@ -266,7 +294,9 @@
     "signed": "Signature only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "status": "Status",
     "contract": "Collection contract",
+    "contractSchema" : "Schema",
     "tokenId": "Token ID",
+    "tokenQty" : "Qty",
     "blockchain": "Blockchain",
     "address": "Owned by address",
     "ownershipProved": "Ownership proved",
@@ -398,6 +428,7 @@
       "income": "შემოსული",
       "self": "სელფი",
       "freeze": "გაყინვა",
+      "unfreeze" : "UnFreeze",
       "claim": "ჯილდო",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
@@ -416,7 +447,11 @@
       "RBF": {
         "replaceByFeeBtn": "საკომისიოს გაზრდა",
         "willReplaceWithNewFee": "მიმდინარე ტრანზაქცია შეიცვლება ახლით, ახალი ჰაშით და უფრო მაღალი საკომისიოთი",
-        "notAllowed": "ტრანზაქცია შექმნილია შეცვლის შესაძლებლობის გარეშე ან უკვე დადასტურებულია"
+        "notAllowed": "ტრანზაქცია შექმნილია შეცვლის შესაძლებლობის გარეშე ან უკვე დადასტურებულია",
+        "alreadyRemovedByFee" : "You have used “return” %{min} minutes ago",
+        "alreadyReplacedByFee" : "You have used “booster” %{min} minutes ago",
+        "alreadyRemovedByFeeLessThen2Minutes" : "You have used “return” now",
+        "alreadyReplacedByFeeLessThen2Minutes" : "You have used “booster” now"
       },
       "CPFP": {
         "willSpeedUp": "თქვენ შეგიძლიათ დააჩქაროთ შემომავალი ტრანზაქცია თქვენივე თავისთვის დამატებითი ტრანზაქციის შექმნით  უფრო მაღალი საკომისიოს გადახდის გზით. საკომისიოს ოდენობა გამოითვლება ავტომატურად ორივე ტრანზაქციის თავისებურებების გათვალისწინებით. გაითვალისწინეთ, რომ მოცემულ შემთხვვაში ახალი ტრანზაქციის გადახდა მოგიწევთ თქვენივე ხარჯებით. "
@@ -477,10 +512,14 @@
         }
       },
       "transactionHash": "ტრანზაქციის ჰაში:",
-      "cashbackLink": "ქეშბექის ბმული:",
-      "thanks": "მადლობა, რომ აირჩიეთ Trustee Wallet!",
+      "cashbackLink": "I’m using Trustee Wallet! Here is my personal link",
+      "website": "Website: ",
       "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე",
-      "order": "To order"
+      "order": "To order",
+      "transactionSum": "Amount send",
+      "addresTo": "Recipient ",
+      "addresFrom": "Sender ",
+      "blockConfirmations": "Current number of confirmations "
     }
   },
   "fioMainSettings": {
@@ -708,7 +747,8 @@
       "trusteeInfo": "Trustee does not charge any fees for cryptocurrency transactions",
       "send": "გაგზავნა",
       "build" : "Build",
-      "sending": "იგზავნება"
+      "sending": "იგზავნება",
+      "rawTransactionResult" : "Click to Copy"
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND": "აღნიშნულ მისამართზე ტრანზაქცია უკვე გაგზავნილია. დარწმუნებული ხართ, რომ გინდათ ხელახლა გაგზავნა?",
@@ -720,11 +760,13 @@
       "SERVER_RESPONSE_BAD_INTERNET": "არ არის კავშირი ინტერნეტთან",
       "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "ტრანზაქცია ვერ მოიძებნა, გთხოვთ, შეამოწმოთ კავშირი ინტერნეტთან. შესაძლოა ადგილი ჰქონდეს დაყოვნებას ინფორმაციის გამოსახულების მიღების თვალსაზრისით ",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "ქსელის საკომისიოს დასაფარად ანგარიშზე არ ფიქსირდება საკმარისი რაოდენობის ადგილობრივი მონეტა %{symbol}",
-      "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Only dust inputs - couldnt process - please use \"Send All\" to collect them together",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Your wallet has accumulated many incoming transactions with small amounts. Please use the \"Send All\" button to send the transaction correctly",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "ვერ მოხერხდა ადგილობრივი მონეტის (%{symbol}) ბალანსის შემოწმება. გთხოვთ, შეამოწმოთ ინტერნეტკავშირი!",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "ძალიან მცირე თანხაა ტრანზაქციისთვის",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "ტრანზაქციის განსახორციელებლად თანხა არასაკმარისია",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "ტრანზაქციის განსახორციელებლად თანხა არასაკმარისია (server validation)",
+      "UI_CORRECTED_AMOUNT" : "Balance of your %{symbol} wallet is different then sending amount, please confirm sending %{amount} %{symbol}",
+      "UI_CORRECTED_AMOUNT_BSE": "თქვენი %{symbol} საფულის ბალანსი ნაკლებია გასაგზავნი თანხაზე. გთხოვთ, განაახლოთ თქვენი %{symbol} ბალანსი და გაიმეოროთ გაცვლის ოპერაცია.",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "ბალანსზე არ არის საკმარისი თანხა ქსელის საკომისიოს დასაფარად - გთხოვთ, გამოიყენეთ ფუნქცია \"ყველას გაგზავნა\" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "ბალანსზე არაა საკმარისი თანხა დელეგირებული ტრანზაქციის განსახორციელებლად - გთხოვთ, გამოიყენეთ ჩვეულებრივი გადარიცხვა ERC20",
       "SERVER_RESPONSE_NO_RESPONSE": "ქსელი არ იღებს ტრანზაქციას - გთხოვთ, დაელოდოთ, სანამ სხვა ტრანზაქციები დადასტურდება",
@@ -735,14 +777,15 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "ძალიან მცირეა საკომისიო ტრანზაქციის ცვლილებისთვის",
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED": "ტრანზაქცია უკვე დადასტურებულია",
       "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce %{nonce} უკვე გამოყენებულია დადასტურებულ ტრანზაქციაში",
+      "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
       "SERVER_RESPONSE_NOT_CONNECTED": "ქსელი არ პასუხობს - გთხოვთ, გაიმეოროთ ოპერაცია მოგვიანებით",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "არასაკმარისია თანხა ტრანზაქციების განსახორციელებლად და მინიმალური საკომისიოსთვის",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "გთხოვთ, დაელოდოთ სხვა ტრანზაქციების დადასტურებას ან ჩართეთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "ძალიან მაღალია საკომისიო ტრანზაქციისთვის - გთხოვთ, აირჩიეთ საკომისიოს ოდენობა  ან მიუთითეთ თანხის დიდი რაოდენობა გადარიცხვისთვის ",
       "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Transaction fee per byte is too high - please adjust the fee manually",
       "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "ტრანზაქციები ერთსა და იმავე მისამართზე აკრძალულია",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "არაა საკმარისი თანხა გადასარიცხად (ბალანზე დატოვე არანაკლებ 20 XRP )",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "არასაკმარისი თანხა - გააგზავნეთ არანაკლებ 20 XRP მიმღების მისამართის აქტივაციისთვის",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "არაა საკმარისი თანხა გადასარიცხად (ბალანზე დატოვე არანაკლებ 10 XRP )",
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "არასაკმარისი თანხა - გააგზავნეთ არანაკლებ 10 XRP მიმღების მისამართის აქტივაციისთვის",
       "SERVER_RESPONSE_TAG_NEEDED_XRP": "დანიშნულების ტეგი არასწორია - ტრანზაქციის გასაგზავნად გთხოვთ, შეიყვანოთ დანიშნულების სწორი ტეგი ",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "BTC-ს ბალანსი მიმაგრებულ USDT ბიტკოინ მისამართზე არასაკმარისია - გთხოვთ, გადაიტანოთ მასზე სატოშების მცირე რაოდნეობა ",
       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": " USDT-თან დაკავშირებულ ბიტკოინ მისამართზე ბალანსი არასაკმარისი ან დაუდასტურებელია - გთხოვთ, დაელოდოთ ან ჩართოთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",
@@ -759,7 +802,9 @@
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
+      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
     }
   },
   "walletBackup": {
@@ -769,15 +814,15 @@
     "infoScreen": {
       "continue": "გაგრძელება",
       "text1": "TRUSTEE WALLET არ გააგზავნის თქვენს აღმდგენ ფრაზას არასდროს და არსად. ამიტომ, მოწყობილობის დაკარგვის ან დაზიანების შემთხვევაში, ერთადერთი გზა, მიიღოთ წვდომა თქვენს საშუალებებთან, არის აღმდგენი ფრაზის გამოყენება ",
-      "checkbox1": "მესმის, რომ თუ დავკარგავ აღმდგენ ფრრაზას, დავკარგავ ჩემს რესურსებს ",
+      "checkbox1": "I understand that I am fully responsible for the safety of the Recovery Phrase and in the event of its loss or transfer to third parties, I will lose my funds without the possibility of recovery.",
       "checkbox2": "მესმის, რომ აღმდგენ ფრაზას უნდა წავიკითხო მარტო, კამერების და უცხო პირების ირგვლივ ყოფნის გარეშე ",
       "text2": "ძალიან ფრთხილად იყავით აღმდგენ ფრაზასთან დაკავშირებით - ნებისმიერი, ვისაც ის ჩაუვარდება ხელში, შეძლებს მიიღოს წვდომა თქვენს რესურსთან და დახარჯოს საკუთარი შეხედულებისამებრ. გთხოვთ, არ გაანდოთ ის არავის არანაირ ვითარებაში!"
     },
     "step0Screen": {
       "phrase": "phrase",
       "qr": "Qr",
-      "info": "აღმდგენი ფრაზა - ეს არის თქვენი აქტივების ერთადერთი საიდუმლო გასაღები. შეინახეთ ის სანდო ადგილას!",
-      "showButton": "სანახავად დააჭირეთ ღილაკს და შეინარჩუნეთ ასეთ მდგომარეობაში",
+      "info": "აღდგენის ფრაზა (მნემონური ფრაზა, სათესლე ფრაზა) არის საიდუმლო წვდომის გასაღები თქვენს საფულეში არსებულ ყველა ნაშთზე. ჩაწერეთ სიტყვების თანმიმდევრობის დაცვით, უსაფრთხოდ შეინახეთ და არავის გადასცემთ!",
+      "showButton": "დააწკაპუნეთ და გააჩერეთ აქ ფრაზის სანახავად",
       "next": "შემდეგი",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
@@ -785,8 +830,8 @@
     },
     "step1Screen": {
       "title": "დადასტურება",
-      "placeholder": "გთხოვთ, სწორი თანმიმდევრობით დააჭიროთ სიტყვებს, რომ დაადასტუროთ აღმდგენი ფრაზა. ველიდან სიტყვის წასაშლელად კიდევ ერთხელ დააჭირეთ მას. ",
-      "showButton": "სანახავად დააჭირეთ ღილაკს და შეინარჩუნეთ ასეთ მდგომარეობაში",
+      "placeholder": "ჩაწერეთ სიტყვები სწორი თანმიმდევრობით აღდგენის ფრაზის დასადასტურებლად.\nდააწკაპუნეთ სიტყვაზე, თუ გსურთ მისი ამოღება ველიდან",
+      "showButton": "დააწკაპუნეთ და გააჩერეთ აქ ფრაზის სანახავად",
       "next": "შემდეგი"
     },
     "settingsScreen": {
@@ -823,7 +868,8 @@
       "description": "სარეზერვო კოპირების ფრაზა ძალიან მნიშვნელოვანია. თქვენ არ გექნებათ წვდომა თქვენს ფულთან. გამოვტოვოთ ეს ნაბიჯი?",
       "cancel": "გაუქმება",
       "yes": "დიახ",
-      "no": "არა"
+      "no": "არა",
+      "continue": "Continue"
     },
     "descriptionXMR": "ნებისმიერს, ვისაც აქვს აღმდგენი ფრაზა, შეუძლია, მიიღოს წვდომა საფულესთან. ეს სიტყვები მიღებულიაა ძირითადი ფრაზიდან, ამიტომ თქვენ შეგიძლიათ მისი გამოყენება მხოლოდ Monero -ს ბექაფისთვის "
   },
@@ -934,7 +980,7 @@
     "checkTransferHasError": {
       "XRP": {
         "title": "გთხოვთ, მიაქციოთ ყურადღება!",
-        "description": "თქვენი საფულე Ripple არ არის გააქტიურებული. აქტივაცია მოითხოვს 20 XRP -ის ბლოკირებას. Ripple-ის პროტოკოლის მიხედვით, ამ თანხის განბლოკვა შეუძლებელია და ის ანგარიშზე დარჩება."
+        "description": "თქვენი საფულე Ripple არ არის გააქტიურებული. აქტივაცია მოითხოვს 10 XRP -ის ბლოკირებას. Ripple-ის პროტოკოლის მიხედვით, ამ თანხის განბლოკვა შეუძლებელია და ის ანგარიშზე დარჩება."
       },
       "XLM": {
         "title": "Please, pay attention!",
@@ -1059,6 +1105,7 @@
       "bseMinCrypto": "Exchange minimal amount value is %{limit}",
       "bseMinCryptoNoFee": "Your balance is not enough for exchange minimal amount and fee",
       "bigGas": "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
+      "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance": "Your balance was used in previous unconfirmed transactions, you can use %{free}",
       "feeSmallAmount": "Left for fee amount is too small - transaction could be take too long time to confirm",
       "longQuery": "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
@@ -1086,7 +1133,7 @@
     "walletDelete": {
       "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
-      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
+      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost forever. "
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"
@@ -1422,11 +1469,14 @@
       "currency": "უკრაინული გრივნა"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Send docs",
     "sendLogs": "Send logs",
     "takePhoto": "Take photo",
     "chooseFromLibrary": "Choose from gallery",
-    "noMessages": "No messages yet"
+    "noMessages": "No messages yet",
+    "sentFile": "File sent",
+    "getRoomError" : "Load messages error",
+    "sendMessageError" : "Connection error while message sending"
   }
 }

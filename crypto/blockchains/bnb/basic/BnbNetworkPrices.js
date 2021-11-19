@@ -11,7 +11,9 @@ import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings
 
 const CACHE_VALID_TIME = 60000 // 1 minute
 let CACHE_FEES = {
-    send : 37500
+    send : {
+        fee: 37500
+    }
 }
 let CACHE_FEES_TIME = 0
 
@@ -35,7 +37,11 @@ class BnbNetworkPrices {
                 // {"fee": 1000000, "fee_for": 1, "msg_type": "transferOwnership"}]
                 const result = {}
                 for (const row of tmp.data) {
-                    result[row.msg_type] = {fee : row.fee, for : row.fee_for}
+                    if (typeof row.fixed_fee_params !== 'undefined') {
+                        result[row.fixed_fee_params.msg_type] = { fee: row.fixed_fee_params.fee, for: row.fixed_fee_params.fee_for }
+                    } else {
+                        result[row.msg_type] = { fee: row.fee, for: row.fee_for }
+                    }
                 }
                 if (typeof result['send'] !== 'undefined') {
                     CACHE_FEES = result

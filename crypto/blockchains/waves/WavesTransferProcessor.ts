@@ -75,11 +75,12 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         }
 
         let addressTo = data.addressTo
+        let apiPath
         if (this._settings.currencyCode === 'ASH') {
-            this._apiPath = await BlocksoftExternalSettings.get('ASH_SERVER')
+            apiPath = await BlocksoftExternalSettings.get('ASH_SERVER')
             addressTo = addressTo.replace('Æx', '')
         } else {
-            this._apiPath = await BlocksoftExternalSettings.get('WAVES_SERVER')
+            apiPath = await BlocksoftExternalSettings.get('WAVES_SERVER')
         }
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx started ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount)
@@ -90,23 +91,26 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
                 recipient: addressTo,
                 amount: data.amount,
             }
-
             signedData = transfer(money, { privateKey: privateData.privateKey })
 
         } catch (e) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' error ' + e.message)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' signedData error ' + e.message)
             throw new Error(e.message)
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount, signedData)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' signedData', signedData)
         if (!signedData || typeof signedData.id === 'undefined' || !signedData.id) {
             throw new Error('SYSTEM_ERROR')
         }
 
+        if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+            return { rawOnly: uiData.selectedFee.rawOnly, raw : JSON.stringify(signedData)}
+        }
 
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             const resp = await new Promise((resolve, reject) => {
-                broadcast(signedData, this._apiPath).then(resp => {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' will broadCast ' + JSON.stringify(apiPath))
+                broadcast(signedData, apiPath).then(resp => {
                     resolve(resp)
                 })
             })

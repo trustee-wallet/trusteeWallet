@@ -29,6 +29,7 @@ import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendAct
 import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
 import DaemonCache from '@app/daemons/DaemonCache'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 const amountInput = {
     id: 'value',
@@ -312,10 +313,7 @@ class InputAndButtons extends PureComponent {
     handleOpenLink = async (actualLink) => {
         if (typeof actualLink === 'undefined' || !actualLink) return false
         try {
-            let linkUrl = actualLink
-            if (linkUrl.indexOf('?') === -1) {
-                linkUrl += '?from=trustee'
-            }
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(actualLink)
             Linking.openURL(linkUrl)
         } catch (e) {
             Log.err('InputAndButtons open URI error ' + e.message + ' ' + actualLink)

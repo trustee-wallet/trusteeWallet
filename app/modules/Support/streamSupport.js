@@ -6,7 +6,7 @@
  * https://github.com/FaridSafi/react-native-gifted-chat
  */
 import React, { PureComponent, createRef } from 'react'
-import { View, Text, TouchableOpacity, Image, StyleSheet, Keyboard, } from 'react-native'
+import { View, Text, TouchableOpacity, Image, StyleSheet, Keyboard, ActivityIndicator } from 'react-native'
 import { connect } from 'react-redux'
 
 import BottomSheet from 'reanimated-bottom-sheet';
@@ -14,7 +14,7 @@ import Animated from 'react-native-reanimated';
 
 import { GiftedChat, Actions, Send, Bubble, Composer, Time, InputToolbar } from 'react-native-gifted-chat'
 
-import RNFS from 'react-native-fs';
+import Lightbox from 'react-native-lightbox'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
@@ -34,12 +34,17 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import { Camera } from '@app/services/Camera/Camera'
 import { awsS3 } from '@app/appstores/Stores/StreamSupport/awsService';
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import NavStore from '@app/components/navigation/NavStore'
 
 let CACHE_BUTTON_CLICKED = false
 class StreamSupportScreen extends PureComponent {
 
     sheetRef = createRef();
     fall = new Animated.Value(1);
+
+    state = {
+        refresh: false
+    }
 
     async componentDidMount() {
         try {
@@ -81,21 +86,11 @@ class StreamSupportScreen extends PureComponent {
         }
     }
 
-    onDownloadImagePress(url, name) {
-
-        RNFS.downloadFile({
-            fromUrl: url,
-            toFile: `${RNFS.DocumentDirectoryPath}/${name}`,
-        }).promise.then((r) => {
-            console.log('done!!!!')
-        });
-    }
-
     renderComposer = (props) => {
         const { colors } = this.context
 
         return (
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.streemChat.inputToolBarBg }}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.streamChat.inputToolBarBg }}>
                 <Composer
                     {...props}
                     textInputStyle={{
@@ -168,7 +163,7 @@ class StreamSupportScreen extends PureComponent {
                 containerStyle={{
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: colors.streemChat.inputToolBarBg,
+                    backgroundColor: colors.streamChat.inputToolBarBg,
                     paddingRight: 16
                 }}
                 handleOnPress={this.onPressSendBtn}
@@ -190,7 +185,7 @@ class StreamSupportScreen extends PureComponent {
                 justifyContent: 'center',
                 transform: [{ scaleY: -1 }]
             }}>
-                <Text style={[styles.text, { color: colors.common.text1 }]}>{strings('streemSupport.noMessages')}</Text>
+                <Text style={[styles.text, { color: colors.common.text1 }]}>{strings('streamSupport.noMessages')}</Text>
             </View>
         )
     }
@@ -203,29 +198,29 @@ class StreamSupportScreen extends PureComponent {
                 {...props}
                 wrapperStyle={{
                     right: {
-                        backgroundColor: colors.streemChat.right.bg
+                        backgroundColor: colors.streamChat.right.bg
                     },
                     left: {
-                        backgroundColor: colors.streemChat.left.bg
+                        backgroundColor: colors.streamChat.left.bg
                     }
                 }}
                 textStyle={{
                     right: {
-                        color: colors.streemChat.right.color,
+                        color: colors.streamChat.right.color,
                         ...styles.text
                     },
                     left: {
-                        color: colors.streemChat.left.color,
+                        color: colors.streamChat.left.color,
                         ...styles.text
                     }
                 }}
                 linkStyle={{
                     right: {
-                        color: colors.streemChat.right.color,
+                        color: colors.streamChat.right.color,
                         ...styles.text
                     },
                     left: {
-                        color: colors.streemChat.left.color,
+                        color: colors.streamChat.left.color,
                         ...styles.text
                     }
                 }}
@@ -259,7 +254,7 @@ class StreamSupportScreen extends PureComponent {
                     letterSpacing: 1
                 }}
                 containerStyle={{
-                    backgroundColor: colors.streemChat.inputToolBarBg,
+                    backgroundColor: colors.streamChat.inputToolBarBg,
                 }}
             />
         )
@@ -281,29 +276,38 @@ class StreamSupportScreen extends PureComponent {
         return (
             <>
                 {
-                    props.currentMessage.attachments ?
+                    props.currentMessage.attachments && props.currentMessage.attachments[0] && typeof props.currentMessage.attachments[0] !== 'undefined' ?
                         <View style={styles.customView}>
-                            <TouchableOpacity onPress={async () => {
-                                this.onDownloadImagePress(`https://testrocket.trustee.deals${props.currentMessage.attachments[0].title_link}`, props.currentMessage.attachments[0].title)
-                                console.log(`file://${RNFS.DocumentDirectoryPath}/${props.currentMessage.attachments[0].title}`)
-                            }}>
-                                <View>
-                                    {props.currentMessage.attachments[0]?.image_type &&
+                            <View>
+                                {props.currentMessage.attachments[0]?.image_type ?
+                                    <Lightbox
+                                        activeProps={{
+                                            ...styles.lightboxStyle,
+                                            resizeMode: 'contain',
+                                            ...props.currentMessage.attachments?.[0]?.image_dimensions
+                                        }}
+                                        renderHeader={close => (
+                                            <TouchableOpacity onPress={close} style={styles.closeButton}>
+                                                <CustomIcon name='close' color='#F5F5F5' size={20} />
+                                            </TouchableOpacity>
+                                        )}>
                                         <Image
-                                            source={{ uri: `file://${RNFS.DocumentDirectoryPath}/${props.currentMessage.attachments[0].title}` }}
+                                            resizeMode='cover'
+                                            style={{ maxWidth: '100%', height: '100%', ...props.currentMessage.attachments?.[0]?.image_dimensions }}
+                                            source={{ uri: `${this.props.streamSupportData.serverUrl}${props.currentMessage.attachments[0].image_url}` }}
                                         />
-                                    }
+                                    </Lightbox>
+                                    :
                                     <View style={styles.fileWrapper}>
-                                        <CustomIcon name='downloadDoc' color={colors.streemChat[props.position].color} size={28} style={{ paddingRight: 8 }} />
-                                        <Text style={[styles.text, { color: colors.streemChat[props.position].color }]} numberOfLines={1}>
-                                            {props.currentMessage.attachments[0].title}
+                                        <CustomIcon name='downloadDoc' color={colors.streamChat[props.position].color} size={28} style={{ paddingRight: 8 }} />
+                                        <Text style={[styles.text, { color: colors.streamChat[props.position].color }]} numberOfLines={1}>
+                                            {props.currentMessage.attachments[0]?.title}
                                         </Text>
                                     </View>
-                                </View>
-                            </TouchableOpacity>
-
+                                }
+                            </View>
                             {props.currentMessage.attachments[0]?.description &&
-                                <Text style={[styles.text, { color: colors.streemChat[props.position].color, paddingTop: 6 }]}>{props.currentMessage.attachments[0]?.description}</Text>}
+                                <Text style={[styles.text, { color: colors.streamChat[props.position].color, paddingTop: 6 }]}>{props.currentMessage.attachments[0]?.description}</Text>}
                         </View>
                         : null
                 }
@@ -319,22 +323,22 @@ class StreamSupportScreen extends PureComponent {
         return (
             <View style={[styles.panel, { backgroundColor: colors.bottomModal.bg }]} >
                 <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]}
-                                  onPress={this.sendLogs}>
-                    <CustomIcon onPress={this.sendLogs} name='logs' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text onPress={this.sendLogs} style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.sendLogs')}</Text>
+                    onPress={this.sendLogs}>
+                    <CustomIcon name='logs' color={colors.common.text1} size={20} style={styles.iconWrapper} />
+                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streamSupport.sendLogs')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]} onPress={this.uploadFromCamera}>
-                    <CustomIcon onPress={this.uploadFromCamera} name='camera' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text onPress={this.uploadFromCamera} style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.takePhoto')}</Text>
+                    <CustomIcon name='camera' color={colors.common.text1} size={20} style={styles.iconWrapper} />
+                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streamSupport.takePhoto')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]} onPress={this.uploadFromGallery}>
-                    <CustomIcon onPress={this.uploadFromGallery}name='gallery' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text onPress={this.uploadFromGallery} style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.chooseFromLibrary')}</Text>
+                    <CustomIcon name='gallery' color={colors.common.text1} size={20} style={styles.iconWrapper} />
+                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streamSupport.chooseFromLibrary')}</Text>
                 </TouchableOpacity>
-               <TouchableOpacity
+                <TouchableOpacity
                     style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]}
                     onPress={this.closeInner}>
-                    <Text onPress={this.closeInner} style={[styles.text2, { color: colors.common.text1 }]}>{strings('walletBackup.skipElement.cancel')}</Text>
+                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('walletBackup.skipElement.cancel')}</Text>
                 </TouchableOpacity>
             </View >
         )
@@ -344,7 +348,7 @@ class StreamSupportScreen extends PureComponent {
         this.sheetRef.current.snapTo(1)
     }
 
-    _upload = async(filename, data) => {
+    _upload = async (filename, data) => {
         const res = await awsS3(this.props.streamSupportData.userName, filename, data)
         if (!res || typeof res === 'undefined' || typeof res.Location === 'undefined') {
             throw new Error('File not uploaded')
@@ -364,11 +368,12 @@ class StreamSupportScreen extends PureComponent {
         CACHE_BUTTON_CLICKED = true
         try {
             setLoaderStatus(true)
-            const data = await SendLog.getAll('Support Chat', {forceFileContent : true})
+            const data = await SendLog.getAll('Support Chat', { forceFileContent: true })
             if (typeof data.urls[0] === 'undefined') {
                 throw new Error('Logs not built')
             }
-            await this._upload(`${this.props.streamSupportData.userName}.zip`, data.urls[0])
+            const date = Date.now()
+            await this._upload(`${this.props.streamSupportData.userName}_${date}.zip`, data.urls[0])
         } catch (e) {
             Log.log('Support/streamSupport sendLogs error ' + e.message)
             // @todo warning show
@@ -394,7 +399,8 @@ class StreamSupportScreen extends PureComponent {
             if (typeof res.base64 === 'undefined') {
                 throw new Error('Photo not built')
             }
-            await this._upload(`${this.props.streamSupportData.userName}.jpeg`, res.base64)
+            const date = Date.now()
+            await this._upload(`${this.props.streamSupportData.userName}_${date}.jpeg`, res.base64)
         } catch (e) {
             Log.log('Support/streamSupport uploadFromCameraOrGallery error ' + e.message)
             // @todo warning show
@@ -414,66 +420,107 @@ class StreamSupportScreen extends PureComponent {
         )
     }
 
+    renderLoading = () => {
+        const { colors } = this.context
+        return (
+            <ActivityIndicator
+                size='large'
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
+                color={colors.common.text2}
+            />
+        )
+    }
+
+    handleRefresh = async () => {
+        this.setState({ refresh: true })
+        await StreamSupportWrapper.initWS()
+        this.setState({ refresh: false })
+    }
+
+    getstatusConnection = async () => {
+        return await StreamSupportWrapper.getStatusSocketConnection()
+    }
+
+
     render() {
         MarketingAnalytics.setCurrentScreen('StreamSupportScreen')
 
         const { colors } = this.context
 
+        const { refresh } = this.state
+
         return (
             <ScreenWrapper
-                title={strings('settings.about.contactSupportTitle')}
-                leftType={'connect'}
-                leftAction={() => !StreamSupportWrapper.getStatusSocketConnection() ? StreamSupportWrapper.initWS() : null}
+                title={strings('settings.about.contactSupportTitle') + ' ' + this.props.streamSupportData.userName}
+                leftType='connect'
+                leftAction={this.getstatusConnection() ? this.handleRefresh : () => {}}
                 leftParams={{
-                    color: StreamSupportWrapper.getStatusSocketConnection() ? colors.common.checkbox.bgChecked : colors.common.text1
+                    color: this.getstatusConnection() ? colors.common.checkbox.bgChecked : colors.common.text1
                 }}
+                rightType='about'
+                rightAction={() => NavStore.goNext('SupportAboutScreen')}
             >
                 <View style={styles.container}>
-                    <BottomSheet
-                        ref={this.sheetRef}
-                        snapPoints={[288, -100]}
-                        renderContent={this.renderInner}
-                        renderHeader={this.renderHeader}
-                        initialSnap={1}
-                        callbackNode={this.fall}
-                        enabledGestureInteraction={true}
-                    />
-                    <Animated.View style={[styles.container, {
-                        opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
-                    }]}>
-                        {/* <TouchableOpacity
+                    {refresh ?
+                        this.renderLoading()
+                        :
+                        <>
+                            <BottomSheet
+                                ref={this.sheetRef}
+                                snapPoints={[255, 0]}
+                                renderContent={this.renderInner}
+                                renderHeader={this.renderHeader}
+                                initialSnap={1}
+                                callbackNode={this.fall}
+                                enabledGestureInteraction={true}
+                            />
+                            <Animated.View style={[styles.container, {
+                                opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
+                            }]}>
+                                {/* <TouchableOpacity
                             activeOpacity={1}
                             style={styles.container}
                             onPress={() => this.sheetRef.current.snapTo(1)}> */}
-                        <GiftedChat
-                            renderAvatar={() => null}
-                            showAvatarForEveryMessage={true}
-                            messages={this.props.streamSupportData.messages}
-                            onSend={(data) => this.onSend(data[0])}
-                            maxComposerHeight={100}
-                            alwaysShowSend={true}
-                            isKeyboardInternallyHandled={false}
-                            scrollToBottom={true}
+                                <GiftedChat
+                                    renderAvatar={() => null}
+                                    showAvatarForEveryMessage={true}
+                                    messages={this.props.streamSupportData.messages}
+                                    onSend={(data) => this.onSend(data[0])}
+                                    maxComposerHeight={100}
+                                    alwaysShowSend={true}
+                                    isKeyboardInternallyHandled={false}
+                                    scrollToBottom={true}
+                                    renderLoading={this.renderLoading}
 
-                            renderComposer={this.renderComposer}
-                            renderTime={this.renderTime}
-                            renderActions={this.renderActions}
-                            renderSend={this.renderSend}
-                            renderChatEmpty={this.renderChatEmpty}
-                            renderBubble={this.renderBubble}
-                            renderInputToolbar={this.renderInputToolbar}
-                            scrollToBottomComponent={this.renderScrollToBottom}
-                            renderCustomView={this.renderCustomView}
-                            scrollToBottomStyle={{
-                                backgroundColor: colors.common.button.bg,
-                                opacity: 1
-                            }}
-                            user={{
-                                _id: this.props.streamSupportData.userId
-                            }}
-                        />
-                        {/* </TouchableOpacity> */}
-                    </Animated.View>
+                                    renderComposer={this.renderComposer}
+                                    renderTime={this.renderTime}
+                                    renderActions={this.renderActions}
+                                    renderSend={this.renderSend}
+                                    renderChatEmpty={this.renderChatEmpty}
+                                    renderBubble={this.renderBubble}
+                                    renderInputToolbar={this.renderInputToolbar}
+                                    scrollToBottomComponent={this.renderScrollToBottom}
+                                    renderCustomView={this.renderCustomView}
+                                    scrollToBottomStyle={{
+                                        backgroundColor: colors.common.button.bg,
+                                        opacity: 1
+                                    }}
+                                    user={{
+                                        _id: this.props.streamSupportData.userId
+                                    }}
+                                />
+                                {/* </TouchableOpacity> */}
+                            </Animated.View>
+                        </>
+                    }
                 </View>
             </ScreenWrapper>
         )
@@ -488,7 +535,7 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, {})(StreamSupportScreen)
+export default connect(mapStateToProps)(StreamSupportScreen)
 
 const styles = StyleSheet.create({
     customView: {
@@ -563,5 +610,17 @@ const styles = StyleSheet.create({
     fileWrapper: {
         flexDirection: 'row',
         alignItems: 'center'
+    },
+    closeButton: {
+        padding: 10,
+        alignSelf: 'flex-end',
+        marginTop: 50
+    },
+    lightboxStyle: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        maxWidth: '100%',
+        maxHeight: '100%'
     }
 })

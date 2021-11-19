@@ -82,7 +82,11 @@ export namespace StreamSupportActions {
             }
             const oldData = store.getState().streamSupportStore
             const messages = [message]
+            const unique = {}
+            unique[tmp._id] = 1
             for (const tmp of oldData.messages) {
+                if (typeof unique[tmp._id] !== 'undefined') continue
+                unique[tmp._id] = 1
                 messages.push(tmp)
             }
             dispatch({

@@ -89,9 +89,10 @@ export default class XmrScannerProcessor {
 
         let res = false
         try {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get start ' + link + 'get_address_info', JSON.stringify(linkParams))
             res = await BlocksoftAxios.post(link + 'get_address_info', linkParams)
         } catch (e) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get error ' + e.message, linkParams)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get error ' + e.message, JSON.stringify(linkParams))
             if (CACHE_SHOWN_ERROR === 0 && e.message.indexOf('invalid address and/or view key') !== -1) {
                 showModal({
                     type: 'INFO_MODAL',
@@ -169,21 +170,10 @@ export default class XmrScannerProcessor {
      * @param {string} walletHash
      * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
      */
-    async getBalanceBlockchainCache(address, additionalData, walletHash) {
-        const res = await this._getCache(address, additionalData, walletHash)
-        if (!res) {
-            return false
-        }
-        return { balance: res.balance, unconfirmed: 0, provider: res.provider, time: res.time }
-    }
-
-    /**
-     * @param {string} address
-     * @param {*} additionalData
-     * @param {string} walletHash
-     * @return {Promise<{balance:*, unconfirmed:*, provider:string}>}
-     */
     async getBalanceBlockchain(address, additionalData, walletHash) {
+        if (address === 'invalidRecheck1') {
+            return  { balance: 0, unconfirmed: 0, provider: 'error'}
+        }
         const res = await this._get(address, additionalData, walletHash)
         if (!res) {
             return false
@@ -199,6 +189,9 @@ export default class XmrScannerProcessor {
      */
     async getTransactionsBlockchain(scanData, source = '') {
         const address = scanData.account.address.trim()
+        if (address === 'invalidRecheck1') {
+            return []
+        }
         const additionalData = scanData.additional
         const walletHash = scanData.account.walletHash
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor.getTransactions started ' + address + ' of ' + walletHash)

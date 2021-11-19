@@ -20,7 +20,8 @@ import config from '../../../app/config/config'
 import settingsActions from '../../../app/appstores/Stores/Settings/SettingsActions'
 import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 import { sublocale } from '../../../app/services/i18n'
-import abi from './ext/erc721.js'
+import abi721 from './ext/erc721.js'
+import abi1155 from './ext/erc1155'
 
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -38,7 +39,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         let txRBFed = ''
         let txRBF = false
-        const addressToLower = data.addressTo.toLowerCase()
+
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate remove started ' + data.transactionRemoveByFee)
             txRBF = data.transactionRemoveByFee
@@ -47,7 +48,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate resend started ' + data.transactionReplaceByFee)
             txRBF = data.transactionReplaceByFee
             txRBFed = 'RBFed'
+        } else if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate dex ' + data.addressFrom + ' started')
         } else {
+            const addressToLower = data.addressTo.toLowerCase()
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
             txRBFed = 'usualSend'
             if (data.addressTo !== '' && (addressToLower.indexOf('0x') === -1 || addressToLower.indexOf('0x') !== 0)) {
@@ -101,9 +105,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             ethAllowBlockedBalance,
             ethAllowLongQuery,
             maxNonceLocal
-        })
+        }, this._etherscanApiPath)
 
-        if (typeof additionalData.gasPrice !== 'undefined') {
+        if (typeof additionalData.gasPrice !== 'undefined' && additionalData.gasPrice) {
             if (typeof additionalData.gasPriceTitle !== 'undefined') {
                 // @ts-ignore
                 gasPrice[additionalData.gasPriceTitle] = additionalData.gasPrice
@@ -113,7 +117,21 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else if (typeof additionalData.prices !== 'undefined' && additionalData.prices) {
             gasPrice = additionalData.prices
         } else if (proxyPriceCheck) {
-            gasPrice = typeof proxyPriceCheck.gasPrice !== 'undefined' && proxyPriceCheck.gasPrice ? proxyPriceCheck.gasPrice : { 'speed_blocks_12': '10' }
+            let tmp = 0
+            if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+                tmp = typeof data.dexOrderData[0].params.gasPrice !== 'undefined' ? data.dexOrderData[0].params.gasPrice : 0
+                if (tmp > 0) {
+                    gasPrice = { 'speed_blocks_2': tmp }
+                }
+            } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gasPrice !== 'undefined' && data.walletConnectData.gasPrice) {
+                tmp = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gasPrice)
+                if (tmp > 0) {
+                    gasPrice = { 'speed_blocks_2': tmp }
+                }
+            }
+            if (!tmp) {
+                gasPrice = typeof proxyPriceCheck.gasPrice !== 'undefined' && proxyPriceCheck.gasPrice ? proxyPriceCheck.gasPrice : { 'speed_blocks_12': '10' }
+            }
             if (typeof proxyPriceCheck.maxNonceLocal !== 'undefined' && proxyPriceCheck.maxNonceLocal) {
                 maxNonceLocal = proxyPriceCheck.maxNonceLocal
             }
@@ -128,11 +146,22 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         try {
 
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
-                if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
-                    if (typeof abi[data.contractCallData.contractSchema] === 'undefined') {
-                        throw new Error('Contract abi not found ' + data.contractCallData.contractSchema)
+
+                if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+                    gasLimit = typeof data.dexOrderData[0].params.gas !== 'undefined' ? data.dexOrderData[0].params.gas : 0
+                } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
+                    gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gas)
+                } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
+                    const schema = data.contractCallData.contractSchema
+                    let abiCode
+                    if (schema === 'ERC721') {
+                        abiCode = abi721.ERC721
+                    } else if (schema === 'ERC1155') {
+                        abiCode = abi1155.ERC1155
+                    } else {
+                        throw new Error('Contract abi not found ' + schema)
                     }
-                    const token = new this._web3.eth.Contract(abi[data.contractCallData.contractSchema], data.contractCallData.contractAddress)
+                    const token = new this._web3.eth.Contract(abiCode, data.contractCallData.contractAddress)
 
                     gasLimit = 150000
                     try {
@@ -148,7 +177,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         }
                     } catch (e) {
                         if (config.debug.cryptoErrors) {
-                            console.log('EthTransferProcessor data.contractCallData error ' + e.message)
+                            BlocksoftCryptoLog.log('EthTransferProcessor data.contractCallData error ' + e.message)
                         }
                         BlocksoftCryptoLog.log('EthTransferProcessor data.contractCallData error ' + e.message)
                         // do nothing
@@ -338,7 +367,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 } else {
                     if (tmp * 1 < 0) {
                         const tmpGasPrice = BlocksoftUtils.div(balance, gasLimit).toString()
-                        if (BlocksoftUtils.diff(tmpGasPrice, prevGasPrice).toString() * 1 > 0) {
+                        if (tmpGasPrice && BlocksoftUtils.diff(tmpGasPrice, prevGasPrice).toString() * 1 > 0) {
                             fee = balance
                             newGasPrice = tmpGasPrice.split('.')[0]
                             changedFeeByBalance = true
@@ -361,10 +390,17 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
             }
 
+            let gweiFee = 0
+            try {
+                gweiFee = newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : newGasPrice
+            } catch (e) {
+                BlocksoftCryptoLog.err('EthTxProcessor.getFeeRate newGasPrice to gwei error ' + e.message)
+            }
+
             const tmp = {
                 langMsg,
                 gasPrice: newGasPrice,
-                gasPriceGwei: newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : '0',
+                gasPriceGwei: gweiFee,
                 gasLimit: gasLimit.toString(),
                 feeForTx: fee.toString(),
                 nonceForTx,
@@ -441,10 +477,17 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         newGasPrice = BlocksoftUtils.round(newGasPrice)
                     }
 
+                    let gweiFee = 0
+                    try {
+                        gweiFee = newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : newGasPrice
+                    } catch (e) {
+                        BlocksoftCryptoLog.err('EthTxProcessor.getFeeRate newGasPrice2 to gwei error ' + e.message)
+                    }
+
                     const tmp = {
                         langMsg: title,
                         gasPrice: newGasPrice,
-                        gasPriceGwei: typeof newGasPrice !== 'undefined' && newGasPrice !== '0' ? BlocksoftUtils.toGwei(newGasPrice).toString() : '0',
+                        gasPriceGwei: gweiFee,
                         gasLimit: gasLimit.toString(),
                         feeForTx: fee.toString(),
                         amountForTx: amount,
@@ -500,10 +543,16 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 fee = fee.toString()
             }
             const needSpeed = typeof keys[index] !== 'undefined' && typeof gasPrice[keys[index]] !== 'undefined' ? gasPrice[keys[index]].toString() : '?'
+            let gweiFee = 0
+            try {
+                gweiFee = fee !== '0' ? BlocksoftUtils.toGwei(fee).toString() : fee
+            } catch (e) {
+                BlocksoftCryptoLog.err('EthTxProcessor.getFeeRate fee to gwei error ' + e.message)
+            }
             const tmp = {
                 langMsg: 'eth_speed_slowest',
                 gasPrice: fee,
-                gasPriceGwei: fee !== '0' ? BlocksoftUtils.toGwei(fee).toString() : fee,
+                gasPriceGwei: gweiFee,
                 gasLimit: gasLimit.toString(),
                 feeForTx,
                 amountForTx,
@@ -626,7 +675,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
                 fees.selectedTransferAllBalanceETH = BlocksoftUtils.toEther(fees.fees[fees.selectedFeeIndex].amountForTx)
             } catch (e) {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance + ' error on logging ' + e.message)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + data.addressTo + ' error on logging ' + e.message)
             }
         }
         return {
@@ -656,8 +705,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx resend started ' + data.transactionReplaceByFee)
             txRBF = data.transactionReplaceByFee
             txRBFed = 'RBFed'
+        } else if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx dex ' + data.addressFrom + ' started')
+            txRBFed = 'dexSend'
         } else {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx started')
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx ' + data.addressFrom + ' started')
             txRBFed = 'usualSend'
             if (data.addressTo !== '' && (addressToLower.indexOf('0x') === -1 || addressToLower.indexOf('0x') !== 0)) {
                 throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
@@ -707,20 +759,44 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             value: data.amount
         }
 
-        if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
-            if (typeof abi[data.contractCallData.contractSchema] === 'undefined') {
-                throw new Error('Contract abi not found ' + data.contractCallData.contractSchema)
-            }
-            const token = new this._web3.eth.Contract(abi[data.contractCallData.contractSchema], data.contractCallData.contractAddress)
-
-            const tmpParams = data.contractCallData.contractActionParams
-            for (let i = 0, ic = tmpParams.length; i < ic; i++) {
-                if (tmpParams[i] === 'addressTo') {
-                    tmpParams[i] = data.addressTo
+        if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+            if (typeof data.dexOrderData[0].params.data !== 'undefined') {
+                tx.data = data.dexOrderData[0].params.data
+                if (typeof data.dexOrderData[0].params.value !== 'undefined') {
+                    tx.value = data.dexOrderData[0].params.value
+                } else {
+                    tx.value = 0
                 }
             }
-            tx.to = data.contractCallData.contractAddress
-            tx.data = token.methods[data.contractCallData.contractAction](...tmpParams).encodeABI()
+            if (typeof data.dexOrderData[0].params.to !== 'undefined') {
+                tx.to = data.dexOrderData[0].params.to
+            }
+        } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
+            const schema = data.contractCallData.contractSchema
+            try {
+                let abiCode
+                if (schema === 'ERC721') {
+                    abiCode = abi721.ERC721
+                } else if (schema === 'ERC1155') {
+                    abiCode = abi1155.ERC1155
+                } else {
+                    throw new Error('Contract abi not found ' + schema)
+                }
+                const token = new this._web3.eth.Contract(abiCode, data.contractCallData.contractAddress)
+
+                const tmpParams = data.contractCallData.contractActionParams
+                for (let i = 0, ic = tmpParams.length; i < ic; i++) {
+                    if (tmpParams[i] === 'addressTo') {
+                        tmpParams[i] = data.addressTo
+                    }
+                }
+                tx.to = data.contractCallData.contractAddress
+                tx.data = token.methods[data.contractCallData.contractAction](...tmpParams).encodeABI()
+            } catch (e) {
+                throw new Error(e.message + ' while encodeABI for ' + schema)
+            }
+        } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.data !== 'undefined') {
+            tx.data = data.walletConnectData.data
         } else if (typeof data.blockchainData !== 'undefined') {
             tx.data = data.blockchainData // actual value for erc20 etc
         }
@@ -761,13 +837,6 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 }
                 logData.setNonce = oldNonce
                 tx.nonce = oldNonce
-                result = await sender.send(tx, privateData, txRBF, logData)
-                if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
-                    result.amountForTx = data.amount
-                }
-                result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
-                result.transactionFeeCurrencyCode = 'ETH'
-                result.addressTo = data.addressTo === data.addressFrom ? '' : data.addressTo
             } else {
                 // @ts-ignore
                 if (typeof uiData.selectedFee.nonceForTx !== 'undefined'
@@ -781,25 +850,36 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     logData.selectedFee.nonceLog = 'replacedByUi ' + uiData.selectedFee.nonceForTx + ' ' + (typeof logData.selectedFee.nonceLog !== 'undefined' ? logData.selectedFee.nonceLog : '')
                 }
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' nonceLog ' + logData.selectedFee.nonceLog)
+            }
 
-                try {
-                    result = await sender.send(tx, privateData, txRBF, logData)
-                } catch (e) {
-                    if (config.debug.cryptoErrors) {
-                        console.log(this._settings.currencyCode + ' EthTransferProcessor.sent while sender.send error ' + e.message)
-                    }
-                    throw e
+            if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
+                return { rawOnly: uiData.selectedFee.rawOnly, raw : await sender.sign(tx, privateData, txRBF, logData)}
+            }
+
+            try {
+                result = await sender.send(tx, privateData, txRBF, logData)
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent while ' + (txRBF ? 'txRbf':'usual') + ' sender.send error ' + e.message)
                 }
+                throw e
+            }
 
-                result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
-                result.transactionFeeCurrencyCode = this._mainCurrencyCode
+            result.transactionFee = BlocksoftUtils.mul(finalGasPrice, finalGasLimit)
+            result.transactionFeeCurrencyCode =  this._mainCurrencyCode === 'BNB' ? 'BNB_SMART' : this._mainCurrencyCode
+            if (txRBF) {
+                if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
+                    result.amountForTx = data.amount
+                }
+                result.addressTo = data.addressTo === data.addressFrom ? '' : data.addressTo
+            } else {
                 result.transactionJson.txData = tx.data
                 await EthTmpDS.getCache(this._mainCurrencyCode, data.addressFrom)
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthTransferProcessor.sent error ' + e.message, tx)
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sent error ' + e.message, tx)
             }
             this.checkError(e, data, txRBF, logData)
         }

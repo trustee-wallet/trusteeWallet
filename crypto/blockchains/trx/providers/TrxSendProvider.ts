@@ -7,6 +7,7 @@ import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import config from '@app/config/config'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 export default class TrxSendProvider extends DogeSendProvider implements BlocksoftBlockchainTypes.SendProvider {
 
@@ -32,8 +33,8 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
     async _sendTx(tx: any, subtitle: string, txRBF: any, logData: any): Promise<{ transactionHash: string, logData : any }> {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxSendProvider._sendTx ' + subtitle + ' started ', logData)
 
-        const link = this._trezorServerCode + '/wallet/broadcasttransaction'
-
+        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+        const link = sendLink + '/wallet/broadcasttransaction'
         if (config.debug.cryptoErrors) {
             console.log(new Date().toISOString() + ' ' + this._settings.currencyCode + ' TrxSendProvider._sendTx ' + subtitle + ' started check ')
         }

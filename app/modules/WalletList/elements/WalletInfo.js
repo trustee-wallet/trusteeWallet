@@ -226,12 +226,14 @@ class WalletInfo extends React.Component {
                     </TouchableOpacity>
                 </Animated.View>
                 {!this.props.walletIsBackedUp ?
-                    <InfoNotification
-                        title={strings('settings.walletList.backupNeeded')}
-                        subTitle={strings('settings.walletList.backupDescription')}
-                        closeCallback={this.closeMsg}
-                        onPress={this.handleBackupModal}
-                    /> : null
+                    <View style={{ marginHorizontal: GRID_SIZE }}>
+                        <InfoNotification
+                            title={strings('settings.walletList.backupNeeded')}
+                            subTitle={strings('settings.walletList.backupDescription')}
+                            closeCallback={this.closeMsg}
+                            onPress={this.handleBackupModal}
+                        />
+                    </View> : null
                 }
             </>
         )

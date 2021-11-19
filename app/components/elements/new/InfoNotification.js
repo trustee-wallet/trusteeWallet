@@ -47,7 +47,9 @@ class InfoNotification extends React.Component {
         const {
             title,
             subTitle,
-            onPress
+            onPress,
+            containerStyles,
+            range
         } = this.props
 
         const { colors, GRID_SIZE } = this.context
@@ -61,7 +63,7 @@ class InfoNotification extends React.Component {
                     })
                 },
                 {
-                    translateY: this.state.height
+                    translateY: range ? this.state.viewHeight / 2 : this.state.height
                 }
             ],
             marginVertical: this.state.height.interpolate({
@@ -73,9 +75,12 @@ class InfoNotification extends React.Component {
                 outputRange: [1, 0]
             })
         }
+        if (range) {
+            backupAnimaStyle.marginTop = (-this.state.viewHeight / 2) + GRID_SIZE
+        }
 
         return (
-            <Animated.View style={[styles.container, backupAnimaStyle, { marginHorizontal: GRID_SIZE, backgroundColor: colors.homeScreen.backupBg }]}>
+            <Animated.View style={[styles.container, backupAnimaStyle, containerStyles, { backgroundColor: colors.homeScreen.backupBg }]}>
                 <TouchableOpacity
                     onPress={onPress}
                     style={styles.backupWrapper}

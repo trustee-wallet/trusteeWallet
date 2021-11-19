@@ -124,7 +124,25 @@ function filterBySearchQuery(assets, value) {
         || (
             typeof as.tokenName !== 'undefined' && as.tokenName && as.tokenName.toLowerCase() === value
         )
-    ))
+    )).sort((a, b) => {
+        if (typeof a.tokenBlockchain === 'undefined' && typeof b.tokenBlockchain !== 'undefined') {
+            return -1
+        } else if (typeof b.tokenBlockchain === 'undefined' && typeof a.tokenBlockchain !== 'undefined') {
+            return 1
+        }
+        const nameA = a.currencyName.toLowerCase()
+        const nameB = b.currencyName.toLowerCase()
+        if (nameA.indexOf(value) === 0 && nameB.indexOf(value) !== 0) {
+            return -1
+        } else if (nameB.indexOf(value) === 0 && nameA.indexOf(value) !== 0) {
+            return 1
+        }
+        if (nameA < nameB)
+            return -1
+        if (nameA > nameB)
+            return 1
+        return 0
+    })
 }
 
 
@@ -133,7 +151,8 @@ export async function addCustomToken(tokenAddress, tokenType ) {
 
     setLoaderStatus(true)
 
-    let checked
+    let checked = false
+    let todoArray = []
     try {
         for (const dict in BlocksoftDict.Currencies) {
             if (
@@ -161,30 +180,43 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             tokenType,
             tokenAddress
         })
-        let checked2 = false
+        Log.log('AddCustomTokenScreen.addToken checked ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked))
+        if (checked) {
+           todoArray.push({ tokenType, checked })
+        }
+
         if (tokenType === 'ETH_ERC_20') {
-            checked2 = await customCurrencyActions.checkCustomCurrency({
+            const checked2 = await customCurrencyActions.checkCustomCurrency({
                 tokenType: 'BNB_SMART_20',
                 tokenAddress
             })
+            Log.log('AddCustomTokenScreen.addToken checked2 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked2))
+            if (checked2) {
+                todoArray.push({ tokenType : 'BNB_SMART_20', checked: checked2})
+            }
+
+            const checked3 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'MATIC_ERC_20',
+                tokenAddress
+            })
+            Log.log('AddCustomTokenScreen.addToken checked3 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked3))
+            if (checked3) {
+                todoArray.push({ tokenType : 'MATIC_ERC_20', checked : checked3})
+            }
+
+            const checked4 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'FTM_ERC_20',
+                tokenAddress
+            })
+            Log.log('AddCustomTokenScreen.addToken checked4 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked3))
+            if (checked4) {
+                todoArray.push({ tokenType : 'FTM_ERC_20', checked : checked4})
+            }
         }
 
-        Log.log('AddCustomTokenScreen.addToken checked ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked))
-        Log.log('AddCustomTokenScreen.addToken checked2 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked2))
 
-        if (checked2) {
-            if (checked) {
-                await _actualAdd(checked, tokenType, false)
-                return _actualAdd(checked2, 'BNB_SMART_20', true)
-            } else {
-                checked = checked2
-                tokenType = 'BNB_SMART_20'
-                return _actualAdd(checked, tokenType)
-            }
-        } else if (checked) {
-            return _actualAdd(checked, tokenType)
-
-        } else {
+        const ic = todoArray.length
+        if (ic === 0) {
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -194,6 +226,11 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             setLoaderStatus(false)
             return { searchQuery: false }
         }
+
+        for (let i = 0; i<ic - 1; i++) {
+            await _actualAdd(todoArray[i].checked, todoArray[i].tokenType, false)
+        }
+        return _actualAdd(todoArray[ic - 1].checked, todoArray[ic - 1].tokenType, true)
 
     } catch (e) {
 

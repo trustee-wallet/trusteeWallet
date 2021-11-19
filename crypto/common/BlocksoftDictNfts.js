@@ -8,16 +8,17 @@ const Nfts = [
         currencyType: 'NFT',
         showOnHome : true
     },
-    /*
+
     {
         currencyCode: 'NFT_BNB',
         currencyName: 'BNB NFT',
         currencySymbol: 'NFT',
         tokenBlockchain: 'BNB',
         tokenBlockchainCode: 'BNB_SMART',
-        currencyType: 'NFT'
+        currencyType: 'NFT',
+        showOnHome : false
     },
-    */
+
     {
         currencyCode: 'NFT_MATIC',
         currencyName: 'Matic NFT',

@@ -30,7 +30,7 @@ const ProgressCircleBox = (props) => {
 
     return(
         <View style={[styles.circleBox, additionalStyles]}>
-            <View>
+            <View style={styles.circle}>
                 <ProgressCircle
                     style={styles.progressCircle}
                     strokeWidth={3.5}
@@ -39,7 +39,7 @@ const ProgressCircleBox = (props) => {
                     progressColor={colors.cashback.token}
                 />
             </View>
-            <View style={styles.circleInfo}>
+            <View>
                 <Text style={[styles.circleTitle, { color: colors.common.text3 }]}>{title}</Text>
                 <Text style={styles.circleProcent}>{(percent >= 100 ? '100' : percent) + ' %'}</Text>
             </View>
@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
             marginLeft: 17
     },
     progressCircle: {
-        height: 34,
-        width: 34
+        height: 45,
+        width: 40
     },
     circleTitle: {
         marginTop: 3,
@@ -74,8 +74,9 @@ const styles = StyleSheet.create({
         letterSpacing: 1.75,
         color: '#999999'
     },
-    circleInfo: {
-        flex: 1,
-        marginLeft: 9
+    circle: {
+        paddingRight: 2,
+        paddingBottom: 2,
+        marginRight: 5
     }
 })

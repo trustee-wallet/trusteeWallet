@@ -53,9 +53,30 @@
       "listSubtitle": "Accounts: %{number}"
     },
     "walletConnect": {
-      "title": "Wallet connect",
+      "inputPlaceholder": "Direct Link",
+      "stop": "Disable WalletConnect",
+      "stopText": "Are you sure you want to stop the connection with ",
+      "start": "WalletConnect Start",
+      "startText": "Do you want to start this session?",
+      "transaction": "Transaction request",
+      "transactionText": "Are you sure you want to allow %{subtitle} to use your %{txPrice} for transactions?",
+      "sign": "WalletConnect Sign Request",
+      "signText": "Do you want to sign message ",
+      "signTyped": "WalletConnect Sign Typed Request",
+      "signTypedText": "Do you want to sign message ",
+      "session": "WalletConnect connection",
+      "sessionText": "Are you sure you want to connect your Trustee wallet to ",
+      "notificationTitle": "Attention!",
+      "notificationText": "Make sure %{name} is safe. By interacting with this service you provide access to your funds!",
+      "disconnect": "Disconnect",
+      "connect": "Connect",
+      "placeholder": "There is will be your wallet address that you connected to",
+      "linkError": "WalletConnect connection error. Please, check if the direct link is correct",
+      "title": "Walletconnect",
       "activated": "Activated",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "changeNetwork": "Change Network",
+      "turnBasicAsset" : "For WalletConnect you need add %{asset} as it is used in this transaction"
     },
     "walletManagement": {
       "title": "Wallets management",
@@ -195,8 +216,10 @@
       "deactivateSOL": "Deactivate",
       "stakeHistorySOL" : "Stake History",
       "selectValidatorSOL": "Select validator",
+      "selectValidatorSOLCommission" : "Fee: ",
       "validatorSOL": "Validator",
-      "rewards" : "Rewards"
+      "rewards" : "Rewards",
+      "useCustomValidator": "Use this validator "
     },
     "about": {
       "title": "About",
@@ -243,7 +266,7 @@
     "tabCustom": "More",
     "searchPlaceholder": "Search",
     "addCustomPlaceholder": "Asset address",
-    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB, Solana or Tron blockchain. Please, enter or scan a new token / asset.",
+    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB, Polygon, Solana or Tron blockchain. Please, enter or scan a new token / asset.",
     "noAssetsFound": "No assets found",
     "addAssetButton": "Add asset",
     "mainTitle": "Add asset",
@@ -273,7 +296,9 @@
     "signed": "Signature only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "status": "Status",
     "contract": "Collection contract",
+    "contractSchema" : "Schema",
     "tokenId": "Token ID",
+    "tokenQty" : "Qty",
     "blockchain": "Blockchain",
     "address": "Owned by address",
     "ownershipProved": "Ownership proved",
@@ -404,6 +429,7 @@
       "outcome": "Outcome",
       "income": "Income",
       "freeze" : "Freeze",
+      "unfreeze" : "UnFreeze",
       "claim" : "Claim",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
@@ -423,7 +449,11 @@
       "RBF": {
         "replaceByFeeBtn": "Update tx fee",
         "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
-        "notAllowed": "The transaction was created without the possibility of replacement or has already been confirmed"
+        "notAllowed": "The transaction was created without the possibility of replacement or has already been confirmed",
+        "alreadyRemovedByFee" : "You have used “return” %{min} minutes ago",
+        "alreadyReplacedByFee" : "You have used “booster” %{min} minutes ago",
+        "alreadyRemovedByFeeLessThen2Minutes" : "You have used “return” now",
+        "alreadyReplacedByFeeLessThen2Minutes" : "You have used “booster” now"
       },
       "CPFP" : {
         "willSpeedUp" : "You can speed up an incoming transaction by creating an additional transaction on your own, with a higher commission. The size of the commission will be calculated automatically, taking into account the features of both transactions.Please note, that in this case, payment for a new transaction will be at your expense"
@@ -484,10 +514,14 @@
         }
       },
       "transactionHash": "Transaction hash:",
-      "cashbackLink": "Website:",
-      "thanks": "Thank you for choosing Trustee Wallet!",
-      "self": "This transaction was send to your address",
-      "order": "To order"
+      "cashbackLink": "I’m using Trustee Wallet! Here is my personal link ",
+      "website": "Website: ",
+      "self": "This transaction was send to your own address",
+      "order": "To order",
+      "transactionSum": "Amount send",
+      "addresTo": "Recipient ",
+      "addresFrom": "Sender ",
+      "blockConfirmations": "Current number of confirmations "
     }
   },
 
@@ -721,7 +755,8 @@
         "trusteeInfo": "Trustee does not charge any fees for cryptocurrency transactions",
         "send": "Send",
         "build" : "Build",
-        "sending": "Sending"
+        "sending": "Sending",
+        "rawTransactionResult" : "Click to Copy"
     },
     "errors": {
      "UI_CONFIRM_DOUBLE_SEND": "The transaction has been sent to this address already, are you sure that you want to repeat the transaction?",
@@ -733,11 +768,13 @@
      "SERVER_RESPONSE_BAD_INTERNET": "No access to internet",
      "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "Transaction was not found, please check your internet connection. Possible delays for updating information",
      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Insufficient balance of native currency %{symbol} to pay the network fee",
-     "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Only dust inputs - couldn't process - please use \"Send All\" to collect them together",
+     "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Your wallet has accumulated many incoming transactions with small amounts. Please use the \"Send All\" button to send the transaction correctly",
      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Native currency (%{symbol}) balance cannot be updated. Please check your internet connection",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Transaction amount is too small",
      "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Insufficient balance to send the transaction",
      "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "Balance of your %{symbol} wallet is less then sending amount. Please rescan balance of %{symbol} and try again.",
+     "UI_CORRECTED_AMOUNT" : "Balance of your %{symbol} wallet is different then sending amount, please confirm sending %{amount} %{symbol}",
+     "UI_CORRECTED_AMOUNT_BSE": "The balance of your %{symbol} wallet is less than the amount to be sent. Please, update your %{symbol} balance and repeat the swap operation.",
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Insufficient balance to pay the network fee - please use an option \"Send All\" ",
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Insufficient balance to pay the delegated transaction - please use ERC20 standard transaction",
      "SERVER_RESPONSE_NO_RESPONSE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined",
@@ -748,14 +785,15 @@
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Transaction replacement fee is too small",
      "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Transaction already mined",
      "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} already mined",
+     "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
      "SERVER_RESPONSE_NOT_CONNECTED": "Network is unreachable - please repeat the operation later",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Insufficient balance to make the transaction and to pay the minimal fee",
      "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Please wait for the other transactions to be mined or turn ON an option \"Use unconfirmed transactions\" ",
      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee is too high - please adjust the fee manually or send more funds",
      "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Transaction fee per byte is too high - please adjust the fee manually",
      "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "Transactions to the same address are forbidden",
-     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Insufficient balance to make the transaction (Please keep not less than 20 XRP on balance)",
-     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Insufficient funds - send not less than 20 XRP to activate the receiving address",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Insufficient balance to make the transaction (Please keep not less than 10 XRP on balance)",
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Insufficient funds - send not less than 10 XRP to activate the receiving address",
      "SERVER_RESPONSE_TAG_NEEDED_XRP": "Destination Tag is incorrect - please enter the correct Destination Tag to make the transaction",
      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "Insufficient BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
      "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": "Insufficient or unconfirmed BTC balance on linked USDT address - please wait or turn ON an option \"Use unconfirmed transactions\" ",
@@ -772,7 +810,9 @@
      "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Insufficient TRX balance for fee / bandwidth limit is over",
      "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Insufficient VeChain Thor Token (VTHO) balance for fee",
      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
-     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction"
+     "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
+     "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
+     "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
     }
   },
   "walletBackup": {
@@ -782,15 +822,15 @@
     "infoScreen": {
       "continue": "Continue",
       "text1": "TRUSTEE WALLET never sends your recovery phrase anywhere. Therefore, in case of device loss or failure, the only way to restore access to your funds is to use a recovery phrase.",
-      "checkbox1": "I understand that if I lose this phrase, I will not have access to my balances. And I understand that by passing this phrase to anyone, I will lose my money",
+      "checkbox1": "I understand that I am fully responsible for the safety of the Recovery Phrase and in the event of its loss or transfer to third parties, I will lose my funds without the possibility of recovery.",
       "checkbox2": "I understand that I must view my recovery phrase in private with no cameras and eyes around",
       "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
     "step0Screen": {
       "phrase": "phrase",
       "qr": "Qr",
-      "info": "The recovery phrase (mnemonic phrase, seed phrase) is a secret key for accessing all the balances of your wallet. Keep it in a safe place and don't pass it to anyone!",
-      "showButton": "Press and hold to reveal",
+      "info": "The Recovery Phrase (mnemonic phrase, seed-phrase) is the secret access key to all balances in your wallet. Write it down, observing the word order, save it securely and do not pass it on to anyone!",
+      "showButton": "Press and hold here to see the phrase",
       "next": "Next",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
@@ -798,8 +838,8 @@
     },
     "step1Screen": {
       "title": "Check",
-      "placeholder": "Please, tap each word in the correct order to verify recovery phrase. To remove word from field tap on it again",
-      "showButton": "Press and hold to reveal",
+      "placeholder": "Enter the words in the correct order to confirm the Recovery Phrase.\nTap on a word if you want to remove it from the field",
+      "showButton": "Press and hold here to see the phrase",
       "next": "Next"
     },
     "settingsScreen": {
@@ -836,7 +876,8 @@
       "description": "Backup phrase is very important. You will not have access to your founds. Do you want to skip this step?",
       "cancel": "Cancel",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "continue": "Continue"
     },
     "descriptionXMR": "Anyone with your recovery phrase can access or spend your coins. This words are derived from main recovery phrase, so you could use it only to backup Monero"
   },
@@ -947,7 +988,7 @@
     "checkTransferHasError": {
       "XRP": {
         "title": "Please, pay attention!",
-        "description": "Your Ripple wallet is not activated. Activation requires to stake 20 XRP. According to Ripple protocol, this amount cannot be unlocked and will remain frozen in your account."
+        "description": "Your Ripple wallet is not activated. Activation requires to stake 10 XRP. According to Ripple protocol, this amount cannot be unlocked and will remain frozen in your account."
       },
       "XLM": {
         "title": "Please, pay attention!",
@@ -1072,6 +1113,7 @@
       "bseMinCrypto": "Exchange minimal amount value is %{limit}",
       "bseMinCryptoNoFee" : "Your balance is not enough for exchange minimal amount and fee",
       "bigGas" : "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
+      "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance" : "Your balance was used in previous unconfirmed transactions, you can use %{free}",
       "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",
       "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
@@ -1109,7 +1151,7 @@
     "walletDelete": {
       "deleteWallet": "This operation will remove the wallet %{walletName} from the application, to continue, confirm the Recovery phrase",
       "delete": "Do yoy want delete this wallet?",
-      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost. "
+      "notBackupPositiveBalance": "The %{walletName} wallet has a positive balance. Backup of recovery phase not created. Access to assets will be lost forever. "
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"
@@ -1445,11 +1487,14 @@
       "currency": "Ukrainian Hryvnia"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Send docs",
     "sendLogs": "Send logs",
     "takePhoto": "Take photo",
     "chooseFromLibrary": "Choose from gallery",
-    "noMessages": "No messages yet"
+    "noMessages": "No messages yet",
+    "sentFile": "File sent",
+    "getRoomError" : "Load messages error",
+    "sendMessageError" : "Connection error while message sending"
   }
 }

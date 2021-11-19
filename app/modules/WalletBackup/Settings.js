@@ -129,7 +129,9 @@ class BackupSettingsScreen extends PureComponent {
                     noBackdropPress: true
                 }, async () => {
                     if (callback === null || !callback) {
-                        NavStore.reset('TabBar')
+                        NavStore.goBack()
+                        NavStore.goBack()
+                        NavStore.goBack()
                     } else if (callback === 'InitScreen') {
                         setCallback({ callback: null })
                         NavStore.reset('InitScreen')
@@ -140,6 +142,13 @@ class BackupSettingsScreen extends PureComponent {
                 })
             } catch (e) {
                 Log.err('WalletBackup.Skip error ' + e.message)
+                setLoaderStatus(false)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: false,
+                    title: strings('modal.send.fail'),
+                    description: e.message
+                })
             }
 
         })
@@ -148,7 +157,7 @@ class BackupSettingsScreen extends PureComponent {
     handleSupport = async () => {
         const link = await BlocksoftExternalSettings.get('SUPPORT_BOT')
         MarketingEvent.logEvent('taki_support', { link, screen: 'SETTINGS' })
-        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle'), backOnClose: true })
+        NavStore.goNext('BotSupportScreen', { url: link, title: strings('settings.about.contactSupportTitle'), backOnClose: true })
     }
 
     render() {

@@ -5,11 +5,14 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
-import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
+import { getFeeRate, SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
 import store from '@app/store'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { setLoaderFromBse, setLoaderStatus } from '../Main/MainStoreActions'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 const { dispatch } = store
 
@@ -39,6 +42,7 @@ const findWalletPlus = function(currencyCode: string): { wallet: any, cryptoCurr
 const formatDict = async function(cryptoCurrency : any, account : any) {
     const dict = {
         inputType : '',
+        derivationPath : account.derivationPath,
         decimals : cryptoCurrency.decimals,
         extendsProcessor : cryptoCurrency.extendsProcessor,
         addressUiChecker : cryptoCurrency.addressUiChecker,
@@ -73,6 +77,46 @@ export namespace SendActionsStart {
     export const setBasicInputType = async (inputType : string) => {
         CACHE_SEND_INPUT_TYPE = inputType
         trusteeAsyncStorage.setSendInputType(inputType)
+    }
+
+    export const startFromWalletConnect = async (data : {
+        currencyCode : string,
+        walletConnectData : any,
+        walletConnectPayload : any,
+        extraData : any
+    }, uiType = 'WALLET_CONNECT') => {
+        try {
+            const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+            if (typeof account.derivationPath === 'undefined') {
+                throw new Error('SendActionsStart.startFromWalletConnect required account.derivationPath')
+            }
+            const dict = await formatDict(cryptoCurrency, account)
+            SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
+            const ui = {
+                uiType: uiType,
+                cryptoValue: data.walletConnectData.value ? BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value) : 0,
+                addressTo: data.walletConnectData.to,
+                walletConnectData: data.walletConnectData,
+                walletConnectPayload: data.walletConnectPayload,
+                extraData: data.extraData
+            }
+
+            dispatch({
+                type: 'RESET_DATA',
+                ui,
+                dict
+            })
+
+            await SendActionsBlockchainWrapper.getFeeRate(ui)
+            if (uiType === 'TRADE_LIKE_WALLET_CONNECT') {
+                setLoaderFromBse(false)
+                NavStore.goNext('MarketReceiptScreen')
+            } else {
+                NavStore.goNext('ReceiptScreen')
+            }
+        } catch (e) {
+            Log.error(' SendActionsStart.startFromWalletConnect error ' + e.message)
+        }
     }
 
     export const startFromCustomContractCallData = async (data : {

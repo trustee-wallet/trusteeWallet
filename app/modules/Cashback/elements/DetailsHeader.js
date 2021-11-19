@@ -5,72 +5,146 @@
 
 import React from 'react'
 import {
-    TouchableOpacity,
-    View,
-    Text,
+    Animated,
     StyleSheet,
-    LayoutAnimation
+    Text,
+    View
 } from 'react-native'
 
 import { ProgressCircle } from 'react-native-svg-charts'
-
+import { ThemeContext } from '@app/theme/ThemeProvider'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import DetailsContent from '@app/modules/Cashback/elements/Details'
 import CustomIcon from '@app/components/elements/CustomIcon'
-import { useTheme } from '@app/theme/ThemeProvider'
+import Accordion from 'react-native-collapsible/Accordion'
 
-const getIcon = (icon) => {
+class DetailsHeader extends React.Component{
 
-    const { colors } = useTheme()
+    state = {
+        selected: false,
+        selectedTitle: null,
+        viewHeight: 0,
+        height: new Animated.Value(0),
+        activeSections: []
+    }
 
-    switch (icon) {
-        case 'close':
-            return <CustomIcon name='close' size={20} color={colors.common.text2} />
-        case 'coinSettings':
-            return <CustomIcon name='coinSettings' size={20} color={colors.common.text2} />
-        default:
-            return null
+    cashbackCurrency = 'USDT'
+
+    _renderHeader = (section, index, isActive) => {
+
+        const {
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        return (
+            <View style={styles.switchableTabsLocation}>
+                <View style={styles.switchableTabsContainer}>
+                    <View style={styles.circle}>
+                        <ProgressCircle
+                            style={styles.switchableCircle}
+                            strokeWidth={3.5}
+                            progress={section.progress}
+                            backgroundColor={colors.cashback.chartBg}
+                            progressColor={colors.cashback.token}
+                        />
+                    </View>
+                    <View style={styles.textContainer}>
+                        <Text style={[styles.switchableTabsText, { color: colors.common.text3 }]}>{section.title}</Text>
+                        <Text style={[styles.switchableTabsBalance]}>{section.balance + ' ' + this.cashbackCurrency}</Text>
+                    </View>
+                </View>
+                <View style={{ marginTop: 20, marginRight: GRID_SIZE }}>
+                    <CustomIcon name={isActive ? 'up' : 'down'} color={colors.common.text1} size={20} />
+                </View>
+            </View>
+        )
+    }
+
+    _renderContent = (section) => {
+
+        return (
+            <View>
+                {this.renderContent(section.value)}
+            </View>
+        );
+    };
+
+    _updateSections = activeSections => {
+        this.setState({ activeSections });
+        this.props.scrollDetails(activeSections)
+    }
+
+    render() {
+
+        return(
+            <View>
+                <Accordion
+                    sections={this.props.sections}
+                    renderHeader={this._renderHeader}
+                    renderContent={this._renderContent}
+                    onChange={this._updateSections}
+                    activeSections={this.state.activeSections}
+                    underlayColor="transparent"
+                />
+            </View>
+        )
+    }
+
+
+    renderContent = (value) => {
+
+        const { cashbackStore } = this.props
+
+        // const { selectedTitle } = this.state
+
+        const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
+        let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted
+
+        let cpaLevel1 = cashbackStore.dataFromApi.cpaLevel1 || 0
+        let cpaLevel2 = cashbackStore.dataFromApi.cpaLevel2 || 0
+        let cpaLevel3 = cashbackStore.dataFromApi.cpaLevel3 || 0
+
+        let invitedUsers = cashbackStore.dataFromApi.invitedUsers || 0
+        let level2Users = cashbackStore.dataFromApi.level2Users || 0
+
+        if (typeof cashbackStore.dataFromApi.cashbackToken === 'undefined' || cashbackStore.dataFromApi.cashbackToken !== cashbackStore.cashbackToken) {
+            invitedUsers = '?'
+            level2Users = '?'
+            overalPrep = '?'
+            cpaLevel1 = '?'
+            cpaLevel2 = '?'
+            cpaLevel3 = '?'
+        }
+
+        MarketingEvent.logEvent('taki_cashback_2_render', {
+            cashbackLink: cashbackStore.dataFromApi.cashbackLink || cashbackStore.cashbackLink || '',
+            invitedUsers,
+            level2Users,
+            overalPrep,
+            cpaLevel1,
+            cpaLevel2,
+            cpaLevel3
+        })
+
+        return (
+            <View>
+                <DetailsContent
+                    selectedTitle={value}
+                    overalPrep={overalPrep}
+                    invitedUsers={invitedUsers}
+                    level2Users={level2Users}
+                    cpaLevel1={cpaLevel1}
+                    cpaLevel2={cpaLevel2}
+                    cpaLevel3={cpaLevel3}
+                />
+            </View>
+        )
     }
 }
 
-const DetailsHeader = (props) => {
-
-    const {
-        onPress,
-        progress,
-        balance,
-        currency,
-        icon,
-        title
-    } = props
-
-    const {
-        colors
-    } = useTheme()
-
-    return (
-        <TouchableOpacity style={styles.switchableTabsLocation}
-                          onPress={() => {
-                              onPress()
-                              LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
-                          }}>
-            <View style={styles.switchableTabsContainer}>
-                <ProgressCircle
-                    style={styles.switchableCircle}
-                    strokeWidth={3.5}
-                    progress={progress}
-                    backgroundColor={colors.cashback.chartBg}
-                    progressColor={colors.cashback.token}
-                />
-                <View style={styles.textContainer}>
-                    <Text style={[styles.switchableTabsText, { color: colors.common.text3 }]}>{title}</Text>
-                    <Text style={[styles.switchableTabsBalance]}>{balance + ' ' + currency}</Text>
-                </View>
-            </View>
-            <View style={{ marginTop: 15 }}>
-                {getIcon(icon)}
-            </View>
-        </TouchableOpacity>
-    )
-}
+DetailsHeader.contextType = ThemeContext
 
 export default DetailsHeader
 
@@ -92,16 +166,20 @@ const styles = StyleSheet.create({
         letterSpacing: 1
     },
     switchableCircle: {
-        width: 50,
-        height: 50
+        width: 60,
+        height: 60,
+        paddingLeft: 5
     },
     textContainer: {
-        marginLeft: 12,
-        marginTop: 6
+
+        marginTop: 11
     },
     switchableTabsLocation: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 13
-    }
+    },
+    circle: {
+        paddingRight: 12
+        }
 })

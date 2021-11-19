@@ -404,10 +404,18 @@ async function _userDataValidation(obj) {
             }
             break
 
+        case 'WALLET_CONNECT_LINK':
+            if (!value.includes('wc:')) {
+                error.msg = strings('validator.invalidFormat', {name: name})
+            }
+            if (value.indexOf('URI format') === -1) {
+                error.msg = strings('validator.invalidFormat', {name: name})
+            }
+            break
+
         default:
             break
     }
-
 
     if (typeof error.msg !== 'undefined') {
         error.field = id
@@ -493,6 +501,8 @@ module.exports = {
         obj.id = 'any'
         return _userDataValidation(obj)
     },
+
+
 
     arrayValidation: async function(array) {
         let resultArray = []

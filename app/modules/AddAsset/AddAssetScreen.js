@@ -1,5 +1,6 @@
 /**
  * @version 0.43
+ * @author Vadym
  */
 import React from 'react'
 import { connect } from 'react-redux'
@@ -8,10 +9,10 @@ import {
     Text,
     SafeAreaView,
     SectionList,
-    FlatList,
     StyleSheet,
     TouchableOpacity,
-    Keyboard
+    Keyboard,
+    ActivityIndicator
 } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
@@ -42,6 +43,9 @@ import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
 import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 
+import { FlatList } from 'react-native-gesture-handler'
+import AssetFlatListItem from './elements/AssetFlatListItem'
+
 
 class AddAssetScreen extends React.PureComponent {
     state = {
@@ -50,7 +54,10 @@ class AddAssetScreen extends React.PureComponent {
         customAddress: '',
         tabs: getTabs(),
         data: [],
-        headerHasExtraView: true
+        tokenBlockchain: 0,
+        tokenBlockchainArray: [],
+        headerHasExtraView: true,
+        onLoading: false
     }
 
     componentDidMount() {
@@ -190,16 +197,90 @@ class AddAssetScreen extends React.PureComponent {
         const contentPaddingTop = this.state.headerHeight + GRID_SIZE / 2
         return {
             showsVerticalScrollIndicator: false,
-            contentContainerStyle: { paddingHorizontal: GRID_SIZE * 2, paddingBottom: GRID_SIZE, paddingTop: contentPaddingTop },
-            ItemSeparatorComponent: () => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />,
+            contentContainerStyle: { paddingBottom: GRID_SIZE, paddingTop: contentPaddingTop },
+            ItemSeparatorComponent: () => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 5, marginRight: GRID_SIZE * 2 }} />,
             renderItem: params => this.renderListItem(params),
             keyExtractor: item => item.currencyCode,
             keyboardShouldPersistTaps: 'handled',
             keyboardDismissMode: 'on-drag',
             ListEmptyComponent: () => this.renderEmptyList(),
-            onScroll: e => this.updateOffset(e)
+            // onScroll: e => this.updateOffset(e)
         }
     }
+
+    renderTokenFlatList = (data) => {
+        return (
+            <FlatList
+                data={data}
+                keyExtractor={({ index }) => index}
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                renderItem={this.renderFlatListItem}
+                initialScrollIndex={this.state.tokenBlockchain}
+                getItemLayout={(data, index) => (
+                    {length: index, offset: 60 * index, index}
+                  )}
+            />
+        )
+    }
+
+    renderFlatListItem = ({ item, index }) => {
+        return (
+            <AssetFlatListItem
+                data={item.title}
+                margin={index === 0}
+                inverse={index === this.state.tokenBlockchain}
+                action={() => {
+                    this.setState({
+                        onLoading: true,
+                        tokenBlockchain: index,
+                        tokenBlockchainArray: this.state.data[index !== 0 ? index - 1 : 0].data,
+                    })
+                    setTimeout(() => {
+                            this.setState({
+                                onLoading: false
+                            })
+                        }, 1000)
+                }}
+            />
+        )
+    }
+
+    renderTokenHeader = (data) => {
+
+        const { GRID_SIZE } = this.context 
+        
+        data = data.map(item => ({
+            data: item.data,
+            title: item.title === 'BINANCE SMART CHAIN (BEP-20)' ? item.title = 'BSC (BEP-20)' : item.title,
+        }))
+
+        return(
+            <View>  
+                <View>
+                    {this.renderTabs(true)}
+                </View>
+                <View style={{ marginTop: -GRID_SIZE / 2, marginBottom: GRID_SIZE * 1.5, flexGrow: 1 }}> 
+                    {this.renderTokenFlatList([{title: 'ALL', data: []}, ...data])}
+                </View>
+            </View>
+        )
+    }
+
+    renderLoader = () => {
+
+        const { colors } = this.context
+
+        return(
+            <View>
+                <ActivityIndicator 
+                    color={colors.common.text1}
+                    size='large'
+                />
+            </View>
+        )
+    }
+
 
     render() {
         const { colors, GRID_SIZE } = this.context
@@ -234,7 +315,7 @@ class AddAssetScreen extends React.PureComponent {
                                 ListHeaderComponent={!!searchQuery ? null : () => (
                                     <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
                                         {this.renderTabs(false)}
-                                        <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
+                                        <View style={[styles.customAddressConent, { marginHorizontal: GRID_SIZE }]}>
                                             <TextInput
                                                 label={strings('assets.addCustomLabel')}
                                                 labelColor={colors.common.text3}
@@ -257,22 +338,36 @@ class AddAssetScreen extends React.PureComponent {
                                 )}
                             />
                         ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
-                            ? (
-                                <SectionList
-                                    {...this.commonHeaderProps}
-                                    sections={data}
-                                    stickySectionHeadersEnabled={false}
-                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(true)}
-                                    renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{title}</Text>}
-                                    renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
-                                />
-                            ) : (
+                            ? this.state.tokenBlockchain ? (
                                 <FlatList
                                     {...this.commonHeaderProps}
-                                    data={data}
-                                    ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                    data={this.state.onLoading ? null : this.state.tokenBlockchainArray}
+                                    ListHeaderComponent={!!searchQuery ? null : () => (
+                                        this.renderTokenHeader(data)
+                                    )}
+                                    ListEmptyComponent={() => this.renderLoader()}
                                 />
-                            )
+                            ) : 
+                                 (
+                                    <SectionList
+                                        {...this.commonHeaderProps}
+                                        sections={this.state.onLoading ? null : data}
+                                        stickySectionHeadersEnabled={false}
+                                        ListHeaderComponent={!!searchQuery ? null : () => (
+                                            this.renderTokenHeader(data)
+                                        )}
+                                        renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE * 3 }]}>{title}</Text>}
+                                        renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
+                                        ListEmptyComponent={() => this.renderLoader()}
+                                    />
+                                ) : 
+                                (
+                                    <FlatList
+                                        {...this.commonHeaderProps}
+                                        data={data}
+                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                    />
+                                )
                     }
                 </SafeAreaView>
             </View>
@@ -287,7 +382,7 @@ class AddAssetScreen extends React.PureComponent {
 
         let isSearchTokenAddress = false
         if (searchQuery) {
-            searchQuery =  searchQuery.trim()
+            searchQuery = searchQuery.trim()
             if (searchQuery.toLowerCase().indexOf('0x') === 0 && searchQuery.length === 42) {
                 isSearchTokenAddress = true
             } else if (searchQuery.indexOf('T') === 0 && searchQuery.length === 34) {
@@ -318,25 +413,34 @@ class AddAssetScreen extends React.PureComponent {
         }
     }
 
-    renderTabs = (isSection) => (
-        <Tabs
-            tabs={this.state.tabs}
-            changeTab={this.handleChangeTab}
-            containerStyle={[styles.tabs, {}]}
-            tabStyle={[styles.tab, { paddingTop: this.context.GRID_SIZE / 2, paddingBottom: isSection ? (this.context.GRID_SIZE * 1.5) : this.context.GRID_SIZE, }]}
-        />
-    )
+    renderTabs = (isSection) => {
+
+        const { GRID_SIZE } = this.context
+        return (
+            <Tabs
+                tabs={this.state.tabs}
+                changeTab={this.handleChangeTab}
+                containerStyle={[styles.tabs, { paddingHorizontal: GRID_SIZE }]}
+                tabStyle={[styles.tab, { paddingTop: GRID_SIZE / 2, paddingBottom: isSection ? (GRID_SIZE * 1.5) : GRID_SIZE, }]}
+            />
+        )
+    }
 
     renderListItem = ({ item }) => {
+
+        const { GRID_SIZE } = this.context
+
         return (
-            <ListItem
-                title={item.currencyName}
-                subtitle={item.currencySymbol}
-                iconType={item.currencyCode}
-                onPress={() => this.handleChangeCurrencyStatus(item)}
-                rightContent="switch"
-                switchParams={{ value: item.isHidden !== null && !item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
-            />
+            <View style={{ marginHorizontal: GRID_SIZE * 2 }}>
+                <ListItem
+                    title={item.currencyName}
+                    subtitle={item.currencySymbol}
+                    iconType={item.currencyCode}
+                    onPress={() => this.handleChangeCurrencyStatus(item)}
+                    rightContent="switch"
+                    switchParams={{ value: item.isHidden !== null && !item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
+                />
+            </View>
         )
     }
 }
@@ -374,7 +478,7 @@ const styles = StyleSheet.create({
         marginBottom: 0
     },
     tab: {
-        flex: 0
+        flex: 1
     },
     blockTitle: {
         fontFamily: 'Montserrat-Bold',
