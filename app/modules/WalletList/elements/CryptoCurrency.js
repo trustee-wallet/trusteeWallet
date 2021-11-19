@@ -9,8 +9,7 @@ import {
     TouchableOpacity,
     Text,
     Platform,
-    StyleSheet,
-    Animated
+    StyleSheet
 } from 'react-native'
 
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
@@ -39,22 +38,6 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 
 
 class CryptoCurrency extends React.PureComponent {
-
-    state = {
-        corner: new Animated.Value(0),
-    }
-
-    componentDidMount() {
-        if (typeof this.props !== 'undefined' && this.props.cryptoCurrency.currencyCode === 'NFT' && !this.props.constructorMode) {
-            Animated.loop(
-                Animated.timing(this.state.corner, {
-                    toValue: 360,
-                    duration: 7000,
-                    useNativeDriver: true
-                })
-            ).start()
-        }
-    }
 
     renderSynchronization = () => (
         <View style={styles.cryptoList__syncRow}>
@@ -253,7 +236,6 @@ class CryptoCurrency extends React.PureComponent {
 
         const currencyCode = cryptoCurrency.currencyCode || 'BTC'
 
-        const AnimatedLinearGradient = Animated.createAnimatedComponent(GradientView)
 
         return (
             <View style={styles.container}>
@@ -267,14 +249,6 @@ class CryptoCurrency extends React.PureComponent {
                     onPress={() => handleCurrencySelect(this.props)}
                     disabled={this.props.constructorMode}
                 >
-                    {/* <AnimatedLinearGradient
-                        style={{padding: 2, borderRadius: SIZE }}
-                        array={colors.homeScreen.listItemBorderGradient}
-                        locations={[0.3, 0.7, 1]}
-                        useAngle={true}
-                        angle={this.state.corner}
-                        angleCenter={{ x: 0.5, y: 0.5}}
-                    > */}
                     <GradientView
                         style={[styles.cryptoList__item__content, { paddingLeft: SIZE - 2 }]}
                         array={colors.homeScreen.listItemGradient}
@@ -315,7 +289,6 @@ class CryptoCurrency extends React.PureComponent {
                             </TouchableOpacity>
                         }
                         </GradientView>
-                    {/* </AnimatedLinearGradient> */}
                 </TouchableOpacity>
             </View>
         )

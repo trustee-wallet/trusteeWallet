@@ -9,12 +9,12 @@
     "settings": "Настройки отображение",
     "sorting": "Сортировка",
     "sort": {
-      "byTrustee": "By Trustee",
       "custom": "Кастом",
       "byName": "По имени",
       "byValue": "По балансу",
       "firstCoin": "Сначала монеты",
-      "firstToken": "Сначала токени"
+      "firstToken": "Сначала токени",
+      "withBalance": "С положительным балансом"
     }
   },
   "walletCreateScreen": {

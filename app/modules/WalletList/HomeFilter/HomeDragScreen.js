@@ -22,6 +22,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import { setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 
 class HomeDragScreen extends PureComponent {
 
@@ -35,7 +36,6 @@ class HomeDragScreen extends PureComponent {
             sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
         }
 
-        // getCurrenciesOrder()
         getCurrenciesOrder(this)
     }
 
@@ -78,6 +78,8 @@ class HomeDragScreen extends PureComponent {
             GRID_SIZE
         } = this.context
 
+        const data = getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)
+
         return (
             <ScreenWrapper
                 title={strings('homeScreen.settings')}
@@ -87,8 +89,8 @@ class HomeDragScreen extends PureComponent {
                 rightAction={this.handlRightAction}
             >
                 <DraggableFlatList
-                    data={getSortedData(this.state.originalData, this.state.data, this.state.sortValue)}
-                    extraData={getSortedData(this.state.originalData, this.state.data, this.state.sortValue)}
+                    data={data}
+                    extraData={data}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingVertical: GRID_SIZE }}
                     autoscrollSpeed={300}
@@ -117,7 +119,8 @@ const mapStateToProps = (state) => {
     return {
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
-        sortValue: getSortValue(state)
+        sortValue: getSortValue(state),
+        accountList: getAccountList(state)
     }
 }
 

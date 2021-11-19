@@ -26,11 +26,6 @@ class HomeSortScreen extends PureComponent {
 
     sortList = [
         {
-            title: strings('homeScreen.sort.byTrustee'),
-            icon: 'wallet',
-            value: 'byTrustee'
-        },
-        {
             title: strings('homeScreen.sort.custom'),
             icon: 'customSort',
             value: 'custom'
@@ -54,6 +49,11 @@ class HomeSortScreen extends PureComponent {
             title: strings('homeScreen.sort.firstToken'),
             icon: 'tokenFirstSort',
             value: 'tokenFirst'
+        },
+        {
+            title: strings('homeScreen.sort.withBalance'),
+            icon: 'wallet',
+            value: 'withBalance'
         }
     ]
 

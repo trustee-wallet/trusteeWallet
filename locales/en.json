@@ -9,12 +9,12 @@
     "settings": "Display settings",
     "sorting": "Sorting",
     "sort": {
-      "byTrustee": "By Trustee",
       "custom": "Custom",
       "byName": "By name",
       "byValue": "By value",
       "firstCoin": "First coins",
-      "firstToken": "First tokens"
+      "firstToken": "First tokens",
+      "withBalance": "With balance"
     }
   },
   "walletCreateScreen": {

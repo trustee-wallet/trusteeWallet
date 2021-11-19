@@ -6,8 +6,10 @@ import {
     SafeAreaView, 
     View, 
     RefreshControl, 
-    StyleSheet, 
-    FlatList
+    StyleSheet,
+    FlatList,
+    SectionList,
+    Text
 } from 'react-native'
 import { connect } from 'react-redux'
 
@@ -41,8 +43,9 @@ import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
-import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData, getSortedData, getCurrenciesOrder, getDerivedState } from './helpers'
+import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData, getSortedData, getCurrenciesOrder, getDerivedState, getSectionsData } from './helpers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 
 
 class HomeScreen extends React.PureComponent {
@@ -79,7 +82,7 @@ class HomeScreen extends React.PureComponent {
 
         if (this.state.sortValue) {
             this.setState({
-                data: getSortedData(this.state.originalData, this.state.data, this.state.sortValue)
+                data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)
             })
         }
 
@@ -89,9 +92,9 @@ class HomeScreen extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps) {
-        if (!_isEqual(prevProps.sortValue, this.props.sortValue)) {
+        if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList)) {
             this.setState({
-                data: getSortedData(this.state.originalData, this.state.data, this.props.sortValue),
+                data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue),
                 sortValue: this.props.sortValue
             })
         }
@@ -160,11 +163,61 @@ class HomeScreen extends React.PureComponent {
         }
     };
 
+    get commonHeaderProps() {
+        const { colors } = this.context
+
+        const balanceData = getBalanceData(this.props)
+
+        return {
+            ref: this.props.scrollRef,
+            showsVerticalScrollIndicator: false,
+            contentContainerStyle: styles.list,
+            onScroll: this.updateOffset,
+            scrollEnabled: this.state.enableVerticalScroll,
+            refreshControl:
+                <RefreshControl
+                    enabled={!this.state.constructorMode}
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.handleRefresh}
+                    tintColor={colors.common.refreshControlIndicator}
+                    colors={[colors.common.refreshControlIndicator]}
+                    progressBackgroundColor={colors.common.refreshControlBg}
+                    progressViewOffset={-20}
+                />,
+            ListHeaderComponent: (
+                <WalletInfo
+                    isBalanceVisible={this.state.isBalanceVisible}
+                    originalVisibility={this.state.originalVisibility}
+                    changeBalanceVisibility={this.changeBalanceVisibility}
+                    triggerBalanceVisibility={this.triggerBalanceVisibility}
+                    balanceData={balanceData}
+                    selectedWalletData={this.props.selectedWalletData}
+                />
+            ),
+            renderItem: ({ item, drag, isActive }) => (
+                <CryptoCurrency
+                    cryptoCurrency={item}
+                    isBalanceVisible={this.state.isBalanceVisible}
+                    onDrag={drag}
+                    isActive={isActive}
+                    handleReceive={account => handleReceive(item, account)}
+                    handleSend={account => handleSend(item, account)}
+                    handleHide={() => handleHide(item)}
+                    setScrollEnabled={this.setScrollEnabled}
+                />
+            ),
+            keyExtractor: item => item.currencyCode
+        }
+
+    }
+
     render() {
         if (this.props.isBlurVisible) {
             return <AppLockBlur />
         }
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
+
+        const { sortValue } = this.state
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
@@ -182,48 +235,22 @@ class HomeScreen extends React.PureComponent {
                 <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]} />
                     <View style={[styles.content, { backgroundColor: colors.common.background }]}>
                         <View style={styles.stub} />
-                            <FlatList
-                                ref={this.props.scrollRef}
-                                data={this.state.data}
-                                showsVerticalScrollIndicator={false}
-                                contentContainerStyle={styles.list}
-                                onScroll={this.updateOffset}
-                                scrollEnabled={this.state.enableVerticalScroll}
-                                refreshControl={
-                                    <RefreshControl
-                                        enabled={!this.state.constructorMode}
-                                        refreshing={this.state.refreshing}
-                                        onRefresh={this.handleRefresh}
-                                        tintColor={colors.common.refreshControlIndicator}
-                                        colors={[colors.common.refreshControlIndicator]}
-                                        progressBackgroundColor={colors.common.refreshControlBg}
-                                        progressViewOffset={-20}
-                                    />
-                                }
-                                ListHeaderComponent={(
-                                    <WalletInfo
-                                        isBalanceVisible={this.state.isBalanceVisible}
-                                        originalVisibility={this.state.originalVisibility}
-                                        changeBalanceVisibility={this.changeBalanceVisibility}
-                                        triggerBalanceVisibility={this.triggerBalanceVisibility}
-                                        balanceData={balanceData}
-                                        selectedWalletData={this.props.selectedWalletData}
-                                    />
+                            {(sortValue === 'coinFirst' || sortValue === 'tokenFirst') ? 
+                                <SectionList
+                                {...this.commonHeaderProps}
+                                sections={getSectionsData(this.state.data)}
+                                renderSectionHeader={({ section: { title } }) => (
+                                    <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>{title}</Text>
                                 )}
-                                renderItem={({ item, drag, isActive }) => (
-                                    <CryptoCurrency
-                                        cryptoCurrency={item}
-                                        isBalanceVisible={this.state.isBalanceVisible}
-                                        onDrag={drag}
-                                        isActive={isActive}
-                                        handleReceive={account => handleReceive(item, account)}
-                                        handleSend={account => handleSend(item, account)}
-                                        handleHide={() => handleHide(item)}
-                                        setScrollEnabled={this.setScrollEnabled}
-                                    />
-                                )}
-                                keyExtractor={item => item.currencyCode}
-                            />
+                                renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE }} />}
+                                stickySectionHeadersEnabled={false}
+                                />
+                            :
+                                <FlatList
+                                    {...this.commonHeaderProps}
+                                    data={this.state.data}
+                                />
+                            }
                     </View>
             </View>
         )
@@ -238,7 +265,8 @@ const mapStateToProps = (state) => {
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
         nftsData: getNftsData(state),
-        sortValue: getSortValue(state)
+        sortValue: getSortValue(state),
+        accountList: getAccountList(state)
     }
 }
 
@@ -271,5 +299,12 @@ const styles = StyleSheet.create({
     list: {
         paddingBottom: 20,
         paddingTop: 10
+    },
+    blockTitle: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 12,
+        lineHeight: 14,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase'
     }
 })

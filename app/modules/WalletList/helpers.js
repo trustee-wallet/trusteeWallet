@@ -3,6 +3,7 @@ import { Dimensions, PixelRatio } from 'react-native'
 import _sortBy from 'lodash/sortBy'
 import _orderBy from 'lodash/orderBy'
 import _isEqual from 'lodash/isEqual'
+import _groupBy from 'lodash/groupBy'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -22,8 +23,6 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import DaemonCache from '@app/daemons/DaemonCache'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { getAccountList } from '@app/appstores/Stores/Account/selectors'
-import store from '@app/store'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
@@ -211,50 +210,58 @@ const handleCurrencySelect = async (props, screen) => {
   CACHE_CLICK = false
 }
 
-const getSortedData = (array, currentArray, filter) => {
-
-  const accountList = getAccountList(store.getState())
+const getSortedData = (array, currentArray, accountList, filter) => {
 
   switch (filter) {
-      case 'byTrustee':
-          return array
-      case 'byName':
-          return _sortBy(currentArray, 'currencyName')
-      case 'custom':
-          return currentArray
-      case 'byValue':
-          // eslint-disable-next-line no-case-declarations
-          let sortedAccount = _orderBy(accountList, function (obj) {
-              return parseInt(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
-          }, 'desc').map(item => item.currencyCode)
-          
-          sortedAccount = _orderBy(array, x => {
-              return sortedAccount.indexOf(x.currencyCode) !== -1 ? sortedAccount.indexOf(x.currencyCode) : currentArray.length
-          })
-          return sortedAccount
-      // case 'coinFirst':
-      //     return _groupBy(array, 'currencyType')
-      // case 'tokenFirst':
-      //     return _groupBy(array, 'currencyType').reverse()
-      default:
-          return currentArray
+    case 'byTrustee':
+      return array
+    case 'byName':
+      return _sortBy(currentArray, 'currencyCode')
+    case 'custom':
+      return currentArray
+    case 'byValue': {
+      let sortedAccount = _orderBy(accountList, function (obj) {
+        return parseInt(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
+      }, 'desc').map(item => item.currencyCode)
+
+      sortedAccount = _orderBy(array, x => {
+        return sortedAccount.indexOf(x.currencyCode) !== -1 ? sortedAccount.indexOf(x.currencyCode) : currentArray.length
+      })
+      return sortedAccount
+    }
+    case 'coinFirst':
+      return _sortBy(array, 'currencyType')
+    case 'tokenFirst':
+      return _sortBy(array, 'currencyType').reverse()
+    case 'withBalance': {
+      const filterAccount = accountList.filter(item => parseInt(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
+      return array.filter(item => filterAccount.includes(item.currencyCode))
+    }
+    default:
+      return currentArray
   }
+}
+
+const getSectionsData = (array) => {
+  const sections = _groupBy(array, 'currencyType')
+
+  return Object.keys(sections).map((key) => ({ title: key, data: sections[key] }))
 }
 
 const getCurrenciesOrder = async (that) => {
   try {
-      if (that.state.sortValue === 'custom') {
-          const res = await trusteeAsyncStorage.getCurrenciesList()
-          const currenciesOrder = res !== null ? JSON.parse(res) : []
-          const currenciesLength = that.state.data.length
+    if (that.state.sortValue === 'custom') {
+      const res = await trusteeAsyncStorage.getCurrenciesList()
+      const currenciesOrder = res !== null ? JSON.parse(res) : []
+      const currenciesLength = that.state.data.length
 
-          that.setState(state => ({
-              currenciesOrder,
-              data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-          }))
-      }
+      that.setState(state => ({
+        currenciesOrder,
+        data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+      }))
+    }
   } catch (e) {
-      Log.err(`WalletList helper getCurrenciesOrder error ${e.message}`)
+    Log.err(`WalletList helper getCurrenciesOrder error ${e.message}`)
   }
 }
 
@@ -262,20 +269,20 @@ const getDerivedState = (nextProps, prevState) => {
   let newState = null
 
   if (!_isEqual(nextProps.currencies, prevState.originalData)) {
-      newState = {}
-      const currenciesOrder = prevState.currenciesOrder
-      const currenciesLength = nextProps.currencies.length
-      const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-      
-      newState.originalData = nextProps.currencies
-      newState.data = nextProps.sortValue ? getSortedData(nextProps.currencies, data, nextProps.sortValue) : data
-      newState.sortValue = nextProps.sortValue || prevState.sortValue
-      
-      const newOrder = data.map(c => c.currencyCode)
-      if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
-          newState.currenciesOrder = newOrder
-          trusteeAsyncStorage.setCurrenciesList(JSON.stringify(newOrder))
-      }
+    newState = {}
+    const currenciesOrder = prevState.currenciesOrder
+    const currenciesLength = nextProps.currencies.length
+    const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+
+    newState.originalData = nextProps.currencies
+    newState.data = nextProps.sortValue ? getSortedData(nextProps.currencies, data, nextProps.accountList, nextProps.sortValue) : data
+    newState.sortValue = nextProps.sortValue || prevState.sortValue
+
+    const newOrder = data.map(c => c.currencyCode)
+    if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
+      newState.currenciesOrder = newOrder
+      trusteeAsyncStorage.setCurrenciesList(JSON.stringify(newOrder))
+    }
   }
 
   return newState
@@ -290,6 +297,7 @@ export {
   getBalanceData,
   handleCurrencySelect,
   getSortedData,
+  getSectionsData,
   getCurrenciesOrder,
   getDerivedState
 }
