@@ -141,6 +141,113 @@ const styles = {
         fontSize: 17,
         fontFamily: 'Montserrat-Bold'
     },
+    bg: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+
+        width: '100%',
+        height: 188,
+        zIndex: 1,
+
+        borderRadius: 16
+    },
+    containerBG: {
+        start: { x: 0.0, y: 0 },
+        end: { x: 0, y: 1 }
+    },
+    topContent__bg: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: 177,
+        borderRadius: 16,
+
+        zIndex: 0
+    },
+    shadow: {
+        marginTop: 10,
+        marginHorizontal: 5,
+
+        height: '100%',
+        borderRadius: 16,
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 5
+        },
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+
+        elevation: 10
+    },
+    topContent: {
+        position: 'relative',
+
+        height: 177,
+
+        borderRadius: 16
+    },
+
+    topContent__content: {
+        position: 'relative',
+        zIndex: 2
+    },
+    rewardText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        lineHeight: 21
+    },
+    updateTime: {
+        color: '#999999',
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 10,
+        lineHeight: 14,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase'
+    },
+    reward: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 16,
+        lineHeight: 20
+    },
+    rewardLocation: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    widhdrawBtn: {
+        height: 30,
+        width: 96,
+        paddingHorizontal: 6
+    },
+    progressBarLoaction: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    progressText: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+        color: '#999999'
+    },
+    description: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 16,
+        lineHeight: 20,
+        letterSpacing: 1
+    },
+    linkText: {
+        fontFamily: 'SFUIDisplay-Bold',
+        fontSize: 14,
+        lineHeight: 18,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        textDecorationLine: 'underline'
+    }
 }
 
 export default styles

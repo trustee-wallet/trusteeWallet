@@ -175,6 +175,8 @@
         "title": "გადავრთოთ საფულე HD რეჟიმში?",
         "description": "HD რეჟიმი გულისხმობს მისამართების როტაციას ყოველ ტრანზაქციაზე. გადართვის ოპერაცია შუქცევადია."
       },
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR": "სერვერი მონაცემებით (მაგალითად, api.mymonero.com)",
       "serverInputTitleXMR": "api.mymonero.com:8443",
       "serverSendInputXMR": "სერვერი ტრანზაქციების გასაგზავნად (მაგალითად, api.mymonero.com)",
@@ -182,7 +184,7 @@
       "needReinstallXMR": "XMR მისამართის სისტემური შეცდომა. გთხოვთ, შეინახოთ მნემონური ფრაზა და თავიდან დააინსტალიროთ პროგრამა, ან დაუკავშირდეთ მხარდაჭერის ჯგუფს დეტალური ინსტრუქციებისთვის. ",
       "saveSettings": "შენახვა",
       "getMnemonicXMR": "View secret key",
-      "availableTRX": "ხელმისაწვდომია",
+      "availableTRX": "ხელმისაწვდომია:",
       "frozenTRX": "Застейкано",
       "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "შეიყვანეთ TRX-ის  რაოდენობა",
@@ -385,6 +387,7 @@
     "performWithdraw": "გატანის ოპერაციის განსახორციელებლად, გთხოვთ, მოგვწეროთ telegram-ში ნიკნეიმზე"
   },
   "account": {
+    "staking": "Staking",
     "title": "ანგარიში",
     "copy": "კოპირება",
     "refresh": "განახლება",
@@ -400,6 +403,11 @@
     "noTransactions": "თქვენ ჯერ არ გაქვთ ტრანზაქცია, მაგრამ შეგიძლიათ ამ პრობლემის სწრაფად გადაჭრა ღილაკზე „ყიდვა“ დაწკაპუნებით.",
     "showMore": "მეტის ჩვენება",
     "assetSettings": "აქტივის პარამეტრები",
+    "stakingTRX": {
+      "bandwidthInfo": "Freeze your TRX to receive staking rewards. Freezing for Bandwidth will also allow sending free TRX without network fees.",
+      "energyInfo": "Freeze your TRX to receive staking rewards. Freezing for Energy will also allow sending TRC20 tokens without network fees.",
+      "moreInfo": "More info here"
+    },
     "externalLink": {
       "title": "ბლოკჩეინ ექსპლორერზე გადასვლა",
       "description": "თქვენ გადახვალთ გარე რესურსზე"

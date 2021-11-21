@@ -92,6 +92,7 @@ export const colorsLight = {
         visibilityIconViolet: '#dadada',
         walletInfoTextViolet: '#F3E6FF',
         tabBarText: '#5c5c5c',
+        newTabsText: '#555555',
         tabBarBackground: '#f7f7f7',
         dateColorViolet: '#c4c4c4',
         backupBg: '#ede4f9',

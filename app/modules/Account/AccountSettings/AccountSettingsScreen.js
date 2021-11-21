@@ -134,7 +134,7 @@ class AccountSettingScreen extends React.PureComponent {
 
     render() {
 
-        const { cryptoCurrency } = this.props
+        const { cryptoCurrency, account } = this.props
 
         const { GRID_SIZE } = this.context
 
@@ -148,7 +148,7 @@ class AccountSettingScreen extends React.PureComponent {
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
-                title={strings('settings.title')}
+                title={account.currencyCode === 'TRX' ? strings('account.staking') : strings('settings.title')}
                 ExtraView={() => isTabs ? this.renderHeader() : null}
             >
                 {isTabs ?

@@ -177,6 +177,8 @@
         "title": "Switch wallet to HD mode?",
         "description": "HD mode implies rotation of addresses for each transaction. The switching operation is irreversible."
       },
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR" : "Server (default api.mymonero.com)",
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
@@ -184,7 +186,7 @@
       "needReinstallXMR"  : "Something wrong with XMR address generation - please, save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
       "getMnemonicXMR" : "View secret key",
-      "availableTRX" : "Available",
+      "availableTRX" : "Available:",
       "frozenTRX" : "Frozen",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "enter freeze amount TRX",
@@ -387,6 +389,7 @@
     "performWithdraw": "To perform withdraw, please, write to telegram to nickname"
   },
   "account": {
+    "staking": "Staking",
     "title": "Account",
     "copy": "Click to copy",
     "refresh": "Refresh",
@@ -402,6 +405,11 @@
     "noTransactions": "You don’t have any transaction yet. But you can resolve this quickly, just tap on BUY button",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
+    "stakingTRX": {
+      "bandwidthInfo": "Freeze your TRX to receive staking rewards. Freezing for Bandwidth will also allow sending free TRX without network fees.",
+      "energyInfo": "Freeze your TRX to receive staking rewards. Freezing for Energy will also allow sending TRC20 tokens without network fees.",
+      "moreInfo": "More info here"
+    },
     "externalLink": {
       "title": "Go to blockchain explorer",
       "description": "External site link will be opened"
