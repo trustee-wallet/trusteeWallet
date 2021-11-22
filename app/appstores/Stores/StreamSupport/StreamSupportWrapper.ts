@@ -13,7 +13,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 const CHAT_PREFIX = 'supportChat_'
-const ADMINS = ['ksu.dev']
+const ADMINS = ['ksu.dev', 'roman', 'taki183', 'Soyd', 'elena.feshchuk', 'Miner', 'dgrib', 'luda', 'yurka', 'EPIC' ]
 
 let WEB_SOCKET = false
 let WEB_SOCKET_LINK = false

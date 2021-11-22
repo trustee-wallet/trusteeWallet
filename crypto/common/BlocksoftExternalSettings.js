@@ -147,7 +147,7 @@ class BlocksoftExternalSettings {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
+                console.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message.toString().substr(0, 150))
             }
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
         }

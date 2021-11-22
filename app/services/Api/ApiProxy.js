@@ -154,27 +154,35 @@ async function _getAll(params) {
         marketingAll,
         walletAll
     }
-    const all = await BlocksoftAxios.post(link, allData)
-    CACHE_SENT_FIRST_SKIP = false
-    if (typeof all.data.data !== 'undefined') {
-        if (typeof all.data.data.newsHash !== 'undefined' && all.data.data.newsHash && all.data.data.newsHash !== '') {
-            await appNewsDS.saveAppNewsSentForServer(forServerIds)
-        }
-        if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
-            await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
-        }
 
-        let msg = ''
-        msg += 'ApiProxy._getAll feesHash ' + (all.data.data.feesHash || 'none')
-        msg += ' ratesHash ' + (all.data.data.ratesHash || 'none')
-        msg += ' newsHash ' + (all.data.data.newsHash || 'none')
-        msg += ' cbOrdersHash ' + (all.data.data.cbOrdersHash || 'none')
-        msg += ' cbDataHash ' + (all.data.data.cbDataHash || 'none')
-        await BlocksoftCryptoLog.log(msg)
-    } else {
-        await BlocksoftCryptoLog.log('ApiProxy._getAll no data')
+    try {
+        const all = await BlocksoftAxios.post(link, allData)
+        CACHE_SENT_FIRST_SKIP = false
+        if (typeof all.data.data !== 'undefined') {
+            if (typeof all.data.data.newsHash !== 'undefined' && all.data.data.newsHash && all.data.data.newsHash !== '') {
+                await appNewsDS.saveAppNewsSentForServer(forServerIds)
+            }
+            if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
+                await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
+            }
+
+            let msg = ''
+            msg += 'ApiProxy._getAll feesHash ' + (all.data.data.feesHash || 'none')
+            msg += ' ratesHash ' + (all.data.data.ratesHash || 'none')
+            msg += ' newsHash ' + (all.data.data.newsHash || 'none')
+            msg += ' cbOrdersHash ' + (all.data.data.cbOrdersHash || 'none')
+            msg += ' cbDataHash ' + (all.data.data.cbDataHash || 'none')
+            await BlocksoftCryptoLog.log(msg)
+        } else {
+            await BlocksoftCryptoLog.log('ApiProxy._getAll no data')
+        }
+        return all
+    } catch (e) {
+        if (config.debug.cryptoErrors) {
+            console.log('ApiProxy._getAll error ' + e.message.toString().substr(0, 150))
+        }
+        return false
     }
-    return all
 }
 
 async function _getFees(params) {
