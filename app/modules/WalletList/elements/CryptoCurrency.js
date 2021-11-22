@@ -246,7 +246,7 @@ class CryptoCurrency extends React.PureComponent {
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={[styles.cryptoList__item, { transform: [{scale: this.props.isActive ? 1.02 : 1}] }]}
-                    onPress={() => handleCurrencySelect(this.props)}
+                    onPress={() => handleCurrencySelect(this.props, currencyCode === 'CASHBACK' ? 'CashbackScreen' : false)}
                     disabled={this.props.constructorMode}
                 >
                     <GradientView

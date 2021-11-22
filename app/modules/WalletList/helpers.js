@@ -167,7 +167,7 @@ const handleCurrencySelect = async (props, screen) => {
   let status = ''
   CACHE_CLICK = true
 
-  if (typeof cryptoCurrency.currencyCode !== 'undefined' && cryptoCurrency.currencyCode === 'NFT') {
+  if (typeof cryptoCurrency.currencyCode !== 'undefined' && (cryptoCurrency.currencyCode === 'NFT' || cryptoCurrency.currencyCode === 'CASHBACK')) {
     try {
       setSelectedCryptoCurrency(cryptoCurrency)
       NavStore.goNext(screen || 'NftMainScreen')
@@ -217,8 +217,13 @@ const getSortedData = (array, currentArray, accountList, filter) => {
       return array
     case 'byName':
       return _sortBy(currentArray, 'currencySymbol')
-    case 'custom':
-      return currentArray
+    case 'custom': {
+      const res = trusteeAsyncStorage.getCurrenciesList()
+      const currenciesOrder = res !== null ? JSON.parse(res) : []
+      const currenciesLength = currentArray.length
+      
+      return _orderBy(currentArray, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+    }
     case 'byValue': {
       let sortedAccount = _orderBy(accountList, function (obj) {
         return parseInt(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
@@ -246,23 +251,6 @@ const getSectionsData = (array) => {
   const sections = _groupBy(array, 'currencyType')
 
   return Object.keys(sections).map((key) => ({ title: key, data: sections[key] }))
-}
-
-const getCurrenciesOrder = async (that) => {
-  try {
-    if (that.state.sortValue === 'custom') {
-      const res = await trusteeAsyncStorage.getCurrenciesList()
-      const currenciesOrder = res !== null ? JSON.parse(res) : []
-      const currenciesLength = that.state.data.length
-
-      that.setState(state => ({
-        currenciesOrder,
-        data: _orderBy(state.data, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-      }))
-    }
-  } catch (e) {
-    Log.err(`WalletList helper getCurrenciesOrder error ${e.message}`)
-  }
 }
 
 const getDerivedState = (nextProps, prevState) => {
@@ -298,6 +286,5 @@ export {
   handleCurrencySelect,
   getSortedData,
   getSectionsData,
-  getCurrenciesOrder,
   getDerivedState
 }

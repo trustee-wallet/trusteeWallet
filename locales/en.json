@@ -15,6 +15,10 @@
       "firstCoin": "First coins",
       "firstToken": "First tokens",
       "withBalance": "With balance"
+    },
+    "categories": {
+      "coin": "Coins",
+      "token": "Tokens"
     }
   },
   "walletCreateScreen": {

@@ -16,7 +16,7 @@ import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 import CryptoCurrency from '../elements/CryptoCurrency'
-import { getCurrenciesOrder, getSortedData, getDerivedState } from '../helpers'
+import { getSortedData, getDerivedState } from '../helpers'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
@@ -35,15 +35,13 @@ class HomeDragScreen extends PureComponent {
             currenciesOrder: [],
             sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
         }
-
-        getCurrenciesOrder(this)
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
         return getDerivedState(nextProps, prevState)
     }
 
-    componentDidUpdate(prevProps){
+    componentDidUpdate(prevProps) {
         if (!_isEqual(prevProps.sortValue, this.props.sortValue)) {
             this.setState({
                 sortValue: this.props.sortValue
@@ -51,7 +49,7 @@ class HomeDragScreen extends PureComponent {
         }
     }
 
-    handleBack = () => {
+    handleDone = () => {
         NavStore.goBack()
     }
 
@@ -84,7 +82,7 @@ class HomeDragScreen extends PureComponent {
             <ScreenWrapper
                 title={strings('homeScreen.settings')}
                 leftType='done'
-                leftAction={this.handleBack}
+                leftAction={this.handleDone}
                 rightType='sort'
                 rightAction={this.handlRightAction}
             >

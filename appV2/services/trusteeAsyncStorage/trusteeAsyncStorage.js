@@ -157,7 +157,7 @@ class TrusteeAsyncStorage {
     }
 
     getCurrenciesList = () => {
-        return this._get('currenciesOrder')
+        return this._getStatic('currenciesOrder')
     }
 
     setCurrenciesList = (value) => {

@@ -487,6 +487,7 @@ class UpdateAccountListDaemon extends Update {
                     && typeof selectedAccount.currencyCode !== 'undefined'
                     && typeof selectedAccount.walletHash !== 'undefined'
                     && selectedAccount.currencyCode !== 'NFT'
+                    && selectedAccount.currencyCode !== 'CASHBACK'
                 ) {
                     if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode] === 'undefined') {
                         Log.daemon('UpdateAccountListDaemon error when no selected ' + selectedAccount.currencyCode)

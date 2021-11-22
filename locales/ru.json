@@ -9,12 +9,16 @@
     "settings": "Настройки отображение",
     "sorting": "Сортировка",
     "sort": {
-      "custom": "Кастом",
+      "custom": "Пользовательский",
       "byName": "По имени",
       "byValue": "По балансу",
       "firstCoin": "Сначала монеты",
       "firstToken": "Сначала токени",
       "withBalance": "С положительным балансом"
+    },
+    "categories": {
+      "coin": "Монеты",
+      "token": "Токени"
     }
   },
   "walletCreateScreen": {

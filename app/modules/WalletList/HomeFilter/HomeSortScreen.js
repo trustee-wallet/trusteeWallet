@@ -50,11 +50,11 @@ class HomeSortScreen extends PureComponent {
             icon: 'tokenFirstSort',
             value: 'tokenFirst'
         },
-        {
-            title: strings('homeScreen.sort.withBalance'),
-            icon: 'wallet',
-            value: 'withBalance'
-        }
+        // {
+        //     title: strings('homeScreen.sort.withBalance'),
+        //     icon: 'wallet',
+        //     value: 'withBalance'
+        // }
     ]
 
     handleBack = () => {

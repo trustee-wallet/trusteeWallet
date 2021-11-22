@@ -2007,5 +2007,12 @@
         "currencyCode": "NFT",
         "currencySymbol": "NFT",
         "isHidden": false
-    }
+    },
+	"CASHBACK" : {
+		"currencyType": "coin",
+        "currencyName": "Cashback",
+        "currencyCode": "CASHBACK",
+        "currencySymbol": "USDT",
+        "isHidden": false
+	}
 }
