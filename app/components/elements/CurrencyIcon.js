@@ -660,6 +660,15 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
+            
+            case 'CASHBACK':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name='earn' style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                        </View>
+                    </View>
+                )
 
             case 'CUSTOM_MVT':
                 return (

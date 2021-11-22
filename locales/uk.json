@@ -9,12 +9,16 @@
      "settings": "Налаштування відображення",
      "sorting": "Сортування",
      "sort": {
-      "custom": "Кастом",
+      "custom": "Користувацький",
       "byName": "За ім'ям",
       "byValue": "За балансом",
       "firstCoin": "Спочатку монети",
       "firstToken": "Спочатку токени",
       "withBalance": "З позитивним балансом"
+    },
+    "categories": {
+      "coin": "Монети",
+      "token": "Токени"
     }
    },
    "walletCreateScreen": {

@@ -830,6 +830,12 @@ export default {
             darkColor: '#FDD807'
         }
     },
+    'CASHBACK': {
+        colors: {
+            mainColor: '#404040',
+            darkColor: '#DADADA'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

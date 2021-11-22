@@ -60,11 +60,11 @@ const currencyActions = {
             prepare.push(one)
         }
         for (const currencyDBTmp of currencies) {
-            if (currencyDBTmp.currencyCode !== 'NFT') continue
+            if (currencyDBTmp.currencyCode !== 'NFT' && currencyDBTmp.currencyCode !== 'CASHBACK') continue
             _push(prepare, currencyDBTmp)
         }
         for (const currencyDBTmp of currencies) {
-            if (currencyDBTmp.currencyCode === 'NFT') continue
+            if (currencyDBTmp.currencyCode === 'NFT' || currencyDBTmp.currencyCode === 'CASHBACK') continue
             _push(prepare, currencyDBTmp)
         }
 

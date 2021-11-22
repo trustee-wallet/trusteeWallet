@@ -43,9 +43,10 @@ import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
-import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData, getSortedData, getCurrenciesOrder, getDerivedState, getSectionsData } from './helpers'
+import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData, getSortedData, getDerivedState, getSectionsData } from './helpers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { getAccountList } from '@app/appstores/Stores/Account/selectors'
+import { strings } from '@app/services/i18n'
 
 
 class HomeScreen extends React.PureComponent {
@@ -65,7 +66,6 @@ class HomeScreen extends React.PureComponent {
             currenciesOrder: [],
             sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
         }
-        getCurrenciesOrder(this)
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -240,7 +240,9 @@ class HomeScreen extends React.PureComponent {
                                 {...this.commonHeaderProps}
                                 sections={getSectionsData(this.state.data)}
                                 renderSectionHeader={({ section: { title } }) => (
-                                    <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>{title}</Text>
+                                    <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>
+                                        {strings(`homeScreen.categories.${title}`)}
+                                    </Text>
                                 )}
                                 renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE }} />}
                                 stickySectionHeadersEnabled={false}
@@ -248,7 +250,7 @@ class HomeScreen extends React.PureComponent {
                             :
                                 <FlatList
                                     {...this.commonHeaderProps}
-                                    data={this.state.data}
+                                    data={getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)}
                                 />
                             }
                     </View>
