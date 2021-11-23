@@ -64,7 +64,7 @@ class HomeDragScreen extends PureComponent {
 
     onDragEnd = ({ data }) => {
         const currenciesOrder = data.map(c => c.currencyCode)
-        trusteeAsyncStorage.setCurrenciesList(JSON.stringify(currenciesOrder))
+        trusteeAsyncStorage.setCurrenciesList(currenciesOrder)
         this.setState({ data, isCurrentlyDraggable: false })
         setSortValue('custom')
         trusteeAsyncStorage.setSortValue('custom')

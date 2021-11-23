@@ -218,10 +218,9 @@ const getSortedData = (array, currentArray, accountList, filter) => {
     case 'byName':
       return _sortBy(currentArray, 'currencySymbol')
     case 'custom': {
-      const res = trusteeAsyncStorage.getCurrenciesList()
-      const currenciesOrder = res !== null ? JSON.parse(res) : []
+      const currenciesOrder = trusteeAsyncStorage.getCurrenciesList()
       const currenciesLength = currentArray.length
-      
+
       return _orderBy(currentArray, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
     }
     case 'byValue': {
@@ -269,7 +268,7 @@ const getDerivedState = (nextProps, prevState) => {
     const newOrder = data.map(c => c.currencyCode)
     if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {
       newState.currenciesOrder = newOrder
-      trusteeAsyncStorage.setCurrenciesList(JSON.stringify(newOrder))
+      trusteeAsyncStorage.setCurrenciesList(newOrder)
     }
   }
 
