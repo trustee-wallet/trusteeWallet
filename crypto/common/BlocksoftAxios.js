@@ -280,9 +280,8 @@ class BlocksoftAxios {
                 timeOut = Math.round(timeOut / 2)
             } else if (link.indexOf('/internet') !== -1) {
                 timeOut = Math.round(timeOut  / 10)
-            } else if (link.indexOf('.trustee.deals') !== -1) {
-                timeOut = Math.round(timeOut / 4)
             }
+
             if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {
                 const now = new Date().getTime()
                 const timeMsg = ' timeout ' + CACHE_STARTED[cacheMD].timeOut + ' started ' + CACHE_STARTED[cacheMD].time + ' diff ' + (now - CACHE_STARTED[cacheMD].time)
@@ -293,14 +292,17 @@ class BlocksoftAxios {
             instance.defaults.cancelToken = cancelSource.token
             CACHE_STARTED[cacheMD] = { time: new Date().getTime(), timeOut }
             CACHE_STARTED_CANCEL[cacheMD] = cancelSource
-            setTimeout(() => {
-                cancelSource.cancel('TIMEOUT CANCELED ')
+
+            const tmpTimer = setTimeout(() => {
+                cancelSource.cancel('TIMEOUT CANCELED ' + timeOut)
             }, timeOut)
             if (method === 'get') {
                 tmp = await instance.get(link)
             } else {
                 tmp = await instance.post(link, data)
             }
+            clearTimeout(tmpTimer)
+
             if (emptyIsBad && (tmp.status !== 200 || !tmp.data)) {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new Error('BlocksoftAxios.' + method + ' ' + link + ' status: ' + tmp.status + ' data: ' + tmp.data)

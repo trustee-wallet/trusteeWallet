@@ -87,6 +87,8 @@ async function _getAll(params) {
         }
     }
 
+    walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
+
     if (!CACHE_SENT_FIRST_SKIP) {
 
         forCards = await cardsDS.getCardsForApi(walletHash)
@@ -109,7 +111,6 @@ async function _getAll(params) {
                 MarketingEvent.DATA.LOG_CASHBACK = wallet.walletCashback
             }
         }
-        walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
 
         cbOrders = {
             CACHE_ORDERS_HASH: UpdateTradeOrdersDaemon.getSavedOrdersHash(),
@@ -180,7 +181,7 @@ async function _getAll(params) {
         return all
     } catch (e) {
         if (config.debug.cryptoErrors) {
-            console.log('API/ApiProxy._getAll error ' + e.message.toString().substr(0, 150))
+            console.log('API/ApiProxy._getAll error ' + e.message.toString().substr(0, 1500))
         }
         return false
     }
