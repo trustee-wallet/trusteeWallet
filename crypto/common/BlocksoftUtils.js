@@ -157,6 +157,9 @@ class BlocksoftUtils {
             return 0
         }
         val = val.toString().toLowerCase()
+        if (val.indexOf('0x') === 0) {
+            return BigIntXmr.BigInteger(val).toString()
+        }
         if (val.indexOf('e') === -1) {
             return val
         }
@@ -166,8 +169,10 @@ class BlocksoftUtils {
         const first = parts[0].split('.')
         if (number === '+') {
             return this.fromUnified(parts[0], power)
-        } else {
+        } else if (typeof power !== 'undefined' && power*1 > 0) {
             return '0.' + ('0'.repeat(power - 1)) + first[0] + (typeof first[1] !== 'undefined' ? first[1] : '')
+        } else {
+            return '0.0'
         }
     }
 
