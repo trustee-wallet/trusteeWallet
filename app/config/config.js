@@ -53,8 +53,8 @@ const config = {
         appLogs: false, // set false to see usual logs in files only
         appDaemonLogs: false, // set false to see cron jobs logs in files only
         cryptoLogs: false, // set false to see crypto logs in files only
-        cryptoErrors: true, // set false to get crypto errors  in tg only
-        appErrors: true, // set false to get errors in tg only
+        cryptoErrors: false, // set false to get crypto errors  in tg only
+        appErrors: false, // set false to get errors in tg only
         fioErrors: false, //
         appDBLogs: false, // set false to get db query in files only
         firebaseLogs: true, // set false not to collect data to firebase live db
