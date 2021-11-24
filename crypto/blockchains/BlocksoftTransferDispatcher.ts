@@ -29,6 +29,7 @@ import VetTransferProcessor from '@crypto/blockchains/vet/VetTransferProcessor'
 import SolTransferProcessor from '@crypto/blockchains/sol/SolTransferProcessor'
 import SolTransferProcessorSpl from '@crypto/blockchains/sol/SolTransferProcessorSpl'
 import WavesTransferProcessor from '@crypto/blockchains/waves/WavesTransferProcessor'
+import MetisTransferProcessor from '@crypto/blockchains/metis/MetisTransferProcessor'
 
 import { BlocksoftBlockchainTypes } from './BlocksoftBlockchainTypes'
 
@@ -119,6 +120,9 @@ export namespace BlocksoftTransferDispatcher {
                 break
             case 'SOL_SPL':
                 CACHE_PROCESSORS[currencyCode] = new SolTransferProcessorSpl(currencyDictSettings)
+                break
+            case 'METIS':
+                CACHE_PROCESSORS[currencyCode] = new MetisTransferProcessor(currencyDictSettings)
                 break
             case 'WAVES':
                 CACHE_PROCESSORS[currencyCode] = new WavesTransferProcessor(currencyDictSettings)

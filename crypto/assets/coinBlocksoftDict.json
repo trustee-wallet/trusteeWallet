@@ -2027,7 +2027,7 @@
 		"scannerProcessor": "METIS",
 		"extendsProcessor": "ETH",
 		"prettyNumberProcessor": "ETH",
-		"transferProcessor": "ETC",
+		"transferProcessor": "METIS",
 		"network": "mainnet",
 		"decimals": 18,
 		"currencyExplorerLink": "https://andromeda-explorer.metis.io/address/",
