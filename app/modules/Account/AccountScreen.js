@@ -8,30 +8,22 @@ import { connect } from 'react-redux'
 import {
     Platform,
     RefreshControl,
-    Text,
-    TouchableOpacity,
     View,
     FlatList,
-    Dimensions,
-    LayoutAnimation
 } from 'react-native'
-
-import LottieView from 'lottie-react-native'
 
 import _isEqual from 'lodash/isEqual'
 
 import GradientView from '@app/components/elements/GradientView'
 import NavStore from '@app/components/navigation/NavStore'
-import Loader from '@app/components/elements/LoaderItem'
 import AppLockBlur from '@app/components/AppLockBlur'
 
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setFilter, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import Log from '@app/services/Log/Log'
-import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
@@ -41,9 +33,6 @@ import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccou
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
 import { strings } from '@app/services/i18n'
-
-import { HIT_SLOP } from '@app/theme/HitSlop'
-import CustomIcon from '@app/components/elements/CustomIcon'
 
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
 
@@ -55,25 +44,17 @@ import AccountButtons from './elements/AccountButtons'
 import Transaction from './elements/Transaction'
 import BalanceHeader from './elements/AccountData'
 
-import blackLoader from '@assets/jsons/animations/refreshBlack.json'
-import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
+
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
-import Netinfo from '@app/services/Netinfo/Netinfo'
+import { getPrettyCurrencyName, handleBuy, handleReceive, handleSend } from './helpers'
 
-import { diffTimeScan } from './helpers'
-import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { getFilterData, getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
-
-import TextInput from '@app/components/elements/NewInput'
-
-import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
-
-const {width: SCREEN_WIDTH} = Dimensions.get('window')
+import SynchronizedBlock from './elements/SynchronizedBlock'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
@@ -95,12 +76,10 @@ class Account extends React.PureComponent {
             isBalanceVisibleTriggered: false,
 
             hasStickyHeader: false,
+
             isSeaching: false,
-            searchQuery: this.props.filterData?.startAmount || '',
-            error: false
         }
-        this.linkInput = React.createRef()
-        this.handleSearch = this.handleSearch.bind(this)
+        // this.handleSearch = this.handleSearch.bind(this)
     }
 
     async componentDidMount() {
@@ -132,7 +111,7 @@ class Account extends React.PureComponent {
     }
 
     triggerBalanceVisibility = (value, originalVisibility) => {
-        this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered: true }))
+        this.setState(() => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered: true }))
     }
 
     updateOffset = (event) => {
@@ -146,73 +125,6 @@ class Account extends React.PureComponent {
         const { address } = this.props.selectedAccountData
         const link = BlocksoftExternalSettings.getStatic('FIO_REGISTRATION_URL')
         NavStore.goNext('WebViewScreen', { url: link + address, title: strings('fioMainSettings.registerFioAddress') })
-    }
-
-    handleReceive = () => {
-        const { walletHash, address } = this.props.selectedAccountData
-        const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
-
-        checkTransferHasError({
-            walletHash,
-            currencyCode,
-            currencySymbol,
-            addressFrom: address,
-            addressTo: address
-        })
-        NavStore.goNext('AccountReceiveScreen')
-    }
-
-    handleSend = async () => {
-        const { isSynchronized } = this.props.selectedAccountData
-        const { currencyCode } = this.props.selectedCryptoCurrencyData
-
-        if (isSynchronized) {
-            await SendActionsStart.startFromAccountScreen(currencyCode)
-        } else {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: 'INFO',
-                title: strings('modal.cryptocurrencySynchronizing.title'),
-                description: strings('modal.cryptocurrencySynchronizing.description')
-            })
-        }
-    }
-
-    handleBuy = async () => {
-        const { currencyCode } = this.props.selectedCryptoCurrencyData
-        const { basicCurrencyCode } = this.props.selectedAccountData
-
-        try {
-            await Netinfo.isInternetReachable()
-
-            const showMsg = trusteeAsyncStorage.getSmartSwapMsg() === '1'
-            if (!showMsg) {
-                showModal({
-                    type: 'MARKET_MODAL',
-                    icon: 'INFO',
-                    title: strings('modal.marketModal.title'),
-                    description: strings('modal.marketModal.description'),
-                }, () => {
-                    this.props.navigation.jumpTo('MarketScreen', {screen: 'MarketScreen', params: {
-                        inCurrencyCode: basicCurrencyCode,
-                        outCurrencyCode: currencyCode
-                    }})
-                })
-            } else {
-                this.props.navigation.jumpTo('MarketScreen', {screen: 'MarketScreen', params: {
-                    inCurrencyCode: basicCurrencyCode,
-                    outCurrencyCode: currencyCode
-                }})
-            }
-
-            // }
-        } catch (e) {
-            if (Log.isNetworkError(e.message)) {
-                Log.log('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
-            } else {
-                Log.err('HomeScreen.BottomNavigation handleMainMarket error ' + e.message)
-            }
-        }
     }
 
     handleRefresh = async (click = false) => {
@@ -280,150 +192,10 @@ class Account extends React.PureComponent {
         })
     }
 
-    handleFilter = () => {
-        NavStore.goNext('TransactionFilter')
-    }
-
-
-    onSearch = (value) => {
-        this.setState({ searchQuery: value })
-    }
-
-    toggleSearch = () => {
-        this.setState({ 
-            isSeaching: !this.state.isSeaching,
-        })
-
-        const filter = {
-            searchQuery: ''
-        }
-
-        setFilter(filter)
-    }
-
-    handleChangeText = (value) => {
-        this.setState({
-            searchQuery: value.trim(),
-            error: false
-        })
-    }
-
-    handleSearch = async () => {
-        if (!this.linkInput?.getValue() ? '' : this.linkInput.getValue()) {
-            const text = this.linkInput.getValue()
-            const filter = {
-                searchQuery: text
-            }
-            setFilter(filter)
-        }
-    }
-
-    renderSynchronized = (allTransactionsToView) => {
-        const { balanceScanTime, balanceScanError, isSynchronized } = this.props.selectedAccountData
-        let { transactionsToView, isSeaching } = this.state
-        if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
-            transactionsToView = this.props.selectedAccountTransactions.transactionsToView
-        }
-
-        const { colors, GRID_SIZE, isLight } = this.context
-
-        const diff = diffTimeScan(balanceScanTime)
-        let diffTimeText = ''
-        if (diff > 60) {
-            diffTimeText = strings('account.soLong')
-        } else {
-            if (diff < 1) {
-                diffTimeText = strings('account.justScan')
-            } else {
-                diffTimeText = strings('account.scan', { time: diff })
-            }
-            if (balanceScanError && balanceScanError !== '' && balanceScanError !== 'null') {
-                diffTimeText += '\n' + strings(balanceScanError)
-            }
-        }
-
-        return (
-            <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
-                <View style={{ marginTop: 24, flexDirection: 'row', position: 'relative', justifyContent: 'space-between' }}>
-                    <View style={{ flexDirection: 'column' }} >
-                        {!isSeaching ?  
-                            <View style={{ marginBottom: 10 }}>
-                                <Text style={{ ...styles.transaction_title, color: colors.common.text1 }}>{strings('account.history')}</Text>
-                                <View style={{ ...styles.scan, marginLeft: 16}}>
-                                                          
-                                    {isSynchronized ?
-                                    <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2} >{diffTimeText}</Text>
-                                    :
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        marginRight: 10,
-                                        marginTop: 2
-                                    }}><Text style={{
-                                        ...styles.transaction__empty_text, ...{
-                                            marginLeft: 0,
-                                            marginRight: 10,
-                                            marginTop: 0,
-                                            color: colors.common.text1
-                                        }
-                                    }}>{strings('homeScreen.synchronizing')}</Text>
-                                        <Loader size={14} color={'#999999'} />
-                                    </View>}
-                                </View>
-                            </View> : 
-                            <View style={[styles.textInput, { height: 50, marginBottom: 5 }]}>
-                                <TextInput
-                                    ref={input => {this.linkInput = input}}
-                                    style={{ width: SCREEN_WIDTH * 0.715 }}
-                                    name={strings('assets.searchPlaceholder')}
-                                    type='TRANSACTION_SEARCH'
-                                    id='TRANSACTION_SEARCH'
-                                    containerStyle={{ height: 50 }}
-                                    inputStyle={{ marginTop: -6 }}
-                                    search={true}
-                                    onChangeText={this.handleChangeText}
-                                    func={this.handleSearch}
-                                    paste={true}
-                                    addressError={this.state.error}
-                                    validPlaceholder={true}
-                                />
-                            </View>}
-                    </View>
-                    <View style={[styles.scan, { marginTop: GRID_SIZE }]}>
-                        {!isSeaching && <TouchableOpacity style={ {alignItems: 'center', marginRight: GRID_SIZE }} onPress={this.toggleSearch} hitSlop={HIT_SLOP}>
-                            <CustomIcon name={'search'} size={20} color={colors.common.text1} />
-                        </TouchableOpacity>}
-                        <TouchableOpacity style={{ alignItems: 'center', marginRight: GRID_SIZE }} onPress={() => !isSeaching ? this.handleRefresh(true) : this.toggleSearch()} hitSlop={HIT_SLOP} >
-                            {this.state.clickRefresh ?
-                                <LottieView style={{ width: 20, height: 20, }}
-                                    source={isLight ? blackLoader : whiteLoader}
-                                    autoPlay loop /> :
-                                <CustomIcon name={!isSeaching ? 'reloadTx' : 'cancelTxHistory'} size={20} color={colors.common.text1} />}
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ alignItems: 'center', marginRight: GRID_SIZE }} onPress={this.handleFilter} hitSlop={HIT_SLOP}>
-                            <CustomIcon name={'filter'} size={20} color={colors.common.text1} />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                {
-                    allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0) && isSynchronized ?
-                        <View style={{ marginRight: GRID_SIZE }} >
-                            <Text
-                                style={{ ...styles.transaction__empty_text, marginTop: GRID_SIZE, color: colors.common.text3 }}>
-                                {strings('account.noTransactions')}
-                            </Text>
-                        </View>
-
-                        : null
-                }
-            </View>
-        )
-
-    }
-
     closeAction = () => {
         if (!CACHE_CLICKED_BACK) {
             CACHE_CLICKED_BACK = true
+            setFilter(null)
             NavStore.goBack()
         }
     }
@@ -437,7 +209,7 @@ class Account extends React.PureComponent {
         const { walletIsHideTransactionForFee } = this.props.selectedWalletData
         const { walletHash } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
-        const filter = this.props.filterData
+        const filter = this.props.filterData        
 
         let params = {
             walletHash,
@@ -465,7 +237,7 @@ class Account extends React.PureComponent {
                 transactionsToView.push(transaction)
             }
         }
-            
+
         CACHE_TX_LOADED = new Date().getTime()
 
         if (from === 0) {
@@ -475,17 +247,10 @@ class Account extends React.PureComponent {
         }
     }
 
-    getPrettyCurrencyName = (currencyCode, currencyName) => {
-        switch (currencyCode) {
-            case 'USDT':
-                return 'Tether Bitcoin'
-            case 'ETH_USDT':
-                return 'Tether Ethereum'
-            case 'TRX_USDT':
-                return 'Tether Tron'
-            default:
-                return currencyName
-        }
+    toggleSearch = () => {
+        this.setState({
+            isSeaching: !this.state.isSeaching,
+        })
     }
 
     render() {
@@ -501,7 +266,7 @@ class Account extends React.PureComponent {
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
             CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
-        } else if (CACHE_TX_LOADED*1 <= this.props.selectedAccountTransactions.transactionsLoaded*1) {
+        } else if (CACHE_TX_LOADED * 1 <= this.props.selectedAccountTransactions.transactionsLoaded * 1) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
             CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
             this.loadTransactions(0)
@@ -540,18 +305,18 @@ class Account extends React.PureComponent {
         return (
             <View style={{ flex: 1, backgroundColor: colors.common.background }}>
                 <Header
-                    leftType="back"
+                    leftType='back'
                     leftAction={this.closeAction}
-                    rightType="close"
+                    rightType='close'
                     rightAction={this.closeAction}
-                    title={this.getPrettyCurrencyName(selectedCryptoCurrencyData.currencyCode, selectedCryptoCurrencyData.currencyName)}
+                    title={getPrettyCurrencyName(selectedCryptoCurrencyData.currencyCode, selectedCryptoCurrencyData.currencyName)}
                     ExtraView={() => (
                         <BalanceHeader
                             balancePretty={selectedAccountData.balancePretty}
                             currencySymbol={selectedCryptoCurrencyData.currencySymbol}
-                            actionReceive={this.handleReceive}
-                            actionBuy={this.handleBuy}
-                            actionSend={this.handleSend}
+                            actionReceive={() => handleReceive(this.props)}
+                            actionBuy={() => handleBuy(this.props)}
+                            actionSend={() => handleSend(this.props)}
                             isBalanceVisible={this.state.isBalanceVisible}
                             isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
                             originalVisibility={this.props.isBalanceVisible}
@@ -580,7 +345,7 @@ class Account extends React.PureComponent {
                         />
                     }
                     ListHeaderComponent={() => (
-                        <React.Fragment>
+                        <>
                             <HeaderBlocks
                                 account={{
                                     walletHash: selectedAccountData.walletHash,
@@ -605,14 +370,22 @@ class Account extends React.PureComponent {
                             />
                             <AccountButtons
                                 title={true}
-                                actionReceive={this.handleReceive}
-                                actionBuy={this.handleBuy}
-                                actionSend={this.handleSend}
+                                actionReceive={() => handleReceive(this.props)}
+                                actionBuy={() => handleBuy(this.props)}
+                                actionSend={() => handleSend(this.props)}
                             />
-                            <View>
-                                {this.renderSynchronized(allTransactionsToView)}
-                            </View>
-                        </React.Fragment>
+                            <SynchronizedBlock
+                                allTransactionsToView={allTransactionsToView}
+                                transactionsToView={this.state.transactionsToView}
+                                selectedAccountData={this.props.selectedAccountData}
+                                clickRefresh={this.state.clickRefresh}
+                                selectedAccountTransactions={this.props.selectedAccountTransactions}
+                                handleRefresh={this.handleRefresh}
+                                filterData={this.props.filterData}
+                                toggleSearch={this.toggleSearch}
+                                isSeaching={this.state.isSeaching}
+                            />
+                        </>
                     )}
                     renderItem={({ item, index }) => (
                         <Transaction
@@ -630,7 +403,12 @@ class Account extends React.PureComponent {
                     onEndReached={this.handleShowMore}
                     keyExtractor={item => (item.id || ('bse_' + item.bseOrderData.orderId)).toString()}
                 />
-                <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
+                <GradientView
+                    style={styles.bottomButtons}
+                    array={colors.accountScreen.bottomGradient}
+                    start={styles.containerBG.start}
+                    end={styles.containerBG.end}
+                />
             </View>
         )
     }
@@ -660,9 +438,6 @@ const styles = {
     stub: {
         marginBottom: Platform.OS === 'android' ? 50 : 84,
     },
-    wrapper__content: {
-        flex: 1
-    },
     bottomButtons: {
         position: 'absolute',
         bottom: 0,
@@ -672,58 +447,16 @@ const styles = {
         height: 66,
         paddingBottom: Platform.OS === 'ios' ? 30 : 0
     },
-    scan: {
-        flexDirection: 'row'
-    },
-    scan__text: {
-        letterSpacing: 1,
-        fontFamily: 'SFUIDisplay-Semibold',
-        fontSize: 14,
-        lineHeight: 18
-    },
+
     containerBG: {
         start: { x: 1, y: 0 },
         end: { x: 1, y: 1 }
-    },
-    transaction_title: {
-        marginLeft: 16,
-        marginBottom: 4,
-        fontSize: 17,
-        fontFamily: 'Montserrat-Bold'
-    },
-    transaction__empty_text: {
-        marginTop: -5,
-        marginLeft: 16,
-        fontSize: 15,
-        lineHeight: 19,
-        fontFamily: 'SFUIDisplay-Semibold',
-        letterSpacing: 1.5
-    },
+    },    
     showMore: {
         flexDirection: 'row',
         justifyContent: 'center',
 
         padding: 10,
         marginBottom: 60
-    },
-    showMore__btn: {
-        marginRight: 5,
-
-        fontSize: 10,
-        fontFamily: 'SFUIDisplay-Bold'
-    },
-    textInput: {
-        justifyContent: 'center',
-        // height: 50,
-        borderRadius: 10,
-        elevation: 8,
-        // marginTop: 32,
-        shadowColor: '#000',
-        shadowRadius: 16,
-        shadowOpacity: 0.1,
-        shadowOffset: {
-            width: 0,
-            height: 0
-        }
     }
 }

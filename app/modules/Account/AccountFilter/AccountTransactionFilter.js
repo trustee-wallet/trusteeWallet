@@ -19,17 +19,17 @@ import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import Button from '@app/components/elements/new/buttons/Button'
-import DatePicker from 'react-native-date-picker'
 import { strings } from '@app/services/i18n'
 
 import { getFilterData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import TextAndButton from '@app/components/elements/new/TextAndButton'
-import InputAndButton from '@app/components/elements/new/InputAndButton'
+import DatePickerComponent from './elements/DatePicker'
+import AmountInputContainer from './elements/AmountInput'
+import { getCurrentDate } from '../helpers'
 
-var CustomLayoutAnimation = {
+const CustomLayoutAnimation = {
     duration: 800,
     create: {
         type: LayoutAnimation.Types.linear,
@@ -43,7 +43,7 @@ var CustomLayoutAnimation = {
         type: LayoutAnimation.Types.linear,
         property: LayoutAnimation.Properties.opacity,
     }
-  };
+};
 
 class TransactionFilter extends React.PureComponent {
 
@@ -51,12 +51,9 @@ class TransactionFilter extends React.PureComponent {
         selectedContent: '',
         startTime: this.props.filterData?.startTime || null,
         endTime: this.props.filterData?.endTime || null,
-        openStartTime: false,
-        openEndTime: false,
-        openStartAmount: false,
-        openEndAmount: false,
         startAmount: this.props.filterData?.startAmount ? this.getPrettyAmount(this.props.filterData?.startAmount) : '',
         endAmount: this.props.filterData?.endAmount ? this.getPrettyAmount(this.props.filterData?.endAmount) : '',
+        filterOriginData: this.props.filterData
     }
 
     startAmountInput = React.createRef()
@@ -67,6 +64,7 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleBack = () => {
+        setFilter(this.state.filterData)
         NavStore.goBack()
     }
 
@@ -81,45 +79,17 @@ class TransactionFilter extends React.PureComponent {
     handleOpenContent = (title) => {
         LayoutAnimation.configureNext(CustomLayoutAnimation);
         this.setState({
-            selectedContent: title === this.state.selectedContent ? null : title,
-            openEndTime: false,
-            openStartTime: false
+            selectedContent: title === this.state.selectedContent ? null : title
         })
     }
 
-    handleOpenStartTime = () => {
-        LayoutAnimation.configureNext(CustomLayoutAnimation);
-        this.setState({
-            startTime: this.state.openStartTime ? this.state.startTime : new Date(),
-            openStartTime: !this.state.openStartTime
-        })
-    }
+    handleSaveStartDate = startTime => this.setState({ startTime })
 
-    handleOpenEndTime = () => {
-        LayoutAnimation.configureNext(CustomLayoutAnimation);
-        this.setState({
-            endTime: this.state.openEndTime ? this.state.endTime : new Date(),
-            openEndTime: !this.state.openEndTime
-        })
-    }
+    handleSaveEndDate = endTime => this.setState({ endTime })
 
-    handleSaveStartDate = (startTime) => {
-        console.log(startTime)
-        this.setState({
-            startTime
-        })
-    }
-
-    handleSaveEndDate = (e) => {
-        this.setState({
-            endTime: e
-        })
-    }
 
     handleDiscardDate = () => {
         this.setState({
-            openStartTime: false,
-            openEndTime: false,
             startTime: null,
             endTime: null
         })
@@ -127,44 +97,14 @@ class TransactionFilter extends React.PureComponent {
 
     handleDiscardAmount = () => {
         this.setState({
-            openStartAmount: false,
-            openEndAmount: false,
             startAmount: '',
             endAmount: ''
         })
     }
 
-    handleOpenStartAmount = () => {
-        LayoutAnimation.configureNext(CustomLayoutAnimation);
-        this.setState({
-            openStartAmount: !this.state.openStartAmount
-        })
-    }
+    handleSetStartAmount = startAmount => this.setState({ startAmount })
 
-    handleOpenEndAmount = () => {
-        LayoutAnimation.configureNext(CustomLayoutAnimation);
-        this.setState({
-            openEndAmount: !this.state.openEndAmount
-        })
-    }
-
-    handleSetStartAmount = () => {
-        LayoutAnimation.configureNext(CustomLayoutAnimation);
-        const startAmount = this.startAmountInput.getValue()
-        this.setState({
-            startAmount: startAmount,
-            openStartAmount: false
-        })
-    }
-
-    handleSetEndAmount = () => {
-        LayoutAnimation.configureNext(CustomLayoutAnimation);
-        const endAmount = this.endAmountInput.getValue()
-        this.setState({
-            endAmount: endAmount,
-            openEndAmount: false
-        })
-    }
+    handleSetEndAmount = endAmount => this.setState({ endAmount })
 
     handlePickFilter = () => {
 
@@ -189,105 +129,69 @@ class TransactionFilter extends React.PureComponent {
         NavStore.goBack()
     }
 
-    getCurrentDate = (date) => {
-        const newDate = new Date(date)
-
-        return newDate.toString().split(' ')[1] + ' ' + newDate.getDate() + ', ' + newDate.getFullYear()
-    }
-
     renderContent = (content) => {
 
-        const {
-            GRID_SIZE,
-            colors
-        } = this.context
+        const { GRID_SIZE } = this.context
 
         const {
             startTime,
-            endTime
+            endTime,
+            startAmount,
+            endAmount,
+            selectedContent
         } = this.state
 
         const { currencySymbol } = this.props.selectedCryptoCurrencyData
 
+        if (content !== selectedContent) return null
+
         return (
             <View>
-                {content === 'TIME' ? <View>
+                {content === 'TIME' ?
                     <View style={{ marginBottom: GRID_SIZE * 1.5 }}>
-                        <TextAndButton
-                            title={strings('account.transaction.startDate')}
-                            buttonText={startTime ? this.getCurrentDate(startTime) : strings('account.transaction.pickDate')}
-                            onPress={this.handleOpenStartTime}
-                        />  
-                        {this.state.openStartTime &&
-                            <View style={{ backgroundColor: '#F5F5F5', marginTop: GRID_SIZE, borderRadius: 14 }}>
-                                <DatePicker
-                                    date={startTime}
-                                    mode='date'
-                                    style={{ marginLeft: GRID_SIZE * 1.5 }}
-                                    onDateChange={this.handleSaveStartDate}
-                                />
-                            </View>}
+                        <DatePickerComponent
+                            value={startTime}
+                            onDateChange={this.handleSaveStartDate}
+                        />
                         <View style={{ marginTop: GRID_SIZE }}>
-                            <TextAndButton
-                                title={strings('account.transaction.endDate')}
-                                buttonText={endTime ? this.getCurrentDate(endTime) : strings('account.transaction.pickDate')}
-                                onPress={this.handleOpenEndTime}
-                            />  
+                            <DatePickerComponent
+                                value={endTime}
+                                onDateChange={this.handleSaveEndDate}
+                            />
                         </View>
-                        {this.state.openEndTime &&
-                            <View style={{ backgroundColor: '#F5F5F5', marginTop: GRID_SIZE, borderRadius: 14 }}>
-                                <DatePicker
-                                    date={endTime}
-                                    mode='date'
-                                    style={{ marginLeft: GRID_SIZE * 1.5 }}
-                                    onDateChange={e => this.handleSaveEndDate(e)}
-                                />
-                            </View>}
                         <View style={[styles.buttonContainer, { marginTop: GRID_SIZE * 1.5 }]}>
                             <Button
                                 title={strings('account.transaction.discard')}
-                                containerStyle={styles.discardButton}
+                                containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2 }]}
                                 onPress={this.handleDiscardDate}
                             />
                         </View>
                     </View>
-                </View> : null}
-                {content === 'AMOUNT' ?
-                    <>
-                        <View style={{ flex: 1, flexDirection: 'column' }}>
-                            <TextAndButton
-                                title={strings('account.transaction.startAmount')}
-                                buttonText={this.state.startAmount === '' ? strings('account.transaction.setAmount') : `${this.state.startAmount} ${currencySymbol}`}
-                                onPress={this.handleOpenStartAmount}
-                            />    
-                            {this.state.openStartAmount &&    
-                                <InputAndButton
-                                    ref={this.startAmountInput} 
-                                    placeholder={strings('account.transactionScreen.transactionAmount', { currencyCode: currencySymbol })}
-                                    onPress={this.handleSetStartAmount}
-                                />}
+                    : content === 'AMOUNT' ?
+                        <View>
+                            <AmountInputContainer
+                                ref={component => this.startAmountInput = component}
+                                value={startAmount}
+                                onChange={this.handleSetStartAmount}
+                                currencyCode={currencySymbol}
+                            />
                             <View style={{ marginTop: GRID_SIZE }}>
-                                 <TextAndButton
-                                    title={strings('account.transaction.endAmount')}
-                                    buttonText={this.state.endAmount === '' ? strings('account.transaction.setAmount') : `${this.state.endAmount} ${currencySymbol}`}
-                                    onPress={this.handleOpenEndAmount}
-                                />    
+                                <AmountInputContainer
+                                    ref={component => this.endAmountInput = component}
+                                    value={endAmount}
+                                    onChange={this.handleSetEndAmount}
+                                    currencyCode={currencySymbol}
+                                />
                             </View>
-                            {this.state.openEndAmount &&
-                                <InputAndButton
-                                    ref={this.endAmountInput} 
-                                    placeholder={strings('account.transactionScreen.transactionAmount', { currencyCode: currencySymbol })}
-                                    onPress={this.handleSetEndAmount}
-                                />} 
                             <View style={[styles.buttonContainer, { marginTop: GRID_SIZE * 1.5 }]}>
                                 <Button
                                     title={strings('account.transaction.discard')}
-                                    containerStyle={styles.discardButton}
+                                    containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2 }]}
                                     onPress={this.handleDiscardAmount}
                                 />
                             </View>
                         </View>
-                    </> : null}
+                        : null}
             </View>
         )
     }
@@ -305,16 +209,12 @@ class TransactionFilter extends React.PureComponent {
             endTime
         } = this.state
 
-        if (endTime && startTime) {
-            this.handlePickDate
-        }
-
         return (
             <ScreenWrapper
                 title={strings('account.transaction.filterTitle')}
                 leftType='back'
                 leftAction={this.handleBack}
-                rightType="close"
+                rightType='close'
                 rightAction={this.handleClose}
             >
                 <ScrollView
@@ -323,43 +223,40 @@ class TransactionFilter extends React.PureComponent {
                     keyboardShouldPersistTaps='handled'
                 >
                     <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE }]}>{strings('account.transaction.transactionCategories')}</Text>
-                    <View>
-                        <ListItem
-                            title={strings('account.transaction.categoriesTitle')}
-                            subtitle="4 selected"
-                            iconType="categories"
-                            rightContent="arrow"
-                            onPress={this.handleCategories}
-                            last
-                        />
-                    </View>
+                    <ListItem
+                        title={strings('account.transaction.categoriesTitle')}
+                        iconType='categories'
+                        rightContent='arrow'
+                        onPress={this.handleCategories}
+                        last
+                    />
                     <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>{strings('account.transaction.dateAmount')}</Text>
                     <View>
                         <ListItem
                             title={strings('account.transaction.timeArray')}
-                            // subtitle={startTime && endTime ? startTime.toString().split(' ')[1] + ' ' + startTime.getDate() + ', ' + startTime.getFullYear() + ' - ' + endTime.toString().split(' ')[1] + ' ' + endTime.getDate() + ', ' + endTime.getFullYear() : ''}
-                            iconType="timeArray"
+                            subtitle={startTime && endTime ? getCurrentDate(startTime) + ' - ' + getCurrentDate(endTime) : ''}
+                            iconType='timeArray'
                             rightContent={selectedContent === 'TIME' ? 'arrow_up' : 'arrow_down'}
                             onPress={() => this.handleOpenContent('TIME')}
                             last
                         />
-                        {selectedContent === 'TIME' && this.renderContent('TIME')}
+                        {this.renderContent('TIME')}
                         <ListItem
                             title={strings('account.transaction.amountRange')}
                             subtitle={strings('account.transaction.allAmount')}
-                            iconType="amountRange"
+                            iconType='amountRange'
                             rightContent={selectedContent === 'AMOUNT' ? 'arrow_up' : 'arrow_down'}
                             onPress={() => this.handleOpenContent('AMOUNT')}
                             last
                         />
-                        {selectedContent === 'AMOUNT' && this.renderContent('AMOUNT')}
+                        {this.renderContent('AMOUNT')}
                     </View>
                     <View>
                         <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>{strings('account.transaction.downloadTransactionsHistory')}</Text>
                         <ListItem
                             title={strings('modal.infoUpdateModal.download')}
                             subtitle={strings('account.transaction.saveInCsv')}
-                            iconType="downloadDoc"
+                            iconType='downloadDoc'
                             onPress={this.handlePickDate}
                             last
                         />
@@ -367,7 +264,7 @@ class TransactionFilter extends React.PureComponent {
 
                 </ScrollView>
                 <Button
-                    title="Apply"
+                    title={strings('send.setting.apply')}
                     containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
                     onPress={this.handlePickFilter}
                 />
@@ -398,7 +295,6 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase'
     },
     discardButton: {
-        height: 32,
         minWidth: 120,
         maxWidth: 150
     },

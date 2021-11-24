@@ -1,13 +1,10 @@
 /**
- * @version 0.31
+ * @version 0.52
  * @author Vadym
  */
 
 import React from 'react'
-import {
-    StyleSheet,
-    ScrollView
-} from 'react-native'
+import { StyleSheet, FlatList } from 'react-native'
 
 import { connect } from 'react-redux'
 
@@ -18,81 +15,67 @@ import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
 import { getFilterData } from '@app/appstores/Stores/Main/selectors'
 import { strings } from '@app/services/i18n'
+import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
 
 class TransactionCategories extends React.PureComponent {
 
     state = {
         categoriesData: [
             {
-                active: true,
-                title: strings('account.transaction.selectAll'),
-                rightContent: "checkbox",
-                last: true
-            },
-            {
-                active: this.props.filterData?.income || null,
+                active: this.props.filterData?.income || true,
                 title: strings('account.transaction.income'),
-                iconType: "inTxHistory",
-                rightContent: "checkbox"
+                iconType: "inTxHistory"
             },
             {
-                active: this.props.filterData?.outcome || null,
+                active: this.props.filterData?.outcome || true,
                 title: strings('account.transaction.outcome'),
-                iconType: "outTxHistory",
-                rightContent: 'checkbox'
+                iconType: "outTxHistory"
             },
             {
-                active: this.props.filterData?.fee || null,
+                active: this.props.filterData?.fee || true,
                 title: strings('account.transaction.fee'),
-                iconType: "feeTxScreen",
-                rightContent: "checkbox"
+                iconType: "feeTxScreen"
             },
             {
-                active: this.props.filterData?.canceled || null,
+                active: this.props.filterData?.canceled || true,
                 title: strings('account.transaction.cancel'),
-                iconType: "cancelTxHistory",
-                rightContent: "checkbox"
+                iconType: "cancelTxHistory"
             },
             {
-                active: this.props.filterData?.swap || null,
+                active: this.props.filterData?.swap || true,
                 title: strings('account.transaction.swap'),
-                iconType: "exchange",
-                rightContent: "checkbox"
+                iconType: "exchange"
             },
             {
-                active: this.props.filterData?.freezing,
+                active: this.props.filterData?.freezing || true,
                 title: strings('account.transaction.freeze'),
-                iconType: "freezing",
-                rightContent: "checkbox"
+                iconType: "freezing"
             },
+            // {
+            //     active: this.props.filterData?.reward || true,
+            //     title: strings('account.transaction.reward'),
+            //     iconType: "reward"
+            // },
             {
-                active: this.props.filterData?.reward,
-                title: strings('account.transaction.reward'),
-                iconType: "reward",
-                rightContent: "checkbox"
-            },
-            {
-                active: this.props.filterData?.contractIncome,
+                active: this.props.filterData?.contractIncome || true,
                 title: strings('account.transaction.swap_income'),
-                iconType: "contractIncome",
-                rightContent: "checkbox"
+                iconType: "contractIncome"
             },
             {
-                active: this.props.filterData?.contractOutcome,
+                active: this.props.filterData?.contractOutcome || true,
                 title: strings('account.transaction.swap_outcome'),
-                iconType: "contractOutcome",
-                rightContent: "checkbox",
-                last: true
+                iconType: "contractOutcome"
             }
         ],
         isAllActive: true
     }
 
-    toggleAll = () => {
-        state.categoriesData.map(el => el.active = true)
-    } 
-
     handleBack = () => {
+        const filter = {
+            ...this.props.filter
+        }
+
+        setFilter(filter)
         NavStore.goBack()
     }
 
@@ -103,7 +86,8 @@ class TransactionCategories extends React.PureComponent {
     handleSelectCategory = (title) => {
         const { categoriesData } = this.state
         this.setState({
-            categoriesData: categoriesData.map(el => el.title === title ? ({ ...el, active: !el.active }) : el)
+            categoriesData: categoriesData.map(el => el.title === title ? ({ ...el, active: !el.active }) : el),
+            isAllActive: false
         })
     }
 
@@ -112,31 +96,40 @@ class TransactionCategories extends React.PureComponent {
             categoriesData: state.categoriesData.map(all => ({ ...all, active: !this.state.isAllActive })),
             isAllActive: !this.state.isAllActive
         }))
-
     }
 
-    renderCategoriesFlatList = () => {
+    renderHeaderComponent = () => {
 
         const { colors } = this.context
 
-        const {
-            categoriesData
-        } = this.state
+        return (
+            <ListItem
+                title={strings('account.transaction.selectAll')}
+                customIconStyle={{ backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark }}
+                rightContent='checkbox'
+                onPress={this.handleSelectAll}
+                isVisibleDone={false}
+                checked={this.state.isAllActive}
+            />
+        )
+    }
+
+    renderItem = ({ item, index }) => {
+
+        const { colors } = this.context
 
         return (
-            categoriesData.map((item, index) => (
-                <ListItem
-                    key={index}
-                    title={item.title}
-                    iconType={item.iconType}
-                    last={item.last}
-                    customIconStyle={{ backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark }}
-                    rightContent={item.rightContent}
-                    onPress={index === 0 ? this.handleSelectAll : () => this.handleSelectCategory(item.title)}
-                    isVisibleDone={false}
-                    checked={item.active}
-                />)
-            )
+            <ListItem
+                key={index}
+                title={item.title}
+                iconType={item.iconType}
+                last={index === this.state.categoriesData.length - 1}
+                customIconStyle={{ backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark }}
+                rightContent='checkbox'
+                onPress={() => this.handleSelectCategory(item.title)}
+                isVisibleDone={false}
+                checked={item.active}
+            />
         )
     }
 
@@ -147,18 +140,19 @@ class TransactionCategories extends React.PureComponent {
         return (
             <ScreenWrapper
                 title={strings('account.transaction.categoriesTitle')}
-                leftType="back"
+                leftType='back'
                 leftAction={this.handleBack}
-                rightType="close"
+                rightType='close'
                 rightAction={this.handleClose}
             >
-                <ScrollView
+                <FlatList
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={[styles.scrollViewContent, { marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE * 2 }]}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    {this.renderCategoriesFlatList()}
-                </ScrollView>
+                    keyboardShouldPersistTaps='handled'
+                    data={this.state.categoriesData}
+                    renderItem={this.renderItem}
+                    ListHeaderComponent={this.renderHeaderComponent}
+                />
             </ScreenWrapper>
         )
     }

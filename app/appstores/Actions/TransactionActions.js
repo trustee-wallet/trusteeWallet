@@ -191,6 +191,10 @@ const transactionActions = {
             bseOrderData : exchangeOrder
         }
 
+        if (typeof exchangeOrder !== 'undefined' && exchangeOrder) {
+            transaction.wayType = 'swap'
+        }
+
         transaction.transactionBlockchainStatus = transaction.transactionStatus
         transaction.transactionVisibleStatus = this.prepareStatus(transaction.transactionStatus)
 

@@ -328,8 +328,8 @@ class Input extends Component {
                     }
                     {
                         typeof search !== 'undefined' && search ?
-                            <TouchableOpacity onPress={() => func()} style={{ marginRight: -8 }}>
-                                <CustomIcon name={'search'} size={20} style={{...styles.actionBtn__icon, paddingTop: 2}} color={addressError && error ? '#864DD9' : colors.common.text1} />
+                            <TouchableOpacity onPress={func} style={{ marginRight: -8 }}>
+                                <CustomIcon name='search' size={20} style={{...styles.actionBtn__icon, paddingTop: 2}} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                 </View>

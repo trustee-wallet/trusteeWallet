@@ -116,25 +116,30 @@ class Transaction extends React.Component {
         }
     }
 
-    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
+    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus, wayType) => {
         const { colors } = this.context
         const { styles } = this.state
-        const { isFirst, dashHeight: height, cryptoCurrency } = this.props
+        const { isFirst, cryptoCurrency } = this.props
         const { currencyColor } = cryptoCurrency
 
-        let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
+        let arrowIcon = <Feather name='arrow-up-right' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}
 
         if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
-            arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
+            arrowIcon = <Feather name='arrow-down-left' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         }
         if (transactionDirection === 'self') {
-            arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
+            arrowIcon = <FontAwesome5 name='infinity' style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
             circleStyle = { backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circleBackground }
         }
+
+        if (wayType === 'swap') {
+            arrowIcon = <CustomIcon name='swap' style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 16 }} />
+        }
+
         // if (status === 'fail' || status === 'missing' || status === 'replaced') {
         if (visibleStatus.toUpperCase() === 'MISSING' || visibleStatus.toUpperCase() === 'OUT_OF_ENERGY') {
-            arrowIcon = <Feather name="x" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
+            arrowIcon = <Feather name='x' style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
             circleStyle = { backgroundColor: colors.accountScreen.transactions.circleBackground }
         }
 
@@ -249,7 +254,7 @@ class Transaction extends React.Component {
 
         return (
             <View style={styles.transaction}>
-                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus)}
+                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus, wayType)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
                     <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
                         <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>

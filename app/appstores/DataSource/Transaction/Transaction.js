@@ -272,7 +272,7 @@ class Transaction {
             where.push(`address_amount <= ${params.endAmount}`)
         }
         
-        // way filterj
+        // way filter
         if (typeof params.income !== 'undefined' && params.income) {
             where.push(`transaction_direction NOT IN ('income')`)
         } 
@@ -280,9 +280,11 @@ class Transaction {
             where.push(`transaction_direction NOT IN ('outcome')`)
         }
 
+        // search by address or hash
         if (typeof params.searchQuery !== 'undefined' && params.searchQuery) {
-            where.push(`(address_from = ${params.searchQuery} OR adress_to = ${params.searchQuery} OR transaction_hash = ${params.searchQuery}`)
+            where.push(`(address_from='${params.searchQuery}' OR address_to='${params.searchQuery}' OR transaction_hash='${params.searchQuery}')`)   
         }
+
         if (typeof params.freezing !== 'undefined' && params.freezing) {
             where.push(`transaction_direction NOT IN ('freeze')`)
         }
