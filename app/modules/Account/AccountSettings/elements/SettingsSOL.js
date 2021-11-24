@@ -61,7 +61,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import MainListItem from '@app/components/elements/new/list/ListItem/Setting'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { getSolValidator } from '@app/appstores/Stores/Main/selectors'
-import RewardItem from '@app/modules/Account/AccountSettings/RewardItem'
+import SolRewardItem from '@app/modules/Account/AccountSettings/sol/SolRewardItem'
 import { SendActionsBlockchainWrapper } from '@app/appstores/Stores/Send/SendActionsBlockchainWrapper'
 
 
@@ -328,7 +328,7 @@ class SettingsSOL extends React.PureComponent {
         if (item.type) {
             Linking.openURL('https://explorer.solana.com/tx/' + item.transactionHash)
         } else {
-            NavStore.goNext('StakingTransactionScreen', { stakingItem: item, stakingAccount: account })
+            NavStore.goNext('SolStakingTransactionScreen', { stakingItem: item, stakingAccount: account })
         }
     }
 
@@ -386,7 +386,7 @@ class SettingsSOL extends React.PureComponent {
         const prettyStake = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(item.amount)
 
         return (
-            <RewardItem
+            <SolRewardItem
                 key={index}
                 epoch={item.epoch}
                 apr={item.apr}

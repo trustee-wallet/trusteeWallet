@@ -18,7 +18,7 @@ import { connect } from 'react-redux'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
-import TransactionItem from '../AccountTransaction/elements/TransactionItem'
+import TransactionItem from '../../AccountTransaction/elements/TransactionItem'
 import { strings } from '@app/services/i18n'
 import Button from '@app/components/elements/new/buttons/Button'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -38,7 +38,7 @@ import config from '@app/config/config'
 import { getCashBackLinkFromDataAPi } from '@app/appstores/Stores/CashBack/selectors'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
-class StakingTransactionScreen extends PureComponent {
+class SolStakingTransactionScreen extends PureComponent {
 
     state = {
         element: null,
@@ -272,7 +272,7 @@ class StakingTransactionScreen extends PureComponent {
 
 }
 
-StakingTransactionScreen.contextType = ThemeContext
+SolStakingTransactionScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return{
@@ -280,7 +280,7 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps)(StakingTransactionScreen)
+export default connect(mapStateToProps)(SolStakingTransactionScreen)
 
 const styles = StyleSheet.create({
     viewExplorer: {

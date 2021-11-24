@@ -41,8 +41,9 @@ import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountS
 import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPrivate/AccountSettingsPrivateScreen'
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
-import StakingTransactionScreen from '@app/modules/Account/AccountSettings/StakingTransactionScreen'
-import SolValidators from '@app/modules/Account/AccountSettings/SolValidators'
+
+import SolStakingTransactionScreen from '@app/modules/Account/AccountSettings/sol/SolStakingTransactionScreen'
+import SolValidators from '@app/modules/Account/AccountSettings/sol/SolValidators'
 
 
 import FioChooseRecipient from '@app/modules/FIO/FioChooseRecipient'
@@ -132,7 +133,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountSettingsPrivate' component={AccountSettingsPrivateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountTransactionScreen' component={AccountTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='StakingTransactionScreen' component={StakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='SolStakingTransactionScreen' component={SolStakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolValidators' component={SolValidators} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -319,7 +320,7 @@ export default () => {
             <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            
+
             <Stack.Screen name='HomeSortScreen' component={HomeSortScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='HomeDragScreen' component={HomeDragScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </Stack.Navigator>
