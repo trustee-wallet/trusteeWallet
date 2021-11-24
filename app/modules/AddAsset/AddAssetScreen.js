@@ -133,7 +133,7 @@ class AddAssetScreen extends React.PureComponent {
 
     handleAddCustomToken = async (value) => {
         Keyboard.dismiss()
-        const customAddress = value.trim().split(/\s+/g).join('')
+        const customAddress = value.trim().split(/\s+/g).join('').replace('/', '').replace('.', '')
 
         const validationETH = await Validator.userDataValidation({
             type: 'ETH_ADDRESS',

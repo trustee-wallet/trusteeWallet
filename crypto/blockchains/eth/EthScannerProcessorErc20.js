@@ -3,8 +3,9 @@
  */
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import EthScannerProcessor from './EthScannerProcessor'
+import config from '@app/config/config'
 
-const abi = require('./ext/erc20.js')
+const abi = require('./ext/erc20')
 
 export default class EthScannerProcessorErc20 extends EthScannerProcessor {
 
@@ -16,7 +17,6 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
 
     constructor(settings) {
         super(settings)
-
         // noinspection JSUnresolvedVariable
         this._token = new this._web3.eth.Contract(abi.ERC20, settings.tokenAddress)
         this._tokenAddress = settings.tokenAddress.toLowerCase()
@@ -63,6 +63,9 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
             return { balance, unconfirmed: 0, provider, time }
 
         } catch (e) {
+            if (config.debug.appErrors) {
+                console.log( this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance ' + address + ' error ' + e.message)
+            }
             BlocksoftCryptoLog.log( this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance ' + address + ' error ' + e.message)
             return false
         }

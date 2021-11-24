@@ -21,6 +21,7 @@ const CACHE_GET_MAX_BLOCK = {
     FTM : { max_block_number: 0, confirmations: 0 },
     RSK : { max_block_number: 0, confirmations: 0 },
     OPTIMISM : { max_block_number: 0, confirmations: 0 },
+    METIS : { max_block_number: 0, confirmations: 0 },
 }
 const CACHE_BLOCK_NUMBER_TO_HASH = {
     ETH: {},
@@ -30,7 +31,8 @@ const CACHE_BLOCK_NUMBER_TO_HASH = {
     MATIC : {},
     FTM : {},
     RSK : {},
-    OPTIMISM : {}
+    OPTIMISM : {},
+    METIS : {}
 }
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
@@ -42,7 +44,8 @@ const CACHE = {
     MATIC : {},
     FTM : {},
     RSK : {},
-    OPTIMISM : {}
+    OPTIMISM : {},
+    METIS : {}
 }
 
 export default class EthScannerProcessor extends EthBasic {
