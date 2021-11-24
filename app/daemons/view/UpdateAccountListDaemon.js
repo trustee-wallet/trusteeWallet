@@ -302,6 +302,9 @@ class UpdateAccountListDaemon extends Update {
                 } else {
                     rate = tmpCurrency.currencyRateJson[basicCurrencyCode] || 0
                 }
+                if (rate.toString().indexOf('e-')) {
+                    rate = BlocksoftUtils.fromENumber(rate.toString())
+                }
                 if (currencyCode === 'BTC') {
                     Log.daemon('UpdateAccountListDaemon rate BTC ' + rate + ' with ' + JSON.stringify(basicCurrency))
                 }
@@ -484,6 +487,7 @@ class UpdateAccountListDaemon extends Update {
                     && typeof selectedAccount.currencyCode !== 'undefined'
                     && typeof selectedAccount.walletHash !== 'undefined'
                     && selectedAccount.currencyCode !== 'NFT'
+                    && selectedAccount.currencyCode !== 'CASHBACK'
                 ) {
                     if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode] === 'undefined') {
                         Log.daemon('UpdateAccountListDaemon error when no selected ' + selectedAccount.currencyCode)

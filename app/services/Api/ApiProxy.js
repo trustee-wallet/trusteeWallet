@@ -29,6 +29,7 @@ import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon
 import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
 
 let CACHE_SENT_FIRST_SKIP = true
+let CACHE_IS_FIRST_TIME = true
 async function _getAll(params) {
     const { apiEndpoints } = config.proxy
     const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
@@ -43,7 +44,6 @@ async function _getAll(params) {
     }
     const link = baseURL + `/all?exchangeMode=${exchangeMode}&uid=${deviceToken}`
     const time = typeof params !== 'undefined' && typeof params.timestamp !== 'undefined' ? params.timestamp : false
-
     const signedData = await CashBackUtils.createWalletSignature(true, time)
     if (!signedData) {
         throw new Error('No signed for getNews')
@@ -87,6 +87,8 @@ async function _getAll(params) {
         }
     }
 
+    walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
+
     if (!CACHE_SENT_FIRST_SKIP) {
 
         forCards = await cardsDS.getCardsForApi(walletHash)
@@ -109,7 +111,6 @@ async function _getAll(params) {
                 MarketingEvent.DATA.LOG_CASHBACK = wallet.walletCashback
             }
         }
-        walletAll = await ApiV3.initWallet({ walletHash }, 'ApiProxy')
 
         cbOrders = {
             CACHE_ORDERS_HASH: UpdateTradeOrdersDaemon.getSavedOrdersHash(),
@@ -154,27 +155,36 @@ async function _getAll(params) {
         marketingAll,
         walletAll
     }
-    const all = await BlocksoftAxios.post(link, allData)
-    CACHE_SENT_FIRST_SKIP = false
-    if (typeof all.data.data !== 'undefined') {
-        if (typeof all.data.data.newsHash !== 'undefined' && all.data.data.newsHash && all.data.data.newsHash !== '') {
-            await appNewsDS.saveAppNewsSentForServer(forServerIds)
-        }
-        if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
-            await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
-        }
 
-        let msg = ''
-        msg += 'ApiProxy._getAll feesHash ' + (all.data.data.feesHash || 'none')
-        msg += ' ratesHash ' + (all.data.data.ratesHash || 'none')
-        msg += ' newsHash ' + (all.data.data.newsHash || 'none')
-        msg += ' cbOrdersHash ' + (all.data.data.cbOrdersHash || 'none')
-        msg += ' cbDataHash ' + (all.data.data.cbDataHash || 'none')
-        await BlocksoftCryptoLog.log(msg)
-    } else {
-        await BlocksoftCryptoLog.log('ApiProxy._getAll no data')
+    try {
+        const all = await BlocksoftAxios.post(link, allData)
+        CACHE_SENT_FIRST_SKIP = false
+
+        if (typeof all.data.data !== 'undefined') {
+            if (typeof all.data.data.newsHash !== 'undefined' && all.data.data.newsHash && all.data.data.newsHash !== '') {
+                await appNewsDS.saveAppNewsSentForServer(forServerIds)
+            }
+            if (typeof all.data.data.forCustomTokensOk !== 'undefined' && all.data.data.forCustomTokensOk && all.data.data.forCustomTokensOk.length > 0) {
+                await customCurrencyDS.savedCustomCurrenciesForApi(all.data.data.forCustomTokensOk)
+            }
+
+            let msg = ''
+            msg += 'ApiProxy._getAll feesHash ' + (all.data.data.feesHash || 'none')
+            msg += ' ratesHash ' + (all.data.data.ratesHash || 'none')
+            msg += ' newsHash ' + (all.data.data.newsHash || 'none')
+            msg += ' cbOrdersHash ' + (all.data.data.cbOrdersHash || 'none')
+            msg += ' cbDataHash ' + (all.data.data.cbDataHash || 'none')
+            await BlocksoftCryptoLog.log(msg)
+        } else {
+            await BlocksoftCryptoLog.log('ApiProxy._getAll no data')
+        }
+        return all
+    } catch (e) {
+        if (config.debug.cryptoErrors) {
+            console.log('API/ApiProxy._getAll error ' + e.message.toString().substr(0, 1500))
+        }
+        return false
     }
-    return all
 }
 
 async function _getFees(params) {
@@ -239,13 +249,10 @@ export default {
                 }
             }
         }
-        if (config.debug.appErrors) {
-            console.log(new Date().toISOString() + ' ApiProxy ' + JSON.stringify(params))
-        }
 
         let all = false
         let index = 0
-        // console.log('ApiProxy start ' + new Date().toISOString() + ' last cache ' + new Date(CACHE_LAST_TIME).toISOString(), JSON.parse(JSON.stringify(params)))
+        const maxIndex = CACHE_IS_FIRST_TIME ? 0 : 3
         do {
             if (realAction === '_getRates') {
                 all = await _getRates(params)
@@ -285,7 +292,9 @@ export default {
                 throw new Error(e.message + ' while _checkServerTimestamp')
             }
             index++
-        } while (all === false && index < 3)
+        } while (all === false && index < maxIndex)
+
+        CACHE_IS_FIRST_TIME = false
 
         if (!all || typeof all.data === 'undefined') {
             throw new Error('something wrong with proxy')
@@ -321,7 +330,6 @@ export default {
             }
 
         }
-        // console.log('ApiProxy finish ' + new Date().toISOString(), JSON.parse(JSON.stringify(params)))
         return res
     },
 

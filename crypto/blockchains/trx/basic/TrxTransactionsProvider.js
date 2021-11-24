@@ -137,6 +137,7 @@ export default class TrxTransactionsProvider {
         let addressAmount = 0
         let transactionDirection = 'self'
         let txTokenName = false
+        let addressFrom = (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? '' : transaction.ownerAddress
         if (typeof transaction.contractData.amount === 'undefined') {
             if (typeof transaction.contractData !== 'undefined' && typeof transaction.contractData.frozen_balance !== 'undefined') {
                 addressAmount = transaction.contractData.frozen_balance
@@ -179,6 +180,10 @@ export default class TrxTransactionsProvider {
                     txTokenName = '_'
                     transactionDirection = 'swap_outcome'
                 }
+            } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 12) {
+                addressAmount = transaction.amount
+                addressFrom = transaction.ownerAddress
+                transactionDirection = 'unfreeze'
             } else {
                 if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
                     // freeze = 11, vote = 4, claim = 13
@@ -199,7 +204,7 @@ export default class TrxTransactionsProvider {
             blockTime: formattedTime,
             blockConfirmations: blockConfirmations,
             transactionDirection,
-            addressFrom: (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? '' : transaction.ownerAddress,
+            addressFrom,
             addressTo: (address.toLowerCase() === transaction.toAddress.toLowerCase()) ? '' : transaction.toAddress,
             addressAmount,
             transactionStatus: transactionStatus,

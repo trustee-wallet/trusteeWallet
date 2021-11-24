@@ -5,7 +5,21 @@
      "unconfirmed" : "Непідтверджений",
      "today": "Сьогодні",
      "changedLastDay": "За останні 24 години",
-     "synchronizing": "Синхронізація"
+     "synchronizing": "Синхронізація",
+     "settings": "Налаштування відображення",
+     "sorting": "Сортування",
+     "sort": {
+      "custom": "Користувацький",
+      "byName": "За ім'ям",
+      "byValue": "За балансом",
+      "firstCoin": "Спочатку монети",
+      "firstToken": "Спочатку токени",
+      "withBalance": "З позитивним балансом"
+    },
+    "categories": {
+      "coin": "Монети",
+      "token": "Токени"
+    }
    },
    "walletCreateScreen": {
      "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
@@ -37,6 +51,7 @@
      "tabAll": "Все",
      "tabNews": "Новини",
      "tabInvite": "Поділитись",
+     "cashbackTabInvite": "Запрошуй",
      "tabInfo": "Інфо",
      "tabFaq": "Faq",
      "today": "Сьогодні",
@@ -317,7 +332,7 @@
     "invited": "Запрошений:",
     "cashback": "Cashback",
     "cpa": "CPA",
-    "pageTitle": "Запрошуй друзів",
+    "pageTitle": "Заробити",
     "pageSubtitle": "Заробляй від комісії з Trustee Wallet!",
     "pageSubtitleText": "до",
     "shareButton": "Поділитись",
@@ -326,18 +341,18 @@
     "enterPromoPlaceholder": "Введіть промокод",
     "enterInviteLinkPlaceholder": "Введіть посилання-запрошення",
     "applyButton": "Застосувати",
-    "wholeBalance": "Усього накопичено кешбеку",
+    "wholeBalance": "Баланс за весь час",
     "availableCashBack": "Доступний кешбек",
     "balanceTitle": "Баланс",
-    "toWithdraw": "До диводу залишилось:",
-    "cashbackInfo": "Cashback info",
-    "cpaInfo": "CPA info",
+    "toWithdraw": "Мін. сумма виводу:",
     "cpaTotal": "Усього CPA",
     "cpaLevel1": "CPA Рівень №1",
     "cpaLevel2": "CPA Рівень №2",
     "cpaLevel3": "CPA Рівень №3",
     "cashbackToken": "Токен",
     "invitedBy": "Запрошений",
+    "yourToken": "Ваша кешбек силка",
+    "cashbackMessage": "Отримуй Cashback за свої обмінні операції. Заробляй крипту за Партнерською програмою та CPA рекомендуючи Trustee Wallet!",
     "howItWorks": {
       "title": "Як це працює?",
       "info1Title": "Чи є в Trustee Wallet програма нагород для користувачів?",
@@ -366,7 +381,7 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "Ваші друзі",
-    "updated" : "Оновлено",
+    "updated" : "Оновлено в",
     "transAmount": "Сума транзакцій",
     "level2UsersAmount": "Друзі друзів",
     "cashbackError" : {
@@ -430,6 +445,7 @@
       "income": "Вхідна",
       "self" : "Собі",
       "freeze" : "Заморожено",
+      "unfreeze" : "Розморожено",
       "claim" : "Винагорода",
       "swap_income" : "Contract Вхідна",
       "swap_outcome" : "Contract Вихідна",
@@ -833,7 +849,7 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостатньо коштів для відправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Недостатня сума для відправки в стейк",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не валідатор"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не є валідатором"
     }
   },
   "walletBackup": {
@@ -1017,7 +1033,7 @@
       },
       "TRX_20": {
         "title": "Будь ласка, зверніть увагу!",
-        "description": "Ваш гаманець Tron (TRX) не активований. Для активації достатньо поповнити адресу Tron на 5-7 монет TRX, які в подальшому можуть бути використані в інших транзакціях "
+        "description": "Ваш гаманець Tron (TRX) не активований. Для активації достатньо поповнити адресу Tron на 10 монет TRX, які в подальшому можуть бути використані в інших транзакціях "
       },
       "TOKEN": {
         "title": "Будь ласка, зверніть увагу!",
@@ -1508,12 +1524,14 @@
       "currency":"Українська гривня"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Надіслати документи",
     "sendLogs": "Надіслати логи",
     "takePhoto": "Зробити фото",
     "chooseFromLibrary": "Вибрати з галереї",
     "noMessages": "Повідомлень поки що немає",
-    "sentFile": "Файл надіслано"
+    "sentFile": "Файл надіслано",
+    "getRoomError" : "Помилка завантаження",
+    "sendMessageError" : "Нестабільне підключення до мережі під час надсилання повідомлення"
   }
 }

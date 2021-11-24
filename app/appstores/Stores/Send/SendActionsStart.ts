@@ -90,11 +90,14 @@ export namespace SendActionsStart {
             if (typeof account.derivationPath === 'undefined') {
                 throw new Error('SendActionsStart.startFromWalletConnect required account.derivationPath')
             }
+            if (typeof data.walletConnectData.value !== 'undefined' && data.walletConnectData.value && data.walletConnectData.value.toString().indexOf('0x') === 0) {
+                data.walletConnectData.value = BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value)
+            }
             const dict = await formatDict(cryptoCurrency, account)
             SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
             const ui = {
                 uiType: uiType,
-                cryptoValue: data.walletConnectData.value ? BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value) : 0,
+                cryptoValue: data.walletConnectData.value ? data.walletConnectData.value : 0,
                 addressTo: data.walletConnectData.to,
                 walletConnectData: data.walletConnectData,
                 walletConnectPayload: data.walletConnectPayload,

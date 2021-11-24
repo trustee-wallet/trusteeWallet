@@ -148,6 +148,37 @@ class TrusteeAsyncStorage {
         return this._getStatic('pushTokensAll')
     }
 
+    getSortValue = () => {
+        return this._getStatic('sortValue')
+    }
+
+    setSortValue = (value) => {
+        return this._set('sortValue', value)
+    }
+
+    getCurrenciesList = () => {
+        const res =  this._getStatic('currenciesOrder')
+        if (!res || typeof res === 'undefined') {
+            return []
+        }
+        try {
+            const tmp = JSON.parse(res)
+            if (tmp && tmp.length > 0) {
+                return tmp
+            }
+        } catch (e) {
+           // do nothing
+        }
+        return []
+    }
+
+    setCurrenciesList = (value) => {
+        if (!value || typeof value === 'undefined') {
+            return false
+        }
+        return this._set('currenciesOrder', JSON.stringify(value))
+    }
+
     setFcmTokensAll = async (value, one) => {
         if (!this._inited) {
             this._inited = {}

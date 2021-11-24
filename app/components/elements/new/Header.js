@@ -34,21 +34,14 @@ export default class Header extends React.PureComponent {
 
         const Icon = (props) => {
             switch (leftType) {
-                case 'gallery': {
-                    return (
-                        <CustomIcon name="gallery" size={24} color={props.color} />
-                    )
-                }
-                case 'back': {
-                    return (
-                        <CustomIcon name="arrow_back" size={20} color={props.color} />
-                    )
-                }
-                case 'connect': {
-                    return (
-                        <CustomIcon name='reload' size={20} color={props.color} />
-                    )
-                }
+                case 'gallery':
+                    return <CustomIcon name="gallery" size={24} color={props.color} />
+                case 'back':
+                    return <CustomIcon name="arrow_back" size={20} color={props.color} />
+                case 'connect':
+                    return <CustomIcon name='reload' size={20} color={props.color} />
+                case 'done': 
+                    return <CustomIcon name='done' size={20} color={props.color} />
                 default: return null
             }
         }
@@ -72,26 +65,16 @@ export default class Header extends React.PureComponent {
 
         const Icon = (props) => {
             switch (rightType) {
-                case 'close': {
-                    return (
-                        <CustomIcon name="close" size={18} color={props.color} />
-                    )
-                }
-                case 'about': {
-                    return (
-                        <CustomIcon name="about" size={18} color={props.color} />
-                    )
-                }
-                case 'gallery': {
-                    return (
-                        <CustomIcon name="gallery" size={24} color={props.color} />
-                    )
-                }
-                case 'share': {
-                    return (
-                        <CustomIcon name="share" size={22} color={props.color} />
-                    )
-                }
+                case 'close':
+                    return <CustomIcon name="close" size={18} color={props.color} />
+                case 'about':
+                    return <CustomIcon name="about" size={18} color={props.color} />
+                case 'gallery':
+                    return <CustomIcon name="gallery" size={24} color={props.color} />
+                case 'share':
+                    return <CustomIcon name="share" size={22} color={props.color} />
+                case 'sort':
+                    return <CustomIcon name="sort" size={22} color={props.color} />
                 default: return null
             }
         }

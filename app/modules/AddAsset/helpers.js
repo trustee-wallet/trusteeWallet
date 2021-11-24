@@ -212,6 +212,15 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             if (checked4) {
                 todoArray.push({ tokenType : 'FTM_ERC_20', checked : checked4})
             }
+
+            const checked5 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'METIS_ERC_20',
+                tokenAddress
+            })
+            Log.log('AddCustomTokenScreen.addToken checked5 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked3))
+            if (checked5) {
+                todoArray.push({ tokenType : 'METIS_ERC_20', checked : checked4})
+            }
         }
 
 

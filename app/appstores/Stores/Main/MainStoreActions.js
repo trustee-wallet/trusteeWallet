@@ -398,3 +398,10 @@ export function setFilter(filter) {
         filter
     })
 }
+
+export function setSortValue(sortValue) {
+    dispatch({
+        type: 'SET_SORT_VALUE',
+        sortValue
+    })
+}

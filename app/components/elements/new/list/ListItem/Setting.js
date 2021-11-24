@@ -125,6 +125,10 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='contractIncome' size={20} color={color} />
         case 'contractOutcome':
             return <CustomIcon name='contractOutcome' size={20} color={color} />  
+        case 'cpa':
+            return <CustomIcon name='cpa' size={22} color={color} />
+        case 'earn':
+            return <CustomIcon name='earn' size={22} color={color} />
         default: return null
     }
 }
@@ -187,9 +191,13 @@ export default function SettingListItem(props) {
         ExtraViewParams,
         customIconStyle,
         isVisibleDone,
-        checked
+        checked,
+        color,
+        opacityWithDisabled
     } = props
     const { colors, GRID_SIZE } = useTheme()
+
+
 
     if (type === 'dropdown') {
         return (
@@ -233,16 +241,16 @@ export default function SettingListItem(props) {
                     activeOpacity={0.8}
                     disabled={disabled}
                 >
-                    {iconType && <View style={[styles.icon, { backgroundColor:  colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }, customIconStyle ]}>
+                    {iconType && <View style={[styles.icon, { backgroundColor:  colors.common.listItem.basic.iconBgLight, opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1 }, customIconStyle ]}>
                         {getIcon(iconType, customIconStyle?.color || colors.common.listItem.basic.iconColorLight)}
                     </View>}
                     <View style={styles.mainContent}>
-                        <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23, marginLeft: iconType ? 0 : GRID_SIZE }]}>
+                        <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, paddingVertical: !!subtitle ? 13 : 23, marginLeft: iconType ? 0 : GRID_SIZE }]}>
                             <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                             {!!subtitle && <Text numberOfLines={4} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
                         {!!rightContent && (
-                            <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
+                            <View style={[styles.rightContent, { opacity: !opacityWithDisabled ? disabled || disabledRightContent ? 0.3 : 1 : 1 }]}>
                                 {getRightContent(rightContent, { ...switchParams, disabled, onPress, checked }, colors.common.text1, isVisibleDone)}
                             </View>
                         )}

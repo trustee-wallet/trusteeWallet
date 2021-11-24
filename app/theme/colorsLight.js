@@ -70,7 +70,9 @@ export const colorsLight = {
         detailsBg: '#EBEBEB',
         howItWorksBg: '#F7F7F7',
         chartBg: '#EAEAEA',
-        borderColor: '#DADADA'
+        borderColor: '#DADADA',
+        circleBg: '#C6A3FB',
+        progressBarBg: '#B8B8B8'
     },
     notifications: {
         newNotiesIndicator: '#864DD9'
@@ -93,9 +95,11 @@ export const colorsLight = {
         walletInfoTextViolet: '#F3E6FF',
         tabBarText: '#5c5c5c',
         tabBarBackground: '#f7f7f7',
+        newTabsText: '#555555',
         dateColorViolet: '#c4c4c4',
         backupBg: '#ede4f9',
-        backupDescription: '#aa82e4'
+        backupDescription: '#aa82e4',
+        listItemBorderGradient: ['#fff', '#864DD9', '#fff']
     },
     createWalletScreen: {
         keyIcon: '#864DD9',
@@ -172,7 +176,7 @@ export const colorsLight = {
         bg: '#F5F5F5',
         borderColor: '#DADADA'
     },
-    streemChat: {
+    streamChat: {
         inputToolBarBg: '#EBEBEB',
         left: {
             bg: '#E8E8E8',

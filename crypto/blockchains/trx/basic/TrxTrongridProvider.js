@@ -43,7 +43,6 @@ export default class TrxTrongridProvider {
         if (!res || !res.data) {
             return false
         }
-
         CACHE_TRONGRID[address] = {}
         CACHE_TRONGRID[address].time = now
         CACHE_TRONGRID[address]._ = typeof res.data.balance !== 'undefined' ? res.data.balance : 0

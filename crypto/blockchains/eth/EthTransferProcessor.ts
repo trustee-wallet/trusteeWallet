@@ -219,12 +219,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     if (!gasLimit || typeof gasLimit !== 'undefined') {
                         gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
                     }
-                    if (this._mainCurrencyCode === 'OPTIMISM') {
-                        const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
-                        if (gasLimit < minGasLimit) {
-                            gasLimit = minGasLimit
-                        }
+
+                    const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
+                    if (minGasLimit > 0 && gasLimit < minGasLimit) {
+                        gasLimit = minGasLimit
                     }
+
                 }
             } else {
                 gasLimit = additionalData.gasLimit

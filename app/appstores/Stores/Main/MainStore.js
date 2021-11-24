@@ -17,7 +17,8 @@ const INITIAL_STATE = {
     bseLink: null,
     loaderFromBse: false,
     solValidator: {},
-    filter: {}
+    filter: {},
+    sortValue: null
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
@@ -89,6 +90,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 filter : action.filter
+            }
+        case 'SET_SORT_VALUE':
+            return {
+                ...state,
+                sortValue: action.sortValue
             }
         default:
             return state

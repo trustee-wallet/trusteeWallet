@@ -5,7 +5,21 @@
     "unconfirmed" : "Unconfirmed",
     "today": "Today",
     "changedLastDay": "In the last 24 hours",
-    "synchronizing": "Synchronization"
+    "synchronizing": "Synchronization",
+    "settings": "Display settings",
+    "sorting": "Sorting",
+    "sort": {
+      "custom": "Custom",
+      "byName": "By name",
+      "byValue": "By value",
+      "firstCoin": "First coins",
+      "firstToken": "First tokens",
+      "withBalance": "With balance"
+    },
+    "categories": {
+      "coin": "Coins",
+      "token": "Tokens"
+    }
   },
   "walletCreateScreen": {
     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
@@ -37,6 +51,7 @@
     "tabAll": "All",
     "tabNews": "News",
     "tabInvite": "Invite",
+    "cashbackTabInvite": "Invite",
     "tabInfo": "Info",
     "tabFaq": "Faq",
     "today": "Today",
@@ -317,7 +332,7 @@
     "invited": "Invited:",
     "cashback": "Cashback",
     "cpa": "CPA",
-    "pageTitle": "Invite your friends",
+    "pageTitle": "Earn",
     "pageSubtitle": "Earn from the commission with Trustee Wallet!",
     "pageSubtitleText": "to",
     "shareButton": "Share",
@@ -326,17 +341,17 @@
     "enterPromoPlaceholder": "Enter promocode",
     "enterInviteLinkPlaceholder": "Enter invite link",
     "applyButton": "Apply",
-    "wholeBalance": "All balance",
+    "wholeBalance": "Balance for the whole time",
     "availableCashBack": "Available cashback",
     "balanceTitle": "Balance",
-    "toWithdraw": "to withdraw needed:",
-    "cashbackInfo": "Cashback info",
-    "cpaInfo": "CPA info",
+    "toWithdraw": "Min. withdraw amount:",
     "cpaTotal": "Total CPA",
     "cpaLevel1": "CPA Level 1",
     "cpaLevel2": "CPA Level 2",
     "cpaLevel3": "CPA Level 3",
     "cashbackToken": "Token",
+    "yourToken": "Your cashback link",
+    "cashbackMessage": "Get Cashback for your exchange transactions. Earn Crypto with Affiliate Program and CPA by recommending Trustee Wallet!",
     "howItWorks": {
       "title": "How it works?",
       "info1Title": "Does Trustee Wallet have a user rewards program?",
@@ -366,7 +381,7 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "Your friends",
-    "updated" : "Updated",
+    "updated" : "Updated at",
     "transAmount": "Transaction amount",
     "level2UsersAmount": "Friends of friends",
     "cashbackError" : {
@@ -429,11 +444,13 @@
       "outcome": "Outcome",
       "income": "Income",
       "freeze" : "Freeze",
+      "unfreeze" : "UnFreeze",
       "claim" : "Claim",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
       "self": "Self",
       "exchange": "Exchange",
+      "swap": "Swap",
       "buy": "Buy",
       "sell": "Sell",
       "mobile_phone": "Mobile phone",
@@ -1016,7 +1033,7 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 5-7 TRX coins, which can later be used in other transactions"
+        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 10 TRX coins, which can later be used in other transactions"
       },
       "TOKEN": {
         "title": "Please, pay attention!",
@@ -1507,12 +1524,14 @@
       "currency": "Ukrainian Hryvnia"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Send docs",
     "sendLogs": "Send logs",
     "takePhoto": "Take photo",
     "chooseFromLibrary": "Choose from gallery",
     "noMessages": "No messages yet",
-    "sentFile": "File sent"
+    "sentFile": "File sent",
+    "getRoomError" : "Load messages error",
+    "sendMessageError" : "Unstable network connection when sending a message"
   }
 }

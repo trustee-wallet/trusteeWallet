@@ -116,3 +116,8 @@ export const getFilterData = createSelector(
         }
     })
 )
+
+export const getSortValue = createSelector(
+    [state => state.mainStore.sortValue],
+    (data => data)
+)

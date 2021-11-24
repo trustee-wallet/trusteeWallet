@@ -60,6 +60,9 @@ const CACHE = {
     'AMB_TREZOR_SERVER' : ['http://64.227.116.62:29136'],
     'AMB_PRICE' : 5000000000,
     'AMB_GAS_LIMIT' : 620000,
+    'METIS_SERVER' : 'https://andromeda.metis.io/?owner=1088',
+    'METIS_GAS_LIMIT' : 620000,
+    'METIS_PRICE' : 40000000000,
     'OPTIMISM_SERVER' : 'https://mainnet.optimism.io',
     'OPTIMISM_PRICE' : 15000000,
     'OPTIMISM_GAS_LIMIT' : 2320100000,
@@ -103,7 +106,9 @@ const CACHE = {
     'TERMS_ru': 'https://trusteeglobal.com/ru/usloviya-ispolzovaniya/?header_footer=none',
     'TERMS_uk': 'https://trusteeglobal.com/uk/umovi-vikoristannya/?header_footer=none',
     'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95,
-    'ROCKET_CHAT_USE' : 1
+    'ROCKET_CHAT_USE' : 0,
+    'HOW_WORK_CASHBACK_LINK' : 'https://trusteeglobal.com/programma-loyalnosti/',
+    'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/'
 }
 
 
@@ -145,7 +150,7 @@ class BlocksoftExternalSettings {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
+                console.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message.toString().substr(0, 150))
             }
             // BlocksoftCryptoLog.log('BlocksoftExternalSettings._get started ALL from ' + source + ' error ' + e.message)
         }
