@@ -13,12 +13,12 @@
       "byName": "По имени",
       "byValue": "По балансу",
       "firstCoin": "Сначала монеты",
-      "firstToken": "Сначала токени",
+      "firstToken": "Сначала токены",
       "withBalance": "С положительным балансом"
     },
     "categories": {
       "coin": "Монеты",
-      "token": "Токени"
+      "token": "Токены"
     }
   },
   "walletCreateScreen": {
@@ -323,7 +323,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Добавить NFT актив",
-    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейне Matic или в тестовой сети Ropsten. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
+    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейнах Ethereum, BNB, Matic или на Ropsten, Rinkeby Testnet. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
     "addCustomLabelOpenSea" : "Токены Ethereum могут быть добавлены с OpenSea ",
     "addCustomPlaceholder" : "Адрес актива NFT",
     "addAssetButton" : "Добавить актив"
