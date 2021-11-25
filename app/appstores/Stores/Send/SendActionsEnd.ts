@@ -19,6 +19,8 @@ import ApiV3 from '@app/services/Api/ApiV3'
 import { recordFioObtData } from '@crypto/blockchains/fio/FioUtils'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
+import TxTypeDict from '@app/services/UI/TxTypeDict/txTypeDict'
+
 const logFio = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
     const { fioRequestDetails } = sendScreenStore.ui
 
@@ -207,7 +209,7 @@ export namespace SendActionsEnd {
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {
         const { currencyCode, accountId, walletHash, addressFrom } = sendScreenStore.dict
-        const { addressTo, cryptoValue, memo, comment, bse, tbk, contractCallData } = sendScreenStore.ui
+        const { addressTo, cryptoValue, memo, comment, bse, tbk, contractCallData, txType } = sendScreenStore.ui
         const { selectedFee, countedFees } = sendScreenStore.fromBlockchain
         const { bseMinCrypto } = bse
         const { transactionAction, transactionBoost } = tbk
@@ -295,7 +297,8 @@ export namespace SendActionsEnd {
                 transactionDirection: addressTo === addressFrom ? 'self' : 'outcome',
                 transactionUpdateHash: txRBF,
                 transactionsOtherHashes: txRBF,
-                transactionsScanLog: now + ' ' + txRBFed + ' ' + txRBF + ' => ' + tx.transactionHash + ' '
+                transactionsScanLog: now + ' ' + txRBFed + ' ' + txRBF + ' => ' + tx.transactionHash + ' ',
+                txType: txType || TxTypeDict.usual
             }
             transaction.transactionJson.isRbfTime = new Date().getTime()
             if (txRBFed === 'RBFremoved') {
@@ -328,7 +331,8 @@ export namespace SendActionsEnd {
                 createdAt: now,
                 updatedAt: now,
                 transactionDirection: addressTo === addressFrom ? 'self' : 'outcome',
-                transactionsScanLog: now + ' CREATED ' + txRBFed
+                transactionsScanLog: now + ' CREATED ' + txRBFed,
+                txType: txType || TxTypeDict.usual
             }
             if (typeof tx.amountForTx !== 'undefined') {
                 transaction.addressAmount = tx.amountForTx

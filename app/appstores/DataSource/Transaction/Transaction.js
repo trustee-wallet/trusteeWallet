@@ -27,6 +27,7 @@ class Transaction {
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      * @param {integer} updateId
+     * @param {string} transaction.txType: swap | walletConnect | fee | usaul
      */
     saveTransaction = async (transaction, updateId = false, source = '') => {
         if (!transaction.updatedAt) {
@@ -232,7 +233,7 @@ class Transaction {
      * @param {string} params.contractOutcome
      * @param {string} params.swap
      * @param {string} params.reward
-     * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson, startTime, endTime, startAmount, endAmount, income, outcome, searchQuery, cancel, freezing, contractIncome, contractOutcome, swap, reward }]>}
+     * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
 
@@ -364,7 +365,8 @@ class Transaction {
             bse_order_id AS bseOrderID,
             bse_order_id_out AS bseOrderOutID,
             bse_order_id_in AS bseOrderInID,
-            bse_order_data AS bseOrderData
+            bse_order_data AS bseOrderData,
+            tx_type AS txType
             FROM transactions
             ${where}
             ${order}

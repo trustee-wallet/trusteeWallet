@@ -251,6 +251,8 @@ export namespace SendActionsBlockchainWrapper {
         const { bse, dexOrderData, rawOnly, contractCallData } = ui
         const { bseOrderId, bseMinCrypto } = bse
 
+        const txType = ui.txType
+
         if (selectedFee === false) {
             selectedFee = {}
         }
@@ -274,6 +276,6 @@ export namespace SendActionsBlockchainWrapper {
 
         selectedFee.rawOnly = rawOnly || false
 
-        return BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee }, CACHE_DATA.additionalData)
+        return BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee, txType }, CACHE_DATA.additionalData)
     }
 }

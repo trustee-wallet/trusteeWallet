@@ -14,6 +14,8 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 
+import TxTypeDict from '@app/services/UI/TxTypeDict/txTypeDict'
+
 const { dispatch } = store
 
 let CACHE_SEND_INPUT_TYPE = 'none'
@@ -101,7 +103,8 @@ export namespace SendActionsStart {
                 addressTo: data.walletConnectData.to,
                 walletConnectData: data.walletConnectData,
                 walletConnectPayload: data.walletConnectPayload,
-                extraData: data.extraData
+                extraData: data.extraData,
+                txType: TxTypeDict.walletConnect
             }
 
             dispatch({
@@ -118,7 +121,7 @@ export namespace SendActionsStart {
                 NavStore.goNext('ReceiptScreen')
             }
         } catch (e) {
-            Log.error(' SendActionsStart.startFromWalletConnect error ' + e.message)
+            Log.err(' SendActionsStart.startFromWalletConnect error ' + e.message)
         }
     }
 
@@ -190,7 +193,8 @@ export namespace SendActionsStart {
             addressTo : 'DEX ' + data.addressTo,
             dexCurrencyCode : data.dexCurrencyCode,
             dexOrderData : data.dexOrderData,
-            bse
+            bse,
+            txType: TxTypeDict.swap
         }
         dispatch({
             type: 'RESET_DATA',
@@ -221,7 +225,8 @@ export namespace SendActionsStart {
             addressTo : addressToForTransferAll,
             cryptoValue : '0',
             isTransferAll : true,
-            memo : data.memo || false
+            memo : data.memo || false,
+            txType: TxTypeDict.swap
         }
         dispatch({
             type: 'RESET_DATA',
@@ -261,7 +266,8 @@ export namespace SendActionsStart {
             comment : data.comment,
             cryptoValue : data.amount,
             isTransferAll : data.isTransferAll,
-            bse
+            bse,
+            txType: TxTypeDict.swap
         }
         dispatch({
             type: 'RESET_DATA',

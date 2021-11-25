@@ -41,6 +41,7 @@ const transactionActions = {
      * @param {object} transaction.bseOrderData
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
+     * @param {string} transaction.txType: swap | walletConnect | fee | usaul
      */
     saveTransaction: async (transaction, source = '') => {
 
