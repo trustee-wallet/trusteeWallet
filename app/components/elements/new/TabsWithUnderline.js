@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
        right: -7
     },
     activeTabIndicator: {
-       width: 190
+       width: '100%'
     }
 })
  

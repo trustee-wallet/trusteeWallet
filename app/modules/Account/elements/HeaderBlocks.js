@@ -86,6 +86,32 @@ class HeaderBlocks extends React.Component {
         Toast.setMessage(strings('toast.copied')).show()
     }
 
+    renderStakeBalance = (currency) => {
+
+        const {
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        const { currencyCode } = this.props.cryptoCurrency
+
+        return(
+            <View style={{ marginHorizontal: GRID_SIZE, flexDirection: 'row', justifyContent: currencyCode === 'TRX' ? 'space-between' : 'flex-end', marginTop: GRID_SIZE }}>
+                {currencyCode === 'TRX' && <View>
+                    <Text style={[styles.avalibleText, {color: colors.common.text3, marginBottom: GRID_SIZE / 3}]}>{`${strings('settings.walletList.availableTRX')} ${'2.349.02868'} ${currencyCode}`}</Text>
+                    <Text style={styles.avalibleText}>{`${strings('settings.walletList.staked')} ${'300.00000'} ${currencyCode}`}</Text>
+                </View>}
+                <View>
+                    {this.settings(currency, 30, 'freezing')}
+                </View>
+            </View>
+        )
+    }
+
+    handleGoStakingSOL = () => {
+        NavStore.goNext('StakingSOL')
+    }
+
     renderBalance = () => {
 
         const { colors, GRID_SIZE } = this.context
@@ -93,7 +119,7 @@ class HeaderBlocks extends React.Component {
         const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility, account } = this.props
         const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
 
-        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance } = account
+        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance, currencyCode } = account
 
         let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
         if (typeof tmp.split === 'undefined') {
@@ -111,7 +137,7 @@ class HeaderBlocks extends React.Component {
 
         if (isSynchronized) {
             return (
-                <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
+                <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, marginTop: -GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
                         <TouchableOpacity
                             onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
@@ -136,6 +162,7 @@ class HeaderBlocks extends React.Component {
                     </View>
                     {finalIsBalanceVisible && (
                         <LetterSpacing
+                            containerStyle={{ marginTop: currencyCode !== 'TRX' ? -GRID_SIZE / 4 : 0}}
                             text={basicCurrencySymbol + ' ' + basicCurrencyBalance}
                             textStyle={{ ...styles.topContent__subtitle, color: colors.common.text2 }}
                             letterSpacing={.5}
@@ -156,14 +183,14 @@ class HeaderBlocks extends React.Component {
         }
     }
 
-    handleSettingAccount = (currencyCode) => {
+    handleSettingAccount = (currencyCode, size, name) => {
 
-        const { colors } = this.context
+        const { colors } = this.context 
 
         return (
-            <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)} hitSlop={HIT_SLOP}>
+            <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => currencyCode === 'SOLStake' ? this.handleGoStakingSOL() : this.accountSetting(currencyCode)} hitSlop={HIT_SLOP}>
                 <View style={{ paddingVertical: 12 }}>
-                    <CustomIcon name={'coinSettings'} size={20} color={colors.common.text1} />
+                    <CustomIcon name={name} size={size} color={colors.common.text1} />
                 </View>
             </TouchableOpacity>
         )
@@ -177,7 +204,7 @@ class HeaderBlocks extends React.Component {
         }
     }
 
-    settings = (currencyCode) => {
+    settings = (currencyCode, size = 20, name = 'coinSettings') => {
         switch (currencyCode) {
             case 'BTC':
             case 'USDT':
@@ -189,14 +216,15 @@ class HeaderBlocks extends React.Component {
             case 'TRX':
             case 'BNB':
             case 'SOL':
-                return this.handleSettingAccount(currencyCode)
+            case 'SOLStake':
+                return this.handleSettingAccount(currencyCode, size, name)
             default:
                 return null
         }
     }
 
     render() {
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         let { account, cryptoCurrency, isSegwit } = this.props
         const { shownAddress, walletPubs } = account
@@ -257,11 +285,17 @@ class HeaderBlocks extends React.Component {
                                 </View>
                             </TouchableOpacity>
                         </View>
-                        <View style={{ ...styles.settings, right: 0, position: 'absolute' }}>
+                        {currencyCode !== 'TRX' && <View style={{ ...styles.settings, right: 0, position: 'absolute' }}>
                             {this.settings(currencyCode)}
-                        </View>
+                        </View>}
                     </View>
                     {this.renderBalance()}
+                    {currencyCode === 'TRX' &&
+                        this.renderStakeBalance('TRX')
+                    }
+                    {currencyCode === 'SOL' &&
+                        this.renderStakeBalance('SOLStake')
+                    }
                 </View>
                 <GradientView
                     style={styles.bg}
@@ -298,7 +332,7 @@ const styles = {
         left: 0,
 
         width: '100%',
-        height: 216,
+        height: 226,
 
         zIndex: 1,
 
@@ -308,7 +342,7 @@ const styles = {
     topContent: {
         position: 'relative',
 
-        height: 244,
+        height: 256,
 
         marginTop: 25,
         marginLeft: 16,
@@ -457,7 +491,7 @@ const styles = {
         top: 0,
         left: 0,
         width: '100%',
-        height: 206,
+        height: 216,
         borderRadius: 16,
 
         zIndex: 0
@@ -565,5 +599,11 @@ const styles = {
     settings: {
         marginRight: 20,
         marginTop: 10
+    },
+    avalibleText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        lineHeight: 18,
+        color: '#999999'
     }
 }

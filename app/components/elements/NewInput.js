@@ -199,7 +199,8 @@ class Input extends Component {
             isTextarea = false,
             info,
             tabInfo,
-            addressError
+            addressError,
+            containerStyle
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -233,7 +234,7 @@ class Input extends Component {
             <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
                 {
                     show ?
-                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10}} >
+                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10 , ...containerStyle}} >
                             <TextField
                                 ref={ref => this.inputRef = ref}
                                 allowFontScaling={false}

@@ -35,8 +35,7 @@ const InfoProgressBar = (props) => {
                 color={colors.common.checkbox.bgChecked}
                 progress={amount / 100}
             />
-            <View style={[styles.progressBarLoaction, { marginTop: GRID_SIZE / 2 }]}>
-                <Text style={styles.progressText}>0</Text>
+            <View style={[styles.bandwidthContainer, { marginTop: GRID_SIZE / 2 }]}>
                 <Text style={styles.progressText}>{`${amount} / 100`}</Text>
             </View>
         </View>

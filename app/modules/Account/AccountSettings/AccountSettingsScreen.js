@@ -17,7 +17,7 @@ import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
 import SettingsTRX from './elements/SettingsTRX'
 import SettingsBNB from './elements/SettingsBNB'
-import SettingsSOL from '@app/modules/Account/AccountSettings/elements/SettingsSOL'
+import SettingsSOL from './elements/SettingsSOL'
 
 import { strings } from '@app/services/i18n'
 
@@ -138,7 +138,7 @@ class AccountSettingScreen extends React.PureComponent {
 
         const { GRID_SIZE } = this.context
 
-        const isTabs = cryptoCurrency.currencyCode === 'SOL'
+        const isTabs = cryptoCurrency.currencyCode === 'TRX'
 
         MarketingAnalytics.setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
 
@@ -148,8 +148,7 @@ class AccountSettingScreen extends React.PureComponent {
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
-                title={account.currencyCode === 'TRX' ? strings('account.staking') : strings('settings.title')}
-                ExtraView={() => isTabs ? this.renderHeader() : null}
+                title={isTabs ? strings('account.staking') : strings('settings.title')}
             >
                 {isTabs ?
                     <>

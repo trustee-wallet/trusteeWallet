@@ -4,9 +4,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, Dimensions, ScrollView } from 'react-native'
-
-import LetterSpacing from '../../../../components/elements/LetterSpacing'
+import { View, Text, ScrollView, RefreshControl } from 'react-native'
 
 import { strings } from '../../../../services/i18n'
 
@@ -23,7 +21,6 @@ import { BlocksoftTransfer } from '../../../../../crypto/actions/BlocksoftTransf
 import TronUtils from '../../../../../crypto/blockchains/trx/ext/TronUtils'
 
 import Input from '../../../../components/elements/NewInput'
-import ListItem from '../../../../components/elements/new/list/ListItem/Setting'
 
 import config from '../../../../config/config'
 
@@ -41,8 +38,6 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import { TabView } from 'react-native-tab-view'
 
 const CACHE_TIMEOUT = 3000
-
-const {width: WINDOW_WIDTH} = Dimensions.get('window')
 
 class SettingsTRX extends Component {
 
@@ -371,11 +366,11 @@ class SettingsTRX extends Component {
                     </View>
                     <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
                             <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
-                            <BorderedButton
+                            {!!prettyReward && <BorderedButton
                                 containerStyle={styles.widhdrawBtn}
                                 text={strings('settings.walletList.withdrawSOL')}
                                 onPress={() => this.handleGetReward()}
-                            />
+                            />}
                     </View>
                     <View style={styles.progressBarLoaction}>
                         <InfoProgressBar
@@ -407,10 +402,6 @@ class SettingsTRX extends Component {
         return (<Text style={[styles.linkText, { color: colors.common.text1 }]} onPress={onPress}>{text}</Text>)
     }
 
-    handleTabChange = (index) => {
-        this.setState({ index: index })
-    }
-
     rendereDscription = (title, link) => {
         const { colors, GRID_SIZE } = this.context
         return(
@@ -426,17 +417,19 @@ class SettingsTRX extends Component {
 
         return(
             <>
-                <View style={styles.inputWrapper}>
-                        <Input
-                            ref={ref => this.freezeAmountInput = ref}
-                            id={'freezeAmount'}
-                            name={strings('settings.walletList.enterToFreezeTRX')}
-                            keyboardType={'numeric'}
-                            inputBaseColor={'#f4f4f4'}
-                            inputTextColor={'#f4f4f4'}
-                            tintColor={'#7127ac'}
-                        />
-                    </View>
+                <View style={[styles.inputWrapper]}>
+                    <Input
+                        style={{ height: 55 }}
+                        containerStyle={{ height: 55 }}
+                        ref={ref => this.freezeAmountInput = ref}
+                        id={'freezeAmount'}
+                        name={strings('settings.walletList.enterToFreezeTRX')}
+                        keyboardType={'numeric'}
+                        inputBaseColor={'#f4f4f4'}
+                        inputTextColor={'#f4f4f4'}
+                        tintColor={'#7127ac'}
+                    />
+                </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
                     <InputAndButtonsPartBalanceButton
                         action={() => this.handlePartBalance(1)}
@@ -478,18 +471,16 @@ class SettingsTRX extends Component {
                 <View style={{ marginHorizontal: GRID_SIZE / 2 }}>
                     <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5}]}>
                         <View>
-                            <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.energyTRX')}</Text>
+                            <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.frozenTRX')}</Text>
                             <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${currentBalance.prettyFrozen} TRX`}</Text>
                         </View>
-                        <BorderedButton
+                        {!!currentBalance.prettyFrozen && <BorderedButton
                             containerStyle={styles.widhdrawBtn}
                             text={strings('account.transaction.unfreeze')}
                             onPress={() => this.handleUnFreeze(false, 'BANDWIDTH')}
-                        />
+                        />}
                     </View>
-                    <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2 }]}>{`${strings('settings.walletList.availableTRX')} ${currentBalance.prettyBalance}`}</Text>
                 </View>
-                {this.renderAmountInput()}
             </>
         )
     }
@@ -512,42 +503,63 @@ class SettingsTRX extends Component {
                             <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.frozenTRX')}</Text>
                             <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${currentBalance.prettyFrozenEnergy} TRX`}</Text>
                         </View>
-                        <BorderedButton
+                        {!!currentBalance.prettyFrozenEnergy && <BorderedButton
                             containerStyle={styles.widhdrawBtn}
                             text={strings('account.transaction.unfreeze')}
                             onPress={() => this.handleUnFreeze(false, 'Energy')}
-                        />
+                        />}
                     </View>
-                    <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2 }]}>{`${strings('settings.walletList.availableTRX')} ${currentBalance.prettyBalance}`}</Text>
                 </View>
-                {this.renderAmountInput()}
             </>
         )
     }
 
     render() {
-        const { index} = this.state
-        const { GRID_SIZE } = this.context
+        const { index, currentBalance} = this.state
+        const { 
+            GRID_SIZE,
+            colors
+        } = this.context
 
         return (
             <>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    style={{ flexGrow: 1 }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.props.mainStore.loaderVisibility}
+                            onRefresh={this.handleScan}
+                            tintColor={colors.common.refreshControlIndicator}
+                            colors={[colors.common.refreshControlIndicator]}
+                            progressBackgroundColor={colors.common.refreshControlBg}
+                            progressViewOffset={-20}
+                        />}
+                >
                 
-                    {this.renderInfoHeader()}
-                    <View style={{ marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
-                        {this.renderTabs()}
+                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
+                        {this.renderInfoHeader()}
+                        <View style={{ marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
+                            {this.renderTabs()}
+                        </View>
+                        <TabView
+                            style={{ flex: 1 }}
+                            navigationState={this.state}
+                            renderScene={this.renderScene}
+                            renderHeader={null}
+                            onIndexChange={this.handleTabChange}
+                            renderTabBar={() => null}
+                            useNativeDriver
+                        />
+                        <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2 }]}>{`${strings('settings.walletList.availableTRX')} ${currentBalance.prettyBalance}`}</Text>
+                        <View style={{marginBottom: GRID_SIZE * 1.5}}>
+                            {this.renderAmountInput()}
+                        </View>
                     </View>
-                    <TabView
-                        style={{ flex: 1 }}
-                        navigationState={this.state}
-                        renderScene={this.renderScene}
-                        renderHeader={null}
-                        onIndexChange={this.handleTabChange}
-                        renderTabBar={() => null}
-                        useNativeDriver
-                    />
+                </ScrollView>
                 <Button
                     title={strings('account.transaction.freeze')}
-                    containerStyle={{ marginTop: GRID_SIZE / 4, marginBottom: GRID_SIZE / 2 }}
+                    containerStyle={{  marginBottom: GRID_SIZE / 2, marginHorizontal: GRID_SIZE}}
                     onPress={() => this.handleFreeze(false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
                 />
             </>

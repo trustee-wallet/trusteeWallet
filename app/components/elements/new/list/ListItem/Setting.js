@@ -96,6 +96,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='BTC' size={22} color={color} />
         case 'eth':
             return <CustomIcon name='ETH' size={22} color={color} />
+        case 'validator':
+            return <CustomIcon name='validator' size={22} color={color} />
         default: return null
     }
 }

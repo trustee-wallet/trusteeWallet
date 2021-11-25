@@ -227,6 +227,10 @@ const styles = {
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
+    bandwidthContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end'
+    },
     progressText: {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 14,
@@ -238,7 +242,8 @@ const styles = {
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 16,
         lineHeight: 20,
-        letterSpacing: 1
+        letterSpacing: 1,
+        flex: 1
     },
     linkText: {
         fontFamily: 'SFUIDisplay-Bold',
@@ -247,6 +252,51 @@ const styles = {
         textTransform: 'uppercase',
         letterSpacing: 1,
         textDecorationLine: 'underline'
+    },
+    availableText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+        color: '#999999'
+    },
+    topContent__title_first: {
+        height: 40,
+        fontSize: 32,
+        fontFamily: 'Montserrat-SemiBold',
+        lineHeight: 36
+    },
+    topContent__title_last: {
+        height: 40,
+        fontSize: 18,
+        fontFamily: 'Montserrat-SemiBold',
+        lineHeight: 42,
+        opacity: 1,
+    },
+    topContent__subtitle: {
+        marginTop: -10,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        textAlign: 'center',
+        letterSpacing: 0.5
+    },
+    scan__text: {
+        letterSpacing: 1,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18
+    },
+    transaction__empty_text: {
+        marginTop: -5,
+        marginLeft: 16,
+        fontSize: 15,
+        lineHeight: 19,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1.5
+    },
+    scan: {
+        flexDirection: 'row'
     }
 }
 
