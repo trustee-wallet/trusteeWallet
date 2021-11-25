@@ -108,11 +108,14 @@ export const getFilterData = createSelector(
             startAmount: data?.startAmount || null,
             endAmount: data?.endAmount || null,
             searchQuery: data?.searchQuery || null,
-            cancel: data?.cancel || null,
-            freezing: data?.freezing || null,
-            contractIncome: data?.contractIncome || null,
-            contractOutcome: data?.contractOutcome || null,
-            swap: data?.swap || null
+            income: data?.income || false,
+            outcome: data?.outcome || false,
+            cancel: data?.cancel || false,
+            fee: data?.fee || false,
+            freezing: data?.freezing || false,
+            contractIncome: data?.contractIncome || false,
+            contractOutcome: data?.contractOutcome || false,
+            swap: data?.swap || false
         }
     })
 )

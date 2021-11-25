@@ -22,60 +22,81 @@ class TransactionCategories extends React.PureComponent {
     state = {
         categoriesData: [
             {
-                active: this.props.filterData?.income || true,
+                notActive: this.props.filterData?.income || false,
                 title: strings('account.transaction.income'),
-                iconType: "inTxHistory"
+                iconType: "inTxHistory",
+                value: 'income'
             },
             {
-                active: this.props.filterData?.outcome || true,
+                notActive: this.props.filterData?.outcome || false,
                 title: strings('account.transaction.outcome'),
-                iconType: "outTxHistory"
+                iconType: "outTxHistory",
+                value: 'outcome'
             },
             {
-                active: this.props.filterData?.fee || true,
+                notActive: this.props.filterData?.fee || false,
                 title: strings('account.transaction.fee'),
-                iconType: "feeTxScreen"
+                iconType: "feeTxScreen",
+                value: 'fee'
             },
             {
-                active: this.props.filterData?.canceled || true,
+                notActive: this.props.filterData?.cancel || false,
                 title: strings('account.transaction.cancel'),
-                iconType: "cancelTxHistory"
+                iconType: "cancelTxHistory",
+                value: 'cancel'
             },
             {
-                active: this.props.filterData?.swap || true,
+                notActive: this.props.filterData?.swap || false,
                 title: strings('account.transaction.swap'),
-                iconType: "exchange"
+                iconType: "exchange",
+                value: 'swap'
             },
             {
-                active: this.props.filterData?.freezing || true,
+                notActive: this.props.filterData?.freezing || false,
                 title: strings('account.transaction.freeze'),
-                iconType: "freezing"
+                iconType: "freezing",
+                value: 'freezing'
             },
             // {
-            //     active: this.props.filterData?.reward || true,
+            //     notActive: this.props.filterData?.reward || false,
             //     title: strings('account.transaction.reward'),
-            //     iconType: "reward"
+            //     iconType: "reward",
+            //     value: 'reward'
             // },
             {
-                active: this.props.filterData?.contractIncome || true,
+                notActive: this.props.filterData?.contractIncome || false,
                 title: strings('account.transaction.swap_income'),
-                iconType: "contractIncome"
+                iconType: "contractIncome",
+                value: 'contractIncome'
             },
             {
-                active: this.props.filterData?.contractOutcome || true,
+                notActive: this.props.filterData?.contractOutcome || false,
                 title: strings('account.transaction.swap_outcome'),
-                iconType: "contractOutcome"
+                iconType: "contractOutcome",
+                value: 'contractOutcome'
             }
         ],
         isAllActive: true
     }
 
+    componentDidMount() {
+        const isAllActive = Array.from(new Set(this.state.categoriesData.map(item => item.notActive)))
+
+        this.setState({
+            isAllActive: isAllActive.length === 1 ? !isAllActive[0] : false
+        })
+    }
+
     handleBack = () => {
+
         const filter = {
-            ...this.props.filter
+            ...this.props.filter,
         }
 
+        this.state.categoriesData.filter(item => item.notActive).map(item => filter[item.value] = item.notActive)
+
         setFilter(filter)
+
         NavStore.goBack()
     }
 
@@ -86,14 +107,14 @@ class TransactionCategories extends React.PureComponent {
     handleSelectCategory = (title) => {
         const { categoriesData } = this.state
         this.setState({
-            categoriesData: categoriesData.map(el => el.title === title ? ({ ...el, active: !el.active }) : el),
+            categoriesData: categoriesData.map(el => el.title === title ? ({ ...el, notActive: !el.notActive }) : el),
             isAllActive: false
         })
     }
 
     handleSelectAll = () => {
         this.setState(state => ({
-            categoriesData: state.categoriesData.map(all => ({ ...all, active: !this.state.isAllActive })),
+            categoriesData: state.categoriesData.map(all => ({ ...all, notActive: this.state.isAllActive })),
             isAllActive: !this.state.isAllActive
         }))
     }
@@ -128,7 +149,7 @@ class TransactionCategories extends React.PureComponent {
                 rightContent='checkbox'
                 onPress={() => this.handleSelectCategory(item.title)}
                 isVisibleDone={false}
-                checked={item.active}
+                checked={!item.notActive}
             />
         )
     }
