@@ -413,6 +413,7 @@
     "soLong": "დასკანერებულია დიდი ხნის წინ",
     "minutesAgo": " %{time} min ago ",
     "noTransactions": "თქვენ ჯერ არ გაქვთ ტრანზაქცია, მაგრამ შეგიძლიათ ამ პრობლემის სწრაფად გადაჭრა ღილაკზე „ყიდვა“ დაწკაპუნებით.",
+    "noFoundTransactions": "Sorry, no results were found",
     "showMore": "მეტის ჩვენება",
     "assetSettings": "აქტივის პარამეტრები",
     "externalLink": {

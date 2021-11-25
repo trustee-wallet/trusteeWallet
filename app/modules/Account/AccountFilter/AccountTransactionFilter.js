@@ -64,11 +64,12 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleBack = () => {
-        setFilter(this.state.filterData)
+        setFilter(this.state.filterOriginData)
         NavStore.goBack()
     }
 
     handleClose = () => {
+        setFilter(null)
         NavStore.reset('HomeScreen')
     }
 
@@ -77,7 +78,9 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleOpenContent = (title) => {
+        // for android => if crash app - comment next line
         LayoutAnimation.configureNext(CustomLayoutAnimation);
+
         this.setState({
             selectedContent: title === this.state.selectedContent ? null : title
         })
@@ -118,6 +121,8 @@ class TransactionFilter extends React.PureComponent {
         const { currencyCode } = this.props.selectedCryptoCurrencyData
 
         const filter = {
+            ...this.props.filterData,
+            active: true,
             startTime: startTime ? startTime.toISOString() : null,
             endTime: endTime ? endTime.toISOString() : null,
             startAmount: startAmount ? BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(startAmount) : null,

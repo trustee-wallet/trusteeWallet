@@ -57,6 +57,12 @@ class TransactionCategories extends React.PureComponent {
                 iconType: "freezing",
                 value: 'freezing'
             },
+            {
+                notActive: this.props.filterData?.unfreezing || false,
+                title: strings('account.transaction.unfreeze'),
+                iconType: "freezing",
+                value: 'unfreezing'
+            },
             // {
             //     notActive: this.props.filterData?.reward || false,
             //     title: strings('account.transaction.reward'),

@@ -4,8 +4,10 @@
  */
 
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Platform } from 'react-native'
 import LottieView from 'lottie-react-native'
+
+import _isEqual from 'lodash/isEqual'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { HIT_SLOP } from '@app/theme/HitSlop'
@@ -23,17 +25,33 @@ import blackLoader from '@assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 
 import { diffTimeScan } from '../helpers'
+import Message from '@app/components/elements/new/Message'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 class SynchronizedBlock extends React.PureComponent {
 
     state = {
-        searchQuery: this.props.filterData?.searchQuery || null,
-        error: null
+        searchQuery: this.props.filterData?.searchQuery || '',
+        error: null,
+        activeFilter: this.props.filterData && this.props.filterData?.active && !this.props.filterData?.searchQuery
     }
 
     linkInput = React.createRef()
+
+    async componentDidMount() {
+        if (this.linkInput) {
+            await this.linkInput?.handleInput(this.state.searchQuery)
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!_isEqual(prevProps.filterData.acitve, this.props.filterData.acitve)) {
+            this.setState({
+                activeFilter: this.props.filterData && this.props.filterData?.active && !this.props.filterData?.searchQuery
+            })
+        }
+    }
 
     handleFilter = () => {
         NavStore.goNext('TransactionFilter')
@@ -52,8 +70,6 @@ class SynchronizedBlock extends React.PureComponent {
             const filter = {
                 searchQuery
             }
-            this.props.toggleSearch()
-            // 28840a0269454685ec6830f837a71be6c75fc4b608602d1140d85df8fe5bd42d
             setFilter(filter)
         }
     }
@@ -67,12 +83,15 @@ class SynchronizedBlock extends React.PureComponent {
             selectedAccountTransactions,
             handleRefresh,
             toggleSearch,
-            isSeaching
+            isSeaching,
+            notFound
         } = this.props
 
         const { colors, GRID_SIZE, isLight } = this.context
 
         const { balanceScanTime, balanceScanError, isSynchronized } = selectedAccountData
+
+        const { activeFilter } = this.state
 
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = selectedAccountTransactions.transactionsToView
@@ -95,10 +114,10 @@ class SynchronizedBlock extends React.PureComponent {
 
         return (
             <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
-                <View style={styles.container}>
+                <View style={[styles.container, { marginRight: GRID_SIZE }]}>
                     <View style={{ flexDirection: 'column' }} >
                         {!isSeaching ?
-                            <View style={{ marginBottom: 10 }}>
+                            <View style={{ marginBottom: Platform.OS === 'ios' ? 12 : 10 }}>
                                 <Text style={[styles.history_title, { color: colors.common.text1 }]}>{strings('account.history')}</Text>
                                 <View style={[styles.scan, { marginLeft: GRID_SIZE }]}>
                                     {isSynchronized ?
@@ -115,7 +134,7 @@ class SynchronizedBlock extends React.PureComponent {
                             <View style={[styles.textInput, { height: 50, marginBottom: 5 }]}>
                                 <TextInput
                                     ref={input => { this.linkInput = input }}
-                                    style={{ width: SCREEN_WIDTH * 0.715 }}
+                                    style={{ width: SCREEN_WIDTH * 0.7 }}
                                     name={strings('assets.searchPlaceholder')}
                                     type='TRANSACTION_SEARCH'
                                     id='TRANSACTION_SEARCH'
@@ -130,10 +149,10 @@ class SynchronizedBlock extends React.PureComponent {
                                 />
                             </View>}
                     </View>
-                    <View style={[styles.scan, { marginTop: GRID_SIZE }]}>
+                    <View style={styles.btns}>
                         {!isSeaching &&
                             <TouchableOpacity
-                                style={{ alignItems: 'center', marginRight: GRID_SIZE }}
+                                style={{ marginHorizontal: GRID_SIZE / 2 }}
                                 onPress={toggleSearch}
                                 hitSlop={HIT_SLOP}
                             >
@@ -141,7 +160,7 @@ class SynchronizedBlock extends React.PureComponent {
                             </TouchableOpacity>
                         }
                         <TouchableOpacity
-                            style={{ alignItems: 'center', marginRight: GRID_SIZE }}
+                            style={{ marginHorizontal: GRID_SIZE / 2 }}
                             onPress={() => !isSeaching ? handleRefresh(true) : toggleSearch()}
                             hitSlop={HIT_SLOP}
                         >
@@ -154,21 +173,29 @@ class SynchronizedBlock extends React.PureComponent {
                                 <CustomIcon name={!isSeaching ? 'reloadTx' : 'cancelTxHistory'} size={20} color={colors.common.text1} />}
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={{ alignItems: 'center', marginRight: GRID_SIZE }}
+                            style={[styles.activeFilter, { backgroundColor: activeFilter ? colors.common.checkbox.bgChecked + '26' : 'transparent', marginLeft: GRID_SIZE / 4 }]}
                             onPress={this.handleFilter}
                             hitSlop={HIT_SLOP}
                         >
-                            <CustomIcon name='filter' size={20} color={colors.common.text1} />
+                            <CustomIcon name='filter' size={20} color={activeFilter ? colors.common.checkbox.bgChecked : colors.common.text1} style={{ marginTop: 2 }} />
                         </TouchableOpacity>
                     </View>
                 </View>
+                {notFound && (
+                    <Message
+                        name='warningM'
+                        timer={false}
+                        text={strings('account.noFoundTransactions')}
+                        containerStyles={{ marginTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}
+                    />
+                )}
                 {allTransactionsToView.length === 0 && (!transactionsToView || transactionsToView.length === 0) && isSynchronized ?
-                        <View style={{ marginRight: GRID_SIZE }} >
-                            <Text style={[styles.synchronized__text, { marginLeft: GRID_SIZE, marginTop: GRID_SIZE, color: colors.common.text3 }]}>
-                                {strings('account.noTransactions')}
-                            </Text>
-                        </View>
-                        : null}
+                    <View style={{ marginRight: GRID_SIZE }} >
+                        <Text style={[styles.synchronized__text, { marginLeft: GRID_SIZE, marginTop: GRID_SIZE, color: colors.common.text3 }]}>
+                            {strings('account.noTransactions')}
+                        </Text>
+                    </View>
+                    : null}
             </View>
         )
     }
@@ -226,5 +253,16 @@ const styles = StyleSheet.create({
             width: 0,
             height: 0
         }
+    },
+    activeFilter: {
+        height: 32,
+        width: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 50
+    },
+    btns: {
+        flexDirection: 'row',
+        alignItems: 'center'
     }
 })

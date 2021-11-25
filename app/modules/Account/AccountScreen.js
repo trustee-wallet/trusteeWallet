@@ -10,6 +10,7 @@ import {
     RefreshControl,
     View,
     FlatList,
+    LayoutAnimation,
 } from 'react-native'
 
 import _isEqual from 'lodash/isEqual'
@@ -78,6 +79,7 @@ class Account extends React.PureComponent {
             hasStickyHeader: false,
 
             isSeaching: false,
+            notFound: false
         }
         // this.handleSearch = this.handleSearch.bind(this)
     }
@@ -241,13 +243,18 @@ class Account extends React.PureComponent {
         CACHE_TX_LOADED = new Date().getTime()
 
         if (from === 0) {
-            this.setState((state) => ({ transactionsToView: transactionsToView })) // from start reload
+            if (filter && !tmp) {
+                this.setState({ notFound: true })
+            } else {
+                this.setState((state) => ({ transactionsToView: transactionsToView, notFound: false })) // from start reload
+            }
         } else {
-            this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView) }))
+            this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView), notFound: false }))
         }
     }
 
     toggleSearch = () => {
+        LayoutAnimation.configureNext({...LayoutAnimation.Presets.linear, duration: 250 })
         this.setState({
             isSeaching: !this.state.isSeaching,
         })
@@ -262,7 +269,7 @@ class Account extends React.PureComponent {
 
         const { colors } = this.context
         const { isSegwit, selectedAccountData, selectedCryptoCurrencyData } = this.props
-        let { transactionsToView } = this.state
+        let { transactionsToView, notFound } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
             CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
@@ -326,7 +333,7 @@ class Account extends React.PureComponent {
                 />
                 <View style={styles.stub} />
                 <FlatList
-                    data={allTransactionsToView}
+                    data={notFound ? [] : allTransactionsToView}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.wrapper__scrollView}
                     initialNumToRender={20}
@@ -384,6 +391,7 @@ class Account extends React.PureComponent {
                                 filterData={this.props.filterData}
                                 toggleSearch={this.toggleSearch}
                                 isSeaching={this.state.isSeaching}
+                                notFound={notFound}
                             />
                         </>
                     )}

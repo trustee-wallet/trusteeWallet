@@ -103,6 +103,7 @@ export const getFilterData = createSelector(
     [state => state.mainStore.filter],
     (data => {
         return {
+            active: data?.active || false,
             startTime: data?.startTime || null,
             endTime: data?.endTime || null,
             startAmount: data?.startAmount || null,
@@ -113,6 +114,7 @@ export const getFilterData = createSelector(
             cancel: data?.cancel || false,
             fee: data?.fee || false,
             freezing: data?.freezing || false,
+            unfreezing: data?.unfreezing || false,
             contractIncome: data?.contractIncome || false,
             contractOutcome: data?.contractOutcome || false,
             swap: data?.swap || false

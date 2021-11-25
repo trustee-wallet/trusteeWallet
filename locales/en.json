@@ -415,6 +415,7 @@
     "soLong": "Last a long time ago",
     "minutesAgo": " %{time} min ago ",
     "noTransactions": "You don’t have any transaction yet. But you can resolve this quickly, just tap on BUY button",
+    "noFoundTransactions": "Sorry, no results were found",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
     "externalLink": {
@@ -463,7 +464,6 @@
       "phoneDestination": "Withdraw phone number",
       "orderId": "Related to swap ID",
       "selectAll": "Select all",
-      "swap": "Swap",
       "cancel": "Canceled",
       "reward": "Reward",
       "categoriesTitle": "Categories",

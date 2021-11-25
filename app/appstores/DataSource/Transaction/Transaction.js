@@ -253,7 +253,7 @@ class Transaction {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
         if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
-           where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id!='' AND bse_order_id IS NOT NULL AND bse_order_id!='null'))`)
+           where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
         
@@ -289,6 +289,10 @@ class Transaction {
         if (typeof params.freezing !== 'undefined' && params.freezing) {
             where.push(`transaction_direction NOT IN ('freeze')`)
         }
+        if (typeof params.unfreezing !== 'undefined' && params.unfreezing) {
+            where.push(`transaction_direction NOT IN ('unfreeze')`)
+        }
+
         if (typeof params.canceled !== 'undefined' && params.canceled) {
             where.push(`transaction_direction NOT IN ('canceled')`)
         }
