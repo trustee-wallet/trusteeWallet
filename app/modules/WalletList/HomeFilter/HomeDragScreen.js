@@ -1,6 +1,12 @@
+/**
+ * @version 0.52
+ * @author yura
+ */
+
 import React, { PureComponent } from 'react'
 import {
-    Vibration
+    Platform,
+    View
 } from 'react-native'
 import { connect } from 'react-redux'
 
@@ -24,17 +30,17 @@ import { setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 
+import GradientView from '@app/components/elements/GradientView'
+
+
 class HomeDragScreen extends PureComponent {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            isCurrentlyDraggable: false,
-            originalData: [],
-            data: [],
-            currenciesOrder: [],
-            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
-        }
+    state = {
+        isCurrentlyDraggable: false,
+        originalData: [],
+        data: [],
+        currenciesOrder: [],
+        sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -50,6 +56,12 @@ class HomeDragScreen extends PureComponent {
     }
 
     handleDone = () => {
+
+        if (this.state.sortValue === 'custom') {
+            const currenciesOrder = this.state.data.map(c => c.currencyCode)
+            trusteeAsyncStorage.setCurrenciesList(currenciesOrder)
+        }
+
         NavStore.goBack()
     }
 
@@ -58,14 +70,11 @@ class HomeDragScreen extends PureComponent {
     }
 
     onDragBegin = () => {
-        Vibration.vibrate(100)
         this.setState(() => ({ isCurrentlyDraggable: true }))
     }
 
     onDragEnd = ({ data }) => {
-        const currenciesOrder = data.map(c => c.currencyCode)
-        trusteeAsyncStorage.setCurrenciesList(currenciesOrder)
-        this.setState({ data, isCurrentlyDraggable: false })
+        this.setState({ data, isCurrentlyDraggable: false, sortValue: 'custom' })
         setSortValue('custom')
         trusteeAsyncStorage.setSortValue('custom')
     }
@@ -73,10 +82,11 @@ class HomeDragScreen extends PureComponent {
     render() {
 
         const {
-            GRID_SIZE
+            GRID_SIZE,
+            colors
         } = this.context
 
-        const data = getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)
+        const data = getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue === 'custom' ? '' : this.state.sortValue)
 
         return (
             <ScreenWrapper
@@ -85,7 +95,9 @@ class HomeDragScreen extends PureComponent {
                 leftAction={this.handleDone}
                 rightType='sort'
                 rightAction={this.handlRightAction}
+                withoutSafeArea
             >
+                <View style={{ marginBottom: GRID_SIZE * 5 }} />
                 <DraggableFlatList
                     data={data}
                     extraData={data}
@@ -104,7 +116,9 @@ class HomeDragScreen extends PureComponent {
                     keyExtractor={(item, index) => index.toString()}
                     onDragEnd={this.onDragEnd}
                     onDragBegin={this.onDragBegin}
+                    ListFooterComponent={(<View style={{ marginBottom: GRID_SIZE * 1.5 }} />)}
                 />
+                <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
 
             </ScreenWrapper>
         )
@@ -123,3 +137,19 @@ const mapStateToProps = (state) => {
 }
 
 export default connect(mapStateToProps)(HomeDragScreen)
+
+const styles = {
+    bottomButtons: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+
+        width: '100%',
+        height: 66,
+        paddingBottom: Platform.OS === 'ios' ? 30 : 0
+    },
+    containerBG: {
+        start: { x: 1, y: 0 },
+        end: { x: 1, y: 1 }
+    }
+}

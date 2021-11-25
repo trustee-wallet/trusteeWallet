@@ -189,8 +189,7 @@ class CryptoCurrency extends React.PureComponent {
                             <TouchableOpacity
                                 style={styles.dragBtns}
                                 activeOpacity={0.7}
-                                onLongPress={this.props.onDrag}
-                                delayLongPress={100}
+                                onPressIn={this.props.onDrag}
                                 hitSlop={HIT_SLOP}
                             >
                                 <CustomIcon name='dots' color={colors.common.text1} size={20} />
@@ -281,8 +280,7 @@ class CryptoCurrency extends React.PureComponent {
                             <TouchableOpacity
                                 style={styles.dragBtns}
                                 activeOpacity={0.7}
-                                onLongPress={this.props.onDrag}
-                                delayLongPress={100}
+                                onPressIn={this.props.onDrag}
                                 hitSlop={HIT_SLOP}
                             >
                                 <CustomIcon name='dots' color={colors.common.text1} size={20} />
