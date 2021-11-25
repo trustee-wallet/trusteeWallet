@@ -12,9 +12,9 @@
       "custom": "Custom",
       "byName": "By name",
       "byValue": "By value",
-      "firstCoin": "First coins",
-      "firstToken": "First tokens",
-      "withBalance": "With balance"
+      "firstCoin": "Coins first",
+      "firstToken": "Tokens first",
+      "withBalance": "With a positive balance"
     },
     "categories": {
       "coin": "Coins",
@@ -321,7 +321,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Add NFT Asset",
-    "addCustomLabel": "You can add a standard NFT token developed on Matic blockchain or Ropsten Testnet. Please, enter or scan a new token / asset address.",
+    "addCustomLabel": "You can add a standard NFT token developed on Ethereum, BNB, Matic blockchains or on Ropsten, Rinkeby Testnet. Please enter or scan a new token / asset address.",
     "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
     "addCustomPlaceholder" : "NFT Asset Address",
     "addAssetButton" : "Add asset"
