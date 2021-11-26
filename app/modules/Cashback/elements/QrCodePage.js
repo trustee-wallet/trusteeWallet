@@ -59,7 +59,7 @@ class QrCodePage extends PureComponent {
                     resizeMode='cover'
                     source={require('@assets/images/bgQR2.png')}
                 >
-                    <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginLeft: GRID_SIZE * 1.5, marginTop: GRID_SIZE }]}>{strings('cashback.pageSubtitle')}</Text>
+                    <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginLeft: GRID_SIZE * 2.3, marginTop: GRID_SIZE }]}>{strings('cashback.pageSubtitle')}</Text>
 
                     <Image style={[styles.donut1, { marginTop: Platform.OS === 'ios' ? -GRID_SIZE * 4 : -GRID_SIZE * 2.5 }]} source={require('@assets/images/donut1.png')} />
                     
