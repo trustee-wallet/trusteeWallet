@@ -500,6 +500,7 @@ class Account extends React.PureComponent {
                                 cryptoCurrency={{
                                     currencyCode: selectedCryptoCurrencyData.currencyCode,
                                     currencySymbol: selectedCryptoCurrencyData.currencySymbol,
+                                    currencyName: selectedCryptoCurrencyData.currencyName,
                                     currencyExplorerLink: selectedCryptoCurrencyData.currencyExplorerLink
                                 }}
                                 isSegwit={isSegwit}

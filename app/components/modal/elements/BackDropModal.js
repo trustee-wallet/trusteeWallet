@@ -6,26 +6,21 @@
 import React from 'react'
 import {
     View,
-    StyleSheet
+    StyleSheet,
+    Platform
 } from 'react-native'
 import Modal from 'react-native-modal'
 
-import Layout from '@app/components/elements/modal/Layout'
-import Text from '@app/components/elements/modal/Text'
-import Title from '@app/components/elements/modal/Title'
-import Icon from '@app/components/elements/modal/Icon'
-import Button from '@app/components/elements/modal/Button'
+import Button from '@app/components/elements/new/buttons/Button'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
-
-
 
 class BackDropModal extends React.PureComponent {
     
     render() {
 
-        const { title, icon, description } = this.props.data
+        const { Content } = this.props.data
 
         const { colors, GRID_SIZE } = this.context
 
@@ -34,17 +29,21 @@ class BackDropModal extends React.PureComponent {
                 swipeDirection='down'
                 style={styles.modalView}
                 onBackdropPress={() => {this.props.noBackdropPress === true ? null : hideModal()}}
-                onSwipeComplete={() => hideModal()}
+                onSwipeComplete={hideModal}
+                presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : null}
             > 
                 <View style={styles.containerStyle}>
                     <View style={[styles.content, { backgroundColor: colors.backDropModal.bg }]}>
-                        <View style={{ marginTop: GRID_SIZE, marginBottom: GRID_SIZE * 1.2, justifyContent: 'center', height: 4, width: 40, borderRadius: 5, backgroundColor: '#999999', alignSelf: 'center' }} />
-                        <Text style={{ color: colors.common.text1 }}>{title}</Text>
+                        <View style={[styles.topBtn, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE * 1.2 }]} />
+                            <Content />
+                            <Button
+                                title={strings('assets.hideAsset')}
+                                type='withoutShadow'
+                                onPress={hideModal}
+                                containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
+                                textStyle={{ color: colors.backDropModal.buttonText }}
+                            />
                     </View>
-                    {/* <Button
-                        title={strings('asset.hideAssets')}
-                        onPress={() => hideModal()}
-                    /> */}
                 </View>
             </Modal>
         )
@@ -56,33 +55,6 @@ BackDropModal.contextType = ThemeContext
 export default BackDropModal
 
 const styles = StyleSheet.create({
-    title: {
-        fontFamily: 'Montserrat-Bold',
-        fontStyle: 'normal',
-        fontWeight: 'bold',
-        fontSize: 18,
-        lineHeight: 26,
-        textAlign: 'center',
-        marginTop: -10,
-        marginBottom: -2
-    },
-    text: {
-        fontFamily: 'SFUIDisplay-Regular',
-        fontStyle: 'normal',
-        fontWeight: 'normal',
-        fontSize: 14,
-        lineHeight: 20,
-        textAlign: 'center',
-        letterSpacing: 0.5
-    },
-    container: {
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        zIndex: 1,
-        minHeight: 150,
-        justifyContent: 'flex-end',
-        margin: 0
-    },
     modalView: {
         margin: 0,
         justifyContent: 'flex-end'
@@ -101,4 +73,12 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16
     },
+    topBtn: {
+        justifyContent: 'center',
+        height: 4,
+        width: 40,
+        borderRadius: 5,
+        backgroundColor: '#999999',
+        alignSelf: 'center'
+    }
 })

@@ -28,7 +28,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 
@@ -66,6 +66,8 @@ import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings
 import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
+
+import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
 
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -551,6 +553,61 @@ class AccountReceiveScreen extends React.PureComponent {
         this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
     }
 
+    handleShareInvoice = () => {
+        const { currencyCode, currencyName } = this.props.selectedCryptoCurrencyData
+        const message = `https://trusteeglobal.com/?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${this.getAddress()}`
+        console.log(message)
+        const shareOptions = {
+            title: strings('account.invoiceText'),
+            url: message
+        }
+        prettyShare(shareOptions)
+    }
+
+    renderModalContent = (params) => {
+
+        const { 
+            GRID_SIZE,
+            colors
+        } = this.context
+
+        return(
+            <View>
+                <InvoiceListItem 
+                    title={strings('account.invoiceText')}
+                    onPress={this.handleShareInvoice}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
+                    textColor='#F7F7F7'
+                    iconType='invoice'
+                    last
+                />
+                <InvoiceListItem 
+                    title={strings('account.copyLink')}
+                    onPress={() => {
+                        this.copyToClip()
+                        hideModal()
+                    }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    iconType='copy'
+                />
+                <InvoiceListItem 
+                    title={strings('account.openInBlockchair')}
+                    onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
+                    iconType='blockchair'
+                    last
+                />
+            </View>
+        )
+    }
+
+    handleBackDropModal = (address, forceLink) => {
+        showModal({
+            type: 'BACK_DROP_MODAL',
+            Content: () => this.renderModalContent({address, forceLink})
+        })
+    }
+
     render() {
 
         const { walletIsHd } = this.props.selectedWalletData
@@ -599,7 +656,7 @@ class AccountReceiveScreen extends React.PureComponent {
                         {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
                         <TouchableOpacity
                             style={styles.qr}
-                            onPress={this.copyToClip}
+                            onPress={this.handleBackDropModal}
                             activeOpacity={0.8}
                         >
                             <QrCodeBox
@@ -672,7 +729,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                 <TouchableOpacity style={{
                                     position: 'relative',
                                     alignItems: 'center'
-                                }} onPress={() => this.copyToClip()}
+                                }} onPress={() => this.handleBackDropModal()}
                                     hitSlop={HIT_SLOP}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                         <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >

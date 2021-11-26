@@ -417,6 +417,9 @@
     "noTransactions": "You don’t have any transaction yet. But you can resolve this quickly, just tap on BUY button",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
+    "copyLink": "Copy address",
+    "invoiceText": "Issue an invoice for payment",
+    "openInBlockchair": "Open in Blockchair",
     "externalLink": {
       "title": "Go to blockchain explorer",
       "description": "External site link will be opened"

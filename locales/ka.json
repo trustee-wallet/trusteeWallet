@@ -415,6 +415,9 @@
     "noTransactions": "თქვენ ჯერ არ გაქვთ ტრანზაქცია, მაგრამ შეგიძლიათ ამ პრობლემის სწრაფად გადაჭრა ღილაკზე „ყიდვა“ დაწკაპუნებით.",
     "showMore": "მეტის ჩვენება",
     "assetSettings": "აქტივის პარამეტრები",
+    "copyLink": "Copy address",
+    "invoiceText": "Issue an invoice for payment",
+    "openInBlockchair": "Open in Blockchair",
     "externalLink": {
       "title": "ბლოკჩეინ ექსპლორერზე გადასვლა",
       "description": "თქვენ გადახვალთ გარე რესურსზე"

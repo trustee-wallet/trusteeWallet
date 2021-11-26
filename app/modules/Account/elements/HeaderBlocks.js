@@ -11,7 +11,7 @@ import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
 
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -31,6 +31,9 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 import { getExplorerLink } from '../helpers'
+
+import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
 class HeaderBlocks extends React.Component {
 
@@ -71,11 +74,58 @@ class HeaderBlocks extends React.Component {
 
     }
 
-    handleBackDropModal = () => {
+    renderModalContent = (params) => {
+
+        const { 
+            GRID_SIZE,
+            colors
+        } = this.context
+
+        return(
+            <View>
+                <InvoiceListItem 
+                    title={strings('account.invoiceText')}
+                    onPress={() => this.handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
+                    textColor='#F7F7F7'
+                    iconType='invoice'
+                    last
+                />
+                <InvoiceListItem 
+                    title={strings('account.copyLink')}
+                    onPress={() => {
+                        this.handleBtcAddressCopy(params?.address)
+                        hideModal()
+                    }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    iconType='copy'
+                />
+                <InvoiceListItem 
+                    title={strings('account.openInBlockchair')}
+                    onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
+                    iconType='blockchair'
+                    last
+                />
+            </View>
+        )
+    }
+
+    handleBackDropModal = (address, forceLink, currencyCode, currencyName) => {
         showModal({
             type: 'BACK_DROP_MODAL',
-            title: 'БАБАХ'
+            Content: () => this.renderModalContent({address, forceLink, currencyCode, currencyName })
         })
+    }
+
+    handleShareInvoice = (address, currencyCode, currencyName) => {
+        const message = `https://trusteeglobal.com/?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
+
+        const shareOptions = {
+            title: strings('account.invoiceText'),
+            url: message
+        }
+        prettyShare(shareOptions)
     }
 
     handleBtcAddressCopy = (address) => {
@@ -207,7 +257,7 @@ class HeaderBlocks extends React.Component {
 
         let { account, cryptoCurrency, isSegwit } = this.props
         const { shownAddress, walletPubs } = account
-        const { currencyCode, currencySymbol } = cryptoCurrency
+        const { currencyCode, currencySymbol, currencyName } = cryptoCurrency
         let forceLink = false
         if (currencyCode === 'BTC' && walletPubs) {
             isSegwit = isSegwit ? 'btc.84' : 'btc.44'
@@ -253,13 +303,13 @@ class HeaderBlocks extends React.Component {
                             <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
                             <TouchableOpacity
                                 style={styles.topContent__middle}
-                                onPress={this.handleBackDropModal}
+                                onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
                                 hitSlop={HIT_SLOP}
                             >
                                 <View style={{ alignItems: 'center' }}>
                                     <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
                                 </View>
-                                <View onPress={this.handleBackDropModal} style={styles.copyBtn}>
+                                <View onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)} style={styles.copyBtn}>
                                     <IconMaterial name="content-copy" size={15} color={'#939393'} />
                                 </View>
                             </TouchableOpacity>

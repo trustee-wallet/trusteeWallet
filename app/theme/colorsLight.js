@@ -172,12 +172,16 @@ export const colorsLight = {
         warning: '#F59E6C',
         info: '#2A7FDB'
     },
-    bottomModal: {
+    bottomModal: { 
         bg: '#F5F5F5',
         borderColor: '#DADADA'
     },
     backDropModal: {
-        bg: '#F5F5F5'
+        bg: '#F5F5F5',
+        buttonBg: '#B8B8B84D',
+        buttonText: '#404040',
+        mainButton: '#5C5C5C',
+        underline: '#B8B8B8CC'
     },
     streamChat: {
         inputToolBarBg: '#EBEBEB',
