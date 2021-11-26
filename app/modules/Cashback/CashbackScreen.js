@@ -58,7 +58,7 @@ class CashbackScreen extends React.PureComponent {
             }
         ],
         tab1Height: SCREEN_WIDTH * 1.3,
-        tab2Height: SCREEN_WIDTH * 1.64,
+        tab2Height: SCREEN_WIDTH * 1.74,
         selected: false
     }
 
