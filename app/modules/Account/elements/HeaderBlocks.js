@@ -71,6 +71,13 @@ class HeaderBlocks extends React.Component {
 
     }
 
+    handleBackDropModal = () => {
+        showModal({
+            type: 'BACK_DROP_MODAL',
+            title: 'БАБАХ'
+        })
+    }
+
     handleBtcAddressCopy = (address) => {
         const { cryptoCurrency, account } = this.props
         const { walletHash } = account
@@ -246,13 +253,13 @@ class HeaderBlocks extends React.Component {
                             <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
                             <TouchableOpacity
                                 style={styles.topContent__middle}
-                                onPress={() => this.handleBtcAddressCopy(shownAddress)}
+                                onPress={this.handleBackDropModal}
                                 hitSlop={HIT_SLOP}
                             >
                                 <View style={{ alignItems: 'center' }}>
                                     <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
                                 </View>
-                                <View onPress={() => this.handleBtcAddressCopy(shownAddress)} style={styles.copyBtn}>
+                                <View onPress={this.handleBackDropModal} style={styles.copyBtn}>
                                     <IconMaterial name="content-copy" size={15} color={'#939393'} />
                                 </View>
                             </TouchableOpacity>

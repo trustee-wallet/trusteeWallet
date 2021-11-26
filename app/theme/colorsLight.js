@@ -176,6 +176,9 @@ export const colorsLight = {
         bg: '#F5F5F5',
         borderColor: '#DADADA'
     },
+    backDropModal: {
+        bg: '#F5F5F5'
+    },
     streamChat: {
         inputToolBarBg: '#EBEBEB',
         left: {
