@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Dimensions, View } from 'react-native'
+import { Dimensions, Platform, View } from 'react-native'
 
 
 import MnemonicFailModal from '@app/modules/WalletBackup/elements/MnemomicFail'
@@ -82,12 +82,19 @@ class MainModal extends Component {
 
     render = () => {
         const {
-            show
+            show,
+            data
         } = this.props.modal
+
+        let bgColor = '#000'
+
+        if (data.type === 'BACK_DROP_MODAL' && Platform.OS === 'ios') {
+            bgColor = 'transparent'
+        }
 
         return (
             <View style={show ? styles.wrapper : styles.wrapper_hidden}>
-                <View style={{ alignItems: 'center', justifyContent: 'center', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%', backgroundColor: '#000', opacity: .5, overflow: 'hidden' }}/>
+                <View style={{ alignItems: 'center', justifyContent: 'center', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%', backgroundColor: bgColor, opacity: .5, overflow: 'hidden' }}/>
                 {this.renderTemplate()}
             </View>
         )
@@ -139,4 +146,4 @@ const styles = {
     }
 }
 
-export default connect(mapStateToProps, {})(MainModal)
+export default connect(mapStateToProps)(MainModal)

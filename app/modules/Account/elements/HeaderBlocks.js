@@ -76,14 +76,14 @@ class HeaderBlocks extends React.Component {
 
     renderModalContent = (params) => {
 
-        const { 
+        const {
             GRID_SIZE,
             colors
         } = this.context
 
-        return(
+        return (
             <View>
-                <InvoiceListItem 
+                <InvoiceListItem
                     title={strings('account.invoiceText')}
                     onPress={() => this.handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
@@ -91,7 +91,7 @@ class HeaderBlocks extends React.Component {
                     iconType='invoice'
                     last
                 />
-                <InvoiceListItem 
+                <InvoiceListItem
                     title={strings('account.copyLink')}
                     onPress={() => {
                         this.handleBtcAddressCopy(params?.address)
@@ -100,7 +100,7 @@ class HeaderBlocks extends React.Component {
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                     iconType='copy'
                 />
-                <InvoiceListItem 
+                <InvoiceListItem
                     title={strings('account.openInBlockchair')}
                     onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
@@ -114,7 +114,7 @@ class HeaderBlocks extends React.Component {
     handleBackDropModal = (address, forceLink, currencyCode, currencyName) => {
         showModal({
             type: 'BACK_DROP_MODAL',
-            Content: () => this.renderModalContent({address, forceLink, currencyCode, currencyName })
+            Content: () => this.renderModalContent({ address, forceLink, currencyCode, currencyName })
         })
     }
 

@@ -20,20 +20,25 @@ class BackDropModal extends React.PureComponent {
     
     render() {
 
-        const { Content } = this.props.data
+        const { show, Content } = this.props.data
 
         const { colors, GRID_SIZE } = this.context
 
         return (
-            <Modal isVisible={true}
+            <Modal 
+                visible={show}
                 swipeDirection='down'
                 style={styles.modalView}
-                onBackdropPress={() => {this.props.noBackdropPress === true ? null : hideModal()}}
+                hasBackdrop={true}
+                onBackdropPress={hideModal}
                 onSwipeComplete={hideModal}
-                presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : null}
+                onSwipeMove={hideModal}
+                swipeThreshold={50}
+                hideModalContentWhileAnimating={true}
+                animationType='slide'
+                presentationStyle='pageSheet'
             > 
-                <View style={styles.containerStyle}>
-                    <View style={[styles.content, { backgroundColor: colors.backDropModal.bg }]}>
+                    <View style={[styles.content, { backgroundColor: colors.backDropModal.bg, paddingBottom: Platform.OS === 'ios' ? GRID_SIZE : 0 }]}>
                         <View style={[styles.topBtn, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE * 1.2 }]} />
                             <Content />
                             <Button
@@ -44,7 +49,6 @@ class BackDropModal extends React.PureComponent {
                                 textStyle={{ color: colors.backDropModal.buttonText }}
                             />
                     </View>
-                </View>
             </Modal>
         )
     }
@@ -56,19 +60,20 @@ export default BackDropModal
 
 const styles = StyleSheet.create({
     modalView: {
+        flex: 1,
         margin: 0,
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
     },
     containerStyle: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-around',
-        alignItems: 'flex-end'
+        alignItems: 'flex-end',
+        backgroundColor: 'green'
     },
     content: {
-        flex: 1,
         width: '100%',
-        minHeight: 150,
+        height: 'auto',
         overflow: 'hidden',
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16
