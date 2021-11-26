@@ -2079,4 +2079,17 @@
 		"tokenBlockchain": "BNB",
 		"currencyExplorerLink": "https://bscscan.com/token/0xe552fb52a4f19e44ef5a967632dbc320b0820639?a="
 	},
+	"ETH_STORJ": {
+		"currencyType": "token",
+		"currencyName": "STORJ ERC20",
+		"currencyCode": "ETH_STORJ",
+		"currencySymbol": "STORJ",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "STORJ",
+		"decimals": 8,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xb64ef51c888972c908cfacf59b47c1afbc0ab8ac",
+		"currencyExplorerLink": "https://etherscan.io/token/0xb64ef51c888972c908cfacf59b47c1afbc0ab8ac?a="
+	}
 }
