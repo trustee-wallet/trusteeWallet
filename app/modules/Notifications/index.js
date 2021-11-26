@@ -202,6 +202,10 @@ class NotificationsScreen extends React.PureComponent {
         return AppNewsActions.onOpen(notification, title, subtitle, false)
     }
 
+    handelSettings = () => {
+        NavStore.goNext('NotificationsSettingsScreen')
+    }
+
     render() {
         const { colors, GRID_SIZE } = this.context
         const { data, isRefreshing } = this.state
@@ -212,8 +216,8 @@ class NotificationsScreen extends React.PureComponent {
             <ScreenWrapper
                 leftType='back'
                 leftAction={this.handleBack}
-                rightType='close'
-                rightAction={this.handleBack}
+                rightType='settings'
+                rightAction={this.handelSettings}
                 title={strings('notifications.title')}
                 ExtraView={this.renderTabs}
             >
