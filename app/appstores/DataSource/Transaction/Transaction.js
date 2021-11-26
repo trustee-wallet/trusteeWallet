@@ -4,6 +4,7 @@
 import Database from '@app/appstores/DataSource/Database';
 import Log from '../../../services/Log/Log'
 import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import config from '@app/config/config'
 
 class Transaction {
 
@@ -322,72 +323,85 @@ class Transaction {
         const txArray = []
         let tx
         const toRemove = []
-        for (tx of res) {
-            if (tx.transactionHash !== '' && typeof shownTx[tx.transactionHash] !== 'undefined') {
-                Log.daemon('Transaction getTransactions will remove ' + tx.id)
-                toRemove.push(tx.id)
-                continue
-            }
-            if (tx.bseOrderId !== '' && typeof shownTx['bse_' + tx.bseOrderId] !== 'undefined') {
-                if (shownTx['bse_' + tx.bseOrderId].hash === '') {
-                    Log.daemon('Transaction getTransactions will remove old ' + tx.bseOrderId)
-                    toRemove.push(shownTx['bse_' + tx.bseOrderId].id)
-                } else {
-                    Log.daemon('Transaction getTransactions will remove ' + tx.bseOrderId)
+        try {
+            for (tx of res) {
+                if (tx.transactionHash !== '' && typeof shownTx[tx.transactionHash] !== 'undefined') {
+                    Log.daemon('Transaction getTransactions will remove ' + tx.id)
                     toRemove.push(tx.id)
-                }
-                continue
-            }
-
-            if (tx.transactionHash) {
-                shownTx[tx.transactionHash] = 1
-            }
-            if (tx.bseOrderId) {
-                shownTx['bse_' + tx.bseOrderId] = {id : tx.id, hash : tx.transactionHash}
-            }
-            tx.addressAmount = BlocksoftUtils.fromENumber(tx.addressAmount)
-
-            if (typeof params.noOld !== 'undefined' || params.noOld) {
-                if ((tx.blockConfirmations > 30 && tx.transactionStatus === 'success') || tx.blockConfirmations > 300) {
-                    txArray.push({
-                        id: tx.id,
-                        transactionHash: tx.transactionHash,
-                        transactionsOtherHashes: tx.transactionsOtherHashes,
-                        updateSkip: true
-                    })
                     continue
                 }
-            }
-
-            if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson !== null && tx.transactionJson !== 'undefined') {
-
-                try {
-                    tx.transactionJson = JSON.parse(tx.transactionJson)
-                } catch (e) {
-                    e.message += ' while parsing tx 1 ' + tx.transactionJson
-                    throw e
+                if (tx.bseOrderId !== '' && typeof shownTx['bse_' + tx.bseOrderId] !== 'undefined') {
+                    if (shownTx['bse_' + tx.bseOrderId].hash === '') {
+                        Log.daemon('Transaction getTransactions will remove old ' + tx.bseOrderId)
+                        toRemove.push(shownTx['bse_' + tx.bseOrderId].id)
+                    } else {
+                        Log.daemon('Transaction getTransactions will remove ' + tx.bseOrderId)
+                        toRemove.push(tx.id)
+                    }
+                    continue
                 }
 
-                if (typeof tx.transactionJson !== 'object') {
+                if (tx.transactionHash) {
+                    shownTx[tx.transactionHash] = 1
+                }
+                if (tx.bseOrderId) {
+                    shownTx['bse_' + tx.bseOrderId] = { id: tx.id, hash: tx.transactionHash }
+                }
+                try {
+                    tx.addressAmount = BlocksoftUtils.fromENumber(tx.addressAmount)
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('DS/Transaction error ' + e.message + '  while fromENumber ' + tx.addressAmount )
+                    }
+                }
+
+                if (typeof params.noOld !== 'undefined' || params.noOld) {
+                    if ((tx.blockConfirmations > 30 && tx.transactionStatus === 'success') || tx.blockConfirmations > 300) {
+                        txArray.push({
+                            id: tx.id,
+                            transactionHash: tx.transactionHash,
+                            transactionsOtherHashes: tx.transactionsOtherHashes,
+                            updateSkip: true
+                        })
+                        continue
+                    }
+                }
+
+                if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson !== null && tx.transactionJson !== 'undefined') {
+
                     try {
                         tx.transactionJson = JSON.parse(tx.transactionJson)
                     } catch (e) {
-                        e.message += ' while parsing tx 2 ' + tx.transactionJson
+                        e.message += ' while parsing tx 1 ' + tx.transactionJson
+                        throw e
+                    }
+
+                    if (typeof tx.transactionJson !== 'object') {
+                        try {
+                            tx.transactionJson = JSON.parse(tx.transactionJson)
+                        } catch (e) {
+                            e.message += ' while parsing tx 2 ' + tx.transactionJson
+                            throw e
+                        }
+                    }
+                }
+
+                if (typeof tx.bseOrderData !== 'undefined' && tx.bseOrderData !== null && tx.bseOrderData !== 'undefined') {
+                    try {
+                        tx.bseOrderData = JSON.parse(tx.bseOrderData)
+                    } catch (e) {
+                        e.message += ' while parsing tx 1 ' + tx.bseOrderData
                         throw e
                     }
                 }
-            }
 
-            if (typeof tx.bseOrderData !== 'undefined' && tx.bseOrderData !== null && tx.bseOrderData !== 'undefined') {
-                try {
-                    tx.bseOrderData = JSON.parse(tx.bseOrderData)
-                } catch (e) {
-                    e.message += ' while parsing tx 1 ' + tx.bseOrderData
-                    throw e
-                }
+                txArray.push(tx)
             }
-
-            txArray.push(tx)
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('DS/Transaction error ' + e.message + '  while parsing db tx ', tx)
+            }
+            throw new Error(e.message + '  while parsing db tx ' + JSON.stringify(tx))
         }
 
         if (toRemove.length > 0) {

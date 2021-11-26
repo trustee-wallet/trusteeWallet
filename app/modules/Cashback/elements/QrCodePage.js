@@ -11,7 +11,8 @@ import {
     TouchableOpacity,
     View,
     StyleSheet,
-    Dimensions
+    Dimensions,
+    Platform
 } from 'react-native'
 
 import { strings } from '@app/services/i18n'
@@ -23,7 +24,9 @@ import Toast from '@app/services/UI/Toast/Toast'
 import Log from '@app/services/Log/Log'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-const { width: WINDOW_WIDTH } = Dimensions.get('window')
+import qrLogo from '@assets/images/logoWithWhiteBG.png'
+
+const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 class QrCodePage extends PureComponent {
 
@@ -49,37 +52,51 @@ class QrCodePage extends PureComponent {
             GRID_SIZE
         } = this.context
 
-        return(
+        return (
             <>
                 <ImageBackground
                     style={styles.qrBg}
-                    source={require('@assets/images/qrBG.png')}
+                    source={require('@assets/images/bgQR2.png')}
                 >
-                    <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginHorizontal: GRID_SIZE / 2 }]}>{strings('cashback.pageSubtitle')}</Text>
-                    <View>
-                        <View style={styles.PageSubtitleTextBox}>
-                            <Text style={styles.pageSubtitleText}>{strings('cashback.pageSubtitleText')}</Text>
-                            <Text style={styles.pageSubtitleProcent}>{'30%'}</Text>
-                        </View>
-                        <Image style={styles.picProcent} source={require('@assets/images/picProcent.png')} />
+                    <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginLeft: GRID_SIZE * 1.5, marginTop: GRID_SIZE }]}>{strings('cashback.pageSubtitle')}</Text>
+                    <View style={[styles.pageSubtitleTextBox, { marginTop: Platform.OS === 'ios' ? GRID_SIZE * 0.8 : 12 }]}>
+                        <Text style={[styles.pageSubtitleText, { color: colors.common.text1 }]}>{strings('cashback.pageSubtitleText')}</Text>
+                        <Text style={[styles.pageSubtitleProcent, { color: colors.common.text1 }]}>{'30%'}</Text>
                     </View>
-                    <TouchableOpacity
-                        style={[styles.qrCodeContainer, { marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE / 2.5 }]}
-                        onPress={() => this.copyToClip(cashbackLink)}
-                        activeOpacity={0.8}
-                    >
-                        <QrCodeBox
-                            value={cashbackLink}
-                            size={WINDOW_WIDTH * 0.3}
-                            color={colors.cashback.qrCode}
-                            backgroundColor='transparent'
-                            onError={this.handleRenderQrError}
-                            style={styles.qrCode}
-                        />
-                        <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
-                            {cashbackLinkTitle + ' '}
-                            <CustomIcon name='copy' style={{marginLeft: 25}} size={WINDOW_WIDTH * 0.042} color={colors.cashback.token} /></Text>
-                    </TouchableOpacity>
+
+                    <Image style={[styles.donut1, { marginTop: Platform.OS === 'ios' ? -GRID_SIZE * 4 : -GRID_SIZE * 2.5 }]} source={require('@assets/images/donut1.png')} />
+                    
+                    <View style={styles.qrCodeContainer}>
+                        <TouchableOpacity
+                            style={[styles.qrBox, { padding: GRID_SIZE, backgroundColor: '#F5F5F5' }]}
+                            onPress={() => this.copyToClip(cashbackLink)}
+                            activeOpacity={0.7}
+                        >
+                            <QrCodeBox
+                                value={cashbackLink}
+                                size={170}
+                                logo={qrLogo}
+                                logoSize={60}
+                                color={colors.cashback.qrCode}
+                                backgroundColor='transparent'
+                                onError={this.handleRenderQrError}
+                                style={styles.qrCode}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE }]}
+                            onPress={() => this.copyToClip(cashbackLink)}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
+                                {cashbackLinkTitle + '  '}
+                                <CustomIcon name='copy' size={WINDOW_WIDTH * 0.06} color={colors.cashback.token} />
+                            </Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.yourToken, { color: colors.common.text3, marginTop: GRID_SIZE / 2 }]}>{strings('cashback.yourToken')}</Text>
+                    </View>
+                    <Image style={styles.donut2} source={require('@assets/images/donut2.png')} />
+                    <Image style={styles.donuts} source={require('@assets/images/donuts.png')} />
                 </ImageBackground>
             </>
         )
@@ -96,66 +113,74 @@ const styles = StyleSheet.create({
         flex: 1,
         fontFamily: 'Montserrat-SemiBold',
         fontSize: WINDOW_WIDTH * 0.058,
-        lineHeight: WINDOW_WIDTH * 0.062,
+        lineHeight: WINDOW_WIDTH * 0.072,
         width: WINDOW_WIDTH * 0.555,
         height: WINDOW_WIDTH * 0.3,
         position: 'absolute',
-        top: -WINDOW_WIDTH * 0.27
+        top: 0
     },
-    PageSubtitleTextBox: {
+    pageSubtitleTextBox: {
         position: 'absolute',
         zIndex: 2,
-        top: WINDOW_WIDTH * -0.5,
-        left: WINDOW_WIDTH * 0.566,
+        left: WINDOW_WIDTH * 0.772,
         width: WINDOW_WIDTH * 0.2125
     },
     pageSubtitleProcent: {
-        fontFamily: 'Montserrat-Medium',
-        fontStyle: 'normal',
-        textAlign: 'center',
-        fontSize: WINDOW_WIDTH * 0.08,
-        color: '#ffffff'
-    },
-    pageSubtitleText: {
-        fontFamily: 'Montserrat-Medium',
+        fontFamily: 'Montserrat-SemiBold',
         fontStyle: 'normal',
         textAlign: 'center',
         fontSize: WINDOW_WIDTH * 0.05,
         color: '#ffffff'
     },
+    pageSubtitleText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontStyle: 'normal',
+        textAlign: 'center',
+        fontSize: WINDOW_WIDTH * 0.04,
+        color: '#ffffff'
+    },
     qrCodeContainer: {
-        flex: 1,
-        alignItems: 'center',
         position: 'absolute',
-        top: WINDOW_WIDTH * 0.075,
-        left: WINDOW_WIDTH * 0.23
+        top: WINDOW_HEIGHT * 0.17,
+        left: WINDOW_WIDTH * 0.23,
+        alignItems: 'center'
+    },
+    qrBox: {
+        flex: 1,
+
+        borderRadius: 24,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.27,
+        shadowRadius: 4.65,
+
+        elevation: 6,
     },
     qrCode: {
         alignSelf: 'center'
     },
     qrCodeTokenString: {
-        width: WINDOW_WIDTH * 0.38,
-        marginTop: WINDOW_WIDTH * 0.015,
         justifyContent: 'space-between',
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: WINDOW_WIDTH * 0.042,
-        lineHeight: WINDOW_WIDTH * 0.042,
+        fontSize: WINDOW_WIDTH * 0.05,
+        lineHeight: WINDOW_WIDTH * 0.06,
         textAlign: 'center'
     },
     qrBg: {
-        justifyContent: 'center',
         alignSelf: 'center',
         position: 'relative',
-        width: WINDOW_WIDTH * 0.95,
-        height: WINDOW_WIDTH * 0.95,
-        marginTop: WINDOW_WIDTH * 0.32
+        width: WINDOW_WIDTH,
+        height: WINDOW_HEIGHT
     },
-    picProcent: {
+    donut1: {
         position: 'relative',
-        top: WINDOW_WIDTH * -0.57,
-        left: WINDOW_WIDTH * 0.51,
-        width: WINDOW_WIDTH * 0.42,
-        height: WINDOW_WIDTH * 0.34
+        left: WINDOW_WIDTH * 0.64,
+        width: WINDOW_WIDTH * 0.47,
+        height: WINDOW_HEIGHT * 0.26,
+        resizeMode: 'contain'
     },
     buttonsRow: {
         flexDirection: 'row',
@@ -164,5 +189,37 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginTop: 12,
         flex: 1
+    },
+    tokenBox: {
+        borderRadius: 16,
+        flex: 1,
+        height: 54,
+        width: '100%',
+        alignSelf: 'center',
+        justifyContent: 'center',
+        zIndex: 2
+    },
+    yourToken: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: WINDOW_WIDTH * 0.04,
+        lineHeight: WINDOW_WIDTH * 0.05,
+        letterSpacing: 1,
+        zIndex: 2
+    },
+    donut2: {
+        position: 'absolute',
+        width: WINDOW_WIDTH * 0.38,
+        height: WINDOW_HEIGHT * 0.2,
+        left: WINDOW_WIDTH * 0.78,
+        top: WINDOW_HEIGHT * (Platform.OS === 'ios' ? 0.44 : 0.48),
+        resizeMode: 'contain'
+    },
+    donuts: {
+        position: 'absolute',
+        width: WINDOW_WIDTH * 0.6,
+        height: WINDOW_HEIGHT * 0.3,
+        bottom: WINDOW_HEIGHT * (Platform.OS === 'ios' ? 0.16 : 0.11),
+        left: -WINDOW_WIDTH * 0.11,
+        resizeMode: 'contain'
     }
 })

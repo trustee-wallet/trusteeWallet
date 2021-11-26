@@ -65,6 +65,8 @@ import SolTokenProcessor from '@crypto/blockchains/sol/SolTokenProcessor'
 import EthTokenProcessorNft from '@crypto/blockchains/eth/EthTokenProcessorNft'
 import AshAddressProcessor from '@crypto/blockchains/ash/AshAddressProcessor'
 
+import MetisScannerProcessor from '@crypto/blockchains/metis/MetisScannerProcessor'
+
 class BlocksoftDispatcher {
 
     /**
@@ -166,6 +168,8 @@ class BlocksoftDispatcher {
                 return new SolScannerProcessorSpl(currencyDictSettings)
             case 'WAVES':
                 return new WavesScannerProcessor(currencyDictSettings)
+            case 'METIS':
+                return new MetisScannerProcessor(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }
@@ -185,6 +189,8 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'MATIC' })
             case 'FTM_ERC_20':
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'FTM' })
+            case 'METIS_ERC_20':
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'METIS' })
             case 'TRX':
                 return new TrxTokenProcessor()
             case 'SOL':

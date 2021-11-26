@@ -19,6 +19,10 @@ export default class GradientView extends Component {
                 colors={this.props.array}
                 start={this.props.start}
                 end={this.props.end}
+                locations={this.props.locations}
+                useAngle={this.props.useAngle}
+                angleCenter={this.props.angleCenter}
+                angle={this.props.angle}
                 renderToHardwareTextureAndroid
                 shouldRasterizeIOS
             >

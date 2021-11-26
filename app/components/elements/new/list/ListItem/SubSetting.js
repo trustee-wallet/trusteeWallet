@@ -12,7 +12,26 @@ import RadioButton from '../../RadioButton'
 import { useTheme } from '@app/theme/ThemeProvider'
 
 import PercentView from '../../PercentView'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
+const getIcon = (iconType, color) => {
+    switch (iconType) {
+        case 'customSort':
+            return <CustomIcon name='customSort' size={14} color={color} style={{ left: 1 }} />
+        case 'tokenFirstSort':
+            return <CustomIcon name='tokenFirstSort' size={14} color={color} style={{ left: 1 }} />
+        case 'coinFirstSort':
+            return <CustomIcon name='coinFirstSort' size={14} color={color} style={{ left: 1 }} />
+        case 'nameSort':
+            return <CustomIcon name='nameSort' size={14} color={color} style={{ left: 1 }} />
+        case 'balanceSort':
+            return <CustomIcon name='balanceSort' size={14} color={color} style={{ left: 1 }} />
+        case 'wallet':
+            return <CustomIcon name='shield' size={14} color={color} style={{ left: 1 }} />
+        default:
+            return null
+    }
+}
 
 export default function SubSettingListItem(props) {
     const {
@@ -26,13 +45,15 @@ export default function SubSettingListItem(props) {
         checkedStyle,
         ExtraView,
         ExtraViewParams,
-        percentValue
+        percentValue,
+        iconType,
+        containerStyle
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
     return (
         <TouchableOpacity
-            style={styles.container}
+            // style={styles.container}
             onPress={onPress}
             activeOpacity={0.8}
             disabled={checked}
@@ -56,26 +77,33 @@ export default function SubSettingListItem(props) {
                     )}
                 </>
                 :
-                <View style={[styles.mainContent, last && styles.noBorder]}>
-                    <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                        {percentValue ?
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={[styles.container, containerStyle]}>
+                    {iconType &&
+                        <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight }]}>
+                            {getIcon(iconType, colors.common.listItem.basic.iconColorLight)}
+                        </View>
+                    }
+                    <View style={[styles.mainContent, last && styles.noBorder]}>
+                        <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
+                            {percentValue ?
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                                    <PercentView
+                                        containerStyle={{ marginTop: -3 }}
+                                        value={percentValue}
+                                    />
+                                </View>
+                                :
                                 <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                                <PercentView
-                                    containerStyle={{ marginTop: -3 }}
-                                    value={percentValue}
-                                />
-                            </View>
-                            :
-                            <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                        }
-                        {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
-                    </View>
-                    <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
-                        <RadioButton
-                            onChange={onPress}
-                            checked={checked}
-                        />
+                            }
+                            {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                        </View>
+                        <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
+                            <RadioButton
+                                onChange={onPress}
+                                checked={checked}
+                            />
+                        </View>
                     </View>
                 </View>}
             {withoutLine ? null :
@@ -85,6 +113,10 @@ export default function SubSettingListItem(props) {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
     mainContent: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -120,5 +152,13 @@ const styles = StyleSheet.create({
         fontSize: 13,
         lineHeight: 18,
         letterSpacing: 1.75
-    }
+    },
+    icon: {
+        width: 32,
+        height: 32,
+        borderRadius: 20,
+        marginRight: 8,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
 })

@@ -19,11 +19,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 
-import NavStore from '@app/components/navigation/NavStore'
 import GradientView from '@app/components/elements/GradientView'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 
-import { setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getAccountCurrency } from '@app/appstores/Stores/Account/selectors'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 
@@ -34,62 +32,12 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import { SIZE } from '../helpers';
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { SIZE, handleCurrencySelect } from '../helpers';
+import CustomIcon from '@app/components/elements/CustomIcon'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
-let CACHE_CLICK = false
+
 class CryptoCurrency extends React.PureComponent {
-
-    handleCurrencySelect = async (screen) => {
-        if (CACHE_CLICK) return
-
-        const { cryptoCurrency } = this.props
-
-        let status = ''
-        CACHE_CLICK = true
-
-        if (typeof cryptoCurrency.currencyCode !== 'undefined' && cryptoCurrency.currencyCode === 'NFT') {
-            try {
-                setSelectedCryptoCurrency(cryptoCurrency)
-                NavStore.goNext(screen || 'NftMainScreen')
-            } catch (e) {
-                Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)
-            }
-
-            CACHE_CLICK = false
-            return false
-        }
-
-        try {
-
-            // Log.log('HomeScreen.Currency handleCurrencySelect inited ', cryptoCurrency)
-
-            status = 'setSelectedCryptoCurrency started'
-
-            setSelectedCryptoCurrency(cryptoCurrency)
-
-            status = 'setSelectedAccount started'
-
-            await setSelectedAccount('CryptoCurrency.handleCurrencySelect')
-
-            await setSelectedAccountTransactions('CryptoCurrency.handleCurrencySelect')
-
-            // Log.log('HomeScreen.Currency handleCurrencySelect finished ', cryptoCurrency)
-
-            NavStore.goNext('AccountScreen')
-
-        } catch (e) {
-            Log.err('HomeScreen.Currency handleCurrencySelect error ' + status + ' ' + e.message, cryptoCurrency)
-
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: e.message
-            })
-        }
-        CACHE_CLICK = false
-    }
 
     renderSynchronization = () => (
         <View style={styles.cryptoList__syncRow}>
@@ -170,10 +118,9 @@ class CryptoCurrency extends React.PureComponent {
                 <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    style={styles.cryptoList__item}
-                    onPress={() => this.handleCurrencySelect()}
-                    onLongPress={this.props.onDrag}
-                    delayLongPress={3000}
+                    style={[styles.cryptoList__item, { transform: [{scale: this.props.isActive ? 1.02 : 1}] }]}
+                    onPress={() => handleCurrencySelect(this.props)}
+                    disabled={this.props.constructorMode}
                 >
                     <GradientView
                         style={styles.cryptoList__item__content}
@@ -216,27 +163,38 @@ class CryptoCurrency extends React.PureComponent {
                                     </Text>
                                 )}
                             </View>
-
-                            <View style={[styles.cryptoList__currency__changes, { borderColor: colors.homeScreen.listItemSeparatorLine }]}>
-                                <View style={styles.cryptoList__currency__changes__rate}>
-                                    {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && priceChangePercentage24h !== 0 && (
-                                        <Ionicons
-                                            name={priceChangePercentage24h > 0 ? 'ios-arrow-round-up' : 'ios-arrow-round-down'}
-                                            color={priceChangePercentage24h > 0 ? colors.homeScreen.listItemArrowUp : colors.homeScreen.listItemArrowDown}
-                                            style={styles.cryptoList__arrow}
-                                            size={18}
-                                        />
-                                    )}
+                            
+                            {this.props.constructorMode ? null :
+                                <View style={[styles.cryptoList__currency__changes, { borderColor: colors.homeScreen.listItemSeparatorLine }]}>
+                                    <View style={styles.cryptoList__currency__changes__rate}>
+                                        {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && priceChangePercentage24h !== 0 && (
+                                            <Ionicons
+                                                name={priceChangePercentage24h > 0 ? 'ios-arrow-round-up' : 'ios-arrow-round-down'}
+                                                color={priceChangePercentage24h > 0 ? colors.homeScreen.listItemArrowUp : colors.homeScreen.listItemArrowDown}
+                                                style={styles.cryptoList__arrow}
+                                                size={18}
+                                            />
+                                        )}
+                                        <Text style={[styles.cryptoList__text, { color: colors.common.text2 }]}>
+                                            {`${account.basicCurrencySymbol} ${ratePrep.toString()}`}
+                                        </Text>
+                                    </View>
                                     <Text style={[styles.cryptoList__text, { color: colors.common.text2 }]}>
-                                        {`${account.basicCurrencySymbol} ${ratePrep.toString()}`}
+                                        {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && `${priceChangePercentage24h < 0 ? '- ' : ''}${priceChangePercentage24hPrep}`}
                                     </Text>
                                 </View>
-                                <Text style={[styles.cryptoList__text, { color: colors.common.text2 }]}>
-                                    {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && `${priceChangePercentage24h < 0 ? '- ' : ''}${priceChangePercentage24hPrep}`}
-                                </Text>
-                            </View>
+                                }
                         </View>
-
+                        {!this.props.constructorMode ? null :
+                            <TouchableOpacity
+                                style={styles.dragBtns}
+                                activeOpacity={0.7}
+                                onPressIn={this.props.onDrag}
+                                hitSlop={HIT_SLOP}
+                            >
+                                <CustomIcon name='dots' color={colors.common.text1} size={20} />
+                            </TouchableOpacity>
+                        }
                     </GradientView>
                 </TouchableOpacity>
             </View>
@@ -251,13 +209,13 @@ class CryptoCurrency extends React.PureComponent {
                     <RoundButton
                         type="receive"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={() => this.handleCurrencySelect('NftReceive')}
+                        onPress={() => handleCurrencySelect(this.props, 'NftReceive')}
                         noTitle
                     />
                     <RoundButton
                         type="edit"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={() => this.handleCurrencySelect('NftAddAssetScreen')}
+                        onPress={() => handleCurrencySelect(this.props, 'NftAddAssetScreen')}
                         noTitle
                     />
                 </View>
@@ -277,6 +235,7 @@ class CryptoCurrency extends React.PureComponent {
 
         const currencyCode = cryptoCurrency.currencyCode || 'BTC'
 
+
         return (
             <View style={styles.container}>
                 <View style={styles.shadow__container}>
@@ -285,13 +244,12 @@ class CryptoCurrency extends React.PureComponent {
                 <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    style={styles.cryptoList__item}
-                    onPress={() => this.handleCurrencySelect()}
-                    onLongPress={this.props.onDrag}
-                    delayLongPress={3000}
+                    style={[styles.cryptoList__item, { transform: [{scale: this.props.isActive ? 1.02 : 1}] }]}
+                    onPress={() => handleCurrencySelect(this.props, currencyCode === 'CASHBACK' ? 'CashbackScreen' : false)}
+                    disabled={this.props.constructorMode}
                 >
                     <GradientView
-                        style={styles.cryptoList__item__content}
+                        style={[styles.cryptoList__item__content, { paddingLeft: SIZE - 2 }]}
                         array={colors.homeScreen.listItemGradient}
                         start={{ x: 1, y: 0 }}
                         end={{ x: 1, y: 1 }}
@@ -317,10 +275,18 @@ class CryptoCurrency extends React.PureComponent {
                                     {cryptoCurrency.currencyName}
                                 </Text>
                             </View>
-
                         </View>
-
-                    </GradientView>
+                        {!this.props.constructorMode ? null :
+                            <TouchableOpacity
+                                style={styles.dragBtns}
+                                activeOpacity={0.7}
+                                onPressIn={this.props.onDrag}
+                                hitSlop={HIT_SLOP}
+                            >
+                                <CustomIcon name='dots' color={colors.common.text1} size={20} />
+                            </TouchableOpacity>
+                        }
+                        </GradientView>
                 </TouchableOpacity>
             </View>
         )
@@ -330,9 +296,11 @@ class CryptoCurrency extends React.PureComponent {
         // TODO: change condition - still need?
         if (typeof this.props === 'undefined') return <View />
 
-        if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && this.props.cryptoCurrency.currencyCode === 'NFT') {
+        if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && (this.props.cryptoCurrency.currencyCode === 'NFT' || this.props.cryptoCurrency.currencyCode === 'CASHBACK')) {
             return (
                 <SwipeRow
+                    disableLeftSwipe={this.props.constructorMode}
+                    disableRightSwipe={this.props.constructorMode}
                     leftOpenValue={140}
                     rightOpenValue={-70}
                     stopLeftSwipe={160}
@@ -349,6 +317,8 @@ class CryptoCurrency extends React.PureComponent {
 
         return (
             <SwipeRow
+                disableLeftSwipe={this.props.constructorMode}
+                disableRightSwipe={this.props.constructorMode}
                 leftOpenValue={140}
                 rightOpenValue={-70}
                 stopLeftSwipe={160}
@@ -506,4 +476,7 @@ const styles = StyleSheet.create({
     hiddenLayer__roundButton: {
         marginHorizontal: 10
     },
+    dragBtns: {
+        marginLeft: 18
+    }
 })

@@ -49,6 +49,9 @@ class UpdateCurrencyRateDaemon {
             for (const dbCurrency of currencies) {
                 let currency = false
                 if (dbCurrency.currencyCode.indexOf('CUSTOM_') === 0) {
+                    if (typeof dbCurrency.tokenName !== 'undefined' && typeof indexed[dbCurrency.tokenName] !== 'undefined') {
+                        currency = indexed[dbCurrency.tokenName]
+                    }
                     if (typeof dbCurrency.tokenAddress !== 'undefined' && typeof indexed[dbCurrency.tokenAddress] !== 'undefined') {
                         currency = indexed[dbCurrency.tokenAddress]
                     }

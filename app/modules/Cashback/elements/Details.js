@@ -13,9 +13,18 @@ import {
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import NavStore from '@app/components/navigation/NavStore'
+
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+
 class DetailsContent extends React.Component {
 
-    cashbackCurrency = 'USDT'
+    cashbackCurrency = '$'
+
+    handleOpenLink = (link) => {
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('cashback.howItWorks.title') })
+    }
 
     render() {
         const {
@@ -33,13 +42,12 @@ class DetailsContent extends React.Component {
         } = this.props
 
         return (
-            <View style={[styles.container, { marginHorizontal: GRID_SIZE }]} >
+            <View style={[styles.container, { marginHorizontal: GRID_SIZE, marginLeft: GRID_SIZE * 3.5, marginTop: -GRID_SIZE * 1.5 }]} >
                 {selectedTitle === 'CASHBACK' ?
-                    <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5, backgroundColor: colors.cashback.detailsBg  }]}>
-                        <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cashbackInfo')}</Text>
+                    <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5  }]}>
                         <View style={styles.textRow}>
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.transAmount')}</Text>
-                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{`${overalPrep} ${this.cashbackCurrency}`}</Text>
+                            <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{`${this.cashbackCurrency} ${overalPrep}`}</Text>
                         </View>
                         <View style={styles.textRow}>
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.friendsJoined')}</Text>
@@ -49,10 +57,15 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.level2UsersAmount')}</Text>
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{level2Users}</Text>
                         </View>
+                        <TouchableOpacity
+                            onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CASHBACK_LINK'))}
+                            activeOpacity={0.7}
+                        > 
+                            <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
+                        </TouchableOpacity>
                     </View> : null}
                 {selectedTitle === 'CPA' ?
-                    <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5, backgroundColor: colors.cashback.detailsBg  }]}>
-                        <Text style={[styles.mainTitle, {color: colors.common.text1}]}>{strings('cashback.cpaInfo')}</Text>
+                    <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5 }]}>
                         <View style={styles.textRow}>
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel1')}</Text>
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel1}</Text>
@@ -65,6 +78,9 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel3}</Text>
                         </View>
+                        <TouchableOpacity onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CPA_LINK'))}>
+                            <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
+                        </TouchableOpacity>
                     </View> : null}
 
             </View>
@@ -78,10 +94,8 @@ export default DetailsContent
 
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 5,
         position: 'relative',
-        borderRadius: 16,
-        height: 'auto',
+        height: 'auto'
     },
     textRow: {
         flexDirection: 'row',
@@ -155,5 +169,15 @@ const styles = StyleSheet.create({
         lineHeight: 17,
         textAlign: 'center',
         marginBottom: 12
+    },
+    howItWorks: {
+        justifyContent: 'center',
+        textAlign: 'center',
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 11,
+        lineHeight: 16,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+        textDecorationLine: 'underline'
     }
 })

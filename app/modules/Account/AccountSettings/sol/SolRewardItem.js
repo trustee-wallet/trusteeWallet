@@ -11,7 +11,7 @@ import { useTheme } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftPrettyDates from '@crypto/common/BlocksoftPrettyDates'
 
-const RewardItem = (props) => {
+const SolRewardItem = (props) => {
 
     const { colors } = useTheme()
 
@@ -65,7 +65,7 @@ const RewardItem = (props) => {
 
 }
 
-export default RewardItem
+export default SolRewardItem
 
 const styles = {
     transaction: {

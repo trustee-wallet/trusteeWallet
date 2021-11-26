@@ -16,7 +16,8 @@ const INITIAL_STATE = {
     currentScreen: {}, // TODO: question - do we need this? it seems like unused
     bseLink: null,
     loaderFromBse: false,
-    solValidator: {}
+    solValidator: {},
+    sortValue: null
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
@@ -83,6 +84,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 solValidator: action.solValidator
+            }
+        case 'SET_SORT_VALUE':
+            return {
+                ...state,
+                sortValue: action.sortValue
             }
         default:
             return state

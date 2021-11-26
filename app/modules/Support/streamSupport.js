@@ -441,6 +441,7 @@ class StreamSupportScreen extends PureComponent {
 
     handleRefresh = async () => {
         this.setState({ refresh: true })
+        StreamSupportWrapper.resetError()
         await StreamSupportWrapper.initWS()
         this.setState({ refresh: false })
     }
@@ -457,6 +458,19 @@ class StreamSupportScreen extends PureComponent {
 
         const { refresh } = this.state
 
+        let messages = this.props.streamSupportData.messages
+        if (!this.props.streamSupportData.loaded && (typeof messages === 'undefined' || !messages || messages.length === 0)) {
+            messages = [{
+                _id: 1,
+                text: 'Connection error',
+                createdAt: new Date().getTime(),
+                user: {
+                    _id: 'SYSTEM',
+                    name: ''
+                },
+                attachments: null
+            }]
+        }
         return (
             <ScreenWrapper
                 title={strings('settings.about.contactSupportTitle') + ' ' + this.props.streamSupportData.userName}
@@ -492,7 +506,7 @@ class StreamSupportScreen extends PureComponent {
                                 <GiftedChat
                                     renderAvatar={() => null}
                                     showAvatarForEveryMessage={true}
-                                    messages={this.props.streamSupportData.messages}
+                                    messages={messages}
                                     onSend={(data) => this.onSend(data[0])}
                                     maxComposerHeight={100}
                                     alwaysShowSend={true}

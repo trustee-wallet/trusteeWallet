@@ -137,7 +137,7 @@ export default {
         }
         try {
             const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
-            const currentEpoch = SolUtils.getEpoch()
+            const currentEpoch = await SolUtils.getEpoch()
 
             const checkData = {
                 'jsonrpc': '2.0',

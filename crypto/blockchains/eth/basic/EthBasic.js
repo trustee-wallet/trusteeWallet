@@ -101,6 +101,19 @@ export default class EthBasic {
             this._mainTokenType = 'ETC_ERC_20'
             this._mainTokenBlockchain = 'Ethereum Classic'
             this._mainChainId = 61 // https://ethereumclassic.org/development/porting
+        } else if (settings.currencyCode === 'METIS' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'METIS')) {
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://andromeda-explorer.metis.io/api?module=account&sort=desc&action=txlist`
+            this._etherscanApiPathInternal = `https://andromeda-explorer.metis.io/api?module=account&sort=desc&action=txlistinternal`
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'METIS'
+            this._mainTokenType = 'METIS_ERC_20'
+            this._mainTokenBlockchain = 'METIS'
+            this._mainChainId = 1088
         } else if (settings.currencyCode === 'OPTIMISM') {
 
             this._etherscanSuffix = ''

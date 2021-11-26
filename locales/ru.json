@@ -5,7 +5,21 @@
     "unconfirmed" : "Неподтвержденный",
     "today": "Сегодня",
     "changedLastDay": "За последние 24 часа",
-    "synchronizing": "Синхронизация"
+    "synchronizing": "Синхронизация",
+    "settings": "Настройки отображения",
+    "sorting": "Сортировка",
+    "sort": {
+      "custom": "Пользовательский",
+      "byName": "По имени",
+      "byValue": "По балансу",
+      "firstCoin": "Сначала монеты",
+      "firstToken": "Сначала токены",
+      "withBalance": "С положительным балансом"
+    },
+    "categories": {
+      "coin": "Монеты",
+      "token": "Токены"
+    }
   },
   "walletCreateScreen": {
     "title": "ПОКУПАЙ ПРОДАВАЙ ОБМЕНИВАЙ АНОНИМНО",
@@ -37,6 +51,7 @@
     "tabAll": "Все",
     "tabNews": "Новости",
     "tabInvite": "Поделиться",
+    "cashbackTabInvite": "Приглашай",
     "tabInfo": "Инфо",
     "tabFaq": "Faq",
     "today": "Сегодня",
@@ -313,7 +328,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Добавить NFT актив",
-    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейне Matic или в тестовой сети Ropsten. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
+    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейнах Ethereum, BNB, Matic или на Ropsten, Rinkeby Testnet. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
     "addCustomLabelOpenSea" : "Токены Ethereum могут быть добавлены с OpenSea ",
     "addCustomPlaceholder" : "Адрес актива NFT",
     "addAssetButton" : "Добавить актив"
@@ -322,7 +337,7 @@
     "invited": "Приглашен:",
     "cashback": "Cashback",
     "cpa": "CPA",
-    "pageTitle": "Приглашай друзей",
+    "pageTitle": "Заработать",
     "pageSubtitle": "Зарабатывай от комиссии с Trustee Wallet!",
     "pageSubtitleText": "до",
     "shareButton": "Поделиться",
@@ -331,18 +346,18 @@
     "enterPromoPlaceholder": "Введите промокод",
     "enterInviteLinkPlaceholder": "Введите ссылку-приглашение",
     "applyButton": "Применить",
-    "wholeBalance": "Всего заработано кешбэка",
+    "wholeBalance": "Баланс за все время",
     "availableCashBack": "Доступный кешбэк",
     "balanceTitle": "Баланс",
-    "toWithdraw": "До вывода нужно:",
-    "cashbackInfo": "Cashback info",
-    "cpaInfo": "CPA info",
+    "toWithdraw": "Мин. сумма вывода:",
     "cpaTotal": "Всего CPA",
     "cpaLevel1": "CPA Уровень №1",  
     "cpaLevel2": "CPA Уровень №2",
     "cpaLevel3": "CPA Уровень №3",
     "cashbackBalance": "Баланс кешбэка",
     "cashbackToken": "Токен",
+    "yourToken": "Ваша кэшбек cсылка",
+    "cashbackMessage": "Получай Cashback за свои обменные операции. Зарабатывай крипту по Партнерской программе и CPA рекомендуя Trustee Wallet!",
     "howItWorks": {
       "title": "Как это работает?",
       "info1Title": "Есть ли в Trustee Wallet программа наград для пользователей?",
@@ -372,7 +387,7 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "Ваши друзья",
-    "updated" : "Обновление",
+    "updated" : "Обновлено в",
     "transAmount": "Сумма транзакций",
     "level2UsersAmount": "Друзья друзей",
     "cashbackError" : {
@@ -824,7 +839,7 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Пожалуйста, проверьте системное время устройства - необходимо синхронизировать время для создания транзакции",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостаточно средств для отправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Недостаточная сумма для отправки в стейк",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Выбранный адрес - не валидатор"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Выбранный адрес - не является валидатором"
     }
   },
   "walletBackup": {
@@ -1008,7 +1023,7 @@
       },
       "TRX_20": {
         "title": "Пожалуйста, обратите внимание!",
-        "description": "Ваш кошелек Tron (TRX) не активирован. Для активации достаточно пополнить адрес Tron на 5-7 монет TRX, которые в дальнейшем могут быть использованы в других транзакциях."
+        "description": "Ваш кошелек Tron (TRX) не активирован. Для активации достаточно пополнить адрес Tron на 10 монет TRX, которые в дальнейшем могут быть использованы в других транзакциях."
       },
       "TOKEN": {
         "title": "Пожалуйста, обратите внимание!",
@@ -1507,6 +1522,6 @@
     "noMessages": "Сообщений пока нет",
     "sentFile": "Файл отправлен",
     "getRoomError" : "Ошибка загрузки",
-    "sendMessageError" : "Connection error while message sending"
+    "sendMessageError" : "Нестабильное подключение к сети при отправке сообщения"
   }
 }

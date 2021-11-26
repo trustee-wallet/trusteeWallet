@@ -60,11 +60,11 @@ const currencyActions = {
             prepare.push(one)
         }
         for (const currencyDBTmp of currencies) {
-            if (currencyDBTmp.currencyCode !== 'NFT') continue
+            if (currencyDBTmp.currencyCode !== 'NFT' && currencyDBTmp.currencyCode !== 'CASHBACK') continue
             _push(prepare, currencyDBTmp)
         }
         for (const currencyDBTmp of currencies) {
-            if (currencyDBTmp.currencyCode === 'NFT') continue
+            if (currencyDBTmp.currencyCode === 'NFT' || currencyDBTmp.currencyCode === 'CASHBACK') continue
             _push(prepare, currencyDBTmp)
         }
 
@@ -108,6 +108,8 @@ const currencyActions = {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'MATIC', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'FTM_ERC_20' || tokenType === 'FTM') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'FTM', newIsHidden : 0, currentIsHidden : 0})
+        } else if (tokenType === 'METIS_ERC_20' || tokenType === 'METIS') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'METIS', newIsHidden : 0, currentIsHidden : 0})
         }
 
 

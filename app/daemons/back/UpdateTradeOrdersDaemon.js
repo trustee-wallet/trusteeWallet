@@ -164,7 +164,7 @@ class UpdateTradeOrdersDaemon {
                 res = dataUpdate
             }
 
-            const tmpTradeOrders = typeof res.cbOrders !== 'undefined' ? res.cbOrders : false
+            const tmpTradeOrders = typeof res !== 'undefined' && typeof res.cbOrders !== 'undefined' ? res.cbOrders : false
 
 
             /*

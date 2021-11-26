@@ -22,6 +22,10 @@ export const Web3Injected = (type) => {
         MAIN_CURRENCY_CODE = 'BNB_SMART'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
         MAIN_CHAIN_ID = 56
+    } else if (type === 1088 || type === 'METIS') {
+        MAIN_CURRENCY_CODE = 'METIS'
+        WEB3_LINK = BlocksoftExternalSettings.getStatic('METIS_SERVER')
+        MAIN_CHAIN_ID = 1088
     } else if (type === 10 || type === 'OPTIMISM') {
         MAIN_CURRENCY_CODE = 'OPTIMISM'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')

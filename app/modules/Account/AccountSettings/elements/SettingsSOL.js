@@ -22,6 +22,11 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
 
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+
+import store from '@app/store'
+
 class SettingsSOL extends React.PureComponent {
 
     state = {
