@@ -99,11 +99,12 @@ export default {
             }
             if (currencyCode.indexOf('CUSTOM_') !== -1) {
                 const currencySettings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-                if (typeof currencySettings.tokenAddress !== 'undefined') {
-                    resultAccount.tokenAddress = currencySettings.tokenAddress
-                }
                 if (typeof currencySettings.tokenName !== 'undefined') {
                     resultAccount.tokenName = currencySettings.tokenName
+                    resultAccount.tokenAddress = currencySettings.tokenName
+                }
+                if (typeof currencySettings.tokenAddress !== 'undefined' && currencySettings.tokenAddress) {
+                    resultAccount.tokenAddress = currencySettings.tokenAddress
                 }
                 if (typeof currencySettings.tokenBlockchain !== 'undefined') {
                     resultAccount.tokenBlockchain = currencySettings.tokenBlockchain
