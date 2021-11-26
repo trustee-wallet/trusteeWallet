@@ -56,13 +56,10 @@ class QrCodePage extends PureComponent {
             <>
                 <ImageBackground
                     style={styles.qrBg}
+                    resizeMode='cover'
                     source={require('@assets/images/bgQR2.png')}
                 >
                     <Text style={[styles.pageSubtitle, { color: colors.common.text1, marginLeft: GRID_SIZE * 1.5, marginTop: GRID_SIZE }]}>{strings('cashback.pageSubtitle')}</Text>
-                    <View style={[styles.pageSubtitleTextBox, { marginTop: Platform.OS === 'ios' ? GRID_SIZE * 0.8 : 12 }]}>
-                        <Text style={[styles.pageSubtitleText, { color: colors.common.text1 }]}>{strings('cashback.pageSubtitleText')}</Text>
-                        <Text style={[styles.pageSubtitleProcent, { color: colors.common.text1 }]}>{'30%'}</Text>
-                    </View>
 
                     <Image style={[styles.donut1, { marginTop: Platform.OS === 'ios' ? -GRID_SIZE * 4 : -GRID_SIZE * 2.5 }]} source={require('@assets/images/donut1.png')} />
                     
@@ -84,7 +81,7 @@ class QrCodePage extends PureComponent {
                             />
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE }]}
+                            style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE, paddingHorizontal: GRID_SIZE * 1.5 }]}
                             onPress={() => this.copyToClip(cashbackLink)}
                             activeOpacity={0.8}
                         >
@@ -114,10 +111,11 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-SemiBold',
         fontSize: WINDOW_WIDTH * 0.058,
         lineHeight: WINDOW_WIDTH * 0.072,
-        width: WINDOW_WIDTH * 0.555,
+        width: WINDOW_WIDTH * 0.62,
         height: WINDOW_WIDTH * 0.3,
         position: 'absolute',
-        top: 0
+        top: WINDOW_HEIGHT * 0.01,
+        left: -WINDOW_WIDTH * 0.03
     },
     pageSubtitleTextBox: {
         position: 'absolute',
@@ -140,13 +138,11 @@ const styles = StyleSheet.create({
         color: '#ffffff'
     },
     qrCodeContainer: {
-        position: 'absolute',
-        top: WINDOW_HEIGHT * 0.17,
-        left: WINDOW_WIDTH * 0.23,
-        alignItems: 'center'
+        alignSelf: 'center',
+        justifyContent: 'center'
     },
     qrBox: {
-        flex: 1,
+        // flex: 1,
 
         borderRadius: 24,
         shadowColor: "#000",
@@ -160,24 +156,26 @@ const styles = StyleSheet.create({
         elevation: 6,
     },
     qrCode: {
-        alignSelf: 'center'
+        alignSelf: 'center',
     },
     qrCodeTokenString: {
         justifyContent: 'space-between',
         fontFamily: 'Montserrat-SemiBold',
         fontSize: WINDOW_WIDTH * 0.05,
         lineHeight: WINDOW_WIDTH * 0.06,
-        textAlign: 'center'
+        textAlign: 'center',
     },
     qrBg: {
         alignSelf: 'center',
-        position: 'relative',
+        // position: 'relative',
         width: WINDOW_WIDTH,
-        height: WINDOW_HEIGHT
+        height: WINDOW_HEIGHT,
+        // marginTop: -100
     },
     donut1: {
         position: 'relative',
-        left: WINDOW_WIDTH * 0.64,
+        top: -WINDOW_HEIGHT * 0.03,
+        left: WINDOW_WIDTH * 0.71,
         width: WINDOW_WIDTH * 0.47,
         height: WINDOW_HEIGHT * 0.26,
         resizeMode: 'contain'
@@ -192,7 +190,7 @@ const styles = StyleSheet.create({
     },
     tokenBox: {
         borderRadius: 16,
-        flex: 1,
+        // flex: 1,
         height: 54,
         width: '100%',
         alignSelf: 'center',
@@ -204,7 +202,8 @@ const styles = StyleSheet.create({
         fontSize: WINDOW_WIDTH * 0.04,
         lineHeight: WINDOW_WIDTH * 0.05,
         letterSpacing: 1,
-        zIndex: 2
+        zIndex: 2,
+        alignSelf: 'center'
     },
     donut2: {
         position: 'absolute',
