@@ -19,6 +19,8 @@ import { isFioAddressValid } from '@crypto/blockchains/fio/FioUtils'
 import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import { isEnsAddressValid } from '@crypto/services/EnsUtils'
+import TronUtils from '@crypto/blockchains/trx/ext/TronUtils'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -138,6 +140,8 @@ async function _userDataValidation(obj) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^T[0-9a-zA-Z]{33}$/.test(value)) {
                 error.msg = strings('validator.invalidFormat', { name: name })
+            } else if (TronUtils.addressHexToStr(TronUtils.addressToHex(value)) !== value) {
+                error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
 
@@ -146,6 +150,8 @@ async function _userDataValidation(obj) {
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^100[0-9]{4,}$/.test(value)) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            } else if (TronUtils.addressHexToStr(TronUtils.addressToHex(value)) !== value) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break

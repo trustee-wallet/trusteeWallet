@@ -101,10 +101,10 @@ export namespace StreamSupportActions {
         }
     }
 
-    export const setRoom = async function(roomId: any) {
+    export const setRoom = async function(roomId: any, loaded = true) {
         dispatch({
             type: 'SET_STREAM_SUPPORT_LOADED',
-            loaded: true,
+            loaded,
             messages: [],
             roomId
         })
