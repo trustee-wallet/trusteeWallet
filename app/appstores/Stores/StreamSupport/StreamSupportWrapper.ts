@@ -19,6 +19,10 @@ let WEB_SOCKET = false
 let WEB_SOCKET_LINK = false
 let CACHE_ROOM_ID = false
 let CACHE_TMP_DATA = false
+const WEB_SOCKET_ERROR = {
+    count : 0,
+    time : 0
+}
 
 // ids could be any - just to set
 const IDENT_CONNECT = '2'
@@ -27,6 +31,11 @@ const IDENT_MESSAGE_CREATE = '99'
 const IDENT_MESSAGE_LIST = '98'
 
 export namespace StreamSupportWrapper {
+
+    export const resetError = function () {
+        WEB_SOCKET_ERROR.count = 0
+        WEB_SOCKET_ERROR.time = 0
+    }
 
     // https://developer.rocket.chat/api/rest-api/endpoints/push/push-token
     export const init = async function(data: any) {
@@ -73,6 +82,7 @@ export namespace StreamSupportWrapper {
 
         // console.log('StreamSupport getRoom ' + link)
         CACHE_ROOM_ID = false
+        let loaded = true
         let resTxt = ''
         let res
         try {
@@ -104,6 +114,7 @@ export namespace StreamSupportWrapper {
                 }
             }
         } catch (e) {
+            loaded = false
             if (config.debug.appErrors) {
                 console.log('StreamSupport getRoom ' + link + ' error ' + e.message)
             }
@@ -116,11 +127,14 @@ export namespace StreamSupportWrapper {
                 description: strings('streamSupport.getRoomError') + ': ' + e.message,
             })
         }
-        StreamSupportActions.setRoom(CACHE_ROOM_ID)
+        StreamSupportActions.setRoom(CACHE_ROOM_ID, loaded)
     }
 
     export const initWS = async function(data: any = false) {
         if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
+        if (WEB_SOCKET_ERROR.count >= 10) {
+            return false
+        }
         await Log.log('StreamSupport initWS')
 
         if (data === false) {
@@ -206,10 +220,13 @@ export namespace StreamSupportWrapper {
         }
 
         WEB_SOCKET.onerror = (e) => {
+            WEB_SOCKET_ERROR.count++
+            WEB_SOCKET_ERROR.time = new Date().getTime()
+
             if (config.debug.appErrors) {
-                console.log('StreamSupport.on error ' + e.message)
+                console.log('StreamSupport.on error ' + WEB_SOCKET_ERROR.count + ' ' + e.message)
             }
-            Log.log('StreamSupport.on error ' + e.message)
+            Log.log('StreamSupport.on error ' + WEB_SOCKET_ERROR.count + ' ' + e.message)
 
             if (WEB_SOCKET.readyState === 3) { // 3 - The connection is closed or couldn't be opened.
                 initWS(data)
