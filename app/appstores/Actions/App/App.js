@@ -6,33 +6,34 @@ import { Text } from 'react-native'
 
 import Orientation from 'react-native-orientation'
 
-import walletDS from '../../DataSource/Wallet/Wallet'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
-import NavStore from '../../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { setSelectedWallet } from '../../Stores/Main/MainStoreActions'
-import { setInitState, setInitError } from '../../Stores/Init/InitStoreActions'
-import walletActions from '../../Stores/Wallet/WalletActions'
-import currencyActions from '../../Stores/Currency/CurrencyActions'
-import settingsActions from '../../Stores/Settings/SettingsActions'
+import { setSelectedWallet, setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setInitState, setInitError } from '@app/appstores/Stores/Init/InitStoreActions'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import customCurrencyActions from '../CustomCurrencyActions'
 
 import Database, { cleanupNotNeeded } from '@app/appstores/DataSource/Database'
 
-import Log from '../../../services/Log/Log'
-import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
-import AppNotification from '../../../services/AppNotification/AppNotificationListener'
+import Log from '@app/services/Log/Log'
+import AppLockScreenIdleTime from '@app/services/AppLockScreenIdleTime/AppLockScreenIdleTime'
+import AppNotification from '@app/services/AppNotification/AppNotificationListener'
 
-import Daemon from '../../../daemons/Daemon'
-import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
+import Daemon from '@app/daemons/Daemon'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
-import FilePermissions from '../../../services/FileSystem/FilePermissions'
-import UpdateAppNewsDaemon from '../../../daemons/back/UpdateAppNewsDaemon'
-import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
+import FilePermissions from '@app/services/FileSystem/FilePermissions'
+import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 
-import config from '../../../config/config'
+import config from '@app/config/config'
 import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBasicActions'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 if (Text.defaultProps == null) Text.defaultProps = {}
 Text.defaultProps.allowFontScaling = false
@@ -167,6 +168,8 @@ class App {
             await currencyActions.init()
 
             await currencyBasicActions.init()
+
+            await setSortValue(trusteeAsyncStorage.getSortValue() || null)
 
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })
