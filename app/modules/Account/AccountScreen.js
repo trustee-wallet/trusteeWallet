@@ -9,8 +9,7 @@ import {
     Platform,
     RefreshControl,
     View,
-    FlatList,
-    LayoutAnimation,
+    FlatList
 } from 'react-native'
 
 import _isEqual from 'lodash/isEqual'
@@ -243,21 +242,20 @@ class Account extends React.PureComponent {
         CACHE_TX_LOADED = new Date().getTime()
 
         if (from === 0) {
-            if (filter && !tmp) {
-                this.setState({ notFound: true })
-            } else {
-                this.setState((state) => ({ transactionsToView: transactionsToView, notFound: false })) // from start reload
-            }
+            this.setState((state) => ({ transactionsToView: transactionsToView, notFound: (filter && !tmp) || false})) // from start reload
         } else {
-            this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView), notFound: false }))
+            this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView), notFound: (filter && !tmp) || false }))
         }
     }
 
     toggleSearch = () => {
-        LayoutAnimation.configureNext({...LayoutAnimation.Presets.linear, duration: 250 })
         this.setState({
             isSeaching: !this.state.isSeaching,
         })
+
+        if (this.state.isSeaching) {
+            setFilter(null)
+        }
     }
 
     render() {
@@ -279,7 +277,7 @@ class Account extends React.PureComponent {
             this.loadTransactions(0)
         }
 
-        const allTransactionsToView = transactionsToView // was concat before
+        const allTransactionsToView = notFound ? [] : transactionsToView // was concat before
 
         let shownAddress = selectedAccountData.address
         if (selectedAccountData.segwitAddress) {
@@ -333,7 +331,7 @@ class Account extends React.PureComponent {
                 />
                 <View style={styles.stub} />
                 <FlatList
-                    data={notFound ? [] : allTransactionsToView}
+                    data={allTransactionsToView}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.wrapper__scrollView}
                     initialNumToRender={20}

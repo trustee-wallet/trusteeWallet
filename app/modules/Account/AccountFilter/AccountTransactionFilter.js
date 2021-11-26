@@ -21,13 +21,23 @@ import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import Button from '@app/components/elements/new/buttons/Button'
 import { strings } from '@app/services/i18n'
 
-import { getFilterData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
+import { getFilterData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import DatePickerComponent from './elements/DatePicker'
 import AmountInputContainer from './elements/AmountInput'
 import { getCurrentDate } from '../helpers'
+
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+
+import { Parser } from "json2csv"
+import RNFS from 'react-native-fs'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
+import Log from '@app/services/Log/Log'
+import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
+
 
 const CustomLayoutAnimation = {
     duration: 800,
@@ -78,7 +88,6 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleOpenContent = (title) => {
-        // for android => if crash app - comment next line
         LayoutAnimation.configureNext(CustomLayoutAnimation);
 
         this.setState({
@@ -132,6 +141,57 @@ class TransactionFilter extends React.PureComponent {
         setFilter(filter)
 
         NavStore.goBack()
+    }
+
+    handleDownloadCsvFile = async () => {
+
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+        const { walletHash } = this.props.selectedWalletData
+
+
+        const params = {
+            currencyCode,
+            walletHash,
+            minAmount: 0
+        }
+
+        let res = await transactionDS.getTransactionsForCsvFile(params, 'AccountTransactionFilter')
+
+        res = res.map(item => {
+            let createdAtUTC = new Date(item.createdAt).toISOString().split('T')
+            createdAtUTC = createdAtUTC[0] + ' ' + createdAtUTC[1].slice(0, -5)
+
+            return {
+                ...item,
+                createdAtUTC,
+                addressAmount: UtilsService.cutNumber(BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(item.addressAmount), 8),
+                transactionFee: item.transactionFee ? UtilsService.cutNumber(BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(item.transactionFee), 8) : ''
+            }
+        })
+
+        const fields = ['createdAtUTC', 'transactionDirection', 'transactionStatus', 'transactionHash', 'addressFrom','addressTo', 'addressAmount', 'transactionFee', 'blockConfirmations']
+
+        const json2csvParser = new Parser({ fields });
+        const csv = json2csvParser.parse(res);
+
+        const path = RNFS.DocumentDirectoryPath + `/logs/TRUSTEE_REPORT_${currencyCode}.csv`
+        
+        // write the file
+        RNFS.writeFile(path, csv, 'utf8')
+            .then(async () => {
+                Log.log('Account/AccountTransactionFilter saveTxHistory success save file ', path)
+                const fs = new FileSystem({ fileEncoding: 'utf8', fileName: `TRUSTEE_REPORT_${currencyCode}`, fileExtension: 'csv' });
+                
+                const shareOptions = {
+                    url: await fs.getPathOrBase64()
+                }
+
+                prettyShare(shareOptions)
+            })
+            .catch((err) => {
+                Log.err('Account/AccountTransactionFilter saveTxHistory error save file ', err.message)
+            });
+
     }
 
     renderContent = (content) => {
@@ -262,7 +322,7 @@ class TransactionFilter extends React.PureComponent {
                             title={strings('modal.infoUpdateModal.download')}
                             subtitle={strings('account.transaction.saveInCsv')}
                             iconType='downloadDoc'
-                            onPress={this.handlePickDate}
+                            onPress={this.handleDownloadCsvFile}
                             last
                         />
                     </View>
@@ -283,6 +343,7 @@ TransactionFilter.contextType = ThemeContext
 const mapStateToProps = (state) => {
     return {
         selectedCryptoCurrencyData: getSelectedCryptoCurrencyData(state),
+        selectedWalletData: getSelectedWalletData(state),
         filterData: getFilterData(state)
     }
 }

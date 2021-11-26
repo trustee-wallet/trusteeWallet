@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Platform } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
 import LottieView from 'lottie-react-native'
 
 import _isEqual from 'lodash/isEqual'
@@ -113,11 +113,11 @@ class SynchronizedBlock extends React.PureComponent {
         }
 
         return (
-            <View style={{ flexDirection: 'column', marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}>
+            <View style={{ flexDirection: 'column', margin: GRID_SIZE }}>
                 <View style={[styles.container, { marginRight: GRID_SIZE }]}>
                     <View style={{ flexDirection: 'column' }} >
                         {!isSeaching ?
-                            <View style={{ marginBottom: Platform.OS === 'ios' ? 12 : 10 }}>
+                            <View style={{ height: 60, justifyContent: 'center' }}>
                                 <Text style={[styles.history_title, { color: colors.common.text1 }]}>{strings('account.history')}</Text>
                                 <View style={[styles.scan, { marginLeft: GRID_SIZE }]}>
                                     {isSynchronized ?
@@ -131,7 +131,7 @@ class SynchronizedBlock extends React.PureComponent {
                                         </View>}
                                 </View>
                             </View> :
-                            <View style={[styles.textInput, { height: 50, marginBottom: 5 }]}>
+                            <View style={[styles.textInput, { height: 50, marginVertical: 5 }]}>
                                 <TextInput
                                     ref={input => { this.linkInput = input }}
                                     style={{ width: SCREEN_WIDTH * 0.7 }}
@@ -140,9 +140,7 @@ class SynchronizedBlock extends React.PureComponent {
                                     id='TRANSACTION_SEARCH'
                                     containerStyle={{ height: 50 }}
                                     inputStyle={{ marginTop: -6 }}
-                                    search={true}
-                                    onChangeText={this.handleChangeText}
-                                    func={this.handleSearch}
+                                    pasteCallback={this.handleSearch}
                                     paste={true}
                                     addressError={this.state.error}
                                     validPlaceholder={true}
@@ -209,8 +207,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         position: 'relative',
-        justifyContent: 'space-between',
-        marginTop: 24
+        justifyContent: 'space-between'
     },
     history_title: {
         marginLeft: 16,

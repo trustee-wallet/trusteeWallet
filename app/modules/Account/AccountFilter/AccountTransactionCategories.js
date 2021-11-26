@@ -45,12 +45,12 @@ class TransactionCategories extends React.PureComponent {
                 iconType: "cancelTxHistory",
                 value: 'cancel'
             },
-            {
-                notActive: this.props.filterData?.swap || false,
-                title: strings('account.transaction.swap'),
-                iconType: "exchange",
-                value: 'swap'
-            },
+            // {
+            //     notActive: this.props.filterData?.swap || false,
+            //     title: strings('account.transaction.swap'),
+            //     iconType: "exchange",
+            //     value: 'swap'
+            // },
             {
                 notActive: this.props.filterData?.freezing || false,
                 title: strings('account.transaction.freeze'),

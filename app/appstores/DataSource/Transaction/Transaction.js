@@ -2,8 +2,8 @@
  * @version 0.9
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import Log from '@app/services/Log/Log'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
 
 class Transaction {
@@ -254,8 +254,8 @@ class Transaction {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
         if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
-           where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
-           where.push(`address_to NOT LIKE '% Simple Send%'`)
+            where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
         
         // date filter
@@ -284,7 +284,7 @@ class Transaction {
 
         // search by address or hash
         if (typeof params.searchQuery !== 'undefined' && params.searchQuery) {
-            where.push(`(address_from='${params.searchQuery}' OR address_to='${params.searchQuery}' OR transaction_hash='${params.searchQuery}')`)   
+            where.push(`(address_from='${params.searchQuery}' OR address_to='${params.searchQuery}' OR transaction_hash='${params.searchQuery}')`)
         }
 
         if (typeof params.freezing !== 'undefined' && params.freezing) {
@@ -304,7 +304,7 @@ class Transaction {
             where.push(`transaction_direction NOT IN ('contract_outcome')`)
         }
         if (typeof params.swap !== 'undefined' && params.swap) {
-            where.push(`order_hash NOT IN ('bse_order_data')`)
+            where.push(`bse_order_id == '' AND bse_order_id IS NULL AND bse_order_id = 'null'`)
         }
         if (typeof params.reward !== 'undefined' && params.reward) {
             where.push(`transaction_direction NOT IN ('reward')`)
@@ -387,12 +387,77 @@ class Transaction {
             return false
         }
 
+        return this.getTmpArrayTx(res, params)
+    }
+
+    getTransactionsForCsvFile = async (params, source = '?') => {
+        let where = []
+
+        if (params.walletHash) {
+            where.push(`wallet_hash='${params.walletHash}'`)
+        }
+        if (params.currencyCode) {
+            where.push(`currency_code='${params.currencyCode}'`)
+        }
+        if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
+            where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
+        }
+
+        let order = ' ORDER BY created_at DESC, id DESC'
+        if (params?.noOrder) {
+            order = ''
+            where.push(`transaction_hash !=''`)
+        } else {
+            where.push(`transaction_hash !=''`)
+        }
+
+        if (where.length > 0) {
+            where = ' WHERE ' + where.join(' AND ')
+        } else {
+            where = ''
+        }
+
+        const sql = `
+            SELECT
+            created_at AS createdAt,
+            block_confirmations AS blockConfirmations,
+            transaction_hash AS transactionHash,
+            address_from AS addressFrom,
+            address_amount AS addressAmount,
+            address_to AS addressTo,
+            transaction_fee AS transactionFee,
+            transaction_status AS transactionStatus,
+            transaction_direction AS transactionDirection
+            FROM transactions
+            ${where}
+            ${order}
+            `
+
+        let res = []
+        try {
+            res = await Database.query(sql)
+            if (typeof res.array !== 'undefined') {
+                res = res.array
+            }
+        } catch (e) {
+            Log.errDaemon('DS/Transaction getTransactionsForCsvFile error ' + sql, e)
+        }
+
+        if (!res || res.length === 0) {
+            return false
+        }
+
+        return this.getTmpArrayTx(res, params)
+    }
+
+    getTmpArrayTx = async (array, params) => {
         const shownTx = {}
         const txArray = []
         let tx
         const toRemove = []
         try {
-            for (tx of res) {
+            for (tx of array) {
                 if (tx.transactionHash !== '' && typeof shownTx[tx.transactionHash] !== 'undefined') {
                     Log.daemon('Transaction getTransactions will remove ' + tx.id)
                     toRemove.push(tx.id)

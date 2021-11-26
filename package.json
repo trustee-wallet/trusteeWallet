@@ -75,6 +75,7 @@
     "i18n-js": "^3.5.1",
     "inherits": "^2.0.1",
     "invariant": "^2.2.4",
+    "json2csv": "^5.0.6",
     "keccakjs": "^0.2.3",
     "lodash": "^4.17.15",
     "lottie-ios": "3.1.8",

@@ -23,8 +23,6 @@ import NavStore from '../navigation/NavStore'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import CustomIcon from './CustomIcon'
-
 class Input extends Component {
 
     constructor(props) {
@@ -58,15 +56,16 @@ class Input extends Component {
     getValue = () => this.state.value
 
     handleReadFromClipboard = async () => {
-        const { callback } = this.props
+        const { pasteCallback } = this.props
 
         Keyboard.dismiss()
         const clipboardContent = await Clipboard.getString()
         this.setState({ value: clipboardContent }, () => {
             this.handleValidate()
         })
-        if (typeof callback !== 'undefined') {
-            callback(clipboardContent)
+
+        if (typeof pasteCallback !== 'undefined') {
+            pasteCallback(clipboardContent)
         }
 
     }
@@ -202,7 +201,6 @@ class Input extends Component {
             tabInfo,
             addressError,
             search,
-            func,
             text,
             containerStyle,
             inputStyle
@@ -324,12 +322,6 @@ class Input extends Component {
                                     color={error ? '#864DD9' : colors.common.text1}
                                     style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }}
                                 />
-                            </TouchableOpacity> : null
-                    }
-                    {
-                        typeof search !== 'undefined' && search ?
-                            <TouchableOpacity onPress={func} style={{ marginRight: -8 }}>
-                                <CustomIcon name='search' size={20} style={{...styles.actionBtn__icon, paddingTop: 2}} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
                 </View>
