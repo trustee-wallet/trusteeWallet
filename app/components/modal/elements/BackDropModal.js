@@ -7,7 +7,8 @@ import React from 'react'
 import {
     View,
     StyleSheet,
-    Platform
+    Platform,
+    TouchableWithoutFeedback
 } from 'react-native'
 import Modal from 'react-native-modal'
 
@@ -37,6 +38,16 @@ class BackDropModal extends React.PureComponent {
                 hideModalContentWhileAnimating={true}
                 animationType='slide'
                 presentationStyle='pageSheet'
+                customBackdrop={
+                    <TouchableWithoutFeedback onPress={hideModal}>
+                      <View
+                        style={{
+                          flex: 1,
+                          backgroundColor: 'transparent',
+                        }}
+                      />
+                    </TouchableWithoutFeedback>
+                  }
             > 
                     <View style={[styles.content, { backgroundColor: colors.backDropModal.bg, paddingBottom: Platform.OS === 'ios' ? GRID_SIZE : 0 }]}>
                         <View style={[styles.topBtn, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE * 1.2 }]} />

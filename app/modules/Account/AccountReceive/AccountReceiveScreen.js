@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions, Linking } from 'react-native'
 
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -68,6 +68,8 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 
 import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
+import { getExplorerLink, handleShareInvoice } from '../helpers'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -79,29 +81,36 @@ const amountInput = {
     mark: 'ETH'
 }
 
+let CACHE_ASKED = false
+
 class AccountReceiveScreen extends React.PureComponent {
 
-    constructor() {
-        super()
-        this.state = {
-            settingAddressType: false,
-            settingAddressTypeTriggered : false,
+    state = {
+        settingAddressType: false,
+        settingAddressTypeTriggered : false,
 
-            customAmount: false,
+        customAmount: false,
 
-            amountEquivalent: null,
-            amountInputMark: '',
-            amountForQr: '0',
-            labelForQr: '',
-            inputType: 'CRYPTO',
+        amountEquivalent: null,
+        amountInputMark: '',
+        amountForQr: '0',
+        labelForQr: '',
+        inputType: 'CRYPTO',
 
-            focused: false,
+        focused: false,
 
-            changeAddress: false,
+        changeAddress: false,
 
-            isBalanceVisible: false,
-            isBalanceVisibleTriggered: false,
-        }
+        isBalanceVisible: false,
+        isBalanceVisibleTriggered: false,
+    }
+
+    async _onLoad() {
+        CACHE_ASKED = trusteeAsyncStorage.getExternalAsked()
+    }
+
+    componentDidMount() {
+        this._onLoad()
     }
 
 
@@ -553,17 +562,6 @@ class AccountReceiveScreen extends React.PureComponent {
         this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
     }
 
-    handleShareInvoice = () => {
-        const { currencyCode, currencyName } = this.props.selectedCryptoCurrencyData
-        const message = `https://trusteeglobal.com/?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${this.getAddress()}`
-        console.log(message)
-        const shareOptions = {
-            title: strings('account.invoiceText'),
-            url: message
-        }
-        prettyShare(shareOptions)
-    }
-
     renderModalContent = (params) => {
 
         const { 
@@ -571,11 +569,13 @@ class AccountReceiveScreen extends React.PureComponent {
             colors
         } = this.context
 
+        const { currencyCode, currencyName } = this.props.selectedCryptoCurrencyData
+
         return(
             <View>
                 <InvoiceListItem 
                     title={strings('account.invoiceText')}
-                    onPress={this.handleShareInvoice}
+                    onPress={() => handleShareInvoice(this.getAddress(), currencyCode, currencyName)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'
@@ -606,6 +606,38 @@ class AccountReceiveScreen extends React.PureComponent {
             type: 'BACK_DROP_MODAL',
             Content: () => this.renderModalContent({address, forceLink})
         })
+    }
+
+    handleOpenLink = async (address, forceLink = false) => {
+        const now = new Date().getTime()
+        const diff = now - CACHE_ASKED * 1
+        if (!CACHE_ASKED|| diff > 10000) {
+            showModal({
+                type: 'YES_NO_MODAL',
+                title: strings('account.externalLink.title'),
+                icon: 'WARNING',
+                description: strings('account.externalLink.description')
+            }, () => {
+                trusteeAsyncStorage.setExternalAsked(now + '')
+                CACHE_ASKED = now
+                this.actualOpen(address, forceLink)
+            })
+        } else {
+            this.actualOpen(address, forceLink)
+        }
+    }
+
+    actualOpen = async (address, forceLink = false) => {
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+
+        const actualLink = forceLink || getExplorerLink(currencyCode, 'address', address)
+        try {
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(actualLink)
+            Linking.openURL(linkUrl)
+        } catch (e) {
+            Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + actualLink)
+        }
+
     }
 
     render() {

@@ -30,10 +30,9 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
-import { getExplorerLink } from '../helpers'
+import { getExplorerLink, handleShareInvoice } from '../helpers'
 
 import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
-import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 
 class HeaderBlocks extends React.Component {
 
@@ -85,7 +84,7 @@ class HeaderBlocks extends React.Component {
             <View>
                 <InvoiceListItem
                     title={strings('account.invoiceText')}
-                    onPress={() => this.handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName)}
+                    onPress={() => handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'
@@ -116,16 +115,6 @@ class HeaderBlocks extends React.Component {
             type: 'BACK_DROP_MODAL',
             Content: () => this.renderModalContent({ address, forceLink, currencyCode, currencyName })
         })
-    }
-
-    handleShareInvoice = (address, currencyCode, currencyName) => {
-        const message = `https://trusteeglobal.com/?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
-
-        const shareOptions = {
-            title: strings('account.invoiceText'),
-            url: message
-        }
-        prettyShare(shareOptions)
     }
 
     handleBtcAddressCopy = (address) => {
