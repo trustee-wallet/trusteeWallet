@@ -15,7 +15,6 @@ import SettingsXVG from './elements/SettingsXVG'
 import SettingsETC from './elements/SettingsETC'
 import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
-import SettingsTRX from './elements/SettingsTRX'
 import SettingsBNB from './elements/SettingsBNB'
 import SettingsSOL from './elements/SettingsSOL'
 
@@ -84,14 +83,6 @@ class AccountSettingScreen extends React.PureComponent {
             case 'XMR':
                 return (
                     <SettingsXMR
-                        containerStyle={{ overflow: 'hidden' }}
-                        wallet={selectedWallet}
-                        account={account}
-                    />
-                )
-            case 'TRX':
-                return (
-                    <SettingsTRX
                         containerStyle={{ overflow: 'hidden' }}
                         wallet={selectedWallet}
                         account={account}

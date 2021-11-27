@@ -12,96 +12,89 @@ import {
     ActivityIndicator,
     Text,
     TouchableOpacity,
-    ScrollView
+    ScrollView,
+    StyleSheet
 } from 'react-native'
 
 import LottieView from 'lottie-react-native'
 import { TabView } from 'react-native-tab-view'
 
 import { strings } from '@app/services/i18n'
+import Log from '@app/services/Log/Log'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { getSolValidator, getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import Input from '@app/components/elements/NewInput'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
-import Log from '@app/services/Log/Log'
+import Input from '@app/components/elements/NewInput'
+import NavStore from '@app/components/navigation/NavStore'
+import Button from '@app/components/elements/new/buttons/Button'
+import LetterSpacing from '@app/components/elements/LetterSpacing'
+import CustomIcon from '@app/components/elements/CustomIcon'
+import Tabs from '@app/components/elements/new/TabsWithUnderline'
+import MainListItem from '@app/components/elements/new/list/ListItem/Setting'
+import Loader from '@app/components/elements/LoaderItem'
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-
 import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-
-import styles from '@app/modules/Account/AccountSettings/elements/styles'
-import config from '@app/config/config'
-
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import NavStore from '@app/components/navigation/NavStore'
+import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
-import Button from '@app/components/elements/new/buttons/Button'
-import LetterSpacing from '@app/components/elements/LetterSpacing'
-import StakingItem from './StakingItem'
+
+import config from '@app/config/config'
 
 import blackLoader from '@assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 
-import { HIT_SLOP } from '@app/theme/HitSlop'
-import CustomIcon from '@app/components/elements/CustomIcon'
-import Tabs from '@app/components/elements/new/TabsWithUnderline'
-import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import StakingItem from './sol/StakingItem'
+import RewardItem from './sol/SolRewardItem'
+import AccountGradientBlock from '../elements/AccountGradientBlock'
 
-import MainListItem from '@app/components/elements/new/list/ListItem/Setting'
-import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
-import { getSolValidator, getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
-import RewardItem from '@app/modules/Account/AccountSettings/RewardItem'
+class AccountStakingSOL extends React.PureComponent {
 
-import GradientView from '@app/components/elements/GradientView'
-import Loader from '@app/components/elements/LoaderItem'
-import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-
-class StakingSOL extends React.PureComponent {
-
-    constructor(props) {
-        super(props)
-        this.state = {
-            currentSOL: false,
-            currentAddresses: false,
-            currentAddressesLoaded: false,
-            stakedAddresses: false,
-            lastTransactions: [],
-            refreshing: false,
-            clickRefresh: false,
-            load: true,
-            partBalance: null,
-            voteAddresses: [],
-            rewards: [],
-            transferAllBalance : false,
-            selectedVoteAddress: {
-                address: '',
-                commission: false,
-                activatedStake: false,
-                name: false,
-                description: '',
-                website: ''
+    state = {
+        currentSOL: false,
+        currentAddresses: false,
+        currentAddressesLoaded: false,
+        stakedAddresses: false,
+        lastTransactions: [],
+        refreshing: false,
+        clickRefresh: false,
+        load: true,
+        partBalance: null,
+        voteAddresses: [],
+        rewards: [],
+        transferAllBalance: false,
+        selectedVoteAddress: {
+            address: '',
+            commission: false,
+            activatedStake: false,
+            name: false,
+            description: '',
+            website: ''
+        },
+        routes: [
+            {
+                title: strings('settings.walletList.stake'),
+                key: 'first'
             },
-            routes: [
-                {
-                    title: strings('settings.walletList.stake'),
-                    key: 'first'
-                },
-                {
-                    title: strings('settings.walletList.stakeHistorySOL'),
-                    key: 'second'
-                }
-            ],
-            index: 0
-        }
-        this.stakeAmountInput = React.createRef()
+            {
+                title: strings('settings.walletList.stakeHistorySOL'),
+                key: 'second'
+            }
+        ],
+        index: 0
     }
+
+    stakeAmountInput = React.createRef()
 
     componentDidMount() {
         this.handleScan()
@@ -244,9 +237,9 @@ class StakingSOL extends React.PureComponent {
 
     renderAmountInput = () => {
 
-        const { GRID_SIZE } = this.context 
+        const { GRID_SIZE } = this.context
 
-        return(
+        return (
             <View style={{ marginBottom: GRID_SIZE * 2, marginHorizontal: GRID_SIZE }}>
                 <View style={styles.inputWrapper}>
                     <Input
@@ -318,11 +311,11 @@ class StakingSOL extends React.PureComponent {
         return (<Text style={[styles.linkText, { color: colors.common.text1 }]} onPress={onPress}>{text}</Text>)
     }
 
-    rendereDscription = (title, link) => {
+    renderDescription = (title, link) => {
         const { colors, GRID_SIZE } = this.context
-        return(
+        return (
             <Text style={[styles.description, { color: colors.common.text3, marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }]}>
-                    {title} {this.getLink(link, () => null)}
+                {title}
             </Text>
         )
     }
@@ -333,7 +326,7 @@ class StakingSOL extends React.PureComponent {
                 return this.renderFirstRoute()
             case 'second':
                 return this.renderSecondRoute()
-            
+
             default:
                 return null
         }
@@ -346,13 +339,13 @@ class StakingSOL extends React.PureComponent {
         const { selectedVoteAddress } = this.state
 
         const { solValidator } = this.props
-        
+
         const validator = solValidator && solValidator?.address ? solValidator : selectedVoteAddress
 
-        return(
+        return (
             <View style={{ flexDirection: 'column' }}>
                 <View style={{ marginTop: GRID_SIZE }}>
-                    {this.rendereDscription(strings('account.stakingTRX.bandwidthInfo'), strings('account.stakingTRX.moreInfo'))}
+                    {this.renderDescription(strings('account.stakingSOL.stake'), strings('account.stakingTRX.moreInfo'))}
                     {this.renderAmountInput()}
                     <View style={{ marginHorizontal: GRID_SIZE }}>
                         <MainListItem
@@ -372,16 +365,16 @@ class StakingSOL extends React.PureComponent {
                     />
                 </View>
             </View>
-            
+
         )
     }
 
     diffTimeScan = (timeScan) => {
         const lastScan = timeScan * 1000
         const timeNow = new Date().getTime()
-    
+
         const diffTime = (timeNow - lastScan) / 60000
-    
+
         return Math.abs(Math.round(diffTime))
     }
 
@@ -391,7 +384,7 @@ class StakingSOL extends React.PureComponent {
 
         const { balanceScanTime, balanceScanError, isSynchronized } = this.props.selectedAccountData
 
-        const { 
+        const {
             GRID_SIZE,
             colors,
             isLight
@@ -414,7 +407,7 @@ class StakingSOL extends React.PureComponent {
             }
         }
 
-        return(
+        return (
             <View style={{ marginTop: GRID_SIZE, flex: 1 }}>
                 <FlatList
                     data={stakedAddresses ? [...lastTransactions, ...stakedAddresses] : lastTransactions}
@@ -491,7 +484,7 @@ class StakingSOL extends React.PureComponent {
     }
 
     handleTabChange = (index) => {
-        this.setState({ index: index })
+        this.setState({ index })
     }
 
     renderTabs = () => <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} />
@@ -514,19 +507,17 @@ class StakingSOL extends React.PureComponent {
             balancePrettyPrep2 = tmps[1]
         }
 
-        const { 
+        const {
             colors,
             GRID_SIZE
         } = this.context
 
-        return(
-            <View style={[styles.topContent, { height: 134, marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE }]}>
-                <View style={[styles.topContent__content]}>
+        return (
+            <AccountGradientBlock>
+                <View style={{ paddingBottom: GRID_SIZE }}>
                     <View style={styles.progressBarLoaction}>
-                        <View style={{ marginTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
-                            <Text style={styles.availableText}>{strings('settings.walletList.availableSOL')}</Text>
-                            {/* apy component */}
-                        </View>
+                        <Text style={styles.availableText}>{strings('settings.walletList.availableSOL')}</Text>
+                        {/* apy component */}
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: GRID_SIZE * 1.5 }}>
                         <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
@@ -536,24 +527,14 @@ class StakingSOL extends React.PureComponent {
                             {`${balancePrettyPrep2} ${currencyCode}`}
                         </Text>
                     </View>
-                        <LetterSpacing
-                            text={basicCurrencySymbol + ' ' + basicCurrencyBalance}
-                            textStyle={{ ...styles.topContent__subtitle, color: colors.common.text2 }}
-                            letterSpacing={0.5}
-                            containerStyle={{ justifyContent: 'center', marginTop: GRID_SIZE / 3 }}
-                        />
-                </View>
-                
-                <GradientView
-                        style={[styles.bg, { height: 145 }]}
-                        array={colors.accountScreen.containerBG}
-                        start={styles.containerBG.start}
-                        end={styles.containerBG.end}
+                    <LetterSpacing
+                        text={basicCurrencySymbol + ' ' + basicCurrencyBalance}
+                        textStyle={{ ...styles.topContent__subtitle, color: colors.common.text2 }}
+                        letterSpacing={0.5}
+                        containerStyle={{ justifyContent: 'center', marginTop: GRID_SIZE / 3 }}
                     />
-                <View style={[styles.topContent__bg, { height: 134 }]}>
-                    <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
                 </View>
-            </View>
+            </AccountGradientBlock>
         )
     }
 
@@ -642,8 +623,10 @@ class StakingSOL extends React.PureComponent {
                         />
                     }
                 >
-                    {this.renderInfoHeader()}
-                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
+                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }} >
+                        {this.renderInfoHeader()}
+                    </View>
+                    <View style={{ marginHorizontal: GRID_SIZE }}>
                         {this.renderTabs()}
                     </View>
                     <TabView
@@ -662,14 +645,90 @@ class StakingSOL extends React.PureComponent {
 }
 
 
-StakingSOL.contextType = ThemeContext
+AccountStakingSOL.contextType = ThemeContext
 
 const mapStateToProps = state => {
     return {
-        mainStore: state.mainStore,
         selectedAccountData: getSelectedAccountData(state),
         solValidator: getSolValidator(state)
     }
 }
 
-export default connect(mapStateToProps, null, null, { forwardRef: true })(StakingSOL)
+export default connect(mapStateToProps, null, null, { forwardRef: true })(AccountStakingSOL)
+
+const styles = StyleSheet.create({
+    inputWrapper: {
+        justifyContent: 'center',
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+
+        elevation: 5,
+        backgroundColor: 'green'
+    },
+    progressBarLoaction: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    topContent__title_first: {
+        height: 40,
+        fontSize: 32,
+        fontFamily: 'Montserrat-SemiBold',
+        lineHeight: 36
+    },
+    topContent__title_last: {
+        height: 40,
+        fontSize: 18,
+        fontFamily: 'Montserrat-SemiBold',
+        lineHeight: 42,
+        opacity: 1,
+    },
+    topContent__subtitle: {
+        marginTop: -10,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        textAlign: 'center',
+        letterSpacing: 0.5
+    },
+    transaction_title: {
+        fontSize: 17,
+        fontFamily: 'Montserrat-Bold'
+    },
+    scan__text: {
+        letterSpacing: 1,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18
+    },
+    transaction__empty_text: {
+        marginTop: -5,
+        marginLeft: 16,
+        fontSize: 15,
+        lineHeight: 19,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1.5
+    },
+    scan: {
+        flexDirection: 'row'
+    },
+    description: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 16,
+        lineHeight: 20,
+        letterSpacing: 1,
+        flex: 1
+    },
+    availableText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+        color: '#999999'
+    }
+})

@@ -1,106 +1,131 @@
 /**
- * @version 0.30
- * @author Vadym
+ * @version 0.52
+ * @author yura
  */
-import React, { Component } from 'react'
+
+import React from 'react'
+import {
+    View,
+    ScrollView,
+    RefreshControl,
+    Text
+} from 'react-native'
 import { connect } from 'react-redux'
-import { View, Text, ScrollView, RefreshControl } from 'react-native'
-
-import { strings } from '../../../../services/i18n'
-
-import { showModal } from '../../../../appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus } from '../../../../appstores/Stores/Main/MainStoreActions'
-
-
-import Log from '../../../../services/Log/Log'
-import BlocksoftBalances from '../../../../../crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftAxios from '../../../../../crypto/common/BlocksoftAxios'
-import BlocksoftExternalSettings from '../../../../../crypto/common/BlocksoftExternalSettings'
-import BlocksoftPrettyNumbers from '../../../../../crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftTransfer } from '../../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import TronUtils from '../../../../../crypto/blockchains/trx/ext/TronUtils'
-
-import Input from '../../../../components/elements/NewInput'
-
-import config from '../../../../config/config'
-
-import { ThemeContext } from '@app/theme/ThemeProvider'
-import styles from './styles'
-
-import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
-import InfoProgressBar from '../InfoProgressBar'
-import Tabs from '@app/components/elements/new/TabsWithUnderline'
-import Button from '@app/components/elements/new/buttons/Button'
-import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
-import GradientView from '@app/components/elements/GradientView'
-import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import { TabView } from 'react-native-tab-view'
 
-const CACHE_TIMEOUT = 3000
+import config from '@app/config/config'
 
-class SettingsTRX extends Component {
+import { ThemeContext } from '@app/theme/ThemeProvider'
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            currentBalance: {
-                balance: '0',
-                prettyBalance: '?',
-                frozen: '0',
-                frozenEnergy: '0',
-                prettyFrozen: '0',
-                prettyFrozenEnergy: '0',
-                voteTotal: '0',
-                prettyVote: '0'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
+import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
+import { getSelectedAccountData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+
+import { strings } from '@app/services/i18n'
+import Log from '@app/services/Log/Log'
+
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import TronUtils from '@crypto/blockchains/trx/ext/TronUtils'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+
+import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import Input from '@app/components/elements/NewInput'
+import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
+import Tabs from '@app/components/elements/new/TabsWithUnderline'
+import Button from '@app/components/elements/new/buttons/Button'
+import NavStore from '@app/components/navigation/NavStore'
+
+import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
+
+import InfoProgressBar from './elements/InfoProgressBar'
+import AccountGradientBlock from '../elements/AccountGradientBlock'
+
+class AccountStakingTRX extends React.PureComponent {
+
+    state = {
+        currentBalance: {
+            balance: '0',
+            prettyBalance: '?',
+            frozen: '0',
+            frozenEnergy: '0',
+            prettyFrozen: '0',
+            prettyFrozenEnergy: '0',
+            voteTotal: '0',
+            prettyVote: '0'
+        },
+        currentReward: '0',
+        prettyReward: '0',
+        partBalance: null,
+        currentBalanceChecked: false,
+        transferAllBalance: false,
+        routes: [
+            {
+                title: strings('settings.walletList.bandwidthTRX'),
+                key: 'first'
             },
-            currentReward: '0',
-            prettyReward: '0',
-            partBalance: null,
-            currentBalanceChecked: false,
-            transferAllBalance: false,
-            routes: [
-                {
-                    title: strings('settings.walletList.bandwidthTRX'),
-                    key: 'first'
-                },
-                {
-                    title: strings('settings.walletList.energyTRX'),
-                    key: 'second'
-                }
-            ],
-            index: 0
-        }
-
-        this.freezeAmountInput = React.createRef()
+            {
+                title: strings('settings.walletList.energyTRX'),
+                key: 'second'
+            }
+        ],
+        index: 0,
+        viewHeight: 0,
+        refreshing: false
     }
+
+    freezeAmountInput = React.createRef()
 
     componentDidMount() {
         this.handleScan()
     }
 
+    handleBack = () => {
+        NavStore.goBack()
+    }
+
+    handleClose = () => {
+        NavStore.goBack()
+        NavStore.goBack()
+    }
+
+    onRefresh = async () => {
+        this.setState({
+            refreshing: true
+        })
+
+        await this.handleScan()
+
+        this.setState({
+            refreshing: false
+        })
+    }
+
     handleScan = async () => {
         const { account } = this.props
 
-        setLoaderStatus(true)
-
         const address = account.address
 
-        Log.log('SettingsTRX.handleScan scan started', address)
+        Log.log('AccountStakingTrx.handleScan scan started', address)
 
-        const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('SettingsTRX'))
+        const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('AccountStakingTrx'))
+        console.log(balance)
 
         const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
         const tmp = await BlocksoftAxios.postWithoutBraking(sendLink + '/wallet/getReward', { address })
         if (typeof tmp.data === 'undefined' || typeof tmp.data.reward === 'undefined') {
-            Log.log('SettingsTRX.handleScan noReward', tmp)
+            Log.log('AccountStakingTrx.handleScan noReward', tmp)
         } else if (balance) {
-            Log.log('SettingsTRX.handleScan balance', balance)
+            Log.log('AccountStakingTrx.handleScan balance', balance)
             const reward = tmp.data.reward
             balance.prettyBalance = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balance)
             balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
             balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
-            balance.prettyVote = (balance.prettyFrozen*1 + balance.prettyFrozenEnergy*1).toString().split('.')[0]
+            balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenEnergy * 1).toString().split('.')[0]
 
             const prettyReward = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(reward)
             this.setState({
@@ -113,10 +138,8 @@ class SettingsTRX extends Component {
             Log.log('SettingsTRX.handleScan noBalance', balance)
         }
 
-        setLoaderStatus(false)
         return balance
     }
-
 
     // https://developers.tron.network/reference#walletvotewitnessaccount
     // https://developers.tron.network/reference#walletfreezebalance-1
@@ -149,16 +172,17 @@ class SettingsTRX extends Component {
                 frozen_balance: freeze * 1,
                 frozen_duration: 3,
                 resource: type
-            }, 'freeze ' + freeze + ' for ' + type + ' of ' + address )
+            }, 'freeze ' + freeze + ' for ' + type + ' of ' + address)
 
             this.freezeAmountInput.handleInput('', false)
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('SettingsTRX.handleFreeze error ', e)
+                console.log('AccountStakingTrx.handleFreeze error ', e)
             }
             this._wrapError(e)
         }
         setLoaderStatus(false)
+        await this.handleVote()
     }
 
     _wrapError = (e) => {
@@ -183,6 +207,8 @@ class SettingsTRX extends Component {
 
         const { account } = this.props
 
+        type = type.toUpperCase()
+
         setLoaderStatus(true)
 
         const address = account.address
@@ -191,16 +217,15 @@ class SettingsTRX extends Component {
             await this._sendTx('/wallet/unfreezebalance', {
                 owner_address: TronUtils.addressToHex(address),
                 resource: type
-            }, 'unfreeze for ' + type + ' of ' + address )
+            }, 'unfreeze for ' + type + ' of ' + address)
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('SettingsTRX.handleUnFreeze error ', e)
+                console.log('AccountStakingTrx.handleUnFreeze error ', e)
             }
             this._wrapError(e)
         }
         setLoaderStatus(false)
     }
-
 
     handleVote = async () => {
         const { account } = this.props
@@ -227,13 +252,12 @@ class SettingsTRX extends Component {
             }, 'vote ' + actualBalance.prettyVote + ' for ' + voteAddress)
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('SettingsTRX.handleVote error ', e)
+                console.log('AccountStakingTrx.handleVote error ', e)
             }
             this._wrapError(e)
         }
         setLoaderStatus(false)
     }
-
 
     handleGetReward = async () => {
         const { account } = this.props
@@ -248,7 +272,7 @@ class SettingsTRX extends Component {
             }, 'withdrawbalance to ' + address)
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log('SettingsTRX.handleGetReward error ', e)
+                console.log('AccountStakingTrx.handleGetReward error ', e)
             }
             this._wrapError(e)
         }
@@ -265,24 +289,25 @@ class SettingsTRX extends Component {
             if (typeof tmp.data.raw_data_hex !== 'undefined') {
                 blockchainData = tmp.data
             } else {
-                Log.log('SettingsTRX.handleFreeze no rawHex ' + link, params, tmp.data)
+                Log.log('AccountStakingTrx.handleFreeze no rawHex ' + link, params, tmp.data)
                 throw new Error(JSON.stringify(tmp.data))
             }
         } else {
-            Log.log('SettingsTRX._sendTx no rawHex empty data ' + link, params)
+            Log.log('AccountStakingTrx._sendTx no rawHex empty data ' + link, params)
             throw new Error('Empty data')
         }
 
-        const { account, wallet } = this.props
+        const { account, selectedWallet } = this.props
+
         const txData = {
             currencyCode: 'TRX',
-            walletHash: wallet.walletHash,
+            walletHash: selectedWallet.walletHash,
             derivationPath: account.derivationPath,
             addressFrom: account.address,
             addressTo: '',
             blockchainData
         }
-        const result = await BlocksoftTransfer.sendTx(txData, {selectedFee: {langMsg}})
+        const result = await BlocksoftTransfer.sendTx(txData, { selectedFee: { langMsg } })
         if (result) {
             showModal({
                 type: 'INFO_MODAL',
@@ -302,7 +327,6 @@ class SettingsTRX extends Component {
                 return this.renderFirstRoute()
             case 'second':
                 return this.renderSecondRoute()
-            
             default:
                 return null
         }
@@ -311,16 +335,16 @@ class SettingsTRX extends Component {
     renderTabs = () => <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} />
 
     handleTabChange = (index) => {
-        this.setState({ index: index })
+        this.setState({ index })
     }
 
     handlePartBalance = (newPartBalance) => {
         const { account } = this.props
         const { balance } = account
 
-        let transferAllBalance = balance
+        const transferAllBalance = balance
 
-        Log.log('SettingsTRX.Input.handlePartBalance ' + newPartBalance + ' clicked')
+        Log.log('AccountStakingTrx.Input.handlePartBalance ' + newPartBalance + ' clicked')
         this.setState({
             partBalance: newPartBalance
         }, async () => {
@@ -331,14 +355,14 @@ class SettingsTRX extends Component {
                 cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(transferAllBalance, 4), this.state.partBalance)
             }
             const pretty = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(cryptoValue)
-            Log.log('SettingsTRX.Input.handlePartBalance ' + newPartBalance + ' end counting ' + cryptoValue + ' => ' + pretty)
+            Log.log('AccountStakingTrx.Input.handlePartBalance ' + newPartBalance + ' end counting ' + cryptoValue + ' => ' + pretty)
             this.freezeAmountInput.handleInput(pretty)
         })
     }
 
     renderInfoHeader = () => {
 
-        const { 
+        const {
             colors,
             GRID_SIZE
         } = this.context
@@ -357,77 +381,66 @@ class SettingsTRX extends Component {
             timePrep = '-'
         }
 
-        return(
-            <View style={styles.topContent}>
-                <View style={[styles.topContent__content, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE }]}>
-                    <View style={{ marginBottom: GRID_SIZE }}>
-                        <Text style={[styles.rewardText, { color: colors.common.text1 }]}>{strings('settings.walletList.rewards')}</Text>
-                        <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
-                    </View>
-                    <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
-                            <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
-                            {!!prettyReward && <BorderedButton
-                                containerStyle={styles.widhdrawBtn}
-                                text={strings('settings.walletList.withdrawSOL')}
-                                onPress={() => this.handleGetReward()}
-                            />}
-                    </View>
-                    <View style={styles.progressBarLoaction}>
-                        <InfoProgressBar
-                            title={strings('settings.walletList.bandwidthTRX')}
-                            amount={currentBalance.prettyFrozen}
-                        />
-                        <InfoProgressBar
-                            title={strings('settings.walletList.energyTRX')}
-                            amount={currentBalance.prettyFrozenEnergy}
-                        />
-
-                    </View>
+        return (
+            <AccountGradientBlock>
+                <View style={{ marginBottom: GRID_SIZE }}>
+                    <Text style={[styles.rewardText, { color: colors.common.text1 }]}>{strings('settings.walletList.rewards')}</Text>
+                    <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
                 </View>
-                <GradientView
-                    style={[styles.bg]}
-                    array={colors.accountScreen.containerBG}
-                    start={styles.containerBG.start}
-                    end={styles.containerBG.end}
-                />
-                <View style={styles.topContent__bg}>
-                    <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
+                <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
+                    <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
+                    {!!prettyReward && Number(prettyReward) > 0 &&
+                        <BorderedButton
+                            containerStyle={styles.widhdrawBtn}
+                            text={strings('settings.walletList.withdrawSOL')}
+                            onPress={this.handleGetReward}
+                        />}
                 </View>
-            </View>
+                <View style={styles.progressBarLoaction}>
+                    <InfoProgressBar
+                        title={strings('settings.walletList.bandwidthTRX')}
+                        amount={currentBalance.prettyFrozen}
+                    />
+                    <InfoProgressBar
+                        title={strings('settings.walletList.energyTRX')}
+                        amount={currentBalance.prettyFrozenEnergy}
+                    />
+                </View>
+            </AccountGradientBlock>
         )
     }
 
-    getLink = (text, onPress) => {
-        const { colors } = this.context
-        return (<Text style={[styles.linkText, { color: colors.common.text1 }]} onPress={onPress}>{text}</Text>)
-    }
-
-    rendereDscription = (title, link) => {
+    renderDescription = (title, link) => {
         const { colors, GRID_SIZE } = this.context
-        return(
+        return (
             <Text style={[styles.description, { color: colors.common.text3, marginHorizontal: GRID_SIZE / 2, marginBottom: GRID_SIZE }]}>
-                    {title} {this.getLink(link, () => null)}
+                {title}
+                <Text style={[styles.linkText, { color: colors.common.text1 }]} onPress={this.handleOpenLink} >{link}</Text>
             </Text>
         )
     }
 
+    handleOpenLink = () => {
+        NavStore.goNext('WebViewScreen', { url: BlocksoftExternalSettings.getStatic('TRX_STAKING_LINK'), title: 'Staking' })
+    }
+
     renderAmountInput = () => {
 
-        const { GRID_SIZE } = this.context 
+        const { GRID_SIZE } = this.context
 
-        return(
+        return (
             <>
-                <View style={[styles.inputWrapper]}>
+                <View style={styles.inputWrapper}>
                     <Input
                         style={{ height: 55 }}
                         containerStyle={{ height: 55 }}
                         ref={ref => this.freezeAmountInput = ref}
-                        id={'freezeAmount'}
+                        id='freezeAmount'
                         name={strings('settings.walletList.enterToFreezeTRX')}
-                        keyboardType={'numeric'}
-                        inputBaseColor={'#f4f4f4'}
-                        inputTextColor={'#f4f4f4'}
-                        tintColor={'#7127ac'}
+                        keyboardType='numeric'
+                        inputBaseColor='#f4f4f4'
+                        inputTextColor='#f4f4f4'
+                        tintColor='#7127ac'
                     />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
@@ -458,27 +471,28 @@ class SettingsTRX extends Component {
 
     renderFirstRoute = () => {
 
-        const { 
+        const {
             colors,
             GRID_SIZE
         } = this.context
 
         const { currentBalance } = this.state
 
-        return(
+        return (
             <>
-                {this.rendereDscription(strings('account.stakingTRX.bandwidthInfo'), strings('account.stakingTRX.moreInfo'))}
+                {this.renderDescription(strings('account.stakingTRX.bandwidthInfo'), strings('account.stakingTRX.moreInfo'))}
                 <View style={{ marginHorizontal: GRID_SIZE / 2 }}>
-                    <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5}]}>
+                    <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
                         <View>
                             <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.frozenTRX')}</Text>
                             <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${currentBalance.prettyFrozen} TRX`}</Text>
                         </View>
-                        {!!currentBalance.prettyFrozen && <BorderedButton
-                            containerStyle={styles.widhdrawBtn}
-                            text={strings('account.transaction.unfreeze')}
-                            onPress={() => this.handleUnFreeze(false, 'BANDWIDTH')}
-                        />}
+                        {!!currentBalance.prettyFrozen &&
+                            <BorderedButton
+                                containerStyle={styles.widhdrawBtn}
+                                text={strings('account.transaction.unfreeze')}
+                                onPress={() => this.handleUnFreeze(false, 'BANDWIDTH')}
+                            />}
                     </View>
                 </View>
             </>
@@ -487,27 +501,28 @@ class SettingsTRX extends Component {
 
     renderSecondRoute = () => {
 
-        const { 
+        const {
             colors,
             GRID_SIZE
         } = this.context
 
         const { currentBalance } = this.state
 
-        return(
+        return (
             <>
-                {this.rendereDscription(strings('account.stakingTRX.energyInfo'), strings('account.stakingTRX.moreInfo'))}
+                {this.renderDescription(strings('account.stakingTRX.energyInfo'), strings('account.stakingTRX.moreInfo'))}
                 <View style={{ marginHorizontal: GRID_SIZE / 2 }}>
-                    <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5}]}>
+                    <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
                         <View>
                             <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.frozenTRX')}</Text>
                             <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${currentBalance.prettyFrozenEnergy} TRX`}</Text>
                         </View>
-                        {!!currentBalance.prettyFrozenEnergy && <BorderedButton
-                            containerStyle={styles.widhdrawBtn}
-                            text={strings('account.transaction.unfreeze')}
-                            onPress={() => this.handleUnFreeze(false, 'Energy')}
-                        />}
+                        {!!currentBalance.prettyFrozenEnergy &&
+                            <BorderedButton
+                                containerStyle={styles.widhdrawBtn}
+                                text={strings('account.transaction.unfreeze')}
+                                onPress={() => this.handleUnFreeze(false, 'ENERGY')}
+                            />}
                     </View>
                 </View>
             </>
@@ -515,31 +530,38 @@ class SettingsTRX extends Component {
     }
 
     render() {
-        const { index, currentBalance} = this.state
-        const { 
-            GRID_SIZE,
-            colors
+
+        const {
+            colors, GRID_SIZE
         } = this.context
 
+        const { index, currentBalance, refreshing } = this.state
+        const { currencyCode } = this.props.account
+
         return (
-            <>
+            <ScreenWrapper
+                title={strings('account.staking')}
+                leftType='back'
+                leftAction={this.handleBack}
+                rightType='close'
+                rightAction={this.handleClose}
+            >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     style={{ flexGrow: 1 }}
                     refreshControl={
                         <RefreshControl
-                            refreshing={this.props.mainStore.loaderVisibility}
-                            onRefresh={this.handleScan}
+                            refreshing={refreshing}
+                            onRefresh={this.onRefresh}
                             tintColor={colors.common.refreshControlIndicator}
                             colors={[colors.common.refreshControlIndicator]}
                             progressBackgroundColor={colors.common.refreshControlBg}
                             progressViewOffset={-20}
                         />}
                 >
-                
                     <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
                         {this.renderInfoHeader()}
-                        <View style={{ marginTop: GRID_SIZE * 2, marginBottom: GRID_SIZE }}>
+                        <View style={{ marginBottom: GRID_SIZE }}>
                             {this.renderTabs()}
                         </View>
                         <TabView
@@ -551,35 +573,154 @@ class SettingsTRX extends Component {
                             renderTabBar={() => null}
                             useNativeDriver
                         />
-                        <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2 }]}>{`${strings('settings.walletList.availableTRX')} ${currentBalance.prettyBalance}`}</Text>
-                        <View style={{marginBottom: GRID_SIZE * 1.5}}>
+                        <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2 }]}>
+                            {`${strings('settings.walletList.availableTRX')} ${currentBalance.prettyBalance} ${currencyCode}`}
+                        </Text>
+                        <View style={{ marginBottom: GRID_SIZE * 1.5 }}>
                             {this.renderAmountInput()}
                         </View>
                     </View>
                 </ScrollView>
                 <Button
                     title={strings('account.transaction.freeze')}
-                    containerStyle={{  marginBottom: GRID_SIZE / 2, marginHorizontal: GRID_SIZE}}
+                    containerStyle={{ marginBottom: GRID_SIZE, marginHorizontal: GRID_SIZE }}
                     onPress={() => this.handleFreeze(false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
                 />
-            </>
+
+            </ScreenWrapper>
         )
     }
 }
 
+AccountStakingTRX.contextType = ThemeContext
+
 const mapStateToProps = (state) => {
     return {
         mainStore: state.mainStore,
-        cashbackStore: getCashBackData(state)
+        cashbackStore: getCashBackData(state),
+        selectedWallet: getSelectedWalletData(state),
+        account: getSelectedAccountData(state),
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        dispatch
-    }
+export default connect(mapStateToProps)(AccountStakingTRX)
+
+const styles = {
+    rewardText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        lineHeight: 21
+    },
+    updateTime: {
+        color: '#999999',
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 10,
+        lineHeight: 14,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase'
+    },
+    reward: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 16,
+        lineHeight: 20
+    },
+    rewardLocation: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    widhdrawBtn: {
+        height: 30,
+        width: 96,
+        paddingHorizontal: 6
+    },
+    progressBarLoaction: {
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    bandwidthContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end'
+    },
+    progressText: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+        color: '#999999'
+    },
+    description: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 16,
+        lineHeight: 20,
+        letterSpacing: 1,
+        flex: 1
+    },
+    linkText: {
+        fontFamily: 'SFUIDisplay-Bold',
+        fontSize: 14,
+        lineHeight: 18,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        textDecorationLine: 'underline'
+    },
+    availableText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+        color: '#999999'
+    },
+    topContent__title_first: {
+        height: 40,
+        fontSize: 32,
+        fontFamily: 'Montserrat-SemiBold',
+        lineHeight: 36
+    },
+    topContent__title_last: {
+        height: 40,
+        fontSize: 18,
+        fontFamily: 'Montserrat-SemiBold',
+        lineHeight: 42,
+        opacity: 1,
+    },
+    topContent__subtitle: {
+        marginTop: -10,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        textAlign: 'center',
+        letterSpacing: 0.5
+    },
+    scan__text: {
+        letterSpacing: 1,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18
+    },
+    transaction__empty_text: {
+        marginTop: -5,
+        marginLeft: 16,
+        fontSize: 15,
+        lineHeight: 19,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1.5
+    },
+    scan: {
+        flexDirection: 'row'
+    },
+
+    inputWrapper: {
+        justifyContent: 'center',
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+
+        elevation: 5,
+    },
 }
-
-SettingsTRX.contextType = ThemeContext
-
-export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(SettingsTRX)

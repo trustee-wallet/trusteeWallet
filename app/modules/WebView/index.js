@@ -84,21 +84,20 @@ class WebViewScreen extends React.PureComponent {
                         }
                     }}
 
-                    /*
                     onHttpError={(e) => {
                         console.log('WebView.WebViewMainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                     }}
                     onLoadProgress={(e) => {
                         console.log('WebView.WebViewMainScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.progress)
                     }}
-                    onContentProcessDidTerminate={(e) => {
-                        console.log('WebView.WebViewMainScreen.on content terminate ' + e.nativeEvent.title)
-                    }}
+                    // onContentProcessDidTerminate={(e) => {
+                    //     console.log('WebView.WebViewMainScreen.on content terminate ' + e.nativeEvent.title)
+                    // }}
 
-                    onNavigationStateChange={(e) => {
-                        console.log('WebView.WebViewMainScreen.on NavigationStateChanges changed ' + e.title + ' ' + e.url)
-                    }}
-                    */
+                    // onNavigationStateChange={(e) => {
+                    //     console.log('WebView.WebViewMainScreen.on NavigationStateChanges changed ' + e.title + ' ' + e.url)
+                    // }}
+                    
 
                     renderLoading={this.renderLoading}
                     renderError={(e) => {
