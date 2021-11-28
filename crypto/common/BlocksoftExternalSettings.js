@@ -111,7 +111,9 @@ const CACHE = {
     'ROCKET_CHAT_USE' : 0,
     'HOW_WORK_CASHBACK_LINK' : 'https://trusteeglobal.com/programma-loyalnosti/',
     'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/',
-    'TRX_STAKING_LINK' : 'https://blog.trusteeglobal.com/stejking-trona-i-kak-zarabotat/'
+    'TRX_STAKING_LINK' : 'https://blog.trusteeglobal.com/stejking-trona-i-kak-zarabotat/',
+    'TRX_STAKING_PERCENT' : 7.35,
+    'SOL_STAKING_PERCENT' : 1.25
 }
 
 

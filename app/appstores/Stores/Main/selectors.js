@@ -55,6 +55,7 @@ export const getSelectedAccountData = createSelector(
             address : data.address,
             segwitAddress : data.segwitAddress,
             legacyAddress : data.legacyAddress,
+            balance : data.balance,
             balancePretty : data.balancePretty,
             unconfirmedPretty : data.unconfirmedPretty,
             balanceProvider : data.balanceProvider,

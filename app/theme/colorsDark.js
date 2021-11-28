@@ -187,5 +187,9 @@ export const colorsDark = {
             color: '#C1B8CE'
         }
     },
-    fileColor: '#C1B8CE'
+    fileColor: '#C1B8CE',
+    stakingPercent: {
+        bg: '#9E71E126',
+        color: '#9E71E1'
+    }
 }

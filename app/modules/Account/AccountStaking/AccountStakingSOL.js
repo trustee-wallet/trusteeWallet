@@ -20,11 +20,7 @@ import LottieView from 'lottie-react-native'
 import { TabView } from 'react-native-tab-view'
 
 import { strings } from '@app/services/i18n'
-import Log from '@app/services/Log/Log'
 
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { getSolValidator, getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -39,17 +35,12 @@ import Tabs from '@app/components/elements/new/TabsWithUnderline'
 import MainListItem from '@app/components/elements/new/list/ListItem/Setting'
 import Loader from '@app/components/elements/LoaderItem'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import PercentView from '@app/components/elements/new/PercentView'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
-
-import config from '@app/config/config'
 
 import blackLoader from '@assets/jsons/animations/refreshBlack.json'
 import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
@@ -57,6 +48,8 @@ import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 import StakingItem from './sol/StakingItem'
 import RewardItem from './sol/SolRewardItem'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
+import { diffTimeScan } from '../helpers'
+import { handlePartBalance, handleSolScan, handleSolStake } from './helper'
 
 class AccountStakingSOL extends React.PureComponent {
 
@@ -97,56 +90,7 @@ class AccountStakingSOL extends React.PureComponent {
     stakeAmountInput = React.createRef()
 
     componentDidMount() {
-        this.handleScan()
-    }
-
-    handleScan = async (force = false) => {
-        const { account } = this.props
-        const { address, balance } = account
-        this.setState({
-            stakedAddresses: [],
-            voteAddresses: [],
-            load: true
-        }, async () => {
-
-            const selectedVoteAddress = await settingsActions.getSetting('SOL_validator')
-            const voteAddresses = await SolStakeUtils.getVoteAddresses()
-            const stakedAddresses = await SolStakeUtils.getAccountStaked(address, force)
-            const rewards = await SolStakeUtils.getAccountRewards(address)
-            const newData = {
-                stakedAddresses,
-                voteAddresses,
-                rewards,
-                load: false
-            }
-
-            /*
-            try {
-                const transferAllBalance = await BlocksoftTransfer.getTransferAllBalance({amount : balance, currencyCode: 'SOL', addressFrom: address })
-                newData.transferAllBalance = transferAllBalance
-            } catch (e) {
-                Log.err('SettingsSOL.handleScan getTransferAllBalance error ' + e.message)
-                // nothing
-            }
-            */
-
-            if (selectedVoteAddress) {
-                newData.selectedVoteAddress = JSON.parse(selectedVoteAddress)
-            } else if (voteAddresses && voteAddresses.length > 0) {
-                newData.selectedVoteAddress = voteAddresses[0]
-            } else {
-                newData.selectedVoteAddress = {
-                    address: BlocksoftExternalSettings.getStatic('SOL_VOTE_BEST'),
-                    commission: false,
-                    activatedStake: false,
-                    name: false,
-                    description: '',
-                    website: ''
-                }
-            }
-
-            this.setState(newData)
-        })
+        handleSolScan.call(this)
     }
 
     handleRefresh = async (click = false) => {
@@ -155,75 +99,12 @@ class AccountStakingSOL extends React.PureComponent {
             clickRefresh: click
         })
 
-        await this.handleScan(true)
+        await handleSolScan.call(this)
 
         this.setState({
             refreshing: false,
             clickRefresh: false
         })
-    }
-
-    handleStake = async () => {
-        setLoaderStatus(true)
-
-        const { account, solValidator } = this.props
-
-        try {
-
-            const inputValidate = await this.stakeAmountInput.handleValidate()
-            if (inputValidate.status !== 'success') {
-                throw new Error('invalid custom stake value')
-            }
-            const prettyStake = inputValidate.value
-            const stake = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makeUnPretty(prettyStake)
-
-            let voteAddress = solValidator?.address ? solValidator.address : this.state.selectedVoteAddress.address
-            console.log('voteAddress ' + voteAddress)
-            if (!voteAddress) {
-                voteAddress = await settingsActions.getSetting('SOL_validator')
-            }
-            if (!voteAddress) {
-                voteAddress = BlocksoftExternalSettings.getStatic('SOL_VOTE_BEST')
-            }
-
-
-            const txData = {
-                currencyCode: 'SOL',
-                amount: stake,
-                walletHash: account.walletHash,
-                derivationPath: account.derivationPath,
-                addressFrom: account.address,
-                addressTo: 'STAKE',
-                blockchainData: {
-                    voteAddress
-                }
-            }
-            const result = await BlocksoftTransfer.sendTx(txData, { uiErrorConfirmed: true })
-            if (result) {
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: true,
-                    title: strings('modal.send.success'),
-                    description: result.transactionHash
-                })
-                const lastTransactions = this.state.lastTransactions
-                lastTransactions.push({ transactionHash: result.transactionHash, type: 'STAKE', amount: prettyStake })
-                this.setState({ lastTransactions })
-                this.stakeAmountInput.handleInput('', false)
-            }
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log('SettingsSol.handleStake error ', e)
-            }
-            const msg = e.message.indexOf('SERVER_RESPONSE_') === -1 ? e.message : strings('send.errors.' + e.message)
-            showModal({
-                type: 'INFO_MODAL',
-                icon: null,
-                title: strings('modal.exchange.sorry'),
-                description: msg
-            })
-        }
-        setLoaderStatus(false)
     }
 
     handleStakeTransaction = (item) => {
@@ -255,22 +136,22 @@ class AccountStakingSOL extends React.PureComponent {
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
                     <InputAndButtonsPartBalanceButton
-                        action={() => this.handlePartBalance(1)}
+                        action={() => handlePartBalance.call(this, 1)}
                         text='25%'
                         inverse={this.state.partBalance === 1}
                     />
                     <InputAndButtonsPartBalanceButton
-                        action={() => this.handlePartBalance(2)}
+                        action={() => handlePartBalance.call(this, 2)}
                         text='50%'
                         inverse={this.state.partBalance === 2}
                     />
                     <InputAndButtonsPartBalanceButton
-                        action={() => this.handlePartBalance(3)}
+                        action={() => handlePartBalance.call(this, 3)}
                         text='75%'
                         inverse={this.state.partBalance === 3}
                     />
                     <InputAndButtonsPartBalanceButton
-                        action={() => this.handlePartBalance(4)}
+                        action={() => handlePartBalance.call(this, 4)}
                         text='100%'
                         inverse={this.state.partBalance === 4}
                     />
@@ -361,7 +242,7 @@ class AccountStakingSOL extends React.PureComponent {
                 <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }}>
                     <Button
                         title={strings('settings.walletList.stakeSOL')}
-                        onPress={() => this.handleStake(false)}
+                        onPress={() => handleSolStake.call(this, false)}
                     />
                 </View>
             </View>
@@ -369,20 +250,11 @@ class AccountStakingSOL extends React.PureComponent {
         )
     }
 
-    diffTimeScan = (timeScan) => {
-        const lastScan = timeScan * 1000
-        const timeNow = new Date().getTime()
-
-        const diffTime = (timeNow - lastScan) / 60000
-
-        return Math.abs(Math.round(diffTime))
-    }
-
     renderSecondRoute = () => {
 
         const { load, lastTransactions, stakedAddresses, } = this.state
 
-        const { balanceScanTime, balanceScanError, isSynchronized } = this.props.selectedAccountData
+        const { balanceScanTime, balanceScanError, isSynchronized } = this.props.account
 
         const {
             GRID_SIZE,
@@ -390,9 +262,7 @@ class AccountStakingSOL extends React.PureComponent {
             isLight
         } = this.context
 
-
-
-        const diff = this.diffTimeScan(balanceScanTime)
+        const diff = diffTimeScan(balanceScanTime)
         let diffTimeText = ''
         if (diff > 60) {
             diffTimeText = strings('account.soLong')
@@ -491,7 +361,7 @@ class AccountStakingSOL extends React.PureComponent {
 
     renderInfoHeader = () => {
 
-        const { balancePretty, basicCurrencySymbol, basicCurrencyBalance, currencyCode } = this.props.selectedAccountData
+        const { balancePretty, basicCurrencySymbol, basicCurrencyBalance, currencyCode } = this.props.account
 
         let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
         if (typeof tmp.split === 'undefined') {
@@ -517,7 +387,10 @@ class AccountStakingSOL extends React.PureComponent {
                 <View style={{ paddingBottom: GRID_SIZE }}>
                     <View style={styles.progressBarLoaction}>
                         <Text style={styles.availableText}>{strings('settings.walletList.availableSOL')}</Text>
-                        {/* apy component */}
+                        <PercentView
+                            currencyCode='SOL'
+                            staking
+                        />
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: GRID_SIZE * 1.5 }}>
                         <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
@@ -539,8 +412,7 @@ class AccountStakingSOL extends React.PureComponent {
     }
 
     renderRewards = ({ item, index }) => {
-        const { account } = this.props
-        const { address } = account
+        const { address } = this.props.account
 
         const { isLight } = this.context
 
@@ -560,33 +432,6 @@ class AccountStakingSOL extends React.PureComponent {
                 color={isLight ? cryptoCurrency.mainColor : cryptoCurrency.darkColor}
             />
         )
-    }
-
-    handlePartBalance = (newPartBalance) => {
-        const { account } = this.props
-        const { balance } = account
-
-        let transferAllBalance = balance - 3 * BlocksoftExternalSettings.getStatic('SOL_PRICE')
-        /*
-        if (this.state.transferAllBalance && typeof this.state.transferAllBalance.fees !== 'undefined') {
-            transferAllBalance = this.state.transferAllBalance.fees[this.state.transferAllBalance.selectedFeeIndex].amountForTx
-        }
-        */
-        // if newPartBalance = 4 = 100%
-        Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' clicked')
-        this.setState({
-            partBalance: newPartBalance
-        }, async () => {
-            let cryptoValue
-            if (this.state.partBalance === 4) {
-                cryptoValue = transferAllBalance
-            } else {
-                cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(transferAllBalance, 4), this.state.partBalance)
-            }
-            const pretty = BlocksoftPrettyNumbers.setCurrencyCode('SOL').makePretty(cryptoValue)
-            Log.log('SettingsSOL.Input.handlePartBalance ' + newPartBalance + ' end counting ' + cryptoValue + ' => ' + pretty)
-            this.stakeAmountInput.handleInput(pretty)
-        })
     }
 
     handleGoToSelect = () => {
@@ -649,7 +494,7 @@ AccountStakingSOL.contextType = ThemeContext
 
 const mapStateToProps = state => {
     return {
-        selectedAccountData: getSelectedAccountData(state),
+        account: getSelectedAccountData(state),
         solValidator: getSolValidator(state)
     }
 }

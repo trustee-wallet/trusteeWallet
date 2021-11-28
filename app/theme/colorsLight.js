@@ -188,5 +188,9 @@ export const colorsLight = {
             color: '#4E435F'
         },
         fileColor: '#4E435F'
+    },
+    stakingPercent: {
+        bg: '#864DD926',
+        color: '#864DD9'
     }
 }

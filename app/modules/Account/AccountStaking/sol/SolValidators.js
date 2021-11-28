@@ -97,7 +97,7 @@ class SolValidators extends PureComponent {
                 onPress={() => this.selectSolValidator(item)}
                 checked={JSON.stringify(this.state.selectedVoteAddress) === JSON.stringify(item)}
                 last={this.state.selectedVoteAddress.length - 1 === index}
-                percentValue={strings('settings.walletList.selectValidatorSOLCommission') + item.commission}
+                percentValue={strings('settings.walletList.selectValidatorSOLCommission') + ' ' + item.commission}
             />
         )
     }

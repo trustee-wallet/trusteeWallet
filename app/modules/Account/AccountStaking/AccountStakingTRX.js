@@ -13,25 +13,16 @@ import {
 import { connect } from 'react-redux'
 import { TabView } from 'react-native-tab-view'
 
-import config from '@app/config/config'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import { getSelectedAccountData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
 import { strings } from '@app/services/i18n'
-import Log from '@app/services/Log/Log'
 
-import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import TronUtils from '@crypto/blockchains/trx/ext/TronUtils'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import Input from '@app/components/elements/NewInput'
@@ -44,6 +35,8 @@ import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAn
 
 import InfoProgressBar from './elements/InfoProgressBar'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
+import PercentView from '@app/components/elements/new/PercentView'
+import { handleTrxScan, handleFreezeTrx, handleUnFreezTrx, handlePartBalance, handleGetRewardTrx } from './helper'
 
 class AccountStakingTRX extends React.PureComponent {
 
@@ -78,10 +71,10 @@ class AccountStakingTRX extends React.PureComponent {
         refreshing: false
     }
 
-    freezeAmountInput = React.createRef()
+    stakeAmountInput = React.createRef()
 
     componentDidMount() {
-        this.handleScan()
+        handleTrxScan.call(this)
     }
 
     handleBack = () => {
@@ -98,91 +91,11 @@ class AccountStakingTRX extends React.PureComponent {
             refreshing: true
         })
 
-        await this.handleScan()
+        await handleTrxScan.call(this)
 
         this.setState({
             refreshing: false
         })
-    }
-
-    handleScan = async () => {
-        const { account } = this.props
-
-        const address = account.address
-
-        Log.log('AccountStakingTrx.handleScan scan started', address)
-
-        const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('AccountStakingTrx'))
-        console.log(balance)
-
-        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
-        const tmp = await BlocksoftAxios.postWithoutBraking(sendLink + '/wallet/getReward', { address })
-        if (typeof tmp.data === 'undefined' || typeof tmp.data.reward === 'undefined') {
-            Log.log('AccountStakingTrx.handleScan noReward', tmp)
-        } else if (balance) {
-            Log.log('AccountStakingTrx.handleScan balance', balance)
-            const reward = tmp.data.reward
-            balance.prettyBalance = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balance)
-            balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
-            balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
-            balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenEnergy * 1).toString().split('.')[0]
-
-            const prettyReward = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(reward)
-            this.setState({
-                currentBalance: balance,
-                currentReward: reward,
-                prettyReward,
-                currentBalanceChecked: true
-            })
-        } else {
-            Log.log('SettingsTRX.handleScan noBalance', balance)
-        }
-
-        return balance
-    }
-
-    // https://developers.tron.network/reference#walletvotewitnessaccount
-    // https://developers.tron.network/reference#walletfreezebalance-1
-    // only freeze can have amount actually
-    handleFreeze = async (isAll, type) => {
-        const { account } = this.props
-        const { currentBalanceChecked, currentBalance } = this.state
-        let actualBalance = currentBalance
-        if (currentBalanceChecked === false) {
-            actualBalance = await this.handleScan()
-        }
-
-        setLoaderStatus(true)
-
-        const address = account.address
-        let freeze = actualBalance.balance
-
-        try {
-
-            if (!isAll) {
-                const inputValidate = await this.freezeAmountInput.handleValidate()
-                if (inputValidate.status !== 'success') {
-                    throw new Error('invalid custom freeze value')
-                }
-                freeze = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makeUnPretty(inputValidate.value)
-            }
-
-            await this._sendTx('/wallet/freezebalance', {
-                owner_address: TronUtils.addressToHex(address),
-                frozen_balance: freeze * 1,
-                frozen_duration: 3,
-                resource: type
-            }, 'freeze ' + freeze + ' for ' + type + ' of ' + address)
-
-            this.freezeAmountInput.handleInput('', false)
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log('AccountStakingTrx.handleFreeze error ', e)
-            }
-            this._wrapError(e)
-        }
-        setLoaderStatus(false)
-        await this.handleVote()
     }
 
     _wrapError = (e) => {
@@ -200,125 +113,7 @@ class AccountStakingTRX extends React.PureComponent {
             title: strings('modal.exchange.sorry'),
             description: msg
         })
-        this.handleScan()
-    }
-
-    handleUnFreeze = async (isAll, type) => {
-
-        const { account } = this.props
-
-        type = type.toUpperCase()
-
-        setLoaderStatus(true)
-
-        const address = account.address
-
-        try {
-            await this._sendTx('/wallet/unfreezebalance', {
-                owner_address: TronUtils.addressToHex(address),
-                resource: type
-            }, 'unfreeze for ' + type + ' of ' + address)
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log('AccountStakingTrx.handleUnFreeze error ', e)
-            }
-            this._wrapError(e)
-        }
-        setLoaderStatus(false)
-    }
-
-    handleVote = async () => {
-        const { account } = this.props
-        const { currentBalanceChecked, currentBalance } = this.state
-        let actualBalance = currentBalance
-        if (currentBalanceChecked === false) {
-            actualBalance = await this.handleScan()
-        }
-
-        setLoaderStatus(true)
-
-        const address = account.address
-
-        try {
-            const voteAddress = BlocksoftExternalSettings.getStatic('TRX_VOTE_BEST')
-            await this._sendTx('/wallet/votewitnessaccount', {
-                owner_address: TronUtils.addressToHex(address),
-                votes: [
-                    {
-                        vote_address: TronUtils.addressToHex(voteAddress),
-                        vote_count: actualBalance.prettyVote * 1
-                    }
-                ]
-            }, 'vote ' + actualBalance.prettyVote + ' for ' + voteAddress)
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log('AccountStakingTrx.handleVote error ', e)
-            }
-            this._wrapError(e)
-        }
-        setLoaderStatus(false)
-    }
-
-    handleGetReward = async () => {
-        const { account } = this.props
-
-        setLoaderStatus(true)
-
-        const address = account.address
-
-        try {
-            await this._sendTx('/wallet/withdrawbalance', {
-                owner_address: TronUtils.addressToHex(address)
-            }, 'withdrawbalance to ' + address)
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log('AccountStakingTrx.handleGetReward error ', e)
-            }
-            this._wrapError(e)
-        }
-        setLoaderStatus(false)
-    }
-
-    _sendTx = async (shortLink, params, langMsg) => {
-
-        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
-        const link = sendLink + shortLink
-        const tmp = await BlocksoftAxios.post(link, params)
-        let blockchainData
-        if (typeof tmp.data !== 'undefined') {
-            if (typeof tmp.data.raw_data_hex !== 'undefined') {
-                blockchainData = tmp.data
-            } else {
-                Log.log('AccountStakingTrx.handleFreeze no rawHex ' + link, params, tmp.data)
-                throw new Error(JSON.stringify(tmp.data))
-            }
-        } else {
-            Log.log('AccountStakingTrx._sendTx no rawHex empty data ' + link, params)
-            throw new Error('Empty data')
-        }
-
-        const { account, selectedWallet } = this.props
-
-        const txData = {
-            currencyCode: 'TRX',
-            walletHash: selectedWallet.walletHash,
-            derivationPath: account.derivationPath,
-            addressFrom: account.address,
-            addressTo: '',
-            blockchainData
-        }
-        const result = await BlocksoftTransfer.sendTx(txData, { selectedFee: { langMsg } })
-        if (result) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: true,
-                title: strings('modal.send.success'),
-                description: result.transactionHash
-            })
-            this.handleScan()
-        } else {
-            throw new Error('no transaction')
-        }
+        handleTrxScan.call(this)
     }
 
     renderScene = ({ route }) => {
@@ -336,28 +131,6 @@ class AccountStakingTRX extends React.PureComponent {
 
     handleTabChange = (index) => {
         this.setState({ index })
-    }
-
-    handlePartBalance = (newPartBalance) => {
-        const { account } = this.props
-        const { balance } = account
-
-        const transferAllBalance = balance
-
-        Log.log('AccountStakingTrx.Input.handlePartBalance ' + newPartBalance + ' clicked')
-        this.setState({
-            partBalance: newPartBalance
-        }, async () => {
-            let cryptoValue
-            if (this.state.partBalance === 4) {
-                cryptoValue = transferAllBalance
-            } else {
-                cryptoValue = BlocksoftUtils.mul(BlocksoftUtils.div(transferAllBalance, 4), this.state.partBalance)
-            }
-            const pretty = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(cryptoValue)
-            Log.log('AccountStakingTrx.Input.handlePartBalance ' + newPartBalance + ' end counting ' + cryptoValue + ' => ' + pretty)
-            this.freezeAmountInput.handleInput(pretty)
-        })
     }
 
     renderInfoHeader = () => {
@@ -383,9 +156,15 @@ class AccountStakingTRX extends React.PureComponent {
 
         return (
             <AccountGradientBlock>
-                <View style={{ marginBottom: GRID_SIZE }}>
-                    <Text style={[styles.rewardText, { color: colors.common.text1 }]}>{strings('settings.walletList.rewards')}</Text>
-                    <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
+                <View style={[styles.progressBarLoaction, { marginBottom: GRID_SIZE }]}>
+                    <View>
+                        <Text style={[styles.rewardText, { color: colors.common.text1 }]}>{strings('settings.walletList.rewards')}</Text>
+                        <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
+                    </View>
+                    <PercentView
+                        currencyCode='TRX'
+                        staking
+                    />
                 </View>
                 <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
                     <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
@@ -393,7 +172,7 @@ class AccountStakingTRX extends React.PureComponent {
                         <BorderedButton
                             containerStyle={styles.widhdrawBtn}
                             text={strings('settings.walletList.withdrawSOL')}
-                            onPress={this.handleGetReward}
+                            onPress={() => handleGetRewardTrx.call(this)}
                         />}
                 </View>
                 <View style={styles.progressBarLoaction}>
@@ -434,7 +213,7 @@ class AccountStakingTRX extends React.PureComponent {
                     <Input
                         style={{ height: 55 }}
                         containerStyle={{ height: 55 }}
-                        ref={ref => this.freezeAmountInput = ref}
+                        ref={ref => this.stakeAmountInput = ref}
                         id='freezeAmount'
                         name={strings('settings.walletList.enterToFreezeTRX')}
                         keyboardType='numeric'
@@ -445,22 +224,22 @@ class AccountStakingTRX extends React.PureComponent {
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
                     <InputAndButtonsPartBalanceButton
-                        action={() => this.handlePartBalance(1)}
+                        action={() => handlePartBalance.call(this, 1)}
                         text='25%'
                         inverse={this.state.partBalance === 1}
                     />
                     <InputAndButtonsPartBalanceButton
-                        action={() => this.handlePartBalance(2)}
+                        action={() => handlePartBalance.call(this, 2)}
                         text='50%'
                         inverse={this.state.partBalance === 2}
                     />
                     <InputAndButtonsPartBalanceButton
-                        action={() => this.handlePartBalance(3)}
+                        action={() => handlePartBalance.call(this, 3)}
                         text='75%'
                         inverse={this.state.partBalance === 3}
                     />
                     <InputAndButtonsPartBalanceButton
-                        action={() => this.handlePartBalance(4)}
+                        action={() => handlePartBalance.call(this, 4)}
                         text='100%'
                         inverse={this.state.partBalance === 4}
                     />
@@ -491,7 +270,7 @@ class AccountStakingTRX extends React.PureComponent {
                             <BorderedButton
                                 containerStyle={styles.widhdrawBtn}
                                 text={strings('account.transaction.unfreeze')}
-                                onPress={() => this.handleUnFreeze(false, 'BANDWIDTH')}
+                                onPress={() => handleUnFreezTrx.call(this, false, 'BANDWIDTH')}
                             />}
                     </View>
                 </View>
@@ -521,7 +300,7 @@ class AccountStakingTRX extends React.PureComponent {
                             <BorderedButton
                                 containerStyle={styles.widhdrawBtn}
                                 text={strings('account.transaction.unfreeze')}
-                                onPress={() => this.handleUnFreeze(false, 'ENERGY')}
+                                onPress={() => handleUnFreezTrx.call(this, false, 'ENERGY')}
                             />}
                     </View>
                 </View>
@@ -584,9 +363,8 @@ class AccountStakingTRX extends React.PureComponent {
                 <Button
                     title={strings('account.transaction.freeze')}
                     containerStyle={{ marginBottom: GRID_SIZE, marginHorizontal: GRID_SIZE }}
-                    onPress={() => this.handleFreeze(false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
+                    onPress={() => handleFreezeTrx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
                 />
-
             </ScreenWrapper>
         )
     }
@@ -596,7 +374,6 @@ AccountStakingTRX.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        mainStore: state.mainStore,
         cashbackStore: getCashBackData(state),
         selectedWallet: getSelectedWalletData(state),
         account: getSelectedAccountData(state),
@@ -636,6 +413,7 @@ const styles = {
     },
     progressBarLoaction: {
         flexDirection: 'row',
+        alignItems: 'flex-start',
         justifyContent: 'space-between'
     },
     bandwidthContainer: {
