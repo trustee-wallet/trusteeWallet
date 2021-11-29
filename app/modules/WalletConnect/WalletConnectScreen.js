@@ -350,6 +350,7 @@ class WalletConnectScreen extends PureComponent {
                                     range={true}
                                     title={strings('settings.walletConnect.notificationTitle')}
                                     subTitle={strings('settings.walletConnect.notificationText', { name: this.state.peerMeta.name })}
+                                    iconType="warningMessage"
                                 />
                             }
                         </View>

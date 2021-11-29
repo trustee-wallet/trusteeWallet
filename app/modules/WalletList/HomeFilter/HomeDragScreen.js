@@ -5,9 +5,10 @@
 
 import React, { PureComponent } from 'react'
 import {
-    LayoutAnimation,
+    Text,
     Platform,
-    View
+    View,
+    Dimensions
 } from 'react-native'
 import { connect } from 'react-redux'
 
@@ -33,6 +34,10 @@ import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 
 import GradientView from '@app/components/elements/GradientView'
 
+import LottieView from 'lottie-react-native'
+import Button from '@app/components/elements/new/buttons/Button'
+
+const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 class HomeDragScreen extends PureComponent {
 
@@ -41,7 +46,8 @@ class HomeDragScreen extends PureComponent {
         originalData: [],
         data: [],
         currenciesOrder: [],
-        sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
+        sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue(),
+        isTraining: true
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -54,6 +60,15 @@ class HomeDragScreen extends PureComponent {
                 sortValue: this.props.sortValue
             })
         }
+    }
+
+    componentWillMount() {
+        trusteeAsyncStorage.getIsTraining().then(res => {
+            this.setState(({
+                isTraining : res === '1',
+            }))
+        })
+
     }
 
     handleDone = () => {
@@ -80,6 +95,48 @@ class HomeDragScreen extends PureComponent {
         trusteeAsyncStorage.setSortValue('custom')
     }
 
+    renderTrainingAnimation = () => {
+
+        const {
+            GRID_SIZE,
+            isLight,
+            colors
+        } = this.context
+
+        return(
+            <View style={styles.guideContainer}>
+                <LottieView
+                    style={{
+                        width: WINDOW_WIDTH * 0.5,
+                        height: WINDOW_HEIGHT * 0.6
+                    }}
+                    autoPlay
+                    loop
+                    speed={0.8}
+                    source={isLight ? require('@assets/jsons/animations/TabAnimationLight.json') : require('@assets/jsons/animations/TabAnimationDark.json')}
+                />
+                <View>
+                    <Text style={[styles.guideTitle, { color: colors.common.text3, marginBottom: GRID_SIZE / 2 }]}>{strings('modal.dropDownModal.guideTitle')}</Text>
+                    <Text style={[styles.guideText, { color: colors.common.text3, marginHorizontal: GRID_SIZE * 2 }]}>{strings('modal.dropDownModal.guideText')}</Text>
+                </View>
+                <Button
+                    title={strings('modal.backDropModal.guideAccept')}
+                    onPress={() => {
+                        trusteeAsyncStorage.setIsTraining(false)
+                        this.triggerGuide()  
+                    }}
+                    containerStyle={{ width: WINDOW_WIDTH - GRID_SIZE * 2, marginBottom: GRID_SIZE }}
+                />
+            </View>
+        )
+    }
+
+    triggerGuide = () => { 
+        this.setState({
+            isTraining: !this.state.isTraining
+        })    
+    }  
+
     render() {
 
         const {
@@ -98,7 +155,10 @@ class HomeDragScreen extends PureComponent {
                 rightAction={this.handlRightAction}
                 withoutSafeArea
             >
-                <View style={{ marginBottom: GRID_SIZE * 5 }} />
+                {this.state.isTraining ?
+                    this.renderTrainingAnimation() :
+                <>
+                <View style={{ marginBottom: Platform.OS === 'ios' ? GRID_SIZE * 5 : GRID_SIZE * 2.5 }} />
                 <DraggableFlatList
                     data={data}
                     extraData={data}
@@ -115,6 +175,7 @@ class HomeDragScreen extends PureComponent {
                             constructorMode={true}
                             listData={data}
                             onDragEnd={this.onDragEnd}
+                            triggerGuide={this.triggerGuide}
                         />
                     )}
                     keyExtractor={(item, index) => index.toString()}
@@ -123,7 +184,8 @@ class HomeDragScreen extends PureComponent {
                     ListFooterComponent={(<View style={{ marginBottom: GRID_SIZE * 1.5 }} />)}
                 />
                 <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
-
+                </>
+}
             </ScreenWrapper>
         )
     }
@@ -155,5 +217,24 @@ const styles = {
     containerBG: {
         start: { x: 1, y: 0 },
         end: { x: 1, y: 1 }
+    },
+    guideContainer: {
+        width: '100%', 
+        height: '100%', 
+        alignItems: 'center', 
+        justifyContent: 'space-between'
+    },
+    guideText: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 14,
+        lineHeight: 18,
+        letterSpacing: 1,
+        textAlign: 'center'
+    },
+    guideTitle: {
+        textAlign: 'center', 
+        fontSize: 24, 
+        lineHeight: 28, 
+        fontFamily: 'SFUIDisplay-Semibold'
     }
 }

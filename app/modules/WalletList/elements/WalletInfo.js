@@ -233,6 +233,7 @@ class WalletInfo extends React.Component {
                             subTitle={strings('settings.walletList.backupDescription')}
                             closeCallback={this.closeMsg}
                             onPress={this.handleBackupModal}
+                            iconType="warning"
                         />
                     </View> : null
                 }

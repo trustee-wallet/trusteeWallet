@@ -187,6 +187,15 @@ class TrusteeAsyncStorage {
         this._inited['pushToken'] = one
         return AsyncStorage.setItem(ASYNC_STORE_KEY, JSON.stringify(this._inited))
     }
+
+    getIsTraining = async () => {
+        return this._get('isTraining')
+    }
+
+    setIsTraining = (value) => {
+        return this._set('isTraining', value)
+    }
+    
 }
 
 const trusteeAsyncStorage = new TrusteeAsyncStorage()
