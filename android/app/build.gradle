@@ -133,7 +133,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.50.2"
+        versionName "1.0.0"
 
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
@@ -233,6 +233,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:18.0.0'
     implementation 'com.google.firebase:firebase-database:18.0.0'
     implementation 'com.google.firebase:firebase-perf:19.1.1'
+    implementation 'com.google.firebase:firebase-analytics'
 
 
     compile('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {

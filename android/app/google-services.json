@@ -1,34 +1,33 @@
 {
   "project_info": {
-    "project_number": "1000360526097",
-    "firebase_url": "https://api-7762265605376467090-814112.firebaseio.com",
-    "project_id": "api-7762265605376467090-814112",
-    "storage_bucket": "api-7762265605376467090-814112.appspot.com"
+    "project_number": "193299254360",
+    "project_id": "nextmindcoin-5751b",
+    "storage_bucket": "nextmindcoin-5751b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1000360526097:android:c679be150b04db26",
+        "mobilesdk_app_id": "1:193299254360:android:8b9c20aa7f9d2121b78e2d",
         "android_client_info": {
           "package_name": "com.nextmindcoin.wallet"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1000360526097-rcmmmsm0rbvk6q6v3qnu6johhke39fc7.apps.googleusercontent.com",
+          "client_id": "193299254360-21l8jkmiuk4c7q5sovoeqkt5ojv9dedk.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA1dUwcH_5JeFQOYthV1XgXiG_Li4-lNKE"
+          "current_key": "AIzaSyCzmX4nwCSbqbFsgp-WNaO52qMq31AKfrI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1000360526097-rcmmmsm0rbvk6q6v3qnu6johhke39fc7.apps.googleusercontent.com",
+              "client_id": "193299254360-21l8jkmiuk4c7q5sovoeqkt5ojv9dedk.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
