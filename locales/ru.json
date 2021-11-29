@@ -1177,7 +1177,8 @@
     "dropDownModal": {
       "showGuide": "Повторить обучение",
       "moveToTop": "Поднять в начало списка",
-      "moveToDown": "Опустить в конец списка"
+      "moveToDown": "Опустить в конец списка",
+      "hideAsset": "Скрыть актыв"
     }
   },
   "lockScreen": {

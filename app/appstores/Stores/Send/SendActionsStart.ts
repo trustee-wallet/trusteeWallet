@@ -118,7 +118,7 @@ export namespace SendActionsStart {
                 NavStore.goNext('ReceiptScreen')
             }
         } catch (e) {
-            Log.error(' SendActionsStart.startFromWalletConnect error ' + e.message)
+            Log.err(' SendActionsStart.startFromWalletConnect error ' + e.message)
         }
     }
 

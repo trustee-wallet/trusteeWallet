@@ -690,6 +690,8 @@ class AccountReceiveScreen extends React.PureComponent {
                             style={styles.qr}
                             onPress={this.handleBackDropModal}
                             activeOpacity={0.8}
+                            onLongPress={this.copyToClip}
+                            delayLongPress={500}
                         >
                             <QrCodeBox
                                 getRef={ref => this.refSvg = ref}
@@ -730,7 +732,9 @@ class AccountReceiveScreen extends React.PureComponent {
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={{ ...styles.line, backgroundColor: colors.sendScreen.colorLine }} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
-                                    onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP} >
+                                    onPress={this.handleChangeEquivalentType}
+                                    hitSlop={HIT_SLOP}
+                                >
                                     <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
                                 </TouchableOpacity>
                             </View>
@@ -758,11 +762,16 @@ class AccountReceiveScreen extends React.PureComponent {
                         :
                         <>
                             <View style={{ ...styles.backgroundAddress, backgroundColor: colors.transactionScreen.backgroundItem, marginHorizontal: GRID_SIZE }} >
-                                <TouchableOpacity style={{
-                                    position: 'relative',
-                                    alignItems: 'center'
-                                }} onPress={() => this.handleBackDropModal()}
-                                    hitSlop={HIT_SLOP}>
+                                <TouchableOpacity
+                                    style={{
+                                        position: 'relative',
+                                        alignItems: 'center'
+                                    }}
+                                    onPress={() => this.handleBackDropModal()}
+                                    hitSlop={HIT_SLOP}
+                                    onLongPress={this.copyToClip}
+                                    delayLongPress={500}
+                                >
                                     <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                         <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
                                             <LetterSpacing text={shownAddress && shownAddress !== '' ? shownAddress : address} numberOfLines={2} containerStyle={{
@@ -827,7 +836,7 @@ const mapStateToProps = (state) => {
 }
 AccountReceiveScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(AccountReceiveScreen)
+export default connect(mapStateToProps)(AccountReceiveScreen)
 
 const styles = {
     wrapper: {

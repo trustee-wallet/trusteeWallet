@@ -917,6 +917,12 @@ class MarketScreen extends PureComponent {
         )
     }
 
+    handleWebViewNavigationStateChange = (navState) => {
+        const { isLight } = this.context
+
+        StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
+    }
+
     render() {
 
         UpdateOneByOneDaemon.pause()

@@ -1177,7 +1177,8 @@
     "dropDownModal": {
       "showGuide": "Repeat training",
       "moveToTop": "Move to the top of the list",
-      "moveToDown": "Move to the down of the list"
+      "moveToDown": "Move to the down of the list",
+      "hideAsset": "Hide assets"
     }
   },
   "lockScreen": {
