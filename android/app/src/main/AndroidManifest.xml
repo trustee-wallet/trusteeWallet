@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.trusteewallet"
+  package="com.nextmindcoin.wallet"
   xmlns:tools="http://schemas.android.com/tools"
 >
 

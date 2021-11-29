@@ -1,4 +1,4 @@
-package com.trusteewallet;
+package com.nextmindcoin.wallet;
 
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -83,6 +83,6 @@ public class MainActivity extends ReactActivity {
     }
 
     protected String getMainComponentName() {
-        return "TrusteeWallet";
+        return "NextMindCoinWallet";
     }
 }

@@ -1,4 +1,4 @@
-package com.trusteewallet;
+package com.nextmindcoin.wallet;
 
 import android.app.Application;
 import android.content.Context;

@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Trustee</string>
-    <string name="rnsb_sync_account_type" translatable="false">com.trusteewallet</string>
-    <string name="rnsb_content_authority" translatable="false">com.trusteewallet.provider</string>
+    <string name="app_name">NextMindCoin</string>
+    <string name="rnsb_sync_account_type" translatable="false">com.nextmindcoin.wallet</string>
+    <string name="rnsb_content_authority" translatable="false">com.nextmindcoin.wallet.provider</string>
     <string name="rnsb_allow_foreground">true</string>
     <string name="rnsb_default_timeout" translatable="false">10000</string>
     <string name="rnsb_user_visible" translatable="false">true</string>
