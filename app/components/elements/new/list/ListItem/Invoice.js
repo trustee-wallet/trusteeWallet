@@ -22,6 +22,10 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='blockchair' size={20} color={color} />
         case 'invoice':
             return <CustomIcon name='invoice' size={20} color={color} />
+        case 'toUp':
+            return <CustomIcon name='toUp' size={20} color={color} />
+        case 'toDown':
+            return <CustomIcon name='toDown' size={20} color={color} />
         default:
             return null
     }
@@ -29,7 +33,7 @@ const getIcon = (iconType, color) => {
 
 const InvoiceListItem = (props) => {
 
-    const { 
+    const {
         colors,
         GRID_SIZE
     } = useTheme()
@@ -47,17 +51,17 @@ const InvoiceListItem = (props) => {
 
 
 
-    return(
+    return (
         <TouchableOpacity
             onPress={onPress}
             activeOpacity={activeOpacity}
             style={[styles.container, { backgroundColor: colors.backDropModal.buttonBg }, containerStyle]}
         >
             <View style={[styles.textContainer, { marginHorizontal: GRID_SIZE }]}>
-                <Text style={[styles.text, textStyles, { color: textColor }]}>{title}</Text>
+                <Text style={[styles.text, textStyles, { color: textColor }]} numberOfLines={2} >{title}</Text>
                 {getIcon(iconType, textColor)}
             </View>
-            {!last && <View style={[styles.underline, { backgroundColor: colors.backDropModal.underline }]}/>}
+            {!last && <View style={[styles.underline, { backgroundColor: colors.backDropModal.underline }]} />}
         </TouchableOpacity>
     )
 }

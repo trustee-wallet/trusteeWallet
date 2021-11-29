@@ -418,7 +418,7 @@
     "assetSettings": "Налаштування активу",
     "copyLink": "Копіювати адресу",
     "invoiceText": "Виставити рахунок для оплати",
-    "openInBlockchair": "Відкрити в Blockchair",
+    "openInBlockchair": "Відкрити в блокчейн експлорері",
     "externalLink": {
       "title": "Перехід до блокчейн експлореру",
       "description": "Ви перейдете на зовнішній ресурс"
@@ -1173,6 +1173,11 @@
     },
     "notification": {
       "description": "На жаль, Ваш мобільний пристрій не підтримує отримання Push-повідомлень"
+    },
+    "dropDownModal": {
+      "showGuide": "Повторити навчання",
+      "moveToTop": "Перемістити на початок списку",
+      "moveToDown": "Перемістити в кінець списку"
     }
   },
   "lockScreen": {

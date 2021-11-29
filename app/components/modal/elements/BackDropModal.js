@@ -51,7 +51,7 @@ class BackDropModal extends React.PureComponent {
             > 
                     <View style={[styles.content, { backgroundColor: colors.backDropModal.bg, paddingBottom: Platform.OS === 'ios' ? GRID_SIZE : 0 }]}>
                         <View style={[styles.topBtn, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE * 1.2 }]} />
-                            <Content />
+                            <Content data={this.props.data} />
                             <Button
                                 title={strings('assets.hideAsset')}
                                 type='withoutShadow'

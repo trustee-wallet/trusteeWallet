@@ -392,7 +392,7 @@ class AddAssetScreen extends React.PureComponent {
 
         if (isSearchTokenAddress) {
             return (
-                <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
+                <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6, marginHorizontal: GRID_SIZE * 2 }}>
                     <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
                         <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
                             <Button

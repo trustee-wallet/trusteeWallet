@@ -419,7 +419,7 @@
     "assetSettings": "Настройки актива",
     "copyLink": "Копировать адрес",
     "invoiceText": "Выставить счет для оплаты",
-    "openInBlockchair": "Открыть в Blockchair",
+    "openInBlockchair": "Открыть в блокчейн эксплорере",
     "externalLink": {
       "title": "Переход к блокчейн эксплореру",
       "description": "Вы перейдете на внешний ресурс"
@@ -1173,6 +1173,11 @@
     },
     "notification": {
       "description": "К сожалению, Ваше мобильное устройство не поддерживает получение Push-уведомлений"
+    },
+    "dropDownModal": {
+      "showGuide": "Повторить обучение",
+      "moveToTop": "Поднять в начало списка",
+      "moveToDown": "Опустить в конец списка"
     }
   },
   "lockScreen": {

@@ -1,3 +1,4 @@
+import React from 'react'
 import { Dimensions, PixelRatio } from 'react-native'
 
 import _sortBy from 'lodash/sortBy'
@@ -24,6 +25,8 @@ import DaemonCache from '@app/daemons/DaemonCache'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+
+import ContentDropModal from './elements/ContentDropModal'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -167,6 +170,22 @@ const handleCurrencySelect = async (props, screen) => {
     let status = ''
     CACHE_CLICK = true
 
+    if (props.constructorMode) {
+        showModal({
+            type: 'BACK_DROP_MODAL',
+            currentIndex: props.index,
+            onDrag: props.onDragEnd,
+            listData: props.listData,
+            // eslint-disable-next-line react/display-name
+            Content: ({ data }) => {
+                return <ContentDropModal data={data} />
+            }
+        })
+
+        CACHE_CLICK = false
+        return
+    }
+
     if (typeof cryptoCurrency.currencyCode !== 'undefined' && (cryptoCurrency.currencyCode === 'NFT' || cryptoCurrency.currencyCode === 'CASHBACK')) {
         try {
             setSelectedCryptoCurrency(cryptoCurrency)
@@ -224,7 +243,7 @@ const getSortedData = (array, currentArray, accountList, filter) => {
             return _orderBy(currentArray, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
         }
         case 'byValue': {
-            let sortedAccount = _orderBy(accountList, function(obj) {
+            let sortedAccount = _orderBy(accountList, function (obj) {
                 return parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
             }, 'desc').map(item => item.currencyCode)
 
@@ -248,6 +267,10 @@ const getSortedData = (array, currentArray, accountList, filter) => {
 
 const getSectionsData = (array) => {
     const sections = _groupBy(array, 'currencyType')
+    if (sections?.custom) {
+        sections.token = [...sections.token, ...sections.custom]
+        delete sections.custom
+    }
 
     return Object.keys(sections).map((key) => ({ title: key, data: sections[key] }))
 }

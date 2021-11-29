@@ -113,14 +113,13 @@ class CryptoCurrency extends React.PureComponent {
         return (
             <View style={styles.container}>
                 <View style={styles.shadow__container}>
-                    <View style={[styles.shadow__item, this.props.isActive && styles.shadow__item__active]} />
+                    <View style={styles.shadow__item} />
                 </View>
                 <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    style={[styles.cryptoList__item, { transform: [{scale: this.props.isActive ? 1.02 : 1}] }]}
+                    style={styles.cryptoList__item}
                     onPress={() => handleCurrencySelect(this.props)}
-                    disabled={this.props.constructorMode}
                 >
                     <GradientView
                         style={styles.cryptoList__item__content}
@@ -239,14 +238,13 @@ class CryptoCurrency extends React.PureComponent {
         return (
             <View style={styles.container}>
                 <View style={styles.shadow__container}>
-                    <View style={[styles.shadow__item, this.props.isActive && styles.shadow__item__active]} />
+                    <View style={styles.shadow__item} />
                 </View>
                 <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
                 <TouchableOpacity
                     activeOpacity={0.7}
-                    style={[styles.cryptoList__item, { transform: [{scale: this.props.isActive ? 1.02 : 1}] }]}
+                    style={styles.cryptoList__item}
                     onPress={() => handleCurrencySelect(this.props, currencyCode === 'CASHBACK' ? 'CashbackScreen' : false)}
-                    disabled={this.props.constructorMode}
                 >
                     <GradientView
                         style={[styles.cryptoList__item__content, { paddingLeft: SIZE - 2 }]}
