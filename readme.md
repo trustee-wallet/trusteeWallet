@@ -1,6 +1,6 @@
-## Trustee Wallet
+## NextMindCoin
 
-[Trustee Wallet](https://trustee.deals/) is the secure and simple way to create and manage crypto accounts. Quick and safe buy and sell bitcoin directly with your Visa or MasterCard
+NXMCwalletis the secure and simple way to create and manage crypto accounts. Quick and safe buy and sell bitcoin directly with your Visa or MasterCard
 
 
 
@@ -47,12 +47,12 @@ Please note: by creating `~/androidsdk/licenses/android-sdk-license` file you ar
 #### Android build
 Download code from Github
 ```
-git clone https://github.com/trustee-wallet/trusteeWallet.git
+git clone https://github.com/CEO-NextMindCoin/NXMC-Wallet.git
 ```
 
 Build preparation
 ```
-cd ./trusteeWallet
+cd ./NXMC-Wallet
 npm install
 npx jetifier
 rm -f shim.js
@@ -81,8 +81,8 @@ On the next step we decoding both APK files by `apktool`. File downloaded from G
 Finally on the last step using simple `diff` command we checking both folders for differences.  
 
 ```bash 
-git clone https://github.com/trustee-wallet/trusteeWallet.git
-cd ./trusteeWallet
+git clone https://github.com/CEO-NextMindCoin/NXMC-Wallet.git
+cd ./NXMC-Wallet
 ./docker/verify_android_build.sh
 ```
 
@@ -129,9 +129,9 @@ In this example in both files differences related to changed build ID.
 ```diff
 root@37c6000f7ee9:/trustee# diff fromBuild/assets/crashlytics-build.properties fromGoogle/assets/crashlytics-build.properties
 6c6
-< #Tue Oct 27 14:57:43 GMT 2020
+< #Mon Nov 29 14:57:43 GMT 2020
 ---
-> #Tue Oct 27 07:20:06 GMT 2020
+> #Mon Nov 29 07:20:06 GMT 2020
 9c9
 < build_id=ec2f73f5-d473-4cb0-94fe-701f996ce221
 ---
@@ -172,11 +172,6 @@ root@37c6000f7ee9:/trustee# diff 'fromBuild/smali_classes3/okhttp3/internal/cach
 
 As we can see there are no significant differences between APK file downloaded from Google Play and file built from source code. So we can say there are no hidden functions that may harm users.   
 
-**Please note:** This verification method can be used only for the latest TrusteeWallet release. Because most of the third part packages that we use are also in active development and if we try to build some of the previous releases with latest packages versions there will be significant differences in APK files.  
+**Please note:** This verification method can be used only for the latest NXMCWallet release. Because most of the third part packages that we use are also in active development and if we try to build some of the previous releases with latest packages versions there will be significant differences in APK files.  
 
-
-### Contacts
-For proposals and bug reports feel free to open and issue [HERE](https://github.com/trustee-wallet/trusteeWallet/issues)
-
-If you have any questions please contact us by email <contact@trustee.deals> or join our community in [Telegram](https://t.me/trustee_wallet)
 
