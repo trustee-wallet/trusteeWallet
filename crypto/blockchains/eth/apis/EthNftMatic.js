@@ -18,7 +18,7 @@ export default async function(data) {
     if (!data.address) return false
 
     const link = API_PATH + data.address + '?tokenBlockchainCode=' + data.tokenBlockchainCode + '&tokens=' + data.customAssets.join(',')
-    const result = await BlocksoftAxios.getWithoutBraking(link)
+    const result = await BlocksoftAxios.get(link)
 
     /**
      * @var tmp.animation_url
