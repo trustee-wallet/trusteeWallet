@@ -17,6 +17,9 @@ export const LANGUAGE_SETTINGS = [
         code: 'en-US'
     },
     {
+        code: 'fr-FR'
+    },
+    {
         code: 'ru-RU'
     },
     {

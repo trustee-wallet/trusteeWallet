@@ -57,7 +57,7 @@ class WalletName extends PureComponent {
                 tmpWalletName = tmpWalletName.length > SIZE ? tmpWalletName.slice(0, SIZE) + '...' : tmpWalletName
                 // tmpWalletName = tmpWalletName.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16)))
             } catch (e) {
-                tmpWalletName = 'TRUSTEE WALLET'
+                tmpWalletName = 'NXMC WALLET'
             }
         }
         return tmpWalletName

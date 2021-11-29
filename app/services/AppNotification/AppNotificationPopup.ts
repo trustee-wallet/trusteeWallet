@@ -70,7 +70,7 @@ export default new class AppNotificationPopup {
         try {
             await Log.log('AppNotificationPopup._display data', data)
             // console.log('AppNotificationPopup._display data', data)
-            let { title, body, image, messageId, id } = data
+            const { title, body, image, messageId, id } = data
 
 
             if (Platform.OS !== 'ios') {
@@ -78,9 +78,9 @@ export default new class AppNotificationPopup {
                 await new Promise(resolve => {
                     PushNotification.createChannel(
                         {
-                            channelId: 'trusteeWalletChannel',
-                            channelName: 'Trustee wallet channel',
-                            channelDescription: 'Trustee wallet channel for notifications',
+                            channelId: 'nxmcWalletChannel',
+                            channelName: 'NXMC wallet channel',
+                            channelDescription: 'NXMC wallet channel for notifications',
                             playSound: false, // (optional) default: true
                             soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
                             importance: 4, // (optional) default: 4. Int value of the Android notification importance
@@ -95,8 +95,8 @@ export default new class AppNotificationPopup {
             }
 
             const params = {
-                channelId: 'trusteeWalletChannel',
-                ticker: 'Trustee wallet channel', // (optional)
+                channelId: 'nxmcWalletChannel',
+                ticker: 'NXMC wallet channel', // (optional)
                 // showWhen: true, // (optional) default: true
                 // autoCancel: true, // (optional) default: true
                 largeIcon: 'ic_launcher', // (optional) default: "ic_launcher". Use "" for no large icon.

@@ -150,11 +150,11 @@ class InitScreen extends React.PureComponent {
                     </View>
                     <View style={{ position: 'relative' }}>
                         <Text style={[styles.appName__text, { color: colors.initScreen.appName }]} numberOfLines={1}>
-                            TRUSTEE WALLET
+                            NXMC WALLET
                         </Text>
                         {isLight && (
                             <Text style={[styles.appName__text2, { color: colors.initScreen.appNameSub }]} numberOfLines={1}>
-                                TRUSTEE WALLET
+                                NXMC WALLET
                             </Text>)}
                         {
                             this.props.initError ?

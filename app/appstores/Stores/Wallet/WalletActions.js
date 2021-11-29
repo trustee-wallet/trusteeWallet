@@ -106,10 +106,10 @@ const walletActions = {
         const wallets = await walletDS.getWallets()
 
         if (typeof wallets === 'undefined' || !wallets || !wallets.length) {
-            return 'TRUSTEE WALLET'
+            return 'NXMC WALLET'
         }
 
-        return 'TRUSTEE WALLET №' + (wallets.length)
+        return 'NXMC WALLET №' + (wallets.length)
     },
 
     setNewWalletName: async (walletHash, newName) => {

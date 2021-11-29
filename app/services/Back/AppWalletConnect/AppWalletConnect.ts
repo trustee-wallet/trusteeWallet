@@ -129,10 +129,10 @@ export namespace AppWalletConnect {
                     {
                         uri: data.fullLink,
                         clientMeta: {
-                            description: 'Trustee Wallet for Wallet Connect',
+                            description: 'NXMC Wallet for Wallet Connect',
                             url: 'https://trustee.deals',
                             icons: ['https://walletconnect.org/walletconnect-logo.png'],
-                            name: 'Trustee Wallet'
+                            name: 'NXMC Wallet'
                         }
                     }
                 )
@@ -348,7 +348,7 @@ export namespace AppWalletConnect {
         WALLET_CONNECTOR.rejectRequest({
             id: payload.id,
             error: {
-                message: 'You have rejected request in Trustee Wallet'
+                message: 'You have rejected request in NXMC Wallet'
             }
         })
     }

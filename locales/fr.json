@@ -1,0 +1,1451 @@
+{
+    "appName": "NXMC",
+    "homeScreen": {
+      "balance": "Solde",
+      "unconfirmed" : "Non-Confirmé",
+      "today": "Aujourd'hui",
+      "changedLastDay": "Dans les dernières 24 hours",
+      "synchronizing": "Synchronisation"
+    },
+    "walletCreateScreen": {
+      "title": "ACHETER VENDRE ECHANGER ANONYMEMENT",
+      "createWallet": "Créer wallet",
+      "importWallet": "Restaurer wallet",
+      "acceptTerms": "Vous n'êtes pas d'accord avec les conditions d'utilisation et la politique de confidentialité",
+      "agreement1": "Je suis d'accord",
+      "terms": "Conditions d'utilisation",
+      "agreement2": "et",
+      "privacyPolicy": "Politique de confidentialité",
+      "agreement3": "et consentez au traitement des données personnelles que j'ai fournies",
+      "termsTitle": "Conditions d'utilisation",
+      "privacyPolicyTitle": "Politique de confidentialité",
+      "slider1": "Technologies innovantes de sécurité et d'anonymat",
+      "slider2": "Des possibilités infinies dans un design intuitif",
+      "slider3": "Surveillance intégrée des bureaux de change",
+      "slider4": "Transactions suspendues et coûteuses"
+    },
+    "tradeScreen": {
+      "modalError": {
+        "selectPhoto" : "SVP, choisir une photo de la galerie",
+        "serviceUnavailable": "Service non disponible. Veuillez réessayer plus tard",
+        "qrNotFoundInFile" : "Qr-code non trouvé, SVP, essayez de recharger le fichier"
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "newsTitle": "Nouveautés",
+      "tabAll": "Tout",
+      "tabNews": "Nouveau",
+      "tabInvite": "Invite",
+      "tabInfo": "Info",
+      "tabFaq": "Faq",
+      "today": "Aujourd'hui",
+      "yesterday": "Hier"
+    },
+    "settings": {
+      "title": "Paramétres",
+      "wallets": {
+        "listTitle": "Mon Portefeuille",
+        "listSubtitle": "Portefeuilles: %{number}"
+      },
+      "paymentAccounts": {
+        "listTitle": "Comptes de paiement",
+        "listSubtitle": "Comptes: %{number}"
+      },
+      "walletConnect": {
+        "title": "Connexion au portefeuille",
+        "activated": "Activé",
+        "disabled": "Désactivé"
+      },
+      "walletManagement": {
+        "title": "Gestion des portefeuilles",
+        "backup": "Portefeuille de sauvegarde",
+        "import": "Restaurer le portefeuille",
+        "create": "Créer nouveau portefeuille",
+        "select": "Choisir le portefeuille",
+        "addWallet": {
+          "title": "Ajouter un portefeuille",
+          "importTitle": "Restaurer le portefeuille",
+          "importSubtitle": "Ajouter un portefeuille avec une phrase de récupération",
+          "createTitle": "Créer un nouveau portefeuille"
+        },
+        "advanced": {
+          "title": "Paramètres du portefeuille",
+          "walletNameLabel": "Nom du portefeuille",
+          "recoveryPhraseTitle": "Phrase de récupération",
+          "recoveryPhraseSubtitle": "Votre phrase secrète de récupération",
+          "deleteWallet": "Supprimer le portefeuille",
+          "saveSeed": "Enregistrer votre phrase de récupération secrète",
+          "canNotDelete": "La fonction de suppression n'est disponible que pour les portefeuilles de sauvegarde"
+        }
+      },
+      "security": {
+        "title": "Securité",
+        "change": "Changer PIN",
+        "lock": "PIN-code",
+        "touch": "FaceID/TouchID",
+        "askPINCodeToSend": "Confirmation de transaction",
+        "askPINCodeSubtitle": "Demander d'envoyer des actifs"
+      },
+      "assets": {
+        "title": "Gestion d'actifs",
+        "addAsset": "Ajouter un actif"
+      },
+      "other": {
+        "title": "Autre",
+        "darkModeTitle": "mode Sombre",
+        "darkModeEnabledSubtitle": "Activé",
+        "darkModeDisabledSubtitle": "Désactivé",
+        "support": "Service-client",
+        "supportSubtitle": "Notre robot de support de Telegram",
+        "lock": "Écran verrouillé",
+        "bio": "Biometrique",
+        "about": "À propos de NextMindCoin",
+        "lang": "Language",
+        "copyLogs": "Copie des journaux",
+        "cashback": {
+          "title": "Cashback",
+          "description": "Invite des amis et gagne de l'argent",
+          "descriptionSmall": "Invite des amis et gagne de l'argent!"
+        },
+        "notifications": "Notifications",
+        "localCurrency": "Monnaie locale",
+        "scannerSettings": "Scannage",
+        "scannerSubtitle": "Fréquence de rechargement de la balance",
+        "loggingSettings": "Enregistrement",
+        "loggingSubtitle": "Connectez-vous aux fichiers locaux",
+        "scannerSubtitleSmall": "Vitesse de rechargement de la balance",
+        "faqSettings": "FAQ",
+        "faqSubtitle": "Questions fréquemment posées",
+        "toolTips": "Info-bulles",
+        "configMode": "Configuration",
+        "testerMode": "Testeur"
+      },
+      "walletList": {
+        "title": "Mon portefeuille",
+        "addWallet": "Ajouter portefeuille",
+        "backupNeeded": "Sauvegarde nécessaire",
+        "backupDescription": "Sauvegardez votre phrase de récupération avant d'utiliser le portefeuille pour garder vos fonds accessibles en cas de panne ou de perte de votre appareil mobile",
+        "addedAssets": "Actifs ajoutés",
+        "balance": "Solde",
+        "backup": "Sauvegarde",
+        "off": "Off",
+        "on": "On",
+        "totalBalance": "Total solde",
+        "useUnconfirmed": "Utiliser des transactions non confirmées",
+        "allowReplaceByFee": "Modifier la transaction avant la confirmation par les mineurs",
+        "showLegacy": "Legacy",
+        "showSegWit": "SegWit",
+        "accountAddress": "Type d'adresse par défaut",
+        "hd": "Augmenter la confidentialité",
+        "hdDescription": "Création d'une nouvelle adresse, à chaque fois après une transaction BTC entrante",
+        "hideCommissionTrans": "Masquer les transactions de paiement de commission",
+        "manualAddressFromHD" : "Coller l'adresse HD",
+        "scanAddressesFromHD" : "Scanner les adresses depuis HD",
+        "setAddressesFromHD" : {
+          "title": "L'adresse principale sera modifiée",
+          "description" : "Vous utiliserez le solde de l'adresse %{newAddress}"
+        },
+        "backupModal": {
+          "title": "Votre phrase de récupération n'est pas enregistrée!",
+          "description": "La phrase de récupération (phrase de départ) est la seule clé de vos actifs! En cas de panne ou de perte d'un appareil mobile, il sera impossible de restaurer l'accès à vos ressources sans la phrase de départ!\n\nEnregistrez votre phrase de récupération dans un endroit sûr maintenant!\n\nAttention aux escrocs, ne donnez jamais votre récupération phrase à n'importe qui !",
+          "save": "sauvegarder",
+          "late": "Faire plus tard"
+        },
+        "hdEnableModal": {
+          "title": "Passer le portefeuille en mode HD?",
+          "description": "Le mode HD implique une rotation des adresses pour chaque transaction. L'opération de commutation est irréversible."
+        },
+        "serverInputXMR" : "Server (default api.mymonero.com)",
+        "serverInputTitleXMR" : "api.mymonero.com:8443",
+        "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
+        "serverSendInputTitleXMR" : "or node.moneroworld.com:18089",
+        "needReinstallXMR"  : "Quelque chose ne va pas avec la génération d'adresses XMR - s'il vous plaît, enregistrez le mnémonique et réinstallez l'application ou contactez l'assistance",
+        "saveSettings" : "Sauvegarder",
+        "getMnemonicXMR" : "Afficher la clé secrète",
+        "availableTRX" : "Disponible",
+        "frozenTRX" : "Geler",
+        "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
+        "enterToFreezeTRX" : "entrer le montant des TRX gelés",
+        "freezeForBandTRX" : "Geler pour BAND",
+        "freezeForEnergyTRX" : "Geler pour ENERGY",
+        "unfreezeTRX" : "Dégeler",
+        "votedTRX" : "Votes",
+        "votedBalanceTRX" : "Voted %{voteTotal} / Total %{prettyVote}",
+        "voteTRX" : "Vote",
+        "rewardTRX" : "Récompense de vote",
+        "rewardBalanceTRX" : "Disponible %{prettyReward} TRX",
+        "claimTRX" : "Réclamation de la récompense",
+        "refreshTRX" : "Réactualiser",
+        "waitToClaimTRX" : "La dernière réclamation a été effectuée il y a moins de 24 heures",
+        "waitToUnfreezeTRX" : "Aux termes du protocole Tron, le dégivrage est possible après 72 heures à compter du dernier gelage",
+        "allowLongQueryETH" : "Autoriser la file d'attente des transactions en attente",
+        "allowBlockedBalanceETH" : "Autoriser la réutilisation du solde des transactions en attente",
+        "enterToStakeSOL" : "Entrez le montant de la mise en staking SOL",
+        "stakeSOL" : "Stake",
+        "unstakeSOL" : "Unstake",
+        "selectAddress" : "Sélectionnez l'adresse à utiliser",
+        "stakeBalance": "Stake Balance",
+        "address": "Adresse",
+        "stake": "Stake",
+        "rentReserve": "Rent reserve",
+        "allUnstakeSOL": "Unstake TOUT",
+        "stakeHistorySOL" : "Stake Historique",
+        "selectSolValidator": "Choisir le validateur",
+        "solValidator": "Validateur"
+      },
+      "about": {
+        "title": "A Propos",
+        "version": "NXMC version: %{version}",
+        "privacy": "Privacy policy",
+        "terms": "Terms of use",
+        "feedback": "Feedback",
+        "shareLogsTitle": "Share app logs",
+        "shareLogsSubtitle": "Help us to be better",
+        "contactSupportTitle": "Contact support",
+        "contactSupportSubtitle": "Chaine telegram officiel",
+        "contactSupportEmail": "ou envoyer un Email",
+        "contactSupportEmailSubtitle": "Officiel Email",
+        "contactSupportLoadingText" : "Si vous n'avez pas ouvert le chat d'assistance, veuillez nous contacter à",
+        "contactSupportLoadingTextEmail": "ou écrire à",
+        "information": "Information",
+        "copyright": "© NextMindCoin , 2021"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "additional": "Supplémentaire",
+        "allNotificationsTitle": "Activer tout",
+        "transactionsTitle": "Transactions",
+        "transactionsSubtitle": "Acheter, vendre, recevoir, envoyer, échanger",
+        "exchangeRatesTitle": "Taux d'échange",
+        "exchangeRateSubtitle": "Prix des pièces principales",
+        "newsTitle": "Nouveautés"
+      },
+      "error": {
+        "title": "Oooops, ça a mal tourné",
+        "contactSupport": "Support",
+        "tryAgain": "Réactualiser",
+        "text": "Si vous voyez ceci, quelque chose s'est mal passé, s'il vous plaît, envoyez-nous les journaux via le support ou essayez de relancer l'application"
+      },
+      "config": "Configuration changée en: %{config}",
+      "tester": "Testeur/utilisateur changé en: %{testerMode}",
+      "blockchainExplorer": "Blockchain exploreur"
+    },
+    "assets": {
+      "title": "Ajouter un actif",
+      "tabAll": "Tout",
+      "tabCoins": "Coins",
+      "tabTokens": "Tokens",
+      "tabCustom": "Plus",
+      "searchPlaceholder": "Chercher",
+      "addCustomPlaceholder": "Adresse de l'actif",
+      "addCustomLabel": "Vous pouvez ajouter un jeton standard développé sur Ethereum, BNB, Solana ou Tron blockchain. Veuillez saisir ou scanner un nouveau jeton/actif.",
+      "noAssetsFound": "Aucun actif trouvé",
+      "addAssetButton": "Ajouter un actif",
+      "mainTitle": "Ajouter un actif",
+      "addCustomAsset": "Ajouter un actif personnalisé",
+      "addAsset": "Ajouter",
+      "showAsset": "Montrer",
+      "hideAsset": "Cacher"
+    },
+    "AddCustomToken": {
+      "mainTitle": "Ajouter un actif",
+      "tokenInputTitle": "Adresse de l'actif",
+      "description": "Les adresses de jeton/d'actif Ethereum (ETH) et Tron (TRX) sont prises en charge",
+      "add": "Ajouter"
+    },
+    "nftMainScreen": {
+      "assets": "Actifs",
+      "receiveText": "Envoyer uniquement %{coin} à cette adresse. L'envoi d'une autre pièce peut entraîner une perte permanente",
+      "emptyNftText": "Vous n'avez pas encore de NFT. Mais vous pouvez l'obtenir maintenant.",
+      "proof": "Preuve de propriété",
+      "info": "Info",
+      "all": "Tout",
+      "collections": "Collections",
+      "receive": "Recevoir",
+      "title": "NFT",
+      "titleQR" : "Scanner le QR avec l'appli",
+      "signing": "La signature est en cours de création, veuillez patienter - cela ne fait que prouver que l'adresse actuelle possède ce NFT, il est donc sécurisé de le partager avec n'importe qui",
+      "signed": "La signature prouve uniquement que l'adresse actuelle possède ce NFT, il est donc sécurisé de le partager avec n'importe qui",
+      "status": "Statut",
+      "contract": "Collection contract",
+      "tokenId": "Token ID",
+      "blockchain": "Blockchain",
+      "address": "Appartenant à l'adresse",
+      "ownershipProved": "Propriétaire prouvé",
+      "ownershipNotProved": "Propriétaire non prouvé",
+      "checking": "Vérification...",
+      "turnBasicAsset" : "Pour le transfert NFT, vous devez ajouter %{asset} car il est utilisé pour les frais de transfert"
+    },
+    "nftAddAssetScreen" : {
+      "title" : "Ajouter un actif NFT",
+      "addCustomLabel": "Vous pouvez ajouter un jeton NFT standard développé sur la blockchain Matic ou Ropsten Testnet. Veuillez saisir ou scanner un nouveau jeton/adresse d'actif.",
+      "addCustomLabelOpenSea" : "Des jetons Ethereum pourraient être ajoutés par OpenSea",
+      "addCustomPlaceholder" : "Adresse d'actif NFT",
+      "addAssetButton" : "Ajouter un actif"
+    },
+    "cashback": {
+      "invited": "Invité:",
+      "cashback": "Cashback",
+      "cpa": "CPA",
+      "pageTitle": "Inviter tes amis",
+      "pageSubtitle": "Gagnez de la commission avec NextMindCoin Wallet!",
+      "pageSubtitleText": "à",
+      "shareButton": "Partager",
+      "promoButton": "Promocode",
+      "detailsButton": "Details",
+      "enterPromoPlaceholder": "Entrer code promo",
+      "enterInviteLinkPlaceholder": "Entrer le lien d'invité",
+      "applyButton": "Appliquer",
+      "wholeBalance": "Tout solde",
+      "availableCashBack": "Cashback disponible",
+      "balanceTitle": "Solde",
+      "toWithdraw": "à retirer nécessaire :",
+      "cashbackInfo": "Cashback info",
+      "cpaInfo": "CPA info",
+      "cpaTotal": "Total CPA",
+      "cpaLevel1": "CPA Level 1",
+      "cpaLevel2": "CPA Level 2",
+      "cpaLevel3": "CPA Level 3",
+      "cashbackToken": "Token",
+      "howItWorks": {
+        "title": "Comment ça fonctionne?",
+        "info1Title": "NextMindCoin Wallet propose-t-il un programme de récompenses pour les utilisateurs?",
+        "info1Content": "Le programme se compose d'un cashback et d'un programme d'affiliation à deux niveaux, qui vous permet à terme de recevoir jusqu'à 30% de commissions de fiduciaire pour les achats et les ventes de crypto-monnaies par les utilisateurs invités.",
+        "info2Title": "Comment activer le cashback?",
+        "info2Content": "Pour l'activer, vous devez inviter un nouvel utilisateur à l'aide de votre lien de cashback. Après l'activation, vous recevrez 10% de la commission de NextMindCoin sur vos échanges. Cette fonctionnalité est activée pour toujours!",
+        "info3Title": "Quelles sont les conditions du programme d'affiliation ?",
+        "info3Content": "Niveau 1 – 10 % de la commission de fiduciaire pour les achats et les ventes de crypto-monnaies par les utilisateurs invités (activés à partir du premier partenaire). Plus d'amis installent le portefeuille en utilisant votre lien, plus vos revenus seront importants. Niveau 2 - activé lorsque le chiffre d'affaires de la structure dépasse 5000 USDT par semaine et vous permettra de recevoir 10% des commissions des utilisateurs de 2ème niveau (partenaires de vos partenaires).",
+        "info4Title": "Comment retirer du cashback et des récompenses d'affiliation ?",
+        "info4Content": "Le montant minimum de retrait est de 2 USDT",
+        "info5Title": "Qui peut accéder au programme CPA?",
+        "info5Content": "Nous apprécions chaque utilisateur et sommes heureux de les récompenser pour des actions efficaces visant à populariser NextMindCoin Wallet. Chaque utilisateur devient automatiquement membre du programme CPA.",
+        "info6Title": "Comment fonctionne le programme CPA ?",
+        "info6Content": "Pour chaque nouvelle installation active de l'application à l'aide de votre lien cashback (lorsque l'utilisateur invité a effectué au moins un achat de crypto-monnaies depuis n'importe quelle carte bancaire), le participant au programme reçoit une récompense unique.",
+        "info7Title": "Quels sont les récompenses du programme CPA?",
+        "info7Content": "Niveau 1\nLe premier achat est jusqu'à 100 $. Récompense - 2 $\n\nNiveau 2\nTLe montant du premier achat est de 100 $ à 500 $. Récompense - 5 $\n\nNiveau 3\nLe premier achat est de plus de 500 $. Récompense - 10 $",
+        "info8Title": "Comment inviter des utilisateurs sur NextMindCoin?",
+        "info8Content": "Recommandez NextMindCoin Wallet à vos amis et collègues en utilisant votre lien de cashback. Vous pouvez utiliser tous les types de communication pour inviter des utilisateurs : Publicité contextuelle, Email-mailing, publicité sur les réseaux sociaux, Réseaux Teaser, Chaînes YouTube. Plus d'informations sur le lien.",
+        "info9Title": "Comment puis-je retirer les récompenses CPA?",
+        "info9Content": "Le montant minimum de retrait est de 100 USDT"
+      },
+      "invitedBy": "Invité par",
+      "mainTitle": "Invitez vos amis - gagnez du cashback !",
+      "mainDescription": "Invitez vos amis et commencez à gagner 10% de cashback sur la commission de vos échanges ! NXMC reverse jusqu'à 30% de commission à ses utilisateurs !",
+      "shareText": "Partager",
+      "more": "Plus",
+      "shareTitle": "",
+      "shareMessage": "",
+      "friendsJoined": "Tes amis",
+      "updated" : "Mis à jour",
+      "transAmount": "Montant de la transaction",
+      "level2UsersAmount": "Amis de mes amis",
+      "cashbackError" : {
+        "title" : "Échec de l'obtention des données",
+        "UI_ERROR_CASHBACK_NETWORK_ERROR": "Mauvais accès internet",
+        "UI_ERROR_CASHBACK_SIGN_ERROR" : "Signature incorrecte dans le magasin de clés - veuillez vous reconnecter au cashback",
+        "UI_ERROR_CASHBACK_TIME_ERROR" : "Date ou heure de l'appareil obsolète",
+        "UI_ERROR_CASHBACK_TIME_ERROR_LONG" : "Le service peut ne pas fonctionner en raison d'Internet instable ou de paramètres de date et d'heure incorrects sur votre appareil mobile",
+        "UI_ERROR_CASHBACK_PROMO_DUPLICATE" : "Code Promo déjà utilisé",
+        "UI_ERROR_CASHBACK_PROMO_NOT_FOUND" : "Code promo non trouvé"
+      },
+      "cashbackAmount": "Montant du cashback",
+      "setParentToken": "Connectez-vous à votre structure d'amis",
+      "hasParentToken": "Invité par %{cashbackParentToken}",
+      "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
+      "withdraw": "Retrait",
+      "minWithdraw": "Montant minimum du retrait",
+      "performWithdraw": "Pour effectuer le retrait, s'il vous plaît, écrivez votre surnom sur Télégram"
+    },
+    "account": {
+      "title": "Compte",
+      "copy": "Cliquez pour copier",
+      "refresh": "Réactualiser",
+      "receive": "%{receive}",
+      "send": "Envoyer",
+      "history": "Transactions",
+      "balanceBadNetwork" : "Mauvais accès internet",
+      "balanceBadBlock" : "Erreur de numéro du bloc",
+      "scan": "Scanné il y a %{time} min",
+      "justScan": "Scanné à l'instant",
+      "soLong": "Depuis un long moment",
+      "minutesAgo": " %{time} min ",
+      "noTransactions": "Vous n'avez pas encore de transaction. Mais vous pouvez résoudre ce problème rapidement, appuyez simplement sur le bouton ACHETER",
+      "showMore": "Montrer les détails",
+      "assetSettings": "Paramètres des actifs",
+      "externalLink": {
+        "title": "Aller sur blockchain exploreur",
+        "description": "Le lien vers le site externe sera ouvert"
+      },
+      "fioAccount": {
+        "title": "FIO compte non enregistré",
+        "description": "Aller à la page d'inscription et l'enregistrer maintenant?"
+      },
+      "transaction": {
+        "pay": "Payer",
+        "remove" : "Cacher",
+        "removeRBF" : "Retour des fonds",
+        "destinationTag": "Destination tag",
+        "paymentId": "Paiement ID",
+        "nonce": "Nonce",
+        "delegatedNonce": "Delegated Nonce",
+        "empty": "(empty)",
+        "fee": "Frais du réseau",
+        "feeIncome": "Frais d'expéditeur",
+        "txHash": "Hash transaction",
+        "replacedTxHash": "hash de transaction précédente",
+        "from": "De",
+        "to": "Pour",
+        "status": "Statut",
+        "outcome": "Outcome",
+        "income": "Income",
+        "freeze" : "Geler",
+        "claim" : "Réclamer",
+        "swap_income" : "Contract Income",
+        "swap_outcome" : "Contract Outcome",
+        "self": "Self",
+        "exchange": "Echange",
+        "buy": "Acheter",
+        "sell": "Vendre",
+        "mobile_phone": "Téléphone mobile",
+        "date": "Date",
+        "confirmations": "Confirmations",
+        "blockNumber": "Block nombre",
+        "moreInformation": "Plus d'information",
+        "cardNumberDestination": "Numero de la carte de retrait",
+        "advAccountDestination": "Numero du compte de retrait",
+        "phoneDestination": "Numero de telephone du retrait",
+        "orderId": "Lié au swap ID",
+        "RBF": {
+          "replaceByFeeBtn": "Mise à jour des frais tx",
+          "willReplaceWithNewFee": "La transaction en cours sera remplacée par une nouvelle, avec un nouveau hachage et une commission plus élevée",
+          "notAllowed": "La transaction a été créée sans possibilité de remplacement ou a déjà été confirmée"
+        },
+        "CPFP" : {
+          "willSpeedUp" : "Vous pouvez accélérer une transaction entrante en créant vous-même une transaction supplémentaire, avec une commission plus élevée. Le montant de la commission sera calculé automatiquement, en tenant compte des caractéristiques des deux transactions.Veuillez noter que dans ce cas, le paiement d'une nouvelle transaction sera à votre charge"
+        }
+      },
+      "transactionStatuses": {
+        "paid": "Payé",
+        "pay_waiting": "En attente de paiement",
+        "pay_expired": "Paiement expiré",
+        "success": "Réussi",
+        "pending": "En attente",
+        "new": "NOUVEAU",
+        "process": "En cours",
+        "delegated": "délégué",
+        "confirming": "Confirmation",
+        "fail": "Échouer",
+        "missing" : "Pas trouvé",
+        "replaced" : "Remplacé",
+        "out_of_energy" : "Pas d'Energie",
+        "internal_success": "Succès du contrat",
+        "internal_new": "Nouveauté à partir du contrat",
+        "internal_fail": "Échec du contrat"
+      },
+      "receiveScreen": {
+        "title": "%{receive}",
+        "description": "Votre adresse courante %{currency} :",
+        "clickToCopy": "Cliquez pour copier",
+        "receiveAmount": "Recevoir un montant",
+        "FIORequest": "FIO Requete",
+        "share": "Partager",
+        "copy": "Copier",
+        "amount": "Quantité définie"
+      },
+      "addAccount": {
+        "list": "Crypto liste"
+      },
+      "accountList": {
+        "list": "Liste des comptes"
+      },
+      "transactionScreen": {
+        "explorer": "Exploreur",
+        "share": "Partager",
+        "booster": "Booster",
+        "remove": "Supprimer",
+        "removeRbf": "Renvoyer un tx",
+        "check": "Verifier",
+        "support": "Support",
+        "details": "Details",
+        "commentPlaceholder": "Commentaire (facultatif)",
+        "viewExplorer": "Vue de l'exploreur",
+        "header": {
+          "status": {
+            "success": "Réussi",
+            "pending": "En attente",
+            "canceled": "Annulé",
+            "missing": "Pas trouvé",
+            "out_of_energy" : "Pas d'énergie"
+          }
+        },
+        "transactionHash": "Transaction hash:",
+        "cashbackLink": "Website:",
+        "thanks": "Merci d'avoir choisi NextMindCoin Wallet",
+        "self": "Cette transaction a été envoyée à votre adresse",
+        "order": "Commander"
+      }
+    },
+  
+    "fioMainSettings": {
+      "title": "FIO Paramètres",
+      "description": "Contrôlez toutes les options FIO disponibles",
+      "sendFioRequest": "Envoyer une requête FIO",
+      "sendFioRequestDesc": "vous pouvez envoyer une requête FIO",
+      "fioRequest": "Requêtes FIO",
+      "fioRequestDesc": "liste de toutes les requêtes actives FIO en attente/envoyées",
+      "fioAddresses": "FIO Adresses",
+      "fioAddressesDesc": "toutes les adresses FIO enregistrées et leurs options",
+      "registerFioAddress": "Enregistrer l'adresse FIO",
+      "registerFioAddressDesc": "Enregistrer ton adresse FIO"
+    },
+  
+    "FioChooseRecipient": {
+      "title": "Choisissez le destinataire FIO",
+      "description": "Entrez le destinataire FIO, ENS ou l'adresse publique",
+      "btnText": "Sélectionner FIO"
+    },
+  
+    "FioChooseAddress": {
+      "title": "Choisissez l'adresse FIO",
+      "description": "Entrez l'adresse à partir de laquelle demander le paiement",
+      "btnText": "Sélectionnez l'adresse FIO"
+    },
+    "FioAddresses": {
+      "title": "FIO Adresses",
+      "btnText": "Adresse d'enregistrement",
+      "WebViewTitle": "Adresse d'enregistrement"
+    },
+    "FioSettings": {
+      "title": "Paramètres FIO",
+      "description": "Choisissez des portefeuilles pour vous connecter à votre adresse FIO",
+      "Expire": "Expire",
+      "connectAllWallets": "Connectez tous les portefeuilles",
+      "btnText": "Sauvegarder",
+      "noFioTitle": "Vous devez enregistrer l'adresse FIO",
+      "noFioDescription": "Adresse FIO non enregistrée",
+      "noFioBtn": "Enregistrement de l'adresse FIO",
+      "serviceUnavailable": "Service non disponible. Veuillez réessayer plus tard"
+    },
+  
+    "FioSendRequest": {
+      "title": "Envoyer une requete de FIO",
+      "selectCoin": "Choisir Coin",
+      "from": "Envoyer la demande depuis",
+      "to": "Envoyer la demande à",
+      "amount": "Montant",
+      "memo": "Memo",
+      "btnText": "Créer",
+      "created": "Requete de FIO créée",
+      "fioSettings": "FIO Paramètres",
+      "registerFioAddress": "Enregistrer l'adresse FIO",
+      "noCoinSelected": "Vous devez choisir la pièce dans laquelle vous faites la demande",
+      "goToFioSettings": "Vous devez accéder aux paramètres FIO et associer des pièces à votre adresse FIO",
+      "needRegisterFio": "Vous devez d'abord enregistrer votre adresse FIO"
+    },
+  
+    "FioRequestsList": {
+      "title": "Liste des requêtes FIO",
+      "pendingRequests": "Requêtes en cours",
+      "sentRequests": "Requêtes envoyées",
+      "RequestedTxt": "Demandé"
+    },
+  
+    "FioRequestDetails": {
+      "title": "FIO Détails de la demande",
+      "reqCreated": "Demande créée",
+      "sentTitle": "Recevoir sur mon",
+      "pendingTitle": "Envoyer de mon",
+      "balance": "Solde",
+      "fee": "Frais",
+      "to": "à",
+      "from": "Depuis",
+      "memo": "FIO Memo",
+      "amount": "Montant",
+      "btnTextReject": "Rejeter",
+      "btnTextConfirm": "Confirmer"
+    },
+  
+    "exchange": {
+      "mainData": {
+        "amount": "Entrer le montant"
+      }
+    },
+    "card": {
+      "title": "Ajouter une nouvelle carte",
+      "description": "Pour ajouter une nouvelle carte, veuillez la scanner ou saisir le numéro manuellement",
+      "instructions": "Tenez la carte ici. L'analyse sera automatique.",
+      "attention": "S'il vous plaît, soyez attentif et essayez d'éviter les erreurs.",
+      "add": "Ajouter",
+      "numberTitleInput": "Numéro de la carte",
+      "dateTitleInput": "MM/YY",
+      "cardCurrency": "Sélectionnez le pays de la carte...",
+      "cardName": "Donnez un nom à la carte",
+      "noName": "SANS NOM",
+      "country": "Pays:"
+    },
+    "qrScanner": {
+      "title": "Scannage du QR",
+      "line1": "S'il vous plaît, placez le code QR à l'intérieur du",
+      "line2": "rectangle pour le scanner"
+    },
+    "send": {
+      "title": "Envoyer",
+      "description": "Coller l'adresse du portefeuille du destinataire ou scanner le code QR",
+      "descriptionExchange": "L'adresse de portefeuille du destinataire est définie automatiquement. Il s'agit de l'adresse du fournisseur d'échange. L'échange et le paiement des actifs seront exécutés après une transaction réussie",
+      "address": "Adresse de destination",
+      "value": "valeur",
+      "comment": "Commenter",
+      "send": "Next",
+      "bnb_memo": "Memo",
+      "xrp_memo": "Destination tag",
+      "xmr_memo": "Paiement ID",
+      "fio_memo": "FIO Memo",
+      "useAllFunds": "Utiliser tous les fonds",
+      "equivalent": "Equivalent: ~ %{amount} %{symbol}",
+      "notEnough": "Vous n'avez pas assez de fonds pour envoyer",
+      "addressError": "L'adresse du destinataire est incorrecte, veuillez la vérifier",
+      "notValidAmount": "S'il vous plaît, entrez le montant",
+      "notValidAmountInFiat": "S'il vous plaît, entrez un plus grand montant ou changez en entrée crypto",
+      "notEnoughForFee": "Pour envoyer des jetons, vous devez avoir un solde positif en monnaie native %{symbol}. Cliquez pour plus d'informations ",
+      "notEnoughForFeeConfirmed": "Pour envoyer des jetons, vous devez avoir un solde confirmé positif en monnaie native %{symbol}, s'il vous plait, attendez les confirmations",
+      "publicFioAddressNotFound": "%{symbol} l'adresse publique n'est pas associée à l'adresse FIO spécifiée",
+      "domainResolution": {
+        "resolving": "Résolution %{domain}...",
+        "success": "%{domain} résolu à %{address}",
+        "fail": "Il n'y a pas d'enregistrements pour %{domain}"
+      },
+      "setting": {
+        "title": "Avancée",
+        "apply": "Appliquer",
+        "feeSettings": "Paramètres des frais",
+        "selectFee": "Sélectionnez le montant des frais",
+        "inputSettings": "Paramètres d'entrée",
+        "selectInput": "Sélectionnez l'entrée",
+        "descriptionInput": "Défaut",
+        "optionalSettings": "Parametres optionnels",
+        "note": "Commenter",
+        "optional" : "Optionnel",
+        "notAddress": "Veuillez saisir une adresse pour continuer"
+      },
+      "infoModal": {
+        "title": "Info",
+        "BNB": "BNB Memo est une pièce jointe de transaction arbitraire et facultative",
+        "XRP": "Une balise de destination est un chiffre unique à 9 chiffres attribué à chaque compte Ripple (XRP). Il est utilisé pour identifier le destinataire dans une transaction Ripple.",
+        "XMR": "L'ID de paiement est une pièce jointe de transaction arbitraire et facultative. L'identifiant de paiement est généralement utilisé pour identifier les transactions vers les commerçants et les bourses : étant donné les fonctionnalités de confidentialité intrinsèques intégrées à Monero, où une seule adresse publique est généralement utilisée pour les transactions entrantes, l'identifiant de paiement est particulièrement utile pour lier les paiements entrants aux comptes d'utilisateurs.",
+        "XLM": "Stellar Memo est une pièce jointe de transaction arbitraire et facultative",
+        "FIO": "FIO Memo est ..."
+      },
+      "confirmModal": {
+        "title": "Confirmez-vous l'envoi ?",
+        "titleSpeedUp": "Confirmez-vous l'accélération de la transaction entrante %{hash}?",
+        "titleReplaceByFee": "Confirmez-vous le remplacement de la transaction %{hash}?",
+        "amount": "Montant",
+        "recipient": "Destinataire",
+        "multiRecipient" : "Envoi multiple vers %{total} adresses",
+        "change": "Change %{amount} %{currencySymbol} ira à",
+        "edit": "Arrière",
+        "confirm": "Envoyer",
+        "force": "Faire quand même ?"
+      },
+      "feeModal": {
+        "description": "Les frais de réseau sont le paiement que les mineurs reçoivent pour confirmer votre transaction. Les frais de réseau (mineurs) sont payés par l'expéditeur pour le transfert des actifs cryptographiques à l'adresse du destinataire. Ces frais ne dépendent pas du montant du transfert et sont calculés en fonction des données du réseau au moment de la création de la transaction.\n\nImportant!\n La vitesse de confirmation de votre transaction par les mineurs dépend directement de la taille des frais de réseau . Veuillez tenir compte de ces informations lorsque vous modifiez manuellement la commission."
+      },
+      "fee": {
+        "smallFeeNoticeTitle": "S'il vous plaît, soyez prudent",
+        "smallFeeNoticeDesc": "Solde insuffisant pour les frais de transaction rapide recommandés",
+        "customFeeCalculated": "Frais calculés",
+        "changeAmountNoticeDesc": "Le montant est modifié",
+        "title": "Changement\nFrais",
+        "text": {
+          "none": "Sélection personnalisé",
+          "eth_speed_slowest": "Plus lent",
+          "eth_speed_slow": "Lent",
+          "eth_speed_medium_to_slow": "Presque Moyen",
+          "eth_speed_medium": "Moyen",
+          "eth_speed_fast_to_medium": "Presque rapide",
+          "eth_speed_fast": "Rapide",
+          "eth_speed_delegated": "Déléguer ERC865",
+          "xmr_speed_1": "Lent",
+          "xmr_speed_2": "Moyen",
+          "xmr_speed_3": "Rapide",
+          "xmr_speed_4": "Très rapide",
+          "btc_speed_blocks_24": "Le plus lent",
+          "btc_speed_blocks_12": "Lent",
+          "btc_speed_blocks_6": "Moyen",
+          "btc_speed_blocks_2": "Rapide",
+          "bch_speed_blocks_12": "Lent",
+          "bch_speed_blocks_6": "Moyen",
+          "bch_speed_blocks_2": "Rapide",
+          "ltc_speed_blocks_12": "Lent",
+          "ltc_speed_blocks_6": "Moyen",
+          "ltc_speed_blocks_2": "Rapide",
+          "xrp_speed_one": "Rapide"
+        },
+        "getRaw" : "Construire l'hex de transaction uniquement (pas réellement envoyé)",
+        "customFee": {
+          "title": "Manuellement",
+          "fixedFeeTitle": "FRAIS FIXES",
+          "customFeeTitle": "Mettre en place\nMANUELLEMENT",
+          "calculatedFee": "Frais calculés:",
+          "eth": {
+            "gasPrice": "Prix du gas",
+            "gasLimit": "Limite de gas",
+            "gwei": "GWEI",
+            "nonce": "Nonce"
+          },
+          "btc": {
+            "feeForTx": "Frais de transaction",
+            "feeForByte": "Frais pour byte",
+            "satoshi": "SATOSHI"
+          }
+        }
+      },
+      "receiptScreen": {
+          "title": "Reçu",
+          "totalSend": "Envoi total",
+          "rate": "@ taux par 1 %{currencyCode}",
+          "replaceTransactionHash" : "Remplacement de Tx",
+          "removeTransactionHash" : "Suppression de la transmission",
+          "speedUpTransactionHash" : "Accélération Tx",
+          "recepient": "Destinataire",
+          "destinationAddress": "Adresse de destination",
+          "minerFee": "Frais réseau",
+          "totalMinerFee": "Frais de réseau totaux",
+          "customNonce": "Custom nonce",
+          "nonce": "Nonce",
+          "trusteeInfo": "NextMindCoin ne facture aucun frais pour les transactions de crypto-monnaie",
+          "send": "Envoyer",
+          "build" : "Construire",
+          "sending": "Envoi en cours"
+      },
+      "errors": {
+       "UI_CONFIRM_DOUBLE_SEND": "La transaction a déjà été envoyée à cette adresse, êtes-vous sûr de vouloir répéter la transaction ?",
+       "UI_CONFIRM_DOUBLE_BSE_SEND": "La transaction a déjà été envoyée à la commande, êtes-vous sûr de vouloir créer une nouvelle transaction?",
+       "UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE": "Cette adresse ne détient pas de fonds. Êtes-vous sûr que c'est correct?",
+       "UI_CALCULATE_CUSTOM_FEE" : "Veuillez calculer les frais réels à utiliser pour l'envoi",
+       "SERVER_RESPONSE_CLOUDFLARE" : "Veuillez réessayer - pas d'accès au serveur protégé par cloudflare",
+       "SERVER_RESPONSE_BAD_CODE": "Quelque chose s'est mal passé, contactez notre service d'assistance, s'il vous plaît",
+       "SERVER_RESPONSE_BAD_INTERNET": "Pas d'accès à internet",
+       "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "La transaction n'a pas été trouvée, veuillez vérifier votre connexion Internet. Délais possibles pour la mise à jour des informations",
+       "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Solde insuffisant de la monnaie nationale %{symbol} pour payer les frais de réseau",
+       "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST" : "Uniquement les entrées de poussière - n'ont pas pu être traités - veuillez utiliser \"Envoyer tout\" pour les collecter ensemble",
+       "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Monnaie native (%{symbol}) le solde ne peut pas être mis à jour. S'il vous plait, vérifiez votre connexion internet",
+       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Le montant de la transaction est trop petit",
+       "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Solde insuffisant pour envoyer la transaction",
+        "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE" : "Solde insuffisant pour envoyer la transaction (validation du serveur)",
+       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Solde insuffisant pour payer les frais de réseau - veuillez utiliser une option \"Envoyer tout\" ",
+       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Solde insuffisant pour payer la transaction déléguée - veuillez utiliser la transaction standard ERC20",
+       "SERVER_RESPONSE_NO_RESPONSE": "La transaction n'a pas reçu de confirmation du réseau - veuillez attendre que les autres transactions soient minées",
+       "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "La transaction n'a pas reçu de confirmation de réseau - veuillez attendre que les autres transactions soient minées ou placez des frais plus élevés",
+       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Solde insuffisant de la devise native %{symbol} pour payer les frais de réseau - veuillez attendre que les autres transactions soient minées",
+       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Les frais de transaction sont trop faibles",
+       "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT" : "Solde insuffisant de la devise native %{symbol} à payer - cliquez sur oui, pour prélever des frais sur le montant du destinataire, puis à l'étape suivante, vous verrez les données de transaction recalculées",
+       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Les frais de remplacement de la transaction sont trop faibles",
+       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Transaction déjà minée",
+       "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} déjà miné",
+       "SERVER_RESPONSE_NOT_CONNECTED": "Le réseau est inaccessible - veuillez répéter l'opération plus tard",
+       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Solde insuffisant pour effectuer la transaction et payer les frais minimes",
+       "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Veuillez attendre que les autres transactions soient extraites ou activez une option \"Utiliser les transactions non confirmées\" ",
+       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Les frais de transaction sont trop élevés - veuillez ajuster les frais manuellement ou envoyer plus de fonds",
+       "SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION": "Les frais de transaction par byte sont trop élevés - veuillez ajuster les frais manuellement",
+       "SERVER_RESPONSE_SELF_TX_FORBIDDEN": "Les transactions à la même adresse sont interdites",
+       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_XRP": "Solde insuffisant pour effectuer la transaction (Veuillez garder au moins 20 XRP sur le solde)",
+       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_DEST_XRP": "Fonds insuffisants - envoyez pas moins de 20 XRP pour activer l'adresse de réception",
+       "SERVER_RESPONSE_TAG_NEEDED_XRP": "L'étiquette de destination est incorrecte - veuillez entrer le bon TAG de destination pour effectuer la transaction",
+       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT": "Solde BTC insuffisant sur l'adresse USDT liée - veuillez patienter ou activer une option \"Utiliser les transactions non confirmées\" ",
+       "SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT_WAIT_FOR_CONFIRM": "Solde BTC insuffisant ou non confirmé sur l'adresse USDT liée - veuillez patienter ou activer l'option \"Utiliser les transactions non confirmées\" ",
+       "SERVER_RESPONSE_NO_RESPONSE_UAX_USE_ETH": "La transaction n'a pas reçu de confirmation de réseau - veuillez attendre que les autres transactions soient extraites ou utilisez la transaction standard ERC20",
+       "SERVER_RESPONSE_NO_SSL": "La bibliothèque SSL n'a pas été trouvée - veuillez mettre à jour le système",
+       "SERVER_RESPONSE_PLEASE_SELECT_FEE": "Veuillez sélectionner les frais disponible dans la liste",
+       "SERVER_RESPONSE_MIN_GAS_ETH": "La limite minimale de gas est de 21000",
+       "SERVER_RESPONSE_TOO_MUCH_GAS_ETH": "Le transfert nécessite trop de gaz - veuillez vérifier l'adresse de destination s'il s'agit d'un contrat intelligent",
+       "SERVER_RESPONSE_TOO_MUCH_GAS_ETH_ERC20": "Le transfert de jetons nécessite trop de gaz - veuillez vérifier le contrat intelligent car votre solde pourrait être bloqué",
+       "SERVER_RESPONSE_BAD_DESTINATION" : "L'adresse de destination n'est pas valide",
+       "SERVER_RESPONSE_BAD_SEND_NODE" : "Pas d'accès au serveur d'envoi ou erreur Internet - veuillez réessayer",
+       "SERVER_RESPONSE_DOUBLE_SPEND" : "Veuillez régénérer la transaction au fur et à mesure que les sorties sont modifiées ou attendre que les autres transactions soient minées",
+       "SERVER_RESPONSE_NO_TX_TO_SPEEDUP" : "Transaction d'accélération de transfert introuvable",
+       "SERVER_RESPONSE_BANDWITH_ERROR_TRX" : "Solde TRX insuffisant pour les frais / limite de bande passante dépassée",
+       "SERVER_RESPONSE_ENERGY_ERROR_VET" : "Solde insuffisant du jeton VeChain Thor (VTHO) pour les frais",
+       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Veuillez vérifier l'heure de votre système téléphonique - elle doit être synchronisée pour une création correcte de la transaction",
+       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Solde insuffisant pour effectuer la transaction"
+      }
+    },
+    "walletBackup": {
+      "titleCreate": "Créer un portefeuille",
+      "titleBackup": "Sauvegarde de portefeuille",
+      "titleShow": "Phrase de récupération",
+      "infoScreen": {
+        "continue": "Continuer",
+        "text1": "NextMindCoin WALLET ne dispose pas de votre phrase de récuperation. Par conséquent, en cas de perte ou de panne de l'appareil, l'unique moyen de restaurer l'accès à vos fonds est d'utiliser une phrase de récupération.",
+        "checkbox1": "Je comprends que si je perds cette phrase, je n'aurai pas accès à mes soldes. Et je comprends qu'en passant cette phrase à n'importe qui, je vais perdre mon argent",
+        "checkbox2": "Je comprends que je dois voir ma phrase de récupération en privé sans caméra, ni yeux autour",
+        "text2": "Soyez très prudent avec la phrase de récupération - n'importe qui avec elle peut accéder ou dépenser vos fonds. S'il vous plaît, ne donnez en aucun cas la phrase de récupération!"
+      },
+      "step0Screen": {
+        "phrase": "phrase",
+        "qr": "Qr",
+        "info": "La phrase de récupération (phrase mnémonique, phrase SEED) est une clé secrète pour accéder à tous les soldes de votre portefeuille. Conservez-le dans un endroit sûr et ne le donnez à personne!",
+        "showButton": "Appuyez et maintenez pour révéler",
+        "next": "Suivant",
+        "showQR" : "Obtenez le code QR pour l'importation vers un autre appareil",
+        "hideQR" : "Obtenez les mots pour la sauvegarde",
+        "infoQR": "Le code QR révèle la phrase de récupération. Veuillez ne pas l'envoyer à d'autres personnes et ne pas le stocker dans la galerie du téléphone!"
+      },
+      "step1Screen": {
+        "title": "Contrôler",
+        "placeholder": "Veuillez appuyer sur chaque mot dans le bon ordre pour vérifier la phrase de récupération. Pour supprimer le mot du champ, appuyez à nouveau dessus",
+        "showButton": "Appuyez et maintenez pour révéler",
+        "next": "Suivant"
+      },
+      "settingsScreen": {
+        "title": "Paramètres",
+        "apply": "Appliquer",
+        "walletNameLabel": "Définir le nom du portefeuille",
+        "walletNamePlaceholder": "Entrez le nom (facultatif)",
+        "phraseLengthLabel": "Choisissez la longueur de la phrase de récupération",
+        "12wordsLabel": "12 mots",
+        "24wordsLabel": "24 mots",
+        "contactTitle": "Contacter le support",
+        "contactSubtitle": "Chain Official Telegram",
+        "skipTitle": "Ignorer la vérification de la phrase de récupération",
+        "skipSubtitle": "Non recommandé"
+      },
+      "title": "Sauvegarde de la phrase de récupération",
+      "titleNewWallet": "Créer un nouveau portefeuille",
+      "titleNewWalletSmall": "Créer un nouveau",
+      "skip": "Sauter",
+      "description": "Toute personne disposant de votre phrase de récupération peut accéder à vos pièces ou les dépenser. S'il vous plaît, écrivez soigneusement ces %{mnemonicLength} %{words}.\nNe dites en aucun cas la phrase de récuperation!",
+      "pinProtected": "Vous devrez entrer le code PIN pour accéder à la phrase de récupération",
+      "attention": "Vous confirmerez cette phrase à l'étape suivante",
+      "written": "Je l'ai écrite",
+      "words": "mots",
+      "secondStep": {
+        "description": "Vérifions votre phrase de récupération. S'il vous plaît, appuyez sur chaque mot dans le bon ordre. Pour supprimer le mot du champ, appuyez à nouveau dessus."
+      },
+      "mnemonicFail": {
+        "title": "Oh non...",
+        "description": "Vous avez fait une erreur dans la phrase de récupération. Veuillez réessayer."
+      },
+      "skipElement": {
+        "title": "Êtes-vous vraiment sûr?",
+        "description": "La phrase de sauvegarde est très importante. Vous n'aurez pas accès à vos fonds. Voulez-vous sauter cette étape?",
+        "cancel": "Annuler",
+        "yes": "Oui",
+        "no": "Non"
+      },
+      "descriptionXMR": "Toute personne disposant de votre phrase de récupération peut accéder à vos pièces ou les dépenser. Ces mots sont dérivés de la phrase de récupération principale, vous ne pouvez donc l'utiliser que pour sauvegarder Monero"
+    },
+    "walletCreate": {
+      "walletExist": "Le portefeuille a déjà été importé.",
+      "createTitle": "Créer un nouveau portefeuille",
+      "importTitle": "Portefeuille de récupération",
+      "importGoogle": "Google Drive",
+      "mnemonicPlaceholder": "Insérez l'intégralité de la phrase de récupération ou saisissez tous les mots manuellement (généralement 12 ou 24 mots)",
+      "showMnemonicButton": "Cliquez pour regarder",
+      "phrasePlaceholder": "Phrase de récupération",
+      "importButton": "Restaurer le portefeuille",
+      "errors": {
+        "phraseShouldBeLonger": "La phrase de récupération doit dépasser 11 mots",
+        "wordDoesNotExist": "Ce mot n'a pas été trouvé dans le dictionnaire"
+      },
+      "importGoogleError": {
+        "title" : "Pas connecté",
+        "description" : "Veuillez réessayer ou vérifier les autorisations d'accès"
+      },
+      "importGoogleNoWallet": {
+        "title" : "Aucun fichier de sauvegarde",
+        "description" : "Fichier de sauvegarde crypté introuvable"
+      },
+      "backupGoogleHasWallet" : {
+        "title" : "Fichier de sauvegarde déjà créé",
+        "description" : "Supprimer le fichier de sauvegarde pour recréer"
+      },
+      "backupGoogleSuccess" : {
+        "title" : "Fichier de sauvegarde créé",
+        "description" : "Ne supprimez pas le fichier de sauvegarde à restaurer après l'installation de l'application"
+      },
+      "name": "nom du portefeuille",
+      "submit": "Soumettre",
+      "words12": "mots",
+      "words24": "mots",
+      "description": "Choisissez la longueur de la phrase de récupération",
+      "optional": "optionnel",
+      "enterMnemonic": {
+        "description": "Insérez l'intégralité de la phrase de récupération ou saisissez tous les mots manuellement (généralement 12 ou 24 mots)",
+        "mnemonic": "phrase de récupération"
+      }
+    },
+    "walletList": {
+      "elements": {
+        "cryptoCurrency": {
+          "coins": "coins"
+        }
+      }
+    },
+    "components": {
+      "elements": {
+        "modal": {
+          "input": {
+            "placeholder": "Entrer ..."
+          }
+        }
+      },
+      "webview": {
+        "error": "Oops... Quelque chose s'est mal passé"
+      }
+    },
+    "dashboardStack": {
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "wallet": "Portefeuille",
+      "exchange": "Echanger",
+      "earn": "Gagner",
+      "settings": "Suite",
+      "support": "Support",
+      "market": "Swap"
+    },
+    "modal": {
+      "titles": {
+        "attention": "Attention!",
+        "notification": "Notification"
+      },
+      "close": "Fermer",
+      "ok": "OK",
+      "pleaseWaitModal": {
+        "title": "S'il vous plaît, attendez...",
+        "description": "La vérification de la cartes prendra un certain temps"
+      },
+      "waitModal": {
+        "description": "Vous avez déjà essayé d'exécuter une commande. S'il vous plaît, attendez"
+      },
+      "featureExpectedModal": {
+        "title": "Fonctionnalité attendue",
+        "description": "La technologie permet de mettre à jour les transactions qui ont 0 confirmations. Cette fonctionnalité vous permettra de modifier les transactions publiées qui sont en cours de vérification par les mineurs. Vous pourrez mettre à jour à la fois la taille des frais de transaction et l'adresse du destinataire. Plus de détails en suivant le lien."
+      },
+      "cashbackTokenLinkModal": {
+        "success": {
+          "description": "Félicitations, votre portefeuille s'est connecté avec succès à la structure de votre ami. Les portefeuilles sont liés à l'aide d'identifiants anonymes."
+        }
+      },
+      "cashbackLinkEqualModal": {
+        "description": "Désolé, il n'est pas permis de spécifier votre propre lien d'invitation %{link}!"
+      },
+      "cryptocurrencySynchronizing": {
+        "title": "Désolé...",
+        "description": "Les données sont en cours de synchronisation, veuillez patienter..."
+      },
+      "openSettingsModal": {
+        "title": "L'autorisation de la caméra est requise",
+        "description": "Accédez aux paramètres et autorisez l'accès à la caméra",
+        "btnSubmitText": "Aller aux paramètres"
+      },
+      "checkTransferHasError": {
+        "XRP": {
+          "title": "Votre attention s'il vous plaît!",
+          "description": "Votre portefeuille Ripple n'est pas activé. L'activation nécessite de miser 20 XRP. Selon le protocole Ripple, ce montant ne peut pas être débloqué et restera bloqué sur votre compte."
+        },
+        "XLM": {
+          "title": "Votre attention s'il vous plaît!",
+          "description": "Votre portefeuille Stellar n'est pas activé. L'activation nécessite de miser 1 XLM. Selon le protocole Stellar, ce montant ne peut pas être débloqué et restera bloqué sur votre compte."
+        },
+        "TRX_20": {
+          "title": "Votre attention s'il vous plaît!",
+          "description": "Votre portefeuille Tron n'est pas activé. L'activation nécessite d'envoyer n'importe quel TRX à l'adresse du portefeuille - vous pouvez l'utiliser plus tard pour les transactions"
+        },
+        "TOKEN": {
+          "title": "Votre attention s'il vous plaît!",
+          "description": "Token %{currencySymbol} deployé sur %{parentBlockchain} blockchain et pour l'utilisation, vous deviez avoir un solde positif de %{parentCurrency} pour payer les frais des mineurs. Jusqu'à présent, il n'y a aucun solde dans votre portefeuille %{parentCurrency}"
+        }
+      },
+      "tokenNotAdded": {
+        "description": "Actif non ajouté. Accéder à la page d'ajout d'actif?"
+      },
+      "tokenHidden": {
+        "description": "L'actif est masqué. Accéder à la page de contrôle des actifs?"
+      },
+      "useAgainAddresses": {
+        "title": "Attention!",
+        "description": "Utiliser à nouveau des adresses sans transactions?"
+      },
+      "useAgainAddressesGap": {
+        "title": "Attention!",
+        "description": "Recommandé d'utiliser à nouveau les adresses de la dernière avec les transactions"
+      },
+      "infoSendAllModal": {
+        "description": "Il semble que vous essayez d'envoyer l'intégralité de votre solde %{coin}. Pour un traitement correct, veuillez cliquer sur le bouton '100%'. L'utiliser maintenant?"
+      },
+      "infoUpdateModal": {
+        "title": "Attention!",
+        "description": "Une nouvelle version est disponible, s'il vous plaît, mettez à jour votre portefeuille !",
+        "download": "Télécharger",
+        "notNow": "Pas maintenant"
+      },
+      "infoNewInterface": {
+        "title": "Une nouvelle interface est disponible",
+        "description": "Voyez ce que nous avons changé pour vous",
+        "try": "Essayer",
+        "notNow": "Pas maintenant"
+      },
+      "modalV3" : {
+        "title": "Ooooops",
+        "description": "Le service est temporairement indisponible. Veuillez vérifier votre accès Internet et réessayer plus tard"
+      },
+      "disabledLockScreenModal": {
+        "description": "Vous avez des portefeuilles non réservés, la définition d'un code PIN n'est donc pas autorisée pour la sécurité de vos actifs."
+      },
+      "disabledSkipModal": {
+        "description": "Vous avez un code PIN, vous ne pouvez donc pas sauter cette étape."
+      },
+      "infoAddCustomAssetModal": {
+        "success": {
+          "title": "Réussite",
+          "description": "L'actif a été ajouté avec succès"
+        },
+        "successAlready": {
+          "title": "Réussite",
+          "description": "Actif déjà ajouté"
+        },
+        "error": {
+          "title": "Désolé, je ne trouve pas l'actif",
+          "description": "Veuillez vérifier l'adresse de l'actif et réessayer"
+        },
+        "catch": {
+          "title": "Désolé, impossible d'ajouter un actif",
+          "description": "Veuillez vérifier la connexion Internet et réessayer"
+        },
+        "attention": {
+          "title": "L'actif a déjà été ajouté",
+          "description": "S'il vous plaît, vérifiez l'actif dans l'écran précédent"
+        },
+        "askReplace": {
+          "title": "L'actif %{tokenName} a déjà été ajouté",
+          "description": "Veuillez confirmer le remplacement de %{oldContact} par %{newContract} "
+        }
+      },
+      "selectCoinFio": {
+        "title": "Sélectionnez la pièce pour la requête",
+        "description": "S'il vous plaît, sélectionnez une pièce que vous souhaitez demander",
+        "description2": "la pièce sélectionnée sera transférée à la demande FIO",
+        "btn": "Sélectionner"
+      },
+      "exchange": {
+        "sorry": "Désolé....",
+        "descriptionCard": "Veuillez sélectionner une carte existante ou en ajouter une nouvelle.",
+        "failed": "Attention!",
+        "txCanceled": "La transaction a été annulée",
+        "success": "Success!",
+        "txSuccess": "La transaction a été envoyée avec succès."
+      },
+      "settings": {
+        "soon": "Bientôt disponible",
+        "soonDescription": "Cette fonctionnalité sera ajoutée prochainement."
+      },
+      "infoDeleteCard": {
+        "title": "Voulez-vous vraiment retirer la carte de crédit?",
+        "description": ""
+      },
+      "card": {
+        "success": "Réussite!",
+        "added": "La Carte a été ajouter."
+      },
+      "qrScanner": {
+        "success": {
+          "title": "Réussite!",
+          "description": "Le portefeuille a été copié avec succès dans le presse-papiers !"
+        },
+        "error": {
+          "title": "Désolé....",
+          "description": "Portefeuille invalide. Vous pouvez réessayer."
+        },
+        "sorry": "Désolé...."
+      },
+      "send": {
+        "success": "Réussite!",
+        "txSuccess": "Votre transaction a été envoyée avec succès !",
+        "fail": "Attention!",
+        "feeChangeAmount": "Le montant de l'envoi a été modifié après le changement des frais de réseau",
+        "bseMinCrypto": "La valeur du montant minimum d'échange est %{limit}",
+        "bseMinCryptoNoFee" : "Votre solde n'est pas suffisant pour échanger un montant et des frais minimes",
+        "bigGas" : "Vous envoyez dans une direction qui nécessite un niveau de gas anormalement élevé: %{gasLimit}. Afin de protéger vos fonds, la transaction a été arrêtée !",
+        "blockedBalance" : "Votre solde a été utilisé lors de précédentes transactions non confirmées, vous pouvez utiliser %{free}",
+        "feeSmallAmount" : "Le montant laissé pour les frais est trop petit - la transaction pourrait prendre trop de temps à confirmer",
+        "longQuery" : "La ou les transactions précédentes ne sont pas encore confirmées. La transaction en cours ne sera confirmée que par la précédente",
+        "longQuerySettingOff" : "La possibilité d'envoyer une deuxième transaction jusqu'à ce que la précédente soit confirmée est désactivée",
+        "noTBKprovider" : "Désolé, la fonction est désactivée car l'opérateur de change n'a pas pu traiter les transactions accélérées",
+        "noChangeFee": "Pour les transactions avec un taux de change fixe, les frais de réseau ne peuvent pas être modifiés"
+      },
+      "walletLog": {
+        "sorry": "Attention!",
+        "noMailApp": "Aucune application Mail trouvée",
+        "notComplited": "S'il vous plaît, sélectionnez une chaîne pour terminer le partage"
+      },
+      "walletBackup": {
+        "success": "Réussite!",
+        "seedConfirm": "La phrase de récupération a été confirmée!",
+        "walletCreated": "Votre portefeuille a été créé!"
+      },
+      "walletCreate": {
+        "success": "Réussite!",
+        "walletImported": "Votre portefeuille a été importé!"
+      },
+      "receive": {
+        "success": "Réussite!",
+        "addressCopiedSuccess": "L'adresse du portefeuille a été copiée!"
+      },
+      "notificationModal": {
+        "unsubscribe": "Se désabonner"
+      },
+      "marketModal": {
+        "title": "Bienvenue sur NextMindCoin Smart Swap",
+        "description": "Notez que certaines informations, par exemple les détails de paiement, seront transférées aux prestataires d'échange pour effectuer l'opération d'échange.",
+        "notShowAgain": "Ne plus afficher",
+        "continue": "Continuer"
+      },
+      "walletDelete": {
+        "deleteWallet": "Cette opération supprimera le portefeuille %{walletName} de l'application, pour continuer, confirmez la phrase de récupération",
+        "delete": "Voulez-vous supprimer ce portefeuille?",
+        "notBackupPositiveBalance": "Le %{walletName} portefeuille a un solde positif. Sauvegarde de la phase de récupération non créée. L'accès aux actifs sera perdu. "
+      },
+      "notification": {
+        "description": "Malheureusement, votre appareil mobile ne prend pas en charge la réception de notifications Push"
+      }
+    },
+    "lockScreen": {
+      "maximumAttempts": "Nombre maximal de tentatives atteintes",
+      "enter": "Entrez votre code PIN",
+      "create": "Créer un nouveau code PIN",
+      "confirm": "Confirmez votre code PIN",
+      "incorrect": "Code PIN incorrect"
+    },
+    "languageList": {
+      "title": "Liste des Langages",
+      "languages": {
+        "ru-RU": "Русский",
+        "en-US": "Anglais",
+        "uk-UA": "Українська",
+        "ru-UA": "Українська",
+        "ka-GE" : "Georgien",
+        "de-DE" : "Allemand",
+        "es-ES" : "Espagnol",
+        "fr-FR" : "Français"
+      }
+    },
+    "scannerSettings": {
+      "title": "Scannage",
+      "codes": {
+        "none": "Pas de scannage automatique",
+        "10min": "Toutes les 10 minutes",
+        "1min": "Toutes les minutes"
+      },
+      "lastScan": "Vos soldes ont été scannés à:",
+      "helper": "Mais vous pouvez choisir la fréquence vous-même"
+    },
+    "loggingSettings": {
+      "title": "Journal d'enregistrement",
+      "codes": {
+        "none": "Pas de journalisation",
+        "all": "Vers les fichiers locaux"
+      },
+      "clean" : "Nettoyer tous les fichiers",
+      "helper": "Vous pouvez choisir de vous connecter vous-même"
+    },
+    "repeat": {
+      "receive": "Recevoir"
+    },
+    "validator": {
+      "empty": "Veuillez remplir le champ %{name}",
+      "invalidFormat": "Format inapproprié",
+      "moreThanMax": "Le %{name} doit comporter moins de 255 caractères",
+      "unstoppableErrors": {
+        "UnregisteredDomain": "Le domaine %{domain} n'est pas enregistré",
+        "RecordNotFound": "Le domaine %{domain} n'a pas %{ticker} d'adresse",
+        "UnspecifiedResolver": "Le domaine %{domain} n'a pas de contrat de résolveur"
+      }
+    },
+    "toast": {
+      "copied": "Copié dans le presse-papier",
+      "noInternet": "Pas d'accès Internet",
+      "badInternet": "Mauvais accès Internet, veuillez essayer de vous reconnecter avec un autre fournisseur",
+      "saved" : "Enregistré"
+    },
+    "pushNotifications": {
+      "FOUND_OUT_TX_STATUS_NEW": {
+        "title": "%{currencyName} transaction sortante créée",
+        "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      },
+      "FOUND_OUT_TX_STATUS_FAIL": {
+        "title": "%{currencyName} échec de la transaction sortante",
+        "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      },
+      "FOUND_OUT_TX_STATUS_MISSING": {
+        "title": "%{currencyName} transaction sortante introuvable",
+        "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      },
+      "FOUND_OUT_TX_STATUS_SUCCESS": {
+        "title": "%{currencyName} transaction sortante minée",
+        "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      },
+      "FOUND_OUT_TX_STATUS_CONFIRMING": {
+        "title": "%{currencyName} confirmation transaction sortante",
+        "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      },
+      "FOUND_OUT_TX_STATUS_DELEGATED": {
+        "title": "%{currencyName} transaction sortante déléguée",
+        "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      },
+      "FOUND_IN_TX": {
+        "title": "%{currencyName} transaction entrante",
+        "description": "%{walletName} got %{amountPretty} %{currencySymbol} %{addressFrom}"
+      },
+      "DAEMON_HAS_FOUND_HD": {
+        "title": "%{currencyName} HD wallet trouvé",
+        "description": "%{walletName} a utilisé plus d'une adresse, donc HD est activé automatiquement"
+      },
+      "DAEMON_HAS_FOUND_BALANCE_NOT_ADDED": {
+        "title": "%{currencyName} pas ajouté, mais dispose d'un solde",
+        "description": "%{walletName} address %{address} has %{amountPretty} %{currencySymbol}"
+      },
+      "DAEMON_HAS_FOUND_BALANCE": {
+        "title": "%{currencyName} non montré, mais dispose d'un solde",
+        "description": "%{walletName} address %{address} has %{amountPretty} %{currencySymbol}"
+      },
+      "CURRENCY_RATE_UPDATED": {
+        "title": "%{currencyName} taux mis à jour",
+        "description": "la valeur actuelle est %{currencyRateUsd}$"
+      },
+      "CURRENCY_RATE_SCANNED_LAST_TIME": {
+        "title": "Les taux de change sont scannés",
+        "description": "mais les valeurs mises en cache sont les mêmes - donc aucun changement"
+      },
+      "TXS_SCANNED_LAST_TIME" : {
+        "title" : "%{currencyName} les transactions sont scannées",
+        "description" : "%{walletName} log %{log}"
+      },
+      "HD_SCANNED_LAST_TIME" : {
+        "title" : "les transactions HD sont scannées",
+        "description" : "%{walletName} log %{log}"
+      }
+    },
+    "currencyList": {
+      "AUD": {
+        "currencyCode": "AUD",
+        "currency": "Australian Dollar"
+      },
+      "CAD": {
+        "currencyCode": "CAD",
+        "currency": "Canadian Dollar"
+      },
+      "CNY": {
+        "currencyCode": "CNY",
+        "currency": "Chinese Yuan"
+      },
+      "HRK": {
+        "currencyCode": "HRK",
+        "currency": "Croatian Kuna"
+      },
+      "CZK": {
+        "currencyCode": "CZK",
+        "currency": "Czech Republic Koruna"
+      },
+      "DKK": {
+        "currencyCode": "DKK",
+        "currency": "Danish Krone"
+      },
+      "HKD": {
+        "currencyCode": "HKD",
+        "currency": "Hong Kong Dollar"
+      },
+      "HUF": {
+        "currencyCode": "HUF",
+        "currency": "Hungarian Forint"
+      },
+      "INR": {
+        "currencyCode": "INR",
+        "currency": "Indian Rupee"
+      },
+      "IDR": {
+        "currencyCode": "IDR",
+        "currency": "Indonesian Rupiah"
+      },
+      "IRR": {
+        "currencyCode": "IRR",
+        "currency": "Iranian Rial"
+      },
+      "ILS": {
+        "currencyCode": "ILS",
+        "currency": "Israeli New Sheqel"
+      },
+      "JPY": {
+        "currencyCode": "JPY",
+        "currency": "Japanese Yen"
+      },
+      "KZT": {
+        "currencyCode": "KZT",
+        "currency": "Kazakhstani Tenge"
+      },
+      "KRW": {
+        "currencyCode": "KRW",
+        "currency": "South Korean Won"
+      },
+      "MXN": {
+        "currencyCode": "MXN",
+        "currency": "Mexican Peso"
+      },
+      "MDL": {
+        "currencyCode": "MDL",
+        "currency": "Moldovan Leu"
+      },
+      "NZD": {
+        "currencyCode": "NZD",
+        "currency": "New Zealand Dollar"
+      },
+      "NOK": {
+        "currencyCode": "NOK",
+        "currency": "Norwegian Krone"
+      },
+      "RUB": {
+        "currencyCode": "RUB",
+        "currency": "Russian Ruble"
+      },
+      "SAR": {
+        "currencyCode": "SAR",
+        "currency": "Saudi Riyal"
+      },
+      "SGD": {
+        "currencyCode": "SGD",
+        "currency": "Singapore Dollar"
+      },
+      "ZAR": {
+        "currencyCode": "ZAR",
+        "currency": "South African Rand"
+      },
+      "SEK": {
+        "currencyCode": "SEK",
+        "currency": "Swedish Krona"
+      },
+      "CHF": {
+        "currencyCode": "CHF",
+        "currency": "Swiss Franc"
+      },
+      "EGP": {
+        "currencyCode": "EGP",
+        "currency": "Egyptian Pound"
+      },
+      "GBP": {
+        "currencyCode": "GBP",
+        "currency": "British Pound Sterling"
+      },
+      "USD": {
+        "currencyCode": "USD",
+        "currency": "US Dollar"
+      },
+      "AZN": {
+        "currencyCode": "AZN",
+        "currency": "Azerbaijani Manat"
+      },
+      "RON": {
+        "currencyCode": "RON",
+        "currency": "Romanian Leu"
+      },
+      "TRY": {
+        "currencyCode": "TRY",
+        "currency": "Turkish Lira"
+      },
+      "BGN": {
+        "currencyCode": "BGN",
+        "currency": "Bulgarian Lev"
+      },
+      "EUR": {
+        "currencyCode": "EUR",
+        "currency": "Euro"
+      },
+      "PLN": {
+        "currencyCode": "PLN",
+        "currency": "Polish Zloty"
+      },
+      "DZD": {
+        "currencyCode": "DZD",
+        "currency": "Algerian Dinar"
+      },
+      "BDT": {
+        "currencyCode": "BDT",
+        "currency": "Bangladeshi Taka"
+      },
+      "AMD": {
+        "currencyCode": "AMD",
+        "currency": "Armenian Dram"
+      },
+      "IQD": {
+        "currencyCode": "IQD",
+        "currency": "Iraqi Dinar"
+      },
+      "LBP": {
+        "currencyCode": "LBP",
+        "currency": "Lebanese Pound"
+      },
+      "LYD": {
+        "currencyCode": "LYD",
+        "currency": "Libyan Dinar"
+      },
+      "MYR": {
+        "currencyCode": "MYR",
+        "currency": "Malaysian Ringgit"
+      },
+      "MAD": {
+        "currencyCode": "MAD",
+        "currency": "Moroccan Dirham"
+      },
+      "PKR": {
+        "currencyCode": "PKR",
+        "currency": "Pakistani Rupee"
+      },
+      "VND": {
+        "currencyCode": "VND",
+        "currency": "Vietnamese Dong"
+      },
+      "THB": {
+        "currencyCode": "THB",
+        "currency": "Thai Baht"
+      },
+      "AED": {
+        "currencyCode": "AED",
+        "currency": "United Arab Emirates Dirham"
+      },
+      "TND": {
+        "currencyCode": "TND",
+        "currency": "Tunisian Dinar"
+      },
+      "UZS": {
+        "currencyCode": "UZS",
+        "currency": "Uzbekistan Som"
+      },
+      "TWD": {
+        "currencyCode": "TWD",
+        "currency": "New Taiwan Dollar"
+      },
+      "GHS": {
+        "currencyCode": "GHS",
+        "currency": "Gibraltar Pound"
+      },
+      "RSD": {
+        "currencyCode": "RSD",
+        "currency": "Serbian Dinar"
+      },
+      "GEL": {
+        "currencyCode": "GEL",
+        "currency": "Georgian Lari"
+      },
+      "UAH": {
+        "currencyCode": "UAH",
+        "currency": "Ukrainian Hryvnia"
+      }
+    },
+    "streemSupport": {
+      "sendDocs": "Envoyer les docs",
+      "sendLogs": "Envoyer les logs",
+      "takePhoto": "Prendre une photo",
+      "chooseFromLibrary": "Choisir depuis la gallerie",
+      "noMessages": "Pas encore de message"
+    }
+  }
