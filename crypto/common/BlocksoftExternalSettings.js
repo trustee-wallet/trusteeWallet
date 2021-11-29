@@ -111,7 +111,9 @@ const CACHE = {
     'ROCKET_CHAT_USE' : 0,
     'HOW_WORK_CASHBACK_LINK' : 'https://trusteeglobal.com/programma-loyalnosti/',
     'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/',
-    'INVOICE_URL' : 'https://trusteeglobal.com/'
+    'INVOICE_URL_EN' : 'https://trusteeglobal.com/',
+    'INVOICE_URL_RU' : 'https://trusteeglobal.com/ru',
+    'INVOICE_URL_UK' : 'https://trusteeglobal.com/uk',
 }
 
 
