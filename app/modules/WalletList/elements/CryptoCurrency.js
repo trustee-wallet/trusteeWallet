@@ -120,6 +120,8 @@ class CryptoCurrency extends React.PureComponent {
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
                     onPress={() => handleCurrencySelect(this.props)}
+                    onLongPress={() => this.props.constructorMode ? handleCurrencySelect(this.props) : null}
+                    delayLongPress={this.props.constructorMode ? 0 : null}
                 >
                     <GradientView
                         style={styles.cryptoList__item__content}
@@ -245,6 +247,8 @@ class CryptoCurrency extends React.PureComponent {
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
                     onPress={() => handleCurrencySelect(this.props, currencyCode === 'CASHBACK' ? 'CashbackScreen' : false)}
+                    onLongPress={() => this.props.constructorMode ? handleCurrencySelect(this.props) : null}
+                    delayLongPress={this.props.constructorMode ? 0 : null}
                 >
                     <GradientView
                         style={[styles.cryptoList__item__content, { paddingLeft: SIZE - 2 }]}

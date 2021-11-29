@@ -295,6 +295,8 @@ class HeaderBlocks extends React.Component {
                                 style={styles.topContent__middle}
                                 onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
                                 hitSlop={HIT_SLOP}
+                                onLongPress={() => this.handleBtcAddressCopy(shownAddress)}
+                                delayLongPress={500}
                             >
                                 <View style={{ alignItems: 'center' }}>
                                     <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
