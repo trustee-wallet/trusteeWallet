@@ -68,7 +68,7 @@ class HeaderBlocks extends React.Component {
             const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(actualLink)
             Linking.openURL(linkUrl)
         } catch (e) {
-            Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + actualLink)
+            Log.err('Account.AccountScreen open URI error ' + e.message, actualLink)
         }
 
     }
@@ -235,6 +235,7 @@ class HeaderBlocks extends React.Component {
             case 'TRX':
             case 'BNB':
             case 'SOL':
+            case 'BNB_SMART':
                 return this.handleSettingAccount(currencyCode)
             default:
                 return null
@@ -294,6 +295,8 @@ class HeaderBlocks extends React.Component {
                                 style={styles.topContent__middle}
                                 onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
                                 hitSlop={HIT_SLOP}
+                                onLongPress={() => this.handleBtcAddressCopy(shownAddress)}
+                                delayLongPress={500}
                             >
                                 <View style={{ alignItems: 'center' }}>
                                     <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />

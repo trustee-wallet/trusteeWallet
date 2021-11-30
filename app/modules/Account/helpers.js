@@ -1,5 +1,5 @@
 import settingsActions from "@app/appstores/Stores/Settings/SettingsActions"
-import { strings } from "@app/services/i18n"
+import { strings, sublocale } from "@app/services/i18n"
 import prettyShare from "@app/services/UI/PrettyShare/PrettyShare"
 import BlocksoftDict from "@crypto/common/BlocksoftDict"
 import BlocksoftExternalSettings from "@crypto/common/BlocksoftExternalSettings"
@@ -40,7 +40,8 @@ const getExplorerLink = (code, type, value) => {
 }
 
 const handleShareInvoice = (address, currencyCode, currencyName) => {
-    const message = `${BlocksoftExternalSettings.getStatic('INVOICE_URL')}?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
+    const lang = sublocale()
+    const message = `${BlocksoftExternalSettings.getStatic(`INVOICE_URL_${lang.toUpperCase()}`)}?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
 
     const shareOptions = {
         title: strings('account.invoiceText'),

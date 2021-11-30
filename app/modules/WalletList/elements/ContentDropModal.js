@@ -6,6 +6,8 @@ import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
+import { handleHide } from '../helpers'
+
 class ContentDropModal extends React.PureComponent {
 
     render() {
@@ -14,18 +16,17 @@ class ContentDropModal extends React.PureComponent {
             GRID_SIZE, colors
         } = this.context
 
-        const { currentIndex, onDrag, listData, handleGuide } = this.props.data
+        const { currentIndex, onDrag, listData, handleGuide, currencyCode } = this.props.data
 
         return (
-            <View>
-
+            <View style={{ marginHorizontal: GRID_SIZE }}>
                 <InvoiceListItem
                     title={strings('modal.dropDownModal.showGuide')}
                     onPress={() => {
                         handleGuide()
                         hideModal()
                     }}
-                    containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.buttonBg, marginBottom: GRID_SIZE }}
+                    containerStyle={{ borderRadius: 12, backgroundColor: colors.backDropModal.buttonBg, marginBottom: GRID_SIZE }}
                     textStyles={{ textAlign: 'center' }}
                     textColor={colors.backDropModal.buttonText}
                     last
@@ -38,8 +39,8 @@ class ContentDropModal extends React.PureComponent {
                         onDrag({ data: tmpArray })
                         hideModal()
                     }}
-                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
-                    textStyles={{ textAlign: 'center' }}
+                    iconType='toUp'
+                    containerStyle={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                 />
                 <InvoiceListItem
                     title={strings('modal.dropDownModal.moveToDown')}
@@ -49,7 +50,15 @@ class ContentDropModal extends React.PureComponent {
                         onDrag({ data: tmpArray })
                         hideModal()
                     }}
-                    containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
+                    iconType='toDown'
+                />
+                <InvoiceListItem
+                    title={strings('modal.dropDownModal.hideAsset')}
+                    onPress={() => {
+                        handleHide(currencyCode)
+                        hideModal()
+                    }}
+                    containerStyle={{ borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
                     textStyles={{ textAlign: 'center' }}
                     last
                 />

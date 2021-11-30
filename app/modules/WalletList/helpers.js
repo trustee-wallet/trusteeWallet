@@ -177,6 +177,7 @@ const handleCurrencySelect = async (props, screen) => {
             onDrag: props.onDragEnd,
             listData: props.listData,
             handleGuide: props.handleGuide,
+            currencyCode: cryptoCurrency,
             // eslint-disable-next-line react/display-name
             Content: ({ data }) => {
                 return <ContentDropModal data={data} />

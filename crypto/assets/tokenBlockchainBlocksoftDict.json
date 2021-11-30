@@ -1,0 +1,34 @@
+{
+  "BITCOIN": {
+    "currencyCode" : "BTC",
+    "blockchainName": "Bitcoin"
+  },
+  "ETHEREUM" : {
+    "currencyCode" : "ETH",
+    "blockchainName" : "Ethereum"
+  },
+  "TRON" : {
+    "currencyCode" : "TRX",
+    "blockchainName" : "Tron"
+  },
+  "BNB" : {
+    "currencyCode": "BNB_SMART",
+    "blockchainName" : "BSC (BEP-20)"
+  },
+  "MATIC" : {
+    "currencyCode" : "MATIC",
+    "blockchainName" : "Matic"
+  },
+  "FTM" : {
+    "currencyCode": "FTM",
+    "blockchainName" : "FTM"
+  },
+  "SOLANA" : {
+    "currencyCode" : "SOL",
+    "blockchainName" : "Solana"
+  },
+  "METIS" : {
+    "currencyCode" : "METIS",
+    "blockchainName": "Metis"
+  }
+}

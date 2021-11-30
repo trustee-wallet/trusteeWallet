@@ -4,12 +4,11 @@
 
 import Database from '@app/appstores/DataSource/Database'
 
-import Log from '../../services/Log/Log'
-import Api from '../../services/Api/Api'
-import ApiV3 from '../../services/Api/ApiV3'
+import Log from '@app/services/Log/Log'
+import ApiV3 from '@app/services/Api/ApiV3'
+import ApiProxy from '@app/services/Api/ApiProxy'
 
-import config from '../../config/config'
-import ApiProxy from '../../services/Api/ApiProxy'
+import config from '@app/config/config'
 import store from '@app/store'
 import NavStore from '@app/components/navigation/NavStore'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -58,15 +57,6 @@ class UpdateTradeOrdersDaemon {
                 }
             }
 
-            const tmpTradeOrders = await Api.getExchangeOrders(walletHash)
-            if (tmpTradeOrders && typeof tmpTradeOrders.length !== 'undefined' && tmpTradeOrders.length > 0) {
-                for (const one of tmpTradeOrders) {
-                    if (one.orderId === orderHash) {
-                        CACHE_ONE_ORDER[orderHash] = { one, now }
-                        return one
-                    }
-                }
-            }
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('UpdateTradeOrdersDaemon.fromApi error ' + e.message + ' tmpOneOrder')

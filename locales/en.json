@@ -159,6 +159,7 @@
       "testerMode": "Tester"
     },
     "walletList": {
+      "showBalance": "Show balance",
       "title": "My wallets",
       "addWallet": "Add wallet",
       "backupNeeded": "Backup needed",
@@ -1181,7 +1182,8 @@
       "moveToDown": "Move to the down of the list",
       "guideText": "Customize the display of coins on the main screen by placing them in the required order, or sort assets according to the proposed options.",
       "guideTitle": "Personal interface",
-      "guideAccept": "Accept"
+      "guideAccept": "Accept",
+      "hideAsset": "Hide assets"
     }
   },
   "lockScreen": {
