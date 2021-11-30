@@ -3,9 +3,7 @@
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
-
-import EntypoIcon from 'react-native-vector-icons/Entypo'
+import { View, Text, StyleSheet, ScrollView } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -27,12 +25,9 @@ import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 
 class WalletListScreen extends PureComponent {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            isBalanceVisible: false,
-            isBalanceVisibleTriggered: false
-        }
+    state = {
+        isBalanceVisible: false,
+        isBalanceVisibleTriggered: false
     }
 
     triggerBalanceVisibility = (value) => {
@@ -64,8 +59,6 @@ class WalletListScreen extends PureComponent {
         const finalIsBalanceVisible = this.state.isBalanceVisible
 
         totalBalance = BlocksoftPrettyNumbers.makeCut(totalBalance).separated
-
-        // isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
 
         return(
             <View style={styles.headerContainer}>
@@ -106,9 +99,6 @@ class WalletListScreen extends PureComponent {
         const { walletsList } = this.props
         const { walletHash } =  this.props.selectedWalletData
         const { GRID_SIZE } = this.context
-
-        const { isBalanceVisible, isBalanceVisibleTriggered } = this.state
-        const originalVisibility = this.props.isBalanceVisible
 
         return (
             <ScreenWrapper
@@ -191,13 +181,13 @@ const styles = StyleSheet.create({
         marginTop: 1
     },
     balanceTitle: {
-        fontFamily: 'SFUIDisplay-Semibold',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 18,
         lineHeight: 22,
         letterSpacing: 1
     },
     balanceValue: {
-        fontFamily: 'Montserrat-SemiBold',
+        fontFamily: 'SFUIDisplay-SemiBold',
         fontSize: 14,
         lineHeight: 20,
     },
