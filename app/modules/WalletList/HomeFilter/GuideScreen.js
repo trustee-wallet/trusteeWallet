@@ -7,8 +7,7 @@ import React from 'react'
 import {
     View,
     Text,
-    StyleSheet,
-    Dimensions
+    StyleSheet
 } from 'react-native'
 
 import LottieView from 'lottie-react-native'
@@ -20,8 +19,6 @@ import NavStore from '@app/components/navigation/NavStore'
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
-
-const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 class GuideScreen extends React.PureComponent {
 
@@ -49,35 +46,35 @@ class GuideScreen extends React.PureComponent {
             colors
         } = this.context
 
-        return(
-            <ScreenWrapper 
+        return (
+            <ScreenWrapper
                 title={strings('homeScreen.sort.guideTitle')}
-                leftType="back"
+                leftType='back'
                 leftAction={this.handleBack}
             >
                 <View style={styles.guideContainer}>
-                   <LottieView
-                        style={{
-                            width: WINDOW_WIDTH * 0.5,
-                            height: WINDOW_HEIGHT * 0.6
-                        }}
-                        autoPlay
-                        loop
-                        speed={0.8}
-                        source={isLight ? require('@assets/jsons/animations/TabAnimationLight.json') : require('@assets/jsons/animations/TabAnimationDark.json')}
-                    />
-                    <View style={styles.textAndBtn}>
-                        <View style={{ marginTop: 10 }}>
-                            <Text style={[styles.guideTitle, { color: colors.common.text1, marginBottom: GRID_SIZE / 2 }]}>{strings('modal.dropDownModal.guideTitle')}</Text>
-                            <Text style={[styles.guideText, { color: colors.common.text3, marginHorizontal: GRID_SIZE * 2 }]}>{strings('modal.dropDownModal.guideText')}</Text>
-                        </View>
-                        <Button
-                            title={strings('modal.dropDownModal.guideAccept')}
-                            onPress={this.handleAccept}
-                            containerStyle={{ width: WINDOW_WIDTH - GRID_SIZE * 2, marginBottom: GRID_SIZE }}
-                        /> 
+                    <View style={{ flex: 1.8 }}>
+                        <LottieView
+                            style={{
+                                marginTop: GRID_SIZE * 1.5,
+                                width: '100%'
+                            }}
+                            autoPlay
+                            loop
+                            speed={0.8}
+                            source={isLight ? require('@assets/jsons/animations/TabAnimationLight.json') : require('@assets/jsons/animations/TabAnimationDark.json')}
+                        />
                     </View>
-                </View> 
+                    <View style={[styles.textAndBtn, { marginHorizontal: GRID_SIZE }]}>
+                        <Text style={[styles.guideTitle, { color: colors.common.text1, marginBottom: GRID_SIZE / 2, marginTop: GRID_SIZE * 2 }]}>{strings('modal.dropDownModal.guideTitle')}</Text>
+                        <Text style={[styles.guideText, { color: colors.common.text3 }]}>{strings('modal.dropDownModal.guideText')}</Text>
+                    </View>
+                </View>
+                <Button
+                    title={strings('modal.dropDownModal.guideAccept')}
+                    onPress={this.handleAccept}
+                    containerStyle={{ marginHorizontal: GRID_SIZE }}
+                />
             </ScreenWrapper>
         )
     }
@@ -89,9 +86,7 @@ export default GuideScreen
 
 const styles = StyleSheet.create({
     guideContainer: {
-        width: '100%', 
-        height: '100%', 
-        alignItems: 'center', 
+        flex: 1
     },
     guideText: {
         fontFamily: 'SFUIDisplay-Semibold',
@@ -100,14 +95,12 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     guideTitle: {
-        textAlign: 'center', 
-        fontSize: 30, 
-        lineHeight: 34, 
+        textAlign: 'center',
+        fontSize: 30,
+        lineHeight: 34,
         fontFamily: 'Montserrat-Medium'
     },
     textAndBtn: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between'
     }
 })
