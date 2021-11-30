@@ -19,23 +19,11 @@ const CACHE = {
     ETH_RINKEBY: {}
 }
 
-
-const CACHE_TIME = {
-    MATIC: {},
-    ETH: {},
-    BNB : {},
-    ETH_ROPSTEN: {},
-    ETH_RINKEBY: {}
-}
-
-const CACHE_VALID_TIME = 60000 // 1 minute
-
 class Nfts {
 
     saveNfts = async (tokenBlockchainCode, address, nfts) => {
         if (typeof CACHE[tokenBlockchainCode][address] !== 'undefined' && CACHE[tokenBlockchainCode][address] === nfts) return false
         CACHE[tokenBlockchainCode][address] = nfts
-        CACHE_TIME[tokenBlockchainCode][address] = new Date().getTime()
         const sql1 = `DELETE FROM transactions_scanners_tmp WHERE currency_code='${tokenBlockchainCode}' AND address='${address}' AND tmp_key='nfts'`
         await Database.query(sql1, true)
 
@@ -64,13 +52,6 @@ class Nfts {
 
     getNftsCache = (tokenBlockchainCode, address) => {
         if (typeof CACHE[tokenBlockchainCode][address] === 'undefined') return false
-        if (typeof CACHE_TIME[tokenBlockchainCode][address] !== 'undefined') {
-            const now = new Date().getTime()
-            const diff = now - CACHE_TIME[tokenBlockchainCode][address]
-            if (diff < CACHE_VALID_TIME) {
-                return false
-            }
-        }
         return CACHE[tokenBlockchainCode][address]
     }
 }

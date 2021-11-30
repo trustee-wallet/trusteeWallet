@@ -193,7 +193,7 @@ class SettingsMainScreen extends PureComponent {
     }
 
 
-    handleOpenNotifications = () => { NavStore.goNext('NotificationsSettingsScreen') }
+    handleOpenNotifications = () => { NavStore.goNext('NotificationsScreen') }
 
     handleWalletManagment = () => { NavStore.goNext('WalletListScreen') }
 

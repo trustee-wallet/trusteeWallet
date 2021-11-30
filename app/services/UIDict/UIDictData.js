@@ -422,6 +422,12 @@ export default {
             darkColor: '#375BD2'
         }
     },
+    "FTM_LINK": {
+        colors: {
+            mainColor: '#375BD2',
+            darkColor: '#375BD2'
+        }
+    },
     "ETH_SXP": {
         colors: {
             mainColor: '#FF5331',
@@ -512,6 +518,12 @@ export default {
             darkColor: '#B87A1E'
         }
     },
+    "FTM_BTC": {
+        colors: {
+            mainColor: '#F79E1B',
+            darkColor: '#B87A1E'
+        }
+    },
     "BNB_SMART_BTC": {
         colors: {
             mainColor: '#F79E1B',
@@ -537,6 +549,12 @@ export default {
         }
     },
     'CUSTOM_STORJ': {
+        colors: {
+            mainColor: '#2683FF',
+            darkColor: '#3F81D9'
+        }
+    },
+    'ETH_STORJ': {
         colors: {
             mainColor: '#2683FF',
             darkColor: '#3F81D9'
@@ -834,6 +852,66 @@ export default {
         colors: {
             mainColor: '#404040',
             darkColor: '#DADADA'
+        }
+    },
+    'METIS': {
+        colors: {
+            mainColor: '#10DCCF',
+            darkColor: '#3EC0B8'
+        }
+    },
+    'BNB_SMART_METIS': {
+        colors: {
+            mainColor: '#10DCCF',
+            darkColor: '#3EC0B8'
+        }
+    },
+    'ETH_METIS': {
+        colors: {
+            mainColor: '#10DCCF',
+            darkColor: '#3EC0B8'
+        }
+    },
+    'METIS_METIS': {
+        colors: {
+            mainColor: '#2B6DEF',
+            darkColor: '#6389D6'
+        }
+    },
+    'FTM': {
+        colors: {
+            mainColor: '#1969FF',
+            darkColor: '#457DE5'
+        }
+    },
+    'FTM_AAVE': {
+        colors: {
+            mainColor: '#2EBAC6',
+            darkColor: '#2DB1BC'
+        }
+    },
+    'MATIC_FTM': {
+        colors: {
+            mainColor: '#1969FF',
+            darkColor: '#457DE5'
+        }
+    },
+    'ETH_FTM': {
+        colors: {
+            mainColor: '#1969FF',
+            darkColor: '#457DE5'
+        }
+    },
+    'BNB_SMART_FTM': {
+        colors: {
+            mainColor: '#1969FF',
+            darkColor: '#457DE5'
+        }
+    },
+    'FTM_BOO': {
+        colors: {
+            mainColor: '#6665DD',
+            darkColor: '#6E6DCB'
         }
     },
     'DEFAULT': {

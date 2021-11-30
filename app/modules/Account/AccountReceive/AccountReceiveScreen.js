@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions, Linking } from 'react-native'
 
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -28,7 +28,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 
@@ -67,6 +67,10 @@ import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalle
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 
+import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
+import { getExplorerLink, handleShareInvoice } from '../helpers'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+
 
 const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -77,29 +81,36 @@ const amountInput = {
     mark: 'ETH'
 }
 
+let CACHE_ASKED = false
+
 class AccountReceiveScreen extends React.PureComponent {
 
-    constructor() {
-        super()
-        this.state = {
-            settingAddressType: false,
-            settingAddressTypeTriggered : false,
+    state = {
+        settingAddressType: false,
+        settingAddressTypeTriggered : false,
 
-            customAmount: false,
+        customAmount: false,
 
-            amountEquivalent: null,
-            amountInputMark: '',
-            amountForQr: '0',
-            labelForQr: '',
-            inputType: 'CRYPTO',
+        amountEquivalent: null,
+        amountInputMark: '',
+        amountForQr: '0',
+        labelForQr: '',
+        inputType: 'CRYPTO',
 
-            focused: false,
+        focused: false,
 
-            changeAddress: false,
+        changeAddress: false,
 
-            isBalanceVisible: false,
-            isBalanceVisibleTriggered: false,
-        }
+        isBalanceVisible: false,
+        isBalanceVisibleTriggered: false,
+    }
+
+    async _onLoad() {
+        CACHE_ASKED = trusteeAsyncStorage.getExternalAsked()
+    }
+
+    componentDidMount() {
+        this._onLoad()
     }
 
 
@@ -551,6 +562,84 @@ class AccountReceiveScreen extends React.PureComponent {
         this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
     }
 
+    renderModalContent = (params) => {
+
+        const { 
+            GRID_SIZE,
+            colors
+        } = this.context
+
+        const { currencyCode, currencyName } = this.props.selectedCryptoCurrencyData
+
+        return(
+            <View>
+                <InvoiceListItem 
+                    title={strings('account.invoiceText')}
+                    onPress={() => handleShareInvoice(this.getAddress(), currencyCode, currencyName)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
+                    textColor='#F7F7F7'
+                    iconType='invoice'
+                    last
+                />
+                <InvoiceListItem 
+                    title={strings('account.copyLink')}
+                    onPress={() => {
+                        this.copyToClip()
+                        hideModal()
+                    }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    iconType='copy'
+                />
+                <InvoiceListItem 
+                    title={strings('account.openInBlockchair')}
+                    onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
+                    iconType='blockchair'
+                    last
+                />
+            </View>
+        )
+    }
+
+    handleBackDropModal = (address, forceLink) => {
+        showModal({
+            type: 'BACK_DROP_MODAL',
+            Content: () => this.renderModalContent({address, forceLink})
+        })
+    }
+
+    handleOpenLink = async (address, forceLink = false) => {
+        const now = new Date().getTime()
+        const diff = now - CACHE_ASKED * 1
+        if (!CACHE_ASKED|| diff > 10000) {
+            showModal({
+                type: 'YES_NO_MODAL',
+                title: strings('account.externalLink.title'),
+                icon: 'WARNING',
+                description: strings('account.externalLink.description')
+            }, () => {
+                trusteeAsyncStorage.setExternalAsked(now + '')
+                CACHE_ASKED = now
+                this.actualOpen(address, forceLink)
+            })
+        } else {
+            this.actualOpen(address, forceLink)
+        }
+    }
+
+    actualOpen = async (address, forceLink = false) => {
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+
+        const actualLink = forceLink || getExplorerLink(currencyCode, 'address', address)
+        try {
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(actualLink)
+            Linking.openURL(linkUrl)
+        } catch (e) {
+            Log.err('Account.AccountReceiveScreen open URI error ' + e.message, actualLink)
+        }
+
+    }
+
     render() {
 
         const { walletIsHd } = this.props.selectedWalletData
@@ -599,8 +688,10 @@ class AccountReceiveScreen extends React.PureComponent {
                         {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
                         <TouchableOpacity
                             style={styles.qr}
-                            onPress={this.copyToClip}
+                            onPress={this.handleBackDropModal}
                             activeOpacity={0.8}
+                            onLongPress={this.copyToClip}
+                            delayLongPress={500}
                         >
                             <QrCodeBox
                                 getRef={ref => this.refSvg = ref}
@@ -641,7 +732,9 @@ class AccountReceiveScreen extends React.PureComponent {
                             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                 <View style={{ ...styles.line, backgroundColor: colors.sendScreen.colorLine }} />
                                 <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
-                                    onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP} >
+                                    onPress={this.handleChangeEquivalentType}
+                                    hitSlop={HIT_SLOP}
+                                >
                                     <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
                                 </TouchableOpacity>
                             </View>
@@ -669,11 +762,16 @@ class AccountReceiveScreen extends React.PureComponent {
                         :
                         <>
                             <View style={{ ...styles.backgroundAddress, backgroundColor: colors.transactionScreen.backgroundItem, marginHorizontal: GRID_SIZE }} >
-                                <TouchableOpacity style={{
-                                    position: 'relative',
-                                    alignItems: 'center'
-                                }} onPress={() => this.copyToClip()}
-                                    hitSlop={HIT_SLOP}>
+                                <TouchableOpacity
+                                    style={{
+                                        position: 'relative',
+                                        alignItems: 'center'
+                                    }}
+                                    onPress={() => this.handleBackDropModal()}
+                                    hitSlop={HIT_SLOP}
+                                    onLongPress={this.copyToClip}
+                                    delayLongPress={500}
+                                >
                                     <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                         <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
                                             <LetterSpacing text={shownAddress && shownAddress !== '' ? shownAddress : address} numberOfLines={2} containerStyle={{
@@ -738,7 +836,7 @@ const mapStateToProps = (state) => {
 }
 AccountReceiveScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(AccountReceiveScreen)
+export default connect(mapStateToProps)(AccountReceiveScreen)
 
 const styles = {
     wrapper: {

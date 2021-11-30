@@ -338,8 +338,7 @@
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Earn",
-    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
-    "pageSubtitleText": "to",
+    "pageSubtitle": "Earn to 30% from the commission with Trustee Wallet!",
     "shareButton": "Share",
     "promoButton": "Promocode",
     "detailsButton": "Details",
@@ -423,14 +422,9 @@
     "noTransactions": "You don’t have any transaction yet. But you can resolve this quickly, just tap on BUY button",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
-    "stakingTRX": {
-      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
-      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
-      "moreInfo": "More details..."
-    },
-    "stakingSOL": {
-      "stake": "Freeze your SOL to receive staking rewards. "
-    },
+    "copyLink": "Copy address",
+    "invoiceText": "Issue an invoice for payment",
+    "openInBlockchair": "Open in blockchain explorer",
     "externalLink": {
       "title": "Go to blockchain explorer",
       "description": "External site link will be opened"
@@ -1185,6 +1179,12 @@
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"
+    },
+    "dropDownModal": {
+      "showGuide": "Repeat training",
+      "moveToTop": "Move to the top of the list",
+      "moveToDown": "Move to the down of the list",
+      "hideAsset": "Hide assets"
     }
   },
   "lockScreen": {

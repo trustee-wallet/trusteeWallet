@@ -28,6 +28,12 @@ const getStyle = (type, disabled, containerStyle, textStyle) => {
             { color: colors.common.button[disabled ? 'transparentDisabledText' : 'transparentText'] },
             textStyle
         )
+    } else if (type === 'withoutShadow') {
+        style.container.push(containerStyle)
+        style.text.push(
+            styles.transparentButtonText,
+            textStyle
+        )
     } else {
         style.container.push(
             { backgroundColor: colors.common.button[disabled ? 'disabledBg' : 'bg'] },

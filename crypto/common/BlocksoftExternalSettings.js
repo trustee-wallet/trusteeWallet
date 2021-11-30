@@ -113,7 +113,10 @@ const CACHE = {
     'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/',
     'TRX_STAKING_LINK' : 'https://blog.trusteeglobal.com/stejking-trona-i-kak-zarabotat/',
     'TRX_STAKING_PERCENT' : 7.35,
-    'SOL_STAKING_PERCENT' : 1.25
+    'SOL_STAKING_PERCENT' : 1.25,
+    'INVOICE_URL_EN' : 'https://trusteeglobal.com/',
+    'INVOICE_URL_RU' : 'https://trusteeglobal.com/ru',
+    'INVOICE_URL_UK' : 'https://trusteeglobal.com/uk',
 }
 
 

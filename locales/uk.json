@@ -78,7 +78,7 @@
       "session": "Підключення WalletConnect",
       "sessionText": "Ви дійсно хочете підключити гаманець Trustee до ",
       "notificationTitle": "Увага!",
-      "notificationText": "Переконайтесь, що %{name} безпечно. Взаємодіючи з цим сервісом, Ви надаєте доступ до своїх коштів!",
+      "notificationText": "Переконайтесь, що %{name} безпечний. Взаємодіючи з цим сервісом, Ви надаєте доступ до своїх коштів!",
       "disconnect": "Відключитись",
       "connect": "Підключитись",
       "placeholder": "Тут буде адреса гаманця, до якого Ви підключились",
@@ -338,8 +338,7 @@
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Заробити",
-    "pageSubtitle": "Заробляй від комісії з Trustee Wallet!",
-    "pageSubtitleText": "до",
+    "pageSubtitle": "Заробляй до 30% від комісії з Trustee Wallet!",
     "shareButton": "Поділитись",
     "promoButton": "Промокод",
     "detailsButton": "Деталі",
@@ -431,6 +430,9 @@
     "stakingSOL": {
       "stake": "Заморозьте свої монети SOL, щоб отримувати нагороду за стейкінг. "
     },
+    "copyLink": "Копіювати адресу",
+    "invoiceText": "Виставити рахунок для оплати",
+    "openInBlockchair": "Відкрити в блокчейн експлорері",
     "externalLink": {
       "title": "Перехід до блокчейн експлореру",
       "description": "Ви перейдете на зовнішній ресурс"
@@ -1185,6 +1187,12 @@
     },
     "notification": {
       "description": "На жаль, Ваш мобільний пристрій не підтримує отримання Push-повідомлень"
+    },
+    "dropDownModal": {
+      "showGuide": "Повторити навчання",
+      "moveToTop": "Перемістити на початок списку",
+      "moveToDown": "Перемістити в кінець списку",
+      "hideAsset": "Приховати актив"
     }
   },
   "lockScreen": {

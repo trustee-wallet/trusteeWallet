@@ -336,8 +336,7 @@
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Earn",
-    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
-    "pageSubtitleText": "to",
+    "pageSubtitle": "Earn to 30% from the commission with Trustee Wallet!",
     "shareButton": "გაზიარება",
     "promoButton": "პრომოკოდი",
     "detailsButton": "დეტალები",
@@ -429,6 +428,9 @@
     "stakingSOL": {
       "stake": "Freeze your SOL to receive staking rewards. "
     },
+    "copyLink": "Copy address",
+    "invoiceText": "Issue an invoice for payment",
+    "openInBlockchair": "Open in blockchain explorer",
     "externalLink": {
       "title": "ბლოკჩეინ ექსპლორერზე გადასვლა",
       "description": "თქვენ გადახვალთ გარე რესურსზე"
@@ -1166,6 +1168,12 @@
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"
+    },
+    "dropDownModal": {
+      "showGuide": "Repeat training",
+      "moveToTop": "Move to the top of the list",
+      "moveToDown": "Move to the down of the list",
+      "hideAsset": "Hide assets"
     }
   },
   "lockScreen": {

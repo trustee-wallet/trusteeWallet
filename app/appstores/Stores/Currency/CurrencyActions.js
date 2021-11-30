@@ -172,10 +172,15 @@ const currencyActions = {
                     }
                 }
             }
-            if (accountBalanceInsertObjs && accountBalanceInsertObjs.length > 0) {
-                errorStepMsg = 'accountBalanceDS.insertAccountBalance started'
-                await accountBalanceDS.insertAccountBalance({ insertObjs: accountBalanceInsertObjs })
-                errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
+
+            try {
+                if (accountBalanceInsertObjs && accountBalanceInsertObjs.length > 0) {
+                    errorStepMsg = 'accountBalanceDS.insertAccountBalance started'
+                    await accountBalanceDS.insertAccountBalance({ insertObjs: accountBalanceInsertObjs })
+                    errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
+                }
+            } catch (e) {
+                Log.log('ACT/Currency addCurrency insertCurrency insertAccountBalance ' + e.message)
             }
 
             for (const tmpCode of tmpCodes) {

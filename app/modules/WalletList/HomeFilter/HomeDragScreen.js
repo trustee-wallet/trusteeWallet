@@ -5,6 +5,7 @@
 
 import React, { PureComponent } from 'react'
 import {
+    LayoutAnimation,
     Platform,
     View
 } from 'react-native'
@@ -104,13 +105,16 @@ class HomeDragScreen extends PureComponent {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingVertical: GRID_SIZE }}
                     autoscrollSpeed={300}
-                    renderItem={({ item, drag, isActive }) => (
+                    renderItem={({ item, index, drag, isActive }) => (
                         <CryptoCurrency
+                            index={index}
                             cryptoCurrency={item}
                             isBalanceVisible={this.props.isBalanceVisible}
                             onDrag={drag}
                             isActive={isActive}
                             constructorMode={true}
+                            listData={data}
+                            onDragEnd={this.onDragEnd}
                         />
                     )}
                     keyExtractor={(item, index) => index.toString()}

@@ -2067,7 +2067,7 @@
 		"tokenAddress": "0x9E32b13ce7f2E80A01932B42553652E053D6ed8e",
 		"currencyExplorerLink": "https://etherscan.io/token/0x9E32b13ce7f2E80A01932B42553652E053D6ed8e?a="
 	},
-	"BNB_METIS": {
+	"BNB_SMART_METIS": {
 		"currencyType": "token",
 		"currencyName": "Metis BEP20",
 		"currencyCode": "BNB_SMART_METIS",
