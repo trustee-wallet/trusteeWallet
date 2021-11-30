@@ -635,7 +635,7 @@ class AccountReceiveScreen extends React.PureComponent {
             const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(actualLink)
             Linking.openURL(linkUrl)
         } catch (e) {
-            Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + actualLink)
+            Log.err('Account.AccountReceiveScreen open URI error ' + e.message, actualLink)
         }
 
     }

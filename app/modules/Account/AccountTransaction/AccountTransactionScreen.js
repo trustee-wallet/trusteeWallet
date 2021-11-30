@@ -418,7 +418,7 @@ class AccountTransactionScreen extends PureComponent {
             const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(link)
             Linking.openURL(linkUrl)
         } catch (e) {
-            Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + link)
+            Log.err('Account.AccountTransactionScreen open URI error ' + e.message, link)
         }
 
     }
