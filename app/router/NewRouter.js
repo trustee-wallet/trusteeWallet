@@ -90,6 +90,7 @@ import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSet
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import HomeSortScreen from '@app/modules/WalletList/HomeFilter/HomeSortScreen';
 import HomeDragScreen from '@app/modules/WalletList/HomeFilter/HomeDragScreen';
+import GuideScreen from '@app/modules/WalletList/HomeFilter/GuideScreen';
 
 
 
@@ -323,6 +324,7 @@ export default () => {
 
             <Stack.Screen name='HomeSortScreen' component={HomeSortScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='HomeDragScreen' component={HomeDragScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='GuideScreen' component={GuideScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </Stack.Navigator>
     )
 

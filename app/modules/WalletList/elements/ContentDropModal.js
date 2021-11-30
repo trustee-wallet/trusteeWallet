@@ -14,7 +14,7 @@ class ContentDropModal extends React.PureComponent {
             GRID_SIZE, colors
         } = this.context
 
-        const { currentIndex, onDrag, listData, triggerGuide } = this.props.data
+        const { currentIndex, onDrag, listData, handleGuide } = this.props.data
 
         return (
             <View>
@@ -22,7 +22,7 @@ class ContentDropModal extends React.PureComponent {
                 <InvoiceListItem
                     title={strings('modal.dropDownModal.showGuide')}
                     onPress={() => {
-                        triggerGuide()
+                        handleGuide()
                         hideModal()
                     }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.buttonBg, marginBottom: GRID_SIZE }}

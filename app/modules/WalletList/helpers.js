@@ -176,7 +176,7 @@ const handleCurrencySelect = async (props, screen) => {
             currentIndex: props.index,
             onDrag: props.onDragEnd,
             listData: props.listData,
-            triggerGuide: props.triggerGuide,
+            handleGuide: props.handleGuide,
             // eslint-disable-next-line react/display-name
             Content: ({ data }) => {
                 return <ContentDropModal data={data} />

@@ -14,7 +14,8 @@
       "byValue": "За балансом",
       "firstCoin": "Спочатку монети",
       "firstToken": "Спочатку токени",
-      "withBalance": "З позитивним балансом"
+      "withBalance": "З позитивним балансом",
+      "guideTitle": "Навчання"
     },
     "categories": {
       "coin": "Монети",

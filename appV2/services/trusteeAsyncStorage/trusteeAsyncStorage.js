@@ -188,14 +188,13 @@ class TrusteeAsyncStorage {
         return AsyncStorage.setItem(ASYNC_STORE_KEY, JSON.stringify(this._inited))
     }
 
-    getIsTraining = async () => {
-        return this._get('isTraining')
+    getIsTraining = () => {
+        return this._getStatic('fvgdbtravstbysr')
     }
 
     setIsTraining = (value) => {
-        return this._set('isTraining', value)
+        return this._set('fvgdbtravstbysr', value)
     }
-    
 }
 
 const trusteeAsyncStorage = new TrusteeAsyncStorage()
