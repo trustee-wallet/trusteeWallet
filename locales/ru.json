@@ -158,6 +158,7 @@
       "testerMode": "Тестировщик"
     },
     "walletList": {
+      "showBalance": "Показать баланс",
       "title": "Мои кошельки",
       "addWallet": "Добавить кошелек",
       "backupNeeded": "Резервное копирование",

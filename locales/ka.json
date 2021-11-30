@@ -158,6 +158,7 @@
       "testerMode": "ტესტირება"
     },
     "walletList": {
+      "showBalance": "Show balance",
       "title": "ჩემი საფულეები",
       "addWallet": "საფულეს დამატება",
       "backupNeeded": "სარეზერვო ასლის შექმნა",

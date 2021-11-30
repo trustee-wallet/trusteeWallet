@@ -158,6 +158,7 @@
       "testerMode": "Тестувальник"
     },
     "walletList": {
+      "showBalance": "Показати баланс",
       "title": "Мої гаманці",
       "addWallet": "Додати гаманець",
       "backupNeeded": "Резервне копіювання",

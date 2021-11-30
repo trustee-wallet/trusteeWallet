@@ -158,6 +158,7 @@
       "testerMode": "Tester"
     },
     "walletList": {
+      "showBalance": "Show balance",
       "title": "My wallets",
       "addWallet": "Add wallet",
       "backupNeeded": "Backup needed",
