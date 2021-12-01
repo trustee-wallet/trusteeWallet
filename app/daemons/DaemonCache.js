@@ -53,23 +53,6 @@ class DaemonCache {
         }
     }
 
-    async getCacheTxsCount(account, wallet, force = false) {
-        const params = {
-            walletHash: account.walletHash,
-            currencyCode: account.currencyCode
-        }
-        let cacheTitle = account.walletHash + '_' + account.currencyCode
-        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
-            params.minAmount = 0
-            cacheTitle += '_noZero'
-        }
-        if (typeof this.CACHE_ACCOUNT_TX[cacheTitle] === 'undefined' || this.CACHE_ACCOUNT_TX[cacheTitle] < 0 || force) {
-            this.CACHE_ACCOUNT_TX[cacheTitle] = await transactionDS.getTransactionsCount(params, 'AccountScreen.transactionInfinity count')
-        }
-
-        return this.CACHE_ACCOUNT_TX[cacheTitle] > 0 ? this.CACHE_ACCOUNT_TX[cacheTitle] : 0
-    }
-
     getFioMemo(currencyCode) {
         return this.CACHE_FIO_MEMOS[currencyCode] ?? {}
     }

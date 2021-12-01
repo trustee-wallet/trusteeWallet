@@ -293,17 +293,31 @@ export async function setSelectedAccountTransactions(source) {
     try {
         const wallet = store.getState().mainStore.selectedWallet
         const account = store.getState().mainStore.selectedAccount
+        const filter = store.getState().mainStore.filter
         const transactionsToView = []
 
         const params = {
             walletHash: account.walletHash,
             currencyCode: account.currencyCode,
             limitFrom: 0,
-            limitPerPage: 1
+            limitPerPage: 1,
+            startTime: filter?.startTime || null,
+            endTime: filter?.endTime || null,
+            startAmount: filter?.startAmount || null,
+            endAmount: filter?.endAmount || null,
+            searchQuery: filter?.searchQuery || null,
+            filterDirectionHideIncome: filter?.filterDirectionHideIncome || null,
+            filterDirectionHideOutcome: filter?.filterDirectionHideOutcome || null,
+            filterStatusHideCancel: filter?.filterStatusHideCancel || null,
+            filterTypeHideFee: filter?.filterTypeHideFee || null,
+            filterTypeHideSwap: filter?.filterTypeHideSwap || null,
+            filterTypeHideStake: filter?.filterTypeHideStake || null,
+            filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
         }
-        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
-            params.minAmount = 0
+        if (typeof filter.active === 'undefined' || !filter.active) {
+            params.filterTypeHideFee = true
         }
+
         const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
@@ -375,6 +389,13 @@ export function setSolValidator(solValidator) {
     dispatch({
         type: 'SET_SOL_VALIDATOR',
         solValidator
+    })
+}
+
+export function setFilter(filter) {
+    dispatch({
+        type: 'SET_FILTER',
+        filter
     })
 }
 

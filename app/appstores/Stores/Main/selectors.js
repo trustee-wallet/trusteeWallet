@@ -99,6 +99,27 @@ export const getSolValidator = createSelector(
     (data => data)
 )
 
+export const getFilterData = createSelector(
+    [state => state.mainStore.filter],
+    (data => {
+        return {
+            active: data?.active || false,
+            startTime: data?.startTime || null,
+            endTime: data?.endTime || null,
+            startAmount: data?.startAmount || null,
+            endAmount: data?.endAmount || null,
+            searchQuery: data?.searchQuery || null,
+            filterDirectionHideIncome : data?.filterDirectionHideIncome || false,
+            filterDirectionHideOutcome : data?.filterDirectionHideOutcome || false,
+            filterStatusHideCancel : data?.filterStatusHideCancel || false,
+            filterTypeHideFee : data?.filterTypeHideFee || true,
+            filterTypeHideStake : data?.filterTypeHideStake || false,
+            filterTypeHideWalletConnect : data?.filterTypeHideWalletConnect || false,
+            filterTypeHideSwap : data ?.filterTypeHideSwap || false,
+        }
+    })
+)
+
 export const getSortValue = createSelector(
     [state => state.mainStore.sortValue],
     (data => data)

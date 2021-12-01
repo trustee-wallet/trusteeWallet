@@ -2,9 +2,10 @@
  * @version 0.9
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import Log from '@app/services/Log/Log'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 class Transaction {
 
@@ -27,6 +28,7 @@ class Transaction {
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      * @param {integer} updateId
+     * @param {string} transaction.transactionFilterType: swap | walletConnect | fee | usaul
      */
     saveTransaction = async (transaction, updateId = false, source = '') => {
         if (!transaction.updatedAt) {
@@ -219,6 +221,18 @@ class Transaction {
      * @param {string} params.currencyCode
      * @param {string} params.accountId
      * @param {string} params.noOrder
+     * @param {string} params.startTime
+     * @param {string} params.endTime
+     * @param {string} params.startAmount
+     * @param {string} params.endAmount
+     * @param {string} params.searchQuery
+     * @param {string} params.filterDirectionHideIncome
+     * @param {string} params.filterDirectionHideOutcome
+     * @param {string} params.filterStatusHideCancel
+     * @param {string} params.filterTypeHideFee
+     * @param {string} params.filterTypeHideSwap
+     * @param {string} params.filterTypeHideStake
+     * @param {string} params.filterTypeHideWalletConnect
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
@@ -238,21 +252,81 @@ class Transaction {
         if (params.bseOrderHash) {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
-        if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
-           where.push(`((address_amount>${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id!='' AND bse_order_id IS NOT NULL AND bse_order_id!='null'))`)
-           where.push(`address_to NOT LIKE '% Simple Send%'`)
+        if (typeof params.minAmount !== 'undefined' && params.minAmount * 1 > 0) {
+            const tmp = params.minAmount * 1
+            where.push(`((address_amount >${tmp} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
+
+        // date filter
+        if (typeof params.startTime !== 'undefined' && params.startTime) {
+            where.push(`created_at>='${params.startTime}'`)
+        }
+        if (typeof params.endTime !== 'undefined' && params.endTime) {
+            where.push(`created_at<='${params.endTime}'`)
+        }
+
+        // amount filter
+        if (typeof params.startAmount !== 'undefined' && params.startAmount) {
+            where.push(`address_amount >= ${params.startAmount}`)
+        }
+        if (typeof params.endAmount !== 'undefined' && params.endAmount) {
+            where.push(`address_amount <= ${params.endAmount}`)
+        }
+
+        // search by address or hash
+        if (typeof params.searchQuery !== 'undefined' && params.searchQuery) {
+            const tmp = params.searchQuery.toLowerCase()
+            where.push(`(LOWER(address_from)='${tmp}' OR LOWER(address_to)='${tmp}' OR LOWER(transaction_hash)='${tmp}')`)
+        }
+
+        // way filter
+        if (typeof params.filterDirectionHideIncome !== 'undefined' && params.filterDirectionHideIncome) {
+            where.push(`transaction_direction NOT IN ('income')`)
+        }
+        if (typeof params.filterDirectionHideOutcome !== 'undefined' && params.filterDirectionHideOutcome) {
+            where.push(`transaction_direction NOT IN ('outcome')`)
+        }
+
+        // status filter
+        if (typeof params.filterStatusHideCancel !== 'undefined' && params.filterStatusHideCancel) {
+            where.push(`transaction_status NOT IN ('fail')`)
+        }
+
+        // fee filter !
+        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
+            where.push(`address_amount != '0'`)
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}')`)
+        }
+
+        // other categories
+        if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
+            where.push(`(bse_order_id = '' OR bse_order_id IS NULL OR bse_order_id = 'null')`)
+            where.push(`transaction_direction NOT IN ('swap_income', 'swap_outcome', 'swap')`)
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SWAP}')`)
+        }
+
+        if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake) {
+            where.push(`transaction_direction NOT IN ('freeze', 'unfreeze', 'claim')`)
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}')`)
+        }
+
+        if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}')`)
+        }
+
+        where.push(`transaction_hash !=''`)
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
             order = ''
-            where.push(`transaction_hash !=''`)
         } else {
             where.push(`(hidden_at IS NULL OR hidden_at='null')`)
-            where.push(`transaction_hash !=''`)
         }
 
-        // where.push(`'${source}' = '${source}'`)
+        // where.push(`(address_from OR adress_to OR transaction_hash) LIKE ('d2884dd42808150753d')`)
+        // where.push(`'${source}' = '${source})
 
         if (where.length > 0) {
             where = ' WHERE ' + where.join(' AND ')
@@ -298,7 +372,8 @@ class Transaction {
             bse_order_id AS bseOrderID,
             bse_order_id_out AS bseOrderOutID,
             bse_order_id_in AS bseOrderInID,
-            bse_order_data AS bseOrderData
+            bse_order_data AS bseOrderData,
+            transaction_filter_type AS transactionFilterType
             FROM transactions
             ${where}
             ${order}
@@ -319,12 +394,77 @@ class Transaction {
             return false
         }
 
+        return this.getTmpArrayTx(res, params)
+    }
+
+    getTransactionsForCsvFile = async (params, source = '?') => {
+        let where = []
+
+        if (params.walletHash) {
+            where.push(`wallet_hash='${params.walletHash}'`)
+        }
+        if (params.currencyCode) {
+            where.push(`currency_code='${params.currencyCode}'`)
+        }
+        if (typeof params.minAmount !== 'undefined' && params.minAmount * 1 >= 0) {
+            const tmp = params.minAmount * 1
+            where.push(`((address_amount >${tmp} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
+        }
+
+        where.push(`transaction_hash !=''`)
+
+        let order = ' ORDER BY created_at DESC, id DESC'
+        if (params?.noOrder) {
+            order = ''
+        }
+
+        if (where.length > 0) {
+            where = ' WHERE ' + where.join(' AND ')
+        } else {
+            where = ''
+        }
+
+        const sql = `
+            SELECT
+            created_at AS createdAt,
+            block_confirmations AS blockConfirmations,
+            transaction_hash AS transactionHash,
+            address_from AS addressFrom,
+            address_amount AS addressAmount,
+            address_to AS addressTo,
+            transaction_fee AS transactionFee,
+            transaction_status AS transactionStatus,
+            transaction_direction AS transactionDirection
+            FROM transactions
+            ${where}
+            ${order}
+            `
+
+        let res = []
+        try {
+            res = await Database.query(sql)
+            if (typeof res.array !== 'undefined') {
+                res = res.array
+            }
+        } catch (e) {
+            Log.errDaemon('DS/Transaction getTransactionsForCsvFile error ' + sql, e)
+        }
+
+        if (!res || res.length === 0) {
+            return false
+        }
+
+        return this.getTmpArrayTx(res, params)
+    }
+
+    getTmpArrayTx = async (array, params) => {
         const shownTx = {}
         const txArray = []
         let tx
         const toRemove = []
         try {
-            for (tx of res) {
+            for (tx of array) {
                 if (tx.transactionHash !== '' && typeof shownTx[tx.transactionHash] !== 'undefined') {
                     Log.daemon('Transaction getTransactions will remove ' + tx.id)
                     toRemove.push(tx.id)

@@ -15,6 +15,7 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
+import CheckBox from '../../CheckBox'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
@@ -96,6 +97,34 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='BTC' size={22} color={color} />
         case 'eth':
             return <CustomIcon name='ETH' size={22} color={color} />
+        case 'inTxHistory':
+            return <CustomIcon name='inTxHistory' size={16} color={color} />
+        case 'outTxHistory':
+            return <CustomIcon name='outTxHistory' size={16} color={color} />
+        case 'feeTxScreen':
+            return <CustomIcon name='feeTxScreen' size={18} color={color} />
+        case 'cancelTxHistory':
+            return <CustomIcon name='cancelTxHistory' size={16} color={color} />
+        case 'addressBook':
+            return <CustomIcon name='addressBook' size={22} color={color} />
+        case 'downloadDoc':
+            return <CustomIcon name='downloadDoc' size={22} color={color} />
+        case 'exchange':
+            return <CustomIcon name='exchange' size={20} color={color} />
+        case 'categories':
+            return <CustomIcon name='categories' size={20} color={color} />
+        case 'timeArray':
+            return <CustomIcon name='timeArray' size={20} color={color} />
+        case 'amountRange':
+            return <CustomIcon name='amountRange' size={26} color={color} />  
+        case 'freezing':
+            return <CustomIcon name='freezing' size={22} color={color} />  
+        case 'reward':
+            return <CustomIcon name='reward' size={22} color={color} />
+        case 'contractIncome':
+            return <CustomIcon name='contractIncome' size={20} color={color} />
+        case 'contractOutcome':
+            return <CustomIcon name='contractOutcome' size={20} color={color} />  
         case 'cpa':
             return <CustomIcon name='cpa' size={22} color={color} />
         case 'earn':
@@ -104,8 +133,8 @@ const getIcon = (iconType, color) => {
     }
 }
 
-const getRightContent = (rightContent, params, color) => {
-    const { onPress, value, disabled } = params
+const getRightContent = (rightContent, params, color, isVisibleDone) => {
+    const { onPress, value, disabled, checked } = params
     const { colors } = useTheme()
     // next value needed to corret switch component rendering
     const reversedValue = !value
@@ -137,6 +166,9 @@ const getRightContent = (rightContent, params, color) => {
             return <CustomIcon name={'down'} size={18} color={color} />
         case 'arrow_up':
             return <CustomIcon name={'up'} size={18} color={color} />
+        case 'checkbox':
+            return <CheckBox isVisibleDone={isVisibleDone} checked={checked} onPress={onPress} />
+        
         default: return null
     }
 }
@@ -157,6 +189,9 @@ export default function SettingListItem(props) {
         type,
         ExtraView,
         ExtraViewParams,
+        customIconStyle,
+        isVisibleDone,
+        checked,
         color,
         opacityWithDisabled
     } = props
@@ -206,17 +241,17 @@ export default function SettingListItem(props) {
                     activeOpacity={0.8}
                     disabled={disabled}
                 >
-                    <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1 }]}>
-                        {getIcon(iconType, colors.common.listItem.basic.iconColorLight)}
-                    </View>
+                    {iconType && <View style={[styles.icon, { backgroundColor:  colors.common.listItem.basic.iconBgLight, opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1 }, customIconStyle ]}>
+                        {getIcon(iconType, customIconStyle?.color || colors.common.listItem.basic.iconColorLight)}
+                    </View>}
                     <View style={styles.mainContent}>
-                        <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
+                        <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, paddingVertical: !!subtitle ? 13 : 23, marginLeft: iconType ? 0 : GRID_SIZE }]}>
                             <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                             {!!subtitle && <Text numberOfLines={4} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
                         {!!rightContent && (
                             <View style={[styles.rightContent, { opacity: !opacityWithDisabled ? disabled || disabledRightContent ? 0.3 : 1 : 1 }]}>
-                                {getRightContent(rightContent, { ...switchParams, disabled }, color)}
+                                {getRightContent(rightContent, { ...switchParams, disabled, onPress, checked }, colors.common.text1, isVisibleDone)}
                             </View>
                         )}
                     </View>

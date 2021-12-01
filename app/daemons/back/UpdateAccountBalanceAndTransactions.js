@@ -333,7 +333,7 @@ class UpdateAccountBalanceAndTransactions {
                 if (account.walletIsHd && account.currencyCode !== 'LTC') {
                     additional.walletPub = true // actually not needed pub - just flag
                 }
-                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional }, 'AccountRunTransactionsBtc')
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional },  'AccountRunTransactionsBtc')
             } else {
                 newTransactions = await BlocksoftTransactions.getTransactions({ account, additional: account.accountJson }, 'AccountRunTransactions')
             }
