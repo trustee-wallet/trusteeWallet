@@ -41,7 +41,7 @@ class TransactionCategories extends React.PureComponent {
                 value: 'filterStatusHideCancel'
             },
             {
-                notActive: this.props.filterData?.filterTypeHideFee || false,
+                notActive: this.props.filterData?.filterTypeHideFee || true,
                 title: strings('account.transaction.fee'),
                 iconType: 'feeTxScreen',
                 value: 'filterTypeHideFee'

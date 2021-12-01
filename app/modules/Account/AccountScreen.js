@@ -207,10 +207,9 @@ class Account extends React.PureComponent {
     }
 
     async loadTransactions(from = 6, perPage = TX_PER_PAGE) {
-        const { walletIsHideTransactionForFee } = this.props.selectedWalletData
         const { walletHash } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
-        const filter = this.props.filterData        
+        const filter = this.props.filterData
 
         let params = {
             walletHash,
@@ -218,9 +217,11 @@ class Account extends React.PureComponent {
             limitFrom: from,
             limitPerPage: perPage
         }
-        if (walletIsHideTransactionForFee) {
-            params.minAmount = 0
+
+        if (typeof filter.active === 'undefined' || !filter.active) {
+            params.filterTypeHideFee = true
         }
+
         if (typeof filter !== 'undefined' && Object.keys(filter)) {
             params = {
                 ...params,
@@ -458,7 +459,7 @@ const styles = {
     containerBG: {
         start: { x: 1, y: 0 },
         end: { x: 1, y: 1 }
-    },    
+    },
     showMore: {
         flexDirection: 'row',
         justifyContent: 'center',

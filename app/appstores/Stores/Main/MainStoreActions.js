@@ -314,9 +314,10 @@ export async function setSelectedAccountTransactions(source) {
             filterTypeHideStake: filter?.filterTypeHideStake || null,
             filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
         }
-        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
-            params.minAmount = 0
+        if (typeof filter.active === 'undefined' || !filter.active) {
+            params.filterTypeHideFee = true
         }
+
         const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
