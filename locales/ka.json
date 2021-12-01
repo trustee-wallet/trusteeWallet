@@ -449,6 +449,8 @@
       "self": "სელფი",
       "freeze": "გაყინვა",
       "unfreeze" : "UnFreeze",
+      "stake" : "Stake",
+      "wallet_connect" : "WalletConnect",
       "claim": "ჯილდო",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",

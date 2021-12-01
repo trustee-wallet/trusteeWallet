@@ -451,6 +451,8 @@
       "self" : "Собі",
       "freeze" : "Заморожено",
       "unfreeze" : "Розморожено",
+      "stake" : "Стейк",
+      "wallet_connect" : "WalletConnect",
       "claim" : "Винагорода",
       "swap_income" : "Contract Вхідна",
       "swap_outcome" : "Contract Вихідна",
@@ -562,7 +564,7 @@
       "addresTo": "Отримувач ",
       "addresFrom": "Відправник ",
       "blockConfirmations": "Поточна кількість підтверджень ",
-      "transactionAmount": "%{currencyCode} amount"     
+      "transactionAmount": "%{currencyCode} amount"
     }
   },
 

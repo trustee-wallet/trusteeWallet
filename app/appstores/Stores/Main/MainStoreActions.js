@@ -305,15 +305,14 @@ export async function setSelectedAccountTransactions(source) {
             endTime: filter?.endTime || null,
             startAmount: filter?.startAmount || null,
             endAmount: filter?.endAmount || null,
-            income: filter?.income || null,
-            outcome: filter?.outcome || null,
             searchQuery: filter?.searchQuery || null,
-            cancel: filter?.cancel || null,
-            freezing: filter?.freezing || null,
-            contractIncome: filter?.contractIncome || null,
-            contractOutcome: filter?.contractOutcome || null,
-            swap: filter?.swap || null,
-            reward: filter?.reward || null
+            filterDirectionHideIncome: filter?.filterDirectionHideIncome || null,
+            filterDirectionHideOutcome: filter?.filterDirectionHideOutcome || null,
+            filterStatusHideCancel: filter?.filterStatusHideCancel || null,
+            filterTypeHideFee: filter?.filterTypeHideFee || null,
+            filterTypeHideSwap: filter?.filterTypeHideSwap || null,
+            filterTypeHideStake: filter?.filterTypeHideStake || null,
+            filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
         }
         if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
             params.minAmount = 0

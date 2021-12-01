@@ -455,6 +455,8 @@
       "claim" : "Награда",
       "swap_income" : "Contract Входящая",
       "swap_outcome" : "Contract Исходящая",
+      "stake" : "Стейк",
+      "wallet_connect" : "WalletConnect",
       "exchange": "Обмен",
       "buy": "Покупка",
       "sell": "Продажа",

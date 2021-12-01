@@ -451,6 +451,8 @@
       "freeze" : "Freeze",
       "unfreeze" : "UnFreeze",
       "claim" : "Claim",
+      "stake" : "Stake",
+      "wallet_connect" : "WalletConnect",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
       "self": "Self",

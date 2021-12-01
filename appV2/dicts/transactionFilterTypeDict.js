@@ -6,6 +6,7 @@
 const TransactionFilterTypeDict = {
     SWAP: 'swap',
     WALLET_CONNECT: 'walletConnect',
+    STAKE : 'stake',
     FEE: 'fee',
     USUAL: 'usual'
 }

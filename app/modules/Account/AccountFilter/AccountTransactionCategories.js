@@ -23,64 +23,46 @@ class TransactionCategories extends React.PureComponent {
     state = {
         categoriesData: [
             {
-                notActive: this.props.filterData?.income || false,
+                notActive: this.props.filterData?.filterDirectionHideIncome || false,
                 title: strings('account.transaction.income'),
-                iconType: "inTxHistory",
-                value: 'income'
+                iconType: 'inTxHistory',
+                value: 'filterDirectionHideIncome'
             },
             {
-                notActive: this.props.filterData?.outcome || false,
+                notActive: this.props.filterData?.filterDirectionHideOutcome || false,
                 title: strings('account.transaction.outcome'),
-                iconType: "outTxHistory",
-                value: 'outcome'
+                iconType: 'outTxHistory',
+                value: 'filterDirectionHideOutcome'
             },
             {
-                notActive: this.props.filterData?.fee || false,
-                title: strings('account.transaction.fee'),
-                iconType: "feeTxScreen",
-                value: 'fee'
-            },
-            {
-                notActive: this.props.filterData?.cancel || false,
+                notActive: this.props.filterData?.filterStatusHideCancel || false,
                 title: strings('account.transaction.cancel'),
-                iconType: "cancelTxHistory",
-                value: 'cancel'
-            },
-            // {
-            //     notActive: this.props.filterData?.swap || false,
-            //     title: strings('account.transaction.swap'),
-            //     iconType: "exchange",
-            //     value: 'swap'
-            // },
-            {
-                notActive: this.props.filterData?.freezing || false,
-                title: strings('account.transaction.freeze'),
-                iconType: "freezing",
-                value: 'freezing'
+                iconType: 'cancelTxHistory',
+                value: 'filterStatusHideCancel'
             },
             {
-                notActive: this.props.filterData?.unfreezing || false,
-                title: strings('account.transaction.unfreeze'),
-                iconType: "freezing",
-                value: 'unfreezing'
-            },
-            // {
-            //     notActive: this.props.filterData?.reward || false,
-            //     title: strings('account.transaction.reward'),
-            //     iconType: "reward",
-            //     value: 'reward'
-            // },
-            {
-                notActive: this.props.filterData?.contractIncome || false,
-                title: strings('account.transaction.swap_income'),
-                iconType: "contractIncome",
-                value: 'contractIncome'
+                notActive: this.props.filterData?.filterTypeHideFee || false,
+                title: strings('account.transaction.fee'),
+                iconType: 'feeTxScreen',
+                value: 'filterTypeHideFee'
             },
             {
-                notActive: this.props.filterData?.contractOutcome || false,
-                title: strings('account.transaction.swap_outcome'),
-                iconType: "contractOutcome",
-                value: 'contractOutcome'
+                notActive: this.props.filterData?.filterTypeHideSwap || false,
+                title: strings('account.transaction.swap'),
+                iconType: 'exchange',
+                value: 'filterTypeHideSwap'
+            },
+            {
+                notActive: this.props.filterData?.filterTypeHideStake || false,
+                title: strings('account.transaction.stake'),
+                iconType: 'freezing',
+                value: 'filterTypeHideStake'
+            },
+            {
+                notActive: this.props.filterData?.filterTypeHideWalletConnect || false,
+                title: strings('account.transaction.wallet_connect'),
+                iconType: 'walletConnect',
+                value: 'filterTypeHideWalletConnect'
             }
         ],
         isAllActive: true
@@ -97,7 +79,7 @@ class TransactionCategories extends React.PureComponent {
     handleBack = () => {
 
         const filter = {
-            ...this.props.filter,
+            ...this.props.filter
         }
 
         this.state.categoriesData.filter(item => item.notActive).map(item => filter[item.value] = item.notActive)
@@ -133,7 +115,10 @@ class TransactionCategories extends React.PureComponent {
         return (
             <ListItem
                 title={strings('account.transaction.selectAll')}
-                customIconStyle={{ backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark }}
+                customIconStyle={{
+                    backgroundColor: colors.common.listItem.basic.iconBgDark,
+                    color: colors.common.listItem.basic.iconColorDark
+                }}
                 rightContent='checkbox'
                 onPress={this.handleSelectAll}
                 isVisibleDone={false}
@@ -152,7 +137,10 @@ class TransactionCategories extends React.PureComponent {
                 title={item.title}
                 iconType={item.iconType}
                 last={index === this.state.categoriesData.length - 1}
-                customIconStyle={{ backgroundColor: colors.common.listItem.basic.iconBgDark, color: colors.common.listItem.basic.iconColorDark }}
+                customIconStyle={{
+                    backgroundColor: colors.common.listItem.basic.iconBgDark,
+                    color: colors.common.listItem.basic.iconColorDark
+                }}
                 rightContent='checkbox'
                 onPress={() => this.handleSelectCategory(item.title)}
                 isVisibleDone={false}
@@ -175,7 +163,11 @@ class TransactionCategories extends React.PureComponent {
             >
                 <FlatList
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={[styles.scrollViewContent, { marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE * 2 }]}
+                    contentContainerStyle={[styles.scrollViewContent, {
+                        marginTop: GRID_SIZE / 2,
+                        marginHorizontal: GRID_SIZE,
+                        paddingBottom: GRID_SIZE * 2
+                    }]}
                     keyboardShouldPersistTaps='handled'
                     data={this.state.categoriesData}
                     renderItem={this.renderItem}

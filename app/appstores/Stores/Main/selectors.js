@@ -109,15 +109,13 @@ export const getFilterData = createSelector(
             startAmount: data?.startAmount || null,
             endAmount: data?.endAmount || null,
             searchQuery: data?.searchQuery || null,
-            income: data?.income || false,
-            outcome: data?.outcome || false,
-            cancel: data?.cancel || false,
-            fee: data?.fee || false,
-            freezing: data?.freezing || false,
-            unfreezing: data?.unfreezing || false,
-            contractIncome: data?.contractIncome || false,
-            contractOutcome: data?.contractOutcome || false,
-            swap: data?.swap || false
+            filterDirectionHideIncome : data?.filterDirectionHideIncome || false,
+            filterDirectionHideOutcome : data?.filterDirectionHideOutcome || false,
+            filterStatusHideCancel : data?.filterStatusHideCancel || false,
+            filterTypeHideFee : data?.filterTypeHideFee || false,
+            filterTypeHideStake : data?.filterTypeHideStake || false,
+            filterTypeHideWalletConnect : data?.filterTypeHideWalletConnect || false,
+            filterTypeHideSwap : data ?.filterTypeHideSwap || false,
         }
     })
 )

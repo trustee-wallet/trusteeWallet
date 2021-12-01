@@ -5,6 +5,7 @@ import Database from '@app/appstores/DataSource/Database';
 import Log from '@app/services/Log/Log'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 class Transaction {
 
@@ -224,20 +225,18 @@ class Transaction {
      * @param {string} params.endTime
      * @param {string} params.startAmount
      * @param {string} params.endAmount
-     * @param {string} params.income
-     * @param {string} params.outcome
      * @param {string} params.searchQuery
-     * @param {string} params.cancel
-     * @param {string} params.freezing
-     * @param {string} params.contractIncome
-     * @param {string} params.contractOutcome
-     * @param {string} params.swap
-     * @param {string} params.reward
+     * @param {string} params.filterDirectionHideIncome
+     * @param {string} params.filterDirectionHideOutcome
+     * @param {string} params.filterStatusHideCancel
+     * @param {string} params.filterTypeHideFee
+     * @param {string} params.filterTypeHideSwap
+     * @param {string} params.filterTypeHideStake
+     * @param {string} params.filterTypeHideWalletConnect
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
-
-        let  where = []
+        let where = []
         if (params.walletHash) {
             where.push(`wallet_hash='${params.walletHash}'`)
         }
@@ -253,11 +252,12 @@ class Transaction {
         if (params.bseOrderHash) {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
-        if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
-            where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
+        if (typeof params.minAmount !== 'undefined' && params.minAmount * 1 > 0) {
+            const tmp = params.minAmount * 1
+            where.push(`((address_amount >${tmp} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
             where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
-        
+
         // date filter
         if (typeof params.startTime !== 'undefined' && params.startTime) {
             where.push(`created_at>='${params.startTime}'`)
@@ -273,49 +273,56 @@ class Transaction {
         if (typeof params.endAmount !== 'undefined' && params.endAmount) {
             where.push(`address_amount <= ${params.endAmount}`)
         }
-        
-        // way filter
-        if (typeof params.income !== 'undefined' && params.income) {
-            where.push(`transaction_direction NOT IN ('income')`)
-        } 
-        if (typeof params.outcome !== 'undefined' && params.outcome) {
-            where.push(`transaction_direction NOT IN ('outcome')`)
-        }
 
         // search by address or hash
         if (typeof params.searchQuery !== 'undefined' && params.searchQuery) {
-            where.push(`(address_from='${params.searchQuery}' OR address_to='${params.searchQuery}' OR transaction_hash='${params.searchQuery}')`)
+            const tmp = params.searchQuery.toLowerCase()
+            where.push(`(LOWER(address_from)='${tmp}' OR LOWER(address_to)='${tmp}' OR LOWER(transaction_hash)='${tmp}')`)
         }
 
-        if (typeof params.freezing !== 'undefined' && params.freezing) {
-            where.push(`transaction_direction NOT IN ('freeze')`)
+        // way filter
+        if (typeof params.filterDirectionHideIncome !== 'undefined' && params.filterDirectionHideIncome) {
+            where.push(`transaction_direction NOT IN ('income')`)
         }
-        if (typeof params.unfreezing !== 'undefined' && params.unfreezing) {
-            where.push(`transaction_direction NOT IN ('unfreeze')`)
+        if (typeof params.filterDirectionHideOutcome !== 'undefined' && params.filterDirectionHideOutcome) {
+            where.push(`transaction_direction NOT IN ('outcome')`)
         }
 
-        if (typeof params.canceled !== 'undefined' && params.canceled) {
-            where.push(`transaction_direction NOT IN ('canceled')`)
+        // status filter
+        if (typeof params.filterStatusHideCancel !== 'undefined' && params.filterStatusHideCancel) {
+            where.push(`transaction_status NOT IN ('fail')`)
         }
-        if (typeof params.contractIncome !== 'undefined' && params.contractIncome) {
-            where.push(`transaction_direction NOT IN ('contract_income')`)
+
+        // fee filter !
+        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
+            where.push(`address_amount != '0'`)
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}')`)
         }
-        if (typeof params.contractOutcome !== 'undefined' && params.contractOutcome) {
-            where.push(`transaction_direction NOT IN ('contract_outcome')`)
+
+        // other categories
+        if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
+            where.push(`(bse_order_id = '' OR bse_order_id IS NULL OR bse_order_id = 'null')`)
+            where.push(`transaction_direction NOT IN ('swap_income', 'swap_outcome', 'swap')`)
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SWAP}')`)
         }
-        if (typeof params.swap !== 'undefined' && params.swap) {
-            where.push(`bse_order_id == '' AND bse_order_id IS NULL AND bse_order_id = 'null'`)
+
+        if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake) {
+            where.push(`transaction_direction NOT IN ('freeze', 'unfreeze', 'claim')`)
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}')`)
         }
-        if (typeof params.reward !== 'undefined' && params.reward) {
-            where.push(`transaction_direction NOT IN ('reward')`)
+
+        if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}')`)
         }
+
+        where.push(`transaction_hash !=''`)
+
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
             order = ''
-            where.push(`transaction_hash !=''`)
         } else {
             where.push(`(hidden_at IS NULL OR hidden_at='null')`)
-            where.push(`transaction_hash !=''`)
         }
 
         // where.push(`(address_from OR adress_to OR transaction_hash) LIKE ('d2884dd42808150753d')`)
@@ -399,17 +406,17 @@ class Transaction {
         if (params.currencyCode) {
             where.push(`currency_code='${params.currencyCode}'`)
         }
-        if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
-            where.push(`((address_amount >${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
+        if (typeof params.minAmount !== 'undefined' && params.minAmount * 1 >= 0) {
+            const tmp = params.minAmount * 1
+            where.push(`((address_amount >${tmp} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
             where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
+
+        where.push(`transaction_hash !=''`)
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params?.noOrder) {
             order = ''
-            where.push(`transaction_hash !=''`)
-        } else {
-            where.push(`transaction_hash !=''`)
         }
 
         if (where.length > 0) {
