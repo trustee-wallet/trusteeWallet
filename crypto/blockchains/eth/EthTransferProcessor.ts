@@ -151,7 +151,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     gasLimit = typeof data.dexOrderData[0].params.gas !== 'undefined' ? data.dexOrderData[0].params.gas : 0
                 } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
                     gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gas)
-                } else if (this._web3.LINK && typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.data !== 'undefined' && data.walletConnectData.data) {
+                } else if (typeof data.walletConnectData !== 'undefined') {
                     const params = {
                         'jsonrpc': '2.0',
                         'method': 'eth_estimateGas',
@@ -167,6 +167,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         ],
                         'id': 1
                     }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas for WalletConnect start')
                     const tmp = await BlocksoftAxios.postWithoutBraking(this._web3.LINK, params)
                     if (typeof tmp !== 'undefined' && typeof tmp.data !== 'undefined') {
                         if (typeof tmp.data.result !== 'undefined') {
@@ -177,6 +178,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     } else {
                         gasLimit = 500000
                     }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas for WalletConnect result ' + gasLimit)
                 } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
                     const schema = data.contractCallData.contractSchema
                     let abiCode
@@ -222,7 +224,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                             try {
                                 i++
                                 gasLimitNew = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
-                                console.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
+                                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
                             } catch (e1) {
                                 ok = false
                                 if (i > 3) {

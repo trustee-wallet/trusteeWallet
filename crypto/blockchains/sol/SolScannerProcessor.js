@@ -269,7 +269,8 @@ export default class SolScannerProcessor {
                 }
             }
         }
-        if (!addressFrom) {
+
+        if (!addressFrom && anySigner !== addressTo) {
             addressFrom = anySigner
         }
         if (!addressFrom && !addressTo) {
@@ -284,7 +285,6 @@ export default class SolScannerProcessor {
         if (!addressTo) {
             addressTo = 'System'
         }
-
 
         let formattedTime = transaction.blockTime
         try {
@@ -302,6 +302,11 @@ export default class SolScannerProcessor {
         if (typeof transaction.err !== 'undefined' && transaction.err) {
             transactionStatus = 'fail'
         }
+
+        let transactionDirection = addressFrom === address ? 'outcome' : 'income'
+        if (!addressFrom && anySigner === addressTo) {
+            transactionDirection = 'swap_income'
+        }
         const blockConfirmations = CACHE_LAST_BLOCK > 0 ? Math.round(CACHE_LAST_BLOCK - additional.slot * 1) : 0
         const tx = {
             transactionHash: transaction.signature,
@@ -309,7 +314,7 @@ export default class SolScannerProcessor {
             blockNumber: transaction.slot,
             blockTime: formattedTime,
             blockConfirmations,
-            transactionDirection: addressFrom === address ? 'outcome' : 'income',
+            transactionDirection,
             addressFrom: addressFrom === address ? '' : addressFrom,
             addressTo: addressTo === address ? '' : addressTo,
             addressAmount,
@@ -319,7 +324,6 @@ export default class SolScannerProcessor {
         if (typeof transaction.memo !== 'undefined' && transaction.memo) {
             tx.transactionJson = { memo: transaction.memo }
         }
-
         return tx
     }
 }
