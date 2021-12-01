@@ -27,6 +27,8 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 import ContentDropModal from './elements/ContentDropModal'
+import store from '@app/store'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -144,12 +146,21 @@ const getBalanceData = (props) => {
 
     const CACHE_SUM = DaemonCache.getCache(walletHash)
 
+
+
     let totalBalance = 0
     if (CACHE_SUM && typeof CACHE_SUM.balance !== 'undefined' && CACHE_SUM.balance) {
         totalBalance = CACHE_SUM.balance
         if (currencySymbol !== CACHE_SUM.basicCurrencySymbol) {
             currencySymbol = CACHE_SUM.basicCurrencySymbol
         }
+    }
+
+    const cashbackStore = store.getState().cashBackStore
+    if (typeof cashbackStore.dataFromApi !== 'undefined' && typeof cashbackStore.dataFromApi.cashbackBalance !== 'undefined' && cashbackStore.dataFromApi.cashbackBalance) {
+        const accountRates = DaemonCache.getCacheRates('USDT')
+        const basicCurrencyBalanceNorm = RateEquivalent.mul({ value: cashbackStore.dataFromApi.cashbackBalance || 0, currencyCode: 'USDT', basicCurrencyRate: accountRates.basicCurrencyRate })
+        totalBalance = totalBalance * 1 + basicCurrencyBalanceNorm * 1
     }
 
     const tmp = totalBalance.toString().split('.')
@@ -176,6 +187,7 @@ const handleCurrencySelect = async (props, screen) => {
             currentIndex: props.index,
             onDrag: props.onDragEnd,
             listData: props.listData,
+            handleGuide: props.handleGuide,
             currencyCode: cryptoCurrency,
             // eslint-disable-next-line react/display-name
             Content: ({ data }) => {
@@ -188,9 +200,12 @@ const handleCurrencySelect = async (props, screen) => {
     }
 
     if (typeof cryptoCurrency.currencyCode !== 'undefined' && (cryptoCurrency.currencyCode === 'NFT' || cryptoCurrency.currencyCode === 'CASHBACK')) {
+
+        const defaultScreen = cryptoCurrency.currencyCode === 'CASHBACK' ? 'CashbackScreen' : 'NftMainScreen'
+
         try {
             setSelectedCryptoCurrency(cryptoCurrency)
-            NavStore.goNext(screen || 'NftMainScreen')
+            NavStore.goNext(screen || defaultScreen)
         } catch (e) {
             Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)
         }

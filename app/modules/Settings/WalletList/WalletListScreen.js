@@ -3,9 +3,7 @@
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
-
-import EntypoIcon from 'react-native-vector-icons/Entypo'
+import { View, Text, StyleSheet, ScrollView } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -23,14 +21,13 @@ import { getWalletsGeneralData, getWalletsList } from '@app/appstores/Stores/Wal
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
+import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
+
 class WalletListScreen extends PureComponent {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            isBalanceVisible: false,
-            isBalanceVisibleTriggered: false
-        }
+    state = {
+        isBalanceVisible: false,
+        isBalanceVisibleTriggered: false
     }
 
     triggerBalanceVisibility = (value) => {
@@ -50,6 +47,50 @@ class WalletListScreen extends PureComponent {
         NavStore.goBack()
     }
 
+    renderHeader = () => {
+
+        const {
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        let { totalBalance, localCurrencySymbol } = this.props.walletsGeneralData
+
+        const finalIsBalanceVisible = this.state.isBalanceVisible
+
+        totalBalance = BlocksoftPrettyNumbers.makeCut(totalBalance).separated
+
+        return(
+            <View style={styles.headerContainer}>
+                <View style={[styles.balanceContainer, { marginBottom: GRID_SIZE / 2 }]}>
+                    <Text style={[styles.balanceTitle, { color: colors.common.text1 }]}>{strings('settings.walletList.totalBalance')}</Text>
+                    {
+                        finalIsBalanceVisible ? (
+                            <Text style={[styles.balanceValue, { color: colors.common.text2 }]}>{localCurrencySymbol} {totalBalance}</Text>
+                        ) : (
+                            <Text style={[styles.balanceValue, styles.balanceValueHidden, { color: colors.common.text1, marginTop: 3 }]}>****</Text>
+                        )
+                    }
+                </View>
+                <View style={[styles.buttons, { marginBottom: GRID_SIZE }]}>
+                    <BorderedButton
+                        icon='plus'
+                        text={strings('settings.walletList.addWallet')}
+                        onPress={this.handleAddWallet}
+                        containerStyles={{ marginHorizontal: GRID_SIZE / 2 }}
+                    />
+                    <BorderedButton
+                        text={strings('settings.walletList.showBalance')}
+                        onPressIn={() => this.triggerBalanceVisibility(true)}
+                        onPressOut={() => this.triggerBalanceVisibility(false)}
+                        containerStyles={{ marginHorizontal: GRID_SIZE / 2 }}
+                        activeOpacity={0.7}
+                    />
+                </View>
+            </View>
+        )
+    }
+
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.WalletListScreen')
 
@@ -57,14 +98,7 @@ class WalletListScreen extends PureComponent {
 
         const { walletsList } = this.props
         const { walletHash } =  this.props.selectedWalletData
-        let { totalBalance, localCurrencySymbol } = this.props.walletsGeneralData
-        const { colors, GRID_SIZE } = this.context
-
-        const { isBalanceVisible, isBalanceVisibleTriggered } = this.state
-        const originalVisibility = this.props.isBalanceVisible
-        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
-
-        totalBalance = BlocksoftPrettyNumbers.makeCut(totalBalance).separated
+        const { GRID_SIZE } = this.context
 
         return (
             <ScreenWrapper
@@ -73,6 +107,7 @@ class WalletListScreen extends PureComponent {
                 rightType='close'
                 rightAction={this.handleClose}
                 title={strings('settings.walletList.title')}
+                ExtraView={this.renderHeader}
             >
                 <ScrollView
                     bounces={false}
@@ -80,34 +115,6 @@ class WalletListScreen extends PureComponent {
                     contentContainerStyle={[styles.scrollViewContent, { padding: GRID_SIZE }]}
                     keyboardShouldPersistTaps='handled'
                 >
-                    <View style={[styles.topContent, { paddingHorizontal: GRID_SIZE / 2, paddingTop: GRID_SIZE / 2, paddingBottom: GRID_SIZE }]}>
-                        <TouchableOpacity
-                            onPressIn={() => this.triggerBalanceVisibility(true, originalVisibility)}
-                            onPressOut={() => this.triggerBalanceVisibility(false, originalVisibility)}
-                            activeOpacity={0.9}
-                            disabled={originalVisibility}
-                            hitSlop={{ top: 20, left: 20, right: isBalanceVisible ? 60 : 20, bottom: 30 }}
-                        >
-                            <Text style={[styles.balanceTitle, { color: colors.common.text2 }]}>{strings('settings.walletList.totalBalance')}</Text>
-                            {
-                                finalIsBalanceVisible ? (
-                                    <Text style={[styles.balanceValue, { color: colors.common.text1 }]}>{localCurrencySymbol} {totalBalance}</Text>
-                                ) : (
-                                    <Text style={[styles.balanceValue, styles.balanceValueHidden, { color: colors.common.text1 }]}>****</Text>
-                                )
-                            }
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.addAssetButton, { borderColor: colors.common.text1 }]}
-                            onPress={this.handleAddWallet}
-                        >
-                            <EntypoIcon style={[styles.addAsset__icon, { color: colors.common.text3 }]} size={13} name='plus' />
-                            <Text style={[styles.addAsset__text, { color: colors.common.text3 }]}>
-                                {strings('settings.walletList.addWallet')}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-
                     <View style={{ paddingBottom: GRID_SIZE }}>
                         {
                             walletsList.map((item, index) => {
@@ -117,9 +124,6 @@ class WalletListScreen extends PureComponent {
                                         wallet={item}
                                         key={index}
                                         isBalanceVisible={this.state.isBalanceVisible}
-                                        isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
-                                        originalVisibility={this.props.isBalanceVisible}
-                                        triggerBalanceVisibility={this.triggerBalanceVisibility}
                                         walletsLength={walletsList.length}
                                         settingsData={this.props.settingsData}
                                         source={source}
@@ -177,20 +181,30 @@ const styles = StyleSheet.create({
         marginTop: 1
     },
     balanceTitle: {
-        fontFamily: 'SFUIDisplay-Semibold',
-        fontSize: 14,
-        lineHeight: 18,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 18,
+        lineHeight: 22,
         letterSpacing: 1
     },
     balanceValue: {
-        fontFamily: 'Montserrat-SemiBold',
-        fontSize: 17,
-        lineHeight: 17,
-        marginTop: 5
+        fontFamily: 'SFUIDisplay-SemiBold',
+        fontSize: 14,
+        lineHeight: 20,
     },
     balanceValueHidden: {
         fontSize: 24,
         lineHeight: 25,
         marginBottom: -8
+    },
+    headerContainer: {
+
+    },
+    balanceContainer: {
+        textAlign: 'center',
+        alignItems: 'center'
+    },
+    buttons: {
+        flexDirection: 'row',
+        justifyContent: 'center'
     }
 })

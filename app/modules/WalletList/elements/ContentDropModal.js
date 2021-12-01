@@ -1,9 +1,11 @@
+import React from 'react'
+import { View } from 'react-native'
+
 import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import React from 'react'
-import { View } from 'react-native'
+
 import { handleHide } from '../helpers'
 
 class ContentDropModal extends React.PureComponent {
@@ -14,17 +16,19 @@ class ContentDropModal extends React.PureComponent {
             GRID_SIZE, colors
         } = this.context
 
-        const { currentIndex, onDrag, listData, currencyCode } = this.props.data
+        const { currentIndex, onDrag, listData, handleGuide, currencyCode } = this.props.data
 
         return (
             <View style={{ marginHorizontal: GRID_SIZE }}>
                 <InvoiceListItem
                     title={strings('modal.dropDownModal.showGuide')}
                     onPress={() => {
-                        // todo Vadym
+                        handleGuide()
+                        hideModal()
                     }}
-                    containerStyle={{ borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
+                    containerStyle={{ borderRadius: 12, backgroundColor: colors.backDropModal.buttonBg, marginBottom: GRID_SIZE }}
                     textStyles={{ textAlign: 'center' }}
+                    textColor={colors.backDropModal.buttonText}
                     last
                 />
                 <InvoiceListItem
