@@ -26,11 +26,17 @@ class AccountGradientBlock extends React.PureComponent {
         const {
             colors, GRID_SIZE
         } = this.context
-        
+
+        const { minHeight } = this.props
+
+        const { viewHeight } = this.state
+
+        const height = minHeight ? viewHeight > minHeight ? viewHeight : (minHeight || 0) : viewHeight
+
         return (
-            <View style={[styles.container, { minHeight: this.state.viewHeight + GRID_SIZE * 2 + 30 }]}>
+            <View style={[styles.container, { minHeight: height + GRID_SIZE * 2 + 30 }]}>
                 <GradientView
-                    style={[styles.bg, { padding: GRID_SIZE, minHeight: this.state.viewHeight + 10 }]}
+                    style={[styles.bg, { padding: GRID_SIZE, minHeight: height + 10 }]}
                     array={colors.accountScreen.containerBG}
                     start={styles.containerBG.start}
                     end={styles.containerBG.end}
@@ -39,7 +45,7 @@ class AccountGradientBlock extends React.PureComponent {
                         {this.props.children}
                     </View>
                 </GradientView>
-                <View style={[styles.containerShadow, { minHeight: this.state.viewHeight + GRID_SIZE }]}>
+                <View style={[styles.containerShadow, { minHeight: height + GRID_SIZE * 1.35 }]}>
                     <View style={[styles.shadow, { backgroundColor: colors.accountScreen.headBlockBackground }]} />
                 </View>
             </View>

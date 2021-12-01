@@ -105,3 +105,8 @@ export const getSortValue = createSelector(
     [state => state.mainStore.sortValue],
     (data => data)
 )
+
+export const getStakingCoins = createSelector(
+    [state => state.mainStore.stakingCoins],
+    (data => data)
+)

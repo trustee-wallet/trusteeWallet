@@ -33,6 +33,7 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 
 import AccountGradientBlock from './AccountGradientBlock'
 import { getExplorerLink, handleShareInvoice } from '../helpers'
+import PercentView from '@app/components/elements/new/PercentView'
 
 class HeaderBlocks extends React.Component {
 
@@ -141,18 +142,21 @@ class HeaderBlocks extends React.Component {
 
         const { currencyCode } = this.props.cryptoCurrency
 
-        if (currencyCode !== 'TRX' && currencyCode !== 'SOL') return null
+        const avalibleBalance = 23.45
+        const stakedBalance = 300
+
+        if (currencyCode !== 'TRX' && currencyCode !== 'SOL') return <View />
 
         return (
-            <View style={{ flexDirection: 'row', justifyContent: currencyCode === 'TRX' ? 'space-between' : 'flex-end', marginBottom: -GRID_SIZE / 2 }}>
+            <View style={{ flexDirection: 'row', justifyContent: currencyCode === 'TRX' ? 'space-between' : 'flex-end', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
                 {currencyCode === 'TRX' &&
                     <View>
-                        <Text style={[styles.avalibleText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>{`${strings('settings.walletList.availableTRX')} ${'2.349.02868'} ${currencyCode}`}</Text>
-                        <Text style={styles.avalibleText}>{`${strings('settings.walletList.staked')} ${'300.00000'} ${currencyCode}`}</Text>
+                        <Text style={[styles.avalibleText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>{`${strings('settings.walletList.availableTRX')} ${avalibleBalance} ${currencyCode}`}</Text>
+                        <Text style={styles.avalibleText}>{`${strings('settings.walletList.staked')} ${stakedBalance} ${currencyCode}`}</Text>
                     </View>}
-                <View>
-                    {this.handleStakingAccount(currencyCode, 30, 'freezing')}
-                </View>
+                <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
+                    <CustomIcon name='staking' size={24} color={colors.common.text1} />
+                </TouchableOpacity>
             </View>
         )
     }
@@ -182,7 +186,7 @@ class HeaderBlocks extends React.Component {
 
         if (isSynchronized) {
             return (
-                <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE * 2 }}>
+                <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
                         <TouchableOpacity
                             onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
@@ -227,7 +231,7 @@ class HeaderBlocks extends React.Component {
         }
     }
 
-    handleSettingAccount = (currencyCode, size, name) => {
+    handleSettingAccount = (currencyCode) => {
 
         const { colors } = this.context
 
@@ -235,19 +239,6 @@ class HeaderBlocks extends React.Component {
             <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)} hitSlop={HIT_SLOP}>
                 <View style={{ paddingVertical: 12 }}>
                     <CustomIcon name='coinSettings' size={20} color={colors.common.text1} />
-                </View>
-            </TouchableOpacity>
-        )
-    }
-
-    handleStakingAccount = (currencyCode) => {
-
-        const { colors } = this.context
-
-        return (
-            <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
-                <View style={{ paddingVertical: 12 }}>
-                    <CustomIcon name='freezing' size={20} color={colors.common.text1} />
                 </View>
             </TouchableOpacity>
         )
@@ -272,7 +263,7 @@ class HeaderBlocks extends React.Component {
             case 'XMR':
             case 'BNB':
             case 'SOL':
-            case 'BNB_SMART': 
+            case 'BNB_SMART':
                 return this.handleSettingAccount(currencyCode)
             default:
                 return null
@@ -316,9 +307,11 @@ class HeaderBlocks extends React.Component {
 
         const addressPrep = BlocksoftPrettyStrings.makeCut(shownAddress, 6, 6)
 
+        const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
+
         return (
             <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }} >
-                <AccountGradientBlock>
+                <AccountGradientBlock minHeight={currencyCode === 'TRX' ? 209 : currencyCode === 'SOL' ? 191 : 171}>
                     <View style={{ flexDirection: 'row' }} >
                         <TouchableOpacity
                             style={styles.linkButton}
@@ -347,7 +340,15 @@ class HeaderBlocks extends React.Component {
                             </View>
                         </TouchableOpacity>
                         <View style={{ marginTop: 6 }}>
-                            <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
+                            <View style={styles.stakingValue}>
+                                <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
+                                {availableStaking &&
+                                    <PercentView 
+                                        value={this.props.stakingCoins[currencyCode]}
+                                        staking
+                                    />
+                                }
+                            </View>
                             <TouchableOpacity
                                 style={styles.topContent__middle}
                                 onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
@@ -648,5 +649,9 @@ const styles = {
         fontSize: 14,
         lineHeight: 18,
         color: '#999999'
+    },
+    stakingValue: {
+        flexDirection: 'row',
+        alignItems: 'center'
     }
 }

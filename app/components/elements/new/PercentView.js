@@ -7,7 +7,6 @@ import React from 'react'
 import { StyleSheet, View, Text } from 'react-native'
 
 import { useTheme } from '@app/theme/ThemeProvider'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const PercentView = (props) => {
 
@@ -17,15 +16,14 @@ const PercentView = (props) => {
         containerStyle,
         textStyles,
         value,
-        staking,
-        currencyCode
+        staking
     } = props
-
-    const percentValue = BlocksoftExternalSettings.getStatic(`${currencyCode}_STAKING_PERCENT`)
 
     value = value + ' %'
 
-    value = staking ? percentValue + ' % APY' : value
+    if (staking) {
+        value += ' APY'
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: staking ? colors.stakingPercent.bg : colors.common.button.bg }, containerStyle]}>
@@ -46,8 +44,8 @@ const styles = StyleSheet.create({
     },
     text: {
         fontFamily: 'SFUIDisplay-Semibold',
-        fontSize: 13,
-        lineHeight: 15,
+        fontSize: 11,
+        lineHeight: 13,
         letterSpacing: 0.5
     },
 })

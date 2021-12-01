@@ -17,7 +17,8 @@ const INITIAL_STATE = {
     bseLink: null,
     loaderFromBse: false,
     solValidator: {},
-    sortValue: null
+    sortValue: null,
+    stakingCoins: {}
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
@@ -89,6 +90,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 sortValue: action.sortValue
+            }
+        case 'SET_STAKING_COINS':
+            return {
+                ...state,
+                stakingCoins: action.stakingCoins
             }
         default:
             return state

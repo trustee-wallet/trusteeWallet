@@ -21,7 +21,7 @@ import { TabView } from 'react-native-tab-view'
 
 import { strings } from '@app/services/i18n'
 
-import { getSolValidator, getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
+import { getSolValidator, getSelectedAccountData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { HIT_SLOP } from '@app/theme/HitSlop'
@@ -388,7 +388,7 @@ class AccountStakingSOL extends React.PureComponent {
                     <View style={styles.progressBarLoaction}>
                         <Text style={styles.availableText}>{strings('settings.walletList.availableSOL')}</Text>
                         <PercentView
-                            currencyCode='SOL'
+                            value={this.props.stakingCoins['SOL']}
                             staking
                         />
                     </View>
@@ -495,7 +495,8 @@ AccountStakingSOL.contextType = ThemeContext
 const mapStateToProps = state => {
     return {
         account: getSelectedAccountData(state),
-        solValidator: getSolValidator(state)
+        solValidator: getSolValidator(state),
+        stakingCoins: getStakingCoins(state)
     }
 }
 

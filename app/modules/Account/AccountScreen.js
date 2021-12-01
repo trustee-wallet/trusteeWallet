@@ -59,7 +59,7 @@ import Netinfo from '@app/services/Netinfo/Netinfo'
 
 import { diffTimeScan } from './helpers'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
-import { getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
@@ -486,7 +486,7 @@ class Account extends React.PureComponent {
                         />
                     }
                     ListHeaderComponent={() => (
-                        <React.Fragment>
+                        <>
                             <HeaderBlocks
                                 account={{
                                     walletHash: selectedAccountData.walletHash,
@@ -509,6 +509,7 @@ class Account extends React.PureComponent {
                                 isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
                                 originalVisibility={this.props.isBalanceVisible}
                                 triggerBalanceVisibility={this.triggerBalanceVisibility}
+                                stakingCoins={this.props.stakingCoins}
                             />
                             <AccountButtons
                                 title={true}
@@ -519,7 +520,7 @@ class Account extends React.PureComponent {
                             <View>
                                 {this.renderSynchronized(allTransactionsToView)}
                             </View>
-                        </React.Fragment>
+                        </>
                     )}
                     renderItem={({ item, index }) => (
                         <Transaction
@@ -553,7 +554,8 @@ const mapStateToProps = (state) => {
         selectedAccountTransactions: getSelectedAccountTransactions(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
         isSegwit: getIsSegwit(state),
-        isBlurVisible: getIsBlurVisible(state)
+        isBlurVisible: getIsBlurVisible(state),
+        stakingCoins: getStakingCoins(state)
     }
 }
 

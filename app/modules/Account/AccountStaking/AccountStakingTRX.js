@@ -13,14 +13,15 @@ import {
 import { connect } from 'react-redux'
 import { TabView } from 'react-native-tab-view'
 
-
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
-import { getSelectedAccountData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getSelectedAccountData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
 import { strings } from '@app/services/i18n'
+
+import config from '@app/config/config'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
@@ -30,13 +31,14 @@ import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 import Tabs from '@app/components/elements/new/TabsWithUnderline'
 import Button from '@app/components/elements/new/buttons/Button'
 import NavStore from '@app/components/navigation/NavStore'
+import PercentView from '@app/components/elements/new/PercentView'
 
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
 
 import InfoProgressBar from './elements/InfoProgressBar'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
-import PercentView from '@app/components/elements/new/PercentView'
-import { handleTrxScan, handleFreezeTrx, handleUnFreezTrx, handlePartBalance, handleGetRewardTrx } from './helper'
+import { handleTrxScan, handleFreezeTrx, handleUnFreezTrx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
+
 
 class AccountStakingTRX extends React.PureComponent {
 
@@ -55,7 +57,6 @@ class AccountStakingTRX extends React.PureComponent {
         prettyReward: '0',
         partBalance: null,
         currentBalanceChecked: false,
-        transferAllBalance: false,
         routes: [
             {
                 title: strings('settings.walletList.bandwidthTRX'),
@@ -67,7 +68,6 @@ class AccountStakingTRX extends React.PureComponent {
             }
         ],
         index: 0,
-        viewHeight: 0,
         refreshing: false
     }
 
@@ -162,7 +162,7 @@ class AccountStakingTRX extends React.PureComponent {
                         <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
                     </View>
                     <PercentView
-                        currencyCode='TRX'
+                        value={this.props.stakingCoins['TRX']}
                         staking
                     />
                 </View>
@@ -358,6 +358,18 @@ class AccountStakingTRX extends React.PureComponent {
                         <View style={{ marginBottom: GRID_SIZE * 1.5 }}>
                             {this.renderAmountInput()}
                         </View>
+                        {config.exchange.mode === 'DEV' &&
+                            <View>
+                                <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2 }]}>
+                                    {strings('settings.walletList.votedTRX') + ': ' + strings('settings.walletList.votedBalanceTRX', currentBalance)}
+                                </Text>
+                                <Button
+                                    title={strings('settings.walletList.voteTRX')}
+                                    containerStyle={{ marginBottom: GRID_SIZE }}
+                                    onPress={() => handleVoteTrx.call(this)}
+                                />
+                            </View>
+                        }
                     </View>
                 </ScrollView>
                 <Button
@@ -377,6 +389,7 @@ const mapStateToProps = (state) => {
         cashbackStore: getCashBackData(state),
         selectedWallet: getSelectedWalletData(state),
         account: getSelectedAccountData(state),
+        stakingCoins: getStakingCoins(state)
     }
 }
 
@@ -404,7 +417,8 @@ const styles = {
     rewardLocation: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        minHeight: 30
     },
     widhdrawBtn: {
         height: 30,
