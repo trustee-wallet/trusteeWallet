@@ -297,23 +297,23 @@ class Transaction {
         if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
             where.push(`address_to NOT LIKE '% Simple Send%'`)
             where.push(`address_amount != '0'`)
-            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}')`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}'))`)
         }
 
         // other categories
         if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
             where.push(`(bse_order_id = '' OR bse_order_id IS NULL OR bse_order_id = 'null')`)
             where.push(`transaction_direction NOT IN ('swap_income', 'swap_outcome', 'swap')`)
-            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SWAP}')`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SWAP}'))`)
         }
 
         if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake) {
             where.push(`transaction_direction NOT IN ('freeze', 'unfreeze', 'claim')`)
-            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}')`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}'))`)
         }
 
         if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
-            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}')`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}'))`)
         }
 
         where.push(`transaction_hash !=''`)
@@ -336,10 +336,10 @@ class Transaction {
 
         let limit = ''
         if (typeof params.limitPerPage !== 'undefined') {
-            limit = ' LIMIT ' + params.limitPerPage
+            // limit = ' LIMIT ' + params.limitPerPage
         }
         if (typeof params.limitFrom !== 'undefined') {
-            limit += ' OFFSET ' + params.limitFrom
+            // limit += ' OFFSET ' + params.limitFrom
         }
 
         const sql = `
