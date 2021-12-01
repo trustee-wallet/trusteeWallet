@@ -314,7 +314,7 @@ export async function setSelectedAccountTransactions(source) {
             filterTypeHideStake: filter?.filterTypeHideStake || null,
             filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
         }
-        if (typeof filter.active === 'undefined' || !filter.active) {
+        if (typeof filter !== 'undefined' && filter && typeof filter.active === 'undefined' || !filter.active) {
             params.filterTypeHideFee = true
         }
 
