@@ -1,20 +1,29 @@
+/**
+ * @version 0.52
+ * @author yura
+ */
+
 import Log from "@app/services/Log/Log"
+import { strings } from "@app/services/i18n"
 
 import BlocksoftAxios from "@crypto/common/BlocksoftAxios"
 import BlocksoftExternalSettings from "@crypto/common/BlocksoftExternalSettings"
 import BlocksoftPrettyNumbers from "@crypto/common/BlocksoftPrettyNumbers"
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import TronUtils from "@crypto/blockchains/trx/ext/TronUtils"
-
-import { setLoaderStatus } from "@app/appstores/Stores/Main/MainStoreActions"
-
-import config from "@app/config/config"
 import BlocksoftUtils from "@crypto/common/BlocksoftUtils"
 import { BlocksoftTransfer } from "@crypto/actions/BlocksoftTransfer/BlocksoftTransfer"
-import { showModal } from "@app/appstores/Stores/Modal/ModalActions"
-import { strings } from "@app/services/i18n"
-import settingsActions from "@app/appstores/Stores/Settings/SettingsActions"
 import SolStakeUtils from "@crypto/blockchains/sol/ext/SolStakeUtils"
+
+import { setLoaderStatus } from "@app/appstores/Stores/Main/MainStoreActions"
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import { showModal } from "@app/appstores/Stores/Modal/ModalActions"
+import settingsActions from "@app/appstores/Stores/Settings/SettingsActions"
+
+import config from "@app/config/config"
+
+import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
+
 
 export async function handleTrxScan() {
     const { account } = this.props
@@ -64,6 +73,7 @@ export async function handleFreezeTrx(isAll, type) {
 
     const address = account.address
     let freeze = actualBalance.balance
+    let tx
 
     try {
 
@@ -75,12 +85,12 @@ export async function handleFreezeTrx(isAll, type) {
             freeze = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makeUnPretty(inputValidate.value)
         }
 
-        await _sendTxTrx.call(this, '/wallet/freezebalance', {
+        tx = await _sendTxTrx.call(this, '/wallet/freezebalance', {
             owner_address: TronUtils.addressToHex(address),
             frozen_balance: freeze * 1,
             frozen_duration: 3,
             resource: type
-        }, 'freeze ' + freeze + ' for ' + type + ' of ' + address)
+        }, 'freeze ' + freeze + ' for ' + type + ' of ' + address, { hiddenModal: true })
 
         this.stakeAmountInput.handleInput('', false)
     } catch (e) {
@@ -88,9 +98,56 @@ export async function handleFreezeTrx(isAll, type) {
             console.log('AccountStaking.helper.handleFreezeTrx error ', e)
         }
         _wrapError(e)
+        setLoaderStatus(false)
     }
-    setLoaderStatus(false)
-    await handleVoteTrx.call(this)
+
+    // setLoaderStatus(false)
+    if (tx) {
+        const timerId = setTimeout(async function voteTrx(self) {
+
+            Log.log('AccountStaking.helper.voteTrx run')
+
+            try {
+                await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({
+                    force: true,
+                    currencyCode: 'TRX',
+                    source: 'STAKING_TRX'
+                })
+            } catch (e) {
+                Log.errDaemon('AccountStaking.helper.handleFreezeTrx error updateAccountBalanceAndTransactions ' + e.message)
+            }
+
+            const params = {
+                walletHash: self.props.selectedWallet.walletHash,
+                currencyCode: 'TRX',
+                transactionHash: tx.transactionHash
+            }
+
+            const tmp = await transactionDS.getTransactions(params, 'AccountScreen.loadTransactions list')
+
+            if (tmp && tmp[0]?.transactionStatus) {
+                if (tmp[0]?.transactionStatus.toLowerCase() === 'success') {
+                    self.setState({
+                        currentBalanceChecked: false
+                    })
+                    await handleVoteTrx.call(self)
+                    clearTimeout(timerId)
+                    Log.log('AccountStaking.helper.voteTrx finish after voited')
+                } else if (tmp[0]?.transactionStatus.toLowerCase() === 'pending' || tmp[0]?.transactionStatus.toLowerCase() === 'confirming') {
+                    Log.log('AccountStaking.helper.voteTrx repeat')
+                    setTimeout(voteTrx, 3e4, self)
+                } else {
+                    Log.log('AccountStaking.helper.voteTrx finish')
+                    clearTimeout(timerId)
+                }
+            } else {
+                Log.log('AccountStaking.helper.voteTrx finish')
+                clearTimeout(timerId)
+            }
+
+        }, 3e4, this)
+    }
+
 }
 
 export async function handleUnFreezTrx(isAll, type) {
@@ -107,7 +164,7 @@ export async function handleUnFreezTrx(isAll, type) {
         await _sendTxTrx.call(this, '/wallet/unfreezebalance', {
             owner_address: TronUtils.addressToHex(address),
             resource: type
-        }, 'unfreeze for ' + type + ' of ' + address)
+        }, 'unfreeze for ' + type + ' of ' + address, { type: 'unfreeze' })
     } catch (e) {
         if (config.debug.cryptoErrors) {
             console.log('AccountStaking.helper.handleUnFreezTrx error ', e)
@@ -139,7 +196,7 @@ export async function handleVoteTrx() {
                     vote_count: actualBalance.prettyVote * 1
                 }
             ]
-        }, 'vote ' + actualBalance.prettyVote + ' for ' + voteAddress)
+        }, 'vote ' + actualBalance.prettyVote + ' for ' + voteAddress, { type: 'freeze' })
     } catch (e) {
         if (config.debug.cryptoErrors) {
             console.log('AccountStaking.helper.handleVoteTrx error ', e)
@@ -181,7 +238,7 @@ export async function handleGetRewardTrx() {
     try {
         await _sendTxTrx.call(this, '/wallet/withdrawbalance', {
             owner_address: TronUtils.addressToHex(address)
-        }, 'withdrawbalance to ' + address)
+        }, 'withdrawbalance to ' + address, { type: 'reward' })
     } catch (e) {
         if (config.debug.cryptoErrors) {
             console.log('AccountStaking.helper.handleGetRewardTrx error ', e)
@@ -191,12 +248,15 @@ export async function handleGetRewardTrx() {
     setLoaderStatus(false)
 }
 
-async function _sendTxTrx(shortLink, params, langMsg) {
+async function _sendTxTrx(shortLink, params, langMsg, uiParams) {
 
     const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
     const link = sendLink + shortLink
     const tmp = await BlocksoftAxios.post(link, params)
     let blockchainData
+
+    const hiddenModalRes = uiParams?.hiddenModal || false
+
     if (typeof tmp.data !== 'undefined') {
         if (typeof tmp.data.raw_data_hex !== 'undefined') {
             blockchainData = tmp.data
@@ -222,16 +282,14 @@ async function _sendTxTrx(shortLink, params, langMsg) {
 
     const result = await BlocksoftTransfer.sendTx(txData, { selectedFee: { langMsg } })
     if (result) {
-        showModal({
-            type: 'INFO_MODAL',
-            icon: true,
-            title: strings('modal.send.success'),
-            description: result.transactionHash
-        })
+        if (!hiddenModalRes) {
+            _wrapSuccess(uiParams.type)
+        }
         handleTrxScan.call(this)
     } else {
         throw new Error('no transaction')
     }
+    return result
 }
 
 const _wrapError = (e) => {
@@ -250,6 +308,25 @@ const _wrapError = (e) => {
         description: msg
     })
     handleTrxScan.call(this)
+}
+
+const _wrapSuccess = (type) => {
+
+    let msg = 'success'
+    if (type === 'unfreeze') {
+        msg = strings('settings.walletList.successUnfreeze')
+    } else if (type === 'freeze') {
+        msg = strings('settings.walletList.successFreeze')
+    } else if (type === 'reward') {
+        msg = strings('settings.walletList.successReward')
+    }
+
+    showModal({
+        type: 'INFO_MODAL',
+        icon: true,
+        title: strings('modal.send.success'),
+        description: msg
+    })
 }
 
 export async function handleSolScan(force = false) {

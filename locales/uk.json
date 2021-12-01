@@ -239,7 +239,10 @@
       "selectValidatorSOLCommission" : "Збір :",
       "validatorSOL": "Валідатор",
       "rewards" : "Нагорода",
-      "useCustomValidator": "Використати цей валідатор "
+      "useCustomValidator": "Використати цей валідатор ",
+      "successUnfreeze": "TRX розморожено",
+      "successFreeze": "TRX заморожено для стейкінгу",
+      "successReward": "Отримано нагороду TRX за стейкінг"
     },
     "about": {
       "title": "Про гаманець",

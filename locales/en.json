@@ -239,7 +239,10 @@
       "selectValidatorSOLCommission" : "Fee: ",
       "validatorSOL": "Validator",
       "rewards" : "Rewards",
-      "useCustomValidator": "Use this validator "
+      "useCustomValidator": "Use this validator ",
+      "successUnfreeze": "TRX unfrozen",
+      "successFreeze": "TRX frozen for staking",
+      "successReward": "TRX staking reward received"
     },
     "about": {
       "title": "About",

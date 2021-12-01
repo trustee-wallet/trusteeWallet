@@ -239,7 +239,10 @@
       "selectValidatorSOLCommission" : "Сбор :",
       "validatorSOL": "Валидатор",
       "rewards" : "Награда",
-      "useCustomValidator": "Использовать этот валидатор "
+      "useCustomValidator": "Использовать этот валидатор ",
+      "successUnfreeze": "TRX разморожено",
+      "successFreeze": "TRX заморожено для стейкинга",
+      "successReward": "Получена награда TRX за стейкинг"
     },
     "about": {
       "title": "О кошельке",
