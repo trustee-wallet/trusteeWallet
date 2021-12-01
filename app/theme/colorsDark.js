@@ -176,6 +176,13 @@ export const colorsDark = {
         bg: '#6B6B6B',
         borderColor: '#999999'
     },
+    backDropModal: {
+        bg: '#2E2E2E',
+        buttonBg: '#6B6B6B',
+        buttonText: '#B8B8B8',
+        mainButton: '#999999',
+        underline: '#858585'
+    },
     streamChat: {
         inputToolBarBg: '#404040',
         left: {

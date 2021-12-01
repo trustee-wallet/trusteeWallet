@@ -25,6 +25,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import AccountSettingsHeader from './elements/Header'
+import SettingsBNBSmart from '@app/modules/Account/AccountSettings/elements/SettingsBNBSmart'
 
 class AccountSettingScreen extends React.PureComponent {
 
@@ -100,6 +101,14 @@ class AccountSettingScreen extends React.PureComponent {
             case 'BNB':
                 return (
                     <SettingsBNB
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                    />
+                )
+            case 'BNB_SMART':
+                return (
+                    <SettingsBNBSmart
                         containerStyle={{ overflow: 'hidden' }}
                         wallet={selectedWallet}
                         account={account}

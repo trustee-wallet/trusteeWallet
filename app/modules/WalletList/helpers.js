@@ -1,3 +1,4 @@
+import React from 'react'
 import { Dimensions, PixelRatio } from 'react-native'
 
 import _sortBy from 'lodash/sortBy'
@@ -24,6 +25,10 @@ import DaemonCache from '@app/daemons/DaemonCache'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+
+import ContentDropModal from './elements/ContentDropModal'
+import store from '@app/store'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -141,12 +146,21 @@ const getBalanceData = (props) => {
 
     const CACHE_SUM = DaemonCache.getCache(walletHash)
 
+
+
     let totalBalance = 0
     if (CACHE_SUM && typeof CACHE_SUM.balance !== 'undefined' && CACHE_SUM.balance) {
         totalBalance = CACHE_SUM.balance
         if (currencySymbol !== CACHE_SUM.basicCurrencySymbol) {
             currencySymbol = CACHE_SUM.basicCurrencySymbol
         }
+    }
+
+    const cashbackStore = store.getState().cashBackStore
+    if (typeof cashbackStore.dataFromApi !== 'undefined' && typeof cashbackStore.dataFromApi.cashbackBalance !== 'undefined' && cashbackStore.dataFromApi.cashbackBalance) {
+        const accountRates = DaemonCache.getCacheRates('USDT')
+        const basicCurrencyBalanceNorm = RateEquivalent.mul({ value: cashbackStore.dataFromApi.cashbackBalance || 0, currencyCode: 'USDT', basicCurrencyRate: accountRates.basicCurrencyRate })
+        totalBalance = totalBalance * 1 + basicCurrencyBalanceNorm * 1
     }
 
     const tmp = totalBalance.toString().split('.')
@@ -167,10 +181,31 @@ const handleCurrencySelect = async (props, screen) => {
     let status = ''
     CACHE_CLICK = true
 
+    if (props.constructorMode) {
+        showModal({
+            type: 'BACK_DROP_MODAL',
+            currentIndex: props.index,
+            onDrag: props.onDragEnd,
+            listData: props.listData,
+            handleGuide: props.handleGuide,
+            currencyCode: cryptoCurrency,
+            // eslint-disable-next-line react/display-name
+            Content: ({ data }) => {
+                return <ContentDropModal data={data} />
+            }
+        })
+
+        CACHE_CLICK = false
+        return
+    }
+
     if (typeof cryptoCurrency.currencyCode !== 'undefined' && (cryptoCurrency.currencyCode === 'NFT' || cryptoCurrency.currencyCode === 'CASHBACK')) {
+
+        const defaultScreen = cryptoCurrency.currencyCode === 'CASHBACK' ? 'CashbackScreen' : 'NftMainScreen'
+
         try {
             setSelectedCryptoCurrency(cryptoCurrency)
-            NavStore.goNext(screen || 'NftMainScreen')
+            NavStore.goNext(screen || defaultScreen)
         } catch (e) {
             Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)
         }
@@ -224,8 +259,8 @@ const getSortedData = (array, currentArray, accountList, filter) => {
             return _orderBy(currentArray, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
         }
         case 'byValue': {
-            let sortedAccount = _orderBy(accountList, function(obj) {
-                return parseInt(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
+            let sortedAccount = _orderBy(accountList, function (obj) {
+                return parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
             }, 'desc').map(item => item.currencyCode)
 
             sortedAccount = _orderBy(array, x => {
@@ -248,6 +283,10 @@ const getSortedData = (array, currentArray, accountList, filter) => {
 
 const getSectionsData = (array) => {
     const sections = _groupBy(array, 'currencyType')
+    if (sections?.custom) {
+        sections.token = [...sections.token, ...sections.custom]
+        delete sections.custom
+    }
 
     return Object.keys(sections).map((key) => ({ title: key, data: sections[key] }))
 }

@@ -16,6 +16,17 @@ import { SIZE } from '@app/modules/WalletList/helpers'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
+const getIcon = (type, color) => {
+    switch(type) {
+        case 'warning': 
+            return <CustomIcon name='warning' size={24} color={color} style={styles.iconWrapper} />
+        case 'warningMessage': 
+            return <CustomIcon name='warningMessage' size={24} color={color} style={styles.iconWrapper} />
+        default:
+            return null
+    }
+}
+
 class InfoNotification extends React.Component {
 
     state = {
@@ -50,7 +61,8 @@ class InfoNotification extends React.Component {
             onPress,
             containerStyles,
             range,
-            withoutClosing = false
+            withoutClosing = false,
+            iconType
         } = this.props
 
         const { colors, GRID_SIZE } = this.context
@@ -88,7 +100,7 @@ class InfoNotification extends React.Component {
                     onLayout={this.processViewHeight}
                     disabled={withoutClosing}
                 >
-                    {!withoutClosing && <CustomIcon name='warningMessage' size={24} color={colors.walletManagment.walletItemBorderColor} style={styles.iconWrapper} />}
+                    {!withoutClosing && getIcon(iconType, colors.walletManagment.walletItemBorderColor)}
                     <View style={styles.description}>
                         {title && <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{title}</Text>}
                         <Text style={[styles.backupDescription, { color: colors.homeScreen.backupDescription }]}>{subTitle}</Text>

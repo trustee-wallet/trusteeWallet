@@ -24,7 +24,7 @@ import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import Api from '@app/services/Api/Api'
+import ApiPromo from '@app/services/Api/ApiPromo'
 import config from '@app/config/config'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -340,7 +340,7 @@ export class Tab2 extends React.Component {
 
         return (
             <>
-                {condition ? 
+                {condition ?
                     <View style={[styles.buttonLocation, { marginTop: GRID_SIZE / 2 }]}>
                         <TouchableOpacity
                             activeOpacity={0.6}
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
         marginVertical :11
     },
     progressBarLocation: {
- 
+
     },
     buttonLocation: {
         alignItems: 'center'

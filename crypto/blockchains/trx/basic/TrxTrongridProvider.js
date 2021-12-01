@@ -69,6 +69,6 @@ export default class TrxTrongridProvider {
         const frozen = typeof CACHE_TRONGRID[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozen'] : 0
         const frozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] : 0
         const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
-        return { balance, voteTotal, frozen, frozenEnergy, unconfirmed: 0, provider: 'trongrid' }
+        return { balance, voteTotal, frozen, frozenEnergy, unconfirmed: 0, provider: 'trongrid ' + nodeLink }
     }
 }

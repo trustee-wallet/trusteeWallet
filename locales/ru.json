@@ -13,12 +13,13 @@
       "byName": "По имени",
       "byValue": "По балансу",
       "firstCoin": "Сначала монеты",
-      "firstToken": "Сначала токени",
-      "withBalance": "С положительным балансом"
+      "firstToken": "Сначала токены",
+      "withBalance": "С положительным балансом",
+      "guideTitle": "Обучение"
     },
     "categories": {
       "coin": "Монеты",
-      "token": "Токени"
+      "token": "Токены"
     }
   },
   "walletCreateScreen": {
@@ -82,7 +83,7 @@
       "session": "Подключение WalletConnect",
       "sessionText": "Вы действительно хотите подключить кошелек Trustee к ",
       "notificationTitle": "Внимание!",
-      "notificationText": "Убедитесь, что %{name} безопасно. Взаимодействуя с этим сервисом, Вы предоставляете доступ к своим средствам!",
+      "notificationText": "Убедитесь, что %{name} безопасен. Взаимодействуя с этим сервисом, Вы предоставляете доступ к своим средствам!",
       "disconnect": "Отключиться",
       "connect": "Подключиться",
       "placeholder": "Здесь будет адрес кошелька, к которому Вы подключились",
@@ -158,6 +159,7 @@
       "testerMode": "Тестировщик"
     },
     "walletList": {
+      "showBalance": "Показать баланс",
       "title": "Мои кошельки",
       "addWallet": "Добавить кошелек",
       "backupNeeded": "Резервное копирование",
@@ -323,7 +325,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Добавить NFT актив",
-    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейне Matic или в тестовой сети Ropsten. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
+    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейнах Ethereum, BNB, Matic или на Ropsten, Rinkeby Testnet. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
     "addCustomLabelOpenSea" : "Токены Ethereum могут быть добавлены с OpenSea ",
     "addCustomPlaceholder" : "Адрес актива NFT",
     "addAssetButton" : "Добавить актив"
@@ -333,8 +335,7 @@
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Заработать",
-    "pageSubtitle": "Зарабатывай от комиссии с Trustee Wallet!",
-    "pageSubtitleText": "до",
+    "pageSubtitle": "Зарабатывай до 30% от комиссии с Trustee Wallet!",
     "shareButton": "Поделиться",
     "promoButton": "Промокод",
     "detailsButton": "Детали",
@@ -419,6 +420,9 @@
     "noFoundTransactions": "Извините, ничего не найдено",
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
+    "copyLink": "Копировать адрес",
+    "invoiceText": "Выставить счет для оплаты",
+    "openInBlockchair": "Открыть в блокчейн эксплорере",
     "externalLink": {
       "title": "Переход к блокчейн эксплореру",
       "description": "Вы перейдете на внешний ресурс"
@@ -1193,6 +1197,15 @@
     },
     "notification": {
       "description": "К сожалению, Ваше мобильное устройство не поддерживает получение Push-уведомлений"
+    },
+    "dropDownModal": {
+      "showGuide": "Повторить обучение",
+      "moveToTop": "Поднять в начало списка",
+      "moveToDown": "Опустить в конец списка",
+      "guideText": "Настройте отображение монет на главном экране выставив их в необходимом порядке, или отсортируйте активы согласно предложенных вариантов.",
+      "guideTitle": "Персональный интерфейс",
+      "guideAccept": "Принять",
+      "hideAsset": "Скрыть актыв"
     }
   },
   "lockScreen": {

@@ -59,8 +59,13 @@ const currencyActions = {
             one.currencyExplorerTxLink = BlocksoftPrettyLocalize.makeLink(one.currencyExplorerTxLink)
             prepare.push(one)
         }
+
         for (const currencyDBTmp of currencies) {
-            if (currencyDBTmp.currencyCode !== 'NFT' && currencyDBTmp.currencyCode !== 'CASHBACK') continue
+            if (currencyDBTmp.currencyCode !== 'NFT') continue
+            _push(prepare, currencyDBTmp)
+        }
+        for (const currencyDBTmp of currencies) {
+            if (currencyDBTmp.currencyCode !== 'CASHBACK') continue
             _push(prepare, currencyDBTmp)
         }
         for (const currencyDBTmp of currencies) {
@@ -172,10 +177,15 @@ const currencyActions = {
                     }
                 }
             }
-            if (accountBalanceInsertObjs && accountBalanceInsertObjs.length > 0) {
-                errorStepMsg = 'accountBalanceDS.insertAccountBalance started'
-                await accountBalanceDS.insertAccountBalance({ insertObjs: accountBalanceInsertObjs })
-                errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
+
+            try {
+                if (accountBalanceInsertObjs && accountBalanceInsertObjs.length > 0) {
+                    errorStepMsg = 'accountBalanceDS.insertAccountBalance started'
+                    await accountBalanceDS.insertAccountBalance({ insertObjs: accountBalanceInsertObjs })
+                    errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
+                }
+            } catch (e) {
+                Log.log('ACT/Currency addCurrency insertCurrency insertAccountBalance ' + e.message)
             }
 
             for (const tmpCode of tmpCodes) {

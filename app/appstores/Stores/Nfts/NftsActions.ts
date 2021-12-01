@@ -78,12 +78,13 @@ export namespace NftActions {
                 }
                 try {
                     if (force || (!tmp || typeof tmp.loaded === 'undefined' || (now - tmp.loaded > 360000))) {
-                        tmp = await BlocksoftTokenNfts.getList({
+                        const tmp2 = await BlocksoftTokenNfts.getList({
                             tokenBlockchainCode,
                             address,
                             customAssets: tmpAssetsArray
                         })
-                        if (tmp) {
+                        if (tmp2 && typeof tmp2.assets !== 'undefined') {
+                            tmp = tmp2
                             tmp.loaded = now
                             Nfts.saveNfts(tokenBlockchainCode, address, tmp)
                         }

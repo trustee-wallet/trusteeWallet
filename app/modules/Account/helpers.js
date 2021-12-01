@@ -3,10 +3,12 @@ import { showModal } from "@app/appstores/Stores/Modal/ModalActions"
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 import BlocksoftDict from "@crypto/common/BlocksoftDict"
+import BlocksoftExternalSettings from "@crypto/common/BlocksoftExternalSettings"
 
 import Netinfo from '@app/services/Netinfo/Netinfo'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
-import { strings } from "@app/services/i18n"
+import { strings, sublocale } from "@app/services/i18n"
+import prettyShare from "@app/services/UI/PrettyShare/PrettyShare"
 import Log from "@app/services/Log/Log"
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
 
@@ -132,6 +134,18 @@ const getCurrentDate = (date) => {
     return newDate.toString().split(' ')[1] + ' ' + newDate.getDate() + ', ' + newDate.getFullYear()
 }
 
+const handleShareInvoice = (address, currencyCode, currencyName) => {
+    const lang = sublocale()
+    const message = `${BlocksoftExternalSettings.getStatic(`INVOICE_URL_${lang.toUpperCase()}`)}?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
+
+    const shareOptions = {
+        title: strings('account.invoiceText'),
+        url: message
+    }
+    prettyShare(shareOptions)
+}
+
+
 export {
     diffTimeScan, 
     getExplorerLink,
@@ -139,5 +153,6 @@ export {
     handleBuy,
     handleReceive,
     handleSend,
-    getCurrentDate
+    getCurrentDate,
+    handleShareInvoice
 }

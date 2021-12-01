@@ -12,9 +12,10 @@
       "custom": "Custom",
       "byName": "By name",
       "byValue": "By value",
-      "firstCoin": "First coins",
-      "firstToken": "First tokens",
-      "withBalance": "With balance"
+      "firstCoin": "Coins first",
+      "firstToken": "Tokens first",
+      "withBalance": "With a positive balance",
+      "guideTitle": "Guide"
     },
     "categories": {
       "coin": "Coins",
@@ -158,6 +159,7 @@
       "testerMode": "Tester"
     },
     "walletList": {
+      "showBalance": "Show balance",
       "title": "My wallets",
       "addWallet": "Add wallet",
       "backupNeeded": "Backup needed",
@@ -323,7 +325,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Add NFT Asset",
-    "addCustomLabel": "You can add a standard NFT token developed on Matic blockchain or Ropsten Testnet. Please, enter or scan a new token / asset address.",
+    "addCustomLabel": "You can add a standard NFT token developed on Ethereum, BNB, Matic blockchains or on Ropsten, Rinkeby Testnet. Please enter or scan a new token / asset address.",
     "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
     "addCustomPlaceholder" : "NFT Asset Address",
     "addAssetButton" : "Add asset"
@@ -333,8 +335,7 @@
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Earn",
-    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
-    "pageSubtitleText": "to",
+    "pageSubtitle": "Earn to 30% from the commission with Trustee Wallet!",
     "shareButton": "Share",
     "promoButton": "Promocode",
     "detailsButton": "Details",
@@ -418,6 +419,9 @@
     "noFoundTransactions": "Sorry, no results were found",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
+    "copyLink": "Copy address",
+    "invoiceText": "Issue an invoice for payment",
+    "openInBlockchair": "Open in blockchain explorer",
     "externalLink": {
       "title": "Go to blockchain explorer",
       "description": "External site link will be opened"
@@ -1192,6 +1196,15 @@
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"
+    },
+    "dropDownModal": {
+      "showGuide": "Repeat training",
+      "moveToTop": "Move to the top of the list",
+      "moveToDown": "Move to the down of the list",
+      "guideText": "Customize the display of coins on the main screen by placing them in the required order, or sort assets according to the proposed options.",
+      "guideTitle": "Personal interface",
+      "guideAccept": "Accept",
+      "hideAsset": "Hide assets"
     }
   },
   "lockScreen": {

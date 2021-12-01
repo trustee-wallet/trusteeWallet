@@ -14,7 +14,8 @@
       "byValue": "За балансом",
       "firstCoin": "Спочатку монети",
       "firstToken": "Спочатку токени",
-      "withBalance": "З позитивним балансом"
+      "withBalance": "З позитивним балансом",
+      "guideTitle": "Навчання"
     },
     "categories": {
       "coin": "Монети",
@@ -78,7 +79,7 @@
       "session": "Підключення WalletConnect",
       "sessionText": "Ви дійсно хочете підключити гаманець Trustee до ",
       "notificationTitle": "Увага!",
-      "notificationText": "Переконайтесь, що %{name} безпечно. Взаємодіючи з цим сервісом, Ви надаєте доступ до своїх коштів!",
+      "notificationText": "Переконайтесь, що %{name} безпечний. Взаємодіючи з цим сервісом, Ви надаєте доступ до своїх коштів!",
       "disconnect": "Відключитись",
       "connect": "Підключитись",
       "placeholder": "Тут буде адреса гаманця, до якого Ви підключились",
@@ -158,6 +159,7 @@
       "testerMode": "Тестувальник"
     },
     "walletList": {
+      "showBalance": "Показати баланс",
       "title": "Мої гаманці",
       "addWallet": "Додати гаманець",
       "backupNeeded": "Резервне копіювання",
@@ -323,7 +325,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Додати NFT актив",
-    "addCustomLabel": "Ви можете додати стандартний токен NFT, розроблений на Matic блокчейні чи Ropsten Testnet. Будь ласка, введіть або відскануйте нову адресу токену / активу.",
+    "addCustomLabel": "Ви можете додати стандартний токен NFT, розроблений на блокчейнах Ethereum, BNB, Matic або на Ropsten або Rinkeby Testnet. Будь ласка, введіть або відскануйте нову адресу токену / активу.",
     "addCustomLabelOpenSea" : "Токени Ethereum можна додати з OpenSea ",
     "addCustomPlaceholder" : "Адреса активу NFT",
     "addAssetButton" : "Додати актив"
@@ -333,8 +335,7 @@
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Заробити",
-    "pageSubtitle": "Заробляй від комісії з Trustee Wallet!",
-    "pageSubtitleText": "до",
+    "pageSubtitle": "Заробляй до 30% від комісії з Trustee Wallet!",
     "shareButton": "Поділитись",
     "promoButton": "Промокод",
     "detailsButton": "Деталі",
@@ -418,6 +419,9 @@
     "noFoundTransactions": "Вибачте, нічого не знайдено",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",
+    "copyLink": "Копіювати адресу",
+    "invoiceText": "Виставити рахунок для оплати",
+    "openInBlockchair": "Відкрити в блокчейн експлорері",
     "externalLink": {
       "title": "Перехід до блокчейн експлореру",
       "description": "Ви перейдете на зовнішній ресурс"
@@ -1193,6 +1197,15 @@
     },
     "notification": {
       "description": "На жаль, Ваш мобільний пристрій не підтримує отримання Push-повідомлень"
+    },
+    "dropDownModal": {
+      "showGuide": "Повторити навчання",
+      "moveToTop": "Перемістити на початок списку",
+      "moveToDown": "Перемістити в кінець списку",
+      "guideText": "Налаштуйте відображення монет на головному екрані, виставивши їх у необхідному порядку, або відсортуйте активи відповідно до запропонованих варіантів.",
+      "guideTitle": "Персональний інтерфейс",
+      "guideAccept": "Прийняти",
+      "hideAsset": "Приховати актив"
     }
   },
   "lockScreen": {

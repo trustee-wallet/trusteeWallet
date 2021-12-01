@@ -194,12 +194,10 @@ class HomeScreen extends React.PureComponent {
                     selectedWalletData={this.props.selectedWalletData}
                 />
             ),
-            renderItem: ({ item, drag, isActive }) => (
+            renderItem: ({ item }) => (
                 <CryptoCurrency
                     cryptoCurrency={item}
                     isBalanceVisible={this.state.isBalanceVisible}
-                    onDrag={drag}
-                    isActive={isActive}
                     handleReceive={account => handleReceive(item, account)}
                     handleSend={account => handleSend(item, account)}
                     handleHide={() => handleHide(item)}

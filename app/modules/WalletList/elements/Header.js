@@ -31,6 +31,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import WalletName from './WalletName/WalletName'
 import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 const headerHeight = 44
@@ -102,6 +103,15 @@ class WalletInfo extends React.PureComponent {
         NavStore.goNext('HomeDragScreen')
     }
 
+    handleGuide = () => {
+        const res = trusteeAsyncStorage.getIsTraining()
+        if (typeof res === 'undefined' || res === '0') {
+            NavStore.goNext('GuideScreen')
+        } else {
+            this.handleDragScreen()
+        }
+    }
+
     render() {
         const { colors, GRID_SIZE, isLight } = this.context
         const {
@@ -129,7 +139,7 @@ class WalletInfo extends React.PureComponent {
                         <View style={styles.header__left}>
                             <TouchableOpacity
                                 style={styles.notificationButton}
-                                onPress={this.handleDragScreen}
+                                onPress={this.handleGuide}
                                 hitSlop={HIT_SLOP}
                             >
                                 <CustomIcon name='constructor' color={colors.common.text1} size={20} />
