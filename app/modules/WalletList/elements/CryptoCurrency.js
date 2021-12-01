@@ -35,6 +35,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { SIZE, handleCurrencySelect } from '../helpers';
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { HIT_SLOP } from '@app/theme/HitSlop'
+import store from '@app/store'
 
 
 class CryptoCurrency extends React.PureComponent {
@@ -164,8 +165,8 @@ class CryptoCurrency extends React.PureComponent {
                                     </Text>
                                 )}
                             </View>
-                            
-                            {this.props.constructorMode ? null :
+
+                            {this.props.constructorMode || ratePrep === '' ? null :
                                 <View style={[styles.cryptoList__currency__changes, { borderColor: colors.homeScreen.listItemSeparatorLine }]}>
                                     <View style={styles.cryptoList__currency__changes__rate}>
                                         {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && priceChangePercentage24h !== 0 && (
@@ -202,6 +203,26 @@ class CryptoCurrency extends React.PureComponent {
         )
     };
 
+    renderHiddenCashbackLayer = (item) => {
+        return (
+            <View style={styles.hiddenLayer__container}>
+                <View style={styles.hiddenLayer__leftButtons__wrapper}>
+                    <RoundButton
+                        type="receive"
+                        containerStyle={styles.hiddenLayer__roundButton}
+                        onPress={() => handleCurrencySelect(this.props, 'CashbackScreen')}
+                        noTitle
+                    />
+                </View>
+                <RoundButton
+                    type="hide"
+                    containerStyle={styles.hiddenLayer__roundButton}
+                    onPress={() => this.props.handleHide(item)}
+                    noTitle
+                />
+            </View>
+        );
+    }
 
     renderHiddenNFTLayer = (item) => {
         return (
@@ -246,7 +267,7 @@ class CryptoCurrency extends React.PureComponent {
                 <TouchableOpacity
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
-                    onPress={() => handleCurrencySelect(this.props, currencyCode === 'CASHBACK' ? 'CashbackScreen' : false)}
+                    onPress={() => handleCurrencySelect(this.props)}
                     onLongPress={() => this.props.constructorMode ? handleCurrencySelect(this.props) : null}
                     delayLongPress={this.props.constructorMode ? 0 : null}
                 >
@@ -298,7 +319,7 @@ class CryptoCurrency extends React.PureComponent {
         // TODO: change condition - still need?
         if (typeof this.props === 'undefined') return <View />
 
-        if (typeof this.props.cryptoCurrency.currencyType !== 'undefined' && (this.props.cryptoCurrency.currencyCode === 'NFT' || this.props.cryptoCurrency.currencyCode === 'CASHBACK')) {
+        if (this.props.cryptoCurrency.currencyCode === 'NFT') {
             return (
                 <SwipeRow
                     disableLeftSwipe={this.props.constructorMode}
@@ -315,6 +336,23 @@ class CryptoCurrency extends React.PureComponent {
                     {this.renderNFTLayer(this.props)}
                 </SwipeRow>
             );
+        } else if (this.props.cryptoCurrency.currencyCode === 'CASHBACK') {
+            return (
+                <SwipeRow
+                    disableLeftSwipe={this.props.constructorMode}
+                    disableRightSwipe={this.props.constructorMode}
+                    leftOpenValue={70}
+                    rightOpenValue={-70}
+                    stopLeftSwipe={90}
+                    stopRightSwipe={-90}
+                    swipeToOpenPercent={5}
+                    swipeToClosePercent={5}
+                    setScrollEnabled={this.props.setScrollEnabled}
+                >
+                    {this.renderHiddenCashbackLayer()}
+                    {this.renderVisibleLayer(this.props)}
+                </SwipeRow>
+            )
         }
 
         return (
