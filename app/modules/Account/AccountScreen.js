@@ -77,8 +77,7 @@ class Account extends React.PureComponent {
 
             hasStickyHeader: false,
 
-            isSeaching: false,
-            notFound: false
+            isSeaching: false
         }
         // this.handleSearch = this.handleSearch.bind(this)
     }
@@ -268,7 +267,7 @@ class Account extends React.PureComponent {
 
         const { colors } = this.context
         const { isSegwit, selectedAccountData, selectedCryptoCurrencyData } = this.props
-        let { transactionsToView, notFound } = this.state
+        let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
             CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
@@ -278,7 +277,7 @@ class Account extends React.PureComponent {
             this.loadTransactions(0)
         }
 
-        const allTransactionsToView = notFound ? [] : transactionsToView // was concat before
+        const allTransactionsToView = transactionsToView // was concat before
 
         let shownAddress = selectedAccountData.address
         if (selectedAccountData.segwitAddress) {
@@ -391,7 +390,6 @@ class Account extends React.PureComponent {
                                 filterData={this.props.filterData}
                                 toggleSearch={this.toggleSearch}
                                 isSeaching={this.state.isSeaching}
-                                notFound={notFound}
                             />
                         </>
                     )}
