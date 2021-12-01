@@ -90,14 +90,6 @@ class WebViewScreen extends React.PureComponent {
                     onLoadProgress={(e) => {
                         console.log('WebView.WebViewMainScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.progress)
                     }}
-                    // onContentProcessDidTerminate={(e) => {
-                    //     console.log('WebView.WebViewMainScreen.on content terminate ' + e.nativeEvent.title)
-                    // }}
-
-                    // onNavigationStateChange={(e) => {
-                    //     console.log('WebView.WebViewMainScreen.on NavigationStateChanges changed ' + e.title + ' ' + e.url)
-                    // }}
-                    
 
                     renderLoading={this.renderLoading}
                     renderError={(e) => {

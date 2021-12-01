@@ -134,11 +134,9 @@ class AccountSettingScreen extends React.PureComponent {
 
     render() {
 
-        const { cryptoCurrency, account } = this.props
+        const { cryptoCurrency } = this.props
 
         const { GRID_SIZE } = this.context
-
-        const isTabs = cryptoCurrency.currencyCode === 'TRX'
 
         MarketingAnalytics.setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
 
@@ -148,23 +146,17 @@ class AccountSettingScreen extends React.PureComponent {
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
-                title={isTabs ? strings('account.staking') : strings('settings.title')}
+                title={strings('settings.title')}
             >
-                {isTabs ?
-                    <>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={{ paddingTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
                         {this.renderSettingsComponent()}
-                    </>
-                    :
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollViewContent}
-                        keyboardShouldPersistTaps='handled'
-                    >
-                        <View style={{ paddingTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
-                            {this.renderSettingsComponent()}
-                        </View>
-                    </ScrollView>
-                }
+                    </View>
+                </ScrollView>
 
             </ScreenWrapper>
         )
