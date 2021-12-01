@@ -30,6 +30,7 @@ import Toast from '@app/services/UI/Toast/Toast'
 import { strings } from '@app/services/i18n'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 class Transaction extends React.Component {
 
@@ -116,7 +117,7 @@ class Transaction extends React.Component {
         }
     }
 
-    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus, wayType) => {
+    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus, transactionFilterType) => {
         const { colors } = this.context
         const { styles } = this.state
         const { isFirst, cryptoCurrency } = this.props
@@ -133,7 +134,7 @@ class Transaction extends React.Component {
             circleStyle = { backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circleBackground }
         }
 
-        if (wayType === 'swap') {
+        if (transactionFilterType === TransactionFilterTypeDict.SWAP) {
             arrowIcon = <CustomIcon name='swap' style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 16 }} />
         }
 
@@ -234,7 +235,8 @@ class Transaction extends React.Component {
         const transactionStatus = this.prepareStatus(transaction.transactionStatus)
         const transactionBlockchainStatus = transaction.transactionBlockchainStatus
         const transactionDirection = transaction.transactionDirection
-        const wayType = transaction.wayType
+        const transactionFilterType = transaction.transactionFilterType
+        const wayType = transaction.wayType // BUY SELL OUTCOME INCOME !
 
         let value, valueToView, currencySymbolToView
         if (transaction.addressAmountSatoshi && (currencyCode === 'BTC' || currencyCode === 'DOGE')) {
@@ -246,7 +248,7 @@ class Transaction extends React.Component {
             valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
             currencySymbolToView = cryptoCurrency.currencySymbol
         }
-        const basicValueToView = wayType !== 'EXCHANGE' && typeof transaction.basicAmountPretty !== 'undefined' ?
+        const basicValueToView = transactionFilterType !== TransactionFilterTypeDict.SWAP && typeof transaction.basicAmountPretty !== 'undefined' ?
             (transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty) : false
 
         const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
@@ -254,7 +256,7 @@ class Transaction extends React.Component {
 
         return (
             <View style={styles.transaction}>
-                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus, wayType)}
+                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus, transactionFilterType)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
                     <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
                         <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>

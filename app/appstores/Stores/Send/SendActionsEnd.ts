@@ -19,7 +19,7 @@ import ApiV3 from '@app/services/Api/ApiV3'
 import { recordFioObtData } from '@crypto/blockchains/fio/FioUtils'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
-import TxTypeDict from '@app/services/UI/TxTypeDict/txTypeDict'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 const logFio = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
     const { fioRequestDetails } = sendScreenStore.ui
@@ -209,7 +209,7 @@ export namespace SendActionsEnd {
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {
         const { currencyCode, accountId, walletHash, addressFrom } = sendScreenStore.dict
-        const { addressTo, cryptoValue, memo, comment, bse, tbk, contractCallData, txType } = sendScreenStore.ui
+        const { addressTo, cryptoValue, memo, comment, bse, tbk, contractCallData, transactionFilterType } = sendScreenStore.ui
         const { selectedFee, countedFees } = sendScreenStore.fromBlockchain
         const { bseMinCrypto } = bse
         const { transactionAction, transactionBoost } = tbk
@@ -295,10 +295,10 @@ export namespace SendActionsEnd {
                 blockConfirmations: 0,
                 updatedAt: now,
                 transactionDirection: addressTo === addressFrom ? 'self' : 'outcome',
+                transactionFilterType: transactionFilterType || TransactionFilterTypeDict.USUAL,
                 transactionUpdateHash: txRBF,
                 transactionsOtherHashes: txRBF,
-                transactionsScanLog: now + ' ' + txRBFed + ' ' + txRBF + ' => ' + tx.transactionHash + ' ',
-                txType: txType || TxTypeDict.usual
+                transactionsScanLog: now + ' ' + txRBFed + ' ' + txRBF + ' => ' + tx.transactionHash + ' '
             }
             transaction.transactionJson.isRbfTime = new Date().getTime()
             if (txRBFed === 'RBFremoved') {
@@ -330,9 +330,9 @@ export namespace SendActionsEnd {
                 blockConfirmations: 0,
                 createdAt: now,
                 updatedAt: now,
+                transactionFilterType: transactionFilterType || TransactionFilterTypeDict.USUAL,
                 transactionDirection: addressTo === addressFrom ? 'self' : 'outcome',
                 transactionsScanLog: now + ' CREATED ' + txRBFed,
-                txType: txType || TxTypeDict.usual
             }
             if (typeof tx.amountForTx !== 'undefined') {
                 transaction.addressAmount = tx.amountForTx

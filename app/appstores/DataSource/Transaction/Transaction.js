@@ -27,7 +27,7 @@ class Transaction {
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      * @param {integer} updateId
-     * @param {string} transaction.txType: swap | walletConnect | fee | usaul
+     * @param {string} transaction.transactionFilterType: swap | walletConnect | fee | usaul
      */
     saveTransaction = async (transaction, updateId = false, source = '') => {
         if (!transaction.updatedAt) {
@@ -366,7 +366,7 @@ class Transaction {
             bse_order_id_out AS bseOrderOutID,
             bse_order_id_in AS bseOrderInID,
             bse_order_data AS bseOrderData,
-            tx_type AS txType
+            transaction_filter_type AS transactionFilterType
             FROM transactions
             ${where}
             ${order}

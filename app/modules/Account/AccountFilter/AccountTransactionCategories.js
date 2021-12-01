@@ -16,6 +16,7 @@ import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import { getFilterData } from '@app/appstores/Stores/Main/selectors'
 import { strings } from '@app/services/i18n'
 import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 class TransactionCategories extends React.PureComponent {
 

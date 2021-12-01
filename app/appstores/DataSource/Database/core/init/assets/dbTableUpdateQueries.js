@@ -902,7 +902,7 @@ export default function getTableUpdateQueries() {
             },
 
             126: {
-                queryString: `ALTER TABLE transactions ADD COLUMN tx_type TEXT NULL DEFAULT 'usual'`
+                queryString: `ALTER TABLE transactions ADD COLUMN transaction_filter_type VARCHAR(256) NULL DEFAULT 'usual'`
             }
         }
     }

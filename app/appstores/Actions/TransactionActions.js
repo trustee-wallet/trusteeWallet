@@ -16,6 +16,7 @@ import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
 import store from '@app/store'
 import { setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
 import NavStore from '@app/components/navigation/NavStore'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 
 const transactionActions = {
@@ -41,7 +42,7 @@ const transactionActions = {
      * @param {object} transaction.bseOrderData
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
-     * @param {string} transaction.txType: swap | walletConnect | fee | usaul
+     * @param {string} transaction.transactionFilterType: swap | walletConnect | fee | usual
      */
     saveTransaction: async (transaction, source = '') => {
 
@@ -193,7 +194,7 @@ const transactionActions = {
         }
 
         if (typeof exchangeOrder !== 'undefined' && exchangeOrder) {
-            transaction.wayType = 'swap'
+            transaction.transactionFilterType = TransactionFilterTypeDict.SWAP
         }
 
         transaction.transactionBlockchainStatus = transaction.transactionStatus

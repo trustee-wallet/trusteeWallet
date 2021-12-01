@@ -14,7 +14,7 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 
-import TxTypeDict from '@app/services/UI/TxTypeDict/txTypeDict'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 const { dispatch } = store
 
@@ -104,7 +104,7 @@ export namespace SendActionsStart {
                 walletConnectData: data.walletConnectData,
                 walletConnectPayload: data.walletConnectPayload,
                 extraData: data.extraData,
-                txType: TxTypeDict.walletConnect
+                transactionFilterType: TransactionFilterTypeDict.WALLET_CONNECT
             }
 
             dispatch({
@@ -194,7 +194,7 @@ export namespace SendActionsStart {
             dexCurrencyCode : data.dexCurrencyCode,
             dexOrderData : data.dexOrderData,
             bse,
-            txType: TxTypeDict.swap
+            transactionFilterType: TransactionFilterTypeDict.SWAP
         }
         dispatch({
             type: 'RESET_DATA',
@@ -226,7 +226,7 @@ export namespace SendActionsStart {
             cryptoValue : '0',
             isTransferAll : true,
             memo : data.memo || false,
-            txType: TxTypeDict.swap
+            transactionFilterType: TransactionFilterTypeDict.SWAP
         }
         dispatch({
             type: 'RESET_DATA',
@@ -267,7 +267,7 @@ export namespace SendActionsStart {
             cryptoValue : data.amount,
             isTransferAll : data.isTransferAll,
             bse,
-            txType: TxTypeDict.swap
+            transactionFilterType: TransactionFilterTypeDict.SWAP
         }
         dispatch({
             type: 'RESET_DATA',

@@ -284,6 +284,7 @@ export default function getTableQueries() {
                     address_amount INTEGER NULL,
                     transaction_fee INTEGER NULL,
                     transaction_fee_currency_code VARCHAR(256) NULL,
+                    transaction_filter_type VARCHAR(256) NULL,
 
                     vout VARCHAR(256) NULL,
                     vin VARCHAR(256) NULL,
