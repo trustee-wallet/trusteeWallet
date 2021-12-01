@@ -228,6 +228,7 @@ export default class SolScannerProcessor {
         }
 
         let anySigner = false
+        let addressAmountPlus = false
         for (let i = 0, ic = additional.transaction.message.accountKeys.length; i < ic; i++) {
             let tmpAddress = additional.transaction.message.accountKeys[i]
             if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
@@ -257,6 +258,7 @@ export default class SolScannerProcessor {
                 if (tmpAmount.indexOf('-') === -1) {
                     addressTo = tmpAddress.pubkey
                     addressAmount = tmpAmount
+                    addressAmountPlus = true
                 } else {
                     addressFrom = tmpAddress.pubkey
                     addressAmount = tmpAmount.replace('-', '')
@@ -305,7 +307,11 @@ export default class SolScannerProcessor {
 
         let transactionDirection = addressFrom === address ? 'outcome' : 'income'
         if (!addressFrom && anySigner === addressTo) {
-            transactionDirection = 'swap_income'
+            if (addressAmountPlus) {
+                transactionDirection = 'swap_income'
+            } else {
+                transactionDirection = 'swap_outcome'
+            }
         }
         const blockConfirmations = CACHE_LAST_BLOCK > 0 ? Math.round(CACHE_LAST_BLOCK - additional.slot * 1) : 0
         const tx = {
