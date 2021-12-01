@@ -85,7 +85,8 @@ export namespace SendActionsStart {
         currencyCode : string,
         walletConnectData : any,
         walletConnectPayload : any,
-        extraData : any
+        extraData : any,
+        transactionFilterType : any
     }, uiType = 'WALLET_CONNECT') => {
         try {
             const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
@@ -104,7 +105,7 @@ export namespace SendActionsStart {
                 walletConnectData: data.walletConnectData,
                 walletConnectPayload: data.walletConnectPayload,
                 extraData: data.extraData,
-                transactionFilterType: TransactionFilterTypeDict.WALLET_CONNECT
+                transactionFilterType: data.transactionFilterType || TransactionFilterTypeDict.WALLET_CONNECT
             }
 
             dispatch({

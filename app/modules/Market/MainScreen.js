@@ -60,6 +60,7 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { getBseLink, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -416,15 +417,15 @@ class MarketScreen extends PureComponent {
     }
 
     async saveOrderHistory (orderHistory) {
-        
+
         const path = RNFS.DocumentDirectoryPath + '/logs/trusteeOrdersHistory.csv'
-        
+
         // write the file
         RNFS.writeFile(path, orderHistory.data, 'utf8')
             .then(async () => {
                 Log.log('Market/MainScreen saveOrderHistory success save file ', path)
                 const fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'trusteeOrdersHistory', fileExtension: 'csv' });
-                
+
                 const shareOptions = {
                     title: orderHistory.title,
                     subject: orderHistory.subject,
@@ -442,7 +443,7 @@ class MarketScreen extends PureComponent {
     async openUrl (openUrl) {
         const available = await Linking.canOpenURL(openUrl)
         Log.log('Market/MainScreen openUrl available link ', available)
-        
+
         if (!available) return true
         await Linking.openURL(openUrl)
     }
@@ -547,7 +548,8 @@ class MarketScreen extends PureComponent {
                 txCode: approveData.data[0].txCode,
                 providerName: approveData.provider,
                 currencyCode: approveData.currencyCode
-            }
+            },
+            transactionFilterType : TransactionFilterTypeDict.SWAP
         }, 'TRADE_LIKE_WALLET_CONNECT')
     }
 
