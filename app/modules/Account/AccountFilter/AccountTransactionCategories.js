@@ -12,11 +12,11 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
+import Button from '@app/components/elements/new/buttons/Button'
 
 import { getFilterData } from '@app/appstores/Stores/Main/selectors'
 import { strings } from '@app/services/i18n'
 import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
-import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 class TransactionCategories extends React.PureComponent {
 
@@ -76,7 +76,7 @@ class TransactionCategories extends React.PureComponent {
         })
     }
 
-    handleBack = () => {
+    handleApply = () => {
 
         const filter = {
             ...this.props.filter
@@ -86,6 +86,10 @@ class TransactionCategories extends React.PureComponent {
 
         setFilter(filter)
 
+        NavStore.goBack()
+    }
+
+    handleBack = () => {
         NavStore.goBack()
     }
 
@@ -172,6 +176,11 @@ class TransactionCategories extends React.PureComponent {
                     data={this.state.categoriesData}
                     renderItem={this.renderItem}
                     ListHeaderComponent={this.renderHeaderComponent}
+                />
+                <Button
+                    title={strings('send.setting.apply')}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
+                    onPress={this.handleApply}
                 />
             </ScreenWrapper>
         )

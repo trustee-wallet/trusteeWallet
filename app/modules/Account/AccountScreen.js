@@ -196,7 +196,7 @@ class Account extends React.PureComponent {
     closeAction = () => {
         if (!CACHE_CLICKED_BACK) {
             CACHE_CLICKED_BACK = true
-            setFilter(null)
+            // setFilter(null)
             NavStore.goBack()
         }
     }
@@ -243,9 +243,9 @@ class Account extends React.PureComponent {
         CACHE_TX_LOADED = new Date().getTime()
 
         if (from === 0) {
-            this.setState((state) => ({ transactionsToView: transactionsToView, notFound: (filter && !tmp) || false})) // from start reload
+            this.setState((state) => ({ transactionsToView: transactionsToView })) // from start reload
         } else {
-            this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView), notFound: (filter && !tmp) || false }))
+            this.setState((state) => ({ transactionsToView: state.transactionsToView.concat(transactionsToView) }))
         }
     }
 
