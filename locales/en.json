@@ -172,6 +172,8 @@
       "allowReplaceByFee": "Edit the transaction before confirmation by miners",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
+      "showAll": "Show all",
+      "generateNew": "Generate new",
       "accountAddress": "Default address type",
       "hd": "Increasing confidentiality",
       "hdDescription": "Creating a new address, each time after an incoming BTC transaction",

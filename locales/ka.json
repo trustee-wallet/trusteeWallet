@@ -172,6 +172,8 @@
       "allowReplaceByFee": "ტრანზაქციების რედაქტირება მაინერების მიერ დადასტურებამდე",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
+      "showAll": "Show all",
+      "generateNew": "Generate new",
       "accountAddress": "მისამართის არჩევან",
       "hd": "ბევრი ბიტკოინ მისამართია",
       "hdDescription": "გაზარდეთ კონფინდენციალურობა ახალი მისამართის შექმნით ბიტკოინის ყოველი მიღებისას",

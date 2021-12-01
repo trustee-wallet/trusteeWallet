@@ -34,7 +34,8 @@ const BorderedButton = (props) => {
         isViolet,
         containerStyles,
         isBlack,
-        onPress
+        onPress,
+        customTextStyles
     } = props
 
     const {
@@ -45,7 +46,7 @@ const BorderedButton = (props) => {
         <TouchableOpacity style={[styles.addAsset, containerStyles]} onPress={onPress}>
             <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#404040' : colors.common.text1}]}>
                 {getIcon(icon, [styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#5C5C5C' : colors.common.text3 }])}
-                <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#5C5C5C' : colors.common.text3 }]}>
+                <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#5C5C5C' : colors.common.text3 }, customTextStyles]}>
                     {text}
                 </Text>
             </View>
@@ -61,6 +62,7 @@ const styles = StyleSheet.create({
 
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
 
         height: 30,
 
