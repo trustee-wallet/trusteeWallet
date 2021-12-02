@@ -1,14 +1,12 @@
 /**
  * @version 0.11
  */
-import Log from '../../../services/Log/Log'
-import transactionDS from '../../../appstores/DataSource/Transaction/Transaction'
-import appNewsDS from '../../../appstores/DataSource/AppNews/AppNews'
-import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
-import config from '../../../config/config'
-
-import store from '@app/store'
+import Log from '@app/services/Log/Log'
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
+import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import config from '@app/config/config'
 
 const CACHE_TO_REMOVE = {} // couldnt remove on first scan - as BTC is scanned in few accounts
 
@@ -31,26 +29,12 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
     const toRemove = []
     const dbNonces = {}
 
-    const filter = store.getState().mainStore.filter
-
     try {
         const tmps = await transactionDS.getTransactions({
             currencyCode: account.currencyCode,
             walletHash: account.walletHash,
             noOrder: true,
-            noOld: true,
-            startTime: filter?.startTime || null,
-            endTime: filter?.endTime || null,
-            startAmount: filter?.startAmount || null,
-            endAmount: filter?.endAmount || null,
-            searchQuery: filter?.searchQuery || null,
-            filterDirectionHideIncome: filter?.filterDirectionHideIncome || null,
-            filterDirectionHideOutcome: filter?.filterDirectionHideOutcome || null,
-            filterStatusHideCancel: filter?.filterStatusHideCancel || null,
-            filterTypeHideFee: filter?.filterTypeHideFee || null,
-            filterTypeHideSwap: filter?.filterTypeHideSwap || null,
-            filterTypeHideStake: filter?.filterTypeHideStake || null,
-            filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
+            noOld: true
         },  'AccountTransactionsRecheck dbTransactions ' + source)
         if (tmps && tmps.length > 0) {
             let tmp
