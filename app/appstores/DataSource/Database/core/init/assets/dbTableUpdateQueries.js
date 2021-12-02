@@ -16,7 +16,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 126,
+        maxVersion: 127,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -903,6 +903,10 @@ export default function getTableUpdateQueries() {
 
             126: {
                 queryString: `ALTER TABLE transactions ADD COLUMN transaction_filter_type VARCHAR(256) NULL DEFAULT 'usual'`
+            },
+
+            127: {
+                queryString: `ALTER TABLE account_balance ADD COLUMN balance_staked_txt VARCHAR(256) NULL DEFAULT '0'`
             }
         }
     }

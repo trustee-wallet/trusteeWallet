@@ -385,7 +385,7 @@ class AccountStakingSOL extends React.PureComponent {
         return (
             <AccountGradientBlock>
                 <View style={{ paddingBottom: GRID_SIZE }}>
-                    <View style={styles.progressBarLoaction}>
+                    <View style={styles.progressBarLocation}>
                         <Text style={styles.availableText}>{strings('settings.walletList.availableSOL')}</Text>
                         <PercentView
                             value={this.props.stakingCoins['SOL']}
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
         elevation: 5,
         backgroundColor: 'green'
     },
-    progressBarLoaction: {
+    progressBarLocation: {
         flexDirection: 'row',
         justifyContent: 'space-between'
     },

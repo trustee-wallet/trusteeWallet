@@ -159,6 +159,8 @@ export default function getTableQueries() {
                     balance_scan_error TEXT NULL,
                     balance_scan_log TEXT NULL,
                     balance_scan_block VARCHAR(32) NULL,
+                    
+                    balance_staked_txt VARCHAR(256) NULL, 
 
                     status INTEGER NOT NULL,
 

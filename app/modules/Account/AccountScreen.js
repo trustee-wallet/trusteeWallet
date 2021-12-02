@@ -353,6 +353,8 @@ class Account extends React.PureComponent {
                                     walletHash: selectedAccountData.walletHash,
                                     shownAddress,
                                     balancePretty: selectedAccountData.balancePretty,
+                                    balanceStakedPretty: selectedAccountData.balanceStakedPretty,
+                                    balanceTotalPretty : selectedAccountData.balanceTotalPretty,
                                     basicCurrencySymbol: selectedAccountData.basicCurrencySymbol,
                                     basicCurrencyBalance: selectedAccountData.basicCurrencyBalance,
                                     isSynchronized: selectedAccountData.isSynchronized,

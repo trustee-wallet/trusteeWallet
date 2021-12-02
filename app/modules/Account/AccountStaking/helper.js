@@ -32,28 +32,35 @@ export async function handleTrxScan() {
     Log.log('AccountStaking.helper.handleTrxScan scan started', address)
 
     const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('AccountStakingTrx'))
+    try {
+        const limits = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getResources('AccountStakingTrx'))
+        const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+        const tmp = await BlocksoftAxios.postWithoutBraking(sendLink + '/wallet/getReward', { address })
+        if (typeof tmp.data === 'undefined' || typeof tmp.data.reward === 'undefined') {
+            Log.log('AccountStaking.helper.handleTrxScan noReward', tmp)
+        } else if (balance) {
+            Log.log('AccountStaking.helper.handleTrxScan balance', balance)
+            const reward = tmp.data.reward
+            balance.prettyBalanceAvailable = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balanceAvailable)
+            balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
+            balance.prettyFrozenOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOthers)
+            balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
+            balance.prettyFrozenEnergyOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergyOthers)
+            balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenOthers * 1 + balance.prettyFrozenEnergy * 1 + balance.prettyFrozenEnergyOthers * 1).toString().split('.')[0]
 
-    const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
-    const tmp = await BlocksoftAxios.postWithoutBraking(sendLink + '/wallet/getReward', { address })
-    if (typeof tmp.data === 'undefined' || typeof tmp.data.reward === 'undefined') {
-        Log.log('AccountStaking.helper.handleTrxScan noReward', tmp)
-    } else if (balance) {
-        Log.log('AccountStaking.helper.handleTrxScan balance', balance)
-        const reward = tmp.data.reward
-        balance.prettyBalance = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balance)
-        balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
-        balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
-        balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenEnergy * 1).toString().split('.')[0]
-
-        const prettyReward = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(reward)
-        this.setState({
-            currentBalance: balance,
-            currentReward: reward,
-            prettyReward,
-            currentBalanceChecked: true
-        })
-    } else {
-        Log.log('AccountStaking.helper.handleTrxScan noBalance', balance)
+            const prettyReward = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(reward)
+            this.setState({
+                currentLimits: limits,
+                currentBalance: balance,
+                currentReward: reward,
+                prettyReward,
+                currentBalanceChecked: true
+            })
+        } else {
+            Log.log('AccountStaking.helper.handleTrxScan noBalance', balance)
+        }
+    } catch (e) {
+        console.log('AccountStaking.helper.handleTrxScan error ' + e.message)
     }
 
     return balance
@@ -150,7 +157,7 @@ export async function handleFreezeTrx(isAll, type) {
 
 }
 
-export async function handleUnFreezTrx(isAll, type) {
+export async function handleUnFreezeTrx(isAll, type) {
 
     const { account } = this.props
 
@@ -167,7 +174,7 @@ export async function handleUnFreezTrx(isAll, type) {
         }, 'unfreeze for ' + type + ' of ' + address, { type: 'unfreeze' })
     } catch (e) {
         if (config.debug.cryptoErrors) {
-            console.log('AccountStaking.helper.handleUnFreezTrx error ', e)
+            console.log('AccountStaking.helper.handleUnFreezeTrx error ', e)
         }
         _wrapError(e)
     }

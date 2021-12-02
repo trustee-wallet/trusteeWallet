@@ -37,7 +37,7 @@ import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAn
 
 import InfoProgressBar from './elements/InfoProgressBar'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
-import { handleTrxScan, handleFreezeTrx, handleUnFreezTrx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
+import { handleTrxScan, handleFreezeTrx, handleUnFreezeTrx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
 
 
 class AccountStakingTRX extends React.PureComponent {
@@ -47,11 +47,19 @@ class AccountStakingTRX extends React.PureComponent {
             balance: '0',
             prettyBalance: '?',
             frozen: '0',
+            prettyFrozenOthers : '0',
             frozenEnergy: '0',
+            frozenEnergyOthers: '0',
             prettyFrozen: '0',
             prettyFrozenEnergy: '0',
             voteTotal: '0',
             prettyVote: '0'
+        },
+        currentLimits : {
+            leftBand : 0,
+            totalBand : 0,
+            leftEnergy : 0,
+            totalEnergy : 0
         },
         currentReward: '0',
         prettyReward: '0',
@@ -142,10 +150,11 @@ class AccountStakingTRX extends React.PureComponent {
 
         const {
             prettyReward,
-            currentBalance
+            currentBalance,
+            currentLimits
         } = this.state
 
-        const time = this.props.cashbackStore.dataFromApi.time || false
+        const time = currentBalance.time || false
         let timePrep
         if (time) {
             const timeDate = new Date(time)
@@ -156,7 +165,7 @@ class AccountStakingTRX extends React.PureComponent {
 
         return (
             <AccountGradientBlock>
-                <View style={[styles.progressBarLoaction, { marginBottom: GRID_SIZE }]}>
+                <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>
                     <View>
                         <Text style={[styles.rewardText, { color: colors.common.text1 }]}>{strings('settings.walletList.rewards')}</Text>
                         <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
@@ -170,19 +179,21 @@ class AccountStakingTRX extends React.PureComponent {
                     <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
                     {!!prettyReward && Number(prettyReward) > 0 &&
                         <BorderedButton
-                            containerStyle={styles.widhdrawBtn}
+                            containerStyle={styles.withdrawBtn}
                             text={strings('settings.walletList.withdrawSOL')}
                             onPress={() => handleGetRewardTrx.call(this)}
                         />}
                 </View>
-                <View style={styles.progressBarLoaction}>
+                <View style={styles.progressBarLocation}>
                     <InfoProgressBar
                         title={strings('settings.walletList.bandwidthTRX')}
-                        amount={currentBalance.prettyFrozen}
+                        amount={currentLimits.leftBand}
+                        total={currentLimits.totalBand}
                     />
                     <InfoProgressBar
                         title={strings('settings.walletList.energyTRX')}
-                        amount={currentBalance.prettyFrozenEnergy}
+                        amount={currentLimits.leftEnergy}
+                        total={currentLimits.totalEnergy}
                     />
                 </View>
             </AccountGradientBlock>
@@ -257,6 +268,9 @@ class AccountStakingTRX extends React.PureComponent {
 
         const { currentBalance } = this.state
 
+        const tmp = currentBalance.prettyFrozenOthers && currentBalance.prettyFrozenOthers * 1 > 0
+            ? `${currentBalance.prettyFrozen} TRX + ${currentBalance.prettyFrozenOthers} TRX`
+            : `${currentBalance.prettyFrozen} TRX`
         return (
             <>
                 {this.renderDescription(strings('account.stakingTRX.bandwidthInfo'), strings('account.stakingTRX.moreInfo'))}
@@ -264,13 +278,13 @@ class AccountStakingTRX extends React.PureComponent {
                     <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
                         <View>
                             <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.frozenTRX')}</Text>
-                            <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${currentBalance.prettyFrozen} TRX`}</Text>
+                            <Text style={[styles.reward, { color: colors.common.text1 }]}>{tmp}</Text>
                         </View>
                         {!!currentBalance.prettyFrozen &&
                             <BorderedButton
-                                containerStyle={styles.widhdrawBtn}
+                                containerStyle={styles.withdrawBtn}
                                 text={strings('account.transaction.unfreeze')}
-                                onPress={() => handleUnFreezTrx.call(this, false, 'BANDWIDTH')}
+                                onPress={() => handleUnFreezeTrx.call(this, false, 'BANDWIDTH')}
                             />}
                     </View>
                 </View>
@@ -287,6 +301,9 @@ class AccountStakingTRX extends React.PureComponent {
 
         const { currentBalance } = this.state
 
+        const tmp = currentBalance.prettyFrozenEnergyOthers && currentBalance.prettyFrozenEnergyOthers * 1 > 0
+            ? `${currentBalance.prettyFrozenEnergy} TRX + ${currentBalance.prettyFrozenEnergyOthers} TRX`
+            : `${currentBalance.prettyFrozenEnergy} TRX`
         return (
             <>
                 {this.renderDescription(strings('account.stakingTRX.energyInfo'), strings('account.stakingTRX.moreInfo'))}
@@ -294,13 +311,13 @@ class AccountStakingTRX extends React.PureComponent {
                     <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
                         <View>
                             <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.frozenTRX')}</Text>
-                            <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${currentBalance.prettyFrozenEnergy} TRX`}</Text>
+                            <Text style={[styles.reward, { color: colors.common.text1 }]}>{tmp}</Text>
                         </View>
                         {!!currentBalance.prettyFrozenEnergy &&
                             <BorderedButton
-                                containerStyle={styles.widhdrawBtn}
+                                containerStyle={styles.withdrawBtn}
                                 text={strings('account.transaction.unfreeze')}
-                                onPress={() => handleUnFreezTrx.call(this, false, 'ENERGY')}
+                                onPress={() => handleUnFreezeTrx.call(this, false, 'ENERGY')}
                             />}
                     </View>
                 </View>
@@ -353,7 +370,7 @@ class AccountStakingTRX extends React.PureComponent {
                             useNativeDriver
                         />
                         <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2 }]}>
-                            {`${strings('settings.walletList.availableTRX')} ${currentBalance.prettyBalance} ${currencyCode}`}
+                            {`${strings('settings.walletList.availableTRX')} ${currentBalance.prettyBalanceAvailable} ${currencyCode}`}
                         </Text>
                         <View style={{ marginBottom: GRID_SIZE * 1.5 }}>
                             {this.renderAmountInput()}
@@ -420,12 +437,12 @@ const styles = {
         alignItems: 'center',
         minHeight: 30
     },
-    widhdrawBtn: {
+    withdrawBtn: {
         height: 30,
         width: 96,
         paddingHorizontal: 6
     },
-    progressBarLoaction: {
+    progressBarLocation: {
         flexDirection: 'row',
         alignItems: 'flex-start',
         justifyContent: 'space-between'

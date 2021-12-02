@@ -142,17 +142,20 @@ class HeaderBlocks extends React.Component {
 
         const { currencyCode } = this.props.cryptoCurrency
 
-        const avalibleBalance = 23.45
-        const stakedBalance = 300
-
         if (currencyCode !== 'TRX' && currencyCode !== 'SOL') return <View />
+
+        const { balanceStakedPretty, balanceTotalPretty } = this.props.account
 
         return (
             <View style={{ flexDirection: 'row', justifyContent: currencyCode === 'TRX' ? 'space-between' : 'flex-end', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
                 {currencyCode === 'TRX' &&
                     <View>
-                        <Text style={[styles.avalibleText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>{`${strings('settings.walletList.availableTRX')} ${avalibleBalance} ${currencyCode}`}</Text>
-                        <Text style={styles.avalibleText}>{`${strings('settings.walletList.staked')} ${stakedBalance} ${currencyCode}`}</Text>
+                        <Text style={[styles.avalibleText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
+                            {`${strings('settings.walletList.availableTRX')} ${balanceTotalPretty} ${currencyCode}`}
+                        </Text>
+                        <Text style={styles.avalibleText}>
+                            {`${strings('settings.walletList.staked')} ${balanceStakedPretty} ${currencyCode}`}
+                        </Text>
                     </View>}
                 <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
                     <CustomIcon name='staking' size={24} color={colors.common.text1} />
@@ -343,7 +346,7 @@ class HeaderBlocks extends React.Component {
                             <View style={styles.stakingValue}>
                                 <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
                                 {availableStaking &&
-                                    <PercentView 
+                                    <PercentView
                                         value={this.props.stakingCoins[currencyCode]}
                                         staking
                                     />

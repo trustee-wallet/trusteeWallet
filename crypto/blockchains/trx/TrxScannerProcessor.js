@@ -34,7 +34,7 @@ export default class TrxScannerProcessor {
     /**
      * https://developers.tron.network/reference#addresses-accounts
      * @param {string} address
-     * @return {Promise<{balance, frozen, frozenEnergy, unconfirmed, provider}>}
+     * @return {Promise<{balance, frozen, frozenEnergy, balanceStaked, unconfirmed, provider}>}
      */
     async getBalanceBlockchain(address) {
         address = address.trim()
@@ -81,12 +81,32 @@ export default class TrxScannerProcessor {
         if (result === false && this._tokenName !== '_') {
             if (subresult !== false) {
                 BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' subresult tronScan ' + JSON.stringify(subresult))
-                return { balance: 0, unconfirmed: 0, provider: 'tronscan-ok-but-no-token' }
+                return { balance: 0, unconfirmed: 0, balanceStaked : 0, balanceAvailable : 0, provider: 'tronscan-ok-but-no-token' }
             }
+        }
+        result.balanceStaked = typeof result.frozen !== 'undefined' ? (result.frozen * 1 + result.frozenEnergy * 1) : 0
+        result.balanceAvailable = result.balance
+        if (result.balanceStaked * 1 > 0) {
+            result.balance = result.balance * 1 + result.balanceStaked * 1
         }
         return result
     }
 
+
+    /**
+     * @param {string} address
+     * @return {Promise<*>}
+     */
+    async getResourcesBlockchain(address) {
+        address = address.trim()
+        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getResourcesBlockchain address ' + address)
+        let addressHex = address
+        if (address.substr(0, 1) === 'T') {
+            addressHex = await TronUtils.addressToHex(address)
+        }
+        const result = await this._trongridProvider.getResources(addressHex, this._tokenName)
+        return result
+    }
 
     /**
      * https://github.com/jakeonchain/tron-wallet-chrome/blob/fecea42771cc5cbda3fada4a1c8cfe8de251c008/src/App.js
