@@ -10,6 +10,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import BtcFindAddressFunction from './basic/BtcFindAddressFunction'
 import config from '@app/config/config'
 import Database from '@app/appstores/DataSource/Database'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 const CACHE_VALID_TIME = 60000 // 60 seconds
 const CACHE = {}
@@ -350,6 +351,11 @@ export default class BtcScannerProcessor {
             transactionStatus = 'confirming'
         }
 
+        let transactionFilterType = TransactionFilterTypeDict.USUAL
+        if (typeof showAddresses.to !== 'undefined' && showAddresses.to.toLowerCase().indexOf('simple send') !== -1) {
+            transactionFilterType = TransactionFilterTypeDict.FEE
+        }
+
         let formattedTime
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.blockTime)
@@ -369,7 +375,8 @@ export default class BtcScannerProcessor {
             addressTo: showAddresses.to,
             addressAmount: showAddresses.value,
             transactionStatus: transactionStatus,
-            transactionFee: transaction.fees
+            transactionFee: transaction.fees,
+            transactionFilterType
         }
     }
 }

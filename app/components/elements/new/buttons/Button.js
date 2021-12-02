@@ -15,6 +15,8 @@ import { strings } from '@app/services/i18n'
 
 import loaderWhite from '@assets/jsons/animations/loaderWhite.json'
 
+import CustomIcon from '../../CustomIcon'
+
 const getStyle = (type, disabled, containerStyle, textStyle) => {
     const { colors, GRID_SIZE } = useTheme()
     const style = {
@@ -48,6 +50,14 @@ const getStyle = (type, disabled, containerStyle, textStyle) => {
     return style
 };
 
+const getIcon = (iconType, color) => {
+    switch (iconType) {
+        case 'sendMessage':
+            return <CustomIcon name="sendMessage" size={24} color={color} style={{left: 0}} />
+        default: return null
+    }
+}
+
 export default function Button(props) {
     const {
         type = null,
@@ -57,9 +67,12 @@ export default function Button(props) {
         title,
         disabled = false,
         activeOpacity = 0.5,
-        sendInProcess
+        sendInProcess,
+        iconType
     } = props
     const preparedStyles = getStyle(type, disabled, containerStyle, textStyle)
+
+    const {colors} = useTheme()
 
     return (
         <TouchableOpacity
@@ -69,7 +82,10 @@ export default function Button(props) {
             activeOpacity={activeOpacity}
         >
             {!sendInProcess ?
-                <Text style={[preparedStyles.text]}>{title}</Text>
+                !iconType ? 
+                    <Text style={[preparedStyles.text]}>{title}</Text>
+                    :
+                    iconType && <View>{getIcon(iconType, colors.common.roundButtonContent)}</View>
                 :
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <Text style={[preparedStyles.text, { paddingRight: 6 }]}>{strings('send.receiptScreen.sending')}</Text>

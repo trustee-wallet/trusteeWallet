@@ -423,6 +423,7 @@
     "soLong": "დასკანერებულია დიდი ხნის წინ",
     "minutesAgo": " %{time} min ago ",
     "noTransactions": "თქვენ ჯერ არ გაქვთ ტრანზაქცია, მაგრამ შეგიძლიათ ამ პრობლემის სწრაფად გადაჭრა ღილაკზე „ყიდვა“ დაწკაპუნებით.",
+    "noFoundTransactions": "Sorry, no results were found",
     "showMore": "მეტის ჩვენება",
     "assetSettings": "აქტივის პარამეტრები",
     "stakingTRX": {
@@ -465,6 +466,8 @@
       "self": "სელფი",
       "freeze": "გაყინვა",
       "unfreeze" : "UnFreeze",
+      "stake" : "Stake",
+      "wallet_connect" : "WalletConnect",
       "claim": "ჯილდო",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
@@ -480,6 +483,26 @@
       "advAccountDestination": "ანგარიშის ნომერი თანხის გასატანად",
       "phoneDestination": "ტელეფონის ნომერი თანხის გასატანად",
       "orderId": "Related to swap ID",
+      "selectAll": "Select all",
+      "swap": "Swap",
+      "cancel": "Canceled",
+      "reward": "Reward",
+      "categoriesTitle": "Categories",
+      "transactionCategories": "Transaction categories",
+      "dateAmount": "Date & amount",
+      "timeArray": "Time array",
+      "amountRange": "Amount range",
+      "allAmount": "All amount",
+      "downloadTransactionsHistory": "Download all time transactions history",
+      "saveInCsv": "Save all time transactions in CSV",
+      "filterTitle": "Filter",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "pickDate": "Pick date",
+      "startAmount": "Start amount",
+      "endAmount": "End amount",
+      "setAmount": "Set amount",
+      "discard": "Discard",
       "RBF": {
         "replaceByFeeBtn": "საკომისიოს გაზრდა",
         "willReplaceWithNewFee": "მიმდინარე ტრანზაქცია შეიცვლება ახლით, ახალი ჰაშით და უფრო მაღალი საკომისიოთი",
@@ -555,7 +578,8 @@
       "transactionSum": "Amount send",
       "addresTo": "Recipient ",
       "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations "
+      "blockConfirmations": "Current number of confirmations ",
+      "transactionAmount": "%{currencyCode} amount"
     }
   },
   "fioMainSettings": {

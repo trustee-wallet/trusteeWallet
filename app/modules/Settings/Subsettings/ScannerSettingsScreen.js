@@ -83,6 +83,7 @@ class ScannerSettingsScreen extends PureComponent {
                     {
                         SCANNER_SETTINGS.map((item, index) => (
                             <ListItem
+                                key={index}
                                 checked={item.code === code}
                                 title={strings(`scannerSettings.codes.${item.code}`)}
                                 onPress={() => this.setCode(item)}
