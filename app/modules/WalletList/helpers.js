@@ -29,6 +29,7 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 import ContentDropModal from './elements/ContentDropModal'
 import store from '@app/store'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
+import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -156,11 +157,19 @@ const getBalanceData = (props) => {
         }
     }
 
-    const cashbackStore = store.getState().cashBackStore
-    if (typeof cashbackStore.dataFromApi !== 'undefined' && typeof cashbackStore.dataFromApi.cashbackBalance !== 'undefined' && cashbackStore.dataFromApi.cashbackBalance) {
-        const accountRates = DaemonCache.getCacheRates('USDT')
-        const basicCurrencyBalanceNorm = RateEquivalent.mul({ value: cashbackStore.dataFromApi.cashbackBalance || 0, currencyCode: 'USDT', basicCurrencyRate: accountRates.basicCurrencyRate })
-        totalBalance = totalBalance * 1 + basicCurrencyBalanceNorm * 1
+    const cashbackStore = props.cashbackStore
+    const findCashback = props.currencies.find(item => item.currencyCode === 'CASHBACK')
+    if (typeof findCashback !== 'undefined' && typeof cashbackStore !== 'undefined') {
+        if (typeof cashbackStore.dataFromApi !== 'undefined' && typeof cashbackStore.dataFromApi.cashbackBalance !== 'undefined' && cashbackStore.dataFromApi.cashbackBalance) {
+            const accountRates = DaemonCache.getCacheRates('USDT')
+            const value = (cashbackStore.dataFromApi.cashbackBalance * 1 + cashbackStore.dataFromApi.cpaBalance * 1) || 0
+            const basicCurrencyBalanceNorm = RateEquivalent.mul({
+                value,
+                currencyCode: 'USDT',
+                basicCurrencyRate: accountRates.basicCurrencyRate
+            })
+            totalBalance = totalBalance * 1 + basicCurrencyBalanceNorm * 1
+        }
     }
 
     const tmp = totalBalance.toString().split('.')
