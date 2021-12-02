@@ -29,14 +29,15 @@ const selectAccountCurrency = (state, props) => {
             const cashbackStore = store.getState().cashBackStore
             if (typeof cashbackStore.dataFromApi !== 'undefined') {
                 const accountRates = DaemonCache.getCacheRates('USDT')
-                const basicCurrencyBalanceNorm = RateEquivalent.mul({ value: cashbackStore.dataFromApi.cashbackBalance || 0, currencyCode: 'USDT', basicCurrencyRate: accountRates.basicCurrencyRate })
+                const value = (cashbackStore.dataFromApi.cashbackBalance * 1 + cashbackStore.dataFromApi.cpaBalance * 1) || 0
+                const basicCurrencyBalanceNorm = RateEquivalent.mul({ value, currencyCode: 'USDT', basicCurrencyRate: accountRates.basicCurrencyRate })
                 const basicCurrencyBalance = BlocksoftPrettyNumbers.makeCut(basicCurrencyBalanceNorm, 2).separated
                 return {
                     basicCurrencySymbol:  accountRates.basicCurrencySymbol,
                     basicCurrencyRate: '',
                     basicCurrencyBalance,
                     balanceScanTime :  cashbackStore.dataFromApi.time || false,
-                    balancePretty: cashbackStore.dataFromApi.cashbackBalance || 0,
+                    balancePretty: value,
                     basicCurrencyBalanceNorm
                 }
             }
