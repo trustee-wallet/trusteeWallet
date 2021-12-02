@@ -16,8 +16,14 @@ const InfoProgressBar = (props) => {
 
     const {
         title,
-        amount
+        amount,
+        total
     } = props
+
+    let percent = 0
+    if (typeof total !== 'undefined' && total && total * 1 > 0 ) {
+       percent = amount / total
+    }
 
     const {
         colors,
@@ -32,10 +38,10 @@ const InfoProgressBar = (props) => {
                 borderWidth={0}
                 unfilledColor={colors.cashback.chartBg}
                 color={colors.common.checkbox.bgChecked}
-                progress={amount / 100}
+                progress={percent}
             />
             <View style={[styles.bandwidthContainer, { marginTop: GRID_SIZE / 2 }]}>
-                <Text style={styles.progressText}>{`${amount} / 100`}</Text>
+                <Text style={styles.progressText}>{`${amount} / ${total}`}</Text>
             </View>
         </View>
     )

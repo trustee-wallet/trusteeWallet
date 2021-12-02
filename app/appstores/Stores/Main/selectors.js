@@ -58,6 +58,8 @@ export const getSelectedAccountData = createSelector(
             balance : data.balance,
             balancePretty : data.balancePretty,
             unconfirmedPretty : data.unconfirmedPretty,
+            balanceStakedPretty: data.balanceStakedPretty,
+            balanceTotalPretty: data.balanceTotalPretty,
             balanceProvider : data.balanceProvider,
             balanceScanTime : data.balanceScanTime,
             balanceScanError : data.balanceScanError,

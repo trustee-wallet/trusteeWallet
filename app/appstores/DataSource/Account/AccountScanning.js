@@ -91,6 +91,7 @@ class AccountScanning {
             account_balance.balance_txt AS balanceTxt,
             account_balance.unconfirmed_fix AS unconfirmedFix,
             account_balance.unconfirmed_txt AS unconfirmedTxt,
+            account_balance.balance_staked_txt AS balanceStaked,
 
             account_balance.balance_provider AS balanceProvider,
             account_balance.balance_scan_time AS balanceScanTime,
@@ -141,6 +142,7 @@ class AccountScanning {
                     continue
                 }
                 uniqueAddresses[key] = res[i].id
+
                 res[i].balance = BlocksoftFixBalance(res[i], 'balance')
                 res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
                 res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0

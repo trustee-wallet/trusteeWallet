@@ -66,7 +66,7 @@ class CryptoCurrency extends React.PureComponent {
         const currencyCode = cryptoCurrency.currencyCode || 'BTC'
         let account = props.account
         if (typeof account === 'undefined') {
-            account = { basicCurrencyRate: '', basicCurrencyBalance: '', basicCurrencySymbol: '', balancePretty: '', basicCurrencyBalanceNorm: '' }
+            account = { basicCurrencyRate: '', basicCurrencyBalance: '', basicCurrencySymbol: '', balancePretty: '', balanceStakedPretty: '', basicCurrencyBalanceNorm: '' }
         }
 
         let ratePrep = account.basicCurrencyRate
