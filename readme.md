@@ -69,7 +69,7 @@ After successful build APK file `app-release.apk` can be found in `./app/build/o
 
 ### Android verifiable builds
 
-Using these steps anyone can verify the latest release of application TrusteeWallet that we distribute via Google Play built from code in this repository. Does not contain any hidden functions or any malicious code.
+Using these steps anyone can verify the latest release of application NextMindCoin Wallet that we distribute via Google Play built from code in this repository. Does not contain any hidden functions or any malicious code.
 
 **Please Note:** Google Play after deploying built packages making modifications with it.
 Adding own metadata, digital signs to code etc. Also there is some data that is changing from build-to-build and can't be the same: like build id. As a result builds can't be 100% fully identical. Files always will have minor differences that are not affecting application functionality.  
