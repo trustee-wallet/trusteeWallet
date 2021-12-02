@@ -121,9 +121,8 @@ class HomeDragScreen extends PureComponent {
                 leftAction={this.handleDone}
                 rightType='sort'
                 rightAction={this.handlRightAction}
-                withoutSafeArea
+                withMarginTop
             >
-                <View style={{ marginBottom: Platform.OS === 'ios' ? GRID_SIZE * 5 : GRID_SIZE * 2.5 }} />
                 <DraggableFlatList
                     data={data}
                     extraData={data}

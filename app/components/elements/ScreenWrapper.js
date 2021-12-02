@@ -33,7 +33,8 @@ const ScreenWrapper = (props) => {
         withoutSafeArea,
         searchQuery,
         onSearch,
-        search
+        search,
+        withMarginTop
     } = props
 
     return (
@@ -57,14 +58,20 @@ const ScreenWrapper = (props) => {
                 {withoutSafeArea ?
                     props.children
                     :
-                    <SafeAreaView style={{
-                        flex: 1,
-                        backgroundColor: colors.common.background,
-                        marginTop: height
-                        ,
-                    }}>
-                        {props.children}
-                    </SafeAreaView>
+                    withMarginTop ?
+                        <>
+                            <View style={{ marginTop: height }} />
+                            {props.children}
+                        </>
+                        :
+                        <SafeAreaView style={{
+                            flex: 1,
+                            backgroundColor: colors.common.background,
+                            marginTop: height
+                            ,
+                        }}>
+                            {props.children}
+                        </SafeAreaView>
                 }
             </KeyboardAwareView>
         </View>
