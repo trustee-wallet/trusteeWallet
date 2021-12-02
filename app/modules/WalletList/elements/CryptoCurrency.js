@@ -89,6 +89,8 @@ class CryptoCurrency extends React.PureComponent {
             Log.err('HomeScreen.Currency render ' + e.message)
         }
 
+        const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
+
         return (
             <View style={styles.container}>
                 <View style={styles.shadow__container}>
@@ -114,6 +116,8 @@ class CryptoCurrency extends React.PureComponent {
                         priceChangePercentage24hPrep={priceChangePercentage24hPrep}
                         constructorMode={this.props.constructorMode}
                         onDrag={this.props.onDrag}
+                        availableStaking={availableStaking}
+                        stakingCoins={this.props.stakingCoins}
                     />
                 </TouchableOpacity>
             </View>
@@ -337,9 +341,5 @@ const styles = StyleSheet.create({
     },
     dragBtns: {
         marginLeft: 18
-    },
-    stakingPercent: {
-        flexDirection: 'row',
-        alignItems: 'flex-end'
     }
 })

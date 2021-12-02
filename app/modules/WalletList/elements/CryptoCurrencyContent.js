@@ -22,6 +22,7 @@ import { strings } from '@app/services/i18n'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { SIZE } from '../helpers';
+import PercentView from '@app/components/elements/new/PercentView'
 
 const renderSynchronization = () => {
     const {
@@ -58,7 +59,9 @@ const CryptoCurrencyContent = (props) => {
         ratePrep,
         priceChangePercentage24h,
         priceChangePercentage24hPrep,
-        animation
+        animation,
+        availableStaking,
+        stakingCoins
     } = props
 
     return (
@@ -93,9 +96,17 @@ const CryptoCurrencyContent = (props) => {
                 :
                 <View style={styles.cryptoList__info}>
                     <View style={styles.cryptoList__currency__balance}>
-                        <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>
-                            {cryptoCurrency.currencySymbol}
-                        </Text>
+                        <View style={styles.stakingPercent}>
+                            <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>
+                                {cryptoCurrency.currencySymbol}
+                            </Text>
+                            {availableStaking ?
+                                <PercentView
+                                    value={stakingCoins[currencyCode]}
+                                    staking
+                                />
+                                : null}
+                        </View>
                         {typeof isSynchronized !== 'undefined'
                             ? !isSynchronized
                                 ? renderSynchronization()
@@ -221,5 +232,9 @@ const styles = StyleSheet.create({
     },
     cryptoList__arrow: {
         marginRight: 8
+    },
+    stakingPercent: {
+        flexDirection: 'row',
+        alignItems: 'flex-end'
     }
 })
