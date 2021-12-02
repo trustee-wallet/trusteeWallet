@@ -269,7 +269,7 @@ const getSortedData = (array, currentArray, accountList, filter) => {
         }
         case 'byValue': {
             let sortedAccount = _orderBy(accountList, function (obj) {
-                return parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
+                return obj?.basicCurrencyBalance ? parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) : 0
             }, 'desc').map(item => item.currencyCode)
 
             sortedAccount = _orderBy(array, x => {
