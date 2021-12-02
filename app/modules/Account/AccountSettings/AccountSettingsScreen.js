@@ -15,9 +15,8 @@ import SettingsXVG from './elements/SettingsXVG'
 import SettingsETC from './elements/SettingsETC'
 import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
-import SettingsTRX from './elements/SettingsTRX'
 import SettingsBNB from './elements/SettingsBNB'
-import SettingsSOL from '@app/modules/Account/AccountSettings/elements/SettingsSOL'
+import SettingsSOL from './elements/SettingsSOL'
 
 import { strings } from '@app/services/i18n'
 
@@ -90,14 +89,6 @@ class AccountSettingScreen extends React.PureComponent {
                         account={account}
                     />
                 )
-            case 'TRX':
-                return (
-                    <SettingsTRX
-                        containerStyle={{ overflow: 'hidden' }}
-                        wallet={selectedWallet}
-                        account={account}
-                    />
-                )
             case 'BNB':
                 return (
                     <SettingsBNB
@@ -147,8 +138,6 @@ class AccountSettingScreen extends React.PureComponent {
 
         const { GRID_SIZE } = this.context
 
-        const isTabs = cryptoCurrency.currencyCode === 'SOL'
-
         MarketingAnalytics.setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
 
         return (
@@ -158,23 +147,16 @@ class AccountSettingScreen extends React.PureComponent {
                 rightType='close'
                 rightAction={this.handleClose}
                 title={strings('settings.title')}
-                ExtraView={() => isTabs ? this.renderHeader() : null}
             >
-                {isTabs ?
-                    <>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={{ paddingTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
                         {this.renderSettingsComponent()}
-                    </>
-                    :
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollViewContent}
-                        keyboardShouldPersistTaps='handled'
-                    >
-                        <View style={{ paddingTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
-                            {this.renderSettingsComponent()}
-                        </View>
-                    </ScrollView>
-                }
+                    </View>
+                </ScrollView>
 
             </ScreenWrapper>
         )

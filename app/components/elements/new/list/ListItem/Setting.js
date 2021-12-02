@@ -89,7 +89,7 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name={'walletConnect'} size={22} color={color} />
         case 'supportMail':
             return <CustomIcon name={'supportMail'} size={22} color={color} />
-        case 'faq': 
+        case 'faq':
             return <CustomIcon name={'faq'} size={22} color={color} />
         case 'delete':
             return <CustomIcon name={'delete'} size={22} color={color} />
@@ -97,6 +97,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='BTC' size={22} color={color} />
         case 'eth':
             return <CustomIcon name='ETH' size={22} color={color} />
+        case 'validator':
+            return <CustomIcon name='validator' size={22} color={color} />
         case 'inTxHistory':
             return <CustomIcon name='inTxHistory' size={16} color={color} />
         case 'outTxHistory':
@@ -116,15 +118,15 @@ const getIcon = (iconType, color) => {
         case 'timeArray':
             return <CustomIcon name='timeArray' size={20} color={color} />
         case 'amountRange':
-            return <CustomIcon name='amountRange' size={26} color={color} />  
+            return <CustomIcon name='amountRange' size={26} color={color} />
         case 'freezing':
-            return <CustomIcon name='freezing' size={22} color={color} />  
+            return <CustomIcon name='freezing' size={22} color={color} />
         case 'reward':
             return <CustomIcon name='reward' size={22} color={color} />
         case 'contractIncome':
             return <CustomIcon name='contractIncome' size={20} color={color} />
         case 'contractOutcome':
-            return <CustomIcon name='contractOutcome' size={20} color={color} />  
+            return <CustomIcon name='contractOutcome' size={20} color={color} />
         case 'cpa':
             return <CustomIcon name='cpa' size={22} color={color} />
         case 'earn':
@@ -168,7 +170,7 @@ const getRightContent = (rightContent, params, color, isVisibleDone) => {
             return <CustomIcon name={'up'} size={18} color={color} />
         case 'checkbox':
             return <CheckBox isVisibleDone={isVisibleDone} checked={checked} onPress={onPress} />
-        
+
         default: return null
     }
 }

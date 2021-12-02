@@ -192,6 +192,10 @@
         "title": "გადავრთოთ საფულე HD რეჟიმში?",
         "description": "HD რეჟიმი გულისხმობს მისამართების როტაციას ყოველ ტრანზაქციაზე. გადართვის ოპერაცია შუქცევადია."
       },
+      "staked": "Staked:",
+      "stakeTransactionsSOL": "Staking transactions",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR": "სერვერი მონაცემებით (მაგალითად, api.mymonero.com)",
       "serverInputTitleXMR": "api.mymonero.com:8443",
       "serverSendInputXMR": "სერვერი ტრანზაქციების გასაგზავნად (მაგალითად, api.mymonero.com)",
@@ -199,7 +203,8 @@
       "needReinstallXMR": "XMR მისამართის სისტემური შეცდომა. გთხოვთ, შეინახოთ მნემონური ფრაზა და თავიდან დააინსტალიროთ პროგრამა, ან დაუკავშირდეთ მხარდაჭერის ჯგუფს დეტალური ინსტრუქციებისთვის. ",
       "saveSettings": "შენახვა",
       "getMnemonicXMR": "View secret key",
-      "availableTRX": "ხელმისაწვდომია",
+      "availableTRX": "ხელმისაწვდომია:",
+      "availableSOL": "Available balance",
       "frozenTRX": "Застейкано",
       "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "შეიყვანეთ TRX-ის  რაოდენობა",
@@ -229,12 +234,15 @@
       "withdrawSOL" : "Withdraw",
       "withdrawAllSOL" : "Withdraw All",
       "deactivateSOL": "Deactivate",
-      "stakeHistorySOL" : "Stake History",
+      "stakeHistorySOL" : "History",
       "selectValidatorSOL": "Select validator",
       "selectValidatorSOLCommission" : "Fee :",
       "validatorSOL": "Validator",
       "rewards" : "Rewards",
-      "useCustomValidator": "Use this validator "
+      "useCustomValidator": "Use this validator ",
+      "successUnfreeze": "TRX unfrozen",
+      "successFreeze": "TRX frozen for staking",
+      "successReward": "TRX staking reward received"
     },
     "about": {
       "title": "საფულის შესახებ",
@@ -401,6 +409,7 @@
     "performWithdraw": "გატანის ოპერაციის განსახორციელებლად, გთხოვთ, მოგვწეროთ telegram-ში ნიკნეიმზე"
   },
   "account": {
+    "staking": "Staking",
     "title": "ანგარიში",
     "copy": "კოპირება",
     "refresh": "განახლება",
@@ -417,6 +426,14 @@
     "noFoundTransactions": "Sorry, no results were found",
     "showMore": "მეტის ჩვენება",
     "assetSettings": "აქტივის პარამეტრები",
+    "stakingTRX": {
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
+      "moreInfo": "More details..."
+    },
+    "stakingSOL": {
+      "stake": "Freeze your SOL to receive staking rewards. "
+    },
     "copyLink": "Copy address",
     "invoiceText": "Issue an invoice for payment",
     "openInBlockchair": "Open in blockchain explorer",

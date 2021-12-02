@@ -19,6 +19,7 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import UIDict from '@app/services/UIDict/UIDict'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 const { dispatch } = store
@@ -403,5 +404,15 @@ export function setSortValue(sortValue) {
     dispatch({
         type: 'SET_SORT_VALUE',
         sortValue
+    })
+}
+
+export async function setStakingCoins() {
+
+    const stakingCoins = await BlocksoftExternalSettings.get('STAKING_COINS_PERCENT')
+
+    dispatch({
+        type: 'SET_STAKING_COINS',
+        stakingCoins
     })
 }

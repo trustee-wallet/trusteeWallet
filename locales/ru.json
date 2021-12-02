@@ -194,6 +194,10 @@
         "title": "Переключить кошелек в режим HD?",
         "description": "Режим HD подразумевает ротацию адресов для каждой транзакции. Операция переключения необратима."
       },
+      "staked": "Застейконо:",
+      "stakeTransactionsSOL": "Транзакции стейкинга",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR" : "Сервер с данными (например, api.mymonero.com)",
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Сервер для отправки транзакций (например, api.mymonero.com)",
@@ -201,7 +205,8 @@
       "needReinstallXMR"  : "Системная ошибка адреса XMR - пожалуйста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробных инструкций",
       "saveSettings" : "Сохранить",
       "getMnemonicXMR" : "Посмотреть секретный ключ",
-      "availableTRX" : "Доступно",
+      "availableTRX" : "Доступно:",
+      "availableSOL": "Доступный баланс",
       "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Пропускная способность: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введите количество TRX",
@@ -231,12 +236,15 @@
       "withdrawSOL" : "Забрать",
       "withdrawAllSOL" : "Забрать все",
       "deactivateSOL": "Деактивировать",
-      "stakeHistorySOL" : "История Стейка",
+      "stakeHistorySOL" : "История",
       "selectValidatorSOL": "Выберите валидатора",
       "selectValidatorSOLCommission" : "Сбор :",
       "validatorSOL": "Валидатор",
-      "rewards" : "Награды",
-      "useCustomValidator": "Использовать этот валидатор "
+      "rewards" : "Награда",
+      "useCustomValidator": "Использовать этот валидатор ",
+      "successUnfreeze": "TRX разморожено",
+      "successFreeze": "TRX заморожено для стейкинга",
+      "successReward": "Получена награда TRX за стейкинг"
     },
     "about": {
       "title": "О кошельке",
@@ -404,6 +412,7 @@
     "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм"
   },
   "account": {
+    "staking": "Стейкинг",
     "title": "Счет",
     "copy": "Копировать",
     "refresh": "Обновить",
@@ -420,6 +429,14 @@
     "noFoundTransactions": "Извините, ничего не найдено",
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
+    "stakingTRX": {
+      "bandwidthInfo": "Заморозьте свои монеты TRX для Bandwidth - это позволит получать награду за стейкинг и отправлять свободные монеты TRX без комиссии сети. ",
+      "energyInfo": "Заморозьте свои монеты TRX для Energy - это позволит получать награду за стейкинг и отправлять токены TRC20 без комиссии сети. ",
+      "moreInfo": "Детальнее..."
+    },
+    "stakingSOL": {
+      "stake": "Заморозьте свои монеты SOL, чтобы получать награду за стейкинг. "
+    },
     "copyLink": "Копировать адрес",
     "invoiceText": "Выставить счет для оплаты",
     "openInBlockchair": "Открыть в блокчейн эксплорере",
@@ -450,8 +467,8 @@
       "outcome": "Исходящая",
       "income": "Входящая",
       "self" : "Себе",
-      "freeze" : "Заморозка",
-      "unfreeze" : "Разморозка",
+      "freeze" : "Заморозить",
+      "unfreeze" : "Разморозить",
       "claim" : "Награда",
       "swap_income" : "Contract Входящая",
       "swap_outcome" : "Contract Исходящая",

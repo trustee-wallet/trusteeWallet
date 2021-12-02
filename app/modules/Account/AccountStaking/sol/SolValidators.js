@@ -71,9 +71,9 @@ class SolValidators extends PureComponent {
     selectSolValidatorFromSearch = (searchQuery) => {
         // later - do validation if its actual validator - now its after stake try fail
         // console.log(JSON.stringify(searchQuery))
-        this.selectSolValidator({ address: searchQuery})
+        this.selectSolValidator({ address: searchQuery })
     }
-    
+
     selectSolValidator = (item) => {
         const tmp = JSON.stringify(item)
         if (JSON.stringify(this.state.selectedVoteAddress) === tmp) return
@@ -97,7 +97,7 @@ class SolValidators extends PureComponent {
                 onPress={() => this.selectSolValidator(item)}
                 checked={JSON.stringify(this.state.selectedVoteAddress) === JSON.stringify(item)}
                 last={this.state.selectedVoteAddress.length - 1 === index}
-                percentValue={strings('settings.walletList.selectValidatorSOLCommission') + item.commission}
+                percentValue={strings('settings.walletList.selectValidatorSOLCommission') + ' ' + item.commission}
             />
         )
     }
@@ -114,7 +114,7 @@ class SolValidators extends PureComponent {
 
         let isSearchTokenAddress = false
         if (searchQuery) {
-            searchQuery =  searchQuery.trim()
+            searchQuery = searchQuery.trim()
             if (searchQuery.length >= 38) {
                 isSearchTokenAddress = true
             } else {
@@ -122,16 +122,16 @@ class SolValidators extends PureComponent {
             }
         }
 
-        {if (isSearchTokenAddress)  {
-          return(
-              <TouchableOpacity style={{ marginTop: GRID_SIZE * 6}} onPress={Keyboard.dismiss}>
-                <Button
-                  title={strings('settings.walletList.useCustomValidator') + searchQuery}
-                  onPress={() => this.selectSolValidatorFromSearch(searchQuery)}
-                />
-              </TouchableOpacity>
-          )
-        }}
+        if (isSearchTokenAddress) {
+            return (
+                <TouchableOpacity style={{ marginTop: GRID_SIZE * 6 }} onPress={Keyboard.dismiss}>
+                    <Button
+                        title={strings('settings.walletList.useCustomValidator') + searchQuery}
+                        onPress={() => this.selectSolValidatorFromSearch(searchQuery)}
+                    />
+                </TouchableOpacity>
+            )
+        }
     }
 
     render() {

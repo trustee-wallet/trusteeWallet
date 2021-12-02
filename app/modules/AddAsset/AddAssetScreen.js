@@ -46,6 +46,9 @@ import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 import { FlatList } from 'react-native-gesture-handler'
 import AssetFlatListItem from './elements/AssetFlatListItem'
 
+import PercentView from '@app/components/elements/new/PercentView'
+import { getStakingCoins } from '@app/appstores/Stores/Main/selectors'
+
 
 class AddAssetScreen extends React.PureComponent {
     state = {
@@ -430,6 +433,8 @@ class AddAssetScreen extends React.PureComponent {
 
         const { GRID_SIZE } = this.context
 
+        const availableStaking = Object.keys(this.props.stakingCoins).includes(item.currencyCode)
+
         return (
             <View style={{ marginHorizontal: GRID_SIZE * 2 }}>
                 <ListItem
@@ -439,6 +444,18 @@ class AddAssetScreen extends React.PureComponent {
                     onPress={() => this.handleChangeCurrencyStatus(item)}
                     rightContent="switch"
                     switchParams={{ value: item.isHidden !== null && !item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
+                    TitleExtraView={() => {
+                        if (availableStaking) {
+                            return (
+                                <PercentView 
+                                    value={this.props.stakingCoins[item.currencyCode]}
+                                    staking
+                                />
+                            )
+                        } else {
+                            return null
+                        }
+                    }}
                 />
             </View>
         )
@@ -449,6 +466,7 @@ class AddAssetScreen extends React.PureComponent {
 const mapStateToProps = (state) => {
     return {
         assets: state.currencyStore.cryptoCurrencies,
+        stakingCoins: getStakingCoins(state)
     }
 }
 

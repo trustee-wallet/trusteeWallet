@@ -24,6 +24,7 @@ import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 
 import { getAccountCurrency } from '@app/appstores/Stores/Account/selectors'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import { getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
 import Log from '@app/services/Log/Log'
 
@@ -35,6 +36,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { SIZE, handleCurrencySelect } from '../helpers';
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { HIT_SLOP } from '@app/theme/HitSlop'
+import PercentView from '@app/components/elements/new/PercentView'
 import store from '@app/store'
 
 
@@ -111,6 +113,8 @@ class CryptoCurrency extends React.PureComponent {
             Log.err('HomeScreen.Currency render ' + e.message)
         }
 
+        const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
+
         return (
             <View style={styles.container}>
                 <View style={styles.shadow__container}>
@@ -141,9 +145,17 @@ class CryptoCurrency extends React.PureComponent {
 
                         <View style={styles.cryptoList__info}>
                             <View style={styles.cryptoList__currency__balance}>
-                                <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>
-                                    {cryptoCurrency.currencySymbol}
-                                </Text>
+                                <View style={styles.stakingPercent}>
+                                    <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>
+                                        {cryptoCurrency.currencySymbol}
+                                    </Text>
+                                    {availableStaking ?
+                                        <PercentView
+                                            value={this.props.stakingCoins[currencyCode]}
+                                            staking
+                                        />
+                                    : null}
+                                </View>
                                 {
                                     typeof isSynchronized !== 'undefined'
                                         ? !isSynchronized
@@ -185,7 +197,7 @@ class CryptoCurrency extends React.PureComponent {
                                         {priceChangePercentage24h !== null && priceChangePercentage24h !== undefined && `${priceChangePercentage24h < 0 ? '- ' : ''}${priceChangePercentage24hPrep}`}
                                     </Text>
                                 </View>
-                                }
+                            }
                         </View>
                         {!this.props.constructorMode ? null :
                             <TouchableOpacity
@@ -309,7 +321,7 @@ class CryptoCurrency extends React.PureComponent {
                                 <CustomIcon name='dots' color={colors.common.text1} size={20} />
                             </TouchableOpacity>
                         }
-                        </GradientView>
+                    </GradientView>
                 </TouchableOpacity>
             </View>
         )
@@ -377,7 +389,8 @@ class CryptoCurrency extends React.PureComponent {
 CryptoCurrency.contextType = ThemeContext
 
 const mapStateToProps = (state, props) => ({
-    account: getAccountCurrency(state, props)
+    account: getAccountCurrency(state, props),
+    stakingCoins: getStakingCoins(state)
 })
 
 export default connect(mapStateToProps)(CryptoCurrency)
@@ -518,5 +531,9 @@ const styles = StyleSheet.create({
     },
     dragBtns: {
         marginLeft: 18
+    },
+    stakingPercent: {
+        flexDirection: 'row',
+        alignItems: 'flex-end'
     }
 })

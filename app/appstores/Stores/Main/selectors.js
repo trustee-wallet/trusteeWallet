@@ -55,6 +55,7 @@ export const getSelectedAccountData = createSelector(
             address : data.address,
             segwitAddress : data.segwitAddress,
             legacyAddress : data.legacyAddress,
+            balance : data.balance,
             balancePretty : data.balancePretty,
             unconfirmedPretty : data.unconfirmedPretty,
             balanceProvider : data.balanceProvider,
@@ -69,7 +70,8 @@ export const getSelectedAccountData = createSelector(
             basicCurrencySymbol : data.basicCurrencySymbol,
             currencyCode : data.currencyCode,
 
-            walletPubs : data.walletPubs
+            walletPubs : data.walletPubs,
+            derivationPath : data.derivationPath
         }
     })
 )
@@ -122,5 +124,10 @@ export const getFilterData = createSelector(
 
 export const getSortValue = createSelector(
     [state => state.mainStore.sortValue],
+    (data => data)
+)
+
+export const getStakingCoins = createSelector(
+    [state => state.mainStore.stakingCoins],
     (data => data)
 )

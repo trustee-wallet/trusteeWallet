@@ -10,7 +10,7 @@ import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import { setSelectedWallet, setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedWallet, setSortValue, setStakingCoins } from '@app/appstores/Stores/Main/MainStoreActions'
 import { setInitState, setInitError } from '@app/appstores/Stores/Init/InitStoreActions'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
@@ -173,6 +173,8 @@ class App {
 
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })
+
+            await setStakingCoins()
 
         } else if (firstTimeCall === 'second') {
             // second step of init

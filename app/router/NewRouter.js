@@ -41,9 +41,11 @@ import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountS
 import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPrivate/AccountSettingsPrivateScreen'
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
+import AccountStakingTRX from '@app/modules/Account/AccountStaking/AccountStakingTRX'
+import AccountStakingSOL from '@app/modules/Account/AccountStaking/AccountStakingSOL'
 
-import SolStakingTransactionScreen from '@app/modules/Account/AccountSettings/sol/SolStakingTransactionScreen'
-import SolValidators from '@app/modules/Account/AccountSettings/sol/SolValidators'
+import SolStakingTransactionScreen from '@app/modules/Account/AccountStaking/sol/SolStakingTransactionScreen'
+import SolValidators from '@app/modules/Account/AccountStaking/sol/SolValidators'
 
 
 import FioChooseRecipient from '@app/modules/FIO/FioChooseRecipient'
@@ -95,9 +97,6 @@ import GuideScreen from '@app/modules/WalletList/HomeFilter/GuideScreen';
 import TransactionFilter from '@app/modules/Account/AccountFilter/AccountTransactionFilter';
 import TransactionCategories from '@app/modules/Account/AccountFilter/AccountTransactionCategories';
 
-
-
-
 const Stack = createStackNavigator()
 
 const HomeStack = createStackNavigator()
@@ -140,9 +139,13 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolStakingTransactionScreen' component={SolStakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolValidators' component={SolValidators} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <HomeStack.Screen name='AccountStakingSOL' component={AccountStakingSOL} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='AccountStakingTRX' component={AccountStakingTRX} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
             <HomeStack.Screen name='TransactionFilter' component={TransactionFilter} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='TransactionCategories' component={TransactionCategories} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            
+
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='SettingsMainScreen' component={SettingsMainScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
