@@ -70,7 +70,7 @@ class SynchronizedBlock extends React.PureComponent {
             const filter = {
                 searchQuery
             }
-            setFilter(filter)
+            setFilter(filter, 'SynchronizedBlock.handleSearch')
         }
     }
 

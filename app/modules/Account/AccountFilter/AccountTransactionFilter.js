@@ -74,12 +74,12 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleBack = () => {
-        setFilter(this.state.filterOriginData)
+        setFilter(this.state.filterOriginData, 'AccountTransactionFilter.handleBack')
         NavStore.goBack()
     }
 
     handleClose = () => {
-        setFilter(null)
+        setFilter(null, 'AccountTransactionFilter.handleClose')
         NavStore.reset('HomeScreen')
     }
 
@@ -138,7 +138,7 @@ class TransactionFilter extends React.PureComponent {
             endAmount: endAmount ? BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(endAmount) : null
         }
 
-        setFilter(filter)
+        setFilter(filter, 'AccountTransactionFilter.handlePickFilter')
 
         NavStore.goBack()
     }
@@ -175,13 +175,13 @@ class TransactionFilter extends React.PureComponent {
         const csv = json2csvParser.parse(res);
 
         const path = RNFS.DocumentDirectoryPath + `/logs/TRUSTEE_REPORT_${currencyCode}.csv`
-        
+
         // write the file
         RNFS.writeFile(path, csv, 'utf8')
             .then(async () => {
                 Log.log('Account/AccountTransactionFilter saveTxHistory success save file ', path)
                 const fs = new FileSystem({ fileEncoding: 'utf8', fileName: `TRUSTEE_REPORT_${currencyCode}`, fileExtension: 'csv' });
-                
+
                 const shareOptions = {
                     url: await fs.getPathOrBase64()
                 }

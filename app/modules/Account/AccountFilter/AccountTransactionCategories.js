@@ -41,7 +41,7 @@ class TransactionCategories extends React.PureComponent {
                 value: 'filterStatusHideCancel'
             },
             {
-                notActive: this.props.filterData?.filterTypeHideFee || true,
+                notActive: typeof this.props.filterData.filterTypeHideFee !== 'undefined' && this.props.filterData.filterTypeHideFee === false ? this.props.filterData.filterTypeHideFee : true,
                 title: strings('account.transaction.fee'),
                 iconType: 'feeTxScreen',
                 value: 'filterTypeHideFee'
@@ -84,9 +84,14 @@ class TransactionCategories extends React.PureComponent {
 
         this.state.categoriesData.filter(item => item.notActive).map(item => filter[item.value] = item.notActive)
 
-        setFilter(filter)
+        if (typeof filter.filterTypeHideFee === 'undefined') {
+            filter.filterTypeHideFee = false // !!! dont remove it its for default settings!
+        }
+        setFilter(filter, 'AccountTransactionCategories.handleApply')
 
         NavStore.goBack()
+        NavStore.goBack()
+        // go direct to transactions
     }
 
     handleBack = () => {

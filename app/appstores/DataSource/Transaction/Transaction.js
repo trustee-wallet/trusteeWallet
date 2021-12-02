@@ -281,24 +281,53 @@ class Transaction {
         }
 
         // way filter
+        let countOutAndIncome = 0
         if (typeof params.filterDirectionHideIncome !== 'undefined' && params.filterDirectionHideIncome) {
-            where.push(`transaction_direction NOT IN ('income')`)
+            countOutAndIncome++
         }
         if (typeof params.filterDirectionHideOutcome !== 'undefined' && params.filterDirectionHideOutcome) {
-            where.push(`transaction_direction NOT IN ('outcome')`)
+            countOutAndIncome++
         }
+
+        const filterTypeHideUsual = countOutAndIncome >= 2
+        if (!filterTypeHideUsual) {
+            if (typeof params.filterDirectionHideIncome !== 'undefined' && params.filterDirectionHideIncome) {
+                where.push(`transaction_direction NOT IN ('income')`)
+            }
+            if (typeof params.filterDirectionHideOutcome !== 'undefined' && params.filterDirectionHideOutcome) {
+                where.push(`transaction_direction NOT IN ('outcome')`)
+            }
+        }
+        // if not selected both income and outcome - we assume someone dont want usual transactions to be seen
 
         // status filter
         if (typeof params.filterStatusHideCancel !== 'undefined' && params.filterStatusHideCancel) {
             where.push(`transaction_status NOT IN ('fail')`)
         }
 
-        // fee filter !
-        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
+        // fee filter ! approximately
+        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee === false) {
+            if (filterTypeHideUsual) {
+                where.push(`transaction_direction IN ('outcome', 'self')`)
+                where.push(`
+                (
+                    transaction_filter_type IS NOT NULL AND transaction_filter_type NOT IN ('usual')
+                ) OR (
+                    transaction_filter_type IS NULL AND (
+                        address_amount == '0'
+                        OR
+                        address_to LIKE '% Simple Send%'
+                    )
+                )
+            `)
+            }
+        } else {
             where.push(`address_to NOT LIKE '% Simple Send%'`)
             where.push(`address_amount != '0'`)
             where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}'))`)
         }
+
+
 
         // other categories
         if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
@@ -329,17 +358,17 @@ class Transaction {
         // where.push(`'${source}' = '${source})
 
         if (where.length > 0) {
-            where = ' WHERE ' + where.join(' AND ')
+            where = ' WHERE (' + where.join(') AND (') + ')'
         } else {
             where = ''
         }
 
         let limit = ''
         if (typeof params.limitPerPage !== 'undefined') {
-            // limit = ' LIMIT ' + params.limitPerPage
+            limit = ' LIMIT ' + params.limitPerPage
         }
         if (typeof params.limitFrom !== 'undefined') {
-            // limit += ' OFFSET ' + params.limitFrom
+            limit += ' OFFSET ' + params.limitFrom
         }
 
         const sql = `
@@ -420,7 +449,7 @@ class Transaction {
         }
 
         if (where.length > 0) {
-            where = ' WHERE ' + where.join(' AND ')
+            where = ' WHERE (' + where.join(') AND (') + ')'
         } else {
             where = ''
         }

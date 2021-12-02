@@ -309,12 +309,12 @@ export async function setSelectedAccountTransactions(source) {
             filterDirectionHideIncome: filter?.filterDirectionHideIncome || null,
             filterDirectionHideOutcome: filter?.filterDirectionHideOutcome || null,
             filterStatusHideCancel: filter?.filterStatusHideCancel || null,
-            filterTypeHideFee: filter?.filterTypeHideFee || null,
+            filterTypeHideFee: filter.filterTypeHideFee,
             filterTypeHideSwap: filter?.filterTypeHideSwap || null,
             filterTypeHideStake: filter?.filterTypeHideStake || null,
             filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
         }
-        if (typeof filter !== 'undefined' && filter && typeof filter.active === 'undefined' || !filter.active) {
+        if (typeof filter.filterTypeHideFee === 'undefined') {
             params.filterTypeHideFee = true
         }
 
@@ -392,7 +392,7 @@ export function setSolValidator(solValidator) {
     })
 }
 
-export function setFilter(filter) {
+export function setFilter(filter, source = '') {
     dispatch({
         type: 'SET_FILTER',
         filter

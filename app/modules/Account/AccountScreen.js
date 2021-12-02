@@ -254,7 +254,7 @@ class Account extends React.PureComponent {
         })
 
         if (this.state.isSeaching) {
-            setFilter(null)
+            setFilter(null, 'AccountScreen.toggleSearch')
         }
     }
 

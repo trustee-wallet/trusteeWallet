@@ -112,7 +112,7 @@ export const getFilterData = createSelector(
             filterDirectionHideIncome : data?.filterDirectionHideIncome || false,
             filterDirectionHideOutcome : data?.filterDirectionHideOutcome || false,
             filterStatusHideCancel : data?.filterStatusHideCancel || false,
-            filterTypeHideFee : data?.filterTypeHideFee || true,
+            filterTypeHideFee : typeof data.filterTypeHideFee !== 'undefined' && data.filterTypeHideFee === false ? false : true,
             filterTypeHideStake : data?.filterTypeHideStake || false,
             filterTypeHideWalletConnect : data?.filterTypeHideWalletConnect || false,
             filterTypeHideSwap : data ?.filterTypeHideSwap || false,
