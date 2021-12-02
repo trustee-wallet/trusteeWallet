@@ -59,15 +59,22 @@ class TransactionFilter extends React.PureComponent {
 
     state = {
         selectedContent: '',
-        startTime: this.props.filterData?.startTime || null,
-        endTime: this.props.filterData?.endTime || null,
-        startAmount: this.props.filterData?.startAmount ? this.getPrettyAmount(this.props.filterData?.startAmount) : '',
-        endAmount: this.props.filterData?.endAmount ? this.getPrettyAmount(this.props.filterData?.endAmount) : '',
+        startTime: this.props.filterData?.startTime ?  new Date(this.props.filterData?.startTime) : null,
+        endTime: this.props.filterData?.endTime ? new Date(this.props.filterData?.endTime) : null,
+        startAmount: null,
+        endAmount: null,
         filterOriginData: this.props.filterData
     }
 
     startAmountInput = React.createRef()
     endAmountInput = React.createRef()
+
+    componentDidMount() {
+        this.setState({
+            startAmount: this.props?.filterData?.startAmount && this.props?.filterData?.startAmount ? this.getPrettyAmount(this.props?.filterData?.startAmount || '') : '',
+            endAmount: this.props?.filterData?.endAmount && this.props?.filterData?.endAmount ? this.getPrettyAmount(this.props?.filterData?.endAmount || '') : '',
+        })
+    }
 
     getPrettyAmount = (amount) => {
         return BlocksoftPrettyNumbers.setCurrencyCode(this.props.selectedCryptoCurrencyData.currencyCode).makePretty(amount)
