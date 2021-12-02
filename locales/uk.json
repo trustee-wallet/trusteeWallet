@@ -581,7 +581,7 @@
       "addresTo": "Отримувач ",
       "addresFrom": "Відправник ",
       "blockConfirmations": "Поточна кількість підтверджень ",
-      "transactionAmount": "%{currencyCode} amount"
+      "transactionAmount": "%{currencyCode} сума"
     }
   },
 
