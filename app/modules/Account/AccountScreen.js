@@ -22,9 +22,13 @@ import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setFilter, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
+import { getFilterData, getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
 import Log from '@app/services/Log/Log'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 import UpdateTradeOrdersDaemon from '@app/daemons/back/UpdateTradeOrdersDaemon'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
@@ -44,20 +48,9 @@ import AccountButtons from './elements/AccountButtons'
 import Transaction from './elements/Transaction'
 import BalanceHeader from './elements/AccountData'
 
-
-import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-
 import { getPrettyCurrencyName, handleBuy, handleReceive, handleSend } from './helpers'
-
-import { diffTimeScan } from './helpers'
-import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
-import { getFilterData, getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
-
-
-import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
-import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import SynchronizedBlock from './elements/SynchronizedBlock'
 
 let CACHE_ASKED = false
@@ -387,18 +380,14 @@ class Account extends React.PureComponent {
                             />
                             <SynchronizedBlock
                                 allTransactionsToView={allTransactionsToView}
-                                transactionsToView={this.state.transactionsToView}
-                                selectedAccountData={this.props.selectedAccountData}
+                                transactionsToView={transactionsToView}
+                                selectedAccountData={selectedAccountData}
                                 clickRefresh={this.state.clickRefresh}
                                 selectedAccountTransactions={this.props.selectedAccountTransactions}
                                 handleRefresh={this.handleRefresh}
-                                filterData={this.props.filterData}
                                 toggleSearch={this.toggleSearch}
                                 isSeaching={this.state.isSeaching}
                             />
-                            <View>
-                                {this.renderSynchronized(allTransactionsToView)}
-                            </View>
                         </>
                     )}
                     renderItem={({ item, index }) => (
