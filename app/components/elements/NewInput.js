@@ -23,7 +23,6 @@ import NavStore from '../navigation/NavStore'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-
 class Input extends Component {
 
     constructor(props) {
@@ -57,15 +56,16 @@ class Input extends Component {
     getValue = () => this.state.value
 
     handleReadFromClipboard = async () => {
-        const { callback } = this.props
+        const { pasteCallback } = this.props
 
         Keyboard.dismiss()
         const clipboardContent = await Clipboard.getString()
         this.setState({ value: clipboardContent }, () => {
             this.handleValidate()
         })
-        if (typeof callback !== 'undefined') {
-            callback(clipboardContent)
+
+        if (typeof pasteCallback !== 'undefined') {
+            pasteCallback(clipboardContent)
         }
 
     }
@@ -200,7 +200,11 @@ class Input extends Component {
             info,
             tabInfo,
             addressError,
-            containerStyle
+            search,
+            text,
+            containerStyle,
+            inputStyle
+
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
@@ -228,12 +232,13 @@ class Input extends Component {
             }
         }
 
-        const inputWidth = ( paste && qr ) ? '75%' : ( fio || copy || paste || qr || info || tabInfo ) ? '85%' : '95%'
+        const inputWidth = ( paste && qr || paste && search ) ? '75%' : ( fio || search || copy || paste || qr || info || tabInfo || text ) ? '85%' : '95%'
 
         return (
             <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
                 {
                     show ?
+
                         <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10 , ...containerStyle}} >
                             <TextField
                                 ref={ref => this.inputRef = ref}
@@ -245,17 +250,17 @@ class Input extends Component {
                                 lineWidth={0}
                                 activeLineWidth={0}
                                 placeholder={placeholder}
-                                placeholderTextColor="#999999"
-                                placeholderStyle={{ ...styles.fontFamily, fontFamily: 'Montserrat-Semibold' }}
+                                placeholderTextColor='#999999'
+                                placeholderStyle={{ ...styles.fontFamily, ...inputStyle, fontFamily: 'Montserrat-Semibold' }}
                                 value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
-                                returnKeyLabel={'Buy'}
+                                returnKeyLabel='Buy'
                                 onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
                                 }}
                                 autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
                                 disabled={isDisabled}
-                                disabledLineType={'none'}
+                                disabledLineType='none'
                                 onChangeText={(value) => this.handleInput(value)}
-                                style={noEdit ? { ...styles.fontFamily, color: colors.sendScreen.amount } : { ...styles.fontFamily, color: addressError && error ? '#864DD9' : colors.sendScreen.amount }}
+                                style={noEdit ? { ...styles.fontFamily, ...inputStyle, color: colors.sendScreen.amount } : { ...styles.fontFamily, ...inputStyle, color: addressError && error ? '#864DD9' : colors.sendScreen.amount }}
                                 multiline={isTextarea}
                                 autoCorrect={false}
                                 spellCheck={false}
@@ -287,6 +292,12 @@ class Input extends Component {
                             </TouchableOpacity> : null
                     }
                     {
+                        typeof text !== 'undefined' && text ?
+                        <Text styles={[styles.text, styles.actionBtn__icon, { paddingTop: 2, flex: 1, color: colors.common.text3 }]}>
+                            {text}
+                        </Text> : null
+                    }
+                    {
                         typeof copy !== 'undefined' && copy ?
                             <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
                                 <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
@@ -294,7 +305,7 @@ class Input extends Component {
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
-                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
+                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn, { marginRight: search ? -8 : 0}]}>
                                 <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
                             </TouchableOpacity> : null
                     }
@@ -549,4 +560,9 @@ const styles = {
             position: 'absolute',
         }
     },
+    text: {
+        fontFamily: 'Montserrat-SemiBold',
+        letterSpacing: 0.5,
+        fontSize: 16
+    }
 }

@@ -425,6 +425,7 @@
     "soLong": "Сканування було давно",
     "minutesAgo": " %{time} хв назад ",
     "noTransactions": "У Вас ще немає транзакцій. Але Ви можете швидко це змінити, просто натисніть кнопку КУПИТИ",
+    "noFoundTransactions": "Вибачте, нічого не знайдено",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",
     "stakingTRX": {
@@ -465,8 +466,10 @@
       "outcome": "Вихідна",
       "income": "Вхідна",
       "self" : "Собі",
-      "freeze" : "Заморозити",
-      "unfreeze" : "Розморозити",
+      "freeze" : "Заморожено",
+      "unfreeze" : "Розморожено",
+      "stake" : "Стейк",
+      "wallet_connect" : "WalletConnect",
       "claim" : "Винагорода",
       "swap_income" : "Contract Вхідна",
       "swap_outcome" : "Contract Вихідна",
@@ -482,6 +485,26 @@
       "advAccountDestination": "Номер рахунку для виводу",
       "phoneDestination": "Номер телефону для виводу",
       "orderId": "Прив'язаний ID обміну",
+      "selectAll": "Вибрати все",
+      "swap": "Swap",
+      "cancel": "Скасовано",
+      "reward": "Винагорода",
+      "categoriesTitle": "Категорії",
+      "transactionCategories": "Категорії транзакцій",
+      "dateAmount": "Дата і сума",
+      "timeArray": "Масив часу",
+      "amountRange": "Діапазон сум",
+      "allAmount": "Уся сума",
+      "downloadTransactionsHistory": "Завантажити історію трансакцій за весь час",
+      "saveInCsv": "Зберегти всі транзакції часу в CSV",
+      "filterTitle": "Фільтр",
+      "startDate": "Дата початку",
+      "endDate": "Дата завершення",
+      "pickDate": "Вибрати дату",
+      "startAmount": "Початкова сума",
+      "endAmount": "Кінцева сума",
+      "setAmount": "Вказати",
+      "discard": "Відхилити",
       "RBF": {
         "replaceByFeeBtn": "Збільшити комісію",
         "willReplaceWithNewFee": "Поточна транзакція буде замінена новою, з новим хешем та більш високою комісією",
@@ -557,8 +580,9 @@
       "transactionSum": "Сума відправки ",
       "addresTo": "Отримувач ",
       "addresFrom": "Відправник ",
-      "blockConfirmations": "Поточна кількість підтверджень "
-      }
+      "blockConfirmations": "Поточна кількість підтверджень ",
+      "transactionAmount": "%{currencyCode} amount"
+    }
   },
 
    "fioMainSettings": {

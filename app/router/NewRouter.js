@@ -94,6 +94,8 @@ import HomeSortScreen from '@app/modules/WalletList/HomeFilter/HomeSortScreen';
 import HomeDragScreen from '@app/modules/WalletList/HomeFilter/HomeDragScreen';
 import GuideScreen from '@app/modules/WalletList/HomeFilter/GuideScreen';
 
+import TransactionFilter from '@app/modules/Account/AccountFilter/AccountTransactionFilter';
+import TransactionCategories from '@app/modules/Account/AccountFilter/AccountTransactionCategories';
 
 const Stack = createStackNavigator()
 
@@ -137,8 +139,12 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolStakingTransactionScreen' component={SolStakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolValidators' component={SolValidators} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
             <HomeStack.Screen name='AccountStakingSOL' component={AccountStakingSOL} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountStakingTRX' component={AccountStakingTRX} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <HomeStack.Screen name='TransactionFilter' component={TransactionFilter} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='TransactionCategories' component={TransactionCategories} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
