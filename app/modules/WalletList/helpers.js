@@ -17,6 +17,7 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
@@ -27,9 +28,6 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 import ContentDropModal from './elements/ContentDropModal'
-import store from '@app/store'
-import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
-import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -269,6 +267,10 @@ const getSortedData = (array, currentArray, accountList, filter) => {
         }
         case 'byValue': {
             let sortedAccount = _orderBy(accountList, function (obj) {
+                return obj?.balancePretty ? parseFloat(obj.balancePretty.toString().replace(/\s+/g, ''), 10) : 0
+            }, 'desc')
+
+            sortedAccount = _orderBy(sortedAccount, function (obj) {
                 return obj?.basicCurrencyBalance ? parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) : 0
             }, 'desc').map(item => item.currencyCode)
 
@@ -278,9 +280,9 @@ const getSortedData = (array, currentArray, accountList, filter) => {
             return sortedAccount
         }
         case 'coinFirst':
-            return _sortBy(array, 'currencyType')
+            return [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType')]
         case 'tokenFirst':
-            return _sortBy(array, 'currencyType').reverse()
+            return [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType').reverse()]
         case 'withBalance': {
             const filterAccount = accountList.filter(item => parseInt(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
             return array.filter(item => filterAccount.includes(item.currencyCode))

@@ -19,6 +19,24 @@ const createDeepEqualSelector = createSelectorCreator(
     _isEqual
 )
 
+const getCashbackData = () => {
+    const cashbackStore = store.getState().cashBackStore
+    if (typeof cashbackStore.dataFromApi !== 'undefined') {
+        const accountRates = DaemonCache.getCacheRates('USDT')
+        const value = (cashbackStore.dataFromApi.cashbackBalance * 1 + cashbackStore.dataFromApi.cpaBalance * 1) || 0
+        const basicCurrencyBalanceNorm = RateEquivalent.mul({ value, currencyCode: 'USDT', basicCurrencyRate: accountRates.basicCurrencyRate })
+        const basicCurrencyBalance = BlocksoftPrettyNumbers.makeCut(basicCurrencyBalanceNorm, 2).separated
+        return {
+            basicCurrencySymbol: accountRates.basicCurrencySymbol,
+            basicCurrencyRate: '',
+            basicCurrencyBalance,
+            balanceScanTime: cashbackStore.dataFromApi.time || false,
+            balancePretty: value,
+            basicCurrencyBalanceNorm
+        }
+    }
+}
+
 
 const selectAccountCurrency = (state, props) => {
     try {
@@ -26,21 +44,7 @@ const selectAccountCurrency = (state, props) => {
         const selectedWallet = state.mainStore.selectedWallet.walletHash
 
         if (currencyCode === 'CASHBACK') {
-            const cashbackStore = store.getState().cashBackStore
-            if (typeof cashbackStore.dataFromApi !== 'undefined') {
-                const accountRates = DaemonCache.getCacheRates('USDT')
-                const value = (cashbackStore.dataFromApi.cashbackBalance * 1 + cashbackStore.dataFromApi.cpaBalance * 1) || 0
-                const basicCurrencyBalanceNorm = RateEquivalent.mul({ value, currencyCode: 'USDT', basicCurrencyRate: accountRates.basicCurrencyRate })
-                const basicCurrencyBalance = BlocksoftPrettyNumbers.makeCut(basicCurrencyBalanceNorm, 2).separated
-                return {
-                    basicCurrencySymbol:  accountRates.basicCurrencySymbol,
-                    basicCurrencyRate: '',
-                    basicCurrencyBalance,
-                    balanceScanTime :  cashbackStore.dataFromApi.time || false,
-                    balancePretty: value,
-                    basicCurrencyBalanceNorm
-                }
-            }
+            return getCashbackData()
         }
 
         if (typeof state.accountStore.accountList[selectedWallet] === 'undefined') {
@@ -71,7 +75,11 @@ export function getAccountList(state) {
             // throw new Error('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency')
         }
 
+        const cashbackData = getCashbackData()
+        cashbackData.currencyCode = 'CASHBACK'
+
         const account = _values(state.accountStore.accountList[selectedWallet])
+        account.push(cashbackData)
         return account
 
     } catch (e) {

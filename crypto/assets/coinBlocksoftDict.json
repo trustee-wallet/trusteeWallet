@@ -2002,14 +2002,14 @@
 		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
 	},
     "NFT" : {
-        "currencyType": "coin",
+        "currencyType": "special",
         "currencyName": "NFT",
         "currencyCode": "NFT",
         "currencySymbol": "NFT",
         "isHidden": false
     },
 	"CASHBACK" : {
-		"currencyType": "coin",
+		"currencyType": "special",
         "currencyName": "Cashback",
         "currencyCode": "CASHBACK",
         "currencySymbol": "USDT",

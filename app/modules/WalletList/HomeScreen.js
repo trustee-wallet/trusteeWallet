@@ -238,11 +238,15 @@ class HomeScreen extends React.PureComponent {
                                 <SectionList
                                 {...this.commonHeaderProps}
                                 sections={getSectionsData(this.state.data)}
-                                renderSectionHeader={({ section: { title } }) => (
-                                    <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>
-                                        {strings(`homeScreen.categories.${title}`)}
-                                    </Text>
-                                )}
+                                renderSectionHeader={({ section: { title } }) => {
+                                    if (title === 'special') return null
+                                    
+                                    return (
+                                        <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>
+                                            {strings(`homeScreen.categories.${title}`)}
+                                        </Text>
+                                    )
+                                }}
                                 renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE }} />}
                                 stickySectionHeadersEnabled={false}
                                 />
