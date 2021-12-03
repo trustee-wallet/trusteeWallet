@@ -32,6 +32,8 @@ const CACHE = {
     'XVG': { '2': 700, '6': 600, '12': 300 },
     'XVG_SEND_LINK' : 'https://api.vergecurrency.network/node/api/XVG/mainnet/tx/send',
     'XRP_SERVER' : 'wss://xrplcluster.com',
+    'XRP_SCANNER_SERVER' : 'https://xrplcluster.com', // https://xrpl.org/public-servers.html
+    'XRP_SCANNER_TYPE' : 'xrpscan', // dataripple
     'XRP_MIN' : 10,
     'XLM_SERVER' : 'https://horizon.stellar.org',
     'XLM_SERVER_PRICE' : 100,
