@@ -38,7 +38,8 @@ const BorderedButton = (props) => {
         customTextStyles,
         onPressIn,
         onPressOut,
-        activeOpacity = 1
+        activeOpacity = 1,
+        hitSlop = null
     } = props
 
     const {
@@ -46,7 +47,7 @@ const BorderedButton = (props) => {
     } = useTheme()
 
     return(
-        <TouchableOpacity style={[styles.addAsset, containerStyles]} onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut} activeOpacity={activeOpacity}>
+        <TouchableOpacity style={[styles.addAsset, containerStyles]} onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut} activeOpacity={activeOpacity} hitSlop={hitSlop}>
             <View style={[styles.addAsset__content, { borderColor: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#404040' : colors.common.text1}]}>
                 {getIcon(icon, [styles.addAsset__icon, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#5C5C5C' : colors.common.text3 }])}
                 <Text style={[styles.addAsset__text, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : isBlack ? '#5C5C5C' : colors.common.text3 }, customTextStyles]}>

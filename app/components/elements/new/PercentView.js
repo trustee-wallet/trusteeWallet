@@ -19,7 +19,7 @@ const PercentView = (props) => {
         staking
     } = props
 
-    value = value + ' %'
+    value = value + '%'
 
     if (staking) {
         value += ' APY'
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 
     },
     text: {
-        fontFamily: 'SFUIDisplay-Semibold',
+        fontFamily: 'SFUIDisplay-Regular',
         fontSize: 11,
         lineHeight: 13,
         letterSpacing: 0.5

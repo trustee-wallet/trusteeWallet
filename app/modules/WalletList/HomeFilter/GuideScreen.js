@@ -73,7 +73,7 @@ class GuideScreen extends React.PureComponent {
                 <Button
                     title={strings('modal.dropDownModal.guideAccept')}
                     onPress={this.handleAccept}
-                    containerStyle={{ marginHorizontal: GRID_SIZE }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
                 />
             </ScreenWrapper>
         )
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     guideText: {
-        fontFamily: 'SFUIDisplay-Semibold',
+        fontFamily: 'SFUIDisplay-Regular',
         fontSize: 16,
         lineHeight: 20,
         textAlign: 'center'
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 30,
         lineHeight: 34,
-        fontFamily: 'Montserrat-Medium'
+        fontFamily: 'Montserrat-SemiBold'
     },
     textAndBtn: {
         flex: 1,

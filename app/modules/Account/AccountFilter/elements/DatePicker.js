@@ -17,7 +17,7 @@ const DatePickerComponent = (props) => {
 
     const [show, setShow] = useState(false)
 
-    const { value, onDateChange } = props
+    const { value, onDateChange, side } = props
 
     const { GRID_SIZE } = useTheme()
 
@@ -45,7 +45,7 @@ const DatePickerComponent = (props) => {
     return (
         <View>
             <TextAndButton
-                title={strings('account.transaction.startDate')}
+                title={side === 'out' ? strings('account.transaction.endDate') : strings('account.transaction.startDate')}
                 buttonText={value ? getCurrentDate(value) : strings('account.transaction.pickDate')}
                 onPress={trigerShowDatePicker}
             />

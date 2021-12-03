@@ -154,6 +154,9 @@ class TransactionCategories extends React.PureComponent {
                 onPress={() => this.handleSelectCategory(item.title)}
                 isVisibleDone={false}
                 checked={!item.notActive}
+                customTextStyle={{
+                    fontFamily: 'Montserrat-SemiBold'
+                }}
             />
         )
     }

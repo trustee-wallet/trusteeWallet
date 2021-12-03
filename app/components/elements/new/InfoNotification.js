@@ -62,7 +62,9 @@ class InfoNotification extends React.Component {
             containerStyles,
             range,
             withoutClosing = false,
-            iconType
+            iconType,
+            animated = true,
+            customTextStyles
         } = this.props
 
         const { colors, GRID_SIZE } = this.context
@@ -93,7 +95,7 @@ class InfoNotification extends React.Component {
         }
 
         return (
-            <Animated.View style={[styles.container, backupAnimaStyle, containerStyles, { backgroundColor: colors.homeScreen.backupBg }]}>
+            <Animated.View style={[styles.container, animated && backupAnimaStyle , containerStyles, { backgroundColor: colors.homeScreen.backupBg }]}>
                 <TouchableOpacity
                     onPress={onPress}
                     style={styles.backupWrapper}
@@ -101,7 +103,7 @@ class InfoNotification extends React.Component {
                     disabled={withoutClosing}
                 >
                     {!withoutClosing && getIcon(iconType, colors.walletManagment.walletItemBorderColor)}
-                    <View style={styles.description}>
+                    <View style={[styles.description, customTextStyles]}>
                         {title && <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{title}</Text>}
                         <Text style={[styles.backupDescription, { color: colors.homeScreen.backupDescription }]}>{subTitle}</Text>
                     </View>
@@ -121,7 +123,7 @@ export default InfoNotification
 const styles = StyleSheet.create({
     container: {
         borderRadius: SIZE,
-        zIndex: 2
+        zIndex: 2,
     },
     backupWrapper: {
         flex: 1,

@@ -61,14 +61,14 @@ class AmountInputContainer extends React.Component {
 
     render() {
 
-        const { value, currencyCode } = this.props
+        const { value, currencyCode, side } = this.props
 
         const { GRID_SIZE } = this.context
 
         return (
             <>
                 <TextAndButton
-                    title={strings('account.transaction.startAmount')}
+                    title={side === 'out' ? strings('account.transaction.endAmount') : strings('account.transaction.startAmount')}
                     buttonText={value === '' ? strings('account.transaction.setAmount') : `${value} ${currencyCode}`}
                     onPress={this.trigerAmountShow}
                 />

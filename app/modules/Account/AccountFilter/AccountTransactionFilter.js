@@ -203,7 +203,7 @@ class TransactionFilter extends React.PureComponent {
 
     renderContent = (content) => {
 
-        const { GRID_SIZE } = this.context
+        const { GRID_SIZE, colors } = this.context
 
         const {
             startTime,
@@ -229,13 +229,16 @@ class TransactionFilter extends React.PureComponent {
                             <DatePickerComponent
                                 value={endTime}
                                 onDateChange={this.handleSaveEndDate}
+                                side='out'
                             />
                         </View>
                         <View style={[styles.buttonContainer, { marginTop: GRID_SIZE * 1.5 }]}>
                             <Button
                                 title={strings('account.transaction.discard')}
-                                containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2 }]}
+                                containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg  }]}
                                 onPress={this.handleDiscardDate}
+                                type='withoutShadow'
+                                textStyle={{ color: colors.common.button.text}}
                             />
                         </View>
                     </View>
@@ -253,13 +256,16 @@ class TransactionFilter extends React.PureComponent {
                                     value={endAmount}
                                     onChange={this.handleSetEndAmount}
                                     currencyCode={currencySymbol}
+                                    side='out'
                                 />
                             </View>
                             <View style={[styles.buttonContainer, { marginTop: GRID_SIZE * 1.5 }]}>
                                 <Button
                                     title={strings('account.transaction.discard')}
-                                    containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2 }]}
+                                    containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
                                     onPress={this.handleDiscardAmount}
+                                    type='withoutShadow'
+                                    textStyle={{ color: colors.common.button.text}}
                                 />
                             </View>
                         </View>
@@ -369,7 +375,8 @@ const styles = StyleSheet.create({
     },
     discardButton: {
         minWidth: 120,
-        maxWidth: 150
+        maxWidth: 150,
+        borderRadius: 8
     },
     buttonContainer: {
         alignItems: 'center',

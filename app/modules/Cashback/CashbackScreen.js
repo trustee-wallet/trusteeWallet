@@ -46,7 +46,7 @@ class CashbackScreen extends React.PureComponent {
         refreshing: false,
         clickRefresh: false,
         isLoading: false,
-        index: 0,
+        index: 1,
         routes: [
             {
                 title: strings('notifications.cashbackTabInvite'),
@@ -309,16 +309,18 @@ class CashbackScreen extends React.PureComponent {
         } = this.context
 
         return (
-            <ScrollView style={{ paddingHorizontal: GRID_SIZE * 1.5, marginTop: GRID_SIZE }}>
+            <ScrollView style={{ marginTop: GRID_SIZE }}>
                 {this.renderExtraView()}
-                <View style={{marginTop: -GRID_SIZE, marginHorizontal: GRID_SIZE}}>
+                <View style={{marginTop: GRID_SIZE, marginHorizontal: GRID_SIZE}}>
                     <InfoNotification
+                        animated={false}
                         range={true}
                         withoutClosing={true}
                         subTitle={strings('cashback.cashbackMessage')}
+                        customTextStyles={{ paddingLeft: 0, marginTop: -GRID_SIZE / 4 }}
                     />
                 </View>
-                <View style={{ marginTop: GRID_SIZE * 4 }}>
+                <View style={{ marginTop: GRID_SIZE * 1.5}}>
                     {this.renderDetailsHeader()}
                 </View>
             </ScrollView>
@@ -353,8 +355,7 @@ class CashbackScreen extends React.PureComponent {
         MarketingAnalytics.setCurrentScreen('CashBackScreen')
 
         const {
-            colors,
-            GRID_SIZE
+            colors
         } = this.context
 
         const {
@@ -389,7 +390,7 @@ class CashbackScreen extends React.PureComponent {
                         />
                     }>
                     <TabView
-                        style={[styles.container, { marginHorizontal: -GRID_SIZE, height: this.handleSelectHeight(this.state.index) }]}
+                        style={[styles.container, { height: this.handleSelectHeight(this.state.index) }]}
                         navigationState={this.state}
                         renderScene={this.renderScene}
                         renderHeader={null}

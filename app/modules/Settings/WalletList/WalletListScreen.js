@@ -12,6 +12,7 @@ import { strings } from '@app/services/i18n'
 import Wallet from './elements/Wallet'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { getIsBalanceVisible, getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
@@ -85,6 +86,7 @@ class WalletListScreen extends PureComponent {
                         onPressOut={() => this.triggerBalanceVisibility(false)}
                         containerStyles={{ marginHorizontal: GRID_SIZE / 2 }}
                         activeOpacity={0.7}
+                        hitSlop={HIT_SLOP}
                     />
                 </View>
             </View>
@@ -183,8 +185,7 @@ const styles = StyleSheet.create({
     balanceTitle: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 18,
-        lineHeight: 22,
-        letterSpacing: 1
+        lineHeight: 22
     },
     balanceValue: {
         fontFamily: 'SFUIDisplay-SemiBold',
