@@ -147,21 +147,19 @@ class HeaderBlocks extends React.Component {
 
         const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
 
-        let balanceTotalPretty = account?.balanceTotalPretty || null
-        let balanceStakedPretty = account?.balanceStakedPretty || null
+        let balanceTotalPretty = account?.balanceTotalPretty || '0'
+        let balanceStakedPretty = account?.balanceStakedPretty || '0'
         let balanceStakedTitle = 'settings.walletList.staked'
         let diffAvailable = typeof balanceStakedPretty !== 'undefined' && balanceStakedPretty * 1 !== 0 && balanceStakedPretty !== balanceTotalPretty
         const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
-        if (balanceTotalPretty) {
-            if (hodl > 0) {
-                balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
-                if (balanceTotalPretty.indexOf('0.0000') !== -1) {
-                    balanceTotalPretty = '0.00'
-                }
-                balanceStakedPretty = hodl
-                diffAvailable = true
-                balanceStakedTitle = 'settings.walletList.frozen'
+        if (hodl > 0) {
+            balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
+            if (typeof balanceTotalPretty !== 'undefined' && balanceStakedPretty && balanceTotalPretty?.toString().indexOf('0.0000') !== -1) {
+                balanceTotalPretty = '0.00'
             }
+            balanceStakedPretty = hodl
+            diffAvailable = true
+            balanceStakedTitle = 'settings.walletList.frozen'
         }
 
         if (!canBeStaked && !diffAvailable) {
@@ -337,21 +335,9 @@ class HeaderBlocks extends React.Component {
 
         const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
 
-        const platform = Platform.OS === 'ios'
-
-        let minHeight
-
-        if (currencyCode === 'TRX' || currencyCode === 'XRP') {
-            minHeight = platform ? 209 : 211
-        } else if (currencyCode === 'SOL') {
-            minHeight = platform ? 191 : 194
-        } else {
-            minHeight = platform ? 171 : 173
-        }
-        
         return (
             <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }} >
-                <AccountGradientBlock minHeight={minHeight}>
+                <AccountGradientBlock>
                     <View style={{ flexDirection: 'row' }} >
                         <TouchableOpacity
                             style={styles.linkButton}
