@@ -46,7 +46,6 @@ export async function changeAddress() {
 }
 
 export function getAddress() {
-    console.log('1')
     const { settingAddressType, settingAddressTypeTriggered } = this.state
     const { isSegwit } = this.props
     let { address, legacyAddress, segwitAddress,  } = this.props.selectedAccountData

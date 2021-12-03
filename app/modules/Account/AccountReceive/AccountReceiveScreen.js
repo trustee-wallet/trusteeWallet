@@ -4,12 +4,10 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions, Linking, LayoutAnimation } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions, Linking } from 'react-native'
 
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-
-// import LottieView from 'lottie-react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -601,7 +599,7 @@ class AccountReceiveScreen extends React.PureComponent {
         const { customAmount } = this.state
 
         // TODO animation
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+        // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
 
         this.scrollDetails(!customAmount)
 
@@ -739,10 +737,11 @@ class AccountReceiveScreen extends React.PureComponent {
                                             <LetterSpacing text={notEquivalentValue} textStyle={{ ...styles.notEquivalentValue, color: '#999999' }}
                                                 letterSpacing={1.5} />
                                         </View>
-                                        <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 2, width: 112, height: 34, paddingBottom: GRID_SIZE}}>
+                                        <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 2}}>
                                             <Button
                                                 title={strings('account.receiveScreen.share')}
                                                 onPress={this.shareData}
+                                                containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
                                             />
                                         </View> 
                                     </> :  
