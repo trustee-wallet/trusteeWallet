@@ -148,7 +148,7 @@ class SynchronizedBlock extends React.PureComponent {
                             </View>}
                     </View>
                     <View style={styles.btns}>
-                        {!isSeaching &&
+                        {/* {!isSeaching &&
                             <TouchableOpacity
                                 style={{ marginHorizontal: GRID_SIZE / 2 }}
                                 onPress={toggleSearch}
@@ -156,7 +156,7 @@ class SynchronizedBlock extends React.PureComponent {
                             >
                                 <CustomIcon name='search' size={20} color={colors.common.text1} />
                             </TouchableOpacity>
-                        }
+                        } */}
                         <TouchableOpacity
                             style={{ marginHorizontal: GRID_SIZE / 2 }}
                             onPress={() => !isSeaching ? handleRefresh(true) : toggleSearch()}

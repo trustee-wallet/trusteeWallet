@@ -67,11 +67,6 @@ class HomeDragScreen extends PureComponent {
 
     handleDone = () => {
 
-        if (this.state.sortValue === 'custom') {
-            const currenciesOrder = this.state.data.map(c => c.currencyCode)
-            trusteeAsyncStorage.setCurrenciesList(currenciesOrder)
-        }
-
         NavStore.goBack()
         if(this.state.fromGuide) {
             this.setState({
@@ -91,6 +86,8 @@ class HomeDragScreen extends PureComponent {
 
     onDragEnd = ({ data }) => {
         this.setState({ data, isCurrentlyDraggable: false, sortValue: 'custom' })
+        const currenciesOrder = this.state.data.map(c => c.currencyCode)
+        trusteeAsyncStorage.setCurrenciesList(currenciesOrder)
         setSortValue('custom')
         trusteeAsyncStorage.setSortValue('custom')
     }
@@ -112,7 +109,7 @@ class HomeDragScreen extends PureComponent {
             colors
         } = this.context
 
-        const data = getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue === 'custom' ? '' : this.state.sortValue)
+        const data = getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)
 
         return (
             <ScreenWrapper

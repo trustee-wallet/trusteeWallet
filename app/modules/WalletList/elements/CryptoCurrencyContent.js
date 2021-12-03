@@ -46,7 +46,7 @@ const renderSynchronization = () => {
 const CryptoCurrencyContent = (props) => {
 
     const {
-        colors
+        colors, GRID_SIZE
     } = useTheme()
 
     const {
@@ -151,7 +151,7 @@ const CryptoCurrencyContent = (props) => {
             }
             {!props.constructorMode ? null :
                 <TouchableOpacity
-                    style={styles.dragBtns}
+                    style={{ marginLeft: GRID_SIZE }}
                     activeOpacity={0.7}
                     onPressIn={props.onDrag}
                     hitSlop={HIT_SLOP}

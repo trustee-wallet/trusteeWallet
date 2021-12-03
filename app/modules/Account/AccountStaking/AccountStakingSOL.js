@@ -21,7 +21,7 @@ import { TabView } from 'react-native-tab-view'
 
 import { strings } from '@app/services/i18n'
 
-import { getSolValidator, getSelectedAccountData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
+import { getSolValidator, getSelectedAccountData, getStakingCoins, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { HIT_SLOP } from '@app/theme/HitSlop'
@@ -496,7 +496,8 @@ const mapStateToProps = state => {
     return {
         account: getSelectedAccountData(state),
         solValidator: getSolValidator(state),
-        stakingCoins: getStakingCoins(state)
+        stakingCoins: getStakingCoins(state),
+        cryptoCurrency: getSelectedCryptoCurrencyData(state)
     }
 }
 

@@ -17,17 +17,17 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 const getIcon = (iconType, color) => {
     switch (iconType) {
         case 'customSort':
-            return <CustomIcon name='customSort' size={14} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='customSort' size={16} color={color} style={{ left: 1 }} />
         case 'tokenFirstSort':
-            return <CustomIcon name='tokenFirstSort' size={14} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='tokenFirstSort' size={16} color={color} style={{ left: 1 }} />
         case 'coinFirstSort':
-            return <CustomIcon name='coinFirstSort' size={14} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='coinFirstSort' size={16} color={color} style={{ left: 1 }} />
         case 'nameSort':
-            return <CustomIcon name='nameSort' size={14} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='nameSort' size={16} color={color} style={{ left: 1 }} />
         case 'balanceSort':
-            return <CustomIcon name='balanceSort' size={14} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='balanceSort' size={16} color={color} style={{ left: 1 }} />
         case 'wallet':
-            return <CustomIcon name='shield' size={14} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='shield' size={16} color={color} style={{ left: 1 }} />
         default:
             return null
     }
@@ -79,8 +79,8 @@ export default function SubSettingListItem(props) {
                 :
                 <View style={[styles.container, containerStyle]}>
                     {iconType &&
-                        <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight }]}>
-                            {getIcon(iconType, colors.common.listItem.basic.iconColorLight)}
+                        <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgDark }]}>
+                            {getIcon(iconType, colors.common.listItem.basic.iconColorDark)}
                         </View>
                     }
                     <View style={[styles.mainContent, last && styles.noBorder]}>

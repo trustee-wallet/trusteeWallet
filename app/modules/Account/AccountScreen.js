@@ -245,15 +245,18 @@ class Account extends React.PureComponent {
         }
     }
 
-    toggleSearch = () => {
-        this.setState({
-            isSeaching: !this.state.isSeaching,
-        })
+    // toggleSearch = () => {
+    //     this.setState({
+    //         isSeaching: !this.state.isSeaching,
+    //     })
 
-        if (this.state.isSeaching) {
-            setFilter(null, 'AccountScreen.toggleSearch')
-        }
-    }
+    //     if (this.state.isSeaching) {
+    //         setFilter({
+    //             ...this.props.filterData,
+    //             searchQuery: null
+    //         }, 'AccountScreen.toggleSearch')
+    //     }
+    // }
 
     render() {
         if (this.props.isBlurVisible) {
@@ -387,8 +390,9 @@ class Account extends React.PureComponent {
                                 clickRefresh={this.state.clickRefresh}
                                 selectedAccountTransactions={this.props.selectedAccountTransactions}
                                 handleRefresh={this.handleRefresh}
-                                toggleSearch={this.toggleSearch}
-                                isSeaching={this.state.isSeaching}
+                                // toggleSearch={this.toggleSearch}
+                                // isSeaching={this.state.isSeaching}
+                                filterData={this.props.filterData}
                             />
                         </>
                     )}

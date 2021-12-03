@@ -135,7 +135,7 @@ class Transaction extends React.Component {
         }
 
         if (transactionFilterType === TransactionFilterTypeDict.SWAP) {
-            arrowIcon = <CustomIcon name='swap' style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 16 }} />
+            arrowIcon = <CustomIcon name='swap' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 16 }} />
         }
 
         // if (status === 'fail' || status === 'missing' || status === 'replaced') {

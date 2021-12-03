@@ -38,6 +38,7 @@ import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAn
 import InfoProgressBar from './elements/InfoProgressBar'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
 import { handleTrxScan, handleFreezeTrx, handleUnFreezeTrx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
+import Loader from '@app/components/elements/LoaderItem'
 
 
 class AccountStakingTRX extends React.PureComponent {
@@ -76,13 +77,18 @@ class AccountStakingTRX extends React.PureComponent {
             }
         ],
         index: 0,
-        refreshing: false
+        refreshing: false,
+        loading: true
     }
 
     stakeAmountInput = React.createRef()
 
-    componentDidMount() {
-        handleTrxScan.call(this)
+    async componentDidMount() {
+        await handleTrxScan.call(this)
+
+        this.setState({
+            loading: false
+        })
     }
 
     handleBack = () => {
@@ -151,7 +157,8 @@ class AccountStakingTRX extends React.PureComponent {
         const {
             prettyReward,
             currentBalance,
-            currentLimits
+            currentLimits,
+            loading
         } = this.state
 
         const time = currentBalance.time || false
@@ -165,37 +172,49 @@ class AccountStakingTRX extends React.PureComponent {
 
         return (
             <AccountGradientBlock>
-                <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>
-                    <View>
-                        <Text style={[styles.rewardText, { color: colors.common.text1 }]}>{strings('settings.walletList.rewards')}</Text>
-                        <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
+                {!loading ?
+                    <>
+                        <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>
+                            <View>
+                                <Text style={[styles.rewardText, { color: colors.common.text1 }]}>{strings('settings.walletList.rewards')}</Text>
+                                <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
+                            </View>
+                            <PercentView
+                                value={this.props.stakingCoins['TRX']}
+                                staking
+                            />
+                        </View>
+                        <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
+                            <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
+                            {!!prettyReward && Number(prettyReward) > 0 &&
+                                <BorderedButton
+                                    containerStyle={styles.withdrawBtn}
+                                    text={strings('settings.walletList.withdrawSOL')}
+                                    onPress={() => handleGetRewardTrx.call(this)}
+                                />}
+                        </View>
+                        <View style={styles.progressBarLocation}>
+                            <InfoProgressBar
+                                title={strings('settings.walletList.bandwidthTRX')}
+                                amount={currentLimits.leftBand}
+                                total={currentLimits.totalBand}
+                            />
+                            <InfoProgressBar
+                                title={strings('settings.walletList.energyTRX')}
+                                amount={currentLimits.leftEnergy}
+                                total={currentLimits.totalEnergy}
+                            />
+                        </View>
+                    </>
+                    :
+                    <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2.3 }}>
+                        <View style={[styles.topContent__title]}>
+                            <View style={{ height: 46, alignItems: 'center' }}>
+                                <Loader size={30} color={colors.accountScreen.loaderColor} />
+                            </View>
+                        </View>
                     </View>
-                    <PercentView
-                        value={this.props.stakingCoins['TRX']}
-                        staking
-                    />
-                </View>
-                <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
-                    <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
-                    {!!prettyReward && Number(prettyReward) > 0 &&
-                        <BorderedButton
-                            containerStyle={styles.withdrawBtn}
-                            text={strings('settings.walletList.withdrawSOL')}
-                            onPress={() => handleGetRewardTrx.call(this)}
-                        />}
-                </View>
-                <View style={styles.progressBarLocation}>
-                    <InfoProgressBar
-                        title={strings('settings.walletList.bandwidthTRX')}
-                        amount={currentLimits.leftBand}
-                        total={currentLimits.totalBand}
-                    />
-                    <InfoProgressBar
-                        title={strings('settings.walletList.energyTRX')}
-                        amount={currentLimits.leftEnergy}
-                        total={currentLimits.totalEnergy}
-                    />
-                </View>
+                }
             </AccountGradientBlock>
         )
     }
@@ -370,7 +389,7 @@ class AccountStakingTRX extends React.PureComponent {
                             useNativeDriver
                         />
                         <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2 }]}>
-                            {`${strings('settings.walletList.availableTRX')} ${currentBalance.prettyBalanceAvailable} ${currencyCode}`}
+                            {`${strings('settings.walletList.available')} ${currentBalance?.prettyBalanceAvailable || ''} ${currencyCode}`}
                         </Text>
                         <View style={{ marginBottom: GRID_SIZE * 1.5 }}>
                             {this.renderAmountInput()}
@@ -531,5 +550,12 @@ const styles = {
         shadowRadius: 3.84,
 
         elevation: 5,
+    },
+    topContent__title: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+        marginTop: 16,
     },
 }
