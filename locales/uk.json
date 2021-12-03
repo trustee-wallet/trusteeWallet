@@ -194,7 +194,8 @@
         "title": "Переключити гаманець у режим HD?",
         "description": "Режим HD означає ротацію адрес для кожної транзакції. Операція перемикання є незворотньою."
       },
-      "staked": "Застейконо:",
+      "staked": "Застейкано",
+      "frozen" : "Заморожено",
       "stakeTransactionsSOL": "Транзакції стейкінгу",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
@@ -205,7 +206,7 @@
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти",
       "getMnemonicXMR" : "Переглянути секретний ключ",
-      "availableTRX" : "Доступно:",
+      "available" : "Доступно",
       "availableSOL": "Доступний баланс",
       "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",

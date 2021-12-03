@@ -128,7 +128,7 @@ export default {
                     }
                 ]
             }
-            const hodl = await (BlocksoftBalances.setCurrencyCode(currencyCode)).getBalanceHodl(account)
+            const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
             resultAccount.balanceHodl = hodl
             if (hodl > 0) {
                 resultAccount.balance = account.balancePretty * 1 - hodl

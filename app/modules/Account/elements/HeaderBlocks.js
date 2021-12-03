@@ -34,6 +34,8 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 import AccountGradientBlock from './AccountGradientBlock'
 import { getExplorerLink, handleShareInvoice } from '../helpers'
 import PercentView from '@app/components/elements/new/PercentView'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 class HeaderBlocks extends React.Component {
 
@@ -140,26 +142,48 @@ class HeaderBlocks extends React.Component {
             GRID_SIZE
         } = this.context
 
-        const { currencyCode } = this.props.cryptoCurrency
+        const { account } = this.props
+        const { currencyCode, currencySymbol } = this.props.cryptoCurrency
 
-        if (currencyCode !== 'TRX' && currencyCode !== 'SOL') return <View />
+        const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
 
-        const { balanceStakedPretty, balanceTotalPretty } = this.props.account
+        let balanceTotalPretty = account.balanceTotalPretty
+        let balanceStakedPretty = account.balanceStakedPretty
+        let balanceStakedTitle = 'settings.walletList.staked'
+        let diffAvailable = typeof balanceStakedPretty !== 'undefined' && balanceStakedPretty*1 !== 0 && balanceStakedPretty !== balanceTotalPretty
+        const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
+        if (hodl > 0) {
+            balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
+            if (balanceTotalPretty.indexOf('0.0000') !== -1) {
+                balanceTotalPretty = '0.00'
+            }
+            balanceStakedPretty = hodl
+            diffAvailable = true
+            balanceStakedTitle = 'settings.walletList.frozen'
+        }
+
+
+        if (!canBeStaked && !diffAvailable) {
+            return <View />
+        }
 
         return (
-            <View style={{ flexDirection: 'row', justifyContent: currencyCode === 'TRX' ? 'space-between' : 'flex-end', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
-                {currencyCode === 'TRX' &&
+            <View style={{ flexDirection: 'row', justifyContent: diffAvailable ? 'space-between' : 'flex-end', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
+                {diffAvailable &&
                     <View>
-                        <Text style={[styles.avalibleText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
-                            {`${strings('settings.walletList.availableTRX')} ${balanceTotalPretty} ${currencyCode}`}
+                        <Text style={[styles.availableText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
+                            {`${strings('settings.walletList.available')}: ${balanceTotalPretty} ${currencySymbol}`}
                         </Text>
-                        <Text style={styles.avalibleText}>
-                            {`${strings('settings.walletList.staked')} ${balanceStakedPretty} ${currencyCode}`}
+                        <Text style={styles.availableText}>
+                            {`${strings(balanceStakedTitle)}: ${balanceStakedPretty} ${currencySymbol}`}
                         </Text>
                     </View>}
+                {
+                    canBeStaked &&
                 <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
                     <CustomIcon name='staking' size={24} color={colors.common.text1} />
                 </TouchableOpacity>
+                }
             </View>
         )
     }
@@ -647,7 +671,7 @@ const styles = {
         marginRight: 4,
         // marginTop: 10
     },
-    avalibleText: {
+    availableText: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
         lineHeight: 18,

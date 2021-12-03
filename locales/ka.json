@@ -192,7 +192,8 @@
         "title": "გადავრთოთ საფულე HD რეჟიმში?",
         "description": "HD რეჟიმი გულისხმობს მისამართების როტაციას ყოველ ტრანზაქციაზე. გადართვის ოპერაცია შუქცევადია."
       },
-      "staked": "Staked:",
+      "staked": "Staked",
+      "frozen": "Frozen",
       "stakeTransactionsSOL": "Staking transactions",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
@@ -203,7 +204,7 @@
       "needReinstallXMR": "XMR მისამართის სისტემური შეცდომა. გთხოვთ, შეინახოთ მნემონური ფრაზა და თავიდან დააინსტალიროთ პროგრამა, ან დაუკავშირდეთ მხარდაჭერის ჯგუფს დეტალური ინსტრუქციებისთვის. ",
       "saveSettings": "შენახვა",
       "getMnemonicXMR": "View secret key",
-      "availableTRX": "ხელმისაწვდომია:",
+      "available": "ხელმისაწვდომია",
       "availableSOL": "Available balance",
       "frozenTRX": "Застейкано",
       "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",

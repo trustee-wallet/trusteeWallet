@@ -194,7 +194,8 @@
         "title": "Переключить кошелек в режим HD?",
         "description": "Режим HD подразумевает ротацию адресов для каждой транзакции. Операция переключения необратима."
       },
-      "staked": "Застейконо:",
+      "staked": "Застейконо",
+      "frozen": "Заморожено",
       "stakeTransactionsSOL": "Транзакции стейкинга",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
@@ -205,7 +206,7 @@
       "needReinstallXMR"  : "Системная ошибка адреса XMR - пожалуйста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробных инструкций",
       "saveSettings" : "Сохранить",
       "getMnemonicXMR" : "Посмотреть секретный ключ",
-      "availableTRX" : "Доступно:",
+      "available" : "Доступно",
       "availableSOL": "Доступный баланс",
       "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Пропускная способность: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",

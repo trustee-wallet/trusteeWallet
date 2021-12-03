@@ -194,7 +194,8 @@
         "title": "Switch wallet to HD mode?",
         "description": "HD mode implies rotation of addresses for each transaction. The switching operation is irreversible."
       },
-      "staked": "Staked:",
+      "staked": "Staked",
+      "frozen": "Frozen",
       "stakeTransactionsSOL": "Staking transactions",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
@@ -205,7 +206,7 @@
       "needReinstallXMR"  : "Something wrong with XMR address generation - please, save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
       "getMnemonicXMR" : "View secret key",
-      "availableTRX" : "Available:",
+      "available" : "Available",
       "availableSOL": "Available balance",
       "frozenTRX" : "Frozen",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",

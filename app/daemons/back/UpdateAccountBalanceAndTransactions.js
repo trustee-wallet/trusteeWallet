@@ -271,7 +271,7 @@ class UpdateAccountBalanceAndTransactions {
             } else if (typeof account.balance === 'undefined' || (
                 newBalance.balance.toString() !== account.balance.toString()
                 || newBalance.unconfirmed.toString() !== account.unconfirmed.toString()
-                ||  newBalance.balanceStaked.toString() !== account.balanceStaked.toString()
+                || (typeof newBalance.balanceStaked !== 'undefined' && typeof account.balanceStaked !== 'undefined' && newBalance.balanceStaked.toString() !== account.balanceStaked.toString())
             )) {
                 updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
                 updateObj.balanceTxt = newBalance.balance.toString() // and string for any case

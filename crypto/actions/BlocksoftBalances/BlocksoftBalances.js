@@ -97,7 +97,7 @@ class BlocksoftBalances {
         return res
     }
 
-    async getBalanceHodl() {
+    getBalanceHodl() {
         const currencyCode = this._data.currencyCode
         if (!currencyCode) {
             throw new Error('plz set currencyCode before calling')
