@@ -226,7 +226,7 @@ export namespace SendActionsBlockchainWrapper {
                     neverCounted : false
                 }
             })
-            return { transferAllBalance : typeof transferAllBalance !== 'undefined' && transferAllBalance ? transferAllBalance : 0, source : 'NEW_COUNTED', addressTo : newCountedFeesData.addressTo}
+            return { transferAllBalance : typeof transferAllBalance !== 'undefined' && transferAllBalance ? transferAllBalance : 0, source : 'NEW_COUNTED', addressTo : newCountedFeesData.addressTo, selectedFee}
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)

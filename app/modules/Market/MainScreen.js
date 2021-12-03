@@ -523,14 +523,7 @@ class MarketScreen extends PureComponent {
                 return true
             }
 
-            await SendActionsStart.startFromBSE({
-                addressTo: data.address,
-                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
-                memo: data.memo,
-                comment: data.comment || '',
-                currencyCode: data.currencyCode,
-                isTransferAll: data.useAllFunds
-            }, bse)
+            await SendActionsStart.startFromBSE(data, bse)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('Market/MainScreen.send ' + e.message)
@@ -865,12 +858,12 @@ class MarketScreen extends PureComponent {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            const transferBalance = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
-            this.webref && this.webref.postMessage(JSON.stringify({ fees: { amount: amount ? amount : 0 } }))
+            const transferData = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferData.transferAllBalance, 'V3.sellAll')
+            this.webref && this.webref.postMessage(JSON.stringify({ fees: { amount: amount || 0, transferData } }))
             return {
                 currencyBalanceAmount: amount,
-                currencyBalanceAmountRaw: transferBalance
+                currencyBalanceAmountRaw: transferData.transferBalance
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
