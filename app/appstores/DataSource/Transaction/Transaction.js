@@ -301,28 +301,40 @@ class Transaction {
         // if not selected both income and outcome - we assume someone dont want usual transactions to be seen
 
         // status filter
+        let isCancelShown = false
         if (typeof params.filterStatusHideCancel !== 'undefined' && params.filterStatusHideCancel) {
             where.push(`transaction_status NOT IN ('fail')`)
+        } else {
+            isCancelShown = true
         }
 
         // fee filter
+        let isFeeShown = false
         if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
             where.push(`address_to NOT LIKE '% Simple Send%'`)
             where.push(`address_amount != '0'`)
             where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}'))`)
+        } else {
+            isFeeShown = true
         }
 
 
         // other categories
+        let isSwapShown = false
         if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
             where.push(`(bse_order_id = '' OR bse_order_id IS NULL OR bse_order_id = 'null')`)
             where.push(`transaction_direction NOT IN ('swap_income', 'swap_outcome', 'swap')`)
             where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SWAP}'))`)
+        } else {
+            isSwapShown = true
         }
 
+        let isStakeShown = false
         if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake) {
             where.push(`transaction_direction NOT IN ('freeze', 'unfreeze', 'claim')`)
             where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}'))`)
+        } else {
+            isStakeShown = true
         }
 
         // if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
@@ -330,10 +342,10 @@ class Transaction {
         // }
 
 
-        // 
-        if (filterTypeHideUsual) {
+        //
+        if (typeof params.noFilter === 'undefined' && filterTypeHideUsual) {
             let tmpWhere = []
-            if (typeof params.filterStatusHideCancel !== 'undefined' && params.filterStatusHideCancel === false) {
+            if (isCancelShown) {
                 tmpWhere.push(`
                 (
                     transaction_direction IN ('outcome', 'self') 
@@ -343,7 +355,7 @@ class Transaction {
                 `)
             }
 
-            if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee === false) {
+            if (isFeeShown) {
                 tmpWhere.push(`
                 (
                     transaction_direction IN ('outcome', 'self')) 
@@ -359,8 +371,8 @@ class Transaction {
                 )
             `)
             }
-            
-            if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake === false) {
+
+            if (isStakeShown) {
                 if (params.currencyCode === 'TRX' || params.currencyCode === 'SOL') {
                     tmpWhere.push(`
                     (
@@ -372,7 +384,7 @@ class Transaction {
                 }
             }
 
-            if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap === false) {
+            if (isSwapShown) {
                 tmpWhere.push(`
                 (
                     bse_order_id != '' OR bse_order_id IS NOT NULL OR bse_order_id != 'null'
