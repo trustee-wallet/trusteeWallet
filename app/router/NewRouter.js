@@ -41,6 +41,7 @@ import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountS
 import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPrivate/AccountSettingsPrivateScreen'
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
+import AllAddressesScreen from '@app/modules/Account/AccountReceive/AllAddressesScreen'
 
 import SolStakingTransactionScreen from '@app/modules/Account/AccountSettings/sol/SolStakingTransactionScreen'
 import SolValidators from '@app/modules/Account/AccountSettings/sol/SolValidators'
@@ -135,6 +136,7 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolStakingTransactionScreen' component={SolStakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolValidators' component={SolValidators} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='AllAddressesScreen' component={AllAddressesScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 

@@ -17,8 +17,7 @@
        tabs,
        changeTab,
        containerStyle,
-       tabStyle,
-       active
+       tabStyle
     } = props
 
     const {
@@ -28,24 +27,23 @@
 
     return (
        <View style={[styles.container, containerStyle]}>
-           {tabs.map((tab, index) => {
-               const isActiveTab = active === index
-               return (
+                {tabs.map(tab => (
+               
                    <TouchableOpacity
                        style={[styles.tab, tabStyle]}
                        activeOpacity={0.8}
-                       disabled={isActiveTab}
-                       key={index}
-                       onPress={() => changeTab(index)}
+                       disabled={tab.active}
+                       key={tab.index}
+                       onPress={() => changeTab(tab)}
                    >
                        <View>
-                           <Text style={[styles.title, { color: isActiveTab ? colors.common.text1 : colors.homeScreen.newTabsText }]} numberOfLines={1} >{tab.title}</Text>
+                           <Text style={[styles.title, { color: tab.active ? colors.common.text1 : colors.homeScreen.newTabsText }]} numberOfLines={1} >{tab.title}</Text>
                            {tab.hasNewNoties && <View style={[styles.newNotifiesIndicator, { backgroundColor: colors.notifications.newNotiesIndicator }]} />}
                        </View>
-                       <View style={[styles.activeTabIndicator, { backgroundColor: isActiveTab ? colors.common.checkbox.bgChecked : colors.common.button.disabledBg, marginTop: GRID_SIZE / 2, height: isActiveTab ? 2 : 1 }]} />
+                       <View style={[styles.activeTabIndicator, { backgroundColor: tab.active ? colors.common.checkbox.bgChecked : colors.common.button.disabledBg, marginTop: GRID_SIZE / 2, height: tab.active ? 2 : 1 }]} />
                    </TouchableOpacity>
                )
-           })}
+           )}
        </View>
     )
  }

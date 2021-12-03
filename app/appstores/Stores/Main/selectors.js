@@ -69,7 +69,8 @@ export const getSelectedAccountData = createSelector(
             basicCurrencySymbol : data.basicCurrencySymbol,
             currencyCode : data.currencyCode,
 
-            walletPubs : data.walletPubs
+            walletPubs : data.walletPubs,
+            derivationPath : data.derivationPath
         }
     })
 )
