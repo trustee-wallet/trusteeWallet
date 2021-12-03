@@ -46,7 +46,7 @@ class CashbackScreen extends React.PureComponent {
         refreshing: false,
         clickRefresh: false,
         isLoading: false,
-        index: 1,
+        index: 0,
         routes: [
             {
                 title: strings('notifications.cashbackTabInvite'),

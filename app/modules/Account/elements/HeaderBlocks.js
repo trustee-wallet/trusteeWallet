@@ -164,7 +164,6 @@ class HeaderBlocks extends React.Component {
             }
         }
 
-
         if (!canBeStaked && !diffAvailable) {
             return <View />
         }
@@ -197,7 +196,7 @@ class HeaderBlocks extends React.Component {
         const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility, account } = this.props
         const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
 
-        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance, currencyCode } = account
+        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance } = account
 
         let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
         if (typeof tmp.split === 'undefined') {
@@ -338,9 +337,21 @@ class HeaderBlocks extends React.Component {
 
         const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
 
+        const platform = Platform.OS === 'ios'
+
+        let minHeight
+
+        if (currencyCode === 'TRX' || currencyCode === 'XRP') {
+            minHeight = platform ? 209 : 211
+        } else if (currencyCode === 'SOL') {
+            minHeight = platform ? 191 : 194
+        } else {
+            minHeight = platform ? 171 : 173
+        }
+        
         return (
             <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }} >
-                <AccountGradientBlock minHeight={currencyCode === 'TRX' ? 209 : currencyCode === 'SOL' ? 191 : 171}>
+                <AccountGradientBlock minHeight={minHeight}>
                     <View style={{ flexDirection: 'row' }} >
                         <TouchableOpacity
                             style={styles.linkButton}
