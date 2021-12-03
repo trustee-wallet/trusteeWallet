@@ -37,10 +37,11 @@ import { FileSystem } from '@app/services/FileSystem/FileSystem'
 import Log from '@app/services/Log/Log'
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
+import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
 
 
 const CustomLayoutAnimation = {
-    duration: 800,
+    duration: 400,
     create: {
         type: LayoutAnimation.Types.linear,
         property: LayoutAnimation.Properties.opacity,
@@ -86,7 +87,7 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleClose = () => {
-        setFilter(null, 'AccountTransactionFilter.handleClose')
+        setFilter(Object.keys(this.props.filterData).map(key => this.props.filterData[key] = false), 'AccountTransactionFilter.handleClose')
         NavStore.reset('HomeScreen')
     }
 
@@ -274,6 +275,11 @@ class TransactionFilter extends React.PureComponent {
         )
     }
 
+    handleCleanFilter = () => {
+        setFilter(Object.keys(this.props.filterData).map(key => this.props.filterData[key] = false), 'AccountTransactionFilter.handleCleanFilter')
+        NavStore.goBack()
+    }
+
     render() {
 
         const {
@@ -341,11 +347,21 @@ class TransactionFilter extends React.PureComponent {
                     </View>
 
                 </ScrollView>
-                <Button
-                    title={strings('send.setting.apply')}
-                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
-                    onPress={this.handlePickFilter}
-                />
+                <View style={{
+                    paddingHorizontal: GRID_SIZE,
+                    paddingVertical: GRID_SIZE * 1.5
+                }}>
+                    <TwoButtons
+                        mainButton={{
+                            onPress: this.handlePickFilter,
+                            title: strings('send.setting.apply')
+                        }}
+                        secondaryButton={{
+                            type: 'delete',
+                            onPress: this.handleCleanFilter
+                        }}
+                    />
+                </View>
             </ScreenWrapper>
         )
     }
