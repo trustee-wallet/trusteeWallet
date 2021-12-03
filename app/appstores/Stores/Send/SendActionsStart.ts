@@ -235,16 +235,16 @@ export namespace SendActionsStart {
             dict
         })
         const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
-        return res.transferAllBalance || 0
+        return res
     }
 
     export const startFromBSE = async (data : {
         amount : string,
-        addressTo : string,
+        address : string,
         memo : string,
         comment : string,
         currencyCode : string,
-        isTransferAll : boolean
+        useAllFunds : boolean
     }, bse : {
         bseProviderType : any,
         bseOrderId: any,
@@ -255,18 +255,19 @@ export namespace SendActionsStart {
     }) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
+        const amount = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
-            addressTo : data.addressTo,
-            amount :  data.amount,
+            addressTo : data.address,
+            amount : amount,
             memo : data.memo
         })
         const ui = {
             uiType : 'TRADE_SEND',
-            addressTo : data.addressTo,
+            addressTo : data.address,
             memo : data.memo,
-            comment : data.comment,
-            cryptoValue : data.amount,
-            isTransferAll : data.isTransferAll,
+            comment : data.comment || '',
+            cryptoValue : amount,
+            isTransferAll : data.useAllFunds,
             bse,
             transactionFilterType: TransactionFilterTypeDict.SWAP
         }
