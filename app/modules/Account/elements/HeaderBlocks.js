@@ -147,19 +147,21 @@ class HeaderBlocks extends React.Component {
 
         const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
 
-        let balanceTotalPretty = account.balanceTotalPretty
-        let balanceStakedPretty = account.balanceStakedPretty
+        let balanceTotalPretty = account?.balanceTotalPretty || null
+        let balanceStakedPretty = account?.balanceStakedPretty || null
         let balanceStakedTitle = 'settings.walletList.staked'
-        let diffAvailable = typeof balanceStakedPretty !== 'undefined' && balanceStakedPretty*1 !== 0 && balanceStakedPretty !== balanceTotalPretty
+        let diffAvailable = typeof balanceStakedPretty !== 'undefined' && balanceStakedPretty * 1 !== 0 && balanceStakedPretty !== balanceTotalPretty
         const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
-        if (hodl > 0) {
-            balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
-            if (balanceTotalPretty.indexOf('0.0000') !== -1) {
-                balanceTotalPretty = '0.00'
+        if (balanceTotalPretty) {
+            if (hodl > 0) {
+                balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
+                if (balanceTotalPretty.indexOf('0.0000') !== -1) {
+                    balanceTotalPretty = '0.00'
+                }
+                balanceStakedPretty = hodl
+                diffAvailable = true
+                balanceStakedTitle = 'settings.walletList.frozen'
             }
-            balanceStakedPretty = hodl
-            diffAvailable = true
-            balanceStakedTitle = 'settings.walletList.frozen'
         }
 
 
@@ -180,9 +182,9 @@ class HeaderBlocks extends React.Component {
                     </View>}
                 {
                     canBeStaked &&
-                <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
-                    <CustomIcon name='staking' size={24} color={colors.common.text1} />
-                </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
+                        <CustomIcon name='staking' size={24} color={colors.common.text1} />
+                    </TouchableOpacity>
                 }
             </View>
         )
