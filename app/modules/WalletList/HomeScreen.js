@@ -47,6 +47,7 @@ import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceDat
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 import { strings } from '@app/services/i18n'
+import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 
 
 class HomeScreen extends React.PureComponent {
@@ -237,11 +238,15 @@ class HomeScreen extends React.PureComponent {
                                 <SectionList
                                 {...this.commonHeaderProps}
                                 sections={getSectionsData(this.state.data)}
-                                renderSectionHeader={({ section: { title } }) => (
-                                    <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>
-                                        {strings(`homeScreen.categories.${title}`)}
-                                    </Text>
-                                )}
+                                renderSectionHeader={({ section: { title } }) => {
+                                    if (title === 'special') return null
+                                    
+                                    return (
+                                        <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>
+                                            {strings(`homeScreen.categories.${title}`)}
+                                        </Text>
+                                    )
+                                }}
                                 renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE }} />}
                                 stickySectionHeadersEnabled={false}
                                 />
@@ -266,6 +271,7 @@ const mapStateToProps = (state) => {
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
         nftsData: getNftsData(state),
         sortValue: getSortValue(state),
+        cashbackStore: getCashBackData(state),
         accountList: getAccountList(state)
     }
 }

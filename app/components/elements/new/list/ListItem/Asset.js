@@ -57,6 +57,7 @@ export default function SettingListItem(props) {
         disabledRightContent,
         onLongPress,
         delayLongPress = 5000,
+        TitleExtraView
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -78,7 +79,10 @@ export default function SettingListItem(props) {
                 />
                 <View style={styles.mainContent}>
                     <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
-                        <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                        <View style={styles.container}>
+                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            {TitleExtraView && <TitleExtraView />}
+                        </View>
                         {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                     </View>
                     {!!rightContent && (

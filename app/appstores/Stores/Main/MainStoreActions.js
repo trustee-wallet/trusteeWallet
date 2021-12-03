@@ -19,6 +19,7 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import UIDict from '@app/services/UIDict/UIDict'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 const { dispatch } = store
@@ -293,17 +294,31 @@ export async function setSelectedAccountTransactions(source) {
     try {
         const wallet = store.getState().mainStore.selectedWallet
         const account = store.getState().mainStore.selectedAccount
+        const filter = store.getState().mainStore.filter
         const transactionsToView = []
 
         const params = {
             walletHash: account.walletHash,
             currencyCode: account.currencyCode,
             limitFrom: 0,
-            limitPerPage: 1
+            limitPerPage: 1,
+            startTime: filter?.startTime || null,
+            endTime: filter?.endTime || null,
+            startAmount: filter?.startAmount || null,
+            endAmount: filter?.endAmount || null,
+            searchQuery: filter?.searchQuery || null,
+            filterDirectionHideIncome: filter?.filterDirectionHideIncome || null,
+            filterDirectionHideOutcome: filter?.filterDirectionHideOutcome || null,
+            filterStatusHideCancel: filter?.filterStatusHideCancel || null,
+            filterTypeHideFee: filter.filterTypeHideFee,
+            filterTypeHideSwap: filter?.filterTypeHideSwap || null,
+            filterTypeHideStake: filter?.filterTypeHideStake || null,
+            filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
         }
-        if (wallet.walletIsHideTransactionForFee !== null && +wallet.walletIsHideTransactionForFee === 1) {
-            params.minAmount = 0
+        if (typeof filter.filterTypeHideFee === 'undefined') {
+            params.filterTypeHideFee = true
         }
+
         const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')
         if (tmp && tmp.length > 0) {
             for (let transaction of tmp) {
@@ -378,9 +393,26 @@ export function setSolValidator(solValidator) {
     })
 }
 
+export function setFilter(filter, source = '') {
+    dispatch({
+        type: 'SET_FILTER',
+        filter
+    })
+}
+
 export function setSortValue(sortValue) {
     dispatch({
         type: 'SET_SORT_VALUE',
         sortValue
+    })
+}
+
+export async function setStakingCoins() {
+
+    const stakingCoins = await BlocksoftExternalSettings.get('STAKING_COINS_PERCENT')
+
+    dispatch({
+        type: 'SET_STAKING_COINS',
+        stakingCoins
     })
 }

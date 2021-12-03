@@ -99,7 +99,7 @@ export class Tab1 extends React.Component {
             Log.log('CashbackLink inputParent for ' + cashbackLink + ' is equal ' + inviteLink)
             showModal({
                 type: 'INFO_MODAL',
-                icon: 'INFO',
+                icon: false,
                 title: strings('modal.exchange.sorry'),
                 description: strings('modal.cashbackLinkEqualModal.description', { link: inviteLink })
             })
@@ -114,7 +114,7 @@ export class Tab1 extends React.Component {
             UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
             showModal({
                 type: 'INFO_MODAL',
-                icon: 'INFO',
+                icon: false,
                 title: strings('modal.walletBackup.success'),
                 description: strings('modal.cashbackTokenLinkModal.success.description')
             })
@@ -156,7 +156,7 @@ export class Tab1 extends React.Component {
     handleApply = async () => {
         try {
             setLoaderStatus(true)
-            let desc = await Api.activatePromo(this.state.promoCode)
+            let desc = await ApiPromo.activatePromo(this.state.promoCode)
             if (typeof desc !== 'string') {
                 if (typeof desc['en'] !== 'undefined') {
                     desc = desc['en']
@@ -166,7 +166,7 @@ export class Tab1 extends React.Component {
             }
             showModal({
                 type: 'INFO_MODAL',
-                icon: 'INFO',
+                icon: false,
                 title: strings('modal.walletBackup.success'),
                 description: desc
             })
@@ -176,7 +176,7 @@ export class Tab1 extends React.Component {
             }
             showModal({
                 type: 'INFO_MODAL',
-                icon: 'INFO',
+                icon: false,
                 title: strings('modal.exchange.sorry'),
                 description: strings('cashback.cashbackError.' + e.message)
             })

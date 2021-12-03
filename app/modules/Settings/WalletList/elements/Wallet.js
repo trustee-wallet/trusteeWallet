@@ -64,8 +64,7 @@ class Wallet extends Component {
     render() {
         const { selectedWalletHash, wallet } = this.props
 
-        const { isBalanceVisible, isBalanceVisibleTriggered, triggerBalanceVisibility, originalVisibility } = this.props
-        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+        const { isBalanceVisible } = this.props
 
         const isSelected = wallet.walletHash === selectedWalletHash
         const isBackedUp = wallet.walletIsBackedUp
@@ -87,36 +86,26 @@ class Wallet extends Component {
                 >
                     <View style={[styles.balanceContainer, !isBackedUp && { flex: 1 }]}>
                         <Text style={[styles.walletName, { color: colors.common.text3 }]} numberOfLines={1}>{wallet.walletName}</Text>
-
-                        <TouchableOpacity
-                            onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
-                            onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
-                            activeOpacity={1}
-                            disabled={originalVisibility}
-                            style={{ width: finalIsBalanceVisible ? '100%' : '30%' }}
-                            hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 20, bottom: 10, left: finalIsBalanceVisible ? 60 : 20 }}
-                        >
-                            {finalIsBalanceVisible ? (
-                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <Text style={[styles.balanceCurrencySymbol, { color: colors.common.text1 }]}>{balanceData.currencySymbol}</Text>
-                                    <Text style={[styles.balanceBeforeDecimal, { color: colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
-                                    <Text style={[styles.balanceAfterDecimal, { color: colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
-                                </View>
-                            ) : (
-                                <Text style={[styles.balanceHidden, { color: colors.common.text1 }]}>****</Text>
-                            )}
-                        </TouchableOpacity>
+                        {isBalanceVisible ? (
+                            <View style={{ flexDirection: 'row', alignItems: 'flex-end', flex: 1 }}>
+                                <Text style={[styles.balanceCurrencySymbol, { color: colors.common.text1 }]}>{balanceData.currencySymbol}</Text>
+                                <Text style={[styles.balanceBeforeDecimal, { color: colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
+                                <Text style={[styles.balanceAfterDecimal, { color: colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
+                            </View>
+                        ) : (
+                            <Text style={[styles.balanceHidden, { color: colors.common.text1 }]}>****</Text>
+                        )}
                     </View>
                     <View style={styles.settings}>
-                        <TouchableOpacity
+                        {isSelected && <TouchableOpacity
                             style={styles.advancedButton}
                             hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                             activeOpacity={0.8}
                             onPress={this.handleOpenAdvanced}
                             disabled={!isSelected}
                         >
-                            <CustomIcon name='coinSettings' size={20} color={isSelected ? colors.common.text1 : colors.common.text2} />
-                        </TouchableOpacity>
+                            <CustomIcon name='coinSettings' size={20} color={colors.common.text1} />
+                        </TouchableOpacity>}
                         {!isBackedUp && (
                             <View style={styles.backupIcon}>
                                 <CustomIcon name='warning' size={24} color={colors.walletManagment.walletItemBorderColor} />
@@ -143,7 +132,7 @@ const styles = StyleSheet.create({
             width: 0,
             height: 5
         },
-        elevation: 10
+        elevation: 10,
     },
     activeContainer: {
         shadowOpacity: 0,
@@ -171,7 +160,7 @@ const styles = StyleSheet.create({
     balanceCurrencySymbol: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 18,
-        lineHeight: 18,
+        lineHeight: 20,
         marginBottom: 2,
         marginRight: 4
     },
@@ -193,7 +182,9 @@ const styles = StyleSheet.create({
         marginBottom: -4,
     },
     backupIcon: {
-        paddingTop: 4
+        paddingTop: 4,
+        flex: 1,
+        justifyContent: 'flex-end'
     },
     settings: {
         justifyContent: 'space-between',

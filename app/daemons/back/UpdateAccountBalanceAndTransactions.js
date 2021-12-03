@@ -268,11 +268,16 @@ class UpdateAccountBalanceAndTransactions {
                 updateObj.balanceProvider = newBalance.provider
                 updateObj.balanceScanLog = account.address + ' block error, ignored new ' + newBalance.balance + ' block ' + newBalance.balanceScanBlock + ', old balance ' + account.balance + ' block ' + account.balanceScanBlock
                 updateObj.balanceScanError = 'account.balanceBadBlock'
-            } else if (typeof account.balance === 'undefined' || (newBalance.balance.toString() !== account.balance.toString() || newBalance.unconfirmed.toString() !== account.unconfirmed.toString())) {
+            } else if (typeof account.balance === 'undefined' || (
+                newBalance.balance.toString() !== account.balance.toString()
+                || newBalance.unconfirmed.toString() !== account.unconfirmed.toString()
+                || (typeof newBalance.balanceStaked !== 'undefined' && typeof account.balanceStaked !== 'undefined' && newBalance.balanceStaked.toString() !== account.balanceStaked.toString())
+            )) {
                 updateObj.balanceFix = newBalance.balance // lets send to db totally not changed big number string
                 updateObj.balanceTxt = newBalance.balance.toString() // and string for any case
                 updateObj.unconfirmedFix = newBalance.unconfirmed || 0 // lets send to db totally not changed big number string
                 updateObj.unconfirmedTxt = newBalance.unconfirmed || '' // and string for any case
+                updateObj.balanceStakedTxt = newBalance.balanceStaked || '0'
                 updateObj.balanceProvider = newBalance.provider
                 if (typeof newBalance.balanceScanBlock !== 'undefined') {
                     updateObj.balanceScanBlock = newBalance.balanceScanBlock
@@ -333,7 +338,7 @@ class UpdateAccountBalanceAndTransactions {
                 if (account.walletIsHd && account.currencyCode !== 'LTC') {
                     additional.walletPub = true // actually not needed pub - just flag
                 }
-                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional }, 'AccountRunTransactionsBtc')
+                newTransactions = await BlocksoftTransactions.getTransactions({ account, additional },  'AccountRunTransactionsBtc')
             } else {
                 newTransactions = await BlocksoftTransactions.getTransactions({ account, additional: account.accountJson }, 'AccountRunTransactions')
             }

@@ -14,7 +14,8 @@
       "byValue": "За балансом",
       "firstCoin": "Спочатку монети",
       "firstToken": "Спочатку токени",
-      "withBalance": "З позитивним балансом"
+      "withBalance": "З позитивним балансом",
+      "guideTitle": "Навчання"
     },
     "categories": {
       "coin": "Монети",
@@ -158,6 +159,7 @@
       "testerMode": "Тестувальник"
     },
     "walletList": {
+      "showBalance": "Показати баланс",
       "title": "Мої гаманці",
       "addWallet": "Додати гаманець",
       "backupNeeded": "Резервне копіювання",
@@ -194,6 +196,11 @@
         "title": "Переключити гаманець у режим HD?",
         "description": "Режим HD означає ротацію адрес для кожної транзакції. Операція перемикання є незворотньою."
       },
+      "staked": "Застейкано",
+      "frozen" : "Заморожено",
+      "stakeTransactionsSOL": "Транзакції стейкінгу",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR" : "Сервер з даними (наприклад, api.mymonero.com)",
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Сервер для відправки транзакцій (наприклад, api.mymonero.com)",
@@ -201,7 +208,8 @@
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти",
       "getMnemonicXMR" : "Переглянути секретний ключ",
-      "availableTRX" : "Доступно",
+      "available" : "Доступно",
+      "availableSOL": "Доступний баланс",
       "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введіть кількість TRX",
@@ -231,12 +239,15 @@
       "withdrawSOL" : "Забрати",
       "withdrawAllSOL" : "Забрати все",
       "deactivateSOL": "Деактивувати",
-      "stakeHistorySOL" : "Історія Стейку",
+      "stakeHistorySOL" : "Історія",
       "selectValidatorSOL": "Оберіть валідатора",
       "selectValidatorSOLCommission" : "Збір :",
       "validatorSOL": "Валідатор",
-      "rewards" : "Нагороди",
-      "useCustomValidator": "Використати цей валідатор "
+      "rewards" : "Нагорода",
+      "useCustomValidator": "Використати цей валідатор ",
+      "successUnfreeze": "TRX розморожено",
+      "successFreeze": "TRX заморожено для стейкінгу",
+      "successReward": "Отримано нагороду TRX за стейкінг"
     },
     "about": {
       "title": "Про гаманець",
@@ -403,6 +414,7 @@
     "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм"
   },
   "account": {
+    "staking": "Стейкінг",
     "title": "Рахунок",
     "copy": "Копіювати",
     "refresh": "Оновити",
@@ -416,8 +428,17 @@
     "soLong": "Сканування було давно",
     "minutesAgo": " %{time} хв назад ",
     "noTransactions": "У Вас ще немає транзакцій. Але Ви можете швидко це змінити, просто натисніть кнопку КУПИТИ",
+    "noFoundTransactions": "Вибачте, нічого не знайдено",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",
+    "stakingTRX": {
+      "bandwidthInfo": "Заморозьте свої монети TRX для Bandwidth – це дозволить отримувати нагороду за стейкінг та відправляти вільні монети TRX без комісії мережі. ",
+      "energyInfo": "Заморозьте свої монети TRX для Energy – це дозволить отримувати нагороду за стейкінг та відправляти токени TRC20 без комісії мережі. ",
+      "moreInfo": "Детальніше..."
+    },
+    "stakingSOL": {
+      "stake": "Заморозьте свої монети SOL, щоб отримувати нагороду за стейкінг. "
+    },
     "copyLink": "Копіювати адресу",
     "invoiceText": "Виставити рахунок для оплати",
     "openInBlockchair": "Відкрити в блокчейн експлорері",
@@ -450,6 +471,8 @@
       "self" : "Собі",
       "freeze" : "Заморожено",
       "unfreeze" : "Розморожено",
+      "stake" : "Стейк",
+      "wallet_connect" : "WalletConnect",
       "claim" : "Винагорода",
       "swap_income" : "Contract Вхідна",
       "swap_outcome" : "Contract Вихідна",
@@ -465,6 +488,26 @@
       "advAccountDestination": "Номер рахунку для виводу",
       "phoneDestination": "Номер телефону для виводу",
       "orderId": "Прив'язаний ID обміну",
+      "selectAll": "Вибрати все",
+      "swap": "Swap",
+      "cancel": "Скасовано",
+      "reward": "Винагорода",
+      "categoriesTitle": "Категорії",
+      "transactionCategories": "Категорії транзакцій",
+      "dateAmount": "Дата і сума",
+      "timeArray": "Масив часу",
+      "amountRange": "Діапазон сум",
+      "allAmount": "Уся сума",
+      "downloadTransactionsHistory": "Завантажити історію трансакцій за весь час",
+      "saveInCsv": "Зберегти всі транзакції часу в CSV",
+      "filterTitle": "Фільтр",
+      "startDate": "Дата початку",
+      "endDate": "Дата завершення",
+      "pickDate": "Вибрати дату",
+      "startAmount": "Початкова сума",
+      "endAmount": "Кінцева сума",
+      "setAmount": "Вказати",
+      "discard": "Відхилити",
       "RBF": {
         "replaceByFeeBtn": "Збільшити комісію",
         "willReplaceWithNewFee": "Поточна транзакція буде замінена новою, з новим хешем та більш високою комісією",
@@ -540,8 +583,9 @@
       "transactionSum": "Сума відправки ",
       "addresTo": "Отримувач ",
       "addresFrom": "Відправник ",
-      "blockConfirmations": "Поточна кількість підтверджень "
-      }
+      "blockConfirmations": "Поточна кількість підтверджень ",
+      "transactionAmount": "%{currencyCode} сума"
+    }
   },
 
    "fioMainSettings": {
@@ -1180,6 +1224,9 @@
       "showGuide": "Повторити навчання",
       "moveToTop": "Перемістити на початок списку",
       "moveToDown": "Перемістити в кінець списку",
+      "guideText": "Налаштуйте відображення монет на головному екрані, виставивши їх у необхідному порядку, або відсортуйте активи відповідно до запропонованих варіантів.",
+      "guideTitle": "Персональний інтерфейс",
+      "guideAccept": "Прийняти",
       "hideAsset": "Приховати актив"
     }
   },

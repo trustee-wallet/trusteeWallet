@@ -16,7 +16,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 125,
+        maxVersion: 127,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -899,6 +899,14 @@ export default function getTableUpdateQueries() {
                 afterFunction: async (dbInterface) => {
                     await dbInterface.query(`INSERT INTO currency (currency_code, is_hidden, currency_rate_json, currency_rate_scan_time) VALUES ('CASHBACK', '0', '', '')`)
                 }
+            },
+
+            126: {
+                queryString: `ALTER TABLE transactions ADD COLUMN transaction_filter_type VARCHAR(256) NULL DEFAULT 'usual'`
+            },
+
+            127: {
+                queryString: `ALTER TABLE account_balance ADD COLUMN balance_staked_txt VARCHAR(256) NULL DEFAULT '0'`
             }
         }
     }

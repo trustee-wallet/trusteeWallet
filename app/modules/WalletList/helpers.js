@@ -17,6 +17,7 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
@@ -144,11 +145,28 @@ const getBalanceData = (props) => {
 
     const CACHE_SUM = DaemonCache.getCache(walletHash)
 
+
+
     let totalBalance = 0
     if (CACHE_SUM && typeof CACHE_SUM.balance !== 'undefined' && CACHE_SUM.balance) {
         totalBalance = CACHE_SUM.balance
         if (currencySymbol !== CACHE_SUM.basicCurrencySymbol) {
             currencySymbol = CACHE_SUM.basicCurrencySymbol
+        }
+    }
+
+    const cashbackStore = props.cashbackStore
+    const findCashback = props.currencies.find(item => item.currencyCode === 'CASHBACK')
+    if (typeof findCashback !== 'undefined' && typeof cashbackStore !== 'undefined') {
+        if (typeof cashbackStore.dataFromApi !== 'undefined' && typeof cashbackStore.dataFromApi.cashbackBalance !== 'undefined' && cashbackStore.dataFromApi.cashbackBalance) {
+            const accountRates = DaemonCache.getCacheRates('USDT')
+            const value = (cashbackStore.dataFromApi.cashbackBalance * 1 + cashbackStore.dataFromApi.cpaBalance * 1) || 0
+            const basicCurrencyBalanceNorm = RateEquivalent.mul({
+                value,
+                currencyCode: 'USDT',
+                basicCurrencyRate: accountRates.basicCurrencyRate
+            })
+            totalBalance = totalBalance * 1 + basicCurrencyBalanceNorm * 1
         }
     }
 
@@ -176,6 +194,7 @@ const handleCurrencySelect = async (props, screen) => {
             currentIndex: props.index,
             onDrag: props.onDragEnd,
             listData: props.listData,
+            handleGuide: props.handleGuide,
             currencyCode: cryptoCurrency,
             // eslint-disable-next-line react/display-name
             Content: ({ data }) => {
@@ -188,9 +207,12 @@ const handleCurrencySelect = async (props, screen) => {
     }
 
     if (typeof cryptoCurrency.currencyCode !== 'undefined' && (cryptoCurrency.currencyCode === 'NFT' || cryptoCurrency.currencyCode === 'CASHBACK')) {
+
+        const defaultScreen = cryptoCurrency.currencyCode === 'CASHBACK' ? 'CashbackScreen' : 'NftMainScreen'
+
         try {
             setSelectedCryptoCurrency(cryptoCurrency)
-            NavStore.goNext(screen || 'NftMainScreen')
+            NavStore.goNext(screen || defaultScreen)
         } catch (e) {
             Log.err('HomeScreen.Currency handleCurrencySelect NFT error ' + e.message, cryptoCurrency)
         }
@@ -245,7 +267,11 @@ const getSortedData = (array, currentArray, accountList, filter) => {
         }
         case 'byValue': {
             let sortedAccount = _orderBy(accountList, function (obj) {
-                return parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10)
+                return obj?.balancePretty ? parseFloat(obj.balancePretty.toString().replace(/\s+/g, ''), 10) : 0
+            }, 'desc')
+
+            sortedAccount = _orderBy(sortedAccount, function (obj) {
+                return obj?.basicCurrencyBalance ? parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) : 0
             }, 'desc').map(item => item.currencyCode)
 
             sortedAccount = _orderBy(array, x => {
@@ -254,9 +280,9 @@ const getSortedData = (array, currentArray, accountList, filter) => {
             return sortedAccount
         }
         case 'coinFirst':
-            return _sortBy(array, 'currencyType')
+            return [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType')]
         case 'tokenFirst':
-            return _sortBy(array, 'currencyType').reverse()
+            return [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType').reverse()]
         case 'withBalance': {
             const filterAccount = accountList.filter(item => parseInt(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
             return array.filter(item => filterAccount.includes(item.currencyCode))

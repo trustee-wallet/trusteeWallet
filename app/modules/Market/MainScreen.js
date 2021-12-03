@@ -60,6 +60,7 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { getBseLink, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -416,15 +417,15 @@ class MarketScreen extends PureComponent {
     }
 
     async saveOrderHistory (orderHistory) {
-        
+
         const path = RNFS.DocumentDirectoryPath + '/logs/trusteeOrdersHistory.csv'
-        
+
         // write the file
         RNFS.writeFile(path, orderHistory.data, 'utf8')
             .then(async () => {
                 Log.log('Market/MainScreen saveOrderHistory success save file ', path)
                 const fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'trusteeOrdersHistory', fileExtension: 'csv' });
-                
+
                 const shareOptions = {
                     title: orderHistory.title,
                     subject: orderHistory.subject,
@@ -442,7 +443,7 @@ class MarketScreen extends PureComponent {
     async openUrl (openUrl) {
         const available = await Linking.canOpenURL(openUrl)
         Log.log('Market/MainScreen openUrl available link ', available)
-        
+
         if (!available) return true
         await Linking.openURL(openUrl)
     }
@@ -522,14 +523,7 @@ class MarketScreen extends PureComponent {
                 return true
             }
 
-            await SendActionsStart.startFromBSE({
-                addressTo: data.address,
-                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
-                memo: data.memo,
-                comment: data.comment || '',
-                currencyCode: data.currencyCode,
-                isTransferAll: data.useAllFunds
-            }, bse)
+            await SendActionsStart.startFromBSE(data, bse)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('Market/MainScreen.send ' + e.message)
@@ -547,7 +541,8 @@ class MarketScreen extends PureComponent {
                 txCode: approveData.data[0].txCode,
                 providerName: approveData.provider,
                 currencyCode: approveData.currencyCode
-            }
+            },
+            transactionFilterType : TransactionFilterTypeDict.SWAP
         }, 'TRADE_LIKE_WALLET_CONNECT')
     }
 
@@ -863,12 +858,12 @@ class MarketScreen extends PureComponent {
         const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
 
         try {
-            const transferBalance = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
-            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferBalance, 'V3.sellAll')
-            this.webref && this.webref.postMessage(JSON.stringify({ fees: { amount: amount ? amount : 0 } }))
+            const transferData = await SendActionsStart.getTransferAllBalanceFromBSE({ currencyCode, address })
+            const amount = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(transferData.transferAllBalance, 'V3.sellAll')
+            this.webref && this.webref.postMessage(JSON.stringify({ fees: { amount: amount || 0, transferData } }))
             return {
                 currencyBalanceAmount: amount,
-                currencyBalanceAmountRaw: transferBalance
+                currencyBalanceAmountRaw: transferData.transferBalance
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {

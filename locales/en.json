@@ -14,7 +14,8 @@
       "byValue": "By value",
       "firstCoin": "Coins first",
       "firstToken": "Tokens first",
-      "withBalance": "With a positive balance"
+      "withBalance": "With a positive balance",
+      "guideTitle": "Guide"
     },
     "categories": {
       "coin": "Coins",
@@ -158,6 +159,7 @@
       "testerMode": "Tester"
     },
     "walletList": {
+      "showBalance": "Show balance",
       "title": "My wallets",
       "addWallet": "Add wallet",
       "backupNeeded": "Backup needed",
@@ -194,6 +196,11 @@
         "title": "Switch wallet to HD mode?",
         "description": "HD mode implies rotation of addresses for each transaction. The switching operation is irreversible."
       },
+      "staked": "Staked",
+      "frozen": "Frozen",
+      "stakeTransactionsSOL": "Staking transactions",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR" : "Server (default api.mymonero.com)",
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
@@ -201,7 +208,8 @@
       "needReinstallXMR"  : "Something wrong with XMR address generation - please, save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
       "getMnemonicXMR" : "View secret key",
-      "availableTRX" : "Available",
+      "available" : "Available",
+      "availableSOL": "Available balance",
       "frozenTRX" : "Frozen",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "enter freeze amount TRX",
@@ -231,12 +239,15 @@
       "withdrawSOL" : "Withdraw",
       "withdrawAllSOL" : "Withdraw All",
       "deactivateSOL": "Deactivate",
-      "stakeHistorySOL" : "Stake History",
+      "stakeHistorySOL" : "History",
       "selectValidatorSOL": "Select validator",
       "selectValidatorSOLCommission" : "Fee: ",
       "validatorSOL": "Validator",
       "rewards" : "Rewards",
-      "useCustomValidator": "Use this validator "
+      "useCustomValidator": "Use this validator ",
+      "successUnfreeze": "TRX unfrozen",
+      "successFreeze": "TRX frozen for staking",
+      "successReward": "TRX staking reward received"
     },
     "about": {
       "title": "About",
@@ -403,6 +414,7 @@
     "performWithdraw": "To perform withdraw, please, write to telegram to nickname"
   },
   "account": {
+    "staking": "Staking",
     "title": "Account",
     "copy": "Click to copy",
     "refresh": "Refresh",
@@ -416,8 +428,17 @@
     "soLong": "Last a long time ago",
     "minutesAgo": " %{time} min ago ",
     "noTransactions": "You don’t have any transaction yet. But you can resolve this quickly, just tap on BUY button",
+    "noFoundTransactions": "Sorry, no results were found",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
+    "stakingTRX": {
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
+      "moreInfo": "More details..."
+    },
+    "stakingSOL": {
+      "stake": "Freeze your SOL to receive staking rewards. "
+    },
     "copyLink": "Copy address",
     "invoiceText": "Issue an invoice for payment",
     "openInBlockchair": "Open in blockchain explorer",
@@ -450,6 +471,8 @@
       "freeze" : "Freeze",
       "unfreeze" : "UnFreeze",
       "claim" : "Claim",
+      "stake" : "Stake",
+      "wallet_connect" : "WalletConnect",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
       "self": "Self",
@@ -466,6 +489,25 @@
       "advAccountDestination": "Withdraw account number",
       "phoneDestination": "Withdraw phone number",
       "orderId": "Related to swap ID",
+      "selectAll": "Select all",
+      "cancel": "Canceled",
+      "reward": "Reward",
+      "categoriesTitle": "Categories",
+      "transactionCategories": "Transaction categories",
+      "dateAmount": "Date & amount",
+      "timeArray": "Time array",
+      "amountRange": "Amount range",
+      "allAmount": "All amount",
+      "downloadTransactionsHistory": "Download all time transactions history",
+      "saveInCsv": "Save all time transactions in CSV",
+      "filterTitle": "Filter",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "pickDate": "Pick date",
+      "startAmount": "Start amount",
+      "endAmount": "End amount",
+      "setAmount": "Set amount",
+      "discard": "Discard",
       "RBF": {
         "replaceByFeeBtn": "Update tx fee",
         "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
@@ -541,7 +583,8 @@
       "transactionSum": "Amount send",
       "addresTo": "Recipient ",
       "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations "
+      "blockConfirmations": "Current number of confirmations ",
+      "transactionAmount": "%{currencyCode} amount"
     }
   },
 
@@ -1180,6 +1223,9 @@
       "showGuide": "Repeat training",
       "moveToTop": "Move to the top of the list",
       "moveToDown": "Move to the down of the list",
+      "guideText": "Customize the display of coins on the main screen by placing them in the required order, or sort assets according to the proposed options.",
+      "guideTitle": "Personal interface",
+      "guideAccept": "Accept",
       "hideAsset": "Hide assets"
     }
   },

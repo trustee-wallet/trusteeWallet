@@ -226,7 +226,7 @@ export namespace SendActionsBlockchainWrapper {
                     neverCounted : false
                 }
             })
-            return { transferAllBalance : typeof transferAllBalance !== 'undefined' && transferAllBalance ? transferAllBalance : 0, source : 'NEW_COUNTED', addressTo : newCountedFeesData.addressTo}
+            return { transferAllBalance : typeof transferAllBalance !== 'undefined' && transferAllBalance ? transferAllBalance : 0, source : 'NEW_COUNTED', addressTo : newCountedFeesData.addressTo, selectedFee}
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)
@@ -251,6 +251,8 @@ export namespace SendActionsBlockchainWrapper {
         const { bse, dexOrderData, rawOnly, contractCallData } = ui
         const { bseOrderId, bseMinCrypto } = bse
 
+        const transactionFilterType = ui.transactionFilterType
+
         if (selectedFee === false) {
             selectedFee = {}
         }
@@ -274,6 +276,6 @@ export namespace SendActionsBlockchainWrapper {
 
         selectedFee.rawOnly = rawOnly || false
 
-        return BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee }, CACHE_DATA.additionalData)
+        return BlocksoftTransfer.sendTx(newCountedFeesData, { uiErrorConfirmed, selectedFee, transactionFilterType }, CACHE_DATA.additionalData)
     }
 }

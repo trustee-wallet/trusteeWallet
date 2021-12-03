@@ -14,7 +14,8 @@
       "byValue": "По балансу",
       "firstCoin": "Сначала монеты",
       "firstToken": "Сначала токены",
-      "withBalance": "С положительным балансом"
+      "withBalance": "С положительным балансом",
+      "guideTitle": "Обучение"
     },
     "categories": {
       "coin": "Монеты",
@@ -158,6 +159,7 @@
       "testerMode": "Тестировщик"
     },
     "walletList": {
+      "showBalance": "Показать баланс",
       "title": "Мои кошельки",
       "addWallet": "Добавить кошелек",
       "backupNeeded": "Резервное копирование",
@@ -194,6 +196,11 @@
         "title": "Переключить кошелек в режим HD?",
         "description": "Режим HD подразумевает ротацию адресов для каждой транзакции. Операция переключения необратима."
       },
+      "staked": "Застейконо",
+      "frozen": "Заморожено",
+      "stakeTransactionsSOL": "Транзакции стейкинга",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR" : "Сервер с данными (например, api.mymonero.com)",
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Сервер для отправки транзакций (например, api.mymonero.com)",
@@ -201,7 +208,8 @@
       "needReinstallXMR"  : "Системная ошибка адреса XMR - пожалуйста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробных инструкций",
       "saveSettings" : "Сохранить",
       "getMnemonicXMR" : "Посмотреть секретный ключ",
-      "availableTRX" : "Доступно",
+      "available" : "Доступно",
+      "availableSOL": "Доступный баланс",
       "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Пропускная способность: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введите количество TRX",
@@ -231,12 +239,15 @@
       "withdrawSOL" : "Забрать",
       "withdrawAllSOL" : "Забрать все",
       "deactivateSOL": "Деактивировать",
-      "stakeHistorySOL" : "История Стейка",
+      "stakeHistorySOL" : "История",
       "selectValidatorSOL": "Выберите валидатора",
       "selectValidatorSOLCommission" : "Сбор :",
       "validatorSOL": "Валидатор",
-      "rewards" : "Награды",
-      "useCustomValidator": "Использовать этот валидатор "
+      "rewards" : "Награда",
+      "useCustomValidator": "Использовать этот валидатор ",
+      "successUnfreeze": "TRX разморожено",
+      "successFreeze": "TRX заморожено для стейкинга",
+      "successReward": "Получена награда TRX за стейкинг"
     },
     "about": {
       "title": "О кошельке",
@@ -404,6 +415,7 @@
     "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм"
   },
   "account": {
+    "staking": "Стейкинг",
     "title": "Счет",
     "copy": "Копировать",
     "refresh": "Обновить",
@@ -417,8 +429,17 @@
     "soLong": "Сканирование было  давно",
     "minutesAgo": " %{time} мин назад ",
     "noTransactions": "У Вас еще нет транзакций. Но Вы можете решить эту проблему быстро, просто нажав кнопку КУПИТЬ.",
+    "noFoundTransactions": "Извините, ничего не найдено",
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
+    "stakingTRX": {
+      "bandwidthInfo": "Заморозьте свои монеты TRX для Bandwidth - это позволит получать награду за стейкинг и отправлять свободные монеты TRX без комиссии сети. ",
+      "energyInfo": "Заморозьте свои монеты TRX для Energy - это позволит получать награду за стейкинг и отправлять токены TRC20 без комиссии сети. ",
+      "moreInfo": "Детальнее..."
+    },
+    "stakingSOL": {
+      "stake": "Заморозьте свои монеты SOL, чтобы получать награду за стейкинг. "
+    },
     "copyLink": "Копировать адрес",
     "invoiceText": "Выставить счет для оплаты",
     "openInBlockchair": "Открыть в блокчейн эксплорере",
@@ -449,11 +470,13 @@
       "outcome": "Исходящая",
       "income": "Входящая",
       "self" : "Себе",
-      "freeze" : "Заморозка",
-      "unfreeze" : "Разморозка",
+      "freeze" : "Заморозить",
+      "unfreeze" : "Разморозить",
       "claim" : "Награда",
       "swap_income" : "Contract Входящая",
       "swap_outcome" : "Contract Исходящая",
+      "stake" : "Стейк",
+      "wallet_connect" : "WalletConnect",
       "exchange": "Обмен",
       "buy": "Покупка",
       "sell": "Продажа",
@@ -466,6 +489,26 @@
       "advAccountDestination": "Номер счета для вывода",
       "phoneDestination": "Номер телефона для вывода",
       "orderId": "Связанный ID обмена",
+      "selectAll": "Выбрать все",
+      "swap": "Обмен",
+      "cancel": "Отменено",
+      "reward": "Награда",
+      "categoriesTitle": "Категории",
+      "transactionCategories": "Категории транзакций",
+      "dateAmount": "Дата и сумма",
+      "timeArray": "Временной массив",
+      "amountRange": "Диапазон суммы",
+      "allAmount": "Вся сумма",
+      "downloadTransactionsHistory": "Загрузить историю транзакций за все время",
+      "saveInCsv": "Сохранять все транзакции в CSV",
+      "filterTitle": "Фильтр",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "pickDate": "Выбрать дату",
+      "startAmount": "Начальная сумма",
+      "endAmount": "Конечная сумма",
+      "setAmount": "Указать",
+      "discard": "Отклонить",
       "RBF": {
         "replaceByFeeBtn": "Увеличить комиссию",
         "willReplaceWithNewFee": "Текущая транзакция будет заменена новой, с новым хэшем и более высокой комиссией",
@@ -541,8 +584,9 @@
     "transactionSum": "Сумма отправки ",
     "addresTo": "Получатель ",
     "addresFrom": "Отправитель",
-    "blockConfirmations": "Текущее количество подтверждений "
-  }
+    "blockConfirmations": "Текущее количество подтверждений ",
+    "transactionAmount": "%{currencyCode} сумма"
+    }
   },
 
   "fioMainSettings": {
@@ -1180,7 +1224,10 @@
       "showGuide": "Повторить обучение",
       "moveToTop": "Поднять в начало списка",
       "moveToDown": "Опустить в конец списка",
-      "hideAsset": "Скрыть актыв"
+      "guideText": "Настройте отображение монет на главном экране, выставив их в необходимом порядке, или отсортируйте активы в соответствии с предложенными вариантами.",
+      "guideTitle": "Персональный интерфейс",
+      "guideAccept": "Принять",
+      "hideAsset": "Скрыть актив"
     }
   },
   "lockScreen": {

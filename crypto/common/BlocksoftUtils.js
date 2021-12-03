@@ -18,7 +18,7 @@ class BlocksoftUtils {
         let res = 0
         if (typeof val1 === 'undefined') {
             res = val2 || ''
-        } else if (typeof val2 === 'undefined' || val2 === 0 || val2 === '0') {
+        } else if (typeof val2 === 'undefined' || val2 === 0 || val2 === '0' || !val2) {
             res = val1
         } else if (typeof val1.innerBN !== 'undefined') {
             if (typeof val2.innerBN !== 'undefined') {

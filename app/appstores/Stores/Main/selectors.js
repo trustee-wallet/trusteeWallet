@@ -55,8 +55,11 @@ export const getSelectedAccountData = createSelector(
             address : data.address,
             segwitAddress : data.segwitAddress,
             legacyAddress : data.legacyAddress,
+            balance : data.balance,
             balancePretty : data.balancePretty,
             unconfirmedPretty : data.unconfirmedPretty,
+            balanceStakedPretty: data.balanceStakedPretty,
+            balanceTotalPretty: data.balanceTotalPretty,
             balanceProvider : data.balanceProvider,
             balanceScanTime : data.balanceScanTime,
             balanceScanError : data.balanceScanError,
@@ -100,7 +103,33 @@ export const getSolValidator = createSelector(
     (data => data)
 )
 
+export const getFilterData = createSelector(
+    [state => state.mainStore.filter],
+    (data => {
+        return {
+            active: data?.active || false,
+            startTime: data?.startTime || null,
+            endTime: data?.endTime || null,
+            startAmount: data?.startAmount || null,
+            endAmount: data?.endAmount || null,
+            searchQuery: data?.searchQuery || null,
+            filterDirectionHideIncome : data?.filterDirectionHideIncome || false,
+            filterDirectionHideOutcome : data?.filterDirectionHideOutcome || false,
+            filterStatusHideCancel : data?.filterStatusHideCancel || false,
+            filterTypeHideFee : typeof data.filterTypeHideFee !== 'undefined' && data.filterTypeHideFee === false ? false : true,
+            filterTypeHideStake : data?.filterTypeHideStake || false,
+            filterTypeHideWalletConnect : data?.filterTypeHideWalletConnect || false,
+            filterTypeHideSwap : data ?.filterTypeHideSwap || false,
+        }
+    })
+)
+
 export const getSortValue = createSelector(
     [state => state.mainStore.sortValue],
+    (data => data)
+)
+
+export const getStakingCoins = createSelector(
+    [state => state.mainStore.stakingCoins],
     (data => data)
 )

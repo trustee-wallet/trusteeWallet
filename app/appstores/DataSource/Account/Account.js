@@ -507,6 +507,7 @@ class Account {
             account_balance.balance_txt AS balanceTxt,
             account_balance.unconfirmed_fix AS unconfirmedFix,
             account_balance.unconfirmed_txt AS unconfirmedTxt,
+            account_balance.balance_staked_txt AS balanceStaked,
             account_balance.balance_provider AS balanceProvider,
             account_balance.balance_scan_time AS balanceScanTime,
             account_balance.balance_scan_error AS balanceScanError,

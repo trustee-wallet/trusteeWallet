@@ -31,7 +31,9 @@ const CACHE = {
     'LTC': { '2': 8, '6': 5, '12': 2 },
     'XVG': { '2': 700, '6': 600, '12': 300 },
     'XVG_SEND_LINK' : 'https://api.vergecurrency.network/node/api/XVG/mainnet/tx/send',
-    'XRP_SERVER' : 'wss://s1.ripple.com',
+    'XRP_SERVER' : 'wss://xrplcluster.com',
+    'XRP_SCANNER_SERVER' : 'https://xrplcluster.com', // https://xrpl.org/public-servers.html
+    'XRP_SCANNER_TYPE' : 'xrpscan', // dataripple
     'XRP_MIN' : 10,
     'XLM_SERVER' : 'https://horizon.stellar.org',
     'XLM_SERVER_PRICE' : 100,
@@ -111,9 +113,11 @@ const CACHE = {
     'ROCKET_CHAT_USE' : 0,
     'HOW_WORK_CASHBACK_LINK' : 'https://trusteeglobal.com/programma-loyalnosti/',
     'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/',
+    'TRX_STAKING_LINK' : 'https://blog.trusteeglobal.com/stejking-trona-i-kak-zarabotat/',
     'INVOICE_URL_EN' : 'https://trusteeglobal.com/',
     'INVOICE_URL_RU' : 'https://trusteeglobal.com/ru',
     'INVOICE_URL_UK' : 'https://trusteeglobal.com/uk',
+    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  }
 }
 
 
