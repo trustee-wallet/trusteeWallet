@@ -305,28 +305,12 @@ class Transaction {
             where.push(`transaction_status NOT IN ('fail')`)
         }
 
-        // fee filter ! approximately
-        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee === false) {
-            if (filterTypeHideUsual) {
-                where.push(`transaction_direction IN ('outcome', 'self')`)
-                where.push(`
-                (
-                    transaction_filter_type IS NOT NULL AND transaction_filter_type NOT IN ('usual')
-                ) OR (
-                    transaction_filter_type IS NULL AND (
-                        address_amount == '0'
-                        OR
-                        address_to LIKE '% Simple Send%'
-                    )
-                )
-            `)
-            }
-        } else {
+        // fee filter
+        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
             where.push(`address_to NOT LIKE '% Simple Send%'`)
             where.push(`address_amount != '0'`)
             where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}'))`)
         }
-
 
 
         // other categories
@@ -341,8 +325,67 @@ class Transaction {
             where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}'))`)
         }
 
-        if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
-            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}'))`)
+        // if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
+        //     where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}'))`)
+        // }
+
+
+        // 
+        if (filterTypeHideUsual) {
+            let tmpWhere = []
+            if (typeof params.filterStatusHideCancel !== 'undefined' && params.filterStatusHideCancel === false) {
+                tmpWhere.push(`
+                (
+                    transaction_direction IN ('outcome', 'self') 
+                    ) AND ( 
+                        transaction_status IN ('fail')
+                        )
+                `)
+            }
+
+            if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee === false) {
+                tmpWhere.push(`
+                (
+                    transaction_direction IN ('outcome', 'self')) 
+                AND
+                (
+                    transaction_filter_type IS NOT NULL AND transaction_filter_type NOT IN ('usual')
+                ) OR (
+                    transaction_filter_type IS NULL AND (
+                        address_amount == '0'
+                        OR
+                        address_to LIKE '% Simple Send%'
+                    )
+                )
+            `)
+            }
+            
+            if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake === false) {
+                if (params.currencyCode === 'TRX' || params.currencyCode === 'SOL') {
+                    tmpWhere.push(`
+                    (
+                        transaction_direction IN ('freeze', 'unfreeze', 'claim')
+                    ) OR (
+                        transaction_filter_type IS NOT NULL AND transaction_filter_type IN ('${TransactionFilterTypeDict.STAKE}')
+                    )
+                `)
+                }
+            }
+
+            if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap === false) {
+                tmpWhere.push(`
+                (
+                    bse_order_id != '' OR bse_order_id IS NOT NULL OR bse_order_id != 'null'
+                ) OR (
+                    transaction_filter_type IN ('${TransactionFilterTypeDict.SWAP}')
+                    ) OR (
+                        transaction_direction IN ('swap_income', 'swap_outcome', 'swap')
+                    )
+                `)
+            }
+
+            tmpWhere = '(' + tmpWhere.join(') OR (') + ')'
+            where.push(tmpWhere)
         }
 
         where.push(`transaction_hash !=''`)

@@ -14,7 +14,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import Button from '@app/components/elements/new/buttons/Button'
 
-import { getFilterData } from '@app/appstores/Stores/Main/selectors'
+import { getFilterData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 import { strings } from '@app/services/i18n'
 import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
 
@@ -52,23 +52,32 @@ class TransactionCategories extends React.PureComponent {
                 iconType: 'exchange',
                 value: 'filterTypeHideSwap'
             },
-            {
-                notActive: this.props.filterData?.filterTypeHideStake || false,
-                title: strings('account.transaction.stake'),
-                iconType: 'freezing',
-                value: 'filterTypeHideStake'
-            },
-            {
-                notActive: this.props.filterData?.filterTypeHideWalletConnect || false,
-                title: strings('account.transaction.wallet_connect'),
-                iconType: 'walletConnect',
-                value: 'filterTypeHideWalletConnect'
-            }
+            // {
+            //     notActive: this.props.filterData?.filterTypeHideWalletConnect || false,
+            //     title: strings('account.transaction.wallet_connect'),
+            //     iconType: 'walletConnect',
+            //     value: 'filterTypeHideWalletConnect'
+            // }
         ],
         isAllActive: true
     }
 
     componentDidMount() {
+
+        if (this.props.cryptoCurrency.currencyCode === 'TRX' || this.props.cryptoCurrency.currencyCode === 'SOL') {
+            this.setState({
+                categoriesData: [
+                    ...this.state.categoriesData,
+                    {
+                        notActive: this.props.filterData?.filterTypeHideStake || false,
+                        title: strings('account.transaction.stake'),
+                        iconType: 'freezing',
+                        value: 'filterTypeHideStake'
+                    }
+                ]
+            })
+        }
+
         const isAllActive = Array.from(new Set(this.state.categoriesData.map(item => item.notActive)))
 
         this.setState({
@@ -79,7 +88,8 @@ class TransactionCategories extends React.PureComponent {
     handleApply = () => {
 
         const filter = {
-            ...this.props.filter
+            ...this.props.filter,
+            active: true
         }
 
         this.state.categoriesData.filter(item => item.notActive).map(item => filter[item.value] = item.notActive)
@@ -199,7 +209,8 @@ TransactionCategories.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        filterData: getFilterData(state)
+        filterData: getFilterData(state),
+        cryptoCurrency: getSelectedCryptoCurrencyData(state)
     }
 }
 
