@@ -127,11 +127,6 @@ class AccountReceiveScreen extends React.PureComponent {
         try {
 
             const address = getAddress.call(this)
-            console.log(`address`, address)
-
-            console.log(`currencyCode`, currencyCode)
-
-            console.log(`currencySymbol`, currencySymbol)
 
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             let linkForQR = ''

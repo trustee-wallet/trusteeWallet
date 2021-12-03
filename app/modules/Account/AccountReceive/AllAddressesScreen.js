@@ -87,8 +87,6 @@ class AllAddressesScreen extends PureComponent {
         }
 
         const tmp = await Account.getAccountForChange(params)
-
-        console.log(tmp)
     }
 
     triggerBalanceVisibility = (value, originalVisibility) => {
