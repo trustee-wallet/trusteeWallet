@@ -300,63 +300,27 @@ class Transaction {
         }
         // if not selected both income and outcome - we assume someone dont want usual transactions to be seen
 
+        let tmpWhere = []
         // status filter
-        let isCancelShown = false
         if (typeof params.filterStatusHideCancel !== 'undefined' && params.filterStatusHideCancel) {
             where.push(`transaction_status NOT IN ('fail')`)
         } else {
-            isCancelShown = true
-        }
-
-        // fee filter
-        let isFeeShown = false
-        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
-            where.push(`address_to NOT LIKE '% Simple Send%'`)
-            where.push(`address_amount != '0'`)
-            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}'))`)
-        } else {
-            isFeeShown = true
-        }
-
-
-        // other categories
-        let isSwapShown = false
-        if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
-            where.push(`(bse_order_id = '' OR bse_order_id IS NULL OR bse_order_id = 'null')`)
-            where.push(`transaction_direction NOT IN ('swap_income', 'swap_outcome', 'swap')`)
-            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SWAP}'))`)
-        } else {
-            isSwapShown = true
-        }
-
-        let isStakeShown = false
-        if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake) {
-            where.push(`transaction_direction NOT IN ('freeze', 'unfreeze', 'claim')`)
-            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}'))`)
-        } else {
-            isStakeShown = true
-        }
-
-        // if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
-        //     where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}'))`)
-        // }
-
-
-        //
-        if (typeof params.noFilter === 'undefined' && filterTypeHideUsual) {
-            let tmpWhere = []
-            if (isCancelShown) {
-                tmpWhere.push(`
+            tmpWhere.push(`
                 (
                     transaction_direction IN ('outcome', 'self') 
                     ) AND ( 
                         transaction_status IN ('fail')
                         )
                 `)
-            }
+        }
 
-            if (isFeeShown) {
-                tmpWhere.push(`
+        // fee filter
+        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
+            where.push(`address_amount != '0'`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}'))`)
+        } else {
+            tmpWhere.push(`
                 (
                     transaction_direction IN ('outcome', 'self')) 
                 AND
@@ -370,22 +334,16 @@ class Transaction {
                     )
                 )
             `)
-            }
+        }
 
-            if (isStakeShown) {
-                if (params.currencyCode === 'TRX' || params.currencyCode === 'SOL') {
-                    tmpWhere.push(`
-                    (
-                        transaction_direction IN ('freeze', 'unfreeze', 'claim')
-                    ) OR (
-                        transaction_filter_type IS NOT NULL AND transaction_filter_type IN ('${TransactionFilterTypeDict.STAKE}')
-                    )
-                `)
-                }
-            }
 
-            if (isSwapShown) {
-                tmpWhere.push(`
+        // other categories
+        if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
+            where.push(`(bse_order_id = '' OR bse_order_id IS NULL OR bse_order_id = 'null')`)
+            where.push(`transaction_direction NOT IN ('swap_income', 'swap_outcome', 'swap')`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SWAP}'))`)
+        } else {
+            tmpWhere.push(`
                 (
                     bse_order_id != '' OR bse_order_id IS NOT NULL OR bse_order_id != 'null'
                 ) OR (
@@ -394,8 +352,30 @@ class Transaction {
                         transaction_direction IN ('swap_income', 'swap_outcome', 'swap')
                     )
                 `)
-            }
+        }
 
+        if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake) {
+            where.push(`transaction_direction NOT IN ('freeze', 'unfreeze', 'claim')`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}'))`)
+        } else {
+            if (params.currencyCode === 'TRX' || params.currencyCode === 'SOL') {
+                tmpWhere.push(`
+                    (
+                        transaction_direction IN ('freeze', 'unfreeze', 'claim')
+                    ) OR (
+                        transaction_filter_type IS NOT NULL AND transaction_filter_type IN ('${TransactionFilterTypeDict.STAKE}')
+                    )
+                `)
+            }
+        }
+
+        // if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
+        //     where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}'))`)
+        // }
+
+
+        //
+        if (typeof params.noFilter === 'undefined' && filterTypeHideUsual && tmpWhere.length > 0) {
             tmpWhere = '(' + tmpWhere.join(') OR (') + ')'
             where.push(tmpWhere)
         }
