@@ -22,10 +22,10 @@ export default class XrpScannerProcessor {
         const serverType = BlocksoftExternalSettings.getStatic('XRP_SCANNER_TYPE')
         if (serverType === 'dataripple') {
             this.provider = new XrpDataRippleProvider()
-            this.provider.setCache(CACHE_BLOCK_DATA)
         } else {
             this.provider = new XrpDataScanProvider()
         }
+        this.provider.setCache(CACHE_BLOCK_DATA)
         this._inited = true
     }
 
