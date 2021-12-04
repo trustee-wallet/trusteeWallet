@@ -24,7 +24,7 @@ class SendLog {
 
         const logs = `
 
-                ↑↑↑ Send to: contact@trustee.deals ↑↑↑
+                ↑↑↑ Send to: info@nextmindcoin.com ↑↑↑
 
                 ${JSON.stringify(deviceToken)}
 
@@ -52,9 +52,9 @@ class SendLog {
             // @ts-ignore
             Log.errFS(FilePermissions.getError())
             return {
-                title: 'Trustee. Support',
-                subject: 'Trustee. Support',
-                email: 'contact@trustee.deals',
+                title: 'NXMCwallet. Support',
+                subject: 'NXMCwallet. Support',
+                email: 'info@nextmindcoin.com',
                 message: logs
             }
         }
@@ -117,10 +117,10 @@ class SendLog {
         }
 
         const shareOptions = {
-            title: 'Trustee. Support',
-            subject: 'Trustee. Support',
-            email: 'contact@trustee.deals',
-            message: '↑↑↑ Send to: contact@trustee.deals ↑↑↑',
+            title: 'NXMCwallet. Support',
+            subject: 'NXMCwallet. Support',
+            email: 'info@nextmindcoin.com',
+            message: '↑↑↑ Send to: info@nextmindcoin.com ↑↑↑',
             urls
         }
         return shareOptions
