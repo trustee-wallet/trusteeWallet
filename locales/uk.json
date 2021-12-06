@@ -294,7 +294,7 @@
     "tabCustom": "Ще",
     "searchPlaceholder": "Пошук",
     "addCustomPlaceholder": "Адреса активу",
-    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB, Polygon, Solana або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
+    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB Smart Chain, Polygon, Solana або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
     "noAssetsFound": "Активи не знайдено",
     "addAssetButton": "Додати актив",
     "mainTitle": "Додати актив",
@@ -336,7 +336,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Додати NFT актив",
-    "addCustomLabel": "Ви можете додати стандартний токен NFT, розроблений на блокчейнах Ethereum, BNB, Matic або на Ropsten або Rinkeby Testnet. Будь ласка, введіть або відскануйте нову адресу токену / активу.",
+    "addCustomLabel": "Ви можете додати стандартний токен NFT, розроблений на блокчейнах Ethereum, BNB Smart Chain, Matic або на Ropsten або Rinkeby Testnet. Будь ласка, введіть або відскануйте нову адресу токену / активу.",
     "addCustomLabelOpenSea" : "Токени Ethereum можна додати з OpenSea ",
     "addCustomPlaceholder" : "Адреса активу NFT",
     "addAssetButton" : "Додати актив"

@@ -53,9 +53,6 @@ export namespace NftCustomAssetsActions {
         if (typeof (nftToAdd.nftType) === 'undefined') {
             throw new Error('set nftType')
         }
-        if (nftToAdd.nftType !== 'NFT_MATIC' && nftToAdd.nftType !== 'NFT_ROPSTEN') {
-            throw new Error('only MATIC / ROPSTEN nftType is supported')
-        }
         if (typeof nftToAdd.nftAddress === 'undefined') {
             throw new Error('set ndtAddress')
         }

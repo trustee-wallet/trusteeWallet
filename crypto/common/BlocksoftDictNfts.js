@@ -6,17 +6,21 @@ const Nfts = [
         tokenBlockchain: 'ETHEREUM',
         tokenBlockchainCode: 'ETH',
         currencyType: 'NFT',
-        showOnHome : true
+        apiType: 'OPENSEA',
+        explorerLink: 'https://explorerLink.com/token/',
+        showOnHome: true
     },
-
     {
         currencyCode: 'NFT_BNB',
         currencyName: 'BNB NFT',
         currencySymbol: 'NFT',
         tokenBlockchain: 'BNB',
+        tokenBlockchainShortTitle: 'BNB SC',
+        tokenBlockchainLongTitle: 'BNB Smart Chain',
         tokenBlockchainCode: 'BNB_SMART',
         currencyType: 'NFT',
-        showOnHome : false
+        explorerLink: 'https://bscscan.com/token/',
+        showOnHome: false
     },
 
     {
@@ -26,7 +30,8 @@ const Nfts = [
         tokenBlockchain: 'MATIC',
         tokenBlockchainCode: 'MATIC',
         currencyType: 'NFT',
-        showOnHome : false
+        explorerLink: 'https://polygonscan.com/token/',
+        showOnHome: false
     },
     {
         currencyCode: 'NFT_ROPSTEN',
@@ -35,7 +40,8 @@ const Nfts = [
         tokenBlockchain: 'ROPSTEN',
         tokenBlockchainCode: 'ETH_ROPSTEN',
         currencyType: 'NFT',
-        showOnHome : false
+        explorerLink: 'https://ropsten.explorerLink.io/token/',
+        showOnHome: false
     },
     {
         currencyCode: 'NFT_RINKEBY',
@@ -44,7 +50,9 @@ const Nfts = [
         tokenBlockchain: 'RINKEBY',
         tokenBlockchainCode: 'ETH_RINKEBY',
         currencyType: 'NFT',
-        showOnHome : false
+        apiType: 'OPENSEA',
+        explorerLink: 'https://rinkeby.explorerLink.io/token/',
+        showOnHome: false
     }
     /*
     {
@@ -58,6 +66,44 @@ const Nfts = [
     */
 ]
 
+const NftsIndexed = {}
+for (const tmp of Nfts) {
+    NftsIndexed[tmp.tokenBlockchainCode] = tmp
+    NftsIndexed[tmp.tokenBlockchain] = tmp
+}
+
+const getCurrencyCode = (walletCurrency, tokenBlockchainCode) => {
+    if (!walletCurrency && !tokenBlockchainCode) {
+        return ''
+    }
+
+    if (walletCurrency) {
+        return walletCurrency
+    }
+
+    const tmp = NftsIndexed[tokenBlockchainCode.toUpperCase()]
+    if (typeof tmp === 'undefined') {
+        return tokenBlockchainCode
+    }
+    return tmp.tokenBlockchainCode
+}
+
+const getCurrencyTitle = (walletCurrency, tokenBlockchainCode) => {
+    if (!walletCurrency && !tokenBlockchainCode) {
+        return ''
+    }
+
+    if (walletCurrency) {
+        return walletCurrency
+    }
+
+    const tmp = NftsIndexed[tokenBlockchainCode.toUpperCase()]
+    if (typeof tmp === 'undefined') {
+        return tokenBlockchainCode
+    }
+    return tmp.tokenBlockchainShortTitle || tmp.tokenBlockchain
+}
+
 export default {
-    Nfts
+    Nfts, NftsIndexed, getCurrencyTitle, getCurrencyCode
 }

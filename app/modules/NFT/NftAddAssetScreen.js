@@ -89,7 +89,7 @@ class NftAddAssetScreen extends PureComponent {
         const flatListData = []
         for (const tmp of Nfts.Nfts) {
             flatListData.push({
-                text: tmp.tokenBlockchain,
+                text: tmp.tokenBlockchainShortTitle || tmp.tokenBlockchain,
                 inverse: selectedBlockchain?.currencyCode === tmp.currencyCode,
                 action: () => this.handleSelectBlockchain(tmp)
             })
@@ -116,6 +116,7 @@ class NftAddAssetScreen extends PureComponent {
     }
 
     renderListItem = ({ item }) => {
+        console.log('item', item)
         return (
             <ListItem
                 title={item.currencyName}
@@ -134,7 +135,19 @@ class NftAddAssetScreen extends PureComponent {
             colors
         } = this.context
 
-        const { customAddress, data } = this.state
+        const { customAddress, selectedBlockchain } = this.state
+        const { nftCustomAssetsData } = this.props
+        let data = []
+
+        /*
+        @todo FOR VADIK
+        if (typeof nftCustomAssetsData !== 'undefined' && typeof nftCustomAssetsData.customAssets[selectedBlockchain.currencyCode] !== 'undefined') {
+            for (const key in nftCustomAssetsData.customAssets[selectedBlockchain.currencyCode]) {
+                const tmp = nftCustomAssetsData.customAssets[selectedBlockchain.currencyCode][key]
+                tmp.currencyCode = selectedBlockchain.currencyCode
+                data.push(tmp)
+            }
+        }*/
 
         return (
             <ScreenWrapper

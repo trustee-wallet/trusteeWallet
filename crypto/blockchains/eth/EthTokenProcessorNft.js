@@ -17,11 +17,11 @@ export default class EthTokenProcessorNft extends EthBasic {
     async getListBlockchain(data) {
 
         if (
-            this._settings.tokenBlockchain === 'MATIC' || this._settings.tokenBlockchainCode === 'ETH_ROPSTEN' || this._settings.tokenBlockchainCode === 'BNB'
+            typeof this._settings.apiType !== 'undefined' && this._settings.apiType === 'OPENSEA'
         ) {
-            return EthNftMatic(data)
-        } else {
             return EthNftOpensea(data)
+        } else {
+            return EthNftMatic(data)
         }
     }
 
