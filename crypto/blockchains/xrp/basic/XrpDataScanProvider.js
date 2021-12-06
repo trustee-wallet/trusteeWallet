@@ -39,13 +39,22 @@ export default class XrpDataScanProvider {
             }
             res = await BlocksoftAxios.postWithoutBraking(link, data)
 
-            if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.result !== 'undefined' && res.data.result && typeof res.data.result.account_data.Balance !== 'undefined') {
-                balance = BlocksoftUtils.toUnified(res.data.result.account_data.Balance, 6)
+            if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.result !== 'undefined' && res.data.result) {
+                if (typeof res.data.result.account !== 'undefined' && typeof res.data.result.error_code !== 'undefined' &&  res.data.result.error_code === 19 ) {
+                    balance = 0
+                } else if (typeof res.data.result.account_data !== 'undefined' && typeof res.data.result.account_data.Balance !== 'undefined') {
+                    balance = BlocksoftUtils.toUnified(res.data.result.account_data.Balance, 6)
+                }
             } else {
                 return false
             }
         } catch (e) {
             if (e.message.indexOf('timed out') === -1 && e.message.indexOf('account not found') === -1) {
+                if (typeof res.data !== 'undefined' && res.data) {
+                    e.message += ' in ' + JSON.stringify(res.data)
+                } else {
+                    e.message += ' empty data'
+                }
                 throw e
             } else {
                 return false
