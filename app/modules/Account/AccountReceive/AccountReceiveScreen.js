@@ -311,7 +311,7 @@ class AccountReceiveScreen extends React.PureComponent {
             <Tabs 
                 tabs={tabs}
                 changeTab={this.changeAddressType}
-                containerStyle={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}    
+                containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}    
             />
         )
     }
@@ -354,21 +354,7 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     backAction = () => {
-        const { customAmount } = this.state
-
-        if (customAmount) {
-            this.setState({
-                customAmount: false,
-                amountEquivalent: null,
-                amountInputMark: '',
-                amountForQr: '',
-                labelForQr: '',
-                inputType: 'CRYPTO'
-
-            })
-        } else {
-            NavStore.goBack()
-        }
+        NavStore.goBack() 
     }
 
     closeAction = () => {
@@ -521,12 +507,21 @@ class AccountReceiveScreen extends React.PureComponent {
                     last
                 />
                 <InvoiceListItem 
+                    title={strings('account.receiveScreen.amount')}
+                    onPress={() => {
+                        this.handleCustomAmount()
+                        hideModal()
+                    }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    iconType='edit'
+                />
+                <InvoiceListItem 
                     title={strings('account.copyLink')}
                     onPress={() => {
                         this.copyToClip()
                         hideModal()
                     }}
-                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE }}
                     iconType='copy'
                 />
                 <InvoiceListItem 
@@ -584,7 +579,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
         showModal({
             type: 'INFO_MODAL',
-            title: 'Coming soon',
+            title: strings('modal.settings.soon'),
             icon: 'WARNING'
         })
     }
@@ -599,7 +594,12 @@ class AccountReceiveScreen extends React.PureComponent {
         this.scrollDetails(!customAmount)
 
         this.setState({
-            customAmount: !customAmount
+            customAmount: !customAmount,
+            amountEquivalent: null,
+            amountInputMark: '',
+            amountForQr: '',
+            labelForQr: '',
+            inputType: 'CRYPTO'
         })
     }
 
@@ -658,22 +658,22 @@ class AccountReceiveScreen extends React.PureComponent {
                 title={strings('account.receiveScreen.title', { receive: strings('repeat.receive') + ' ' + currencySymbol })}
                 ExtraView={this.renderAccountDetail}
             >
-                {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
-                {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
                 <ScrollView
                     ref={(ref) => {
                         this.scrollView = ref
                     }}
                     keyboardShouldPersistTaps={'handled'}
                     showsVerticalScrollIndicator={false}
-                    style={{ marginTop: GRID_SIZE }}
+                    style={{ paddingTop: GRID_SIZE }}
                 >   
+                    {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
+                    {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
                     <View style={{backgroundColor: colors.common.listItem.basic.iconBgLight, marginHorizontal: GRID_SIZE, borderRadius: 24, paddingBottom: GRID_SIZE }}>
                         <View style={{ ...styles.wrapper__content, paddingTop: GRID_SIZE * 1.5 }}>
 
                             <TouchableOpacity
                                 style={styles.qr}
-                                onPress={this.handleBackDropModal}
+                                onPressIn={this.handleBackDropModal}
                                 activeOpacity={0.8}
                                 onLongPress={this.copyToClip}
                                 delayLongPress={500}
@@ -734,9 +734,10 @@ class AccountReceiveScreen extends React.PureComponent {
                                         </View>
                                         <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 2}}>
                                             <Button
+                                                type='withoutShadow'
                                                 title={strings('account.receiveScreen.share')}
                                                 onPress={this.shareData}
-                                                containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
+                                                containerStyle={[styles.discardButton, { paddingHorizontal: GRID_SIZE * 2, padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
                                             />
                                         </View> 
                                     </> :  
@@ -788,8 +789,8 @@ class AccountReceiveScreen extends React.PureComponent {
                 </ScrollView>
                 {!customAmount && <Button
                     title={strings('account.receiveScreen.share')}
-                    onPress={this.handleCustomAmount}
-                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}
+                    onPress={this.handleBackDropModal}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
                 />}
             </ScreenWrapper>
         )
@@ -880,4 +881,9 @@ const styles = {
         alignSelf: 'center',
         marginVertical: 6
     },
+    discardButton: {
+        width: 'auto',
+        minWidth: 58,
+        height: 38
+    }
 }

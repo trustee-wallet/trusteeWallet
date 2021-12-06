@@ -26,6 +26,10 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='toUp' size={20} color={color} />
         case 'toDown':
             return <CustomIcon name='toDown' size={20} color={color} />
+        case 'edit':
+            return <CustomIcon name='edit' size={20} color={color} />
+        case 'hideAsset':
+            return <CustomIcon name='hideAsset' size={20} color={color} />
         default:
             return null
     }

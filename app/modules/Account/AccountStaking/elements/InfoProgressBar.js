@@ -39,6 +39,7 @@ const InfoProgressBar = (props) => {
                 unfilledColor={colors.cashback.chartBg}
                 color={colors.common.checkbox.bgChecked}
                 progress={percent}
+                useNativeDriver={true}
             />
             <View style={[styles.bandwidthContainer, { marginTop: GRID_SIZE / 2 }]}>
                 <Text style={styles.progressText}>{`${amount} / ${total}`}</Text>

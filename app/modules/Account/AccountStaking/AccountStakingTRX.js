@@ -84,11 +84,8 @@ class AccountStakingTRX extends React.PureComponent {
     stakeAmountInput = React.createRef()
 
     async componentDidMount() {
+        
         await handleTrxScan.call(this)
-
-        this.setState({
-            loading: false
-        })
     }
 
     handleBack = () => {

@@ -75,18 +75,18 @@ class WalletListScreen extends PureComponent {
                 </View>
                 <View style={[styles.buttons, { marginBottom: GRID_SIZE }]}>
                     <BorderedButton
-                        icon='plus'
-                        text={strings('settings.walletList.addWallet')}
-                        onPress={this.handleAddWallet}
-                        containerStyles={{ marginHorizontal: GRID_SIZE / 2 }}
-                    />
-                    <BorderedButton
                         text={strings('settings.walletList.showBalance')}
                         onPressIn={() => this.triggerBalanceVisibility(true)}
                         onPressOut={() => this.triggerBalanceVisibility(false)}
                         containerStyles={{ marginHorizontal: GRID_SIZE / 2 }}
                         activeOpacity={0.7}
                         hitSlop={HIT_SLOP}
+                    />
+                    <BorderedButton
+                        icon='plus'
+                        text={strings('settings.walletList.addWallet')}
+                        onPress={this.handleAddWallet}
+                        containerStyles={{ marginHorizontal: GRID_SIZE / 2 }}
                     />
                 </View>
             </View>

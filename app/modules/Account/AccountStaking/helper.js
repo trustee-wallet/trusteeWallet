@@ -40,6 +40,11 @@ export async function handleTrxScan() {
             Log.log('AccountStaking.helper.handleTrxScan noReward', tmp)
         } else if (balance) {
             Log.log('AccountStaking.helper.handleTrxScan balance', balance)
+
+            this.setState({
+                loading: false
+            })
+
             const reward = tmp.data.reward
             balance.prettyBalanceAvailable = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balanceAvailable)
             balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
@@ -59,8 +64,17 @@ export async function handleTrxScan() {
         } else {
             Log.log('AccountStaking.helper.handleTrxScan noBalance', balance)
         }
+
+        this.setState({
+            loading: false
+        })
+        
     } catch (e) {
         console.log('AccountStaking.helper.handleTrxScan error ' + e.message)
+
+        this.setState({
+            loading: false
+        })
     }
 
     return balance
