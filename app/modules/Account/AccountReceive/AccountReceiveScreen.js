@@ -734,9 +734,10 @@ class AccountReceiveScreen extends React.PureComponent {
                                         </View>
                                         <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 2}}>
                                             <Button
+                                                type='withoutShadow'
                                                 title={strings('account.receiveScreen.share')}
                                                 onPress={this.shareData}
-                                                containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
+                                                containerStyle={[styles.discardButton, { paddingHorizontal: GRID_SIZE * 2, backgroundColor: colors.common.button.bg }]}
                                             />
                                         </View> 
                                     </> :  
@@ -880,4 +881,9 @@ const styles = {
         alignSelf: 'center',
         marginVertical: 6
     },
+    discardButton: {
+        width: 'auto',
+        minWidth: 58,
+        height: 38
+    }
 }
