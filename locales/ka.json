@@ -412,6 +412,7 @@
     "performWithdraw": "გატანის ოპერაციის განსახორციელებლად, გთხოვთ, მოგვწეროთ telegram-ში ნიკნეიმზე"
   },
   "account": {
+    "indicateAmount": "Indicate the amount",
     "staking": "Staking",
     "title": "ანგარიში",
     "copy": "კოპირება",

@@ -415,6 +415,7 @@
     "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм"
   },
   "account": {
+    "indicateAmount": "Указать сумму",
     "staking": "Стейкинг",
     "title": "Счет",
     "copy": "Копировать",

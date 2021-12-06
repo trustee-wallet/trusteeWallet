@@ -359,21 +359,7 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     backAction = () => {
-        const { customAmount } = this.state
-
-        if (customAmount) {
-            this.setState({
-                customAmount: false,
-                amountEquivalent: null,
-                amountInputMark: '',
-                amountForQr: '',
-                labelForQr: '',
-                inputType: 'CRYPTO'
-
-            })
-        } else {
-            NavStore.goBack()
-        }
+        NavStore.goBack() 
     }
 
     closeAction = () => {
@@ -526,6 +512,15 @@ class AccountReceiveScreen extends React.PureComponent {
                     last
                 />
                 <InvoiceListItem 
+                    title={strings('account.indicateAmount')}
+                    onPress={() => {
+                        this.handleCustomAmount()
+                        hideModal()
+                    }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    iconType='edit'
+                />
+                <InvoiceListItem 
                     title={strings('account.copyLink')}
                     onPress={() => {
                         this.copyToClip()
@@ -589,7 +584,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
         showModal({
             type: 'INFO_MODAL',
-            title: 'Coming soon',
+            title: strings('modal.settings.soon'),
             icon: 'WARNING'
         })
     }
@@ -604,7 +599,12 @@ class AccountReceiveScreen extends React.PureComponent {
         this.scrollDetails(!customAmount)
 
         this.setState({
-            customAmount: !customAmount
+            customAmount: !customAmount,
+            amountEquivalent: null,
+            amountInputMark: '',
+            amountForQr: '',
+            labelForQr: '',
+            inputType: 'CRYPTO'
         })
     }
 
@@ -793,7 +793,7 @@ class AccountReceiveScreen extends React.PureComponent {
                 </ScrollView>
                 {!customAmount && <Button
                     title={strings('account.receiveScreen.share')}
-                    onPress={this.handleCustomAmount}
+                    onPress={this.handleBackDropModal}
                     containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}
                 />}
             </ScreenWrapper>
