@@ -414,7 +414,6 @@
     "performWithdraw": "To perform withdraw, please, write to telegram to nickname"
   },
   "account": {
-    "indicateAmount": "Indicate the amount",
     "staking": "Staking",
     "title": "Account",
     "copy": "Click to copy",

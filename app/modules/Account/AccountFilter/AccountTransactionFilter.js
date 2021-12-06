@@ -50,28 +50,7 @@ class TransactionFilter extends React.PureComponent {
         startAmount: null,
         endAmount: null,
         filterOriginData: this.props.filterData,
-        activeSections: [],
-        filter: [
-            {
-                active: true
-            },
-            {
-                active: true
-            },
-            {
-                active: true
-            },
-            {
-                active: true
-            },
-            {
-                active: true
-            },
-            {
-                active: true
-            },
-        
-        ]
+        activeSections: []
     }
 
     sections = [

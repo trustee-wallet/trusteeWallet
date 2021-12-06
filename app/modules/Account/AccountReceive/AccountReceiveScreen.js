@@ -507,7 +507,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     last
                 />
                 <InvoiceListItem 
-                    title={strings('account.indicateAmount')}
+                    title={strings('account.receiveScreen.amount')}
                     onPress={() => {
                         this.handleCustomAmount()
                         hideModal()
