@@ -88,20 +88,13 @@ const CACHE = {
     'SUPPORT_BOT_NAME' : '@trustee_support_bot',
     'SUPPORT_EMAIL' : 'info@nextmindcoin.com',
     'navigationViewV3': 1,
-    'SOCIAL_LINK_SITE': 'nextmindcoin.com',
+    'SOCIAL_LINK_SITE': 'https://nextmindcoin.com',
     'SOCIAL_LINK_TELEGRAM': 'https://t.me/NextMindCoin_NXMC',
     'SOCIAL_LINK_TWITTER': 'https://twitter.com/NextMindCoin',
-    'SOCIAL_LINK_FACEBOOK': 'https://facebook.com/Trustee.Wallet/',
-    'SOCIAL_LINK_INSTAGRAM': 'https://instagram.com/trustee_wallet/',
-    'SOCIAL_LINK_VK': 'https://vk.com/trustee_wallet',
     'SOCIAL_LINK_GITHUB': 'https://github.com/CEO-NextMindCoin/NXMC-Wallet',
-    'SOCIAL_LINK_FAQ': 'https://trusteeglobal.com/faq/',
-    'PRIVACY_POLICY_en': 'https://trusteeglobal.com/privacy-policy/?header_footer=none',
-    'PRIVACY_POLICY_ru': 'https://trusteeglobal.com/ru/politika-konfidencialnosti/?header_footer=none',
-    'PRIVACY_POLICY_uk': 'https://trusteeglobal.com/uk/poltika-konfidencijnosti/?header_footer=none',
-    'TERMS_en': 'https://trusteeglobal.com/terms-of-use/?header_footer=none',
-    'TERMS_ru': 'https://trusteeglobal.com/ru/usloviya-ispolzovaniya/?header_footer=none',
-    'TERMS_uk': 'https://trusteeglobal.com/uk/umovi-vikoristannya/?header_footer=none',
+    'SOCIAL_LINK_FAQ': 'https://nextmindcoin.com/NXMCwallet/',
+    'PRIVACY_POLICY_en': 'https://nextmindcoin.com/NXMCwallet/',
+    'TERMS_en': 'https://nextmindcoin.com/NXMCwallet/',
     'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95,
     'ROCKET_CHAT_USE' : 0
 }
@@ -110,7 +103,7 @@ const CACHE = {
 class BlocksoftExternalSettings {
 
     async getAll(source) {
-        await this._get('getAll ' + source)
+        //await this._get('getAll ' + source) interrogation serveur 
         return CACHE
     }
 
