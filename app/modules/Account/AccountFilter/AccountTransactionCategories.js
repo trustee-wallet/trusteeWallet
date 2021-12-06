@@ -17,6 +17,7 @@ import Button from '@app/components/elements/new/buttons/Button'
 import { getFilterData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 import { strings } from '@app/services/i18n'
 import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 class TransactionCategories extends React.PureComponent {
 
@@ -98,6 +99,7 @@ class TransactionCategories extends React.PureComponent {
             filter.filterTypeHideFee = false // !!! dont remove it its for default settings!
         }
         setFilter(filter, 'AccountTransactionCategories.handleApply')
+        trusteeAsyncStorage.setAccountFilterData(filter)
 
         NavStore.goBack()
         NavStore.goBack()
