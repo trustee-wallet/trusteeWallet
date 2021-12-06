@@ -521,7 +521,7 @@ class AccountReceiveScreen extends React.PureComponent {
                         this.copyToClip()
                         hideModal()
                     }}
-                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE }}
                     iconType='copy'
                 />
                 <InvoiceListItem 
@@ -664,7 +664,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     }}
                     keyboardShouldPersistTaps={'handled'}
                     showsVerticalScrollIndicator={false}
-                    style={{ marginTop: GRID_SIZE }}
+                    style={{ paddingTop: GRID_SIZE }}
                 >   
                     {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
                     {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
@@ -789,7 +789,7 @@ class AccountReceiveScreen extends React.PureComponent {
                 {!customAmount && <Button
                     title={strings('account.receiveScreen.share')}
                     onPress={this.handleBackDropModal}
-                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
                 />}
             </ScreenWrapper>
         )
