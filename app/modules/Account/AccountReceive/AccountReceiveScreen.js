@@ -737,7 +737,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                                 type='withoutShadow'
                                                 title={strings('account.receiveScreen.share')}
                                                 onPress={this.shareData}
-                                                containerStyle={[styles.discardButton, { paddingHorizontal: GRID_SIZE * 2, backgroundColor: colors.common.button.bg }]}
+                                                containerStyle={[styles.discardButton, { paddingHorizontal: GRID_SIZE * 2, padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
                                             />
                                         </View> 
                                     </> :  

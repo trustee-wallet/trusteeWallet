@@ -34,7 +34,8 @@ const getStyle = (type, disabled, containerStyle, textStyle) => {
         style.container.push(containerStyle)
         style.text.push(
             styles.transparentButtonText,
-            textStyle
+            textStyle,
+            { color: colors.common.button[disabled ? 'disabledText' : 'text'] },
         )
     } else {
         style.container.push(
