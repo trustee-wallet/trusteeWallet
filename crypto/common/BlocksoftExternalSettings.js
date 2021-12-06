@@ -103,8 +103,8 @@ const CACHE = {
 class BlocksoftExternalSettings {
 
     async getAll(source) {
-        //await this._get('getAll ' + source) interrogation serveur 
-        return CACHE
+        // await this._get('getAll ' + source) interrogation serveur 
+        return Promise.resolve(CACHE)
     }
 
     async get(param, source = '') {
