@@ -10,7 +10,7 @@ import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import { setSelectedWallet, setSortValue, setStakingCoins } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setFilter, setSelectedWallet, setSortValue, setStakingCoins } from '@app/appstores/Stores/Main/MainStoreActions'
 import { setInitState, setInitError } from '@app/appstores/Stores/Init/InitStoreActions'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
@@ -171,6 +171,8 @@ class App {
 
             await setSortValue(trusteeAsyncStorage.getSortValue() || null)
 
+            await this.setAccountFilterData()
+
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })
 
@@ -191,6 +193,12 @@ class App {
         }
 
         await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall) + ' finished')
+    }
+
+    setAccountFilterData = async () => {
+        let filter = await trusteeAsyncStorage.getAccountFilterData()
+        filter = typeof filter !== 'undefined' && filter && Object.keys(filter) ? filter : {}
+        await setFilter(filter)
     }
 
 
