@@ -63,11 +63,12 @@ export async function handleTrxScan() {
             })
         } else {
             Log.log('AccountStaking.helper.handleTrxScan noBalance', balance)
-
-            this.setState({
-                loading: false
-            })
         }
+
+        this.setState({
+            loading: false
+        })
+        
     } catch (e) {
         console.log('AccountStaking.helper.handleTrxScan error ' + e.message)
 

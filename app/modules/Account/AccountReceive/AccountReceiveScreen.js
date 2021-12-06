@@ -311,7 +311,7 @@ class AccountReceiveScreen extends React.PureComponent {
             <Tabs 
                 tabs={tabs}
                 changeTab={this.changeAddressType}
-                containerStyle={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}    
+                containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}    
             />
         )
     }
@@ -658,8 +658,6 @@ class AccountReceiveScreen extends React.PureComponent {
                 title={strings('account.receiveScreen.title', { receive: strings('repeat.receive') + ' ' + currencySymbol })}
                 ExtraView={this.renderAccountDetail}
             >
-                {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
-                {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
                 <ScrollView
                     ref={(ref) => {
                         this.scrollView = ref
@@ -668,12 +666,14 @@ class AccountReceiveScreen extends React.PureComponent {
                     showsVerticalScrollIndicator={false}
                     style={{ marginTop: GRID_SIZE }}
                 >   
+                    {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
+                    {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
                     <View style={{backgroundColor: colors.common.listItem.basic.iconBgLight, marginHorizontal: GRID_SIZE, borderRadius: 24, paddingBottom: GRID_SIZE }}>
                         <View style={{ ...styles.wrapper__content, paddingTop: GRID_SIZE * 1.5 }}>
 
                             <TouchableOpacity
                                 style={styles.qr}
-                                onPress={this.handleBackDropModal}
+                                onPressIn={this.handleBackDropModal}
                                 activeOpacity={0.8}
                                 onLongPress={this.copyToClip}
                                 delayLongPress={500}

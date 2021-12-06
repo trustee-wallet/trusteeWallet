@@ -59,7 +59,8 @@ class ContentDropModal extends React.PureComponent {
                         hideModal()
                     }}
                     containerStyle={{ borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
-                    textStyles={{ textAlign: 'center' }}
+                    textStyles={{ textAlign: 'left' }}
+                    iconType='hideAsset'
                     last
                 />
             </View>
