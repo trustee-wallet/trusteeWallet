@@ -357,7 +357,7 @@ class TransactionFilter extends React.PureComponent {
                             title: strings('send.setting.apply')
                         }}
                         secondaryButton={{
-                            type: 'delete',
+                            type: 'clean',
                             onPress: this.handleCleanFilter
                         }}
                     />

@@ -20,8 +20,8 @@ const getIcon = (type, color) => {
             return <CustomIcon name='back' size={24} color={colors.common.text3} style={{ left: 0.5 }} />
         case 'sendMessage':
             return <CustomIcon name='sendMessage' size={28} color={color} style={{ left: 0.5 }} />
-        case 'delete':
-            return <CustomIcon name='delete' size={28} color={color} style={{ left: 0.5 }} />
+        case 'clean':
+            return <CustomIcon name='cancel_filter' size={24} color={color} style={{ left: 0.5 }} />
         default:
             return null
     }
