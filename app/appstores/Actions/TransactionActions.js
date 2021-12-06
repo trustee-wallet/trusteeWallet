@@ -144,6 +144,9 @@ const transactionActions = {
         if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
             transaction.wayType = transaction.transactionDirection
         }
+        if (transaction?.bseOrderData) {
+            transaction.wayType = TransactionFilterTypeDict.SWAP
+        }
         return transaction
     },
 

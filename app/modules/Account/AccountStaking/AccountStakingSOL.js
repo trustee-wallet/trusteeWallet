@@ -112,7 +112,7 @@ class AccountStakingSOL extends React.PureComponent {
         if (item.type) {
             Linking.openURL('https://explorer.solana.com/tx/' + item.transactionHash)
         } else {
-            NavStore.goNext('StakingTransactionScreen', { stakingItem: item, stakingAccount: account })
+            NavStore.goNext('SolStakingTransactionScreen', { stakingItem: item, stakingAccount: account })
         }
     }
 

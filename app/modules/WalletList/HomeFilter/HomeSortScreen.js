@@ -72,6 +72,8 @@ class HomeSortScreen extends PureComponent {
 
     renderListItem = ({ item, index }) => {
 
+        const { GRID_SIZE } = this.context
+
         return (
             <ListItem
                 iconType={item.icon}
@@ -79,6 +81,7 @@ class HomeSortScreen extends PureComponent {
                 checked={item.value === this.state.sortValue}
                 last={this.sortList.length - 1 === index}
                 onPress={() => this.handleSortItem(item.value)}
+                containerStyle={{ paddingVertical: GRID_SIZE / 3 }}
             />
         )
     }
