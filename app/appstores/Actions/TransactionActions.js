@@ -147,6 +147,10 @@ const transactionActions = {
         if (transaction?.bseOrderData) {
             transaction.wayType = TransactionFilterTypeDict.SWAP
         }
+        if (transaction?.addressAmount === 0) {
+            transaction.addressAmountPrettyPrefix = '-'
+            transaction.wayType = TransactionFilterTypeDict.FEE
+        }
         return transaction
     },
 

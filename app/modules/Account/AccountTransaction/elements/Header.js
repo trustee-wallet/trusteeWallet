@@ -10,6 +10,8 @@ import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 import { strings } from '@app/services/i18n'
 import { useTheme } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyDates from '@crypto/common/BlocksoftPrettyDates'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import CustomIcon from '@app/components/elements/CustomIcon'
 
 
 const prepareStatusHeaderToView = (status) => {
@@ -34,14 +36,21 @@ const HeaderTx = (props) => {
 
     let status = transactionVisibleStatus
 
-    let arrowIcon = <Feather name={'arrow-up-right'} style={{ color: colors.common.text1, fontSize: 17 }} />
+    let arrowIcon = <Feather name='arrow-up-right' style={{ color: colors.common.text1, fontSize: 17 }} />
 
     if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
-        arrowIcon = <Feather name={'arrow-down-left'} style={{ color: colors.common.text1, fontSize: 17 }} />
+        arrowIcon = <Feather name='arrow-down-left' style={{ color: colors.common.text1, fontSize: 17 }} />
     }
     if (transactionDirection === 'self') {
         arrowIcon = <FontAwesome5 name='infinity' style={{ color: colors.common.text1, fontSize: 17 }} />
     }
+    if (wayType === TransactionFilterTypeDict.SWAP) {
+        arrowIcon = <CustomIcon name='swap' style={{ color: colors.common.text1, fontSize: 17 }} />
+    }
+    if (wayType === TransactionFilterTypeDict.FEE) {
+        arrowIcon = <CustomIcon name='feeTxScreen' style={{ color: colors.common.text1, fontSize: 14 }} />
+    }
+
     // if (transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'replaced') {
     //     arrowIcon = <Feather name='x' style={{ color: colors.common.text1, fontSize: 17 }} />
     // }
