@@ -99,6 +99,18 @@ export async function handleFreezeTrx(isAll, type) {
     try {
 
         if (!isAll) {
+
+            if (typeof this.stakeAmountInput.state === 'undefined' || this.stakeAmountInput.state.value === '') {
+                this.setState({
+                    addressError: true,
+                    addressErrorText: strings('send.notValidAmount')
+                })
+                setLoaderStatus(false)
+                return {
+                    status: 'fail'
+                }
+            }
+
             const inputValidate = await this.stakeAmountInput.handleValidate()
             if (inputValidate.status !== 'success') {
                 throw new Error('invalid custom freeze value')

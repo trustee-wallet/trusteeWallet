@@ -15,6 +15,8 @@ import { TabView } from 'react-native-tab-view'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import { getSelectedAccountData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
@@ -78,7 +80,10 @@ class AccountStakingTRX extends React.PureComponent {
         ],
         index: 0,
         refreshing: false,
-        loading: true
+        loading: true,
+
+        addressError: false,
+        addressErrorText: ''
     }
 
     stakeAmountInput = React.createRef()
@@ -247,10 +252,38 @@ class AccountStakingTRX extends React.PureComponent {
     onFocus = () => {
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 250 })
+                this.scrollView.scrollTo({ y: 350 })
             } catch (e) {
             }
         }, 100)
+    }
+
+    renderAddressError = () => {
+        const { addressError, addressErrorText } = this.state
+        const { colors, GRID_SIZE } = this.context
+
+        if (!addressError) return
+        return (
+            <View style={{ marginTop: GRID_SIZE }}>
+                <View style={styles.texts}>
+                    <View style={styles.texts__icon}>
+                        <Icon
+                            name='information-outline'
+                            size={22}
+                            color='#864DD9'
+                        />
+                    </View>
+                    <Text style={[styles.texts__item, {color: colors.common.text3 }]}>
+                        {addressErrorText === '' ? strings('send.addressError') : addressErrorText}
+                    </Text>
+                </View>
+            </View>
+        )
+
+    }
+    
+    handleChangeAmount = () => {
+        this.setState(() => ({ addressError: false }))
     }
 
     renderAmountInput = () => {
@@ -271,8 +304,11 @@ class AccountStakingTRX extends React.PureComponent {
                         inputTextColor='#f4f4f4'
                         tintColor='#7127ac'
                         onFocus={this.onFocus}
+                        onChangeText={this.handleChangeAmount}
+                        callback={this.handleChangeAmount}
                     />
                 </View>
+                {this.renderAddressError()}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
                     <InputAndButtonsPartBalanceButton
                         action={() => handlePartBalance.call(this, 1)}
@@ -432,7 +468,7 @@ class AccountStakingTRX extends React.PureComponent {
                     </View>
                 </ScrollView>
                 <Button
-                    title={strings('account.transaction.freeze')}
+                    title={strings('settings.walletList.freezeTrx')}
                     containerStyle={{ marginBottom: GRID_SIZE, marginHorizontal: GRID_SIZE }}
                     onPress={() => handleFreezeTrx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
                 />
@@ -581,4 +617,18 @@ const styles = {
         marginBottom: 20,
         marginTop: 16,
     },
+    texts: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 30
+    },
+    texts__item: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1
+    },
+    texts__icon: {
+        marginRight: 10,
+        transform: [{ rotate: '180deg' }]
+    }
 }
