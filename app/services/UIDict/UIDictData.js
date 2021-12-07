@@ -698,6 +698,12 @@ export default {
             darkColor: '#3A9DA6'
         }
     },
+    'SOL_NXMC': {
+        colors: {
+            mainColor: '#3A9DA6',
+            darkColor: '#3A9DA6'
+        }
+    },
     'SOL_MEDIA': {
         colors: {
             mainColor: '#252F77',
