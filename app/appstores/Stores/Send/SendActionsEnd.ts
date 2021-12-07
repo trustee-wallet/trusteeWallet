@@ -209,7 +209,7 @@ export namespace SendActionsEnd {
 
     export const saveTx = async (tx: any, sendScreenStore: any) => {
         const { currencyCode, accountId, walletHash, addressFrom } = sendScreenStore.dict
-        const { addressTo, cryptoValue, memo, comment, bse, tbk, contractCallData, transactionFilterType } = sendScreenStore.ui
+        const { addressTo, cryptoValue, memo, comment, bse, tbk, contractCallData, transactionFilterType, specialActionNeeded } = sendScreenStore.ui
         const { selectedFee, countedFees } = sendScreenStore.fromBlockchain
         const { bseMinCrypto } = bse
         const { transactionAction, transactionBoost } = tbk
@@ -350,6 +350,9 @@ export namespace SendActionsEnd {
             if (typeof tx.transactionTimestamp !== 'undefined' && tx.transactionTimestamp) {
                 transaction.createdAt = new Date(tx.transactionTimestamp).toISOString()
                 transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()
+            }
+            if (typeof specialActionNeeded !== 'undefined' && specialActionNeeded) {
+                transaction.specialActionNeeded = specialActionNeeded
             }
 
 

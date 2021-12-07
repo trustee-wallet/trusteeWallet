@@ -87,6 +87,19 @@ class AccountStakingTRX extends React.PureComponent {
         
         await handleTrxScan.call(this)
 
+        if (this.state.currentBalance.voteTotal * 1 !== this.state.currentBalance.prettyVote * 1) {
+            showModal({
+                type: 'YES_NO_MODAL',
+                icon: 'WARNING',
+                title: strings('modal.titles.attention'),
+                description: strings('settings.walletList.noVoted'),
+                oneButton: strings('settings.walletList.voteTRX'),
+                twoButton: strings('walletBackup.skipElement.cancel'),
+                noCallback: async () => {
+                    await handleVoteTrx.call(this)
+                }
+            }, () => null)
+        }
     }
 
     handleBack = () => {
@@ -234,7 +247,7 @@ class AccountStakingTRX extends React.PureComponent {
     onFocus = () => {
         setTimeout(() => {
             try {
-                this.scrollView.scrollTo({ y: 200 })
+                this.scrollView.scrollTo({ y: 250 })
             } catch (e) {
             }
         }, 100)
