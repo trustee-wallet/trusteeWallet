@@ -4,16 +4,16 @@
  */
 
 import React from 'react'
-import { View, LayoutAnimation, StyleSheet, Dimensions } from 'react-native'
+import { View, LayoutAnimation, StyleSheet, Dimensions, Text } from 'react-native'
 import { connect } from 'react-redux'
 
 import { strings } from '@app/services/i18n'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import TextAndButton from '@app/components/elements/new/TextAndButton'
 import TextInput from '@app/components/elements/NewInput'
 import Button from '@app/components/elements/new/buttons/Button'
+import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -63,15 +63,21 @@ class AmountInputContainer extends React.Component {
 
         const { value, currencyCode, side } = this.props
 
-        const { GRID_SIZE } = this.context
+        const { GRID_SIZE, colors } = this.context
 
         return (
             <>
-                <TextAndButton
-                    title={side === 'out' ? strings('account.transaction.endAmount') : strings('account.transaction.startAmount')}
-                    buttonText={value === '' ? strings('account.transaction.setAmount') : `${value} ${currencyCode}`}
-                    onPress={this.trigerAmountShow}
-                />
+                <View>
+                    <View style={[styles.inputPosition, { marginRight: GRID_SIZE * 2, marginLeft: GRID_SIZE * 3.5 }]}>
+                        <Text style={[styles.categoriesText, { color: colors.common.text3 }]}>{side === 'out' ? strings('account.transaction.endAmount') : strings('account.transaction.startAmount')}</Text>
+                        <BorderedButton
+                            text={value === '' ? strings('account.transaction.setAmount') : `${value} ${currencyCode}`}
+                            customTextStyles={{ paddingHorizontal: GRID_SIZE }}
+                            containerStyles={{ minWidth: 124 }}
+                            onPress={this.trigerAmountShow}
+                        />
+                    </View>
+                </View>
                 {this.state.show ?
                     <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginLeft: GRID_SIZE * 1.5 }}>
                         <View style={[styles.amountInput, { marginTop: GRID_SIZE, width: SCREEN_WIDTH * 0.6, height: 50 }]}>
@@ -118,5 +124,15 @@ const styles = StyleSheet.create({
             width: 0,
             height: 0
         },
+    },
+    inputPosition: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    categoriesText: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 14,
+        lineHeight: 18
     }
 })

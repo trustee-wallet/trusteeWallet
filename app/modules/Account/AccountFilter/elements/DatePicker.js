@@ -4,14 +4,15 @@
  */
 
 import React, { useState } from 'react'
-import { View, LayoutAnimation } from 'react-native'
+import { View, LayoutAnimation, Text, StyleSheet } from 'react-native'
 import DatePicker from 'react-native-date-picker'
 
 import { strings, sublocale } from '@app/services/i18n'
 import { useTheme } from '@app/theme/ThemeProvider'
 
-import TextAndButton from '@app/components/elements/new/TextAndButton'
 import { getCurrentDate } from '../../helpers'
+
+import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 
 const DatePickerComponent = (props) => {
 
@@ -19,7 +20,7 @@ const DatePickerComponent = (props) => {
 
     const { value, onDateChange, side } = props
 
-    const { GRID_SIZE } = useTheme()
+    const { GRID_SIZE, colors } = useTheme()
 
     const CustomLayoutAnimation = {
         duration: 500,
@@ -37,18 +38,23 @@ const DatePickerComponent = (props) => {
         }
     };
 
-    const trigerShowDatePicker = () => {
+    const triggerShowDatePicker = () => {
         LayoutAnimation.configureNext(CustomLayoutAnimation)
         setShow(!show)
     }
 
     return (
         <View>
-            <TextAndButton
-                title={side === 'out' ? strings('account.transaction.endDate') : strings('account.transaction.startDate')}
-                buttonText={value ? getCurrentDate(value) : strings('account.transaction.pickDate')}
-                onPress={trigerShowDatePicker}
-            />
+            <View>
+                <View style={[styles.inputPosition, { marginRight: GRID_SIZE * 2, marginLeft: GRID_SIZE * 3.5 }]}>
+                    <Text style={[styles.categoriesText, { color: colors.common.text3 }]}>{side === 'out' ? strings('account.transaction.endDate') : strings('account.transaction.startDate')}</Text>
+                    <BorderedButton
+                        text={value ? getCurrentDate(value) : strings('account.transaction.pickDate')}
+                        customTextStyles={{ paddingHorizontal: GRID_SIZE }}
+                        onPress={triggerShowDatePicker}
+                    />
+                </View>
+            </View>
             {show ?
                 <View style={{ backgroundColor: '#F5F5F5', marginTop: GRID_SIZE, borderRadius: 14 }}>
                     <DatePicker
@@ -65,3 +71,16 @@ const DatePickerComponent = (props) => {
 }
 
 export default DatePickerComponent
+
+const styles = StyleSheet.create({
+    inputPosition: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    categoriesText: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 14,
+        lineHeight: 18
+    }
+})
