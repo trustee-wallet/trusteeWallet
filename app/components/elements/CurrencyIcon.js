@@ -102,6 +102,10 @@ export default class CurrencyIcon extends PureComponent {
                 return require('@assets/images/currency/SOL_SLIM.png')
             case 'SOL_STEP':
                 return require('@assets/images/currency/SOL_STEP.png')
+            case 'SOL_NXMC' :
+                return require('@asset/images/currency/SOL_NXMC.png')
+            case 'NXMC' :
+                return require('@asset/images/currency/NXMC.png')
             case 'ASH':
                 return require('@assets/images/currency/ASH.png')
 
@@ -155,6 +159,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'SOL_RAY':
             case 'SOL_SLIM':
             case 'SOL_STEP':
+            case 'SOL_NXMC':
             case 'ETH_OKB':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
