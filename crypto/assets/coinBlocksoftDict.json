@@ -989,6 +989,20 @@
 		"currencyExplorerLink": "https://explorer.solana.com/address/",
 		"currencyExplorerTxLink": "https://explorer.solana.com/tx/"
 	},
+	"SOL_NXMC": {
+		"currencyType": "token",
+		"currencyName": "NextMindCoin",
+		"currencyCode": "SOL_NXMC",
+		"currencySymbol": "NXMC",
+		"extendsProcessor": "SOL_RAY",
+		"addressUiChecker": "SOL",
+		"ratesCurrencyCode": "NXMC",
+		"decimals": 7,
+		"tokenBlockchain": "SOLANA",
+		"tokenAddress": "4qv2AGjhzxiNz5iTUnTdRVYjjacmaEcVGgFcr1R6sRFe",
+		"currencyExplorerLink": "https://explorer.solana.com/address/",
+		"currencyExplorerTxLink": "https://explorer.solana.com/tx/"
+	},
 	"FTM": {
 		"currencyType": "coin",
 		"currencyName": "Fantom Network",
