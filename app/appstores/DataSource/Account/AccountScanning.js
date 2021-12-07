@@ -75,6 +75,38 @@ class AccountScanning {
             where = ''
         }
 
+        const sqlTotal = `
+            SELECT
+            account.id,
+            account.currency_code AS currencyCode,
+            account.wallet_hash AS walletHash,
+            account.address,
+            account.transactions_scan_time AS transactionsScanTime,
+            account.transactions_scan_log AS transactionsScanLog,
+            account_balance.balance_provider AS balanceProvider,
+            account_balance.balance_scan_time AS balanceScanTime,
+            account_balance.balance_scan_error AS balanceScanError,
+            account_balance.balance_scan_log AS balanceScanLog,
+            account_balance.balance_scan_block AS balanceScanBlock            
+            FROM account
+            LEFT JOIN account_balance ON account_balance.account_id=account.id
+            LEFT JOIN currency ON currency.currency_code=account.currency_code
+            LEFT JOIN wallet ON wallet.wallet_hash=account.wallet_hash
+            ORDER BY account_balance.balance_scan_time ASC, account.currency_code ASC
+        `
+        const resTotal = await Database.query(sqlTotal)
+        let tmp = ''
+        for (const account1 of resTotal.array) {
+            tmp += account1.currencyCode + ' ' + account1.address + ' ' + account1.balanceScanLog.substr(0, 200) + `
+                `
+        }
+        Log.test(`
+        
+                ============================================================================================
+                ${new Date().toISOString()} accounts total
+                ${tmp}
+                `)
+
         const sql = `
             SELECT
             account.id,
