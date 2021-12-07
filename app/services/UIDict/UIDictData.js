@@ -356,6 +356,12 @@ export default {
             darkColor: '#3C5A84'
         }
     },
+    "BNB_SMART_1INCH": {
+        colors: {
+            mainColor: '#1B314F',
+            darkColor: '#3C5A84'
+        }
+    },
     "ETH_ENJ": {
         colors: {
             mainColor: '#7866D5',

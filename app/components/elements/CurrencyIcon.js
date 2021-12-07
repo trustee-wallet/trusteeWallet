@@ -74,6 +74,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'ETH_BTC':
                 return require('@assets/images/currency/ETH_BTC.png')
             case 'ETH_1INCH':
+            case 'BNB_SMART_1INCH':
                 return require('@assets/images/currency/ETH_1INCH.png')
             case 'ETH_SUSHI':
                 return require('@assets/images/currency/ETH_SUSHI.png')
@@ -149,6 +150,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'ETH_UAX':
             case 'ETH_SOUL':
             case 'ETH_1INCH':
+            case 'BNB_SMART_1INCH':
             case 'ETH_SUSHI':
             case 'ETH_BADGER':
             case 'ETH_CRV':
@@ -223,7 +225,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'METIS_METIS':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
@@ -337,7 +339,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'FTM':
             case 'ETH_FTM':
             case 'MATIC_FTM':
@@ -355,7 +357,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'METIS':
             case 'BNB_SMART_METIS':
             case 'ETH_METIS':
@@ -722,7 +724,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'CASHBACK':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
@@ -731,7 +733,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-        
+
             case 'FTM_BOO':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
