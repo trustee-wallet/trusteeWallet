@@ -263,21 +263,22 @@ class UpdateAccountBalanceAndTransactions {
         let continueWithTx = true
 
         try {
-            let shouldUpdateBalance = false
-            if (typeof account.balance === 'undefined') {
-                shouldUpdateBalance = true
-            } else if (newBalance.balance.toString() !== account.balance.toString()  || newBalance.unconfirmed.toString() !== account.unconfirmed.toString() ) {
-                shouldUpdateBalance = true
-            } else if (typeof newBalance.balanceStaked !== 'undefined') {
-                if (typeof account.balanceStaked === 'undefined') {
-                    shouldUpdateBalance = true
-                } else if (newBalance.balanceStaked !== account.balanceStaked) {
-                    shouldUpdateBalance = true
-                }
-            }
-
 
             if (newBalance && typeof newBalance.balance !== 'undefined') {
+
+                let shouldUpdateBalance = false
+                if (typeof account.balance === 'undefined') {
+                    shouldUpdateBalance = true
+                } else if (newBalance.balance.toString() !== account.balance.toString()  || newBalance.unconfirmed.toString() !== account.unconfirmed.toString() ) {
+                    shouldUpdateBalance = true
+                } else if (typeof newBalance.balanceStaked !== 'undefined') {
+                    if (typeof account.balanceStaked === 'undefined') {
+                        shouldUpdateBalance = true
+                    } else if (newBalance.balanceStaked !== account.balanceStaked) {
+                        shouldUpdateBalance = true
+                    }
+                }
+
                 if (typeof newBalance.balanceScanBlock !== 'undefined' && (typeof account.balanceScanBlock === 'undefined' || newBalance.balanceScanBlock * 1 < account.balanceScanBlock * 1)) {
                     continueWithTx = false
                     updateObj.balanceProvider = newBalance.provider
