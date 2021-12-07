@@ -437,7 +437,8 @@ class Transaction {
             bse_order_id_out AS bseOrderOutID,
             bse_order_id_in AS bseOrderInID,
             bse_order_data AS bseOrderData,
-            transaction_filter_type AS transactionFilterType
+            transaction_filter_type AS transactionFilterType,
+            special_action_needed AS specialActionNeeded
             FROM transactions
             ${where}
             ${order}

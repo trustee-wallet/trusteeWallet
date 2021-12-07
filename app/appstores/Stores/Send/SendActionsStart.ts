@@ -461,4 +461,13 @@ export namespace SendActionsStart {
         await SendActionsBlockchainWrapper.getFeeRate(ui)
         NavStore.goNext('ReceiptScreen')
     }
+
+    export const getAccountFormatData = async (data : {
+        currencyCode : string
+    }) => {
+        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        const dict = await formatDict(cryptoCurrency, account)
+
+        return { dict }
+    }
 }
