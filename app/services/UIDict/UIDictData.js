@@ -50,6 +50,12 @@ export default {
             darkColor: '#E51A31'
         }
     },
+    'NXMC': {
+        colors: {
+            mainColor: '#3A9DA6',
+            darkColor: '#3A9DA6'
+        }
+    },
     'LTC': {
         colors: {
             mainColor: '#60BBF5',
