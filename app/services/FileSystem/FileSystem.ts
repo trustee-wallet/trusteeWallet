@@ -170,7 +170,7 @@ export class FileSystem {
         if (!FilePermissions.isOk()) {
             return
         }
-        if (line.indexOf('appendFile') !== -1) {
+        if (line.indexOf('appendFile') !== -1 || line.indexOf('RNFS') !== -1) {
             return
         }
         const now = new Date().getTime()
