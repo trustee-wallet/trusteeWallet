@@ -103,7 +103,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'SOL_STEP':
                 return require('@assets/images/currency/SOL_STEP.png')
             case 'SOL_NXMC' :
-                return require('@asset/images/currency/SOL_NXMC.png')
+                return require('@assets/images/currency/SOL_NXMC.png')
             case 'NXMC' :
                 return require('@asset/images/currency/NXMC.png')
             case 'ASH':
