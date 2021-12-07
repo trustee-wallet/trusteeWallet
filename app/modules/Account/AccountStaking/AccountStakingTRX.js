@@ -86,6 +86,7 @@ class AccountStakingTRX extends React.PureComponent {
     async componentDidMount() {
         
         await handleTrxScan.call(this)
+
     }
 
     handleBack = () => {
@@ -186,7 +187,7 @@ class AccountStakingTRX extends React.PureComponent {
                             {!!prettyReward && Number(prettyReward) > 0 &&
                                 <BorderedButton
                                     containerStyle={styles.withdrawBtn}
-                                    text={strings('settings.walletList.withdrawSOL')}
+                                    text={strings('settings.walletList.withdrawTRX')}
                                     onPress={() => handleGetRewardTrx.call(this)}
                                 />}
                         </View>
@@ -230,6 +231,15 @@ class AccountStakingTRX extends React.PureComponent {
         NavStore.goNext('WebViewScreen', { url: BlocksoftExternalSettings.getStatic('TRX_STAKING_LINK'), title: 'Staking' })
     }
 
+    onFocus = () => {
+        setTimeout(() => {
+            try {
+                this.scrollView.scrollTo({ y: 200 })
+            } catch (e) {
+            }
+        }, 100)
+    }
+
     renderAmountInput = () => {
 
         const { GRID_SIZE } = this.context
@@ -247,6 +257,7 @@ class AccountStakingTRX extends React.PureComponent {
                         inputBaseColor='#f4f4f4'
                         inputTextColor='#f4f4f4'
                         tintColor='#7127ac'
+                        onFocus={this.onFocus}
                     />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>
@@ -359,7 +370,9 @@ class AccountStakingTRX extends React.PureComponent {
                 rightAction={this.handleClose}
             >
                 <ScrollView
+                    ref={ref => this.scrollView = ref}
                     showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps='handled'
                     style={{ flexGrow: 1 }}
                     refreshControl={
                         <RefreshControl

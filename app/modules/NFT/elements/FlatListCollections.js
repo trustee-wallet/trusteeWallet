@@ -18,8 +18,10 @@ import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 
 import { HIT_SLOP } from '@app/theme/HitSlop'
+import Nfts from '@crypto/common/BlocksoftDictNfts'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
+
 
 const FlatListCollections = (props) => {
 
@@ -56,7 +58,7 @@ const FlatListCollections = (props) => {
                 </View>
                 <CurrencyIcon
                     setBackground={true}
-                    currencyCode={walletCurrency}
+                    currencyCode={Nfts.getCurrencyCode(walletCurrency)}
                     containerStyle={{ borderWidth: 0, width: 30, height: 30, alignSelf: 'center' }}
                     markStyle={{ top: 30 }}
                     textContainerStyle={{ bottom: -19 }}

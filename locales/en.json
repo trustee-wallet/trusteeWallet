@@ -247,7 +247,9 @@
       "useCustomValidator": "Use this validator ",
       "successUnfreeze": "TRX unfrozen",
       "successFreeze": "TRX frozen for staking",
-      "successReward": "TRX staking reward received"
+      "successReward": "TRX staking reward received",
+      "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
+      "withdrawTRX": "Withdraw"
     },
     "about": {
       "title": "About",
@@ -294,7 +296,7 @@
     "tabCustom": "More",
     "searchPlaceholder": "Search",
     "addCustomPlaceholder": "Asset address",
-    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB, Polygon, Solana or Tron blockchain. Please, enter or scan a new token / asset.",
+    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB Smart Chain, Polygon, Solana or Tron blockchain. Please, enter or scan a new token / asset.",
     "noAssetsFound": "No assets found",
     "addAssetButton": "Add asset",
     "mainTitle": "Add asset",
@@ -336,7 +338,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Add NFT Asset",
-    "addCustomLabel": "You can add a standard NFT token developed on Ethereum, BNB, Matic blockchains or on Ropsten, Rinkeby Testnet. Please enter or scan a new token / asset address.",
+    "addCustomLabel": "You can add a standard NFT token developed on Ethereum, BNB Smart Chain, Matic blockchains or on Ropsten, Rinkeby Testnet. Please enter or scan a new token / asset address.",
     "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
     "addCustomPlaceholder" : "NFT Asset Address",
     "addAssetButton" : "Add asset"

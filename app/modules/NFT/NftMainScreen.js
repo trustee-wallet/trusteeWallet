@@ -225,7 +225,7 @@ class NftMainScreen extends React.PureComponent {
                             walletCurrency={asset.cryptoCurrencySymbol}
                             tokenBlockchainCode={asset.tokenBlockchainCode}
                             balance={asset.cryptoValue}
-                            balanceData={asset.usdValue} // @vadym its very bad names of fields
+                            balanceData={asset.usdValue}
                             currencySymbol='$'
                         />
                     )

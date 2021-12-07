@@ -146,6 +146,7 @@ class HeaderBlocks extends React.Component {
         const { currencyCode, currencySymbol } = this.props.cryptoCurrency
 
         const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
+        const withoutDescription = currencyCode === 'SOL'
 
         let balanceTotalPretty = account?.balanceTotalPretty || '0'
         let balanceStakedPretty = account?.balanceStakedPretty || '0'
@@ -154,8 +155,8 @@ class HeaderBlocks extends React.Component {
         const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
         if (hodl > 0) {
             balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
-            if (typeof balanceTotalPretty !== 'undefined' && balanceStakedPretty && balanceTotalPretty?.toString().indexOf('0.0000') !== -1) {
-                balanceTotalPretty = '0.00'
+            if ((typeof balanceTotalPretty !== 'undefined' && balanceStakedPretty && balanceTotalPretty?.toString().indexOf('0.0000') !== -1) || balanceTotalPretty * 1 < 0) {
+                balanceTotalPretty = '0'
             }
             balanceStakedPretty = hodl
             diffAvailable = true
@@ -167,16 +168,18 @@ class HeaderBlocks extends React.Component {
         }
 
         return (
-            <View style={{ flexDirection: 'row', justifyContent: diffAvailable ? 'space-between' : 'flex-end', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
-                {diffAvailable &&
-                    <View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
+                <View>
+                    {diffAvailable &&
                         <Text style={[styles.availableText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
                             {`${strings('settings.walletList.available')}: ${balanceTotalPretty} ${currencySymbol}`}
-                        </Text>
+                        </Text>}
+                    {!withoutDescription &&
                         <Text style={styles.availableText}>
                             {`${strings(balanceStakedTitle)}: ${balanceStakedPretty} ${currencySymbol}`}
                         </Text>
-                    </View>}
+                    }
+                </View>
                 {
                     canBeStaked &&
                     <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
