@@ -254,7 +254,7 @@ class TransactionFilter extends React.PureComponent {
                             containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg  }]}
                             onPress={this.handleDiscardDate}
                             type='withoutShadow'
-                            textStyle={{ color: colors.common.button.text}}
+                            textStyle={[styles.discardButtonText, { color: colors.common.button.text }]}
                         />
                     </View>
                     
@@ -283,7 +283,7 @@ class TransactionFilter extends React.PureComponent {
                         containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
                         onPress={this.handleDiscardAmount}
                         type='withoutShadow'
-                        textStyle={{ color: colors.common.button.text}}
+                        textStyle={[styles.discardButtonText, { color: colors.common.button.text }]}
                     />
                 </View>
             </View>}
@@ -422,9 +422,13 @@ const styles = {
         height: 66,
         paddingBottom: Platform.OS === 'ios' ? 30 : 0
     },
-
     containerBG: {
         start: { x: 1, y: 0 },
         end: { x: 1, y: 1 }
     },
+    discardButtonText: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 14,
+        lineHeight: 18
+    }
 }
