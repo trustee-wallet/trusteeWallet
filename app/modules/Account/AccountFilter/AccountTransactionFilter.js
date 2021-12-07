@@ -37,6 +37,7 @@ import Log from '@app/services/Log/Log'
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 import Accordion from 'react-native-collapsible/Accordion'
 import GradientView from '@app/components/elements/GradientView'
@@ -89,7 +90,8 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleClose = () => {
-        setFilter(Object.keys(this.props.filterData).map(key => this.props.filterData[key] = false), 'AccountTransactionFilter.handleClose')
+        setFilter({}, 'AccountTransactionFilter.handleClose')
+        trusteeAsyncStorage.setAccountFilterData({})
         NavStore.reset('HomeScreen')
     }
 
@@ -141,6 +143,7 @@ class TransactionFilter extends React.PureComponent {
         }
 
         setFilter(filter, 'AccountTransactionFilter.handlePickFilter')
+        trusteeAsyncStorage.setAccountFilterData(filter)
 
         NavStore.goBack()
     }
@@ -293,7 +296,9 @@ class TransactionFilter extends React.PureComponent {
     }
 
     handleCleanFilter = () => {
-        setFilter(Object.keys(this.props.filterData).map(key => this.props.filterData[key] = false), 'AccountTransactionFilter.handleCleanFilter')
+        setFilter({}, 'AccountTransactionFilter.handleCleanFilter')
+        trusteeAsyncStorage.setAccountFilterData({})
+
         NavStore.goBack()
     }
 
