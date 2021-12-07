@@ -245,7 +245,9 @@
       "useCustomValidator": "Use this validator ",
       "successUnfreeze": "TRX unfrozen",
       "successFreeze": "TRX frozen for staking",
-      "successReward": "TRX staking reward received"
+      "successReward": "TRX staking reward received",
+      "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
+      "withdrawTRX": "Withdraw"
     },
     "about": {
       "title": "საფულის შესახებ",
