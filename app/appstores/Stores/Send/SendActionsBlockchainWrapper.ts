@@ -108,7 +108,7 @@ export namespace SendActionsBlockchainWrapper {
         }
     }
 
-    export const getFeeRate = async (uiData = {}) => {
+    export const getFeeRate = async (uiData = {}, precountedSelectedFee = false) => {
         try {
             if (typeof uiData === 'undefined' || typeof uiData.addressTo === 'undefined') {
                 uiData = store.getState().sendScreenStore.ui
@@ -129,22 +129,34 @@ export namespace SendActionsBlockchainWrapper {
                 newCountedFeesData.walletConnectData = uiData.walletConnectData
             }
             if (typeof uiData.dexOrderData !== 'undefined') {
-                newCountedFeesData.dexOrderData = uiData.dexOrderData
+                if (uiData.dexOrderData || newCountedFeesData.dexOrderData) {
+                    newCountedFeesData.dexOrderData = uiData.dexOrderData
+                }
             }
-            if (!store.getState().sendScreenStore.fromBlockchain.neverCounted && JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
-                return { isTransferAll : newCountedFeesData.isTransferAll, amount : newCountedFeesData.amount, source : 'CACHE_COUNTED', addressTo : newCountedFeesData.addressTo}
+            if (!store.getState().sendScreenStore.fromBlockchain.neverCounted) {
+                if (JSON.stringify(CACHE_DATA.countedFeesData) === JSON.stringify(newCountedFeesData)) {
+                    return { isTransferAll : newCountedFeesData.isTransferAll, amount : newCountedFeesData.amount, source : 'CACHE_COUNTED', addressTo : newCountedFeesData.addressTo}
+                }
             }
             if (config.debug.sendLogs) {
                 console.log('SendActionsBlockchainWrapper.getFeeRate starting')
             }
             let countedFees
-            try {
-                countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
-            } catch (e) {
-                if (e.message.indexOf('SERVER') === -1) {
-                    e.message += ' while BlocksoftTransfer.getFeeRate'
+            if (precountedSelectedFee) {
+                Log.log('SendActionsBlockchainWrapper.getFeeRate has precountedSelectedFee ', precountedSelectedFee)
+                countedFees = {
+                    fees: [precountedSelectedFee],
+                    selectedFeeIndex: 0
                 }
-                throw e
+            } else {
+                try {
+                    countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData, CACHE_DATA.additionalData ? CACHE_DATA.additionalData : {})
+                } catch (e) {
+                    if (e.message.indexOf('SERVER') === -1) {
+                        e.message += ' while BlocksoftTransfer.getFeeRate'
+                    }
+                    throw e
+                }
             }
             let selectedFee = false
             if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {

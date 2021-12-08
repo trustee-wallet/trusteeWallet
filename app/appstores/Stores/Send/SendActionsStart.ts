@@ -252,7 +252,7 @@ export namespace SendActionsStart {
         bseTrusteeFee : any,
         bseOrderData : any,
         payway : any
-    }) => {
+    }, selectedFee : any) => {
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
         const amount = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount)
@@ -277,7 +277,7 @@ export namespace SendActionsStart {
             dict
         })
         setLoaderFromBse(true)
-        await SendActionsBlockchainWrapper.getFeeRate(ui)
+        await SendActionsBlockchainWrapper.getFeeRate(ui, selectedFee)
         NavStore.goNext('MarketReceiptScreen')
     }
 
