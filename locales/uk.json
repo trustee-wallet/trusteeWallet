@@ -475,6 +475,7 @@
       "freeze" : "Заморожено",
       "unfreeze" : "Розморожено",
       "stake" : "Стейк",
+      "vote": "Голосування",
       "wallet_connect" : "WalletConnect",
       "claim" : "Винагорода",
       "swap_income" : "Contract Вхідна",

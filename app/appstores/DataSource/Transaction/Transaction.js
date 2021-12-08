@@ -361,7 +361,7 @@ class Transaction {
             if (params.currencyCode === 'TRX' || params.currencyCode === 'SOL') {
                 tmpWhere.push(`
                     (
-                        transaction_direction IN ('freeze', 'unfreeze', 'claim')
+                        transaction_direction IN ('freeze', 'unfreeze', 'claim', 'vote')
                     ) OR (
                         transaction_filter_type IS NOT NULL AND transaction_filter_type IN ('${TransactionFilterTypeDict.STAKE}')
                     )

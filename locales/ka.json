@@ -473,6 +473,7 @@
       "freeze": "გაყინვა",
       "unfreeze" : "UnFreeze",
       "stake" : "Stake",
+      "vote": "Vote",
       "wallet_connect" : "WalletConnect",
       "claim": "ჯილდო",
       "swap_income" : "Contract Income",

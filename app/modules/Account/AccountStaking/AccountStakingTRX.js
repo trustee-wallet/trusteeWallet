@@ -43,6 +43,9 @@ import { handleTrxScan, handleFreezeTrx, handleUnFreezeTrx, handlePartBalance, h
 import Loader from '@app/components/elements/LoaderItem'
 
 
+let CACHE_ASKED = {}
+const CACHE_ASK_TIME = 60000
+
 class AccountStakingTRX extends React.PureComponent {
 
     state = {
@@ -89,10 +92,20 @@ class AccountStakingTRX extends React.PureComponent {
     stakeAmountInput = React.createRef()
 
     async componentDidMount() {
-        
+
         await handleTrxScan.call(this)
 
+
+        const { account } = this.props
+        const address = account.address
+
+        if (typeof CACHE_ASKED[address] !== 'undefined' && CACHE_ASKED[address] > 0 && CACHE_ASKED[address] - this.state.currentBalance.time < CACHE_ASK_TIME ) {
+            // already asked
+            return false
+        }
+
         if (this.state.currentBalance.voteTotal * 1 !== this.state.currentBalance.prettyVote * 1) {
+            CACHE_ASKED[address] = this.state.currentBalance.time
             showModal({
                 type: 'YES_NO_MODAL',
                 icon: 'WARNING',

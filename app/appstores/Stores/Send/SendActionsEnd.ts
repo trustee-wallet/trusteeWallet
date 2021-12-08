@@ -347,6 +347,9 @@ export namespace SendActionsEnd {
                 transaction.addressTo = ''
                 transaction.transactionDirection = 'self'
             }
+            if (typeof tx.transactionDirection !== 'undefined') {
+                transaction.transactionDirection = tx.transactionDirection
+            }
             if (typeof tx.transactionTimestamp !== 'undefined' && tx.transactionTimestamp) {
                 transaction.createdAt = new Date(tx.transactionTimestamp).toISOString()
                 transaction.updatedAt = new Date(tx.transactionTimestamp).toISOString()

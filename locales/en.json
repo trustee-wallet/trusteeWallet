@@ -475,6 +475,7 @@
       "unfreeze" : "UnFreeze",
       "claim" : "Claim",
       "stake" : "Stake",
+      "vote": "Vote",
       "wallet_connect" : "WalletConnect",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
