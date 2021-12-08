@@ -117,7 +117,7 @@ class Transaction extends React.Component {
         }
     }
 
-    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus, transactionFilterType) => {
+    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus, transactionFilterType, wayType) => {
         const { colors } = this.context
         const { styles } = this.state
         const { isFirst, cryptoCurrency } = this.props
@@ -136,6 +136,11 @@ class Transaction extends React.Component {
 
         if (transactionFilterType === TransactionFilterTypeDict.SWAP) {
             arrowIcon = <CustomIcon name='swap' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 16 }} />
+        }
+
+        if (wayType === TransactionFilterTypeDict.FEE) {
+            arrowIcon = <CustomIcon name='feeTxScreen' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 14 }} />
+            circleStyle = { backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circle }
         }
 
         // if (status === 'fail' || status === 'missing' || status === 'replaced') {
@@ -256,7 +261,7 @@ class Transaction extends React.Component {
 
         return (
             <View style={styles.transaction}>
-                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus, transactionFilterType)}
+                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus, transactionFilterType, wayType)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
                     <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
                         <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>

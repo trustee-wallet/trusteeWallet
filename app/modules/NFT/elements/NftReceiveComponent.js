@@ -41,7 +41,7 @@ class NftReceiveComponent extends PureComponent {
 
     state = {
         selectedAddress: {
-            currencyCode: 'ETH',
+            tokenBlockchainCode: 'ETH',
             address: '',
             tokenBlockchain: 'ETHEREUM'
         }
@@ -72,7 +72,7 @@ class NftReceiveComponent extends PureComponent {
     handleSelectBlockchain = async (data) => {
 
         const { walletHash } = this.props.wallet
-        const { tokenBlockchainCode, tokenBlockchain } = data
+        const { tokenBlockchainCode, tokenBlockchain, tokenBlockchainShortTitle, tokenBlockchainLongTitle } = data
         const basicAccounts = store.getState().accountStore.accountList
 
         let address = ''
@@ -86,9 +86,11 @@ class NftReceiveComponent extends PureComponent {
 
         this.setState({
             selectedAddress: {
-                currencyCode: tokenBlockchainCode,
+                tokenBlockchainCode,
                 address,
-                tokenBlockchain
+                tokenBlockchain,
+                tokenBlockchainShortTitle,
+                tokenBlockchainLongTitle,
             }
         })
     }
@@ -102,8 +104,8 @@ class NftReceiveComponent extends PureComponent {
         const flatListData = []
         for (const tmp of Nfts.Nfts) {
             flatListData.push({
-                text: tmp.tokenBlockchain,
-                inverse: selectedAddress.currencyCode === tmp.tokenBlockchainCode,
+                text: tmp.tokenBlockchainShortTitle || tmp.tokenBlockchain,
+                inverse: selectedAddress.tokenBlockchainCode === tmp.tokenBlockchainCode,
                 action: () => this.handleSelectBlockchain(tmp)
             })
         }
@@ -126,7 +128,7 @@ class NftReceiveComponent extends PureComponent {
 
     render() {
 
-        const { tokenBlockchain, address } = this.state.selectedAddress
+        const { tokenBlockchain, address, tokenBlockchainLongTitle } = this.state.selectedAddress
 
         const {
             GRID_SIZE,
@@ -183,7 +185,7 @@ class NftReceiveComponent extends PureComponent {
                     </View>
                     <View style={{ paddingVertical: GRID_SIZE, paddingHorizontal: GRID_SIZE }}>
                         <Text style={[styles.emptyText, { color: colors.common.text3 }]}>
-                            {strings('nftMainScreen.receiveText', { coin: tokenBlockchain })}
+                            {strings('nftMainScreen.receiveText', { coin:  tokenBlockchainLongTitle || tokenBlockchain })}
                         </Text>
                     </View>
 

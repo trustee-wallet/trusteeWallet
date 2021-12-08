@@ -245,7 +245,9 @@
       "useCustomValidator": "Use this validator ",
       "successUnfreeze": "TRX unfrozen",
       "successFreeze": "TRX frozen for staking",
-      "successReward": "TRX staking reward received"
+      "successReward": "TRX staking reward received",
+      "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
+      "withdrawTRX": "Withdraw"
     },
     "about": {
       "title": "საფულის შესახებ",
@@ -334,7 +336,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Add NFT Asset",
-    "addCustomLabel": "You can add a standard NFT token developed on Ethereum, BNB, Matic blockchains or on Ropsten, Rinkeby Testnet. Please enter or scan a new token / asset address.",
+    "addCustomLabel": "You can add a standard NFT token developed on Ethereum, BNB Smart Chain, Matic blockchains or on Ropsten, Rinkeby Testnet. Please enter or scan a new token / asset address.",
     "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
     "addCustomPlaceholder" : "NFT Asset Address",
     "addAssetButton" : "Add asset"

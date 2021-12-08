@@ -955,9 +955,10 @@ class AccountTransactionScreen extends PureComponent {
 
                         {this.renderRBFToView(transaction)}
 
-                        {typeof contractCallData !== 'undefined' && contractCallData && contractCallData.infoForUser.map((item) => {
+                        {typeof contractCallData !== 'undefined' && contractCallData && contractCallData.infoForUser.map((item, index) => {
                             return (
                                 <TransactionItem
+                                    key={index}
                                     title={item.title}
                                     subtitle={item.subtitle}
                                     iconType={item.iconType}

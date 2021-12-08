@@ -46,7 +46,7 @@ class TransactionFilter extends React.PureComponent {
 
     state = {
         selectedContent: '',
-        startTime: this.props.filterData?.startTime ?  new Date(this.props.filterData?.startTime) : null,
+        startTime: this.props.filterData?.startTime ? new Date(this.props.filterData?.startTime) : null,
         endTime: this.props.filterData?.endTime ? new Date(this.props.filterData?.endTime) : null,
         startAmount: null,
         endAmount: null,
@@ -68,7 +68,7 @@ class TransactionFilter extends React.PureComponent {
         ]
     }
 
-    
+
 
     startAmountInput = React.createRef()
     endAmountInput = React.createRef()
@@ -174,7 +174,7 @@ class TransactionFilter extends React.PureComponent {
             }
         })
 
-        const fields = ['createdAtUTC', 'transactionDirection', 'transactionStatus', 'transactionHash', 'addressFrom','addressTo', 'addressAmount', 'transactionFee', 'blockConfirmations']
+        const fields = ['createdAtUTC', 'transactionDirection', 'transactionStatus', 'transactionHash', 'addressFrom', 'addressTo', 'addressAmount', 'transactionFee', 'blockConfirmations']
 
         const json2csvParser = new Parser({ fields });
         const csv = json2csvParser.parse(res);
@@ -198,7 +198,7 @@ class TransactionFilter extends React.PureComponent {
             });
 
     }
-    
+
     _renderHeader = (section, index, isActive) => {
 
         const {
@@ -217,11 +217,11 @@ class TransactionFilter extends React.PureComponent {
                     disabled={true}
                     opacityWithDisabled={true}
                 />
-                {index === 0 && !isActive && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }}/>}
+                {index === 0 && !isActive && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
             </>
         )
     }
-    
+
     _renderContent = (section, index) => {
         const { GRID_SIZE, colors } = this.context
         const {
@@ -234,60 +234,60 @@ class TransactionFilter extends React.PureComponent {
         const { currencySymbol } = this.props.selectedCryptoCurrencyData
 
         return (
-          <>
-            {index === 0 ? <>
-                <View style={{ paddingBottom: GRID_SIZE * 1.5 }}>
-                    <DatePickerComponent
-                        value={startTime}
-                        onDateChange={this.handleSaveStartDate}
-                    />
-                    <View style={{ paddingTop: GRID_SIZE }}>
+            <>
+                {index === 0 ? <>
+                    <View style={{ paddingBottom: GRID_SIZE * 1.5 }}>
                         <DatePickerComponent
-                            value={endTime}
-                            onDateChange={this.handleSaveEndDate}
-                            side='out'
+                            value={startTime}
+                            onDateChange={this.handleSaveStartDate}
                         />
+                        <View style={{ paddingTop: GRID_SIZE }}>
+                            <DatePickerComponent
+                                value={endTime}
+                                onDateChange={this.handleSaveEndDate}
+                                side='out'
+                            />
+                        </View>
+                        <View style={[styles.buttonContainer, { paddingTop: GRID_SIZE * 1.5 }]}>
+                            <Button
+                                title={strings('account.transaction.discard')}
+                                containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
+                                onPress={this.handleDiscardDate}
+                                type='withoutShadow'
+                                textStyle={[styles.discardButtonText, { color: colors.common.button.text }]}
+                            />
+                        </View>
+
                     </View>
-                    <View style={[styles.buttonContainer, { paddingTop: GRID_SIZE * 1.5 }]}>
-                        <Button
-                            title={strings('account.transaction.discard')}
-                            containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg  }]}
-                            onPress={this.handleDiscardDate}
-                            type='withoutShadow'
-                            textStyle={[styles.discardButtonText, { color: colors.common.button.text }]}
+                    <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />
+                </> :
+                    <View>
+                        <AmountInputContainer
+                            ref={component => this.startAmountInput = component}
+                            value={startAmount}
+                            onChange={this.handleSetStartAmount}
+                            currencyCode={currencySymbol}
                         />
-                    </View>
-                    
-                </View>
-                <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }}/>
-            </>: 
-            <View>
-                <AmountInputContainer
-                    ref={component => this.startAmountInput = component}
-                    value={startAmount}
-                    onChange={this.handleSetStartAmount}
-                    currencyCode={currencySymbol}
-                />
-                <View style={{ marginTop: GRID_SIZE }}>
-                    <AmountInputContainer
-                        ref={component => this.endAmountInput = component}
-                        value={endAmount}
-                        onChange={this.handleSetEndAmount}
-                        currencyCode={currencySymbol}
-                        side='out'
-                    />
-                </View>
-                <View style={[styles.buttonContainer, { marginTop: GRID_SIZE * 1.5 }]}>
-                    <Button
-                        title={strings('account.transaction.discard')}
-                        containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
-                        onPress={this.handleDiscardAmount}
-                        type='withoutShadow'
-                        textStyle={[styles.discardButtonText, { color: colors.common.button.text }]}
-                    />
-                </View>
-            </View>}
-          </>
+                        <View style={{ marginTop: GRID_SIZE }}>
+                            <AmountInputContainer
+                                ref={component => this.endAmountInput = component}
+                                value={endAmount}
+                                onChange={this.handleSetEndAmount}
+                                currencyCode={currencySymbol}
+                                side='out'
+                            />
+                        </View>
+                        <View style={[styles.buttonContainer, { marginTop: GRID_SIZE * 1.5 }]}>
+                            <Button
+                                title={strings('account.transaction.discard')}
+                                containerStyle={[styles.discardButton, { padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
+                                onPress={this.handleDiscardAmount}
+                                type='withoutShadow'
+                                textStyle={[styles.discardButtonText, { color: colors.common.button.text }]}
+                            />
+                        </View>
+                    </View>}
+            </>
         )
     }
 
@@ -353,12 +353,10 @@ class TransactionFilter extends React.PureComponent {
                     </View>
 
                 </ScrollView>
-                <View style={{
-                    position: 'absolute',
+                <View style={[styles.btnsContainer, {
                     bottom: GRID_SIZE,
-                    width: '100%',
                     paddingHorizontal: GRID_SIZE
-                }}>
+                }]}>
                     <TwoButtons
                         mainButton={{
                             onPress: this.handlePickFilter,
@@ -369,14 +367,14 @@ class TransactionFilter extends React.PureComponent {
                             onPress: this.handleCleanFilter
                         }}
                     />
-                    
+
                 </View>
                 <GradientView
-                        style={styles.bottomButtons}
-                        array={colors.accountScreen.bottomGradient}
-                        start={styles.containerBG.start}
-                        end={styles.containerBG.end}
-                    />
+                    style={styles.bottomButtons}
+                    array={colors.accountScreen.bottomGradient}
+                    start={styles.containerBG.start}
+                    end={styles.containerBG.end}
+                />
             </ScreenWrapper>
         )
     }
@@ -430,5 +428,10 @@ const styles = {
         fontFamily: 'Montserrat-Bold',
         fontSize: 14,
         lineHeight: 18
+    },
+    btnsContainer: {
+        position: 'absolute',
+        width: '100%',
+        zIndex: 2
     }
 }

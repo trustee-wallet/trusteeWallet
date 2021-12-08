@@ -196,7 +196,7 @@
         "title": "Переключить кошелек в режим HD?",
         "description": "Режим HD подразумевает ротацию адресов для каждой транзакции. Операция переключения необратима."
       },
-      "staked": "Застейконо",
+      "staked": "Застейкано",
       "frozen": "Заморожено",
       "stakeTransactionsSOL": "Транзакции стейкинга",
       "bandwidthTRX": "Bandwidth",
@@ -247,7 +247,9 @@
       "useCustomValidator": "Использовать этот валидатор ",
       "successUnfreeze": "TRX разморожено",
       "successFreeze": "TRX заморожено для стейкинга",
-      "successReward": "Получена награда TRX за стейкинг"
+      "successReward": "Получена награда TRX за стейкинг",
+      "noVoted": "У Вас остался стейк без голосов. Нажмите «Проголосовать», чтобы завершить процедуру заморозки",
+      "withdrawTRX": "Вывести"
     },
     "about": {
       "title": "О кошельке",
@@ -294,7 +296,7 @@
     "tabCustom": "Еще",
     "searchPlaceholder": "Поиск",
     "addCustomPlaceholder": "Адрес актива",
-    "addCustomLabel": "Вы можете добавить стандартный токен, разработанный на блокчейне Ethereum, BNB, Polygon, Solana или Tron. Введите или сканируйте новый токен/актив.",
+    "addCustomLabel": "Вы можете добавить стандартный токен, разработанный на блокчейне Ethereum, BNB Smart Chain, Polygon, Solana или Tron. Введите или сканируйте новый токен/актив.",
     "noAssetsFound": "Активы не найдены",
     "addAssetButton": "Добавить актив",
     "mainTitle": "Добавить актив",
@@ -336,7 +338,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Добавить NFT актив",
-    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейнах Ethereum, BNB, Matic или на Ropsten, Rinkeby Testnet. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
+    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейнах Ethereum, BNB Smart Chain, Matic или на Ropsten, Rinkeby Testnet. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
     "addCustomLabelOpenSea" : "Токены Ethereum могут быть добавлены с OpenSea ",
     "addCustomPlaceholder" : "Адрес актива NFT",
     "addAssetButton" : "Добавить актив"

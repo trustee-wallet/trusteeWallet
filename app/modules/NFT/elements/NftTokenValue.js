@@ -19,6 +19,8 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
+import Nfts from '@crypto/common/BlocksoftDictNfts'
+
 class NftTokenValue extends React.Component {
 
     state = {
@@ -30,45 +32,6 @@ class NftTokenValue extends React.Component {
         this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
     }
 
-    getCurrencyCode = (walletCurrency, tokenBlockchainCode) => {
-        if (!walletCurrency && !tokenBlockchainCode) {
-            return ''
-        }
-
-        if (walletCurrency) {
-            return walletCurrency
-        } else {
-            switch (tokenBlockchainCode.toUpperCase()) {
-                case 'MATIC':
-                    return 'MATIC'
-                case 'ETHEREUM':
-                    return 'ETH'
-                case 'TRON':
-                    return 'TRX'
-                default:
-                    return tokenBlockchainCode
-            }
-        }
-    }
-
-    getCurrencyTitle = (walletCurrency, tokenBlockchainCode) => {
-        if (!walletCurrency && !tokenBlockchainCode) {
-            return ''
-        }
-
-        if (walletCurrency) {
-            return walletCurrency
-        } else {
-            switch (tokenBlockchainCode.toUpperCase()) {
-                case 'ETH_ROPSTEN':
-                    return 'ROPSTEN'
-                case 'ETH_RINKEBY':
-                    return 'RINKEBY'
-                default:
-                    return tokenBlockchainCode
-            }
-        }
-    }
 
     render() {
 
@@ -92,7 +55,7 @@ class NftTokenValue extends React.Component {
             <View style={styles.currencyContainer}>
                 <CurrencyIcon
                     setBackground={true}
-                    currencyCode={this.getCurrencyCode(walletCurrency, tokenBlockchainCode)}
+                    currencyCode={Nfts.getCurrencyCode(walletCurrency, tokenBlockchainCode)}
                     containerStyle={{ borderWidth: 0, width: 30, height: 30 }}
                     markStyle={{ top: 30 }}
                     textContainerStyle={{ bottom: -19 }}
@@ -127,7 +90,7 @@ class NftTokenValue extends React.Component {
                     :
                     <View style={styles.balanceContainer}>
                         <Text numberOfLines={2} style={[styles.balance, { color: colors.common.text3, fontSize: 13 }]}>
-                            {this.getCurrencyTitle(walletCurrency, tokenBlockchainCode)}
+                            {Nfts.getCurrencyTitle(walletCurrency, tokenBlockchainCode)}
                         </Text>
                     </View>}
             </View>

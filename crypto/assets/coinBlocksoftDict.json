@@ -290,7 +290,7 @@
 	},
 	"ETH_1INCH": {
 		"currencyType": "token",
-		"currencyName": "1inch",
+		"currencyName": "1inch ERC20",
 		"currencyCode": "ETH_1INCH",
 		"currencySymbol": "1INCH",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -301,6 +301,19 @@
 		"tokenAddress": "0x111111111117dc0aa78b770fa6a738034120c302",
 		"currencyExplorerLink": "https://etherscan.io/token/0x111111111117dc0aa78b770fa6a738034120c302?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+	"BNB_SMART_1INCH": {
+		"currencyType": "token",
+		"currencyName": "1inch BEP20",
+		"currencyCode": "BNB_SMART_1INCH",
+		"currencySymbol": "1INCH",
+		"ratesCurrencyCode": "1INCH",
+		"extendsProcessor": "BNB_SMART_CAKE",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0x111111111117dc0aa78b770fa6a738034120c302",
+		"decimals": 18,
+		"tokenBlockchain": "BNB",
+		"currencyExplorerLink": "https://bscscan.com/token/0x111111111117dc0aa78b770fa6a738034120c302?a="
 	},
 	"ETH_AAVE": {
 		"currencyType": "token",
@@ -1328,7 +1341,7 @@
 		"currencyName": "ORCA",
 		"currencyCode": "SOL_ORCA",
 		"currencySymbol": "ORCA",
-		"extendsProcessor": "SOL_ORCA",
+		"extendsProcessor": "SOL_RAY",
 		"addressUiChecker": "SOL",
 		"ratesCurrencyCode": "ORCA",
 		"decimals": 6,
