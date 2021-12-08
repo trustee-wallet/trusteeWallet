@@ -24,6 +24,8 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import config from '@app/config/config'
 
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import TronStakeUtils from '@crypto/blockchains/trx/ext/TronStakeUtils'
+import BlocksoftTransactions from '@crypto/actions/BlocksoftTransactions/BlocksoftTransactions'
 
 export async function handleTrxScan() {
     const { account } = this.props
@@ -31,7 +33,7 @@ export async function handleTrxScan() {
     const address = account.address
     Log.log('AccountStaking.helper.handleTrxScan scan started', address)
 
-    const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('AccountStakingTrx'))
+    const balance = await TronStakeUtils.getPrettyBalance(address)
     try {
         const limits = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getResources('AccountStakingTrx'))
         const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
@@ -46,13 +48,6 @@ export async function handleTrxScan() {
             })
 
             const reward = tmp.data.reward
-            balance.prettyBalanceAvailable = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balanceAvailable)
-            balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
-            balance.prettyFrozenOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOthers)
-            balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
-            balance.prettyFrozenEnergyOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergyOthers)
-            balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenOthers * 1 + balance.prettyFrozenEnergy * 1 + balance.prettyFrozenEnergyOthers * 1).toString().split('.')[0]
-
             const prettyReward = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(reward)
             this.setState({
                 currentLimits: limits,
@@ -295,6 +290,12 @@ async function _sendTxTrx(shortLink, params, langMsg, uiParams) {
             }
             return false
         }
+        await (BlocksoftTransactions.resetTransactionsPending({
+            account: { currencyCode: 'TRX', address : account.address},
+            specialActionNeeded: uiParams.type
+        }, 'AccountStaking.helper._sendTxTrx'))
+
+
         // here is some added to data from sender as tx is preformatted
         result.transactionDirection = uiParams.type
 
@@ -318,7 +319,9 @@ async function _sendTxTrx(shortLink, params, langMsg, uiParams) {
             neverCounted: false
         }
 
-        await SendActionsEnd.saveTx(result, data)
+        if (uiParams.type !== 'vote') {
+            await SendActionsEnd.saveTx(result, data)
+        }
 
     } else {
         throw new Error('no transaction')

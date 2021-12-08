@@ -190,6 +190,8 @@ export default class TrxTransactionsProvider {
                 transactionDirection = 'unfreeze'
                 transactionFilterType = TransactionFilterTypeDict.STAKE
             } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 4) {
+                // no vote tx
+                return false
                 addressAmount = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makeUnPretty(transaction.amount)
                 addressFrom = transaction.ownerAddress
                 transactionDirection = 'vote'

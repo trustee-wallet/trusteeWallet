@@ -212,7 +212,7 @@ export default class EthScannerProcessor extends EthBasic {
                 transactions = await this._getFromEtherscan(address, link, logTitle, false, transactions)
             }
 
-            if (this._useInternal) {
+            if (this._useInternal && this._etherscanApiPathInternal) {
                 link = this._etherscanApiPathInternal + '&address=' + address
                 logTitle = this._settings.currencyCode + ' EthScannerProcessor.getTransactions etherscan forInternal'
                 transactions = await this._getFromEtherscan(address, link, logTitle, true, transactions)

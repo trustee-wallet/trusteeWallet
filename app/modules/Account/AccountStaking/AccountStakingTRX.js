@@ -44,7 +44,7 @@ import Loader from '@app/components/elements/LoaderItem'
 
 
 let CACHE_ASKED = {}
-const CACHE_ASK_TIME = 60000
+const CACHE_ASK_TIME = 6000
 
 class AccountStakingTRX extends React.PureComponent {
 
@@ -59,7 +59,10 @@ class AccountStakingTRX extends React.PureComponent {
             prettyFrozen: '0',
             prettyFrozenEnergy: '0',
             voteTotal: '0',
-            prettyVote: '0'
+            prettyVote: '0',
+            frozenExpireTime : 0,
+            frozenEnergyExpireTime : 0,
+            diffLastStakeMinutes : 0
         },
         currentLimits : {
             leftBand : 0,
@@ -94,8 +97,7 @@ class AccountStakingTRX extends React.PureComponent {
     async componentDidMount() {
 
         await handleTrxScan.call(this)
-
-
+        
         const { account } = this.props
         const address = account.address
 
@@ -104,7 +106,7 @@ class AccountStakingTRX extends React.PureComponent {
             return false
         }
 
-        if (this.state.currentBalance.voteTotal * 1 !== this.state.currentBalance.prettyVote * 1) {
+        if (this.state.currentBalance.diffLastStakeMinutes > 20 && this.state.currentBalance.voteTotal * 1 !== this.state.currentBalance.prettyVote * 1) {
             CACHE_ASKED[address] = this.state.currentBalance.time
             showModal({
                 type: 'YES_NO_MODAL',
@@ -294,7 +296,7 @@ class AccountStakingTRX extends React.PureComponent {
         )
 
     }
-    
+
     handleChangeAmount = () => {
         this.setState(() => ({ addressError: false }))
     }
