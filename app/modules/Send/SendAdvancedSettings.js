@@ -199,6 +199,7 @@ class SendAdvancedSettings extends React.PureComponent {
                                     onPress={this.handleRawOnly}
                                     rightContent="switch"
                                     switchParams={{ value: !!this.state.rawOnly, onPress: this.handleRawOnly }}
+                                    last
                                 />
                             </View>
                         }
