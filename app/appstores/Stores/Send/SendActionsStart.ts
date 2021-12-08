@@ -89,6 +89,8 @@ export namespace SendActionsStart {
         transactionFilterType : any
     }, uiType = 'WALLET_CONNECT') => {
         try {
+            Log.log('SendActionsStart.startFromWalletConnect data ', data)
+
             const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
             if (typeof account.derivationPath === 'undefined') {
                 throw new Error('SendActionsStart.startFromWalletConnect required account.derivationPath')
@@ -107,6 +109,8 @@ export namespace SendActionsStart {
                 extraData: data.extraData,
                 transactionFilterType: data.transactionFilterType || TransactionFilterTypeDict.WALLET_CONNECT
             }
+
+            Log.log('SendActionsStart.startFromWalletConnect ui data ', ui)
 
             dispatch({
                 type: 'RESET_DATA',

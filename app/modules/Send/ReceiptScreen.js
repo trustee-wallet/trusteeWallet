@@ -168,6 +168,7 @@ class ReceiptScreen extends PureComponent {
         let e = false
         try {
             tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)
+            Log.log('ReceiptScreen.handleSend tx ', tx)
         } catch (e1) {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.handleSend error ' + e1.message)
