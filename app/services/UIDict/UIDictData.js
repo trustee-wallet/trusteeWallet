@@ -920,6 +920,12 @@ export default {
             darkColor: '#6E6DCB'
         }
     },
+    'VLX': {
+        colors: {
+            mainColor: '#0037C1',
+            darkColor: '#4470DE'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

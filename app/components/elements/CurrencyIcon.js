@@ -379,7 +379,7 @@ export default class CurrencyIcon extends PureComponent {
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict['ETH_BNB'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
-                            <CustomIcon name={'ETH_BNB'} style={{ color: colorDict['ETH_BNB'].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                            <CustomIcon name='ETH_BNB' style={{ color: colorDict['ETH_BNB'].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                         </View>
                     </View>
                 )
@@ -745,6 +745,16 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
+            
+            case 'VLX':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name='ETH_VLX' style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                        </View>
+                    </View>
+                )
+
 
             case 'CUSTOM_MVT':
                 return (
@@ -759,7 +769,7 @@ export default class CurrencyIcon extends PureComponent {
                 )
 
 
-            case 'CUSTOM_TTCrypto':
+            case 'CUSTOM_TRX_TTCrypto':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -782,7 +792,7 @@ export default class CurrencyIcon extends PureComponent {
                     </View>
                 )
 
-            case 'CUSTOM_XXP':
+            case 'CUSTOM_TRX_XXP':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
