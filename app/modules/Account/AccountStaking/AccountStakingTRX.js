@@ -270,7 +270,7 @@ class AccountStakingTRX extends React.PureComponent {
                 this.scrollView.scrollTo({ y: 350 })
             } catch (e) {
             }
-        }, 100)
+        }, 150)
     }
 
     renderAddressError = () => {

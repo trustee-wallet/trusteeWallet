@@ -96,7 +96,7 @@ export async function handleFreezeTrx(isAll, type) {
     try {
 
         if (!isAll) {
-            if (typeof this.stakeAmountInput.state === 'undefined' || this.stakeAmountInput.state.value === '') {
+            if (typeof this.stakeAmountInput.state === 'undefined' || this.stakeAmountInput.state.value === '' || this.stakeAmountInput.state.value * 1 <= 0) {
                 this.setState({
                     addressError: true,
                     addressErrorText: strings('send.notValidAmount')
@@ -121,7 +121,7 @@ export async function handleFreezeTrx(isAll, type) {
             resource: type
         }, 'freeze ' + freeze + ' for ' + type + ' of ' + address, { type: 'freeze', cryptoValue: freeze * 1 })
 
-        this.stakeAmountInput.handleInput('', false)
+        this.stakeAmountInput.handleInput('', false, true)
     } catch (e) {
         if (config.debug.cryptoErrors) {
             console.log('AccountStaking.helper.handleFreezeTrx error ', e)

@@ -70,9 +70,9 @@ class Input extends Component {
 
     }
 
-    handleInput = async (value, useCallback) => {
+    handleInput = async (value, useCallback, focus = this.state.focus) => {
 
-        value === '' && !this.state.focus ? value = this.state.value : value
+        value === '' && !focus ? value = this.state.value : value
 
         const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
 
