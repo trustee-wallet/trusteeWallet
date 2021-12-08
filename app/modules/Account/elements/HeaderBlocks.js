@@ -142,7 +142,9 @@ class HeaderBlocks extends React.Component {
             GRID_SIZE
         } = this.context
 
-        const { account } = this.props
+        const { isBalanceVisible, isBalanceVisibleTriggered, originalVisibility, account } = this.props
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+
         const { currencyCode, currencySymbol } = this.props.cryptoCurrency
 
         const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
@@ -172,11 +174,11 @@ class HeaderBlocks extends React.Component {
                 <View>
                     {diffAvailable &&
                         <Text style={[styles.availableText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
-                            {`${strings('settings.walletList.available')}: ${balanceTotalPretty} ${currencySymbol}`}
+                            {`${strings('settings.walletList.available')}: ${finalIsBalanceVisible ?  balanceTotalPretty + ' ' + currencySymbol : ' ****'}`}
                         </Text>}
                     {!withoutDescription &&
                         <Text style={styles.availableText}>
-                            {`${strings(balanceStakedTitle)}: ${balanceStakedPretty} ${currencySymbol}`}
+                            {`${strings(balanceStakedTitle)}: ${finalIsBalanceVisible ? balanceStakedPretty + ' ' + currencySymbol : ' ****'}`}
                         </Text>
                     }
                 </View>
@@ -232,7 +234,7 @@ class HeaderBlocks extends React.Component {
                                     </Text>
                                 </Text>
                             ) : (
-                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
+                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 7, paddingHorizontal: 15, fontSize: 52, lineHeight: 54 }}>
                                     ****
                                 </Text>
                             )}
