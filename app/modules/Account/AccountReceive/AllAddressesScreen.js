@@ -14,16 +14,15 @@ import {
 import { connect } from 'react-redux'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import GradientView from '@app/components/elements/GradientView'
 import NavStore from '@app/components/navigation/NavStore'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import Tabs from '@app/components/elements/new/TabsWithUnderlineOld'
+import Tabs from '@app/components/elements/new/TabsWithUnderline'
 import { TabView } from 'react-native-tab-view'
-import Account from '@app/appstores/DataSource/Account/AccountHd'
+import Account from '@app/appstores/DataSource/Account/Account'
 
-import { getSelectedAccountData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
-import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
+import { getSelectedAccountData, getSelectedWalletData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
+import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 import { strings } from '@app/services/i18n'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -31,10 +30,15 @@ import { changeAddress, getAddress } from './helpers'
 
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
+import AccountGradientBlock from '../elements/AccountGradientBlock'
+import { ScrollView } from 'react-native-gesture-handler'
+import HdAddressListItem from './elements/HdAddressListItem'
 
 class AllAddressesScreen extends PureComponent {
 
     state = {
+        settingAddressType: false,
+        settingAddressTypeTriggered : false,
         isBalanceVisibleTriggered: false,
         isBalanceVisible: true,
         routes: [
@@ -47,7 +51,16 @@ class AllAddressesScreen extends PureComponent {
                 key: 'second'
             }
         ],
-        index: 0
+        index: 0,
+        segwitAddresses: [],
+        legacyAddresses: [],
+        loading: false
+    }
+
+    componentDidMount() {
+        this.setState({loading: true})
+        this.loadAddresses()
+        this.setState({loading: false})
     }
 
     handleClose = () => {
@@ -66,10 +79,14 @@ class AllAddressesScreen extends PureComponent {
         await changeAddress.call(this)
     }
 
+    // componentDidUpdate(prevProps, prevState, snapshot) {
+        
+    // }
+
     loadAddresses = async () => {
 
-        const { currencyCode, derivationPath, walletPubs } = this.props.selectedAccountData
-        const { walletIsHd } = this.props.selectedWalletData
+        const { currencyCode, walletHash } = this.props.selectedAccountData
+        // const { walletIsHd } = this.props.selectedWalletData
 
         // console.log(`walletHash`, walletHash)
         // console.log(`currencyCode`, currencyCode)
@@ -78,15 +95,19 @@ class AllAddressesScreen extends PureComponent {
         // console.log(`walletPubs`, walletPubs)
 
         const params = {
-            notAlreadyShown: walletIsHd,
-           
+            // notAlreadyShown: walletIsHd,
+            walletHash: walletHash,
             currencyCode: currencyCode,
-            
-            derivationPath: derivationPath,
-            walletPubId: walletPubs.id
+            splitSegwit: true
         }
 
-        const tmp = await Account.getAccountForChange(params)
+        const tmp = await Account.getAccountData(params)
+        
+        this.setState({
+            segwitAddresses: tmp.segwit,
+            legacyAddresses: tmp.legacy
+            
+        })
     }
 
     triggerBalanceVisibility = (value, originalVisibility) => {
@@ -99,9 +120,9 @@ class AllAddressesScreen extends PureComponent {
         const { isBalanceVisible, isBalanceVisibleTriggered } = this.state
         const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
 
-        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance } = this.props.selectedAccountData
+        const { isSynchronized, balancePretty, basicCurrencySymbol, basicCurrencyBalance, currencyCode } = this.props.selectedAccountData
 
-        const { colors, GRID_SIZE } = this.context
+        const { colors } = this.context
 
         let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
         if (typeof tmp.split === 'undefined') {
@@ -118,17 +139,18 @@ class AllAddressesScreen extends PureComponent {
         }
 
         return(
-            <View>
-                <View style={[styles.headerContainer, { marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }]}>
-                    <Text style={[styles.headerTitle, { color: colors.common.text1 }]}>Balance</Text>
+            <AccountGradientBlock>
+                <View style={styles.headerContainer}>
+                    <Text style={[styles.headerTitle, { color: colors.common.text1 }]}>{strings('FioRequestDetails.balance')}</Text>
                     <BorderedButton
                         text={strings('settings.walletList.generateNew')}
                         onPress={this.handleChangeAddress}
+                        activeOpacity={0.8}
                     />
                 </View>
                 {isSynchronized ?
-                    <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
-                        <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
+                    <View style={{ ...styles.topContent__top }}>
+                        <View style={{ ...styles.topContent__title, flex: 1 }}>
                             <TouchableOpacity
                                 onPressIn={() => this.triggerBalanceVisibility(true, originalVisibility)}
                                 onPressOut={() => this.triggerBalanceVisibility(false, originalVisibility)}
@@ -140,11 +162,11 @@ class AllAddressesScreen extends PureComponent {
                                     <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
                                         {balancePrettyPrep1}
                                         <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
-                                            {balancePrettyPrep2}
+                                            {`${balancePrettyPrep2} ${currencyCode}`}
                                         </Text>
                                     </Text>
                                 ) : (
-                                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
+                                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, paddingHorizontal: 15, fontSize: 32, lineHeight: 36 }}>
                                         ****
                                     </Text>
                                 )}
@@ -166,54 +188,7 @@ class AllAddressesScreen extends PureComponent {
                         </View>
                     </View>
                 }
-            </View>
-        )
-    }
-
-    renderAddressBlock = () => {
-
-        const {
-            colors,
-            GRID_SIZE
-        } = this.context
-
-        return(
-            <View style={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2, height: 66 }}>
-                <View style={styles.shadow__container}>
-                    <View style={styles.shadow__item} />
-                </View>
-                <TouchableOpacity
-                    activeOpacity={0.7}
-                    style={styles.cryptoList__item}
-                    onPress={this.loadAddresses}
-                >
-                    <GradientView
-                        style={[styles.cryptoList__item__content, { paddingLeft: GRID_SIZE }]}
-                        array={colors.homeScreen.listItemGradient}
-                        start={{ x: 1, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                    >
-                        <View style={styles.container}>
-                            <View style={styles.cryptoList__info}>
-                                <Text style={[styles.addressName]}>
-                                    Address name
-                                </Text> 
-                                <Text style={[styles.address, { color: colors.common.text3 }]}>
-                                    bc1q8n...mc5gfv
-                                </Text>
-                            </View>
-                            <View style={styles.cryptoList__info}>
-                                <Text style={[styles.mainAmount, { color: colors.common.text3 }]}>
-                                    23.412 BTC
-                                </Text> 
-                                <Text style={styles.secondaryAmount}>
-                                    $ 100500.54
-                                </Text>
-                            </View>
-                        </View>
-                    </GradientView>
-                </TouchableOpacity>
-            </View>
+            </AccountGradientBlock>
         )
     }
 
@@ -223,7 +198,7 @@ class AllAddressesScreen extends PureComponent {
         )
     }
 
-    handleTabChange = (index) => {
+    handleTabChange = index => {
         this.setState({
             index
         })
@@ -241,21 +216,23 @@ class AllAddressesScreen extends PureComponent {
     }
 
     renderFirstRoute = () => {
+
+        const { GRID_SIZE } = this.context
+
         return(
-            <View>
-                {this.renderAddressBlock()}
-                {this.renderAddressBlock()}
-                {this.renderAddressBlock()}
-                {this.renderAddressBlock()}
+            <View style={{ marginTop: GRID_SIZE / 2 }}>
+                {this.state.segwitAddresses.map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} />)}
             </View>
         )
     }
 
     renderSecondRoute = () => {
+
+        const { GRID_SIZE } = this.context
+
         return(
-            <View>
-                {this.renderAddressBlock()}
-                {this.renderAddressBlock()}
+            <View style={{ marginTop: GRID_SIZE / 2 }}>
+                {this.state.legacyAddresses.map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} />)}
             </View>
         )
     }
@@ -273,21 +250,26 @@ class AllAddressesScreen extends PureComponent {
                 rightAction={this.handleClose}
             >
                 
-                <View style={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE }}>
+                <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
                     {this.renderHeader()}
                 </View>
-                <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE / 2 }}>
+                
+                <View style={{ marginHorizontal: GRID_SIZE }}>
                     {this.renderTabs()}
                 </View>
-                <TabView
-                    style={{ flexGrow: 1 }}
-                    navigationState={this.state}
-                    renderScene={this.renderScene}
-                    renderHeader={null}
-                    onIndexChange={this.handleTabChange}
-                    renderTabBar={() => null}
-                    useNativeDriver
-                />
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                >
+                    <TabView
+                        style={{ flexGrow: 1 }}
+                        navigationState={this.state}
+                        renderScene={this.renderScene}
+                        renderHeader={null}
+                        onIndexChange={this.handleTabChange}
+                        renderTabBar={() => null}
+                        useNativeDriver
+                    />
+               </ScrollView>
             </ScreenWrapper>
         )
     }
@@ -299,112 +281,15 @@ const mapStateToProps = (state) => {
     return {
         selectedAccountData: getSelectedAccountData(state),
         selectedWalletData: getSelectedWalletData(state),
-        originalVisibility: getIsBalanceVisible(state.settingsStore)
+        originalVisibility: getIsBalanceVisible(state.settingsStore),
+        isSegwit: getIsSegwit(state),
+        selectedCryptoCurrencyData: getSelectedCryptoCurrencyData(state)
     }
 }
 
 export default connect(mapStateToProps)(AllAddressesScreen)
 
 const styles = StyleSheet.create({
-    shadow__container: {
-        position: 'absolute',
-        paddingTop: 1,
-        paddingBottom: 6,
-        paddingRight: 3,
-        paddingLeft: 3,
-        top: 0,
-        bottom: 0,
-        right: 0,
-        left: 0,
-        borderWidth: 1,
-        borderColor: 'transparent',
-        height: 66
-    },
-    shadow__item: {
-        flex: 1,
-        borderRadius: 16,
-        elevation: 10,
-
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 5
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 6.27,
-    },
-    cryptoList__item: {
-        borderRadius: 16,
-        height: 66
-    },
-    cryptoList__item__content: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-
-        padding: 16,
-        height: 66,
-
-        borderRadius: 16,
-        zIndex: 10,
-    },
-    cryptoList__info: {
-        justifyContent: 'space-evenly',
-        height: 54
-    },
-    addressName: {
-        fontFamily: 'SFUIDisplay',
-        fontSize: 14,
-        lineHeight: 18,
-        letterSpacing: 1,
-        color: '#999999'
-    },
-    address: {
-        fontSize: 14,
-        lineHeight: 18,
-        fontFamily: 'SFUIDisplay',
-        letterSpacing: 1
-    },
-    mainAmount: {
-        fontFamily: 'Montserrat-Bold',
-        fontSize: 16,
-        lineHeight: 20,
-        textAlign: 'right'
-    },
-    secondaryAmount: {
-        fontFamily: 'SFUIDisplay',
-        fontSize: 14,
-        lineHeight: 18,
-        letterSpacing: 1,
-        color: '#999999',
-        textAlign: 'right'
-    },
-    container: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    headerTitle: {
-        fontFamily: 'Montserrat-SemiBold',
-        fontSize: 18,
-        lineHeight: 22
-    },
-    headerContainer :{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    },
-    topContent: {
-        position: 'relative',
-
-        height: 244,
-
-        marginTop: 25,
-        marginLeft: 16,
-        marginRight: 16,
-        borderRadius: 16
-    },
     topContent__top: {
         position: 'relative',
         alignItems: 'center',
@@ -429,22 +314,23 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     topContent__subtitle: {
-        marginTop: -10,
+        marginTop: -20,
         fontFamily: 'SFUIDisplay-SemiBold',
         fontSize: 14,
+        lineHeight: 18,
         textAlign: 'center'
     },
     topContent__title_first: {
-        height: 42,
+        height: 36,
         fontSize: 32,
         fontFamily: 'Montserrat-Regular',
-        lineHeight: 50
+        lineHeight: 36,
     },
     topContent__title_last: {
-        height: 42,
+        height: 36,
         fontSize: 16,
-        fontFamily: 'Montserrat-Medium',
-        lineHeight: 50,
+        fontFamily: 'Montserrat-SemiBold',
+        lineHeight: 36,
         opacity: 1,
     },
     topContent__bottom: {
@@ -463,5 +349,14 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#999999'
     },
-
+    headerTitle: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 18,
+        lineHeight: 22
+    },
+    headerContainer :{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    }
 })

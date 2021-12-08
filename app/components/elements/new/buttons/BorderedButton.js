@@ -38,7 +38,7 @@ const BorderedButton = (props) => {
         customTextStyles,
         onPressIn,
         onPressOut,
-        activeOpacity = 1,
+        activeOpacity = 0.5,
         hitSlop = null
     } = props
 
