@@ -171,17 +171,21 @@ class HeaderBlocks extends React.Component {
 
         return (
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
-                <View>
+                <TouchableOpacity
+                    onPress={() => this.accountStaking(currencyCode)}
+                    hitSlop={HIT_SLOP}
+                    disabled={withoutDescription || !canBeStaked}
+                >
                     {diffAvailable &&
                         <Text style={[styles.availableText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
-                            {`${strings('settings.walletList.available')}: ${finalIsBalanceVisible ?  balanceTotalPretty + ' ' + currencySymbol : ' ****'}`}
+                            {`${strings('settings.walletList.available')}: ${finalIsBalanceVisible ? balanceTotalPretty + ' ' + currencySymbol : ' ****'}`}
                         </Text>}
                     {!withoutDescription &&
                         <Text style={styles.availableText}>
                             {`${strings(balanceStakedTitle)}: ${finalIsBalanceVisible ? balanceStakedPretty + ' ' + currencySymbol : ' ****'}`}
                         </Text>
                     }
-                </View>
+                </TouchableOpacity>
                 {
                     canBeStaked &&
                     <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
