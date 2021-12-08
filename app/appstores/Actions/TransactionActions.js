@@ -150,7 +150,7 @@ const transactionActions = {
         if (transaction?.bseOrderData) {
             transaction.wayType = TransactionFilterTypeDict.SWAP
         }
-        if (transaction?.addressAmount === 0) {
+        if (transaction?.addressAmount === 0 || transaction?.transactionFilterType === TransactionFilterTypeDict.FEE) {
             transaction.addressAmountPrettyPrefix = '-'
             transaction.wayType = TransactionFilterTypeDict.FEE
         }

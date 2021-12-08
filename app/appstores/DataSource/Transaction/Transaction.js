@@ -322,9 +322,8 @@ class Transaction {
         } else {
             tmpWhere.push(`
                 (
-                    transaction_direction IN ('outcome', 'self')) 
-                AND
-                (
+                    transaction_direction IN ('outcome', 'self')
+                ) AND ((
                     transaction_filter_type IS NOT NULL AND transaction_filter_type NOT IN ('usual')
                 ) OR (
                     transaction_filter_type IS NULL AND (
@@ -332,7 +331,7 @@ class Transaction {
                         OR
                         address_to LIKE '% Simple Send%'
                     )
-                )
+                ))
             `)
         }
 

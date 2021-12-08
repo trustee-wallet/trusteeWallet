@@ -30,7 +30,15 @@ const HeaderTx = (props) => {
 
     const { colors, GRID_SIZE } = useTheme()
 
-    const { transactionDirection, addressAmountPretty, addressAmountPrettyPrefix, wayType, transactionVisibleStatus } = transaction
+    const { 
+        transactionDirection,
+        addressAmountPretty,
+        addressAmount,
+        addressAmountPrettyPrefix,
+        wayType,
+        transactionVisibleStatus,
+        transactionFeePretty
+    } = transaction
 
     const currencySymbol = typeof cryptoCurrency !== 'undefined' ? cryptoCurrency.currencySymbol : ''
 
@@ -55,7 +63,9 @@ const HeaderTx = (props) => {
     //     arrowIcon = <Feather name='x' style={{ color: colors.common.text1, fontSize: 17 }} />
     // }
 
-    let amountTxt = addressAmountPrettyPrefix + ' ' + addressAmountPretty
+    const isFeeTx = addressAmount * 1 <= 0
+
+    let amountTxt = addressAmountPrettyPrefix + ' ' + (isFeeTx ? transactionFeePretty : addressAmountPretty)
     let statusTxt = strings('account.transaction.' + wayType.toLowerCase())
     if (addressAmountPretty === '?') {
         if (transaction.bseOrderData) {
