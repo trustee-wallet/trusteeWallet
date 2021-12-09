@@ -76,13 +76,13 @@ const handleBuy = async (props) => {
                 title: strings('modal.marketModal.title'),
                 description: strings('modal.marketModal.description'),
             }, () => {
-                props.navigation.jumpTo('MarketScreen', {screen: 'MarketScreen', params: {
+                NavStore.reset('MarketScreen', {screen: 'MarketScreen', params: {
                     inCurrencyCode: basicCurrencyCode,
                     outCurrencyCode: currencyCode
                 }})
             })
         } else {
-            props.navigation.jumpTo('MarketScreen', {screen: 'MarketScreen', params: {
+            NavStore.reset('MarketScreen', {screen: 'MarketScreen', params: {
                 inCurrencyCode: basicCurrencyCode,
                 outCurrencyCode: currencyCode
             }})
