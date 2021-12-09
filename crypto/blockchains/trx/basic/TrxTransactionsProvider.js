@@ -209,6 +209,10 @@ export default class TrxTransactionsProvider {
             addressAmount = transaction.contractData.amount
             transactionDirection = (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? 'outcome' : 'income'
         }
+        let transactionFee = 0
+        if (typeof transaction.cost !== 'undefined' && typeof transaction.cost.fee !== 'undefined' && transaction.cost.fee) {
+            transactionFee = transaction.cost.fee * 1
+        }
         const res = {
             transactionHash: transaction.hash,
             blockHash: '',
@@ -220,7 +224,7 @@ export default class TrxTransactionsProvider {
             addressTo: (address.toLowerCase() === transaction.toAddress.toLowerCase()) ? '' : transaction.toAddress,
             addressAmount,
             transactionStatus: transactionStatus,
-            transactionFee: transaction.fee ? transaction.fee * 1 : 0,
+            transactionFee,
             transactionFilterType,
             inputValue: transaction.data
         }
