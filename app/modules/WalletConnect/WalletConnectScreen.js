@@ -59,30 +59,32 @@ import {
 
 
 class WalletConnectScreen extends PureComponent {
-    constructor(props) {
-        super(props)
-        this.state = {
-            walletStarted: false,
-            chainId: false,
-            peerMeta: {
-                name: '',
-                url: '',
-                description: '',
-                icons: []
-            },
-            peerId: false,
-            peerStatus: false,
-            transactions: [],
-            inputFullLink: '',
-            noMoreLock: false,
-            linkError: false
-        }
-        this.linkInput = React.createRef()
+    state = {
+        walletStarted: false,
+        chainId: false,
+        peerMeta: {
+            name: '',
+            url: '',
+            description: '',
+            icons: []
+        },
+        peerId: false,
+        peerStatus: false,
+        transactions: [],
+        inputFullLink: '',
+        noMoreLock: false,
+        linkError: false
     }
+    
+    linkInput = React.createRef()
 
     componentDidMount() {
         BackHandler.addEventListener('hardwareBackPress', this.handleLogout)
         this._setLink(this.props.walletConnectData.fullLink)
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress')
     }
 
     _setLink(fullLink) {
@@ -285,9 +287,9 @@ class WalletConnectScreen extends PureComponent {
                                     onPress={this.handleChangeNetwork}
                                     activeOpacity={0.8}
                                 >
-                                        <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
-                                            {this.getNetwork(this.props.walletConnectData.mainCurrencyCode)}
-                                        </Text>
+                                    <Text numberOfLines={1} style={[styles.networkText, { marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2.5 }]}>
+                                        {this.getNetwork(this.props.walletConnectData.mainCurrencyCode)}
+                                    </Text>
                                 </TouchableOpacity>
                             }
 
@@ -316,6 +318,7 @@ class WalletConnectScreen extends PureComponent {
                                             placeholder='wc:e82c6b46-360c-4ea5-9825-9556666454afe@1?bridge=https%3'
                                             onChangeText={this.handleChangeFullLink}
                                             callback={this.handleChangeFullLink}
+                                            pasteCallback={this.handleChangeFullLink}
                                             addressError={linkError}
                                             qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
                                             validPlaceholder={true}

@@ -17,7 +17,6 @@ import _ from 'lodash'
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import MaterialCommunity from 'react-native-vector-icons/MaterialCommunityIcons'
-import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '@app/components/elements/GradientView'
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -241,20 +240,30 @@ class Transaction extends React.Component {
         const transactionBlockchainStatus = transaction.transactionBlockchainStatus
         const transactionDirection = transaction.transactionDirection
         const transactionFilterType = transaction.transactionFilterType
-        const wayType = transaction.wayType // BUY SELL OUTCOME INCOME !
+        const wayType = transaction.wayType // SWAP OUTCOME INCOME FEE !
 
-        let value, valueToView, currencySymbolToView
+        let value, valueToView, currencySymbolToView, basicValueToView
+        const isFeeTx = transaction.addressAmount * 1 <= 0
+
         if (transaction.addressAmountSatoshi && (currencyCode === 'BTC' || currencyCode === 'DOGE')) {
             value = transaction.addressAmountSatoshi
             valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
             currencySymbolToView = 'sat'
         } else {
-            value = transaction.addressAmountPretty
+            value = isFeeTx ? transaction.transactionFeePretty : transaction.addressAmountPretty
             valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
-            currencySymbolToView = cryptoCurrency.currencySymbol
+            currencySymbolToView = isFeeTx ? transaction.feesCurrencySymbol : cryptoCurrency.currencySymbol
         }
-        const basicValueToView = transactionFilterType !== TransactionFilterTypeDict.SWAP && typeof transaction.basicAmountPretty !== 'undefined' ?
-            (transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty) : false
+        
+        if (transactionFilterType !== TransactionFilterTypeDict.SWAP && typeof transaction.basicAmountPretty !== 'undefined') {
+            if (isFeeTx) {
+                basicValueToView = transaction.basicFeeCurrencySymbol + ' ' + transaction.basicFeePretty
+            } else {
+                basicValueToView = transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty
+            }
+        } else {
+            basicValueToView = false
+        }
 
         const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
         // end preformat

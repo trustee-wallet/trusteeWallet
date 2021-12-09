@@ -141,13 +141,16 @@ const transactionActions = {
     preformatWithBSEforShowInner(transaction) {
         const direction = transaction.transactionDirection
         transaction.addressAmountPrettyPrefix = (direction === 'outcome' || direction === 'self' || direction === 'freeze' || direction === 'swap_outcome') ? '-' : '+'
+        if (direction === 'vote') {
+            transaction.addressAmountPrettyPrefix = ''
+        }
         if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
             transaction.wayType = transaction.transactionDirection
         }
         if (transaction?.bseOrderData) {
             transaction.wayType = TransactionFilterTypeDict.SWAP
         }
-        if (transaction?.addressAmount === 0) {
+        if (transaction?.addressAmount === 0 || transaction?.transactionFilterType === TransactionFilterTypeDict.FEE) {
             transaction.addressAmountPrettyPrefix = '-'
             transaction.wayType = TransactionFilterTypeDict.FEE
         }

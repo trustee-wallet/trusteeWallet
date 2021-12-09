@@ -493,6 +493,16 @@ class MarketScreen extends PureComponent {
                 payway: data.payway || null
             }
 
+            let feeData = false
+            try {
+                if (typeof data.feeData !== 'undefined' && data.feeData ) {
+                    feeData = JSON.parse(data.feeData)
+                    feeData = typeof feeData.selectedFee !== 'undefined' ? feeData.selectedFee : false
+                }
+            } catch (e) {
+                // do nothing
+            }
+
             const bse = {
                 bseProviderType: data.providerType || 'NONE', //  'FIXED' || 'FLOATING'
                 bseOrderId: data.orderHash || data.orderId,
@@ -523,7 +533,7 @@ class MarketScreen extends PureComponent {
                 return true
             }
 
-            await SendActionsStart.startFromBSE(data, bse)
+            await SendActionsStart.startFromBSE(data, bse, feeData)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('Market/MainScreen.send ' + e.message)

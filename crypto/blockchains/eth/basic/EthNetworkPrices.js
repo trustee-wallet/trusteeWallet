@@ -141,7 +141,7 @@ class EthNetworkPrices {
     }
 
     async getOnlyFees(mainCurrencyCode, isTestnet, address, logData = {}, etherscanApiPath) {
-        if (!isTestnet && mainCurrencyCode !== 'ETH' && etherscanApiPath) {
+        if (etherscanApiPath) {
             try {
                 const tmpFee = await BnbSmartNetworkPrices.getFees(mainCurrencyCode, etherscanApiPath)
                 if (tmpFee * 1 > 0) {

@@ -249,7 +249,8 @@
       "successFreeze": "TRX заморожено для стейкінгу",
       "successReward": "Отримано нагороду TRX за стейкінг",
       "noVoted": "У вас залишився стейк без голосів. Натисніть «Проголосувати», щоб завершити процедуру заморозки",
-      "withdrawTRX": "Вивести"
+      "withdrawTRX": "Вивести",
+      "freezeTrx": "Заморозити"
     },
     "about": {
       "title": "Про гаманець",
@@ -474,6 +475,7 @@
       "freeze" : "Заморожено",
       "unfreeze" : "Розморожено",
       "stake" : "Стейк",
+      "vote": "Голосування",
       "wallet_connect" : "WalletConnect",
       "claim" : "Винагорода",
       "swap_income" : "Contract Вхідна",

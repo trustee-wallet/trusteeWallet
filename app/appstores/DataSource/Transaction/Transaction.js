@@ -322,9 +322,8 @@ class Transaction {
         } else {
             tmpWhere.push(`
                 (
-                    transaction_direction IN ('outcome', 'self')) 
-                AND
-                (
+                    transaction_direction IN ('outcome', 'self')
+                ) AND ((
                     transaction_filter_type IS NOT NULL AND transaction_filter_type NOT IN ('usual')
                 ) OR (
                     transaction_filter_type IS NULL AND (
@@ -332,7 +331,7 @@ class Transaction {
                         OR
                         address_to LIKE '% Simple Send%'
                     )
-                )
+                ))
             `)
         }
 
@@ -361,7 +360,7 @@ class Transaction {
             if (params.currencyCode === 'TRX' || params.currencyCode === 'SOL') {
                 tmpWhere.push(`
                     (
-                        transaction_direction IN ('freeze', 'unfreeze', 'claim')
+                        transaction_direction IN ('freeze', 'unfreeze', 'claim', 'vote')
                     ) OR (
                         transaction_filter_type IS NOT NULL AND transaction_filter_type IN ('${TransactionFilterTypeDict.STAKE}')
                     )
@@ -437,7 +436,8 @@ class Transaction {
             bse_order_id_out AS bseOrderOutID,
             bse_order_id_in AS bseOrderInID,
             bse_order_data AS bseOrderData,
-            transaction_filter_type AS transactionFilterType
+            transaction_filter_type AS transactionFilterType,
+            special_action_needed AS specialActionNeeded
             FROM transactions
             ${where}
             ${order}

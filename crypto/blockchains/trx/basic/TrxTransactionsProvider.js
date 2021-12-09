@@ -6,6 +6,7 @@ import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import TrxNodeInfoProvider from './TrxNodeInfoProvider'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 const TXS_MAX_TRY = 10
 
@@ -188,6 +189,13 @@ export default class TrxTransactionsProvider {
                 addressFrom = transaction.ownerAddress
                 transactionDirection = 'unfreeze'
                 transactionFilterType = TransactionFilterTypeDict.STAKE
+            } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 4) {
+                // no vote tx
+                return false
+                addressAmount = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makeUnPretty(transaction.amount)
+                addressFrom = transaction.ownerAddress
+                transactionDirection = 'vote'
+                transactionFilterType = TransactionFilterTypeDict.STAKE
             } else {
                 if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
                     // freeze = 11, vote = 4, claim = 13
@@ -212,7 +220,7 @@ export default class TrxTransactionsProvider {
             addressTo: (address.toLowerCase() === transaction.toAddress.toLowerCase()) ? '' : transaction.toAddress,
             addressAmount,
             transactionStatus: transactionStatus,
-            transactionFee: 0,
+            transactionFee: transaction.fee ? transaction.fee * 1 : 0,
             transactionFilterType,
             inputValue: transaction.data
         }

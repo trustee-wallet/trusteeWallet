@@ -79,6 +79,7 @@ export default class EthBasic {
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.bscscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.bscscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+            this._etherscanApiPathForFee = `https://api.bscscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
 
             this._trezorServer = false
             this._trezorServerCode = false
@@ -93,6 +94,7 @@ export default class EthBasic {
             this._etherscanSuffix = false
             this._etherscanApiPath = false
             this._etherscanApiPathInternal = false
+            this._etherscanApiPathForFee = false
 
             this._trezorServer = 'to_load'
             this._trezorServerCode = 'ETC_TREZOR_SERVER'
@@ -101,11 +103,26 @@ export default class EthBasic {
             this._mainTokenType = 'ETC_ERC_20'
             this._mainTokenBlockchain = 'Ethereum Classic'
             this._mainChainId = 61 // https://ethereumclassic.org/development/porting
+        }  else if (settings.currencyCode === 'VLX' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'VLX')) {
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://evmexplorer.velas.com/api?module=account&sort=desc&action=txlist`
+            this._etherscanApiPathInternal = false
+            this._etherscanApiPathForFee = false
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'VLX'
+            this._mainTokenType = 'VLX_ERC_20'
+            this._mainTokenBlockchain = 'VLX'
+            this._mainChainId = 106
         } else if (settings.currencyCode === 'METIS' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'METIS')) {
 
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://andromeda-explorer.metis.io/api?module=account&sort=desc&action=txlist`
             this._etherscanApiPathInternal = `https://andromeda-explorer.metis.io/api?module=account&sort=desc&action=txlistinternal`
+            this._etherscanApiPathForFee = false
 
             this._trezorServer = false
             this._trezorServerCode = false
@@ -120,6 +137,7 @@ export default class EthBasic {
             this._etherscanApiPath = `https://api.optimistic.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.optimistic.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
             this._etherscanApiPathDeposits = 'https://api-optimistic.etherscan.io/api?module=account&action=getdeposittxs'
+            this._etherscanApiPathForFee = `https://api.optimistic.etherscan.io/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
 
             this._trezorServer = false
             this._trezorServerCode = false
@@ -133,6 +151,7 @@ export default class EthBasic {
             this._etherscanSuffix = false
             this._etherscanApiPath = false
             this._etherscanApiPathInternal = false
+            this._etherscanApiPathForFee = false
 
             this._trezorServer = 'to_load'
             this._trezorServerCode = 'AMB_TREZOR_SERVER'
@@ -146,7 +165,7 @@ export default class EthBasic {
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
-
+            this._etherscanApiPathForFee = `https://api.polygonscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
 
             this._trezorServer = false
             this._trezorServerCode = false
@@ -160,7 +179,7 @@ export default class EthBasic {
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
-
+            this._etherscanApiPathForFee = `https://api.ftmscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
 
             this._trezorServer = false
             this._trezorServerCode = false
@@ -186,6 +205,7 @@ export default class EthBasic {
             this._etherscanSuffix = (settings.network === 'mainnet') ? '' : ('-' + settings.network)
             this._etherscanApiPath = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api${this._etherscanSuffix}.etherscan.io/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+            this._etherscanApiPathForFee = false
 
             if (settings.network === 'mainnet') {
                 this._trezorServer = 'to_load'

@@ -308,7 +308,9 @@ export default function getTableQueries() {
                     created_at DATETIME NULL,
                     mined_at DATETIME NULL,
                     updated_at DATETIME NULL,
-                    hidden_at DATETIME NULL
+                    hidden_at DATETIME NULL,
+
+                    special_action_needed VARCHAR(256) NULL
                 )`
             },
             {

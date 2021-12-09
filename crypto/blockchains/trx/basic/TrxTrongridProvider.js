@@ -27,15 +27,19 @@ export default class TrxTrongridProvider {
                 BlocksoftCryptoLog.log('TrxTrongridProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONGRID[address][tokenName])
                 const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
                 const frozen = typeof CACHE_TRONGRID[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozen'] : 0
+                const frozenExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenExpireTime'] : 0
                 const frozenOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenOthers'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenOthers'] : 0
                 const frozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] : 0
+                const frozenEnergyExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] : 0
                 const frozenEnergyOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] : 0
                 return {
                     balance: CACHE_TRONGRID[address][tokenName],
                     voteTotal,
                     frozen,
+                    frozenExpireTime,
                     frozenOthers,
                     frozenEnergy,
+                    frozenEnergyExpireTime,
                     frozenEnergyOthers,
                     unconfirmed: 0,
                     provider: 'trongrid-cache',
@@ -61,11 +65,16 @@ export default class TrxTrongridProvider {
         CACHE_TRONGRID[address].time = now
         CACHE_TRONGRID[address]._ = typeof res.data.balance !== 'undefined' ? res.data.balance : 0
         CACHE_TRONGRID[address]._frozen = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].frozen_balance : 0
+        CACHE_TRONGRID[address]._frozenExpireTime = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].expire_time : 0
         CACHE_TRONGRID[address]._frozenOthers = typeof res.data.delegated_frozen_balance_for_bandwidth !== 'undefined' ? res.data.delegated_frozen_balance_for_bandwidth : 0
         CACHE_TRONGRID[address]._frozenEnergy = typeof res.data.account_resource !== 'undefined'
         && typeof res.data.account_resource.frozen_balance_for_energy !== 'undefined'
         && typeof res.data.account_resource.frozen_balance_for_energy.frozen_balance !== 'undefined'
             ? res.data.account_resource.frozen_balance_for_energy.frozen_balance : 0
+        CACHE_TRONGRID[address]._frozenEnergyExpireTime = typeof res.data.account_resource !== 'undefined'
+        && typeof res.data.account_resource.frozen_balance_for_energy !== 'undefined'
+        && typeof res.data.account_resource.frozen_balance_for_energy.expire_time !== 'undefined'
+            ? res.data.account_resource.frozen_balance_for_energy.expire_time : 0
 
         CACHE_TRONGRID[address]._frozenEnergyOthers = 0
         if (typeof res.data.account_resource !== 'undefined' && typeof res.data.account_resource.delegated_frozen_balance_for_energy !== 'undefined' && res.data.account_resource.delegated_frozen_balance_for_energy * 1 > 0) {
@@ -87,16 +96,20 @@ export default class TrxTrongridProvider {
 
         const balance = CACHE_TRONGRID[address][tokenName]
         const frozen = typeof CACHE_TRONGRID[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozen'] : 0
+        const frozenExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenExpireTime'] : 0
         const frozenOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenOthers'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenOthers'] : 0
         const frozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] : 0
+        const frozenEnergyExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] : 0
         const frozenEnergyOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] : 0
         const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
         return {
             balance,
             voteTotal,
             frozen,
+            frozenExpireTime,
             frozenOthers,
             frozenEnergy,
+            frozenEnergyExpireTime,
             frozenEnergyOthers,
             unconfirmed: 0,
             provider: 'trongrid ' + nodeLink,
@@ -124,16 +137,16 @@ export default class TrxTrongridProvider {
 
             leftBand = totalBand
             if (typeof tronData.freeNetUsed !== 'undefined' && tronData.freeNetUsed) {
-                leftBand = leftBand - tronData.freeNetUsed*1
+                leftBand = leftBand - tronData.freeNetUsed * 1
             }
             if (typeof tronData.NetUsed !== 'undefined' && tronData.NetUsed) {
-                leftBand = leftBand - tronData.NetUsed*1
+                leftBand = leftBand - tronData.NetUsed * 1
             }
 
             totalEnergy = typeof tronData.EnergyLimit !== 'undefined' && tronData.EnergyLimit ? tronData.EnergyLimit : 0
             leftEnergy = totalEnergy
             if (typeof tronData.EnergyUsed !== 'undefined' && tronData.EnergyUsed) {
-                leftEnergy = leftEnergy - tronData.EnergyUsed*1
+                leftEnergy = leftEnergy - tronData.EnergyUsed * 1
             }
 
         } catch (e) {

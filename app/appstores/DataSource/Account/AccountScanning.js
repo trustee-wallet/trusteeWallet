@@ -97,7 +97,7 @@ class AccountScanning {
         const resTotal = await Database.query(sqlTotal)
         let tmp = ''
         for (const account1 of resTotal.array) {
-            tmp += account1.currencyCode + ' ' + account1.address + ' ' + account1.balanceScanLog.substr(0, 200) + `
+            tmp += account1.currencyCode + ' ' + account1.address + ' ' + (account1.balanceScanLog ? account1.balanceScanLog.substr(0, 200) : '') + `
                 `
         }
         Log.test(`
