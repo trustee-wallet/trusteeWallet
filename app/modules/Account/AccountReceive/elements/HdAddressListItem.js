@@ -14,19 +14,15 @@ import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import GradientView from '@app/components/elements/GradientView'
-import LetterSpacing from '@app/components/elements/LetterSpacing'
+// import LetterSpacing from '@app/components/elements/LetterSpacing'
 
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+// import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 
 class HdAddressListItem extends React.PureComponent {
-
-    state = {
-        addressName: null
-    }
 
     render() {
 
@@ -38,18 +34,15 @@ class HdAddressListItem extends React.PureComponent {
         const {
             onPress,
             address,
-            balance
+            addressName
+            // balance
         } = this.props
 
-        const {
-            currencyCode,
-            basicCurrencySymbol,
-            basicCurrencyBalance,
-        } = this.props.selectedAccountData
-
-        const {
-            addressName
-        } = this.state
+        // const {
+        //     currencyCode,
+        //     basicCurrencySymbol,
+        //     basicCurrencyBalance,
+        // } = this.props.selectedAccountData
 
         return(
             <View style={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2, height: 66 }}>
@@ -57,7 +50,7 @@ class HdAddressListItem extends React.PureComponent {
                     <View style={styles.shadow__item} />
                 </View>
                 <TouchableOpacity
-                    activeOpacity={0.7}
+                    activeOpacity={0.9}
                     style={styles.cryptoList__item}
                     onPress={onPress}
                 >
@@ -76,6 +69,9 @@ class HdAddressListItem extends React.PureComponent {
                                     {BlocksoftPrettyStrings.makeCut(address)}
                                 </Text>
                             </View>
+                        
+{/*                             
+                            annotated balance
                             <View style={styles.cryptoList__info}>
                                 <Text style={[styles.mainAmount, { color: colors.common.text3 }]}>
                                     {`${BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(balance)} ${currencyCode}`}
@@ -83,7 +79,7 @@ class HdAddressListItem extends React.PureComponent {
                                 <Text style={styles.secondaryAmount}>
                                     {basicCurrencySymbol + ' ' + basicCurrencyBalance}
                                 </Text>
-                            </View>
+                            </View> */}
                         </View>
                     </GradientView>
                 </TouchableOpacity>

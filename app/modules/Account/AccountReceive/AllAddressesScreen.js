@@ -12,6 +12,7 @@ import {
     Platform
 } from 'react-native'
 import { connect } from 'react-redux'
+import _isEqual from 'lodash/isEqual'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
@@ -52,8 +53,7 @@ class AllAddressesScreen extends PureComponent {
             }
         ],
         index: 0,
-        segwitAddresses: [],
-        legacyAddresses: [],
+        addresses: [],
         loading: false
     }
 
@@ -79,9 +79,11 @@ class AllAddressesScreen extends PureComponent {
         await changeAddress.call(this)
     }
 
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-        
-    // }
+    componentDidUpdate( prevState ) {
+        if (!_isEqual(prevState.addresses, this.state.addresses)) {
+            this.loadAddresses()
+        }
+    }
 
     loadAddresses = async () => {
 
@@ -104,8 +106,7 @@ class AllAddressesScreen extends PureComponent {
         const tmp = await Account.getAccountData(params)
         
         this.setState({
-            segwitAddresses: tmp.segwit,
-            legacyAddresses: tmp.legacy
+            addresses: tmp
             
         })
     }
@@ -199,6 +200,7 @@ class AllAddressesScreen extends PureComponent {
     }
 
     handleTabChange = index => {
+        console.log(`object`, getAddress.call(this))
         this.setState({
             index
         })
@@ -221,7 +223,7 @@ class AllAddressesScreen extends PureComponent {
 
         return(
             <View style={{ marginTop: GRID_SIZE / 2 }}>
-                {this.state.segwitAddresses.map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} />)}
+                {this.state.addresses.segwit?.slice(0).reverse().map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} addressName={e.name} />)}
             </View>
         )
     }
@@ -232,7 +234,7 @@ class AllAddressesScreen extends PureComponent {
 
         return(
             <View style={{ marginTop: GRID_SIZE / 2 }}>
-                {this.state.legacyAddresses.map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} />)}
+                {this.state.addresses.legacy?.slice(0).reverse().map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} addressName={e.name} />)}
             </View>
         )
     }
