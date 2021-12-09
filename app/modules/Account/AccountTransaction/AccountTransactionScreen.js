@@ -467,7 +467,7 @@ class AccountTransactionScreen extends PureComponent {
                                             )
                                         })}
                                         {linkExplorer !== null ?
-                                            <TouchableOpacity onPress={() => this.handleLink(linkExplorer)}>
+                                            <TouchableOpacity onPress={() => handleLink.call(this, linkExplorer)}>
                                                 <LetterSpacing textStyle={{ ...styles.viewExplorer, color: colors.common.checkbox.bgChecked }}
                                                     text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
                                                 />
