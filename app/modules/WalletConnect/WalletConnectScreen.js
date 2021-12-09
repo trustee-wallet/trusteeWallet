@@ -83,10 +83,6 @@ class WalletConnectScreen extends PureComponent {
         this._setLink(this.props.walletConnectData.fullLink)
     }
 
-    componentWillUnmount() {
-        BackHandler.removeEventListener('hardwareBackPress')
-    }
-
     _setLink(fullLink) {
         if (!fullLink || fullLink === '' || fullLink === this.state.inputFullLink) {
             return false
@@ -129,7 +125,8 @@ class WalletConnectScreen extends PureComponent {
 
     handleLogout = (func) => {
         const { peerStatus } = this.state
-        handleParanoidLogout.call(this, peerStatus, func)
+        handleParanoidLogout.call(this, peerStatus, func)  
+        BackHandler.removeEventListener('hardwareBackPress', this.handleLogout);   
     }
 
     handleConnect = () => {
