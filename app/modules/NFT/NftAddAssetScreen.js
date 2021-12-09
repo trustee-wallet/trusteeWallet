@@ -129,6 +129,12 @@ class NftAddAssetScreen extends PureComponent {
         )
     }
 
+    // renderCustomTextInput() {
+    //     return(
+            
+    //     ) 
+    // }
+
     render() {
         const {
             GRID_SIZE,
@@ -162,7 +168,7 @@ class NftAddAssetScreen extends PureComponent {
                         data={data}
                         showsVerticalScrollIndicator={false}
                         ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
-                        ListHeaderComponent={() => (
+                        ListHeaderComponent={
                             <>
                                 <View style={{ margin: GRID_SIZE }}>
                                     <Text style={[styles.text, { color: colors.common.text3 }]}>{strings('nftAddAssetScreen.addCustomLabel')}</Text>
@@ -184,6 +190,7 @@ class NftAddAssetScreen extends PureComponent {
                                             callback={this.handleChangeCustomAddress}
                                             qr={true}
                                             qrCallback={this.handleOpenQr}
+                                            onBlur={() => null}
                                         />
                                         <Button
                                             containerStyle={{ marginTop: GRID_SIZE * 2 }}
@@ -194,8 +201,9 @@ class NftAddAssetScreen extends PureComponent {
                                     </View>
                                 }
                             </>
-                        )}
+                        }
                         renderItem={this.renderListItem}
+                        keyExtractor={item => item.id}
                     />
                 </SafeAreaView>
             </ScreenWrapper>
