@@ -106,7 +106,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             ethAllowBlockedBalance,
             ethAllowLongQuery,
             maxNonceLocal
-        }, this._etherscanApiPathForFee)
+        })
 
         if (typeof additionalData.gasPrice !== 'undefined' && additionalData.gasPrice) {
             if (typeof additionalData.gasPriceTitle !== 'undefined') {
