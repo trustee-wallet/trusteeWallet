@@ -81,11 +81,7 @@ class HomeScreen extends React.PureComponent {
             Log.log('WalletList.HomeScreen initDeepLinking error ' + e.message)
         }
 
-        if (this.state.sortValue) {
-            this.setState({
-                data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)
-            })
-        }
+        Log.log('WalletList.HomeScreen initial sortValue ' + this.state.sortValue)
 
         setLoaderStatus(false)
         this.getBalanceVisibility()
@@ -253,7 +249,7 @@ class HomeScreen extends React.PureComponent {
                             :
                                 <FlatList
                                     {...this.commonHeaderProps}
-                                    data={getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)}
+                                    data={this.state.data}
                                 />
                             }
                     </View>
