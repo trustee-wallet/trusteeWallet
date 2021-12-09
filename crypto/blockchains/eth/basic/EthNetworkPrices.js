@@ -9,7 +9,6 @@ import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 import config from '../../../../app/config/config'
 import EthRawDS from '../stores/EthRawDS'
 import EthTmpDS from '../stores/EthTmpDS'
-import BnbSmartNetworkPrices from '../../bnb_smart/basic/BnbSmartNetworkPrices'
 
 
 const ESTIMATE_PATH = 'https://ethgasstation.info/json/ethgasAPI.json'
@@ -30,12 +29,9 @@ let CACHE_PROXY_TIME = 0
 class EthNetworkPrices {
 
 
-    async getWithProxy(mainCurrencyCode, isTestnet, address, logData = {}, etherscanApiPath) {
+    async getWithProxy(mainCurrencyCode, isTestnet, address, logData = {}) {
         if (mainCurrencyCode !== 'ETH' || isTestnet) {
-            // @todo server side for other coins
-            return {
-                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData, etherscanApiPath)
-            }
+            return false
         }
         const { apiEndpoints } = config.proxy
         const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
@@ -89,7 +85,7 @@ class EthNetworkPrices {
 
         if (checkResult === false) {
             return {
-                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData, etherscanApiPath)
+                gasPrice: await this.getOnlyFees(mainCurrencyCode, isTestnet, address, logData)
             }
         }
 
@@ -140,22 +136,7 @@ class EthNetworkPrices {
         return result
     }
 
-    async getOnlyFees(mainCurrencyCode, isTestnet, address, logData = {}, etherscanApiPath) {
-        if (etherscanApiPath) {
-            try {
-                const tmpFee = await BnbSmartNetworkPrices.getFees(mainCurrencyCode, etherscanApiPath)
-                if (tmpFee * 1 > 0) {
-                   return {'speed_blocks_2' : tmpFee}
-                }
-            } catch (e) {
-                // do nothing
-            }
-        }
-        const onePrice = BlocksoftExternalSettings.getStatic(isTestnet ? 'ETH_TESTNET_PRICE' : (mainCurrencyCode + '_PRICE'))
-        if (typeof onePrice !== 'undefined' && onePrice) {
-             return { 'speed_blocks_2': onePrice }
-        }
-
+    async getOnlyFees(mainCurrencyCode, isTestnet, address, logData = {}) {
         logData.resultFeeSource = 'fromCache'
         const now = new Date().getTime()
         if (CACHE_FEES_ETH && (now - CACHE_FEES_ETH_TIME) < CACHE_VALID_TIME) {

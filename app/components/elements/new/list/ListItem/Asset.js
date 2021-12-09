@@ -7,7 +7,7 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import { Switch } from 'react-native-switch'
+import Switch from 'react-native-switch-pro'
 
 import CurrencyIcon from '../../../CurrencyIcon'
 
@@ -23,21 +23,14 @@ const getRightContent = (rightContent, params) => {
         case 'switch':
             return (
                 <Switch
-                    onValueChange={onPress}
-                    value={reversedValue}
-                    renderActiveText={false}
-                    renderInActiveText={false}
-                    backgroundActive={colors.common.switch.bgInactive}
-                    backgroundInactive={colors.common.switch.bgActive}
-                    circleActiveColor={colors.common.switch.circleBg}
-                    circleInActiveColor={colors.common.switch.circleBg}
-                    circleSize={20}
-                    changeValueImmediately={false}
-                    switchWidthMultiplier={1.6}
-                    switchLeftPx={-5}
-                    switchRightPx={-5}
-                    outerCircleStyle={{ paddingRight: reversedValue ? 5 : 0, paddingLeft: reversedValue ? 0 : 5 }}
-                    innerCircleStyle={Object.assign({}, !disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive })}
+                    onSyncPress={onPress}
+                    value={!reversedValue}
+                    backgroundInactive={colors.common.switch.bgInactive}
+                    backgroundActive={colors.common.switch.bgActive}
+                    circleColorInactive={colors.common.switch.circleBg}
+                    circleColorActive={colors.common.switch.circleBg}
+                    width={34}
+                    circleStyle={Object.assign({}, !disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive })}
                 />
             )
         default: return null
