@@ -55,8 +55,12 @@ class SettingsBTC extends Component {
             title: strings('settings.walletList.hdEnableModal.title'),
             icon: 'WARNING',
             description: strings('settings.walletList.hdEnableModal.description')
-        }, () => {
-            walletHDActions.turnOnHD(walletHash)
+        }, async () => {
+            setLoaderStatus(true)
+
+            await walletHDActions.turnOnHD(walletHash)
+
+            setLoaderStatus(false)
         })
     }
 
