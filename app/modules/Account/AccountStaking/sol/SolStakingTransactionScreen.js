@@ -223,11 +223,9 @@ class SolStakingTransactionScreen extends PureComponent {
                                 </TouchableOpacity>
 
                                 <View style={{ paddingTop: GRID_SIZE * 2 }}>
-                                    <LetterSpacing
-                                        textStyle={[styles.text, { color: colors.common.text3, textAlign: 'left', paddingLeft: GRID_SIZE }]}
-                                        text={strings('settings.walletList.unstakeSOL').toUpperCase() + ' SOL'}
-                                        letterSpacing={1.5}
-                                    />
+                                    <Text style={[styles.text, { color: colors.common.text3, textAlign: 'left', paddingLeft: GRID_SIZE }]}>
+                                        {strings('settings.walletList.unstakeSOL').toUpperCase() + ' SOL'}
+                                    </Text>
                                     <View style={[stylesGlobal.inputWrapper, { marginVertical: GRID_SIZE }]}>
                                         <Input
                                             ref={ref => this.unStakeAmountInput = ref}
