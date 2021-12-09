@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     title: {
        fontFamily: 'Montserrat-Bold',
        fontSize: 14,
-       lineHeight: 14,
+       lineHeight: 18,
        letterSpacing: 1,
        textAlign: 'center',
        textTransform: 'uppercase'

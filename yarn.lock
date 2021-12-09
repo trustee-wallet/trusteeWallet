@@ -10779,12 +10779,12 @@ react-native-swipe-list-view@^3.2.3:
   resolved "https://registry.yarnpkg.com/react-native-swipe-list-view/-/react-native-swipe-list-view-3.2.9.tgz#d725c7cdf481dd5df12a00dbfe0120013b5f2e59"
   integrity sha512-SjAEuHc/D6ovp+RjDUhfNmw6NYOntdT7+GFhfMGfP/BSLMuMWynpzJy9GKQeyB8sI78T6Lzip21TVbongOg1Mw==
 
-react-native-switch@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-native-switch/-/react-native-switch-2.0.0.tgz#028371b946ba0520e421f02caa7685878cf4bd4e"
-  integrity sha512-Yy8GQBazGBz/VI/Xl2LkyO/4wElnt9hRQ+gY3j/7ZkdfIQftY6IAtvSpU2NEksezUxs4DgNAkcmeDfRO0t2wbg==
+react-native-switch-pro@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/react-native-switch-pro/-/react-native-switch-pro-1.0.5.tgz#9954e11f15a0ef4e8e92a4aba5019e6e29c9162f"
+  integrity sha512-ZkS7/mRsJsG7heE12Y8emv3jAS2waLhk+3fyqoxq8k/r4Q4Uzzm3Q3gSECOJd5COJZT1B48c+xXW80FOrQpYtQ==
   dependencies:
-    prop-types "^15.6.0"
+    prop-types "^15.5.10"
 
 react-native-tab-view@^2.11.0:
   version "2.16.0"
