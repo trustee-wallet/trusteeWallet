@@ -9,6 +9,7 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
 
 import config from '@app/config/config'
 
@@ -193,19 +194,25 @@ class SettingsMainScreen extends PureComponent {
     }
 
 
-    handleOpenNotifications = () => { NavStore.goNext('NotificationsScreen') }
+    handleOpenNotifications = () => NavStore.goNext('NotificationsScreen')
 
-    handleWalletManagment = () => { NavStore.goNext('WalletListScreen') }
+    handleWalletManagment = () => NavStore.goNext('WalletListScreen')
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => NavStore.goBack()
 
-    handleWalletConnect = () => { NavStore.goNext('WalletConnectScreen') }
+    handleWalletConnect = () => NavStore.goNext('WalletConnectScreen')
 
     handleFAQ = () => {
         Linking.openURL(BlocksoftExternalSettings.getStatic('SOCIAL_LINK_FAQ'))
     }
 
-    handleCoinSettings = () => { NavStore.goNext('GlobalCoinSettings') }
+    handleCoinSettings = () => NavStore.goNext('GlobalCoinSettings')
+
+    handleClearNotifications = async () => {
+        Vibration.vibrate(100)
+        await AppNewsActions.markAllAsOpened()
+    }
+
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
@@ -345,6 +352,9 @@ class SettingsMainScreen extends PureComponent {
                                 iconType="notifications"
                                 onPress={this.handleOpenNotifications}
                                 rightContent="arrow"
+                                hasInfo={this.props.hasNews}
+                                onLongPress={this.handleClearNotifications}
+                                delayLongPress={3000}
                             />
                             <ListItem
                                 title={strings('settings.other.localCurrency')}
@@ -407,7 +417,8 @@ const mapStateToProps = (state) => {
     return {
         settingsData: getSettingsScreenData(state),
         walletsNumber: getWalletsNumber(state),
-        isWalletConnected : getWalletConnectIsConnected(state)
+        isWalletConnected : getWalletConnectIsConnected(state),
+        hasNews: state.appNewsStore.hasNews
     }
 }
 
