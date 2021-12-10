@@ -326,7 +326,7 @@ class Transaction extends React.Component {
                                                 ) : null}
                                                 </> 
                                                 : 
-                                                <View style={{ justifyContent: 'center', marginTop: 12 }}>
+                                                <View style={{ justifyContent: 'center', marginTop: Platform.OS === 'ios' ? 12 : 6 }}>
                                                     <Text style={{ ...styles.transaction__item__title, color: colors.common.text1, fontSize: 26  }} numberOfLines={1}>****</Text>
                                                 </View>
                                                 }
