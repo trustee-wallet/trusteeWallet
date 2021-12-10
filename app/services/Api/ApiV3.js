@@ -20,6 +20,7 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftCryptoUtils from '@crypto/common/BlocksoftCryptoUtils'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import ApiProxy from './ApiProxy'
 
 import store from '@app/store'
@@ -91,6 +92,7 @@ export default {
                 balance: account.balancePretty,
                 unconfirmed: account.unconfirmedPretty,
                 raw: account.balanceRaw,
+                prettyBalanceRaw: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.balanceRaw),
                 currencyRateUsd: currencies[currencyCode].currencyRateUsd,
                 basicCurrencyCode: account.basicCurrencyCode,
                 basicCurrencyRate: account.basicCurrencyRate,
