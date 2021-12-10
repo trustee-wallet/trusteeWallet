@@ -325,6 +325,7 @@ class Account extends React.PureComponent {
                             isBalanceVisible={this.state.isBalanceVisible}
                             isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
                             originalVisibility={this.props.isBalanceVisible}
+                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                         />
                     )}
                     hasStickyHeader={this.state.hasStickyHeader}
@@ -406,6 +407,9 @@ class Account extends React.PureComponent {
                                 currencyColor: this.context.isLight ? selectedCryptoCurrencyData.mainColor : selectedCryptoCurrencyData.darkColor
                             }}
                             dashHeight={allTransactionsToView.length === 1 ? 0 : (allTransactionsToView.length - 1 === index) ? 50 : 150}
+                            isBalanceVisible={this.state.isBalanceVisible}
+                            isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
+                            originalVisibility={this.props.isBalanceVisible}
                         />
                     )}
                     onEndReachedThreshold={0.5}

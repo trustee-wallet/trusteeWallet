@@ -238,7 +238,7 @@ class HeaderBlocks extends React.Component {
                                     </Text>
                                 </Text>
                             ) : (
-                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 7, paddingHorizontal: 15, fontSize: 52, lineHeight: 54 }}>
+                                <Text style={[styles.topContent__title_last, styles.hiddenBalance, { color: colors.common.text1 }]}>
                                     ****
                                 </Text>
                             )}
@@ -688,5 +688,11 @@ const styles = {
     stakingValue: {
         flexDirection: 'row',
         alignItems: 'center'
+    },
+    hiddenBalance: {
+        marginTop: Platform.OS === 'ios' ? 7 : 9.3,
+        paddingHorizontal: 15,
+        fontSize: 52,
+        lineHeight: 54
     }
 }

@@ -74,25 +74,25 @@ const getIcon = (iconType, color) => {
         case 'information':
             return <MaterialCommunityIcon name="information" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
         case 'hd':
-            return <CustomIcon name={'multiAddress'} size={18} color={color} />
+            return <CustomIcon name='multiAddress' size={18} color={color} />
         case 'rbf':
-            return <CustomIcon name={'editingTx'} size={18} color={color} />
+            return <CustomIcon name='editingTx' size={18} color={color} />
         case 'unconfirmed':
-            return <CustomIcon name={'unconfirmed'} size={18} color={color} />
+            return <CustomIcon name='unconfirmed' size={18} color={color} />
         case 'address':
-            return <CustomIcon name={'selectVisibleAddress'} size={18} color={color} />
+            return <CustomIcon name='selectVisibleAddress' size={18} color={color} />
         case 'fee':
-            return <CustomIcon name={'fee'} size={22} color={color} />
+            return <CustomIcon name='fee' size={22} color={color} />
         case 'keyMonero':
-            return <CustomIcon name={'secretKeyMonero'} size={22} color={color} />
+            return <CustomIcon name='secretKeyMonero' size={22} color={color} />
         case 'walletConnect':
-            return <CustomIcon name={'walletConnect'} size={22} color={color} />
+            return <CustomIcon name='walletConnect' size={22} color={color} />
         case 'supportMail':
-            return <CustomIcon name={'supportMail'} size={22} color={color} />
+            return <CustomIcon name='supportMail' size={22} color={color} />
         case 'faq':
-            return <CustomIcon name={'faq'} size={22} color={color} />
+            return <CustomIcon name='faq' size={22} color={color} />
         case 'delete':
-            return <CustomIcon name={'delete'} size={22} color={color} />
+            return <CustomIcon name='delete' size={22} color={color} />
         case 'btc':
             return <CustomIcon name='BTC' size={22} color={color} />
         case 'eth':
@@ -188,7 +188,8 @@ export default function SettingListItem(props) {
         isVisibleDone,
         checked,
         opacityWithDisabled,
-        customTextStyle
+        customTextStyle,
+        hasInfo
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -221,7 +222,7 @@ export default function SettingListItem(props) {
                     </View>
                 </TouchableOpacity>
                 {(ExtraView && switchParams.value) && (
-                    <ExtraView ExtraViewParams={ExtraViewParams}/>
+                    <ExtraView ExtraViewParams={ExtraViewParams} />
                 )}
             </>
         )
@@ -236,9 +237,12 @@ export default function SettingListItem(props) {
                     activeOpacity={0.8}
                     disabled={disabled}
                 >
-                    {iconType && <View style={[styles.icon, { backgroundColor:  colors.common.listItem.basic.iconBgLight, opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1 }, customIconStyle ]}>
-                        {getIcon(iconType, customIconStyle?.color || colors.common.listItem.basic.iconColorLight)}
-                    </View>}
+                    {iconType &&
+                        <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1 }, customIconStyle]}>
+                            {getIcon(iconType, customIconStyle?.color || colors.common.listItem.basic.iconColorLight)}
+                            {hasInfo && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
+                        </View>
+                    }
                     <View style={styles.mainContent}>
                         <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, paddingVertical: !!subtitle ? 13 : 23, marginLeft: iconType ? 0 : GRID_SIZE }]}>
                             <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1, ...customTextStyle }]}>{title}</Text>
@@ -254,7 +258,7 @@ export default function SettingListItem(props) {
                 {ExtraView && (
                     <ExtraView ExtraViewParams={ExtraViewParams} />
                 )}
-                { !last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
+                {!last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
             </View>
         )
     }
@@ -271,7 +275,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginRight: 8,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        position: 'relative'
     },
     mainContent: {
         flexDirection: 'row',
@@ -312,5 +317,14 @@ const styles = StyleSheet.create({
             height: 4
         },
         elevation: 4
+    },
+    notificationIndicator: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        borderWidth: 2,
     }
 })
