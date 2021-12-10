@@ -17,6 +17,7 @@ import accountDS from '../../appstores/DataSource/Account/Account'
 import settingsActions from '../../appstores/Stores/Settings/SettingsActions'
 import appNewsDS from '../../appstores/DataSource/AppNews/AppNews'
 import config from '@app/config/config'
+import accountBalanceDS from '@app/appstores/DataSource/AccountBalance/AccountBalance'
 
 let CACHE_LAST_TIME = false
 const CACHE_VALID_10MIN_TIME = 600000 // 10 minutes
@@ -206,25 +207,40 @@ class UpdateAccountBalanceAndTransactionsHD {
         let transactionsError = ' '
         let newTransactions = false
 
-        let addresses = await accountScanningDS.getAddresses({ currencyCode: walletPub.currencyCode, walletHash: walletPub.walletHash })
+        let addresses = await accountScanningDS.getAddresses({ currencyCode: walletPub.currencyCode, walletHash: walletPub.walletHash, withBalances : true })
         try {
             const addressesBlockchain = await BlocksoftTransactions.getAddresses({
                 account : { currencyCode : walletPub.currencyCode, address : walletPub.walletPubValue, walletHash : walletPub.walletHash},
-                additional : { walletPub }
+                additional : { walletPub },
+                withBalances : true
             }, 'UpdateAccountBalanceAndTransactionsHD addressesBlockchain')
+
             const sql = []
             const derivations = []
             let count = 0
             if (addressesBlockchain) {
                 for (const address in addressesBlockchain) {
+                    const path = addressesBlockchain[address].path
+                    const balance = addressesBlockchain[address].balance
                     if (typeof addresses[address] !== 'undefined') {
-                        if (addresses[address] === 1) {
+                        if (addresses[address].balanceTxt !== balance) {
+                            console.log('UPDATING!')
+                            const updateObj = {
+                                balanceScanTime: Math.round(new Date().getTime() / 1000),
+                                balanceScanLog: ' newBalance ' + balance,
+                                balanceScanError: '',
+                                balanceTxt: balance
+                            }
+                            await accountBalanceDS.updateAccountBalance({ updateObj },
+                                { id : addresses[address].id, currencyCode : walletPub.currencyCode, address : walletPub.walletPubValue, walletHash : walletPub.walletHash}
+                            )
+                        }
+                        if (addresses[address].alreadyShown === 1) {
                             // do nothing - can log
                         } else {
                             sql.push(`'` + address + `'`)
                         }
                     } else {
-                        const path = addressesBlockchain[address]
                         if (path.toString().length < 2) continue
                         const tmp = {
                             address,

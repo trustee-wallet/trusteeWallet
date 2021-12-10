@@ -204,6 +204,8 @@ class AccountScanning {
     }
 
     async getAddresses (params) {
+        const withBalances = typeof params.withBalances !== 'undefined' && params.withBalances
+
         let where = []
         if (params.walletHash) {
             where.push(`account.wallet_hash='${params.walletHash}'`)
@@ -227,8 +229,13 @@ class AccountScanning {
             account.currency_code AS currencyCode,
             account.wallet_hash AS walletHash,
             account.already_shown AS alreadyShown,
-            account.address
+            account.address,
+            account_balance.balance_txt AS balanceTxt,
+            account_balance.balance_scan_time AS balanceScanTime,
+            account_balance.balance_scan_error AS balanceScanError,
+            account_balance.balance_scan_log AS balanceScanLog            
             FROM account
+            LEFT JOIN account_balance ON account_balance.account_id = account.id
             ${where}
         `
 
@@ -247,7 +254,11 @@ class AccountScanning {
             res = res.array
             let tmp
             for (tmp of res) {
-                indexedRes[tmp.address] = tmp.alreadyShown
+                if (withBalances) {
+                    indexedRes[tmp.address] = tmp
+                } else {
+                    indexedRes[tmp.address] = tmp.alreadyShown
+                }
             }
         } catch (e) {
             Log.daemon('AccountScanning getAddresses error ' + sql + ' ' + e.message)

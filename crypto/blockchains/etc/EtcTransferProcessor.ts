@@ -3,19 +3,9 @@
  * @version 0.43
  */
 import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
-import EthTransferProcessor from '@crypto/blockchains/eth/EthTransferProcessor'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BnbSmartTransferProcessor from '@crypto/blockchains/bnb_smart/BnbSmartTransferProcessor'
 
-
-export default class EtcTransferProcessor extends EthTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
-
-    async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
-        if (typeof additionalData.gasPrice  === 'undefined' || !additionalData.gasPrice) {
-            additionalData.gasPrice = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_PRICE')
-            additionalData.gasPriceTitle = 'speed_blocks_2'
-        }
-        return super.getFeeRate(data, privateData, additionalData)
-    }
+export default class EtcTransferProcessor extends BnbSmartTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
     canRBF(data: BlocksoftBlockchainTypes.DbAccount, transaction: BlocksoftBlockchainTypes.DbTransaction, source: string): boolean {
         return false
