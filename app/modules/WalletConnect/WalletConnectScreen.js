@@ -9,7 +9,6 @@ import {
     Text,
     View,
     BackHandler,
-    Dimensions,
     Platform
 } from 'react-native'
 
@@ -62,8 +61,6 @@ import {
     NETWORKS_SETTINGS
 } from '@app/modules/WalletConnect/helpers'
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const getIcon = (block, isLight) => {
 
@@ -286,11 +283,12 @@ class WalletConnectScreen extends PureComponent {
                 rightAction={() => this.handleLogout(this.handleClose)}
                 title={strings('settings.walletConnect.title')}
             >
-                <Button
-                    containerStyle={[styles.mainButton, { bottom: GRID_SIZE, width: SCREEN_WIDTH - GRID_SIZE * 2, left: GRID_SIZE }]}
-                    onPress={peerStatus ? this.handleDisconnect : () => this.handleConnect()}
-                    title={peerStatus ? strings('settings.walletConnect.disconnect') : strings('settings.walletConnect.connect')}
-                />
+                <View style={[styles.mainButton, { bottom: GRID_SIZE, paddingHorizontal: GRID_SIZE }]}>
+                    <Button
+                        onPress={peerStatus ? this.handleDisconnect : () => this.handleConnect()}
+                        title={peerStatus ? strings('settings.walletConnect.disconnect') : strings('settings.walletConnect.connect')}
+                    />
+                </View>
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={[styles.scrollViewContent, { paddingBottom: GRID_SIZE * 4.5 }]}
@@ -525,7 +523,8 @@ const styles = {
     },
     mainButton: {
         position: 'absolute',
-        zIndex: 2
+        zIndex: 2,
+        width: '100%'
     },
     walletConnectLogo: {
         alignSelf: 'center',
