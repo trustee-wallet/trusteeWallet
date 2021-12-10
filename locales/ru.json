@@ -70,6 +70,8 @@
       "listSubtitle": "Счета: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Отключено",
+      "unconnectedText": "Отсканируйте QR-код, чтобы подключиться к DeFi сервису",
       "inputPlaceholder": "Прямая ссылка",
       "stop": "Отключение WalletConnect",
       "stopText": "Вы действительно хотите прервать подключение с ",
