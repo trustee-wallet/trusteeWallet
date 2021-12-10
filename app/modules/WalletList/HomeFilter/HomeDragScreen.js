@@ -32,6 +32,8 @@ import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 
 import GradientView from '@app/components/elements/GradientView'
 
+import Toast from '@app/services/UI/Toast/Toast'
+
 class HomeDragScreen extends PureComponent {
 
     state = {
@@ -85,6 +87,10 @@ class HomeDragScreen extends PureComponent {
     }
 
     onDragEnd = ({ data }) => {
+        if (this.state.sortValue !== 'custom') {
+            Toast.setMessage(strings('homeScreen.setSortValueCustom')).show()
+        }
+
         this.setState({ data, isCurrentlyDraggable: false, sortValue: 'custom' })
         const currenciesOrder = data.map(c => c.currencyCode)
         trusteeAsyncStorage.setCurrenciesList(currenciesOrder)

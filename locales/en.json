@@ -20,7 +20,8 @@
     "categories": {
       "coin": "Coins",
       "token": "Tokens"
-    }
+    },
+    "setSortValueCustom": "Sort is set to «Custom» mode"
   },
   "walletCreateScreen": {
     "title": "BUY SELL EXCHANGE ANONYMOUSLY",

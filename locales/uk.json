@@ -20,7 +20,8 @@
     "categories": {
       "coin": "Монети",
       "token": "Токени"
-    }
+    },
+    "setSortValueCustom": "Сортування встановлено в режимі «Користувацький»"
    },
    "walletCreateScreen": {
      "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
