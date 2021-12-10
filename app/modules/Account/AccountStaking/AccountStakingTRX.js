@@ -481,12 +481,12 @@ class AccountStakingTRX extends React.PureComponent {
                             </View>
                         }
                     </View>
+                    <Button
+                        title={strings('settings.walletList.freezeTrx')}
+                        containerStyle={{ marginVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
+                        onPress={() => handleFreezeTrx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
+                    />
                 </ScrollView>
-                <Button
-                    title={strings('settings.walletList.freezeTrx')}
-                    containerStyle={{ marginBottom: GRID_SIZE, marginHorizontal: GRID_SIZE }}
-                    onPress={() => handleFreezeTrx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
-                />
             </ScreenWrapper>
         )
     }

@@ -16,6 +16,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { strings } from '@app/services/i18n'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import Log from '@app/services/Log/Log'
 
 
 class HomeSortScreen extends PureComponent {
@@ -67,6 +68,9 @@ class HomeSortScreen extends PureComponent {
         this.setState({
             sortValue: value
         })
+
+        Log.log('HomeSortScreen.handlerSortItem selected ', value)
+
         NavStore.goBack()
     }
 

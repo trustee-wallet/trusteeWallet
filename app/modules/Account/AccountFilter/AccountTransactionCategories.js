@@ -116,9 +116,12 @@ class TransactionCategories extends React.PureComponent {
 
     handleSelectCategory = (title) => {
         const { categoriesData } = this.state
+
+        const data = categoriesData.map(el => el.title === title ? ({ ...el, notActive: !el.notActive }) : el)
+
         this.setState({
-            categoriesData: categoriesData.map(el => el.title === title ? ({ ...el, notActive: !el.notActive }) : el),
-            isAllActive: false
+            categoriesData: data,
+            isAllActive: data.every(el => el.notActive !== true)
         })
     }
 
@@ -196,6 +199,7 @@ class TransactionCategories extends React.PureComponent {
                     data={this.state.categoriesData}
                     renderItem={this.renderItem}
                     ListHeaderComponent={this.renderHeaderComponent}
+                    keyExtractor={({ index }) => index}
                 />
                 <Button
                     title={strings('send.setting.apply')}

@@ -104,6 +104,7 @@ const CryptoCurrencyContent = (props) => {
                                 <PercentView
                                     value={stakingCoins[currencyCode]}
                                     staking
+                                    containerStyle={{ marginTop: -2 }}
                                 />
                                 : null}
                         </View>
@@ -196,7 +197,7 @@ const styles = StyleSheet.create({
     cryptoList__currency__balance: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'flex-end'
     },
     cryptoList__title: {
         fontFamily: 'Montserrat-SemiBold',

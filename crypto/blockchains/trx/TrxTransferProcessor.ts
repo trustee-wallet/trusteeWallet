@@ -120,11 +120,11 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         }
                     }
                     if (tronData.energyRemaining <= 0 ) {
-                        feeForTx = feeForTx * 1 + 4148340
+                        feeForTx = feeForTx * 1 + 8296680
                     } else {
-                        const diffE = 29631 - tronData.energyRemaining
+                        const diffE = 59262 - tronData.energyRemaining
                         if (diffE > 0) {
-                            feeForTx = feeForTx * 1 + BlocksoftUtils.mul(4148340, BlocksoftUtils.div(diffE / 29631)) * 1
+                            feeForTx = feeForTx * 1 + BlocksoftUtils.mul( 8296680, BlocksoftUtils.div(diffE / 59262)) * 1
                         }
                     }
                     await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx)
