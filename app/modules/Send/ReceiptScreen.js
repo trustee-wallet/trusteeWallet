@@ -288,7 +288,7 @@ class ReceiptScreen extends PureComponent {
                 Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e.message)
             }
         } else if (uiType === 'TRADE_SEND') {
-            await SendActionsEnd.endClose(this.props.sendScreenStore)
+            SendActionsEnd.endClose(this.props.sendScreenStore)
         }
 
         NavStore.goBack()
