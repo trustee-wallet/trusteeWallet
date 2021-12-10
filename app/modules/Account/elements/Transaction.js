@@ -230,7 +230,14 @@ class Transaction extends React.Component {
         const { styles } = this.state
         const { colors } = this.context
 
-        const { cryptoCurrency, transaction } = this.props
+        const { 
+            cryptoCurrency, 
+            transaction, 
+            isBalanceVisible, 
+            isBalanceVisibleTriggered, 
+            originalVisibility 
+        } = this.props
+
         const { createdAt } = transaction
         const { currencyColor, currencyCode } = cryptoCurrency
 
@@ -268,6 +275,8 @@ class Transaction extends React.Component {
         const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
         // end preformat
 
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+
         return (
             <View style={styles.transaction}>
                 {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus, transactionFilterType, wayType)}
@@ -300,19 +309,27 @@ class Transaction extends React.Component {
                                 >
                                     <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'out_of_energy' ? 0.5 : null }}>
                                         <View style={{ justifyContent: 'center', flex: 3 }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                                <Text style={{ ...styles.transaction__item__title, color: colors.common.text1 }} numberOfLines={1}>
-                                                    {valueToView}
-                                                </Text>
-                                                <Text style={[styles.transaction__item__title__subtitle, { color: currencyColor }]}>
-                                                    {currencySymbolToView}
-                                                </Text>
-                                            </View>
-                                            {basicValueToView ? (
-                                                <Text style={{ ...styles.transaction__item__subtitle, color: '#999999' }}>
-                                                    {basicValueToView}
-                                                </Text>
-                                            ) : null}
+                                            {finalIsBalanceVisible ?
+                                            <>
+                                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                                    <Text style={{ ...styles.transaction__item__title, color: colors.common.text1 }} numberOfLines={1}>
+                                                        {valueToView}
+                                                    </Text>
+                                                    <Text style={[styles.transaction__item__title__subtitle, { color: currencyColor }]}>
+                                                        {currencySymbolToView}
+                                                    </Text>
+                                                </View>
+                                                {basicValueToView ? (
+                                                    <Text style={{ ...styles.transaction__item__subtitle, color: '#999999' }}>
+                                                        {basicValueToView}
+                                                    </Text>
+                                                ) : null}
+                                                </> 
+                                                : 
+                                                <View style={{ justifyContent: 'center', marginTop: 12 }}>
+                                                    <Text style={{ ...styles.transaction__item__title, color: colors.common.text1, fontSize: 26  }} numberOfLines={1}>****</Text>
+                                                </View>
+                                                }
                                         </View>
                                         <View style={{ flexDirection: 'column', alignItems: 'flex-end', flex: 1 }}>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>

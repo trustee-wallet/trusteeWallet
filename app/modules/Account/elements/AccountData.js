@@ -12,32 +12,20 @@ import AccountButtons from './AccountButtons'
 
 class AccountData extends PureComponent {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            isBalanceVisible: false
-        }
-    }
-
-    triggerBalanceVisibility = (value) => {
-        this.setState({
-            isBalanceVisible: value
-        })
-    }
-
     render() {
         const {
             balancePretty,
             currencySymbol,
             actionReceive,
             actionBuy,
-            actionSend
+            actionSend,
+            triggerBalanceVisibility
         } = this.props
 
         const { colors } = this.context
 
         const { isBalanceVisible, isBalanceVisibleTriggered, originalVisibility } = this.props
-        const finalIsBalanceVisible = this.state.isBalanceVisible || (isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility)
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
 
 
         let tmp = BlocksoftPrettyNumbers.makeCut(balancePretty, 7, 'AccountScreen/renderBalance').separated
@@ -60,8 +48,8 @@ class AccountData extends PureComponent {
                 <View style={styles.topContent__top}>
                     <View style={styles.topContent__title}>
                         <TouchableOpacity
-                            onPressIn={() => this.triggerBalanceVisibility(true)}
-                            onPressOut={() => this.triggerBalanceVisibility(false)}
+                            onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
+                            onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
                             activeOpacity={1}
                             disabled={originalVisibility}
                             hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
@@ -73,15 +61,15 @@ class AccountData extends PureComponent {
                                         {balancePrettyPrep2 + ' ' + currencySymbol}
                                     </Text>
                                 </Text> :
-                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, fontSize: 38, lineHeight: 44, height: 'auto' }}>****</Text>
+                                <Text style={[styles.topContent__title_last, styles.hiddenBalance, { color: colors.common.text1 }]}>****</Text>
                             }
                         </TouchableOpacity>
                     </View>
                 </View>
                 <AccountButtons
-                    actionBuy={() => actionBuy()}
-                    actionSend={() => actionSend()}
-                    actionReceive={() => actionReceive()}
+                    actionBuy={actionBuy}
+                    actionSend={actionSend}
+                    actionReceive={actionReceive}
                 />
             </>
         )
@@ -121,4 +109,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         textAlign: 'center'
     },
+    hiddenBalance: {
+        height: 'auto',
+        fontSize: 34,
+        lineHeight: 38
+    }
 })
