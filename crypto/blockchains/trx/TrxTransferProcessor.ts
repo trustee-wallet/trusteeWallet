@@ -440,13 +440,6 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         amount: BlocksoftUtils.round(data.amount) * 1
                     }
 
-                    console.log(`data.amount`, JSON.stringify(data))
-
-                    console.log(`
-                    
-                    
-                    params`, JSON.stringify(params))
-
                     if (this._tokenName === '_') {
                         link = sendLink + '/wallet/createtransaction'
                     } else {
