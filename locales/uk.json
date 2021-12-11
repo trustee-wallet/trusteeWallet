@@ -20,7 +20,8 @@
     "categories": {
       "coin": "Монети",
       "token": "Токени"
-    }
+    },
+    "setSortValueCustom": "Сортування встановлено в режимі «Користувацький»"
    },
    "walletCreateScreen": {
      "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
@@ -65,6 +66,8 @@
       "listSubtitle": "Гаманці: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Відключено",
+      "unconnectedText": "Відскануйте QR-код, щоб підключитися до DeFi сервісу",
       "inputPlaceholder": "Пряме посилання",
       "stop": "Відключення WalletConnect",
       "stopText": "Ви дійсно хочете перервати підключення з ",

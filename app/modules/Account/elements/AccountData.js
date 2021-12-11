@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     },
     hiddenBalance: {
         height: 'auto',
-        fontSize: 34,
-        lineHeight: 38
+        fontSize: Platform.OS === 'ios' ? 34 : 30,
+        lineHeight: Platform.OS === 'ios' ? 38 : 32.4
     }
 })

@@ -450,7 +450,7 @@ const styles = {
         paddingBottom: 20,
     },
     stub: {
-        marginBottom: Platform.OS === 'android' ? 50 : 84,
+        marginBottom: Platform.OS === 'android' ? 44 : 84,
     },
     bottomButtons: {
         position: 'absolute',
