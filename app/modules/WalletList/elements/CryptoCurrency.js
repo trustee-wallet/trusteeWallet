@@ -27,6 +27,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { SIZE, handleCurrencySelect } from '../helpers';
 
 import CryptoCurrencyContent from './CryptoCurrencyContent'
+import config from '@app/config/config'
 
 
 class CryptoCurrency extends React.PureComponent {
@@ -66,6 +67,10 @@ class CryptoCurrency extends React.PureComponent {
         const currencyCode = cryptoCurrency.currencyCode || 'BTC'
         let account = props.account
         if (typeof account === 'undefined') {
+            if (config.debug.appErrors) {
+                console.log('CryptoCurrency renderVisibleLayer no account ' + currencyCode, cryptoCurrency)
+            }
+            Log.log('CryptoCurrency renderVisibleLayer no account ' + currencyCode, cryptoCurrency)
             account = { basicCurrencyRate: '', basicCurrencyBalance: '', basicCurrencySymbol: '', balancePretty: '', balanceStakedPretty: '', basicCurrencyBalanceNorm: '' }
         }
 

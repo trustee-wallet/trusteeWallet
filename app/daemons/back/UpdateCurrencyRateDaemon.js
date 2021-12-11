@@ -8,6 +8,7 @@ import ApiRates from '@app/services/Api/ApiRates'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import currencyDS from '@app/appstores/DataSource/Currency/Currency'
 import store from '@app/store'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 const CACHE_SAVED = {}
 
@@ -103,6 +104,7 @@ class UpdateCurrencyRateDaemon {
         try {
             if (updatedCurrencies.length) {
                 await currencyActions.updateCryptoCurrencies(updatedCurrencies)
+                await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source: 'UpdateCurrencyRateDaemon'})
             }
         } catch (e) {
             e.message += 'in setCryptoCurrencies'
