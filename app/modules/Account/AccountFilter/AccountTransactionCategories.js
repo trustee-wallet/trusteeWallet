@@ -42,7 +42,7 @@ class TransactionCategories extends React.PureComponent {
                 value: 'filterStatusHideCancel'
             },
             {
-                notActive: typeof this.props.filterData.filterTypeHideFee !== 'undefined' && this.props.filterData.filterTypeHideFee === false ? this.props.filterData.filterTypeHideFee : true,
+                notActive: this.props.filterData?.filterTypeHideFee || false,
                 title: strings('account.transaction.fee'),
                 iconType: 'feeTxScreen',
                 value: 'filterTypeHideFee'
@@ -89,15 +89,17 @@ class TransactionCategories extends React.PureComponent {
     handleApply = () => {
 
         const filter = {
-            ...this.props.filter,
+            ...this.props.filterData,
+            activeCategories: true,
             active: true
         }
 
-        this.state.categoriesData.filter(item => item.notActive).map(item => filter[item.value] = item.notActive)
-
-        if (typeof filter.filterTypeHideFee === 'undefined') {
-            filter.filterTypeHideFee = false // !!! dont remove it its for default settings!
+        if (this.state.isAllActive) {
+            filter.active = !!(filter.startTime || filter.endTime || filter.startAmount || filter.endAmount)
+            filter.activeCategories = false
         }
+
+        this.state.categoriesData.map(item => filter[item.value] = item.notActive)
         setFilter(filter, 'AccountTransactionCategories.handleApply')
         trusteeAsyncStorage.setAccountFilterData(filter)
 
