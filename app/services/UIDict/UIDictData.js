@@ -26,6 +26,12 @@ export default {
             darkColor: '#CA4D6F'
         }
     },
+    'TRX_BTT_NEW': {
+        colors: {
+            mainColor: '#D73A64',
+            darkColor: '#CA4D6F'
+        }
+    },
     'XVG': {
         colors: {
             mainColor: '#00CBFF',

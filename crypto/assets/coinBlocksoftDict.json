@@ -564,9 +564,24 @@
 		"currencyExplorerLink": "https://blockchair.com/bitcoin-sv/address/",
 		"currencyExplorerTxLink": "https://blockchair.com/bitcoin-sv/transaction/"
 	},
+	"TRX_BTT_NEW": {
+		"currencyType": "token",
+		"currencyName": "BitTorrent New",
+		"currencyCode": "TRX_BTT_NEW",
+		"currencySymbol": "BTT",
+		"extendsProcessor": "TRX_USDT",
+		"addressUiChecker": "TRX",
+		"ratesCurrencyCode": "BTT_NEW",
+		"network": "trx",
+		"decimals": 18,
+		"tokenBlockchain": "TRON",
+		"tokenName": "TAFjULxiVgT4qWk6UZwjqwZXTSaGaqnVp4",
+		"currencyExplorerLink": "https://tronscan.org/#/address/",
+		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
+	},
 	"TRX_BTT": {
 		"currencyType": "token",
-		"currencyName": "BitTorrent",
+		"currencyName": "BitTorrent Old",
 		"currencyCode": "TRX_BTT",
 		"currencySymbol": "BTT",
 		"extendsProcessor": "TRX_USDT",
