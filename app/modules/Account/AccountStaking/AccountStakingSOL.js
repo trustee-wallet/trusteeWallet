@@ -383,7 +383,7 @@ class AccountStakingSOL extends React.PureComponent {
         } = this.context
 
         return (
-            <AccountGradientBlock>
+            <AccountGradientBlock cleanCache >
                 <View style={{ paddingBottom: GRID_SIZE }}>
                     <View style={styles.progressBarLocation}>
                         <Text style={styles.availableText}>{strings('settings.walletList.availableSOL')}</Text>
