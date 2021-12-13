@@ -21,7 +21,7 @@
       "coin": "Coins",
       "token": "Tokens"
     },
-    "setSortValueCustom": "Sort is set to «Custom» mode"
+    "setSortValueCustom": "The sorting mode is set to «Custom»"
   },
   "walletCreateScreen": {
     "title": "იყიდე, გაყიდე, გადაცვალე ანონიმურად",
@@ -504,7 +504,7 @@
       "amountRange": "Amount range",
       "allAmount": "All amount",
       "downloadTransactionsHistory": "Download all time transactions history",
-      "saveInCsv": "Save all time transactions in CSV",
+      "saveInCsv": "Save all transactions to CSV",
       "filterTitle": "Filter",
       "startDate": "Start date",
       "endDate": "End date",
