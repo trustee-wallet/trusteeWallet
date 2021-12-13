@@ -216,8 +216,8 @@ class NotificationsScreen extends React.PureComponent {
             <ScreenWrapper
                 leftType='back'
                 leftAction={this.handleBack}
-                rightType='settings'
-                rightAction={this.handelSettings}
+                // rightType='settings'
+                // rightAction={this.handelSettings}
                 title={strings('notifications.title')}
                 ExtraView={this.renderTabs}
             >
