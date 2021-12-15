@@ -202,7 +202,7 @@ class AccountStakingTRX extends React.PureComponent {
         }
 
         return (
-            <AccountGradientBlock>
+            <AccountGradientBlock cleanCache>
                 {!loading ?
                     <>
                         <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>

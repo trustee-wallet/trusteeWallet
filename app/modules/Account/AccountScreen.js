@@ -214,10 +214,6 @@ class Account extends React.PureComponent {
             limitPerPage: perPage
         }
 
-        if (typeof filter !== 'undefined' && filter && typeof filter.active === 'undefined' || !filter.active) {
-            params.filterTypeHideFee = true
-        }
-
         if (typeof filter !== 'undefined' && Object.keys(filter)) {
             params = {
                 ...params,

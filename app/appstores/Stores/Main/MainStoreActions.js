@@ -310,13 +310,10 @@ export async function setSelectedAccountTransactions(source) {
             filterDirectionHideIncome: filter?.filterDirectionHideIncome || null,
             filterDirectionHideOutcome: filter?.filterDirectionHideOutcome || null,
             filterStatusHideCancel: filter?.filterStatusHideCancel || null,
-            filterTypeHideFee: filter.filterTypeHideFee,
+            filterTypeHideFee: filter?.filterTypeHideFee || null,
             filterTypeHideSwap: filter?.filterTypeHideSwap || null,
             filterTypeHideStake: filter?.filterTypeHideStake || null,
             filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
-        }
-        if (typeof filter.filterTypeHideFee === 'undefined') {
-            params.filterTypeHideFee = true
         }
 
         const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')

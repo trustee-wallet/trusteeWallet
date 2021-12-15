@@ -8,6 +8,7 @@ import { View } from 'react-native'
 import GradientView from '@app/components/elements/GradientView'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import Log from '@app/services/Log/Log'
 
 let CACHE_HEIGHT = 0
 
@@ -17,10 +18,21 @@ class AccountGradientBlock extends React.PureComponent {
         viewHeight: 0
     }
 
+    componentDidMount() {
+        Log.test('AccountGradientBlock mount ' + CACHE_HEIGHT)
+
+        if (this.props.cleanCache) {
+            CACHE_HEIGHT = 0
+        }
+    }
+
     processViewHeight = (e) => {
-        CACHE_HEIGHT = e.nativeEvent.layout.height > 0 ? e.nativeEvent.layout.height : CACHE_HEIGHT
+        const height = e.nativeEvent.layout.height
+        Log.test('AccountGradientBlock.processViewHeight height ' + height)
+
+        CACHE_HEIGHT = height > 0 ? height : CACHE_HEIGHT
         this.setState({
-            viewHeight: e.nativeEvent.layout.height
+            viewHeight: height
         })
     }
 
