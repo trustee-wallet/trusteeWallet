@@ -159,7 +159,7 @@ export default class TrxScannerProcessor {
             WHERE 
             (t.currency_code='${this._settings.currencyCode}' OR t.currency_code LIKE 'TRX%')
             AND t.transaction_of_trustee_wallet=1
-            AND (t.block_number IS NULL OR t.block_number<20 OR t.special_action_needed='vote')
+            AND (t.block_number IS NULL OR t.block_number<20 OR t.special_action_needed='vote' OR t.special_action_needed='vote_after_unfreeze')
             
             ORDER BY created_at DESC
             LIMIT 10
@@ -203,9 +203,15 @@ export default class TrxScannerProcessor {
                          row.confirmations = lastBlock - recheck.data.blockNumber
                         if (typeof unique[row.addressFromBasic] === 'undefined') {
                             unique[row.addressFromBasic] = row
-                        } else if (unique[row.addressFromBasic].confirmations > row.confirmations) {
-                            unique[row.addressFromBasic].confirmations = row.confirmations
+                        } else {
+                            if (unique[row.addressFromBasic].confirmations > row.confirmations) {
+                                unique[row.addressFromBasic].confirmations = row.confirmations
+                            }
+                            if (unique[row.addressFromBasic].specialActionNeeded === 'vote_after_unfreeze') {
+                                unique[row.addressFromBasic].specialActionNeeded = row.specialActionNeeded
+                            }
                         }
+
                     }
                 }
             } catch (e1) {
@@ -217,16 +223,17 @@ export default class TrxScannerProcessor {
 
         if (unique) {
             for (const address in unique) {
-                const {walletHash, derivationPath, confirmations } = unique[address]
+                const {walletHash, derivationPath, confirmations, specialActionNeeded } = unique[address]
                 if (confirmations < 20) {
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all skipped by ' + confirmations + ' for ' + address)
                     continue
                 }
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all inited for ' + address)
+
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all inited for ' + address + ' action ' + specialActionNeeded)
                 try {
-                    if (await TronStakeUtils.sendVoteAll(address, derivationPath, walletHash)) {
+                    if (await TronStakeUtils.sendVoteAll(address, derivationPath, walletHash, specialActionNeeded)) {
                         await Database.query(`
-                    UPDATE transactions SET special_action_needed='' WHERE special_action_needed='vote'
+                    UPDATE transactions SET special_action_needed='vote' WHERE special_action_needed='vote' OR special_action_needed='vote_after_unfreeze'
                     AND address_from_basic='${address}'
                     `)
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all finished for ' + address)
