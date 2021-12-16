@@ -34,13 +34,15 @@ class UpdateCurrencyRateDaemon {
         const indexed = {}
         try {
             for (const row of res.cryptoCurrencies) {
-                if (typeof row.tokenAddress !== 'undefined') {
-                    indexed[row.tokenAddress] = row
+                if (typeof row.tokenAddress !== 'undefined' && row.tokenAddress) {
+                    indexed['token_' + row.tokenAddress.toUpperCase()] = row
                 }
-                indexed[row.currencyCode] = row
+                if (typeof row.currencyCode !== 'undefined') {
+                    indexed[row.currencyCode] = row
+                }
             }
         } catch (e) {
-            e.message += ' in tmps '
+            e.message += ' in indexing cryptoCurrencies '
             throw e
         }
 
@@ -49,26 +51,27 @@ class UpdateCurrencyRateDaemon {
         try {
             for (const dbCurrency of currencies) {
                 let currency = false
-                if (dbCurrency.currencyCode.indexOf('CUSTOM_') === 0) {
-                    if (typeof dbCurrency.tokenName !== 'undefined' && typeof indexed[dbCurrency.tokenName] !== 'undefined') {
-                        currency = indexed[dbCurrency.tokenName]
+
+                if (typeof dbCurrency.tokenAddress !== 'undefined' && dbCurrency.tokenAddress) {
+                    if (typeof indexed['token_' + dbCurrency.tokenAddress.toUpperCase()] !== 'undefined') {
+                        currency = indexed['token_' + dbCurrency.tokenAddress.toUpperCase()]
                     }
-                    if (typeof dbCurrency.tokenAddress !== 'undefined' && typeof indexed[dbCurrency.tokenAddress] !== 'undefined') {
-                        currency = indexed[dbCurrency.tokenAddress]
-                    }
-                } else {
-                    if (typeof dbCurrency.ratesCurrencyCode !== 'undefined' && dbCurrency.ratesCurrencyCode) {
-                        if (typeof indexed[dbCurrency.ratesCurrencyCode] !== 'undefined') {
-                            currency = indexed[dbCurrency.ratesCurrencyCode]
+                }
+
+                if (!currency) {
+                    if (dbCurrency.currencyCode.indexOf('CUSTOM_') === 0) {
+                        if (typeof dbCurrency.tokenName !== 'undefined' && typeof indexed[dbCurrency.tokenName] !== 'undefined') {
+                            currency = indexed[dbCurrency.tokenName]
                         }
                     } else {
-                        if (typeof indexed[dbCurrency.currencyCode] !== 'undefined') {
-                            currency = indexed[dbCurrency.currencyCode]
-                        }
-                    }
-                    if (!currency && typeof dbCurrency.tokenAddress !== 'undefined') {
-                        if (typeof indexed[dbCurrency.tokenAddress] !== 'undefined') {
-                            currency = indexed[dbCurrency.tokenAddress]
+                        if (typeof dbCurrency.ratesCurrencyCode !== 'undefined' && dbCurrency.ratesCurrencyCode) {
+                            if (typeof indexed[dbCurrency.ratesCurrencyCode] !== 'undefined') {
+                                currency = indexed[dbCurrency.ratesCurrencyCode]
+                            }
+                        } else {
+                            if (typeof indexed[dbCurrency.currencyCode] !== 'undefined') {
+                                currency = indexed[dbCurrency.currencyCode]
+                            }
                         }
                     }
                 }
@@ -76,7 +79,6 @@ class UpdateCurrencyRateDaemon {
                 if (!currency) {
                     continue
                 }
-
                 if (typeof CACHE_SAVED[dbCurrency.currencyCode] !== 'undefined' && CACHE_SAVED[dbCurrency.currencyCode] === currency.currencyRateScanTime) {
                     continue
                 }
