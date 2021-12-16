@@ -20,7 +20,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import Tabs from '@app/components/elements/new/TabsWithUnderline'
 import { TabView } from 'react-native-tab-view'
-import Account from '@app/appstores/DataSource/Account/Account'
+import Account from '@app/appstores/DataSource/Account/AccountScanning'
 
 import { getSelectedAccountData, getSelectedWalletData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
@@ -53,18 +53,18 @@ class AllAddressesScreen extends PureComponent {
             }
         ],
         index: 0,
-        addresses: [],
-        loading: false
+        segwitAddresses: [],
+        legacyAddresses: [],
+        loading: true
     }
 
-    componentDidMount() {
-        this.setState({loading: true})
-        this.loadAddresses()
+    async componentDidMount() {
+        await this.loadAddresses()
         this.setState({loading: false})
     }
 
     handleClose = () => {
-        NavStore.reset()
+        NavStore.reset('TabBar')
     }
 
     handleBack = () => {
@@ -79,10 +79,18 @@ class AllAddressesScreen extends PureComponent {
         await changeAddress.call(this)
     }
 
-    componentDidUpdate( prevState ) {
+    componentDidUpdate( prevProps, prevState ) {
+        // console.log(`prevState`, prevState)
+        // console.log(`this.state.addresses`, this.state.addresses)
         if (!_isEqual(prevState.addresses, this.state.addresses)) {
             this.loadAddresses()
         }
+    }
+
+    filterAddresses = (value, param) => {
+        return value.filter(as => (
+            as.address[0] === param
+        ))    
     }
 
     loadAddresses = async () => {
@@ -90,24 +98,26 @@ class AllAddressesScreen extends PureComponent {
         const { currencyCode, walletHash } = this.props.selectedAccountData
         // const { walletIsHd } = this.props.selectedWalletData
 
-        // console.log(`walletHash`, walletHash)
-        // console.log(`currencyCode`, currencyCode)
-        // console.log(`walletIsHd`, walletIsHd)
-        // console.log(`derivationPath`, derivationPath)
-        // console.log(`walletPubs`, walletPubs)
+        // // console.log(`walletHash`, walletHash)
+        // // console.log(`currencyCode`, currencyCode)
+        // // console.log(`walletIsHd`, walletIsHd)
+        // // console.log(`derivationPath`, derivationPath)
+        // // console.log(`walletPubs`, walletPubs)
 
         const params = {
             // notAlreadyShown: walletIsHd,
             walletHash: walletHash,
             currencyCode: currencyCode,
-            splitSegwit: true
+            withBalances: true
         }
 
-        const tmp = await Account.getAccountData(params)
+        const tmp = await Account.getAddresses(params)
+
+        const value = Object.values(tmp)
         
         this.setState({
-            addresses: tmp
-            
+            segwitAddresses: this.filterAddresses(value, 'b'),
+            legacyAddresses: this.filterAddresses(value, '1')
         })
     }
 
@@ -200,7 +210,6 @@ class AllAddressesScreen extends PureComponent {
     }
 
     handleTabChange = index => {
-        console.log(`object`, getAddress.call(this))
         this.setState({
             index
         })
@@ -223,7 +232,7 @@ class AllAddressesScreen extends PureComponent {
 
         return(
             <View style={{ marginTop: GRID_SIZE / 2 }}>
-                {this.state.addresses.segwit?.slice(0).reverse().map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} addressName={e.name} />)}
+                {this.state.segwitAddresses?.reverse().map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balanceTxt} currencyCode={'BTC'} />)}
             </View>
         )
     }
@@ -234,7 +243,7 @@ class AllAddressesScreen extends PureComponent {
 
         return(
             <View style={{ marginTop: GRID_SIZE / 2 }}>
-                {this.state.addresses.legacy?.slice(0).reverse().map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} addressName={e.name} />)}
+                {this.state.legacyAddresses?.reverse().map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} currencyCode={'BTC'} />)}
             </View>
         )
     }

@@ -19,7 +19,7 @@ import GradientView from '@app/components/elements/GradientView'
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
-// import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 
 class HdAddressListItem extends React.PureComponent {
@@ -34,15 +34,17 @@ class HdAddressListItem extends React.PureComponent {
         const {
             onPress,
             address,
-            addressName
-            // balance
+            // addressName,
+            currencyCode,
+            balance
         } = this.props
 
-        // const {
-        //     currencyCode,
-        //     basicCurrencySymbol,
-        //     basicCurrencyBalance,
-        // } = this.props.selectedAccountData
+        const {
+            basicCurrencySymbol,
+            basicCurrencyBalance,
+        } = this.props.selectedAccountData
+
+        const balanceCondition = typeof balance === 'undefined' || balance === null ? '0' : BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(balance)
 
         return(
             <View style={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2, height: 66 }}>
@@ -62,24 +64,24 @@ class HdAddressListItem extends React.PureComponent {
                     >
                         <View style={styles.container}>
                             <View style={styles.cryptoList__info}>
-                                {addressName && <Text style={[styles.addressName]}>
+                                {/* {!addressName && <Text style={[styles.addressName]}>
                                     {addressName}
-                                </Text>} 
+                                </Text>}  */}
                                 <Text style={[styles.address, { color: colors.common.text3 }]}>
                                     {BlocksoftPrettyStrings.makeCut(address)}
                                 </Text>
                             </View>
                         
-{/*                             
-                            annotated balance
+                            
+ 
                             <View style={styles.cryptoList__info}>
                                 <Text style={[styles.mainAmount, { color: colors.common.text3 }]}>
-                                    {`${BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(balance)} ${currencyCode}`}
-                                </Text> 
+                                    {`${balanceCondition} ${currencyCode}`}
+                                </Text>  
                                 <Text style={styles.secondaryAmount}>
-                                    {basicCurrencySymbol + ' ' + basicCurrencyBalance}
+                                    {`${basicCurrencySymbol} ${basicCurrencyBalance}`}
                                 </Text>
-                            </View> */}
+                            </View>
                         </View>
                     </GradientView>
                 </TouchableOpacity>

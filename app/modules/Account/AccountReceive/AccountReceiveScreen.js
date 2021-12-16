@@ -106,7 +106,6 @@ class AccountReceiveScreen extends React.PureComponent {
         this._onLoad()
     }
 
-
     handleGetAddress = () => {
         getAddress.call(this)
     }
@@ -575,13 +574,13 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     handleShowAll = () => {
-        // NavStore.goNext('AllAddressesScreen')
+        NavStore.goNext('AllAddressesScreen')
 
-        showModal({
-            type: 'INFO_MODAL',
-            title: strings('modal.settings.soon'),
-            icon: 'WARNING'
-        })
+        // showModal({
+        //     type: 'INFO_MODAL',
+        //     title: strings('modal.settings.soon'),
+        //     icon: 'WARNING'
+        // })
     }
 
     handleCustomAmount = () => {
