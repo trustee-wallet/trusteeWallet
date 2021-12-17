@@ -43,24 +43,24 @@ const TronStakeUtils = {
 
         const { prettyVote, diffLastStakeMinutes, voteTotal } = await TronStakeUtils.getPrettyBalance(address)
         if (diffLastStakeMinutes === -1 && specialActionNeeded === 'vote_after_unfreeze') {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TronStake.sendVoteAll ' + address + ' continue ' + diffLastStakeMinutes)
+            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' continue ' + diffLastStakeMinutes)
         } else if (!diffLastStakeMinutes || diffLastStakeMinutes < 3) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TronStake.sendVoteAll ' + address + ' skipped vote1 by ' + diffLastStakeMinutes)
+            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote1 by ' + diffLastStakeMinutes)
             return false
         }
         if (!prettyVote || typeof prettyVote === 'undefined') {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TronStake.sendVoteAll ' + address + ' skipped vote2')
+            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote2')
             return false
         } else if (voteTotal * 1 === prettyVote * 1) {
             if (diffLastStakeMinutes > 100) {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TronStake.sendVoteAll ' + address + ' skipped vote3 ' + voteTotal + ' by ' + diffLastStakeMinutes)
+                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote3 ' + voteTotal + ' by ' + diffLastStakeMinutes)
                 return true // all done
             }
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TronStake.sendVoteAll ' + address + ' skipped vote4 ' + voteTotal)
+            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote4 ' + voteTotal)
             return false
         }
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TronStake.sendVoteAll ' + address + ' started vote ' + prettyVote + ' by ' + diffLastStakeMinutes)
+        BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' started vote ' + prettyVote + ' by ' + diffLastStakeMinutes)
 
         const voteAddress = await TronStakeUtils.getVoteAddresses()
         return TronStakeUtils._send('/wallet/votewitnessaccount', {
