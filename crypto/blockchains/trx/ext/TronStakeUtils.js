@@ -25,10 +25,7 @@ const TronStakeUtils = {
         balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
         balance.prettyFrozenEnergyOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergyOthers)
         balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenOthers * 1 + balance.prettyFrozenEnergy * 1 + balance.prettyFrozenEnergyOthers * 1).toString().split('.')[0]
-
-
-
-        console.log(`expire time ${balance.frozenEnergyExpireTime} ${balance.frozenExpireTime}`)
+        
         const maxExpire = balance.frozenEnergyExpireTime && balance.frozenEnergyExpireTime > balance.frozenExpireTime ?
             balance.frozenEnergyExpireTime : balance.frozenExpireTime
         if (maxExpire > 0) {
