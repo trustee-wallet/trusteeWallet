@@ -275,6 +275,7 @@ export default class CurrencyIcon extends PureComponent {
                 )
 
             case 'TRX_BTT':
+            case 'TRX_BTT_NEW':
             case 'TRX_WBTT':
             case 'BNB_SMART_BTT':
             case 'ETH_BTT':
@@ -745,7 +746,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'VLX':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>

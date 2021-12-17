@@ -52,8 +52,17 @@ class TransactionFilter extends React.PureComponent {
         endAmount: null,
         filterOriginData: this.props.filterData,
         activeSections: [],
-        sections: [
-            {
+        sections: []
+    }
+
+    startAmountInput = React.createRef()
+    endAmountInput = React.createRef()
+
+    componentDidMount() {
+        this.setState({
+            startAmount: this.props?.filterData?.startAmount && this.props?.filterData?.startAmount ? this.getPrettyAmount(this.props?.filterData?.startAmount || '') : '',
+            endAmount: this.props?.filterData?.endAmount && this.props?.filterData?.endAmount ? this.getPrettyAmount(this.props?.filterData?.endAmount || '') : '',
+            sections: [{
                 title: strings('account.transaction.timeArray'),
                 subtitle: this.state?.startTime && this.state?.endTime ? getCurrentDate(this.state?.startTime) + ' - ' + getCurrentDate(this.state?.endTime) : '',
                 iconType: 'timeArray',
@@ -64,19 +73,7 @@ class TransactionFilter extends React.PureComponent {
                 subtitle: strings('account.transaction.allAmount'),
                 iconType: 'amountRange',
                 last: true
-            }
-        ]
-    }
-
-
-
-    startAmountInput = React.createRef()
-    endAmountInput = React.createRef()
-
-    componentDidMount() {
-        this.setState({
-            startAmount: this.props?.filterData?.startAmount && this.props?.filterData?.startAmount ? this.getPrettyAmount(this.props?.filterData?.startAmount || '') : '',
-            endAmount: this.props?.filterData?.endAmount && this.props?.filterData?.endAmount ? this.getPrettyAmount(this.props?.filterData?.endAmount || '') : '',
+            }]
         })
     }
 
@@ -99,9 +96,31 @@ class TransactionFilter extends React.PureComponent {
         NavStore.goNext('TransactionCategories')
     }
 
-    handleSaveStartDate = startTime => this.setState({ startTime })
+    handleSaveStartDate = startTime => {
+        this.setState({ 
+            startTime,
+            sections: [
+                {
+                    ...this.state.sections[0],
+                    subtitle: startTime && this.state?.endTime ? getCurrentDate(startTime) + ' - ' + getCurrentDate(this.state?.endTime) : '',
+                },
+                this.state.sections[1],
+            ]
+        })
+    }
 
-    handleSaveEndDate = endTime => this.setState({ endTime })
+    handleSaveEndDate = endTime => {
+        this.setState({ 
+            endTime,
+            sections: [
+                {
+                    ...this.state.sections[0],
+                    subtitle: this.state?.startTime && endTime ? getCurrentDate(this.state?.startTime) + ' - ' + getCurrentDate(endTime) : '',
+                },
+                this.state.sections[1],
+            ]
+        })
+    }
 
 
     handleDiscardDate = () => {
@@ -135,7 +154,7 @@ class TransactionFilter extends React.PureComponent {
 
         const filter = {
             ...this.props.filterData,
-            active: true,
+            active: !!(startTime || endTime || startAmount || endAmount || this.props.filterData.activeCategories),
             startTime: startTime ? startTime.toISOString() : null,
             endTime: endTime ? endTime.toISOString() : null,
             startAmount: startAmount ? BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makeUnPretty(startAmount) : null,
@@ -206,6 +225,8 @@ class TransactionFilter extends React.PureComponent {
             GRID_SIZE
         } = this.context
 
+        const active = index === 0 ? this.state.startTime || this.state.endTime : this.state.startAmount || this.state.endAmount
+
         return (
             <>
                 <ListItem
@@ -216,6 +237,7 @@ class TransactionFilter extends React.PureComponent {
                     last={section.last}
                     disabled={true}
                     opacityWithDisabled={true}
+                    customIconStyle={this.getSelectedIconStyles(active)}
                 />
                 {index === 0 && !isActive && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
             </>
@@ -302,6 +324,18 @@ class TransactionFilter extends React.PureComponent {
         NavStore.goBack()
     }
 
+    getSelectedIconStyles = (active) => {
+
+        const {
+            colors
+        } = this.context
+
+        return {
+            color: active ? colors.common.checkbox.bgChecked : colors.common.listItem.basic.iconColorLight,
+            backgroundColor: active ? colors.common.checkbox.bgChecked + '26' : colors.common.listItem.basic.iconBgLight
+        }
+    }
+
     render() {
 
         const {
@@ -329,6 +363,7 @@ class TransactionFilter extends React.PureComponent {
                         rightContent='arrow'
                         onPress={this.handleCategories}
                         last
+                        customIconStyle={this.getSelectedIconStyles(this.props.filterData?.activeCategories)}
                     />
                     <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE, marginTop: GRID_SIZE * 1.5 }]}>{strings('account.transaction.dateAmount')}</Text>
                     <View>

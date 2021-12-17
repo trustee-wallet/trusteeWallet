@@ -20,7 +20,8 @@
     "categories": {
       "coin": "Coins",
       "token": "Tokens"
-    }
+    },
+    "setSortValueCustom": "The sorting mode is set to «Custom»"
   },
   "walletCreateScreen": {
     "title": "იყიდე, გაყიდე, გადაცვალე ანონიმურად",
@@ -69,6 +70,8 @@
       "listSubtitle": "ანგარიშები: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Disabled",
+      "unconnectedText": "Scan the QR code to connect to the DeFi service",
       "inputPlaceholder": "Direct link",
       "stop": "Disable WalletConnect",
       "stopText": "Are you sure you want to stop the connection with ",
@@ -501,7 +504,7 @@
       "amountRange": "Amount range",
       "allAmount": "All amount",
       "downloadTransactionsHistory": "Download all time transactions history",
-      "saveInCsv": "Save all time transactions in CSV",
+      "saveInCsv": "Save all transactions to CSV",
       "filterTitle": "Filter",
       "startDate": "Start date",
       "endDate": "End date",

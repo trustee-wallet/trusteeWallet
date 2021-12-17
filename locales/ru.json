@@ -20,7 +20,8 @@
     "categories": {
       "coin": "Монеты",
       "token": "Токены"
-    }
+    },
+    "setSortValueCustom": "Установлен режим сортировки «Пользовательский»"
   },
   "walletCreateScreen": {
     "title": "ПОКУПАЙ ПРОДАВАЙ ОБМЕНИВАЙ АНОНИМНО",
@@ -69,6 +70,8 @@
       "listSubtitle": "Счета: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Отключено",
+      "unconnectedText": "Отсканируйте QR-код, чтобы подключиться к DeFi сервису",
       "inputPlaceholder": "Прямая ссылка",
       "stop": "Отключение WalletConnect",
       "stopText": "Вы действительно хотите прервать подключение с ",
@@ -504,7 +507,7 @@
       "amountRange": "Диапазон суммы",
       "allAmount": "Вся сумма",
       "downloadTransactionsHistory": "Загрузить историю транзакций за все время",
-      "saveInCsv": "Сохранять все транзакции в CSV",
+      "saveInCsv": "Сохранить все транзакции в CSV",
       "filterTitle": "Фильтр",
       "startDate": "Дата начала",
       "endDate": "Дата окончания",

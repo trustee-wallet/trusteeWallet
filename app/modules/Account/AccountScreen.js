@@ -214,10 +214,6 @@ class Account extends React.PureComponent {
             limitPerPage: perPage
         }
 
-        if (typeof filter !== 'undefined' && filter && typeof filter.active === 'undefined' || !filter.active) {
-            params.filterTypeHideFee = true
-        }
-
         if (typeof filter !== 'undefined' && Object.keys(filter)) {
             params = {
                 ...params,
@@ -325,6 +321,7 @@ class Account extends React.PureComponent {
                             isBalanceVisible={this.state.isBalanceVisible}
                             isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
                             originalVisibility={this.props.isBalanceVisible}
+                            triggerBalanceVisibility={this.triggerBalanceVisibility}
                         />
                     )}
                     hasStickyHeader={this.state.hasStickyHeader}
@@ -406,6 +403,9 @@ class Account extends React.PureComponent {
                                 currencyColor: this.context.isLight ? selectedCryptoCurrencyData.mainColor : selectedCryptoCurrencyData.darkColor
                             }}
                             dashHeight={allTransactionsToView.length === 1 ? 0 : (allTransactionsToView.length - 1 === index) ? 50 : 150}
+                            isBalanceVisible={this.state.isBalanceVisible}
+                            isBalanceVisibleTriggered={this.state.isBalanceVisibleTriggered}
+                            originalVisibility={this.props.isBalanceVisible}
                         />
                     )}
                     onEndReachedThreshold={0.5}
@@ -446,7 +446,7 @@ const styles = {
         paddingBottom: 20,
     },
     stub: {
-        marginBottom: Platform.OS === 'android' ? 50 : 84,
+        marginBottom: Platform.OS === 'android' ? 44 : 84,
     },
     bottomButtons: {
         position: 'absolute',

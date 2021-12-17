@@ -245,6 +245,7 @@ export namespace SendActionsStart {
     export const startFromBSE = async (data : {
         amount : string,
         address : string,
+        addressTo : string, // wtf now address in data - ok, but support old notation
         memo : string,
         comment : string,
         currencyCode : string,
@@ -257,17 +258,18 @@ export namespace SendActionsStart {
         bseOrderData : any,
         payway : any
     }, selectedFee : any) => {
+        const addressTo = typeof data.addressTo !== 'undefined' ? data.addressTo : data.address
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
         const amount = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
-            addressTo : data.address,
+            addressTo,
             amount : amount,
             memo : data.memo
         })
         const ui = {
             uiType : 'TRADE_SEND',
-            addressTo : data.address,
+            addressTo,
             memo : data.memo,
             comment : data.comment || '',
             cryptoValue : amount,

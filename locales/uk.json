@@ -20,7 +20,8 @@
     "categories": {
       "coin": "Монети",
       "token": "Токени"
-    }
+    },
+    "setSortValueCustom": "Сортування встановлено в режимі «Користувацький»"
    },
    "walletCreateScreen": {
      "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
@@ -65,6 +66,8 @@
       "listSubtitle": "Гаманці: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Відключено",
+      "unconnectedText": "Відскануйте QR-код, щоб підключитись до DeFi сервісу",
       "inputPlaceholder": "Пряме посилання",
       "stop": "Відключення WalletConnect",
       "stopText": "Ви дійсно хочете перервати підключення з ",
@@ -492,7 +495,7 @@
       "advAccountDestination": "Номер рахунку для виводу",
       "phoneDestination": "Номер телефону для виводу",
       "orderId": "Прив'язаний ID обміну",
-      "selectAll": "Вибрати все",
+      "selectAll": "Обрати все",
       "swap": "Swap",
       "cancel": "Скасовано",
       "reward": "Винагорода",
@@ -502,12 +505,12 @@
       "timeArray": "Масив часу",
       "amountRange": "Діапазон сум",
       "allAmount": "Уся сума",
-      "downloadTransactionsHistory": "Завантажити історію трансакцій за весь час",
-      "saveInCsv": "Зберегти всі транзакції часу в CSV",
+      "downloadTransactionsHistory": "Завантажити історію транзакцій за весь час",
+      "saveInCsv": "Зберегти всі транзакції в CSV",
       "filterTitle": "Фільтр",
       "startDate": "Дата початку",
       "endDate": "Дата завершення",
-      "pickDate": "Вибрати дату",
+      "pickDate": "Обрати дату",
       "startAmount": "Початкова сума",
       "endAmount": "Кінцева сума",
       "setAmount": "Вказати",
