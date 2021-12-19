@@ -63,13 +63,11 @@ import {
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
 
 const getIcon = (block, isLight) => {
-
-    const icon = block === 'MATIC' ? 'ETH_MATIC' : block
-
     return(
-        <CustomIcon name={icon} style={{ color: colorDict[icon].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
     )
-} 
+}
+
 class WalletConnectScreen extends PureComponent {
     state = {
         walletStarted: false,
@@ -87,7 +85,7 @@ class WalletConnectScreen extends PureComponent {
         noMoreLock: false,
         linkError: false
     }
-    
+
     linkInput = React.createRef()
 
     componentDidMount() {
@@ -137,8 +135,8 @@ class WalletConnectScreen extends PureComponent {
 
     handleLogout = (func) => {
         const { peerStatus } = this.state
-        handleParanoidLogout.call(this, peerStatus, func)  
-        BackHandler.removeEventListener('hardwareBackPress', this.handleLogout);   
+        handleParanoidLogout.call(this, peerStatus, func)
+        BackHandler.removeEventListener('hardwareBackPress', this.handleLogout);
     }
 
     handleConnect = () => {
@@ -243,6 +241,10 @@ class WalletConnectScreen extends PureComponent {
         NavStore.goNext('WalletConnectChangeNetworkScreen')
     }
 
+    handleFastLinks = (currencyCode) => {
+        NavStore.goNext('WalletDappFastLinksScreen')
+    }
+
     getNetwork = (currencyCode) => {
         for (const tmp of NETWORKS_SETTINGS) {
             if (tmp.currencyCode === currencyCode) {
@@ -302,7 +304,7 @@ class WalletConnectScreen extends PureComponent {
                                         uri: this.state.peerMeta.icons !== 'undefined' ? this.state.peerMeta.icons[0] : ''
                                     }} /> : <CustomIcon name='walletConnect' color='#555555' size={40} style={styles.walletConnectLogo}/>
                                 }
-                                {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus && 
+                                {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus &&
                                     <View style={[styles.icon__mark, { backgroundColor: colors.common.iconMarkBg }]}>
                                         {getIcon(this.props.walletConnectData.mainCurrencyCode, isLight)}
                                     </View>
@@ -313,7 +315,7 @@ class WalletConnectScreen extends PureComponent {
                                 <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
                                     <Text style={[styles.peerMetaName, { color: colors.common.text1 }]}>{titleCondition}</Text>
                                     <Text style={styles.peerMetaUrl}>{textCondition}</Text>
-                                </View> 
+                                </View>
                             </View>
 
                             {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus &&
@@ -354,6 +356,15 @@ class WalletConnectScreen extends PureComponent {
                                             containerStyles={{ marginTop: 12, marginHorizontal: GRID_SIZE }}
                                         />
                                     }
+                                    <View style={{ marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
+                                        <ListItem
+                                            title={'Dapps'}
+                                            subtitle={'some popular dapps for you'}
+                                            iconType="scanning"
+                                            onPress={this.handleFastLinks}
+                                            rightContent="arrow"
+                                        />
+                                    </View>
                                 </>
                             }
                         </View>
@@ -370,15 +381,15 @@ class WalletConnectScreen extends PureComponent {
                                 />
                             </View>
                         }
-                        
-                        
+
+
                         {peerStatus &&
                             <View style={{ paddingHorizontal: GRID_SIZE }}>
                                 <InfoNotification
                                     title={strings('settings.walletConnect.notificationTitle')}
                                     subTitle={strings('settings.walletConnect.notificationText', { name: this.state.peerMeta.name })}
                                     iconType="warningMessage"
-                                />  
+                                />
                             </View>
                         }
 
@@ -529,8 +540,8 @@ const styles = {
     walletConnectLogo: {
         alignSelf: 'center',
         justifyContent: 'center',
-        width: 40, 
-        height: 40 
+        width: 40,
+        height: 40
     },
     bottomButtons: {
         position: 'absolute',
