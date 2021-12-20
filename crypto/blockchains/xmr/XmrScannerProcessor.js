@@ -240,14 +240,14 @@ export default class XmrScannerProcessor {
     async _unifyTransaction(address, lastBlock, transaction) {
 
         let transactionStatus = 'new'
-        transaction.confirmations = lastBlock - transaction.height
-        if (transaction.mempool === false) {
+        transaction.confirmations = lastBlock * 1 - transaction.height * 1
+        //if (transaction.mempool === false) {
             if (transaction.confirmations >= this._blocksToConfirm) {
                 transactionStatus = 'success'
             } else if (transaction.confirmations > 0) {
                 transactionStatus = 'confirming'
             }
-        }
+        // }
 
         if (typeof transaction.unlock_time !== 'undefined') {
             const unlockTime = transaction.unlock_time * 1
@@ -266,6 +266,9 @@ export default class XmrScannerProcessor {
                 }
             }
         }
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._unifyTransaction ' + address
+            + ' hash ' + transaction.hash + ' mempool ' + JSON.stringify(transaction.mempool) + ' height ' + transaction.height + ' lastBlock ' + lastBlock + ' => ' + transactionStatus)
+
 
         let direction = 'self'
         let amount

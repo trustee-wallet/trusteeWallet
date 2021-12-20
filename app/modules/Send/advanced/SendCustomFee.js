@@ -49,6 +49,8 @@ class SendCustomFee extends React.PureComponent {
             case 'OPTIMISM':
             case 'RSK':
             case 'AMB':
+            case 'METIS':
+            case 'VLX':
                 return <SendCustomFeeETH
                     sendScreenStore={this.props.sendScreenStore}
                     currentSelectedFee={this.props.currentSelectedFee}

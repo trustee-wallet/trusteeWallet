@@ -5,6 +5,8 @@ import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import TrxNodeInfoProvider from './TrxNodeInfoProvider'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 const TXS_MAX_TRY = 10
 
@@ -138,20 +140,22 @@ export default class TrxTransactionsProvider {
         let transactionDirection = 'self'
         let txTokenName = false
         let addressFrom = (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? '' : transaction.ownerAddress
+        let transactionFilterType = TransactionFilterTypeDict.USUAL
         if (typeof transaction.contractData.amount === 'undefined') {
             if (typeof transaction.contractData !== 'undefined' && typeof transaction.contractData.frozen_balance !== 'undefined') {
                 addressAmount = transaction.contractData.frozen_balance
                 transactionDirection = 'freeze'
+                transactionFilterType = TransactionFilterTypeDict.STAKE
             } else if (typeof transaction.amount !== 'undefined' && typeof transaction.contractType !== 'undefined' && transaction.contractType === 13) {
                 addressAmount = transaction.amount
                 transactionDirection = 'claim'
+                transactionFilterType = TransactionFilterTypeDict.STAKE
             } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 31) {
-
+                transactionFilterType = TransactionFilterTypeDict.SWAP
                 if (typeof transaction.contractData.call_value === 'undefined') {
                     addressAmount = 0
                     txTokenName = '_'
                     transactionDirection = 'swap_income'
-
                     const diff = scanData.account.transactionsScanTime - transaction.timestamp / 1000
                     if (diff > 600) {
                         return false
@@ -184,6 +188,14 @@ export default class TrxTransactionsProvider {
                 addressAmount = transaction.amount
                 addressFrom = transaction.ownerAddress
                 transactionDirection = 'unfreeze'
+                transactionFilterType = TransactionFilterTypeDict.STAKE
+            } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 4) {
+                // no vote tx
+                return false
+                addressAmount = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makeUnPretty(transaction.amount)
+                addressFrom = transaction.ownerAddress
+                transactionDirection = 'vote'
+                transactionFilterType = TransactionFilterTypeDict.STAKE
             } else {
                 if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
                     // freeze = 11, vote = 4, claim = 13
@@ -197,6 +209,10 @@ export default class TrxTransactionsProvider {
             addressAmount = transaction.contractData.amount
             transactionDirection = (address.toLowerCase() === transaction.ownerAddress.toLowerCase()) ? 'outcome' : 'income'
         }
+        let transactionFee = 0
+        if (typeof transaction.cost !== 'undefined' && typeof transaction.cost.fee !== 'undefined' && transaction.cost.fee) {
+            transactionFee = transaction.cost.fee * 1
+        }
         const res = {
             transactionHash: transaction.hash,
             blockHash: '',
@@ -208,7 +224,8 @@ export default class TrxTransactionsProvider {
             addressTo: (address.toLowerCase() === transaction.toAddress.toLowerCase()) ? '' : transaction.toAddress,
             addressAmount,
             transactionStatus: transactionStatus,
-            transactionFee: 0,
+            transactionFee,
+            transactionFilterType,
             inputValue: transaction.data
         }
         return { res, txTokenName }

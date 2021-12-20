@@ -70,7 +70,9 @@ export const colorsDark = {
         detailsBg: '#252525',
         howItWorksBg: '#2E2E2E',
         chartBg: '#4A4A4A',
-        borderColor: '#2E2E2E'
+        borderColor: '#2E2E2E',
+        circleBg: '#57338C',
+        progressBarBg: '#5C5C5C'
     },
     notifications: {
         newNotiesIndicator: '#9E71E1'
@@ -93,9 +95,11 @@ export const colorsDark = {
         walletInfoTextViolet: '#F3E6FF',
         tabBarText: '#999',
         tabBarBackground: '#2e2e2e',
+        newTabsText: '#999',
         dateColorViolet: '#c4c4c4',
         backupBg: 'rgba(134, 77, 217, 0.25)',
-        backupDescription: 'rgba(204, 180, 238, 0.75)'
+        backupDescription: 'rgba(204, 180, 238, 0.75)',
+        listItemBorderGradient: ['#404040', '#9E71E1', '#404040']
     },
     createWalletScreen: {
         keyIcon: '#9E71E1',
@@ -172,6 +176,13 @@ export const colorsDark = {
         bg: '#6B6B6B',
         borderColor: '#999999'
     },
+    backDropModal: {
+        bg: '#2E2E2E',
+        buttonBg: '#6B6B6B',
+        buttonText: '#B8B8B8',
+        mainButton: '#999999',
+        underline: '#858585'
+    },
     streamChat: {
         inputToolBarBg: '#404040',
         left: {
@@ -181,7 +192,11 @@ export const colorsDark = {
         right: {
             bg: 'rgba(134, 77, 217, 0.2)',
             color: '#C1B8CE'
-        }
+        },
+        fileColor: '#C1B8CE'
     },
-    fileColor: '#C1B8CE'
+    stakingPercent: {
+        bg: '#9E71E126',
+        color: '#9E71E1'
+    }
 }

@@ -27,7 +27,7 @@ export default class TrxTronscanProvider {
                 const frozen = typeof CACHE_TRONSCAN[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozen'] : 0
                 const frozenEnergy = typeof CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] : 0
                 const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? CACHE_TRONSCAN[address].voteTotal : 0
-                return { balance: CACHE_TRONSCAN[address][tokenName], voteTotal, frozen, frozenEnergy, unconfirmed : 0, provider: 'tronscan-cache' }
+                return { balance: CACHE_TRONSCAN[address][tokenName], voteTotal, frozen, frozenEnergy, unconfirmed : 0, provider: 'tronscan-cache', time :  CACHE_TRONSCAN[address].time }
             } else if (tokenName !== '_') {
                 return false
             }
@@ -76,6 +76,6 @@ export default class TrxTronscanProvider {
         const frozen = typeof CACHE_TRONSCAN[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozen'] : 0
         const frozenEnergy = typeof CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozenEnergy'] : 0
         const voteTotal = typeof CACHE_TRONSCAN[address].voteTotal !== 'undefined' ? CACHE_TRONSCAN[address].voteTotal : 0
-        return { balance, frozen, frozenEnergy, voteTotal, unconfirmed: 0, provider: 'tronscan' }
+        return { balance, frozen, frozenEnergy, voteTotal, unconfirmed: 0, provider: 'tronscan', time : CACHE_TRONSCAN[address].time }
     }
 }

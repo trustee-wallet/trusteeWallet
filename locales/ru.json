@@ -5,7 +5,23 @@
     "unconfirmed" : "Неподтвержденный",
     "today": "Сегодня",
     "changedLastDay": "За последние 24 часа",
-    "synchronizing": "Синхронизация"
+    "synchronizing": "Синхронизация",
+    "settings": "Настройки отображения",
+    "sorting": "Сортировка",
+    "sort": {
+      "custom": "Пользовательский",
+      "byName": "По имени",
+      "byValue": "По балансу",
+      "firstCoin": "Сначала монеты",
+      "firstToken": "Сначала токены",
+      "withBalance": "С положительным балансом",
+      "guideTitle": "Обучение"
+    },
+    "categories": {
+      "coin": "Монеты",
+      "token": "Токены"
+    },
+    "setSortValueCustom": "Установлен режим сортировки «Пользовательский»"
   },
   "walletCreateScreen": {
     "title": "ПОКУПАЙ ПРОДАВАЙ ОБМЕНИВАЙ АНОНИМНО",
@@ -37,6 +53,7 @@
     "tabAll": "Все",
     "tabNews": "Новости",
     "tabInvite": "Поделиться",
+    "cashbackTabInvite": "Приглашай",
     "tabInfo": "Инфо",
     "tabFaq": "Faq",
     "today": "Сегодня",
@@ -53,6 +70,8 @@
       "listSubtitle": "Счета: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Отключено",
+      "unconnectedText": "Отсканируйте QR-код, чтобы подключиться к DeFi сервису",
       "inputPlaceholder": "Прямая ссылка",
       "stop": "Отключение WalletConnect",
       "stopText": "Вы действительно хотите прервать подключение с ",
@@ -67,7 +86,7 @@
       "session": "Подключение WalletConnect",
       "sessionText": "Вы действительно хотите подключить кошелек Trustee к ",
       "notificationTitle": "Внимание!",
-      "notificationText": "Убедитесь, что %{name} безопасно. Взаимодействуя с этим сервисом, Вы предоставляете доступ к своим средствам!",
+      "notificationText": "Убедитесь, что %{name} безопасен. Взаимодействуя с этим сервисом, Вы предоставляете доступ к своим средствам!",
       "disconnect": "Отключиться",
       "connect": "Подключиться",
       "placeholder": "Здесь будет адрес кошелька, к которому Вы подключились",
@@ -143,6 +162,7 @@
       "testerMode": "Тестировщик"
     },
     "walletList": {
+      "showBalance": "Показать баланс",
       "title": "Мои кошельки",
       "addWallet": "Добавить кошелек",
       "backupNeeded": "Резервное копирование",
@@ -157,6 +177,8 @@
       "allowReplaceByFee" : "Редактирование транзакции до подтверждения майнерами",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
+      "showAll": "Показать все",
+      "generateNew": "Создать новый",
       "accountAddress": "Тип адреса по умолчанию",
       "hd": "Повышение конфиденциальности",
       "hdDescription": "Создание нового адреса, каждый раз, после входящей BTC транзакции",
@@ -177,6 +199,11 @@
         "title": "Переключить кошелек в режим HD?",
         "description": "Режим HD подразумевает ротацию адресов для каждой транзакции. Операция переключения необратима."
       },
+      "staked": "Застейкано",
+      "frozen": "Заморожено",
+      "stakeTransactionsSOL": "Транзакции стейкинга",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR" : "Сервер с данными (например, api.mymonero.com)",
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Сервер для отправки транзакций (например, api.mymonero.com)",
@@ -184,7 +211,8 @@
       "needReinstallXMR"  : "Системная ошибка адреса XMR - пожалуйста, сохраните мнемоническую фразу и переустановите приложение, или свяжитесь со службой поддержки для подробных инструкций",
       "saveSettings" : "Сохранить",
       "getMnemonicXMR" : "Посмотреть секретный ключ",
-      "availableTRX" : "Доступно",
+      "available" : "Доступно",
+      "availableSOL": "Доступный баланс",
       "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Пропускная способность: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введите количество TRX",
@@ -214,12 +242,18 @@
       "withdrawSOL" : "Забрать",
       "withdrawAllSOL" : "Забрать все",
       "deactivateSOL": "Деактивировать",
-      "stakeHistorySOL" : "История Стейка",
+      "stakeHistorySOL" : "История",
       "selectValidatorSOL": "Выберите валидатора",
       "selectValidatorSOLCommission" : "Сбор :",
       "validatorSOL": "Валидатор",
-      "rewards" : "Награды",
-      "useCustomValidator": "Использовать этот валидатор "
+      "rewards" : "Награда",
+      "useCustomValidator": "Использовать этот валидатор ",
+      "successUnfreeze": "TRX разморожено",
+      "successFreeze": "TRX заморожено для стейкинга",
+      "successReward": "Получена награда TRX за стейкинг",
+      "noVoted": "У Вас остался стейк без голосов. Нажмите «Проголосовать», чтобы завершить процедуру заморозки",
+      "withdrawTRX": "Вывести",
+      "freezeTrx": "Заморозить"
     },
     "about": {
       "title": "О кошельке",
@@ -266,7 +300,7 @@
     "tabCustom": "Еще",
     "searchPlaceholder": "Поиск",
     "addCustomPlaceholder": "Адрес актива",
-    "addCustomLabel": "Вы можете добавить стандартный токен, разработанный на блокчейне Ethereum, BNB, Polygon, Solana или Tron. Введите или сканируйте новый токен/актив.",
+    "addCustomLabel": "Вы можете добавить стандартный токен, разработанный на блокчейне Ethereum, BNB Smart Chain, Polygon, Solana или Tron. Введите или сканируйте новый токен/актив.",
     "noAssetsFound": "Активы не найдены",
     "addAssetButton": "Добавить актив",
     "mainTitle": "Добавить актив",
@@ -308,7 +342,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Добавить NFT актив",
-    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейне Matic или в тестовой сети Ropsten. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
+    "addCustomLabel": "Вы можете добавить стандартный токен NFT, разработанный на блокчейнах Ethereum, BNB Smart Chain, Matic или на Ropsten, Rinkeby Testnet. Пожалуйста, введите или отсканируйте новый адрес токена / актива.",
     "addCustomLabelOpenSea" : "Токены Ethereum могут быть добавлены с OpenSea ",
     "addCustomPlaceholder" : "Адрес актива NFT",
     "addAssetButton" : "Добавить актив"
@@ -317,27 +351,26 @@
     "invited": "Приглашен:",
     "cashback": "Cashback",
     "cpa": "CPA",
-    "pageTitle": "Приглашай друзей",
-    "pageSubtitle": "Зарабатывай от комиссии с Trustee Wallet!",
-    "pageSubtitleText": "до",
+    "pageTitle": "Заработать",
+    "pageSubtitle": "Зарабатывай до 30% от комиссии с Trustee Wallet!",
     "shareButton": "Поделиться",
     "promoButton": "Промокод",
     "detailsButton": "Детали",
     "enterPromoPlaceholder": "Введите промокод",
     "enterInviteLinkPlaceholder": "Введите ссылку-приглашение",
     "applyButton": "Применить",
-    "wholeBalance": "Всего заработано кешбэка",
+    "wholeBalance": "Баланс за все время",
     "availableCashBack": "Доступный кешбэк",
     "balanceTitle": "Баланс",
-    "toWithdraw": "До вывода нужно:",
-    "cashbackInfo": "Cashback info",
-    "cpaInfo": "CPA info",
+    "toWithdraw": "Мин. сумма вывода:",
     "cpaTotal": "Всего CPA",
     "cpaLevel1": "CPA Уровень №1",  
     "cpaLevel2": "CPA Уровень №2",
     "cpaLevel3": "CPA Уровень №3",
     "cashbackBalance": "Баланс кешбэка",
     "cashbackToken": "Токен",
+    "yourToken": "Ваша кэшбек cсылка",
+    "cashbackMessage": "Получай Cashback за свои обменные операции. Зарабатывай крипту по Партнерской программе и CPA рекомендуя Trustee Wallet!",
     "howItWorks": {
       "title": "Как это работает?",
       "info1Title": "Есть ли в Trustee Wallet программа наград для пользователей?",
@@ -367,7 +400,7 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "Ваши друзья",
-    "updated" : "Обновление",
+    "updated" : "Обновлено в",
     "transAmount": "Сумма транзакций",
     "level2UsersAmount": "Друзья друзей",
     "cashbackError" : {
@@ -388,6 +421,7 @@
     "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм"
   },
   "account": {
+    "staking": "Стейкинг",
     "title": "Счет",
     "copy": "Копировать",
     "refresh": "Обновить",
@@ -401,8 +435,20 @@
     "soLong": "Сканирование было  давно",
     "minutesAgo": " %{time} мин назад ",
     "noTransactions": "У Вас еще нет транзакций. Но Вы можете решить эту проблему быстро, просто нажав кнопку КУПИТЬ.",
+    "noFoundTransactions": "Извините, ничего не найдено",
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
+    "stakingTRX": {
+      "bandwidthInfo": "Заморозьте свои монеты TRX для Bandwidth - это позволит получать награду за стейкинг и отправлять свободные монеты TRX без комиссии сети. ",
+      "energyInfo": "Заморозьте свои монеты TRX для Energy - это позволит получать награду за стейкинг и отправлять токены TRC20 без комиссии сети. ",
+      "moreInfo": "Детальнее..."
+    },
+    "stakingSOL": {
+      "stake": "Заморозьте свои монеты SOL, чтобы получать награду за стейкинг. "
+    },
+    "copyLink": "Копировать адрес",
+    "invoiceText": "Выставить счет для оплаты",
+    "openInBlockchair": "Открыть в блокчейн эксплорере",
     "externalLink": {
       "title": "Переход к блокчейн эксплореру",
       "description": "Вы перейдете на внешний ресурс"
@@ -430,11 +476,14 @@
       "outcome": "Исходящая",
       "income": "Входящая",
       "self" : "Себе",
-      "freeze" : "Заморозка",
-      "unfreeze" : "Разморозка",
+      "freeze" : "Заморозить",
+      "unfreeze" : "Разморозить",
       "claim" : "Награда",
       "swap_income" : "Contract Входящая",
       "swap_outcome" : "Contract Исходящая",
+      "stake" : "Стейк",
+      "vote": "Голосование",
+      "wallet_connect" : "WalletConnect",
       "exchange": "Обмен",
       "buy": "Покупка",
       "sell": "Продажа",
@@ -447,6 +496,26 @@
       "advAccountDestination": "Номер счета для вывода",
       "phoneDestination": "Номер телефона для вывода",
       "orderId": "Связанный ID обмена",
+      "selectAll": "Выбрать все",
+      "swap": "Обмен",
+      "cancel": "Отменено",
+      "reward": "Награда",
+      "categoriesTitle": "Категории",
+      "transactionCategories": "Категории транзакций",
+      "dateAmount": "Дата и сумма",
+      "timeArray": "Временной массив",
+      "amountRange": "Диапазон суммы",
+      "allAmount": "Вся сумма",
+      "downloadTransactionsHistory": "Загрузить историю транзакций за все время",
+      "saveInCsv": "Сохранить все транзакции в CSV",
+      "filterTitle": "Фильтр",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "pickDate": "Выбрать дату",
+      "startAmount": "Начальная сумма",
+      "endAmount": "Конечная сумма",
+      "setAmount": "Указать",
+      "discard": "Отклонить",
       "RBF": {
         "replaceByFeeBtn": "Увеличить комиссию",
         "willReplaceWithNewFee": "Текущая транзакция будет заменена новой, с новым хэшем и более высокой комиссией",
@@ -522,8 +591,9 @@
     "transactionSum": "Сумма отправки ",
     "addresTo": "Получатель ",
     "addresFrom": "Отправитель",
-    "blockConfirmations": "Текущее количество подтверждений "
-  }
+    "blockConfirmations": "Текущее количество подтверждений ",
+    "transactionAmount": "%{currencyCode} сумма"
+    }
   },
 
   "fioMainSettings": {
@@ -813,7 +883,7 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Пожалуйста, проверьте системное время устройства - необходимо синхронизировать время для создания транзакции",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостаточно средств для отправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Недостаточная сумма для отправки в стейк",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Выбранный адрес - не валидатор"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Выбранный адрес - не является валидатором"
     }
   },
   "walletBackup": {
@@ -997,7 +1067,7 @@
       },
       "TRX_20": {
         "title": "Пожалуйста, обратите внимание!",
-        "description": "Ваш кошелек Tron (TRX) не активирован. Для активации достаточно пополнить адрес Tron на 5-7 монет TRX, которые в дальнейшем могут быть использованы в других транзакциях."
+        "description": "Ваш кошелек Tron (TRX) не активирован. Для активации достаточно пополнить адрес Tron на 10 монет TRX, которые в дальнейшем могут быть использованы в других транзакциях."
       },
       "TOKEN": {
         "title": "Пожалуйста, обратите внимание!",
@@ -1156,6 +1226,15 @@
     },
     "notification": {
       "description": "К сожалению, Ваше мобильное устройство не поддерживает получение Push-уведомлений"
+    },
+    "dropDownModal": {
+      "showGuide": "Повторить обучение",
+      "moveToTop": "Поднять в начало списка",
+      "moveToDown": "Опустить в конец списка",
+      "guideText": "Настройте отображение монет на главном экране, выставив их в необходимом порядке, или отсортируйте активы в соответствии с предложенными вариантами.",
+      "guideTitle": "Персональный интерфейс",
+      "guideAccept": "Принять",
+      "hideAsset": "Скрыть актив"
     }
   },
   "lockScreen": {
@@ -1496,6 +1575,6 @@
     "noMessages": "Сообщений пока нет",
     "sentFile": "Файл отправлен",
     "getRoomError" : "Ошибка загрузки",
-    "sendMessageError" : "Connection error while message sending"
+    "sendMessageError" : "Нестабильное подключение к сети при отправке сообщения"
   }
 }

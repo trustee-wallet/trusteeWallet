@@ -16,6 +16,17 @@ import { SIZE } from '@app/modules/WalletList/helpers'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
+const getIcon = (type, color) => {
+    switch(type) {
+        case 'warning': 
+            return <CustomIcon name='warning' size={24} color={color} style={styles.iconWrapper} />
+        case 'warningMessage': 
+            return <CustomIcon name='warningMessage' size={24} color={color} style={styles.iconWrapper} />
+        default:
+            return null
+    }
+}
+
 class InfoNotification extends React.Component {
 
     state = {
@@ -49,7 +60,11 @@ class InfoNotification extends React.Component {
             subTitle,
             onPress,
             containerStyles,
-            range
+            range,
+            withoutClosing = false,
+            iconType,
+            animated = true,
+            customTextStyles
         } = this.props
 
         const { colors, GRID_SIZE } = this.context
@@ -80,20 +95,21 @@ class InfoNotification extends React.Component {
         }
 
         return (
-            <Animated.View style={[styles.container, backupAnimaStyle, containerStyles, { backgroundColor: colors.homeScreen.backupBg }]}>
+            <Animated.View style={[styles.container, animated && backupAnimaStyle , containerStyles, { backgroundColor: colors.homeScreen.backupBg }]}>
                 <TouchableOpacity
                     onPress={onPress}
                     style={styles.backupWrapper}
                     onLayout={this.processViewHeight}
+                    disabled={withoutClosing}
                 >
-                    <CustomIcon name='warningMessage' size={24} color={colors.walletManagment.walletItemBorderColor} style={styles.iconWrapper} />
-                    <View style={styles.description}>
-                        <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{title}</Text>
+                    {!withoutClosing && getIcon(iconType, colors.walletManagment.walletItemBorderColor)}
+                    <View style={[styles.description, customTextStyles]}>
+                        {title && <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{title}</Text>}
                         <Text style={[styles.backupDescription, { color: colors.homeScreen.backupDescription }]}>{subTitle}</Text>
                     </View>
-                    <TouchableOpacity onPress={this.close} style={styles.close} hitSlop={HIT_SLOP}>
+                    {!withoutClosing && <TouchableOpacity onPress={this.close} style={styles.close} hitSlop={HIT_SLOP}>
                         <CustomIcon name='close' size={18} color={colors.common.button.text} />
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
                 </TouchableOpacity>
             </Animated.View>
         )
@@ -107,7 +123,7 @@ export default InfoNotification
 const styles = StyleSheet.create({
     container: {
         borderRadius: SIZE,
-        zIndex: 2
+        zIndex: 2,
     },
     backupWrapper: {
         flex: 1,

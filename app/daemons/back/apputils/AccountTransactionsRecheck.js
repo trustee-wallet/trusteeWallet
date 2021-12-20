@@ -1,12 +1,12 @@
 /**
  * @version 0.11
  */
-import Log from '../../../services/Log/Log'
-import transactionDS from '../../../appstores/DataSource/Transaction/Transaction'
-import appNewsDS from '../../../appstores/DataSource/AppNews/AppNews'
-import { BlocksoftTransfer } from '../../../../crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
-import settingsActions from '../../../appstores/Stores/Settings/SettingsActions'
-import config from '../../../config/config'
+import Log from '@app/services/Log/Log'
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
+import appNewsDS from '@app/appstores/DataSource/AppNews/AppNews'
+import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import config from '@app/config/config'
 
 const CACHE_TO_REMOVE = {} // couldnt remove on first scan - as BTC is scanned in few accounts
 
@@ -28,13 +28,14 @@ export default async function AccountTransactionsRecheck(newTransactions, accoun
     const dbTransactions = {}
     const toRemove = []
     const dbNonces = {}
+
     try {
         const tmps = await transactionDS.getTransactions({
             currencyCode: account.currencyCode,
             walletHash: account.walletHash,
             noOrder: true,
-            noOld : true
-        }, 'AccountTransactionsRecheck dbTransactions ' + source)
+            noOld: true
+        },  'AccountTransactionsRecheck dbTransactions ' + source)
         if (tmps && tmps.length > 0) {
             let tmp
             for (tmp of tmps) {

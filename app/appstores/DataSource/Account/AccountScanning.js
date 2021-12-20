@@ -75,6 +75,38 @@ class AccountScanning {
             where = ''
         }
 
+        const sqlTotal = `
+            SELECT
+            account.id,
+            account.currency_code AS currencyCode,
+            account.wallet_hash AS walletHash,
+            account.address,
+            account.transactions_scan_time AS transactionsScanTime,
+            account.transactions_scan_log AS transactionsScanLog,
+            account_balance.balance_provider AS balanceProvider,
+            account_balance.balance_scan_time AS balanceScanTime,
+            account_balance.balance_scan_error AS balanceScanError,
+            account_balance.balance_scan_log AS balanceScanLog,
+            account_balance.balance_scan_block AS balanceScanBlock            
+            FROM account
+            LEFT JOIN account_balance ON account_balance.account_id=account.id
+            LEFT JOIN currency ON currency.currency_code=account.currency_code
+            LEFT JOIN wallet ON wallet.wallet_hash=account.wallet_hash
+            ORDER BY account_balance.balance_scan_time ASC, account.currency_code ASC
+        `
+        const resTotal = await Database.query(sqlTotal)
+        let tmp = ''
+        for (const account1 of resTotal.array) {
+            tmp += account1.currencyCode + ' ' + account1.address + ' ' + (account1.balanceScanLog ? account1.balanceScanLog.substr(0, 200) : '') + `
+                `
+        }
+        Log.test(`
+        
+                ============================================================================================
+                ${new Date().toISOString()} accounts total
+                ${tmp}
+                `)
+
         const sql = `
             SELECT
             account.id,
@@ -91,6 +123,7 @@ class AccountScanning {
             account_balance.balance_txt AS balanceTxt,
             account_balance.unconfirmed_fix AS unconfirmedFix,
             account_balance.unconfirmed_txt AS unconfirmedTxt,
+            account_balance.balance_staked_txt AS balanceStaked,
 
             account_balance.balance_provider AS balanceProvider,
             account_balance.balance_scan_time AS balanceScanTime,
@@ -141,6 +174,7 @@ class AccountScanning {
                     continue
                 }
                 uniqueAddresses[key] = res[i].id
+
                 res[i].balance = BlocksoftFixBalance(res[i], 'balance')
                 res[i].unconfirmed = BlocksoftFixBalance(res[i], 'unconfirmed')
                 res[i].balanceScanBlock = typeof res[i].balanceScanBlock !== 'undefined' ? (res[i].balanceScanBlock * 1) : 0
@@ -170,6 +204,8 @@ class AccountScanning {
     }
 
     async getAddresses (params) {
+        const withBalances = typeof params.withBalances !== 'undefined' && params.withBalances
+
         let where = []
         if (params.walletHash) {
             where.push(`account.wallet_hash='${params.walletHash}'`)
@@ -193,8 +229,13 @@ class AccountScanning {
             account.currency_code AS currencyCode,
             account.wallet_hash AS walletHash,
             account.already_shown AS alreadyShown,
-            account.address
+            account.address,
+            account_balance.balance_txt AS balanceTxt,
+            account_balance.balance_scan_time AS balanceScanTime,
+            account_balance.balance_scan_error AS balanceScanError,
+            account_balance.balance_scan_log AS balanceScanLog            
             FROM account
+            LEFT JOIN account_balance ON account_balance.account_id = account.id
             ${where}
         `
 
@@ -213,7 +254,11 @@ class AccountScanning {
             res = res.array
             let tmp
             for (tmp of res) {
-                indexedRes[tmp.address] = tmp.alreadyShown
+                if (withBalances) {
+                    indexedRes[tmp.address] = tmp
+                } else {
+                    indexedRes[tmp.address] = tmp.alreadyShown
+                }
             }
         } catch (e) {
             Log.daemon('AccountScanning getAddresses error ' + sql + ' ' + e.message)

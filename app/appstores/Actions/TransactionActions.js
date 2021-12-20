@@ -16,6 +16,7 @@ import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
 import store from '@app/store'
 import { setSelectedAccount, setSelectedAccountTransactions, setSelectedCryptoCurrency } from '@app/appstores/Stores/Main/MainStoreActions'
 import NavStore from '@app/components/navigation/NavStore'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 
 const transactionActions = {
@@ -41,6 +42,7 @@ const transactionActions = {
      * @param {object} transaction.bseOrderData
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
+     * @param {string} transaction.transactionFilterType: swap | walletConnect | fee | usual
      */
     saveTransaction: async (transaction, source = '') => {
 
@@ -139,8 +141,18 @@ const transactionActions = {
     preformatWithBSEforShowInner(transaction) {
         const direction = transaction.transactionDirection
         transaction.addressAmountPrettyPrefix = (direction === 'outcome' || direction === 'self' || direction === 'freeze' || direction === 'swap_outcome') ? '-' : '+'
+        if (direction === 'vote') {
+            transaction.addressAmountPrettyPrefix = ''
+        }
         if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
             transaction.wayType = transaction.transactionDirection
+        }
+        if (transaction?.bseOrderData) {
+            transaction.wayType = TransactionFilterTypeDict.SWAP
+        }
+        if (transaction?.addressAmount === 0 || transaction?.transactionFilterType === TransactionFilterTypeDict.FEE) {
+            transaction.addressAmountPrettyPrefix = '-'
+            transaction.wayType = TransactionFilterTypeDict.FEE
         }
         return transaction
     },
@@ -189,6 +201,10 @@ const transactionActions = {
             blockNumber : false,
             createdAt: exchangeOrder.createdAt,
             bseOrderData : exchangeOrder
+        }
+
+        if (typeof exchangeOrder !== 'undefined' && exchangeOrder) {
+            transaction.transactionFilterType = TransactionFilterTypeDict.SWAP
         }
 
         transaction.transactionBlockchainStatus = transaction.transactionStatus

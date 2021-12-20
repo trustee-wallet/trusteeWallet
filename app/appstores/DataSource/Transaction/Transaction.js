@@ -2,8 +2,10 @@
  * @version 0.9
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
-import BlocksoftUtils from '../../../../crypto/common/BlocksoftUtils'
+import Log from '@app/services/Log/Log'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import config from '@app/config/config'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 class Transaction {
 
@@ -26,6 +28,7 @@ class Transaction {
      * @param {string} transaction.createdAt: new Date().toISOString(),
      * @param {string} transaction.updatedAt: new Date().toISOString()
      * @param {integer} updateId
+     * @param {string} transaction.transactionFilterType: swap | walletConnect | fee | usaul
      */
     saveTransaction = async (transaction, updateId = false, source = '') => {
         if (!transaction.updatedAt) {
@@ -218,6 +221,18 @@ class Transaction {
      * @param {string} params.currencyCode
      * @param {string} params.accountId
      * @param {string} params.noOrder
+     * @param {string} params.startTime
+     * @param {string} params.endTime
+     * @param {string} params.startAmount
+     * @param {string} params.endAmount
+     * @param {string} params.searchQuery
+     * @param {string} params.filterDirectionHideIncome
+     * @param {string} params.filterDirectionHideOutcome
+     * @param {string} params.filterStatusHideCancel
+     * @param {string} params.filterTypeHideFee
+     * @param {string} params.filterTypeHideSwap
+     * @param {string} params.filterTypeHideStake
+     * @param {string} params.filterTypeHideWalletConnect
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
@@ -237,24 +252,147 @@ class Transaction {
         if (params.bseOrderHash) {
             where.push(`(bse_order_id='${params.bseOrderHash}' OR bse_order_id_in='${params.bseOrderHash}' OR bse_order_id_out='${params.bseOrderHash}')`)
         }
-        if (typeof params.minAmount !== 'undefined' && params.currencyCode !== 'XLM') {
-           where.push(`((address_amount>${params.minAmount} AND address_amount IS NOT NULL) OR (bse_order_id!='' AND bse_order_id IS NOT NULL AND bse_order_id!='null'))`)
-           where.push(`address_to NOT LIKE '% Simple Send%'`)
+        if (typeof params.minAmount !== 'undefined' && params.minAmount * 1 > 0) {
+            const tmp = params.minAmount * 1
+            where.push(`((address_amount >${tmp} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
         }
+
+        // date filter
+        if (typeof params.startTime !== 'undefined' && params.startTime) {
+            where.push(`created_at>='${params.startTime}'`)
+        }
+        if (typeof params.endTime !== 'undefined' && params.endTime) {
+            where.push(`created_at<='${params.endTime}'`)
+        }
+
+        // amount filter
+        if (typeof params.startAmount !== 'undefined' && params.startAmount) {
+            where.push(`address_amount >= ${params.startAmount}`)
+        }
+        if (typeof params.endAmount !== 'undefined' && params.endAmount) {
+            where.push(`address_amount <= ${params.endAmount}`)
+        }
+
+        // search by address or hash
+        if (typeof params.searchQuery !== 'undefined' && params.searchQuery) {
+            const tmp = params.searchQuery.toLowerCase()
+            where.push(`(LOWER(address_from)='${tmp}' OR LOWER(address_to)='${tmp}' OR LOWER(transaction_hash)='${tmp}')`)
+        }
+
+        // way filter
+        let countOutAndIncome = 0
+        if (typeof params.filterDirectionHideIncome !== 'undefined' && params.filterDirectionHideIncome) {
+            countOutAndIncome++
+        }
+        if (typeof params.filterDirectionHideOutcome !== 'undefined' && params.filterDirectionHideOutcome) {
+            countOutAndIncome++
+        }
+
+        const filterTypeHideUsual = countOutAndIncome >= 2
+        if (!filterTypeHideUsual) {
+            if (typeof params.filterDirectionHideIncome !== 'undefined' && params.filterDirectionHideIncome) {
+                where.push(`transaction_direction NOT IN ('income')`)
+            }
+            if (typeof params.filterDirectionHideOutcome !== 'undefined' && params.filterDirectionHideOutcome) {
+                where.push(`transaction_direction NOT IN ('outcome')`)
+            }
+        }
+        // if not selected both income and outcome - we assume someone dont want usual transactions to be seen
+
+        let tmpWhere = []
+        // status filter
+        if (typeof params.filterStatusHideCancel !== 'undefined' && params.filterStatusHideCancel) {
+            where.push(`transaction_status NOT IN ('fail')`)
+        } else {
+            tmpWhere.push(`
+                (
+                    transaction_direction IN ('outcome', 'self') 
+                    ) AND ( 
+                        transaction_status IN ('fail')
+                        )
+                `)
+        }
+
+        // fee filter
+        if (typeof params.filterTypeHideFee !== 'undefined' && params.filterTypeHideFee) {
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
+            where.push(`address_amount != '0'`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.FEE}'))`)
+        } else {
+            tmpWhere.push(`
+                (
+                    transaction_direction IN ('outcome', 'self')
+                ) AND ((
+                    transaction_filter_type IS NOT NULL AND transaction_filter_type NOT IN ('usual')
+                ) OR (
+                    transaction_filter_type IS NULL AND (
+                        address_amount == '0'
+                        OR
+                        address_to LIKE '% Simple Send%'
+                    )
+                ))
+            `)
+        }
+
+
+        // other categories
+        if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
+            where.push(`(bse_order_id = '' OR bse_order_id IS NULL OR bse_order_id = 'null')`)
+            where.push(`transaction_direction NOT IN ('swap_income', 'swap_outcome', 'swap')`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SWAP}'))`)
+        } else {
+            tmpWhere.push(`
+                (
+                    bse_order_id != '' OR bse_order_id IS NOT NULL OR bse_order_id != 'null'
+                ) OR (
+                    transaction_filter_type IN ('${TransactionFilterTypeDict.SWAP}')
+                    ) OR (
+                        transaction_direction IN ('swap_income', 'swap_outcome', 'swap')
+                    )
+                `)
+        }
+
+        if (typeof params.filterTypeHideStake !== 'undefined' && params.filterTypeHideStake) {
+            where.push(`transaction_direction NOT IN ('freeze', 'unfreeze', 'claim')`)
+            where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.STAKE}'))`)
+        } else {
+            if (params.currencyCode === 'TRX' || params.currencyCode === 'SOL') {
+                tmpWhere.push(`
+                    (
+                        transaction_direction IN ('freeze', 'unfreeze', 'claim', 'vote')
+                    ) OR (
+                        transaction_filter_type IS NOT NULL AND transaction_filter_type IN ('${TransactionFilterTypeDict.STAKE}')
+                    )
+                `)
+            }
+        }
+
+        // if (typeof params.filterTypeHideWalletConnect !== 'undefined' && params.filterTypeHideWalletConnect) {
+        //     where.push(`(transaction_filter_type IS NULL OR transaction_filter_type NOT IN ('${TransactionFilterTypeDict.WALLET_CONNECT}'))`)
+        // }
+
+
+        //
+        if (typeof params.noFilter === 'undefined' && filterTypeHideUsual && tmpWhere.length > 0) {
+            tmpWhere = '(' + tmpWhere.join(') OR (') + ')'
+            where.push(tmpWhere)
+        }
+
+        where.push(`transaction_hash !=''`)
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
             order = ''
-            where.push(`transaction_hash !=''`)
         } else {
             where.push(`(hidden_at IS NULL OR hidden_at='null')`)
-            where.push(`transaction_hash !=''`)
         }
 
-        // where.push(`'${source}' = '${source}'`)
+        // where.push(`(address_from OR adress_to OR transaction_hash) LIKE ('d2884dd42808150753d')`)
+        // where.push(`'${source}' = '${source})
 
         if (where.length > 0) {
-            where = ' WHERE ' + where.join(' AND ')
+            where = ' WHERE (' + where.join(') AND (') + ')'
         } else {
             where = ''
         }
@@ -297,7 +435,9 @@ class Transaction {
             bse_order_id AS bseOrderID,
             bse_order_id_out AS bseOrderOutID,
             bse_order_id_in AS bseOrderInID,
-            bse_order_data AS bseOrderData
+            bse_order_data AS bseOrderData,
+            transaction_filter_type AS transactionFilterType,
+            special_action_needed AS specialActionNeeded
             FROM transactions
             ${where}
             ${order}
@@ -318,76 +458,154 @@ class Transaction {
             return false
         }
 
+        return this.getTmpArrayTx(res, params)
+    }
+
+    getTransactionsForCsvFile = async (params, source = '?') => {
+        let where = []
+
+        if (params.walletHash) {
+            where.push(`wallet_hash='${params.walletHash}'`)
+        }
+        if (params.currencyCode) {
+            where.push(`currency_code='${params.currencyCode}'`)
+        }
+        if (typeof params.minAmount !== 'undefined' && params.minAmount * 1 >= 0) {
+            const tmp = params.minAmount * 1
+            where.push(`((address_amount >${tmp} AND address_amount IS NOT NULL) OR (bse_order_id != '' AND bse_order_id IS NOT NULL AND bse_order_id != 'null'))`)
+            where.push(`address_to NOT LIKE '% Simple Send%'`)
+        }
+
+        where.push(`transaction_hash !=''`)
+
+        let order = ' ORDER BY created_at DESC, id DESC'
+        if (params?.noOrder) {
+            order = ''
+        }
+
+        if (where.length > 0) {
+            where = ' WHERE (' + where.join(') AND (') + ')'
+        } else {
+            where = ''
+        }
+
+        const sql = `
+            SELECT
+            created_at AS createdAt,
+            block_confirmations AS blockConfirmations,
+            transaction_hash AS transactionHash,
+            address_from AS addressFrom,
+            address_amount AS addressAmount,
+            address_to AS addressTo,
+            transaction_fee AS transactionFee,
+            transaction_status AS transactionStatus,
+            transaction_direction AS transactionDirection
+            FROM transactions
+            ${where}
+            ${order}
+            `
+
+        let res = []
+        try {
+            res = await Database.query(sql)
+            if (typeof res.array !== 'undefined') {
+                res = res.array
+            }
+        } catch (e) {
+            Log.errDaemon('DS/Transaction getTransactionsForCsvFile error ' + sql, e)
+        }
+
+        if (!res || res.length === 0) {
+            return false
+        }
+
+        return this.getTmpArrayTx(res, params)
+    }
+
+    getTmpArrayTx = async (array, params) => {
         const shownTx = {}
         const txArray = []
         let tx
         const toRemove = []
-        for (tx of res) {
-            if (tx.transactionHash !== '' && typeof shownTx[tx.transactionHash] !== 'undefined') {
-                Log.daemon('Transaction getTransactions will remove ' + tx.id)
-                toRemove.push(tx.id)
-                continue
-            }
-            if (tx.bseOrderId !== '' && typeof shownTx['bse_' + tx.bseOrderId] !== 'undefined') {
-                if (shownTx['bse_' + tx.bseOrderId].hash === '') {
-                    Log.daemon('Transaction getTransactions will remove old ' + tx.bseOrderId)
-                    toRemove.push(shownTx['bse_' + tx.bseOrderId].id)
-                } else {
-                    Log.daemon('Transaction getTransactions will remove ' + tx.bseOrderId)
+        try {
+            for (tx of array) {
+                if (tx.transactionHash !== '' && typeof shownTx[tx.transactionHash] !== 'undefined') {
+                    Log.daemon('Transaction getTransactions will remove ' + tx.id)
                     toRemove.push(tx.id)
-                }
-                continue
-            }
-
-            if (tx.transactionHash) {
-                shownTx[tx.transactionHash] = 1
-            }
-            if (tx.bseOrderId) {
-                shownTx['bse_' + tx.bseOrderId] = {id : tx.id, hash : tx.transactionHash}
-            }
-            tx.addressAmount = BlocksoftUtils.fromENumber(tx.addressAmount)
-
-            if (typeof params.noOld !== 'undefined' || params.noOld) {
-                if ((tx.blockConfirmations > 30 && tx.transactionStatus === 'success') || tx.blockConfirmations > 300) {
-                    txArray.push({
-                        id: tx.id,
-                        transactionHash: tx.transactionHash,
-                        transactionsOtherHashes: tx.transactionsOtherHashes,
-                        updateSkip: true
-                    })
                     continue
                 }
-            }
-
-            if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson !== null && tx.transactionJson !== 'undefined') {
-
-                try {
-                    tx.transactionJson = JSON.parse(tx.transactionJson)
-                } catch (e) {
-                    e.message += ' while parsing tx 1 ' + tx.transactionJson
-                    throw e
+                if (tx.bseOrderId !== '' && typeof shownTx['bse_' + tx.bseOrderId] !== 'undefined') {
+                    if (shownTx['bse_' + tx.bseOrderId].hash === '') {
+                        Log.daemon('Transaction getTransactions will remove old ' + tx.bseOrderId)
+                        toRemove.push(shownTx['bse_' + tx.bseOrderId].id)
+                    } else {
+                        Log.daemon('Transaction getTransactions will remove ' + tx.bseOrderId)
+                        toRemove.push(tx.id)
+                    }
+                    continue
                 }
 
-                if (typeof tx.transactionJson !== 'object') {
+                if (tx.transactionHash) {
+                    shownTx[tx.transactionHash] = 1
+                }
+                if (tx.bseOrderId) {
+                    shownTx['bse_' + tx.bseOrderId] = { id: tx.id, hash: tx.transactionHash }
+                }
+                try {
+                    tx.addressAmount = BlocksoftUtils.fromENumber(tx.addressAmount)
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('DS/Transaction error ' + e.message + '  while fromENumber ' + tx.addressAmount )
+                    }
+                }
+
+                if (typeof params.noOld !== 'undefined' || params.noOld) {
+                    if ((tx.blockConfirmations > 30 && tx.transactionStatus === 'success') || tx.blockConfirmations > 300) {
+                        txArray.push({
+                            id: tx.id,
+                            transactionHash: tx.transactionHash,
+                            transactionsOtherHashes: tx.transactionsOtherHashes,
+                            updateSkip: true
+                        })
+                        continue
+                    }
+                }
+
+                if (typeof tx.transactionJson !== 'undefined' && tx.transactionJson !== null && tx.transactionJson !== 'undefined') {
+
                     try {
                         tx.transactionJson = JSON.parse(tx.transactionJson)
                     } catch (e) {
-                        e.message += ' while parsing tx 2 ' + tx.transactionJson
+                        e.message += ' while parsing tx 1 ' + tx.transactionJson
+                        throw e
+                    }
+
+                    if (typeof tx.transactionJson !== 'object') {
+                        try {
+                            tx.transactionJson = JSON.parse(tx.transactionJson)
+                        } catch (e) {
+                            e.message += ' while parsing tx 2 ' + tx.transactionJson
+                            throw e
+                        }
+                    }
+                }
+
+                if (typeof tx.bseOrderData !== 'undefined' && tx.bseOrderData !== null && tx.bseOrderData !== 'undefined') {
+                    try {
+                        tx.bseOrderData = JSON.parse(tx.bseOrderData)
+                    } catch (e) {
+                        e.message += ' while parsing tx 1 ' + tx.bseOrderData
                         throw e
                     }
                 }
-            }
 
-            if (typeof tx.bseOrderData !== 'undefined' && tx.bseOrderData !== null && tx.bseOrderData !== 'undefined') {
-                try {
-                    tx.bseOrderData = JSON.parse(tx.bseOrderData)
-                } catch (e) {
-                    e.message += ' while parsing tx 1 ' + tx.bseOrderData
-                    throw e
-                }
+                txArray.push(tx)
             }
-
-            txArray.push(tx)
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('DS/Transaction error ' + e.message + '  while parsing db tx ', tx)
+            }
+            throw new Error(e.message + '  while parsing db tx ' + JSON.stringify(tx))
         }
 
         if (toRemove.length > 0) {

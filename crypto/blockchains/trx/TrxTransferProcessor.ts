@@ -91,6 +91,12 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             shouldShowFees: false
         } as BlocksoftBlockchainTypes.FeeRateResult
 
+        const addressHexTo = TronUtils.addressToHex(data.addressTo)
+        if (TronUtils.addressHexToStr(addressHexTo) !== data.addressTo) {
+            BlocksoftCryptoLog.log('TrxTransferProcessor.getFeeRate check address ' + data.addressTo + ' hex ' + addressHexTo + ' => ' + TronUtils.addressHexToStr(addressHexTo))
+            throw new Error('TRX SYSTEM ERROR - Please check address ' + data.addressTo)
+        }
+
         try {
             const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
             const link = sendLink + '/wallet/getaccountresource'
@@ -114,11 +120,11 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         }
                     }
                     if (tronData.energyRemaining <= 0 ) {
-                        feeForTx = feeForTx * 1 + 4148340
+                        feeForTx = feeForTx * 1 + 8296680
                     } else {
-                        const diffE = 29631 - tronData.energyRemaining
+                        const diffE = 59262 - tronData.energyRemaining
                         if (diffE > 0) {
-                            feeForTx = feeForTx * 1 + BlocksoftUtils.mul(4148340, BlocksoftUtils.div(diffE / 29631)) * 1
+                            feeForTx = feeForTx * 1 + BlocksoftUtils.mul( 8296680, BlocksoftUtils.div(diffE / 59262)) * 1
                         }
                     }
                     await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx)
@@ -138,7 +144,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
             if (typeof data.dexOrderData === 'undefined' || !data.dexOrderData) {
                 try {
-                    const res2 = await BlocksoftAxios.post(link, { address: TronUtils.addressToHex(data.addressTo) })
+                    const res2 = await BlocksoftAxios.post(link, { address: addressHexTo })
                     const tronData2 = res2.data
                     delete tronData2.assetNetUsed
                     delete tronData2.assetNetLimit
@@ -391,6 +397,12 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     e.message += ' inside TronUtils.addressToHex to_address ' + data.addressTo
                     throw e
                 }
+
+                if (TronUtils.addressHexToStr(toAddress) !== data.addressTo) {
+                    BlocksoftCryptoLog.log('TrxTransferProcessor.sendTx heck address ' + data.addressTo + ' hex ' + toAddress + ' => ' + TronUtils.addressHexToStr(toAddress))
+                    throw new Error('TRX SYSTEM ERROR - Please check address ' + data.addressTo)
+                }
+
 
                 try {
                     ownerAddress = TronUtils.addressToHex(data.addressFrom)

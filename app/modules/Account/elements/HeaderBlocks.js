@@ -10,8 +10,9 @@ import GradientView from '@app/components/elements/GradientView'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
+import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
 
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -19,6 +20,7 @@ import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -28,9 +30,12 @@ import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { HIT_SLOP } from '@app/theme/HitSlop'
-import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
-import { getExplorerLink } from '../helpers'
+import AccountGradientBlock from './AccountGradientBlock'
+import { getExplorerLink, handleShareInvoice } from '../helpers'
+import PercentView from '@app/components/elements/new/PercentView'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 class HeaderBlocks extends React.Component {
 
@@ -66,9 +71,53 @@ class HeaderBlocks extends React.Component {
             const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(actualLink)
             Linking.openURL(linkUrl)
         } catch (e) {
-            Log.err('Account.AccountScreen open URI error ' + e.message + ' ' + actualLink)
+            Log.err('Account.AccountScreen open URI error ' + e.message, actualLink)
         }
 
+    }
+
+    renderModalContent = (params) => {
+
+        const {
+            GRID_SIZE,
+            colors
+        } = this.context
+
+        return (
+            <View>
+                <InvoiceListItem
+                    title={strings('account.invoiceText')}
+                    onPress={() => handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
+                    textColor='#F7F7F7'
+                    iconType='invoice'
+                    last
+                />
+                <InvoiceListItem
+                    title={strings('account.copyLink')}
+                    onPress={() => {
+                        this.handleBtcAddressCopy(params?.address)
+                        hideModal()
+                    }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    iconType='copy'
+                />
+                <InvoiceListItem
+                    title={strings('account.openInBlockchair')}
+                    onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
+                    iconType='blockchair'
+                    last
+                />
+            </View>
+        )
+    }
+
+    handleBackDropModal = (address, forceLink, currencyCode, currencyName) => {
+        showModal({
+            type: 'BACK_DROP_MODAL',
+            Content: () => this.renderModalContent({ address, forceLink, currencyCode, currencyName })
+        })
     }
 
     handleBtcAddressCopy = (address) => {
@@ -84,6 +133,67 @@ class HeaderBlocks extends React.Component {
         })
         copyToClipboard(address)
         Toast.setMessage(strings('toast.copied')).show()
+    }
+
+    renderStakeBalance = () => {
+
+        const {
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        const { isBalanceVisible, isBalanceVisibleTriggered, originalVisibility, account } = this.props
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+
+        const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+
+        const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
+        const withoutDescription = currencyCode === 'SOL'
+
+        let balanceTotalPretty = account?.balanceTotalPretty || '0'
+        let balanceStakedPretty = account?.balanceStakedPretty || '0'
+        let balanceStakedTitle = 'settings.walletList.staked'
+        let diffAvailable = typeof balanceStakedPretty !== 'undefined' && balanceStakedPretty * 1 !== 0 && balanceStakedPretty !== balanceTotalPretty
+        const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
+        if (hodl > 0) {
+            balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
+            if ((typeof balanceTotalPretty !== 'undefined' && balanceStakedPretty && balanceTotalPretty?.toString().indexOf('0.0000') !== -1) || balanceTotalPretty * 1 < 0) {
+                balanceTotalPretty = '0'
+            }
+            balanceStakedPretty = hodl
+            diffAvailable = true
+            balanceStakedTitle = 'settings.walletList.frozen'
+        }
+
+        if (!canBeStaked && !diffAvailable) {
+            return <View />
+        }
+
+        return (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
+                <TouchableOpacity
+                    onPress={() => this.accountStaking(currencyCode)}
+                    hitSlop={HIT_SLOP}
+                    disabled={withoutDescription || !canBeStaked}
+                >
+                    {diffAvailable &&
+                        <Text style={[styles.availableText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
+                            {`${strings('settings.walletList.available')}: ${finalIsBalanceVisible ? balanceTotalPretty + ' ' + currencySymbol : ' ****'}`}
+                        </Text>}
+                    {!withoutDescription &&
+                        <Text style={styles.availableText}>
+                            {`${strings(balanceStakedTitle)}: ${finalIsBalanceVisible ? balanceStakedPretty + ' ' + currencySymbol : ' ****'}`}
+                        </Text>
+                    }
+                </TouchableOpacity>
+                {
+                    canBeStaked &&
+                    <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
+                        <CustomIcon name='staking' size={24} color={colors.common.text1} />
+                    </TouchableOpacity>
+                }
+            </View>
+        )
     }
 
     renderBalance = () => {
@@ -111,7 +221,7 @@ class HeaderBlocks extends React.Component {
 
         if (isSynchronized) {
             return (
-                <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE }}>
+                <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
                         <TouchableOpacity
                             onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
@@ -128,7 +238,7 @@ class HeaderBlocks extends React.Component {
                                     </Text>
                                 </Text>
                             ) : (
-                                <Text style={{ ...styles.topContent__title_last, color: colors.common.text1, marginTop: 10, paddingHorizontal: 15, fontSize: 52, lineHeight: 60 }}>
+                                <Text style={[styles.topContent__title_last, styles.hiddenBalance, { color: colors.common.text1 }]}>
                                     ****
                                 </Text>
                             )}
@@ -145,7 +255,7 @@ class HeaderBlocks extends React.Component {
             )
         } else {
             return (
-                <View style={styles.topContent__top}>
+                <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE * 2 }}>
                     <View style={styles.topContent__title}>
                         <View style={{ height: Platform.OS === 'ios' ? 46 : 51, alignItems: 'center' }}>
                             <Loader size={30} color={colors.accountScreen.loaderColor} />
@@ -161,9 +271,9 @@ class HeaderBlocks extends React.Component {
         const { colors } = this.context
 
         return (
-            <TouchableOpacity style={{ flex: 1, paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)} hitSlop={HIT_SLOP}>
+            <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)} hitSlop={HIT_SLOP}>
                 <View style={{ paddingVertical: 12 }}>
-                    <CustomIcon name={'coinSettings'} size={20} color={colors.common.text1} />
+                    <CustomIcon name='coinSettings' size={20} color={colors.common.text1} />
                 </View>
             </TouchableOpacity>
         )
@@ -173,7 +283,7 @@ class HeaderBlocks extends React.Component {
         if (currencyCode === 'FIO') {
             NavStore.goNext('FioMainSettings')
         } else {
-            NavStore.goNext('AccountSettings', { account : currencyCode })
+            NavStore.goNext('AccountSettings', { account: currencyCode })
         }
     }
 
@@ -186,21 +296,42 @@ class HeaderBlocks extends React.Component {
             case 'ETH':
             case 'FIO':
             case 'XMR':
-            case 'TRX':
             case 'BNB':
             case 'SOL':
+            case 'BNB_SMART':
                 return this.handleSettingAccount(currencyCode)
             default:
                 return null
         }
     }
 
+    renderStakingBtn = (currencyCode) => {
+        switch (currencyCode) {
+            case 'TRX':
+            case 'SOL':
+                return this.handleStakingAccount(currencyCode)
+            default:
+                return null
+        }
+    }
+
+    accountStaking = (currencyCode) => {
+        switch (currencyCode) {
+            case 'TRX':
+                return NavStore.goNext('AccountStakingTRX')
+            case 'SOL':
+                return NavStore.goNext('AccountStakingSOL')
+            default:
+                return null
+        }
+    }
+
     render() {
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         let { account, cryptoCurrency, isSegwit } = this.props
         const { shownAddress, walletPubs } = account
-        const { currencyCode, currencySymbol } = cryptoCurrency
+        const { currencyCode, currencySymbol, currencyName } = cryptoCurrency
         let forceLink = false
         if (currencyCode === 'BTC' && walletPubs) {
             isSegwit = isSegwit ? 'btc.84' : 'btc.44'
@@ -211,67 +342,71 @@ class HeaderBlocks extends React.Component {
 
         const addressPrep = BlocksoftPrettyStrings.makeCut(shownAddress, 6, 6)
 
+        const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
+
         return (
-            <View style={styles.topContent}>
-                <View style={styles.topContent__content}>
+            <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }} >
+                <AccountGradientBlock>
                     <View style={{ flexDirection: 'row' }} >
-                        <View style={{ marginTop: 16 }}>
-                            <TouchableOpacity
-                                style={styles.linkButton}
-                                onPress={() => this.handleOpenLink(shownAddress, forceLink)}
-                            >
-                                <View style={{ width: 50, height: 50 }}>
-                                    <GradientView
-                                        style={styles.topContent__icon}
-                                        array={colors.accountScreen.containerBGIcon}
-                                        start={styles.containerBG.start}
-                                        end={styles.containerBG.end}
+                        <TouchableOpacity
+                            style={styles.linkButton}
+                            onPress={() => this.handleOpenLink(shownAddress, forceLink)}
+                            hitSlop={HIT_SLOP}
+                        >
+                            <View style={{ width: 50, height: 50 }}>
+                                <GradientView
+                                    style={styles.topContent__icon}
+                                    array={colors.accountScreen.containerBGIcon}
+                                    start={styles.containerBG.start}
+                                    end={styles.containerBG.end}
+                                />
+                                <View style={styles.icon}>
+                                    <CurrencyIcon
+                                        currencyCode={currencyCode}
+                                        containerStyle={{ borderWidth: 0 }}
+                                        markStyle={{ top: 30 }}
+                                        textContainerStyle={{ bottom: -19 }}
+                                        textStyle={{ backgroundColor: 'transparent' }}
                                     />
-                                    <View style={styles.icon}>
-                                        <CurrencyIcon
-                                            currencyCode={currencyCode}
-                                            containerStyle={{ borderWidth: 0 }}
-                                            markStyle={{ top: 30 }}
-                                            textContainerStyle={{ bottom: -19 }}
-                                            textStyle={{ backgroundColor: 'transparent' }}
-                                        />
-                                    </View>
-                                    <View style={styles.topContent__bottom__btn__shadow}>
-                                        <View style={styles.topContent__bottom__btn__shadow__item} />
-                                    </View>
                                 </View>
-                            </TouchableOpacity>
-                        </View>
-                        <View style={{ marginTop: 22 }}>
-                            <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
+                                <View style={styles.topContent__bottom__btn__shadow}>
+                                    <View style={styles.topContent__bottom__btn__shadow__item} />
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={{ marginTop: 6 }}>
+                            <View style={styles.stakingValue}>
+                                <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
+                                {availableStaking &&
+                                    <PercentView
+                                        value={this.props.stakingCoins[currencyCode]}
+                                        staking
+                                    />
+                                }
+                            </View>
                             <TouchableOpacity
                                 style={styles.topContent__middle}
-                                onPress={() => this.handleBtcAddressCopy(shownAddress)}
+                                onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
                                 hitSlop={HIT_SLOP}
+                                onLongPress={() => this.handleBtcAddressCopy(shownAddress)}
+                                delayLongPress={500}
                             >
                                 <View style={{ alignItems: 'center' }}>
                                     <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
                                 </View>
-                                <View onPress={() => this.handleBtcAddressCopy(shownAddress)} style={styles.copyBtn}>
+                                <View onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)} style={styles.copyBtn}>
                                     <IconMaterial name="content-copy" size={15} color={'#939393'} />
                                 </View>
                             </TouchableOpacity>
                         </View>
-                        <View style={{ ...styles.settings, right: 0, position: 'absolute' }}>
-                            {this.settings(currencyCode)}
-                        </View>
+                        {currencyCode !== 'TRX' &&
+                            <View style={{ ...styles.settings, right: 0, position: 'absolute' }}>
+                                {this.settings(currencyCode)}
+                            </View>}
                     </View>
                     {this.renderBalance()}
-                </View>
-                <GradientView
-                    style={styles.bg}
-                    array={colors.accountScreen.containerBG}
-                    start={styles.containerBG.start}
-                    end={styles.containerBG.end}
-                />
-                <View style={styles.topContent__bg}>
-                    <View style={{ ...styles.shadow, backgroundColor: colors.accountScreen.headBlockBackground }} />
-                </View>
+                    {this.renderStakeBalance()}
+                </AccountGradientBlock>
             </View>
         )
     }
@@ -284,36 +419,14 @@ export default HeaderBlocks
 const styles = {
     linkButton: {
         position: 'relative',
-        padding: 20,
+        paddingRight: 20,
+        paddingBottom: 20,
         paddingTop: 0,
         alignItems: 'center',
     },
     containerBG: {
         start: { x: 0.0, y: 0 },
         end: { x: 0, y: 1 }
-    },
-    bg: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-
-        width: '100%',
-        height: 216,
-
-        zIndex: 1,
-
-        borderRadius: 16,
-    },
-
-    topContent: {
-        position: 'relative',
-
-        height: 244,
-
-        marginTop: 25,
-        marginLeft: 16,
-        marginRight: 16,
-        borderRadius: 16
     },
     topContent__top: {
         position: 'relative',
@@ -457,7 +570,7 @@ const styles = {
         top: 0,
         left: 0,
         width: '100%',
-        height: 206,
+        height: 216,
         borderRadius: 16,
 
         zIndex: 0
@@ -563,7 +676,23 @@ const styles = {
         zIndex: 3
     },
     settings: {
-        marginRight: 20,
-        marginTop: 10
+        marginRight: 4,
+        // marginTop: 10
+    },
+    availableText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        lineHeight: 18,
+        color: '#999999'
+    },
+    stakingValue: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    hiddenBalance: {
+        marginTop: Platform.OS === 'ios' ? 7 : 9.3,
+        paddingHorizontal: 15,
+        fontSize: 52,
+        lineHeight: 54
     }
 }

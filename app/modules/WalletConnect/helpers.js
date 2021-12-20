@@ -15,6 +15,7 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import store from '@app/store'
 
 import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 export const NETWORKS_SETTINGS = [
     {currencyCode : 'ETH', networkTitle : 'Mainnet'},
@@ -74,7 +75,7 @@ export async function handleApplyLink(checkLock = true) {
         if (!inputFullLink || inputFullLink === '') {
             return false
         }
-        
+
         if (checkLock && !this.state.noMoreLock) {
             if (this.props.lockScreenStatus * 1 > 0) {
                 setLockScreenConfig({
@@ -151,7 +152,8 @@ export async function handleSendTransaction(data, payload, mainCurrencyCode) {
     await SendActionsStart.startFromWalletConnect({
         currencyCode: mainCurrencyCode,
         walletConnectData: data,
-        walletConnectPayload : payload
+        walletConnectPayload : payload,
+        transactionFilterType : TransactionFilterTypeDict.WALLET_CONNECT
     })
 }
 

@@ -14,6 +14,8 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+
 const { dispatch } = store
 
 let CACHE_SEND_INPUT_TYPE = 'none'
@@ -83,23 +85,32 @@ export namespace SendActionsStart {
         currencyCode : string,
         walletConnectData : any,
         walletConnectPayload : any,
-        extraData : any
+        extraData : any,
+        transactionFilterType : any
     }, uiType = 'WALLET_CONNECT') => {
         try {
+            Log.log('SendActionsStart.startFromWalletConnect data ', data)
+
             const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
             if (typeof account.derivationPath === 'undefined') {
                 throw new Error('SendActionsStart.startFromWalletConnect required account.derivationPath')
+            }
+            if (typeof data.walletConnectData.value !== 'undefined' && data.walletConnectData.value && data.walletConnectData.value.toString().indexOf('0x') === 0) {
+                data.walletConnectData.value = BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value)
             }
             const dict = await formatDict(cryptoCurrency, account)
             SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account)
             const ui = {
                 uiType: uiType,
-                cryptoValue: data.walletConnectData.value ? BlocksoftUtils.decimalToHexWalletConnect(data.walletConnectData.value) : 0,
+                cryptoValue: data.walletConnectData.value ? data.walletConnectData.value : 0,
                 addressTo: data.walletConnectData.to,
                 walletConnectData: data.walletConnectData,
                 walletConnectPayload: data.walletConnectPayload,
-                extraData: data.extraData
+                extraData: data.extraData,
+                transactionFilterType: data.transactionFilterType || TransactionFilterTypeDict.WALLET_CONNECT
             }
+
+            Log.log('SendActionsStart.startFromWalletConnect ui data ', ui)
 
             dispatch({
                 type: 'RESET_DATA',
@@ -115,7 +126,7 @@ export namespace SendActionsStart {
                 NavStore.goNext('ReceiptScreen')
             }
         } catch (e) {
-            Log.error(' SendActionsStart.startFromWalletConnect error ' + e.message)
+            Log.err(' SendActionsStart.startFromWalletConnect error ' + e.message)
         }
     }
 
@@ -187,7 +198,8 @@ export namespace SendActionsStart {
             addressTo : 'DEX ' + data.addressTo,
             dexCurrencyCode : data.dexCurrencyCode,
             dexOrderData : data.dexOrderData,
-            bse
+            bse,
+            transactionFilterType: TransactionFilterTypeDict.SWAP
         }
         dispatch({
             type: 'RESET_DATA',
@@ -218,7 +230,8 @@ export namespace SendActionsStart {
             addressTo : addressToForTransferAll,
             cryptoValue : '0',
             isTransferAll : true,
-            memo : data.memo || false
+            memo : data.memo || false,
+            transactionFilterType: TransactionFilterTypeDict.SWAP
         }
         dispatch({
             type: 'RESET_DATA',
@@ -226,16 +239,17 @@ export namespace SendActionsStart {
             dict
         })
         const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
-        return res.transferAllBalance || 0
+        return res
     }
 
     export const startFromBSE = async (data : {
         amount : string,
-        addressTo : string,
+        address : string,
+        addressTo : string, // wtf now address in data - ok, but support old notation
         memo : string,
         comment : string,
         currencyCode : string,
-        isTransferAll : boolean
+        useAllFunds : boolean
     }, bse : {
         bseProviderType : any,
         bseOrderId: any,
@@ -243,22 +257,25 @@ export namespace SendActionsStart {
         bseTrusteeFee : any,
         bseOrderData : any,
         payway : any
-    }) => {
+    }, selectedFee : any) => {
+        const addressTo = typeof data.addressTo !== 'undefined' ? data.addressTo : data.address
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
         const dict = await formatDict(cryptoCurrency, account)
+        const amount = BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount)
         SendActionsBlockchainWrapper.beforeRender(cryptoCurrency, account, {
-            addressTo : data.addressTo,
-            amount :  data.amount,
+            addressTo,
+            amount : amount,
             memo : data.memo
         })
         const ui = {
             uiType : 'TRADE_SEND',
-            addressTo : data.addressTo,
+            addressTo,
             memo : data.memo,
-            comment : data.comment,
-            cryptoValue : data.amount,
-            isTransferAll : data.isTransferAll,
-            bse
+            comment : data.comment || '',
+            cryptoValue : amount,
+            isTransferAll : data.useAllFunds,
+            bse,
+            transactionFilterType: TransactionFilterTypeDict.SWAP
         }
         dispatch({
             type: 'RESET_DATA',
@@ -266,7 +283,7 @@ export namespace SendActionsStart {
             dict
         })
         setLoaderFromBse(true)
-        await SendActionsBlockchainWrapper.getFeeRate(ui)
+        await SendActionsBlockchainWrapper.getFeeRate(ui, selectedFee)
         NavStore.goNext('MarketReceiptScreen')
     }
 
@@ -449,5 +466,14 @@ export namespace SendActionsStart {
 
         await SendActionsBlockchainWrapper.getFeeRate(ui)
         NavStore.goNext('ReceiptScreen')
+    }
+
+    export const getAccountFormatData = async (data : {
+        currencyCode : string
+    }) => {
+        const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)
+        const dict = await formatDict(cryptoCurrency, account)
+
+        return { dict }
     }
 }

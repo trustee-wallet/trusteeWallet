@@ -10,6 +10,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import BtcFindAddressFunction from './basic/BtcFindAddressFunction'
 import config from '@app/config/config'
 import Database from '@app/appstores/DataSource/Database'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 const CACHE_VALID_TIME = 60000 // 60 seconds
 const CACHE = {}
@@ -106,7 +107,8 @@ export default class BtcScannerProcessor {
             for (token of res.data.tokens) {
                 addresses[token.name] = {
                     balance: token.balance,
-                    transactions: token.transfers
+                    transactions: token.transfers,
+                    path : token.path
                 }
                 plainAddresses[token.name] = token.path
             }
@@ -166,7 +168,15 @@ export default class BtcScannerProcessor {
     async getAddressesBlockchain(scanData, source = '') {
         const address = scanData.account.address.trim()
         const data = scanData.additional
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started', address)
+        const withBalances = typeof scanData.withBalances !== 'undefined' && scanData.withBalances
+        if (!withBalances) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started withoutBalances (KSU!)', address)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started withoutBalances (KSU!)', address)
+        } else {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started withBalances', address)
+        }
         let res = await this._get(address, data, source)
         if (typeof res.data !== 'undefined') {
             res = JSON.parse(JSON.stringify(res.data))
@@ -183,8 +193,14 @@ export default class BtcScannerProcessor {
                     if (res === false || typeof res.plainAddresses === 'undefined') {
                         res = JSON.parse(JSON.stringify(tmp.data))
                     } else {
-                        for (const row in tmp.data.plainAddresses) {
-                            res.plainAddresses[row] = tmp.data.plainAddresses[row]
+                        if (withBalances) {
+                            for (const row in tmp.data.addresses) {
+                                res.addresses[row] = tmp.data.addresses[row]
+                            }
+                        } else {
+                            for (const row in tmp.data.plainAddresses) {
+                                res.plainAddresses[row] = tmp.data.plainAddresses[row]
+                            }
                         }
                     }
 
@@ -196,7 +212,7 @@ export default class BtcScannerProcessor {
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses load from all addresses error ' + e.message)
         }
-        return res.plainAddresses
+        return withBalances ? res.addresses : res.plainAddresses
     }
 
     /**
@@ -350,6 +366,11 @@ export default class BtcScannerProcessor {
             transactionStatus = 'confirming'
         }
 
+        let transactionFilterType = TransactionFilterTypeDict.USUAL
+        if (typeof showAddresses.to !== 'undefined' && showAddresses.to.toLowerCase().indexOf('simple send') !== -1) {
+            transactionFilterType = TransactionFilterTypeDict.FEE
+        }
+
         let formattedTime
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.blockTime)
@@ -369,7 +390,8 @@ export default class BtcScannerProcessor {
             addressTo: showAddresses.to,
             addressAmount: showAddresses.value,
             transactionStatus: transactionStatus,
-            transactionFee: transaction.fees
+            transactionFee: transaction.fees,
+            transactionFilterType
         }
     }
 }

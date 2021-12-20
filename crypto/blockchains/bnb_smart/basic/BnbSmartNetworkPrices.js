@@ -5,6 +5,7 @@ import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
+import config from '@app/config/config'
 
 const CACHE_VALID_TIME = 120000 // 2 minute
 const CACHE_FEES = {
@@ -15,13 +16,10 @@ const CACHE_FEES = {
 }
 
 class BnbSmartNetworkPrices {
-    async getFees(mainCurrencyCode, etherscanApiPath) {
+    async getFees(mainCurrencyCode, etherscanApiPath, defaultFee = 5000000000, source = '') {
         const now = new Date().getTime()
         if (typeof CACHE_FEES[mainCurrencyCode] !== 'undefined' && now - CACHE_FEES[mainCurrencyCode].ts < CACHE_VALID_TIME) {
             return CACHE_FEES[mainCurrencyCode].fee
-        }
-        if (typeof etherscanApiPath === 'undefined' || !etherscanApiPath) {
-            throw new Error('BnbSmartNetworkPrices etherscanApiPath is ' + etherscanApiPath)
         }
         const tmp = etherscanApiPath.split('/')
         const feesApiPath = `https://${tmp[2]}/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
@@ -40,11 +38,14 @@ class BnbSmartNetworkPrices {
                 }
             }
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(mainCurrencyCode + ' BnbSmartNetworkPricesProvider.getOnlyFees loaded prev fee as error' + e.message)
+            }
             BlocksoftCryptoLog.log(mainCurrencyCode + ' BnbSmartNetworkPricesProvider.getOnlyFees loaded prev fee as error' + e.message)
             // do nothing
         }
 
-        return typeof CACHE_FEES[mainCurrencyCode] !== 'undefined' ? CACHE_FEES[mainCurrencyCode].fee : 5000000000
+        return typeof CACHE_FEES[mainCurrencyCode] !== 'undefined' ? CACHE_FEES[mainCurrencyCode].fee : defaultFee
     }
 }
 

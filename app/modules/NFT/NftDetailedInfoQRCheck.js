@@ -27,9 +27,11 @@ import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 
+import Nfts from '@crypto/common/BlocksoftDictNfts'
 
 const abi721 = require('@crypto/blockchains/eth/ext/erc721.js')
 const abi1155 = require('@crypto/blockchains/eth/ext/erc1155')
+
 
 class NftDetailedInfoQRCheck extends React.PureComponent {
 
@@ -56,14 +58,8 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
         const tmpData = NavStore.getParamWrapper(this, 'jsonData')
         try {
             const data = JSON.parse(tmpData)
-            let explorerLink = 'https://etherscan.com/token/'
-            if (data.tokenBlockchainCode === 'MATIC') {
-                explorerLink = 'https://polygonscan.com/token/'
-            } else if (data.tokenBlockchainCode === 'ETH_ROPSTEN') {
-                explorerLink = 'https://ropsten.etherscan.io/token/'
-            } else if (data.tokenBlockchainCode === 'ETH_RINKEBY') {
-                explorerLink = 'https://rinkeby.etherscan.io/token/'
-            }
+            let explorerLink = typeof Nfts.NftsIndexed[data.tokenBlockchainCode] !== 'undefined'
+                ? Nfts.NftsIndexed[data.tokenBlockchainCode].explorerLink : 'https://etherscan.com/token/'
             explorerLink += data.contractAddress + '?a=' + data.tokenId
             this.setState({
                 data, explorerLink
@@ -74,25 +70,6 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                 console.log('NftDetailedInfoQRCheck mount error ' + e.message)
             }
             Log.log('NftDetailedInfoQRCheck mount error ' + e.message)
-        }
-    }
-
-    getCurrencyTitle = (walletCurrency, tokenBlockchainCode) => {
-        if (!walletCurrency && !tokenBlockchainCode) {
-            return ''
-        }
-
-        if (walletCurrency) {
-            return walletCurrency
-        } else {
-            switch (tokenBlockchainCode.toUpperCase()) {
-                case 'ETH_ROPSTEN':
-                    return 'ROPSTEN'
-                case 'ETH_RINKEBY':
-                    return 'RINKEBY'
-                default:
-                    return tokenBlockchainCode
-            }
         }
     }
 
@@ -261,7 +238,7 @@ class NftDetailedInfoQRCheck extends React.PureComponent {
                             }
                             <TransactionItem
                                 title={strings('nftMainScreen.blockchain')}
-                                subtitle={this.getCurrencyTitle(false, this.state.data.tokenBlockchainCode)}
+                                subtitle={Nfts.getCurrencyTitle(false, this.state.data.tokenBlockchainCode)}
                                 iconType='block'
                             />
                             <TransactionItem

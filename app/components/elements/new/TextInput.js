@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 16,
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 16,
+        fontSize: 14,
         lineHeight: 18,
         letterSpacing: 0.3,
     },

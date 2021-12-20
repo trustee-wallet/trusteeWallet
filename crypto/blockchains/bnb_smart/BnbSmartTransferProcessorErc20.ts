@@ -4,13 +4,23 @@
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import EthTransferProcessorErc20 from '../eth/EthTransferProcessorErc20'
 import BnbSmartNetworkPrices from './basic/BnbSmartNetworkPrices'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessorErc20 implements BlocksoftBlockchainTypes.TransferProcessor {
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         if (typeof additionalData.gasPrice  === 'undefined' || !additionalData.gasPrice) {
-            additionalData.gasPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPath)
-            additionalData.gasPriceTitle = 'speed_blocks_2'
+            let defaultFee = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_PRICE')
+            if (typeof defaultFee === 'undefined' || !defaultFee) {
+                defaultFee = 5000000000
+            }
+            if (!this._etherscanApiPathForFee) {
+                additionalData.gasPrice = defaultFee
+                additionalData.gasPriceTitle = 'speed_blocks_2'
+            } else {
+                additionalData.gasPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPathForFee, defaultFee, 'BnbSmartTransferProcessorErc20.getFeeRate')
+                additionalData.gasPriceTitle = 'speed_blocks_2'
+            }
         }
         const result = await super.getFeeRate(data, privateData, additionalData)
         result.shouldShowFees = true

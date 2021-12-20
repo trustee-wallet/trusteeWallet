@@ -55,8 +55,11 @@ export const getSelectedAccountData = createSelector(
             address : data.address,
             segwitAddress : data.segwitAddress,
             legacyAddress : data.legacyAddress,
+            balance : data.balance,
             balancePretty : data.balancePretty,
             unconfirmedPretty : data.unconfirmedPretty,
+            balanceStakedPretty: data.balanceStakedPretty,
+            balanceTotalPretty: data.balanceTotalPretty,
             balanceProvider : data.balanceProvider,
             balanceScanTime : data.balanceScanTime,
             balanceScanError : data.balanceScanError,
@@ -69,7 +72,8 @@ export const getSelectedAccountData = createSelector(
             basicCurrencySymbol : data.basicCurrencySymbol,
             currencyCode : data.currencyCode,
 
-            walletPubs : data.walletPubs
+            walletPubs : data.walletPubs,
+            derivationPath : data.derivationPath
         }
     })
 )
@@ -96,5 +100,37 @@ export const getLoaderStatusFromBse = createSelector(
 
 export const getSolValidator = createSelector(
     [state => state.mainStore.solValidator],
+    (data => data)
+)
+
+export const getFilterData = createSelector(
+    [state => state.mainStore.filter],
+    (data => {
+        return {
+            active: data?.active || false,
+            startTime: data?.startTime || null,
+            endTime: data?.endTime || null,
+            startAmount: data?.startAmount || null,
+            endAmount: data?.endAmount || null,
+            searchQuery: data?.searchQuery || null,
+            filterDirectionHideIncome : data?.filterDirectionHideIncome || false,
+            filterDirectionHideOutcome : data?.filterDirectionHideOutcome || false,
+            filterStatusHideCancel : data?.filterStatusHideCancel || false,
+            filterTypeHideFee : data?.filterTypeHideFee || false,
+            filterTypeHideStake : data?.filterTypeHideStake || false,
+            filterTypeHideWalletConnect : data?.filterTypeHideWalletConnect || false,
+            filterTypeHideSwap : data ?.filterTypeHideSwap || false,
+            activeCategories: data?.activeCategories || false
+        }
+    })
+)
+
+export const getSortValue = createSelector(
+    [state => state.mainStore.sortValue],
+    (data => data)
+)
+
+export const getStakingCoins = createSelector(
+    [state => state.mainStore.stakingCoins],
     (data => data)
 )

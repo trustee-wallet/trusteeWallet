@@ -15,6 +15,8 @@ import store from '@app/store'
 const tableName = 'account'
 let SAVED_UNIQUE = {}
 
+import tokenBlockchainBlocksoftDict from '@crypto/assets/tokenBlockchainBlocksoftDict.json'
+
 class Account {
 
     /**
@@ -145,15 +147,25 @@ class Account {
                 // do nothing
                 continue
             }
+
             if (typeof settings.addressCurrencyCode !== 'undefined' && typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain !== 'BITCOIN' ) {
                 const { accountList } = store.getState().accountStore
-                if (typeof accountList[params.walletHash] !== 'undefined' && typeof accountList[params.walletHash][settings.addressCurrencyCode] !== 'undefined') {
-                    const tmpAccount = accountList[params.walletHash][settings.addressCurrencyCode]
+                let tmpAccount = false
+                if (typeof accountList[params.walletHash] !== 'undefined') {
+                    const tokenCurrencyCode = typeof tokenBlockchainBlocksoftDict[settings.tokenBlockchain] !== 'undefined' ? tokenBlockchainBlocksoftDict[settings.tokenBlockchain].currencyCode : false
+                    if (tokenCurrencyCode && typeof accountList[params.walletHash][tokenCurrencyCode] !== 'undefined') {
+                        tmpAccount = accountList[params.walletHash][tokenCurrencyCode]
+                    } else if (typeof accountList[params.walletHash][settings.addressCurrencyCode] !== 'undefined') {
+                        tmpAccount = accountList[params.walletHash][settings.addressCurrencyCode]
+                    }
+                }
+
+                if (tmpAccount) {
                     tmpAccounts = [{
                         address: tmpAccount.address,
-                        index : tmpAccount.derivationIndex,
-                        path : tmpAccount.derivationPath,
-                        type : tmpAccount.derivationType,
+                        index: tmpAccount.derivationIndex,
+                        path: tmpAccount.derivationPath,
+                        type: tmpAccount.derivationType,
                         alreadyShown: tmpAccount.alreadyShown,
                         addedData: tmpAccount.accountJson
                     }]
@@ -495,6 +507,7 @@ class Account {
             account_balance.balance_txt AS balanceTxt,
             account_balance.unconfirmed_fix AS unconfirmedFix,
             account_balance.unconfirmed_txt AS unconfirmedTxt,
+            account_balance.balance_staked_txt AS balanceStaked,
             account_balance.balance_provider AS balanceProvider,
             account_balance.balance_scan_time AS balanceScanTime,
             account_balance.balance_scan_error AS balanceScanError,

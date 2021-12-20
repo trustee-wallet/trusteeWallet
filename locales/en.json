@@ -5,7 +5,23 @@
     "unconfirmed" : "Unconfirmed",
     "today": "Today",
     "changedLastDay": "In the last 24 hours",
-    "synchronizing": "Synchronization"
+    "synchronizing": "Synchronization",
+    "settings": "Display settings",
+    "sorting": "Sorting",
+    "sort": {
+      "custom": "Custom",
+      "byName": "By name",
+      "byValue": "By value",
+      "firstCoin": "Coins first",
+      "firstToken": "Tokens first",
+      "withBalance": "With a positive balance",
+      "guideTitle": "Guide"
+    },
+    "categories": {
+      "coin": "Coins",
+      "token": "Tokens"
+    },
+    "setSortValueCustom": "The sorting mode is set to «Custom»"
   },
   "walletCreateScreen": {
     "title": "BUY SELL EXCHANGE ANONYMOUSLY",
@@ -37,6 +53,7 @@
     "tabAll": "All",
     "tabNews": "News",
     "tabInvite": "Invite",
+    "cashbackTabInvite": "Invite",
     "tabInfo": "Info",
     "tabFaq": "Faq",
     "today": "Today",
@@ -53,6 +70,8 @@
       "listSubtitle": "Accounts: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Disabled",
+      "unconnectedText": "Scan the QR code to connect to the DeFi service",
       "inputPlaceholder": "Direct Link",
       "stop": "Disable WalletConnect",
       "stopText": "Are you sure you want to stop the connection with ",
@@ -143,6 +162,7 @@
       "testerMode": "Tester"
     },
     "walletList": {
+      "showBalance": "Show balance",
       "title": "My wallets",
       "addWallet": "Add wallet",
       "backupNeeded": "Backup needed",
@@ -157,6 +177,8 @@
       "allowReplaceByFee": "Edit the transaction before confirmation by miners",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
+      "showAll": "Show all",
+      "generateNew": "Generate new",
       "accountAddress": "Default address type",
       "hd": "Increasing confidentiality",
       "hdDescription": "Creating a new address, each time after an incoming BTC transaction",
@@ -177,6 +199,11 @@
         "title": "Switch wallet to HD mode?",
         "description": "HD mode implies rotation of addresses for each transaction. The switching operation is irreversible."
       },
+      "staked": "Staked",
+      "frozen": "Frozen",
+      "stakeTransactionsSOL": "Staking transactions",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR" : "Server (default api.mymonero.com)",
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Server for Send TX (default api.mymonero.com)",
@@ -184,7 +211,8 @@
       "needReinstallXMR"  : "Something wrong with XMR address generation - please, save mnemonic and reinstall application or contact support",
       "saveSettings" : "Save",
       "getMnemonicXMR" : "View secret key",
-      "availableTRX" : "Available",
+      "available" : "Available",
+      "availableSOL": "Available balance",
       "frozenTRX" : "Frozen",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "enter freeze amount TRX",
@@ -214,12 +242,18 @@
       "withdrawSOL" : "Withdraw",
       "withdrawAllSOL" : "Withdraw All",
       "deactivateSOL": "Deactivate",
-      "stakeHistorySOL" : "Stake History",
+      "stakeHistorySOL" : "History",
       "selectValidatorSOL": "Select validator",
       "selectValidatorSOLCommission" : "Fee: ",
       "validatorSOL": "Validator",
       "rewards" : "Rewards",
-      "useCustomValidator": "Use this validator "
+      "useCustomValidator": "Use this validator ",
+      "successUnfreeze": "TRX unfrozen",
+      "successFreeze": "TRX frozen for staking",
+      "successReward": "TRX staking reward received",
+      "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
+      "withdrawTRX": "Withdraw",
+      "freezeTrx": "Freeze"
     },
     "about": {
       "title": "About",
@@ -266,7 +300,7 @@
     "tabCustom": "More",
     "searchPlaceholder": "Search",
     "addCustomPlaceholder": "Asset address",
-    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB, Polygon, Solana or Tron blockchain. Please, enter or scan a new token / asset.",
+    "addCustomLabel": "You can add a standard token developed on Ethereum, BNB Smart Chain, Polygon, Solana or Tron blockchain. Please, enter or scan a new token / asset.",
     "noAssetsFound": "No assets found",
     "addAssetButton": "Add asset",
     "mainTitle": "Add asset",
@@ -308,7 +342,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Add NFT Asset",
-    "addCustomLabel": "You can add a standard NFT token developed on Matic blockchain or Ropsten Testnet. Please, enter or scan a new token / asset address.",
+    "addCustomLabel": "You can add a standard NFT token developed on Ethereum, BNB Smart Chain, Matic blockchains or on Ropsten, Rinkeby Testnet. Please enter or scan a new token / asset address.",
     "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
     "addCustomPlaceholder" : "NFT Asset Address",
     "addAssetButton" : "Add asset"
@@ -317,26 +351,25 @@
     "invited": "Invited:",
     "cashback": "Cashback",
     "cpa": "CPA",
-    "pageTitle": "Invite your friends",
-    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
-    "pageSubtitleText": "to",
+    "pageTitle": "Earn",
+    "pageSubtitle": "Earn to 30% from the commission with Trustee Wallet!",
     "shareButton": "Share",
     "promoButton": "Promocode",
     "detailsButton": "Details",
     "enterPromoPlaceholder": "Enter promocode",
     "enterInviteLinkPlaceholder": "Enter invite link",
     "applyButton": "Apply",
-    "wholeBalance": "All balance",
+    "wholeBalance": "Balance for the whole time",
     "availableCashBack": "Available cashback",
     "balanceTitle": "Balance",
-    "toWithdraw": "to withdraw needed:",
-    "cashbackInfo": "Cashback info",
-    "cpaInfo": "CPA info",
+    "toWithdraw": "Min. withdraw amount:",
     "cpaTotal": "Total CPA",
     "cpaLevel1": "CPA Level 1",
     "cpaLevel2": "CPA Level 2",
     "cpaLevel3": "CPA Level 3",
     "cashbackToken": "Token",
+    "yourToken": "Your cashback link",
+    "cashbackMessage": "Get Cashback for your exchange transactions. Earn Crypto with Affiliate Program and CPA by recommending Trustee Wallet!",
     "howItWorks": {
       "title": "How it works?",
       "info1Title": "Does Trustee Wallet have a user rewards program?",
@@ -366,7 +399,7 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "Your friends",
-    "updated" : "Updated",
+    "updated" : "Updated at",
     "transAmount": "Transaction amount",
     "level2UsersAmount": "Friends of friends",
     "cashbackError" : {
@@ -387,6 +420,7 @@
     "performWithdraw": "To perform withdraw, please, write to telegram to nickname"
   },
   "account": {
+    "staking": "Staking",
     "title": "Account",
     "copy": "Click to copy",
     "refresh": "Refresh",
@@ -400,8 +434,20 @@
     "soLong": "Last a long time ago",
     "minutesAgo": " %{time} min ago ",
     "noTransactions": "You don’t have any transaction yet. But you can resolve this quickly, just tap on BUY button",
+    "noFoundTransactions": "Sorry, no results were found",
     "showMore": "Show more",
     "assetSettings": "Asset settings",
+    "stakingTRX": {
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
+      "moreInfo": "More details..."
+    },
+    "stakingSOL": {
+      "stake": "Freeze your SOL to receive staking rewards. "
+    },
+    "copyLink": "Copy address",
+    "invoiceText": "Issue an invoice for payment",
+    "openInBlockchair": "Open in blockchain explorer",
     "externalLink": {
       "title": "Go to blockchain explorer",
       "description": "External site link will be opened"
@@ -431,10 +477,14 @@
       "freeze" : "Freeze",
       "unfreeze" : "UnFreeze",
       "claim" : "Claim",
+      "stake" : "Stake",
+      "vote": "Vote",
+      "wallet_connect" : "WalletConnect",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
       "self": "Self",
       "exchange": "Exchange",
+      "swap": "Swap",
       "buy": "Buy",
       "sell": "Sell",
       "mobile_phone": "Mobile phone",
@@ -446,6 +496,25 @@
       "advAccountDestination": "Withdraw account number",
       "phoneDestination": "Withdraw phone number",
       "orderId": "Related to swap ID",
+      "selectAll": "Select all",
+      "cancel": "Canceled",
+      "reward": "Reward",
+      "categoriesTitle": "Categories",
+      "transactionCategories": "Transaction categories",
+      "dateAmount": "Date & amount",
+      "timeArray": "Time array",
+      "amountRange": "Amount range",
+      "allAmount": "All amount",
+      "downloadTransactionsHistory": "Download all time transactions history",
+      "saveInCsv": "Save all transactions to CSV",
+      "filterTitle": "Filter",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "pickDate": "Pick date",
+      "startAmount": "Start amount",
+      "endAmount": "End amount",
+      "setAmount": "Set amount",
+      "discard": "Discard",
       "RBF": {
         "replaceByFeeBtn": "Update tx fee",
         "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
@@ -521,7 +590,8 @@
       "transactionSum": "Amount send",
       "addresTo": "Recipient ",
       "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations "
+      "blockConfirmations": "Current number of confirmations ",
+      "transactionAmount": "%{currencyCode} amount"
     }
   },
 
@@ -996,7 +1066,7 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 5-7 TRX coins, which can later be used in other transactions"
+        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 10 TRX coins, which can later be used in other transactions"
       },
       "TOKEN": {
         "title": "Please, pay attention!",
@@ -1155,6 +1225,15 @@
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"
+    },
+    "dropDownModal": {
+      "showGuide": "Repeat training",
+      "moveToTop": "Move to the top of the list",
+      "moveToDown": "Move to the down of the list",
+      "guideText": "Customize the display of coins on the main screen by placing them in the required order, or sort assets according to the proposed options.",
+      "guideTitle": "Personal interface",
+      "guideAccept": "Accept",
+      "hideAsset": "Hide assets"
     }
   },
   "lockScreen": {
@@ -1495,6 +1574,6 @@
     "noMessages": "No messages yet",
     "sentFile": "File sent",
     "getRoomError" : "Load messages error",
-    "sendMessageError" : "Connection error while message sending"
+    "sendMessageError" : "Unstable network connection when sending a message"
   }
 }

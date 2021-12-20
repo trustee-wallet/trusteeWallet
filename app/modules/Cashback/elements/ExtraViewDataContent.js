@@ -24,7 +24,7 @@ import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import Api from '@app/services/Api/Api'
+import ApiPromo from '@app/services/Api/ApiPromo'
 import config from '@app/config/config'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -99,7 +99,7 @@ export class Tab1 extends React.Component {
             Log.log('CashbackLink inputParent for ' + cashbackLink + ' is equal ' + inviteLink)
             showModal({
                 type: 'INFO_MODAL',
-                icon: 'INFO',
+                icon: false,
                 title: strings('modal.exchange.sorry'),
                 description: strings('modal.cashbackLinkEqualModal.description', { link: inviteLink })
             })
@@ -114,7 +114,7 @@ export class Tab1 extends React.Component {
             UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
             showModal({
                 type: 'INFO_MODAL',
-                icon: 'INFO',
+                icon: false,
                 title: strings('modal.walletBackup.success'),
                 description: strings('modal.cashbackTokenLinkModal.success.description')
             })
@@ -156,7 +156,7 @@ export class Tab1 extends React.Component {
     handleApply = async () => {
         try {
             setLoaderStatus(true)
-            let desc = await Api.activatePromo(this.state.promoCode)
+            let desc = await ApiPromo.activatePromo(this.state.promoCode)
             if (typeof desc !== 'string') {
                 if (typeof desc['en'] !== 'undefined') {
                     desc = desc['en']
@@ -166,7 +166,7 @@ export class Tab1 extends React.Component {
             }
             showModal({
                 type: 'INFO_MODAL',
-                icon: 'INFO',
+                icon: false,
                 title: strings('modal.walletBackup.success'),
                 description: desc
             })
@@ -176,7 +176,7 @@ export class Tab1 extends React.Component {
             }
             showModal({
                 type: 'INFO_MODAL',
-                icon: 'INFO',
+                icon: false,
                 title: strings('modal.exchange.sorry'),
                 description: strings('cashback.cashbackError.' + e.message)
             })
@@ -221,7 +221,7 @@ export class Tab1 extends React.Component {
         } = this.context
 
         return (
-            <View>
+            <View style={{ marginTop: -GRID_SIZE }}>
                 {!cashbackParentToken ?
                 <View style={styles.inviteContainer}>
                     {!promoCondition ?
@@ -326,7 +326,7 @@ export class Tab2 extends React.Component {
 
         const {
             condition,
-            balance,
+            procent,
             minimalWithdraw,
             currency,
             windowWidth,
@@ -339,33 +339,36 @@ export class Tab2 extends React.Component {
         } = this.context
 
         return (
-            <View style={styles.progressBarContainer}>
-                <View>
-                    <Text numberOfLines={1} style={[styles.withdrawInfo, { width: condition ? windowWidth.width * 0.41 : windowWidth.width * 0.8 }]}>{strings('cashback.toWithdraw')}</Text>
-                    <View style={styles.progressBarLocation}>
-                        <Bar
-                            width={!condition ? windowWidth.width * 0.70 : windowWidth.width * 0.36}
-                            height={5}
-                            borderRadius={4}
-                            borderWidth={0}
-                            progress={progress}
-                            color={colors.cashback.token}
-                            unfilledColor={colors.cashback.chartBg}
-                        />
-                        <View>
-                            <Text style={styles.progressProcent}>{balance + ' / ' + minimalWithdraw + ' ' + currency}</Text>
+            <>
+                {condition ?
+                    <View style={[styles.buttonLocation, { marginTop: GRID_SIZE / 2 }]}>
+                        <TouchableOpacity
+                            activeOpacity={0.6}
+                            style={[styles.withdrawButton, { borderColor: colors.common.text3 }]}
+                            onPress={this.handleWithdraw}
+                        >
+                            <Text style={[styles.withdrawButtonText, { color: colors.common.text3 }]}>{strings('cashback.withdraw')}</Text>
+                        </TouchableOpacity>
+                    </View> :
+                    <View style={[styles.progressBarContainer, { marginLeft: GRID_SIZE / 2, backgroundColor: colors.common.text4, width: windowWidth.width * 0.70 }]}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: -GRID_SIZE / 4}}>
+                            <Text numberOfLines={2} style={[styles.withdrawInfo, { width: windowWidth.width * 0.35 }]}>{`${strings('cashback.toWithdraw')} ${minimalWithdraw} ${currency}`}</Text>
+                            <Text style={[styles.procent, { color: colors.common.text3, marginRight: GRID_SIZE / 2 }]}>{`${procent} %`}</Text>
+                        </View>
+                        <View style={styles.progressBarLocation}>
+                            <Bar
+                                width={windowWidth.width * 0.70}
+                                height={5}
+                                borderRadius={0}
+                                borderWidth={0}
+                                progress={progress}
+                                color={colors.cashback.token}
+                                unfilledColor={colors.cashback.progressBarBg}
+                            />
                         </View>
                     </View>
-                </View>
-                {condition ?
-                    <TouchableOpacity
-                        activeOpacity={0.6}
-                        style={[styles.withdrawButton, { borderColor: colors.common.text3, marginRight: GRID_SIZE }]}
-                        onPress={this.handleWithdraw}
-                    >
-                        <Text style={[styles.withdrawButtonText, { color: colors.common.text3 }]}>{strings('cashback.withdraw')}</Text>
-                    </TouchableOpacity> : null}
-            </View>
+                }
+            </>
         )
     }
 }
@@ -379,21 +382,18 @@ export class Tab3 extends React.Component {
         } = this.props
 
         const {
-            colors
+            GRID_SIZE
         } = this.context
 
         return (
-            <View style={styles.circleView}>
+            <View style={[styles.circleView, { marginHorizontal: GRID_SIZE * 2, marginTop: -GRID_SIZE / 8 }]}>
                 <ProgressCircleBox
-                    additionalStyles={{ borderRightWidth: 1, borderRightColor: colors.cashback.borderColor }}
+                    additionalStyles={{ marginTop: GRID_SIZE / 2 }}
                     progress={cashbackPercent / 100}
-                    title={strings('cashback.cashback')}
-                    percent={cashbackPercent}
-                />
-                <ProgressCircleBox
-                    progress={cpaPercent / 100}
-                    title={strings('cashback.cpa')}
-                    percent={cpaPercent}
+                    cashbackTitle={strings('cashback.cashback')}
+                    cpaTitle={strings('cashback.cpa')}
+                    cashbackPercent={cashbackPercent}
+                    cpaPercent={cpaPercent}
                 />
             </View>
         )
@@ -437,31 +437,40 @@ const styles = StyleSheet.create({
         letterSpacing: 1
     },
     progressBarContainer: {
-        marginTop: 5,
-        flexDirection: 'row',
-        justifyContent: 'space-between'
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        height: 50,
+        borderTopLeftRadius: 14,
+        borderTopRightRadius: 14
+    },
+    procent: {
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 16,
+        lineHeight: 20,
+        alignSelf: 'center'
     },
     withdrawInfo: {
         marginLeft: 11,
         fontSize: 11,
-        fontFamily: 'Montserrat-SemiBold',
+        lineHeight: 16,
+        fontFamily: 'Montserrat-Bold',
         textTransform: 'uppercase',
         color: '#999999',
-        lineHeight: 11,
-        letterSpacing: 0.5
+        letterSpacing: 0.5,
+        marginVertical :11
     },
     progressBarLocation: {
-        marginTop: 4,
-        marginLeft: 9
+
+    },
+    buttonLocation: {
+        alignItems: 'center'
     },
     withdrawButton: {
-        marginTop: 5,
         borderRadius: 6,
         borderWidth: 1.5,
-        paddingVertical: 8,
-        paddingHorizontal: 12,
         width: 95,
-        height: 30
+        height: 30,
+        justifyContent: 'center'
     },
     withdrawButtonText: {
         fontFamily: 'Montserrat-SemiBold',
@@ -481,7 +490,7 @@ const styles = StyleSheet.create({
         color: '#999999'
     },
     circleView: {
-        flexDirection: 'row',
+        justifyContent: 'center',
         marginTop: 10
     },
 })

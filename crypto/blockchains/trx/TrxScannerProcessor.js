@@ -14,6 +14,8 @@ import config from '@app/config/config'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import TronStakeUtils from '@crypto/blockchains/trx/ext/TronStakeUtils'
+
 
 let CACHE_PENDING_TXS = false
 
@@ -34,7 +36,7 @@ export default class TrxScannerProcessor {
     /**
      * https://developers.tron.network/reference#addresses-accounts
      * @param {string} address
-     * @return {Promise<{balance, frozen, frozenEnergy, unconfirmed, provider}>}
+     * @return {Promise<{balance, frozen, frozenEnergy, balanceStaked, unconfirmed, provider}>}
      */
     async getBalanceBlockchain(address) {
         address = address.trim()
@@ -81,12 +83,32 @@ export default class TrxScannerProcessor {
         if (result === false && this._tokenName !== '_') {
             if (subresult !== false) {
                 BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' subresult tronScan ' + JSON.stringify(subresult))
-                return { balance: 0, unconfirmed: 0, provider: 'tronscan-ok-but-no-token' }
+                return { balance: 0, unconfirmed: 0, balanceStaked : 0, balanceAvailable : 0, provider: 'tronscan-ok-but-no-token' }
             }
+        }
+        result.balanceStaked = typeof result.frozen !== 'undefined' ? (result.frozen * 1 + result.frozenEnergy * 1) : 0
+        result.balanceAvailable = result.balance
+        if (result.balanceStaked * 1 > 0) {
+            result.balance = result.balance * 1 + result.balanceStaked * 1
         }
         return result
     }
 
+
+    /**
+     * @param {string} address
+     * @return {Promise<*>}
+     */
+    async getResourcesBlockchain(address) {
+        address = address.trim()
+        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getResourcesBlockchain address ' + address)
+        let addressHex = address
+        if (address.substr(0, 1) === 'T') {
+            addressHex = await TronUtils.addressToHex(address)
+        }
+        const result = await this._trongridProvider.getResources(addressHex, this._tokenName)
+        return result
+    }
 
     /**
      * https://github.com/jakeonchain/tron-wallet-chrome/blob/fecea42771cc5cbda3fada4a1c8cfe8de251c008/src/App.js
@@ -109,28 +131,42 @@ export default class TrxScannerProcessor {
     }
 
     async resetTransactionsPendingBlockchain(scanData, source, lastBlock = false) {
-        CACHE_PENDING_TXS = false
+        CACHE_PENDING_TXS = scanData.resetTime || 0
+        if (typeof scanData.specialActionNeeded !== 'undefined' && scanData.specialActionNeeded && typeof scanData.account.address !== 'undefined') {
+            await Database.query(`
+                    UPDATE transactions SET special_action_needed='' 
+                    WHERE special_action_needed='${scanData.specialActionNeeded}'
+                    AND address_from_basic='${scanData.account.address}'
+                    `)
+        }
         return false
     }
 
     async getTransactionsPendingBlockchain(scanData, source, lastBlock = false) {
-        if (CACHE_PENDING_TXS === 'none') {
+        if (CACHE_PENDING_TXS > 0 && CACHE_PENDING_TXS - new Date().getTime() < 60000) {
             return false
         }
         // id, transaction_hash, block_number, block_confirmations, transaction_status,
-        const sql = `SELECT id, transaction_hash AS transactionHash, transactions_scan_log AS transactionsScanLog
-            FROM transactions
+        const sql = `SELECT t.id, 
+            t.wallet_hash AS walletHash,
+            t.transaction_hash AS transactionHash,
+            t.transactions_scan_log AS transactionsScanLog, 
+            t.address_from_basic AS addressFromBasic,
+            t.special_action_needed AS specialActionNeeded,
+            a.derivation_path AS derivationPath
+            FROM transactions AS t
+            LEFT JOIN account AS a ON a.address = t.address_from_basic
             WHERE 
-            ((currency_code='${this._settings.currencyCode}' OR currency_code LIKE 'TRX%')
-            AND transaction_of_trustee_wallet=1
-            AND (block_number IS NULL OR block_number=0)
-            )
+            (t.currency_code='${this._settings.currencyCode}' OR t.currency_code LIKE 'TRX%')
+            AND t.transaction_of_trustee_wallet=1
+            AND (t.block_number IS NULL OR t.block_number<20 OR t.special_action_needed='vote')
+            
             ORDER BY created_at DESC
             LIMIT 10
         `
         const res = await Database.query(sql)
         if (!res || typeof res.array === 'undefined' || !res.array || res.array.length === 0) {
-            CACHE_PENDING_TXS = 'none'
+            CACHE_PENDING_TXS = new Date().getTime()
             return false
         }
 
@@ -151,6 +187,7 @@ export default class TrxScannerProcessor {
             }
         }
 
+        const unique = {}
         for (const row of res.array) {
             const linkRecheck = sendLink + '/wallet/gettransactioninfobyid'
             try {
@@ -158,13 +195,47 @@ export default class TrxScannerProcessor {
                     value: row.transactionHash
                 })
                 if (typeof recheck.data !== 'undefined') {
-                    if (await this._unifyFromReceipt(recheck.data, row, lastBlock) && needUpdateBalance === 0) {
+                    const isSuccess = await this._unifyFromReceipt(recheck.data, row, lastBlock)
+                    if (isSuccess && needUpdateBalance === 0) {
                         needUpdateBalance = 1
+                    }
+                    if (isSuccess && row.specialActionNeeded && row.addressFromBasic) {
+                         row.confirmations = lastBlock - recheck.data.blockNumber
+                        if (typeof unique[row.addressFromBasic] === 'undefined') {
+                            unique[row.addressFromBasic] = row
+                        } else if (unique[row.addressFromBasic].confirmations > row.confirmations) {
+                            unique[row.addressFromBasic].confirmations = row.confirmations
+                        }
                     }
                 }
             } catch (e1) {
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain recheck', e1)
+                }
+            }
+        }
+
+        if (unique) {
+            for (const address in unique) {
+                const {walletHash, derivationPath, confirmations } = unique[address]
+                if (confirmations < 20) {
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all skipped by ' + confirmations + ' for ' + address)
+                    continue
+                }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all inited for ' + address)
+                try {
+                    if (await TronStakeUtils.sendVoteAll(address, derivationPath, walletHash)) {
+                        await Database.query(`
+                    UPDATE transactions SET special_action_needed='' WHERE special_action_needed='vote'
+                    AND address_from_basic='${address}'
+                    `)
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all finished for ' + address)
+                    }
+                } catch (e) {
+                    if (config.debug.cryptoErrors) {
+                        console.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all error for ' + address + ' ' + e.message)
+                    }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all error for ' + address + ' ' + e.message)
                 }
             }
         }

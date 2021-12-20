@@ -6,33 +6,34 @@ import { Text } from 'react-native'
 
 import Orientation from 'react-native-orientation'
 
-import walletDS from '../../DataSource/Wallet/Wallet'
+import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
-import NavStore from '../../../components/navigation/NavStore'
+import NavStore from '@app/components/navigation/NavStore'
 
-import { setSelectedWallet } from '../../Stores/Main/MainStoreActions'
-import { setInitState, setInitError } from '../../Stores/Init/InitStoreActions'
-import walletActions from '../../Stores/Wallet/WalletActions'
-import currencyActions from '../../Stores/Currency/CurrencyActions'
-import settingsActions from '../../Stores/Settings/SettingsActions'
+import { setFilter, setSelectedWallet, setSortValue, setStakingCoins } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setInitState, setInitError } from '@app/appstores/Stores/Init/InitStoreActions'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import customCurrencyActions from '../CustomCurrencyActions'
 
 import Database, { cleanupNotNeeded } from '@app/appstores/DataSource/Database'
 
-import Log from '../../../services/Log/Log'
-import AppLockScreenIdleTime from '../../../services/AppLockScreenIdleTime/AppLockScreenIdleTime'
-import AppNotification from '../../../services/AppNotification/AppNotificationListener'
+import Log from '@app/services/Log/Log'
+import AppLockScreenIdleTime from '@app/services/AppLockScreenIdleTime/AppLockScreenIdleTime'
+import AppNotification from '@app/services/AppNotification/AppNotificationListener'
 
-import Daemon from '../../../daemons/Daemon'
-import CashBackUtils from '../../Stores/CashBack/CashBackUtils'
+import Daemon from '@app/daemons/Daemon'
+import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
-import FilePermissions from '../../../services/FileSystem/FilePermissions'
-import UpdateAppNewsDaemon from '../../../daemons/back/UpdateAppNewsDaemon'
-import UpdateAccountListDaemon from '../../../daemons/view/UpdateAccountListDaemon'
+import FilePermissions from '@app/services/FileSystem/FilePermissions'
+import UpdateAppNewsDaemon from '@app/daemons/back/UpdateAppNewsDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 
-import config from '../../../config/config'
+import config from '@app/config/config'
 import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBasicActions'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 if (Text.defaultProps == null) Text.defaultProps = {}
 Text.defaultProps.allowFontScaling = false
@@ -168,8 +169,14 @@ class App {
 
             await currencyBasicActions.init()
 
+            await setSortValue(trusteeAsyncStorage.getSortValue() || null)
+
+            await this.setAccountFilterData()
+
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })
+
+            await setStakingCoins()
 
         } else if (firstTimeCall === 'second') {
             // second step of init
@@ -186,6 +193,12 @@ class App {
         }
 
         await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall) + ' finished')
+    }
+
+    setAccountFilterData = async () => {
+        let filter = await trusteeAsyncStorage.getAccountFilterData()
+        filter = typeof filter !== 'undefined' && filter && Object.keys(filter) ? filter : {}
+        await setFilter(filter)
     }
 
 

@@ -46,6 +46,9 @@ import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 import { FlatList } from 'react-native-gesture-handler'
 import AssetFlatListItem from './elements/AssetFlatListItem'
 
+import PercentView from '@app/components/elements/new/PercentView'
+import { getStakingCoins } from '@app/appstores/Stores/Main/selectors'
+
 
 class AddAssetScreen extends React.PureComponent {
     state = {
@@ -133,7 +136,7 @@ class AddAssetScreen extends React.PureComponent {
 
     handleAddCustomToken = async (value) => {
         Keyboard.dismiss()
-        const customAddress = value.trim().split(/\s+/g).join('')
+        const customAddress = value.trim().split(/\s+/g).join('').replace('/', '').replace('.', '')
 
         const validationETH = await Validator.userDataValidation({
             type: 'ETH_ADDRESS',
@@ -201,8 +204,8 @@ class AddAssetScreen extends React.PureComponent {
             ItemSeparatorComponent: () => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 5, marginRight: GRID_SIZE * 2 }} />,
             renderItem: params => this.renderListItem(params),
             keyExtractor: item => item.currencyCode,
-            keyboardShouldPersistTaps: 'handled',
-            keyboardDismissMode: 'on-drag',
+            // keyboardShouldPersistTaps: 'handled',
+            // keyboardDismissMode: 'on-drag',
             ListEmptyComponent: () => this.renderEmptyList(),
             // onScroll: e => this.updateOffset(e)
         }
@@ -281,6 +284,20 @@ class AddAssetScreen extends React.PureComponent {
         )
     }
 
+    renderCustomTextInput = () => (
+        <TextInput
+            label={strings('assets.addCustomLabel')}
+            labelColor={this.context.colors.common.text3}
+            placeholder={strings('assets.addCustomPlaceholder')}
+            onChangeText={this.handleChangeCustomAddress}
+            value={this.state.customAddress}
+            paste={true}
+            callback={this.handleChangeCustomAddress}
+            qr={true}
+            qrCallback={this.handleOpenQr}
+            onBlur={() => null}
+        />
+    )
 
     render() {
         const { colors, GRID_SIZE } = this.context
@@ -288,7 +305,6 @@ class AddAssetScreen extends React.PureComponent {
             data,
             searchQuery,
             tabs,
-            customAddress,
             headerHasExtraView
         } = this.state
         const activeGroup = tabs.find(tab => tab.active).group
@@ -312,37 +328,26 @@ class AddAssetScreen extends React.PureComponent {
                                 {...this.commonHeaderProps}
                                 ListEmptyComponent={null}
                                 data={data}
-                                ListHeaderComponent={!!searchQuery ? null : () => (
-                                    <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
-                                        {this.renderTabs(false)}
-                                        <View style={[styles.customAddressConent, { marginHorizontal: GRID_SIZE }]}>
-                                            <TextInput
-                                                label={strings('assets.addCustomLabel')}
-                                                labelColor={colors.common.text3}
-                                                placeholder={strings('assets.addCustomPlaceholder')}
-                                                onChangeText={this.handleChangeCustomAddress}
-                                                value={customAddress}
-                                                paste={true}
-                                                callback={this.handleChangeCustomAddress}
-                                                qr={true}
-                                                qrCallback={this.handleOpenQr}
-                                            />
-                                            <Button
-                                                containerStyle={{ marginTop: GRID_SIZE * 2 }}
-                                                title={strings('assets.addAssetButton')}
-                                                onPress={() => this.handleAddCustomToken(customAddress)}
-                                                disabled={!customAddress}
-                                            />
-                                        </View>
-                                    </TouchableOpacity>
-                                )}
+                                ListHeaderComponent={this.state.searchQuery ? null : 
+                                <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} >
+                                    {this.renderTabs(false)}
+                                    <View style={[styles.customAddressConent, { marginHorizontal: GRID_SIZE }]}>
+                                        {this.renderCustomTextInput()}
+                                        <Button
+                                            containerStyle={{ marginTop: GRID_SIZE * 2 }}
+                                            title={strings('assets.addAssetButton')}
+                                            onPress={() => this.handleAddCustomToken(this.state.customAddress)}
+                                            disabled={!this.state.customAddress}
+                                        />
+                                    </View>
+                                </TouchableOpacity>}
                             />
                         ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
                             ? this.state.tokenBlockchain ? (
                                 <FlatList
                                     {...this.commonHeaderProps}
                                     data={this.state.onLoading ? null : this.state.tokenBlockchainArray}
-                                    ListHeaderComponent={!!searchQuery ? null : () => (
+                                    ListHeaderComponent={searchQuery ? null : () => (
                                         this.renderTokenHeader(data)
                                     )}
                                     ListEmptyComponent={() => this.renderLoader()}
@@ -353,7 +358,7 @@ class AddAssetScreen extends React.PureComponent {
                                         {...this.commonHeaderProps}
                                         sections={this.state.onLoading ? null : data}
                                         stickySectionHeadersEnabled={false}
-                                        ListHeaderComponent={!!searchQuery ? null : () => (
+                                        ListHeaderComponent={searchQuery ? null : () => (
                                             this.renderTokenHeader(data)
                                         )}
                                         renderSectionHeader={({ section: { title } }) => <Text style={[styles.blockTitle, { color: colors.common.text3, marginLeft: GRID_SIZE * 3 }]}>{title}</Text>}
@@ -365,7 +370,7 @@ class AddAssetScreen extends React.PureComponent {
                                     <FlatList
                                         {...this.commonHeaderProps}
                                         data={data}
-                                        ListHeaderComponent={!!searchQuery ? null : () => this.renderTabs(false)}
+                                        ListHeaderComponent={searchQuery ? null : () => this.renderTabs(false)}
                                     />
                                 )
                     }
@@ -392,7 +397,7 @@ class AddAssetScreen extends React.PureComponent {
 
         if (isSearchTokenAddress) {
             return (
-                <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6 }}>
+                <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6, marginHorizontal: GRID_SIZE * 2 }}>
                     <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
                         <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
                             <Button
@@ -430,6 +435,8 @@ class AddAssetScreen extends React.PureComponent {
 
         const { GRID_SIZE } = this.context
 
+        const availableStaking = Object.keys(this.props.stakingCoins).includes(item.currencyCode)
+
         return (
             <View style={{ marginHorizontal: GRID_SIZE * 2 }}>
                 <ListItem
@@ -439,6 +446,18 @@ class AddAssetScreen extends React.PureComponent {
                     onPress={() => this.handleChangeCurrencyStatus(item)}
                     rightContent="switch"
                     switchParams={{ value: item.isHidden !== null && !item.maskedHidden, onPress: () => this.handleChangeCurrencyStatus(item) }}
+                    TitleExtraView={() => {
+                        if (availableStaking) {
+                            return (
+                                <PercentView 
+                                    value={this.props.stakingCoins[item.currencyCode]}
+                                    staking
+                                />
+                            )
+                        } else {
+                            return null
+                        }
+                    }}
                 />
             </View>
         )
@@ -449,6 +468,7 @@ class AddAssetScreen extends React.PureComponent {
 const mapStateToProps = (state) => {
     return {
         assets: state.currencyStore.cryptoCurrencies,
+        stakingCoins: getStakingCoins(state)
     }
 }
 

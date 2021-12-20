@@ -8,6 +8,8 @@ import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchai
 
 import { transfer, broadcast } from '@waves/waves-transactions/src/index'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import config from '@app/config/config'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
@@ -112,14 +114,29 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' will broadCast ' + JSON.stringify(apiPath))
                 broadcast(signedData, apiPath).then(resp => {
                     resolve(resp)
+                }).catch(e => {
+                    reject(e)
                 })
+
             })
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' send res ' + resp)
             result.transactionHash = signedData.id
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' send error ' + e.message)
+            }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' send error ' + e.message)
             this.checkError(e, data, false)
         }
         return result
+    }
+
+    checkError(e, data, txRBF = false) {
+        if (e.message.indexOf('waves balance to (at least) temporary negative state') !== -1) {
+            throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
+        } else {
+            MarketingEvent.logOnlyRealTime('v20_' + this._settings.currencyCode + '_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, false)
+            throw e
+        }
     }
 }

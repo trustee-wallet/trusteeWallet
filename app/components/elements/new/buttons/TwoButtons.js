@@ -18,6 +18,10 @@ const getIcon = (type, color) => {
             return <CustomIcon name='settings' size={28} color={color} style={{ left: 0.5 }} />
         case 'back':
             return <CustomIcon name='back' size={24} color={colors.common.text3} style={{ left: 0.5 }} />
+        case 'sendMessage':
+            return <CustomIcon name='sendMessage' size={28} color={color} style={{ left: 0.5 }} />
+        case 'clean':
+            return <CustomIcon name='cancel_filter' size={24} color={color} style={{ left: 0.5 }} />
         default:
             return null
     }
@@ -34,21 +38,23 @@ export default function TwoButtons(props) {
 
     const hasSecodary = !!Object.keys(secondaryButton || {}).length
 
+    const hasMain = !!Object.keys(mainButton || {}).length
+
     return (
         <View style={styles.buttonsContainer}>
             {hasSecodary && (
                 <TouchableOpacity
-                    style={[styles.secondaryButton, !secondaryButton.disable && styles.buttonShadow, {
-                        backgroundColor: colors.common.button.secondary.bg,
+                    style={[styles.secondaryButton, !secondaryButton.disable && styles.buttonShadow, secondaryButton.additionalSecondaryStyles, {
+                        backgroundColor: !secondaryButton.inverted ? colors.common.button.secondary.bg : colors.common.button.bg,
                         marginRight: GRID_SIZE
                     }]}
                     {...secondaryButton}
                 >
-                    {getIcon(secondaryButton.type, secondaryButton.disable ? colors.common.button.disabledBg : colors.common.text3)}
+                    {getIcon(secondaryButton.type, secondaryButton.disable ? colors.common.button.disabledBg : !secondaryButton.inverted ? colors.common.text3 : '#F7F7F7')}
                 </TouchableOpacity>
             )}
 
-            <Button {...mainButton} containerStyle={styles.mainButton} />
+            {hasMain && <Button {...mainButton} containerStyle={styles.mainButton} />}
         </View>
     )
 }

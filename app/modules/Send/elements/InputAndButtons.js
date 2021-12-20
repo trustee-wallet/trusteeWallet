@@ -300,7 +300,7 @@ class InputAndButtons extends PureComponent {
         }
 
         let diff = BlocksoftUtils.diff(this.state.cryptoValue, balanceRaw)
-        const hodl = await (BlocksoftBalances.setCurrencyCode(currencyCode)).getBalanceHodl()
+        const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl()
         if (hodl * 1 > 0) {
             diff = BlocksoftUtils.add(diff, hodl)
         }

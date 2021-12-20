@@ -90,6 +90,8 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 res.data.currencyCode = 'XMR'
             } else if (network === 'matic' || network === 'polygon') {
                 res.data.currencyCode = 'MATIC'
+            } else if (network === 'velas' || network === 'vlx') {
+                res.data.currencyCode = 'VLX'
             } else if (network === 'binance' || network === 'bnb') {
                 res.data.currencyCode = 'BNB'
             } else {
