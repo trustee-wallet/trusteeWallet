@@ -29,8 +29,6 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 
-import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
-
 import LinkInput from '@app/components/elements/NewInput'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
@@ -80,9 +78,7 @@ class WalletConnectScreen extends PureComponent {
         },
         peerId: false,
         peerStatus: false,
-        transactions: [],
         inputFullLink: '',
-        noMoreLock: false,
         linkError: false
     }
 
@@ -237,11 +233,11 @@ class WalletConnectScreen extends PureComponent {
         })
     }
 
-    handleChangeNetwork = (currencyCode) => {
+    handleChangeNetwork = () => {
         NavStore.goNext('WalletConnectChangeNetworkScreen')
     }
 
-    handleFastLinks = (currencyCode) => {
+    handleFastLinks = () => {
         NavStore.goNext('WalletDappFastLinksScreen')
     }
 
@@ -287,7 +283,7 @@ class WalletConnectScreen extends PureComponent {
             >
                 <View style={[styles.mainButton, { bottom: GRID_SIZE, paddingHorizontal: GRID_SIZE }]}>
                     <Button
-                        onPress={peerStatus ? this.handleDisconnect : () => this.handleConnect()}
+                        onPress={peerStatus ? this.handleDisconnect : this.handleConnect}
                         title={peerStatus ? strings('settings.walletConnect.disconnect') : strings('settings.walletConnect.connect')}
                     />
                 </View>
@@ -392,20 +388,6 @@ class WalletConnectScreen extends PureComponent {
                                 />
                             </View>
                         }
-
-                        {
-                            this.state.transactions ?
-                                this.state.transactions.map((item, index) => {
-                                    return <ListItem
-                                        key={index}
-                                        title={BlocksoftPrettyStrings.makeCut(item.transactionHash, 10, 8)}
-                                        subtitle={item.subtitle}
-                                        onPress={() => {
-                                        }}
-                                    />
-                                })
-                                : null
-                        }
                     </View>
                 </ScrollView>
                 <GradientView
@@ -422,7 +404,6 @@ class WalletConnectScreen extends PureComponent {
 const mapStateToProps = (state) => {
     return {
         selectedAccountData: getSelectedAccountData(state),
-        lockScreenStatus: getLockScreenStatus(state),
         walletConnectData: getWalletConnectData(state),
 
     }

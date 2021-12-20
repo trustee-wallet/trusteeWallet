@@ -28,6 +28,22 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='balanceSort' size={16} color={color} style={{ left: 1 }} />
         case 'wallet':
             return <CustomIcon name='shield' size={16} color={color} style={{ left: 1 }} />
+        case 'eth':
+            return <CustomIcon name='ETH' size={18} color={color} style={{ left: 1 }} />
+        case 'matic':
+            return <CustomIcon name='ETH_MATIC' size={18} color={color} />
+        case 'bnb_smart':
+            return <CustomIcon name='BNB_SMART' size={18} color={color} style={{ left: 1 }} />
+        case 'optimism':
+            return <CustomIcon name='OPTIMISM' size={18} color={color} style={{ left: 1 }} />
+        case 'etc':
+            return <CustomIcon name='ETC' size={18} color={color} style={{ left: 1 }} />
+        case 'amb':
+            return <CustomIcon name='AMB' size={18} color={color} style={{ left: 1 }} />
+        case 'eth_ropsten':
+            return <CustomIcon name='ETH_ROPSTEN' size={18} color={color} style={{ left: 1 }} />
+        case 'eth_rinkeby':
+            return <CustomIcon name='ETH_RINKEBY' size={18} color={color} style={{ left: 1 }} />
         default:
             return null
     }

@@ -6,7 +6,7 @@
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
-import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+
 import NavStore from '@app/components/navigation/NavStore'
 import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
@@ -18,8 +18,8 @@ import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/Wallet
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 export const NETWORKS_SETTINGS = [
-    {currencyCode : 'ETH', networkTitle : 'Mainnet'},
-    {currencyCode: 'MATIC', networkTitle: 'Polygon (Matic)'},
+    {currencyCode : 'ETH', networkTitle : 'Ethereum'},
+    {currencyCode: 'MATIC', networkTitle: 'Polygon Network'},
     {currencyCode : 'BNB_SMART', networkTitle : 'BNB Smart Chain'},
     {currencyCode : 'OPTIMISM', networkTitle : 'Optimism'},
     {currencyCode : 'ETC', networkTitle : 'Ethereum Classic'},
@@ -76,19 +76,6 @@ export async function handleApplyLink(checkLock = true) {
             return false
         }
 
-        if (checkLock && !this.state.noMoreLock) {
-            if (this.props.lockScreenStatus * 1 > 0) {
-                setLockScreenConfig({
-                    flowType: LockScreenFlowTypes.JUST_CALLBACK, callback: async () => {
-                        this.setState({ noMoreLock: true }, () => {
-                            this._init({ fullLink: inputFullLink })
-                        })
-                    }
-                })
-                NavStore.goNext('LockScreen')
-                return
-            }
-        }
         await this._init({ fullLink: inputFullLink })
     } catch (e) {
         if (config.debug.cryptoErrors) {
