@@ -163,7 +163,7 @@ export function handleSendSignTyped(data, payload) {
         type: 'YES_NO_MODAL',
         icon: 'WARNING',
         title: strings('settings.walletConnect.signTyped'),
-        description: strings('settings.walletConnect.signTypedText') + JSON.stringify(data),
+        description: strings('settings.walletConnect.signTypedText') + JSON.stringify(data).substr(0, 200),
         noCallback: async () => {
             await AppWalletConnect.rejectRequest(payload)
         }
