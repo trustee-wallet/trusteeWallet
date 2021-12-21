@@ -25,6 +25,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import { getSelectedAccountData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import Account from '@app/appstores/DataSource/Account/AccountScanning'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -37,10 +38,27 @@ class HdAddressListItem extends React.PureComponent {
     state = {
         isEditing: false,
         addressName: '',
-        inputText: '',
         loading: false
     }
 
+    async componentDidMount() {
+        const { addressName } = this.props
+        this.setState({
+            addressName
+        })
+    }
+
+    updateAddressName = (params) => {
+        const updateObj = {
+            name: params.addressName
+        }
+        Account.updateAddressName({
+            key: {
+                id: this.props.id
+            },
+            updateObj
+        })
+    }
 
     copyToClip = () => {
         try {
@@ -99,17 +117,23 @@ class HdAddressListItem extends React.PureComponent {
     }
 
     onBlurInput = () => {
+        const { addressName } = this.state
         this.nameInputRef.blur()
         this.setState(() => ({ 
-            isEditing: false,
-            addressName: this.state.inputText
-         }))
+            isEditing: false
+        }))
+        if (addressName !== '' || addressName !== null) {
+            const params = {
+                addressName
+            }
+            this.updateAddressName(params)
+        }
     }
 
     onChangeName = (text) => {
-        const tmpText = text.replace(/[\u2006]/g, '')
+        const addressName = text.replace(/[\u2006]/g, '')
         this.setState({
-            inputText: tmpText
+            addressName
         })
     }
 
@@ -129,7 +153,7 @@ class HdAddressListItem extends React.PureComponent {
                     editable={this.state.isEditing}
                     onBlur={this.onBlurInput}
                     onChangeText={this.onChangeName}
-                    value={this.state.address}
+                    value={this.state.addressName}
                     customBgColor='transparent'
                     maxLength={14}
                 />
@@ -156,7 +180,6 @@ class HdAddressListItem extends React.PureComponent {
 
         const {
             address,
-            // addressName,
             currencyCode,
             balance
         } = this.props

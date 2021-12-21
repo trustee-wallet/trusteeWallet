@@ -9,10 +9,13 @@ import {
     TouchableOpacity,
     Text,
     StyleSheet,
-    Platform
+    Platform,
+    RefreshControl,
+    ActivityIndicator
 } from 'react-native'
 import { connect } from 'react-redux'
 import _isEqual from 'lodash/isEqual'
+import { ScrollView, FlatList } from 'react-native-gesture-handler'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
@@ -32,7 +35,6 @@ import { changeAddress, getAddress } from './helpers'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
-import { ScrollView } from 'react-native-gesture-handler'
 import HdAddressListItem from './elements/HdAddressListItem'
 
 class AllAddressesScreen extends PureComponent {
@@ -55,12 +57,11 @@ class AllAddressesScreen extends PureComponent {
         index: 0,
         segwitAddresses: [],
         legacyAddresses: [],
-        loading: true
+        loading: false
     }
 
     async componentDidMount() {
         await this.loadAddresses()
-        this.setState({loading: false})
     }
 
     handleClose = () => {
@@ -80,8 +81,6 @@ class AllAddressesScreen extends PureComponent {
     }
 
     componentDidUpdate( prevProps, prevState ) {
-        // console.log(`prevState`, prevState)
-        // console.log(`this.state.addresses`, this.state.addresses)
         if (!_isEqual(prevState.addresses, this.state.addresses)) {
             this.loadAddresses()
         }
@@ -96,16 +95,8 @@ class AllAddressesScreen extends PureComponent {
     loadAddresses = async () => {
 
         const { currencyCode, walletHash } = this.props.selectedAccountData
-        // const { walletIsHd } = this.props.selectedWalletData
-
-        // // console.log(`walletHash`, walletHash)
-        // // console.log(`currencyCode`, currencyCode)
-        // // console.log(`walletIsHd`, walletIsHd)
-        // // console.log(`derivationPath`, derivationPath)
-        // // console.log(`walletPubs`, walletPubs)
 
         const params = {
-            // notAlreadyShown: walletIsHd,
             walletHash: walletHash,
             currencyCode: currencyCode,
             withBalances: true
@@ -150,7 +141,9 @@ class AllAddressesScreen extends PureComponent {
         }
 
         return(
-            <AccountGradientBlock>
+            <AccountGradientBlock
+                cleanCache
+            >
                 <View style={styles.headerContainer}>
                     <Text style={[styles.headerTitle, { color: colors.common.text1 }]}>{strings('FioRequestDetails.balance')}</Text>
                     <BorderedButton
@@ -225,32 +218,86 @@ class AllAddressesScreen extends PureComponent {
                 return null
         }
     }
+    
+    renderEmptyList = () => {
 
-    renderFirstRoute = () => {
+        const { 
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        return(
+            <View style={[styles.loader, { marginTop: GRID_SIZE }]}>
+                <ActivityIndicator 
+                    color={colors.common.text1}
+                    size='large'
+                />
+            </View>
+        )
+    }
+
+    get listProps() {
 
         const { GRID_SIZE } = this.context
 
+        return{
+            contentContainerStyle: { paddingHorizontal: GRID_SIZE },
+            style: { marginHorizontal: -GRID_SIZE },
+            keyExtractor: index => index,
+            renderItem: (data) => this.renderFlatListItem(data),
+            showsVerticalScrollIndicator: false,
+            ListEmptyComponent: this.renderEmptyList
+        }
+    }
+
+    renderFlatListItem = ({item}) => {
         return(
-            <View style={{ marginTop: GRID_SIZE / 2 }}>
-                {this.state.segwitAddresses?.reverse().map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balanceTxt} currencyCode={'BTC'} />)}
-            </View>
+            <HdAddressListItem
+                address={item.address} 
+                balance={item.balanceTxt} 
+                currencyCode='BTC' 
+                addressName={item.addressName}
+                id={item.id}
+            />
+        )            
+    }
+
+    renderFirstRoute = () => {
+
+        const segwitAddresses = this.state.segwitAddresses?.reverse()
+
+        return(
+            <FlatList
+                data={segwitAddresses}
+                {...this.listProps}
+            />
         )
     }
 
     renderSecondRoute = () => {
 
-        const { GRID_SIZE } = this.context
+        const legacyAddresses = this.state.legacyAddresses?.reverse()
 
         return(
-            <View style={{ marginTop: GRID_SIZE / 2 }}>
-                {this.state.legacyAddresses?.reverse().map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} currencyCode={'BTC'} />)}
-            </View>
+            <FlatList
+                data={legacyAddresses}
+                {...this.listProps}
+            />     
         )
+    }
+
+    handleRefresh = async () => {
+        this.setState({loading: true})
+        await this.loadAddresses()
+        this.setState({loading: false})
     }
 
     render() {
 
-        const { GRID_SIZE } = this.context
+        const { 
+            GRID_SIZE,
+            colors
+        } = this.context
 
         return (
             <ScreenWrapper
@@ -259,18 +306,29 @@ class AllAddressesScreen extends PureComponent {
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
-            >
-                
-                <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
-                    {this.renderHeader()}
-                </View>
-                
-                <View style={{ marginHorizontal: GRID_SIZE }}>
-                    {this.renderTabs()}
-                </View>
+            > 
                 <ScrollView
                     showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps='handled'
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.loading}
+                            onRefresh={this.handleRefresh}
+                            tintColor={colors.common.refreshControlIndicator}
+                            colors={[colors.common.refreshControlIndicator]}
+                            progressBackgroundColor={colors.common.refreshControlBg}
+                            progressViewOffset={-20}
+                        />
+                    }
                 >
+                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
+                        {this.renderHeader()}
+                    </View>
+                
+                    <View style={{ marginHorizontal: GRID_SIZE }}>
+                        {this.renderTabs()}
+                    </View>
+
                     <TabView
                         style={{ flexGrow: 1 }}
                         navigationState={this.state}
@@ -369,5 +427,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'
+    },
+    loader: {
+        justifyContent: 'center'
     }
 })

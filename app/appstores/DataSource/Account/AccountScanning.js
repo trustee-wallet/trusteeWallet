@@ -230,6 +230,7 @@ class AccountScanning {
             account.wallet_hash AS walletHash,
             account.already_shown AS alreadyShown,
             account.address,
+            account.name AS addressName,
             account_balance.balance_txt AS balanceTxt,
             account_balance.balance_scan_time AS balanceScanTime,
             account_balance.balance_scan_error AS balanceScanError,
@@ -251,9 +252,13 @@ class AccountScanning {
                     return res.array[0].address
                 }
             }
+
             res = res.array
+            
+            const newRes = res.map(e => e.addressName.includes("CREATED") ? {...e, addressName: ''} : e)
+
             let tmp
-            for (tmp of res) {
+            for (tmp of newRes) {
                 if (withBalances) {
                     indexedRes[tmp.address] = tmp
                 } else {
@@ -264,6 +269,15 @@ class AccountScanning {
             Log.daemon('AccountScanning getAddresses error ' + sql + ' ' + e.message)
         }
         return indexedRes
+    }
+
+    async updateAddressName (data) {
+        try {
+            await Database.setTableName('account').setUpdateData(data).update()
+        } catch(e) {
+            throw new Error(e.message + ' while updateAddressName ' + JSON.stringify(data.updateObj))
+        }
+        
     }
 }
 
