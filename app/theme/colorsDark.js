@@ -78,10 +78,8 @@ export const colorsDark = {
         newNotiesIndicator: '#9E71E1'
     },
     initScreen: {
-        appName: '#FCF9FF',
-        appNameSub: '#FCF9FF',
-        appVersion: '#864DD9',
-        loader: '#FCF9FF'
+        appName: '#D94988',
+        appVersion: '#B8B8B8'
     },
     homeScreen: {
         listItemGradient: ['#252525', '#1E1E1E'],
