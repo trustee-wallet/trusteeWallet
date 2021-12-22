@@ -13,7 +13,7 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import EthRawDS from '@crypto/blockchains/eth/stores/EthRawDS'
 import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
 // @ts-ignore
-import { signTypedData_v4 } from 'eth-sig-util'
+import { signTypedData } from '@metamask/eth-sig-util'
 
 import store from '@app/store'
 import config from '@app/config/config'
@@ -333,7 +333,8 @@ export namespace AppWalletConnect {
                 currencyCode: account.currencyCode
             }
             const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'AppWalletConnect')
-            const signData = await signTypedData_v4(Buffer.from(privateData.privateKey.slice(2), 'hex'), { data })
+            const privateKey = Buffer.from(privateData.privateKey.slice(2), 'hex')
+            const signData = await signTypedData({ privateKey, data, version: 'V4'})
             await WALLET_CONNECTOR.approveRequest({
                 id: payload.id,
                 result: signData
