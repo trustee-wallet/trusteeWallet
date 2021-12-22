@@ -42,13 +42,13 @@ class InitScreen extends React.PureComponent {
         }
     }
 
-    // componentDidMount() {
-    //     this.init() 
-    // }
+    componentDidMount() {
+        this.init() 
+    }
 
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-    //     this.init()
-    // }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.init()
+    }
 
     init = async () => {
         const { isLight } = this.context
