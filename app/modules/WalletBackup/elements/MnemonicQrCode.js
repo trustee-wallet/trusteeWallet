@@ -7,7 +7,8 @@ import React, { useState } from 'react'
 import {
     View,
     StyleSheet,
-    Dimensions
+    Dimensions,
+    Animated
 } from 'react-native'
 import { BlurView } from "@react-native-community/blur";
 
@@ -17,9 +18,12 @@ import qrLogo from '@assets/images/logoWithWhiteBG.png'
 import Log from '@app/services/Log/Log'
 import { useTheme } from '@app/theme/ThemeProvider'
 import Message from '@app/components/elements/new/Message'
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import Button from '@app/components/elements/new/buttons/Button';
 
 const {width: WINDOW_WIDTH} = Dimensions.get('window')
+
+const VISIBILITY_TIMEOUT = 4000
 
 const MnemonicQrCode = (props) => {
 
@@ -28,53 +32,76 @@ const MnemonicQrCode = (props) => {
         withBlur
     } = props
 
-    const [show, setShow] = useState(!withBlur)
+    const [animationProgress, setAnimationProgress] = useState(new Animated.Value(0))
+    const [show, setShow] = useState(withBlur)
 
     const {
         GRID_SIZE
     } = useTheme()
 
     const showQr = () => {
-        setShow(!show)
+        
+        setShow(true)
+        setTimeout(() => {
+            setShow(false)
+            setAnimationProgress(new Animated.Value(0))
+        }, VISIBILITY_TIMEOUT)
+        Animated.timing(animationProgress, {
+            toValue: 1,
+            duration: VISIBILITY_TIMEOUT
+        }).start(() => {
+            Animated.timing(animationProgress, { toValue: 0, duration: 0 }).start()
+        })
     }
 
     return(
-        <View style={{ paddingHorizontal: GRID_SIZE * 2, paddingTop: GRID_SIZE * 1.5 }}>
-            <Message
-                name={'warningM'}
-                text={strings('walletBackup.step0Screen.infoQR')}
-            />
-            <TouchableOpacity 
-                style={styles.wrapperQR}
-                onPressIn={showQr}
-                onPressOut={showQr}
-                activeOpacity={1}
-            >
-                <View style={styles.qr}>
-                    <QrCodeBox
-                        value={walletMnemonic}
-                        size={WINDOW_WIDTH * 0.5}
-                        color='#404040'
-                        backgroundColor='#F5F5F5'
-                        logo={qrLogo}
-                        logoSize={WINDOW_WIDTH * 0.175}
-                        logoBackgroundColor='transparent'
-                        onError={(e) => {
-                            Log.err('MnemonicQrCode QRCode error ' + e.message)
-                        }}
-                    />
-                    {show && 
-                        <BlurView
-                          style={styles.blur}
-                          blurType="light"
-                          blurAmount={10}
-                          blurRadius={8}
-                          overlayColor='transparent'
+        <>
+            <View style={{ paddingHorizontal: GRID_SIZE , paddingTop: GRID_SIZE * 1.5 }}>
+                <Message
+                    name='warningM'
+                    text={strings('walletBackup.step0Screen.infoQR')}
+                    progress={animationProgress}
+                    timer={show}
+                />
+                <TouchableOpacity 
+                    style={styles.wrapperQR}
+                    onPress={showQr}
+                    activeOpacity={1}
+                >
+                    <View style={styles.qr}>
+                        <QrCodeBox
+                            value={walletMnemonic}
+                            size={WINDOW_WIDTH * 0.5}
+                            color='#404040'
+                            backgroundColor='#F5F5F5'
+                            logo={qrLogo}
+                            logoSize={WINDOW_WIDTH * 0.175}
+                            logoBackgroundColor='transparent'
+                            onError={(e) => {
+                                Log.err('MnemonicQrCode QRCode error ' + e.message)
+                            }}
                         />
-                    }
-                </View>
-            </TouchableOpacity>
-        </View>
+                        {!show ? 
+                            <BlurView
+                              style={styles.blur}
+                              blurType="light"
+                              blurAmount={10}
+                              blurRadius={8}
+                              overlayColor='transparent'
+                            />
+                            : null
+                        }
+                    </View>
+                </TouchableOpacity>
+                    
+            </View>
+            <View style={[styles.mainButton, { bottom: GRID_SIZE, paddingHorizontal: GRID_SIZE }]}>
+                <Button
+                    title={strings('walletBackup.step0Screen.show')}
+                    onPress={showQr}
+                />
+            </View>
+        </>
     )
 }
 
@@ -106,7 +133,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         position: 'absolute',
         width: WINDOW_WIDTH * 0.525,
-        height: WINDOW_WIDTH * 0.525,
-        
+        height: WINDOW_WIDTH * 0.525
+    },
+    mainButton: {
+        position: 'absolute',
+        zIndex: 2,
+        width: '100%'
     }
 })

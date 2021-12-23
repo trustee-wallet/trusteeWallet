@@ -7,10 +7,10 @@ import {
     View,
     Text,
     StyleSheet,
-    TouchableOpacity,
-    Platform
+    TouchableOpacity
 } from 'react-native'
 import { useTheme } from '@app/theme/ThemeProvider'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 
 export default function Tabs(props) {
@@ -38,6 +38,7 @@ export default function Tabs(props) {
                         disabled={isActiveTab}
                         key={index}
                         onPress={() => changeTab(index)}
+                        hitSlop={HIT_SLOP}
                     >
                         <View>
                             <Text style={[styles.title, { color: isActiveTab ? colors.common.text1 : colors.homeScreen.newTabsText }]} numberOfLines={1} >{tab.title}</Text>
@@ -67,7 +68,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-Bold',
         lineHeight: 18,
         fontSize: 14,
-        lineHeight: 18,
         letterSpacing: 1,
         textAlign: 'center',
         textTransform: 'uppercase',
