@@ -38,7 +38,8 @@ export namespace AppNewsActions {
                 setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
                     await Log.log('ACT/AppNewsActions onOpen after lock screen')
                     if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
-                        NavStore.reset('NotificationsScreen')
+                        NavStore.reset('HomeScreen')
+                        NavStore.goNext('NotificationsScreen')
                     }  else {
                         NavStore.reset('TabBar')
                     }
@@ -83,7 +84,16 @@ export namespace AppNewsActions {
                 createdAt: notification.newsCreated
             }
             if (orderHash) {
-                NavStore.reset('MarketScreen', { screen: 'MarketScreen', params: { orderHash } })
+                showModal({
+                    type: 'NOTIFICATION_MODAL',
+                    title: title,
+                    description: subtitle && subtitle !== '' ? subtitle : title,
+                    rates: true,
+                    textRatesBtn: strings('account.transactionScreen.order'),
+                    noCallback: () => {
+                        NavStore.reset('MarketScreen', { screen: 'MarketScreen', params: { orderHash } })
+                    }
+                })
                 return false
             } else if (transactionHash) {
                 NavStore.goNext('AccountTransactionScreen', {

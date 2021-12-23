@@ -9,30 +9,36 @@ import {
     TouchableOpacity,
     Text,
     StyleSheet,
-    Platform
+    Platform,
+    RefreshControl,
+    ActivityIndicator
 } from 'react-native'
 import { connect } from 'react-redux'
+import _isEqual from 'lodash/isEqual'
+import { ScrollView, FlatList } from 'react-native-gesture-handler'
+import { TabView } from 'react-native-tab-view'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
-
-import { ThemeContext } from '@app/theme/ThemeProvider'
-import Tabs from '@app/components/elements/new/TabsWithUnderline'
-import { TabView } from 'react-native-tab-view'
-import Account from '@app/appstores/DataSource/Account/Account'
-
-import { getSelectedAccountData, getSelectedWalletData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
-import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
-import { strings } from '@app/services/i18n'
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { changeAddress, getAddress } from './helpers'
-
+import Tabs from '@app/components/elements/new/TabsWithUnderline'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
+
+import { ThemeContext } from '@app/theme/ThemeProvider'
+import { HIT_SLOP } from '@app/theme/HitSlop'
+
+import Account from '@app/appstores/DataSource/Account/AccountScanning'
+import { getSelectedAccountData, getSelectedWalletData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
+import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
+
+import { strings } from '@app/services/i18n'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+
+import { changeAddress, getAddress } from './helpers'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
-import { ScrollView } from 'react-native-gesture-handler'
 import HdAddressListItem from './elements/HdAddressListItem'
+
 
 class AllAddressesScreen extends PureComponent {
 
@@ -57,14 +63,12 @@ class AllAddressesScreen extends PureComponent {
         loading: false
     }
 
-    componentDidMount() {
-        this.setState({loading: true})
-        this.loadAddresses()
-        this.setState({loading: false})
+    async componentDidMount() {
+        await this.loadAddresses()
     }
 
     handleClose = () => {
-        NavStore.reset()
+        NavStore.reset('TabBar')
     }
 
     handleBack = () => {
@@ -79,34 +83,35 @@ class AllAddressesScreen extends PureComponent {
         await changeAddress.call(this)
     }
 
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-        
-    // }
+    componentDidUpdate( prevProps, prevState ) {
+        if (!_isEqual(prevState.addresses, this.state.addresses)) {
+            this.loadAddresses()
+        }
+    }
+
+    filterAddresses = (value, param) => {
+        return value.filter(as => (
+            as.address[0] === param
+        ))    
+    }
 
     loadAddresses = async () => {
 
         const { currencyCode, walletHash } = this.props.selectedAccountData
-        // const { walletIsHd } = this.props.selectedWalletData
-
-        // console.log(`walletHash`, walletHash)
-        // console.log(`currencyCode`, currencyCode)
-        // console.log(`walletIsHd`, walletIsHd)
-        // console.log(`derivationPath`, derivationPath)
-        // console.log(`walletPubs`, walletPubs)
 
         const params = {
-            // notAlreadyShown: walletIsHd,
             walletHash: walletHash,
             currencyCode: currencyCode,
-            splitSegwit: true
+            withBalances: true
         }
 
-        const tmp = await Account.getAccountData(params)
+        const tmp = await Account.getAddresses(params)
+
+        const value = Object.values(tmp)
         
         this.setState({
-            segwitAddresses: tmp.segwit,
-            legacyAddresses: tmp.legacy
-            
+            segwitAddresses: this.filterAddresses(value, 'b'),
+            legacyAddresses: this.filterAddresses(value, '1')
         })
     }
 
@@ -139,7 +144,9 @@ class AllAddressesScreen extends PureComponent {
         }
 
         return(
-            <AccountGradientBlock>
+            <AccountGradientBlock
+                cleanCache
+            >
                 <View style={styles.headerContainer}>
                     <Text style={[styles.headerTitle, { color: colors.common.text1 }]}>{strings('FioRequestDetails.balance')}</Text>
                     <BorderedButton
@@ -194,7 +201,7 @@ class AllAddressesScreen extends PureComponent {
 
     renderTabs = () => {
         return(
-            <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} />
+            <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} hitSlop={HIT_SLOP} />
         )
     }
 
@@ -214,32 +221,87 @@ class AllAddressesScreen extends PureComponent {
                 return null
         }
     }
+    
+    renderEmptyList = () => {
 
-    renderFirstRoute = () => {
+        const { 
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        return(
+            <View style={[styles.loader, { marginTop: GRID_SIZE }]}>
+                <ActivityIndicator 
+                    color={colors.common.text1}
+                    size='large'
+                />
+            </View>
+        )
+    }
+
+    get listProps() {
 
         const { GRID_SIZE } = this.context
 
+        return{
+            contentContainerStyle: { paddingHorizontal: GRID_SIZE },
+            style: { marginHorizontal: -GRID_SIZE },
+            keyExtractor: index => index,
+            renderItem: (data) => this.renderFlatListItem(data),
+            showsVerticalScrollIndicator: false,
+            ListEmptyComponent: this.renderEmptyList,
+            scrollEnabled: false
+        }
+    }
+
+    renderFlatListItem = ({item}) => {
         return(
-            <View style={{ marginTop: GRID_SIZE / 2 }}>
-                {this.state.segwitAddresses.map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} />)}
-            </View>
+            <HdAddressListItem
+                address={item.address} 
+                balance={typeof item.balanceTxt === 'undefined' || item.balanceTxt === null ? '0' : BlocksoftPrettyNumbers.setCurrencyCode('BTC').makePretty(item.balanceTxt)} 
+                currencyCode='BTC' 
+                addressName={item.addressName}
+                id={item.id}
+            />
+        )            
+    }
+
+    renderFirstRoute = () => {
+
+        const segwitAddresses = this.state.segwitAddresses?.reverse()
+
+        return(
+            <FlatList
+                data={segwitAddresses}
+                {...this.listProps}
+            />
         )
     }
 
     renderSecondRoute = () => {
 
-        const { GRID_SIZE } = this.context
+        const legacyAddresses = this.state.legacyAddresses?.reverse()
 
         return(
-            <View style={{ marginTop: GRID_SIZE / 2 }}>
-                {this.state.legacyAddresses.map(e => <HdAddressListItem key={e.id} address={e.address} balance={e.balance} />)}
-            </View>
+            <FlatList
+                data={legacyAddresses}
+                {...this.listProps}
+            />     
         )
+    }
+
+    handleRefresh = async () => {
+        this.setState({loading: true})
+        await this.loadAddresses()
+        this.setState({loading: false})
     }
 
     render() {
 
-        const { GRID_SIZE } = this.context
+        const { 
+            GRID_SIZE,
+            colors
+        } = this.context
 
         return (
             <ScreenWrapper
@@ -248,18 +310,29 @@ class AllAddressesScreen extends PureComponent {
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
-            >
-                
-                <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
-                    {this.renderHeader()}
-                </View>
-                
-                <View style={{ marginHorizontal: GRID_SIZE }}>
-                    {this.renderTabs()}
-                </View>
+            > 
                 <ScrollView
                     showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps='handled'
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.loading}
+                            onRefresh={this.handleRefresh}
+                            tintColor={colors.common.refreshControlIndicator}
+                            colors={[colors.common.refreshControlIndicator]}
+                            progressBackgroundColor={colors.common.refreshControlBg}
+                            progressViewOffset={-20}
+                        />
+                    }
                 >
+                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
+                        {this.renderHeader()}
+                    </View>
+                
+                    <View style={{ marginHorizontal: GRID_SIZE }}>
+                        {this.renderTabs()}
+                    </View>
+
                     <TabView
                         style={{ flexGrow: 1 }}
                         navigationState={this.state}
@@ -358,5 +431,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'
+    },
+    loader: {
+        justifyContent: 'center'
     }
 })

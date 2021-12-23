@@ -554,7 +554,8 @@
       "FIORequest": "FIO Request",
       "share": "Share",
       "copy": "Copy",
-      "amount": "Set amount"
+      "amount": "Set amount",
+      "rename": "Rename"
     },
     "addAccount": {
       "list": "Crypto list"
