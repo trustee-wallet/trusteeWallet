@@ -25,10 +25,9 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import { getSelectedAccountData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import Account from '@app/appstores/DataSource/Account/AccountScanning'
+import Account from '@app/appstores/DataSource/Account/Account'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { getBalanceData } from '../helpers'
 import { handleShareInvoice } from '../../helpers'
@@ -191,8 +190,6 @@ class HdAddressListItem extends React.PureComponent {
 
         const balanceTranslated = getBalanceData(this.props)
 
-        const balanceCondition = typeof balance === 'undefined' || balance === null ? '0' : BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(balance)
-
         return(
             <View style={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE / 2, height: 66 }}>
                 <View style={styles.shadow__container}>
@@ -206,7 +203,7 @@ class HdAddressListItem extends React.PureComponent {
                     delayLongPress={2000}
                 >
                     <GradientView
-                        style={[styles.cryptoList__item__content, { paddingLeft: GRID_SIZE }]}
+                        style={[styles.cryptoList__item__content, { paddingHorizontal: GRID_SIZE }]}
                         array={colors.homeScreen.listItemGradient}
                         start={{ x: 1, y: 0 }}
                         end={{ x: 1, y: 1 }}
@@ -223,7 +220,7 @@ class HdAddressListItem extends React.PureComponent {
                             </View>
                             <View style={styles.cryptoList__info}>
                                 <Text style={[styles.mainAmount, { color: colors.common.text3 }]}>
-                                    {`${balanceCondition} ${currencyCode}`}
+                                    {`${balance} ${currencyCode}`}
                                 </Text>  
                                 <Text style={styles.secondaryAmount}>
                                     {`${balanceTranslated.currencySymbol} ${balanceTranslated.beforeDecimal}`}
@@ -252,10 +249,6 @@ export default connect(mapStateToProps)(HdAddressListItem)
 const styles = StyleSheet.create({
     shadow__container: {
         position: 'absolute',
-        paddingTop: 1,
-        paddingBottom: 6,
-        paddingRight: 3,
-        paddingLeft: 3,
         top: 0,
         bottom: 0,
         right: 0,
@@ -280,7 +273,8 @@ const styles = StyleSheet.create({
     },
     cryptoList__item: {
         borderRadius: 16,
-        height: 66
+        height: 66,
+        flex: 1
     },
     cryptoList__item__content: {
         flex: 1,
@@ -288,17 +282,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
 
         padding: 16,
-        height: 66,
+        height: 56,
 
         borderRadius: 16,
         zIndex: 10,
     },
     cryptoList__info: {
         justifyContent: 'space-evenly',
-        height: 54
+        height: 56
     },
     addressName: {
-        fontFamily: 'SFUIDisplay',
+        fontFamily: 'SFUIDisplay-Regular',
         fontSize: 14,
         lineHeight: 18,
         letterSpacing: 1,
@@ -307,7 +301,7 @@ const styles = StyleSheet.create({
     address: {
         fontSize: 14,
         lineHeight: 18,
-        fontFamily: 'SFUIDisplay',
+        fontFamily: 'SFUIDisplay-Regular',
         letterSpacing: 1
     },
     mainAmount: {
@@ -317,7 +311,7 @@ const styles = StyleSheet.create({
         textAlign: 'right'
     },
     secondaryAmount: {
-        fontFamily: 'SFUIDisplay',
+        fontFamily: 'SFUIDisplay-Regular',
         fontSize: 14,
         lineHeight: 18,
         color: '#999999',

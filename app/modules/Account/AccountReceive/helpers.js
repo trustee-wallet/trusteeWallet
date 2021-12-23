@@ -78,14 +78,14 @@ export function getBalanceData(props) {
     const currencySymbol = localCurrencySymbol
 
     const accountRates = DaemonCache.getCacheRates('BTC')
-    const value = typeof balance === 'undefined' || balance === null ? '0' : balance
+    const value = balance
     const basicCurrencyBalanceNorm = RateEquivalent.mul({
         value,
         currencyCode: 'BTC',
         basicCurrencyRate: accountRates.basicCurrencyRate
     })
 
-    const tmp = basicCurrencyBalanceNorm.toString().split('.')
-    const beforeDecimal = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makeCut(tmp[0]).separated
+    const tmp = basicCurrencyBalanceNorm.toString()
+    const beforeDecimal = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makeCut(tmp, 2).separated
     return { currencySymbol, beforeDecimal }
 }

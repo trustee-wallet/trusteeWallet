@@ -689,6 +689,15 @@ class Account {
         await Database.query(sql)
     }
 
+    async updateAddressName (data) {
+        try {
+            await Database.setTableName(tableName).setUpdateData(data).update()
+        } catch(e) {
+            throw new Error(e.message + ' while updateAddressName ' + JSON.stringify(data.updateObj))
+        }
+        
+    }
+
 }
 
 export default new Account()

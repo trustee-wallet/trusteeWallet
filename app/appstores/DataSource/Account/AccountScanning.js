@@ -271,14 +271,6 @@ class AccountScanning {
         return indexedRes
     }
 
-    async updateAddressName (data) {
-        try {
-            await Database.setTableName('account').setUpdateData(data).update()
-        } catch(e) {
-            throw new Error(e.message + ' while updateAddressName ' + JSON.stringify(data.updateObj))
-        }
-        
-    }
 }
 
 export default new AccountScanning()

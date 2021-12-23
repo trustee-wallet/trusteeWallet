@@ -16,26 +16,29 @@ import {
 import { connect } from 'react-redux'
 import _isEqual from 'lodash/isEqual'
 import { ScrollView, FlatList } from 'react-native-gesture-handler'
+import { TabView } from 'react-native-tab-view'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
-
-import { ThemeContext } from '@app/theme/ThemeProvider'
-import Tabs from '@app/components/elements/new/TabsWithUnderline'
-import { TabView } from 'react-native-tab-view'
-import Account from '@app/appstores/DataSource/Account/AccountScanning'
-
-import { getSelectedAccountData, getSelectedWalletData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
-import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
-import { strings } from '@app/services/i18n'
-import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { changeAddress, getAddress } from './helpers'
-
+import Tabs from '@app/components/elements/new/TabsWithUnderline'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
+
+import { ThemeContext } from '@app/theme/ThemeProvider'
+import { HIT_SLOP } from '@app/theme/HitSlop'
+
+import Account from '@app/appstores/DataSource/Account/AccountScanning'
+import { getSelectedAccountData, getSelectedWalletData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
+import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
+
+import { strings } from '@app/services/i18n'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+
+import { changeAddress, getAddress } from './helpers'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
 import HdAddressListItem from './elements/HdAddressListItem'
+
 
 class AllAddressesScreen extends PureComponent {
 
@@ -198,7 +201,7 @@ class AllAddressesScreen extends PureComponent {
 
     renderTabs = () => {
         return(
-            <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} />
+            <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} hitSlop={HIT_SLOP} />
         )
     }
 
@@ -246,7 +249,8 @@ class AllAddressesScreen extends PureComponent {
             keyExtractor: index => index,
             renderItem: (data) => this.renderFlatListItem(data),
             showsVerticalScrollIndicator: false,
-            ListEmptyComponent: this.renderEmptyList
+            ListEmptyComponent: this.renderEmptyList,
+            scrollEnabled: false
         }
     }
 
@@ -254,7 +258,7 @@ class AllAddressesScreen extends PureComponent {
         return(
             <HdAddressListItem
                 address={item.address} 
-                balance={item.balanceTxt} 
+                balance={typeof item.balanceTxt === 'undefined' || item.balanceTxt === null ? '0' : BlocksoftPrettyNumbers.setCurrencyCode('BTC').makePretty(item.balanceTxt)} 
                 currencyCode='BTC' 
                 addressName={item.addressName}
                 id={item.id}
