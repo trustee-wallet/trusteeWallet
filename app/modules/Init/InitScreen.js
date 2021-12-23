@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import {  View, Text, TouchableOpacity, Linking, StyleSheet, StatusBar } from 'react-native'
+import { View, Text, TouchableOpacity, Linking, StyleSheet, StatusBar } from 'react-native'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import LottieView from 'lottie-react-native'
@@ -35,18 +35,17 @@ import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/
 
 class InitScreen extends React.PureComponent {
 
-    constructor() {
-        super()
-        this.state = {
-            status: ''
-        }
+    state = {
+        status: ''
     }
 
     componentDidMount() {
-        this.init() 
+        this.initAnimationRef.play()
+        this.init()
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        this.initAnimationRef.play()
         this.init()
     }
 
@@ -59,7 +58,7 @@ class InitScreen extends React.PureComponent {
             clearTimeout(this.statusTimeout)
             setTimeout(() => {
                 if (this.props.lockScreenStatus * 1 > 0) {
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.INIT_POPUP})
+                    setLockScreenConfig({ flowType: LockScreenFlowTypes.INIT_POPUP })
                     NavStore.reset('LockScreenPop')
                 } else {
                     NavStore.reset('TabBar')
@@ -125,7 +124,7 @@ class InitScreen extends React.PureComponent {
 
     render() {
         if (App.initStatus === 'resetError') {
-            App.init({source : 'InitScreen.render', onMount : false})
+            App.init({ source: 'InitScreen.render', onMount: false })
         }
 
         const { colors, isLight, GRID_SIZE } = this.context
@@ -139,11 +138,12 @@ class InitScreen extends React.PureComponent {
                         {this.state.status}
                     </Text>
                 </View>
-                
-               <LottieView
+
+                <LottieView
+                    ref={ref => this.initAnimationRef = ref}
                     style={{ marginBottom: GRID_SIZE * 2, flex: 1 }}
                     source={isLight ? require('@assets/jsons/animations/LoaderTrusteeLight.json') : require('@assets/jsons/animations/LoaderTrusteeDark.json')}
-                    speed={0.6}
+                    useNativeDriver
                     autoPlay
                     loop
                 />
@@ -158,43 +158,37 @@ class InitScreen extends React.PureComponent {
                                 {'#' + config.version.hash + ' | ' + config.version.code}
                             </Text>
                         </View>
-                        
-                        {
-                            // this.props.initError
-                            this.props.initError &&
-                                <View style={[styles.block__content, { backgroundColor: colors.common.background }]}>
 
-                                    <TouchableOpacity style={styles.header__description}>
-                                        <Text>
-                                            <Text style={[styles.header__title, { color: colors.common.text1 }]}>
-                                                {strings('settings.error.title')}
-                                            </Text>
-                                        </Text>
-                                        <Text>
-                                            <Text>{this.props.initError}</Text>
-                                        </Text>
-                                    </TouchableOpacity>
+                        {this.props.initError &&
+                            <View style={[styles.block__content, { backgroundColor: colors.common.background }]}>
 
-                                    <TouchableOpacity style={styles.block__item}
-                                                      onPress={this.handleLogs}>
-                                        <FontAwesome name='bug' size={20} style={styles.block__icon} />
-                                        <Text style={[styles.block__text, { color: colors.common.text1 }]}
-                                              numberOfLines={1}>{strings('settings.other.copyLogs')}</Text>
-                                    </TouchableOpacity>
+                                <TouchableOpacity style={styles.header__description}>
+                                    <Text style={[styles.header__title, { color: colors.common.text1 }]}>
+                                        {strings('settings.error.title')}
+                                    </Text>
+                                    <Text>{this.props.initError}</Text>
+                                </TouchableOpacity>
 
-                                    <View style={styles.divider} />
+                                <TouchableOpacity style={styles.block__item}
+                                    onPress={this.handleLogs}>
+                                    <FontAwesome name='bug' size={20} style={styles.block__icon} color={colors.common.text1} />
+                                    <Text style={[styles.block__text, { color: colors.common.text1 }]}
+                                        numberOfLines={1}>{strings('settings.other.copyLogs')}</Text>
+                                </TouchableOpacity>
 
-                                    <TouchableOpacity style={styles.block__item}
-                                                      onPress={this.handleSupport}>
-                                        <MaterialIcon name='telegram' size={20} style={styles.block__icon} />
-                                        <Text style={[styles.block__text, { color: colors.common.text1 }]} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
-                                    </TouchableOpacity>
+                                <View style={styles.divider} />
 
-                                </View>
+                                <TouchableOpacity style={styles.block__item}
+                                    onPress={this.handleSupport}>
+                                    <MaterialIcon name='telegram' size={20} style={styles.block__icon} color={colors.common.text1} />
+                                    <Text style={[styles.block__text, { color: colors.common.text1 }]} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
+                                </TouchableOpacity>
+
+                            </View>
                         }
                     </View>
                 </View>
-                
+
             </View>
         )
     }
