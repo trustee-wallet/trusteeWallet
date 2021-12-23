@@ -41,6 +41,7 @@ export default function Input(props) {
         callback,
         onBlur,
         numberOfLines,
+        customBgColor,
         ...nativeProps
     } = props
 
@@ -64,7 +65,7 @@ export default function Input(props) {
                     style={[
                         styles.input,
                         (qr && paste) ? styles.inputWithBtns : (HelperAction || qr || paste) ? styles.inputWithHelper : null,
-                        { backgroundColor: colors.common.textInput.bg, color: colors.common.textInput.text },
+                        { backgroundColor: colors.common.textInput.bg || customBgColor, color: colors.common.textInput.text },
                         inputStyle
                     ]}
                     allowFontScaling={false}

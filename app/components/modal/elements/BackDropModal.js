@@ -21,13 +21,13 @@ class BackDropModal extends React.PureComponent {
     
     render() {
 
-        const { show, Content } = this.props.data
+        const { Content } = this.props.data
 
         const { colors, GRID_SIZE } = this.context
 
         return (
             <Modal 
-                visible={show}
+                isVisible={this.props.show === true || this.props.show === 'true'}
                 swipeDirection='down'
                 style={styles.modalView}
                 hasBackdrop={true}
