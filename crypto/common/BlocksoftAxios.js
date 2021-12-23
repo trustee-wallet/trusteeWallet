@@ -108,7 +108,7 @@ class BlocksoftAxios {
         return tmp
     }
 
-    async post(link, data, errSend = true) {
+    async post(link, data, errSend = true, timeOut = false) {
         let tmp = false
         let doOld = this._isTrustee(link)
         if (!doOld) {
@@ -165,7 +165,7 @@ class BlocksoftAxios {
             }
         }
         if (doOld) {
-            tmp = this._request(link, 'post', data, false, errSend)
+            tmp = this._request(link, 'post', data, false, errSend, timeOut = false)
         }
         return tmp
     }
@@ -264,7 +264,7 @@ class BlocksoftAxios {
     }
 
 
-    async _request(link, method = 'get', data = {}, emptyIsBad = false, errSend = true) {
+    async _request(link, method = 'get', data = {}, emptyIsBad = false, errSend = true, timeOut = false) {
         let tmp
         let cacheMD = link
         if (typeof data !== 'undefined') {
@@ -275,21 +275,24 @@ class BlocksoftAxios {
             const instance = axios.create()
 
             const cancelSource = CancelToken.source()
-            let timeOut = TIMEOUT
-            if (this._isTrustee(link)) {
-                timeOut = TIMEOUT_TRUSTEE
-            }
-            if (typeof CACHE_ERRORS_BY_LINKS[link] !== 'undefined') {
-                if (CACHE_ERRORS_BY_LINKS[link].tries > 2) {
-                    timeOut = Math.round(TIMEOUT_TRIES_10)
-                } else {
-                    timeOut = Math.round(TIMEOUT_TRIES_2)
+
+            if (!timeOut || typeof timeOut === 'undefined') {
+                timeOut = TIMEOUT
+                if (this._isTrustee(link)) {
+                    timeOut = TIMEOUT_TRUSTEE
                 }
-            }
-            if (link.indexOf('/fees') !== -1 || link.indexOf('/rates') !== -1) {
-                timeOut = Math.round(TIMEOUT_TRIES_RATES)
-            } else if (link.indexOf('/internet') !== -1) {
-                timeOut = Math.round(TIMEOUT_TRIES_INTERNET)
+                if (typeof CACHE_ERRORS_BY_LINKS[link] !== 'undefined') {
+                    if (CACHE_ERRORS_BY_LINKS[link].tries > 2) {
+                        timeOut = Math.round(TIMEOUT_TRIES_10)
+                    } else {
+                        timeOut = Math.round(TIMEOUT_TRIES_2)
+                    }
+                }
+                if (link.indexOf('/fees') !== -1 || link.indexOf('/rates') !== -1) {
+                    timeOut = Math.round(TIMEOUT_TRIES_RATES)
+                } else if (link.indexOf('/internet') !== -1) {
+                    timeOut = Math.round(TIMEOUT_TRIES_INTERNET)
+                }
             }
 
             if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {
@@ -302,7 +305,7 @@ class BlocksoftAxios {
             instance.defaults.cancelToken = cancelSource.token
             CACHE_STARTED[cacheMD] = { time: new Date().getTime(), timeOut }
             CACHE_STARTED_CANCEL[cacheMD] = cancelSource
-            
+
             const tmpTimer = setTimeout(() => {
                 cancelSource.cancel('TIMEOUT CANCELED ' + timeOut)
             }, timeOut)
