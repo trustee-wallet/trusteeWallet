@@ -194,7 +194,7 @@ class SettingsMainScreen extends PureComponent {
     }
 
 
-    handleOpenNotifications = () => NavStore.goNext('NotificationsScreen')
+    handleOpenNotifications = () => NavStore.goNext('NotificationsSettingsScreen')
 
     handleWalletManagment = () => NavStore.goNext('WalletListScreen')
 
@@ -352,9 +352,6 @@ class SettingsMainScreen extends PureComponent {
                                 iconType="notifications"
                                 onPress={this.handleOpenNotifications}
                                 rightContent="arrow"
-                                hasInfo={this.props.hasNews}
-                                onLongPress={this.handleClearNotifications}
-                                delayLongPress={3000}
                             />
                             <ListItem
                                 title={strings('settings.other.localCurrency')}
@@ -417,8 +414,7 @@ const mapStateToProps = (state) => {
     return {
         settingsData: getSettingsScreenData(state),
         walletsNumber: getWalletsNumber(state),
-        isWalletConnected : getWalletConnectIsConnected(state),
-        hasNews: state.appNewsStore.hasNews
+        isWalletConnected : getWalletConnectIsConnected(state)
     }
 }
 

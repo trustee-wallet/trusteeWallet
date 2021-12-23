@@ -21,6 +21,8 @@ class Update {
     forceDaemonUpdate = async (params) => {
         if (typeof params === 'undefined') {
             params = { force: true }
+        } else {
+            params.force = true
         }
         await this.updateFunction(params)
     }

@@ -120,6 +120,7 @@ class WalletInfo extends React.PureComponent {
             originalVisibility,
             balanceData,
             walletConnected,
+            hasNews
         } = this.props
         const {
             hasStickyHeader,
@@ -144,12 +145,22 @@ class WalletInfo extends React.PureComponent {
                             >
                                 <CustomIcon name='constructor' color={colors.common.text1} size={20} />
                             </TouchableOpacity>
-                            {walletConnected && (
-                                <TouchableOpacity style={[styles.settingsButton, { marginLeft: -8 }]} onPress={this.handleWalletConnect}
-                                    hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}>
+                            <TouchableOpacity
+                                style={[styles.settingsButton, { marginLeft: -8 }]}
+                                onPress={walletConnected ? this.handleWalletConnect : this.handleOpenNotifications}
+                                onLongPress={!walletConnected && this.handleClearNotifications}
+                                delayLongPress={!walletConnected ? 1000 : 100000000}
+                                hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}
+                            >
+                                {walletConnected ?
                                     <CustomIcon name='walletConnect' color={colors.common.text1} size={26} />
-                                </TouchableOpacity>
-                            )}
+                                    :
+                                    <>
+                                        <CustomIcon name='notifications' color={colors.common.text1} size={20} />
+                                        {hasNews && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
+                                    </>
+                                }
+                            </TouchableOpacity>
                         </View>
 
                         <View style={styles.header__center}>
@@ -205,6 +216,7 @@ class WalletInfo extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
+        hasNews: state.appNewsStore.hasNews,
         walletConnected: getWalletConnectIsConnected(state)
     }
 }

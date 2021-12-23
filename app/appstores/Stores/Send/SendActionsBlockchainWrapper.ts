@@ -257,7 +257,7 @@ export namespace SendActionsBlockchainWrapper {
         return { transferAllBalance : 0, source : 'ERROR', addressTo : '?'}
     }
 
-    export const actualSend = async (sendScreenStore : any, uiErrorConfirmed: any, selectedFee : any) => {
+    export const actualSend = async (sendScreenStore : any, uiErrorConfirmed: any, selectedFee : any, newCryptoValue : any) => {
         const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
         const { ui } = sendScreenStore
         const { bse, dexOrderData, rawOnly, contractCallData } = ui
@@ -283,6 +283,9 @@ export namespace SendActionsBlockchainWrapper {
 
         newCountedFeesData.addressTo = ui.addressTo
         newCountedFeesData.amount = ui.cryptoValue
+        if (typeof newCryptoValue !== 'undefined' && newCryptoValue) {
+            newCountedFeesData.amount = newCryptoValue
+        }
         newCountedFeesData.memo = ui.memo
         newCountedFeesData.isTransferAll = ui.isTransferAll
 

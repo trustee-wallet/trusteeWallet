@@ -69,6 +69,7 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
     const fullData = prepareAssets(assets)
 
     let data = []
+    let tokenBlockchainArray = []
 
     if (searchQuery) data = filterBySearchQuery(fullData, searchQuery)
 
@@ -90,13 +91,17 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
                 data: arr
             })
         })
+
+        if (this.state.tokenBlockchain) {
+            tokenBlockchainArray = data[this.state.tokenBlockchain !== 0 ? this.state.tokenBlockchain - 1 : 0].data
+        }
     }
 
     if (activeTab.group === ASSESTS_GROUP.CUSTOM && !searchQuery) {
         data = [...fullData.filter(currency => currency.currencyType === 'custom')]
     }
 
-    this.setState(() => ({ data, tabs: newTabs, searchQuery }))
+    this.setState(() => ({ data, tabs: newTabs, searchQuery, tokenBlockchainArray }))
 }
 
 export function prepareAssets(assets) {

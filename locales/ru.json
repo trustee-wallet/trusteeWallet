@@ -21,7 +21,7 @@
       "coin": "Монеты",
       "token": "Токены"
     },
-    "setSortValueCustom": "Сортировка установлена в «Пользовательский» режим"
+    "setSortValueCustom": "Установлен режим сортировки «Пользовательский»"
   },
   "walletCreateScreen": {
     "title": "ПОКУПАЙ ПРОДАВАЙ ОБМЕНИВАЙ АНОНИМНО",
@@ -370,7 +370,7 @@
     "cashbackBalance": "Баланс кешбэка",
     "cashbackToken": "Токен",
     "yourToken": "Ваша кэшбек cсылка",
-    "cashbackMessage": "Получай Cashback за свои обменные операции. Зарабатывай крипту по Партнерской программе и CPA рекомендуя Trustee Wallet!",
+    "cashbackMessage": "Получай Cashback за свои обменные операции. Зарабатывай крипту по Партнерской программе и CPA, рекомендуя Trustee Wallet!",
     "howItWorks": {
       "title": "Как это работает?",
       "info1Title": "Есть ли в Trustee Wallet программа наград для пользователей?",
@@ -507,7 +507,7 @@
       "amountRange": "Диапазон суммы",
       "allAmount": "Вся сумма",
       "downloadTransactionsHistory": "Загрузить историю транзакций за все время",
-      "saveInCsv": "Сохранять все транзакции в CSV",
+      "saveInCsv": "Сохранить все транзакции в CSV",
       "filterTitle": "Фильтр",
       "startDate": "Дата начала",
       "endDate": "Дата окончания",
