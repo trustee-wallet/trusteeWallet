@@ -22,6 +22,13 @@ const CACHE_STARTED_CANCEL = {}
 let CACHE_TIMEOUT_ERRORS = 0
 let CACHE_TIMEOUT_ERROR_SHOWN = 0
 
+const TIMEOUT = 20000
+const TIMEOUT_TRUSTEE = 7000
+const TIMEOUT_TRIES_2 = 10000
+const TIMEOUT_TRIES_10 = 15000
+const TIMEOUT_TRIES_INTERNET = 5000
+const TIMEOUT_TRIES_RATES = 20000
+
 class BlocksoftAxios {
 
     /**
@@ -268,18 +275,21 @@ class BlocksoftAxios {
             const instance = axios.create()
 
             const cancelSource = CancelToken.source()
-            let timeOut = config.request.timeout
+            let timeOut = TIMEOUT
+            if (this._isTrustee(link)) {
+                timeOut = TIMEOUT_TRUSTEE
+            }
             if (typeof CACHE_ERRORS_BY_LINKS[link] !== 'undefined') {
                 if (CACHE_ERRORS_BY_LINKS[link].tries > 2) {
-                    timeOut = Math.round(config.request.timeout / 10)
+                    timeOut = Math.round(TIMEOUT_TRIES_10)
                 } else {
-                    timeOut = Math.round(config.request.timeout / 5)
+                    timeOut = Math.round(TIMEOUT_TRIES_2)
                 }
             }
             if (link.indexOf('/fees') !== -1 || link.indexOf('/rates') !== -1) {
-                timeOut = Math.round(timeOut / 2)
+                timeOut = Math.round(TIMEOUT_TRIES_RATES)
             } else if (link.indexOf('/internet') !== -1) {
-                timeOut = Math.round(timeOut  / 10)
+                timeOut = Math.round(TIMEOUT_TRIES_INTERNET)
             }
 
             if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {
@@ -292,7 +302,7 @@ class BlocksoftAxios {
             instance.defaults.cancelToken = cancelSource.token
             CACHE_STARTED[cacheMD] = { time: new Date().getTime(), timeOut }
             CACHE_STARTED_CANCEL[cacheMD] = cancelSource
-
+            
             const tmpTimer = setTimeout(() => {
                 cancelSource.cancel('TIMEOUT CANCELED ' + timeOut)
             }, timeOut)
