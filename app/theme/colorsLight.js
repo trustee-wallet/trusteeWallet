@@ -79,9 +79,7 @@ export const colorsLight = {
     },
     initScreen: {
         appName: '#F24B93',
-        appNameSub: '#3E3453',
-        appVersion: '#3E3453',
-        loader: '#3E3453'
+        appVersion: '#404040'
     },
     homeScreen: {
         listItemGradient: ['#fff', '#f4f4f4'],
@@ -94,7 +92,6 @@ export const colorsLight = {
         visibilityIconViolet: '#dadada',
         walletInfoTextViolet: '#F3E6FF',
         tabBarText: '#5c5c5c',
-        newTabsText: '#555555',
         tabBarBackground: '#f7f7f7',
         newTabsText: '#555555',
         dateColorViolet: '#c4c4c4',
