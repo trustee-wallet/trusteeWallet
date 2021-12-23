@@ -32,8 +32,9 @@ class UpdateCurrencyRateDaemon {
         }
 
         const indexed = {}
+        let row = false
         try {
-            for (const row of res.cryptoCurrencies) {
+            for (row of res.cryptoCurrencies) {
                 if (typeof row.tokenAddress !== 'undefined' && row.tokenAddress) {
                     indexed['token_' + row.tokenAddress.toUpperCase()] = row
                 }
@@ -42,7 +43,7 @@ class UpdateCurrencyRateDaemon {
                 }
             }
         } catch (e) {
-            e.message += ' in indexing cryptoCurrencies '
+            e.message += ' in indexing cryptoCurrencies ' + (row ? JSON.stringify(row) : ' no row')
             throw e
         }
 
