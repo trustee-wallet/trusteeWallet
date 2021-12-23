@@ -14,12 +14,12 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
-import { setWalletDappCode, setWalletDappIncognito } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
+import { setWalletDapp, setWalletDappIncognito } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
 
 class WalletDappFastLinksScreen extends PureComponent {
 
     setDapp = async (item) => {
-        setWalletDappCode(item.dappCode)
+        setWalletDapp(item)
         NavStore.goNext('WalletDappWebViewScreen')
     }
 
@@ -67,7 +67,7 @@ class WalletDappFastLinksScreen extends PureComponent {
                 >
                     <ListItem
                     key="clean"
-                    title="Incognito"
+                    title="Open new session if possible"
                     checked={incognito}
                     onPress={() => this.handleIncognito()}
                     rightContent="checkbox"

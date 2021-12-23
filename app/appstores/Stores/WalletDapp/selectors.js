@@ -8,7 +8,10 @@ export const getWalletDappData = createSelector(
     (data => {
         return {
             dappCode: data.dappCode,
-            incognito : data.incognito
+            dappName : data.dappName,
+            dappUrl : data.dappUrl,
+            incognito : data.incognito,
+            walletConnectLink : data.walletConnectLink
         }
     })
 )

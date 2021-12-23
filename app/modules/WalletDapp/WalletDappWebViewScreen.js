@@ -17,9 +17,7 @@ import Log from '@app/services/Log/Log'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
-import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
 import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 import { getWalletConnectData } from '@app/appstores/Stores/WalletConnect/selectors'
@@ -33,9 +31,30 @@ import {
     handleStop
 } from '@app/modules/WalletConnect/helpers'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+
+
+import * as scriptWeb3 from './ScriptWeb3'
+
 import config from '@app/config/config'
+import { setWalletDappWalletConnectLink } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
 
 class WalletDappWebViewScreen extends PureComponent {
+    state = {
+        walletStarted: false,
+        chainId: false,
+        peerMeta: {
+            name: '',
+            url: '',
+            description: '',
+            icons: []
+        },
+        peerId: false,
+        peerStatus: false,
+        transactions: [],
+        inputFullLink: '',
+        noMoreLock: false,
+        linkError: false
+    }
 
     handleBack = () => { NavStore.goBack() }
 
@@ -74,8 +93,15 @@ class WalletDappWebViewScreen extends PureComponent {
         BackHandler.removeEventListener('hardwareBackPress', this.handleLogout);
     }
 
+    componentDidMount() {
+        const { walletConnectLink } = this.props.walletDappData
+        if (walletConnectLink) {
+            this._init({ fullLink: walletConnectLink })
+        }
+    }
+
     async _init(anyData) {
-        Log.log('WalletConnectScreen.init ', anyData)
+        Log.log('WalletDapp.WebViewScreen.init ', anyData)
         try {
             const clientData = await AppWalletConnect.init(anyData,
                 this.handleRequest,
@@ -118,24 +144,16 @@ class WalletDappWebViewScreen extends PureComponent {
     }
 
     handleWebViewNavigationTestLink = (req) => {
-        console.log(`
-        
-        
-        
-        
-        `)
-        console.log('WebView.WebViewMainScreen.on start load with request ' + req.navigationType + ' ' + req.url)
-        console.log(req)
+        Log.log('WalletDapp.WebViewScreen handle link ' + req.url)
         const parsedUrl = UrlParse(req.url)
         if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') return true
         try {
             if (parsedUrl.protocol === 'wc:') {
-                console.log('parsedUrl', parsedUrl)
                 if (req.url.indexOf('?bridge=') !== -1) {
+                    setWalletDappWalletConnectLink(req.url)
                     this._init({ fullLink: req.url })
                 } else {
-                    console.log('will do and go!')
-                    return true
+                    // ?
                 }
                 return false
             }
@@ -144,18 +162,12 @@ class WalletDappWebViewScreen extends PureComponent {
         }
     }
 
-    handleWebViewNavigationStateChange = (navState) => {
-        console.log('WebView.WebViewMainScreen.on handle navState ', navState)
-    }
-
     render() {
-        MarketingAnalytics.setCurrentScreen('WalletDapp.WebView')
+        MarketingAnalytics.setCurrentScreen('WalletDapp.WebViewScreen')
 
-        const { dappCode, incognito } = this.props.walletDappData
-        const dappParams = typeof dappsBlocksoftDict[dappCode] !== 'undefined' ? dappsBlocksoftDict[dappCode] : false
-        if (!dappParams) {
-            return <View/>
-        }
+        const { dappCode, dappName, dappUrl, incognito } = this.props.walletDappData
+
+        Log.log('WalletDapp.WebViewScreen render ' + dappCode + ' incognito ' + JSON.stringify(incognito) )
 
         return (
             <ScreenWrapper
@@ -163,30 +175,25 @@ class WalletDappWebViewScreen extends PureComponent {
                 leftAction={this.handleBack}
                 rightType="close"
                 rightAction={this.handleClose}
-                title={dappParams.dappName}
+                title={dappName + (this.state.walletStarted ? ' / by WalletConnect' : '')}
             >
                 <WebView
                     ref={webView => (this.webref = webView)}
-                    source={{ uri: dappParams.dappUrl }}
+                    source={{ uri: dappUrl }}
                     incognito={incognito}
                     originWhitelist={['*']}
 
                     onShouldStartLoadWithRequest={this.handleWebViewNavigationTestLink}
-                    onNavigationStateChange={this.handleWebViewNavigationStateChange}
+
+                    injectedJavaScriptBeforeContentLoaded={scriptWeb3.INJECTEDBEFORE}
+                    injectedJavaScript={scriptWeb3.INJECTEDJAVASCRIPT}
 
                     onError={(e) => {
-                        Log.err('WebView.WebViewMainScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
+                        Log.err('WalletDapp.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
                     }}
 
                     onHttpError={(e) => {
-                        console.log('WebView.WebViewMainScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
-                    }}
-                    onLoadProgress={(e) => {
-                        console.log('WebView.WebViewMainScreen.on load progress ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.progress)
-                    }}
-
-                    onLoadEnd={(e) => {
-                        console.log('WebView.WebViewMainScreen.on load end ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.progress)
+                        Log.err('WalletDapp.WebViewScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                     }}
 
                     renderLoading={this.renderLoading}

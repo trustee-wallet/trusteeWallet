@@ -4,20 +4,28 @@
 
  const INITIAL_STATE = {
     dappCode : false,
-    incognito : true
+    dappName : false,
+    dappUrl : false,
+    incognito : true,
+    walletConnectLink : false
 }
 
 const walletDappStoreReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
-        case 'SET_WALLET_DAPP_CODE':
+        case 'SET_WALLET_DAPP':
             return {
                 ... state,
-                dappCode : action.dappCode || false
+                ... action.dapp
             }
         case 'SET_WALLET_DAPP_INCOGNITO':
             return {
                 ... state,
                 incognito : action.incognito
+            }
+        case 'SET_WALLET_DAPP_WALLET_CONNECT_LINK':
+            return {
+                ... state,
+                walletConnectLink : action.walletConnectLink
             }
         default:
             return state

@@ -59,6 +59,7 @@ import {
     NETWORKS_SETTINGS
 } from '@app/modules/WalletConnect/helpers'
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
+import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
 
 const getIcon = (block, isLight) => {
     return(
@@ -241,6 +242,10 @@ class WalletConnectScreen extends PureComponent {
         NavStore.goNext('WalletDappFastLinksScreen')
     }
 
+    handleLastDapp = () => {
+        NavStore.goNext('WalletDappWebViewScreen')
+    }
+
     getNetwork = (currencyCode) => {
         for (const tmp of NETWORKS_SETTINGS) {
             if (tmp.currencyCode === currencyCode) {
@@ -272,6 +277,8 @@ class WalletConnectScreen extends PureComponent {
         const titleCondition = condition ? this.state.peerMeta.name !== 'undefined' ? this.state.peerMeta.name : '' : strings('settings.walletConnect.unconnectedTitle')
 
         const textCondition = condition ? typeof this.state.peerMeta.url !== 'undefined' ? this.state.peerMeta.url : '' : strings('settings.walletConnect.unconnectedText')
+
+        const { dappCode, dappName, dappUrl, incognito } = this.props.walletDappData
 
         return (
             <ScreenWrapper
@@ -365,6 +372,19 @@ class WalletConnectScreen extends PureComponent {
                             }
                         </View>
 
+                        {dappCode &&
+                        <View style={{ marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
+                            <ListItem
+                                title={'Last Dapp'}
+                                subtitle={dappName}
+                                iconType="scanning"
+                                onPress={this.handleLastDapp}
+                                rightContent="arrow"
+                                last
+                            />
+                        </View>
+                        }
+
                         { this.props.walletConnectData.mainCurrencyCode && peerStatus &&
                             <View style={{ marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
                                 <ListItem
@@ -405,7 +425,7 @@ const mapStateToProps = (state) => {
     return {
         selectedAccountData: getSelectedAccountData(state),
         walletConnectData: getWalletConnectData(state),
-
+        walletDappData: getWalletDappData(state),
     }
 }
 

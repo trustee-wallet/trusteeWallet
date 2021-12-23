@@ -69,12 +69,8 @@ export async function handleStop(isConnected) {
     }
 }
 
-export async function handleApplyLink(checkLock = true) {
+export async function handleApplyLink(checkLock = true, inputFullLink = '') {
     try {
-        const { inputFullLink } = this.state
-        if (!inputFullLink || inputFullLink === '') {
-            return false
-        }
 
         await this._init({ fullLink: inputFullLink })
     } catch (e) {

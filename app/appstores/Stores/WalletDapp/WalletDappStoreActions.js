@@ -5,14 +5,14 @@ import store from '@app/store'
 
 const { dispatch } = store
 
-export function setWalletDappCode(dappCode) {
+export function setWalletDapp(dapp) {
     const oldData = store.getState().walletDappStore.dappCode
-    if (oldData === dappCode){
+    if (oldData === dapp.dappCode){
         return false
     }
     return dispatch({
-        type: 'SET_WALLET_DAPP_CODE',
-        dappCode
+        type: 'SET_WALLET_DAPP',
+        dapp
     })
 }
 
@@ -24,5 +24,16 @@ export function setWalletDappIncognito(incognito) {
     return dispatch({
         type: 'SET_WALLET_DAPP_INCOGNITO',
         incognito
+    })
+}
+
+export function setWalletDappWalletConnectLink(walletConnectLink) {
+    const oldData = store.getState().walletDappStore.walletConnectLink
+    if (oldData === walletConnectLink){
+        return false
+    }
+    return dispatch({
+        type: 'SET_WALLET_DAPP_WALLET_CONNECT_LINK',
+        walletConnectLink
     })
 }
