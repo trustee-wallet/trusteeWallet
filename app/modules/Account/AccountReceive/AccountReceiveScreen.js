@@ -585,15 +585,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
     }
 
-    handleShowAll = () => {
-        NavStore.goNext('AllAddressesScreen')
-
-        // showModal({
-        //     type: 'INFO_MODAL',
-        //     title: strings('modal.settings.soon'),
-        //     icon: 'WARNING'
-        // })
-    }
+    handleShowAll = () => NavStore.goNext('AllAddressesScreen')
 
     handleCustomAmount = () => {
 

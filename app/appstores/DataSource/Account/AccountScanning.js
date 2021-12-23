@@ -255,10 +255,10 @@ class AccountScanning {
 
             res = res.array
             
-            const newRes = res.map(e => e.addressName.includes("CREATED") ? {...e, addressName: ''} : e)
+            res = res.map(e => e.addressName.includes("CREATED") ? {...e, addressName: ''} : e)
 
             let tmp
-            for (tmp of newRes) {
+            for (tmp of res) {
                 if (withBalances) {
                     indexedRes[tmp.address] = tmp
                 } else {
