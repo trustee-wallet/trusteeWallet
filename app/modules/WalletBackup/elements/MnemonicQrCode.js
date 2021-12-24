@@ -8,7 +8,8 @@ import {
     View,
     StyleSheet,
     Dimensions,
-    Animated
+    Animated,
+    LayoutAnimation
 } from 'react-native'
 import { BlurView } from "@react-native-community/blur";
 
@@ -40,9 +41,10 @@ const MnemonicQrCode = (props) => {
     } = useTheme()
 
     const showQr = () => {
-        
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
         setShow(true)
         setTimeout(() => {
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
             setShow(false)
             setAnimationProgress(new Animated.Value(0))
         }, VISIBILITY_TIMEOUT)
