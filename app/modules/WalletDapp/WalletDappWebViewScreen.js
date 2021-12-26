@@ -38,6 +38,8 @@ import config from '@app/config/config'
 import store from '@app/store'
 import TronUtils from '@crypto/blockchains/trx/ext/TronUtils'
 import TrxDappHandler from '@app/modules/WalletDapp/injected/TrxDappHandler'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 class WalletDappWebViewScreen extends PureComponent {
     state = {
@@ -160,11 +162,26 @@ class WalletDappWebViewScreen extends PureComponent {
             try {
                 const tmp = JSON.parse(e.nativeEvent.data)
                 if (tmp.main === 'tronWeb') {
-                    const res = await TrxDappHandler.handle(tmp)
+                    const { res, shouldAsk, shouldAskText} = await TrxDappHandler.handle(tmp, false)
                     if (config.debug.appErrors) {
                         console.log('WalletDappWebView res', res)
                     }
-                    this.webref.postMessage(JSON.stringify({req : tmp, res}))
+                    if (typeof shouldAsk !== 'undefined' && shouldAsk) {
+                        showModal({
+                            type: 'YES_NO_MODAL',
+                            icon: 'WARNING',
+                            title: strings('settings.walletConnect.transaction'),
+                            description: shouldAskText
+                        },  async () => {
+                            const { res : resAfterAsk } = await TrxDappHandler.handle(tmp, true)
+                            this.webref.postMessage(JSON.stringify({ req: tmp, res : resAfterAsk }))
+                            if (config.debug.appErrors) {
+                                console.log('WalletDappWebView resAfterAsk', resAfterAsk)
+                            }
+                        })
+                    } else {
+                        this.webref.postMessage(JSON.stringify({ req: tmp, res }))
+                    }
                 }
             } catch (e) {
                 // console.log('WalletDapp.WebViewScreen.onMessage parse error ' + e.message)
