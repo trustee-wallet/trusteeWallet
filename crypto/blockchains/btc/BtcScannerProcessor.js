@@ -16,6 +16,8 @@ const CACHE_VALID_TIME = 60000 // 60 seconds
 const CACHE = {}
 const CACHE_WALLET_PUBS = {}
 
+const TIMEOUT_BTC = 60000
+
 export default class BtcScannerProcessor {
 
     /**
@@ -63,7 +65,7 @@ export default class BtcScannerProcessor {
             link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used&pageSize=40'
 
             try {
-                res = await BlocksoftAxios._request(link, 'get')
+                res = await BlocksoftAxios._request(link, 'get', false, false, true, TIMEOUT_BTC)
             } catch (e) {
                 if (e.message.indexOf('"error":"internal server error"') !== -1) {
                     CACHE[address] = {
@@ -81,7 +83,7 @@ export default class BtcScannerProcessor {
             }
         } else {
             link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999&pageSize=80'
-            res = await BlocksoftAxios.getWithoutBraking(link)
+            res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_BTC)
         }
 
         if (!res || !res.data) {

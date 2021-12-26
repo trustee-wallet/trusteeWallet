@@ -36,11 +36,11 @@ class BlocksoftAxios {
      * @param maxTry
      * @returns {Promise<boolean|{data:*}>}
      */
-    async getWithoutBraking(link, maxTry = 5) {
+    async getWithoutBraking(link, maxTry = 5, timeOut = false) {
         let tmp = false
         try {
             BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' start ' + link)
-            tmp = await this.get(link, false, false)
+            tmp = await this.get(link, false, false, timeOut)
             BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
             CACHE_ERRORS_BY_LINKS[link] = { time: 0, tries: 0 }
         } catch (e) {
@@ -170,7 +170,7 @@ class BlocksoftAxios {
         return tmp
     }
 
-    async get(link, emptyIsBad = false, errSend = true) {
+    async get(link, emptyIsBad = false, errSend = true, timeOut = false) {
         let tmp = false
         let doOld = this._isTrustee(link)
         if (!doOld) {
@@ -218,7 +218,7 @@ class BlocksoftAxios {
             }
         }
         if (doOld) {
-            tmp = this._request(link, 'get', {}, emptyIsBad, errSend)
+            tmp = this._request(link, 'get', {}, emptyIsBad, errSend, timeOut)
         }
         return tmp
     }

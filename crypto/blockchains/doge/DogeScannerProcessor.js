@@ -32,6 +32,7 @@ import EthRawDS from '../eth/stores/EthRawDS'
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
 
+const TIMEOUT_DOGE = 60000
 
 export default class DogeScannerProcessor {
 
@@ -74,8 +75,8 @@ export default class DogeScannerProcessor {
 
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Scanner._get')
 
-        const link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
-        const res = await BlocksoftAxios.getWithoutBraking(link)
+        const link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&pageSize=40'
+        const res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_DOGE)
         if (!res || !res.data) {
             await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
             return false
