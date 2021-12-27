@@ -69,6 +69,7 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
     const fullData = prepareAssets(assets)
 
     let data = []
+    let tokenBlockchainArray = []
 
     if (searchQuery) data = filterBySearchQuery(fullData, searchQuery)
 
@@ -78,7 +79,7 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
 
     if (activeTab.group === ASSESTS_GROUP.TOKENS && !searchQuery) {
         const dataGrouped = fullData.reduce((grouped, asset) => {
-            if (asset.currencyType === 'coin') return grouped
+            if (asset.currencyType === 'coin' || asset.currencyType === 'special') return grouped
             if (!grouped[asset.tokenBlockchain]) grouped[asset.tokenBlockchain] = []
             grouped[asset.tokenBlockchain].push(asset)
             return grouped
@@ -90,13 +91,17 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
                 data: arr
             })
         })
+
+        if (this.state.tokenBlockchain) {
+            tokenBlockchainArray = data[this.state.tokenBlockchain !== 0 ? this.state.tokenBlockchain - 1 : 0].data
+        }
     }
 
     if (activeTab.group === ASSESTS_GROUP.CUSTOM && !searchQuery) {
         data = [...fullData.filter(currency => currency.currencyType === 'custom')]
     }
 
-    this.setState(() => ({ data, tabs: newTabs, searchQuery }))
+    this.setState(() => ({ data, tabs: newTabs, searchQuery, tokenBlockchainArray }))
 }
 
 export function prepareAssets(assets) {
@@ -211,6 +216,15 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             Log.log('AddCustomTokenScreen.addToken checked4 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked3))
             if (checked4) {
                 todoArray.push({ tokenType : 'FTM_ERC_20', checked : checked4})
+            }
+
+            const checked5 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'METIS_ERC_20',
+                tokenAddress
+            })
+            Log.log('AddCustomTokenScreen.addToken checked5 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked3))
+            if (checked5) {
+                todoArray.push({ tokenType : 'METIS_ERC_20', checked : checked4})
             }
         }
 

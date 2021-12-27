@@ -7,7 +7,7 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import { Switch } from 'react-native-switch'
+import Switch from 'react-native-switch-pro'
 
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
@@ -15,6 +15,7 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
+import CheckBox from '../../CheckBox'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
@@ -73,35 +74,69 @@ const getIcon = (iconType, color) => {
         case 'information':
             return <MaterialCommunityIcon name="information" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
         case 'hd':
-            return <CustomIcon name={'multiAddress'} size={18} color={color} />
+            return <CustomIcon name='multiAddress' size={18} color={color} />
         case 'rbf':
-            return <CustomIcon name={'editingTx'} size={18} color={color} />
+            return <CustomIcon name='editingTx' size={18} color={color} />
         case 'unconfirmed':
-            return <CustomIcon name={'unconfirmed'} size={18} color={color} />
+            return <CustomIcon name='unconfirmed' size={18} color={color} />
         case 'address':
-            return <CustomIcon name={'selectVisibleAddress'} size={18} color={color} />
+            return <CustomIcon name='selectVisibleAddress' size={18} color={color} />
         case 'fee':
-            return <CustomIcon name={'fee'} size={22} color={color} />
+            return <CustomIcon name='fee' size={22} color={color} />
         case 'keyMonero':
-            return <CustomIcon name={'secretKeyMonero'} size={22} color={color} />
+            return <CustomIcon name='secretKeyMonero' size={22} color={color} />
         case 'walletConnect':
-            return <CustomIcon name={'walletConnect'} size={22} color={color} />
+            return <CustomIcon name='walletConnect' size={22} color={color} />
         case 'supportMail':
-            return <CustomIcon name={'supportMail'} size={22} color={color} />
-        case 'faq': 
-            return <CustomIcon name={'faq'} size={22} color={color} />
+            return <CustomIcon name='supportMail' size={22} color={color} />
+        case 'faq':
+            return <CustomIcon name='faq' size={22} color={color} />
         case 'delete':
-            return <CustomIcon name={'delete'} size={22} color={color} />
+            return <CustomIcon name='delete' size={22} color={color} />
         case 'btc':
             return <CustomIcon name='BTC' size={22} color={color} />
         case 'eth':
             return <CustomIcon name='ETH' size={22} color={color} />
+        case 'validator':
+            return <CustomIcon name='validator' size={22} color={color} />
+        case 'inTxHistory':
+            return <CustomIcon name='inTxHistory' size={16} color={color} />
+        case 'outTxHistory':
+            return <CustomIcon name='outTxHistory' size={16} color={color} />
+        case 'feeTxScreen':
+            return <CustomIcon name='feeTxScreen' size={18} color={color} />
+        case 'cancelTxHistory':
+            return <CustomIcon name='cancelTxHistory' size={16} color={color} />
+        case 'addressBook':
+            return <CustomIcon name='addressBook' size={22} color={color} />
+        case 'downloadDoc':
+            return <CustomIcon name='downloadDoc' size={22} color={color} />
+        case 'exchange':
+            return <CustomIcon name='exchange' size={20} color={color} />
+        case 'categories':
+            return <CustomIcon name='categories' size={20} color={color} />
+        case 'timeArray':
+            return <CustomIcon name='timeArray' size={20} color={color} />
+        case 'amountRange':
+            return <CustomIcon name='amountRange' size={26} color={color} />
+        case 'freezing':
+            return <CustomIcon name='freezing' size={22} color={color} />
+        case 'reward':
+            return <CustomIcon name='reward' size={22} color={color} />
+        case 'contractIncome':
+            return <CustomIcon name='contractIncome' size={20} color={color} />
+        case 'contractOutcome':
+            return <CustomIcon name='contractOutcome' size={20} color={color} />
+        case 'cpa':
+            return <CustomIcon name='cpa' size={22} color={color} />
+        case 'earn':
+            return <CustomIcon name='earn' size={22} color={color} />
         default: return null
     }
 }
 
-const getRightContent = (rightContent, params, color) => {
-    const { onPress, value, disabled } = params
+const getRightContent = (rightContent, params, color, isVisibleDone) => {
+    const { onPress, value, disabled, checked } = params
     const { colors } = useTheme()
     // next value needed to corret switch component rendering
     const reversedValue = !value
@@ -111,28 +146,24 @@ const getRightContent = (rightContent, params, color) => {
         case 'switch':
             return (
                 <Switch
-                    onValueChange={onPress}
-                    value={reversedValue}
+                    onAsyncPress={onPress}
+                    value={!reversedValue}
                     disabled={disabled}
-                    renderActiveText={false}
-                    renderInActiveText={false}
-                    backgroundActive={colors.common.switch.bgInactive}
-                    backgroundInactive={colors.common.switch.bgActive}
-                    circleActiveColor={colors.common.switch.circleBg}
-                    circleInActiveColor={colors.common.switch.circleBg}
-                    circleSize={20}
-                    changeValueImmediately={false}
-                    switchWidthMultiplier={1.6}
-                    switchLeftPx={-5}
-                    switchRightPx={-5}
-                    outerCircleStyle={{ paddingRight: reversedValue ? 5 : 0, paddingLeft: reversedValue ? 0 : 5 }}
-                    innerCircleStyle={{ borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive}}
+                    backgroundInactive={colors.common.switch.bgInactive}
+                    backgroundActive={colors.common.switch.bgActive}
+                    circleColorInactive={colors.common.switch.circleBg}
+                    circleColorActive={colors.common.switch.circleBg}
+                    width={34}
+                    circleStyle={Object.assign({}, !disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive })}
                 />
             )
         case 'arrow_down':
             return <CustomIcon name={'down'} size={18} color={color} />
         case 'arrow_up':
             return <CustomIcon name={'up'} size={18} color={color} />
+        case 'checkbox':
+            return <CheckBox isVisibleDone={isVisibleDone} checked={checked} onPress={onPress} />
+
         default: return null
     }
 }
@@ -152,9 +183,17 @@ export default function SettingListItem(props) {
         delayLongPress = 5000,
         type,
         ExtraView,
-        ExtraViewParams
+        ExtraViewParams,
+        customIconStyle,
+        isVisibleDone,
+        checked,
+        opacityWithDisabled,
+        customTextStyle,
+        hasInfo
     } = props
     const { colors, GRID_SIZE } = useTheme()
+
+
 
     if (type === 'dropdown') {
         return (
@@ -183,7 +222,7 @@ export default function SettingListItem(props) {
                     </View>
                 </TouchableOpacity>
                 {(ExtraView && switchParams.value) && (
-                    <ExtraView ExtraViewParams={ExtraViewParams}/>
+                    <ExtraView ExtraViewParams={ExtraViewParams} />
                 )}
             </>
         )
@@ -198,17 +237,20 @@ export default function SettingListItem(props) {
                     activeOpacity={0.8}
                     disabled={disabled}
                 >
-                    <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }]}>
-                        {getIcon(iconType, colors.common.listItem.basic.iconColorLight)}
-                    </View>
+                    {iconType &&
+                        <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1 }, customIconStyle]}>
+                            {getIcon(iconType, customIconStyle?.color || colors.common.listItem.basic.iconColorLight)}
+                            {hasInfo && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
+                        </View>
+                    }
                     <View style={styles.mainContent}>
-                        <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
-                            <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                        <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, paddingVertical: !!subtitle ? 13 : 23, marginLeft: iconType ? 0 : GRID_SIZE }]}>
+                            <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1, ...customTextStyle }]}>{title}</Text>
                             {!!subtitle && <Text numberOfLines={4} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
                         {!!rightContent && (
-                            <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
-                                {getRightContent(rightContent, { ...switchParams, disabled })}
+                            <View style={[styles.rightContent, { opacity: !opacityWithDisabled ? disabled || disabledRightContent ? 0.3 : 1 : 1 }]}>
+                                {getRightContent(rightContent, { ...switchParams, disabled, onPress, checked }, colors.common.text1, isVisibleDone)}
                             </View>
                         )}
                     </View>
@@ -216,7 +258,7 @@ export default function SettingListItem(props) {
                 {ExtraView && (
                     <ExtraView ExtraViewParams={ExtraViewParams} />
                 )}
-                { !last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
+                {!last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
             </View>
         )
     }
@@ -233,7 +275,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginRight: 8,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        position: 'relative'
     },
     mainContent: {
         flexDirection: 'row',
@@ -274,5 +317,14 @@ const styles = StyleSheet.create({
             height: 4
         },
         elevation: 4
+    },
+    notificationIndicator: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        borderWidth: 2,
     }
 })

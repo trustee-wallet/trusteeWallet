@@ -64,6 +64,7 @@ const checkLoadedFee = function(_this) {
     let msg = false
     let goBack = false
     let cacheWarningNoticeValue = ''
+    let newCryptoValue = false
 
     if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto * 1 > 0) {
         if (typeof selectedFee.amountForTx !== 'undefined' && bseMinCrypto * 1 > selectedFee.amountForTx * 1) {
@@ -83,13 +84,17 @@ const checkLoadedFee = function(_this) {
     } else if (typeof selectedFee.amountForTx !== 'undefined' ) {
         value = selectedFee.amountForTx
     }
-    if (value.toString() !== cryptoValue.toString()) {
-        Log.log('SendingValue ' + value.toString() + ' != ' + cryptoValue.toString())
-        if (uiType === 'TRADE_SEND') {
-            msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount : BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
-            goBack = true
-        } else {
-            msg = strings('send.errors.UI_CORRECTED_AMOUNT', { symbol: currencySymbol, amount : BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
+
+    if (BlocksoftExternalSettings.getStatic('SEND_AMOUNT_CHECK') > 0) {
+        if (value.toString() !== cryptoValue.toString()) {
+            Log.log('SendingValue ' + value.toString() + ' != ' + cryptoValue.toString())
+            if (uiType === 'TRADE_SEND') {
+                msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
+                goBack = BlocksoftExternalSettings.getStatic('TRADE_SEND_AMOUNT_CHECK_FORCE_QUIT') > 0
+            } else {
+                msg = strings('send.errors.UI_CORRECTED_AMOUNT', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
+            }
+            newCryptoValue = value
         }
     }
 
@@ -143,7 +148,7 @@ const checkLoadedFee = function(_this) {
             }
         }
     }
-    return { msg, cacheWarningNoticeValue, goBack, modalType }
+    return { msg, cacheWarningNoticeValue, goBack, modalType, newCryptoValue }
 }
 export {
     showSendError, checkLoadedFee

@@ -10,10 +10,14 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import BtcFindAddressFunction from './basic/BtcFindAddressFunction'
 import config from '@app/config/config'
 import Database from '@app/appstores/DataSource/Database'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 const CACHE_VALID_TIME = 60000 // 60 seconds
 const CACHE = {}
 const CACHE_WALLET_PUBS = {}
+
+const TIMEOUT_BTC = 60000
+const PROXY_TXS = 'https://proxy.trustee.deals/btc/getTxs'
 
 export default class BtcScannerProcessor {
 
@@ -59,28 +63,39 @@ export default class BtcScannerProcessor {
         let link = ''
         let res = false
         if (prefix === 'xpub' || prefix === 'zpub' || prefix === 'ypub') {
-            link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used&pageSize=40'
-
-            try {
-                res = await BlocksoftAxios._request(link, 'get')
-            } catch (e) {
-                if (e.message.indexOf('"error":"internal server error"') !== -1) {
-                    CACHE[address] = {
-                        data : {
-                            balance : 0,
-                            unconfirmedBalance: 0,
-                            addresses : [],
-                            specialMark : 'badServer'
-                        },
-                        time: now,
-                        provider: 'trezor-badserver'
+            link = PROXY_TXS + '?address=' + address + '&type=xpub&currencyCode=' + this._settings['currencyCode']
+            res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_BTC)
+            if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.data !== 'undefined') {
+                res.data = res.data.data
+            } else {
+                link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used&pageSize=40'
+                try {
+                    res = await BlocksoftAxios._request(link, 'get', false, false, true, TIMEOUT_BTC)
+                } catch (e) {
+                    if (e.message.indexOf('"error":"internal server error"') !== -1) {
+                        CACHE[address] = {
+                            data: {
+                                balance: 0,
+                                unconfirmedBalance: 0,
+                                addresses: [],
+                                specialMark: 'badServer'
+                            },
+                            time: now,
+                            provider: 'trezor-badserver'
+                        }
+                        return CACHE[address]
                     }
-                    return CACHE[address]
                 }
             }
         } else {
-            link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999&pageSize=80'
-            res = await BlocksoftAxios.getWithoutBraking(link)
+            link = PROXY_TXS + '?address=' + address + '&currencyCode=' + this._settings['currencyCode']
+            res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_BTC)
+            if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.data !== 'undefined') {
+                res.data = res.data.data
+            } else {
+                link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999&pageSize=80'
+                res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_BTC)
+            }
         }
 
         if (!res || !res.data) {
@@ -106,7 +121,8 @@ export default class BtcScannerProcessor {
             for (token of res.data.tokens) {
                 addresses[token.name] = {
                     balance: token.balance,
-                    transactions: token.transfers
+                    transactions: token.transfers,
+                    path : token.path
                 }
                 plainAddresses[token.name] = token.path
             }
@@ -166,7 +182,15 @@ export default class BtcScannerProcessor {
     async getAddressesBlockchain(scanData, source = '') {
         const address = scanData.account.address.trim()
         const data = scanData.additional
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started', address)
+        const withBalances = typeof scanData.withBalances !== 'undefined' && scanData.withBalances
+        if (!withBalances) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started withoutBalances (KSU!)', address)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started withoutBalances (KSU!)', address)
+        } else {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses started withBalances', address)
+        }
         let res = await this._get(address, data, source)
         if (typeof res.data !== 'undefined') {
             res = JSON.parse(JSON.stringify(res.data))
@@ -183,8 +207,14 @@ export default class BtcScannerProcessor {
                     if (res === false || typeof res.plainAddresses === 'undefined') {
                         res = JSON.parse(JSON.stringify(tmp.data))
                     } else {
-                        for (const row in tmp.data.plainAddresses) {
-                            res.plainAddresses[row] = tmp.data.plainAddresses[row]
+                        if (withBalances) {
+                            for (const row in tmp.data.addresses) {
+                                res.addresses[row] = tmp.data.addresses[row]
+                            }
+                        } else {
+                            for (const row in tmp.data.plainAddresses) {
+                                res.plainAddresses[row] = tmp.data.plainAddresses[row]
+                            }
                         }
                     }
 
@@ -196,7 +226,7 @@ export default class BtcScannerProcessor {
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' BtcScannerProcessor.getAddresses load from all addresses error ' + e.message)
         }
-        return res.plainAddresses
+        return withBalances ? res.addresses : res.plainAddresses
     }
 
     /**
@@ -350,6 +380,11 @@ export default class BtcScannerProcessor {
             transactionStatus = 'confirming'
         }
 
+        let transactionFilterType = TransactionFilterTypeDict.USUAL
+        if (typeof showAddresses.to !== 'undefined' && showAddresses.to.toLowerCase().indexOf('simple send') !== -1) {
+            transactionFilterType = TransactionFilterTypeDict.FEE
+        }
+
         let formattedTime
         try {
             formattedTime = BlocksoftUtils.toDate(transaction.blockTime)
@@ -369,7 +404,8 @@ export default class BtcScannerProcessor {
             addressTo: showAddresses.to,
             addressAmount: showAddresses.value,
             transactionStatus: transactionStatus,
-            transactionFee: transaction.fees
+            transactionFee: transaction.fees,
+            transactionFilterType
         }
     }
 }

@@ -37,9 +37,18 @@ export namespace BlocksoftTransferUtils {
 
     export const getBalanceForTransfer = function(data : {
         balance : string,
-        unconfirmed : string,
+        unconfirmed : string | boolean,
+        balanceStaked : string,
         currencyCode: BlocksoftDictTypes.Code
     }) : string {
+        if (data.currencyCode === BlocksoftDictTypes.Code.TRX) {
+            if (data.balanceStaked && data.balanceStaked !== '') {
+                return BlocksoftUtils.diff(data.balance, data.balanceStaked)
+            }
+        }
+        if (data.unconfirmed === false) {
+            return data.balance
+        }
         // @ts-ignore
         if (data.unconfirmed * 1 < 0) {
             return data.balance

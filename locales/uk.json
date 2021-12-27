@@ -5,7 +5,23 @@
      "unconfirmed" : "Непідтверджений",
      "today": "Сьогодні",
      "changedLastDay": "За останні 24 години",
-     "synchronizing": "Синхронізація"
+     "synchronizing": "Синхронізація",
+     "settings": "Налаштування відображення",
+     "sorting": "Сортування",
+     "sort": {
+      "custom": "Користувацький",
+      "byName": "За ім'ям",
+      "byValue": "За балансом",
+      "firstCoin": "Спочатку монети",
+      "firstToken": "Спочатку токени",
+      "withBalance": "З позитивним балансом",
+      "guideTitle": "Навчання"
+    },
+    "categories": {
+      "coin": "Монети",
+      "token": "Токени"
+    },
+    "setSortValueCustom": "Сортування встановлено в режимі «Користувацький»"
    },
    "walletCreateScreen": {
      "title": "КУПУЙ ПРОДАВАЙ ОБМІНЮЙ АНОНІМНО",
@@ -37,6 +53,7 @@
      "tabAll": "Все",
      "tabNews": "Новини",
      "tabInvite": "Поділитись",
+     "cashbackTabInvite": "Запрошуй",
      "tabInfo": "Інфо",
      "tabFaq": "Faq",
      "today": "Сьогодні",
@@ -49,6 +66,8 @@
       "listSubtitle": "Гаманці: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Відключено",
+      "unconnectedText": "Відскануйте QR-код, щоб підключитись до DeFi сервісу",
       "inputPlaceholder": "Пряме посилання",
       "stop": "Відключення WalletConnect",
       "stopText": "Ви дійсно хочете перервати підключення з ",
@@ -63,7 +82,7 @@
       "session": "Підключення WalletConnect",
       "sessionText": "Ви дійсно хочете підключити гаманець Trustee до ",
       "notificationTitle": "Увага!",
-      "notificationText": "Переконайтесь, що %{name} безпечно. Взаємодіючи з цим сервісом, Ви надаєте доступ до своїх коштів!",
+      "notificationText": "Переконайтесь, що %{name} безпечний. Взаємодіючи з цим сервісом, Ви надаєте доступ до своїх коштів!",
       "disconnect": "Відключитись",
       "connect": "Підключитись",
       "placeholder": "Тут буде адреса гаманця, до якого Ви підключились",
@@ -143,6 +162,7 @@
       "testerMode": "Тестувальник"
     },
     "walletList": {
+      "showBalance": "Показати баланс",
       "title": "Мої гаманці",
       "addWallet": "Додати гаманець",
       "backupNeeded": "Резервне копіювання",
@@ -157,6 +177,8 @@
       "allowReplaceByFee" : "Редагування транзакції до підтвердження майнерами",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
+      "showAll": "Показати всі",
+      "generateNew": "Створити новий",
       "accountAddress": "Тип адреси за замовчуванням",
       "hd": "Підвищення конфіденційності",
       "hdDescription": "Створення нової адреси, щоразу, після вхідної BTC транзакції",
@@ -177,6 +199,11 @@
         "title": "Переключити гаманець у режим HD?",
         "description": "Режим HD означає ротацію адрес для кожної транзакції. Операція перемикання є незворотньою."
       },
+      "staked": "Застейкано",
+      "frozen" : "Заморожено",
+      "stakeTransactionsSOL": "Транзакції стейкінгу",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR" : "Сервер з даними (наприклад, api.mymonero.com)",
       "serverInputTitleXMR" : "api.mymonero.com:8443",
       "serverSendInputXMR" : "Сервер для відправки транзакцій (наприклад, api.mymonero.com)",
@@ -184,7 +211,8 @@
       "needReinstallXMR"  : "Системна помилка адреси XMR - будь ласка, збережіть мнемонічну фразу та переінсталюйте додаток, або напишіть в службу підтримки для детальних інструкцій",
       "saveSettings" : "Зберегти",
       "getMnemonicXMR" : "Переглянути секретний ключ",
-      "availableTRX" : "Доступно",
+      "available" : "Доступно",
+      "availableSOL": "Доступний баланс",
       "frozenTRX" : "Застейкано",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Енергія %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введіть кількість TRX",
@@ -214,12 +242,18 @@
       "withdrawSOL" : "Забрати",
       "withdrawAllSOL" : "Забрати все",
       "deactivateSOL": "Деактивувати",
-      "stakeHistorySOL" : "Історія Стейку",
+      "stakeHistorySOL" : "Історія",
       "selectValidatorSOL": "Оберіть валідатора",
       "selectValidatorSOLCommission" : "Збір :",
       "validatorSOL": "Валідатор",
-      "rewards" : "Нагороди",
-      "useCustomValidator": "Використати цей валідатор "
+      "rewards" : "Нагорода",
+      "useCustomValidator": "Використати цей валідатор ",
+      "successUnfreeze": "TRX розморожено",
+      "successFreeze": "TRX заморожено для стейкінгу",
+      "successReward": "Отримано нагороду TRX за стейкінг",
+      "noVoted": "У вас залишився стейк без голосів. Натисніть «Проголосувати», щоб завершити процедуру заморозки",
+      "withdrawTRX": "Вивести",
+      "freezeTrx": "Заморозити"
     },
     "about": {
       "title": "Про гаманець",
@@ -266,7 +300,7 @@
     "tabCustom": "Ще",
     "searchPlaceholder": "Пошук",
     "addCustomPlaceholder": "Адреса активу",
-    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB, Polygon, Solana або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
+    "addCustomLabel": "Ви можете додати стандартний токен, розроблений на блокчейні Ethereum, BNB Smart Chain, Polygon, Solana або Tron. Будь ласка, введіть або відскануйте новий токен / актив.",
     "noAssetsFound": "Активи не знайдено",
     "addAssetButton": "Додати актив",
     "mainTitle": "Додати актив",
@@ -308,7 +342,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Додати NFT актив",
-    "addCustomLabel": "Ви можете додати стандартний токен NFT, розроблений на Matic блокчейні чи Ropsten Testnet. Будь ласка, введіть або відскануйте нову адресу токену / активу.",
+    "addCustomLabel": "Ви можете додати стандартний токен NFT, розроблений на блокчейнах Ethereum, BNB Smart Chain, Matic або на Ropsten або Rinkeby Testnet. Будь ласка, введіть або відскануйте нову адресу токену / активу.",
     "addCustomLabelOpenSea" : "Токени Ethereum можна додати з OpenSea ",
     "addCustomPlaceholder" : "Адреса активу NFT",
     "addAssetButton" : "Додати актив"
@@ -317,27 +351,26 @@
     "invited": "Запрошений:",
     "cashback": "Cashback",
     "cpa": "CPA",
-    "pageTitle": "Запрошуй друзів",
-    "pageSubtitle": "Заробляй від комісії з Trustee Wallet!",
-    "pageSubtitleText": "до",
+    "pageTitle": "Заробити",
+    "pageSubtitle": "Заробляй до 30% від комісії з Trustee Wallet!",
     "shareButton": "Поділитись",
     "promoButton": "Промокод",
     "detailsButton": "Деталі",
     "enterPromoPlaceholder": "Введіть промокод",
     "enterInviteLinkPlaceholder": "Введіть посилання-запрошення",
     "applyButton": "Застосувати",
-    "wholeBalance": "Усього накопичено кешбеку",
+    "wholeBalance": "Баланс за весь час",
     "availableCashBack": "Доступний кешбек",
     "balanceTitle": "Баланс",
-    "toWithdraw": "До диводу залишилось:",
-    "cashbackInfo": "Cashback info",
-    "cpaInfo": "CPA info",
+    "toWithdraw": "Мін. сумма виводу:",
     "cpaTotal": "Усього CPA",
     "cpaLevel1": "CPA Рівень №1",
     "cpaLevel2": "CPA Рівень №2",
     "cpaLevel3": "CPA Рівень №3",
     "cashbackToken": "Токен",
     "invitedBy": "Запрошений",
+    "yourToken": "Ваша кешбек силка",
+    "cashbackMessage": "Отримуй Cashback за свої обмінні операції. Заробляй крипту за Партнерською програмою та CPA рекомендуючи Trustee Wallet!",
     "howItWorks": {
       "title": "Як це працює?",
       "info1Title": "Чи є в Trustee Wallet програма нагород для користувачів?",
@@ -366,7 +399,7 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "Ваші друзі",
-    "updated" : "Оновлено",
+    "updated" : "Оновлено в",
     "transAmount": "Сума транзакцій",
     "level2UsersAmount": "Друзі друзів",
     "cashbackError" : {
@@ -387,6 +420,7 @@
     "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм"
   },
   "account": {
+    "staking": "Стейкінг",
     "title": "Рахунок",
     "copy": "Копіювати",
     "refresh": "Оновити",
@@ -400,8 +434,20 @@
     "soLong": "Сканування було давно",
     "minutesAgo": " %{time} хв назад ",
     "noTransactions": "У Вас ще немає транзакцій. Але Ви можете швидко це змінити, просто натисніть кнопку КУПИТИ",
+    "noFoundTransactions": "Вибачте, нічого не знайдено",
     "showMore": "Показати ще",
     "assetSettings": "Налаштування активу",
+    "stakingTRX": {
+      "bandwidthInfo": "Заморозьте свої монети TRX для Bandwidth – це дозволить отримувати нагороду за стейкінг та відправляти вільні монети TRX без комісії мережі. ",
+      "energyInfo": "Заморозьте свої монети TRX для Energy – це дозволить отримувати нагороду за стейкінг та відправляти токени TRC20 без комісії мережі. ",
+      "moreInfo": "Детальніше..."
+    },
+    "stakingSOL": {
+      "stake": "Заморозьте свої монети SOL, щоб отримувати нагороду за стейкінг. "
+    },
+    "copyLink": "Копіювати адресу",
+    "invoiceText": "Виставити рахунок для оплати",
+    "openInBlockchair": "Відкрити в блокчейн експлорері",
     "externalLink": {
       "title": "Перехід до блокчейн експлореру",
       "description": "Ви перейдете на зовнішній ресурс"
@@ -430,6 +476,10 @@
       "income": "Вхідна",
       "self" : "Собі",
       "freeze" : "Заморожено",
+      "unfreeze" : "Розморожено",
+      "stake" : "Стейк",
+      "vote": "Голосування",
+      "wallet_connect" : "WalletConnect",
       "claim" : "Винагорода",
       "swap_income" : "Contract Вхідна",
       "swap_outcome" : "Contract Вихідна",
@@ -445,6 +495,26 @@
       "advAccountDestination": "Номер рахунку для виводу",
       "phoneDestination": "Номер телефону для виводу",
       "orderId": "Прив'язаний ID обміну",
+      "selectAll": "Обрати все",
+      "swap": "Swap",
+      "cancel": "Скасовано",
+      "reward": "Винагорода",
+      "categoriesTitle": "Категорії",
+      "transactionCategories": "Категорії транзакцій",
+      "dateAmount": "Дата і сума",
+      "timeArray": "Масив часу",
+      "amountRange": "Діапазон сум",
+      "allAmount": "Уся сума",
+      "downloadTransactionsHistory": "Завантажити історію транзакцій за весь час",
+      "saveInCsv": "Зберегти всі транзакції в CSV",
+      "filterTitle": "Фільтр",
+      "startDate": "Дата початку",
+      "endDate": "Дата завершення",
+      "pickDate": "Обрати дату",
+      "startAmount": "Початкова сума",
+      "endAmount": "Кінцева сума",
+      "setAmount": "Вказати",
+      "discard": "Відхилити",
       "RBF": {
         "replaceByFeeBtn": "Збільшити комісію",
         "willReplaceWithNewFee": "Поточна транзакція буде замінена новою, з новим хешем та більш високою комісією",
@@ -484,7 +554,8 @@
       "FIORequest": "FIO запит",
       "share": "Поділитись",
       "copy": "Копіювати",
-      "amount": "Вказати суму"
+      "amount": "Вказати суму",
+      "rename": "Перейменувати"
     },
     "addAccount": {
       "list": "Список криптовалют"
@@ -520,8 +591,9 @@
       "transactionSum": "Сума відправки ",
       "addresTo": "Отримувач ",
       "addresFrom": "Відправник ",
-      "blockConfirmations": "Поточна кількість підтверджень "
-      }
+      "blockConfirmations": "Поточна кількість підтверджень ",
+      "transactionAmount": "%{currencyCode} сума"
+    }
   },
 
    "fioMainSettings": {
@@ -812,7 +884,7 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостатньо коштів для відправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Недостатня сума для відправки в стейк",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не валідатор"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не є валідатором"
     }
   },
   "walletBackup": {
@@ -996,7 +1068,7 @@
       },
       "TRX_20": {
         "title": "Будь ласка, зверніть увагу!",
-        "description": "Ваш гаманець Tron (TRX) не активований. Для активації достатньо поповнити адресу Tron на 5-7 монет TRX, які в подальшому можуть бути використані в інших транзакціях "
+        "description": "Ваш гаманець Tron (TRX) не активований. Для активації достатньо поповнити адресу Tron на 10 монет TRX, які в подальшому можуть бути використані в інших транзакціях "
       },
       "TOKEN": {
         "title": "Будь ласка, зверніть увагу!",
@@ -1155,6 +1227,15 @@
     },
     "notification": {
       "description": "На жаль, Ваш мобільний пристрій не підтримує отримання Push-повідомлень"
+    },
+    "dropDownModal": {
+      "showGuide": "Повторити навчання",
+      "moveToTop": "Перемістити на початок списку",
+      "moveToDown": "Перемістити в кінець списку",
+      "guideText": "Налаштуйте відображення монет на головному екрані, виставивши їх у необхідному порядку, або відсортуйте активи відповідно до запропонованих варіантів.",
+      "guideTitle": "Персональний інтерфейс",
+      "guideAccept": "Прийняти",
+      "hideAsset": "Приховати актив"
     }
   },
   "lockScreen": {
@@ -1487,12 +1568,14 @@
       "currency":"Українська гривня"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Надіслати документи",
     "sendLogs": "Надіслати логи",
     "takePhoto": "Зробити фото",
     "chooseFromLibrary": "Вибрати з галереї",
     "noMessages": "Повідомлень поки що немає",
-    "sentFile": "Файл надіслано"
+    "sentFile": "Файл надіслано",
+    "getRoomError" : "Помилка завантаження",
+    "sendMessageError" : "Нестабільне підключення до мережі під час надсилання повідомлення"
   }
 }

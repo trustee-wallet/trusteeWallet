@@ -89,7 +89,7 @@ class NftAddAssetScreen extends PureComponent {
         const flatListData = []
         for (const tmp of Nfts.Nfts) {
             flatListData.push({
-                text: tmp.tokenBlockchain,
+                text: tmp.tokenBlockchainShortTitle || tmp.tokenBlockchain,
                 inverse: selectedBlockchain?.currencyCode === tmp.currencyCode,
                 action: () => this.handleSelectBlockchain(tmp)
             })
@@ -116,6 +116,7 @@ class NftAddAssetScreen extends PureComponent {
     }
 
     renderListItem = ({ item }) => {
+        console.log('item', item)
         return (
             <ListItem
                 title={item.currencyName}
@@ -128,13 +129,31 @@ class NftAddAssetScreen extends PureComponent {
         )
     }
 
+    // renderCustomTextInput() {
+    //     return(
+            
+    //     ) 
+    // }
+
     render() {
         const {
             GRID_SIZE,
             colors
         } = this.context
 
-        const { customAddress, data } = this.state
+        const { customAddress, selectedBlockchain } = this.state
+        const { nftCustomAssetsData } = this.props
+        let data = []
+
+        /*
+        @todo FOR VADIK
+        if (typeof nftCustomAssetsData !== 'undefined' && typeof nftCustomAssetsData.customAssets[selectedBlockchain.currencyCode] !== 'undefined') {
+            for (const key in nftCustomAssetsData.customAssets[selectedBlockchain.currencyCode]) {
+                const tmp = nftCustomAssetsData.customAssets[selectedBlockchain.currencyCode][key]
+                tmp.currencyCode = selectedBlockchain.currencyCode
+                data.push(tmp)
+            }
+        }*/
 
         return (
             <ScreenWrapper
@@ -149,7 +168,7 @@ class NftAddAssetScreen extends PureComponent {
                         data={data}
                         showsVerticalScrollIndicator={false}
                         ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
-                        ListHeaderComponent={() => (
+                        ListHeaderComponent={
                             <>
                                 <View style={{ margin: GRID_SIZE }}>
                                     <Text style={[styles.text, { color: colors.common.text3 }]}>{strings('nftAddAssetScreen.addCustomLabel')}</Text>
@@ -171,6 +190,7 @@ class NftAddAssetScreen extends PureComponent {
                                             callback={this.handleChangeCustomAddress}
                                             qr={true}
                                             qrCallback={this.handleOpenQr}
+                                            onBlur={() => null}
                                         />
                                         <Button
                                             containerStyle={{ marginTop: GRID_SIZE * 2 }}
@@ -181,8 +201,9 @@ class NftAddAssetScreen extends PureComponent {
                                     </View>
                                 }
                             </>
-                        )}
+                        }
                         renderItem={this.renderListItem}
+                        keyExtractor={item => item.id}
                     />
                 </SafeAreaView>
             </ScreenWrapper>

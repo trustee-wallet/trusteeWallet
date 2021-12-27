@@ -18,6 +18,7 @@ import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import Log from '@app/services/Log/Log'
 import { LockScreenFlowTypes, resetLockScreen, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 const TIME_DIFF = 300000
 
@@ -104,6 +105,7 @@ class AppLockScreenIdleTime {
             if (diff >= TIME_DIFF) {
                 const { lockScreenStatus } = store.getState().settingsStore.keystore
                 if (+lockScreenStatus && !MarketingEvent.UI_DATA.IS_LOCKED) {
+                    hideModal()
                     UpdateOneByOneDaemon.stop()
                     UpdateAccountListDaemon.stop()
                     MarketingEvent.UI_DATA.IS_LOCKED = true

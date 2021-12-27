@@ -4,12 +4,10 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions, Linking } from 'react-native'
 
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-
-import LottieView from 'lottie-react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -28,9 +26,8 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
-import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 
 import { HIT_SLOP } from '@app/theme/HitSlop'
 
@@ -47,28 +44,29 @@ import { resolveChainCode } from '@crypto/blockchains/fio/FioUtils'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
-import Buttons from '@app/components/elements/new/buttons/Buttons'
-import Tabs from '@app/components/elements/new/Tabs'
+import Tabs from '@app/components/elements/new/TabsWithUnderlineOld'
 
 import AmountInput from './elements/AccountReceiveInput'
 import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 
 import UtilsService from '@app/services/UI/PrettyNumber/UtilsService'
-import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
 
-import blackLoader from '@assets/jsons/animations/refreshBlack.json'
-import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import { getSelectedAccountData, getSelectedCryptoCurrencyData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
-import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 
+import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
+import { getExplorerLink, handleShareInvoice } from '../helpers'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
-const { width: SCREEN_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
+import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
+import { changeAddress, getAddress } from './helpers'
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const amountInput = {
     id: 'value',
@@ -77,55 +75,56 @@ const amountInput = {
     mark: 'ETH'
 }
 
+let CACHE_ASKED = false
+
 class AccountReceiveScreen extends React.PureComponent {
 
-    constructor() {
-        super()
-        this.state = {
-            settingAddressType: false,
-            settingAddressTypeTriggered : false,
+    state = {
+        settingAddressType: false,
+        settingAddressTypeTriggered : false,
 
-            customAmount: false,
+        customAmount: false,
 
-            amountEquivalent: null,
-            amountInputMark: '',
-            amountForQr: '0',
-            labelForQr: '',
-            inputType: 'CRYPTO',
+        amountEquivalent: null,
+        amountInputMark: '',
+        amountForQr: '0',
+        labelForQr: '',
+        inputType: 'CRYPTO',
 
-            focused: false,
+        focused: false,
 
-            changeAddress: false,
+        isBalanceVisible: false,
+        isBalanceVisibleTriggered: false,
+        index: 0,
+        walletIsHd: false
+    }
 
-            isBalanceVisible: false,
-            isBalanceVisibleTriggered: false,
+    async _onLoad() {
+        CACHE_ASKED = trusteeAsyncStorage.getExternalAsked()
+    }
+
+    componentDidMount() {
+        this._onLoad()
+        this.setState({
+            walletIsHd: this.props.selectedWalletData.walletIsHd
+        })
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.selectedWalletData.walletIsHd !== this.props.selectedWalletData.walletIsHd) {
+            this.setState({
+                walletIsHd: true
+            })
         }
     }
 
-
-    getAddress = () => {
-        const { settingAddressType, settingAddressTypeTriggered } = this.state
-        const { isSegwit } = this.props
-        let { address, legacyAddress, segwitAddress,  } = this.props.selectedAccountData
-        const { currencyCode } = this.props.selectedCryptoCurrencyData
-
-        const actualIsSegwit = settingAddressTypeTriggered ? (settingAddressType !== 'legacy') : isSegwit
-        if (!actualIsSegwit && legacyAddress) {
-            address = legacyAddress
-        } else {
-            if (currencyCode === 'BSV' || currencyCode === 'BCH') {
-                address = 'bitcoincash:' + BtcCashUtils.fromLegacyAddress(address)
-            } else if (segwitAddress) {
-                address = segwitAddress
-            }
-        }
-        Log.log('AccountReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType, actualIsSegwit })
-        return address
+    handleGetAddress = () => {
+        getAddress.call(this)
     }
 
     copyToClip = () => {
         try {
-            copyToClipboard(this.getAddress())
+            copyToClipboard(getAddress.call(this))
             Toast.setMessage(strings('toast.copied')).show()
         } catch (e) {
             Log.err('AccountReceiveScreen.copyToClip error', e.message)
@@ -138,7 +137,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
         try {
 
-            const address = this.getAddress()
+            const address = getAddress.call(this)
 
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             let linkForQR = ''
@@ -193,17 +192,10 @@ class AccountReceiveScreen extends React.PureComponent {
         }
     }
 
-    handleCustomReceiveAmount = () => {
-
-        this.setState({
-            customAmount: true
-        })
-    }
-
     handleFioRequestCreate = () => {
         const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
         const { fioName } = this.state
-        const address = this.getAddress()
+        const address = getAddress.call(this)
         const chainCode = resolveChainCode(currencyCode, currencySymbol)
 
         NavStore.goNext('FioSendRequest', {
@@ -218,7 +210,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
     shareData = () => {
         const { currencySymbol } = this.props.selectedCryptoCurrencyData
-        const address = this.getAddress()
+        const address = getAddress.call(this)
 
         try {
             setLoaderStatus(true)
@@ -317,12 +309,21 @@ class AccountReceiveScreen extends React.PureComponent {
         }
     }
 
+    // handleChangeTab = (index) => {
+    //     this.setState({
+    //         index
+    //     })
+
+    // }
+
     renderTabs = (tabs) => {
         const { GRID_SIZE } = this.context
         return (
-            <View style={{ width: 200, height: 50, alignSelf: 'center', marginTop: -GRID_SIZE }} >
-                <Tabs tabs={tabs} changeTab={this.changeAddressType} />
-            </View>
+            <Tabs 
+                tabs={tabs}
+                changeTab={this.changeAddressType}
+                containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}    
+            />
         )
     }
 
@@ -359,66 +360,12 @@ class AccountReceiveScreen extends React.PureComponent {
         }
     }
 
-    changeAddress = async () => {
-
-        this.setState({
-            changeAddress: true
-        })
-
-        setLoaderStatus(true)
-
-        try {
-            const address = this.getAddress()
-            const res = await walletHDActions.setSelectedAccountAsUsed(address)
-            if (res) {
-                if (res.code === 'error.near.too.much.gap') {
-                    showModal({
-                        type: 'YES_NO_MODAL',
-                        icon: 'WARNING',
-                        title: strings('modal.useAgainAddressesGap.title'),
-                        description: strings('modal.useAgainAddressesGap.description')
-                    }, () => {
-                        walletHDActions.backUnusedAccounts(res)
-                    })
-                } else {
-                    showModal({
-                        type: 'YES_NO_MODAL',
-                        icon: 'WARNING',
-                        title: strings('modal.useAgainAddresses.title'),
-                        description: strings('modal.useAgainAddresses.description')
-                    }, () => {
-                        walletHDActions.backUnusedAccounts(res)
-                    })
-                }
-            }
-        } catch (e) {
-            // noinspection ES6MissingAwait
-            Log.err('AccountReceiveScreen changeAddress error ' + e.message)
-        }
-
-        setLoaderStatus(false)
-
-        this.setState({
-            changeAddress: false
-        })
+    handleChangeAddress = async () => {
+        await changeAddress.call(this)
     }
 
     backAction = () => {
-        const { customAmount } = this.state
-
-        if (customAmount) {
-            this.setState({
-                customAmount: false,
-                amountEquivalent: null,
-                amountInputMark: '',
-                amountForQr: '',
-                labelForQr: '',
-                inputType: 'CRYPTO'
-
-            })
-        } else {
-            NavStore.goBack()
-        }
+        NavStore.goBack() 
     }
 
     closeAction = () => {
@@ -426,11 +373,11 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     renderButton = (item) => {
+
+        const { GRID_SIZE } = this.context
+
         return (
-            <Buttons
-                data={item}
-                title={true}
-            />
+            item.map(i => <BorderedButton text={i.title} onPress={i.action} key={i.title} containerStyles={{ marginHorizontal: GRID_SIZE / 2 }} />)
         )
     }
 
@@ -509,7 +456,7 @@ class AccountReceiveScreen extends React.PureComponent {
     getDataForQR = (amount, label) => {
         try {
             const { currencyCode, currencySymbol } = this.props.selectedCryptoCurrencyData
-            const address = this.getAddress()
+            const address = getAddress.call(this)
             amount = this.state.customAmount ? amount : ''
 
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
@@ -551,11 +498,140 @@ class AccountReceiveScreen extends React.PureComponent {
         this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
     }
 
+    renderModalContent = (params) => {
+
+        const { 
+            GRID_SIZE,
+            colors
+        } = this.context
+
+        const { currencyCode, currencyName } = this.props.selectedCryptoCurrencyData
+
+        return(
+            <View>
+                <InvoiceListItem 
+                    title={strings('account.invoiceText')}
+                    onPress={() => handleShareInvoice(getAddress.call(this), currencyCode, currencyName)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
+                    textColor='#F7F7F7'
+                    iconType='invoice'
+                    last
+                />
+                <InvoiceListItem 
+                    title={strings('account.receiveScreen.amount')}
+                    onPress={() => {
+                        this.handleCustomAmount()
+                        hideModal()
+                    }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+                    iconType='edit'
+                />
+                <InvoiceListItem 
+                    title={strings('account.copyLink')}
+                    onPress={() => {
+                        this.copyToClip()
+                        hideModal()
+                    }}
+                    containerStyle={{ marginHorizontal: GRID_SIZE }}
+                    iconType='copy'
+                />
+                <InvoiceListItem 
+                    title={strings('account.openInBlockchair')}
+                    onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
+                    iconType='blockchair'
+                    last
+                />
+            </View>
+        )
+    }
+
+    handleBackDropModal = (address, forceLink) => {
+        showModal({
+            type: 'BACK_DROP_MODAL',
+            Content: () => this.renderModalContent({address, forceLink})
+        })
+    }
+
+    handleOpenLink = async (address, forceLink = false) => {
+        const now = new Date().getTime()
+        const diff = now - CACHE_ASKED * 1
+        if (!CACHE_ASKED|| diff > 10000) {
+            showModal({
+                type: 'YES_NO_MODAL',
+                title: strings('account.externalLink.title'),
+                icon: 'WARNING',
+                description: strings('account.externalLink.description')
+            }, () => {
+                trusteeAsyncStorage.setExternalAsked(now + '')
+                CACHE_ASKED = now
+                this.actualOpen(address, forceLink)
+            })
+        } else {
+            this.actualOpen(address, forceLink)
+        }
+    }
+
+    actualOpen = async (address, forceLink = false) => {
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+
+        const actualLink = forceLink || getExplorerLink(currencyCode, 'address', address)
+        try {
+            const linkUrl = BlocksoftPrettyStrings.makeFromTrustee(actualLink)
+            Linking.openURL(linkUrl)
+        } catch (e) {
+            Log.err('Account.AccountReceiveScreen open URI error ' + e.message, actualLink)
+        }
+
+    }
+
+    handleShowAll = () => NavStore.goNext('AllAddressesScreen')
+
+    handleCustomAmount = () => {
+
+        const { customAmount } = this.state
+
+        // TODO animation
+        // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+
+        this.scrollDetails(!customAmount)
+
+        this.setState({
+            customAmount: !customAmount,
+            amountEquivalent: null,
+            amountInputMark: '',
+            amountForQr: '',
+            labelForQr: '',
+            inputType: 'CRYPTO'
+        })
+    }
+
+    renderCustomAmountCloseBtn = () => {
+
+        const { colors } = this.context
+
+        return(
+            <TouchableOpacity 
+                style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: colors.common.button.bg, alignItems: 'center', justifyContent: 'center'}}
+                onPress={this.handleCustomAmount}
+            >
+                <CustomIcon name='close' size={12} color={colors.common.button.text} />
+            </TouchableOpacity>
+        )
+    }
+
+    scrollDetails = (activeSection) => {
+        setTimeout(() => {
+            try {
+                this.scrollView.scrollTo({ y: activeSection ? 200 : 0 })
+            } catch (e) {
+            }
+        }, 300)
+    }
+
     render() {
 
-        const { walletIsHd } = this.props.selectedWalletData
-
-        const { fioName, customAmount, amountForQr, labelForQr, inputType } = this.state
+        const { fioName, customAmount, amountForQr, labelForQr, inputType, walletIsHd } = this.state
         const { basicCurrencyCode, address } = this.props.selectedAccountData
         const { currencyCode, currencySymbol, decimals} = this.props.selectedCryptoCurrencyData
 
@@ -566,11 +642,10 @@ class AccountReceiveScreen extends React.PureComponent {
         const dict = new UIDict(currencyCode)
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
-        const shownAddress = this.getAddress()
+        const shownAddress = getAddress.call(this)
         const buttonsArray = [
-            { icon: 'edit', title: strings('account.receiveScreen.amount'), action: () => this.handleCustomReceiveAmount() },
-            { icon: 'exchange', title: strings('dashboardStack.exchange'), action: () => this.handleExchange() },
-            { icon: 'share', title: strings('account.receiveScreen.share'), action: () => this.shareData() }
+            { title: strings('settings.walletList.showAll'), action: () => this.handleShowAll() },
+            { title: strings('settings.walletList.generateNew'), action: () => this.handleChangeAddress() }
         ]
 
         const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : '0.00'
@@ -590,121 +665,113 @@ class AccountReceiveScreen extends React.PureComponent {
                     }}
                     keyboardShouldPersistTaps={'handled'}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{
-                        minHeight: WINDOW_HEIGHT
-                    }}
-                >
-                    <View style={{ ...styles.wrapper__content, marginTop: GRID_SIZE * 2 }}>
-                        {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
-                        {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
-                        <TouchableOpacity
-                            style={styles.qr}
-                            onPress={this.copyToClip}
-                            activeOpacity={0.8}
-                        >
-                            <QrCodeBox
-                                getRef={ref => this.refSvg = ref}
-                                value={customAmount ? this.createDataForQr(amountForQr, labelForQr) : this.getAddressForQR()}
-                                size={200}
-                                color='#404040'
-                                backgroundColor='#F5F5F5'
-                                logo={qrLogo}
-                                logoSize={70}
-                                logoBackgroundColor='transparent'
-                                onError={(e) => {
-                                    Log.err('AccountReceiveScreen QRCode error ' + e.message)
-                                }}
-                            />
-                        </TouchableOpacity>
-                        {fioName ? <Text>{fioName}</Text> : null}
-                    </View>
-                    {customAmount ?
-                        <View style={{ marginHorizontal: GRID_SIZE, height: 400 }} >
-                            <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
-                                <View style={{ flexDirection: 'row' }}>
-                                    <AmountInput
-                                        ref={component => this.refAmountInput = component}
-                                        id={amountInput.id}
-                                        additional={amountInput.additional}
-                                        onFocus={() => this.onFocus()}
-                                        type={amountInput.type}
-                                        decimals={decimals < 10 ? decimals : 10}
-                                        callback={(value) => this.amountInputCallback(value, true)}
-                                        maxLength={17}
-                                        maxWidth={SCREEN_WIDTH * 0.6}
-                                    />
-                                    <Text style={{ ...styles.ticker, color: colors.sendScreen.amount }}>
-                                        {inputType === 'CRYPTO' ? currencyCode : basicCurrencyCode}
-                                    </Text>
-                                </View>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                <View style={{ ...styles.line, backgroundColor: colors.sendScreen.colorLine }} />
-                                <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
-                                    onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP} >
-                                    <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
-                                </TouchableOpacity>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                <LetterSpacing text={notEquivalentValue} textStyle={{ ...styles.notEquivalentValue, color: '#999999' }}
-                                    letterSpacing={1.5} />
-                            </View>
-                            <View style={{ marginVertical: GRID_SIZE }}>
-                                <TextInput
-                                    value={this.state.labelForQr}
-                                    placeholder={strings('send.setting.note')}
-                                    onChangeText={(value) => this.setState({ labelForQr: value })}
-                                    onFocus={() => this.onFocus()}
-                                    paste={true}
-                                    callback={(value) => this.setState({ labelForQr: value })}
+                    style={{ paddingTop: GRID_SIZE }}
+                >   
+                    {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
+                    {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
+                    <View style={{backgroundColor: colors.common.listItem.basic.iconBgLight, marginHorizontal: GRID_SIZE, borderRadius: 24, paddingBottom: GRID_SIZE }}>
+                        <View style={{ ...styles.wrapper__content, paddingTop: GRID_SIZE * 1.5 }}>
+
+                            <TouchableOpacity
+                                style={styles.qr}
+                                onPressIn={this.handleBackDropModal}
+                                activeOpacity={0.8}
+                                onLongPress={this.copyToClip}
+                                delayLongPress={500}
+                            >
+                                <QrCodeBox
+                                    getRef={ref => this.refSvg = ref}
+                                    value={customAmount ? this.createDataForQr(amountForQr, labelForQr) : this.getAddressForQR()}
+                                    size={160}
+                                    color='#404040'
+                                    backgroundColor='#F5F5F5'
+                                    logo={qrLogo}
+                                    logoSize={54}
+                                    logoBackgroundColor='transparent'
+                                    onError={(e) => {
+                                        Log.err('AccountReceiveScreen QRCode error ' + e.message)
+                                    }}
                                 />
-                            </View>
-                            <View style={{ alignSelf: 'center', width: '100%', marginTop: GRID_SIZE }}>
-                                <Button
-                                    title={strings('account.receiveScreen.share')}
-                                    onPress={this.shareData}
-                                />
-                            </View>
+                            </TouchableOpacity>
+                            {fioName ? <Text>{fioName}</Text> : null}
                         </View>
-                        :
-                        <>
-                            <View style={{ ...styles.backgroundAddress, backgroundColor: colors.transactionScreen.backgroundItem, marginHorizontal: GRID_SIZE }} >
-                                <TouchableOpacity style={{
-                                    position: 'relative',
-                                    alignItems: 'center'
-                                }} onPress={() => this.copyToClip()}
-                                    hitSlop={HIT_SLOP}>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                                        <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
-                                            <LetterSpacing text={shownAddress && shownAddress !== '' ? shownAddress : address} numberOfLines={2} containerStyle={{
-                                                flexWrap: 'wrap',
-                                                justifyContent: 'center'
-                                            }} textStyle={{ ...styles.accountDetail__text, textAlign: 'center', color: colors.common.text1 }}
-                                                letterSpacing={1} />
+                        
+                            <View style={[styles.backgroundAmount, { marginHorizontal: GRID_SIZE, backgroundColor: colors.cashback.progressBarBg + '80', paddingBottom: customAmount ? GRID_SIZE * 1.5 : 0, marginTop: GRID_SIZE }]}>
+                                {customAmount ?
+                                    <>
+                                        <View style={{ alignItems: 'flex-end', marginTop: GRID_SIZE, marginRight: GRID_SIZE }}>
+                                            {this.renderCustomAmountCloseBtn()}
                                         </View>
-                                        {
-                                            currencyCode === 'BTC' && walletIsHd ?
-                                                <TouchableOpacity onPress={this.changeAddress} style={{
-                                                    position: 'relative',
-                                                    marginRight: GRID_SIZE,
-                                                    marginTop: 4
-                                                }}>
-                                                    {this.state.changeAddress ?
-                                                        <LottieView style={{ width: 20, height: 20, }}
-                                                            source={isLight ? blackLoader : whiteLoader}
-                                                            autoPlay loop /> :
-                                                        <CustomIcon color={colors.common.text1} size={20} name={'reloadTx'} />
-                                                    }
-                                                </TouchableOpacity> :
-                                                <View style={{ position: 'relative', marginRight: GRID_SIZE, flexDirection: 'column', justifyContent: 'center' }}>
-                                                    <MaterialIcons color="#999999" size={14} name={'content-copy'} />
+                                        <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <AmountInput
+                                                    ref={component => this.refAmountInput = component}
+                                                    id={amountInput.id}
+                                                    additional={amountInput.additional}
+                                                    onFocus={() => this.onFocus()}
+                                                    type={amountInput.type}
+                                                    decimals={decimals < 10 ? decimals : 10}
+                                                    callback={(value) => this.amountInputCallback(value, true)}
+                                                    maxLength={17}
+                                                    maxWidth={SCREEN_WIDTH * 0.6}
+                                                />
+                                                <Text style={{ ...styles.ticker, color: colors.sendScreen.amount }}>
+                                                    {inputType === 'CRYPTO' ? currencyCode : basicCurrencyCode}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                            <View style={{ ...styles.line, backgroundColor: colors.cashback.progressBarBg }} />
+                                            <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
+                                                onPress={this.handleChangeEquivalentType}
+                                                hitSlop={HIT_SLOP}
+                                            >
+                                                <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                            <LetterSpacing text={notEquivalentValue} textStyle={{ ...styles.notEquivalentValue, color: '#999999' }}
+                                                letterSpacing={1.5} />
+                                        </View>
+                                        <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 2}}>
+                                            <Button
+                                                type='withoutShadow'
+                                                title={strings('account.receiveScreen.share')}
+                                                onPress={this.shareData}
+                                                containerStyle={[styles.discardButton, { paddingHorizontal: GRID_SIZE * 2, padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
+                                            />
+                                        </View> 
+                                    </> :  
+                                    <View style={styles.backgroundAddress}>
+                                        <TouchableOpacity
+                                            style={{
+                                                alignItems: 'center'
+                                            }}
+                                            onPress={() => this.handleBackDropModal()}
+                                            hitSlop={HIT_SLOP}
+                                            onLongPress={this.copyToClip}
+                                            delayLongPress={500}
+                                        >
+                                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                                <View style={{ flex: 1, marginHorizontal: GRID_SIZE }} >
+                                                    <LetterSpacing text={shownAddress && shownAddress !== '' ? shownAddress : address} numberOfLines={2} containerStyle={{
+                                                        flexWrap: 'wrap',
+                                                        justifyContent: 'center'
+                                                    }} textStyle={{ ...styles.accountDetail__text, textAlign: 'left', color: colors.common.text1 }}
+                                                        letterSpacing={1} />
                                                 </View>
-                                        }
+                                                {
+                                                    <View style={{ justifyContent: 'center', marginRight: GRID_SIZE }}>
+                                                        <MaterialIcons color={colors.common.text1} size={20} name={'content-copy'} />
+                                                    </View>
+                                                }
+                                            </View>
+                                        </TouchableOpacity>
                                     </View>
-                                </TouchableOpacity>
-                            </View>
-                            {
-                                fioName ? (
+                                }
+                            </View> 
+                            {!customAmount && <View>
+                                { fioName ? (
                                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                                         <TouchableOpacity style={{ marginTop: 20 }}
                                             onPress={this.handleFioRequestCreate}>
@@ -714,14 +781,18 @@ class AccountReceiveScreen extends React.PureComponent {
                                                 iconStyle={{ marginHorizontal: 3 }} />
                                         </TouchableOpacity>
                                     </View>
-                                ) : null
-                            }
-                            <View style={{ height: 180, paddingTop: 50, alignSelf: 'center' }}>
-                                {this.renderButton(buttonsArray)}
-                            </View>
-                        </>
-                    }
+                                ) : null }
+                                {currencyCode === 'BTC' && walletIsHd && <View style={{ alignSelf: 'center', flexDirection: 'row', paddingTop: GRID_SIZE * 1.5 }}>
+                                    {this.renderButton(buttonsArray)}
+                                </View>}
+                            </View>}
+                        </View>
                 </ScrollView>
+                {!customAmount && <Button
+                    title={strings('account.receiveScreen.share')}
+                    onPress={this.handleBackDropModal}
+                    containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
+                />}
             </ScreenWrapper>
         )
     }
@@ -738,7 +809,7 @@ const mapStateToProps = (state) => {
 }
 AccountReceiveScreen.contextType = ThemeContext
 
-export default connect(mapStateToProps, {})(AccountReceiveScreen)
+export default connect(mapStateToProps)(AccountReceiveScreen)
 
 const styles = {
     wrapper: {
@@ -750,8 +821,8 @@ const styles = {
     qr: {
         position: 'relative',
         backgroundColor: '#F5F5F5',
-        width: 250,
-        height: 250,
+        width: 180,
+        height: 180,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 24,
@@ -789,11 +860,12 @@ const styles = {
         fontFamily: 'SFUIDisplay-Semibold',
     },
     backgroundAddress: {
-        marginTop: 22,
-        borderRadius: 16,
-        minHeight: 74,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        minHeight: 74
+    },
+    backgroundAmount: {
+        borderRadius: 16
     },
     ticker: {
         fontFamily: 'Montserrat-Medium',
@@ -810,4 +882,9 @@ const styles = {
         alignSelf: 'center',
         marginVertical: 6
     },
+    discardButton: {
+        width: 'auto',
+        minWidth: 58,
+        height: 38
+    }
 }

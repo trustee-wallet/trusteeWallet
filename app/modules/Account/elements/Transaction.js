@@ -17,7 +17,6 @@ import _ from 'lodash'
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
 import MaterialCommunity from 'react-native-vector-icons/MaterialCommunityIcons'
-import Ionicons from 'react-native-vector-icons/Ionicons'
 
 import GradientView from '@app/components/elements/GradientView'
 import CustomIcon from '@app/components/elements/CustomIcon'
@@ -30,6 +29,7 @@ import Toast from '@app/services/UI/Toast/Toast'
 import { strings } from '@app/services/i18n'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 class Transaction extends React.Component {
 
@@ -116,25 +116,35 @@ class Transaction extends React.Component {
         }
     }
 
-    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus) => {
+    renderStatusCircle = (isStatus, status, transactionDirection, visibleStatus, transactionFilterType, wayType) => {
         const { colors } = this.context
         const { styles } = this.state
-        const { isFirst, dashHeight: height, cryptoCurrency } = this.props
+        const { isFirst, cryptoCurrency } = this.props
         const { currencyColor } = cryptoCurrency
 
-        let arrowIcon = <Feather name={'arrow-up-right'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
+        let arrowIcon = <Feather name='arrow-up-right' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         let circleStyle = {}
 
         if (transactionDirection === 'income' || transactionDirection === 'claim' || transactionDirection === 'swap_income') {
-            arrowIcon = <Feather name={'arrow-down-left'} style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
+            arrowIcon = <Feather name='arrow-down-left' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 15 }} />
         }
         if (transactionDirection === 'self') {
-            arrowIcon = <FontAwesome5 name="infinity" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
+            arrowIcon = <FontAwesome5 name='infinity' style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 10 }} />
             circleStyle = { backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circleBackground }
         }
+
+        if (transactionFilterType === TransactionFilterTypeDict.SWAP) {
+            arrowIcon = <CustomIcon name='swap' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 16 }} />
+        }
+
+        if (wayType === TransactionFilterTypeDict.FEE) {
+            arrowIcon = <CustomIcon name='feeTxScreen' style={{ marginTop: 1, color: colors.accountScreen.transactions.color, fontSize: 14 }} />
+            circleStyle = { backgroundColor: isStatus ? currencyColor : colors.accountScreen.transactions.circle }
+        }
+
         // if (status === 'fail' || status === 'missing' || status === 'replaced') {
         if (visibleStatus.toUpperCase() === 'MISSING' || visibleStatus.toUpperCase() === 'OUT_OF_ENERGY') {
-            arrowIcon = <Feather name="x" style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
+            arrowIcon = <Feather name='x' style={{ marginTop: 1, color: colors.accountScreen.transactions.circleColor, fontSize: 15 }} />
             circleStyle = { backgroundColor: colors.accountScreen.transactions.circleBackground }
         }
 
@@ -220,7 +230,14 @@ class Transaction extends React.Component {
         const { styles } = this.state
         const { colors } = this.context
 
-        const { cryptoCurrency, transaction } = this.props
+        const { 
+            cryptoCurrency, 
+            transaction, 
+            isBalanceVisible, 
+            isBalanceVisibleTriggered, 
+            originalVisibility 
+        } = this.props
+
         const { createdAt } = transaction
         const { currencyColor, currencyCode } = cryptoCurrency
 
@@ -229,27 +246,40 @@ class Transaction extends React.Component {
         const transactionStatus = this.prepareStatus(transaction.transactionStatus)
         const transactionBlockchainStatus = transaction.transactionBlockchainStatus
         const transactionDirection = transaction.transactionDirection
-        const wayType = transaction.wayType
+        const transactionFilterType = transaction.transactionFilterType
+        const wayType = transaction.wayType // SWAP OUTCOME INCOME FEE !
 
-        let value, valueToView, currencySymbolToView
+        let value, valueToView, currencySymbolToView, basicValueToView
+        const isFeeTx = transaction.addressAmount * 1 <= 0
+
         if (transaction.addressAmountSatoshi && (currencyCode === 'BTC' || currencyCode === 'DOGE')) {
             value = transaction.addressAmountSatoshi
             valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
             currencySymbolToView = 'sat'
         } else {
-            value = transaction.addressAmountPretty
+            value = isFeeTx ? transaction.transactionFeePretty : transaction.addressAmountPretty
             valueToView = transaction.addressAmountPrettyPrefix + ' ' + value
-            currencySymbolToView = cryptoCurrency.currencySymbol
+            currencySymbolToView = isFeeTx ? transaction.feesCurrencySymbol : cryptoCurrency.currencySymbol
         }
-        const basicValueToView = wayType !== 'EXCHANGE' && typeof transaction.basicAmountPretty !== 'undefined' ?
-            (transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty) : false
+        
+        if (transactionFilterType !== TransactionFilterTypeDict.SWAP && typeof transaction.basicAmountPretty !== 'undefined') {
+            if (isFeeTx) {
+                basicValueToView = transaction.basicFeeCurrencySymbol + ' ' + transaction.basicFeePretty
+            } else {
+                basicValueToView = transaction.basicCurrencySymbol + ' ' + transaction.basicAmountPretty
+            }
+        } else {
+            basicValueToView = false
+        }
 
         const isStatus = transactionStatus === 'new' || transactionStatus === 'done_payin' || transactionStatus === 'wait_trade' || transactionStatus === 'done_trade' || transactionStatus === 'pending_payin'
         // end preformat
 
+        const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
+
         return (
             <View style={styles.transaction}>
-                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus)}
+                {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus, transactionFilterType, wayType)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
                     <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
                         <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>
@@ -279,19 +309,27 @@ class Transaction extends React.Component {
                                 >
                                     <View style={{ ...styles.transaction__item__content, opacity: transactionStatus === 'fail' || transactionStatus === 'missing' || transactionStatus === 'out_of_energy' ? 0.5 : null }}>
                                         <View style={{ justifyContent: 'center', flex: 3 }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                                <Text style={{ ...styles.transaction__item__title, color: colors.common.text1 }} numberOfLines={1}>
-                                                    {valueToView}
-                                                </Text>
-                                                <Text style={[styles.transaction__item__title__subtitle, { color: currencyColor }]}>
-                                                    {currencySymbolToView}
-                                                </Text>
-                                            </View>
-                                            {basicValueToView ? (
-                                                <Text style={{ ...styles.transaction__item__subtitle, color: '#999999' }}>
-                                                    {basicValueToView}
-                                                </Text>
-                                            ) : null}
+                                            {finalIsBalanceVisible ?
+                                            <>
+                                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                                    <Text style={{ ...styles.transaction__item__title, color: colors.common.text1 }} numberOfLines={1}>
+                                                        {valueToView}
+                                                    </Text>
+                                                    <Text style={[styles.transaction__item__title__subtitle, { color: currencyColor }]}>
+                                                        {currencySymbolToView}
+                                                    </Text>
+                                                </View>
+                                                {basicValueToView ? (
+                                                    <Text style={{ ...styles.transaction__item__subtitle, color: '#999999' }}>
+                                                        {basicValueToView}
+                                                    </Text>
+                                                ) : null}
+                                                </> 
+                                                : 
+                                                <View style={{ justifyContent: 'center', marginTop: Platform.OS === 'ios' ? 12 : 6 }}>
+                                                    <Text style={{ ...styles.transaction__item__title, color: colors.common.text1, fontSize: 26  }} numberOfLines={1}>****</Text>
+                                                </View>
+                                                }
                                         </View>
                                         <View style={{ flexDirection: 'column', alignItems: 'flex-end', flex: 1 }}>
                                             <Text style={{ ...styles.transaction__data, color: colors.accountScreen.transactions.transactionData }}>

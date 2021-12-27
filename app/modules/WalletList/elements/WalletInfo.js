@@ -225,13 +225,15 @@ class WalletInfo extends React.Component {
                         </GradientView>
                     </TouchableOpacity>
                 </Animated.View>
+                
                 {!this.props.walletIsBackedUp ?
-                    <View style={{ marginHorizontal: GRID_SIZE }}>
+                    <View style={{ marginHorizontal: this.props.constructorMode ? 0 : GRID_SIZE }}>
                         <InfoNotification
                             title={strings('settings.walletList.backupNeeded')}
                             subTitle={strings('settings.walletList.backupDescription')}
                             closeCallback={this.closeMsg}
                             onPress={this.handleBackupModal}
+                            iconType="warning"
                         />
                     </View> : null
                 }

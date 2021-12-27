@@ -20,6 +20,7 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftCryptoUtils from '@crypto/common/BlocksoftCryptoUtils'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import ApiProxy from './ApiProxy'
 
 import store from '@app/store'
@@ -91,6 +92,7 @@ export default {
                 balance: account.balancePretty,
                 unconfirmed: account.unconfirmedPretty,
                 raw: account.balanceRaw,
+                prettyBalanceRaw: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.balanceRaw),
                 currencyRateUsd: currencies[currencyCode].currencyRateUsd,
                 basicCurrencyCode: account.basicCurrencyCode,
                 basicCurrencyRate: account.basicCurrencyRate,
@@ -99,11 +101,12 @@ export default {
             }
             if (currencyCode.indexOf('CUSTOM_') !== -1) {
                 const currencySettings = BlocksoftDict.getCurrencyAllSettings(currencyCode)
-                if (typeof currencySettings.tokenAddress !== 'undefined') {
-                    resultAccount.tokenAddress = currencySettings.tokenAddress
-                }
                 if (typeof currencySettings.tokenName !== 'undefined') {
                     resultAccount.tokenName = currencySettings.tokenName
+                    resultAccount.tokenAddress = currencySettings.tokenName
+                }
+                if (typeof currencySettings.tokenAddress !== 'undefined' && currencySettings.tokenAddress) {
+                    resultAccount.tokenAddress = currencySettings.tokenAddress
                 }
                 if (typeof currencySettings.tokenBlockchain !== 'undefined') {
                     resultAccount.tokenBlockchain = currencySettings.tokenBlockchain
@@ -127,7 +130,7 @@ export default {
                     }
                 ]
             }
-            const hodl = await (BlocksoftBalances.setCurrencyCode(currencyCode)).getBalanceHodl(account)
+            const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
             resultAccount.balanceHodl = hodl
             if (hodl > 0) {
                 resultAccount.balance = account.balancePretty * 1 - hodl

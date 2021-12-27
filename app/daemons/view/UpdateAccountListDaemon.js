@@ -213,6 +213,7 @@ class UpdateAccountListDaemon extends Update {
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceFix = ''
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedTxt = ''
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmedFix = ''
+                    reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceStaked = ''
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceAddingLog = tmpBalanceLog
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanTime = tmpBalanceScanTime > tmpTransactionsScanTime ? tmpBalanceScanTime : tmpTransactionsScanTime
                     reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceScanError = tmpBalanceScanError
@@ -240,6 +241,11 @@ class UpdateAccountListDaemon extends Update {
                                 reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmed = BlocksoftUtils.add(reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].unconfirmed, tmpCurrency.unconfirmed).toString()
                             } catch (e) {
                                 Log.errDaemon('UpdateAccountListDaemon error on reformatted2 ' + e.message)
+                            }
+                            try {
+                                reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceStaked = BlocksoftUtils.add(reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceStaked, tmpCurrency.balanceStaked).toString()
+                            } catch (e) {
+                                Log.errDaemon('UpdateAccountListDaemon error on reformatted3 ' + e.message)
                             }
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceTxt = ''
                             reformatted[tmpCurrency.walletHash][tmpCurrency.currencyCode].balanceFix = ''
@@ -280,6 +286,7 @@ class UpdateAccountListDaemon extends Update {
                 DaemonCache.CACHE_WALLET_SUMS[tmpWalletHash] = {
                     balance: 0,
                     unconfirmed: 0,
+                    balanceStaked : 0,
                     balanceAddingLog: '',
                     balanceAddingLogHidden : '',
                     balanceAddingLogZero : '',
@@ -301,6 +308,9 @@ class UpdateAccountListDaemon extends Update {
                     }
                 } else {
                     rate = tmpCurrency.currencyRateJson[basicCurrencyCode] || 0
+                }
+                if (rate.toString().indexOf('e-')) {
+                    rate = BlocksoftUtils.fromENumber(rate.toString())
                 }
                 if (currencyCode === 'BTC') {
                     Log.daemon('UpdateAccountListDaemon rate BTC ' + rate + ' with ' + JSON.stringify(basicCurrency))
@@ -346,13 +356,13 @@ class UpdateAccountListDaemon extends Update {
                     account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
                     account.walletUseUnconfirmed = accountWallet.walletUseUnconfirmed
                     try {
-                        account.balanceRaw = (accountWallet && accountWallet.walletUseUnconfirmed === 1) ?
+                        account.balanceRaw =
                             BlocksoftTransferUtils.getBalanceForTransfer({
                                 balance : account.balance,
-                                unconfirmed : account.unconfirmed,
+                                unconfirmed : (accountWallet && accountWallet.walletUseUnconfirmed === 1) ? account.unconfirmed : false,
+                                balanceStaked: account.balanceStaked,
                                 currencyCode
                             })
-                            : account.balance
                     } catch (e) {
                         Log.errDaemon('UpdateAccountListDaemon error on account.balanceRaw ' + e.message)
                         account.balanceRaw = account.balance
@@ -375,6 +385,14 @@ class UpdateAccountListDaemon extends Update {
                             account.unconfirmedPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.unconfirmed, 'updateAccountListDaemon.unconfirmed')
                         } catch (e) {
                             Log.errDaemon('UpdateAccountListDaemon error on account.unconfirmed makePretty ' + e.message)
+                        }
+                    }
+                    account.balanceStakedPretty = 0
+                    if (account.balanceStaked > 0) {
+                        try {
+                            account.balanceStakedPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(account.balanceStaked, 'updateAccountListDaemon.balanceStaked')
+                        } catch (e) {
+                            Log.errDaemon('UpdateAccountListDaemon error on account.balanceStaked makePretty ' + e.message)
                         }
                     }
                     account.balanceTotalPretty = 0
@@ -484,6 +502,7 @@ class UpdateAccountListDaemon extends Update {
                     && typeof selectedAccount.currencyCode !== 'undefined'
                     && typeof selectedAccount.walletHash !== 'undefined'
                     && selectedAccount.currencyCode !== 'NFT'
+                    && selectedAccount.currencyCode !== 'CASHBACK'
                 ) {
                     if (typeof DaemonCache.CACHE_ALL_ACCOUNTS[selectedAccount.walletHash][selectedAccount.currencyCode] === 'undefined') {
                         Log.daemon('UpdateAccountListDaemon error when no selected ' + selectedAccount.currencyCode)

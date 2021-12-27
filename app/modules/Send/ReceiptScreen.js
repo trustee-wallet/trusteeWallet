@@ -55,7 +55,8 @@ class ReceiptScreen extends PureComponent {
 
         this.state = {
             needPasswordConfirm: true,
-            sendInProcess: false
+            sendInProcess: false,
+            checkedCryptoValue : false
         }
     }
 
@@ -94,7 +95,7 @@ class ReceiptScreen extends PureComponent {
         }
     }
 
-    handleSend = async (passwordCheck = true, uiErrorConfirmed = false) => {
+    handleSend = async (passwordCheck = true, uiErrorConfirmed = false, newCryptoValue = false) => {
         if (CACHE_IS_SENDING && passwordCheck && CACHE_IS_SENDING_CLICKED < 10) {
             Log.log('ReceiptScreen.handleSend already clicked ' + CACHE_IS_SENDING_CLICKED)
             CACHE_IS_SENDING_CLICKED++
@@ -151,7 +152,7 @@ class ReceiptScreen extends PureComponent {
                     description: checkLoadedFeeResult.msg
                 }, async () => {
                     CACHE_WARNING_NOTICE = checkLoadedFeeResult.cacheWarningNoticeValue
-                    await this.handleSend(false, uiErrorConfirmed)
+                    await this.handleSend(false, uiErrorConfirmed, checkLoadedFeeResult.newCryptoValue)
                 })
             }
             CACHE_IS_SENDING = false
@@ -162,12 +163,14 @@ class ReceiptScreen extends PureComponent {
             return false
         }
 
-        const { selectedFee } = this.props.sendScreenStore.fromBlockchain
+        const { sendScreenStore } = this.props
+        const { selectedFee } = sendScreenStore.fromBlockchain
 
         let tx = false
         let e = false
         try {
-            tx = await SendActionsBlockchainWrapper.actualSend(this.props.sendScreenStore, uiErrorConfirmed, selectedFee)
+            tx = await SendActionsBlockchainWrapper.actualSend(sendScreenStore, uiErrorConfirmed, selectedFee, newCryptoValue)
+            Log.log('ReceiptScreen.handleSend tx ', tx)
         } catch (e1) {
             if (config.debug.appErrors) {
                 console.log('ReceiptScreen.handleSend error ' + e1.message)
@@ -287,7 +290,7 @@ class ReceiptScreen extends PureComponent {
                 Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e.message)
             }
         } else if (uiType === 'TRADE_SEND') {
-            await SendActionsEnd.endClose(this.props.sendScreenStore)
+            SendActionsEnd.endClose(this.props.sendScreenStore)
         }
 
         NavStore.goBack()

@@ -20,7 +20,6 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import { AppNewsActions } from '@app/appstores/Stores/AppNews/AppNewsActions'
-import { strings } from '@app/services/i18n'
 
 import Log from '@app/services/Log/Log'
 
@@ -32,6 +31,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import WalletName from './WalletName/WalletName'
 import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 const headerHeight = 44
@@ -99,6 +99,19 @@ class WalletInfo extends React.PureComponent {
         NavStore.goNext('QRCodeScannerScreen')
     }
 
+    handleDragScreen = () => {
+        NavStore.goNext('HomeDragScreen')
+    }
+
+    handleGuide = () => {
+        const res = trusteeAsyncStorage.getIsTraining()
+        if (typeof res === 'undefined' || res === '0') {
+            NavStore.goNext('GuideScreen')
+        } else {
+            this.handleDragScreen()
+        }
+    }
+
     render() {
         const { colors, GRID_SIZE, isLight } = this.context
         const {
@@ -106,8 +119,8 @@ class WalletInfo extends React.PureComponent {
             isBalanceVisible,
             originalVisibility,
             balanceData,
-            hasNews,
-            walletConnected
+            walletConnected,
+            hasNews
         } = this.props
         const {
             hasStickyHeader,
@@ -119,32 +132,35 @@ class WalletInfo extends React.PureComponent {
 
         return (
             <View style={styles.wrapper}>
-                <StatusBar translucent={false} backgroundColor={colors.common.header.bg} barStyle={isLight ? 'dark-content' : 'light-content'} />
+                <StatusBar translucent={false} backgroundColor={colors.common.background} barStyle={isLight ? 'dark-content' : 'light-content'} />
                 <SafeAreaView style={{ flex: 0, backgroundColor: colors.common.background }} />
 
-                <Animated.View style={[
-                    styles.container,
-                    { backgroundColor: colors.common.background, height }
-                ]}>
-
+                <Animated.View style={[styles.container, { backgroundColor: colors.common.background, height }]}>
                     <View style={[styles.header, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={styles.header__left}>
                             <TouchableOpacity
                                 style={styles.notificationButton}
-                                onPress={this.handleOpenNotifications}
-                                onLongPress={this.handleClearNotifications}
-                                delayLongPress={1000}
+                                onPress={this.handleGuide}
                                 hitSlop={HIT_SLOP}
                             >
-                                <CustomIcon name={'notifications'} color={colors.common.text1} size={20} />
-                                {hasNews && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
+                                <CustomIcon name='constructor' color={colors.common.text1} size={20} />
                             </TouchableOpacity>
-                            {walletConnected && (
-                                <TouchableOpacity style={[styles.settingsButton, { marginLeft: -8 } ]} onPress={this.handleWalletConnect}
-                                    hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}>
-                                    <CustomIcon name={'walletConnect'} color={colors.common.text1} size={26} />
-                                </TouchableOpacity>
-                            )}
+                            <TouchableOpacity
+                                style={[styles.settingsButton, { marginLeft: -8 }]}
+                                onPress={walletConnected ? this.handleWalletConnect : this.handleOpenNotifications}
+                                onLongPress={!walletConnected && this.handleClearNotifications}
+                                delayLongPress={!walletConnected ? 1000 : 100000000}
+                                hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}
+                            >
+                                {walletConnected ?
+                                    <CustomIcon name='walletConnect' color={colors.common.text1} size={26} />
+                                    :
+                                    <>
+                                        <CustomIcon name='notifications' color={colors.common.text1} size={20} />
+                                        {hasNews && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
+                                    </>
+                                }
+                            </TouchableOpacity>
                         </View>
 
                         <View style={styles.header__center}>
@@ -154,12 +170,12 @@ class WalletInfo extends React.PureComponent {
                         <View style={styles.header__right}>
                             <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr}
                                 hitSlop={{ top: 15, right: 8, bottom: 15, left: 15 }}>
-                                <CustomIcon name={'qr'} color={colors.common.text1} size={20} />
+                                <CustomIcon name='qr' color={colors.common.text1} size={20} />
                             </TouchableOpacity>
 
                             <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings}
                                 hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}>
-                                <CustomIcon name={'menu'} color={colors.common.text1} size={20} />
+                                <CustomIcon name='menu' color={colors.common.text1} size={20} />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -171,7 +187,7 @@ class WalletInfo extends React.PureComponent {
                             onPressIn={() => triggerBalanceVisibility(true)}
                             onPressOut={() => triggerBalanceVisibility(false)}
                             disabled={originalVisibility}
-                            hitSlop={{ top: 10, right: isBalanceVisible? 60 : 30, bottom: 10, left: isBalanceVisible? 60 : 30 }}
+                            hitSlop={{ top: 10, right: isBalanceVisible ? 60 : 30, bottom: 10, left: isBalanceVisible ? 60 : 30 }}
                         >
                             {isBalanceVisible ? (
                                 <React.Fragment>
@@ -180,8 +196,8 @@ class WalletInfo extends React.PureComponent {
                                     <Text style={[styles.balanceText__small, { color: colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
                                 </React.Fragment>
                             ) : (
-                                    <Text style={[styles.balanceText__middle, styles.balanceText__hidden, { color: colors.common.text1 }]}>****</Text>
-                                )}
+                                <Text style={[styles.balanceText__middle, styles.balanceText__hidden, { color: colors.common.text1 }]}>****</Text>
+                            )}
                         </TouchableOpacity>
                     </Animated.View>
 
@@ -312,4 +328,12 @@ const styles = StyleSheet.create({
     settingsButton: {
         paddingHorizontal: 12
     },
+    title: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 14,
+        lineHeight: 17,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        textAlign: 'center'
+    }
 })

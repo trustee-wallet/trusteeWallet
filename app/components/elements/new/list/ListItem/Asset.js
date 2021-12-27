@@ -7,7 +7,7 @@ import {
     StyleSheet,
 } from 'react-native'
 
-import { Switch } from 'react-native-switch'
+import Switch from 'react-native-switch-pro'
 
 import CurrencyIcon from '../../../CurrencyIcon'
 
@@ -23,21 +23,14 @@ const getRightContent = (rightContent, params) => {
         case 'switch':
             return (
                 <Switch
-                    onValueChange={onPress}
-                    value={reversedValue}
-                    renderActiveText={false}
-                    renderInActiveText={false}
-                    backgroundActive={colors.common.switch.bgInactive}
-                    backgroundInactive={colors.common.switch.bgActive}
-                    circleActiveColor={colors.common.switch.circleBg}
-                    circleInActiveColor={colors.common.switch.circleBg}
-                    circleSize={20}
-                    changeValueImmediately={false}
-                    switchWidthMultiplier={1.6}
-                    switchLeftPx={-5}
-                    switchRightPx={-5}
-                    outerCircleStyle={{ paddingRight: reversedValue ? 5 : 0, paddingLeft: reversedValue ? 0 : 5 }}
-                    innerCircleStyle={Object.assign({}, !disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive })}
+                    onSyncPress={onPress}
+                    value={!reversedValue}
+                    backgroundInactive={colors.common.switch.bgInactive}
+                    backgroundActive={colors.common.switch.bgActive}
+                    circleColorInactive={colors.common.switch.circleBg}
+                    circleColorActive={colors.common.switch.circleBg}
+                    width={34}
+                    circleStyle={Object.assign({}, !disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive })}
                 />
             )
         default: return null
@@ -57,6 +50,7 @@ export default function SettingListItem(props) {
         disabledRightContent,
         onLongPress,
         delayLongPress = 5000,
+        TitleExtraView
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -78,7 +72,10 @@ export default function SettingListItem(props) {
                 />
                 <View style={styles.mainContent}>
                     <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
-                        <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                        <View style={styles.container}>
+                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            {TitleExtraView && <TitleExtraView />}
+                        </View>
                         {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                     </View>
                     {!!rightContent && (

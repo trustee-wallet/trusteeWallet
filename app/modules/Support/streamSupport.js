@@ -90,7 +90,7 @@ class StreamSupportScreen extends PureComponent {
         const { colors } = this.context
 
         return (
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.streemChat.inputToolBarBg }}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: colors.streamChat.inputToolBarBg }}>
                 <Composer
                     {...props}
                     textInputStyle={{
@@ -163,7 +163,7 @@ class StreamSupportScreen extends PureComponent {
                 containerStyle={{
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: colors.streemChat.inputToolBarBg,
+                    backgroundColor: colors.streamChat.inputToolBarBg,
                     paddingRight: 16
                 }}
                 handleOnPress={this.onPressSendBtn}
@@ -185,7 +185,7 @@ class StreamSupportScreen extends PureComponent {
                 justifyContent: 'center',
                 transform: [{ scaleY: -1 }]
             }}>
-                <Text style={[styles.text, { color: colors.common.text1 }]}>{strings('streemSupport.noMessages')}</Text>
+                <Text style={[styles.text, { color: colors.common.text1 }]}>{strings('streamSupport.noMessages')}</Text>
             </View>
         )
     }
@@ -198,29 +198,29 @@ class StreamSupportScreen extends PureComponent {
                 {...props}
                 wrapperStyle={{
                     right: {
-                        backgroundColor: colors.streemChat.right.bg
+                        backgroundColor: colors.streamChat.right.bg
                     },
                     left: {
-                        backgroundColor: colors.streemChat.left.bg
+                        backgroundColor: colors.streamChat.left.bg
                     }
                 }}
                 textStyle={{
                     right: {
-                        color: colors.streemChat.right.color,
+                        color: colors.streamChat.right.color,
                         ...styles.text
                     },
                     left: {
-                        color: colors.streemChat.left.color,
+                        color: colors.streamChat.left.color,
                         ...styles.text
                     }
                 }}
                 linkStyle={{
                     right: {
-                        color: colors.streemChat.right.color,
+                        color: colors.streamChat.right.color,
                         ...styles.text
                     },
                     left: {
-                        color: colors.streemChat.left.color,
+                        color: colors.streamChat.left.color,
                         ...styles.text
                     }
                 }}
@@ -254,7 +254,7 @@ class StreamSupportScreen extends PureComponent {
                     letterSpacing: 1
                 }}
                 containerStyle={{
-                    backgroundColor: colors.streemChat.inputToolBarBg,
+                    backgroundColor: colors.streamChat.inputToolBarBg,
                 }}
             />
         )
@@ -299,15 +299,15 @@ class StreamSupportScreen extends PureComponent {
                                     </Lightbox>
                                     :
                                     <View style={styles.fileWrapper}>
-                                        <CustomIcon name='downloadDoc' color={colors.streemChat[props.position].color} size={28} style={{ paddingRight: 8 }} />
-                                        <Text style={[styles.text, { color: colors.streemChat[props.position].color }]} numberOfLines={1}>
+                                        <CustomIcon name='downloadDoc' color={colors.streamChat[props.position].color} size={28} style={{ paddingRight: 8 }} />
+                                        <Text style={[styles.text, { color: colors.streamChat[props.position].color }]} numberOfLines={1}>
                                             {props.currentMessage.attachments[0]?.title}
                                         </Text>
                                     </View>
                                 }
                             </View>
                             {props.currentMessage.attachments[0]?.description &&
-                                <Text style={[styles.text, { color: colors.streemChat[props.position].color, paddingTop: 6 }]}>{props.currentMessage.attachments[0]?.description}</Text>}
+                                <Text style={[styles.text, { color: colors.streamChat[props.position].color, paddingTop: 6 }]}>{props.currentMessage.attachments[0]?.description}</Text>}
                         </View>
                         : null
                 }
@@ -325,15 +325,15 @@ class StreamSupportScreen extends PureComponent {
                 <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]}
                     onPress={this.sendLogs}>
                     <CustomIcon name='logs' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.sendLogs')}</Text>
+                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streamSupport.sendLogs')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]} onPress={this.uploadFromCamera}>
                     <CustomIcon name='camera' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.takePhoto')}</Text>
+                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streamSupport.takePhoto')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]} onPress={this.uploadFromGallery}>
                     <CustomIcon name='gallery' color={colors.common.text1} size={20} style={styles.iconWrapper} />
-                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streemSupport.chooseFromLibrary')}</Text>
+                    <Text style={[styles.text2, { color: colors.common.text1 }]}>{strings('streamSupport.chooseFromLibrary')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.panelButton, { borderTopColor: colors.bottomModal.borderColor }]}
@@ -441,6 +441,7 @@ class StreamSupportScreen extends PureComponent {
 
     handleRefresh = async () => {
         this.setState({ refresh: true })
+        StreamSupportWrapper.resetError()
         await StreamSupportWrapper.initWS()
         this.setState({ refresh: false })
     }
@@ -457,6 +458,19 @@ class StreamSupportScreen extends PureComponent {
 
         const { refresh } = this.state
 
+        let messages = this.props.streamSupportData.messages
+        if (!this.props.streamSupportData.loaded && (typeof messages === 'undefined' || !messages || messages.length === 0)) {
+            messages = [{
+                _id: 1,
+                text: 'Connection error',
+                createdAt: new Date().getTime(),
+                user: {
+                    _id: 'SYSTEM',
+                    name: ''
+                },
+                attachments: null
+            }]
+        }
         return (
             <ScreenWrapper
                 title={strings('settings.about.contactSupportTitle') + ' ' + this.props.streamSupportData.userName}
@@ -492,7 +506,7 @@ class StreamSupportScreen extends PureComponent {
                                 <GiftedChat
                                     renderAvatar={() => null}
                                     showAvatarForEveryMessage={true}
-                                    messages={this.props.streamSupportData.messages}
+                                    messages={messages}
                                     onSend={(data) => this.onSend(data[0])}
                                     maxComposerHeight={100}
                                     alwaysShowSend={true}

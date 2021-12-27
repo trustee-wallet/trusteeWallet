@@ -228,6 +228,7 @@ export default class SolScannerProcessor {
         }
 
         let anySigner = false
+        let addressAmountPlus = false
         for (let i = 0, ic = additional.transaction.message.accountKeys.length; i < ic; i++) {
             let tmpAddress = additional.transaction.message.accountKeys[i]
             if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
@@ -257,6 +258,7 @@ export default class SolScannerProcessor {
                 if (tmpAmount.indexOf('-') === -1) {
                     addressTo = tmpAddress.pubkey
                     addressAmount = tmpAmount
+                    addressAmountPlus = true
                 } else {
                     addressFrom = tmpAddress.pubkey
                     addressAmount = tmpAmount.replace('-', '')
@@ -269,7 +271,8 @@ export default class SolScannerProcessor {
                 }
             }
         }
-        if (!addressFrom) {
+
+        if (!addressFrom && anySigner !== addressTo) {
             addressFrom = anySigner
         }
         if (!addressFrom && !addressTo) {
@@ -284,7 +287,6 @@ export default class SolScannerProcessor {
         if (!addressTo) {
             addressTo = 'System'
         }
-
 
         let formattedTime = transaction.blockTime
         try {
@@ -302,6 +304,15 @@ export default class SolScannerProcessor {
         if (typeof transaction.err !== 'undefined' && transaction.err) {
             transactionStatus = 'fail'
         }
+
+        let transactionDirection = addressFrom === address ? 'outcome' : 'income'
+        if (!addressFrom && anySigner === addressTo) {
+            if (addressAmountPlus) {
+                transactionDirection = 'swap_income'
+            } else {
+                transactionDirection = 'swap_outcome'
+            }
+        }
         const blockConfirmations = CACHE_LAST_BLOCK > 0 ? Math.round(CACHE_LAST_BLOCK - additional.slot * 1) : 0
         const tx = {
             transactionHash: transaction.signature,
@@ -309,7 +320,7 @@ export default class SolScannerProcessor {
             blockNumber: transaction.slot,
             blockTime: formattedTime,
             blockConfirmations,
-            transactionDirection: addressFrom === address ? 'outcome' : 'income',
+            transactionDirection,
             addressFrom: addressFrom === address ? '' : addressFrom,
             addressTo: addressTo === address ? '' : addressTo,
             addressAmount,
@@ -319,7 +330,6 @@ export default class SolScannerProcessor {
         if (typeof transaction.memo !== 'undefined' && transaction.memo) {
             tx.transactionJson = { memo: transaction.memo }
         }
-
         return tx
     }
 }

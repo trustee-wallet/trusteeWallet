@@ -22,6 +22,7 @@ import BlocksoftExternalSettings from '../../common/BlocksoftExternalSettings'
 import { sublocale } from '../../../app/services/i18n'
 import abi721 from './ext/erc721.js'
 import abi1155 from './ext/erc1155'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -105,7 +106,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             ethAllowBlockedBalance,
             ethAllowLongQuery,
             maxNonceLocal
-        }, this._etherscanApiPath)
+        })
 
         if (typeof additionalData.gasPrice !== 'undefined' && additionalData.gasPrice) {
             if (typeof additionalData.gasPriceTitle !== 'undefined') {
@@ -146,11 +147,38 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         try {
 
             if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
-
                 if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
                     gasLimit = typeof data.dexOrderData[0].params.gas !== 'undefined' ? data.dexOrderData[0].params.gas : 0
                 } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
                     gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gas)
+                } else if (typeof data.walletConnectData !== 'undefined') {
+                    const params = {
+                        'jsonrpc': '2.0',
+                        'method': 'eth_estimateGas',
+                        'params': [
+                            {
+                                'from': typeof data.walletConnectData.from && data.walletConnectData.from ? data.walletConnectData.from : data.addressFrom,
+                                'to':  typeof data.walletConnectData.to && data.walletConnectData.to ? data.walletConnectData.to : data.addressTo,
+                                'value': typeof data.walletConnectData.value !== 'undefined' && data.walletConnectData.value
+                                    ? data.walletConnectData.value
+                                    : data.amount.indexOf('0x') === 0 ? data.amount : ('0x' + BlocksoftUtils.decimalToHex(data.amount)),
+                                'data': typeof data.walletConnectData.data !== 'undefined' && data.walletConnectData.data ? data.walletConnectData.data : '0x'
+                            }
+                        ],
+                        'id': 1
+                    }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas for WalletConnect start')
+                    const tmp = await BlocksoftAxios.postWithoutBraking(this._web3.LINK, params)
+                    if (typeof tmp !== 'undefined' && typeof tmp.data !== 'undefined') {
+                        if (typeof tmp.data.result !== 'undefined') {
+                            gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(tmp.data.result) * 1 + 150000
+                        } else  if (typeof tmp.data.error !== 'undefined') {
+                            throw new Error(tmp.data.error.message)
+                        }
+                    } else {
+                        gasLimit = 500000
+                    }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas for WalletConnect result ' + gasLimit)
                 } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
                     const schema = data.contractCallData.contractSchema
                     let abiCode
@@ -187,7 +215,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         gasLimit = 150000
                     }
 
-                } else {
+                }  else {
                     try {
                         let ok = false
                         let i = 0
@@ -219,12 +247,12 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                     if (!gasLimit || typeof gasLimit !== 'undefined') {
                         gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
                     }
-                    if (this._mainCurrencyCode === 'OPTIMISM') {
-                        const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
-                        if (gasLimit < minGasLimit) {
-                            gasLimit = minGasLimit
-                        }
+
+                    const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
+                    if (minGasLimit > 0 && gasLimit < minGasLimit) {
+                        gasLimit = minGasLimit
                     }
+
                 }
             } else {
                 gasLimit = additionalData.gasLimit

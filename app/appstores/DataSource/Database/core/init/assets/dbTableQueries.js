@@ -159,6 +159,8 @@ export default function getTableQueries() {
                     balance_scan_error TEXT NULL,
                     balance_scan_log TEXT NULL,
                     balance_scan_block VARCHAR(32) NULL,
+                    
+                    balance_staked_txt VARCHAR(256) NULL, 
 
                     status INTEGER NOT NULL,
 
@@ -284,6 +286,7 @@ export default function getTableQueries() {
                     address_amount INTEGER NULL,
                     transaction_fee INTEGER NULL,
                     transaction_fee_currency_code VARCHAR(256) NULL,
+                    transaction_filter_type VARCHAR(256) NULL,
 
                     vout VARCHAR(256) NULL,
                     vin VARCHAR(256) NULL,
@@ -305,7 +308,9 @@ export default function getTableQueries() {
                     created_at DATETIME NULL,
                     mined_at DATETIME NULL,
                     updated_at DATETIME NULL,
-                    hidden_at DATETIME NULL
+                    hidden_at DATETIME NULL,
+
+                    special_action_needed VARCHAR(256) NULL
                 )`
             },
             {

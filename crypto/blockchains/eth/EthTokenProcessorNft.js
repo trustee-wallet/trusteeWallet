@@ -6,6 +6,7 @@ import EthNftOpensea from '@crypto/blockchains/eth/apis/EthNftOpensea'
 import EthNftMatic from '@crypto/blockchains/eth/apis/EthNftMatic'
 import abi from './ext/erc721.js'
 import config from '@app/config/config'
+import BlocksoftDictNfts from '@crypto/common/BlocksoftDictNfts'
 
 export default class EthTokenProcessorNft extends EthBasic {
 
@@ -16,12 +17,13 @@ export default class EthTokenProcessorNft extends EthBasic {
      */
     async getListBlockchain(data) {
 
+        const settings = BlocksoftDictNfts.NftsIndexed[data.tokenBlockchainCode]
         if (
-            this._settings.tokenBlockchain === 'MATIC' || this._settings.tokenBlockchainCode === 'ETH_ROPSTEN' || this._settings.tokenBlockchainCode === 'BNB'
+           typeof settings !== 'undefined' && typeof settings.apiType !== 'undefined' && settings.apiType === 'OPENSEA'
         ) {
-            return EthNftMatic(data)
-        } else {
             return EthNftOpensea(data)
+        } else {
+            return EthNftMatic(data)
         }
     }
 

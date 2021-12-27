@@ -41,6 +41,7 @@ export default function Input(props) {
         callback,
         onBlur,
         numberOfLines,
+        customBgColor,
         ...nativeProps
     } = props
 
@@ -64,7 +65,7 @@ export default function Input(props) {
                     style={[
                         styles.input,
                         (qr && paste) ? styles.inputWithBtns : (HelperAction || qr || paste) ? styles.inputWithHelper : null,
-                        { backgroundColor: colors.common.textInput.bg, color: colors.common.textInput.text },
+                        { backgroundColor: colors.common.textInput.bg || customBgColor, color: colors.common.textInput.text },
                         inputStyle
                     ]}
                     allowFontScaling={false}
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 16,
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 16,
+        fontSize: 14,
         lineHeight: 18,
         letterSpacing: 0.3,
     },

@@ -10,14 +10,19 @@ import Log from '@app/services/Log/Log'
 import { StreamSupportActions } from '@app/appstores/Stores/StreamSupport/StreamSupportStoreActions'
 import config from '@app/config/config'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-const CHAT_PREFIX = 'supportChatV4_'
-const ADMINS = ['ksu.dev', 'germes', 'testrocket1']
+const CHAT_PREFIX = 'supportChat_'
+const ADMINS = ['ksu.dev', 'roman', 'taki183', 'Soyd', 'elena.feshchuk', 'Miner', 'dgrib', 'luda', 'yurka', 'EPIC' ]
 
 let WEB_SOCKET = false
 let WEB_SOCKET_LINK = false
 let CACHE_ROOM_ID = false
 let CACHE_TMP_DATA = false
+const WEB_SOCKET_ERROR = {
+    count : 0,
+    time : 0
+}
 
 // ids could be any - just to set
 const IDENT_CONNECT = '2'
@@ -27,10 +32,15 @@ const IDENT_MESSAGE_LIST = '98'
 
 export namespace StreamSupportWrapper {
 
+    export const resetError = function () {
+        WEB_SOCKET_ERROR.count = 0
+        WEB_SOCKET_ERROR.time = 0
+    }
+
     // https://developer.rocket.chat/api/rest-api/endpoints/push/push-token
     export const init = async function(data: any) {
         if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
-        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
+        const serverUrl = data.serverUrl || 'https://chat.trustee.deals'
         if (MarketingEvent.DATA.LOG_TOKEN.indexOf('NO_GOOGLE') === -1 && data.userToken) {
             try {
                 const response = await fetch(`${serverUrl}/api/v1/push.token`, {
@@ -67,11 +77,14 @@ export namespace StreamSupportWrapper {
         if (data === false) {
             data = store.getState().streamSupportStore
         }
-        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
+        const serverUrl = data.serverUrl || 'https://chat.trustee.deals'
         const link = `${serverUrl}/api/v1/rooms.get`
 
         // console.log('StreamSupport getRoom ' + link)
         CACHE_ROOM_ID = false
+        let loaded = true
+        let resTxt = ''
+        let res
         try {
             const response = await fetch(link, {
                 method: 'GET',
@@ -82,7 +95,16 @@ export namespace StreamSupportWrapper {
                     'Accept': 'application/json'
                 }
             })
-            const res = await response.json()
+            resTxt = await response.text()
+            try {
+                res = JSON.parse(resTxt)
+            } catch (e) {
+                if (typeof resTxt === 'undefined' || !resTxt) {
+                    throw e
+                }
+                const tmp = resTxt.split('title>')
+                throw new Error(typeof tmp[1] !== 'undefined' ? tmp[1] : resTxt)
+            }
             // console.log('StreamSupport getRoom result ', res)
             if (typeof res.update !== 'undefined') {
                 for (const room of res.update) {
@@ -92,17 +114,33 @@ export namespace StreamSupportWrapper {
                 }
             }
         } catch (e) {
-            console.log('StreamSupport getRoom ' + link + ' error ' + e.message)
+            loaded = false
+            if (config.debug.appErrors) {
+                console.log('StreamSupport getRoom ' + link + ' error ' + e.message)
+            }
+            Log.log('StreamSupport getRoom ' + link + ' error ' + e.message)
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('streamSupport.getRoomError') + ': ' + e.message,
+            })
         }
-        StreamSupportActions.setRoom(CACHE_ROOM_ID)
+        StreamSupportActions.setRoom(CACHE_ROOM_ID, loaded)
     }
 
     export const initWS = async function(data: any = false) {
         if (BlocksoftExternalSettings.getStatic('ROCKET_CHAT_USE') * 1 === 0) return false
+        if (WEB_SOCKET_ERROR.count >= 10) {
+            return false
+        }
+        await Log.log('StreamSupport initWS')
+
         if (data === false) {
             data = store.getState().streamSupportStore
         }
-        const serverUrl = data.serverUrl || 'https://testrocket.trustee.deals'
+        const serverUrl = data.serverUrl || 'https://chat.trustee.deals'
         const wsLink = 'wss://' + serverUrl.replace('https://', '') + '/websocket'
         // console.log('StreamSupport initWS ' + wsLink)
 
@@ -114,7 +152,6 @@ export namespace StreamSupportWrapper {
             // https://github.com/RocketChat/docs/issues/205
             try {
                 // console.log('StreamSupport.on open status connection ' + WEB_SOCKET.readyState)
-
                 WEB_SOCKET.send(JSON.stringify({
                     'msg': 'connect',
                     'version': '1',
@@ -124,7 +161,12 @@ export namespace StreamSupportWrapper {
                 if (config.debug.appErrors) {
                     console.log('StreamSupport.on open error ' + e.message)
                 }
-                Log.log('StreamSupport.on open error ' + e.message)
+                if (e.message === 'INVALID_STATE_ERR') {
+                    Log.log('StreamSupport.on open error ' + e.message + ' as invalid')
+                    initWS(data)
+                } else {
+                    Log.log('StreamSupport.on open error ' + e.message + ' do smthing')
+                }
             }
         }
 
@@ -169,19 +211,22 @@ export namespace StreamSupportWrapper {
                 } else {
                     // console.log('StreamSupport.on message ', newData)
                 }
-            } catch (e) {
+            } catch (e1) {
                 if (config.debug.appErrors) {
-                    console.log('StreamSupport.on message ' + e.data + ' error ' + e.message)
+                    console.log('StreamSupport.on message ' + e.data + ' error ' + e1.message)
                 }
-                Log.log('StreamSupport.on message ' + e.data + ' error ' + e.message)
+                Log.log('StreamSupport.on message ' + e.data + ' error ' + e1.message)
             }
         }
 
         WEB_SOCKET.onerror = (e) => {
+            WEB_SOCKET_ERROR.count++
+            WEB_SOCKET_ERROR.time = new Date().getTime()
+
             if (config.debug.appErrors) {
-                console.log('StreamSupport.on error ' + e.message)
+                console.log('StreamSupport.on error ' + WEB_SOCKET_ERROR.count + ' ' + e.message)
             }
-            Log.log('StreamSupport.on error ' + e.message)
+            Log.log('StreamSupport.on error ' + WEB_SOCKET_ERROR.count + ' ' + e.message)
 
             if (WEB_SOCKET.readyState === 3) { // 3 - The connection is closed or couldn't be opened.
                 initWS(data)
@@ -192,7 +237,7 @@ export namespace StreamSupportWrapper {
             if (typeof e.code !== 'undefined' && e.code.toString() === '1000') {
                 // console.log('StreamSupport.on close to reload ' + e.code + ' ' + e.reason)
             } else {
-                console.log('StreamSupport.on close ' + e.code + ' ' + e.reason)
+                console.log('StreamSupport.on close ' + ' ' + e.reason, e)
             }
             initWS(data)
         }
@@ -243,6 +288,9 @@ export namespace StreamSupportWrapper {
         // console.log('StreamSupport sendStreamSupportMessage status connection ' + (WEB_SOCKET && typeof WEB_SOCKET.readyState === 'undefined' ? JSON.stringify(WEB_SOCKET) : WEB_SOCKET.readyState))
 
         try {
+            if (typeof WEB_SOCKET.send === 'undefined') {
+                throw new Error('WEB_SOCKET.send is undefined')
+            }
             if (!CACHE_ROOM_ID) {
                 WEB_SOCKET.send(JSON.stringify({
                     'msg': 'method',
@@ -269,7 +317,19 @@ export namespace StreamSupportWrapper {
                 WEB_SOCKET.send(JSON.stringify(newMessageCall))
             }
         } catch (e) {
-            console.log('StreamSupport sendStreamSupportMessage error ' + e.message)
+            if (config.debug.appErrors) {
+                cconsole.log('StreamSupport sendStreamSupportMessage error ' + e.message)
+            }
+            Log.log('StreamSupport sendStreamSupportMessage error ' + e.message)
+
+            showModal({
+                type: 'INFO_MODAL',
+                icon: 'INFO',
+                title: strings('modal.exchange.sorry'),
+                description: strings('streamSupport.sendRoomError') + ': ' + e.message,
+            })
+
+
         }
     }
 
@@ -282,6 +342,6 @@ export namespace StreamSupportWrapper {
     }
 
     const prettyMsgForFile = (obj: any) => {
-        return obj?.msg.indexOf('https://walletchatfiles.s3') === -1 ? obj : { ...obj, msg: strings('streemSupport.sentFile') }
+        return obj?.msg.indexOf('https://walletchatfiles.s3') === -1 ? obj : { ...obj, msg: strings('streamSupport.sentFile') }
     }
 }

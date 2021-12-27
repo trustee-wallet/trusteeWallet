@@ -5,7 +5,23 @@
     "unconfirmed": "Unconfirmed",
     "today": "დღეს",
     "changedLastDay": "ბოლო 24 საათში",
-    "synchronizing": "სინქრონიზაცია"
+    "synchronizing": "სინქრონიზაცია",
+    "settings": "Display settings",
+    "sorting": "Sorting",
+    "sort": {
+      "custom": "Custom",
+      "byName": "By name",
+      "byValue": "By value",
+      "firstCoin": "Coins first",
+      "firstToken": "Tokens first",
+      "withBalance": "With a positive balance",
+      "guideTitle": "Guide"
+    },
+    "categories": {
+      "coin": "Coins",
+      "token": "Tokens"
+    },
+    "setSortValueCustom": "The sorting mode is set to «Custom»"
   },
   "walletCreateScreen": {
     "title": "იყიდე, გაყიდე, გადაცვალე ანონიმურად",
@@ -37,6 +53,7 @@
     "tabAll": "All",
     "tabNews": "News",
     "tabInvite": "Invite",
+    "cashbackTabInvite": "Invite",
     "tabInfo": "Info",
     "tabFaq": "FAQ",
     "today": "დღეს",
@@ -53,6 +70,8 @@
       "listSubtitle": "ანგარიშები: %{number}"
     },
     "walletConnect": {
+      "unconnectedTitle": "Disabled",
+      "unconnectedText": "Scan the QR code to connect to the DeFi service",
       "inputPlaceholder": "Direct link",
       "stop": "Disable WalletConnect",
       "stopText": "Are you sure you want to stop the connection with ",
@@ -143,6 +162,7 @@
       "testerMode": "ტესტირება"
     },
     "walletList": {
+      "showBalance": "Show balance",
       "title": "ჩემი საფულეები",
       "addWallet": "საფულეს დამატება",
       "backupNeeded": "სარეზერვო ასლის შექმნა",
@@ -157,6 +177,8 @@
       "allowReplaceByFee": "ტრანზაქციების რედაქტირება მაინერების მიერ დადასტურებამდე",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
+      "showAll": "Show all",
+      "generateNew": "Generate new",
       "accountAddress": "მისამართის არჩევან",
       "hd": "ბევრი ბიტკოინ მისამართია",
       "hdDescription": "გაზარდეთ კონფინდენციალურობა ახალი მისამართის შექმნით ბიტკოინის ყოველი მიღებისას",
@@ -175,6 +197,11 @@
         "title": "გადავრთოთ საფულე HD რეჟიმში?",
         "description": "HD რეჟიმი გულისხმობს მისამართების როტაციას ყოველ ტრანზაქციაზე. გადართვის ოპერაცია შუქცევადია."
       },
+      "staked": "Staked",
+      "frozen": "Frozen",
+      "stakeTransactionsSOL": "Staking transactions",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR": "სერვერი მონაცემებით (მაგალითად, api.mymonero.com)",
       "serverInputTitleXMR": "api.mymonero.com:8443",
       "serverSendInputXMR": "სერვერი ტრანზაქციების გასაგზავნად (მაგალითად, api.mymonero.com)",
@@ -182,7 +209,8 @@
       "needReinstallXMR": "XMR მისამართის სისტემური შეცდომა. გთხოვთ, შეინახოთ მნემონური ფრაზა და თავიდან დააინსტალიროთ პროგრამა, ან დაუკავშირდეთ მხარდაჭერის ჯგუფს დეტალური ინსტრუქციებისთვის. ",
       "saveSettings": "შენახვა",
       "getMnemonicXMR": "View secret key",
-      "availableTRX": "ხელმისაწვდომია",
+      "available": "ხელმისაწვდომია",
+      "availableSOL": "Available balance",
       "frozenTRX": "Застейкано",
       "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "შეიყვანეთ TRX-ის  რაოდენობა",
@@ -212,12 +240,18 @@
       "withdrawSOL" : "Withdraw",
       "withdrawAllSOL" : "Withdraw All",
       "deactivateSOL": "Deactivate",
-      "stakeHistorySOL" : "Stake History",
+      "stakeHistorySOL" : "History",
       "selectValidatorSOL": "Select validator",
       "selectValidatorSOLCommission" : "Fee :",
       "validatorSOL": "Validator",
       "rewards" : "Rewards",
-      "useCustomValidator": "Use this validator "
+      "useCustomValidator": "Use this validator ",
+      "successUnfreeze": "TRX unfrozen",
+      "successFreeze": "TRX frozen for staking",
+      "successReward": "TRX staking reward received",
+      "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
+      "withdrawTRX": "Withdraw",
+      "freezeTrx": "Freeze"
     },
     "about": {
       "title": "საფულის შესახებ",
@@ -306,7 +340,7 @@
   },
   "nftAddAssetScreen" : {
     "title" : "Add NFT Asset",
-    "addCustomLabel": "You can add a standard NFT token developed on Matic blockchain or Ropsten Testnet. Please, enter or scan a new token / asset address.",
+    "addCustomLabel": "You can add a standard NFT token developed on Ethereum, BNB Smart Chain, Matic blockchains or on Ropsten, Rinkeby Testnet. Please enter or scan a new token / asset address.",
     "addCustomLabelOpenSea" : "Ethereum tokens could be added by OpenSea ",
     "addCustomPlaceholder" : "NFT Asset Address",
     "addAssetButton" : "Add asset"
@@ -315,26 +349,25 @@
     "invite": "Invite:",
     "cashback": "Cashback",
     "cpa": "CPA",
-    "pageTitle": "მოიწვიე მეგობრები",
-    "pageSubtitle": "Earn from the commission with Trustee Wallet!",
-    "pageSubtitleText": "to",
+    "pageTitle": "Earn",
+    "pageSubtitle": "Earn to 30% from the commission with Trustee Wallet!",
     "shareButton": "გაზიარება",
     "promoButton": "პრომოკოდი",
     "detailsButton": "დეტალები",
     "enterPromoPlaceholder": "შეიყვანე პრომოკოდი",
     "enterInviteLinkPlaceholder": "შეიყვანე მოსაწვევი ბმული",
     "applyButton": "დადასტურება",
-    "wholeBalance": "სრული ბალანსი",
+    "wholeBalance": "Balance for the whole time",
     "availableCashBack": "Available cashback",
     "balanceTitle": "Balance",
-    "toWithdraw": "to withdraw needed:",
-    "cashbackInfo": "Cashback info",
-    "cpaInfo": "CPA info",
+    "toWithdraw": "Min. withdraw amount:",
     "cpaTotal": "Total CPA",
     "cpaLevel1": "CPA Level 1",
     "cpaLevel2": "CPA Level 2",
     "cpaLevel3": "CPA Level 3",
     "cashbackToken": "ტოკენი",
+    "yourToken": "Your cashback link",
+    "cashbackMessage": "Get Cashback for your exchange transactions. Earn Crypto with Affiliate Program and CPA by recommending Trustee Wallet!",
     "howItWorks": {
       "title": "როგორ მუშაობს?",
       "info1Title": "არსებობს Trustee Wallet-ში მომხმარებელთა დაჯილდოების პროგრამა?",
@@ -364,7 +397,7 @@
     "shareTitle": "",
     "shareMessage": "",
     "friendsJoined": "თქვენი მეგობრები",
-    "updated": "განახლება",
+    "updated": "Updated at",
     "transAmount": "ტრანზაქციების რაოდენობა",
     "level2UsersAmount": "მეგობრების მეგობრები",
     "cashbackError": {
@@ -385,6 +418,7 @@
     "performWithdraw": "გატანის ოპერაციის განსახორციელებლად, გთხოვთ, მოგვწეროთ telegram-ში ნიკნეიმზე"
   },
   "account": {
+    "staking": "Staking",
     "title": "ანგარიში",
     "copy": "კოპირება",
     "refresh": "განახლება",
@@ -398,8 +432,20 @@
     "soLong": "დასკანერებულია დიდი ხნის წინ",
     "minutesAgo": " %{time} min ago ",
     "noTransactions": "თქვენ ჯერ არ გაქვთ ტრანზაქცია, მაგრამ შეგიძლიათ ამ პრობლემის სწრაფად გადაჭრა ღილაკზე „ყიდვა“ დაწკაპუნებით.",
+    "noFoundTransactions": "Sorry, no results were found",
     "showMore": "მეტის ჩვენება",
     "assetSettings": "აქტივის პარამეტრები",
+    "stakingTRX": {
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
+      "moreInfo": "More details..."
+    },
+    "stakingSOL": {
+      "stake": "Freeze your SOL to receive staking rewards. "
+    },
+    "copyLink": "Copy address",
+    "invoiceText": "Issue an invoice for payment",
+    "openInBlockchair": "Open in blockchain explorer",
     "externalLink": {
       "title": "ბლოკჩეინ ექსპლორერზე გადასვლა",
       "description": "თქვენ გადახვალთ გარე რესურსზე"
@@ -428,6 +474,10 @@
       "income": "შემოსული",
       "self": "სელფი",
       "freeze": "გაყინვა",
+      "unfreeze" : "UnFreeze",
+      "stake" : "Stake",
+      "vote": "Vote",
+      "wallet_connect" : "WalletConnect",
       "claim": "ჯილდო",
       "swap_income" : "Contract Income",
       "swap_outcome" : "Contract Outcome",
@@ -443,6 +493,26 @@
       "advAccountDestination": "ანგარიშის ნომერი თანხის გასატანად",
       "phoneDestination": "ტელეფონის ნომერი თანხის გასატანად",
       "orderId": "Related to swap ID",
+      "selectAll": "Select all",
+      "swap": "Swap",
+      "cancel": "Canceled",
+      "reward": "Reward",
+      "categoriesTitle": "Categories",
+      "transactionCategories": "Transaction categories",
+      "dateAmount": "Date & amount",
+      "timeArray": "Time array",
+      "amountRange": "Amount range",
+      "allAmount": "All amount",
+      "downloadTransactionsHistory": "Download all time transactions history",
+      "saveInCsv": "Save all transactions to CSV",
+      "filterTitle": "Filter",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "pickDate": "Pick date",
+      "startAmount": "Start amount",
+      "endAmount": "End amount",
+      "setAmount": "Set amount",
+      "discard": "Discard",
       "RBF": {
         "replaceByFeeBtn": "საკომისიოს გაზრდა",
         "willReplaceWithNewFee": "მიმდინარე ტრანზაქცია შეიცვლება ახლით, ახალი ჰაშით და უფრო მაღალი საკომისიოთი",
@@ -482,7 +552,8 @@
       "FIORequest": "FIO მოთხოვნა",
       "share": "გაზიარება",
       "copy": "კოპირება",
-      "amount": "მიუთითეთ რაოდენობა"
+      "amount": "მიუთითეთ რაოდენობა",
+      "rename": "Rename"
     },
     "addAccount": {
       "list": "კრიპტოვალუტების სია"
@@ -518,7 +589,8 @@
       "transactionSum": "Amount send",
       "addresTo": "Recipient ",
       "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations "
+      "blockConfirmations": "Current number of confirmations ",
+      "transactionAmount": "%{currencyCode} amount"
     }
   },
   "fioMainSettings": {
@@ -987,7 +1059,7 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron wallet is not activated. Activation requires to send any TRX to the wallet address - you can use it later for transactions"
+        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 10 TRX coins, which can later be used in other transactions"
       },
       "TOKEN": {
         "title": "გთხოვთ, მიაქციოთ ყურადღება!",
@@ -1136,6 +1208,15 @@
     },
     "notification": {
       "description": "Unfortunately, your mobile device does not support receiving Push notifications"
+    },
+    "dropDownModal": {
+      "showGuide": "Repeat training",
+      "moveToTop": "Move to the top of the list",
+      "moveToDown": "Move to the down of the list",
+      "guideText": "Customize the display of coins on the main screen by placing them in the required order, or sort assets according to the proposed options.",
+      "guideTitle": "Personal interface",
+      "guideAccept": "Accept",
+      "hideAsset": "Hide assets"
     }
   },
   "lockScreen": {
@@ -1468,12 +1549,14 @@
       "currency": "უკრაინული გრივნა"
     }
   },
-  "streemSupport": {
+  "streamSupport": {
     "sendDocs": "Send docs",
     "sendLogs": "Send logs",
     "takePhoto": "Take photo",
     "chooseFromLibrary": "Choose from gallery",
     "noMessages": "No messages yet",
-    "sentFile": "File sent"
+    "sentFile": "File sent",
+    "getRoomError" : "Load messages error",
+    "sendMessageError" : "Unstable network connection when sending a message"
   }
 }

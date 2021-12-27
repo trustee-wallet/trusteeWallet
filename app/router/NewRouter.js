@@ -28,6 +28,9 @@ import QRCodeScannerScreen from '@app/modules/QRCodeScanner/QRCodeScannerScreen'
 import WalletConnectScreen from '@app/modules/WalletConnect/WalletConnectScreen'
 import WalletConnectChangeNetworkScreen from '@app/modules/WalletConnect/WalletConnectChangeNetworkScreen'
 
+import WalletDappFastLinksScreen from '@app/modules/WalletDapp/WalletDappFastLinksScreen'
+import WalletDappWebViewScreen from '@app/modules/WalletDapp/WalletDappWebViewScreen'
+
 import SMSV3CodeScreen from '@app/modules/Market/SMSV3CodeScreen'
 import MarketScreen from '@app/modules/Market/MainScreen'
 
@@ -41,8 +44,12 @@ import AccountSettingsScreen from '@app/modules/Account/AccountSettings/AccountS
 import AccountSettingsPrivateScreen from '@app/modules/Account/AccountSettingsPrivate/AccountSettingsPrivateScreen'
 import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountReceiveScreen'
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
-import StakingTransactionScreen from '@app/modules/Account/AccountSettings/StakingTransactionScreen'
-import SolValidators from '@app/modules/Account/AccountSettings/SolValidators'
+import AllAddressesScreen from '@app/modules/Account/AccountReceive/AllAddressesScreen'
+import AccountStakingTRX from '@app/modules/Account/AccountStaking/AccountStakingTRX'
+import AccountStakingSOL from '@app/modules/Account/AccountStaking/AccountStakingSOL'
+
+import SolStakingTransactionScreen from '@app/modules/Account/AccountStaking/sol/SolStakingTransactionScreen'
+import SolValidators from '@app/modules/Account/AccountStaking/sol/SolValidators'
 
 
 import FioChooseRecipient from '@app/modules/FIO/FioChooseRecipient'
@@ -68,14 +75,13 @@ import LoggingSettingsScreen from '@app/modules/Settings/Subsettings/LoggingSett
 import NotificationsSettingScreen from '@app/modules/Settings/Subsettings/NotificationsScreen'
 
 import CashbackScreen from '@app/modules/Cashback/CashbackScreen'
-import SupportScreen from '@app/modules/Support/index'
+import BotSupportScreen from '@app/modules/Support/botSupport'
 import StreamSupportScreen from '@app/modules/Support/streamSupport'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config';
-import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import NftMainScreen from '@app/modules/NFT/NftMainScreen'
 import NftDetailedInfo from '@app/modules/NFT/NftDetailedInfo'
@@ -88,8 +94,12 @@ import NftAddAssetScreen from '@app/modules/NFT/NftAddAssetScreen';
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import HomeSortScreen from '@app/modules/WalletList/HomeFilter/HomeSortScreen';
+import HomeDragScreen from '@app/modules/WalletList/HomeFilter/HomeDragScreen';
+import GuideScreen from '@app/modules/WalletList/HomeFilter/GuideScreen';
 
-
+import TransactionFilter from '@app/modules/Account/AccountFilter/AccountTransactionFilter';
+import TransactionCategories from '@app/modules/Account/AccountFilter/AccountTransactionCategories';
 
 const Stack = createStackNavigator()
 
@@ -115,11 +125,15 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='HomeScreenPop' component={HomeScreen} options={{ headerShown: false }} />
 
             <HomeStack.Screen name='StreamSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='BotSupportScreen' component={BotSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AddAssetScreen' component={AddAssetScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectChangeNetworkScreen' component={WalletConnectChangeNetworkScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <HomeStack.Screen name='WalletDappFastLinksScreen' component={WalletDappFastLinksScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='WalletDappWebViewScreen' component={WalletDappWebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='SendScreen' component={SendScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendScreenWithoutAmount' component={SendScreenWithoutAmount} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -130,8 +144,15 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='AccountSettingsPrivate' component={AccountSettingsPrivateScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountTransactionScreen' component={AccountTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountReceiveScreen' component={AccountReceiveScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <HomeStack.Screen name='StakingTransactionScreen' component={StakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='SolStakingTransactionScreen' component={SolStakingTransactionScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SolValidators' component={SolValidators} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='AllAddressesScreen' component={AllAddressesScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <HomeStack.Screen name='AccountStakingSOL' component={AccountStakingSOL} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='AccountStakingTRX' component={AccountStakingTRX} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <HomeStack.Screen name='TransactionFilter' component={TransactionFilter} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='TransactionCategories' component={TransactionCategories} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='AboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
@@ -185,7 +206,7 @@ const MarketStackScreen = () => {
 const SupportStackScreen = () => {
     return (
         <MarketStack.Navigator initialRouteName='StreamSupportScreen'>
-            <MarketStack.Screen name='StreemSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <MarketStack.Screen name='StreamSupportScreen' component={StreamSupportScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <MarketStack.Screen name='SupportAboutScreen' component={AboutScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </MarketStack.Navigator>
     )
@@ -281,7 +302,7 @@ const TabBar = () => {
                 :
                 <Tab.Screen
                     name='SupportScreen'
-                    component={SupportScreen}
+                    component={BotSupportScreen}
                     options={{
                         unmountOnBlur: true,
                         tabBarLabel: strings('dashboardStack.support'),
@@ -317,6 +338,10 @@ export default () => {
             <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <Stack.Screen name='HomeSortScreen' component={HomeSortScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='HomeDragScreen' component={HomeDragScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='GuideScreen' component={GuideScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </Stack.Navigator>
     )
 

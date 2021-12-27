@@ -15,9 +15,8 @@ import SettingsXVG from './elements/SettingsXVG'
 import SettingsETC from './elements/SettingsETC'
 import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
-import SettingsTRX from './elements/SettingsTRX'
 import SettingsBNB from './elements/SettingsBNB'
-import SettingsSOL from '@app/modules/Account/AccountSettings/elements/SettingsSOL'
+import SettingsSOL from './elements/SettingsSOL'
 
 import { strings } from '@app/services/i18n'
 
@@ -25,6 +24,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import AccountSettingsHeader from './elements/Header'
+import SettingsBNBSmart from '@app/modules/Account/AccountSettings/elements/SettingsBNBSmart'
 
 class AccountSettingScreen extends React.PureComponent {
 
@@ -89,17 +89,17 @@ class AccountSettingScreen extends React.PureComponent {
                         account={account}
                     />
                 )
-            case 'TRX':
+            case 'BNB':
                 return (
-                    <SettingsTRX
+                    <SettingsBNB
                         containerStyle={{ overflow: 'hidden' }}
                         wallet={selectedWallet}
                         account={account}
                     />
                 )
-            case 'BNB':
+            case 'BNB_SMART':
                 return (
-                    <SettingsBNB
+                    <SettingsBNBSmart
                         containerStyle={{ overflow: 'hidden' }}
                         wallet={selectedWallet}
                         account={account}
@@ -138,8 +138,6 @@ class AccountSettingScreen extends React.PureComponent {
 
         const { GRID_SIZE } = this.context
 
-        const isTabs = cryptoCurrency.currencyCode === 'SOL'
-
         MarketingAnalytics.setCurrentScreen('Account.AccountSettingsScreen.' + cryptoCurrency.currencyCode)
 
         return (
@@ -149,23 +147,16 @@ class AccountSettingScreen extends React.PureComponent {
                 rightType='close'
                 rightAction={this.handleClose}
                 title={strings('settings.title')}
-                ExtraView={() => isTabs ? this.renderHeader() : null}
             >
-                {isTabs ?
-                    <>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollViewContent}
+                    keyboardShouldPersistTaps='handled'
+                >
+                    <View style={{ paddingTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
                         {this.renderSettingsComponent()}
-                    </>
-                    :
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollViewContent}
-                        keyboardShouldPersistTaps='handled'
-                    >
-                        <View style={{ paddingTop: GRID_SIZE, marginHorizontal: GRID_SIZE }}>
-                            {this.renderSettingsComponent()}
-                        </View>
-                    </ScrollView>
-                }
+                    </View>
+                </ScrollView>
 
             </ScreenWrapper>
         )

@@ -35,7 +35,7 @@ export default class XlmScannerProcessor {
                 return false
             }
         } catch (e) {
-            if (e.message.indexOf('timed out') === -1 && e.message.indexOf('account not found') === -1) {
+            if (e.message.indexOf('timed out') === -1 && e.message.indexOf('account not found') === -1  && e.message.indexOf('the resource at the url requested was not found') === -1 ) {
                 throw e
             } else {
                 return false

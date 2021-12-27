@@ -1,13 +1,14 @@
 /**
  * @version 0.41
  */
-import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 import Log from '@app/services/Log/Log'
 import ApiRates from '@app/services/Api/ApiRates'
 
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import currencyDS from '@app/appstores/DataSource/Currency/Currency'
+import store from '@app/store'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 const CACHE_SAVED = {}
 
@@ -24,67 +25,64 @@ class UpdateCurrencyRateDaemon {
             return []
         }
 
-        let currency
-        const scanned = res.scanned
-
-        const tmps = await currencyDS.getCurrencies()
-        if (!tmps || tmps.length === 0) {
+        const currencies = store.getState().currencyStore.cryptoCurrencies
+        if (typeof currencies === 'undefined' || !currencies || currencies.length === 0) {
             Log.daemon('UpdateCurrencyRateDaemon warning - no currencies')
             return false
         }
 
         const indexed = {}
-        const toSearch = {}
-        const toAddToNews = {}
+        let row = false
         try {
-            for (currency of tmps) {
-                const code = currency.currencyCode
-
-                if (typeof BlocksoftDict.Currencies[code] === 'undefined') continue
-
-                const dict = BlocksoftDict.Currencies[code]
-
-                if (typeof dict.ratesCurrencyCode !== 'undefined') {
-                    if (dict.ratesCurrencyCode === 'SKIP') {
-                        continue
-                    }
-                    if (typeof indexed[dict.ratesCurrencyCode] === 'undefined') {
-                        indexed[dict.ratesCurrencyCode] = []
-                    }
-                    indexed[dict.ratesCurrencyCode].push(code)
+            for (row of res.cryptoCurrencies) {
+                if (typeof row.tokenAddress !== 'undefined' && row.tokenAddress) {
+                    indexed['token_' + row.tokenAddress.toUpperCase()] = row
                 }
-
-                if (typeof indexed[code] === 'undefined') {
-                    indexed[code] = []
-                }
-                indexed[code].push(code)
-
-                if (typeof dict.tokenAddress !== 'undefined') {
-                    indexed[dict.tokenAddress] = [code]
-                }
-                toSearch[code] = 1
-
-                if (currency.isHidden*1 === 0) {
-                    toAddToNews[currency.currencyCode] = 1
+                if (typeof row.currencyCode !== 'undefined') {
+                    indexed[row.currencyCode] = row
                 }
             }
         } catch (e) {
-            e.message += ' in tmps '
+            e.message += ' in indexing cryptoCurrencies ' + (row ? JSON.stringify(row) : ' no row')
             throw e
         }
 
+        const scanned = res.scanned
         const updatedCurrencies = []
         try {
-            for (currency of res.cryptoCurrencies) {
-                let codes = false
-                if (typeof indexed[currency.currencyCode] !== 'undefined') {
-                    codes = indexed[currency.currencyCode]
-                }
-                if (!codes && typeof currency.tokenAddress !== 'undefined' && typeof indexed[currency.tokenAddress] !== 'undefined') {
-                    codes = indexed[currency.tokenAddress]
-                }
-                if (!codes) continue
+            for (const dbCurrency of currencies) {
+                let currency = false
 
+                if (typeof dbCurrency.tokenAddress !== 'undefined' && dbCurrency.tokenAddress) {
+                    if (typeof indexed['token_' + dbCurrency.tokenAddress.toUpperCase()] !== 'undefined') {
+                        currency = indexed['token_' + dbCurrency.tokenAddress.toUpperCase()]
+                    }
+                }
+
+                if (!currency) {
+                    if (dbCurrency.currencyCode.indexOf('CUSTOM_') === 0) {
+                        if (typeof dbCurrency.tokenName !== 'undefined' && typeof indexed[dbCurrency.tokenName] !== 'undefined') {
+                            currency = indexed[dbCurrency.tokenName]
+                        }
+                    } else {
+                        if (typeof dbCurrency.ratesCurrencyCode !== 'undefined' && dbCurrency.ratesCurrencyCode) {
+                            if (typeof indexed[dbCurrency.ratesCurrencyCode] !== 'undefined') {
+                                currency = indexed[dbCurrency.ratesCurrencyCode]
+                            }
+                        } else {
+                            if (typeof indexed[dbCurrency.currencyCode] !== 'undefined') {
+                                currency = indexed[dbCurrency.currencyCode]
+                            }
+                        }
+                    }
+                }
+
+                if (!currency) {
+                    continue
+                }
+                if (typeof CACHE_SAVED[dbCurrency.currencyCode] !== 'undefined' && CACHE_SAVED[dbCurrency.currencyCode] === currency.currencyRateScanTime) {
+                    continue
+                }
                 const updateObj = {
                     currencyRateUsd: currency.currencyRateUsd,
                     currencyRateJson: currency.currencyRateJson,
@@ -93,34 +91,24 @@ class UpdateCurrencyRateDaemon {
                     priceLastUpdated: currency.priceLastUpdated,
                     currencyRateScanTime: scanned
                 }
-                let res
-                let code
-                for (code of codes) {
-                    delete toSearch[code]
-                    if (typeof CACHE_SAVED[code] === 'undefined' || CACHE_SAVED[code] !== updateObj.currencyRateScanTime) {
-                        updatedCurrencies.push({
-                            ...updateObj,
-                            currencyCode: code
-                        })
-                        res = await currencyDS.updateCurrency({ updateObj, key: { currencyCode: code } })
-                        CACHE_SAVED[code] = updateObj.currencyRateScanTime
-                    } else {
-                        res = true
-                    }
-                }
-                if (!res) {
-                    Log.daemon('UpdateCurrencyRateDaemon something wrong with updateCurrency ', currency)
-                }
+                updatedCurrencies.push({
+                    ...updateObj,
+                    currencyCode: dbCurrency.currencyCode
+                })
+
+                CACHE_SAVED[dbCurrency.currencyCode] = updateObj.currencyRateScanTime
+                await currencyDS.updateCurrency({ updateObj, key: { currencyCode: dbCurrency.currencyCode } })
             }
         } catch (e) {
             e.message += ' in res.cryptoCurrencies'
             throw e
         }
 
-        Log.daemon('UpdateCurrencyRateDaemon finished')
-
         try {
-            if (updatedCurrencies.length) await currencyActions.updateCryptoCurrencies(updatedCurrencies)
+            if (updatedCurrencies.length) {
+                await currencyActions.updateCryptoCurrencies(updatedCurrencies)
+                await UpdateAccountListDaemon.updateAccountListDaemon({force: true, source: 'UpdateCurrencyRateDaemon'})
+            }
         } catch (e) {
             e.message += 'in setCryptoCurrencies'
             throw e

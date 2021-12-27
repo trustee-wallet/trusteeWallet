@@ -35,6 +35,7 @@ import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import config from '@app/config/config'
 import store from '@app/store'
+import Nfts from '@crypto/common/BlocksoftDictNfts'
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -80,35 +81,16 @@ class NftDetailedInfo extends React.PureComponent {
         NavStore.goBack()
     }
 
-    getCurrencyTitle = (walletCurrency, tokenBlockchainCode) => {
-        if (!walletCurrency && !tokenBlockchainCode) {
-            return ''
-        }
-
-        if (walletCurrency) {
-            return walletCurrency
-        } else {
-            switch (tokenBlockchainCode.toUpperCase()) {
-                case 'ETH_ROPSTEN':
-                    return 'ROPSTEN'
-                case 'ETH_RINKEBY':
-                    return 'RINKEBY'
-                default:
-                    return tokenBlockchainCode
-            }
-        }
-    }
-
-
     handleSend = async () => {
         if (CACHE_CLICK_SEND) return false
         CACHE_CLICK_SEND = true
         try {
-            const currencyCode = this.state.data.tokenBlockchainCode
+            const tmp = Nfts.NftsIndexed[this.state.data.tokenBlockchainCode.toUpperCase()]
+            const currencyCode = tmp.tokenBlockchainCode || this.state.data.tokenBlockchainCode
             const { cryptoCurrencies } = store.getState().currencyStore
             let found = false
             for (const cryptoCurrency of cryptoCurrencies) {
-                if (cryptoCurrency.currencyCode == currencyCode) {
+                if (cryptoCurrency.currencyCode === currencyCode) {
                     found = true
                     continue
                 }
@@ -118,7 +100,7 @@ class NftDetailedInfo extends React.PureComponent {
                     type: 'YES_NO_MODAL',
                     icon: 'WARNING',
                     title: strings('modal.exchange.sorry'),
-                    description: strings('nftMainScreen.turnBasicAsset', {asset : this.getCurrencyTitle(false, currencyCode)}),
+                    description: strings('nftMainScreen.turnBasicAsset', {asset : Nfts.getCurrencyTitle(false, currencyCode)}),
                 }, () => {
                     NavStore.goNext('AddAssetScreen')
                 })
@@ -190,7 +172,7 @@ class NftDetailedInfo extends React.PureComponent {
         const shareOptions = { message: '' }
         shareOptions.message += this.state.data.title + '\n' + this.state.data.subTitle + '\n\n'
         shareOptions.message += this.state.data.permalink ? strings('account.transactionScreen.website') + this.state.data.permalink : ''
-        
+
 
         prettyShare(shareOptions, 'nft_copyToMoreFinish')
     }

@@ -21,6 +21,8 @@ const CACHE_GET_MAX_BLOCK = {
     FTM : { max_block_number: 0, confirmations: 0 },
     RSK : { max_block_number: 0, confirmations: 0 },
     OPTIMISM : { max_block_number: 0, confirmations: 0 },
+    METIS : { max_block_number: 0, confirmations: 0 },
+    VLX : { max_block_number: 0, confirmations: 0 },
 }
 const CACHE_BLOCK_NUMBER_TO_HASH = {
     ETH: {},
@@ -30,7 +32,9 @@ const CACHE_BLOCK_NUMBER_TO_HASH = {
     MATIC : {},
     FTM : {},
     RSK : {},
-    OPTIMISM : {}
+    OPTIMISM : {},
+    METIS : {},
+    VLX : {}
 }
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
@@ -42,7 +46,9 @@ const CACHE = {
     MATIC : {},
     FTM : {},
     RSK : {},
-    OPTIMISM : {}
+    OPTIMISM : {},
+    METIS : {},
+    VLX : {}
 }
 
 export default class EthScannerProcessor extends EthBasic {
@@ -206,7 +212,7 @@ export default class EthScannerProcessor extends EthBasic {
                 transactions = await this._getFromEtherscan(address, link, logTitle, false, transactions)
             }
 
-            if (this._useInternal) {
+            if (this._useInternal && this._etherscanApiPathInternal) {
                 link = this._etherscanApiPathInternal + '&address=' + address
                 logTitle = this._settings.currencyCode + ' EthScannerProcessor.getTransactions etherscan forInternal'
                 transactions = await this._getFromEtherscan(address, link, logTitle, true, transactions)

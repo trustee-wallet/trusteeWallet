@@ -26,6 +26,12 @@ export default {
             darkColor: '#CA4D6F'
         }
     },
+    'TRX_BTT_NEW': {
+        colors: {
+            mainColor: '#D73A64',
+            darkColor: '#CA4D6F'
+        }
+    },
     'XVG': {
         colors: {
             mainColor: '#00CBFF',
@@ -356,6 +362,12 @@ export default {
             darkColor: '#3C5A84'
         }
     },
+    "BNB_SMART_1INCH": {
+        colors: {
+            mainColor: '#1B314F',
+            darkColor: '#3C5A84'
+        }
+    },
     "ETH_ENJ": {
         colors: {
             mainColor: '#7866D5',
@@ -417,6 +429,12 @@ export default {
         }
     },
     "BNB_SMART_LINK": {
+        colors: {
+            mainColor: '#375BD2',
+            darkColor: '#375BD2'
+        }
+    },
+    "FTM_LINK": {
         colors: {
             mainColor: '#375BD2',
             darkColor: '#375BD2'
@@ -512,6 +530,12 @@ export default {
             darkColor: '#B87A1E'
         }
     },
+    "FTM_BTC": {
+        colors: {
+            mainColor: '#F79E1B',
+            darkColor: '#B87A1E'
+        }
+    },
     "BNB_SMART_BTC": {
         colors: {
             mainColor: '#F79E1B',
@@ -537,6 +561,12 @@ export default {
         }
     },
     'CUSTOM_STORJ': {
+        colors: {
+            mainColor: '#2683FF',
+            darkColor: '#3F81D9'
+        }
+    },
+    'ETH_STORJ': {
         colors: {
             mainColor: '#2683FF',
             darkColor: '#3F81D9'
@@ -828,6 +858,78 @@ export default {
         colors: {
             mainColor: '#FDD807',
             darkColor: '#FDD807'
+        }
+    },
+    'CASHBACK': {
+        colors: {
+            mainColor: '#404040',
+            darkColor: '#DADADA'
+        }
+    },
+    'METIS': {
+        colors: {
+            mainColor: '#10DCCF',
+            darkColor: '#3EC0B8'
+        }
+    },
+    'BNB_SMART_METIS': {
+        colors: {
+            mainColor: '#10DCCF',
+            darkColor: '#3EC0B8'
+        }
+    },
+    'ETH_METIS': {
+        colors: {
+            mainColor: '#10DCCF',
+            darkColor: '#3EC0B8'
+        }
+    },
+    'METIS_METIS': {
+        colors: {
+            mainColor: '#2B6DEF',
+            darkColor: '#6389D6'
+        }
+    },
+    'FTM': {
+        colors: {
+            mainColor: '#1969FF',
+            darkColor: '#457DE5'
+        }
+    },
+    'FTM_AAVE': {
+        colors: {
+            mainColor: '#2EBAC6',
+            darkColor: '#2DB1BC'
+        }
+    },
+    'MATIC_FTM': {
+        colors: {
+            mainColor: '#1969FF',
+            darkColor: '#457DE5'
+        }
+    },
+    'ETH_FTM': {
+        colors: {
+            mainColor: '#1969FF',
+            darkColor: '#457DE5'
+        }
+    },
+    'BNB_SMART_FTM': {
+        colors: {
+            mainColor: '#1969FF',
+            darkColor: '#457DE5'
+        }
+    },
+    'FTM_BOO': {
+        colors: {
+            mainColor: '#6665DD',
+            darkColor: '#6E6DCB'
+        }
+    },
+    'VLX': {
+        colors: {
+            mainColor: '#0037C1',
+            darkColor: '#4470DE'
         }
     },
     'DEFAULT': {
