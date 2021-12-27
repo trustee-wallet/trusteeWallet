@@ -87,7 +87,7 @@ class CryptoCurrency extends React.PureComponent {
 
         const basicBalancePrep = account.basicCurrencyBalance
 
-        let isSynchronized;
+        let isSynchronized = true
         try {
             isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
         } catch (e) {
