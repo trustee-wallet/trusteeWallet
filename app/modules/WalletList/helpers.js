@@ -181,12 +181,17 @@ const getBalanceData = (props) => {
 }
 
 const handleCurrencySelect = async (props, screen) => {
-    if (CACHE_CLICK) return
 
     const { cryptoCurrency } = props
+    const { currencyCode } = cryptoCurrency
+
+    if (CACHE_CLICK) {
+        Log.log('HomeScreen.Currency ' + currencyCode + ' already started as ' + CACHE_CLICK)
+        return
+    }
+    Log.log('HomeScreen.Currency ' + currencyCode + ' started')
 
     let status = ''
-    CACHE_CLICK = true
 
     if (props.constructorMode) {
         showModal({
@@ -195,17 +200,17 @@ const handleCurrencySelect = async (props, screen) => {
             onDrag: props.onDragEnd,
             listData: props.listData,
             handleGuide: props.handleGuide,
-            currencyCode: cryptoCurrency,
+            currencyCode: currencyCode,
             // eslint-disable-next-line react/display-name
             Content: ({ data }) => {
                 return <ContentDropModal data={data} />
             }
         })
-
         CACHE_CLICK = false
         return
     }
 
+    CACHE_CLICK = currencyCode
     if (typeof cryptoCurrency.currencyCode !== 'undefined' && (cryptoCurrency.currencyCode === 'NFT' || cryptoCurrency.currencyCode === 'CASHBACK')) {
 
         const defaultScreen = cryptoCurrency.currencyCode === 'CASHBACK' ? 'CashbackScreen' : 'NftMainScreen'
