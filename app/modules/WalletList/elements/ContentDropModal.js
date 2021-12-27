@@ -6,8 +6,6 @@ import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import { handleHide } from '../helpers'
-
 class ContentDropModal extends React.PureComponent {
 
     render() {
@@ -16,7 +14,7 @@ class ContentDropModal extends React.PureComponent {
             GRID_SIZE, colors
         } = this.context
 
-        const { currentIndex, onDrag, listData, handleGuide, currencyCode } = this.props.data
+        const { currentIndex, onDrag, listData, handleGuide, handleHide } = this.props.data
 
         return (
             <View style={{ marginHorizontal: GRID_SIZE }}>
@@ -55,7 +53,7 @@ class ContentDropModal extends React.PureComponent {
                 <InvoiceListItem
                     title={strings('modal.dropDownModal.hideAsset')}
                     onPress={() => {
-                        handleHide(currencyCode)
+                        handleHide()
                         hideModal()
                     }}
                     containerStyle={{ borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
