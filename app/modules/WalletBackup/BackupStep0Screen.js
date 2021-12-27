@@ -374,7 +374,6 @@ class BackupStep0Screen extends PureComponent {
         return(
             <MnemonicQrCode
                 walletMnemonic={this.state.walletMnemonic}
-                VISIBILITY_TIMEOUT={VISIBILITY_TIMEOUT}
             />
         )
     }

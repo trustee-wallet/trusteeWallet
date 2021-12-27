@@ -22,19 +22,14 @@ import Message from '@app/components/elements/new/Message'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Button from '@app/components/elements/new/buttons/Button';
 
-const {width: WINDOW_WIDTH} = Dimensions.get('window')
+const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
 const VISIBILITY_TIMEOUT = 4000
 
 const MnemonicQrCode = (props) => {
 
-    const {
-        walletMnemonic,
-        withBlur
-    } = props
-
     const [animationProgress, setAnimationProgress] = useState(new Animated.Value(0))
-    const [show, setShow] = useState(withBlur)
+    const [show, setShow] = useState(false)
 
     const {
         GRID_SIZE
@@ -72,7 +67,7 @@ const MnemonicQrCode = (props) => {
                 >
                     <View style={styles.qr}>
                         <QrCodeBox
-                            value={walletMnemonic}
+                            value={props.walletMnemonic}
                             size={WINDOW_WIDTH * 0.5}
                             color='#404040'
                             backgroundColor='#F5F5F5'
@@ -85,14 +80,13 @@ const MnemonicQrCode = (props) => {
                         />
                         {!show ? 
                             <BlurView
-                              style={styles.blur}
-                              blurType="light"
-                              blurAmount={10}
-                              blurRadius={8}
-                              overlayColor='transparent'
+                                style={styles.blur}
+                                blurType="light"
+                                blurAmount={6}
+                                blurRadius={6}
+                                overlayColor='transparent'
                             />
-                            : null
-                        }
+                            : null}
                     </View>
                 </TouchableOpacity>
                     
