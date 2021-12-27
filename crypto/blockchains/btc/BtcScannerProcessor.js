@@ -17,6 +17,7 @@ const CACHE = {}
 const CACHE_WALLET_PUBS = {}
 
 const TIMEOUT_BTC = 60000
+const PROXY_TXS = 'https://proxy.trustee.deals/btc/getTxs'
 
 export default class BtcScannerProcessor {
 
@@ -62,28 +63,39 @@ export default class BtcScannerProcessor {
         let link = ''
         let res = false
         if (prefix === 'xpub' || prefix === 'zpub' || prefix === 'ypub') {
-            link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used&pageSize=40'
-
-            try {
-                res = await BlocksoftAxios._request(link, 'get', false, false, true, TIMEOUT_BTC)
-            } catch (e) {
-                if (e.message.indexOf('"error":"internal server error"') !== -1) {
-                    CACHE[address] = {
-                        data : {
-                            balance : 0,
-                            unconfirmedBalance: 0,
-                            addresses : [],
-                            specialMark : 'badServer'
-                        },
-                        time: now,
-                        provider: 'trezor-badserver'
+            link = PROXY_TXS + '?address=' + address + '&type=xpub&currencyCode=' + this._settings['currencyCode']
+            res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_BTC)
+            if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.data !== 'undefined') {
+                res.data = res.data.data
+            } else {
+                link = this._trezorServer + '/api/v2/xpub/' + address + '?details=txs&gap=9999&tokens=used&pageSize=40'
+                try {
+                    res = await BlocksoftAxios._request(link, 'get', false, false, true, TIMEOUT_BTC)
+                } catch (e) {
+                    if (e.message.indexOf('"error":"internal server error"') !== -1) {
+                        CACHE[address] = {
+                            data: {
+                                balance: 0,
+                                unconfirmedBalance: 0,
+                                addresses: [],
+                                specialMark: 'badServer'
+                            },
+                            time: now,
+                            provider: 'trezor-badserver'
+                        }
+                        return CACHE[address]
                     }
-                    return CACHE[address]
                 }
             }
         } else {
-            link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999&pageSize=80'
+            link = PROXY_TXS + '?address=' + address + '&currencyCode=' + this._settings['currencyCode']
             res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_BTC)
+            if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.data !== 'undefined') {
+                res.data = res.data.data
+            } else {
+                link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&gap=9999&pageSize=80'
+                res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_BTC)
+            }
         }
 
         if (!res || !res.data) {
