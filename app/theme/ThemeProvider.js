@@ -23,6 +23,8 @@ if (PIXEL_RATIO <= 2 && SCREEN_WIDTH < 330) {
 let SYSTEM_COLOR_SCHEME = Appearance.getColorScheme()
 if (SYSTEM_COLOR_SCHEME === 'no-preference') SYSTEM_COLOR_SCHEME = 'light'
 
+let subscription
+
 export const ThemeContext = React.createContext({
     isLight: true,
     color: colorsLight,
@@ -38,6 +40,16 @@ export class ThemeProvider extends React.Component {
         this.getThemeSetting()
     }
 
+    componentDidMount() {
+        subscription = Appearance.addChangeListener(({ colorScheme }) => {
+            this.changeTheme(colorScheme)
+          });
+    }
+
+    componentWillUnmount() {
+        subscription.remove()
+    }
+
     getThemeSetting = async () => {
         try {
             const res = await trusteeAsyncStorage.getThemeSetting()
@@ -49,8 +61,8 @@ export class ThemeProvider extends React.Component {
         }
     }
 
-    changeTheme = async () => {
-        const newTheme = this.state.isLight ? 'dark' : 'light'
+    changeTheme = async (colorScheme = false) => {
+        const newTheme = colorScheme || (this.state.isLight ? 'dark' : 'light')
         const isLight = newTheme === 'light'
         const colors = isLight ? colorsLight : colorsDark
         this.setState(() => ({ isLight }))
