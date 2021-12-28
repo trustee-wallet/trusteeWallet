@@ -895,7 +895,7 @@
       "qr": "Qr",
       "info": "აღდგენის ფრაზა (მნემონური ფრაზა, სათესლე ფრაზა) არის საიდუმლო წვდომის გასაღები თქვენს საფულეში არსებულ ყველა ნაშთზე. ჩაწერეთ სიტყვების თანმიმდევრობის დაცვით, უსაფრთხოდ შეინახეთ და არავის გადასცემთ!",
       "showButton": "დააწკაპუნეთ და გააჩერეთ აქ ფრაზის სანახავად",
-      "showQrButton": "Press to see the Qr code",
+      "showQrButton": "Press to see the QR code",
       "next": "შემდეგი",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
