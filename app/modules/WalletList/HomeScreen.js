@@ -65,7 +65,7 @@ class HomeScreen extends React.PureComponent {
             originalData: [],
             data: [],
             currenciesOrder: [],
-            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
+            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue() || null
         }
     }
 

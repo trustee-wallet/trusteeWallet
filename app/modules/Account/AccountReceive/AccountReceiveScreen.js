@@ -95,7 +95,8 @@ class AccountReceiveScreen extends React.PureComponent {
 
         isBalanceVisible: false,
         isBalanceVisibleTriggered: false,
-        index: 0
+        index: 0,
+        walletIsHd: false
     }
 
     async _onLoad() {
@@ -104,8 +105,18 @@ class AccountReceiveScreen extends React.PureComponent {
 
     componentDidMount() {
         this._onLoad()
+        this.setState({
+            walletIsHd: this.props.selectedWalletData.walletIsHd
+        })
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.selectedWalletData.walletIsHd !== this.props.selectedWalletData.walletIsHd) {
+            this.setState({
+                walletIsHd: true
+            })
+        }
+    }
 
     handleGetAddress = () => {
         getAddress.call(this)
@@ -574,15 +585,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
     }
 
-    handleShowAll = () => {
-        // NavStore.goNext('AllAddressesScreen')
-
-        showModal({
-            type: 'INFO_MODAL',
-            title: strings('modal.settings.soon'),
-            icon: 'WARNING'
-        })
-    }
+    handleShowAll = () => NavStore.goNext('AllAddressesScreen')
 
     handleCustomAmount = () => {
 
@@ -628,9 +631,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
     render() {
 
-        const { walletIsHd } = this.props.selectedWalletData
-
-        const { fioName, customAmount, amountForQr, labelForQr, inputType } = this.state
+        const { fioName, customAmount, amountForQr, labelForQr, inputType, walletIsHd } = this.state
         const { basicCurrencyCode, address } = this.props.selectedAccountData
         const { currencyCode, currencySymbol, decimals} = this.props.selectedCryptoCurrencyData
 

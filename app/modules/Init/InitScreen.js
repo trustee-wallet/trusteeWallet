@@ -4,10 +4,10 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { Image, View, Text, Platform, TouchableOpacity, Linking, StyleSheet, StatusBar } from 'react-native'
-import { UIActivityIndicator, MaterialIndicator } from 'react-native-indicators'
+import { View, Text, TouchableOpacity, Linking, StyleSheet, StatusBar } from 'react-native'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import LottieView from 'lottie-react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -35,18 +35,17 @@ import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/
 
 class InitScreen extends React.PureComponent {
 
-    constructor() {
-        super()
-        this.state = {
-            status: ''
-        }
+    state = {
+        status: ''
     }
 
     componentDidMount() {
-       this.init()
+        this.initAnimationRef.play()
+        this.init()
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        this.initAnimationRef.play()
         this.init()
     }
 
@@ -59,7 +58,7 @@ class InitScreen extends React.PureComponent {
             clearTimeout(this.statusTimeout)
             setTimeout(() => {
                 if (this.props.lockScreenStatus * 1 > 0) {
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.INIT_POPUP})
+                    setLockScreenConfig({ flowType: LockScreenFlowTypes.INIT_POPUP })
                     NavStore.reset('LockScreenPop')
                 } else {
                     NavStore.reset('TabBar')
@@ -125,10 +124,10 @@ class InitScreen extends React.PureComponent {
 
     render() {
         if (App.initStatus === 'resetError') {
-            App.init({source : 'InitScreen.render', onMount : false})
+            App.init({ source: 'InitScreen.render', onMount: false })
         }
 
-        const { colors, isLight } = this.context
+        const { colors, isLight, GRID_SIZE } = this.context
 
         MarketingAnalytics.setCurrentScreen('InitScreen.index')
         return (
@@ -139,68 +138,57 @@ class InitScreen extends React.PureComponent {
                         {this.state.status}
                     </Text>
                 </View>
-                <View style={{ flex: 1, justifyContent: 'center' }}>
-                    <Image
-                        style={styles.image}
-                        source={isLight ?  require('@assets/images/logo.png') : require('@assets/images/logoWhite.png')}
-                    />
-                    <View style={{ marginTop: -70, marginBottom: 60 }}>
-                        {Platform.OS === 'ios' ? <UIActivityIndicator size={30} color={colors.initScreen.loader} /> :
-                            <MaterialIndicator size={30} color={colors.initScreen.loader} />}
-                    </View>
-                    <View style={{ position: 'relative' }}>
+
+                <LottieView
+                    ref={ref => this.initAnimationRef = ref}
+                    style={{ marginBottom: GRID_SIZE * 2, flex: 1 }}
+                    source={isLight ? require('@assets/jsons/animations/LoaderTrusteeLight.json') : require('@assets/jsons/animations/LoaderTrusteeDark.json')}
+                    useNativeDriver
+                    autoPlay
+                    loop
+                />
+
+                <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: GRID_SIZE * 5 }}>
+                    <View>
                         <Text style={[styles.appName__text, { color: colors.initScreen.appName }]} numberOfLines={1}>
                             TRUSTEE WALLET
                         </Text>
-                        {isLight && (
-                            <Text style={[styles.appName__text2, { color: colors.initScreen.appNameSub }]} numberOfLines={1}>
-                                TRUSTEE WALLET
-                            </Text>)}
-                        {
-                            this.props.initError ?
-                                <View>
-                                    <View style={styles.block}>
-                                        <View style={styles.block__content}>
+                        <View>
+                            <Text style={[styles.appVersion__text, { color: colors.common.text1, marginTop: GRID_SIZE / 2 }]} >
+                                {'#' + config.version.hash + ' | ' + config.version.code}
+                            </Text>
+                        </View>
 
-                                            <TouchableOpacity style={styles.header__description}>
-                                                <Text>
-                                                    <Text style={[styles.header__title, { color: colors.common.text1 }]}>
-                                                        {strings('settings.error.title')}
-                                                    </Text>
-                                                </Text>
-                                                <Text>
-                                                    <Text>{this.props.initError}</Text>
-                                                </Text>
-                                            </TouchableOpacity>
+                        {this.props.initError &&
+                            <View style={[styles.block__content, { backgroundColor: colors.common.background }]}>
 
-                                            <TouchableOpacity style={styles.block__item}
-                                                              onPress={this.handleLogs}>
-                                                <FontAwesome name='bug' size={20} style={styles.block__icon} />
-                                                <Text style={[styles.block__text, { color: colors.common.text1 }]}
-                                                      numberOfLines={1}>{strings('settings.other.copyLogs')}</Text>
-                                            </TouchableOpacity>
+                                <TouchableOpacity style={styles.header__description}>
+                                    <Text style={[styles.header__title, { color: colors.common.text1 }]}>
+                                        {strings('settings.error.title')}
+                                    </Text>
+                                    <Text>{this.props.initError}</Text>
+                                </TouchableOpacity>
 
-                                            <View style={styles.divider} />
+                                <TouchableOpacity style={styles.block__item}
+                                    onPress={this.handleLogs}>
+                                    <FontAwesome name='bug' size={20} style={styles.block__icon} color={colors.common.text1} />
+                                    <Text style={[styles.block__text, { color: colors.common.text1 }]}
+                                        numberOfLines={1}>{strings('settings.other.copyLogs')}</Text>
+                                </TouchableOpacity>
 
-                                            <TouchableOpacity style={styles.block__item}
-                                                              onPress={this.handleSupport}>
-                                                <MaterialIcon name='telegram' size={20} style={styles.block__icon} />
-                                                <Text style={[styles.block__text, { color: colors.common.text1 }]} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
-                                            </TouchableOpacity>
+                                <View style={styles.divider} />
 
-                                        </View>
-                                    </View>
+                                <TouchableOpacity style={styles.block__item}
+                                    onPress={this.handleSupport}>
+                                    <MaterialIcon name='telegram' size={20} style={styles.block__icon} color={colors.common.text1} />
+                                    <Text style={[styles.block__text, { color: colors.common.text1 }]} numberOfLines={1}>{strings('settings.error.contactSupport')}</Text>
+                                </TouchableOpacity>
 
-                                </View>
-                                : null
+                            </View>
                         }
                     </View>
                 </View>
-                <View style={{ marginTop: 'auto' }}>
-                    <Text style={[styles.appVersion__text, { color: colors.common.text1 }]} >
-                        {'#' + config.version.hash + ' | ' + config.version.code}
-                    </Text>
-                </View>
+
             </View>
         )
     }
@@ -236,10 +224,12 @@ const styles = StyleSheet.create({
     },
     appName__text: {
         position: 'relative',
-        fontSize: 30,
-        fontFamily: 'SFUIDisplay-Bold',
+        fontSize: 26,
+        lineHeight: 30,
+        fontFamily: 'Montserrat-Bold',
         textAlign: 'center',
-        zIndex: 2
+        zIndex: 2,
+        letterSpacing: 1
     },
     appName__text2: {
         position: 'absolute',
@@ -252,11 +242,11 @@ const styles = StyleSheet.create({
         zIndex: 1
     },
     appVersion__text: {
-        marginBottom: 10,
-        opacity: .5,
         textAlign: 'center',
         fontFamily: 'SFUIDisplay-Regular',
-        fontSize: 10,
+        fontSize: 12,
+        lineHeight: 14,
+        opacity: 0.5
     },
     wrapper__top: {
         height: 115,
@@ -274,29 +264,17 @@ const styles = StyleSheet.create({
     block__content: {
         paddingTop: 20,
         paddingLeft: 7,
-        paddingRight: 7,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-
-        elevation: 4,
-        backgroundColor: '#fff',
-        borderRadius: 15
+        paddingRight: 7
     },
     block__item: {
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         alignItems: 'center',
+        justifyContent: 'space-between',
         paddingLeft: 8,
         paddingRight: 8,
-        height: 42
+        height: 42,
     },
     block__text: {
-        flex: 1,
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 19,
     },

@@ -370,7 +370,7 @@
     "cashbackBalance": "Баланс кешбэка",
     "cashbackToken": "Токен",
     "yourToken": "Ваша кэшбек cсылка",
-    "cashbackMessage": "Получай Cashback за свои обменные операции. Зарабатывай крипту по Партнерской программе и CPA рекомендуя Trustee Wallet!",
+    "cashbackMessage": "Получай Cashback за свои обменные операции. Зарабатывай крипту по Партнерской программе и CPA, рекомендуя Trustee Wallet!",
     "howItWorks": {
       "title": "Как это работает?",
       "info1Title": "Есть ли в Trustee Wallet программа наград для пользователей?",
@@ -555,7 +555,8 @@
       "FIORequest": "FIO запрос",
       "share": "Поделиться",
       "copy": "Копировать",
-      "amount": "Указать сумму"
+      "amount": "Указать сумму",
+      "rename": "Переименовать"
     },
     "addAccount": {
       "list": "Список криптовалют"

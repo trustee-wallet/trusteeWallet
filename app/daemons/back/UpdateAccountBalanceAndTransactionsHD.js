@@ -224,7 +224,6 @@ class UpdateAccountBalanceAndTransactionsHD {
                     const balance = addressesBlockchain[address].balance
                     if (typeof addresses[address] !== 'undefined') {
                         if (addresses[address].balanceTxt !== balance) {
-                            console.log('UPDATING!')
                             const updateObj = {
                                 balanceScanTime: Math.round(new Date().getTime() / 1000),
                                 balanceScanLog: ' newBalance ' + balance,

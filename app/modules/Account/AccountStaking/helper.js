@@ -311,6 +311,8 @@ async function _sendTxTrx(shortLink, params, langMsg, uiParams) {
         }
         if (uiParams.type === 'freeze') {
             data.ui.specialActionNeeded = 'vote'
+        } else if (uiParams.type === 'unfreeze') {
+            data.ui.specialActionNeeded = 'vote_after_unfreeze'
         }
 
         data.fromBlockchain = {

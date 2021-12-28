@@ -54,18 +54,19 @@ class WalletConnectChangeNetworkScreen extends PureComponent {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={[styles.scrollViewContent, {
                         padding: GRID_SIZE,
-                        paddingLeft: GRID_SIZE * 2
                     }]}
                     keyboardShouldPersistTaps='handled'
                 >
                     {
-                         NETWORKS_SETTINGS.map((item, index) => (
+                        NETWORKS_SETTINGS.map((item, index) => (
                             <ListItem
                                 key={item.currencyCode}
                                 checked={item.currencyCode === mainCurrencyCode}
                                 title={item.networkTitle}
                                 onPress={() => this.setNetwork(item)}
                                 last={NETWORKS_SETTINGS.length - 1 === index}
+                                iconType={item.currencyCode.toLowerCase()}
+                                containerStyle={{ paddingVertical: GRID_SIZE / 3 }}
                             />
                         ))
                     }

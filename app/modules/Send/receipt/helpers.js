@@ -64,6 +64,7 @@ const checkLoadedFee = function(_this) {
     let msg = false
     let goBack = false
     let cacheWarningNoticeValue = ''
+    let newCryptoValue = false
 
     if (typeof bseMinCrypto !== 'undefined' && bseMinCrypto * 1 > 0) {
         if (typeof selectedFee.amountForTx !== 'undefined' && bseMinCrypto * 1 > selectedFee.amountForTx * 1) {
@@ -93,6 +94,7 @@ const checkLoadedFee = function(_this) {
             } else {
                 msg = strings('send.errors.UI_CORRECTED_AMOUNT', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
             }
+            newCryptoValue = value
         }
     }
 
@@ -146,7 +148,7 @@ const checkLoadedFee = function(_this) {
             }
         }
     }
-    return { msg, cacheWarningNoticeValue, goBack, modalType }
+    return { msg, cacheWarningNoticeValue, goBack, modalType, newCryptoValue }
 }
 export {
     showSendError, checkLoadedFee

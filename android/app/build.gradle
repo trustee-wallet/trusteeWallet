@@ -216,6 +216,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-appearance')
     implementation project(':react-native-branch')
     implementation project(':react-native-vector-icons')
     implementation 'androidx.multidex:multidex:2.0.1'

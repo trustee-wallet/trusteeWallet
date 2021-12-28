@@ -7,6 +7,7 @@ import React from 'react'
 import { Provider } from 'react-redux'
 import { AppearanceProvider } from 'react-native-appearance'
 import { Platform, UIManager } from 'react-native'
+import { enableScreens } from 'react-native-screens'
 
 import store from '@app/store'
 
@@ -27,6 +28,8 @@ appsFlyer.initSdk(
         timeToWaitForATTUserAuthorization: 10 // for iOS 14.5
     }
 );
+
+enableScreens()
 
 export default class App extends React.Component {
 

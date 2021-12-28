@@ -8,6 +8,10 @@ import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 
 import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 
+import DaemonCache from '@app/daemons/DaemonCache'
+import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+
 export async function changeAddress() {
 
     setLoaderStatus(true)
@@ -63,4 +67,25 @@ export function getAddress() {
     }
     Log.log('AccountReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType, actualIsSegwit })
     return address
+}
+
+export function getBalanceData(props) {
+
+    const { balance } = props
+
+    const { localCurrencySymbol } = props.walletsGeneralData
+
+    const currencySymbol = localCurrencySymbol
+
+    const accountRates = DaemonCache.getCacheRates('BTC')
+    const value = balance
+    const basicCurrencyBalanceNorm = RateEquivalent.mul({
+        value,
+        currencyCode: 'BTC',
+        basicCurrencyRate: accountRates.basicCurrencyRate
+    })
+
+    const tmp = basicCurrencyBalanceNorm.toString()
+    const beforeDecimal = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makeCut(tmp, 2).separated
+    return { currencySymbol, beforeDecimal }
 }

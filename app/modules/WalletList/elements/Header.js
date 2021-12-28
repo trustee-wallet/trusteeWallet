@@ -149,7 +149,7 @@ class WalletInfo extends React.PureComponent {
                                 style={[styles.settingsButton, { marginLeft: -8 }]}
                                 onPress={walletConnected ? this.handleWalletConnect : this.handleOpenNotifications}
                                 onLongPress={!walletConnected && this.handleClearNotifications}
-                                delayLongPress={!walletConnected && 1000}
+                                delayLongPress={!walletConnected ? 1000 : 100000000}
                                 hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}
                             >
                                 {walletConnected ?

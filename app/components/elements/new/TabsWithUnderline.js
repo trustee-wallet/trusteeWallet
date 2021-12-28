@@ -23,9 +23,10 @@
     } = props
 
     const {
-       colors,
-       GRID_SIZE
-    } = useTheme()
+        colors,
+        GRID_SIZE
+     } = useTheme()
+
 
     return (
        <View style={[styles.container, containerStyle]}>
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
        flexDirection: 'row',
        paddingTop: 8,
        paddingBottom: 16,
-       marginBottom: -7, // negative value because of paddingBottom in ExtraView into Header component
+       marginBottom: -7 // negative value because of paddingBottom in ExtraView into Header component
     },
     tab: {
        flex: 1,

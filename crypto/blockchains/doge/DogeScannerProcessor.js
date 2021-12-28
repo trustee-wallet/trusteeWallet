@@ -32,6 +32,8 @@ import EthRawDS from '../eth/stores/EthRawDS'
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
 
+const TIMEOUT_DOGE = 60000
+const PROXY_TXS = 'https://proxy.trustee.deals/btc/getTxs'
 
 export default class DogeScannerProcessor {
 
@@ -72,10 +74,21 @@ export default class DogeScannerProcessor {
             return CACHE[address]
         }
 
-        this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Scanner._get')
+        let link
+        let res = false
+        // remove later after tests
+        if (this._settings['currencyCode'] === 'DOGE' || this._settings['currencyCode'] === 'LTC' || this._settings['currencyCode'] === 'BSV') {
+            link = PROXY_TXS + '?address=' + address + '&currencyCode=' + this._settings['currencyCode']
+            res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_DOGE)
+        }
+        if (res && typeof res.data !== 'undefined' && res.data && typeof res.data.data !== 'undefined') {
+            res.data = res.data.data
+        } else {
+            this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Scanner._get')
+            link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&pageSize=40'
+            res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_DOGE)
+        }
 
-        const link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
-        const res = await BlocksoftAxios.getWithoutBraking(link)
         if (!res || !res.data) {
             await BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
             return false
