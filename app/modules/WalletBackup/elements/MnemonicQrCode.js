@@ -9,7 +9,8 @@ import {
     StyleSheet,
     Dimensions,
     Animated,
-    LayoutAnimation
+    LayoutAnimation,
+    Text
 } from 'react-native'
 import { BlurView } from "@react-native-community/blur";
 
@@ -20,7 +21,6 @@ import Log from '@app/services/Log/Log'
 import { useTheme } from '@app/theme/ThemeProvider'
 import Message from '@app/components/elements/new/Message'
 import { TouchableOpacity } from 'react-native-gesture-handler'
-import Button from '@app/components/elements/new/buttons/Button';
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window')
 
@@ -28,18 +28,23 @@ const VISIBILITY_TIMEOUT = 4000
 
 const MnemonicQrCode = (props) => {
 
+    const {
+        walletMnemonic
+    } = props
+
     const [animationProgress, setAnimationProgress] = useState(new Animated.Value(0))
     const [show, setShow] = useState(false)
 
     const {
-        GRID_SIZE
+        GRID_SIZE,
+        colors
     } = useTheme()
 
     const showQr = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear)
         setShow(true)
         setTimeout(() => {
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.linear)
             setShow(false)
             setAnimationProgress(new Animated.Value(0))
         }, VISIBILITY_TIMEOUT)
@@ -67,7 +72,7 @@ const MnemonicQrCode = (props) => {
                 >
                     <View style={styles.qr}>
                         <QrCodeBox
-                            value={props.walletMnemonic}
+                            value={walletMnemonic}
                             size={WINDOW_WIDTH * 0.5}
                             color='#404040'
                             backgroundColor='#F5F5F5'
@@ -78,25 +83,39 @@ const MnemonicQrCode = (props) => {
                                 Log.err('MnemonicQrCode QRCode error ' + e.message)
                             }}
                         />
+                        
                         {!show ? 
                             <BlurView
-                                style={styles.blur}
-                                blurType="light"
-                                blurAmount={6}
-                                blurRadius={6}
-                                overlayColor='transparent'
+                              style={styles.blur}
+                              blurType="light"
+                              blurAmount={6}
+                              blurRadius={6}
+                              overlayColor='transparent'
                             />
-                            : null}
+                            : null
+                        }
+                        
                     </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={showQr}
+                    activeOpacity={0.9}
+                >
+                    <Text
+                        style={[
+                            styles.showMnemonicButton,
+                            {
+                                marginTop: GRID_SIZE * 2,
+                                marginHorizontal: GRID_SIZE,
+                                color: colors.createWalletScreen.showMnemonic.showButtonText,
+                                opacity: show ? 0.5 : 1
+                            }
+                        ]}
+                    >{strings('walletBackup.step0Screen.showQrButton')}</Text>
                 </TouchableOpacity>
                     
             </View>
-            <View style={[styles.mainButton, { bottom: GRID_SIZE, paddingHorizontal: GRID_SIZE }]}>
-                <Button
-                    title={strings('walletBackup.step0Screen.show')}
-                    onPress={showQr}
-                />
-            </View>
+            
         </>
     )
 }
@@ -135,5 +154,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         zIndex: 2,
         width: '100%'
-    }
+    },
+    showMnemonicButton: {
+        textAlign: 'center',
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 12,
+        lineHeight: 15,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase'
+    },
 })
