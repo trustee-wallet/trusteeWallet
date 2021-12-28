@@ -898,10 +898,12 @@
       "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
     "step0Screen": {
+      "show": "Show QR",
       "phrase": "phrase",
       "qr": "Qr",
       "info": "The Recovery Phrase (mnemonic phrase, seed-phrase) is the secret access key to all balances in your wallet. Write it down, observing the word order, save it securely and do not pass it on to anyone!",
       "showButton": "Press and hold here to see the phrase",
+      "showQrButton": "Press to see the QR code",
       "next": "Next",
       "showQR" : "Get QR for import to another device",
       "hideQR" : "Get words for backup",
