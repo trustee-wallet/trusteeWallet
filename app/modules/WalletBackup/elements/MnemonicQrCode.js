@@ -69,6 +69,7 @@ const MnemonicQrCode = (props) => {
                     style={styles.wrapperQR}
                     onPress={showQr}
                     activeOpacity={1}
+                    disabled={show}
                 >
                     <View style={styles.qr}>
                         <QrCodeBox
@@ -100,6 +101,7 @@ const MnemonicQrCode = (props) => {
                 <TouchableOpacity
                     onPress={showQr}
                     activeOpacity={0.9}
+                    disabled={show}
                 >
                     <Text
                         style={[
