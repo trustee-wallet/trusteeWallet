@@ -66,6 +66,10 @@ export function getAddress() {
         }
     }
     Log.log('AccountReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType, actualIsSegwit })
+    
+    if(address.match(':')){
+        address = address.split(':')[1]
+    }
     return address
 }
 
@@ -88,4 +92,29 @@ export function getBalanceData(props) {
     const tmp = basicCurrencyBalanceNorm.toString()
     const beforeDecimal = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makeCut(tmp, 2).separated
     return { currencySymbol, beforeDecimal }
+}
+
+export function changeNetwork(currencyName, helperName) {
+    
+    if(currencyName === 'binancecoin'){
+        return 'bnb'
+    }
+
+    if(currencyName === 'velas' || helperName === 'velas'){
+        return 'velas'
+    }
+
+    if(currencyName === 'metis' || helperName === 'metis'){
+        return 'metis'
+    }
+
+    if(currencyName === 'bnbsmartchain' || helperName === 'bnbsmartchain'){
+        return 'bnbsmartchain'
+    }
+
+    if(currencyName === 'polygon(matic)network' || helperName === 'polygon(matic)network'){
+        return 'polygon'
+    }
+
+    return currencyName
 }

@@ -88,13 +88,27 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 res.data.currencyCode = 'ETH_RINKEBY'
             } else if (network === 'monero') {
                 res.data.currencyCode = 'XMR'
-            } else if (network === 'matic' || network === 'polygon') {
+            } else if (network === 'matic' || network === 'polygon' || network === 'polygon(matic)network') {
                 res.data.currencyCode = 'MATIC'
             } else if (network === 'velas' || network === 'vlx') {
                 res.data.currencyCode = 'VLX'
             } else if (network === 'binance' || network === 'bnb') {
                 res.data.currencyCode = 'BNB'
-            } else {
+            } else if (network === 'fio') {
+                res.data.currencyCode = 'FIO'
+            } else if (network === 'bnbsmartchain') {
+                res.data.currencyCode = 'BNB_SMART'
+            } else if (network === 'ethereumclassic'){
+                res.data.currencyCode = 'ETC'
+            } else if (network === 'vechainthor'){
+                res.data.currencyCode = 'VET'
+            } else if (network === 'vechainthortoken'){
+                res.data.currencyCode = 'VTHO'
+            } else if (network === 'metis'){
+                res.data.currencyCode = 'METIS'
+            } else if (network === 'bnbsmartchain'){
+                res.data.currencyCode = 'BNB_SMART'
+            } else { 
                 res.data.currencyCode = 'BTC'
             }
             Log.log('Utils.QR currencyCode Scanned ' + res.data.currencyCode)

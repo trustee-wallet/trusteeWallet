@@ -32,13 +32,16 @@ const onSuccess = async (param, qrCodeScannerConfig) => {
 }
 
 export namespace SendReceiveDeepLinking {
-    export const receiveDeepLink = () => { // actually copying SendDeepLinking.ts functions
+    export const receiveDeepLink = (from) => { // actually copying SendDeepLinking.ts functions
         Linking.getInitialURL()
             .then(url => {
+                if(from === 'ROUTER' && !CACHE_NOT_USED_URL){
+                    return
+                }
                 if (config.debug.appErrors) {
                     console.log('SendReceiveDeepLinking ' + url)
                 }
-                if (url != null && CACHE_NOT_USED_URL !== url) {
+                if (url != null) {
                     const qrCodeScannerConfig = {
                         currencyCode: false,
                         flowType: 'MAIN_SCANNER',
@@ -49,8 +52,8 @@ export namespace SendReceiveDeepLinking {
                     }
                     url = null
                     onSuccess(param, qrCodeScannerConfig)
-                    CACHE_NOT_USED_URL = url + ''
                 }
+                CACHE_NOT_USED_URL = false
             }).catch(error => {
             Log.err("Hmmm, error in deep link: " + error)
         })

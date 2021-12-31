@@ -64,7 +64,7 @@ import { getExplorerLink, handleShareInvoice } from '../helpers'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
-import { changeAddress, getAddress } from './helpers'
+import { changeAddress, getAddress, changeNetwork } from './helpers'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -144,7 +144,8 @@ class AccountReceiveScreen extends React.PureComponent {
 
             if (typeof extend.addressCurrencyCode !== 'undefined') {
                 let currencyName = BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
-                currencyName = currencyName.toLowerCase().replace(' ', '')
+                currencyName = changeNetwork(currencyName, extend.currencyName.toLowerCase().replace(/ /g, ""))
+                currencyName = currencyName.toLowerCase().replace(/ /g, "")
 
                 if (typeof extend.tokenAddress !== 'undefined') {
                     linkForQR = `${currencyName}:${address}?contractAddress=${extend.tokenAddress}&symbol=${currencySymbol}`
@@ -154,7 +155,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     linkForQR = `${currencyName}:${address}?symbol=${currencySymbol}`
                 }
             } else {
-                linkForQR = `${extend.currencyName.toLowerCase().replace(' ', '')}:${address}`
+                linkForQR = `${changeNetwork(extend.currencyName.toLowerCase().replace(/ /g, ""))}:${address}`
             }
             return linkForQR
         } catch (e) {
@@ -649,7 +650,7 @@ class AccountReceiveScreen extends React.PureComponent {
         ]
 
         const notEquivalentValue = this.state.amountInputMark ? this.state.amountInputMark : '0.00'
-
+        
         return (
             <ScreenWrapper
                 leftType='back'

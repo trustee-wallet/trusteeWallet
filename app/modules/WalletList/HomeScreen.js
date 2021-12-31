@@ -43,7 +43,6 @@ import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
 import { getNftsData } from '@app/appstores/Stores/Nfts/selectors'
-import { SendReceiveDeepLinking } from '@app/appstores/Stores/Send/SendReceiveDeepLinking'
 import { handleReceive, handleSend, handleHide, handleLateRefresh, getBalanceData, getSortedData, getDerivedState, getSectionsData } from './helpers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { getAccountList } from '@app/appstores/Stores/Account/selectors'
@@ -77,7 +76,7 @@ class HomeScreen extends React.PureComponent {
     async componentDidMount() {
         try {
             Log.log('WalletList.HomeScreen initDeepLinking')
-            SendDeepLinking.initDeepLinking()
+            SendDeepLinking.initDeepLinking()           
         } catch (e) {
             Log.log('WalletList.HomeScreen initDeepLinking error ' + e.message)
         }
@@ -212,8 +211,7 @@ class HomeScreen extends React.PureComponent {
             return <AppLockBlur />
         }
 
-        SendReceiveDeepLinking.receiveDeepLink()
-
+        
         const { colors, GRID_SIZE } = this.context
 
         const { sortValue } = this.state
