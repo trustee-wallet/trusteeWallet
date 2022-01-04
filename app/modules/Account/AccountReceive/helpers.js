@@ -11,6 +11,7 @@ import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 import DaemonCache from '@app/daemons/DaemonCache'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { HD } from '@crypto/common/QrScanDict'
 
 export async function changeAddress() {
 
@@ -95,26 +96,5 @@ export function getBalanceData(props) {
 }
 
 export function changeNetwork(currencyName, helperName) {
-    
-    if(currencyName === 'binancecoin'){
-        return 'bnb'
-    }
-
-    if(currencyName === 'velas' || helperName === 'velas'){
-        return 'velas'
-    }
-
-    if(currencyName === 'metis' || helperName === 'metis'){
-        return 'metis'
-    }
-
-    if(currencyName === 'bnbsmartchain' || helperName === 'bnbsmartchain'){
-        return 'bnbsmartchain'
-    }
-
-    if(currencyName === 'polygon(matic)network' || helperName === 'polygon(matic)network'){
-        return 'polygon'
-    }
-
-    return currencyName
+    return HD[helperName] || HD[currencyName] || currencyName
 }

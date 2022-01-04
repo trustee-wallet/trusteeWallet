@@ -42,13 +42,24 @@ export namespace SendReceiveDeepLinking {
                     console.log('SendReceiveDeepLinking ' + url)
                 }
                 if (url != null) {
+                    let tmpUrl: any = url.split('symbol')
+                    
+                    if(tmpUrl.length === 2){
+                        tmpUrl = tmpUrl[0].slice(0, -1)
+                    }
+
+                    if(Array.isArray(tmpUrl)){
+                        tmpUrl = tmpUrl[0]
+                    }
+
                     const qrCodeScannerConfig = {
                         currencyCode: false,
                         flowType: 'MAIN_SCANNER',
                         callback: false
                     }
+
                     const param = {
-                        data: url,
+                        data: tmpUrl,
                     }
                     url = null
                     onSuccess(param, qrCodeScannerConfig)
