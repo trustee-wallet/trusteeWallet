@@ -3,7 +3,7 @@
  * @version 0.44
  * @author yura
  */
-import React , { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Platform } from 'react-native'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'

@@ -76,7 +76,7 @@ class HomeScreen extends React.PureComponent {
     async componentDidMount() {
         try {
             Log.log('WalletList.HomeScreen initDeepLinking')
-            SendDeepLinking.initDeepLinking()           
+            SendDeepLinking.initDeepLinking()
         } catch (e) {
             Log.log('WalletList.HomeScreen initDeepLinking error ' + e.message)
         }

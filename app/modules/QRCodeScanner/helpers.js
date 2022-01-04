@@ -29,7 +29,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         NavStore.goNext('NftDetailedInfoQRCheck', {jsonData : param.data.substring(11)})
         return
     }
-    
+
     const { currencyCode, flowType, callback } = qrCodeScannerConfig
 
     if (flowType === QRCodeScannerFlowTypes.ADD_MNEMONIC_SCANNER) {
@@ -67,7 +67,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
 
 
     const res = await decodeTransactionQrCode(param, currencyCode)
-    
+
     if (typeof res.data.isWalletConnect !== 'undefined' && res.data.isWalletConnect) {
         if (flowType === QRCodeScannerFlowTypes.WALLET_CONNECT_SCANNER && callback) {
             NavStore.goBack()
