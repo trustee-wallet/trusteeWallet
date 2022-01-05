@@ -54,6 +54,40 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>wc</string>
+				<string>bitcoin</string>
+				<string>ethereum</string>
+				<string>litecoin</string>
+				<string>tron</string>
+				<string>litecoin</string>
+				<string>binancecoin</string>
+				<string>bnbsmartchain</string>
+				<string>polygon(matic)network</string>
+				<string>matic</string>
+				<string>polygon</string>
+				<string>fio</string>
+				<string>aeneas</string>
+				<string>ambrosus</string>
+				<string>bitcoin(testnet)</string>
+				<string>bitcoincash</string>
+				<string>bitcoingold</string>
+				<string>bitcoinsv</string>
+				<string>dogecoin</string>
+				<string>ethereumclassic</string>
+				<string>ethereumropsten</string>
+				<string>ethereumrinkeby</string>
+				<string>fantomnetwork</string>
+				<string>monero</string>
+				<string>optimisticethereum</string>
+				<string>ripple</string>
+				<string>solana</string>
+				<string>stellar</string>
+				<string>vechainthor</string>
+				<string>vechainthortoken</string>
+				<string>verge</string>
+				<string>waves</string>
+				<string>velas</string>
+				<string>bnb</string>
+				<string>metis</string>
 			</array>
 		</dict>
 		<dict>

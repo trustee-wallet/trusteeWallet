@@ -73,15 +73,35 @@ willPresentNotification:(UNNotification *)notification
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
-- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    if ([RNBranch application:app openURL:url options:options])  {
-        // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
-    }
-    return YES;
-}
+// - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+//     if ([RNBranch application:app openURL:url options:options])  {
+//         // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
+//     }
+//     return YES;
+// }
 
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
   return [RNBranch continueUserActivity:userActivity];
+}
+
+// iOS 9.x or newer
+- (BOOL)application:(UIApplication *)application
+   openURL:(NSURL *)url
+   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+
+  if ([RNBranch application:application openURL:url options:options])  {
+    // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
+  }
+  return [RCTLinkingManager application:application openURL:url options:options];
+}
+
+// iOS 8.x or older
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+  return [RCTLinkingManager application:application openURL:url
+                      sourceApplication:sourceApplication annotation:annotation];
 }
 
 /*

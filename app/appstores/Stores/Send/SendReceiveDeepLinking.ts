@@ -11,9 +11,8 @@ import NavStore from '@app/components/navigation/NavStore'
 import { finishProcess } from '@app/modules/QRCodeScanner/helpers'
 import config from '@app/config/config'
 
-let CACHE_NOT_USED_URL = true
 
-const onSuccess = async (param, qrCodeScannerConfig) => {
+const onSuccess = async (param: any, qrCodeScannerConfig: any) => {
     try {
         // UpdateOneByOneDaemon.unpause()
         // UpdateOneByOneDaemon.unstop()
@@ -31,41 +30,48 @@ const onSuccess = async (param, qrCodeScannerConfig) => {
     }
 }
 
+const openUrl = (url: string, sourse: string) => {
+
+    if (config.debug.appErrors) {
+        console.log('SendReceiveDeepLinking ' + url)
+    }
+    if (url != null) {
+        let tmpUrl: any = url.split('symbol')
+        
+        if(tmpUrl.length === 2){
+            tmpUrl = tmpUrl[0].slice(0, -1)
+        }
+
+        if(Array.isArray(tmpUrl)){
+            tmpUrl = tmpUrl[0]
+        }
+
+        const qrCodeScannerConfig = {
+            currencyCode: false,
+            flowType: 'MAIN_SCANNER',
+            callback: false
+        }
+
+        const param = {
+            data: tmpUrl,
+        }
+        onSuccess(param, qrCodeScannerConfig)
+    }
+}
+
 export namespace SendReceiveDeepLinking {
-    export const receiveDeepLink = (from) => { // actually copying SendDeepLinking.ts functions
+    export const receiveDeepLink = (url: any) => { // actually copying SendDeepLinking.ts functions
+
+        if (url) {
+            openUrl(url, 'DeepLinking eventListenter url')
+            return   
+        }
+
         Linking.getInitialURL()
-            .then(url => {
-                if(from === 'ROUTER' && !CACHE_NOT_USED_URL){
-                    return
-                }
-                if (config.debug.appErrors) {
-                    console.log('SendReceiveDeepLinking ' + url)
-                }
-                if (url != null) {
-                    let tmpUrl: any = url.split('symbol')
-                    
-                    if(tmpUrl.length === 2){
-                        tmpUrl = tmpUrl[0].slice(0, -1)
-                    }
-
-                    if(Array.isArray(tmpUrl)){
-                        tmpUrl = tmpUrl[0]
-                    }
-
-                    const qrCodeScannerConfig = {
-                        currencyCode: false,
-                        flowType: 'MAIN_SCANNER',
-                        callback: false
-                    }
-
-                    const param = {
-                        data: tmpUrl,
-                    }
-                    url = null
-                    onSuccess(param, qrCodeScannerConfig)
-                }
-                CACHE_NOT_USED_URL = false
-            }).catch(error => {
+            .then((url: any) => {
+                openUrl(url, 'DeepLinking Init app')
+            })
+            .catch(error => {
             Log.err("Hmmm, error in deep link: " + error)
         })
     }

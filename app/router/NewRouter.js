@@ -125,10 +125,10 @@ const HomeStackScreen = () => {
 
     useEffect(() => {
         if(!CASHE_USED){
-            SendReceiveDeepLinking.receiveDeepLink("ROUTER")
+            SendReceiveDeepLinking.receiveDeepLink(null, 'Init app')
             CASHE_USED = true
         }
-    }, [] )
+    }, [])
 
     return (
         <HomeStack.Navigator initialRouteName='HomeScreenPop'>

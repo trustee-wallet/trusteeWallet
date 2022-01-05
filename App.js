@@ -34,8 +34,8 @@ appsFlyer.initSdk(
 
 enableScreens()
 
-const hendler = () => {
-    SendReceiveDeepLinking.receiveDeepLink("APP")
+const handler = ({ url }) => {
+    SendReceiveDeepLinking.receiveDeepLink(url)
 }
 
 export default class App extends React.Component {
@@ -48,11 +48,11 @@ export default class App extends React.Component {
                 UIManager.setLayoutAnimationEnabledExperimental(true)
             }
         }
-        Linking.addEventListener('url', hendler)
+        Linking.addEventListener('url', handler)
     }
 
     componentWillUnmount() {
-        Linking.removeEventListener('url', hendler)
+        Linking.removeEventListener('url', handler)
     }
 
     render() {
