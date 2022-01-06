@@ -41,12 +41,15 @@ const currencyNameToNetwork = {
    'velas': 'velas',
    'metis': 'metis',
    'bnbsmartchain': 'bnbsmartchain',
-   'polygon(matic)network': 'polygon' 
+   'polygon(matic)network': 'polygon'
 }
 
 
-function changeCurrencyNameToNetwork(currencyName, helperName) {
-    return currencyNameToNetwork[helperName] || currencyNameToNetwork[currencyName] || currencyName
+function changeCurrencyNameToNetwork(_currencyName, _helperName) {
+    let helperName = typeof _helperName !== 'undefined' && _helperName ? _helperName.toLowerCase().replace(/ /g, "") : ''
+    let currencyName = typeof _currencyName !== 'undefined' && _currencyName ? _currencyName.toLowerCase().replace(/ /g, "") : ''
+    let tmp = currencyNameToNetwork[helperName] || currencyNameToNetwork[currencyName] || currencyName
+    return tmp.toLowerCase().replace(/ /g, "")
 }
 
 function changeNetworkToCurrencyCode(network){
