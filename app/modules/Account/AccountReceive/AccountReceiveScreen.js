@@ -144,10 +144,9 @@ class AccountReceiveScreen extends React.PureComponent {
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             let linkForQR = ''
 
-            if (typeof extend.addressCurrencyCode !== 'undefined') {
-                let currencyName = BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
+            if (typeof extend.tokenBlockchain !== 'undefined' || typeof extend.addressCurrencyCode !== 'undefined') {
+                let currencyName = extend.tokenBlockchain !== 'undefined' ? ('token_of_' + extend.tokenBlockchain) : BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
                 currencyName = changeCurrencyNameToNetwork(currencyName, extend.currencyName)
-
                 if (typeof extend.tokenAddress !== 'undefined') {
                     linkForQR = `${currencyName}:${address}?contractAddress=${extend.tokenAddress}&symbol=${currencySymbol}`
                 } else if (typeof extend.tokenName !== 'undefined') {
