@@ -79,6 +79,7 @@ class UpdateCurrencyRateDaemon {
                 }
 
                 if (!currency) {
+                    Log.daemon('UpdateCurrencyRateDaemon warning - no currency rate for ' + dbCurrency.currencyCode)
                     continue
                 }
                 if (typeof CACHE_SAVED[dbCurrency.currencyCode] !== 'undefined' && CACHE_SAVED[dbCurrency.currencyCode] === currency.currencyRateScanTime) {
