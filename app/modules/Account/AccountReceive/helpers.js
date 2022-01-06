@@ -11,7 +11,7 @@ import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 import DaemonCache from '@app/daemons/DaemonCache'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { HD } from '@crypto/common/QrScanDict'
+
 
 export async function changeAddress() {
 
@@ -93,8 +93,4 @@ export function getBalanceData(props) {
     const tmp = basicCurrencyBalanceNorm.toString()
     const beforeDecimal = BlocksoftPrettyNumbers.setCurrencyCode('BTC').makeCut(tmp, 2).separated
     return { currencySymbol, beforeDecimal }
-}
-
-export function changeNetwork(currencyName, helperName) {
-    return HD[helperName] || HD[currencyName] || currencyName
 }

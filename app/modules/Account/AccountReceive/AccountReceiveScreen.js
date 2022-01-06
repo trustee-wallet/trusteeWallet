@@ -64,7 +64,9 @@ import { getExplorerLink, handleShareInvoice } from '../helpers'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
-import { changeAddress, getAddress, changeNetwork } from './helpers'
+import { changeAddress, getAddress } from './helpers'
+
+import { changeCurrencyNameToNetwork } from '@crypto/common/BlocksoftQrScanDict'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -144,7 +146,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
             if (typeof extend.addressCurrencyCode !== 'undefined') {
                 let currencyName = BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
-                currencyName = changeNetwork(currencyName, extend.currencyName.toLowerCase().replace(/ /g, ""))
+                currencyName = changeCurrencyNameToNetwork(currencyName, extend.currencyName.toLowerCase().replace(/ /g, ""))
                 currencyName = currencyName.toLowerCase().replace(/ /g, "")
 
                 if (typeof extend.tokenAddress !== 'undefined') {
@@ -155,7 +157,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     linkForQR = `${currencyName}:${address}?symbol=${currencySymbol}`
                 }
             } else {
-                linkForQR = `${changeNetwork(extend.currencyName.toLowerCase().replace(/ /g, ""))}:${address}`
+                linkForQR = `${changeCurrencyNameToNetwork(extend.currencyName.toLowerCase().replace(/ /g, ""))}:${address}`
             }
             return linkForQR
         } catch (e) {

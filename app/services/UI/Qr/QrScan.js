@@ -5,7 +5,7 @@ import Log from '../../Log/Log'
 import MarketingEvent from '../../Marketing/MarketingEvent'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import _ from 'lodash'
-import { QSD } from '@crypto/common/QrScanDict'
+import { changeNetworkToCurrencyCode } from '@crypto/common/BlocksoftQrScanDict'
 
 const axios = require('axios')
 
@@ -63,7 +63,7 @@ export async function decodeTransactionQrCode(param, currencyCode) {
         } else {
             const network = tmp[0].toLowerCase()
             tmp.shift()
-            res.data.currencyCode = QSD[network] || 'BTC'
+            res.data.currencyCode = changeNetworkToCurrencyCode(network)
             Log.log('Utils.QR currencyCode Scanned ' + res.data.currencyCode)
         }
 

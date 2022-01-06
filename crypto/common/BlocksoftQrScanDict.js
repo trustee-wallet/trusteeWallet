@@ -1,4 +1,4 @@
-const QSD = {
+const networkToCurrencyCode = {
     'litecoin': 'LTC',
     'ltc': 'LTC',
     'bitcoingold': 'BTG',
@@ -36,7 +36,7 @@ const QSD = {
     'metis': 'METIS'
 }
 
-const HD = {
+const currencyNameToNetwork = {
    'binancecoin': 'bnb',
    'velas': 'velas',
    'metis': 'metis',
@@ -44,4 +44,14 @@ const HD = {
    'polygon(matic)network': 'polygon' 
 }
 
-export { QSD, HD}
+
+function changeCurrencyNameToNetwork(currencyName, helperName) {
+    return currencyNameToNetwork[helperName] || currencyNameToNetwork[currencyName] || currencyName
+}
+
+function changeNetworkToCurrencyCode(network){
+    return networkToCurrencyCode[network] || 'BTC'
+}
+
+
+export { changeNetworkToCurrencyCode, changeCurrencyNameToNetwork}
