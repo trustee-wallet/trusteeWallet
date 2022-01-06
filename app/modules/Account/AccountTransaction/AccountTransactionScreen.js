@@ -106,7 +106,7 @@ class AccountTransactionScreen extends PureComponent {
         }
     }
 
-    onLongPressEditableCallback = () => {
+    handleEditableCallback = () => {
         this.setState({
             commentEditable: true
         })
@@ -184,7 +184,7 @@ class AccountTransactionScreen extends PureComponent {
             <>
                 {commentToView ?
                     !commentEditable ?
-                        <TouchableOpacity onPress={this.onLongPressEditableCallback}>
+                        <TouchableOpacity onPress={this.handleEditableCallback}>
                             <TransactionItem
                                 title={commentToView.title}
                                 iconType='notes'
@@ -201,7 +201,7 @@ class AccountTransactionScreen extends PureComponent {
                                 value={commentToView !== null ? commentToView.description : commentToView}
                                 inputBaseColor={'#f4f4f4'}
                                 inputTextColor={'#f4f4f4'}
-                                style={{ ...styles.input, color: colors.common.text2 }}
+                                inputStyle={{ ...styles.input, color: colors.common.text2 }}
                                 placeholderTextColor={colors.common.text2}
                                 paste={true}
                                 callback={this.handleCommentChange}
