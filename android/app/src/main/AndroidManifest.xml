@@ -97,13 +97,11 @@
                 <data android:scheme="litecoin" />
                 <data android:scheme="binancecoin" />
                 <data android:scheme="bnbsmartchain" />
-                <data android:scheme="polygon(matic)network" />
                 <data android:scheme="matic" />
                 <data android:scheme="polygon" />
                 <data android:scheme="fio" />
                 <data android:scheme="aeneas" />
                 <data android:scheme="ambrosus" />
-                <data android:scheme="bitcoin(testnet)" />
                 <data android:scheme="bitcoincash" />
                 <data android:scheme="bitcoingold" />
                 <data android:scheme="bitcoinsv" />
