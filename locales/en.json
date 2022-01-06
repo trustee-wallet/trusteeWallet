@@ -905,7 +905,7 @@
       "qr": "Qr-code",
       "info": "The Recovery Phrase (mnemonic phrase, seed-phrase) is the secret access key to all balances in your wallet. Write it down, observing the word order, save it securely and do not pass it on to anyone!",
       "showButton": "Press and hold here to see the phrase",
-      "showQrButton": "Press to see the QR-code",
+      "showQrButton": "Press and hold here to see the QR-code",
       "next": "Next",
       "showQR" : "Get QR-code for import to another device",
       "hideQR" : "Get words for backup",
