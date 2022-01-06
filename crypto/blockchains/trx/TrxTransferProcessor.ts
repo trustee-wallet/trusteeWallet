@@ -428,7 +428,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
                 if (this._tokenName[0] === 'T') {
                     link = sendLink + '/wallet/triggersmartcontract'
-                    const parameter = '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(BlocksoftUtils.round(data.amount), 20)
+                    const parameter = '0000000000000000000000' + toAddress.toUpperCase() + '000000000000000000000000' + BlocksoftUtils.decimalToHex(BlocksoftUtils.round(data.amount), 40)
                     params = {
                         owner_address: ownerAddress,
                         contract_address: TronUtils.addressToHex(this._tokenName),

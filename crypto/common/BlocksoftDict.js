@@ -124,6 +124,13 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.tokenBlockchain = 'FTM'
         tmp.currencyExplorerLink = 'https://ftmscan.com/token/' + currencyObject.tokenAddress + '?a='
+    } else if (currencyObject.tokenType === 'VLX_ERC_20') {
+        tmp.currencyCode = 'CUSTOM_VLX_ERC_20_' + currencyObject.currencyCode
+        tmp.extendsProcessor = 'VLX_USDT'
+        tmp.addressUiChecker = 'ETH'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'VLX'
+        tmp.currencyExplorerLink = 'https://evmexplorer.velas.com/tokens/' + currencyObject.tokenAddress
     } else if (currencyObject.tokenType === 'SOL') {
         tmp.currencyCode = 'CUSTOM_SOL_' + currencyObject.currencyCode
         tmp.extendsProcessor = 'SOL_RAY'
