@@ -367,6 +367,7 @@ class CashbackScreen extends React.PureComponent {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollViewContent}
                     keyboardShouldPersistTaps='handled'
+                    scrollEnabled={this.state.index === 1}
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
