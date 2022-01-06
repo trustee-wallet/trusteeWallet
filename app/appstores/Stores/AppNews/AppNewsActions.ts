@@ -38,8 +38,7 @@ export namespace AppNewsActions {
                 setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
                     await Log.log('ACT/AppNewsActions onOpen after lock screen')
                     if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
-                        NavStore.reset('HomeScreen')
-                        NavStore.goNext('NotificationsScreen')
+                        NavStore.reset('NotificationsScreen')
                     }  else {
                         NavStore.reset('TabBar')
                     }
