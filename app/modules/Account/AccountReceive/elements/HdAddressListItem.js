@@ -118,15 +118,19 @@ class HdAddressListItem extends React.PureComponent {
     onBlurInput = () => {
         const { addressName } = this.state
         this.nameInputRef.blur()
+
         this.setState(() => ({ 
             isEditing: false
         }))
+
         if (addressName !== '' || addressName !== null) {
             const params = {
                 addressName
             }
             this.updateAddressName(params)
         }
+
+        Toast.setMessage(strings('toast.saved')).show()
     }
 
     onChangeName = (text) => {
@@ -145,10 +149,10 @@ class HdAddressListItem extends React.PureComponent {
         return (
             <View>
                 <Input
-                    inputStyle={[styles.addressName, { marginTop: -GRID_SIZE * 2, backgroundColor: 'transparent', position: 'relative', top: GRID_SIZE, width: 150}]}
-                    containerStyle={[styles.containerInput, { marginLeft: -GRID_SIZE, width: 'auto'  }]}
+                    inputStyle={[styles.addressName, { marginTop: -GRID_SIZE * 2, top: GRID_SIZE }]}
+                    containerStyle={[styles.containerInput, { marginLeft: -GRID_SIZE }]}
                     compRef={ref => this.nameInputRef = ref}
-                    placeholder='Address name'
+                    placeholder={strings('account.receiveScreen.addressName')}
                     editable={this.state.isEditing}
                     onBlur={this.onBlurInput}
                     onChangeText={this.onChangeName}
@@ -296,7 +300,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 18,
         letterSpacing: 1,
-        color: '#999999'
+        color: '#999999',
+        backgroundColor: 'transparent', 
+        position: 'relative',
+        width: 150
     },
     address: {
         fontSize: 14,

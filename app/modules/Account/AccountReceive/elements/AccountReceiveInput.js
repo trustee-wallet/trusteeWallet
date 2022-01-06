@@ -173,7 +173,9 @@ class AccountReceiveInput extends Component {
             noEdit,
             enoughFunds = false,
             maxLength,
-            maxWidth = 17
+            maxWidth = 17,
+            focused,
+            onBlur
         } = this.props
 
         const { colors } = this.context
@@ -186,7 +188,7 @@ class AccountReceiveInput extends Component {
                 <TextInput
                     ref={component => this.valueInput = component}
                     keyboardType={'numeric'}
-                    placeholder={'0.00'}
+                    placeholder={focused === true ? '' : '0.00'}
                     placeholderTextColor={colors.sendScreen.amount }
                     fontSize={this.state.fontSize}
                     selectionColor={'#7127ac'}
@@ -196,8 +198,11 @@ class AccountReceiveInput extends Component {
                         { ...styles.fontFamily, color: enoughFunds ? '#864DD9' : colors.sendScreen.amount, maxWidth: maxWidth, lineHeight: fontSize + 4,
                         bottom: Platform.OS === 'android' ? fontSize === 20 ? -6 : 0 : fontSize === 20 ? -4 : 0 }}
                     onChangeText={(value) => this.handleInput(value)}
-                    onBlur={() => {
+                    onBlur={typeof onBlur === 'undefined' ? () => {
                         this.setState({ focus: false })
+                    } : () => {
+                        this.setState({ focus: false })
+                        onBlur()
                     }}
                     onFocus={typeof onFocus === 'undefined' ? () => {
                         this.setState({ focus: true })

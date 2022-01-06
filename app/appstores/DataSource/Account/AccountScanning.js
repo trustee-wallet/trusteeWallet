@@ -2,8 +2,8 @@
  * @version 0.9
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
-import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
+import Log from '@app/services/Log/Log'
+import BlocksoftFixBalance from '@crypto/common/BlocksoftFixBalance'
 import store from '@app/store'
 
 class AccountScanning {

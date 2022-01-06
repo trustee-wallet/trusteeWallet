@@ -309,13 +309,6 @@ class AccountReceiveScreen extends React.PureComponent {
         }
     }
 
-    // handleChangeTab = (index) => {
-    //     this.setState({
-    //         index
-    //     })
-
-    // }
-
     renderTabs = (tabs) => {
         const { GRID_SIZE } = this.context
         return (
@@ -438,6 +431,19 @@ class AccountReceiveScreen extends React.PureComponent {
             inputType,
             amountForQr
         })
+    }
+
+    onBlur = () => {
+        this.setState({
+            focused: false
+        })
+
+        setTimeout(() => {
+            try {
+                this.scrollView.scrollTo({ y: 0 })
+            } catch (e) {
+            }
+        }, 500)
     }
 
     onFocus = () => {
@@ -602,7 +608,8 @@ class AccountReceiveScreen extends React.PureComponent {
             amountInputMark: '',
             amountForQr: '',
             labelForQr: '',
-            inputType: 'CRYPTO'
+            inputType: 'CRYPTO',
+            focused: false
         })
     }
 
@@ -631,7 +638,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
     render() {
 
-        const { fioName, customAmount, amountForQr, labelForQr, inputType, walletIsHd } = this.state
+        const { fioName, customAmount, amountForQr, labelForQr, inputType, walletIsHd, focused } = this.state
         const { basicCurrencyCode, address } = this.props.selectedAccountData
         const { currencyCode, currencySymbol, decimals} = this.props.selectedCryptoCurrencyData
 
@@ -708,12 +715,14 @@ class AccountReceiveScreen extends React.PureComponent {
                                                     ref={component => this.refAmountInput = component}
                                                     id={amountInput.id}
                                                     additional={amountInput.additional}
-                                                    onFocus={() => this.onFocus()}
+                                                    onFocus={this.onFocus}
                                                     type={amountInput.type}
                                                     decimals={decimals < 10 ? decimals : 10}
                                                     callback={(value) => this.amountInputCallback(value, true)}
                                                     maxLength={17}
                                                     maxWidth={SCREEN_WIDTH * 0.6}
+                                                    focused={focused}
+                                                    onBlur={this.onBlur}
                                                 />
                                                 <Text style={{ ...styles.ticker, color: colors.sendScreen.amount }}>
                                                     {inputType === 'CRYPTO' ? currencyCode : basicCurrencyCode}
