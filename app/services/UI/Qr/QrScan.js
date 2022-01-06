@@ -5,6 +5,7 @@ import Log from '../../Log/Log'
 import MarketingEvent from '../../Marketing/MarketingEvent'
 import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import _ from 'lodash'
+import { changeNetworkToCurrencyCode } from '@crypto/common/BlocksoftQrScanDict'
 
 const axios = require('axios')
 
@@ -62,41 +63,7 @@ export async function decodeTransactionQrCode(param, currencyCode) {
         } else {
             const network = tmp[0].toLowerCase()
             tmp.shift()
-            if (network === 'litecoin' || network === 'ltc') {
-                res.data.currencyCode = 'LTC'
-            } else if (network === 'bitcoingold' || network === 'btg') {
-                res.data.currencyCode = 'BTG'
-            } else if (network === 'bitcoinsv' || network === 'bsv') {
-                res.data.currencyCode = 'BSV'
-            } else if (network === 'tron' || network === 'trx') {
-                res.data.currencyCode = 'TRX'
-            } else if (network === 'ripple' || network === 'xrp') {
-                res.data.currencyCode = 'XRP'
-            } else if (network === 'stellar' || network === 'xlm') {
-                res.data.currencyCode = 'XLM'
-            } else if (network === 'doge' || network === 'dogecoin') {
-                res.data.currencyCode = 'DOGE'
-            } else if (network === 'ethereum' || network === 'eth') {
-                res.data.currencyCode = 'ETH'
-            } else if (network === 'verge' || network === 'xvg') {
-                res.data.currencyCode = 'XVG'
-            } else if (network === 'bitcoin(testnet)') {
-                res.data.currencyCode = 'BTC_TEST'
-            } else if (network === 'ethereumropsten') {
-                res.data.currencyCode = 'ETH_ROPSTEN'
-            } else if (network === 'ethereumrinkeby') {
-                res.data.currencyCode = 'ETH_RINKEBY'
-            } else if (network === 'monero') {
-                res.data.currencyCode = 'XMR'
-            } else if (network === 'matic' || network === 'polygon') {
-                res.data.currencyCode = 'MATIC'
-            } else if (network === 'velas' || network === 'vlx') {
-                res.data.currencyCode = 'VLX'
-            } else if (network === 'binance' || network === 'bnb') {
-                res.data.currencyCode = 'BNB'
-            } else {
-                res.data.currencyCode = 'BTC'
-            }
+            res.data.currencyCode = changeNetworkToCurrencyCode(network)
             Log.log('Utils.QR currencyCode Scanned ' + res.data.currencyCode)
         }
 

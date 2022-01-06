@@ -160,7 +160,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         if (typeof cryptoCurrency === 'undefined') {
             showModal({
                 type: 'YES_NO_MODAL',
-                icon: 'INFO',
+                icon: 'WARNING',
                 title: strings('modal.exchange.sorry'),
                 description: strings('modal.tokenNotAdded.description'),
                 noCallback: () => {

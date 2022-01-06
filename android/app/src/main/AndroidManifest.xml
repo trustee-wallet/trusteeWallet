@@ -88,6 +88,43 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="uobg.app.link" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="litecoin" />
+                <data android:scheme="tron" />
+                <data android:scheme="litecoin" />
+                <data android:scheme="binancecoin" />
+                <data android:scheme="bnbsmartchain" />
+                <data android:scheme="polygon(matic)network" />
+                <data android:scheme="matic" />
+                <data android:scheme="polygon" />
+                <data android:scheme="fio" />
+                <data android:scheme="aeneas" />
+                <data android:scheme="ambrosus" />
+                <data android:scheme="bitcoin(testnet)" />
+                <data android:scheme="bitcoincash" />
+                <data android:scheme="bitcoingold" />
+                <data android:scheme="bitcoinsv" />
+                <data android:scheme="dogecoin" />
+                <data android:scheme="ethereumclassic" />
+                <data android:scheme="ethereumropsten" />
+                <data android:scheme="ethereumrinkeby" />
+                <data android:scheme="fantomnetwork" />
+                <data android:scheme="monero" />
+                <data android:scheme="optimisticethereum" />
+                <data android:scheme="ripple" />
+                <data android:scheme="solana" />
+                <data android:scheme="stellar" />
+                <data android:scheme="vechainthor" />
+                <data android:scheme="vechainthortoken" />
+                <data android:scheme="verge" />
+                <data android:scheme="waves" />
+                <data android:scheme="velas" />
+                <data android:scheme="bnb" />
+                <data android:scheme="metis" />
+            </intent-filter>
         </activity>
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
         <receiver android:name="com.google.android.gms.measurement.AppMeasurementInstallReferrerReceiver"
