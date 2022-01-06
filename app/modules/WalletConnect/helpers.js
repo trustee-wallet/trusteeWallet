@@ -71,7 +71,9 @@ export async function handleStop(isConnected) {
 
 export async function handleApplyLink(checkLock = true, inputFullLink = '') {
     try {
-
+        if (!inputFullLink || inputFullLink === '') {
+            return false
+        }
         await this._init({ fullLink: inputFullLink })
     } catch (e) {
         if (config.debug.cryptoErrors) {

@@ -122,8 +122,9 @@ class WalletConnectScreen extends PureComponent {
     }
 
     handleLinkApply = (checkLock) => {
+        const { inputFullLink } = this.state
         checkLock = !this.props.walletConnectData.isConnected
-        handleApplyLink.call(this, checkLock)
+        handleApplyLink.call(this, checkLock, inputFullLink)
     }
 
     handleDisconnect = (isConnected) => {
@@ -176,10 +177,10 @@ class WalletConnectScreen extends PureComponent {
                 this.setState({ linkError: true })
             }
             if (e.message.indexOf('URI format') === -1) {
-                Log.log('WalletConnect.init error ' + e.message)
+                Log.log('WalletConnect.init error1 ' + e.message)
                 this.setState({ linkError: true })
             } else {
-                Log.log('WalletConnect.init error ' + e.message)
+                Log.log('WalletConnect.init error2 ' + e.message)
                 this.setState({ linkError: true })
             }
             this.setState({
