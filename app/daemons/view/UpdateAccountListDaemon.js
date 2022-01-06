@@ -20,6 +20,10 @@ import BlocksoftBN from '../../../crypto/common/BlocksoftBN'
 import MarketingEvent from '../../services/Marketing/MarketingEvent'
 import { BlocksoftTransferUtils } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransferUtils'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
+import config from '@app/config/config'
+import Database from '@app/appstores/DataSource/Database/main'
 
 let CACHE_PAUSE = 0
 
@@ -300,7 +304,7 @@ class UpdateAccountListDaemon extends Update {
 
             for (tmpCurrency of currentStore.currencyStore.cryptoCurrencies) {
                 const currencyCode = tmpCurrency.currencyCode
-
+                if (currencyCode === 'NFT' || currencyCode==='CASHBACK') continue
                 let rate = 0
                 if (!tmpCurrency.currencyRateJson || typeof tmpCurrency.currencyRateJson[basicCurrencyCode] === 'undefined') {
                     if (basicCurrencyCode === 'USD') {
@@ -338,7 +342,52 @@ class UpdateAccountListDaemon extends Update {
                                 return this.updateAccountListDaemon({ source: 'regenerate' })
                             }
                         } else {
-                            Log.daemon('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode)
+                            if (config.debug.appErrors) {
+                                console.log('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' but started regeneration')
+                            }
+                            Log.daemon('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' but started regeneration')
+
+                            // low code as something strange if no account but there is currency
+                            const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(tmpWalletHash, 'UpdateAccountListDaemon')
+                            let accounts = await BlocksoftKeys.discoverAddresses({ mnemonic, fullTree: false, fromIndex: 0, toIndex: 1, currencyCode }, 'APP_ACCOUNTS_LIST')
+                            if (typeof accounts[currencyCode] === 'undefined') {
+                                if (config.debug.appErrors) {
+                                    console.log('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' fail regeneration')
+                                }
+                                Log.daemon('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' fail regeneration')
+                            } else {
+                                const prepare = []
+                                for (const account of accounts[currencyCode]) {
+                                    const derivationPath = Database.escapeString(account.path)
+                                    let accountJson = ''
+                                    if (typeof (account.addedData) !== 'undefined') {
+                                        accountJson = Database.escapeString(JSON.stringify(account.addedData))
+                                    }
+                                    const tmp = {
+                                        address: account.address,
+                                        name: '',
+                                        derivationPath: derivationPath,
+                                        derivationIndex: account.index,
+                                        derivationType: account.type,
+                                        alreadyShown: account.alreadyShown ? 1 : 0,
+                                        status: 0,
+                                        currencyCode,
+                                        walletHash: tmpWalletHash,
+                                        walletPubId: 0,
+                                        accountJson: accountJson,
+                                        transactionsScanTime: 0
+                                    }
+                                    if (typeof account.walletPubId !== 'undefined') {
+                                        tmp.walletPubId = account.walletPubId
+                                        params.walletPubId = tmp.walletPubId
+                                    } else if (typeof params.walletPubId !== 'undefined') {
+                                        tmp.walletPubId = params.walletPubId
+                                    }
+                                    prepare.push(tmp)
+                                }
+                                await Database.setTableName('account').setInsertData({ insertObjs: prepare }).insert()
+                            }
+                            // end low code
                         }
                         continue
                     }
