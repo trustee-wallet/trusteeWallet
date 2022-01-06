@@ -18,7 +18,7 @@ const onSuccess = async (param: any, qrCodeScannerConfig: any) => {
         // UpdateOneByOneDaemon.unstop()
         await finishProcess(param, qrCodeScannerConfig)
     } catch (e) {
-        Log.err('QRCodeScanner.onSuccess error ' + e.message)
+        Log.err('SendReceiveDeepLinking.onSuccess error ' + e.message)
         showModal({
             type: 'INFO_MODAL',
             icon: 'INFO',
@@ -61,6 +61,8 @@ const openUrl = (url: string, sourse: string) => {
 
 export namespace SendReceiveDeepLinking {
     export const receiveDeepLink = (url: any) => { // actually copying SendDeepLinking.ts functions
+        
+        Log.log("SendReceiveDeepLinking.receiveDeepLink url " + url)
 
         if (url) {
             openUrl(url, 'DeepLinking eventListenter url')
@@ -72,7 +74,7 @@ export namespace SendReceiveDeepLinking {
                 openUrl(url, 'DeepLinking Init app')
             })
             .catch(error => {
-            Log.err("Hmmm, error in deep link: " + error)
+            Log.err("SendReceiveDeepLinking.Linking.getInitialURL error " + error)
         })
     }
 }
