@@ -72,7 +72,7 @@ const CACHE = {
     'OPTIMISM_PRICE' : 15000000,
     'OPTIMISM_GAS_LIMIT' : 2320100000,
     'OPTIMISM_MIN_GAS_LIMIT' : 23201000,
-    'MATIC_SERVER' : 'https://rpc-mainnet.maticvigil.com',
+    'MATIC_SERVER' : 'https://polygon-rpc.com',
     'MATIC_PRICE' : 1000000000,
     'MATIC_GAS_LIMIT' : 620000,
     'FTM_SERVER' : 'https://rpc.ftm.tools',

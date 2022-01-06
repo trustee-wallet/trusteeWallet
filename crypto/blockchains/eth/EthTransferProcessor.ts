@@ -41,6 +41,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         let txRBFed = ''
         let txRBF = false
 
+        this.checkWeb3CurrentServerUpdated()
+
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate remove started ' + data.transactionRemoveByFee)
             txRBF = data.transactionRemoveByFee

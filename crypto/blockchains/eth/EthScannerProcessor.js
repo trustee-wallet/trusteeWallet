@@ -144,11 +144,13 @@ export default class EthScannerProcessor extends EthBasic {
      */
     async getBalanceBlockchain(address) {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance started ' + address)
+
+        this.checkWeb3CurrentServerUpdated()
         // noinspection JSUnresolvedVariable
+        let balance = 0
+        let provider = ''
+        let time = 0
         try {
-            let balance = 0
-            let provider = ''
-            let time = 0
             if (this._trezorServerCode && this._trezorServerCode.indexOf('http') === -1) {
                 const res = await this._get(address)
 
@@ -159,6 +161,15 @@ export default class EthScannerProcessor extends EthBasic {
                     return { balance, unconfirmed: 0, provider, time, balanceScanBlock: res.data.nonce }
                 }
             }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' error ' + e.message)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' trezor error ' + e.message)
+            return false
+        }
+
+        try {
             balance = await this._web3.eth.getBalance(address)
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' result ' + JSON.stringify(balance))
             provider = 'web3'
@@ -166,9 +177,9 @@ export default class EthScannerProcessor extends EthBasic {
             return { balance, unconfirmed: 0, provider, time }
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' error ' + e.message)
+                console.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' ' + this._web3.LINK + ' rpc error ' + e.message)
             }
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' error ' + e.message)
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getBalance ' + address + ' ' + this._web3.LINK + ' rpc error ' + e.message)
             return false
         }
     }

@@ -28,6 +28,8 @@ export default class EthTokenProcessorNft extends EthBasic {
     }
 
     async getNftDetails(nftAddress, nftType) {
+        this.checkWeb3CurrentServerUpdated()
+
         let token, name, symbol
         try {
             token = new this._web3.eth.Contract(abi.ERC721, nftAddress.toLowerCase())

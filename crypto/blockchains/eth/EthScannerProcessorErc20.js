@@ -34,6 +34,10 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
      */
     async getBalanceBlockchain(address) {
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance started ' + address)
+        if (this.checkWeb3CurrentServerUpdated()) {
+            this._token = new this._web3.eth.Contract(abi.ERC20, this._settings.tokenAddress)
+        }
+
         // noinspection JSUnresolvedVariable
         try {
             let balance = 0

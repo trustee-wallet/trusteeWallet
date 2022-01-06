@@ -13,6 +13,9 @@ export default class EthTokenProcessorErc20 extends EthBasic {
      */
     async getTokenDetails(tokenAddress) {
         let token, name, symbol, decimals
+
+        this.checkWeb3CurrentServerUpdated()
+
         try {
             // noinspection JSUnresolvedVariable
             token = new this._web3.eth.Contract(abi.ERC20, tokenAddress.toLowerCase())
