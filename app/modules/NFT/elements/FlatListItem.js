@@ -7,9 +7,9 @@ import React from 'react'
 import {
     View,
     Dimensions,
-    Image,
     TouchableOpacity
 } from 'react-native'
+import FastImage from 'react-native-fast-image'
 
 import GradientView from '@app/components/elements/GradientView'
 import { useTheme } from '@app/theme/ThemeProvider'
@@ -52,12 +52,14 @@ const FlatListItem = (props) => {
                     width: widthItem
                 }]}>
                     {img ?
-                        <Image
+                        <FastImage
                             style={styles.img}
                             source={{
                                 uri: img,
+                                priority: FastImage.priority.normal,
                             }}
-                        /> :
+                        />
+                        :
                         <View style={styles.img} />
                     }
                     <View style={styles.descriptions}>
