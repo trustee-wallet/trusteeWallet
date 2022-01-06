@@ -35,6 +35,7 @@ class UpdateCurrencyRateDaemon {
         let row = false
         try {
             for (row of res.cryptoCurrencies) {
+                if (typeof row === 'undefined' || !row) continue
                 if (typeof row.tokenAddress !== 'undefined' && row.tokenAddress) {
                     indexed['token_' + row.tokenAddress.toUpperCase()] = row
                 }
