@@ -28,6 +28,21 @@ const VISIBILITY_TIMEOUT = 4000
 
 const MnemonicQrCode = (props) => {
 
+    const CustomAnimationConfig = {
+        duration: 250,
+        create: { 
+            type: 'linear', 
+            property: 'opacity'
+        },
+        update: { 
+            type: 'linear',
+        },
+        delate: { 
+            type: 'linear', 
+            property: 'opacity'
+        }
+    }
+
     const {
         walletMnemonic
     } = props
@@ -40,12 +55,11 @@ const MnemonicQrCode = (props) => {
         colors
     } = useTheme()
 
-    const showQr = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.linear)
+    const showQr = async () => {
+        LayoutAnimation.configureNext(CustomAnimationConfig)
         setShow(true)
         setTimeout(() => {
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.linear)
-            setShow(false)
+             setShow(false)
             setAnimationProgress(new Animated.Value(0))
         }, VISIBILITY_TIMEOUT)
         Animated.timing(animationProgress, {
@@ -71,7 +85,7 @@ const MnemonicQrCode = (props) => {
                     activeOpacity={1}
                     disabled={show}
                 >
-                    <View style={styles.qr}>
+                    <View style={[styles.qr, { marginVertical: GRID_SIZE }]}>
                         <QrCodeBox
                             value={walletMnemonic}
                             size={WINDOW_WIDTH * 0.5}
@@ -85,7 +99,7 @@ const MnemonicQrCode = (props) => {
                             }}
                         />
                         
-                        {!show ? 
+                        {!show && 
                             <BlurView
                               style={styles.blur}
                               blurType="light"
@@ -93,7 +107,6 @@ const MnemonicQrCode = (props) => {
                               blurRadius={6}
                               overlayColor='transparent'
                             />
-                            : null
                         }
                         
                     </View>
