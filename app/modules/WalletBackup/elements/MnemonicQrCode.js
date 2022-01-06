@@ -48,6 +48,7 @@ const MnemonicQrCode = (props) => {
     } = props
 
     const [animationProgress, setAnimationProgress] = useState(new Animated.Value(0))
+    const [visibilityTimer, setVisibilityTimer] = useState(null)
     const [show, setShow] = useState(false)
 
     const {
@@ -58,8 +59,10 @@ const MnemonicQrCode = (props) => {
     const showQr = async () => {
         LayoutAnimation.configureNext(CustomAnimationConfig)
         setShow(true)
+        setVisibilityTimer(true)
         setTimeout(() => {
-             setShow(false)
+            setShow(false)
+            setVisibilityTimer(null)
             setAnimationProgress(new Animated.Value(0))
         }, VISIBILITY_TIMEOUT)
         Animated.timing(animationProgress, {
@@ -70,20 +73,28 @@ const MnemonicQrCode = (props) => {
         })
     }
 
+    const triggerQrVisible = (visible) => {
+        if (visibilityTimer) return
+        setShow(visible)
+    }
+
     return(
         <>
             <View style={{ paddingHorizontal: GRID_SIZE , paddingTop: GRID_SIZE * 1.5 }}>
                 <Message
-                    name='warningM'
+                    name='recoveryPhrase'
                     text={strings('walletBackup.step0Screen.infoQR')}
                     progress={animationProgress}
-                    timer={show}
+                    timer={visibilityTimer}
                 />
                 <TouchableOpacity 
                     style={styles.wrapperQR}
-                    onPress={showQr}
+                    onLongPress={showQr}
+                    onPressIn={() => triggerQrVisible(true)}
+                    onPressOut={() => triggerQrVisible(false)}
+                    delayLongPress={2000}
+                    delayPressIn={100}
                     activeOpacity={1}
-                    disabled={show}
                 >
                     <View style={[styles.qr, { marginVertical: GRID_SIZE }]}>
                         <QrCodeBox
@@ -112,9 +123,12 @@ const MnemonicQrCode = (props) => {
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    onPress={showQr}
+                    onLongPress={showQr}
+                    onPressIn={() => triggerQrVisible(true)}
+                    onPressOut={() => triggerQrVisible(false)}
+                    delayLongPress={2000}
+                    delayPressIn={100}
                     activeOpacity={0.9}
-                    disabled={show}
                 >
                     <Text
                         style={[
