@@ -25,7 +25,6 @@
 		4F5EB0BD23C36A82005214DC /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F5EB0BC23C36A82005214DC /* File.swift */; };
 		54D8CC5D33EC4A7986BCD56E /* Montserrat-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2121BA5010C741A9BCC2FD43 /* Montserrat-SemiBold.ttf */; };
 		5F2F0595722248DC82554214 /* OCR A Std Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 643EC0D00F5649B5A0C716AA /* OCR A Std Regular.ttf */; };
-		66FBFDDAED33BE397069BE94 /* libPods-TrusteeWalletTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DFA90CD5CDE412A34947AF6 /* libPods-TrusteeWalletTests.a */; };
 		69FFD69899A94956AEA27D36 /* FontAwesome5_Brands.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A0B5627ECC1942CFA9C79CAB /* FontAwesome5_Brands.ttf */; };
 		6B4F718462464735B74E37B7 /* SFUIDisplay-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2BD2A7C9D6454E7B94B5A9A2 /* SFUIDisplay-Semibold.ttf */; };
 		70F8FCF3C49E4CC1AE9FBC39 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FC531C42CF3D47A796A00D69 /* SimpleLineIcons.ttf */; };
@@ -35,7 +34,6 @@
 		846B82DE978D466AB66508CC /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C0209DFF952C426AB16D8D97 /* Entypo.ttf */; };
 		85758288BB924EBD8DA32A9E /* CREDC___.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0C4647043B8F4A8DB84537C5 /* CREDC___.ttf */; };
 		87C814A0FEF3A970E491B604 /* libPods-TrusteeWallet-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13D6AE73A0BA824F5D39BB47 /* libPods-TrusteeWallet-tvOSTests.a */; };
-		8AE7E4C570534912AADCAD80 /* libPods-TrusteeWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E9A67D41D5A9761B98604A71 /* libPods-TrusteeWallet.a */; };
 		93663D6A2DF44363965FA6C1 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 28BC7144319248E3B34FBF8E /* MaterialIcons.ttf */; };
 		97CA3C443B2D488D95DC45B8 /* AntDesign.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AB569B34607441168BDB8852 /* AntDesign.ttf */; };
 		9EA2CF73755B4AF087120FB7 /* SFUIDisplay-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FAA018854A074734A47D196B /* SFUIDisplay-Regular.ttf */; };
@@ -47,10 +45,12 @@
 		C12180F084CD403E9C577EFA /* FontAwesome5_Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B94C77A5284453CA6BF8287 /* FontAwesome5_Regular.ttf */; };
 		C469399226FB725300A52FEB /* Trustee.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = C469399126FB725300A52FEB /* Trustee.entitlements */; };
 		D7C52AE3AA324FBA97352A8F /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 98BA4F923FAC46FB934C41F5 /* EvilIcons.ttf */; };
+		D82DC2BEFD8E192F097888DC /* libPods-TrusteeWalletTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43F7438AF7B5C730E30C26A6 /* libPods-TrusteeWalletTests.a */; };
 		E27A3D6667394D949EDE976A /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8D7A51BC04754AED962D1D1B /* Zocial.ttf */; };
 		E8A75906A60044EF8B744E55 /* Montserrat-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 165DD8D38370417CAF9C1871 /* Montserrat-Medium.ttf */; };
 		EE1CB3880DB243F4A6166243 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4DA871FB673A4A2581F3E5C6 /* FontAwesome.ttf */; };
 		F4A0F109F01945EFAE60549D /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 50F0980732C74B1EAC6C3545 /* Montserrat-Regular.ttf */; };
+		F5AF1610B2006C1CCCA16F48 /* libPods-TrusteeWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AC1A99D130F237E8458967F /* libPods-TrusteeWallet.a */; };
 		F6AAD0A1C8DD46FEAEAD9D81 /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3229019D622344169C9C2B2A /* Ionicons.ttf */; };
 		FF4535AEAC124C05B9595141 /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3F3F1898E8284A6B86A41BAD /* MaterialCommunityIcons.ttf */; };
 /* End PBXBuildFile section */
@@ -80,7 +80,8 @@
 		01F401226FCC44F487087608 /* OCRA-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OCRA-Regular.ttf"; path = "../assets/fonts/OCRA-Regular.ttf"; sourceTree = "<group>"; };
 		058424311E3E4BEE8CB76D7D /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		080FE389A0F4475A81D7076C /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
-		0C4647043B8F4A8DB84537C5 /* CREDC___.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "CREDC___.ttf"; path = "../assets/fonts/CREDC___.ttf"; sourceTree = "<group>"; };
+		0AC1A99D130F237E8458967F /* libPods-TrusteeWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TrusteeWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C4647043B8F4A8DB84537C5 /* CREDC___.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = CREDC___.ttf; path = ../assets/fonts/CREDC___.ttf; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* TrusteeWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrusteeWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = TrusteeWallet/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = TrusteeWallet/AppDelegate.m; sourceTree = "<group>"; };
@@ -99,6 +100,7 @@
 		2F597C3ABDB9F46824DE7E7C /* Pods-TrusteeWallet-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrusteeWallet-tvOS.release.xcconfig"; path = "Target Support Files/Pods-TrusteeWallet-tvOS/Pods-TrusteeWallet-tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		3229019D622344169C9C2B2A /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		3F3F1898E8284A6B86A41BAD /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		43F7438AF7B5C730E30C26A6 /* libPods-TrusteeWalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TrusteeWalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		44F0A9832449F95200311C97 /* RNBackgroundFetch+AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "RNBackgroundFetch+AppDelegate.m"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/RNBackgroundFetch+AppDelegate.m"; sourceTree = "<group>"; };
 		4A1A795C351F495498AA1763 /* Fontisto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Fontisto.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Fontisto.ttf"; sourceTree = "<group>"; };
 		4DA871FB673A4A2581F3E5C6 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
@@ -109,7 +111,6 @@
 		55CB91E6A0F1CD8E3D076083 /* Pods-TrusteeWallet-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrusteeWallet-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-TrusteeWallet-tvOS/Pods-TrusteeWallet-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		5B94C77A5284453CA6BF8287 /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Regular.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf"; sourceTree = "<group>"; };
 		5C2BE4EC64594BC69706DA3B /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
-		5DFA90CD5CDE412A34947AF6 /* libPods-TrusteeWalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TrusteeWalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		643EC0D00F5649B5A0C716AA /* OCR A Std Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "OCR A Std Regular.ttf"; path = "../assets/fonts/OCR A Std Regular.ttf"; sourceTree = "<group>"; };
 		6FFA42683BF44927BFB4F8AD /* icomoon.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = icomoon.ttf; path = ../assets/fonts/icomoon.ttf; sourceTree = "<group>"; };
 		7A5F25507F9D7460BB7A0158 /* libPods-TrusteeWallet-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TrusteeWallet-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,7 +127,6 @@
 		CA930AA613C7E0E858EA19CB /* Pods-TrusteeWallet-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrusteeWallet-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-TrusteeWallet-tvOSTests/Pods-TrusteeWallet-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		D3CF259BCC2640C19545850E /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Thin.ttf"; path = "../assets/fonts/Montserrat-Thin.ttf"; sourceTree = "<group>"; };
 		DCDD41362F2E432A0A91C133 /* Pods-TrusteeWallet-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrusteeWallet-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-TrusteeWallet-tvOSTests/Pods-TrusteeWallet-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
-		E9A67D41D5A9761B98604A71 /* libPods-TrusteeWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TrusteeWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECBC3079F6CCBBF55A8A448D /* Pods-TrusteeWalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrusteeWalletTests.debug.xcconfig"; path = "Target Support Files/Pods-TrusteeWalletTests/Pods-TrusteeWalletTests.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
@@ -142,7 +142,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				66FBFDDAED33BE397069BE94 /* libPods-TrusteeWalletTests.a in Frameworks */,
+				D82DC2BEFD8E192F097888DC /* libPods-TrusteeWalletTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,7 +150,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8AE7E4C570534912AADCAD80 /* libPods-TrusteeWallet.a in Frameworks */,
+				F5AF1610B2006C1CCCA16F48 /* libPods-TrusteeWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,10 +211,10 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
-				E9A67D41D5A9761B98604A71 /* libPods-TrusteeWallet.a */,
 				7A5F25507F9D7460BB7A0158 /* libPods-TrusteeWallet-tvOS.a */,
 				13D6AE73A0BA824F5D39BB47 /* libPods-TrusteeWallet-tvOSTests.a */,
-				5DFA90CD5CDE412A34947AF6 /* libPods-TrusteeWalletTests.a */,
+				0AC1A99D130F237E8458967F /* libPods-TrusteeWallet.a */,
+				43F7438AF7B5C730E30C26A6 /* libPods-TrusteeWalletTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
