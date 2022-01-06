@@ -3,7 +3,7 @@
  * @version 0.44
  * @author yura
  */
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Platform } from 'react-native'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
@@ -101,6 +101,8 @@ import GuideScreen from '@app/modules/WalletList/HomeFilter/GuideScreen';
 import TransactionFilter from '@app/modules/Account/AccountFilter/AccountTransactionFilter';
 import TransactionCategories from '@app/modules/Account/AccountFilter/AccountTransactionCategories';
 
+import { SendReceiveDeepLinking } from '@app/appstores/Stores/Send/SendReceiveDeepLinking'
+
 const Stack = createStackNavigator()
 
 const HomeStack = createStackNavigator()
@@ -117,7 +119,16 @@ const transitionSpec = {
 }
 const cardStyleInterpolator = CardStyleInterpolators.forHorizontalIOS
 
+let CASHE_USED = false
+
 const HomeStackScreen = () => {
+
+    useEffect(() => {
+        if(!CASHE_USED){
+            SendReceiveDeepLinking.receiveDeepLink(null, 'Init app')
+            CASHE_USED = true
+        }
+    }, [])
 
     return (
         <HomeStack.Navigator initialRouteName='HomeScreenPop'>

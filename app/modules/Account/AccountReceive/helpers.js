@@ -12,6 +12,7 @@ import DaemonCache from '@app/daemons/DaemonCache'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
+
 export async function changeAddress() {
 
     setLoaderStatus(true)
@@ -66,6 +67,10 @@ export function getAddress() {
         }
     }
     Log.log('AccountReceiveScreen.getAddress ' + address, { address, legacyAddress, segwitAddress, settingAddressType, actualIsSegwit })
+    
+    if(address.match(':')){
+        address = address.split(':')[1]
+    }
     return address
 }
 

@@ -66,6 +66,8 @@ import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 import { changeAddress, getAddress } from './helpers'
 
+import { changeCurrencyNameToNetwork } from '@crypto/common/BlocksoftQrScanDict'
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const amountInput = {
@@ -142,10 +144,9 @@ class AccountReceiveScreen extends React.PureComponent {
             const extend = BlocksoftDict.getCurrencyAllSettings(currencyCode)
             let linkForQR = ''
 
-            if (typeof extend.addressCurrencyCode !== 'undefined') {
-                let currencyName = BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
-                currencyName = currencyName.toLowerCase().replace(' ', '')
-
+            if (typeof extend.tokenBlockchain !== 'undefined' || typeof extend.addressCurrencyCode !== 'undefined') {
+                let currencyName = extend.tokenBlockchain !== 'undefined' ? ('token_of_' + extend.tokenBlockchain) : BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
+                currencyName = changeCurrencyNameToNetwork(currencyName, extend.currencyName)
                 if (typeof extend.tokenAddress !== 'undefined') {
                     linkForQR = `${currencyName}:${address}?contractAddress=${extend.tokenAddress}&symbol=${currencySymbol}`
                 } else if (typeof extend.tokenName !== 'undefined') {
@@ -154,7 +155,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     linkForQR = `${currencyName}:${address}?symbol=${currencySymbol}`
                 }
             } else {
-                linkForQR = `${extend.currencyName.toLowerCase().replace(' ', '')}:${address}`
+                linkForQR = `${changeCurrencyNameToNetwork(extend.currencyName)}:${address}`
             }
             return linkForQR
         } catch (e) {
@@ -312,10 +313,10 @@ class AccountReceiveScreen extends React.PureComponent {
     renderTabs = (tabs) => {
         const { GRID_SIZE } = this.context
         return (
-            <Tabs 
+            <Tabs
                 tabs={tabs}
                 changeTab={this.changeAddressType}
-                containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}    
+                containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}
             />
         )
     }
@@ -358,7 +359,7 @@ class AccountReceiveScreen extends React.PureComponent {
     }
 
     backAction = () => {
-        NavStore.goBack() 
+        NavStore.goBack()
     }
 
     closeAction = () => {
@@ -506,7 +507,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
     renderModalContent = (params) => {
 
-        const { 
+        const {
             GRID_SIZE,
             colors
         } = this.context
@@ -515,7 +516,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
         return(
             <View>
-                <InvoiceListItem 
+                <InvoiceListItem
                     title={strings('account.invoiceText')}
                     onPress={() => handleShareInvoice(getAddress.call(this), currencyCode, currencyName)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
@@ -523,7 +524,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     iconType='invoice'
                     last
                 />
-                <InvoiceListItem 
+                <InvoiceListItem
                     title={strings('account.receiveScreen.amount')}
                     onPress={() => {
                         this.handleCustomAmount()
@@ -532,7 +533,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                     iconType='edit'
                 />
-                <InvoiceListItem 
+                <InvoiceListItem
                     title={strings('account.copyLink')}
                     onPress={() => {
                         this.copyToClip()
@@ -541,7 +542,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     containerStyle={{ marginHorizontal: GRID_SIZE }}
                     iconType='copy'
                 />
-                <InvoiceListItem 
+                <InvoiceListItem
                     title={strings('account.openInBlockchair')}
                     onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
@@ -618,7 +619,7 @@ class AccountReceiveScreen extends React.PureComponent {
         const { colors } = this.context
 
         return(
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: colors.common.button.bg, alignItems: 'center', justifyContent: 'center'}}
                 onPress={this.handleCustomAmount}
             >
@@ -673,7 +674,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     keyboardShouldPersistTaps={'handled'}
                     showsVerticalScrollIndicator={false}
                     style={{ paddingTop: GRID_SIZE }}
-                >   
+                >
                     {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
                     {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
                     <View style={{backgroundColor: colors.common.listItem.basic.iconBgLight, marginHorizontal: GRID_SIZE, borderRadius: 24, paddingBottom: GRID_SIZE }}>
@@ -702,7 +703,7 @@ class AccountReceiveScreen extends React.PureComponent {
                             </TouchableOpacity>
                             {fioName ? <Text>{fioName}</Text> : null}
                         </View>
-                        
+
                             <View style={[styles.backgroundAmount, { marginHorizontal: GRID_SIZE, backgroundColor: colors.cashback.progressBarBg + '80', paddingBottom: customAmount ? GRID_SIZE * 1.5 : 0, marginTop: GRID_SIZE }]}>
                                 {customAmount ?
                                     <>
@@ -749,8 +750,8 @@ class AccountReceiveScreen extends React.PureComponent {
                                                 onPress={this.shareData}
                                                 containerStyle={[styles.discardButton, { paddingHorizontal: GRID_SIZE * 2, padding: GRID_SIZE / 2, backgroundColor: colors.common.button.bg }]}
                                             />
-                                        </View> 
-                                    </> :  
+                                        </View>
+                                    </> :
                                     <View style={styles.backgroundAddress}>
                                         <TouchableOpacity
                                             style={{
@@ -778,7 +779,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                         </TouchableOpacity>
                                     </View>
                                 }
-                            </View> 
+                            </View>
                             {!customAmount && <View>
                                 { fioName ? (
                                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
