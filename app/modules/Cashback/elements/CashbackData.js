@@ -129,6 +129,7 @@ const CashbackData = (props) => {
                     <Tab1
                         windowWidth={widthWindow}
                         cashbackParentToken={cashbackParentToken}
+                        cashbackStore={cashbackStore}
                     />
                 )}
 

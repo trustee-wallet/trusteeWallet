@@ -92,6 +92,10 @@ class AppLockScreenIdleTime {
 
         } else if (param.state === 'inactive') {
             MarketingEvent.UI_DATA.IS_ACTIVE = false
+            if (!this._isBlur) {
+                setBlurStatus(true)
+                this._isBlur = true
+            }
         } else {
             Log.log('AppLockScreenIdleTime unlocked')
             UpdateOneByOneDaemon.unstop()

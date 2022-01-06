@@ -370,8 +370,7 @@ export default new class AppNotificationListener {
                     setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
                             await Log.log('PUSH _onMessage startMessage after lock screen', unifiedPush)
                             if (await AppNewsActions.onOpen(unifiedPush, '', '', false)) {
-                                NavStore.reset('HomeScreen')
-                                NavStore.goNext('NotificationsScreen')
+                                NavStore.reset('NotificationsScreen')
                             }  else {
                                 NavStore.reset('TabBar')
                             }
@@ -394,8 +393,7 @@ export default new class AppNotificationListener {
                     if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
                         await Log.log('PUSH _onMessage startMessage app is inited first')
                         if (await AppNewsActions.onOpen(unifiedPush)) {
-                            NavStore.reset('HomeScreen')
-                            NavStore.goNext('NotificationsScreen')
+                            NavStore.reset('NotificationsScreen')
                         }
                     } else {
                         await Log.log('PUSH _onMessage startMessage app is not inited')

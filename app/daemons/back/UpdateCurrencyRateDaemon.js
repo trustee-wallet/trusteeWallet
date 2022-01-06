@@ -35,6 +35,7 @@ class UpdateCurrencyRateDaemon {
         let row = false
         try {
             for (row of res.cryptoCurrencies) {
+                if (typeof row === 'undefined' || !row) continue
                 if (typeof row.tokenAddress !== 'undefined' && row.tokenAddress) {
                     indexed['token_' + row.tokenAddress.toUpperCase()] = row
                 }
@@ -78,6 +79,7 @@ class UpdateCurrencyRateDaemon {
                 }
 
                 if (!currency) {
+                    Log.daemon('UpdateCurrencyRateDaemon warning - no currency rate for ' + dbCurrency.currencyCode)
                     continue
                 }
                 if (typeof CACHE_SAVED[dbCurrency.currencyCode] !== 'undefined' && CACHE_SAVED[dbCurrency.currencyCode] === currency.currencyRateScanTime) {

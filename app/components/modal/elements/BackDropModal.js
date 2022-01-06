@@ -8,7 +8,8 @@ import {
     View,
     StyleSheet,
     Platform,
-    TouchableWithoutFeedback
+    TouchableWithoutFeedback,
+    KeyboardAvoidingView
 } from 'react-native'
 import Modal from 'react-native-modal'
 
@@ -18,48 +19,54 @@ import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 
 class BackDropModal extends React.PureComponent {
-    
+
     render() {
 
-        const { Content } = this.props.data
+        const {
+            Content,
+            withMainButton = true,
+            disabledPresentationStyle
+        } = this.props.data
 
         const { colors, GRID_SIZE } = this.context
 
         return (
-            <Modal 
+            <Modal
                 isVisible={this.props.show === true || this.props.show === 'true'}
                 swipeDirection='down'
                 style={styles.modalView}
                 hasBackdrop={true}
                 onBackdropPress={hideModal}
                 onSwipeComplete={hideModal}
-                onSwipeMove={hideModal}
+                onSwipeMove={Platform.OS === 'ios' ? hideModal : null}
                 swipeThreshold={50}
-                hideModalContentWhileAnimating={true}
+                hideModalContentWhileAnimating={false}
                 animationType='slide'
-                presentationStyle='pageSheet'
+                presentationStyle={disabledPresentationStyle ? null : 'pageSheet'}
                 customBackdrop={
                     <TouchableWithoutFeedback onPress={hideModal}>
-                      <View
-                        style={{
-                          flex: 1,
-                          backgroundColor: 'transparent',
-                        }}
-                      />
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'transparent',
+                            }}
+                        />
                     </TouchableWithoutFeedback>
-                  }
-            > 
+                }
+            >
+                <KeyboardAvoidingView style={{ flex: 1, justifyContent: 'flex-end' }} behavior='padding'>
                     <View style={[styles.content, { backgroundColor: colors.backDropModal.bg, paddingBottom: Platform.OS === 'ios' ? GRID_SIZE : 0 }]}>
                         <View style={[styles.topBtn, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE * 1.2 }]} />
-                            <Content data={this.props.data} />
-                            <Button
-                                title={strings('assets.hideAsset')}
-                                type='withoutShadow'
-                                onPress={hideModal}
-                                containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
-                                textStyle={{ color: colors.backDropModal.buttonText }}
-                            />
+                        <Content data={this.props.data} />
+                        {withMainButton && <Button
+                            title={strings('assets.hideAsset')}
+                            type='withoutShadow'
+                            onPress={hideModal}
+                            containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
+                            textStyle={{ color: colors.backDropModal.buttonText }}
+                        />}
                     </View>
+                </KeyboardAvoidingView>
             </Modal>
         )
     }

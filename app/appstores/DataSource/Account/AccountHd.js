@@ -262,6 +262,90 @@ export default {
             return 0
         }
         return res.rowsAffected
+    },
+
+    getAddresses: async (params) => {
+        const withBalances = typeof params.withBalances !== 'undefined' && params.withBalances
+
+        let where = []
+        if (params.walletHash) {
+            where.push(`account.wallet_hash='${params.walletHash}'`)
+        }
+        if (params.currencyCode) {
+            where.push(`account.currency_code IN ('${params.currencyCode}')`)
+        }
+        if (typeof params.onlyLegacy !== 'undefined') {
+            where.push(`account.address LIKE '1%'`)
+        }
+
+        if (where.length > 0) {
+            where = ' WHERE ' + where.join(' AND ')
+        } else {
+            where = ''
+        }
+
+        let order = ''
+        if (params.reverse) {
+            order = 'ORDER BY account.id DESC'
+        }
+
+        let limit = ''
+        if (typeof params.limitPerPage !== 'undefined') {
+            limit = ' LIMIT ' + params.limitPerPage
+        }
+        if (typeof params.limitFrom !== 'undefined') {
+            limit += ' OFFSET ' + params.limitFrom
+        }
+
+        const sql = `
+            SELECT
+            account.id,
+            account.currency_code AS currencyCode,
+            account.wallet_hash AS walletHash,
+            account.already_shown AS alreadyShown,
+            account.address,
+            account.name AS addressName,
+            account_balance.balance_txt AS balanceTxt,
+            account_balance.balance_scan_time AS balanceScanTime,
+            account_balance.balance_scan_error AS balanceScanError,
+            account_balance.balance_scan_log AS balanceScanLog            
+            FROM account
+            LEFT JOIN account_balance ON account_balance.account_id = account.id
+            ${where}
+            ${order}
+            ${limit}
+        `
+
+        const indexedRes = {}
+        try {
+            let res = await Database.query(sql)
+            if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
+                Log.daemon('DS/AccountHD getAddresses finished as empty')
+                return false
+            }
+            if (typeof params.limit !== 'undefined') {
+                if (params.limit === 1) {
+                    return res.array[0].address
+                }
+            }
+
+            res = res.array
+            
+            res = res.map(e => e.addressName.includes("CREATED") ? {...e, addressName: ''} : e)
+
+            let tmp
+            for (tmp of res) {
+                if (withBalances) {
+                    indexedRes[tmp.address] = tmp
+                } else {
+                    indexedRes[tmp.address] = tmp.alreadyShown
+                }
+            }
+        } catch (e) {
+            Log.daemon('DS/AccountHD getAddresses error ' + sql + ' ' + e.message)
+        }
+        return indexedRes
     }
+
 
 }

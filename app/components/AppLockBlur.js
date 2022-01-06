@@ -1,31 +1,51 @@
 /**
- * @version 0.50
+ * @version 0.53
+ * @author yura
  */
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet } from 'react-native'
+import { BlurView } from "@react-native-community/blur"
+import { connect } from 'react-redux'
+
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+
+import { getIsBlurVisible } from '@app/appstores/Stores/Main/selectors'
 
 class AppLockBlur extends React.PureComponent {
 
     render = () => {
 
-        const backgroundColor = MarketingEvent.UI_DATA.IS_LIGHT ? '#fff' : '#000'
+        const blurColor = MarketingEvent.UI_DATA.IS_LIGHT ? 'light' : 'dark'
+
         return (
-                <View style={styles.wrapper}>
-                    <View style={{ alignItems: 'center', justifyContent: 'center', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%', backgroundColor, opacity: 0.9, overflow: 'hidden' }}/>
-                </View>
-            )
+            <>
+                {this.props.isBlurVisible ? (
+                    <BlurView
+                        style={styles.wrapper}
+                        blurType={blurColor}
+                        blurAmount={10}
+                        reducedTransparencyFallbackColor='white'
+                    />
+                ) : null}
+            </>
+        )
     }
 }
 
-export default AppLockBlur
+const mapStateToProps = (state) => {
+    return {
+        isBlurVisible: getIsBlurVisible(state)
+    }
+}
+
+export default connect(mapStateToProps)(AppLockBlur)
 
 const styles = StyleSheet.create({
     wrapper: {
         position: 'absolute',
         top: 0,
         left: 0,
-        width: 10000000,
-        height: 10000000
+        right: 0,
+        bottom: 0
     }
 })

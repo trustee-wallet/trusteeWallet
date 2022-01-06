@@ -105,7 +105,7 @@ class WalletDappWebViewScreen extends PureComponent {
     }
 
     async _init(anyData) {
-        Log.log('WalletDapp.WebViewScreen.init ', anyData)
+        Log.log('WalletDappWebView.WalletConnect.init ', anyData)
         try {
             const clientData = await AppWalletConnect.init(anyData,
                 this.handleRequest,
@@ -130,14 +130,14 @@ class WalletDappWebViewScreen extends PureComponent {
             }
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('WalletConnect.init error ' + e.message)
+                console.log('WalletDappWebView.WalletConnect.init error ' + e.message)
                 this.setState({ linkError: true })
             }
             if (e.message.indexOf('URI format') === -1) {
-                Log.log('WalletConnect.init error ' + e.message)
+                Log.log('WalletDappWebView.WalletConnect.init error ' + e.message)
                 this.setState({ linkError: true })
             } else {
-                Log.log('WalletConnect.init error ' + e.message)
+                Log.log('WalletDappWebView.WalletConnect.init error ' + e.message)
                 this.setState({ linkError: true })
             }
             this.setState({
@@ -199,9 +199,10 @@ class WalletDappWebViewScreen extends PureComponent {
             let position = req.url.indexOf('/wc?uri=wc%3A')
             if (position !== -1) {
                 position = position + 8
-                const tmp = req.url.substr(position, -1)
+                const tmp = req.url.substr(position, req.url.length)
+                Log.log('WalletDapp.WebViewScreen handle link update tmp ' + tmp)
                 url = decodeURIComponent(tmp)
-                Log.log('WalletDapp.WebViewScreen handle link update ' + url)
+                Log.log('WalletDapp.WebViewScreen handle link update url ' + url)
                 parsedUrl = UrlParse(url)
             }
         }
@@ -211,8 +212,8 @@ class WalletDappWebViewScreen extends PureComponent {
         try {
             if (parsedUrl.protocol === 'wc:') {
                 if (url.indexOf('?bridge=') !== -1) {
-                    setWalletDappWalletConnectLink(req.url)
-                    this._init({ fullLink: req.url })
+                    setWalletDappWalletConnectLink(url)
+                    this._init({ fullLink: url })
                 } else {
                     // ?
                 }

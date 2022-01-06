@@ -44,7 +44,7 @@
     "modalError": {
       "selectPhoto" : "Please, select photo from gallery",
       "serviceUnavailable": "Service unavailable. Please, try again later",
-      "qrNotFoundInFile" : "Qr-code not found, please, try to reload file"
+      "qrNotFoundInFile" : "QR-code not found, please, try to reload file"
     }
   },
   "notifications": {
@@ -71,7 +71,7 @@
     },
     "walletConnect": {
       "unconnectedTitle": "Disabled",
-      "unconnectedText": "Scan the QR code to connect to the DeFi service",
+      "unconnectedText": "Scan the QR-code to connect to the DeFi service",
       "inputPlaceholder": "Direct Link",
       "stop": "Disable WalletConnect",
       "stopText": "Are you sure you want to stop the connection with ",
@@ -325,7 +325,7 @@
     "collections": "Collections",
     "receive": "Receive",
     "title": "NFT",
-    "titleQR" : "Scan QR with Trustee",
+    "titleQR" : "Scan QR-code with Trustee",
     "signing": "Signature is creating, please wait - it only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "signed": "Signature only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "status": "Status",
@@ -354,9 +354,9 @@
     "pageTitle": "Earn",
     "pageSubtitle": "Earn to 30% from the commission with Trustee Wallet!",
     "shareButton": "Share",
-    "promoButton": "Promocode",
+    "promoButton": "Enter Promo Code",
     "detailsButton": "Details",
-    "enterPromoPlaceholder": "Enter promocode",
+    "enterPromoPlaceholder": "Enter Promo Code",
     "enterInviteLinkPlaceholder": "Enter invite link",
     "applyButton": "Apply",
     "wholeBalance": "Balance for the whole time",
@@ -371,7 +371,7 @@
     "yourToken": "Your cashback link",
     "cashbackMessage": "Get Cashback for your exchange transactions. Earn Crypto with Affiliate Program and CPA by recommending Trustee Wallet!",
     "howItWorks": {
-      "title": "How it works?",
+      "title": "How does it work?",
       "info1Title": "Does Trustee Wallet have a user rewards program?",
       "info1Content": "The program consists of cashback and a two-tier affiliate program, which ultimately allows you to receive up to 30% of Trustee commissions for purchases and sales of cryptocurrencies by invited users",
       "info2Title": "How do I activate cashback?",
@@ -555,7 +555,9 @@
       "share": "Share",
       "copy": "Copy",
       "amount": "Set amount",
-      "rename": "Rename"
+      "rename": "Rename",
+      "allAddresses": "All addresses",
+      "addressName": "Address name"
     },
     "addAccount": {
       "list": "Crypto list"
@@ -694,7 +696,7 @@
     "country": "Country:"
   },
   "qrScanner": {
-    "title": "Scanning QR",
+    "title": "Scanning QR-code",
     "line1": "Please, place the QR-code inside the",
     "line2": "rectangle to scan it"
   },
@@ -898,14 +900,16 @@
       "text2": "Be very careful with recovery phrase - anyone with it can access or spend your funds. Please, do not tell the recovery phrase under any circumstances!"
     },
     "step0Screen": {
+      "show": "Show QR-code",
       "phrase": "phrase",
-      "qr": "Qr",
+      "qr": "Qr-code",
       "info": "The Recovery Phrase (mnemonic phrase, seed-phrase) is the secret access key to all balances in your wallet. Write it down, observing the word order, save it securely and do not pass it on to anyone!",
       "showButton": "Press and hold here to see the phrase",
+      "showQrButton": "Press to see the QR-code",
       "next": "Next",
-      "showQR" : "Get QR for import to another device",
+      "showQR" : "Get QR-code for import to another device",
       "hideQR" : "Get words for backup",
-      "infoQR": "QR code reveals recovery phrase. Please dont send it to other people and dont store in Gallery!"
+      "infoQR": "QR-code reveals recovery phrase. Please dont send it to other people and dont store in gallery!"
     },
     "step1Screen": {
       "title": "Check",

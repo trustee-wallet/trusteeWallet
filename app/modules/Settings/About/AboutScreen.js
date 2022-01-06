@@ -47,7 +47,7 @@ const SOCIAL_LINKS = [
     { name: 'instagram', link: 'SOCIAL_LINK_INSTAGRAM' },
     { name: 'vk', link: 'SOCIAL_LINK_VK' },
     { name: 'github', link: 'SOCIAL_LINK_GITHUB' },
-    { name: 'faq', link: 'SOCIAL_LINK_FAQ' },
+    { name: 'youtube', link: 'SOCIAL_LINK_YOUTUBE' }
 ];
 
 class AboutScreen extends PureComponent {
@@ -181,7 +181,7 @@ class AboutScreen extends PureComponent {
                         />
                         <ListItem
                             title={strings('settings.about.contactSupportEmail')}
-                            subtitle={strings('settings.about.contactSupportEmailSubtitle') + ' ' + BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL')}
+                            subtitle={strings('settings.about.contactSupportEmailSubtitle') + '\n' + BlocksoftExternalSettings.getStatic('SUPPORT_EMAIL')}
                             iconType="supportMail"
                             onPress={this.handleSupportEmail}
                             rightContent="arrow"

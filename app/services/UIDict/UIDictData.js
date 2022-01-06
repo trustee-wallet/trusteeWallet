@@ -932,6 +932,144 @@ export default {
             darkColor: '#4470DE'
         }
     },
+    'ETH_VLX': {
+        colors: {
+            mainColor: '#0037C1',
+            darkColor: '#4470DE'
+        }
+    },
+    'VLX_USDT': {
+        colors: {
+            mainColor: '#31D182',
+            darkColor: '#2D9D66'
+        }
+    },
+    'ETH_UFI': {
+        colors: {
+            mainColor: '#8840E3',
+            darkColor: '#8840E3'
+        }
+    },
+    'BNB_SMART_UFI': {
+        colors: {
+            mainColor: '#8840E3',
+            darkColor: '#8840E3'
+        }
+    },
+    'ETH_CLOUD': {
+        colors: {
+            mainColor: '#8183F3',
+            darkColor: '#8183F3'
+        }
+    },
+    'BNB_SMART_CLOUD': {
+        colors: {
+            mainColor: '#8183F3',
+            darkColor: '#8183F3'
+        }
+    },
+    'ETH_ANT': {
+        colors: {
+            mainColor: '#0ABBF2',
+            darkColor: '#0ABBF2'
+        }
+    },
+    'ETH_COTI': {
+        colors: {
+            mainColor: '#194AAD',
+            darkColor: '#194AAD'
+        }
+    },
+    'ETH_BRD': {
+        colors: {
+            mainColor: '#FA7963',
+            darkColor: '#FA7963'
+        }
+    },
+    'ETH_HEX': {
+        colors: {
+            mainColor: '#FF3D3D',
+            darkColor: '#FF3D3D'
+        }
+    },
+    'ETH_PAXG': {
+        colors: {
+            mainColor: '#DEC21C',
+            darkColor: '#DEC21C'
+        }
+    },
+    'ETH_C98': {
+        colors: {
+            mainColor: '#D9B432',
+            darkColor: '#DCB93F'
+        }
+    },
+    'BNB_SMART_C98': {
+        colors: {
+            mainColor: '#D9B432',
+            darkColor: '#DCB93F'
+        }
+    },
+    'ETH_REN': {
+        colors: {
+            mainColor: '#001C3A',
+            darkColor: '#5584B6'
+        }
+    },
+    'ETH_CVC': {
+        colors: {
+            mainColor: '#2E4D6D',
+            darkColor: '#5A799A'
+        }
+    },
+    'ETH_DENT': {
+        colors: {
+            mainColor: '#DB1838',
+            darkColor: '#DB1838'
+        }
+    },
+    'ETH_GNO': {
+        colors: {
+            mainColor: '#001428',
+            darkColor: '#3B6C9E'
+        }
+    },
+    'CUSTOM_ABYSS': {
+        colors: {
+            mainColor: '#2E50CF',
+            darkColor: '#2E50CF'
+        }
+    },
+    'CUSTOM_SOLVE': {
+        colors: {
+            mainColor: '#001255',
+            darkColor: '#536AC1'
+        }
+    },
+    'CUSTOM_PMA': {
+        colors: {
+            mainColor: '#7531F4',
+            darkColor: '#7531F4'
+        }
+    },
+    'CUSTOM_TEL': {
+        colors: {
+            mainColor: '#23C2F2',
+            darkColor: '#2DA5CA'
+        }
+    },
+    'CUSTOM_NMR': {
+        colors: {
+            mainColor: '#050708',
+            darkColor: '#4E6A78'
+        }
+    },
+    'CUSTOM_SUPER': {
+        colors: {
+            mainColor: '#721AF4',
+            darkColor: '#721AF4'
+        }
+    },
     'DEFAULT': {
         colors: {
             mainColor: '#000',

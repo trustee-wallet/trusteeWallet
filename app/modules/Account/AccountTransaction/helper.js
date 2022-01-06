@@ -616,7 +616,7 @@ export function shareTransaction() {
     shareOptions.message += `\n${strings('account.transactionScreen.blockConfirmations')} ${transaction.blockConfirmations > 20 ? '20+' : transaction.blockConfirmations}\n`
 
     if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
-        shareOptions.message = strings(`account.transaction.orderId`)`${transaction.bseOrderData.orderHash}\n` + shareOptions.message
+        shareOptions.message = strings(`account.transaction.orderId`) + `${transaction?.bseOrderData?.orderHash || transaction?.bseOrderData?.orderId}\n` + shareOptions.message
     }
 
     shareOptions.message += `\n${(this.props.cashBackData.cashbackLink ? strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackData.cashbackLink}\n` : '\n')}`

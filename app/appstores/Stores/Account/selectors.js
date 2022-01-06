@@ -5,6 +5,8 @@ import store from '@app/store'
 import DaemonCache from '@app/daemons/DaemonCache'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 const DEFAULT_ACCOUNT = {
     basicCurrencyRate: '',
@@ -46,14 +48,23 @@ const selectAccountCurrency = (state, props) => {
         if (currencyCode === 'CASHBACK') {
             return getCashbackData()
         }
+        if (currencyCode === 'NFT') {
+            return DEFAULT_ACCOUNT
+        }
 
         if (typeof state.accountStore.accountList[selectedWallet] === 'undefined') {
-            // Log.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency') // @todo redo UpdateAccountListDaemon
+            if (config.debug.appErrors) {
+                console.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency')
+            }
+            Log.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency', state.accountStore.accountList)
             return DEFAULT_ACCOUNT
             // throw new Error('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency')
         }
         if (typeof state.accountStore.accountList[selectedWallet][currencyCode] === 'undefined') {
-            // Log.log('Undefined currencyCode ' + selectedWallet + '  ' + currencyCode + ' in Account.selectors.selectAccountCurrency')
+            if (config.debug.appErrors) {
+                console.log('Undefined currencyCode ' + selectedWallet + '  ' + currencyCode + ' in Account.selectors.selectAccountCurrency')
+            }
+            Log.log('Undefined currencyCode ' + selectedWallet + '  ' + currencyCode + ' in Account.selectors.selectAccountCurrency', state.accountStore.accountList[selectedWallet])
             return DEFAULT_ACCOUNT
             // throw new Error('Undefined currencyCode ' + selectedWallet + '  ' + currencyCode + ' in Account.selectors.selectAccountCurrency')
         }

@@ -121,7 +121,7 @@ export namespace AppWalletConnect {
         if (!data || typeof data === 'undefined' || typeof data.fullLink === 'undefined') {
             return false
         }
-        if (data.fullLink !== WALLET_CONNECTOR_LINK) {
+        if (data.fullLink !== WALLET_CONNECTOR_LINK || typeof WALLET_CONNECTOR === 'undefined' || !WALLET_CONNECTOR) {
             WALLET_CONNECTOR_LINK = data.fullLink
             try {
                 // @ts-ignore

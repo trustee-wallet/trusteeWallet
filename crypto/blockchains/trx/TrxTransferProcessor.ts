@@ -159,13 +159,19 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
             if (feeForTx !== 0) {
                 let amountForTx = data.amount
+                let selectedTransferAllBalance = data.amount
                 if (this._tokenName === '_') {
                     const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(data.addressFrom)).getBalance('TrxSendTx')
                     if (balance && typeof balance.balance !== 'undefined') {
                         if (balance.balance === 0) {
                             amountForTx = 0
+                            selectedTransferAllBalance = 0
                         } else {
-                            amountForTx = BlocksoftUtils.diff(balance.balance, feeForTx)
+                            selectedTransferAllBalance = BlocksoftUtils.diff(balance.balance, feeForTx)
+                            let test = BlocksoftUtils.diff(data.amount, feeForTx)
+                            if (test * 1 > balance.balance * 1) {
+                                amountForTx = selectedTransferAllBalance
+                            }
                         }
                     }
                 }
@@ -174,7 +180,8 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     {
                         langMsg: 'xrp_speed_one',
                         feeForTx: Math.round(feeForTx).toString(),
-                        amountForTx
+                        amountForTx,
+                        selectedTransferAllBalance
                     }
                 ]
                 /*
@@ -223,7 +230,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         return {
             ...fees,
             shouldShowFees: false,
-            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].amountForTx
+            selectedTransferAllBalance: fees.fees[fees.selectedFeeIndex].selectedTransferAllBalance
         }
     }
 
@@ -421,7 +428,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
                 if (this._tokenName[0] === 'T') {
                     link = sendLink + '/wallet/triggersmartcontract'
-                    const parameter = '0000000000000000000000' + toAddress.toUpperCase() + '00000000000000000000000000000000000000000000' + BlocksoftUtils.decimalToHex(BlocksoftUtils.round(data.amount), 20)
+                    const parameter = '0000000000000000000000' + toAddress.toUpperCase() + '000000000000000000000000' + BlocksoftUtils.decimalToHex(BlocksoftUtils.round(data.amount), 40)
                     params = {
                         owner_address: ownerAddress,
                         contract_address: TronUtils.addressToHex(this._tokenName),

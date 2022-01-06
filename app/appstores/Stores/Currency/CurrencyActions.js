@@ -89,18 +89,19 @@ const currencyActions = {
      */
     checkIsCurrencySynchronized: (params) => {
         try {
+            const {currencyCode } = params.cryptoCurrency
             if (typeof params.account === 'undefined') {
                 if (config.debug.appErrors) {
-                    console.log('ACT/Currency checkIsCurrencySynchronized no account', params)
+                    console.log('ACT/Currency checkIsCurrencySynchronized no account ' + currencyCode, params)
                 }
-                Log.log('ACT/Currency checkIsCurrencySynchronized no account', params)
+                Log.log('ACT/Currency checkIsCurrencySynchronized no account ' + currencyCode, params)
                 return false
             }
             if (!params.account.balanceScanTime) {
                 if (config.debug.appErrors) {
-                    console.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime', params.account)
+                    console.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
                 }
-                Log.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime', params.account)
+                Log.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
                 return false
             }
             return true
@@ -130,6 +131,8 @@ const currencyActions = {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'FTM', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'METIS_ERC_20' || tokenType === 'METIS') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'METIS', newIsHidden : 0, currentIsHidden : 0})
+        }  else if (tokenType === 'VLX_ERC_20' || tokenType === 'VLX') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'VLX', newIsHidden : 0, currentIsHidden : 0})
         }
 
 

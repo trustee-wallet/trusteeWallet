@@ -113,7 +113,7 @@ class BackupSettingsScreen extends PureComponent {
                         App.init({ source: 'WalletBackup.handleSkip', onMount: false })
                     }
                 } catch (e) {
-                    e.message += ' while refreshWalletsStore'
+                    e.message += ' while WalletBackup.handleSkip.refreshWalletsStore'
                     throw e
                 }
 

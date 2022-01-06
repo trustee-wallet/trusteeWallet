@@ -14,8 +14,7 @@ import {
     ActivityIndicator
 } from 'react-native'
 import { connect } from 'react-redux'
-import _isEqual from 'lodash/isEqual'
-import { ScrollView, FlatList } from 'react-native-gesture-handler'
+import { FlatList } from 'react-native-gesture-handler'
 import { TabView } from 'react-native-tab-view'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
@@ -26,25 +25,25 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import { HIT_SLOP } from '@app/theme/HitSlop'
 
-import Account from '@app/appstores/DataSource/Account/AccountScanning'
+import AccountHd from '@app/appstores/DataSource/Account/AccountHd'
 import { getSelectedAccountData, getSelectedWalletData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 
 import { strings } from '@app/services/i18n'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
-import { changeAddress, getAddress } from './helpers'
+import { changeAddress } from './helpers'
 import AccountGradientBlock from '../elements/AccountGradientBlock'
 import HdAddressListItem from './elements/HdAddressListItem'
 
+const TX_PER_PAGE = 40
 
 class AllAddressesScreen extends PureComponent {
 
     state = {
         settingAddressType: false,
-        settingAddressTypeTriggered : false,
+        settingAddressTypeTriggered: false,
         isBalanceVisibleTriggered: false,
         isBalanceVisible: true,
         routes: [
@@ -58,13 +57,13 @@ class AllAddressesScreen extends PureComponent {
             }
         ],
         index: 0,
-        segwitAddresses: [],
-        legacyAddresses: [],
-        loading: false
+        addresses: [],
+        loading: false,
+        generating: false
     }
 
     async componentDidMount() {
-        await this.loadAddresses()
+        await this.loadAddresses(0)
     }
 
     handleClose = () => {
@@ -75,44 +74,53 @@ class AllAddressesScreen extends PureComponent {
         NavStore.goBack()
     }
 
-    handleGetAddress = () => {
-        getAddress.call(this)
-    }
-
     handleChangeAddress = async () => {
+        this.setState({ generating: true })
         await changeAddress.call(this)
+        this.setState({ generating: false })
     }
 
-    componentDidUpdate( prevProps, prevState ) {
-        if (!_isEqual(prevState.addresses, this.state.addresses)) {
-            this.loadAddresses()
+    componentDidUpdate() {
+        if (this.state.generating) {
+            this.loadAddresses(0)
         }
     }
 
     filterAddresses = (value, param) => {
         return value.filter(as => (
             as.address[0] === param
-        ))    
+        ))
     }
 
-    loadAddresses = async () => {
+    loadAddresses = async (from = 6, perPage = TX_PER_PAGE) => {
 
         const { currencyCode, walletHash } = this.props.selectedAccountData
 
         const params = {
             walletHash: walletHash,
             currencyCode: currencyCode,
-            withBalances: true
+            withBalances: true,
+            reverse: true,
+            limitFrom: from,
+            limitPerPage: perPage
         }
 
-        const tmp = await Account.getAddresses(params)
+        const tmp = await AccountHd.getAddresses(params)
 
         const value = Object.values(tmp)
-        
-        this.setState({
-            segwitAddresses: this.filterAddresses(value, 'b'),
-            legacyAddresses: this.filterAddresses(value, '1')
-        })
+
+        if (!value || value.length === 0) return
+
+        if (from === 0) {  // reloading when from = 0
+            this.setState({
+                addresses: value
+            })
+        } else {
+            this.setState((state) => ({
+                addresses: state.addresses.concat(value)
+            }))
+        }
+
     }
 
     triggerBalanceVisibility = (value, originalVisibility) => {
@@ -143,7 +151,7 @@ class AllAddressesScreen extends PureComponent {
             balancePrettyPrep2 = tmps[1]
         }
 
-        return(
+        return (
             <AccountGradientBlock
                 cleanCache
             >
@@ -200,15 +208,27 @@ class AllAddressesScreen extends PureComponent {
     }
 
     renderTabs = () => {
-        return(
-            <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} hitSlop={HIT_SLOP} />
+        return (
+            <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} />
         )
     }
 
     handleTabChange = index => {
-        this.setState({
-            index
-        })
+        const { addresses } = this.state
+
+        const segwitLength = this.filterAddresses(addresses, 'b').length
+
+        const legacyLength = this.filterAddresses(addresses, '1').length
+
+        const num = segwitLength - legacyLength
+
+        const scrollCondition = (num < 0) ? num * -1 : num > 10
+
+        if (scrollCondition) {
+            this.handleScroll()
+        }
+
+        this.setState({ index })
     }
 
     renderScene = ({ route }) => {
@@ -221,17 +241,17 @@ class AllAddressesScreen extends PureComponent {
                 return null
         }
     }
-    
+
     renderEmptyList = () => {
 
-        const { 
+        const {
             colors,
             GRID_SIZE
         } = this.context
 
-        return(
+        return (
             <View style={[styles.loader, { marginTop: GRID_SIZE }]}>
-                <ActivityIndicator 
+                <ActivityIndicator
                     color={colors.common.text1}
                     size='large'
                 />
@@ -239,79 +259,117 @@ class AllAddressesScreen extends PureComponent {
         )
     }
 
-    get listProps() {
-
-        const { GRID_SIZE } = this.context
-
-        return{
-            contentContainerStyle: { paddingHorizontal: GRID_SIZE },
-            style: { marginHorizontal: -GRID_SIZE },
-            keyExtractor: index => index,
-            renderItem: (data) => this.renderFlatListItem(data),
-            showsVerticalScrollIndicator: false,
-            ListEmptyComponent: this.renderEmptyList,
-            scrollEnabled: false
-        }
+    loadMore = () => {
+        if (this.state.loading) return
+        this.loadAddresses(this.state.addresses.length)
     }
 
-    renderFlatListItem = ({item}) => {
-        return(
+    renderFlatListItem = ({ item }) => {
+
+        const balance = this.getAddressBalance(item)
+
+        return (
             <HdAddressListItem
-                address={item.address} 
-                balance={typeof item.balanceTxt === 'undefined' || item.balanceTxt === null ? '0' : BlocksoftPrettyNumbers.setCurrencyCode('BTC').makePretty(item.balanceTxt)} 
-                currencyCode='BTC' 
+                address={item.address}
+                balance={balance}
+                currencyCode='BTC'
                 addressName={item.addressName}
                 id={item.id}
             />
-        )            
+        )
     }
 
     renderFirstRoute = () => {
 
-        const segwitAddresses = this.state.segwitAddresses?.reverse()
+        const { addresses } = this.state
 
-        return(
-            <FlatList
-                data={segwitAddresses}
-                {...this.listProps}
-            />
+        return (
+            <>
+                {this.filterAddresses(addresses, 'b').map(item => {
+                    const balance = this.getAddressBalance(item)
+
+                    return (
+                        <HdAddressListItem
+                            address={item.address}
+                            balance={balance}
+                            currencyCode='BTC'
+                            addressName={item.addressName}
+                            id={item.id}
+                            key={item.id}
+                        />
+                    )
+                })}
+            </>
         )
     }
 
     renderSecondRoute = () => {
 
-        const legacyAddresses = this.state.legacyAddresses?.reverse()
+        const { addresses } = this.state
 
-        return(
-            <FlatList
-                data={legacyAddresses}
-                {...this.listProps}
-            />     
+        return (
+            <>
+                {this.filterAddresses(addresses, '1').map(item => {
+                    const balance = this.getAddressBalance(item)
+
+                    return (
+                        <HdAddressListItem
+                            address={item.address}
+                            balance={balance}
+                            currencyCode='BTC'
+                            addressName={item.addressName}
+                            id={item.id}
+                            key={item.id}
+                        />
+                    )
+                })}
+            </>
         )
     }
 
-    handleRefresh = async () => {
-        this.setState({loading: true})
-        await this.loadAddresses()
-        this.setState({loading: false})
+    getAddressBalance = (item) => {
+        return typeof item.balanceTxt === 'undefined' || item.balanceTxt === null ? '0' : BlocksoftPrettyNumbers.setCurrencyCode('BTC').makePretty(item.balanceTxt)
     }
+
+    handleScroll = () => {
+        this.flatListRef.scrollToOffset(0)
+    }
+
+    handleRefresh = async () => {
+        this.setState({ loading: true })
+        await this.loadAddresses(0)
+        this.setState({ loading: false })
+    }
+
+    renderItem = () => (
+        <TabView
+            style={{ flexGrow: 1 }}
+            navigationState={this.state}
+            renderScene={this.renderScene}
+            renderHeader={null}
+            onIndexChange={this.handleTabChange}
+            renderTabBar={() => null}
+            useNativeDriver
+        />
+    )
 
     render() {
 
-        const { 
+        const {
             GRID_SIZE,
             colors
         } = this.context
 
         return (
             <ScreenWrapper
-                title="All addresses"
+                title={strings('account.receiveScreen.allAddresses')}
                 leftType='back'
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}
-            > 
-                <ScrollView
+            >
+                <FlatList
+                    ref={ref => this.flatListRef = ref}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps='handled'
                     refreshControl={
@@ -324,25 +382,23 @@ class AllAddressesScreen extends PureComponent {
                             progressViewOffset={-20}
                         />
                     }
-                >
-                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
-                        {this.renderHeader()}
-                    </View>
-                
-                    <View style={{ marginHorizontal: GRID_SIZE }}>
-                        {this.renderTabs()}
-                    </View>
+                    onEndReachedThreshold={0.2}
+                    onEndReached={this.loadMore}
+                    ListHeaderComponent={() => (
+                        <>
+                            <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
+                                {this.renderHeader()}
+                            </View>
 
-                    <TabView
-                        style={{ flexGrow: 1 }}
-                        navigationState={this.state}
-                        renderScene={this.renderScene}
-                        renderHeader={null}
-                        onIndexChange={this.handleTabChange}
-                        renderTabBar={() => null}
-                        useNativeDriver
-                    />
-               </ScrollView>
+                            <View style={{ marginHorizontal: GRID_SIZE }}>
+                                {this.renderTabs()}
+                            </View>
+                        </>
+                    )}
+                    renderItem={this.renderItem}
+                    data={[1]}
+                    keyExtractor={index => index}
+                />
             </ScreenWrapper>
         )
     }
@@ -427,7 +483,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         lineHeight: 22
     },
-    headerContainer :{
+    headerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'

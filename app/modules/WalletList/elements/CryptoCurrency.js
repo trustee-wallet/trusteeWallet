@@ -80,6 +80,9 @@ class CryptoCurrency extends React.PureComponent {
             if (ratePrep.indexOf('.') === 1) {
                 ratePrep = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate, 4).separated
             }
+            if (ratePrep.toString() === '0') {
+                ratePrep = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate, 8).separated
+            }
         }
 
         const priceChangePercentage24h = cryptoCurrency.priceChangePercentage24h * 1 || 0
@@ -87,7 +90,7 @@ class CryptoCurrency extends React.PureComponent {
 
         const basicBalancePrep = account.basicCurrencyBalance
 
-        let isSynchronized;
+        let isSynchronized = true
         try {
             isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
         } catch (e) {

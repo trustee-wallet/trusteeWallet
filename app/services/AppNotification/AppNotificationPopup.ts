@@ -28,9 +28,7 @@ export default new class AppNotificationPopup {
             await Log.log('AppNotificationPopup.onOpened message')
             const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(message)
             if (await AppNewsActions.onOpen(unifiedPush)) {
-                // NavStore.reset('HomeScreen', { screen: 'NotificationsScreen' }) - not working
-                NavStore.reset('HomeScreen')
-                NavStore.goNext('NotificationsScreen')
+                NavStore.reset('NotificationsScreen')
             }
         } catch (e) {
             await Log.err('AppNotificationPopup.onOpened error ' + e.message)

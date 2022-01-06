@@ -111,8 +111,7 @@ class App {
 
             if (UpdateAppNewsDaemon.isGoToNotifications('AFTER_APP')) {
                 // NavStore.reset('HomeScreen', { screen: 'NotificationsScreen' }) - not working
-                NavStore.reset('HomeScreen')
-                NavStore.goNext('NotificationsScreen')
+                NavStore.reset('NotificationsScreen')
             } else {
                 UpdateAppNewsDaemon.goToNotifications('INITED_APP')
             }

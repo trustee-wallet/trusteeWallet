@@ -140,7 +140,7 @@ class EnterMnemonicPhrase extends PureComponent {
                     App.init({ source: 'WalletCreate.EnterMnemonicPhrase', onMount: false })
                 }
             } catch (e) {
-                e.message += ' while refreshWalletsStore'
+                e.message += ' while WalletCreate.EnterMnemonicPhrase.refreshWalletsStore'
                 throw e
             }
 

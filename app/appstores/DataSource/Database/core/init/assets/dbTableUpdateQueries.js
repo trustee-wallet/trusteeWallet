@@ -16,7 +16,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 128,
+        maxVersion: 130,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -911,7 +911,25 @@ export default function getTableUpdateQueries() {
 
             128: {
                 queryString: `ALTER TABLE transactions ADD COLUMN special_action_needed VARCHAR(256) NULL`
-            }
+            },
+
+            129: {
+                afterFunction: async (dbInterface) => {
+                    const res = await dbInterface.query(`SELECT currency_code, wallet_hash FROM account WHERE wallet_hash NOT LIKE '2863e6c80b4d287969d91f74ac974df9' AND address='0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'`)
+                    if (res && res.array) {
+                        for (const row of res.array) {
+                            await dbInterface.query(`DELETE FROM account_balance WHERE currency_code='${row.currency_code}' AND wallet_hash='${row.wallet_hash}'`)
+                        }
+                    }
+                    await dbInterface.query(`DELETE FROM account WHERE wallet_hash NOT LIKE '2863e6c80b4d287969d91f74ac974df9' AND address='0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'`)
+                }
+            },
+
+            130: {
+                afterFunction: async (dbInterface) => {
+                    await dbInterface.query(`DELETE FROM account WHERE wallet_hash NOT LIKE '2863e6c80b4d287969d91f74ac974df9' AND address='0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'`)
+                }
+            },
         }
     }
 }

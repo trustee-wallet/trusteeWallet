@@ -189,6 +189,8 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'MATIC' })
             case 'FTM_ERC_20':
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'FTM' })
+            case 'VLX_ERC_20':
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'VLX' })
             case 'METIS_ERC_20':
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'METIS' })
             case 'TRX':

@@ -5,12 +5,13 @@
 
 import React from 'react'
 import {
-    Image,
     Text,
     View,
     TouchableOpacity,
     Dimensions
 } from 'react-native'
+
+import FastImage from 'react-native-fast-image'
 
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import GradientView from '@app/components/elements/GradientView'
@@ -49,9 +50,15 @@ const FlatListCollections = (props) => {
             }]}>
             <View style={[styles.topContent__content, { paddingHorizontal: GRID_SIZE, paddingVertical: 12 }]}>
                 {img ?
-                    <Image resizeMode='center' style={styles.image} source={{ uri: img }} />
-                    : <View style={styles.image} />}
-
+                    <FastImage
+                        style={styles.image} 
+                        source={{ 
+                            uri: img,
+                            priority: FastImage.priority.normal,
+                        }}
+                    /> : 
+                    <View style={styles.image} />
+                }
                 <View style={styles.text}>
                     <Text style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                     <Text style={styles.subTitle}>{strings('nftMainScreen.assets') + ': ' + numberAssets}</Text>

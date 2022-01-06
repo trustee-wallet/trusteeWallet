@@ -195,7 +195,7 @@ class BackupStep1Screen extends React.PureComponent {
                         App.init({ source: 'WalletBackup.handleSkip', onMount: false })
                     }
                 } catch (e) {
-                    e.message += ' while refreshWalletsStore'
+                    e.message += ' while WalletBackup.handleSkip.refreshWalletsStore'
                     throw e
                 }
 

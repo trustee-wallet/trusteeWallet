@@ -9,33 +9,30 @@ import {
     StyleSheet,
     TouchableOpacity,
 } from 'react-native'
-
 import { Bar } from 'react-native-progress'
 
-import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import TextInput from '@app/components/elements/new/TextInput'
+import NavStore from '@app/components/navigation/NavStore'
+import RoundButton from '@app/components/elements/new/buttons/RoundButton'
+import ProgressCircleBox from '@app/modules/Cashback/elements/ProgressCircleBox'
+import { ThemeContext } from '@app/theme/ThemeProvider'
+
 import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import Toast from '@app/services/UI/Toast/Toast'
-import NavStore from '@app/components/navigation/NavStore'
 import Validator from '@app/services/UI/Validator/Validator'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
-import { ThemeContext } from '@app/theme/ThemeProvider'
-import RoundButton from '@app/components/elements/new/buttons/RoundButton'
-import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import ApiPromo from '@app/services/Api/ApiPromo'
-import config from '@app/config/config'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
-import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import ProgressCircleBox from '@app/modules/Cashback/elements/ProgressCircleBox'
 import UpdateCashBackDataDaemon from '@app/daemons/back/UpdateCashBackDataDaemon'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 export class Tab1 extends React.Component {
 
     state = {
         inviteLink: '',
-        promoCode: '',
         inviteLinkError: false,
     }
 
@@ -46,10 +43,6 @@ export class Tab1 extends React.Component {
                 this.handleSubmitInviteLink()
             })
         }
-    }
-
-    handlePressPromo = () => {
-        this.setState(() => ({ selectedContent: this.state.selectedContent === 'promo' ? null : 'promo' }))
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -69,9 +62,8 @@ export class Tab1 extends React.Component {
 
         let cashbackLink = this.props.cashbackStore.dataFromApi.cashbackLink || false
         if (!cashbackLink || cashbackLink === '') {
-            cashbackLink = this.props.cashbackStore.cashbackLink || ''
+            cashbackLink = this.props.cashbackStore.dataFromApi.cashbackLink || ''
         }
-
         const validationResult = await Validator.arrayValidation([{
             type: 'CASHBACK_LINK',
             value: inviteLink
@@ -145,65 +137,7 @@ export class Tab1 extends React.Component {
         NavStore.goNext('QRCodeScannerScreen')
     }
 
-    onChangeCode = (value) => {
-        this.setState(() => ({ promoCode: value }))
-    }
-
-    handleDisablePromoCode = () => {
-        this.setState(() => ({ promoCode: null }))
-    }
-
-    handleApply = async () => {
-        try {
-            setLoaderStatus(true)
-            let desc = await ApiPromo.activatePromo(this.state.promoCode)
-            if (typeof desc !== 'string') {
-                if (typeof desc['en'] !== 'undefined') {
-                    desc = desc['en']
-                } else {
-                    desc = JSON.stringify(desc)
-                }
-            }
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.walletBackup.success'),
-                description: desc
-            })
-        } catch (e) {
-            if (config.debug.appErrors) {
-                console.log('CashBackScreen.Promo.handleApply error ' + e.message, e)
-            }
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.exchange.sorry'),
-                description: strings('cashback.cashbackError.' + e.message)
-            })
-        }
-        setLoaderStatus(false)
-        this.handleDisablePromoCode()
-        this.handlePressPromo()
-    }
-
-    componentDidMount() {
-        this.setState(() => ({ inviteLink: this.state.inviteLink, inviteLinkError: false }), () => {
-            if (this.state.inviteLink) {
-                this.handleSubmitInviteLink()
-            }
-        })
-    }
-
-
     render() {
-
-        const promoCondition = this.state.selectedContent === 'promo'
-
-        const promoError = this.state.promoCode === ''
-
-        const promoOnPress = promoCondition ? !promoError ? this.handleApply : this.handlePressPromo : this.handlePressPromo
-
-        const promoOnBlur = !promoError ? this.handleApply : this.handlePressPromo
 
         const {
             inviteLink,
@@ -223,8 +157,7 @@ export class Tab1 extends React.Component {
         return (
             <View style={{ marginTop: -GRID_SIZE }}>
                 {!cashbackParentToken ?
-                <View style={styles.inviteContainer}>
-                    {!promoCondition ?
+                    <View style={styles.inviteContainer}>
                         <TextInput
                             containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth * 0.48 }}
                             inputStyle={inviteLinkError && { color: colors.cashback.token }}
@@ -233,44 +166,20 @@ export class Tab1 extends React.Component {
                             value={inviteLink}
                             qr={true}
                             qrCallback={this.handleQrCode}
-                        /> :
-                        <TextInput
-                            numberOfLines={1}
-                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth * 0.48 }}
-                            placeholder={strings('cashback.enterPromoPlaceholder')}
-                            onChangeText={this.onChangeCode}
-                            value={this.state.promoCode}
-                            inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
-                        />}
-                    <RoundButton
-                        type={this.state.selectedContent === 'promo' ? 'sendMessage' : 'promo'}
-                        size={50}
-                        onPress={promoOnPress}
-                        containerStyle={[styles.buttonContainer, { marginRight: GRID_SIZE }]}
-                    />
-                </View> :
-                <View style={styles.inviteContainer}>
-                    {!promoCondition ?
-                        <View>
-                            <Text style={styles.inviteText}>{strings('cashback.invited')}</Text>
-                            <Text style={[styles.inviteToken, { color: colors.common.text1 }]}>{cashbackParentToken}</Text>
-                        </View> :
-                        <TextInput
-                            numberOfLines={1}
-                            containerStyle={{ marginLeft: GRID_SIZE, width: windowWidth * 0.48 }}
-                            placeholder={strings('cashback.enterPromoPlaceholder')}
-                            onChangeText={this.onChangeCode}
-                            value={this.state.promoCode}
-                            onBlur={promoOnBlur}
-                            inputStyle={this.state.inviteLinkError && { color: colors.cashback.token }}
-                        />}
-                    <RoundButton
-                        type={this.state.selectedContent === 'promo' ? 'sendMessage' : 'promo'}
-                        size={50}
-                        onPress={promoOnPress}
-                        containerStyle={[styles.buttonContainer, { marginRight: GRID_SIZE }]}
-                    />
-                </View>}
+                            onBlur={this.handleSubmitInviteLink}
+                        /> 
+                        <RoundButton
+                            type='sendMessage'
+                            size={50}
+                            onPress={this.handleChangeInviteLink}
+                            containerStyle={[styles.buttonContainer, { marginRight: GRID_SIZE }]}
+                        />
+                    </View> :
+                    <View>
+                        <Text style={styles.inviteText}>{strings('cashback.invited')}</Text>
+                        <Text style={[styles.inviteToken, { color: colors.common.text1 }]}>{cashbackParentToken}</Text>
+                    </View>
+                }
             </View>
         )
     }
@@ -351,7 +260,7 @@ export class Tab2 extends React.Component {
                         </TouchableOpacity>
                     </View> :
                     <View style={[styles.progressBarContainer, { marginLeft: GRID_SIZE / 2, backgroundColor: colors.common.text4, width: windowWidth.width * 0.70 }]}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: -GRID_SIZE / 4}}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: -GRID_SIZE / 4 }}>
                             <Text numberOfLines={2} style={[styles.withdrawInfo, { width: windowWidth.width * 0.35 }]}>{`${strings('cashback.toWithdraw')} ${minimalWithdraw} ${currency}`}</Text>
                             <Text style={[styles.procent, { color: colors.common.text3, marginRight: GRID_SIZE / 2 }]}>{`${procent} %`}</Text>
                         </View>
@@ -409,15 +318,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
-    imageBox: {
-        marginLeft: 16,
-        height: 50,
-        width: 50,
-        borderRadius: 25
-    },
-    promoIcon: {
-        padding: 12
-    },
     inviteText: {
         marginLeft: 16,
         fontFamily: 'Montserrat-SemiBold',
@@ -457,10 +357,7 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         color: '#999999',
         letterSpacing: 0.5,
-        marginVertical :11
-    },
-    progressBarLocation: {
-
+        marginVertical: 11
     },
     buttonLocation: {
         alignItems: 'center'
@@ -480,14 +377,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         justifyContent: 'center',
         textTransform: 'uppercase'
-    },
-    progressProcent: {
-        marginTop: 7,
-        fontFamily: 'SFUIDisplay-SemiBold',
-        fontSize: 16,
-        lineHeight: 18,
-        letterSpacing: 0.7,
-        color: '#999999'
     },
     circleView: {
         justifyContent: 'center',

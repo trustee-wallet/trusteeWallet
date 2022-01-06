@@ -38,6 +38,7 @@ const ICON_SET = {
     canceled: props => <CustomIcon {...props} name="cancel" size={22} style={{ left: 0.5 }} />,
     rbf: props => <CustomIcon {...props} name="rbf" size={22} style={{ left: 0.5 }} />,
     exchange: props => <CustomIcon {...props} name="exchange" size={22} style={{ left: 0.5 }} />,
+    youtube: props => <CustomIcon {...props} name="youtube" size={22} style={{ left: 0.5 }} />,
 }
 
 export default function ButtonIcon(props) {
