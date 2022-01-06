@@ -82,7 +82,7 @@ const MnemonicQrCode = (props) => {
         <>
             <View style={{ paddingHorizontal: GRID_SIZE , paddingTop: GRID_SIZE * 1.5 }}>
                 <Message
-                    name='warningM'
+                    name='recoveryPhrase'
                     text={strings('walletBackup.step0Screen.infoQR')}
                     progress={animationProgress}
                     timer={visibilityTimer}
