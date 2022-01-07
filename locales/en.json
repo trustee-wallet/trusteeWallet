@@ -1079,10 +1079,10 @@
       }
     },
     "tokenNotAdded": {
-      "description": "Asset not added. Go to the add asset page?"
+      "description": "Asset %{currencyCode} not added. Add an asset now?"
     },
     "tokenHidden": {
-      "description": "Asset is hidden. Go to the asset control page?"
+      "description": "Asset %{currencyName} is hidden. Turn on an asset now?"
     },
     "useAgainAddresses": {
       "title": "Attention!",

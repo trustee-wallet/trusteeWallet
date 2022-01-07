@@ -1071,10 +1071,10 @@
       }
     },
     "tokenNotAdded": {
-      "description": "აქტივი არაა დამატებული. გადავიდეთ დამატების გვერდზე?"
+      "description": "აქტიური %{currencyCode} არ არის ხელმისაწვდომი. დაამატეთ აქტივი ახლა?"
     },
     "tokenHidden": {
-      "description": "აქტივი დამალულია. გადავიდეთ აქტივების მართვის გვერდზე?"
+      "description": "აქტივი %{currencyName} დამალულია. ჩართოთ აქტივი ახლა?"
     },
     "useAgainAddresses": {
       "title": "ყურადღება!",

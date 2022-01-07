@@ -1080,10 +1080,10 @@
       }
     },
     "tokenNotAdded": {
-      "description": "Актив не додано. Перейти на сторінку додавання?"
+      "description": "Актив %{currencyCode} не додано. Додати актив зараз?"
     },
     "tokenHidden": {
-      "description": "Актив прихований. Перейти на сторінку керування активами?"
+      "description": "Актив %{currencyName} прихований. Увімкнути актив зараз?"
     },
     "useAgainAddresses": {
       "title": "Увага!",

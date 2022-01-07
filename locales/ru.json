@@ -1080,10 +1080,10 @@
       }
     },
     "tokenNotAdded": {
-      "description": "Актив не добавлен. Перейти на страницу добавления?"
+      "description": "Актив %{currencyCode} не добавлен. Добавить актив сейчас?"
     },
     "tokenHidden": {
-      "description": "Актив скрыт. Перейти на страницу управления активами?"
+      "description": "Актив %{currencyName} скрыт. Включить актив сейчас?"
     },
     "useAgainAddresses": {
       "title": "Внимание!",
