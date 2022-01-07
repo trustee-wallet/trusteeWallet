@@ -65,10 +65,10 @@ class YesNoModal extends React.PureComponent {
                         </Text>
                     </View>
                     <View>
-                        <Button onPress={this.handleNo} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
+                        <Button onPress={reverse ? this.handleYes : this.handleNo} color={colors.modal.warning} shadow={true} style={{ marginTop: 17 }}>
                             {oneButton ? oneButton : reverse ? strings(yesTitle) : strings(noTitle)}
                         </Button>
-                        <Button onPress={this.handleYes} style={{ backgroundColor: 'transparent', color: colors.modal.warning }}>
+                        <Button onPress={reverse ? this.handleNo : this.handleYes} style={{ backgroundColor: 'transparent', color: colors.modal.warning }}>
                             {twoButton ? twoButton : reverse ? strings(noTitle) : strings(yesTitle)}
                         </Button>
                     </View>

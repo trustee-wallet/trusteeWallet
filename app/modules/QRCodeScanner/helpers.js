@@ -164,13 +164,13 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
                 description: strings('modal.tokenNotAdded.description', { currencyCode: res.data.currencyCode }),
                 reverse: true,
                 noCallback: () => {
-                    NavStore.goNext('AddAssetScreen', { currencyCode: [res.data.currencyCode] })
+                    try {
+                        this.scanner.reactivate()
+                    } catch {
+                    }
                 }
             }, () => {
-                try {
-                    this.scanner.reactivate()
-                } catch {
-                }
+                NavStore.goNext('AddAssetScreen', { currencyCode: [res.data.currencyCode] })
             })
             return
         }
@@ -183,13 +183,13 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
                 description: strings('modal.tokenHidden.description', { currencyName: cryptoCurrency.currencyName }),
                 reverse: true,
                 noCallback: () => {
-                    NavStore.goNext('AddAssetScreen', { currencyCode: [cryptoCurrency.currencyCode] })
+                    try {
+                        this.scanner.reactivate()
+                    } catch {
+                    }
                 }
             }, () => {
-                try {
-                    this.scanner.reactivate()
-                } catch {
-                }
+                NavStore.goNext('AddAssetScreen', { currencyCode: [cryptoCurrency.currencyCode] })
             })
             return
         }
