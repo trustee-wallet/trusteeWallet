@@ -31,10 +31,26 @@ const networkToCurrencyCode = {
     'ethereumclassic': 'ETC',
     'vechainthor': 'VET',
     'vechainthortoken': 'VTHO',
-    'metis': 'METIS'
+    'metis': 'METIS',
+    'ambrosus': 'AMB',
+    'amb': 'AMB',
+    'waves': 'WAVES',
+    'aeneas': 'ASH',
+    'ash': 'ASH',
+    'bitcointestnet': 'BTC_TEST',
+    'bitcoincash': 'BCH',
+    'fantom': 'FTM',
+    'optimism': 'OPTIMISM',
+    'solana': 'SOL'
 }
 
 const currencyNameToNetwork = {
+    'optimisticethereum': 'optimism',
+    'fantomnetwork': 'fantom',
+    'aeneas': 'aeneas',
+    'ethereumclassic': 'ethereumclassic',
+    'vechainthor': 'vechainthor',
+    'vechainthortoken': 'vechainthortoken',
     'binancecoin': 'bnb',
     'velas': 'velas',
     'metis': 'metis',
@@ -48,6 +64,7 @@ const currencyNameToNetwork = {
     'token_of_metis' : 'metis',
     'token_of_tron' : 'tron',
     'token_of_vlx' : 'velas',
+    'token_of_bitcoin' : 'bitcoin',
 }
 
 

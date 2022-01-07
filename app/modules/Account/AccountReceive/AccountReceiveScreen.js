@@ -145,7 +145,7 @@ class AccountReceiveScreen extends React.PureComponent {
             let linkForQR = ''
 
             if (typeof extend.tokenBlockchain !== 'undefined' || typeof extend.addressCurrencyCode !== 'undefined') {
-                let currencyName = extend.tokenBlockchain !== 'undefined' ? ('token_of_' + extend.tokenBlockchain) : BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
+                let currencyName = extend?.tokenBlockchain && extend?.tokenBlockchain !== 'undefined' ? ('token_of_' + extend.tokenBlockchain) : BlocksoftDict.Currencies[extend.addressCurrencyCode].currencyName
                 currencyName = changeCurrencyNameToNetwork(currencyName, extend.currencyName)
                 if (typeof extend.tokenAddress !== 'undefined') {
                     linkForQR = `${currencyName}:${address}?contractAddress=${extend.tokenAddress}&symbol=${currencySymbol}`
