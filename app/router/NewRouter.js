@@ -101,7 +101,7 @@ import GuideScreen from '@app/modules/WalletList/HomeFilter/GuideScreen';
 import TransactionFilter from '@app/modules/Account/AccountFilter/AccountTransactionFilter';
 import TransactionCategories from '@app/modules/Account/AccountFilter/AccountTransactionCategories';
 
-import { SendReceiveDeepLinking } from '@app/appstores/Stores/Send/SendReceiveDeepLinking'
+import AppDeepLinking from '@app/services/AppDeepLinking/AppDeepLinking';
 
 const Stack = createStackNavigator()
 
@@ -125,7 +125,7 @@ const HomeStackScreen = () => {
 
     useEffect(() => {
         if(!CASHE_USED){
-            SendReceiveDeepLinking.receiveDeepLink(null, 'Init app')
+            AppDeepLinking.receiveDeepLink(null, 'Init app')
             CASHE_USED = true
         }
     }, [])

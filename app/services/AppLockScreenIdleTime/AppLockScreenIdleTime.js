@@ -13,7 +13,6 @@ import { setBlurStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import Log from '@app/services/Log/Log'
@@ -23,7 +22,6 @@ import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 const TIME_DIFF = 300000
 
 class AppLockScreenIdleTime {
-
     lockScreenTimerIOS = {}
 
     _init = false
@@ -39,17 +37,17 @@ class AppLockScreenIdleTime {
             return true
         }
         if (Platform.OS === 'android') {
-            AppState.addEventListener('change', (state) => this.handleLockScreenStateAndroid({ state }))
+            AppState.addEventListener('change', state => this.handleLockScreenStateAndroid({ state }))
         } else {
             BackgroundTimer.start()
-            AppState.addEventListener('change', (state) => this.handleLockScreenStateIOS({ state }))
+            AppState.addEventListener('change', state => this.handleLockScreenStateIOS({ state }))
         }
     }
 
-    handleLockScreenStateAndroid = (param) => {
+    handleLockScreenStateAndroid = param => {
         this._handle(
             param,
-            (innerInit) => {
+            innerInit => {
                 BackgroundTimer.runBackgroundTimer(innerInit, TIME_DIFF)
             },
             () => {
@@ -58,10 +56,10 @@ class AppLockScreenIdleTime {
         )
     }
 
-    handleLockScreenStateIOS = (param) => {
+    handleLockScreenStateIOS = param => {
         this._handle(
             param,
-            (innerInit) => {
+            innerInit => {
                 this.lockScreenTimerIOS = setTimeout(innerInit, TIME_DIFF)
             },
             () => {
@@ -82,14 +80,13 @@ class AppLockScreenIdleTime {
             initFunction(() => {
                 const { lockScreenStatus } = store.getState().settingsStore.keystore
                 if (+lockScreenStatus) {
-                    const diff = this._activeTime > 0 ? (new Date().getTime() - this._activeTime) : 0
+                    const diff = this._activeTime > 0 ? new Date().getTime() - this._activeTime : 0
                     if (diff > 300 && !this._isBlur) {
                         setBlurStatus(true)
                         this._isBlur = true
                     }
                 }
             })
-
         } else if (param.state === 'inactive') {
             MarketingEvent.UI_DATA.IS_ACTIVE = false
             if (!this._isBlur) {
@@ -105,7 +102,7 @@ class AppLockScreenIdleTime {
             this._activeTime = new Date().getTime()
             clearFunction()
 
-            const diff = this._backgroundTime > 0 ? (new Date().getTime() - this._backgroundTime) : 0
+            const diff = this._backgroundTime > 0 ? new Date().getTime() - this._backgroundTime : 0
             if (diff >= TIME_DIFF) {
                 const { lockScreenStatus } = store.getState().settingsStore.keystore
                 if (+lockScreenStatus && !MarketingEvent.UI_DATA.IS_LOCKED) {
@@ -117,7 +114,7 @@ class AppLockScreenIdleTime {
                     this._backgroundTime = 0
                     this._isBlur = false
                     setBlurStatus(false)
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.INIT_POPUP, callback : false})
+                    setLockScreenConfig({ flowType: LockScreenFlowTypes.INIT_POPUP, callback: false })
                     NavStore.reset('LockScreenPop')
                     return true
                 }
@@ -132,7 +129,6 @@ class AppLockScreenIdleTime {
             }
         }
     }
-
 }
 
 const AppLockScreenIdleTimeSingle = new AppLockScreenIdleTime()

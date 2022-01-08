@@ -6,8 +6,8 @@ import React from 'react'
 
 import { Provider } from 'react-redux'
 import { AppearanceProvider } from 'react-native-appearance'
-import { Platform, UIManager, Linking } from 'react-native'
 import { enableScreens } from 'react-native-screens'
+import appsFlyer from 'react-native-appsflyer'
 
 import store from '@app/store'
 
@@ -15,10 +15,6 @@ import Router from '@app/router'
 import { ThemeProvider } from '@app/theme/ThemeProvider'
 
 import Application from '@app/appstores/Actions/App/App'
-
-import appsFlyer from 'react-native-appsflyer'
-
-import { SendReceiveDeepLinking } from '@app/appstores/Stores/Send/SendReceiveDeepLinking'
 
 
 appsFlyer.initSdk(
@@ -34,25 +30,14 @@ appsFlyer.initSdk(
 
 enableScreens()
 
-const handler = ({ url }) => {
-    SendReceiveDeepLinking.receiveDeepLink(url)
-}
-
 export default class App extends React.Component {
 
     componentDidMount() {
         Application.init({ source: 'App.mount', onMount : true })
-
-        if (Platform.OS === 'android') {
-            if (UIManager.setLayoutAnimationEnabledExperimental) {
-                UIManager.setLayoutAnimationEnabledExperimental(true)
-            }
-        }
-        Linking.addEventListener('url', handler)
     }
 
     componentWillUnmount() {
-        Linking.removeEventListener('url', handler)
+        Application.wiilMount()
     }
 
     render() {
