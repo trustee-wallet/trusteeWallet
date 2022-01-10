@@ -2,12 +2,14 @@
   "OPENSEA": {
     "dappCode" : "OPENSEA",
     "dappName" : "OpenSea",
-    "dappUrl" : "https://opensea.io/account"
+    "dappUrl" : "https://opensea.io/account",
+    "dappNetworks" : ["ETH", "MATIC"]
   },
   "PANCAKE" : {
     "dappCode" : "PANCAKE",
     "dappName" : "Pancake Swap",
-    "dappUrl" : "https://pancakeswap.finance/swap"
+    "dappUrl" : "https://pancakeswap.finance/swap",
+    "dappNetworks" : ["BNB_SMART"]
   },
   "JUSTLEND" : {
     "dappCode": "JUSTLEND",

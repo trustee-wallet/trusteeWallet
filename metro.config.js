@@ -8,6 +8,7 @@ module.exports = {
         assetExts: ['png', 'jpeg', 'jpg']
     },
     transformer: {
+        babelTransformerPath: require.resolve("./metro.transform.js"),
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,
