@@ -14,6 +14,7 @@ import { finishProcess } from '@app/modules/QRCodeScanner/helpers'
 import Log from '../Log/Log'
 
 export default new class AppDeepLinking {
+
     init = () => {
         Linking.addEventListener('url', this.handler)
     }

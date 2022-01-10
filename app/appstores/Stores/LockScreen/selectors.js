@@ -7,7 +7,8 @@ export const getLockScreenData = createSelector(
     (data => {
         return {
             flowType: data.flowType,
-            callback : data.callback
+            callback : data.callback,
+            noCallback: data.noCallback
         }
     })
 )

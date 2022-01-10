@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
@@ -12,6 +12,10 @@ import { useTheme } from '@app/theme/ThemeProvider'
 import BlocksoftPrettyDates from '@crypto/common/BlocksoftPrettyDates'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 import CustomIcon from '@app/components/elements/CustomIcon'
+
+import Toast from '@app/services/UI/Toast/Toast'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Log from '@app/services/Log/Log'
 
 
 const prepareStatusHeaderToView = (status) => {
@@ -63,6 +67,15 @@ const HeaderTx = (props) => {
     //     arrowIcon = <Feather name='x' style={{ color: colors.common.text1, fontSize: 17 }} />
     // }
 
+    const copyToClip = () => {
+        try {
+            copyToClipboard(addressAmountPretty)
+            Toast.setMessage(strings('toast.copied')).show()
+        } catch (e) {
+            Log.err('Header.copyToClip error', e.message)
+        }
+    }
+
     const isFeeTx = addressAmount * 1 <= 0
 
     let amountTxt = addressAmountPrettyPrefix + ' ' + (isFeeTx ? transactionFeePretty : addressAmountPretty)
@@ -101,15 +114,14 @@ const HeaderTx = (props) => {
                     </View>
                 </View>
             </View>
-            <View style={styles.topContent__title}>
-                <>
+            <TouchableOpacity onPress={copyToClip}>
+                <View style={styles.topContent__title}>
                     <Text style={{ ...styles.amount, color: colors.common.text1 }}>
                         {amountTxt}
                     </Text>
                     <Text style={{ ...styles.code, color: color }}>{currencySymbol}</Text>
-                </>
-            </View>
-
+                </View>
+            </TouchableOpacity>
         </View>
     )
 

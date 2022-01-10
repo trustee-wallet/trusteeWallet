@@ -36,9 +36,13 @@ class SettingsPrivateXMR extends Component {
     _init = async(needPassword = false) => {
         const { lockScreenStatus } = this.props.settingsData
         if (needPassword && +lockScreenStatus) {
-            setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback : () => {
+            setLockScreenConfig({
+                flowType: LockScreenFlowTypes.JUST_CALLBACK,
+                noCallback: NavStore.goBack,
+                callback: () => {
                     this._init(false)
-                }})
+                }
+            })
             NavStore.goNext('LockScreen')
             return
         }

@@ -200,6 +200,7 @@
       "staked": "Staked",
       "frozen": "Frozen",
       "stakeTransactionsSOL": "Staking transactions",
+      "solValidator": "დამოწმების საფასური:",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
       "serverInputXMR": "სერვერი მონაცემებით (მაგალითად, api.mymonero.com)",

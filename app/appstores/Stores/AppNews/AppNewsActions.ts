@@ -33,12 +33,12 @@ export namespace AppNewsActions {
      */
     export const onOpen = async (notification: any, title: string = '', subtitle: string = '', checkLock = true): Promise<boolean> => {
         try {
-            if (checkLock && MarketingEvent.UI_DATA.IS_LOCKED) {
+            if (checkLock && MarketingEvent.UI_DATA.IS_LOCKED && !MarketingEvent.UI_DATA.IS_ACTIVE) {
                 await Log.log('ACT/AppNewsActions onOpen need unlock')
                 setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
                     await Log.log('ACT/AppNewsActions onOpen after lock screen')
                     if (await AppNewsActions.onOpen(notification, title, subtitle, false)) {
-                        NavStore.reset('NotificationsScreen')
+                        NavStore.reset('TabBar', { screen: 'NotificationsScreen', initial: false })
                     }  else {
                         NavStore.reset('TabBar')
                     }

@@ -202,6 +202,7 @@
       "staked": "Staked",
       "frozen": "Frozen",
       "stakeTransactionsSOL": "Staking transactions",
+      "solValidator": "Validator fee:",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
       "serverInputXMR" : "Server (default api.mymonero.com)",

@@ -117,8 +117,7 @@ class App {
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
             if (UpdateAppNewsDaemon.isGoToNotifications('AFTER_APP')) {
-                // NavStore.reset('HomeScreen', { screen: 'NotificationsScreen' }) - not working
-                NavStore.reset('NotificationsScreen')
+                NavStore.reset('TabBar', { screen: 'HomeScreen', params: { screen: 'NotificationsScreen', initial: false }})
             } else {
                 UpdateAppNewsDaemon.goToNotifications('INITED_APP')
             }
@@ -217,7 +216,7 @@ class App {
         }
     }
 
-    wiilMount = () => {
+    willMount = () => {
         AppDeepLinking.willMount()
     }
 

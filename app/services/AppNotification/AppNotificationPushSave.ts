@@ -31,6 +31,8 @@ export default new class AppNotificationPushSave {
             if (typeof message.notification.body !== 'undefined') {
                 newsCustomText = message.notification.body
             }
+        } else {   
+            return false
         }
         if (typeof message.data !== 'undefined') {
             if (typeof message.data.news !== 'undefined') {

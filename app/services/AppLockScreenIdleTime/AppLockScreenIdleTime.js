@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import { AppState, Platform } from 'react-native'
+import { AppState, Platform, StatusBar } from 'react-native'
 
 import BackgroundTimer from 'react-native-background-timer'
 
@@ -22,6 +22,7 @@ import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 const TIME_DIFF = 300000
 
 class AppLockScreenIdleTime {
+
     lockScreenTimerIOS = {}
 
     _init = false
@@ -37,17 +38,17 @@ class AppLockScreenIdleTime {
             return true
         }
         if (Platform.OS === 'android') {
-            AppState.addEventListener('change', state => this.handleLockScreenStateAndroid({ state }))
+            AppState.addEventListener('change', (state) => this.handleLockScreenStateAndroid({ state }))
         } else {
             BackgroundTimer.start()
-            AppState.addEventListener('change', state => this.handleLockScreenStateIOS({ state }))
+            AppState.addEventListener('change', (state) => this.handleLockScreenStateIOS({ state }))
         }
     }
 
-    handleLockScreenStateAndroid = param => {
+    handleLockScreenStateAndroid = (param) => {
         this._handle(
             param,
-            innerInit => {
+            (innerInit) => {
                 BackgroundTimer.runBackgroundTimer(innerInit, TIME_DIFF)
             },
             () => {
@@ -56,10 +57,10 @@ class AppLockScreenIdleTime {
         )
     }
 
-    handleLockScreenStateIOS = param => {
+    handleLockScreenStateIOS = (param) => {
         this._handle(
             param,
-            innerInit => {
+            (innerInit) => {
                 this.lockScreenTimerIOS = setTimeout(innerInit, TIME_DIFF)
             },
             () => {
@@ -121,6 +122,7 @@ class AppLockScreenIdleTime {
             }
             resetLockScreen(6000000, 'AppLockScreenIdleTime activated')
             MarketingEvent.UI_DATA.IS_ACTIVE = true
+            StatusBar.setBarStyle(MarketingEvent.UI_DATA.IS_LIGHT ? 'dark-content' : 'light-content')
             this._backgroundTime = 0
 
             if (this._isBlur) {

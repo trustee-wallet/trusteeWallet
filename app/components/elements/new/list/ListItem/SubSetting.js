@@ -11,7 +11,6 @@ import RadioButton from '../../RadioButton'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
-import PercentView from '../../PercentView'
 import CustomIcon from '@app/components/elements/CustomIcon'
 
 const getIcon = (iconType, color) => {
@@ -63,7 +62,8 @@ export default function SubSettingListItem(props) {
         ExtraViewParams,
         percentValue,
         iconType,
-        containerStyle
+        containerStyle,
+        percentValueText
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -101,18 +101,16 @@ export default function SubSettingListItem(props) {
                     }
                     <View style={[styles.mainContent, last && styles.noBorder]}>
                         <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                            {percentValue ?
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                                    <PercentView
-                                        containerStyle={{ marginTop: -3 }}
-                                        value={percentValue}
-                                    />
-                                </View>
-                                :
                                 <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            {(percentValue || percentValue === 0) &&
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                                    <Text style={[styles.text, { color: colors.common.text3 }]}>
+                                        {`${percentValueText} ${percentValue}%`}
+                                    </Text>
+                                </View>
                             }
                             {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                            
                         </View>
                         <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
                             <RadioButton
@@ -123,7 +121,7 @@ export default function SubSettingListItem(props) {
                     </View>
                 </View>}
             {withoutLine ? null :
-                !last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 2 }} />}
+                !last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: (percentValue || percentValue === 0) ? 0 : GRID_SIZE * 2 }} />}
         </TouchableOpacity>
     )
 }
@@ -177,4 +175,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
+    text: {
+        marginTop: -4,
+        fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 13,
+        lineHeight: 17,
+        letterSpacing: 0.5,
+        marginBottom: -6
+    }
 })

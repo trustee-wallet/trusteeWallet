@@ -367,16 +367,18 @@ export default new class AppNotificationListener {
                     }
                     const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
 
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
-                            await Log.log('PUSH _onMessage startMessage after lock screen', unifiedPush)
-                            if (await AppNewsActions.onOpen(unifiedPush, '', '', false)) {
-                                NavStore.reset('NotificationsScreen')
-                            }  else {
-                                NavStore.reset('TabBar')
-                            }
-                    }})
+                    if (unifiedPush) {
+                        setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
+                                await Log.log('PUSH _onMessage startMessage after lock screen', unifiedPush)
+                                if (await AppNewsActions.onOpen(unifiedPush, '', '', false)) {
+                                    NavStore.reset('TabBar', { screen: 'HomeScreen', params: { screen: 'NotificationsScreen', initial: false }})
+                                }  else {
+                                    NavStore.reset('TabBar')
+                                }
+                        }})
 
-                    NavStore.goNext('LockScreenPop')
+                        NavStore.goNext('LockScreenPop')
+                    }
                 } else {
                     if (DEBUG_NOTIFS) {
                         await Log.log('PUSH _onMessage startMessage not null', startMessage)
@@ -390,14 +392,16 @@ export default new class AppNotificationListener {
                     if (DEBUG_NOTIFS) {
                         await Log.log('PUSH _onMessage startMessage unified', unifiedPush)
                     }
-                    if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
-                        await Log.log('PUSH _onMessage startMessage app is inited first')
-                        if (await AppNewsActions.onOpen(unifiedPush)) {
-                            NavStore.reset('NotificationsScreen')
+                    if (unifiedPush) {
+                        if (UpdateAppNewsDaemon.isGoToNotifications('INITED_APP')) {
+                            await Log.log('PUSH _onMessage startMessage app is inited first')
+                            if (await AppNewsActions.onOpen(unifiedPush)) {
+                                NavStore.reset('TabBar', { screen: 'HomeScreen', params: { screen: 'NotificationsScreen', initial: false }})
+                            }
+                        } else {
+                            await Log.log('PUSH _onMessage startMessage app is not inited')
+                            await AppNewsActions.onOpen(unifiedPush)
                         }
-                    } else {
-                        await Log.log('PUSH _onMessage startMessage app is not inited')
-                        await AppNewsActions.onOpen(unifiedPush)
                     }
                 }
 
@@ -428,6 +432,13 @@ export default new class AppNotificationListener {
                 await Log.log('PUSH _onNotificationOpened inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
             }
             await AppNotificationPopup.onOpened(message)
+        })
+
+        await messaging().setBackgroundMessageHandler(async (message) => {
+            if (DEBUG_NOTIFS) {
+                await Log.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+            }
+            await AppNotificationPopup.displayPush(message)
         })
 
     }

@@ -3,7 +3,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Image, TouchableOpacity, StyleSheet, BackHandler } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 
@@ -40,6 +40,17 @@ class LockScreen extends React.PureComponent {
         this.setState({
             passwordState: res ? 'enter' : 'choose'
         })
+        BackHandler.addEventListener("hardwareBackPress", this.backAction)
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener("hardwareBackPress", this.backAction)
+    }
+
+    backAction = () => {
+        if(typeof this.props.lockScreen.noCallback === 'function'){
+            this.props.lockScreen.noCallback()
+        }
     }
 
     renderIconComponentLockedPage = () => {

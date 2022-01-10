@@ -202,6 +202,7 @@
       "staked": "Застейкано",
       "frozen" : "Заморожено",
       "stakeTransactionsSOL": "Транзакції стейкінгу",
+      "solValidator": "Комісія валідатора:",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
       "serverInputXMR" : "Сервер з даними (наприклад, api.mymonero.com)",

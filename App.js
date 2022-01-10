@@ -37,7 +37,7 @@ export default class App extends React.Component {
     }
 
     componentWillUnmount() {
-        Application.wiilMount()
+        Application.willMount()
     }
 
     render() {
