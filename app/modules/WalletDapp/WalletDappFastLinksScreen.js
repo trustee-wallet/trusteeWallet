@@ -53,12 +53,12 @@ class WalletDappFastLinksScreen extends PureComponent {
             const item = dappsBlocksoftDict[key]
             if (typeof item.dappNetworks === 'undefined') {
                 mapping.push(item)
-                continue
+                break
             }
             for (const code of item.dappNetworks) {
                 if (typeof indexedCurrencies[code] !== 'undefined') {
                     mapping.push(item)
-                    continue
+                    break
                 }
             }
         }
