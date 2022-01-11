@@ -22,7 +22,59 @@ const TrxDappHandler = {
 
     handle : async (callData, asked = false) => {
         const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
-        if (callData.action === 'triggerSmartContract') {
+        if (callData.action === 'getContractAt') {
+            // https://github.com/tronprotocol/tronweb/blob/5fa94d0c44839bb6d64a0e1cbc703a3c5c8ff332/src/lib/contract/index.js#L191
+            const params = {
+                value: await TronUtils.addressToHex(callData.address),
+            }
+            const tmp = await BlocksoftAxios.post(sendLink + '/wallet/getcontract', params, true, 1000000)
+            if (typeof typeof tmp.data !== 'undefined' && typeof tmp.data.bytecode === 'undefined') {
+                // @ts-ignore
+                tmp.data.error = BlocksoftUtils.hexToUtf('0x' + tmp.data.result.message)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.exchange.sorry'),
+                    description: 'no contract '  + callData.address,
+                })
+                return {res : false}
+            }
+            const res = tmp.data
+            const contract = {
+                address : callData.address,
+                // bytecode : res.bytecode,
+                deployed : true,
+                abi : res.abi
+            }
+            return {res : contract}
+        } else  if (callData.action === 'sendTrx') {
+            const shouldAskText = 'send ' + callData.amount + ' TRX to ' + callData.addressTo
+            const params = {
+                owner_address: await TronUtils.addressToHex(callData.address),
+                to_address: await TronUtils.addressToHex(callData.toAddress),
+                // @ts-ignore
+                amount: BlocksoftUtils.round(callData.amount) * 1
+            }
+            const tmp = await BlocksoftAxios.post(sendLink + '/wallet/createtransaction', params, true, 1000000)
+            if (typeof typeof tmp.data.result !== 'undefined' && typeof tmp.data.result.message !== 'undefined') {
+                // @ts-ignore
+                tmp.data.error = BlocksoftUtils.hexToUtf('0x' + tmp.data.result.message)
+                showModal({
+                    type: 'INFO_MODAL',
+                    icon: 'INFO',
+                    title: strings('modal.exchange.sorry'),
+                    description: tmp.data.error,
+                })
+            }
+            if (!asked) {
+                return {
+                    shouldAsk: true,
+                    shouldAskText,
+                    res: false
+                }
+            }
+            return { res: tmp.data }
+        } else if (callData.action === 'triggerSmartContract' || callData.action === 'triggerConstantContract') {
             let shouldAskText = callData.address + '.' + callData.functionSelector
             let parameter = ''
             const abiCoder = new AbiCoder()
@@ -46,7 +98,7 @@ const TrxDappHandler = {
                             throw new Error(e.message + ' type ' + type + ' tmp.value ' + tmp.value + ' value ' + value)
                         }
                     }
-                    shouldAskText += ' (' + values.join(', ') + ')'
+                    shouldAskText += '(' + values.join(', ') + ')'
                     parameter = abiCoder.encode(types, values).replace(/^(0x)/, '')
                 } catch (e) {
                     throw new Error(e.message + ' in abiCoder')
@@ -59,13 +111,18 @@ const TrxDappHandler = {
                 owner_address: TronUtils.addressToHex(TrxDappHandler.account.address)
             }
 
-            if (typeof callData.options !== 'undefined') {
-                if (typeof callData.options.callValue !== 'undefined') {
-                    params.call_value = BlocksoftUtils.hexToDecimal(callData.options.callValue);
-                    shouldAskText += ' ' + params.call_value + ' TRX'
-                }
-                if (typeof callData.options.feeLimit !== 'undefined') {
-                    params.fee_limit = callData.options.feeLimit
+            if (callData.action === 'triggerConstantContract') {
+                asked = true
+
+            } else {
+                if (typeof callData.options !== 'undefined') {
+                    if (typeof callData.options.callValue !== 'undefined' && callData.options.callValue * 1 > 0) {
+                        params.call_value = BlocksoftUtils.hexToDecimal(callData.options.callValue);
+                        shouldAskText += ' ' + params.call_value + ' TRX'
+                    }
+                    if (typeof callData.options.feeLimit !== 'undefined') {
+                        params.fee_limit = callData.options.feeLimit
+                    }
                 }
             }
 
@@ -79,6 +136,12 @@ const TrxDappHandler = {
                     title: strings('modal.exchange.sorry'),
                     description: tmp.data.error,
                 })
+                if (config.debug.appLogs) {
+                    console.log('TrxDappHandler ' + callData.address + '.' + callData.functionSelector + ' ' + JSON.stringify(callData.parameters) + ' => error ' +  tmp.data.error + ' ' + tmp.data.error)
+                }
+            }
+            if (callData.action === 'triggerConstantContract' && typeof tmp.data.constant_result !== 'undefined') {
+                return  {res : tmp.data.constant_result[0]}
             }
             if (!asked) {
                 return {
@@ -100,10 +163,25 @@ const TrxDappHandler = {
             tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
             return {res : tx}
         } else if (callData.action === 'sendRawTransaction') {
+            const tx = callData.data
+            if (typeof tx.signature === 'undefined') {
+                const discoverFor = {
+                    addressToCheck: TrxDappHandler.account.address,
+                    derivationPath: TrxDappHandler.account.derivationPath,
+                    walletHash: TrxDappHandler.account.walletHash,
+                    currencyCode: TrxDappHandler.account.currencyCode
+                }
+                const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'TrxDappHandler')
+                tx.signature = [TronUtils.ECKeySign(Buffer.from(tx.txID, 'hex'), Buffer.from(privateData.privateKey, 'hex'))]
+            }
             const link = sendLink + '/wallet/broadcasttransaction'
-            const tmp = await BlocksoftAxios.post(link, callData.data, true, 100000)
+            const tmp = await BlocksoftAxios.post(link, tx, true, 100000)
             if (typeof tmp.data.txid !== 'undefined') {
                 tmp.data.transaction = { txID: tmp.data.txid }
+            }
+            if (typeof typeof tmp.data !== 'undefined' && typeof tmp.data.message !== 'undefined') {
+                // @ts-ignore
+                tmp.data.error = BlocksoftUtils.hexToUtf('0x' + tmp.data.message)
             }
             return {res : tmp.data}
         } else {

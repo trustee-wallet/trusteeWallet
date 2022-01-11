@@ -15,5 +15,11 @@
     "dappCode": "JUSTLEND",
     "dappName" : "JustLend",
     "dappUrl" : "https://justlend.org/#/home"
+  },
+  "EXON" : {
+    "dappCode" : "EXON",
+    "dappName" : "Exon center",
+    "dappUrl" : "https://app.exoncenter.com/430",
+    "dappNetworks" : ["TRX_EXON"]
   }
 }

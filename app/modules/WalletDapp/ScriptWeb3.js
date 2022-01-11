@@ -55,6 +55,7 @@ try {
         },
 
         tronWeb: {
+            isTrustee: true,
             defaultAddress: {
                 base58: 'TRX_ADDRESS_BASE58',
                 hex: 'TRX_ADDRESS_HEX'
@@ -62,9 +63,15 @@ try {
             transactionBuilder: {
                 triggerSmartContract: async (address, functionSelector, options, parameters) => {
                     return trustee.sendBridge({ main: 'tronWeb', action: 'triggerSmartContract', address, functionSelector, options, parameters })
-                }
+                },
+                sendTrx : async (address, amount, addressTo) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'sendTrx', address, amount, addressTo })
+                },
             },
             trx: {
+                request : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'request', data })
+                },
                 sign: async (data) => {
                     return trustee.sendBridge({ main: 'tronWeb', action: 'sign', data })
                 },
@@ -76,6 +83,52 @@ try {
                 },
                 getConfirmedTransaction: async (data) => {
                     return trustee.sendBridge({ main: 'tronWeb', action: 'getConfirmedTransaction', data })
+                }
+            },
+            contract: () => {
+                return {
+                    at: async (address) => {
+                        try {
+                            const contract = await trustee.sendBridge({ main: 'tronWeb', action: 'getContractAt', address })
+                            // https://github.com/tronprotocol/tronweb/blob/5fa94d0c44839bb6d64a0e1cbc703a3c5c8ff332/src/lib/contract/index.js#L102
+                            if (typeof contract.abi.entrys !== 'undefined') {
+                                for (const tmp of contract.abi.entrys) {
+                                    const { name, inputs } = tmp
+                                    contract[name] = (arg0, arg1, arg2, arg3, arg4, arg5) => {
+                                        const args = [arg0, arg1, arg2, arg3, arg4, arg5]
+                                        const parameters = []
+                                        const types = []
+                                        if (typeof inputs !== 'undefined' && inputs) {
+                                            for (let i = 0, ic = inputs.length; i<ic; i++) {
+                                                const input = inputs[i]
+                                                input.value = args[i]
+                                                parameters.push(input)
+                                                types.push(input.type)
+                                            }
+                                        }
+                                        const functionSelector =  name + '(' + types.join(',') + ')'
+                                        return {
+                                            send : async (options) => {
+                                                const tmp = await trustee.sendBridge({ main: 'tronWeb', action: 'triggerSmartContract', address, functionSelector, parameters, options})
+                                                if (typeof tmp === 'undefined' || !tmp || typeof tmp.result === 'undefined' || typeof tmp.result.result === 'undefined' || tmp.result.result !== true) {
+                                                    return tmp
+                                                }
+                                                return trustee.sendBridge({ main: 'tronWeb', action: 'sendRawTransaction', data : tmp.transaction })
+                                            },
+                                            call : async (options) => {
+                                                return trustee.sendBridge({ main: 'tronWeb', action: 'triggerConstantContract', address, functionSelector, parameters})
+                                            }
+                                        }
+
+
+                                    }
+                                }
+                            }
+                            return contract
+                        } catch (e) {
+                            console.log('contact load error ' + e.message)
+                        }
+                    }
                 }
             }
         },
@@ -137,6 +190,10 @@ try {
 
         }
     }
+    window.tronLink = {
+        ready: true,
+        tronWeb: trustee.tronWeb
+    }
     window.tronWeb = trustee.tronWeb
 
     window.tronLink = {
@@ -146,7 +203,7 @@ try {
         },
         tronWeb: trustee.tronWeb
     }
-    
+
     window.ethereum = trustee.ethereum;
 
     (function() {

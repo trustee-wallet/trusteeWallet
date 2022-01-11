@@ -15,6 +15,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
 import { setWalletDapp, setWalletDappIncognito } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
+import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 
 class WalletDappFastLinksScreen extends PureComponent {
 
@@ -43,10 +44,23 @@ class WalletDappFastLinksScreen extends PureComponent {
         const { GRID_SIZE } = this.context
 
         const mapping = []
-        for(const key in dappsBlocksoftDict) {
-            const item = dappsBlocksoftDict[key]
-            mapping.push(item)
 
+        const indexedCurrencies = {}
+        for (const item of this.props.currencies) {
+            indexedCurrencies[item.currencyCode] = 1
+        }
+        for (const key in dappsBlocksoftDict) {
+            const item = dappsBlocksoftDict[key]
+            if (typeof item.dappNetworks === 'undefined') {
+                mapping.push(item)
+                continue
+            }
+            for (const code of item.dappNetworks) {
+                if (typeof indexedCurrencies[code] !== 'undefined') {
+                    mapping.push(item)
+                    continue
+                }
+            }
         }
         return (
             <ScreenWrapper
@@ -66,11 +80,11 @@ class WalletDappFastLinksScreen extends PureComponent {
                     keyboardShouldPersistTaps='handled'
                 >
                     <ListItem
-                    key="clean"
-                    title="Open new session if possible"
-                    checked={incognito}
-                    onPress={() => this.handleIncognito()}
-                    rightContent="checkbox"
+                        key='clean'
+                        title='Open new session if possible'
+                        checked={incognito}
+                        onPress={() => this.handleIncognito()}
+                        rightContent='checkbox'
                     />
                     {
                         mapping.map((item, index) => (
@@ -79,7 +93,7 @@ class WalletDappFastLinksScreen extends PureComponent {
                                 checked={item.dappCode === dappCode}
                                 title={item.dappName}
                                 onPress={() => this.setDapp(item)}
-                                rightContent="arrow"
+                                rightContent='arrow'
                             />
                         ))
                     }
@@ -91,7 +105,8 @@ class WalletDappFastLinksScreen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        walletDappData: getWalletDappData(state)
+        walletDappData: getWalletDappData(state),
+        currencies: getVisibleCurrencies(state)
     }
 }
 

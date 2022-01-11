@@ -31,7 +31,7 @@ const EthDappHandler = {
             if (!asked) {
                 return {
                     shouldAsk: true,
-                    shouldAskText : 'do you want to sign ' + JSON.stringify(data.params[0]).substr(0, 20) + '... ',
+                    shouldAskText : 'do you want to sign transaction ' + JSON.stringify(data.params[0]).substr(0, 20) + '... as ' +  EthDappHandler.account.address + ' in chain ' + EthDappHandler.web3.MAIN_CHAIN_ID,
                     res: false
                 }
             }
@@ -48,7 +48,7 @@ const EthDappHandler = {
             if (!asked) {
                 return {
                     shouldAsk: true,
-                    shouldAskText : 'do you want to sign ' + data.params[0].substr(0, 20) + '... ',
+                    shouldAskText : 'do you want to sign message ' + data.params[0].substr(0, 20) + '... as ' +  EthDappHandler.account.address + ' in chain ' + EthDappHandler.web3.MAIN_CHAIN_ID,
                     res: false
                 }
             }
