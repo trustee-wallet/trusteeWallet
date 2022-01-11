@@ -1,4 +1,4 @@
-/**
+    /**
  * @version 0.42
  * @author Vadym
  */
@@ -33,6 +33,7 @@ import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { showModal, hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -204,6 +205,7 @@ class QrCodePage extends PureComponent {
                         <TouchableOpacity
                             onPress={() => this.handleBackDropModal(this.state.promoCode)}
                             activeOpacity={0.9}
+                            hitSlop={HIT_SLOP}
                         >
                             <Text
                                 style={[
