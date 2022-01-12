@@ -86,8 +86,7 @@ class WalletCreateScreen extends PureComponent {
     }
 
     handleCreate = () => {
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number : '1', source : 'WalletCreateScreen'}, 'GX')
-        this.handleSelect({ flowType: 'CREATE_NEW_WALLET', source : 'WalletCreateScreen', walletNumber : 1 })
+        NavStore.goNext('WalletCreateWithAnimation')
     }
 
     handleImport = () => {

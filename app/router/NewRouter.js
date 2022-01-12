@@ -16,6 +16,7 @@ import BackupStep0Screen from '@app/modules/WalletBackup/BackupStep0Screen'
 import BackupStep1Screen from '@app/modules/WalletBackup/BackupStep1Screen'
 import BackupSettingsScreen from '@app/modules/WalletBackup/Settings'
 import EnterMnemonicPhrase from '@app/modules/WalletCreate/EnterMnemonicPhrase'
+import WalletCreateWithAnimation from '@app/modules/WalletCreate/WalletCreateWithAnimation';
 
 import ErrorScreen from '@app/modules/Error/ErrorScreen'
 import HomeScreen from '@app/modules/WalletList/HomeScreen'
@@ -345,6 +346,7 @@ export default () => {
             <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='WalletCreateWithAnimation' component={WalletCreateWithAnimation} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 

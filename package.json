@@ -166,6 +166,7 @@
     "react-native-udp": "^2.7.0",
     "react-native-vector-icons": "6.6.0",
     "react-native-version-check": "^3.4.0",
+    "react-native-video": "5.1.1",
     "react-native-webview": "^8.2.1",
     "react-native-zip-archive": "^5.0.2",
     "react-redux": "^7.1.3",
