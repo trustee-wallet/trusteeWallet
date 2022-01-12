@@ -44,6 +44,7 @@ allprojects {
         		includeModule("com.github.florent37", "singledateandtimepicker")	// Required by fioprotocol_fiosdk
         		includeModule("com.jraska", "console")					// Required by fioprotocol_fiosdk
         		includeModule("com.eightbitlab", "blurview")				// Required by react-native-community_blur
+                includeGroup("com.google.android.exoplayer")
     		}
 	}
         maven { url 'https://jitpack.io' }
