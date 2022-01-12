@@ -41,27 +41,25 @@ const amountInput = {
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 const USDT_LIMIT = 600
-let  CACHE_PART_BALANCE_CLICK = false
+let CACHE_PART_BALANCE_CLICK = false
 
 class InputAndButtons extends PureComponent {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            inputType: this.props.sendScreenStoreDict.inputType,
-            inputValue: '',
-            equivalentValue: '0.00',
-            cryptoValue: '',
-            cryptoValueRecounted: '0',
-            partBalance: 0,
-            isCountingTransferAll: false,
-            enoughFunds: {
-                isAvailable: true,
-                messages: []
-            }
+    state = {
+        inputType: this.props.sendScreenStoreDict.inputType,
+        inputValue: '',
+        equivalentValue: '0.00',
+        cryptoValue: '',
+        cryptoValueRecounted: '0',
+        partBalance: 0,
+        isCountingTransferAll: false,
+        enoughFunds: {
+            isAvailable: true,
+            messages: []
         }
-        this.valueInput = React.createRef()
     }
+
+    valueInput = React.createRef()
 
     componentDidMount() {
         if (!this.valueInput || typeof this.valueInput.handleInput === 'undefined') return
@@ -98,8 +96,8 @@ class InputAndButtons extends PureComponent {
     handleChangeEquivalentType = () => {
         const inputType = this.state.inputType === 'CRYPTO' ? 'FIAT' : 'CRYPTO'
         SendActionsStart.setBasicInputType(inputType)
-        const equivalentValue = this.state.equivalentValue && this.state.equivalentValue > 0 ? this.state.equivalentValue : ''
-        const inputValue = this.state.inputValue && this.state.inputValue > 0 ? this.state.inputValue : ''
+        const equivalentValue = this.state.equivalentValue && this.state.equivalentValue * 1 > 0 ? this.state.equivalentValue : ''
+        const inputValue = this.state.inputValue && this.state.inputValue.replace(/ /g, '') * 1 > 0 ? this.state.inputValue.replace(/ /g, '') : ''
         this.setState({
             inputType,
             inputValue: equivalentValue,
@@ -126,7 +124,7 @@ class InputAndButtons extends PureComponent {
                 const val = this.transferAllCallback(res.transferAllBalance)
                 Log.log('Input.handlePartBalance ' + newPartBalance + ' end counting ' + val + ' with res ' + JSON.stringify(res))
             } catch (e) {
-               Log.err('Input.handlePartBalance ' + newPartBalance + ' end counting error ' + e.message)
+                Log.err('Input.handlePartBalance ' + newPartBalance + ' end counting error ' + e.message)
             }
             CACHE_PART_BALANCE_CLICK = false
         })
@@ -391,7 +389,7 @@ class InputAndButtons extends PureComponent {
         return (
             <View>
                 <View style={{ width: '75%', alignSelf: 'center', alignItems: 'center' }}>
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={style.container}>
                         <InputAndButtonsInput
                             ref={component => this.valueInput = component}
                             // onFocus={() => this.onFocus()}
@@ -417,16 +415,22 @@ class InputAndButtons extends PureComponent {
                         </Text>
                     </View>
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                <View style={style.container}>
                     <View style={{ ...style.line, backgroundColor: colors.sendScreen.colorLine }} />
-                    <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
-                                      onPress={this.handleChangeEquivalentType} hitSlop={HIT_SLOP}>
-                        <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
+                    <TouchableOpacity
+                        style={{ position: 'absolute', right: 10, marginTop: -4 }}
+                        onPress={this.handleChangeEquivalentType}
+                        hitSlop={HIT_SLOP}
+                    >
+                        <CustomIcon name='changeCurrency' color={colors.common.text3} size={20} />
                     </TouchableOpacity>
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <LetterSpacing text={this.state.isCountingTransferAll ? 'Loading...' : notEquivalentValue} textStyle={{ ...style.notEquivalentValue, color: '#999999' }}
-                                   letterSpacing={1.5} />
+                <View style={style.container}>
+                    <LetterSpacing
+                        text={this.state.isCountingTransferAll ? 'Loading...' : notEquivalentValue}
+                        textStyle={{ ...style.notEquivalentValue, color: '#999999' }}
+                        letterSpacing={1.5}
+                    />
                 </View>
                 {balanceTotalPretty > 0 && (
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: GRID_SIZE }}>
@@ -439,28 +443,28 @@ class InputAndButtons extends PureComponent {
                                     useAllFunds: false
                                 })
                             }}
-                            text={'25%'}
+                            text='25%'
                             inverse={this.state.partBalance === 1}
                         />
                         <InputAndButtonsPartBalanceButton
                             action={() => {
                                 this.handlePartBalance(2)
                             }}
-                            text={'50%'}
+                            text='50%'
                             inverse={this.state.partBalance === 2}
                         />
                         <InputAndButtonsPartBalanceButton
                             action={() => {
                                 this.handlePartBalance(3)
                             }}
-                            text={'75%'}
+                            text='75%'
                             inverse={this.state.partBalance === 3}
                         />
                         <InputAndButtonsPartBalanceButton
                             action={() => {
                                 this.handlePartBalance(4)
                             }}
-                            text={'100%'}
+                            text='100%'
                             inverse={this.state.partBalance === 4}
                         />
                     </View>
@@ -511,5 +515,9 @@ const style = StyleSheet.create({
     texts__icon: {
         marginRight: 10,
         transform: [{ rotate: '180deg' }]
+    },
+    container: {
+        flexDirection: 'row',
+        justifyContent: 'center'
     }
 })
