@@ -42,6 +42,10 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
 
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
+        if (this.checkWeb3CurrentServerUpdated()) {
+            this._token = new this._web3.eth.Contract(abi.ERC20, this._settings.tokenAddress)
+        }
+
         if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate dex ' + data.addressFrom + ' started')
             return super.getFeeRate(data, privateData, additionalData)

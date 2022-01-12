@@ -69,6 +69,7 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
     const fullData = prepareAssets(assets)
 
     let data = []
+    let tokenBlockchainArray = []
 
     if (searchQuery) data = filterBySearchQuery(fullData, searchQuery)
 
@@ -90,13 +91,17 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
                 data: arr
             })
         })
+
+        if (this.state.tokenBlockchain) {
+            tokenBlockchainArray = data[this.state.tokenBlockchain !== 0 ? this.state.tokenBlockchain - 1 : 0].data
+        }
     }
 
     if (activeTab.group === ASSESTS_GROUP.CUSTOM && !searchQuery) {
         data = [...fullData.filter(currency => currency.currencyType === 'custom')]
     }
 
-    this.setState(() => ({ data, tabs: newTabs, searchQuery }))
+    this.setState(() => ({ data, tabs: newTabs, searchQuery, tokenBlockchainArray }))
 }
 
 export function prepareAssets(assets) {
@@ -208,7 +213,7 @@ export async function addCustomToken(tokenAddress, tokenType ) {
                 tokenType: 'FTM_ERC_20',
                 tokenAddress
             })
-            Log.log('AddCustomTokenScreen.addToken checked4 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked3))
+            Log.log('AddCustomTokenScreen.addToken checked4 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked4))
             if (checked4) {
                 todoArray.push({ tokenType : 'FTM_ERC_20', checked : checked4})
             }
@@ -217,9 +222,18 @@ export async function addCustomToken(tokenAddress, tokenType ) {
                 tokenType: 'METIS_ERC_20',
                 tokenAddress
             })
-            Log.log('AddCustomTokenScreen.addToken checked5 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked3))
+            Log.log('AddCustomTokenScreen.addToken checked5 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked5))
             if (checked5) {
                 todoArray.push({ tokenType : 'METIS_ERC_20', checked : checked4})
+            }
+
+            const checked6 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'VLX_ERC_20',
+                tokenAddress
+            })
+            Log.log('AddCustomTokenScreen.addToken checked6 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked6))
+            if (checked6) {
+                todoArray.push({ tokenType : 'VLX_ERC_20', checked : checked6})
             }
         }
 

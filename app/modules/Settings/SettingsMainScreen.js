@@ -291,6 +291,13 @@ class SettingsMainScreen extends PureComponent {
                                 switchParams={{ value: !!lockScreenStatus, onPress: this.handleChangeLockScreenStatus }}
                             />
                             <ListItem
+                                title={strings('settings.security.change')}
+                                iconType="changePinCode"
+                                onPress={this.handleChangePassword}
+                                rightContent="arrow"
+                                disabled={!lockScreenStatus}
+                            />
+                            <ListItem
                                 title={strings('settings.security.touch')}
                                 iconType="biometricLock"
                                 onPress={this.handleChangeTouchIDStatus}
@@ -306,13 +313,6 @@ class SettingsMainScreen extends PureComponent {
                                 rightContent="switch"
                                 disabled={!lockScreenStatus}
                                 switchParams={{ value: !!lockScreenStatus && !!askPinCodeWhenSending, onPress: this.changeAskWhenSending }}
-                            />
-                            <ListItem
-                                title={strings('settings.security.change')}
-                                iconType="changePinCode"
-                                onPress={this.handleChangePassword}
-                                rightContent="arrow"
-                                disabled={!lockScreenStatus}
                                 last
                             />
                         </View>

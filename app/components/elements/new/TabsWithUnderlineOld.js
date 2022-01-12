@@ -10,6 +10,7 @@
     TouchableOpacity
  } from 'react-native'
  import { useTheme } from '@app/theme/ThemeProvider'
+ import { HIT_SLOP } from '@app/theme/HitSlop'
  
  
  export default function Tabs(props) {
@@ -35,6 +36,7 @@
                        disabled={tab.active}
                        key={tab.index}
                        onPress={() => changeTab(tab)}
+                       hitSlop={HIT_SLOP}
                    >
                        <View>
                            <Text style={[styles.title, { color: tab.active ? colors.common.text1 : colors.homeScreen.newTabsText }]} numberOfLines={1} >{tab.title}</Text>

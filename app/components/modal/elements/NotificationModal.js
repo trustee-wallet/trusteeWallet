@@ -1,26 +1,22 @@
 /**
- * @version 0.30
+ * @version 0.50
  * @author yura
  */
 import React, { Component } from 'react'
 import { View } from 'react-native'
 
-import Layout from '../../../components/elements/modal/Layout'
-import Title from '../../../components/elements/modal/Title'
-import Text from '../../../components/elements/modal/Text'
-import Button from '../../../components/elements/modal/Button'
+import Layout from '@app/components/elements/modal/Layout'
+import Title from '@app/components/elements/modal/Title'
+import Text from '@app/components/elements/modal/Text'
+import Button from '@app/components/elements/modal/Button'
 
-import { hideModal } from '../../../appstores/Stores/Modal/ModalActions'
+import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
-import { strings } from '../../../services/i18n'
+import { strings } from '@app/services/i18n'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
 class NotificationModal extends Component {
-
-    constructor(props) {
-        super(props)
-    }
 
     handleOk = () => {
 
@@ -35,7 +31,7 @@ class NotificationModal extends Component {
 
     render() {
 
-        const { title, description, rates } = this.props.data
+        const { title, description, rates, textRatesBtn, textMainBtn } = this.props.data
 
         const { colors, GRID_SIZE } = this.context
 
@@ -49,12 +45,12 @@ class NotificationModal extends Component {
                 <View style={{ marginTop: GRID_SIZE }}>
                     {rates ?
                         <Button onPress={this.handleOk} style={{ backgroundColor: 'transparent', color: colors.modal.success, marginBottom: -20 }}>
-                            {strings('modal.notificationModal.unsubscribe')}
+                            {textRatesBtn || strings('modal.notificationModal.unsubscribe')}
                         </Button>
                         : null
                     }
-                    <Button onPress={() => hideModal()} style={{ backgroundColor: 'transparent', color: colors.modal.success }}>
-                        Ok
+                    <Button onPress={hideModal} style={{ backgroundColor: 'transparent', color: colors.modal.success }}>
+                        {textMainBtn || 'Ok'}
                     </Button>
                 </View>
             </Layout>

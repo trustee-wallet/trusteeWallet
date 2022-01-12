@@ -18,6 +18,7 @@ import BlocksoftPrettyLocalize from '@crypto/common/BlocksoftPrettyLocalize'
 import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon'
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import config from '@app/config/config'
 const { dispatch } = store
 
 const currencyActions = {
@@ -88,7 +89,22 @@ const currencyActions = {
      */
     checkIsCurrencySynchronized: (params) => {
         try {
-            return !(typeof params.account === 'undefined' || !params.account.balanceScanTime)
+            const {currencyCode } = params.cryptoCurrency
+            if (typeof params.account === 'undefined') {
+                if (config.debug.appErrors) {
+                    console.log('ACT/Currency checkIsCurrencySynchronized no account ' + currencyCode, params)
+                }
+                Log.log('ACT/Currency checkIsCurrencySynchronized no account ' + currencyCode, params)
+                return false
+            }
+            if (!params.account.balanceScanTime) {
+                if (config.debug.appErrors) {
+                    console.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
+                }
+                Log.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
+                return false
+            }
+            return true
         } catch (e) {
             Log.err('ACT/Currency checkIsCurrencySynchronized error ' + e.message, JSON.stringify(e))
         }
@@ -115,6 +131,8 @@ const currencyActions = {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'FTM', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'METIS_ERC_20' || tokenType === 'METIS') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'METIS', newIsHidden : 0, currentIsHidden : 0})
+        }  else if (tokenType === 'VLX_ERC_20' || tokenType === 'VLX') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'VLX', newIsHidden : 0, currentIsHidden : 0})
         }
 
 

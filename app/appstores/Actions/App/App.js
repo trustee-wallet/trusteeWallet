@@ -110,6 +110,7 @@ class App {
             this.initStatus = 'AppLockScreenIdleTime.init()'
 
             if (UpdateAppNewsDaemon.isGoToNotifications('AFTER_APP')) {
+                // NavStore.reset('HomeScreen', { screen: 'NotificationsScreen' }) - not working
                 NavStore.reset('NotificationsScreen')
             } else {
                 UpdateAppNewsDaemon.goToNotifications('INITED_APP')

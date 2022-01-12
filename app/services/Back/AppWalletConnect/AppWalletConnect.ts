@@ -13,7 +13,7 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import EthRawDS from '@crypto/blockchains/eth/stores/EthRawDS'
 import EthTmpDS from '@crypto/blockchains/eth/stores/EthTmpDS'
 // @ts-ignore
-import { signTypedData_v4 } from 'eth-sig-util'
+import { signTypedData } from '@metamask/eth-sig-util'
 
 import store from '@app/store'
 import config from '@app/config/config'
@@ -121,7 +121,7 @@ export namespace AppWalletConnect {
         if (!data || typeof data === 'undefined' || typeof data.fullLink === 'undefined') {
             return false
         }
-        if (data.fullLink !== WALLET_CONNECTOR_LINK) {
+        if (data.fullLink !== WALLET_CONNECTOR_LINK || typeof WALLET_CONNECTOR === 'undefined' || !WALLET_CONNECTOR) {
             WALLET_CONNECTOR_LINK = data.fullLink
             try {
                 // @ts-ignore
@@ -206,6 +206,8 @@ export namespace AppWalletConnect {
             if (payload.event === 'disconnect') {
                 WALLET_CONNECTOR = false
                 sessionEnd(payload)
+                setWalletConnectIsConnected(false)
+                setWalletConnectData(null)
             } else {
                 Log.log('AppWalletConnect.on disconnect error unknown event')
             }
@@ -333,7 +335,8 @@ export namespace AppWalletConnect {
                 currencyCode: account.currencyCode
             }
             const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'AppWalletConnect')
-            const signData = await signTypedData_v4(Buffer.from(privateData.privateKey.slice(2), 'hex'), { data })
+            const privateKey = Buffer.from(privateData.privateKey.slice(2), 'hex')
+            const signData = await signTypedData({ privateKey, data, version: 'V4'})
             await WALLET_CONNECTOR.approveRequest({
                 id: payload.id,
                 result: signData

@@ -44,7 +44,7 @@
     "modalError": {
       "selectPhoto": "აირჩიეთ ბარათის ფოტო გალერეადან",
       "serviceUnavailable": "სერვისი მიუწვდომელია. გთხოვთ, სცადოთ მოგვიანებით",
-      "qrNotFoundInFile": "Qr-კოდი არ მოიძებნა, გთხოვთ, გადატვირთოთ ფაილი."
+      "qrNotFoundInFile": "QR-კოდი არ მოიძებნა, გთხოვთ, გადატვირთოთ ფაილი."
     }
   },
   "notifications": {
@@ -71,7 +71,7 @@
     },
     "walletConnect": {
       "unconnectedTitle": "Disabled",
-      "unconnectedText": "Scan the QR code to connect to the DeFi service",
+      "unconnectedText": "Scan the QR-code to connect to the DeFi service",
       "inputPlaceholder": "Direct link",
       "stop": "Disable WalletConnect",
       "stopText": "Are you sure you want to stop the connection with ",
@@ -323,7 +323,7 @@
     "collections": "Collections",
     "receive": "Receive",
     "title": "NFT",
-    "titleQR" : "Scan QR with Trustee",
+    "titleQR" : "Scan QR-code with Trustee",
     "signing": "Signature is creating, please wait - it only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "signed": "Signature only proofs that the current Address owns this NFT, so its secure to share with anyone",
     "status": "Status",
@@ -352,9 +352,9 @@
     "pageTitle": "Earn",
     "pageSubtitle": "Earn to 30% from the commission with Trustee Wallet!",
     "shareButton": "გაზიარება",
-    "promoButton": "პრომოკოდი",
+    "promoButton": "შეიყვანეთ პრომო კოდი",
     "detailsButton": "დეტალები",
-    "enterPromoPlaceholder": "შეიყვანე პრომოკოდი",
+    "enterPromoPlaceholder": "შეიყვანეთ პრომო კოდი",
     "enterInviteLinkPlaceholder": "შეიყვანე მოსაწვევი ბმული",
     "applyButton": "დადასტურება",
     "wholeBalance": "Balance for the whole time",
@@ -552,7 +552,10 @@
       "FIORequest": "FIO მოთხოვნა",
       "share": "გაზიარება",
       "copy": "კოპირება",
-      "amount": "მიუთითეთ რაოდენობა"
+      "amount": "მიუთითეთ რაოდენობა",
+      "rename": "Rename",
+      "allAddresses": "All addresses",
+      "addressName": "Address name"
     },
     "addAccount": {
       "list": "კრიპტოვალუტების სია"
@@ -685,7 +688,7 @@
     "country": "ქვეყანა:"
   },
   "qrScanner": {
-    "title": "QR სკანირება",
+    "title": "QR-code სკანირება",
     "line1": "განათავსეთ QR-კოდი",
     "line2": "კამერის არეალში"
   },
@@ -889,14 +892,16 @@
       "text2": "ძალიან ფრთხილად იყავით აღმდგენ ფრაზასთან დაკავშირებით - ნებისმიერი, ვისაც ის ჩაუვარდება ხელში, შეძლებს მიიღოს წვდომა თქვენს რესურსთან და დახარჯოს საკუთარი შეხედულებისამებრ. გთხოვთ, არ გაანდოთ ის არავის არანაირ ვითარებაში!"
     },
     "step0Screen": {
+      "show": "Show QR-code",
       "phrase": "phrase",
-      "qr": "Qr",
+      "qr": "QR-code",
       "info": "აღდგენის ფრაზა (მნემონური ფრაზა, სათესლე ფრაზა) არის საიდუმლო წვდომის გასაღები თქვენს საფულეში არსებულ ყველა ნაშთზე. ჩაწერეთ სიტყვების თანმიმდევრობის დაცვით, უსაფრთხოდ შეინახეთ და არავის გადასცემთ!",
       "showButton": "დააწკაპუნეთ და გააჩერეთ აქ ფრაზის სანახავად",
+      "showQrButton": "Press and hold here to see the QR-code",
       "next": "შემდეგი",
-      "showQR" : "Get QR for import to another device",
+      "showQR" : "Get QR-code for import to another device",
       "hideQR" : "Get words for backup",
-      "infoQR": "QR code reveals recovery phrase. Please dont send it to other people and dont store in Gallery!"
+      "infoQR": "QR-code reveals recovery phrase. Please dont send it to other people and dont store in Gallery!"
     },
     "step1Screen": {
       "title": "დადასტურება",
@@ -1066,10 +1071,10 @@
       }
     },
     "tokenNotAdded": {
-      "description": "აქტივი არაა დამატებული. გადავიდეთ დამატების გვერდზე?"
+      "description": "აქტიური %{currencyCode} არ არის ხელმისაწვდომი. დაამატეთ აქტივი ახლა?"
     },
     "tokenHidden": {
-      "description": "აქტივი დამალულია. გადავიდეთ აქტივების მართვის გვერდზე?"
+      "description": "აქტივი %{currencyName} დამალულია. ჩართოთ აქტივი ახლა?"
     },
     "useAgainAddresses": {
       "title": "ყურადღება!",

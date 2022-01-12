@@ -34,8 +34,6 @@ import DetailsHeader from '@app/modules/Cashback/elements/DetailsHeader'
 
 import InfoNotification from '@app/components/elements/new/InfoNotification'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
-
 class CashbackScreen extends React.PureComponent {
 
     state = {
@@ -57,12 +55,12 @@ class CashbackScreen extends React.PureComponent {
                 key: 'second'
             }
         ],
-        tab1Height: SCREEN_WIDTH * 1.3,
-        tab2Height: SCREEN_WIDTH * 1.74,
         selected: false
     }
 
     cashbackCurrency = 'USDT'
+    cpaValue = 10
+    cashbackValue = 2
 
     renderDetailsHeader = () => {
 
@@ -122,15 +120,15 @@ class CashbackScreen extends React.PureComponent {
 
         const windowWidth = Dimensions.get('window')
 
-        const cashbackCondition = cashbackBalance >= 2
+        const cashbackCondition = cashbackBalance >= this.cashbackValue
 
-        const cpaCondition = cpaBalance >= 100
+        const cpaCondition = cpaBalance >= this.cpaValue
 
         const totalCashbackPercent = UtilsService.cutNumber(cashbackTotalBalance / (cashbackTotalBalance + cpaTotalBalance) * 100, 2) || 0
         const totalCpaPercent = UtilsService.cutNumber(cpaTotalBalance / (cashbackTotalBalance + cpaTotalBalance) * 100, 2) || 0
 
-        const cashbackPercent = UtilsService.cutNumber(cashbackBalance / 2 * 100, 2) || 0
-        const cpaPercent = UtilsService.cutNumber(cpaBalance / 100 * 100, 2) || 0
+        const cashbackPercent = UtilsService.cutNumber(cashbackBalance / this.cashbackValue * 100, 2) || 0
+        const cpaPercent = UtilsService.cutNumber(cpaBalance / this.cpaValue * 100, 2) || 0
 
         const flatListData = [
 
@@ -149,11 +147,11 @@ class CashbackScreen extends React.PureComponent {
                         <Tab2
                             procent={cashbackPercent}
                             cashbackStore={cashbackStore}
-                            progress={cashbackBalance / 2}
+                            progress={cashbackBalance / this.cashbackValue}
                             windowWidth={windowWidth}
                             condition={cashbackCondition}
                             balance={UtilsService.cutNumber(cashbackBalance, 2)}
-                            minimalWithdraw={2}
+                            minimalWithdraw={this.cashbackValue}
                             currency={this.cashbackCurrency}
                         />
                     )
@@ -167,11 +165,11 @@ class CashbackScreen extends React.PureComponent {
                     return (
                         <Tab2
                             procent={cpaPercent}
-                            progress={cpaBalance / 100}
+                            progress={cpaBalance / this.cpaValue}
                             windowWidth={windowWidth}
                             condition={cpaCondition}
                             balance={UtilsService.cutNumber(cpaBalance, 2)}
-                            minimalWithdraw={100}
+                            minimalWithdraw={this.cpaValue}
                             currency={this.cashbackCurrency}
                         />
                     )
@@ -293,6 +291,7 @@ class CashbackScreen extends React.PureComponent {
                 <QrCodePage
                     cashbackLink={cashbackLink}
                     cashbackLinkTitle={cashbackLinkTitle}
+                    scrollToTop={this.scrollTabSwitch}
                 />
             </View>
         )
@@ -339,17 +338,6 @@ class CashbackScreen extends React.PureComponent {
         }
     }
 
-    handleSelectHeight = (index) => {
-        switch (index) {
-            case 0:
-                return this.state.tab1Height
-            case 1:
-                return this.state.tab2Height
-            default:
-                return null
-        }
-    }
-
     render() {
 
         MarketingAnalytics.setCurrentScreen('CashBackScreen')
@@ -379,6 +367,7 @@ class CashbackScreen extends React.PureComponent {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.scrollViewContent}
                     keyboardShouldPersistTaps='handled'
+                    scrollEnabled={this.state.index === 1}
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
@@ -390,7 +379,7 @@ class CashbackScreen extends React.PureComponent {
                         />
                     }>
                     <TabView
-                        style={[styles.container, { height: this.handleSelectHeight(this.state.index) }]}
+                        style={styles.container}
                         navigationState={this.state}
                         renderScene={this.renderScene}
                         renderHeader={null}

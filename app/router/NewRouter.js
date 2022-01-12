@@ -3,7 +3,7 @@
  * @version 0.44
  * @author yura
  */
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Platform } from 'react-native'
 
 import { createStackNavigator, TransitionSpecs, CardStyleInterpolators } from '@react-navigation/stack'
@@ -27,6 +27,9 @@ import NotificationsScreen from '@app/modules/Notifications'
 import QRCodeScannerScreen from '@app/modules/QRCodeScanner/QRCodeScannerScreen'
 import WalletConnectScreen from '@app/modules/WalletConnect/WalletConnectScreen'
 import WalletConnectChangeNetworkScreen from '@app/modules/WalletConnect/WalletConnectChangeNetworkScreen'
+
+import WalletDappFastLinksScreen from '@app/modules/WalletDapp/WalletDappFastLinksScreen'
+import WalletDappWebViewScreen from '@app/modules/WalletDapp/WalletDappWebViewScreen'
 
 import SMSV3CodeScreen from '@app/modules/Market/SMSV3CodeScreen'
 import MarketScreen from '@app/modules/Market/MainScreen'
@@ -98,6 +101,8 @@ import GuideScreen from '@app/modules/WalletList/HomeFilter/GuideScreen';
 import TransactionFilter from '@app/modules/Account/AccountFilter/AccountTransactionFilter';
 import TransactionCategories from '@app/modules/Account/AccountFilter/AccountTransactionCategories';
 
+import { SendReceiveDeepLinking } from '@app/appstores/Stores/Send/SendReceiveDeepLinking'
+
 const Stack = createStackNavigator()
 
 const HomeStack = createStackNavigator()
@@ -114,7 +119,16 @@ const transitionSpec = {
 }
 const cardStyleInterpolator = CardStyleInterpolators.forHorizontalIOS
 
+let CASHE_USED = false
+
 const HomeStackScreen = () => {
+
+    useEffect(() => {
+        if(!CASHE_USED){
+            SendReceiveDeepLinking.receiveDeepLink(null, 'Init app')
+            CASHE_USED = true
+        }
+    }, [])
 
     return (
         <HomeStack.Navigator initialRouteName='HomeScreenPop'>
@@ -128,6 +142,9 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='NotificationsScreen' component={NotificationsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectChangeNetworkScreen' component={WalletConnectChangeNetworkScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+
+            <HomeStack.Screen name='WalletDappFastLinksScreen' component={WalletDappFastLinksScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='WalletDappWebViewScreen' component={WalletDappWebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='SendScreen' component={SendScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='SendScreenWithoutAmount' component={SendScreenWithoutAmount} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

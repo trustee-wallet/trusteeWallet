@@ -231,6 +231,13 @@ export default class EthBasic {
         this._tokenAddress = false
     }
 
+    checkWeb3CurrentServerUpdated() {
+        const type = this._mainChainId ? this._mainChainId : this._settings.network
+        const oldWeb3Link = this._web3.LINK
+        this._web3 = Web3Injected(type)
+        return !(this._web3.LINK === oldWeb3Link)
+    }
+
     checkError(e, data, txRBF = false, logData = {}) {
         if (config.debug.cryptoErrors) {
             console.log('EthBasic Error ' + e.message)

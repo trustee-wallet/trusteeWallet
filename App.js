@@ -6,7 +6,8 @@ import React from 'react'
 
 import { Provider } from 'react-redux'
 import { AppearanceProvider } from 'react-native-appearance'
-import { Platform, UIManager } from 'react-native'
+import { Platform, UIManager, Linking } from 'react-native'
+import { enableScreens } from 'react-native-screens'
 
 import store from '@app/store'
 
@@ -16,6 +17,9 @@ import { ThemeProvider } from '@app/theme/ThemeProvider'
 import Application from '@app/appstores/Actions/App/App'
 
 import appsFlyer from 'react-native-appsflyer'
+
+import { SendReceiveDeepLinking } from '@app/appstores/Stores/Send/SendReceiveDeepLinking'
+
 
 appsFlyer.initSdk(
     {
@@ -28,6 +32,12 @@ appsFlyer.initSdk(
     }
 );
 
+enableScreens()
+
+const handler = ({ url }) => {
+    SendReceiveDeepLinking.receiveDeepLink(url)
+}
+
 export default class App extends React.Component {
 
     componentDidMount() {
@@ -38,6 +48,11 @@ export default class App extends React.Component {
                 UIManager.setLayoutAnimationEnabledExperimental(true)
             }
         }
+        Linking.addEventListener('url', handler)
+    }
+
+    componentWillUnmount() {
+        Linking.removeEventListener('url', handler)
     }
 
     render() {

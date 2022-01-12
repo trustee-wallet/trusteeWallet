@@ -15,6 +15,7 @@ import Log from '@app/services/Log/Log'
 
 import NewRouter from './NewRouter'
 import { navigationRef } from '@app/components/navigation/NavRoot'
+import AppLockBlur from '@app/components/AppLockBlur'
 
 const getStackTrace = (err) => {
     let stack = err.stack || ''
@@ -52,12 +53,13 @@ export default class RouterMainWrapper extends React.Component {
             <ErrorBoundary onError={myErrorHandler} FallbackComponent={ErrorScreen}>
                 <View style={styles.container}>
                     <NavigationContainer ref={navigationRef}>
-                        <NewRouter/>
+                        <NewRouter />
                     </NavigationContainer>
                     <Modal />
-                    <StatusBar translucent={true} backgroundColor={'transparent'} barStyle='dark-content' />
+                    <StatusBar translucent={true} backgroundColor='transparent' barStyle='dark-content' />
                     <Loader />
                 </View>
+                <AppLockBlur />
             </ErrorBoundary>
         )
     }

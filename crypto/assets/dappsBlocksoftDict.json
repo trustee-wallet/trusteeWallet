@@ -1,0 +1,17 @@
+{
+  "OPENSEA": {
+    "dappCode" : "OPENSEA",
+    "dappName" : "OpenSea",
+    "dappUrl" : "https://opensea.io/account"
+  },
+  "PANCAKE" : {
+    "dappCode" : "PANCAKE",
+    "dappName" : "Pancake Swap",
+    "dappUrl" : "https://pancakeswap.finance/swap"
+  },
+  "JUSTLEND" : {
+    "dappCode": "JUSTLEND",
+    "dappName" : "JustLend",
+    "dappUrl" : "https://justlend.org/#/home"
+  }
+}

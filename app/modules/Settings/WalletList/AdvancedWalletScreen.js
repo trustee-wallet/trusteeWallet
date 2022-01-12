@@ -87,10 +87,10 @@ class AdvancedWalletScreen extends PureComponent {
             oneButton: strings('walletBackup.infoScreen.continue'),
             twoButton: strings('walletBackup.skipElement.cancel'),
             noCallback: () => {
-                this._actualDelete()
+                hideModal()
             }
         }, () => {
-            hideModal()
+            this._actualDelete()
         })
     }
 

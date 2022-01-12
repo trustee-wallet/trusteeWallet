@@ -22,6 +22,13 @@ const CACHE_STARTED_CANCEL = {}
 let CACHE_TIMEOUT_ERRORS = 0
 let CACHE_TIMEOUT_ERROR_SHOWN = 0
 
+const TIMEOUT = 20000
+const TIMEOUT_TRUSTEE = 7000
+const TIMEOUT_TRIES_2 = 10000
+const TIMEOUT_TRIES_10 = 15000
+const TIMEOUT_TRIES_INTERNET = 5000
+const TIMEOUT_TRIES_RATES = 20000
+
 class BlocksoftAxios {
 
     /**
@@ -29,11 +36,11 @@ class BlocksoftAxios {
      * @param maxTry
      * @returns {Promise<boolean|{data:*}>}
      */
-    async getWithoutBraking(link, maxTry = 5) {
+    async getWithoutBraking(link, maxTry = 5, timeOut = false) {
         let tmp = false
         try {
             BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' start ' + link)
-            tmp = await this.get(link, false, false)
+            tmp = await this.get(link, false, false, timeOut)
             BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
             CACHE_ERRORS_BY_LINKS[link] = { time: 0, tries: 0 }
         } catch (e) {
@@ -101,7 +108,7 @@ class BlocksoftAxios {
         return tmp
     }
 
-    async post(link, data, errSend = true) {
+    async post(link, data, errSend = true, timeOut = false) {
         let tmp = false
         let doOld = this._isTrustee(link)
         if (!doOld) {
@@ -158,12 +165,12 @@ class BlocksoftAxios {
             }
         }
         if (doOld) {
-            tmp = this._request(link, 'post', data, false, errSend)
+            tmp = this._request(link, 'post', data, false, errSend, timeOut = false)
         }
         return tmp
     }
 
-    async get(link, emptyIsBad = false, errSend = true) {
+    async get(link, emptyIsBad = false, errSend = true, timeOut = false) {
         let tmp = false
         let doOld = this._isTrustee(link)
         if (!doOld) {
@@ -211,7 +218,7 @@ class BlocksoftAxios {
             }
         }
         if (doOld) {
-            tmp = this._request(link, 'get', {}, emptyIsBad, errSend)
+            tmp = this._request(link, 'get', {}, emptyIsBad, errSend, timeOut)
         }
         return tmp
     }
@@ -257,7 +264,7 @@ class BlocksoftAxios {
     }
 
 
-    async _request(link, method = 'get', data = {}, emptyIsBad = false, errSend = true) {
+    async _request(link, method = 'get', data = {}, emptyIsBad = false, errSend = true, timeOut = false) {
         let tmp
         let cacheMD = link
         if (typeof data !== 'undefined') {
@@ -268,18 +275,24 @@ class BlocksoftAxios {
             const instance = axios.create()
 
             const cancelSource = CancelToken.source()
-            let timeOut = config.request.timeout
-            if (typeof CACHE_ERRORS_BY_LINKS[link] !== 'undefined') {
-                if (CACHE_ERRORS_BY_LINKS[link].tries > 2) {
-                    timeOut = Math.round(config.request.timeout / 10)
-                } else {
-                    timeOut = Math.round(config.request.timeout / 5)
+
+            if (!timeOut || typeof timeOut === 'undefined') {
+                timeOut = TIMEOUT
+                if (this._isTrustee(link)) {
+                    timeOut = TIMEOUT_TRUSTEE
                 }
-            }
-            if (link.indexOf('/fees') !== -1 || link.indexOf('/rates') !== -1) {
-                timeOut = Math.round(timeOut / 2)
-            } else if (link.indexOf('/internet') !== -1) {
-                timeOut = Math.round(timeOut  / 10)
+                if (typeof CACHE_ERRORS_BY_LINKS[link] !== 'undefined') {
+                    if (CACHE_ERRORS_BY_LINKS[link].tries > 2) {
+                        timeOut = Math.round(TIMEOUT_TRIES_10)
+                    } else {
+                        timeOut = Math.round(TIMEOUT_TRIES_2)
+                    }
+                }
+                if (link.indexOf('/fees') !== -1 || link.indexOf('/rates') !== -1) {
+                    timeOut = Math.round(TIMEOUT_TRIES_RATES)
+                } else if (link.indexOf('/internet') !== -1) {
+                    timeOut = Math.round(TIMEOUT_TRIES_INTERNET)
+                }
             }
 
             if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {

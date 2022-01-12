@@ -2,20 +2,20 @@
  * @version 0.9
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
-import BlocksoftKeysStorage from '../../../../crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
-import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
+import Log from '@app/services/Log/Log'
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
 
 import currencyDS from '../Currency/Currency'
 
-import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
+import BlocksoftFixBalance from '@crypto/common/BlocksoftFixBalance'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import store from '@app/store'
 
+import tokenBlockchainBlocksoftDict from '@crypto/assets/tokenBlockchainBlocksoftDict.json'
+
 const tableName = 'account'
 let SAVED_UNIQUE = {}
-
-import tokenBlockchainBlocksoftDict from '@crypto/assets/tokenBlockchainBlocksoftDict.json'
 
 class Account {
 
@@ -687,6 +687,15 @@ class Account {
     massUpdateAccount = async (where, update) => {
         const sql = `UPDATE ${tableName} SET ${update} WHERE (${where})`
         await Database.query(sql)
+    }
+
+    updateAddressName = async (data) => {
+        try {
+            await Database.setTableName(tableName).setUpdateData(data).update()
+        } catch(e) {
+            throw new Error(e.message + ' while updateAddressName ' + JSON.stringify(data.updateObj))
+        }
+
     }
 
 }

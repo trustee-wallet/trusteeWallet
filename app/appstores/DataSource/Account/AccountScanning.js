@@ -2,8 +2,8 @@
  * @version 0.9
  */
 import Database from '@app/appstores/DataSource/Database';
-import Log from '../../../services/Log/Log'
-import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
+import Log from '@app/services/Log/Log'
+import BlocksoftFixBalance from '@crypto/common/BlocksoftFixBalance'
 import store from '@app/store'
 
 class AccountScanning {
@@ -230,6 +230,7 @@ class AccountScanning {
             account.wallet_hash AS walletHash,
             account.already_shown AS alreadyShown,
             account.address,
+            account.name AS addressName,
             account_balance.balance_txt AS balanceTxt,
             account_balance.balance_scan_time AS balanceScanTime,
             account_balance.balance_scan_error AS balanceScanError,
@@ -251,7 +252,11 @@ class AccountScanning {
                     return res.array[0].address
                 }
             }
+
             res = res.array
+            
+            res = res.map(e => e.addressName.includes("CREATED") ? {...e, addressName: ''} : e)
+
             let tmp
             for (tmp of res) {
                 if (withBalances) {
@@ -265,6 +270,7 @@ class AccountScanning {
         }
         return indexedRes
     }
+
 }
 
 export default new AccountScanning()

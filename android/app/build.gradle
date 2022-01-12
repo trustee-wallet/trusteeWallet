@@ -133,7 +133,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.50.3"
+        versionName "1.50.4"
 
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
@@ -216,6 +216,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-appearance')
     implementation project(':react-native-branch')
     implementation project(':react-native-vector-icons')
     implementation 'androidx.multidex:multidex:2.0.1'

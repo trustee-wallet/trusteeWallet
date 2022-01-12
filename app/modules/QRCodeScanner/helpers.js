@@ -18,7 +18,6 @@ import store from '@app/store'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 import { QRCodeScannerFlowTypes } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import Toast from '@app/services/UI/Toast/Toast'
 import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 
@@ -26,7 +25,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
     if (
         param.data.indexOf('trusteenft:') === 0
     ) {
-        NavStore.goNext('NftDetailedInfoQRCheck', {jsonData : param.data.substring(11)})
+        NavStore.goNext('NftDetailedInfoQRCheck', { jsonData: param.data.substring(11) })
         return
     }
 
@@ -53,7 +52,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         link = link.split('/')
         link = link[link.length - 1]
         await Log.log('QRCodeScanner.onSuccess ' + flowType + ' link ' + link + ' from ' + param.data)
-        const qrData =  {
+        const qrData = {
             isCashbackLink: true,
             qrCashbackLink: link
         }
@@ -160,18 +159,18 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         if (typeof cryptoCurrency === 'undefined') {
             showModal({
                 type: 'YES_NO_MODAL',
-                icon: 'INFO',
+                icon: 'WARNING',
                 title: strings('modal.exchange.sorry'),
-                description: strings('modal.tokenNotAdded.description'),
+                description: strings('modal.tokenNotAdded.description', { currencyCode: res.data.currencyCode }),
+                reverse: true,
                 noCallback: () => {
-                    this.setState({})
                     try {
                         this.scanner.reactivate()
                     } catch {
                     }
                 }
             }, () => {
-                NavStore.goNext('AddAssetScreen')
+                NavStore.goNext('AddAssetScreen', { currencyCode: [res.data.currencyCode] })
             })
             return
         }
@@ -179,18 +178,18 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         if (+cryptoCurrency.isHidden) {
             showModal({
                 type: 'YES_NO_MODAL',
-                icon: 'INFO',
+                icon: 'WARNING',
                 title: strings('modal.exchange.sorry'),
-                description: strings('modal.tokenHidden.description'),
+                description: strings('modal.tokenHidden.description', { currencyName: cryptoCurrency.currencyName }),
+                reverse: true,
                 noCallback: () => {
-                    this.setState({})
                     try {
                         this.scanner.reactivate()
                     } catch {
                     }
                 }
             }, () => {
-                NavStore.goNext('AddAssetScreen')
+                NavStore.goNext('AddAssetScreen', { currencyCode: [cryptoCurrency.currencyCode] })
             })
             return
         }

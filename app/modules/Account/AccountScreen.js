@@ -16,7 +16,6 @@ import _isEqual from 'lodash/isEqual'
 
 import GradientView from '@app/components/elements/GradientView'
 import NavStore from '@app/components/navigation/NavStore'
-import AppLockBlur from '@app/components/AppLockBlur'
 
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
@@ -255,9 +254,6 @@ class Account extends React.PureComponent {
     // }
 
     render() {
-        if (this.props.isBlurVisible) {
-            return <AppLockBlur />
-        }
 
         MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 

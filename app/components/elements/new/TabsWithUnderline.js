@@ -10,6 +10,7 @@
     TouchableOpacity
  } from 'react-native'
  import { useTheme } from '@app/theme/ThemeProvider'
+ import { HIT_SLOP } from '@app/theme/HitSlop'
  
  
  export default function Tabs(props) {
@@ -22,9 +23,10 @@
     } = props
 
     const {
-       colors,
-       GRID_SIZE
-    } = useTheme()
+        colors,
+        GRID_SIZE
+     } = useTheme()
+
 
     return (
        <View style={[styles.container, containerStyle]}>
@@ -37,6 +39,7 @@
                        disabled={isActiveTab}
                        key={index}
                        onPress={() => changeTab(index)}
+                       hitSlop={HIT_SLOP}
                    >
                        <View>
                            <Text style={[styles.title, { color: isActiveTab ? colors.common.text1 : colors.homeScreen.newTabsText }]} numberOfLines={1} >{tab.title}</Text>
@@ -55,7 +58,7 @@ const styles = StyleSheet.create({
        flexDirection: 'row',
        paddingTop: 8,
        paddingBottom: 16,
-       marginBottom: -7, // negative value because of paddingBottom in ExtraView into Header component
+       marginBottom: -7 // negative value because of paddingBottom in ExtraView into Header component
     },
     tab: {
        flex: 1,

@@ -83,7 +83,16 @@ export namespace AppNewsActions {
                 createdAt: notification.newsCreated
             }
             if (orderHash) {
-                NavStore.reset('MarketScreen', { screen: 'MarketScreen', params: { orderHash } })
+                showModal({
+                    type: 'NOTIFICATION_MODAL',
+                    title: title,
+                    description: subtitle && subtitle !== '' ? subtitle : title,
+                    rates: true,
+                    textRatesBtn: strings('account.transactionScreen.order'),
+                    noCallback: () => {
+                        NavStore.reset('MarketScreen', { screen: 'MarketScreen', params: { orderHash } })
+                    }
+                })
                 return false
             } else if (transactionHash) {
                 NavStore.goNext('AccountTransactionScreen', {

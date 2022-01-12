@@ -15,6 +15,7 @@ import {
     Linking
 } from 'react-native'
 import { connect } from 'react-redux'
+import FastImage from 'react-native-fast-image'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { strings } from '@app/services/i18n'
@@ -219,12 +220,13 @@ class NftDetailedInfo extends React.PureComponent {
                             marginBottom: GRID_SIZE * 1.5
                         }]}>
                             {data.img && data.img !== '' ?
-                                <Image
+                                <FastImage
                                     style={styles.img}
                                     source={{
-                                        uri: data.img
+                                        uri: data.img,
+                                        priority: FastImage.priority.normal,
                                     }}
-                                    resizeMode='contain'
+                                    resizeMode={FastImage.resizeMode.contain}
                                 /> : null}
                         </View>
                         <NftTokenInfo

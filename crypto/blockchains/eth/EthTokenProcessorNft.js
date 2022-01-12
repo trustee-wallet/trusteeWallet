@@ -6,6 +6,7 @@ import EthNftOpensea from '@crypto/blockchains/eth/apis/EthNftOpensea'
 import EthNftMatic from '@crypto/blockchains/eth/apis/EthNftMatic'
 import abi from './ext/erc721.js'
 import config from '@app/config/config'
+import BlocksoftDictNfts from '@crypto/common/BlocksoftDictNfts'
 
 export default class EthTokenProcessorNft extends EthBasic {
 
@@ -16,8 +17,9 @@ export default class EthTokenProcessorNft extends EthBasic {
      */
     async getListBlockchain(data) {
 
+        const settings = BlocksoftDictNfts.NftsIndexed[data.tokenBlockchainCode]
         if (
-            typeof this._settings.apiType !== 'undefined' && this._settings.apiType === 'OPENSEA'
+           typeof settings !== 'undefined' && typeof settings.apiType !== 'undefined' && settings.apiType === 'OPENSEA'
         ) {
             return EthNftOpensea(data)
         } else {
@@ -26,6 +28,8 @@ export default class EthTokenProcessorNft extends EthBasic {
     }
 
     async getNftDetails(nftAddress, nftType) {
+        this.checkWeb3CurrentServerUpdated()
+
         let token, name, symbol
         try {
             token = new this._web3.eth.Contract(abi.ERC721, nftAddress.toLowerCase())

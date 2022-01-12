@@ -36,7 +36,6 @@ import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import AppLockBlur from '@app/components/AppLockBlur'
 
 import { getIsBlurVisible, getSelectedWalletData, getSortValue } from '@app/appstores/Stores/Main/selectors'
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
@@ -65,7 +64,7 @@ class HomeScreen extends React.PureComponent {
             originalData: [],
             data: [],
             currenciesOrder: [],
-            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue()
+            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue() || null
         }
     }
 
@@ -207,9 +206,7 @@ class HomeScreen extends React.PureComponent {
     }
 
     render() {
-        if (this.props.isBlurVisible) {
-            return <AppLockBlur />
-        }
+
         const { colors, GRID_SIZE } = this.context
 
         const { sortValue } = this.state
