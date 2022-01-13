@@ -5,7 +5,23 @@
     "unconfirmed": "Non-Confirmé",
     "today": "Aujourd'hui",
     "changedLastDay": "Dans les dernières 24 hours",
-    "synchronizing": "Synchronisation"
+    "synchronizing": "Synchronisation",
+    "settings": "Display settings",
+    "sorting": "Sorting",
+    "sort": {
+      "custom": "Custom",
+      "byName": "By name",
+      "byValue": "By value",
+      "firstCoin": "Coins first",
+      "firstToken": "Tokens first",
+      "withBalance": "With a positive balance",
+      "guideTitle": "Guide"
+    },
+    "categories": {
+      "coin": "Coins",
+      "token": "Tokens"
+    },
+    "setSortValueCustom": "The sorting mode is set to «Custom»"
   },
   "walletCreateScreen": {
     "title": "ACHETER VENDRE ECHANGER ANONYMEMENT",
@@ -37,6 +53,7 @@
     "tabAll": "Tout",
     "tabNews": "Nouveau",
     "tabInvite": "Invite",
+    "cashbackTabInvite": "Invite",
     "tabInfo": "Info",
     "tabFaq": "Faq",
     "today": "Aujourd'hui",
@@ -53,9 +70,32 @@
       "listSubtitle": "Comptes: %{number}"
     },
     "walletConnect": {
-      "title": "Connexion au portefeuille",
-      "activated": "Activé",
-      "disabled": "Désactivé"
+      "unconnectedTitle": "Disabled",
+      "unconnectedText": "Scan the QR-code to connect to the DeFi service",
+      "inputPlaceholder": "Direct Link",
+      "stop": "Disable WalletConnect",
+      "stopText": "Are you sure you want to stop the connection with ",
+      "start": "WalletConnect Start",
+      "startText": "Do you want to start this session?",
+      "transaction": "Transaction request",
+      "transactionText": "Are you sure you want to allow %{subtitle} to use your %{txPrice} for transactions?",
+      "sign": "WalletConnect Sign Request",
+      "signText": "Do you want to sign message ",
+      "signTyped": "WalletConnect Sign Typed Request",
+      "signTypedText": "Do you want to sign message ",
+      "session": "WalletConnect connection",
+      "sessionText": "Are you sure you want to connect your Trustee wallet to ",
+      "notificationTitle": "Attention!",
+      "notificationText": "Make sure %{name} is safe. By interacting with this service you provide access to your funds!",
+      "disconnect": "Disconnect",
+      "connect": "Connect",
+      "placeholder": "There is will be your wallet address that you connected to",
+      "linkError": "WalletConnect connection error. Please, check if the direct link is correct",
+      "title": "Walletconnect",
+      "activated": "Activated",
+      "disabled": "Disabled",
+      "changeNetwork": "Change Network",
+      "turnBasicAsset" : "For WalletConnect you need add %{asset} as it is used in this transaction"
     },
     "walletManagement": {
       "title": "Gestion des portefeuilles",
@@ -122,6 +162,7 @@
       "testerMode": "Testeur"
     },
     "walletList": {
+      "showBalance": "Show balance",
       "title": "Mon portefeuille",
       "addWallet": "Ajouter portefeuille",
       "backupNeeded": "Sauvegarde nécessaire",
@@ -136,6 +177,8 @@
       "allowReplaceByFee": "Modifier la transaction avant la confirmation par les mineurs",
       "showLegacy": "Legacy",
       "showSegWit": "SegWit",
+      "showAll": "Show all",
+      "generateNew": "Generate new",
       "accountAddress": "Type d'adresse par défaut",
       "hd": "Augmenter la confidentialité",
       "hdDescription": "Création d'une nouvelle adresse, à chaque fois après une transaction BTC entrante",
@@ -156,6 +199,12 @@
         "title": "Passer le portefeuille en mode HD?",
         "description": "Le mode HD implique une rotation des adresses pour chaque transaction. L'opération de commutation est irréversible."
       },
+      "staked": "Staked",
+      "frozen": "Frozen",
+      "stakeTransactionsSOL": "Staking transactions",
+      "solValidator": "Validator fee:",
+      "bandwidthTRX": "Bandwidth",
+      "energyTRX": "Energy",
       "serverInputXMR": "Server (default api.mymonero.com)",
       "serverInputTitleXMR": "api.mymonero.com:8443",
       "serverSendInputXMR": "Server for Send TX (default api.mymonero.com)",
@@ -163,7 +212,8 @@
       "needReinstallXMR": "Quelque chose ne va pas avec la génération d'adresses XMR - s'il vous plaît, enregistrez le mnémonique et réinstallez l'application ou contactez l'assistance",
       "saveSettings": "Sauvegarder",
       "getMnemonicXMR": "Afficher la clé secrète",
-      "availableTRX": "Disponible",
+      "available" : "Available",
+      "availableSOL": "Available balance",
       "frozenTRX": "Geler",
       "frozenBalanceTRX": "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "entrer le montant des TRX gelés",
@@ -179,6 +229,7 @@
       "refreshTRX": "Réactualiser",
       "waitToClaimTRX": "La dernière réclamation a été effectuée il y a moins de 24 heures",
       "waitToUnfreezeTRX": "Aux termes du protocole Tron, le dégivrage est possible après 72 heures à compter du dernier gelage",
+      "minimalFreezeBalanceTRX" : "For freezing use more than 1 TRX",
       "allowLongQueryETH": "Autoriser la file d'attente des transactions en attente",
       "allowBlockedBalanceETH": "Autoriser la réutilisation du solde des transactions en attente",
       "enterToStakeSOL": "Entrez le montant de la mise en staking SOL",
@@ -189,10 +240,21 @@
       "address": "Adresse",
       "stake": "Stake",
       "rentReserve": "Rent reserve",
-      "allUnstakeSOL": "Unstake TOUT",
+      "withdrawSOL" : "Withdraw",
+      "withdrawAllSOL" : "Withdraw All",
+      "deactivateSOL": "Deactivate",
       "stakeHistorySOL": "Stake Historique",
-      "selectSolValidator": "Choisir le validateur",
-      "solValidator": "Validateur"
+      "selectValidatorSOL": "Choisir le validateur",
+      "selectValidatorSOLCommission" : "Fee: ",
+      "validatorSOL": "Validateur",
+      "rewards" : "Rewards",
+      "useCustomValidator": "Use this validator ",
+      "successUnfreeze": "TRX unfrozen",
+      "successFreeze": "TRX frozen for staking",
+      "successReward": "TRX staking reward received",
+      "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
+      "withdrawTRX": "Withdraw",
+      "freezeTrx": "Freeze"
     },
     "about": {
       "title": "A Propos",
@@ -209,7 +271,7 @@
       "contactSupportLoadingText": "Si vous n'avez pas ouvert le chat d'assistance, veuillez nous contacter à",
       "contactSupportLoadingTextEmail": "ou écrire à",
       "information": "Information",
-      "copyright": "© NextMindCoin , 2021"
+      "copyright": "© BlockSoftLab Inc, 2021"
     },
     "notifications": {
       "title": "Notifications",
@@ -269,7 +331,9 @@
     "signed": "La signature prouve uniquement que l'adresse actuelle possède ce NFT, il est donc sécurisé de le partager avec n'importe qui",
     "status": "Statut",
     "contract": "Collection contract",
+    "contractSchema" : "Schema",
     "tokenId": "Token ID",
+    "tokenQty" : "Qty",
     "blockchain": "Blockchain",
     "address": "Appartenant à l'adresse",
     "ownershipProved": "Propriétaire prouvé",
@@ -289,8 +353,7 @@
     "cashback": "Cashback",
     "cpa": "CPA",
     "pageTitle": "Inviter tes amis",
-    "pageSubtitle": "Gagnez de la commission avec NextMindCoin Wallet!",
-    "pageSubtitleText": "à",
+    "pageSubtitle": "Gagnez de la commission avec Trustee Wallet!",
     "shareButton": "Partager",
     "promoButton": "Promocode",
     "detailsButton": "Details",
@@ -301,37 +364,38 @@
     "availableCashBack": "Cashback disponible",
     "balanceTitle": "Solde",
     "toWithdraw": "à retirer nécessaire :",
-    "cashbackInfo": "Cashback info",
-    "cpaInfo": "CPA info",
+
     "cpaTotal": "Total CPA",
     "cpaLevel1": "CPA Level 1",
     "cpaLevel2": "CPA Level 2",
     "cpaLevel3": "CPA Level 3",
     "cashbackToken": "Token",
+    "yourToken": "Your cashback link",
+    "cashbackMessage": "Get Cashback for your exchange transactions. Earn Crypto with Affiliate Program and CPA by recommending Trustee Wallet!",
     "howItWorks": {
       "title": "Comment ça fonctionne?",
-      "info1Title": "NextMindCoin Wallet propose-t-il un programme de récompenses pour les utilisateurs?",
-      "info1Content": "Le programme se compose d'un cashback et d'un programme d'affiliation à deux niveaux, qui vous permet à terme de recevoir jusqu'à 30% de commissions de fiduciaire pour les achats et les ventes de crypto-monnaies par les utilisateurs invités.",
-      "info2Title": "Comment activer le cashback?",
-      "info2Content": "Pour l'activer, vous devez inviter un nouvel utilisateur à l'aide de votre lien de cashback. Après l'activation, vous recevrez 10% de la commission de NextMindCoin sur vos échanges. Cette fonctionnalité est activée pour toujours!",
-      "info3Title": "Quelles sont les conditions du programme d'affiliation ?",
-      "info3Content": "Niveau 1 – 10 % de la commission de fiduciaire pour les achats et les ventes de crypto-monnaies par les utilisateurs invités (activés à partir du premier partenaire). Plus d'amis installent le portefeuille en utilisant votre lien, plus vos revenus seront importants. Niveau 2 - activé lorsque le chiffre d'affaires de la structure dépasse 5000 USDT par semaine et vous permettra de recevoir 10% des commissions des utilisateurs de 2ème niveau (partenaires de vos partenaires).",
-      "info4Title": "Comment retirer du cashback et des récompenses d'affiliation ?",
-      "info4Content": "Le montant minimum de retrait est de 2 USDT",
-      "info5Title": "Qui peut accéder au programme CPA?",
-      "info5Content": "Nous apprécions chaque utilisateur et sommes heureux de les récompenser pour des actions efficaces visant à populariser NextMindCoin Wallet. Chaque utilisateur devient automatiquement membre du programme CPA.",
-      "info6Title": "Comment fonctionne le programme CPA ?",
-      "info6Content": "Pour chaque nouvelle installation active de l'application à l'aide de votre lien cashback (lorsque l'utilisateur invité a effectué au moins un achat de crypto-monnaies depuis n'importe quelle carte bancaire), le participant au programme reçoit une récompense unique.",
-      "info7Title": "Quels sont les récompenses du programme CPA?",
-      "info7Content": "Niveau 1\nLe premier achat est jusqu'à 100 $. Récompense - 2 $\n\nNiveau 2\nTLe montant du premier achat est de 100 $ à 500 $. Récompense - 5 $\n\nNiveau 3\nLe premier achat est de plus de 500 $. Récompense - 10 $",
-      "info8Title": "Comment inviter des utilisateurs sur NextMindCoin?",
-      "info8Content": "Recommandez NextMindCoin Wallet à vos amis et collègues en utilisant votre lien de cashback. Vous pouvez utiliser tous les types de communication pour inviter des utilisateurs : Publicité contextuelle, Email-mailing, publicité sur les réseaux sociaux, Réseaux Teaser, Chaînes YouTube. Plus d'informations sur le lien.",
-      "info9Title": "Comment puis-je retirer les récompenses CPA?",
-      "info9Content": "Le montant minimum de retrait est de 100 USDT"
+      "info1Title": "Does Trustee Wallet have a user rewards program?",
+      "info1Content": "The program consists of cashback and a two-tier affiliate program, which ultimately allows you to receive up to 30% of Trustee commissions for purchases and sales of cryptocurrencies by invited users",
+      "info2Title": "How do I activate cashback?",
+      "info2Content": "To activate, you need to invite one new user using your cashback link. After activation, you will receive 10% of the Trustee's commission from your exchanges. This feature is activated forever!",
+      "info3Title": "What are the conditions of the affiliate program?",
+      "info3Content": "Level 1 – 10% of the Trustee commission for purchases and sales of cryptocurrencies by invited users (activated from the first partner). The more friends install the wallet using your link, the more your income will be. Level 2 - activated when the structure's turnover exceeds 5000 USDT per week and will allow you to receive 10% of Trustee commissions from 2nd level users (partners of your partners).",
+      "info4Title": "How to withdraw cashback and affiliate rewards?",
+      "info4Content": "The minimum withdrawal amount is 2 USDT",
+      "info5Title": "Who can access the CPA program?",
+      "info5Content": "We value each user and are happy to reward them for effective actions to popularize Trustee Wallet. Each Trustee user automatically becomes a member of the CPA program.",
+      "info6Title": "How does the CPA program work?",
+      "info6Content": "For each new active installation of the application using your cashback link (when the invited user has made at least one purchase of cryptocurrencies from any bank card), the program participant receives a one-time reward.",
+      "info7Title": "What are the awards for the CPA program?",
+      "info7Content": "Level 1\nThe first purchase is up to $100. Reward - $2\n\nLevel 2\nThe amount of the first purchase is $100-$500. Reward - $5\n\nLevel 3\nThe first purchase is over $500. Reward - $10",
+      "info8Title": "How can invite users to Trustee?",
+      "info8Content": "Recommend Trustee Wallet to your friends and colleagues using your cashback link. You can use all types of traffic for inviting users: Contextual advertising, Email-mailing, advertising in social networks, Teaser networks, YouTube channels. More information on the link.",
+      "info9Title": "How can I withdraw CPA rewards?",
+      "info9Content": "The minimum withdrawal amount is 100 USDT"
     },
     "invitedBy": "Invité par",
     "mainTitle": "Invitez vos amis - gagnez du cashback !",
-    "mainDescription": "Invitez vos amis et commencez à gagner 10% de cashback sur la commission de vos échanges ! Trustee reverse jusqu'à 30% de commission à ses utilisateurs !",
+    "mainDescription": "Invite your friend and start earning 10% cashback from the commission of your exchanges! Trustee returns up to 30% commission to its users!",
     "shareText": "Partager",
     "more": "Plus",
     "shareTitle": "",
@@ -358,6 +422,7 @@
     "performWithdraw": "Pour effectuer le retrait, s'il vous plaît, écrivez votre surnom sur Télégram"
   },
   "account": {
+    "staking": "Staking",
     "title": "Compte",
     "copy": "Cliquez pour copier",
     "refresh": "Réactualiser",
@@ -371,8 +436,20 @@
     "soLong": "Depuis un long moment",
     "minutesAgo": " %{time} min ",
     "noTransactions": "Vous n'avez pas encore de transaction. Mais vous pouvez résoudre ce problème rapidement, appuyez simplement sur le bouton ACHETER",
+    "noFoundTransactions": "Sorry, no results were found",
     "showMore": "Montrer les détails",
     "assetSettings": "Paramètres des actifs",
+    "stakingTRX": {
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
+      "moreInfo": "More details..."
+    },
+    "stakingSOL": {
+      "stake": "Freeze your SOL to receive staking rewards. "
+    },
+    "copyLink": "Copy address",
+    "invoiceText": "Issue an invoice for payment",
+    "openInBlockchair": "Open in blockchain explorer",
     "externalLink": {
       "title": "Aller sur blockchain exploreur",
       "description": "Le lien vers le site externe sera ouvert"
@@ -400,11 +477,16 @@
       "outcome": "Outcome",
       "income": "Income",
       "freeze": "Geler",
+      "unfreeze" : "UnFreeze",
       "claim": "Réclamer",
+      "stake" : "Stake",
+      "vote": "Vote",
+      "wallet_connect" : "WalletConnect",
       "swap_income": "Contract Income",
       "swap_outcome": "Contract Outcome",
       "self": "Self",
       "exchange": "Echange",
+      "swap": "Swap",
       "buy": "Acheter",
       "sell": "Vendre",
       "mobile_phone": "Téléphone mobile",
@@ -416,10 +498,33 @@
       "advAccountDestination": "Numero du compte de retrait",
       "phoneDestination": "Numero de telephone du retrait",
       "orderId": "Lié au swap ID",
+      "selectAll": "Select all",
+      "cancel": "Canceled",
+      "reward": "Reward",
+      "categoriesTitle": "Categories",
+      "transactionCategories": "Transaction categories",
+      "dateAmount": "Date & amount",
+      "timeArray": "Time array",
+      "amountRange": "Amount range",
+      "allAmount": "All amount",
+      "downloadTransactionsHistory": "Download all time transactions history",
+      "saveInCsv": "Save all transactions to CSV",
+      "filterTitle": "Filter",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "pickDate": "Pick date",
+      "startAmount": "Start amount",
+      "endAmount": "End amount",
+      "setAmount": "Set amount",
+      "discard": "Discard",
       "RBF": {
         "replaceByFeeBtn": "Mise à jour des frais tx",
         "willReplaceWithNewFee": "La transaction en cours sera remplacée par une nouvelle, avec un nouveau hachage et une commission plus élevée",
-        "notAllowed": "La transaction a été créée sans possibilité de remplacement ou a déjà été confirmée"
+        "notAllowed": "La transaction a été créée sans possibilité de remplacement ou a déjà été confirmée",
+        "alreadyRemovedByFee" : "You have used “return” %{min} minutes ago",
+        "alreadyReplacedByFee" : "You have used “booster” %{min} minutes ago",
+        "alreadyRemovedByFeeLessThen2Minutes" : "You have used “return” now",
+        "alreadyReplacedByFeeLessThen2Minutes" : "You have used “booster” now"
       },
       "CPFP": {
         "willSpeedUp": "Vous pouvez accélérer une transaction entrante en créant vous-même une transaction supplémentaire, avec une commission plus élevée. Le montant de la commission sera calculé automatiquement, en tenant compte des caractéristiques des deux transactions.Veuillez noter que dans ce cas, le paiement d'une nouvelle transaction sera à votre charge"
@@ -451,7 +556,10 @@
       "FIORequest": "FIO Requete",
       "share": "Partager",
       "copy": "Copier",
-      "amount": "Quantité définie"
+      "amount": "Quantité définie",
+      "rename": "Rename",
+      "allAddresses": "All addresses",
+      "addressName": "Address name"
     },
     "addAccount": {
       "list": "Crypto liste"
@@ -480,12 +588,18 @@
         }
       },
       "transactionHash": "Transaction hash:",
-      "cashbackLink": "Website:",
-      "thanks": "Merci d'avoir choisi NextMindCoin Wallet",
+      "cashbackLink": "I’m using Trustee Wallet! Here is my personal link ",
+      "website": "Website: ",
       "self": "Cette transaction a été envoyée à votre adresse",
-      "order": "Commander"
+      "order": "Commander",
+      "transactionSum": "Amount send",
+      "addresTo": "Recipient ",
+      "addresFrom": "Sender ",
+      "blockConfirmations": "Current number of confirmations ",
+      "transactionAmount": "%{currencyCode} amount"
     }
   },
+
   "fioMainSettings": {
     "title": "FIO Paramètres",
     "description": "Contrôlez toutes les options FIO disponibles",
@@ -498,11 +612,13 @@
     "registerFioAddress": "Enregistrer l'adresse FIO",
     "registerFioAddressDesc": "Enregistrer ton adresse FIO"
   },
+
   "FioChooseRecipient": {
     "title": "Choisissez le destinataire FIO",
     "description": "Entrez le destinataire FIO, ENS ou l'adresse publique",
     "btnText": "Sélectionner FIO"
   },
+
   "FioChooseAddress": {
     "title": "Choisissez l'adresse FIO",
     "description": "Entrez l'adresse à partir de laquelle demander le paiement",
@@ -524,6 +640,7 @@
     "noFioBtn": "Enregistrement de l'adresse FIO",
     "serviceUnavailable": "Service non disponible. Veuillez réessayer plus tard"
   },
+
   "FioSendRequest": {
     "title": "Envoyer une requete de FIO",
     "selectCoin": "Choisir Coin",
@@ -539,12 +656,14 @@
     "goToFioSettings": "Vous devez accéder aux paramètres FIO et associer des pièces à votre adresse FIO",
     "needRegisterFio": "Vous devez d'abord enregistrer votre adresse FIO"
   },
+
   "FioRequestsList": {
     "title": "Liste des requêtes FIO",
     "pendingRequests": "Requêtes en cours",
     "sentRequests": "Requêtes envoyées",
     "RequestedTxt": "Demandé"
   },
+
   "FioRequestDetails": {
     "title": "FIO Détails de la demande",
     "reqCreated": "Demande créée",
@@ -559,6 +678,7 @@
     "btnTextReject": "Rejeter",
     "btnTextConfirm": "Confirmer"
   },
+
   "exchange": {
     "mainData": {
       "amount": "Entrer le montant"
@@ -710,7 +830,8 @@
       "trusteeInfo": "NextMindCoin ne facture aucun frais pour les transactions de crypto-monnaie",
       "send": "Envoyer",
       "build": "Construire",
-      "sending": "Envoi en cours"
+      "sending": "Envoi en cours",
+      "rawTransactionResult" : "Click to Copy"
     },
     "errors": {
       "UI_CONFIRM_DOUBLE_SEND": "La transaction a déjà été envoyée à cette adresse, êtes-vous sûr de vouloir répéter la transaction ?",
@@ -727,6 +848,8 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Le montant de la transaction est trop petit",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Solde insuffisant pour envoyer la transaction",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE": "Solde insuffisant pour envoyer la transaction (validation du serveur)",
+      "UI_CORRECTED_AMOUNT" : "Balance of your %{symbol} wallet is different then sending amount, please confirm sending %{amount} %{symbol}",
+      "UI_CORRECTED_AMOUNT_BSE": "The balance of your %{symbol} wallet is less than the amount to be sent. Please, update your %{symbol} balance and repeat the swap operation.",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Solde insuffisant pour payer les frais de réseau - veuillez utiliser une option \"Envoyer tout\" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Solde insuffisant pour payer la transaction déléguée - veuillez utiliser la transaction standard ERC20",
       "SERVER_RESPONSE_NO_RESPONSE": "La transaction n'a pas reçu de confirmation du réseau - veuillez attendre que les autres transactions soient minées",
@@ -737,6 +860,7 @@
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Les frais de remplacement de la transaction sont trop faibles",
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED": "Transaction déjà minée",
       "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce %{nonce} déjà miné",
+      "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
       "SERVER_RESPONSE_NOT_CONNECTED": "Le réseau est inaccessible - veuillez répéter l'opération plus tard",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Solde insuffisant pour effectuer la transaction et payer les frais minimes",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Veuillez attendre que les autres transactions soient extraites ou activez une option \"Utiliser les transactions non confirmées\" ",
@@ -761,7 +885,9 @@
       "SERVER_RESPONSE_BANDWITH_ERROR_TRX": "Solde TRX insuffisant pour les frais / limite de bande passante dépassée",
       "SERVER_RESPONSE_ENERGY_ERROR_VET": "Solde insuffisant du jeton VeChain Thor (VTHO) pour les frais",
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Veuillez vérifier l'heure de votre système téléphonique - elle doit être synchronisée pour une création correcte de la transaction",
-      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL": "Solde insuffisant pour effectuer la transaction"
+      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL": "Solde insuffisant pour effectuer la transaction",
+     "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
+     "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
     }
   },
   "walletBackup": {
@@ -776,10 +902,12 @@
       "text2": "Soyez très prudent avec la phrase de récupération - n'importe qui avec elle peut accéder ou dépenser vos fonds. S'il vous plaît, ne donnez en aucun cas la phrase de récupération!"
     },
     "step0Screen": {
+      "show": "Show QR-code",
       "phrase": "phrase",
       "qr": "Qr",
       "info": "La phrase de récupération (phrase mnémonique, phrase SEED) est une clé secrète pour accéder à tous les soldes de votre portefeuille. Conservez-le dans un endroit sûr et ne le donnez à personne!",
       "showButton": "Appuyez et maintenez pour révéler",
+      "showQrButton": "Press and hold here to see the QR-code",
       "next": "Suivant",
       "showQR": "Obtenez le code QR pour l'importation vers un autre appareil",
       "hideQR": "Obtenez les mots pour la sauvegarde",
@@ -825,7 +953,8 @@
       "description": "La phrase de sauvegarde est très importante. Vous n'aurez pas accès à vos fonds. Voulez-vous sauter cette étape?",
       "cancel": "Annuler",
       "yes": "Oui",
-      "no": "Non"
+      "no": "Non",
+      "continue": "Continue"
     },
     "descriptionXMR": "Toute personne disposant de votre phrase de récupération peut accéder à vos pièces ou les dépenser. Ces mots sont dérivés de la phrase de récupération principale, vous ne pouvez donc l'utiliser que pour sauvegarder Monero"
   },
@@ -1061,6 +1190,7 @@
       "bseMinCrypto": "La valeur du montant minimum d'échange est %{limit}",
       "bseMinCryptoNoFee": "Votre solde n'est pas suffisant pour échanger un montant et des frais minimes",
       "bigGas": "Vous envoyez dans une direction qui nécessite un niveau de gas anormalement élevé: %{gasLimit}. Afin de protéger vos fonds, la transaction a été arrêtée !",
+      "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance": "Votre solde a été utilisé lors de précédentes transactions non confirmées, vous pouvez utiliser %{free}",
       "feeSmallAmount": "Le montant laissé pour les frais est trop petit - la transaction pourrait prendre trop de temps à confirmer",
       "longQuery": "La ou les transactions précédentes ne sont pas encore confirmées. La transaction en cours ne sera confirmée que par la précédente",
@@ -1102,6 +1232,15 @@
     },
     "notification": {
       "description": "Malheureusement, votre appareil mobile ne prend pas en charge la réception de notifications Push"
+    },
+    "dropDownModal": {
+      "showGuide": "Repeat training",
+      "moveToTop": "Move to the top of the list",
+      "moveToDown": "Move to the down of the list",
+      "guideText": "Customize the display of coins on the main screen by placing them in the required order, or sort assets according to the proposed options.",
+      "guideTitle": "Personal interface",
+      "guideAccept": "Accept",
+      "hideAsset": "Hide assets"
     }
   },
   "lockScreen": {
@@ -1439,6 +1578,8 @@
     "sendLogs": "Envoyer les logs",
     "takePhoto": "Prendre une photo",
     "chooseFromLibrary": "Choisir depuis la gallerie",
-    "noMessages": "Pas encore de message"
-  }
+    "noMessages": "Pas encore de message",
+    "sentFile": "File sent",
+    "getRoomError" : "Load messages error",
+    "sendMessageError" : "Unstable network connection when sending a message"  }
 }

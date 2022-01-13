@@ -12,6 +12,7 @@ import ru from '../../locales/ru.json'
 import uk from '../../locales/uk.json'
 
 import ka from '../../locales/ka.json'
+import fr from '../../locales/fr.json'
 
 i18n.defaultLocale = 'en'
 
@@ -30,7 +31,7 @@ if (Array.isArray(locales)) {
 }
 
 i18n.fallbacks = true
-i18n.translations = { en, ru, uk, ka }
+i18n.translations = { en, ru, uk, ka, fr }
 
 export function strings(name, params = {}) {
     return i18n.t(name, params)
@@ -41,7 +42,7 @@ export function sublocale(locale) {
         locale = i18n.locale
     }
     let sub = locale.split('-')[0]
-    if (sub !== 'uk' && sub !== 'ru' && sub !== 'ka'
+    if (sub !== 'uk' && sub !== 'ru' && sub !== 'ka' && sub !== 'fr'
         // && sub !== 'de' && sub !== 'es' && sub !== 'fr' // @todo de/es/fr languages
     ) {
         sub = 'en'
