@@ -14,12 +14,14 @@
   "JUSTLEND" : {
     "dappCode": "JUSTLEND",
     "dappName" : "JustLend",
-    "dappUrl" : "https://justlend.org/#/home"
+    "dappUrl" : "https://justlend.org/#/home",
+    "dappNetworks" : ["TRX", "TRX_USDT"]
   },
   "EXON" : {
     "dappCode" : "EXON",
     "dappName" : "Exon center",
     "dappUrl" : "https://app.exoncenter.com/430",
     "dappNetworks" : ["TRX_EXON"]
-  }
+  },
+
 }

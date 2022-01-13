@@ -1,5 +1,6 @@
 // https://developers.tron.network/reference/sendtransaction
 // https://justlend.org/static/js/utils/blockchain.js
+export const INJECTEDJAVASCRIPT = `
 const meta = document.createElement('meta')
 meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')
 meta.setAttribute('name', 'viewport')
@@ -224,7 +225,7 @@ try {
                 }
             }
         })
-
+        
         console.log = (txt, data) => {
             window.ReactNativeWebView.postMessage('console.log general ' + (txt ? JSON.stringify(txt) : '') + ' ' + (data ? JSON.stringify(data) : ''))
         }
@@ -242,3 +243,4 @@ try {
 } catch (e) {
     window.ReactNativeWebView.postMessage('injected error ' + e.message)
 }
+`
