@@ -269,7 +269,7 @@
       "contactSupportLoadingText" : "If you have not opened the support chat, please contact us at",
       "contactSupportLoadingTextEmail": "or write to",
       "information": "ინფორმაცია",
-      "copyright": "© BlockSoftLab Inc, 2021"
+      "copyright": "© BlockSoftLab Inc, %{currentYear}"
     },
     "notifications": {
       "title": "შეტყობინებების კონფიგურაცია",
