@@ -105,8 +105,7 @@ class WalletCreateWithAnimation extends PureComponent {
                     style={styles.backgroundVideo}
                     fullscreen={Platform.OS === 'ios'}
                     resizeMode='contain'
-                    repeat
-                // onEnd={this.handleGoHomeScreen}
+                    onEnd={this.handleGoHomeScreen}
                 />
             </View>
         )
