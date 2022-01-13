@@ -271,7 +271,7 @@
       "contactSupportLoadingText" : "Якщо у Вас не відкрився чат служби підтримки, будь ласка, зв'яжіться з нами на сайті",
       "contactSupportLoadingTextEmail": "або напишіть на пошту",
       "information": "Інформація",
-      "copyright": "© BlockSoftLab Inc, 2021"
+      "copyright": "© BlockSoftLab Inc, %{currentYear}"
     },
     "notifications": {
       "title": "Налаштування сповіщень",

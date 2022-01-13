@@ -140,7 +140,7 @@
       "supportSubtitle": "Notre robot de support de Telegram",
       "lock": "Écran verrouillé",
       "bio": "Biometrique",
-      "about": "À propos de NextMindCoin",
+      "about": "À propos de Trustee",
       "lang": "Language",
       "copyLogs": "Copie des journaux",
       "cashback": {
@@ -271,7 +271,7 @@
       "contactSupportLoadingText": "Si vous n'avez pas ouvert le chat d'assistance, veuillez nous contacter à",
       "contactSupportLoadingTextEmail": "ou écrire à",
       "information": "Information",
-      "copyright": "© BlockSoftLab Inc, 2021"
+      "copyright": "© BlockSoftLab Inc, %{currentYear}"
     },
     "notifications": {
       "title": "Notifications",
@@ -827,7 +827,7 @@
       "totalMinerFee": "Frais de réseau totaux",
       "customNonce": "Custom nonce",
       "nonce": "Nonce",
-      "trusteeInfo": "NextMindCoin ne facture aucun frais pour les transactions de crypto-monnaie",
+      "trusteeInfo": "Trustee ne facture aucun frais pour les transactions de crypto-monnaie",
       "send": "Envoyer",
       "build": "Construire",
       "sending": "Envoi en cours",
@@ -896,7 +896,7 @@
     "titleShow": "Phrase de récupération",
     "infoScreen": {
       "continue": "Continuer",
-      "text1": "NextMindCoin WALLET ne dispose pas de votre phrase de récuperation. Par conséquent, en cas de perte ou de panne de l'appareil, l'unique moyen de restaurer l'accès à vos fonds est d'utiliser une phrase de récupération.",
+      "text1": "TRUSTEE WALLET ne dispose pas de votre phrase de récuperation. Par conséquent, en cas de perte ou de panne de l'appareil, l'unique moyen de restaurer l'accès à vos fonds est d'utiliser une phrase de récupération.",
       "checkbox1": "Je comprends que si je perds cette phrase, je n'aurai pas accès à mes soldes. Et je comprends qu'en passant cette phrase à n'importe qui, je vais perdre mon argent",
       "checkbox2": "Je comprends que je dois voir ma phrase de récupération en privé sans caméra, ni yeux autour",
       "text2": "Soyez très prudent avec la phrase de récupération - n'importe qui avec elle peut accéder ou dépenser vos fonds. S'il vous plaît, ne donnez en aucun cas la phrase de récupération!"
@@ -1220,7 +1220,7 @@
       "unsubscribe": "Se désabonner"
     },
     "marketModal": {
-      "title": "Bienvenue sur NextMindCoin Smart Swap",
+      "title": "Bienvenue sur Trustee Smart Swap",
       "description": "Notez que certaines informations, par exemple les détails de paiement, seront transférées aux prestataires d'échange pour effectuer l'opération d'échange.",
       "notShowAgain": "Ne plus afficher",
       "continue": "Continuer"

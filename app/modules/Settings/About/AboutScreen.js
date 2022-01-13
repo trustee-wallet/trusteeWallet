@@ -138,6 +138,8 @@ class AboutScreen extends PureComponent {
 
         const { colors, GRID_SIZE, isLight } = this.context
 
+        const currentYear = new Date().getFullYear()
+
         return (
             <ScreenWrapper
                 leftType="back"
@@ -234,7 +236,7 @@ class AboutScreen extends PureComponent {
                         </View>
                     </View>
 
-                    <Text style={[styles.copyright, { color: colors.common.text3, marginVertical: GRID_SIZE }]}>{strings('settings.about.copyright')}</Text>
+                    <Text style={[styles.copyright, { color: colors.common.text3, marginVertical: GRID_SIZE }]}>{strings('settings.about.copyright', { currentYear })}</Text>
                 </ScrollView>
             </ScreenWrapper>
         )
