@@ -120,6 +120,15 @@ class HeaderBlocks extends React.Component {
         })
     }
 
+    handleCopy = (text) => {
+        try {
+            copyToClipboard(text)
+            Toast.setMessage(strings('toast.copied')).show()
+        } catch (error) {
+            Log.err('Account.AccountScreen copy error ' + error.message)
+        }
+    }
+
     handleBtcAddressCopy = (address) => {
         const { cryptoCurrency, account } = this.props
         const { walletHash } = account
@@ -131,8 +140,7 @@ class HeaderBlocks extends React.Component {
             addressFrom: address,
             addressTo: address
         })
-        copyToClipboard(address)
-        Toast.setMessage(strings('toast.copied')).show()
+        this.handleCopy(address)
     }
 
     renderStakeBalance = () => {
@@ -219,6 +227,22 @@ class HeaderBlocks extends React.Component {
             balancePrettyPrep2 = tmps[1]
         }
 
+        const handlePress = () => {
+            const text = balancePrettyPrep1 + balancePrettyPrep2
+            this.handleCopy(text)
+        }
+
+        const BalanceComponent = () => {
+            return (
+                <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
+                    {balancePrettyPrep1}
+                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
+                        {balancePrettyPrep2}
+                    </Text>
+                </Text>
+            )
+        }
+
         if (isSynchronized) {
             return (
                 <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE }}>
@@ -230,17 +254,17 @@ class HeaderBlocks extends React.Component {
                             disabled={originalVisibility}
                             hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}
                         >
-                            {finalIsBalanceVisible ? (
-                                <Text style={{ ...styles.topContent__title_first, color: colors.common.text1 }} numberOfLines={1} >
-                                    {balancePrettyPrep1}
-                                    <Text style={{ ...styles.topContent__title_last, color: colors.common.text1 }}>
-                                        {balancePrettyPrep2}
+                                {originalVisibility ? (
+                                <TouchableOpacity onPress={handlePress}>
+                                    <BalanceComponent />
+                                </TouchableOpacity>
+                            ) : (finalIsBalanceVisible ? (
+                                    <BalanceComponent />
+                                ) : (
+                                    <Text style={[styles.topContent__title_last, styles.hiddenBalance, { color: colors.common.text1 }]}>
+                                        ****
                                     </Text>
-                                </Text>
-                            ) : (
-                                <Text style={[styles.topContent__title_last, styles.hiddenBalance, { color: colors.common.text1 }]}>
-                                    ****
-                                </Text>
+                                ) 
                             )}
                         </TouchableOpacity>
                     </View>
