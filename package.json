@@ -198,6 +198,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.7.7",
+    "@babel/plugin-transform-typescript": "^7.16.8",
     "@babel/runtime": "7.7.7",
     "@react-native-community/cli": "^4.13.1",
     "@react-native-community/eslint-config": "0.0.5",
@@ -219,8 +220,8 @@
     "eslint-plugin-sql": "^1.1.1",
     "eslint-plugin-standard": "^4.0.1",
     "jest": "24.9.0",
-    "metro-react-native-babel-transformer": "^0.66.2",
     "metro-react-native-babel-preset": "0.66.2",
+    "metro-react-native-babel-transformer": "^0.66.2",
     "react-test-renderer": "16.9.0",
     "typescript": "^3.8.3"
   },
