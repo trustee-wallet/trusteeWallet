@@ -1222,6 +1222,9 @@
       "guideTitle": "Personal interface",
       "guideAccept": "Accept",
       "hideAsset": "Hide assets"
+    },
+    "cancelPayment": {
+      "description": "დაელოდეთ გადახდის დასრულებას, გადახდის ეკრანი ავტომატურად დაიხურება. თუ მას ხელით დახურავთ, ეს გააუქმებს თქვენს შეკვეთას. გსურთ შეკვეთის გაუქმება?"
     }
   },
   "lockScreen": {

@@ -1241,6 +1241,9 @@
       "guideTitle": "Personal interface",
       "guideAccept": "Accept",
       "hideAsset": "Hide assets"
+    },
+    "cancelPayment": {
+      "description": "Attendez que le paiement soit terminé, l'écran de paiement se fermera automatiquement. Si vous le fermez manuellement, cela annulera votre commande. Souhaitez-vous annuler la commande?"
     }
   },
   "lockScreen": {

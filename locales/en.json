@@ -1240,6 +1240,9 @@
       "guideTitle": "Personal interface",
       "guideAccept": "Accept",
       "hideAsset": "Hide assets"
+    },
+    "cancelPayment": {
+      "description": "Wait for the payment to complete, the payment screen will close automatically. If you close it manually, this will cancel your order. Would you like to cancel the order?"
     }
   },
   "lockScreen": {

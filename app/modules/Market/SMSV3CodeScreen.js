@@ -30,6 +30,7 @@ import config from '@app/config/config'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import { strings } from '@app/services/i18n'
 
 
 let CACHE_IS_ERROR = false
@@ -127,21 +128,35 @@ class SMSV3CodeScreen extends PureComponent {
     closeAction = () => {
         Log.log('Trade.SMSV3CodeScreen.closeAction user click')
 
-        if (this.state.additionalData.close) {
-            Log.log('Trade.SMSV3CodeScreen.backAction CLOSE')
-            this.setExchangeStatus(null, { orderHash: this.state.orderHash, status: 'CLOSE' })
-        }
-        NavStore.reset('TabBar')
+        showModal({
+            type: 'YES_NO_MODAL',
+            icon: 'WARNING',
+            title: strings('modal.titles.attention'),
+            description: strings('modal.cancelPayment.description')
+        }, () => {
+            if (this.state.additionalData.close) {
+                Log.log('Trade.SMSV3CodeScreen.backAction CLOSE')
+                this.setExchangeStatus(null, { orderHash: this.state.orderHash, status: 'CLOSE' })
+            }
+            NavStore.reset('TabBar')
+        })
     }
 
     backAction = () => {
         Log.log('Trade.SMSV3CodeScreen.backAction user click')
 
-        if (this.state.additionalData.close) {
-            Log.log('Trade.SMSV3CodeScreen.backAction BACK')
-            this.setExchangeStatus(null, { orderHash: this.state.orderHash, status: 'BACK' })
-        }
-        NavStore.goBack()
+        showModal({
+            type: 'YES_NO_MODAL',
+            icon: 'WARNING',
+            title: strings('modal.titles.attention'),
+            description: strings('modal.cancelPayment.description')
+        }, () => {
+            if (this.state.additionalData.close) {
+                Log.log('Trade.SMSV3CodeScreen.backAction BACK')
+                this.setExchangeStatus(null, { orderHash: this.state.orderHash, status: 'BACK' })
+            }
+            NavStore.goBack()
+        })
     }
 
     render() {
