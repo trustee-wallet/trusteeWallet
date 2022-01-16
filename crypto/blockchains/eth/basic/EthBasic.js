@@ -117,6 +117,20 @@ export default class EthBasic {
             this._mainTokenType = 'VLX_ERC_20'
             this._mainTokenBlockchain = 'VLX'
             this._mainChainId = 106
+        } else if (settings.currencyCode === 'ONE' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'ONE')) {
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = false
+            this._etherscanApiPathInternal = false
+            this._etherscanApiPathForFee = false
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'ONE'
+            this._mainTokenType = 'ONE_ERC_20'
+            this._mainTokenBlockchain = 'ONE'
+            this._mainChainId = 1666600000
         } else if (settings.currencyCode === 'METIS' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'METIS')) {
 
             this._etherscanSuffix = ''

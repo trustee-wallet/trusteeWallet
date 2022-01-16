@@ -66,6 +66,8 @@ import EthTokenProcessorNft from '@crypto/blockchains/eth/EthTokenProcessorNft'
 import AshAddressProcessor from '@crypto/blockchains/ash/AshAddressProcessor'
 
 import MetisScannerProcessor from '@crypto/blockchains/metis/MetisScannerProcessor'
+import OneScannerProcessor from '@crypto/blockchains/one/OneScannerProcessor'
+import OneScannerProcessorErc20 from '@crypto/blockchains/one/OneScannerProcessorErc20'
 
 class BlocksoftDispatcher {
 
@@ -170,6 +172,10 @@ class BlocksoftDispatcher {
                 return new WavesScannerProcessor(currencyDictSettings)
             case 'METIS':
                 return new MetisScannerProcessor(currencyDictSettings)
+            case 'ONE':
+                return new OneScannerProcessor(currencyDictSettings)
+            case 'ONE_ERC_20':
+                return new OneScannerProcessorErc20(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }
@@ -191,6 +197,8 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'FTM' })
             case 'VLX_ERC_20':
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'VLX' })
+            case 'ONE_ERC_20':
+                return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'ONE' })
             case 'METIS_ERC_20':
                 return new EthTokenProcessorErc20({ network: 'mainnet', tokenBlockchain : 'METIS' })
             case 'TRX':

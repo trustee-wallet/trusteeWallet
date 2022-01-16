@@ -321,7 +321,7 @@ class AccountReceiveScreen extends React.PureComponent {
         )
     }
 
-    renderAddressLegacy = (newFormatTitle = 'SegWit') => {
+    renderAddressLegacy = (newFormatTitle = 'SegWit', oldFormatTitle = 'Legacy') => {
         // @todo isSegwit also for other new / legacy format switching
         try {
             const { settingAddressType, settingAddressTypeTriggered } = this.state
@@ -336,7 +336,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     group: null
                 },
                 {
-                    title: 'Legacy',
+                    title: oldFormatTitle,
                     index: 1,
                     active: !actualIsSegwit,
                     hasNewNoties: false,
@@ -677,6 +677,7 @@ class AccountReceiveScreen extends React.PureComponent {
                 >
                     {currencyCode === 'BTC' || currencyCode === 'LTC' ? this.renderAddressLegacy('SegWit') : null}
                     {currencyCode === 'BSV' || currencyCode === 'BCH' ? this.renderAddressLegacy('CashAddr') : null}
+                    {currencyCode === 'ONE' ? this.renderAddressLegacy('0x', 'One1') : null}
                     <View style={{backgroundColor: colors.common.listItem.basic.iconBgLight, marginHorizontal: GRID_SIZE, borderRadius: 24, paddingBottom: GRID_SIZE }}>
                         <View style={{ ...styles.wrapper__content, paddingTop: GRID_SIZE * 1.5 }}>
 

@@ -9,7 +9,15 @@
     "dappCode" : "PANCAKE",
     "dappName" : "Pancake Swap",
     "dappUrl" : "https://pancakeswap.finance/swap",
-    "dappNetworks" : ["BNB_SMART"]
+    "dappNetworks" : ["BNB_SMART"],
+    "disableInjected" : true
+  },
+  "MOCHISWAP" : {
+    "dappCode" : "MOCHISWAP",
+    "dappName" : "Mochiswap",
+    "dappUrl" : " https://harmony.mochiswap.io/swap",
+    "dappNetworks" : ["ONE"],
+    "disableInjected" : true
   },
   "JUSTLEND" : {
     "dappCode": "JUSTLEND",
