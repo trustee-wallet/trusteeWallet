@@ -234,6 +234,27 @@
 		"currencyExplorerLink": "https://tronscan.org/#/address/",
 		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
 	},
+	"ONE_USDC": {
+		"currencyType": "token",
+		"currencyName": "USDC Harmony",
+		"currencyCode": "ONE_USDC",
+		"currencyIcon": "ETH",
+		"currencySymbol": "USDC",
+		"addressProcessor": "ETH",
+		"scannerProcessor": "ONE_ERC_20",
+		"transferProcessor": "BNB_SMART_20",
+		"prettyNumberProcessor": "ETH_ERC_20",
+		"addressCurrencyCode": "ETH",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "USDC",
+		"feesCurrencyCode": "ONE",
+		"network": "mainnet",
+		"decimals": 6,
+		"tokenBlockchain": "ONE",
+		"tokenAddress": "0x985458e523db3d53125813ed68c274899e9dfab4",
+		"currencyExplorerLink": "https://explorer.harmony.one/address/0x985458e523db3d53125813ed68c274899e9dfab4",
+		"currencyExplorerTxLink": "https://explorer.harmony.one/tx/"
+	},
 	"ETH_PAX": {
 		"currencyType": "token",
 		"currencyName": "Pax Dollar",
@@ -1103,7 +1124,7 @@
 	},
 	"ETH_ONE": {
 		"currencyType": "token",
-		"currencyName": "Harmony",
+		"currencyName": "Harmony ERC20",
 		"currencyCode": "ETH_ONE",
 		"currencySymbol": "ONE",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -2159,6 +2180,26 @@
 		"currencyExplorerLink": "https://evmexplorer.velas.com/tokens/0x01445C31581c354b7338AC35693AB2001B50b9aE/token-transfers",
 		"currencyExplorerTxLink": "https://evmexplorer.velas.com/tx/"
 	},
+
+	"ONE": {
+		"currencyType": "coin",
+		"currencyName": "Harmony",
+		"currencyCode": "ONE",
+		"currencySymbol": "ONE",
+		"ratesCurrencyCode": "ONE",
+		"addressCurrencyCode": "ETH",
+		"addressProcessor": "ETH",
+		"addressUiChecker": "ETH",
+		"scannerProcessor": "ONE",
+		"extendsProcessor": "ETH",
+		"prettyNumberProcessor": "ETH",
+		"transferProcessor": "ETC",
+		"network": "mainnet",
+		"decimals": 18,
+		"currencyExplorerLink": "https://explorer.harmony.one/address/",
+		"currencyExplorerTxLink": "https://explorer.harmony.one/tx/"
+	},
+
 	"ETH_UFI": {
 		"currencyType": "token",
 		"currencyName": "PureFi Token ERC20",

@@ -235,6 +235,15 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             if (checked6) {
                 todoArray.push({ tokenType : 'VLX_ERC_20', checked : checked6})
             }
+
+            const checked7 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'ONE_ERC_20',
+                tokenAddress
+            })
+            Log.log('AddCustomTokenScreen.addToken checked7 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked7))
+            if (checked7) {
+                todoArray.push({ tokenType : 'ONE_ERC_20', checked : checked7})
+            }
         }
 
 

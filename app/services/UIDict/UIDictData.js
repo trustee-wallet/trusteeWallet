@@ -14,6 +14,12 @@ export default {
             darkColor: '#2FB9B8'
         }
     },
+    'ONE': {
+        colors: {
+            mainColor: '#35D4D3',
+            darkColor: '#2FB9B8'
+        }
+    },
     'TRX_USDT': {
         colors: {
             mainColor: '#31D182',

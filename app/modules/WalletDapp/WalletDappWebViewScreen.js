@@ -42,7 +42,7 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import BlocksoftUtils from "@crypto/common/BlocksoftUtils"
 import { Web3Injected } from '@crypto/services/Web3Injected'
 import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
-import { INJECTEDJAVASCRIPT } from './ScriptWeb3.js'
+import { INJECTEDJAVASCRIPT, INJECTEDJAVASCRIPT_SMALL } from './ScriptWeb3.js'
 
 class WalletDappWebViewScreen extends PureComponent {
     state = {
@@ -248,35 +248,40 @@ class WalletDappWebViewScreen extends PureComponent {
 
         const { walletHash } = this.props.selectedWalletData
         const { dappCode, dappName, dappUrl, incognito } = this.props.walletDappData
-        const { dappNetworks } = dappsBlocksoftDict[dappCode]
+        const { dappNetworks, disableInjected } = dappsBlocksoftDict[dappCode]
 
         Log.log('WalletDapp.WebViewScreen render ' + dappCode + ' incognito ' + JSON.stringify(incognito) )
 
-        let prepared = INJECTEDJAVASCRIPT
-        try {
-            if (typeof store.getState().accountStore.accountList[walletHash] !== 'undefined') {
-                if (typeof store.getState().accountStore.accountList[walletHash]['TRX'] !== 'undefined') {
-                    const found = store.getState().accountStore.accountList[walletHash]['TRX']
-                    TrxDappHandler.init(found)
-                    prepared = prepared.replace('TRX_ADDRESS_BASE58', found.address)
-                    prepared = prepared.replace('TRX_ADDRESS_HEX', TronUtils.addressToHex(found.address))
-                }
-                const codes = typeof dappNetworks !== 'undefined' && dappNetworks ? dappNetworks : ['ETH', 'MATIC', 'BNB_SMART']
-                for (const code of codes) {
-                    if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
-                        const found = store.getState().accountStore.accountList[walletHash][code]
-                        prepared = prepared.replace('ETH_ADDRESS_HEX', found.address)
-                        const web3 = Web3Injected(code)
-                        const chainId = BlocksoftUtils.decimalToHexWalletConnect(web3.MAIN_CHAIN_ID)
-                        prepared = prepared.replace('ETH_CHAIN_ID_INTEGER', web3.MAIN_CHAIN_ID)
-                        prepared = prepared.replace('ETH_CHAIN_ID_HEX', chainId)
-                        EthDappHandler.init(found, web3)
-                        break;
+        let prepared
+        if (typeof disableInjected === 'undefined' || !disableInjected) {
+            prepared = INJECTEDJAVASCRIPT
+            try {
+                if (typeof store.getState().accountStore.accountList[walletHash] !== 'undefined') {
+                    if (typeof store.getState().accountStore.accountList[walletHash]['TRX'] !== 'undefined') {
+                        const found = store.getState().accountStore.accountList[walletHash]['TRX']
+                        TrxDappHandler.init(found)
+                        prepared = prepared.replace('TRX_ADDRESS_BASE58', found.address)
+                        prepared = prepared.replace('TRX_ADDRESS_HEX', TronUtils.addressToHex(found.address))
+                    }
+                    const codes = typeof dappNetworks !== 'undefined' && dappNetworks ? dappNetworks : ['ETH', 'MATIC', 'BNB_SMART']
+                    for (const code of codes) {
+                        if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
+                            const found = store.getState().accountStore.accountList[walletHash][code]
+                            prepared = prepared.replace('ETH_ADDRESS_HEX', found.address)
+                            const web3 = Web3Injected(code)
+                            const chainId = BlocksoftUtils.decimalToHexWalletConnect(web3.MAIN_CHAIN_ID)
+                            prepared = prepared.replace('ETH_CHAIN_ID_INTEGER', web3.MAIN_CHAIN_ID)
+                            prepared = prepared.replace('ETH_CHAIN_ID_HEX', chainId)
+                            EthDappHandler.init(found, web3)
+                            break;
+                        }
                     }
                 }
+            } catch (e) {
+                Log.log('WalletDappWebViewScreen found trx error ' + e.message)
             }
-        } catch (e) {
-            Log.log('WalletDappWebViewScreen found trx error ' + e.message)
+        } else {
+            prepared = INJECTEDJAVASCRIPT_SMALL
         }
 
         return (

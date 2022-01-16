@@ -10,11 +10,14 @@ export const Web3Injected = (type) => {
     let WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
     let MAIN_CURRENCY_CODE = 'ETH'
     let MAIN_CHAIN_ID = 1
-    if (type === 3 || type === 'ropsten'  || type === 'ETH_ROPSTEN') {
+    if (!type || type === 0 || type === 1 || type === 'ethereum' || type === 'ETH' || type === 'mainnet') {
+        MAIN_CURRENCY_CODE = 'ETH'
+        MAIN_CHAIN_ID = 1
+    } else if (type === 3 || type === 'ropsten'  || type === 'ETH_ROPSTEN') {
         MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
         WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         MAIN_CHAIN_ID = 3
-    } if (type === 4 || type === 'rinkeby' || type === 'ETH_RINKEBY') {
+    } else if (type === 4 || type === 'rinkeby' || type === 'ETH_RINKEBY') {
         MAIN_CURRENCY_CODE = 'ETH_RINKEBY'
         WEB3_LINK = `https://rinkeby.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         MAIN_CHAIN_ID = 4
@@ -26,10 +29,14 @@ export const Web3Injected = (type) => {
         MAIN_CURRENCY_CODE = 'METIS'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('METIS_SERVER')
         MAIN_CHAIN_ID = 1088
-    }  else if (type === 106 || type === 'VLX') {
+    } else if (type === 106 || type === 'VLX') {
         MAIN_CURRENCY_CODE = 'VLX'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('VLX_SERVER')
         MAIN_CHAIN_ID = 106 // https://docs.velas.com/clusters/
+    } else if (type === 1666600000 || type === 'ONE') {
+        MAIN_CURRENCY_CODE = 'ONE'
+        WEB3_LINK = BlocksoftExternalSettings.getStatic('ONE_SERVER')
+        MAIN_CHAIN_ID = 1666600000
     } else if (type === 10 || type === 'OPTIMISM') {
         MAIN_CURRENCY_CODE = 'OPTIMISM'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
@@ -54,6 +61,8 @@ export const Web3Injected = (type) => {
         MAIN_CURRENCY_CODE = 'RSK'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('RSK_SERVER')
         MAIN_CHAIN_ID = 30
+    } else {
+        throw new Error('PLEASE ADD SUPPORT FOR ETH NETWORK ' + type)
     }
 
     if (typeof CACHE_WEB3[WEB3_LINK] !== 'undefined') {

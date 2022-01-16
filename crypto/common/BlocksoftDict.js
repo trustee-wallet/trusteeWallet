@@ -131,6 +131,13 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.tokenBlockchain = 'VLX'
         tmp.currencyExplorerLink = 'https://evmexplorer.velas.com/tokens/' + currencyObject.tokenAddress
+    } else if (currencyObject.tokenType === 'ONE_ERC_20') {
+        tmp.currencyCode = 'CUSTOM_ONE_ERC_20_' + currencyObject.currencyCode
+        tmp.extendsProcessor = 'ONE_USDC'
+        tmp.addressUiChecker = 'ETH'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'ONE'
+        tmp.currencyExplorerLink = 'https://explorer.harmony.one/address/' + currencyObject.tokenAddress
     } else if (currencyObject.tokenType === 'SOL') {
         tmp.currencyCode = 'CUSTOM_SOL_' + currencyObject.currencyCode
         tmp.extendsProcessor = 'SOL_RAY'

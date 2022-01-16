@@ -1,5 +1,14 @@
 // https://developers.tron.network/reference/sendtransaction
 // https://justlend.org/static/js/utils/blockchain.js
+export const INJECTEDJAVASCRIPT_SMALL = `
+const meta = document.createElement('meta')
+meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')
+meta.setAttribute('name', 'viewport')
+document.getElementsByTagName('head')[0].appendChild(meta)
+
+window.ReactNativeWebView.postMessage('ScriptWeb3 loaded without injected')
+`
+
 export const INJECTEDJAVASCRIPT = `
 const meta = document.createElement('meta')
 meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')
@@ -187,6 +196,40 @@ try {
             },
             getAccounts : async () => {
                 console.log('GEEET ACCOUNTS?')
+            },
+            _handleAccountsChanged : () => {
+                console.log('KSU 1')
+            },
+            _handleConnect : () => {
+                console.log('KSU 2')
+            },
+            _handleChainChanged : () => {
+                console.log('KSU 3')
+            },
+            _handleDisconnect : () => {
+                console.log('KSU 5')
+            },
+            _handleStreamDisconnect : () => {
+                console.log('KSU 6')
+            },
+            _handleUnlockStateChanged : () => {
+                console.log('KSU 7')
+            },
+            _rpcRequest: () => {
+                console.log('KSU 8')
+            },
+            _jsonRpcConnection : () => {
+                 console.log('KSU 9')
+                 return {
+                     events : {
+                         on : () => {
+                                console.log('KSU 9-1')
+                         },
+                     }
+                 }
+            },
+            _initializeState: () => {
+                console.log('KSU 11')
             },
 
         }
