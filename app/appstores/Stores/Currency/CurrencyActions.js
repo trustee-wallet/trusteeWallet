@@ -131,7 +131,9 @@ const currencyActions = {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'FTM', newIsHidden : 0, currentIsHidden : 0})
         } else if (tokenType === 'METIS_ERC_20' || tokenType === 'METIS') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'METIS', newIsHidden : 0, currentIsHidden : 0})
-        }  else if (tokenType === 'VLX_ERC_20' || tokenType === 'VLX') {
+        } else if (tokenType === 'VLX_ERC_20' || tokenType === 'VLX') {
+            await currencyActions.toggleCurrencyVisibility({ currencyCode : 'VLX', newIsHidden : 0, currentIsHidden : 0})
+        } else if (tokenType === 'ONE_ERC_20' || tokenType === 'ONE') {
             await currencyActions.toggleCurrencyVisibility({ currencyCode : 'VLX', newIsHidden : 0, currentIsHidden : 0})
         }
 

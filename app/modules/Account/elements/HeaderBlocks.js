@@ -299,6 +299,7 @@ class HeaderBlocks extends React.Component {
             case 'BNB':
             case 'SOL':
             case 'BNB_SMART':
+            case 'ONE':
                 return this.handleSettingAccount(currencyCode)
             default:
                 return null

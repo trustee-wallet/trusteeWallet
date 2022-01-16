@@ -17,6 +17,7 @@ import SettingsETH from './elements/SettingsETH'
 import SettingsXMR from './elements/SettingsXMR'
 import SettingsBNB from './elements/SettingsBNB'
 import SettingsSOL from './elements/SettingsSOL'
+import SettingsONE from './elements/SettingsONE'
 
 import { strings } from '@app/services/i18n'
 
@@ -108,6 +109,15 @@ class AccountSettingScreen extends React.PureComponent {
             case 'SOL':
                 return (
                     <SettingsSOL
+                        containerStyle={{ overflow: 'hidden' }}
+                        wallet={selectedWallet}
+                        account={account}
+                        cryptoCurrency={cryptoCurrency}
+                    />
+                )
+            case 'ONE':
+                return (
+                    <SettingsONE
                         containerStyle={{ overflow: 'hidden' }}
                         wallet={selectedWallet}
                         account={account}

@@ -11,7 +11,7 @@ import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 import DaemonCache from '@app/daemons/DaemonCache'
 import RateEquivalent from '@app/services/UI/RateEquivalent/RateEquivalent'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-
+import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
 export async function changeAddress() {
 
@@ -57,6 +57,9 @@ export function getAddress() {
     const { currencyCode } = this.props.selectedCryptoCurrencyData
 
     const actualIsSegwit = settingAddressTypeTriggered ? (settingAddressType !== 'legacy') : isSegwit
+    if (currencyCode === 'ONE') {
+        legacyAddress = OneUtils.toOneAddress(address)
+    }
     if (!actualIsSegwit && legacyAddress) {
         address = legacyAddress
     } else {
