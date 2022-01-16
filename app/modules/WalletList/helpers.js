@@ -259,7 +259,7 @@ const handleCurrencySelect = async (props, screen) => {
 
 const getSortedData = (array, currentArray, accountList, filter) => {
 
-    Log.log('HomeScreen.helper.gerSortedData selectedFilter ' + filter)
+    // Log.log('HomeScreen.helper.getSortedData selectedFilter ' + filter)
 
     switch (filter) {
         case 'byTrustee':

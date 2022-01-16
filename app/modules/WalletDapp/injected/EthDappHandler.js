@@ -3,6 +3,7 @@ import Log from '@app/services/Log/Log'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftPrivateKeysUtils from '@crypto/common/BlocksoftPrivateKeysUtils'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 const EthDappHandler = {
     account: {},
@@ -44,6 +45,57 @@ const EthDappHandler = {
             const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'EthDappHandler')
             const result = await EthDappHandler.web3.eth.accounts.signTransaction(data.params[0], privateData.privateKey)
             return {result : result.signature}
+        } else if (method === 'eth_sendTransaction') {
+            // https://eth.wiki/json-rpc/API#eth_sendTransaction
+            const params = [{"from":"0x3193df11c7615533dab38a7fb2a9f62f39efd371","gas":"0x7e313","to":"0xa5409ec958c83c3f309868babaca7c86dcb077c1","data":"0xddd81f82"}]
+            if (!asked) {
+                return {
+                    shouldAsk: true,
+                    shouldAskText : 'do you want to send transaction to' + JSON.stringify(data.params[0].to).substr(0, 20) + '... as ' +  EthDappHandler.account.address + ' in chain ' + EthDappHandler.web3.MAIN_CHAIN_ID,
+                    res: false
+                }
+            }
+            const discoverFor = {
+                addressToCheck: EthDappHandler.account.address,
+                derivationPath: EthDappHandler.account.derivationPath,
+                walletHash: EthDappHandler.account.walletHash,
+                currencyCode: EthDappHandler.account.currencyCode
+            }
+            const privateData = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'EthDappHandler')
+
+            const tx = {
+                from : params[0].from,
+                gas : params[0].gas,
+                to : params[0].to
+            }
+            if (typeof params[0].data !== 'undefined') {
+                tx.data = params[0].data
+            }
+            if (EthDappHandler.web3.MAIN_CHAIN_ID) {
+                tx.chainId = this._mainChainId
+            }
+            await Log.log('EthDappHandler.eth_sendTransaction tx params', tx)
+            const signData = await EthDappHandler.web3.eth.accounts.signTransaction(tx, privateData.privateKey)
+            const rawTransaction = signData.rawTransaction
+            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendTransaction tx raw ' + this._web3.LINK, rawTransaction)
+            const tmp = await BlocksoftAxios.postWithoutBraking(EthDappHandler.web3.LINK, {
+                jsonrpc: '2.0',
+                method: 'eth_sendRawTransaction',
+                params: [rawTransaction],
+                id: 1
+            })
+            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendTransaction tx raw result ' + this._web3.LINK, tmp.data)
+            return {result : typeof tmp.data.result !== 'undefined' ? tmp.data.result : false}
+        } else if (method === 'eth_sendRawTransaction') {
+            // https://eth.wiki/json-rpc/API#eth_sendRawTransaction
+            const tmp = await BlocksoftAxios.postWithoutBraking(EthDappHandler.web3.LINK, {
+                jsonrpc: '2.0',
+                method: 'eth_sendRawTransaction',
+                params: [data.params[0]],
+                id: 1
+            })
+            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendRawTransaction tx raw result ' + this._web3.LINK, tmp.data)
+            return {result : typeof tmp.data.result !== 'undefined' ? tmp.data.result : false}
         } else if (method === 'personal_sign') {
             if (!asked) {
                 return {
