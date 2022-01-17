@@ -28,11 +28,16 @@ export default function SelectedMnemonic(props) {
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
+    const triggerMnemonicVisibleOut = ()=> {
+        if (!isMnemonicVisible) return;
+        triggerMnemonicVisible();
+    }
+
     return (
         <TouchableOpacity
             activeOpacity={1}
             onPressIn={triggerMnemonicVisible}
-            onPressOut={triggerMnemonicVisible}
+            onPressOut={triggerMnemonicVisibleOut}
             onLongPress={showMnemonic}
             delayLongPress={2000}
         >
