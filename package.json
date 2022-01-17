@@ -18,6 +18,7 @@
   "dependencies": {
     "@fioprotocol/fiojs": "^1.0.1",
     "@fioprotocol/fiosdk": "git+https://git@github.com/trustee-wallet/fiosdk_typescript#release/1.2.x",
+    "@gorhom/bottom-sheet": "2.4.1",
     "@haskkor/react-native-pincode": "git+https://git@github.com/trustee-wallet/react-native-pincode",
     "@metamask/eth-sig-util": "4.0.0",
     "@react-native-community/async-storage": "^1.7.1",
