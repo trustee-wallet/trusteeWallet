@@ -12,6 +12,13 @@
     "dappNetworks" : ["BNB_SMART"],
     "disableInjected" : true
   },
+  "NFTRADE" : {
+    "dappCode" : "NFTRADE",
+    "dappName" : "NFTrade",
+    "dappUrl" : "https://nftrade.com/",
+    "dappNetworks" : ["ETH", "BNB_SMART", "MATIC"],
+    "disableInjected" : true
+  },
   "MOCHISWAP" : {
     "dappCode" : "MOCHISWAP",
     "dappName" : "Mochiswap",
