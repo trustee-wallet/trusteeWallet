@@ -118,6 +118,7 @@ const EthDappHandler = {
             if (typeof tmpRes.data.result === 'undefined' || !tmpRes.data.result) {
                 if (config.debug.appErrors) {
                     console.log('EthDappHandler no result for handler ' + method, data)
+                    console.log('loaded ' + EthDappHandler.web3.LINK, tmpRes.data)
                 }
                 Log.log('EthDappHandler no result for handler ' + method, data)
             } else {

@@ -224,10 +224,12 @@ class BlocksoftDispatcher {
                 return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'MATIC', tokenBlockchainCode : 'MATIC' })
             case 'BNB': case 'NFT_BNB':
                 return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'BNB', tokenBlockchainCode : 'BNB' })
+            case 'ONE': case 'NFT_ONE':
+                return new EthTokenProcessorNft({ network: 'mainnet', tokenBlockchain : 'ONE', tokenBlockchainCode : 'ONE' })
             case 'ETH_ROPSTEN': case 'NFT_ROPSTEN':
                 return new EthTokenProcessorNft({ network: 'ropsten', tokenBlockchain : 'ROPSTEN', tokenBlockchainCode : 'ETH_ROPSTEN' })
             default:
-                throw new Error('Unknown tokenProcessor ' + tokenBlockchainCode)
+                throw new Error('Unknown NFT tokenProcessor ' + tokenBlockchainCode)
         }
     }
 

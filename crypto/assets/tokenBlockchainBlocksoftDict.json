@@ -30,5 +30,9 @@
   "METIS" : {
     "currencyCode" : "METIS",
     "blockchainName": "Metis"
+  },
+  "ONE" : {
+    "currencyCode" : "ONE",
+    "blockchainName" : "Harmony"
   }
 }

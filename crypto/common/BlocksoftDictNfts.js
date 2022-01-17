@@ -34,6 +34,16 @@ const Nfts = [
         showOnHome: false
     },
     {
+        currencyCode: 'NFT_ONE',
+        currencyName: 'Harmony NFT',
+        currencySymbol: 'NFT',
+        tokenBlockchain: 'ONE',
+        tokenBlockchainCode: 'ONE',
+        currencyType: 'NFT',
+        explorerLink: 'https://davinci.gallery/view/',
+        showOnHome: false
+    },
+    {
         currencyCode: 'NFT_ROPSTEN',
         currencyName: 'Ropsten NFT',
         currencySymbol: 'NFT',
