@@ -2,10 +2,10 @@
  * @version 0.30
  */
 import React from 'react'
-import { 
-    SafeAreaView, 
-    View, 
-    RefreshControl, 
+import {
+    SafeAreaView,
+    View,
+    RefreshControl,
     StyleSheet,
     FlatList,
     SectionList,
@@ -20,6 +20,7 @@ import _isEqual from 'lodash/isEqual'
 import CryptoCurrency from './elements/CryptoCurrency'
 import WalletInfo from './elements/WalletInfo'
 import Header from './elements/Header'
+import SortList from './elements/SortList'
 
 import Log from '@app/services/Log/Log'
 
@@ -47,6 +48,8 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 import { strings } from '@app/services/i18n'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
+
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
 
 
 class HomeScreen extends React.PureComponent {
@@ -216,24 +219,27 @@ class HomeScreen extends React.PureComponent {
         const balanceData = getBalanceData(this.props)
 
         return (
-            <View style={styles.container}>
-                <Header
-                    hasStickyHeader={this.state.hasStickyHeader}
-                    isBalanceVisible={this.state.isBalanceVisible}
-                    originalVisibility={this.state.originalVisibility}
-                    triggerBalanceVisibility={this.triggerBalanceVisibility}
-                    balanceData={balanceData}
-                />
-                <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]} />
+            <>
+                <View style={styles.container}>
+                    <Header
+                        hasStickyHeader={this.state.hasStickyHeader}
+                        isBalanceVisible={this.state.isBalanceVisible}
+                        originalVisibility={this.state.originalVisibility}
+                        triggerBalanceVisibility={this.triggerBalanceVisibility}
+                        balanceData={balanceData}
+                        handleSortView={() => this.bottomSheetRef.open()}
+                        sortValue={sortValue}
+                    />
+                    <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]} />
                     <View style={[styles.content, { backgroundColor: colors.common.background }]}>
                         <View style={styles.stub} />
-                            {(sortValue === 'coinFirst' || sortValue === 'tokenFirst') ? 
-                                <SectionList
+                        {(sortValue === 'coinFirst' || sortValue === 'tokenFirst') ?
+                            <SectionList
                                 {...this.commonHeaderProps}
                                 sections={getSectionsData(this.state.data)}
                                 renderSectionHeader={({ section: { title } }) => {
                                     if (title === 'special') return null
-                                    
+
                                     return (
                                         <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>
                                             {strings(`homeScreen.categories.${title}`)}
@@ -242,15 +248,26 @@ class HomeScreen extends React.PureComponent {
                                 }}
                                 renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE }} />}
                                 stickySectionHeadersEnabled={false}
-                                />
+                            />
                             :
-                                <FlatList
-                                    {...this.commonHeaderProps}
-                                    data={this.state.data}
-                                />
-                            }
+                            <FlatList
+                                {...this.commonHeaderProps}
+                                data={this.state.data}
+                            />
+                        }
                     </View>
-            </View>
+                </View>
+                <SheetBottom
+                    ref={ref => this.bottomSheetRef = ref}
+                    snapPoints={[0, 340]}
+                    index={0}
+                >
+                    <SortList
+                        handleClose={() => this.bottomSheetRef.close()}
+                        sortValue={this.props.sortValue}
+                    />
+                </SheetBottom>
+            </>
         )
     }
 }
@@ -271,7 +288,7 @@ const mapStateToProps = (state) => {
 
 HomeScreen.contextType = ThemeContext
 
-function HomeWrap (props) {
+function HomeWrap(props) {
     const ref = React.useRef(null);
 
     useScrollToTop(ref);

@@ -1,13 +1,13 @@
 /**
- * @version 0.50
+ * @version 0.53
  * @author yura
  */
 
 import React, { PureComponent } from 'react'
 import { FlatList } from 'react-native'
 
-import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import NavStore from '@app/components/navigation/NavStore'
+import _isEqual from 'lodash/isEqual'
+
 import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
 
 import { setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
@@ -18,11 +18,21 @@ import { strings } from '@app/services/i18n'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import Log from '@app/services/Log/Log'
 
+import NavStore from '@app/components/navigation/NavStore'
 
-class HomeSortScreen extends PureComponent {
+
+class SortList extends PureComponent {
 
     state = {
-        sortValue: trusteeAsyncStorage.getSortValue() || 'byTrustee'
+        sortValue: trusteeAsyncStorage.getSortValue() || this.props.sortValue || 'byTrustee'
+    }
+
+    componentDidUpdate(prevProps, nextProps) {
+        if (!_isEqual(prevProps.sortValue, nextProps.sortValue)) {
+            this.setState({
+                sortValue: this.props.sortValue
+            })
+        }
     }
 
     sortList = [
@@ -58,10 +68,6 @@ class HomeSortScreen extends PureComponent {
         // }
     ]
 
-    handleBack = () => {
-        NavStore.goBack()
-    }
-
     handleSortItem = (value) => {
         setSortValue(value)
         trusteeAsyncStorage.setSortValue(value)
@@ -71,7 +77,16 @@ class HomeSortScreen extends PureComponent {
 
         Log.log('HomeSortScreen.handlerSortItem selected ', value)
 
-        NavStore.goBack()
+        if (value === 'custom') {
+            const res = trusteeAsyncStorage.getIsTraining()
+            if (typeof res === 'undefined' || res === '0') {
+                NavStore.goNext('GuideScreen')
+            } else {
+                NavStore.goNext('HomeDragScreen')
+            }
+        }
+
+        this.props.handleClose()
     }
 
     renderListItem = ({ item, index }) => {
@@ -95,23 +110,17 @@ class HomeSortScreen extends PureComponent {
         const { GRID_SIZE } = this.context
 
         return (
-            <ScreenWrapper
-                leftType='back'
-                leftAction={this.handleBack}
-                title={strings('homeScreen.sorting')}
-            >
-                <FlatList
-                    contentContainerStyle={{ flex: 1, padding: GRID_SIZE }}
-                    data={this.sortList}
-                    renderItem={this.renderListItem}
-                    keyExtractor={({index}) => index}
-                />
-
-            </ScreenWrapper>
+            <FlatList
+                contentContainerStyle={{ flex: 1, padding: GRID_SIZE }}
+                scrollEnabled={false}
+                data={this.sortList}
+                renderItem={this.renderListItem}
+                keyExtractor={({ index }) => index}
+            />
         )
     }
 }
 
-HomeSortScreen.contextType = ThemeContext
+SortList.contextType = ThemeContext
 
-export default HomeSortScreen
+export default SortList

@@ -16,6 +16,7 @@ import _isEqual from 'lodash/isEqual'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
 
 import { getSortValue } from '@app/appstores/Stores/Main/selectors'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
@@ -23,6 +24,7 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 import CryptoCurrency from '../elements/CryptoCurrency'
 import { getSortedData, getDerivedState } from '../helpers'
+import SortList from '../elements/SortList'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
@@ -64,13 +66,13 @@ class HomeDragScreen extends PureComponent {
             this.setState({
                 fromGuide: true
             })
-        } 
+        }
     }
 
     handleDone = () => {
 
         NavStore.goBack()
-        if(this.state.fromGuide) {
+        if (this.state.fromGuide) {
             this.setState({
                 fromGuide: false
             })
@@ -79,7 +81,7 @@ class HomeDragScreen extends PureComponent {
     }
 
     handlRightAction = () => {
-        NavStore.goNext('HomeSortScreen')
+        this.bottomSheetRef.open()
     }
 
     onDragBegin = () => {
@@ -98,10 +100,10 @@ class HomeDragScreen extends PureComponent {
         trusteeAsyncStorage.setSortValue('custom')
     }
 
-    triggerGuide = () => { 
+    triggerGuide = () => {
         this.setState({
             isTraining: !this.state.isTraining
-        })    
+        })
     }
 
     handleGuide = () => {
@@ -118,40 +120,52 @@ class HomeDragScreen extends PureComponent {
         const data = getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)
 
         return (
-            <ScreenWrapper
-                title={strings('homeScreen.settings')}
-                leftType='done'
-                leftAction={this.handleDone}
-                rightType='sort'
-                rightAction={this.handlRightAction}
-                withMarginTop
-            >
-                <DraggableFlatList
-                    data={data}
-                    extraData={data}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: GRID_SIZE }}
-                    autoscrollSpeed={300}
-                    renderItem={({ item, index, drag, isActive }) => (
-                        <CryptoCurrency
-                            index={index}
-                            cryptoCurrency={item}
-                            isBalanceVisible={this.props.isBalanceVisible}
-                            onDrag={drag}
-                            isActive={isActive}
-                            constructorMode={true}
-                            listData={data}
-                            onDragEnd={this.onDragEnd}
-                            handleGuide={this.handleGuide}
-                        />
-                    )}
-                    keyExtractor={(item, index) => index.toString()}
-                    onDragEnd={this.onDragEnd}
-                    onDragBegin={this.onDragBegin}
-                    ListFooterComponent={(<View style={{ marginBottom: GRID_SIZE * 1.5 }} />)}
-                />
-                <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
-            </ScreenWrapper>
+            <>
+                <ScreenWrapper
+                    title={strings('homeScreen.settings')}
+                    leftType='done'
+                    leftAction={this.handleDone}
+                    rightType='sort'
+                    rightAction={this.handlRightAction}
+                    withMarginTop
+                >
+                    <DraggableFlatList
+                        data={data}
+                        extraData={data}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingVertical: GRID_SIZE }}
+                        autoscrollSpeed={300}
+                        renderItem={({ item, index, drag, isActive }) => (
+                            <CryptoCurrency
+                                index={index}
+                                cryptoCurrency={item}
+                                isBalanceVisible={this.props.isBalanceVisible}
+                                onDrag={drag}
+                                isActive={isActive}
+                                constructorMode={true}
+                                listData={data}
+                                onDragEnd={this.onDragEnd}
+                                handleGuide={this.handleGuide}
+                            />
+                        )}
+                        keyExtractor={(item, index) => index.toString()}
+                        onDragEnd={this.onDragEnd}
+                        onDragBegin={this.onDragBegin}
+                        ListFooterComponent={(<View style={{ marginBottom: GRID_SIZE * 1.5 }} />)}
+                    />
+                    <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
+                </ScreenWrapper>
+                <SheetBottom
+                    ref={ref => this.bottomSheetRef = ref}
+                    snapPoints={[0, 350]}
+                    index={0}
+                >
+                    <SortList
+                        handleClose={() => this.bottomSheetRef.close()}
+                        sortValue={this.props.sortValue}
+                    />
+                </SheetBottom>
+            </>
         )
     }
 }
