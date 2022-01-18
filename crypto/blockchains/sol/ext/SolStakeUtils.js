@@ -157,36 +157,74 @@ export default {
                     }
                 ]
             }
-            const res = await BlocksoftAxios._request(apiPath, 'POST', checkData)
-
+            let res
             accountInfo = []
-            for (const tmp of res.data.result) {
-                const parsed = tmp.account.data.parsed
-                const item = { amount: tmp.account.lamports, stakeAddress: tmp.pubkey, reserved: 0, active: true, status: '' }
-                if (typeof parsed.info !== 'undefined') {
-                    if (typeof typeof parsed.info.meta !== 'undefined') {
-                        if (typeof parsed.info.meta.rentExemptReserve !== 'undefined') {
-                            item.reserved = parsed.info.meta.rentExemptReserve
+            try {
+                res = await BlocksoftAxios._request(apiPath, 'POST', checkData)
+
+                for (const tmp of res.data.result) {
+                    const parsed = tmp.account.data.parsed
+                    const item = { amount: tmp.account.lamports, stakeAddress: tmp.pubkey, reserved: 0, active: true, status: '' }
+                    if (typeof parsed.info !== 'undefined') {
+                        if (typeof parsed.info.meta !== 'undefined') {
+                            if (typeof parsed.info.meta.rentExemptReserve !== 'undefined') {
+                                item.reserved = parsed.info.meta.rentExemptReserve
+                            }
+                        }
+                        const deactivationEpoch = parsed.info.stake.delegation.deactivationEpoch || 0
+                        const activationEpoch = parsed.info.stake.delegation.activationEpoch || 0
+                        if (currentEpoch && currentEpoch * 1 >= deactivationEpoch * 1) {
+                            item.order = 1
+                            item.active = false
+                            item.status = 'inactive'
+                        } else if (currentEpoch && currentEpoch === activationEpoch) {
+                            item.order = 3
+                            item.status = 'activating'
+                        } else {
+                            item.order = 2
+                            item.status = 'staked'
                         }
                     }
-                    const deactivationEpoch = parsed.info.stake.delegation.deactivationEpoch || 0
-                    const activationEpoch = parsed.info.stake.delegation.activationEpoch || 0
-                    if (currentEpoch && currentEpoch * 1 >= deactivationEpoch * 1) {
-                        item.order = 1
-                        item.active = false
-                        item.status = 'inactive'
-                    } else if (currentEpoch && currentEpoch === activationEpoch) {
-                        item.order = 3
-                        item.status = 'activating'
-                    } else {
-                        item.order = 2
-                        item.status = 'staked'
-                    }
+                    item.diff = BlocksoftUtils.diff(item.amount, item.reserved).toString()
+                    accountInfo.push(item)
+                    CACHE_STAKED[address].all[item.stakeAddress] = true
                 }
-                item.diff = BlocksoftUtils.diff(item.amount, item.reserved).toString()
-                accountInfo.push(item)
-                CACHE_STAKED[address].all[item.stakeAddress] = true
+
+            } catch (e) {
+                BlocksoftCryptoLog.log('SolStakeUtils getAccountStaked request ' + apiPath + ' error ' + e.message)
+
+                const apiPath2 = 'https://prod-api.solana.surf/v1/account/' + address + '/stakes?limit=10&offset=0'
+                const res2 = await BlocksoftAxios.get(apiPath2)
+
+                for (const tmp of res2.data.data) {
+                    const item = { amount: tmp.lamports, stakeAddress: tmp.pubkey.address, reserved: 0, active: true, status: '' }
+
+                    if (typeof tmp.data !== 'undefined') {
+                        if (typeof tmp.data.meta !== 'undefined') {
+                            if (typeof tmp.data.meta.rent_exempt_reserve !== 'undefined') {
+                                item.reserved = tmp.data.meta.rent_exempt_reserve
+                            }
+                        }
+                        const deactivationEpoch = tmp.data.stake.delegation.deactivation_epoch || 0
+                        const activationEpoch = tmp.data.stake.delegation.activation_epoch|| 0
+                        if (currentEpoch && currentEpoch * 1 >= deactivationEpoch * 1) {
+                            item.order = 1
+                            item.active = false
+                            item.status = 'inactive'
+                        } else if (currentEpoch && currentEpoch === activationEpoch) {
+                            item.order = 3
+                            item.status = 'activating'
+                        } else {
+                            item.order = 2
+                            item.status = 'staked'
+                        }
+                    }
+                    item.diff = BlocksoftUtils.diff(item.amount, item.reserved).toString()
+                    accountInfo.push(item)
+                    CACHE_STAKED[address].all[item.stakeAddress] = true
+                }
             }
+
             accountInfo.sort((a, b) => {
                 if (b.order === a.order) {
                     return BlocksoftUtils.diff(b.diff, a.diff) * 1
