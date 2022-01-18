@@ -99,16 +99,12 @@ class WalletInfo extends React.PureComponent {
         NavStore.goNext('QRCodeScannerScreen')
     }
 
-    handleDragScreen = () => {
-        NavStore.goNext('HomeDragScreen')
-    }
-
     handleGuide = () => {
         const res = trusteeAsyncStorage.getIsTraining()
-        if (typeof res === 'undefined' || res === '0') {
-            NavStore.goNext('GuideScreen')
+        if ((typeof res !== 'undefined' || res === '1') && this.props.sortValue === 'custom') {
+            NavStore.goNext('HomeDragScreen')
         } else {
-            this.handleDragScreen()
+            this.props.handleSortView()
         }
     }
 
@@ -142,6 +138,8 @@ class WalletInfo extends React.PureComponent {
                                 style={styles.notificationButton}
                                 onPress={this.handleGuide}
                                 hitSlop={HIT_SLOP}
+                                onLongPress={this.props.handleSortView}
+                                delayLongPress={1000}
                             >
                                 <CustomIcon name='constructor' color={colors.common.text1} size={20} />
                             </TouchableOpacity>

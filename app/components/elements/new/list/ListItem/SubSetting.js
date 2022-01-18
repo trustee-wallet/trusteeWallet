@@ -43,6 +43,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='ETH_ROPSTEN' size={18} color={color} style={{ left: 1 }} />
         case 'eth_rinkeby':
             return <CustomIcon name='ETH_RINKEBY' size={18} color={color} style={{ left: 1 }} />
+        case 'arrowRight':
+            return <CustomIcon name='next' size={18} color={color} style={{ left: 1 }} />
         default:
             return null
     }
@@ -63,7 +65,9 @@ export default function SubSettingListItem(props) {
         percentValue,
         iconType,
         containerStyle,
-        percentValueText
+        percentValueText,
+        iconWithoutBackground,
+        radioStyles
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -75,23 +79,29 @@ export default function SubSettingListItem(props) {
             disabled={checked}
         >
             {radioButtonFirst ?
-                <>
+                <View style={[styles.container, containerStyle]}>
                     <View style={[styles.mainContent, last && styles.noBorder]}>
                         <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
                             <RadioButton
                                 onChange={onPress}
                                 checked={checked}
+                                radioStyles={radioStyles}
                             />
                         </View>
                         <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
                             <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: checkedStyle && checked ? '#864DD9' : colors.common.text1 }]}>{title}</Text>
                             {!!subtitle && <Text numberOfLines={3} style={[styles.subtitleFirst, { color: checkedStyle && checked ? '#864DD9' : colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
+                        {iconType &&
+                            <View style={[styles.icon, { backgroundColor: iconWithoutBackground ? ' ' : colors.common.listItem.basic.iconBgDark }]}>
+                                {getIcon(iconType, iconWithoutBackground ? colors.backDropModal.buttonText : colors.common.listItem.basic.iconColorDark)}
+                            </View>
+                        }
                     </View>
                     {(ExtraView && checked) && (
                         <ExtraView ExtraViewParams={ExtraViewParams} />
                     )}
-                </>
+                </View>
                 :
                 <View style={[styles.container, containerStyle]}>
                     {iconType &&
@@ -101,7 +111,7 @@ export default function SubSettingListItem(props) {
                     }
                     <View style={[styles.mainContent, last && styles.noBorder]}>
                         <View style={[styles.textContent, { paddingVertical: !!subtitle ? 16 : 17 }]}>
-                                <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            <Text numberOfLines={2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
                             {(percentValue || percentValue === 0) &&
                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                                     <Text style={[styles.text, { color: colors.common.text3 }]}>
@@ -110,7 +120,7 @@ export default function SubSettingListItem(props) {
                                 </View>
                             }
                             {!!subtitle && <Text numberOfLines={1} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
-                            
+
                         </View>
                         <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
                             <RadioButton
