@@ -512,6 +512,12 @@ export default {
             darkColor: '#2FB9B8'
         }
     },
+    "ONE_USDC": {
+        colors: {
+            mainColor: '#2A7FDB',
+            darkColor: '#2FB9B8'
+        }
+    },
     "TRX_ETH": {
         colors: {
             mainColor: '#1EB3E4',

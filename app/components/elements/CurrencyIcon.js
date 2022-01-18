@@ -33,6 +33,8 @@ export default class CurrencyIcon extends PureComponent {
             return 'METIS'
         } else if (currencyCode.indexOf('VLX_') !== -1) {
             return 'ETH_VLX'
+        } else if (currencyCode.indexOf('ONE_') !== -1) {
+            return 'ETH_ONE'
         }
     }
 
@@ -54,6 +56,8 @@ export default class CurrencyIcon extends PureComponent {
                 return 'FTM'
             case 'VLX':
                 return 'ETH_VLX'
+            case 'ONE':
+                return 'ETH_ONE'
             default:
                 return null
         }
@@ -589,7 +593,6 @@ export default class CurrencyIcon extends PureComponent {
             case 'ETH_ENJ':
             case 'ETH_GRT':
             case 'ETH_NOW':
-            case 'ETH_ONE':
             case 'ETH_STORJ':
             case 'ETH_CVC':
             case 'ETH_DENT':
@@ -703,12 +706,13 @@ export default class CurrencyIcon extends PureComponent {
                 )
 
             case 'BNB_SMART_USDC':
+            case 'ONE_USDC':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
                             <CustomIcon name={'ETH_USDC'} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
                             <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
-                                <CustomIcon name="BNB_SMART" size={14} color={colorDict['BNB_SMART'].colors[isLight ? 'mainColor' : 'darkColor']} />
+                                <CustomIcon name={block} size={14} color={colorDict[block].colors[isLight ? 'mainColor' : 'darkColor']} />
                             </View>
                         </View>
                     </View>
@@ -838,6 +842,20 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
+            case 'ONE':
+            case 'ETH_ONE':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name='ETH_ONE' style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                            {currencyCode !== 'ONE' &&
+                                <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                    <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                                </View>}
+                        </View>
+                    </View>
+                )
+
 
             case 'CUSTOM_ABYSS':
             case 'CUSTOM_SOLVE':
