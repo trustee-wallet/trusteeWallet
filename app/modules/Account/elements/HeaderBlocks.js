@@ -165,10 +165,15 @@ class HeaderBlocks extends React.Component {
         const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
         if (hodl > 0) {
             balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
-            if ((typeof balanceTotalPretty !== 'undefined' && balanceStakedPretty && balanceTotalPretty?.toString().indexOf('0.0000') !== -1) || balanceTotalPretty * 1 < 0) {
+            if (typeof balanceTotalPretty !== 'undefined' && balanceTotalPretty && balanceTotalPretty?.toString().indexOf('0.0000') !== -1) {
                 balanceTotalPretty = '0'
+                balanceStakedPretty = 0
+            } else if (balanceTotalPretty * 1 < 0) {
+                balanceStakedPretty = account.balancePretty
+                balanceTotalPretty = 0
+            } else {
+                balanceStakedPretty = hodl
             }
-            balanceStakedPretty = hodl
             diffAvailable = true
             balanceStakedTitle = 'settings.walletList.frozen'
         }
@@ -264,7 +269,7 @@ class HeaderBlocks extends React.Component {
                                     <Text style={[styles.topContent__title_last, styles.hiddenBalance, { color: colors.common.text1 }]}>
                                         ****
                                     </Text>
-                                ) 
+                                )
                             )}
                         </TouchableOpacity>
                     </View>
