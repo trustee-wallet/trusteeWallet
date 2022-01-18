@@ -11,7 +11,7 @@ const CustomHandle = (props) => {
 
     const { GRID_SIZE } = useTheme()
 
-    return <View {...props} style={[styles.topBtn, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE * 1.2 }]} />
+    return <View {...props} style={[styles.topBtn, { marginTop: GRID_SIZE }]} />
 }
 
 export default CustomHandle

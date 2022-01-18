@@ -31,7 +31,7 @@ class SheetBottom extends PureComponent {
                 enableTouchThrough
             />
         );
-    };
+    }
 
     render() {
         return (

@@ -4,7 +4,7 @@
  */
 
 import React, { PureComponent } from 'react'
-import { FlatList } from 'react-native'
+import { FlatList, StyleSheet } from 'react-native'
 
 import _isEqual from 'lodash/isEqual'
 
@@ -24,7 +24,7 @@ import NavStore from '@app/components/navigation/NavStore'
 class SortList extends PureComponent {
 
     state = {
-        sortValue: trusteeAsyncStorage.getSortValue() || this.props.sortValue || 'byTrustee'
+        sortValue: trusteeAsyncStorage.getSortValue() || this.props.sortValue || 'byValue'
     }
 
     componentDidUpdate(prevProps, nextProps) {
@@ -38,7 +38,7 @@ class SortList extends PureComponent {
     sortList = [
         {
             title: strings('homeScreen.sort.custom'),
-            icon: 'customSort',
+            icon: 'arrowRight',
             value: 'custom'
         },
         {
@@ -91,27 +91,30 @@ class SortList extends PureComponent {
 
     renderListItem = ({ item, index }) => {
 
-        const { GRID_SIZE } = this.context
+        const { GRID_SIZE, colors } = this.context
 
         return (
             <ListItem
                 iconType={item.icon}
+                iconWithoutBackground
                 title={item.title}
                 checked={item.value === this.state.sortValue}
                 last={this.sortList.length - 1 === index}
                 onPress={() => this.handleSortItem(item.value)}
                 containerStyle={{ paddingVertical: GRID_SIZE / 3 }}
+                radioButtonFirst
+                radioStyles={{ backgroundColor: colors.common.radioButton.border }}
             />
         )
     }
 
     render() {
 
-        const { GRID_SIZE } = this.context
+        const { GRID_SIZE, colors } = this.context
 
         return (
             <FlatList
-                contentContainerStyle={{ flex: 1, padding: GRID_SIZE }}
+                contentContainerStyle={[styles.content, { flex: 1, backgroundColor: colors.backDropModal.buttonBg, margin: GRID_SIZE, paddingHorizontal: GRID_SIZE / 2 }]}
                 scrollEnabled={false}
                 data={this.sortList}
                 renderItem={this.renderListItem}
@@ -124,3 +127,10 @@ class SortList extends PureComponent {
 SortList.contextType = ThemeContext
 
 export default SortList
+
+const styles = StyleSheet.create({
+    content: {
+        overflow: 'hidden',
+        borderRadius: 16
+    },
+})
