@@ -31,7 +31,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 
-import AccountGradientBlock from './AccountGradientBlock'
+import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
 import { getExplorerLink, handleShareInvoice } from '../helpers'
 import PercentView from '@app/components/elements/new/PercentView'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
@@ -264,7 +264,7 @@ class HeaderBlocks extends React.Component {
                                     <Text style={[styles.topContent__title_last, styles.hiddenBalance, { color: colors.common.text1 }]}>
                                         ****
                                     </Text>
-                                ) 
+                                )
                             )}
                         </TouchableOpacity>
                     </View>
