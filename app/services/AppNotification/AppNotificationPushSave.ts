@@ -1,6 +1,7 @@
 /**
  * @version 0.30
  **/
+import { Platform } from 'react-native'
 import { sublocale } from '../i18n'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import Log from '../Log/Log'
@@ -24,15 +25,17 @@ export default new class AppNotificationPushSave {
         if (typeof message.message !== 'undefined' && message.message) {
             newsCustomText = message.message
         }
-        if (typeof message.notification !== 'undefined') {
-            if (typeof message.notification.title !== 'undefined') {
-                newsCustomTitle = message.notification.title
+        if (Platform.OS === 'android') {
+            if (typeof message.notification !== 'undefined') {
+                if (typeof message.notification.title !== 'undefined') {
+                    newsCustomTitle = message.notification.title
+                }
+                if (typeof message.notification.body !== 'undefined') {
+                    newsCustomText = message.notification.body
+                }
+            } else {
+                return false
             }
-            if (typeof message.notification.body !== 'undefined') {
-                newsCustomText = message.notification.body
-            }
-        } else {   
-            return false
         }
         if (typeof message.data !== 'undefined') {
             if (typeof message.data.news !== 'undefined') {
