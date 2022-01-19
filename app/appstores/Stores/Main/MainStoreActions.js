@@ -413,3 +413,10 @@ export async function setStakingCoins() {
         stakingCoins
     })
 }
+
+export function setHomeFilterWithBalance(homeFilterWithBalance) {
+    dispatch({
+        type: 'SET_HOME_FILTER_WITH_BALANCE',
+        homeFilterWithBalance
+    })
+}

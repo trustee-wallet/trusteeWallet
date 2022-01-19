@@ -257,20 +257,25 @@ const handleCurrencySelect = async (props, screen) => {
     CACHE_CLICK = false
 }
 
-const getSortedData = (array, currentArray, accountList, filter) => {
+const getSortedData = (array, currentArray, accountList, sortValue, filter = false) => {
 
     // Log.log('HomeScreen.helper.getSortedData selectedFilter ' + filter)
 
-    switch (filter) {
+    let results = []
+
+    switch (sortValue) {
         case 'byTrustee':
-            return array
-        case 'byName':
-            return _sortBy(currentArray, 'currencySymbol')
+            results = array
+            break
+        case 'byName': 
+            results = _sortBy(array, 'currencySymbol')
+            break
         case 'custom': {
             const currenciesOrder = trusteeAsyncStorage.getCurrenciesList()
             const currenciesLength = currentArray.length
 
-            return _orderBy(currentArray, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+            results = _orderBy(currentArray, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+            break
         }
         case 'byValue': {
             let sortedAccount = _orderBy(accountList, function (obj) {
@@ -284,19 +289,27 @@ const getSortedData = (array, currentArray, accountList, filter) => {
             sortedAccount = _orderBy(array, x => {
                 return sortedAccount.indexOf(x.currencyCode) !== -1 ? sortedAccount.indexOf(x.currencyCode) : currentArray.length
             })
-            return sortedAccount
+            results = sortedAccount
+            break
         }
         case 'coinFirst':
-            return [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType')]
+            results = [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType')]
+            break
         case 'tokenFirst':
-            return [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType').reverse()]
-        case 'withBalance': {
-            const filterAccount = accountList.filter(item => parseInt(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
-            return array.filter(item => filterAccount.includes(item.currencyCode))
+            results = [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType').reverse()]
+            break
+        default: {
+            results = currentArray
+            break
         }
-        default:
-            return currentArray
     }
+
+    if (filter) {
+        const filterAccount = accountList.filter(item => parseInt(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
+        return results.filter(item => filterAccount.includes(item.currencyCode))
+    }
+
+    return results
 }
 
 const getSectionsData = (array) => {
@@ -319,8 +332,9 @@ const getDerivedState = (nextProps, prevState) => {
         const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
 
         newState.originalData = nextProps.currencies
-        newState.data = nextProps.sortValue ? getSortedData(nextProps.currencies, data, nextProps.accountList, nextProps.sortValue) : data
+        newState.data = nextProps.sortValue ? getSortedData(nextProps.currencies, data, nextProps.accountList, nextProps.sortValue, nextProps.homeFilterWithBalance) : data
         newState.sortValue = nextProps.sortValue || prevState.sortValue
+        newState.homeFilterWithBalance = nextProps.homeFilterWithBalance || prevState.homeFilterWithBalance
 
         const newOrder = data.map(c => c.currencyCode)
         if (currenciesOrder.length && !_isEqual(currenciesOrder, newOrder)) {

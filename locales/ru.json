@@ -14,7 +14,7 @@
       "byValue": "По балансу",
       "firstCoin": "Сначала монеты",
       "firstToken": "Сначала токены",
-      "withBalance": "С положительным балансом",
+      "withBalance": "Скрыть нулевой балансом",
       "guideTitle": "Обучение"
     },
     "categories": {

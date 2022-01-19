@@ -99,15 +99,6 @@ class WalletInfo extends React.PureComponent {
         NavStore.goNext('QRCodeScannerScreen')
     }
 
-    handleGuide = () => {
-        const res = trusteeAsyncStorage.getIsTraining()
-        if ((typeof res !== 'undefined' || res === '1') && this.props.sortValue === 'custom') {
-            NavStore.goNext('HomeDragScreen')
-        } else {
-            this.props.handleSortView()
-        }
-    }
-
     render() {
         const { colors, GRID_SIZE, isLight } = this.context
         const {
@@ -136,7 +127,7 @@ class WalletInfo extends React.PureComponent {
                         <View style={styles.header__left}>
                             <TouchableOpacity
                                 style={styles.notificationButton}
-                                onPress={this.handleGuide}
+                                onPress={this.props.handleSortView}
                                 hitSlop={HIT_SLOP}
                                 onLongPress={this.props.handleSortView}
                                 delayLongPress={1000}

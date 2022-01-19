@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from 'react'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useTheme } from '@app/theme/ThemeProvider'
 
 
@@ -16,9 +16,9 @@ const CustomBackground = (props) => {
 		() => [
 			props.style,
 			{
-				backgroundColor: colors.common.background,
+				backgroundColor: colors.backDropModal.bg,
 				borderTopLeftRadius: 20,
-				borderTopRightRadius: 20,
+				borderTopRightRadius: 20
 			},
 		],
 		[colors, props.style]

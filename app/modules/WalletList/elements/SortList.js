@@ -4,13 +4,14 @@
  */
 
 import React, { PureComponent } from 'react'
-import { FlatList, StyleSheet } from 'react-native'
+import { FlatList, StyleSheet, View } from 'react-native'
 
 import _isEqual from 'lodash/isEqual'
 
 import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
+import MainItem from '@app/components/elements/new/list/ListItem/Setting'
 
-import { setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setHomeFilterWithBalance, setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -19,12 +20,14 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 import Log from '@app/services/Log/Log'
 
 import NavStore from '@app/components/navigation/NavStore'
+import Button from '@app/components/elements/new/buttons/Button'
 
 
 class SortList extends PureComponent {
 
     state = {
-        sortValue: trusteeAsyncStorage.getSortValue() || this.props.sortValue || 'byValue'
+        sortValue: this.props.sortValue || 'byValue',
+        homeFilterWithBalance: this.props.homeFilterWithBalance || false
     }
 
     componentDidUpdate(prevProps, nextProps) {
@@ -33,14 +36,15 @@ class SortList extends PureComponent {
                 sortValue: this.props.sortValue
             })
         }
+
+        if (!_isEqual(prevProps.homeFilterWithBalance, nextProps.homeFilterWithBalance)) {
+            this.setState({
+                homeFilterWithBalance: this.props.homeFilterWithBalance
+            })
+        }
     }
 
     sortList = [
-        {
-            title: strings('homeScreen.sort.custom'),
-            icon: 'arrowRight',
-            value: 'custom'
-        },
         {
             title: strings('homeScreen.sort.byValue'),
             icon: 'balanceSort',
@@ -60,12 +64,7 @@ class SortList extends PureComponent {
             title: strings('homeScreen.sort.firstToken'),
             icon: 'tokenFirstSort',
             value: 'tokenFirst'
-        },
-        // {
-        //     title: strings('homeScreen.sort.withBalance'),
-        //     icon: 'wallet',
-        //     value: 'withBalance'
-        // }
+        }
     ]
 
     handleSortItem = (value) => {
@@ -77,35 +76,46 @@ class SortList extends PureComponent {
 
         Log.log('HomeSortScreen.handlerSortItem selected ', value)
 
-        if (value === 'custom') {
-            const res = trusteeAsyncStorage.getIsTraining()
-            if (typeof res === 'undefined' || res === '0') {
-                NavStore.goNext('GuideScreen')
-            } else {
-                NavStore.goNext('HomeDragScreen')
-            }
-        }
-
         this.props.handleClose()
     }
 
     renderListItem = ({ item, index }) => {
 
-        const { GRID_SIZE, colors } = this.context
+        const { colors } = this.context
 
         return (
             <ListItem
                 iconType={item.icon}
                 iconWithoutBackground
                 title={item.title}
-                checked={item.value === this.state.sortValue}
+                checked={item.value === this.props.sortValue}
                 last={this.sortList.length - 1 === index}
                 onPress={() => this.handleSortItem(item.value)}
-                containerStyle={{ paddingVertical: GRID_SIZE / 3 }}
                 radioButtonFirst
                 radioStyles={{ backgroundColor: colors.common.radioButton.border }}
             />
         )
+    }
+
+    handleCustomSort = () => {
+        const res = trusteeAsyncStorage.getIsTraining()
+        if (typeof res === 'undefined' || res === '0') {
+            NavStore.goNext('GuideScreen')
+        } else {
+            NavStore.goNext('HomeDragScreen')
+        }
+        this.props.handleClose()
+    }
+
+    handleSwitchFilter = () => {
+
+        const homeFilterWithBalance = !this.state.homeFilterWithBalance
+        this.setState({
+            homeFilterWithBalance
+        })
+        setHomeFilterWithBalance(homeFilterWithBalance)
+        trusteeAsyncStorage.setHomeFilterWithBalance(homeFilterWithBalance)
+        this.props.handleClose()
     }
 
     render() {
@@ -113,13 +123,43 @@ class SortList extends PureComponent {
         const { GRID_SIZE, colors } = this.context
 
         return (
-            <FlatList
-                contentContainerStyle={[styles.content, { flex: 1, backgroundColor: colors.backDropModal.buttonBg, margin: GRID_SIZE, paddingHorizontal: GRID_SIZE / 2 }]}
-                scrollEnabled={false}
-                data={this.sortList}
-                renderItem={this.renderListItem}
-                keyExtractor={({ index }) => index}
-            />
+            <View style={[styles.container, { margin: GRID_SIZE }]}>
+                <MainItem
+                    title={strings('homeScreen.sort.custom')}
+                    checked={this.state.sortValue === 'custom'}
+                    onPress={this.handleCustomSort}
+                    rightContent='arrow'
+                    last
+                    containerStyle={[styles.content, { backgroundColor: colors.backDropModal.buttonBg, paddingRight: GRID_SIZE * 1.5, marginBottom: GRID_SIZE, }]}
+                    contentStyle={{ paddingVertical: 17 }}
+                    customTextStyle={{ fontFamily: 'Montserrat-SemiBold' }}
+                />
+                <FlatList
+                    contentContainerStyle={[styles.content, { backgroundColor: colors.backDropModal.buttonBg, paddingHorizontal: GRID_SIZE / 2 }]}
+                    scrollEnabled={false}
+                    data={this.sortList}
+                    renderItem={this.renderListItem}
+                    keyExtractor={({ index }) => index}
+                />
+                <MainItem
+                    title={strings('homeScreen.sort.withBalance')}
+                    checked={this.state.homeFilterWithBalance}
+                    onPress={this.handleSwitchFilter}
+                    rightContent='switch'
+                    switchParams={{ value: this.state.homeFilterWithBalance, onPress: this.handleSwitchFilter }}
+                    last
+                    containerStyle={[styles.content, { backgroundColor: colors.backDropModal.buttonBg, paddingRight: GRID_SIZE, marginTop: GRID_SIZE }]}
+                    contentStyle={{ paddingVertical: 17 }}
+                    customTextStyle={{ fontFamily: 'Montserrat-SemiBold' }}
+                />
+                <Button
+                    title={strings('assets.hideAsset')}
+                    type='withoutShadow'
+                    onPress={this.props.handleClose}
+                    containerStyle={{ marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
+                    textStyle={{ color: colors.backDropModal.buttonText }}
+                />
+            </View>
         )
     }
 }
@@ -129,6 +169,9 @@ SortList.contextType = ThemeContext
 export default SortList
 
 const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'column'
+    },
     content: {
         overflow: 'hidden',
         borderRadius: 16

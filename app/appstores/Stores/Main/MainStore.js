@@ -19,7 +19,8 @@ const INITIAL_STATE = {
     solValidator: {},
     sortValue: null,
     stakingCoins: {},
-    filter: {}
+    filter: {},
+    homeFilterWithBalance: false
 }
 
 const mainStoreReducer = (state = INITIAL_STATE, action) => {
@@ -101,6 +102,11 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 stakingCoins: action.stakingCoins
+            }
+        case 'SET_HOME_FILTER_WITH_BALANCE':
+            return {
+                ...state,
+                homeFilterWithBalance: action.homeFilterWithBalance
             }
         default:
             return state
