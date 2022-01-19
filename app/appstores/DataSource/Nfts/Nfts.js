@@ -12,6 +12,7 @@ import store from '@app/store'
 
 
 const CACHE = {
+    ONE : {},
     MATIC: {},
     ETH: {},
     BNB : {},
