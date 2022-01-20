@@ -26,8 +26,6 @@ import WalletConnectNetworksDict from '@crypto/assets/WalletConnectNetworksDict.
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
 import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions' // setWalletDappIncognito
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
-import WalletDappWebViewScreen from '@app/modules/WalletDapp/WalletDappWebViewScreen'
-
 
 class WalletDappFastLinksScreen extends PureComponent {
 

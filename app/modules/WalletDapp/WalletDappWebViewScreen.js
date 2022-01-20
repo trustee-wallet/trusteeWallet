@@ -290,7 +290,7 @@ class WalletDappWebViewScreen extends PureComponent {
                 leftAction={this.handleBack}
                 rightType="close"
                 rightAction={this.handleClose}
-                title={dappName + (this.state.walletStarted ? ' / by WalletConnect' : '')}
+                title={dappName}
             >
                 <WebView
                     ref={webView => (this.webref = webView)}

@@ -103,6 +103,12 @@ class WalletConnectScreen extends PureComponent {
         this._setLink(this.props.walletConnectData.fullLink)
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.walletConnectData.fullLink !== this.props.walletConnectData.fullLink) {
+            this._setLink(this.props.walletConnectData.fullLink)
+        }
+    }
+
     _setLink(fullLink) {
         if (!fullLink || fullLink === '' || fullLink === this.state.inputFullLink) {
             return false
@@ -252,10 +258,6 @@ class WalletConnectScreen extends PureComponent {
         NavStore.goNext('WalletConnectChangeNetworkScreen')
     }
 
-    handleFastLinks = () => {
-        NavStore.goNext('WalletDappFastLinksScreen')
-    }
-
     handleLastDapp = () => {
         NavStore.goNext('WalletDappWebViewScreen')
     }
@@ -305,6 +307,8 @@ class WalletConnectScreen extends PureComponent {
 
         const textCondition = condition ? typeof this.state.peerMeta.url !== 'undefined' ? this.state.peerMeta.url : '' : strings('settings.walletConnect.unconnectedText')
 
+        const { dappCode, dappName } = this.props.walletDappData
+
         return(
             <>
                 <ScrollView
@@ -316,7 +320,7 @@ class WalletConnectScreen extends PureComponent {
                         <View style={{ overflow: 'hidden' }}>
                             <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE, backgroundColor: colors.common.roundButtonContent }]}>
                                 {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
-                                    <Image style={styles.image} resizeMode='center' source={{
+                                    <Image style={styles.image} resizeMode='cover' source={{
                                         uri: this.state.peerMeta.icons !== 'undefined' ? this.state.peerMeta.icons[0] : ''
                                     }} /> : <CustomIcon name='walletConnect' color='#555555' size={40} style={styles.walletConnectLogo} />
                                 }
@@ -359,6 +363,8 @@ class WalletConnectScreen extends PureComponent {
                                             addressError={linkError}
                                             qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
                                             validPlaceholder={true}
+                                            containerStyle={{ height: 50 }}
+                                            inputStyle={{ marginTop: -5 }}
                                         />
                                     </View>
                                     {linkError &&
@@ -374,7 +380,7 @@ class WalletConnectScreen extends PureComponent {
                             }
                         </View>
                         {this.props.walletConnectData.mainCurrencyCode && peerStatus &&
-                            <View style={{ marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
+                            <View style={{ marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
                                 <ListItem
                                     title={strings('settings.walletConnect.changeNetwork')}
                                     subtitle={this.getNetwork(this.props.walletConnectData.mainCurrencyCode)}
@@ -385,6 +391,20 @@ class WalletConnectScreen extends PureComponent {
                                 />
                             </View>
                         }
+                        {dappCode && peerStatus &&
+                            <View style={{ marginHorizontal: GRID_SIZE }}>
+                                <ListItem
+                                    title='Return to Dapp'
+                                    subtitle={dappName}
+                                    iconType="scanning"
+                                    onPress={this.handleLastDapp}
+                                    rightContent="arrow"
+                                    last
+                                />
+                            </View>
+                        }
+
+
                         {peerStatus &&
                             <View style={{ paddingHorizontal: GRID_SIZE }}>
                                 <InfoNotification
