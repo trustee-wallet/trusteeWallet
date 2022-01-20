@@ -222,8 +222,12 @@ export default {
             msg = new Date().getTime() + ''
         }
 
+        Log.log('ApiV3.initData BlocksoftUtils.utfToHex start')
         const dataHexed = BlocksoftUtils.utfToHex(JSON.stringify({ cards: data.cards, wallets: data.wallets }))
+        Log.log('ApiV3.initData BlocksoftUtils.utfToHex finish')
+        Log.log('ApiV3.initData BlocksoftCryptoUtils.sha256 start')
         const hash = BlocksoftCryptoUtils.sha256(dataHexed)
+        Log.log('ApiV3.initData BlocksoftCryptoUtils.sha256 finish')
 
         Log.log('ApiV3.initData CashBackUtils.createWalletSignature start')
         const sign = await CashBackUtils.createWalletSignature(true, msg + '_' + hash)
