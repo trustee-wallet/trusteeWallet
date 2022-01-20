@@ -7,10 +7,10 @@ import React from 'react'
 import {
     StyleSheet,
     Text,
-    TouchableOpacity
 } from 'react-native'
 
 import { useTheme } from '@app/theme/ThemeProvider'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 const AssetFlatListItem = (props) => {
 
@@ -27,7 +27,7 @@ const AssetFlatListItem = (props) => {
     } = props
 
     return(
-        <TouchableOpacity style={[
+        <TouchableDebounce style={[
             styles.button, {
                 marginRight: GRID_SIZE,
                 marginLeft: margin ? GRID_SIZE : 0,
@@ -37,7 +37,7 @@ const AssetFlatListItem = (props) => {
                 paddingHorizontal: inverse ? 14 : 12,
             }]} onPress={action}>
             <Text style={{ ...styles.text, color: inverse ? colors.common.background : colors.common.text3 }} >{data}</Text>
-        </TouchableOpacity>
+        </TouchableDebounce>
     )
 }
 

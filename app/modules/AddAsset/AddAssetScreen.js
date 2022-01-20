@@ -10,7 +10,6 @@ import {
     SafeAreaView,
     SectionList,
     StyleSheet,
-    TouchableOpacity,
     Keyboard,
     ActivityIndicator
 } from 'react-native'
@@ -48,6 +47,7 @@ import AssetFlatListItem from './elements/AssetFlatListItem'
 
 import PercentView from '@app/components/elements/new/PercentView'
 import { getStakingCoins } from '@app/appstores/Stores/Main/selectors'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 
 class AddAssetScreen extends React.PureComponent {
@@ -329,7 +329,7 @@ class AddAssetScreen extends React.PureComponent {
                                 ListEmptyComponent={null}
                                 data={data}
                                 ListHeaderComponent={this.state.searchQuery ? null : 
-                                <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} >
+                                <TouchableDebounce style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} >
                                     {this.renderTabs(false)}
                                     <View style={[styles.customAddressConent, { marginHorizontal: GRID_SIZE }]}>
                                         {this.renderCustomTextInput()}
@@ -340,7 +340,7 @@ class AddAssetScreen extends React.PureComponent {
                                             disabled={!this.state.customAddress}
                                         />
                                     </View>
-                                </TouchableOpacity>}
+                                </TouchableDebounce>}
                             />
                         ) : activeGroup === ASSESTS_GROUP.TOKENS && !searchQuery
                             ? this.state.tokenBlockchain ? (
@@ -398,7 +398,7 @@ class AddAssetScreen extends React.PureComponent {
         if (isSearchTokenAddress) {
             return (
                 <View style={{ alignSelf: 'center', marginTop: GRID_SIZE * 6, marginHorizontal: GRID_SIZE * 2 }}>
-                    <TouchableOpacity style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
+                    <TouchableDebounce style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} onPress={Keyboard.dismiss}>
                         <View style={[styles.customAddressConent, { marginHorizontal: -GRID_SIZE }]}>
                             <Button
                                 containerStyle={{ marginTop: GRID_SIZE * 2 }}
@@ -406,7 +406,7 @@ class AddAssetScreen extends React.PureComponent {
                                 onPress={() => this.handleAddCustomToken(searchQuery)}
                             />
                         </View>
-                    </TouchableOpacity>
+                    </TouchableDebounce>
                 </View>
             )
         } else {

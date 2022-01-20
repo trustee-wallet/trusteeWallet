@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, Dimensions } from 'react-native'
 import LottieView from 'lottie-react-native'
 
 import _isEqual from 'lodash/isEqual'
@@ -26,6 +26,7 @@ import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 
 import { diffTimeScan } from '../helpers'
 import Message from '@app/components/elements/new/Message'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -149,15 +150,15 @@ class SynchronizedBlock extends React.PureComponent {
                     </View>
                     <View style={styles.btns}>
                         {/* {!isSeaching &&
-                            <TouchableOpacity
+                            <TouchableDebounce
                                 style={{ marginHorizontal: GRID_SIZE / 2 }}
                                 onPress={toggleSearch}
                                 hitSlop={HIT_SLOP}
                             >
                                 <CustomIcon name='search' size={20} color={colors.common.text1} />
-                            </TouchableOpacity>
+                            </TouchableDebounce>
                         } */}
-                        <TouchableOpacity
+                        <TouchableDebounce
                             style={{ marginHorizontal: GRID_SIZE / 2 }}
                             onPress={() => !isSeaching ? handleRefresh(true) : toggleSearch()}
                             hitSlop={HIT_SLOP}
@@ -169,14 +170,14 @@ class SynchronizedBlock extends React.PureComponent {
                                     autoPlay
                                     loop /> :
                                 <CustomIcon name={!isSeaching ? 'reloadTx' : 'cancelTxHistory'} size={20} color={colors.common.text1} />}
-                        </TouchableOpacity>
-                        <TouchableOpacity
+                        </TouchableDebounce>
+                        <TouchableDebounce
                             style={[styles.activeFilter, { backgroundColor: activeFilter ? colors.common.checkbox.bgChecked + '26' : 'transparent', marginLeft: GRID_SIZE / 4 }]}
                             onPress={this.handleFilter}
                             hitSlop={HIT_SLOP}
                         >
                             <CustomIcon name='filter' size={20} color={activeFilter ? colors.common.checkbox.bgChecked : colors.common.text1} style={{ marginTop: 2 }} />
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                     </View>
                 </View>
                 {notFound && (

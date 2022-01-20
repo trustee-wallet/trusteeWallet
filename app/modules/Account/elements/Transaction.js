@@ -6,7 +6,6 @@ import {
     Platform,
     View,
     Text,
-    TouchableOpacity,
     Dimensions,
     PixelRatio,
 } from 'react-native'
@@ -30,6 +29,7 @@ import { strings } from '@app/services/i18n'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 class Transaction extends React.Component {
 
@@ -281,7 +281,7 @@ class Transaction extends React.Component {
             <View style={styles.transaction}>
                 {this.renderStatusCircle(isStatus, transactionStatus, transactionDirection, transaction.transactionVisibleStatus, transactionFilterType, wayType)}
                 <View style={[styles.transaction__col, styles.transaction__col2]}>
-                    <TouchableOpacity style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
+                    <TouchableDebounce style={{ ...styles.transaction__top }} onLongPress={() => this.handleCopyAll(valueToView, currencySymbolToView)}>
                         <Text style={{ ...styles.transaction__top__title, color: colors.accountScreen.transactions.transactionTitleColor }}>
                             {strings(`account.transaction.${wayType.toLowerCase()}`)}
                         </Text>
@@ -297,10 +297,10 @@ class Transaction extends React.Component {
                         </Text>
                         {this.isBSEorder()}
                         {this.ifTxsTW()}
-                    </TouchableOpacity>
+                    </TouchableDebounce>
                     <View style={{ ...styles.transaction__content, backgroundColor: colors.accountScreen.transactions.transactionContentBack }}>
                         <View style={{ ...styles.transaction__content__item, backgroundColor: colors.accountScreen.transactions.transactionContentBack }}>
-                            <TouchableOpacity onPress={() => this.transactionDetails(transaction)}>
+                            <TouchableDebounce onPress={() => this.transactionDetails(transaction)}>
                                 <GradientView
                                     style={[styles.transaction__item, styles.transaction__item_active]}
                                     array={colors.accountScreen.transactions.transactionGradientArray}
@@ -340,7 +340,7 @@ class Transaction extends React.Component {
                                         </View>
                                     </View>
                                 </GradientView>
-                            </TouchableOpacity>
+                            </TouchableDebounce>
                         </View>
                         {
                             isStatus && Platform.OS !== 'ios' && this.state.height && this.state.width ? (

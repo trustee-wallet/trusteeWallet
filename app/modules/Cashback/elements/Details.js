@@ -13,10 +13,10 @@ import {
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import { TouchableOpacity } from 'react-native-gesture-handler'
 import NavStore from '@app/components/navigation/NavStore'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 class DetailsContent extends React.Component {
 
@@ -57,12 +57,12 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.level2UsersAmount')}</Text>
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{level2Users}</Text>
                         </View>
-                        <TouchableOpacity
+                        <TouchableDebounce
                             onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CASHBACK_LINK'))}
                             activeOpacity={0.7}
                         > 
                             <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                     </View> : null}
                 {selectedTitle === 'CPA' ?
                     <View style={[styles.container, { paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 1.5 }]}>
@@ -78,9 +78,9 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel3}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CPA_LINK'))}>
+                        <TouchableDebounce onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CPA_LINK'))}>
                             <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                     </View> : null}
 
             </View>

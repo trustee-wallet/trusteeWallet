@@ -8,7 +8,7 @@ import {
     View,
     Text,
     Animated,
-    TouchableOpacity, StyleSheet
+    StyleSheet
 } from 'react-native'
 
 import moment from 'moment'
@@ -40,6 +40,7 @@ import InfoNotification from '@app/components/elements/new/InfoNotification'
 import { handleBackUpModal } from '@app/modules/Settings/helpers'
 
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 
 let CACHE_PREV_CURRENCY = false
@@ -142,7 +143,7 @@ class WalletInfo extends React.Component {
                     <View style={styles.shadow__container}>
                         <View style={styles.shadow__item} />
                     </View>
-                    <TouchableOpacity
+                    <TouchableDebounce
                         style={styles.container}
                         activeOpacity={1}
                         onLongPress={this.toggleViolet}
@@ -180,7 +181,7 @@ class WalletInfo extends React.Component {
                             </View>
 
                             <View style={styles.walletInfo__content}>
-                                <TouchableOpacity
+                                <TouchableDebounce
                                     activeOpacity={0.8}
                                     style={styles.walletInfo__content__balance}
                                     onPressIn={() => triggerBalanceVisibility(true)}
@@ -191,7 +192,7 @@ class WalletInfo extends React.Component {
                                     {
                                         isBalanceVisible ? (
                                             <React.Fragment>
-                                                <TouchableOpacity onPress={this.handleChangeLocal}>
+                                                <TouchableDebounce onPress={this.handleChangeLocal}>
                                                     <Text style={[
                                                         styles.walletInfo__text_small,
                                                         styles.walletInfo__text_small_first,
@@ -199,7 +200,7 @@ class WalletInfo extends React.Component {
                                                     ]}>
                                                         {balanceData.currencySymbol}
                                                     </Text>
-                                                </TouchableOpacity>
+                                                </TouchableDebounce>
                                                 <Text style={[styles.walletInfo__text_middle, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{balanceData.beforeDecimal}</Text>
                                                 <Text style={[styles.walletInfo__text_small, { color: isViolet ? colors.homeScreen.walletInfoTextViolet : colors.common.text1 }]}>{balanceData.afterDecimal}</Text>
                                             </React.Fragment>
@@ -212,18 +213,18 @@ class WalletInfo extends React.Component {
                                         )
                                     }
 
-                                </TouchableOpacity>
+                                </TouchableDebounce>
 
-                                <TouchableOpacity onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
+                                <TouchableDebounce onPress={changeBalanceVisibility} hitSlop={HIT_SLOP}>
                                     {isBalanceVisible ? (
                                         <CustomIcon name='eye' size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                     ) : (
                                         <CustomIcon name='eyeClosed' size={24} color={isViolet ? colors.homeScreen.visibilityIconViolet : colors.common.text1} />
                                     )}
-                                </TouchableOpacity>
+                                </TouchableDebounce>
                             </View>
                         </GradientView>
-                    </TouchableOpacity>
+                    </TouchableDebounce>
                 </Animated.View>
                 
                 {!this.props.walletIsBackedUp ?

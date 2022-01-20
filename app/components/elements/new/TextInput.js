@@ -9,7 +9,6 @@ import {
     View,
     StyleSheet,
     Animated,
-    TouchableOpacity,
     Keyboard,
     Clipboard
 } from 'react-native'
@@ -19,6 +18,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import { useTheme } from '@app/theme/ThemeProvider'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import TouchableDebounce from './TouchableDebounce'
 
 
 export default function Input(props) {
@@ -82,15 +82,15 @@ export default function Input(props) {
                 <View style={styles.actions}>
                     {
                         typeof paste !== 'undefined' && paste ?
-                            <TouchableOpacity onPress={handleReadFromClipboard} style={styles.actionBtn} hitSlop={{ top: 15, left: 15, right: 7, bottom: 15 }}>
+                            <TouchableDebounce onPress={handleReadFromClipboard} style={styles.actionBtn} hitSlop={{ top: 15, left: 15, right: 7, bottom: 15 }}>
                                 <MaterialCommunityIcons style={{ ...styles.actionBtn__icon, paddingTop: 2, paddingRight: qr ? 7 : 0 }} name='content-paste' size={25} color={inputStyle?.color || colors.common.text1} />
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
-                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn} hitSlop={{ top: 15, left: 0, right: 15, bottom: 15 }}>
+                            <TouchableDebounce onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn} hitSlop={{ top: 15, left: 0, right: 15, bottom: 15 }}>
                                 <QR style={{ ...styles.actionBtn__icon, paddingTop: 2, paddingRight: 0 }} name='qrcode' size={25} color={inputStyle?.color || colors.common.text1} />
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                 </View>
                 {HelperAction && (

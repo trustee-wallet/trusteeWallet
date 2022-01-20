@@ -7,12 +7,12 @@ import React from 'react'
 import {
     View,
     Text,
-    StyleSheet,
-    TouchableOpacity
+    StyleSheet
 } from 'react-native'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/theme/ThemeProvider'
+import TouchableDebounce from '../../TouchableDebounce'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
@@ -56,7 +56,7 @@ const InvoiceListItem = (props) => {
 
 
     return (
-        <TouchableOpacity
+        <TouchableDebounce
             onPress={onPress}
             activeOpacity={activeOpacity}
             style={[styles.container, { backgroundColor: colors.backDropModal.buttonBg }, containerStyle]}
@@ -66,7 +66,7 @@ const InvoiceListItem = (props) => {
                 {getIcon(iconType, textColor)}
             </View>
             {!last && <View style={[styles.underline, { backgroundColor: colors.backDropModal.underline }]} />}
-        </TouchableOpacity>
+        </TouchableDebounce>
     )
 }
 

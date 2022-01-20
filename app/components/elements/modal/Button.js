@@ -2,19 +2,20 @@
  * @version 0.43
  */
 import React from 'react'
-import { TouchableOpacity, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import TouchableDebounce from '../new/TouchableDebounce'
 
 export default class Button extends React.PureComponent {
 
     render() {
         return (
-            <TouchableOpacity onPress={this.props.onPress} style={styles.btn}>
+            <TouchableDebounce onPress={this.props.onPress} style={styles.btn}>
                 <View style={this.props.shadow ? { ...styles.btn__wrapper__shadow, ...this.props.style, backgroundColor: this.props.color, shadowColor: this.props.color } : { ...styles.btn__wrapper, ...this.props.style, backgroundColor: this.props.color, shadowColor: this.props.color }}>
                     <Text style={{...styles.text, ...this.props.style}}>
                         {this.props.children}
                     </Text>
                 </View>
-            </TouchableOpacity>
+            </TouchableDebounce>
         )
     }
 }

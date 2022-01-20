@@ -6,7 +6,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 import {
     View,
-    TouchableOpacity,
     Platform,
     Animated,
     Text,
@@ -31,7 +30,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import WalletName from './WalletName/WalletName'
 import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
-import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 
 const headerHeight = 44
@@ -125,7 +124,7 @@ class WalletInfo extends React.PureComponent {
                 <Animated.View style={[styles.container, { backgroundColor: colors.common.background, height }]}>
                     <View style={[styles.header, { paddingHorizontal: GRID_SIZE }]}>
                         <View style={styles.header__left}>
-                            <TouchableOpacity
+                            <TouchableDebounce
                                 style={styles.notificationButton}
                                 onPress={this.props.handleSortView}
                                 hitSlop={HIT_SLOP}
@@ -133,8 +132,8 @@ class WalletInfo extends React.PureComponent {
                                 delayLongPress={1000}
                             >
                                 <CustomIcon name='constructor' color={colors.common.text1} size={20} />
-                            </TouchableOpacity>
-                            <TouchableOpacity
+                            </TouchableDebounce>
+                            <TouchableDebounce
                                 style={[styles.settingsButton, { marginLeft: -8 }]}
                                 onPress={walletConnected ? this.handleWalletConnect : this.handleOpenNotifications}
                                 onLongPress={!walletConnected && this.handleClearNotifications}
@@ -149,7 +148,7 @@ class WalletInfo extends React.PureComponent {
                                         {hasNews && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
                                     </>
                                 }
-                            </TouchableOpacity>
+                            </TouchableDebounce>
                         </View>
 
                         <View style={styles.header__center}>
@@ -157,20 +156,20 @@ class WalletInfo extends React.PureComponent {
                         </View>
 
                         <View style={styles.header__right}>
-                            <TouchableOpacity style={styles.qrButton} onPress={this.handleScanQr}
+                            <TouchableDebounce style={styles.qrButton} onPress={this.handleScanQr}
                                 hitSlop={{ top: 15, right: 8, bottom: 15, left: 15 }}>
                                 <CustomIcon name='qr' color={colors.common.text1} size={20} />
-                            </TouchableOpacity>
+                            </TouchableDebounce>
 
-                            <TouchableOpacity style={styles.settingsButton} onPress={this.handleOpenSettings}
+                            <TouchableDebounce style={styles.settingsButton} onPress={this.handleOpenSettings}
                                 hitSlop={{ top: 15, right: 15, bottom: 15, left: 0 }}>
                                 <CustomIcon name='menu' color={colors.common.text1} size={20} />
-                            </TouchableOpacity>
+                            </TouchableDebounce>
                         </View>
                     </View>
 
                     <Animated.View style={[styles.extraView, { backgroundColor: colors.common.background, opacity }]}>
-                        <TouchableOpacity
+                        <TouchableDebounce
                             style={styles.balanceText__container}
                             activeOpacity={1}
                             onPressIn={() => triggerBalanceVisibility(true)}
@@ -187,7 +186,7 @@ class WalletInfo extends React.PureComponent {
                             ) : (
                                 <Text style={[styles.balanceText__middle, styles.balanceText__hidden, { color: colors.common.text1 }]}>****</Text>
                             )}
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                     </Animated.View>
 
                 </Animated.View>
