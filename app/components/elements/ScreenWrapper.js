@@ -22,6 +22,8 @@ const ScreenWrapper = (props) => {
     const { colors } = useTheme()
     const {
         title,
+        titleAction,
+        titleIconType,
         rightAction,
         rightType,
         leftType,
@@ -41,6 +43,8 @@ const ScreenWrapper = (props) => {
         <View style={{ flex: 1, backgroundColor: colors.common.background }}>
             <Header
                 title={title}
+                titleAction={titleAction}
+                titleIconType={titleIconType}
                 leftType={leftType}
                 leftAction={leftAction}
                 leftParams={leftParams}

@@ -85,7 +85,7 @@ class WalletConnectScreen extends PureComponent {
         linkError: false,
         routes: [
             {
-                title: 'connection',
+                title: 'wc',
                 key: 'first'
             },
             {
@@ -394,7 +394,7 @@ class WalletConnectScreen extends PureComponent {
                         {dappCode && peerStatus &&
                             <View style={{ marginHorizontal: GRID_SIZE }}>
                                 <ListItem
-                                    title='Return to Dapp'
+                                    title={strings('settings.walletConnect.returnDapp')}
                                     subtitle={dappName}
                                     iconType="scanning"
                                     onPress={this.handleLastDapp}

@@ -40,7 +40,7 @@ export default class Header extends React.PureComponent {
                     return <CustomIcon name="arrow_back" size={20} color={props.color} />
                 case 'connect':
                     return <CustomIcon name='reload' size={20} color={props.color} />
-                case 'done': 
+                case 'done':
                     return <CustomIcon name='done' size={20} color={props.color} />
                 default: return null
             }
@@ -90,11 +90,33 @@ export default class Header extends React.PureComponent {
         )
     }
 
+    getTitleIcon = () => {
+
+        const {
+            titleIconType,
+        } = this.props
+        const { colors } = this.context
+
+        const Icon = (props) => {
+            switch (titleIconType) {
+                case 'downArrow':
+                    return <CustomIcon name="downArrow" size={14} color={props.color} style={{ marginLeft: 6 }} />
+                default: return null
+            }
+        }
+
+        return(
+            <Icon color={colors.common.text1} />
+        )
+    }
+
     processHeaderHeight = (e) => { this.props.setHeaderHeight?.(e.nativeEvent.layout.height) }
 
     render() {
         const {
             title,
+            titleAction,
+            titleIconType,
             ExtraView,
             ExtraViewParams,
             setStatusBar,
@@ -124,9 +146,15 @@ export default class Header extends React.PureComponent {
                             {this.getLeftAction()}
                         </View>
 
-                        <View style={styles.header__center}>
+                        <TouchableOpacity
+                            onPress={titleAction}
+                            disabled={!titleAction}
+                            style={styles.header__center}
+                            hitSlop={HIT_SLOP}
+                        >
                             {title && <Text numberOfLines={2} style={[styles.title, { color: colors.common.text3 }]}>{title}</Text>}
-                        </View>
+                            {titleIconType && this.getTitleIcon()}
+                        </TouchableOpacity>
 
                         <View style={styles.header__right}>
                             {this.getRightAction()}
@@ -214,6 +242,8 @@ const styles = {
     header__center: {
         flex: 4,
         alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row'
     },
     header__right: {
         flexDirection: 'row',

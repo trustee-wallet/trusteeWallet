@@ -94,6 +94,10 @@ class WalletDappWebViewScreen extends PureComponent {
         handleStop.call(this, isConnected)
     }
 
+    handleChangeNetwork = () => {
+        NavStore.goNext('WalletConnectChangeNetworkScreen')
+    }
+
     handleLogout = (func) => {
         const { peerStatus } = this.state
         handleParanoidLogout.call(this, peerStatus, func)
@@ -291,6 +295,8 @@ class WalletDappWebViewScreen extends PureComponent {
                 rightType="close"
                 rightAction={this.handleClose}
                 title={dappName}
+                titleAction={this.props.walletConnectData.fullLink ? this.handleChangeNetwork : null}
+                titleIconType='downArrow'
             >
                 <WebView
                     ref={webView => (this.webref = webView)}
@@ -314,7 +320,7 @@ class WalletDappWebViewScreen extends PureComponent {
                     }}
 
                     renderLoading={this.renderLoading}
-                    renderError={(e) => {
+                    renderError={() => {
                         this.renderError()
                     }}
 
