@@ -19,7 +19,7 @@ export default class XlmAddressProcessor {
      * @returns {Promise<{privateKey: string, address: string}>}
      */
     async getAddress(privateKey, data = {}, superPrivateData = {}) {
-        const seed = BlocksoftKeys.getSeedCached(superPrivateData.mnemonic).toString('hex')
+        const seed = await BlocksoftKeys.getSeedCached(superPrivateData.mnemonic).toString('hex')
         const res = XlmDerivePath(seed, `m/44'/148'/0'`)
         const keypair = StellarSdk.Keypair.fromRawEd25519Seed(res.key)
         return { address: keypair.publicKey(), privateKey: keypair.secret() }

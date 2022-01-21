@@ -160,10 +160,10 @@ class BlocksoftKeys {
                 BlocksoftCryptoLog.log(`BlocksoftKeys will discover ${settings.addressProcessor}`)
                 let root = false
                 if (typeof networksConstants[currencyCode] !== 'undefined') {
-                    root = this.getBip32Cached(data.mnemonic, networksConstants[currencyCode])
+                    root = await this.getBip32Cached(data.mnemonic, networksConstants[currencyCode])
                 } else {
                     if (!bitcoinRoot) {
-                        bitcoinRoot = this.getBip32Cached(data.mnemonic)
+                        bitcoinRoot = await this.getBip32Cached(data.mnemonic)
                     }
                     root = bitcoinRoot
                 }
@@ -305,21 +305,21 @@ class BlocksoftKeys {
         return results
     }
 
-    getSeedCached(mnemonic) {
+    async getSeedCached(mnemonic) {
         BlocksoftCryptoLog.log(`BlocksoftKeys bip39MnemonicToSeed started`)
         const mnemonicCache = mnemonic.toLowerCase()
         if (typeof CACHE[mnemonicCache] === 'undefined') {
-            CACHE[mnemonicCache] = BlocksoftKeysUtils.bip39MnemonicToSeed(mnemonic.toLowerCase())
+            CACHE[mnemonicCache] = await BlocksoftKeysUtils.bip39MnemonicToSeed(mnemonic.toLowerCase())
         }
         const seed = CACHE[mnemonicCache] // will be rechecked on saving
         BlocksoftCryptoLog.log(`BlocksoftKeys bip39MnemonicToSeed ended`)
         return seed
     }
 
-    getBip32Cached(mnemonic, network = false) {
+    async getBip32Cached(mnemonic, network = false) {
         const mnemonicCache = mnemonic.toLowerCase() + '_' + (network || 'btc')
         if (typeof CACHE_ROOTS[mnemonicCache] === 'undefined') {
-            const seed = this.getSeedCached(mnemonic)
+            const seed = await this.getSeedCached(mnemonic)
             CACHE_ROOTS[mnemonicCache] = network ? bip32.fromSeed(seed, network) : bip32.fromSeed(seed)
         }
         return CACHE_ROOTS[mnemonicCache]
@@ -344,7 +344,7 @@ class BlocksoftKeys {
      * @return {Promise<{address, privateKey}>}
      */
     async discoverOne(data) {
-        const seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
+        const seed = await BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
         const root = bip32.fromSeed(seed)
         const child = root.derivePath(data.derivationPath)
         /**
@@ -361,7 +361,7 @@ class BlocksoftKeys {
      * @return {Promise<{address, privateKey}>}
      */
     async discoverXpub(data) {
-        const seed = BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
+        const seed = await BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
         const root = bip32.fromSeed(seed)
         let path = `m/44'/0'/0'`
         let version = 0x0488B21E // xpub
