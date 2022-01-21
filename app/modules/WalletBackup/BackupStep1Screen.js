@@ -32,6 +32,8 @@ import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { deleteWallet } from '../Settings/helpers'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 
 const VISIBILITY_TIMEOUT = 4000
@@ -254,6 +256,9 @@ class BackupStep1Screen extends React.PureComponent {
     render() {
         Log.log('WalletBackup.BackupStep1Screen render')
         MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep1Screen')
+
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
 
         const {
             isMnemonicVisible,

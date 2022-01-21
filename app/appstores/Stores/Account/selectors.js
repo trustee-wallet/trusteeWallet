@@ -54,9 +54,9 @@ const selectAccountCurrency = (state, props) => {
 
         if (typeof state.accountStore.accountList[selectedWallet] === 'undefined') {
             if (config.debug.appErrors) {
-                console.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency')
+                // console.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency')
             }
-            Log.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency', state.accountStore.accountList)
+            // Log.log('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency', state.accountStore.accountList)
             return DEFAULT_ACCOUNT
             // throw new Error('Undefined selectedWallet ' + selectedWallet + ' in Account.selectors.selectAccountCurrency')
         }

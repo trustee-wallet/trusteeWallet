@@ -139,9 +139,9 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         await walletActions.addAvailableWallets(fullWallet)
 
-        await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source }, source)
+        await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source, currencyCode : ['ETH'] }, source)
 
-        await accountBalanceActions.initBalances(storedKey, source === 'IMPORT')
+        //await accountBalanceActions.initBalances(storedKey, source === 'IMPORT')
 
         await cryptoWalletActions.setSelectedWallet(storedKey, 'ACT/MStore proceedSaveGeneratedWallet Revert', false)
 

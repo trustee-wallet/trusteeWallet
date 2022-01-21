@@ -99,7 +99,7 @@ const currencyActions = {
             }
             if (!params.account.balanceScanTime) {
                 if (config.debug.appErrors) {
-                    console.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
+                    // console.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
                 }
                 Log.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
                 return false
