@@ -8,7 +8,8 @@ import {
     Text,
     StatusBar,
     SafeAreaView,
-    Keyboard
+    Keyboard,
+    TouchableOpacity
 } from 'react-native'
 
 import CustomIcon from '../CustomIcon'
