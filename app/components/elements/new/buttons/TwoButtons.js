@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-    TouchableOpacity,
     View,
     StyleSheet
 } from 'react-native'
@@ -10,6 +9,7 @@ import CustomIcon from '../../CustomIcon'
 import Button from './Button'
 
 import { useTheme } from '@app/theme/ThemeProvider'
+import TouchableDebounce from '../TouchableDebounce'
 
 const getIcon = (type, color) => {
     const { colors } = useTheme()
@@ -43,7 +43,7 @@ export default function TwoButtons(props) {
     return (
         <View style={styles.buttonsContainer}>
             {hasSecodary && (
-                <TouchableOpacity
+                <TouchableDebounce
                     style={[styles.secondaryButton, !secondaryButton.disable && styles.buttonShadow, secondaryButton.additionalSecondaryStyles, {
                         backgroundColor: !secondaryButton.inverted ? colors.common.button.secondary.bg : colors.common.button.bg,
                         marginRight: GRID_SIZE
@@ -51,7 +51,7 @@ export default function TwoButtons(props) {
                     {...secondaryButton}
                 >
                     {getIcon(secondaryButton.type, secondaryButton.disable ? colors.common.button.disabledBg : !secondaryButton.inverted ? colors.common.text3 : '#F7F7F7')}
-                </TouchableOpacity>
+                </TouchableDebounce>
             )}
 
             {hasMain && <Button {...mainButton} containerStyle={styles.mainButton} />}

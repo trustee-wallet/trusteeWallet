@@ -4,7 +4,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, TouchableOpacity, View, Platform, Keyboard } from 'react-native'
+import { Clipboard, Text, View, Platform, Keyboard } from 'react-native'
 
 import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
@@ -22,6 +22,7 @@ import Log from '@app/services/Log/Log'
 import NavStore from '../navigation/NavStore'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import TouchableDebounce from './new/TouchableDebounce'
 
 class Input extends Component {
 
@@ -287,9 +288,9 @@ class Input extends Component {
                 <View style={{...styles.actions }}>
                     {
                         typeof fio !== 'undefined' && fio ?
-                            <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
+                            <TouchableDebounce onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
                                 <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                     {
                         typeof text !== 'undefined' && text ?
@@ -299,43 +300,43 @@ class Input extends Component {
                     }
                     {
                         typeof copy !== 'undefined' && copy ?
-                            <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
+                            <TouchableDebounce onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
                                 <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
-                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn, { marginRight: search ? -8 : 0}]}>
+                            <TouchableDebounce onPress={this.handleReadFromClipboard} style={[styles.actionBtn, { marginRight: search ? -8 : 0}]}>
                                 <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
-                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
+                            <TouchableDebounce onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
                                 <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                     {
                         typeof info !== 'undefined' && typeof tabInfo !== 'undefined' && info && tabInfo ?
-                            <TouchableOpacity onPress={tabInfo} style={styles.actionBtn}>
+                            <TouchableDebounce onPress={tabInfo} style={styles.actionBtn}>
                                 <MaterialCommunityIcons
                                     name="information-outline"
                                     size={25}
                                     color={error ? '#864DD9' : colors.common.text1}
                                     style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }}
                                 />
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                 </View>
                 {
                     typeof action !== 'undefined' && !disabled ?
-                        <TouchableOpacity onPress={action.callback} style={[styles.action, actionBtnStyles]}>
+                        <TouchableDebounce onPress={action.callback} style={[styles.action, actionBtnStyles]}>
                             <View style={styles.action__title}>
                                 <Text style={styles.action__title__text}>
                                     {action.title}
                                 </Text>
                             </View>
-                        </TouchableOpacity> : null
+                        </TouchableDebounce> : null
                 }
             </View>
         )

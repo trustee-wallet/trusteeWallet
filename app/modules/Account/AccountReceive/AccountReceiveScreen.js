@@ -4,7 +4,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Text, TouchableOpacity, ScrollView, Platform, Dimensions, Linking } from 'react-native'
+import { View, Text, ScrollView, Platform, Dimensions, Linking } from 'react-native'
 
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -67,6 +67,7 @@ import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 import { changeAddress, getAddress } from './helpers'
 
 import { changeCurrencyNameToNetwork } from '@crypto/common/BlocksoftQrScanDict'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -269,7 +270,7 @@ class AccountReceiveScreen extends React.PureComponent {
                         {
                             isSynchronized ?
                                 <View style={{ alignItems: 'flex-start' }}>
-                                    <TouchableOpacity
+                                    <TouchableDebounce
                                         onPressIn={() => this.triggerBalanceVisibility(true, this.props.isBalanceVisible)}
                                         onPressOut={() => this.triggerBalanceVisibility(false, this.props.isBalanceVisible)}
                                         activeOpacity={1}
@@ -281,7 +282,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                             <Text style={{ ...styles.accountDetail__text, color: colors.common.text1, height: Platform.OS === 'ios' ? 15 : 18, fontSize: 24 }}>
                                                 ****</Text>
                                         }
-                                    </TouchableOpacity>
+                                    </TouchableDebounce>
                                 </View>
                                 :
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -619,12 +620,12 @@ class AccountReceiveScreen extends React.PureComponent {
         const { colors } = this.context
 
         return(
-            <TouchableOpacity
+            <TouchableDebounce
                 style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: colors.common.button.bg, alignItems: 'center', justifyContent: 'center'}}
                 onPress={this.handleCustomAmount}
             >
                 <CustomIcon name='close' size={12} color={colors.common.button.text} />
-            </TouchableOpacity>
+            </TouchableDebounce>
         )
     }
 
@@ -681,7 +682,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     <View style={{backgroundColor: colors.common.listItem.basic.iconBgLight, marginHorizontal: GRID_SIZE, borderRadius: 24, paddingBottom: GRID_SIZE }}>
                         <View style={{ ...styles.wrapper__content, paddingTop: GRID_SIZE * 1.5 }}>
 
-                            <TouchableOpacity
+                            <TouchableDebounce
                                 style={styles.qr}
                                 onPressIn={this.handleBackDropModal}
                                 activeOpacity={0.8}
@@ -701,7 +702,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                         Log.err('AccountReceiveScreen QRCode error ' + e.message)
                                     }}
                                 />
-                            </TouchableOpacity>
+                            </TouchableDebounce>
                             {fioName ? <Text>{fioName}</Text> : null}
                         </View>
 
@@ -733,12 +734,12 @@ class AccountReceiveScreen extends React.PureComponent {
                                         </View>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                             <View style={{ ...styles.line, backgroundColor: colors.cashback.progressBarBg }} />
-                                            <TouchableOpacity style={{ position: 'absolute', right: 10, marginTop: -4 }}
+                                            <TouchableDebounce style={{ position: 'absolute', right: 10, marginTop: -4 }}
                                                 onPress={this.handleChangeEquivalentType}
                                                 hitSlop={HIT_SLOP}
                                             >
                                                 <CustomIcon name={'changeCurrency'} color={colors.common.text3} size={20} />
-                                            </TouchableOpacity>
+                                            </TouchableDebounce>
                                         </View>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                                             <LetterSpacing text={notEquivalentValue} textStyle={{ ...styles.notEquivalentValue, color: '#999999' }}
@@ -754,11 +755,9 @@ class AccountReceiveScreen extends React.PureComponent {
                                         </View>
                                     </> :
                                     <View style={styles.backgroundAddress}>
-                                        <TouchableOpacity
-                                            style={{
-                                                alignItems: 'center'
-                                            }}
-                                            onPress={() => this.handleBackDropModal()}
+                                        <TouchableDebounce
+                                            style={{ alignItems: 'center' }}
+                                            onPress={this.handleBackDropModal}
                                             hitSlop={HIT_SLOP}
                                             onLongPress={this.copyToClip}
                                             delayLongPress={500}
@@ -777,20 +776,20 @@ class AccountReceiveScreen extends React.PureComponent {
                                                     </View>
                                                 }
                                             </View>
-                                        </TouchableOpacity>
+                                        </TouchableDebounce>
                                     </View>
                                 }
                             </View>
                             {!customAmount && <View>
                                 { fioName ? (
                                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                        <TouchableOpacity style={{ marginTop: 20 }}
+                                        <TouchableDebounce style={{ marginTop: 20 }}
                                             onPress={this.handleFioRequestCreate}>
                                             <LightButton color={color} Icon={(props) => <Feather color={color} size={10}
                                                 name={'edit'} {...props} />}
                                                 title={strings('account.receiveScreen.FIORequest')}
                                                 iconStyle={{ marginHorizontal: 3 }} />
-                                        </TouchableOpacity>
+                                        </TouchableDebounce>
                                     </View>
                                 ) : null }
                                 {currencyCode === 'BTC' && walletIsHd && <View style={{ alignSelf: 'center', flexDirection: 'row', paddingTop: GRID_SIZE * 1.5 }}>

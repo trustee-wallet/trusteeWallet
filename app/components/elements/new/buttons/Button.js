@@ -2,7 +2,6 @@
 import React from 'react'
 import {
     Text,
-    TouchableOpacity,
     View,
     StyleSheet,
 } from 'react-native'
@@ -16,6 +15,7 @@ import { strings } from '@app/services/i18n'
 import loaderWhite from '@assets/jsons/animations/loaderWhite.json'
 
 import CustomIcon from '../../CustomIcon'
+import TouchableDebounce from '../TouchableDebounce'
 
 const getStyle = (type, disabled, containerStyle, textStyle) => {
     const { colors, GRID_SIZE } = useTheme()
@@ -76,7 +76,7 @@ export default function Button(props) {
     const {colors} = useTheme()
 
     return (
-        <TouchableOpacity
+        <TouchableDebounce
             onPress={onPress}
             style={[preparedStyles.container]}
             disabled={sendInProcess ? true : disabled}
@@ -95,7 +95,7 @@ export default function Button(props) {
                         autoPlay loop />
                 </View>
             }
-        </TouchableOpacity>
+        </TouchableDebounce>
     )
 }
 

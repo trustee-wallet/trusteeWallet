@@ -2,7 +2,7 @@
  * @version 0.43
  */
 import React from 'react'
-import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native'
+import { Linking, Platform, Text, View } from 'react-native'
 import _isEqual from 'lodash/isEqual'
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -36,6 +36,7 @@ import { getExplorerLink, handleShareInvoice } from '../helpers'
 import PercentView from '@app/components/elements/new/PercentView'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 class HeaderBlocks extends React.Component {
 
@@ -165,10 +166,15 @@ class HeaderBlocks extends React.Component {
         const hodl = BlocksoftBalances.setCurrencyCode(currencyCode).getBalanceHodl(account)
         if (hodl > 0) {
             balanceTotalPretty = BlocksoftUtils.diff(account.balancePretty, hodl)
-            if ((typeof balanceTotalPretty !== 'undefined' && balanceStakedPretty && balanceTotalPretty?.toString().indexOf('0.0000') !== -1) || balanceTotalPretty * 1 < 0) {
+            if (typeof balanceTotalPretty !== 'undefined' && balanceTotalPretty && balanceTotalPretty?.toString().indexOf('0.0000') !== -1) {
                 balanceTotalPretty = '0'
+                balanceStakedPretty = 0
+            } else if (balanceTotalPretty * 1 < 0) {
+                balanceStakedPretty = account.balancePretty
+                balanceTotalPretty = 0
+            } else {
+                balanceStakedPretty = hodl
             }
-            balanceStakedPretty = hodl
             diffAvailable = true
             balanceStakedTitle = 'settings.walletList.frozen'
         }
@@ -179,7 +185,7 @@ class HeaderBlocks extends React.Component {
 
         return (
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: -GRID_SIZE / 4, alignItems: 'center' }}>
-                <TouchableOpacity
+                <TouchableDebounce
                     onPress={() => this.accountStaking(currencyCode)}
                     hitSlop={HIT_SLOP}
                     disabled={withoutDescription || !canBeStaked}
@@ -193,12 +199,12 @@ class HeaderBlocks extends React.Component {
                             {`${strings(balanceStakedTitle)}: ${finalIsBalanceVisible ? balanceStakedPretty + ' ' + currencySymbol : ' ****'}`}
                         </Text>
                     }
-                </TouchableOpacity>
+                </TouchableDebounce>
                 {
                     canBeStaked &&
-                    <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
+                    <TouchableDebounce style={{ paddingLeft: 23 }} onPress={() => this.accountStaking(currencyCode)} hitSlop={HIT_SLOP}>
                         <CustomIcon name='staking' size={24} color={colors.common.text1} />
-                    </TouchableOpacity>
+                    </TouchableDebounce>
                 }
             </View>
         )
@@ -247,7 +253,7 @@ class HeaderBlocks extends React.Component {
             return (
                 <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingBottom: GRID_SIZE }}>
                     <View style={{ ...styles.topContent__title, flexGrow: 1 }}>
-                        <TouchableOpacity
+                        <TouchableDebounce
                             onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
                             onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
                             activeOpacity={1}
@@ -255,9 +261,9 @@ class HeaderBlocks extends React.Component {
                             hitSlop={{ top: 10, right: finalIsBalanceVisible ? 60 : 30, bottom: 10, left: finalIsBalanceVisible ? 60 : 30 }}
                         >
                                 {originalVisibility ? (
-                                <TouchableOpacity onPress={handlePress}>
+                                <TouchableDebounce onPress={handlePress}>
                                     <BalanceComponent />
-                                </TouchableOpacity>
+                                </TouchableDebounce>
                             ) : (finalIsBalanceVisible ? (
                                     <BalanceComponent />
                                 ) : (
@@ -266,7 +272,7 @@ class HeaderBlocks extends React.Component {
                                     </Text>
                                 )
                             )}
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                     </View>
                     {finalIsBalanceVisible && (
                         <LetterSpacing
@@ -295,11 +301,11 @@ class HeaderBlocks extends React.Component {
         const { colors } = this.context
 
         return (
-            <TouchableOpacity style={{ paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)} hitSlop={HIT_SLOP}>
+            <TouchableDebounce style={{ paddingLeft: 23 }} onPress={() => this.accountSetting(currencyCode)} hitSlop={HIT_SLOP}>
                 <View style={{ paddingVertical: 12 }}>
                     <CustomIcon name='coinSettings' size={20} color={colors.common.text1} />
                 </View>
-            </TouchableOpacity>
+            </TouchableDebounce>
         )
     }
 
@@ -373,7 +379,7 @@ class HeaderBlocks extends React.Component {
             <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }} >
                 <AccountGradientBlock>
                     <View style={{ flexDirection: 'row' }} >
-                        <TouchableOpacity
+                        <TouchableDebounce
                             style={styles.linkButton}
                             onPress={() => this.handleOpenLink(shownAddress, forceLink)}
                             hitSlop={HIT_SLOP}
@@ -398,7 +404,7 @@ class HeaderBlocks extends React.Component {
                                     <View style={styles.topContent__bottom__btn__shadow__item} />
                                 </View>
                             </View>
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                         <View style={{ marginTop: 6 }}>
                             <View style={styles.stakingValue}>
                                 <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
@@ -409,7 +415,7 @@ class HeaderBlocks extends React.Component {
                                     />
                                 }
                             </View>
-                            <TouchableOpacity
+                            <TouchableDebounce
                                 style={styles.topContent__middle}
                                 onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
                                 hitSlop={HIT_SLOP}
@@ -422,7 +428,7 @@ class HeaderBlocks extends React.Component {
                                 <View onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)} style={styles.copyBtn}>
                                     <IconMaterial name="content-copy" size={15} color={'#939393'} />
                                 </View>
-                            </TouchableOpacity>
+                            </TouchableDebounce>
                         </View>
                         {currencyCode !== 'TRX' &&
                             <View style={{ ...styles.settings, right: 0, position: 'absolute' }}>

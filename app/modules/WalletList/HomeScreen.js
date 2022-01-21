@@ -38,7 +38,7 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
-import { getIsBlurVisible, getSelectedWalletData, getSortValue } from '@app/appstores/Stores/Main/selectors'
+import { getHomeFilterWithBalance, getIsBlurVisible, getSelectedWalletData, getSortValue } from '@app/appstores/Stores/Main/selectors'
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
@@ -67,7 +67,8 @@ class HomeScreen extends React.PureComponent {
             originalData: [],
             data: [],
             currenciesOrder: [],
-            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue() || null
+            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue() || null,
+            homeFilterWithBalance: this.props.homeFilterWithBalance || trusteeAsyncStorage.getHomeFilterWithBalance() || false
         }
     }
 
@@ -91,10 +92,11 @@ class HomeScreen extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps) {
-        if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList)) {
+        if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList) || !_isEqual(prevProps.homeFilterWithBalance, this.props.homeFilterWithBalance)) {
             this.setState({
-                data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue),
-                sortValue: this.props.sortValue
+                data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue, this.props.homeFilterWithBalance),
+                sortValue: this.props.sortValue,
+                homeFilterWithBalance: this.props.homeFilterWithBalance
             })
         }
     }
@@ -208,11 +210,19 @@ class HomeScreen extends React.PureComponent {
 
     }
 
+    handlerSortValue = () => {
+        this.bottomSheetRef?.open()
+    }
+
+    handleCloseSortValue = () => {
+        this.bottomSheetRef?.close()
+    }
+
     render() {
 
         const { colors, GRID_SIZE } = this.context
 
-        const { sortValue } = this.state
+        const { sortValue, homeFilterWithBalance } = this.state
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
@@ -227,7 +237,7 @@ class HomeScreen extends React.PureComponent {
                         originalVisibility={this.state.originalVisibility}
                         triggerBalanceVisibility={this.triggerBalanceVisibility}
                         balanceData={balanceData}
-                        handleSortView={() => this.bottomSheetRef.open()}
+                        handleSortView={this.handlerSortValue}
                         sortValue={sortValue}
                     />
                     <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]} />
@@ -259,12 +269,13 @@ class HomeScreen extends React.PureComponent {
                 </View>
                 <SheetBottom
                     ref={ref => this.bottomSheetRef = ref}
-                    snapPoints={[0, 340]}
+                    snapPoints={[0, 440]}
                     index={0}
                 >
                     <SortList
-                        handleClose={() => this.bottomSheetRef.close()}
-                        sortValue={this.props.sortValue}
+                        handleClose={this.handleCloseSortValue}
+                        sortValue={sortValue}
+                        homeFilterWithBalance={homeFilterWithBalance}
                     />
                 </SheetBottom>
             </>
@@ -282,7 +293,8 @@ const mapStateToProps = (state) => {
         nftsData: getNftsData(state),
         sortValue: getSortValue(state),
         cashbackStore: getCashBackData(state),
-        accountList: getAccountList(state)
+        accountList: getAccountList(state),
+        homeFilterWithBalance: getHomeFilterWithBalance(state)
     }
 }
 

@@ -4,7 +4,7 @@
  */
 
 import React, { PureComponent } from 'react'
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -12,6 +12,7 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import LetterSpacing from '@app/components/elements/LetterSpacing'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 class AccountSettingsHeader extends PureComponent {
 
@@ -57,7 +58,7 @@ class AccountSettingsHeader extends PureComponent {
         return (
             <View style={[styles.topContent__top, { marginHorizontal: GRID_SIZE }]}>
                 <View style={[styles.topContent__title]}>
-                    <TouchableOpacity
+                    <TouchableDebounce
                         onPressIn={() => this.triggerBalanceVisibility(true, originalVisibility)}
                         onPressOut={() => this.triggerBalanceVisibility(false, originalVisibility)}
                         activeOpacity={1}
@@ -77,7 +78,7 @@ class AccountSettingsHeader extends PureComponent {
                                 ****
                             </Text>
                         )}
-                    </TouchableOpacity>
+                    </TouchableDebounce>
                 </View>
                 {finalIsBalanceVisible && (
                     <LetterSpacing

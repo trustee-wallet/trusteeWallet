@@ -42,9 +42,9 @@ export const colorsDark = {
             arrow: '#DADADA'
         },
         switch: {
-            bgActive: '#999',
+            bgActive: '#9E71E1',
             bgInactive: '#303030',
-            circleBg: '#6B6B6B'
+            circleBg: '#DADADA'
         },
         header: {
             bg: '#2E2E2E',

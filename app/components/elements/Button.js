@@ -2,15 +2,12 @@
  * @version 0.9
  */
 import React, { Component } from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, View } from 'react-native'
 import GradientView from '../../components/elements/GradientView'
+import TouchableDebounce from './new/TouchableDebounce'
 
 
 export default class Button extends Component {
-
-    constructor(props) {
-        super(props)
-    }
 
     render() {
 
@@ -18,15 +15,15 @@ export default class Button extends Component {
 
         return (
             <View style={{ ...styles.wrapper, ...this.props.styles }}>
-                <TouchableOpacity disabled={typeof disabled != 'undefined' ? disabled : false} onPress={this.props.press || this.props.onPress} style={[touchableOpacityStyle]}>
+                <TouchableDebounce disabled={typeof disabled !== 'undefined' ? disabled : false} onPress={this.props.press || this.props.onPress} style={[touchableOpacityStyle]}>
                     <View style={[styles.btnWrap, btnWrapStyle]}>
-                        <GradientView style={{ ...styles.btn, ...this.props.innerStyle }} array={typeof backgroundColorArray == 'undefined' ? styles_.array : backgroundColorArray} start={styles_.start} end={styles_.end}>
+                        <GradientView style={{ ...styles.btn, ...this.props.innerStyle }} array={typeof backgroundColorArray === 'undefined' ? styles_.array : backgroundColorArray} start={styles_.start} end={styles_.end}>
                             <Text style={{ ...styles.btn__text, ...styleText }}>
                                 {this.props.children}
                             </Text>
                         </GradientView>
                     </View>
-                </TouchableOpacity>
+                </TouchableDebounce>
             </View>
         )
     }

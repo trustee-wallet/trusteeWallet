@@ -2,13 +2,14 @@
  * @version 0.43
  */
 import React, { PureComponent } from 'react'
-import { Text, View, TouchableOpacity, StyleSheet, Platform } from 'react-native'
+import { Text, View, StyleSheet, Platform } from 'react-native'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import AccountButtons from './AccountButtons'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 class AccountData extends PureComponent {
 
@@ -47,7 +48,7 @@ class AccountData extends PureComponent {
             <>
                 <View style={styles.topContent__top}>
                     <View style={styles.topContent__title}>
-                        <TouchableOpacity
+                        <TouchableDebounce
                             onPressIn={() => triggerBalanceVisibility(true, originalVisibility)}
                             onPressOut={() => triggerBalanceVisibility(false, originalVisibility)}
                             activeOpacity={1}
@@ -63,7 +64,7 @@ class AccountData extends PureComponent {
                                 </Text> :
                                 <Text style={[styles.topContent__title_last, styles.hiddenBalance, { color: colors.common.text1 }]}>****</Text>
                             }
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                     </View>
                 </View>
                 <AccountButtons

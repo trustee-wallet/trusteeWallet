@@ -2,10 +2,11 @@
 import React from 'react'
 import {
     Text,
-    TouchableOpacity,
     View,
     StyleSheet,
 } from 'react-native'
+
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
 
 import RadioButton from '../../RadioButton'
 
@@ -16,15 +17,15 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 const getIcon = (iconType, color) => {
     switch (iconType) {
         case 'customSort':
-            return <CustomIcon name='customSort' size={16} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='customSort' size={18} color={color} style={{ left: 1 }} />
         case 'tokenFirstSort':
-            return <CustomIcon name='tokenFirstSort' size={16} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='tokenFirstSort' size={18} color={color} style={{ left: 1 }} />
         case 'coinFirstSort':
-            return <CustomIcon name='coinFirstSort' size={16} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='coinFirstSort' size={18} color={color} style={{ left: 1 }} />
         case 'nameSort':
-            return <CustomIcon name='nameSort' size={16} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='nameSort' size={18} color={color} style={{ left: 1 }} />
         case 'balanceSort':
-            return <CustomIcon name='balanceSort' size={16} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='balanceSort' size={18} color={color} style={{ left: 1 }} />
         case 'wallet':
             return <CustomIcon name='shield' size={16} color={color} style={{ left: 1 }} />
         case 'eth':

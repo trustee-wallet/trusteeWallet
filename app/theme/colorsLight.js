@@ -42,9 +42,9 @@ export const colorsLight = {
             arrow: '#F7F7F7'
         },
         switch: {
-            bgActive: '#404040',
+            bgActive: '#864DD9',
             bgInactive: '#C4C4C4',
-            circleBg: '#FFF'
+            circleBg: '#F7F7F7'
         },
         header: {
             bg: '#f7f7f7',

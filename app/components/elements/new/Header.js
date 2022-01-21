@@ -5,7 +5,6 @@
 import React from 'react'
 import {
     View,
-    TouchableOpacity,
     Text,
     StatusBar,
     SafeAreaView,
@@ -21,6 +20,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import AntIcon from 'react-native-vector-icons/AntDesign'
 import TextInput from '@app/components/elements/new/TextInput'
+import TouchableDebounce from './TouchableDebounce'
 
 export default class Header extends React.PureComponent {
 
@@ -49,9 +49,9 @@ export default class Header extends React.PureComponent {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={HIT_SLOP} onPress={() => leftParams ? leftAction(leftParams.close) : leftAction()}>
+            <TouchableDebounce hitSlop={HIT_SLOP} onPress={() => leftParams ? leftAction(leftParams.close) : leftAction()}>
                 <Icon color={leftParams && leftParams.color ? leftParams.color : colors.common.text1} />
-            </TouchableOpacity>
+            </TouchableDebounce>
         )
     }
 
@@ -84,9 +84,9 @@ export default class Header extends React.PureComponent {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={() => rightParams ? rightAction(rightParams.close) : rightAction()}>
+            <TouchableDebounce hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={() => rightParams ? rightAction(rightParams.close) : rightAction()}>
                 <Icon color={colors.common.text1} />
-            </TouchableOpacity>
+            </TouchableDebounce>
         )
     }
 

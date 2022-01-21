@@ -9,8 +9,6 @@ import {
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
-import { strings } from '@app/services/i18n'
-
 
 export default function RadioButton(props) {
     const {

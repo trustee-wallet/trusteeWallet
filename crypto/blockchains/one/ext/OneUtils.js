@@ -1,5 +1,6 @@
 /**
  * @harmony-js/crypto/src/bech32.ts
+ * https://github.com/harmony-one/sdk/blob/master/packages/harmony-crypto/src/bech32.ts
  * const { toBech32 } = require("@harmony-js/crypto");
  * console.log("Using account: " + toBech32("0xxxxx", "one1"))
  */
@@ -96,8 +97,96 @@ const convertBits = (
     return Buffer.from(ret)
 }
 
+const bech32Decode = (bechString) => {
+    let p;
+    let hasLower = false;
+    let hasUpper = false;
+    for (p = 0; p < bechString.length; ++p) {
+        if (bechString.charCodeAt(p) < 33 || bechString.charCodeAt(p) > 126) {
+            return null;
+        }
+        if (bechString.charCodeAt(p) >= 97 && bechString.charCodeAt(p) <= 122) {
+            hasLower = true;
+        }
+        if (bechString.charCodeAt(p) >= 65 && bechString.charCodeAt(p) <= 90) {
+            hasUpper = true;
+        }
+    }
+    if (hasLower && hasUpper) {
+        return null;
+    }
+    bechString = bechString.toLowerCase();
+    const pos = bechString.lastIndexOf('1');
+    if (pos < 1 || pos + 7 > bechString.length || bechString.length > 90) {
+        return null;
+    }
+    const hrp = bechString.substring(0, pos);
+    const data = [];
+    for (p = pos + 1; p < bechString.length; ++p) {
+        const d = CHARSET.indexOf(bechString.charAt(p));
+        if (d === -1) {
+            return null;
+        }
+        data.push(d);
+    }
+
+    try {
+        if (!verifyChecksum(hrp, Buffer.from(data))) {
+            return null;
+        }
+    } catch (e) {
+        e.message += ' in verifyChecksum'
+        throw e
+    }
+
+    return { hrp, data: Buffer.from(data.slice(0, data.length - 6)) };
+};
+
+function verifyChecksum(hrp, data) {
+    return polymod(Buffer.concat([hrpExpand(hrp), data])) === 1;
+}
+
+const toChecksumAddress = (address)=> {
+    if (typeof address !== 'string' || !address.match(/^0x[0-9A-Fa-f]{40}$/)) {
+        throw new Error('invalid address ' + address);
+    }
+
+    address = address.toLowerCase();
+
+    const chars = address.substring(2).split('');
+
+    let hashed = new Uint8Array(40);
+    for (let i = 0; i < 40; i++) {
+        hashed[i] = chars[i].charCodeAt(0);
+    }
+    // hashed = bytes.arrayify(keccak256(hashed)) || hashed;
+
+    for (let i = 0; i < 40; i += 2) {
+        if (hashed[i >> 1] >> 4 >= 8) {
+            chars[i] = chars[i].toUpperCase();
+        }
+        if ((hashed[i >> 1] & 0x0f) >= 8) {
+            chars[i + 1] = chars[i + 1].toUpperCase();
+        }
+    }
+
+    return '0x' + chars.join('');
+};
+
 
 export default {
+    isOneAddress(address) {
+        if (typeof address === 'undefined' || typeof address.match === 'undefined') {
+            return false
+        }
+        try {
+            return !!address.match(/^one1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38}/);
+        } catch (e) {
+            e.message += ' in match - address ' + JSON.stringify(address)
+            throw e
+        }
+    },
+
     toOneAddress(address, useHRP = 'one') {
         if (address.indexOf('one') === 0) {
             return address
@@ -112,5 +201,39 @@ export default {
         }
 
         return bech32Encode(useHRP, addrBz)
+    },
+
+    fromOneAddress(address, useHRP = 'one') {
+        let res
+        try {
+            res = bech32Decode(address)
+        } catch (e) {
+            e.message += ' in bech32Decode - address ' + JSON.stringify(address)
+            throw e
+        }
+
+        if (res === null) {
+            throw new Error('Invalid bech32 address')
+        }
+
+        const { hrp, data } = res
+
+        if (hrp !== useHRP) {
+            throw new Error(`Expected hrp to be ${useHRP} but got ${hrp}`)
+        }
+
+        const buf = convertBits(data, 5, 8, false)
+
+        if (buf === null) {
+            throw new Error('Could not convert buffer to bytes')
+        }
+
+        try {
+            const tmp = toChecksumAddress('0x' + buf.toString('hex'))
+            return tmp
+        } catch (e) {
+            e.message += ' in toChecksumAddress'
+            throw e
+        }
     }
 }

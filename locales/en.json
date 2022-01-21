@@ -14,7 +14,7 @@
       "byValue": "By value",
       "firstCoin": "Coins first",
       "firstToken": "Tokens first",
-      "withBalance": "With a positive balance",
+      "withBalance": "Hide zero balances",
       "guideTitle": "Guide"
     },
     "categories": {

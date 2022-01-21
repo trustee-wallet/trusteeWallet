@@ -5,13 +5,13 @@ import React from 'react'
 import {
     Platform,
     View,
-    Text,
-    TouchableOpacity,
+    Text
 } from 'react-native'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
@@ -77,9 +77,9 @@ const TransactionItem = (props) => {
                         <View style={[styles.textContent, { paddingVertical: 3 }]}>
                             <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
                             {!!subtitle ?
-                                <TouchableOpacity onPress={handleLink ? handleLink : copyAction} onLongPress={handleLink ? copyAction : null}>
+                                <TouchableDebounce onPress={handleLink ? handleLink : copyAction} onLongPress={handleLink ? copyAction : null}>
                                     <Text style={[styles.subtitle, { color: colorLink ? colorLink : colors.common.text1, textDecorationLine: colorLink ? 'underline' : null }]}>{subtitle}</Text>
-                                </TouchableOpacity> : null}
+                                </TouchableDebounce> : null}
                         </View>
                     </View>
                 </View>
@@ -97,10 +97,10 @@ const TransactionItem = (props) => {
                                 {
                                     copyAction ?
                                         (
-                                            <TouchableOpacity onPress={copyAction}>
+                                            <TouchableDebounce onPress={copyAction}>
                                                 {!!subtitle &&
                                                     <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text1 }]}>{subtitle}</Text>}
-                                            </TouchableOpacity>
+                                            </TouchableDebounce>
                                         )
                                         :
                                         !!subtitle &&
@@ -109,10 +109,10 @@ const TransactionItem = (props) => {
                                 }
                             </View>
                             {bse && (
-                                <TouchableOpacity onPress={orderHandler}
+                                <TouchableDebounce onPress={orderHandler}
                                     style={[styles.button, { borderColor: colors.accountScreen.trxButtonBorderColor }]}>
                                     <Text style={[styles.buttonText, { color: colors.common.text1 }]}>{textOrder}</Text>
-                                </TouchableOpacity>
+                                </TouchableDebounce>
                             )}
                         </View>
                     </View>

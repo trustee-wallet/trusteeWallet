@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 
 import Feather from 'react-native-vector-icons/Feather'
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
@@ -16,6 +16,7 @@ import CustomIcon from '@app/components/elements/CustomIcon'
 import Toast from '@app/services/UI/Toast/Toast'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Log from '@app/services/Log/Log'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 
 const prepareStatusHeaderToView = (status) => {
@@ -114,14 +115,14 @@ const HeaderTx = (props) => {
                     </View>
                 </View>
             </View>
-            <TouchableOpacity onPress={copyToClip}>
+            <TouchableDebounce onPress={copyToClip}>
                 <View style={styles.topContent__title}>
                     <Text style={{ ...styles.amount, color: colors.common.text1 }}>
                         {amountTxt}
                     </Text>
                     <Text style={{ ...styles.code, color: color }}>{currencySymbol}</Text>
                 </View>
-            </TouchableOpacity>
+            </TouchableDebounce>
         </View>
     )
 

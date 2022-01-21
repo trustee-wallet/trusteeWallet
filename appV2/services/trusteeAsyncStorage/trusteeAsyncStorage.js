@@ -189,11 +189,11 @@ class TrusteeAsyncStorage {
     }
 
     getIsTraining = () => {
-        return this._getStatic('trainingGuide')
+        return this._getStatic('guideTraining')
     }
 
     setIsTraining = (value) => {
-        return this._set('trainingGuide', value)
+        return this._set('guideTraining', value)
     }
 
     getAccountFilterData = () => {
@@ -202,6 +202,14 @@ class TrusteeAsyncStorage {
 
     setAccountFilterData = (value) => {
         return this._set('accountFilterData', value)
+    }
+
+    getHomeFilterWithBalance = () => {
+        return this._getStatic('homeFilterWithBalacne')
+    }
+
+    setHomeFilterWithBalance = (value) => {
+        return this._set('homeFilterWithBalacne', value)
     }
 }
 

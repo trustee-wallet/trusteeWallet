@@ -7,8 +7,7 @@ import {
     Platform,
     View,
     Text,
-    ScrollView,
-    TouchableOpacity
+    ScrollView
 } from 'react-native'
 import { connect } from 'react-redux'
 import { strings } from '@app/services/i18n'
@@ -44,6 +43,7 @@ import { HIT_SLOP } from '@app/theme/HitSlop'
 import TextInput from '@app/components/elements/new/TextInput'
 
 import { renderReplaceByFee, renderReplaceByFeeRemove, _onLoad, handleLink, onBlurComment, shareTransaction } from './helper'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 
 let CACHE_RESCAN_TX = false
@@ -184,13 +184,13 @@ class AccountTransactionScreen extends PureComponent {
             <>
                 {commentToView ?
                     !commentEditable ?
-                        <TouchableOpacity onPress={this.handleEditableCallback}>
+                        <TouchableDebounce onPress={this.handleEditableCallback}>
                             <TransactionItem
                                 title={commentToView.title}
                                 iconType='notes'
                                 subtitle={commentToView.description}
                             />
-                        </TouchableOpacity> :
+                        </TouchableDebounce> :
                         <View style={{ ...styles.textInputWrapper, backgroundColor: colors.transactionScreen.comment }}>
                             <TextInput
                                 compRef={ref => this.commentInput = ref}
@@ -444,12 +444,12 @@ class AccountTransactionScreen extends PureComponent {
                     <View>
                         {subContent && subContent.length ?
                             <>
-                                <TouchableOpacity onPress={this.showMoreDetails} style={styles.showMore} hitSlop={HIT_SLOP}>
+                                <TouchableDebounce onPress={this.showMoreDetails} style={styles.showMore} hitSlop={HIT_SLOP}>
                                     <LetterSpacing textStyle={{ ...styles.viewShowMore, color: colors.common.checkbox.bgChecked }}
                                         text={strings('account.showMore').toUpperCase()} letterSpacing={1.5} />
                                     <CustomIcon name={showMoreDetails ? 'up' : 'down'} color={colors.common.checkbox.bgChecked} size={20}
                                         style={{ marginTop: showMoreDetails ? -1 : -4 }} />
-                                </TouchableOpacity>
+                                </TouchableDebounce>
                                 {showMoreDetails && (
                                     <View style={{ ...styles.moreInfo, borderRadius: 16, marginBottom: 20, backgroundColor: colors.transactionScreen.backgroundItem }}>
                                         {subContent.map((item, index) => {
@@ -467,11 +467,11 @@ class AccountTransactionScreen extends PureComponent {
                                             )
                                         })}
                                         {linkExplorer !== null ?
-                                            <TouchableOpacity onPress={() => handleLink.call(this, linkExplorer)}>
+                                            <TouchableDebounce onPress={() => handleLink.call(this, linkExplorer)}>
                                                 <LetterSpacing textStyle={{ ...styles.viewExplorer, color: colors.common.checkbox.bgChecked }}
                                                     text={strings('account.transactionScreen.viewExplorer').toUpperCase()} letterSpacing={1.5}
                                                 />
-                                            </TouchableOpacity> : null}
+                                            </TouchableDebounce> : null}
                                     </View>)}
                             </>
                             : null}

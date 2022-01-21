@@ -134,3 +134,8 @@ export const getStakingCoins = createSelector(
     [state => state.mainStore.stakingCoins],
     (data => data)
 )
+
+export const getHomeFilterWithBalance = createSelector(
+    [state => state.mainStore.homeFilterWithBalance],
+    (data => data)
+)
