@@ -17,6 +17,7 @@ import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import walletHDActions from '@app/appstores/Actions/WalletHDActions'
+import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
 
 export const ASSESTS_GROUP = {
@@ -235,7 +236,9 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             if (checked6) {
                 todoArray.push({ tokenType : 'VLX_ERC_20', checked : checked6})
             }
+        }
 
+        if (tokenType === 'ETH_ERC_20' || tokenType === 'ONE_ERC_20') {
             const checked7 = await customCurrencyActions.checkCustomCurrency({
                 tokenType: 'ONE_ERC_20',
                 tokenAddress

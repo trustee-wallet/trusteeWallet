@@ -20,7 +20,7 @@ import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import { isEnsAddressValid } from '@crypto/services/EnsUtils'
 import TronUtils from '@crypto/blockchains/trx/ext/TronUtils'
-import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
 const networksConstants = require('../../../../crypto/common/ext/networks-constants')
 
@@ -158,6 +158,18 @@ async function _userDataValidation(obj) {
 
         case 'ETH_ADDRESS':
             value = value.trim()
+            if (!value) {
+                error.msg = strings('validator.empty', { name: name })
+            } else if (!/^0[xX]+[0-9a-fA-F]{40}$/.test(value)) {
+                error.msg = strings('validator.invalidFormat', { name: name })
+            }
+            break
+
+        case 'ETH_ONE_ADDRESS':
+            value = value.trim()
+            if (value && value.indexOf('one1') !== -1) {
+                value = OneUtils.fromOneAddress(value)
+            }
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^0[xX]+[0-9a-fA-F]{40}$/.test(value)) {
@@ -405,7 +417,7 @@ async function _userDataValidation(obj) {
                 if (tmp.length > 1) {
                     error.msg = strings('validator.invalidFormat', { name: name })
                 }
-            } else if (typeof valueArray[valueArray.length -1] === 'undefined') {
+            } else if (typeof valueArray[valueArray.length -1] === 'undefined' || valueArray[valueArray.length -1].length !== 8) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break

@@ -48,6 +48,7 @@ import AssetFlatListItem from './elements/AssetFlatListItem'
 import PercentView from '@app/components/elements/new/PercentView'
 import { getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
 
 class AddAssetScreen extends React.PureComponent {
@@ -160,6 +161,24 @@ class AddAssetScreen extends React.PureComponent {
         const validation = await Validator.arrayValidation(tmps)
         if (validation.errorArr.length !== types.length) {
             const result = await addCustomToken(customAddress, 'TRX')
+            if (result.searchQuery) {
+                this.handleSearch(result.searchQuery)
+            }
+            return false
+        }
+
+        const validationONE = await Validator.userDataValidation({
+            type: 'ETH_ONE_ADDRESS',
+            id: 'address',
+            value: customAddress
+        })
+
+        if (validationONE === false) { // valid address
+            let oneCustomAddress = customAddress
+            if (OneUtils.isOneAddress(customAddress)) {
+                oneCustomAddress = OneUtils.fromOneAddress(customAddress)
+            }
+            const result = await addCustomToken(oneCustomAddress, 'ONE_ERC_20')
             if (result.searchQuery) {
                 this.handleSearch(result.searchQuery)
             }
@@ -391,6 +410,8 @@ class AddAssetScreen extends React.PureComponent {
             if (searchQuery.toLowerCase().indexOf('0x') === 0 && searchQuery.length === 42) {
                 isSearchTokenAddress = true
             } else if (searchQuery.indexOf('T') === 0 && searchQuery.length === 34) {
+                isSearchTokenAddress = true
+            } else if (searchQuery.indexOf('one1') === 0 && searchQuery.length >= 20) {
                 isSearchTokenAddress = true
             }
         }
