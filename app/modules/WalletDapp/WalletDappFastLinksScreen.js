@@ -6,8 +6,7 @@ import {
     StyleSheet,
     ScrollView,
     View,
-    ActivityIndicator,
-    // RefreshControl
+    ActivityIndicator
 } from 'react-native'
 import { connect } from 'react-redux'
 import { FlatList } from 'react-native-gesture-handler'
@@ -15,7 +14,6 @@ import { FlatList } from 'react-native-gesture-handler'
 import NavStore from '@app/components/navigation/NavStore'
 import ScrollingList from '@app/components/elements/new/ScrollingList'
 import DappListItem from './elements/DappListItem'
-// import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
@@ -30,7 +28,7 @@ import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 class WalletDappFastLinksScreen extends PureComponent {
 
     state = {
-        selectedNetwork: 0,
+        selectedIndex: 0,
         networks: [],
         dapps: [],
         localDapps: []
@@ -48,14 +46,14 @@ class WalletDappFastLinksScreen extends PureComponent {
     }
 
     loadNetworks = () => {
-        const networks = [{"currencyCode": "ALL", "networkTitle": "All"}]
+        const networks = [{ "currencyCode": "ALL", "networkTitle": "All" }]
 
         for (const key in WalletConnectNetworksDict) {
             const item = WalletConnectNetworksDict[key]
             networks.push(item)
         }
 
-        this.setState({networks})
+        this.setState({ networks })
     }
 
     loadDapps = async () => {
@@ -86,14 +84,12 @@ class WalletDappFastLinksScreen extends PureComponent {
         })
     }
 
-    handleSelectNetwork = async (index) => {
-        this.setState({
-            selectedNetwork: index
-        })
-        await this.handlefilterDapps(index)
+    handleSelectIndex = async (selectedIndex) => {
+        this.setState({ selectedIndex })
+        await this.handlefilterDapps(selectedIndex)
     }
 
-    handlefilterDapps =  async (index) => {
+    handlefilterDapps = async (index) => {
         const {
             networks,
             dapps
@@ -104,46 +100,21 @@ class WalletDappFastLinksScreen extends PureComponent {
                 localDapps: dapps
             })
         } else {
-            const filteredDapps = dapps.filter(item => item.dappNetworks.includes(networks[index].currencyCode))
             this.setState({
-                localDapps: filteredDapps
+                localDapps: dapps.filter(item => item.dappNetworks.includes(networks[index].currencyCode))
             })
         }
     }
 
-    // handleRefresh = async () => {
-    //     await this.handlefilterDapps(this.state.selectedNetwork)
-    // }
-
-    // handleIncognito = () => {
-    //     setWalletDappIncognito(!this.props.walletDappData.incognito)
-    // }
-
     renderListItem = ({ item, index }) => {
 
-        const last = this.state.localDapps.length -1 === index
+        const last = this.state.localDapps.length - 1 === index
 
         return (
             <DappListItem
                 data={item}
                 last={last}
                 onPress={this.setDapp}
-            />
-        )
-    }
-
-    renderNetworksList = () => {
-
-        const {
-            networks,
-            selectedNetwork
-        } = this.state
-
-        return(
-            <ScrollingList
-                data={networks}
-                onPress={this.handleSelectNetwork}
-                active={selectedNetwork}
             />
         )
     }
@@ -168,10 +139,7 @@ class WalletDappFastLinksScreen extends PureComponent {
     render() {
         MarketingAnalytics.setCurrentScreen('WalletDapp.FastLinkScreen')
 
-        const { localDapps } = this.state
-
-        // const { dappCode, incognito } = this.props.walletDappData
-        // const filtered = dapps.filter((item, index) => )
+        const { localDapps, networks, selectedIndex } = this.state
 
         return (
             <ScrollView
@@ -180,17 +148,18 @@ class WalletDappFastLinksScreen extends PureComponent {
                 keyboardShouldPersistTaps='handled'
                 setHeaderHeight={this.setHeaderHeight}
             >
-                {this.renderNetworksList()}
-                <View>
-                    <FlatList
-                        data={localDapps}
-                        keyExtractor={({ index }) => index}
-                        horizontal={false}
-                        showsVerticalScrollIndicator={false}
-                        renderItem={this.renderListItem}
-                        ListEmptyComponent={this.renderEmptyComponent}
-                    />
-                </View>
+                <ScrollingList
+                    data={networks}
+                    onPress={this.handleSelectIndex}
+                    active={selectedIndex}
+                />
+                <FlatList
+                    data={localDapps}
+                    keyExtractor={(item) => item.dappsDomenName.toString()}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={this.renderListItem}
+                    ListEmptyComponent={this.renderEmptyComponent}
+                />
             </ScrollView>
         )
     }
@@ -203,22 +172,6 @@ const mapStateToProps = (state) => {
     }
 }
 
-// <View style={{ marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
-//     <ListItem
-//         key='clean'
-//         title='New session'
-//         subtitle='Open, if it possible'
-//         checked={incognito}
-//         onPress={() => this.handleIncognito()}
-//         rightContent='switch'
-//         switchParams={{
-//             onPress: () => this.handleIncognito(),
-//             value: incognito
-//         }}
-//         iconType='wallet'
-//         last
-//     />
-// </View>
 WalletDappFastLinksScreen.contextType = ThemeContext
 
 export default connect(mapStateToProps)(WalletDappFastLinksScreen)

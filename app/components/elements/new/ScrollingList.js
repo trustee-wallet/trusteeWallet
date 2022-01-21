@@ -15,7 +15,29 @@ import { FlatList } from 'react-native-gesture-handler'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-class ScrollingList extends React.PureComponent{
+class ScrollingList extends React.PureComponent {
+
+    state = {
+        localIndex: 0
+    }
+
+    componentDidUpdate(_, prevState) {
+        if (prevState.localIndex !== this.state.localIndex) {
+            this.flatlistRef.scrollToIndex({
+                index: this.state.localIndex,
+                animated: true,
+                viewPosition: 0.4
+            })
+        }
+    }
+
+    onPress = (index) => {
+        this.setState({
+            localIndex: index
+        })
+
+        this.props.onPress && this.props.onPress(index)
+    }
 
     renderListItem = ({ item, index }) => {
 
@@ -25,17 +47,16 @@ class ScrollingList extends React.PureComponent{
         } = this.context
 
         const {
-            active,
-            onPress
+            active
         } = this.props
 
         const margin = index === 0
 
         const inverse = index === active
 
-        return(
+        return (
             <TouchableOpacity
-                onPress={() => onPress(index)}
+                onPress={() => this.onPress(index)}
                 disabled={inverse}
                 style={[styles.button, {
                     marginRight: GRID_SIZE,
@@ -57,14 +78,16 @@ class ScrollingList extends React.PureComponent{
 
         const { data } = this.props
 
-        return(
+        return (
             <View style={{ marginVertical: GRID_SIZE }}>
                 <FlatList
+                    ref={ref => this.flatlistRef = ref}
                     data={data}
                     horizontal
                     keyExtractor={({ index }) => index}
                     renderItem={this.renderListItem}
                     showsHorizontalScrollIndicator={false}
+                    initialScrollIndex={this.state.localIndex}
                 />
             </View>
         )

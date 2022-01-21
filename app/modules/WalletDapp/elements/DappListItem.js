@@ -3,7 +3,7 @@
  * @author Vadym
  */
 
-import React from 'react'
+import React, { useState } from 'react'
 import {
     Image,
     Text,
@@ -12,10 +12,17 @@ import {
     StyleSheet
 } from 'react-native'
 
+import FastImage from 'react-native-fast-image'
+
 import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
 import { useTheme } from '@app/theme/ThemeProvider'
 
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+
+
 const DappListItem = (props) => {
+
+    const [errorLoad, setErrorLoad] = useState(false)
 
     const {
         colors,
@@ -23,6 +30,8 @@ const DappListItem = (props) => {
     } = useTheme()
 
     const { data, last, onPress } = props
+
+    const imgLink = `${BlocksoftExternalSettings.getStatic('DAPPS_IMAGE_LINK')}${data?.dappsDomenName}.png`
 
     return (
         <TouchableOpacity
@@ -32,12 +41,21 @@ const DappListItem = (props) => {
         >
             <AccountGradientBlock>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Image
-                        style={styles.logo}
-                        source={{
-                            uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/BMW_logo_%28gray%29.svg/2048px-BMW_logo_%28gray%29.svg.png'
-                        }}
-                    />
+                    {errorLoad ?
+                        <Image
+                            style={styles.logo}
+                            source={require('@assets/images/logoWithWhiteBG.png')}
+                        />
+                        :
+                        <FastImage
+                            style={styles.logo}
+                            source={{
+                                uri: imgLink,
+                                priority: FastImage.priority.normal,
+                            }}
+                            onError={() => setErrorLoad(true)}
+                        />
+                    }
                     <Text style={[styles.dappName, { color: colors.common.text1, marginLeft: GRID_SIZE / 2 }]}>{data.dappName}</Text>
                 </View>
             </AccountGradientBlock>
