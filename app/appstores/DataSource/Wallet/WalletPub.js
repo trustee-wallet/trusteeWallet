@@ -13,6 +13,8 @@ import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKey
 import BlocksoftAxios from '../../../../crypto/common/BlocksoftAxios'
 import BlocksoftFixBalance from '../../../../crypto/common/BlocksoftFixBalance'
 import BlocksoftExternalSettings from '../../../../crypto/common/BlocksoftExternalSettings'
+import config from '@app/config/config'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const CACHE = {}
 const CACHE_NOW_UPDATING = {}
@@ -279,13 +281,16 @@ class WalletPub {
         ])
         Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan discovered Xpub stared')
 
-        const trezorServer = await BlocksoftExternalSettings.getTrezorServer('BTC_TREZOR_SERVER', 'hdOn')
-        Log.daemon(`LINK1 ${trezorServer}/api/v2/xpub/${xpubs[0]}?details=tokens&tokens=used&gap=9999`)
-        Log.daemon(`LINK2 ${trezorServer}/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999`)
-        Log.daemon(`LINK2 ${trezorServer}/api/v2/xpub/${xpubs[2]}?details=tokens&tokens=used&gap=9999`)
-        const importCheckUsed = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[0]}?details=tokens&tokens=used&gap=9999&pageSize=20`)
-        const importCheckUsed1 = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[1]}?details=tokens&tokens=used&gap=9999&pageSize=20`)
-        const importCheckUsed2 = await BlocksoftAxios.getWithoutBraking(`${trezorServer}/api/v2/xpub/${xpubs[2]}?details=tokens&tokens=used&gap=9999&pageSize=20`)
+        const { apiEndpoints } = config.proxy
+        const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
+        const link2 = baseURL + '/btc/getXpubs'
+        const res2 = await BlocksoftAxios.post(link2, { xpubs })
+        if (!res2.data) {
+            return false
+        }
+        const importCheckUsed = res2.data[0] || false
+        const importCheckUsed1 = res2.data[1] || false
+        const importCheckUsed2 = res2.data[2] || false
         let toSave = false
         const xPubBalances = [
             {
