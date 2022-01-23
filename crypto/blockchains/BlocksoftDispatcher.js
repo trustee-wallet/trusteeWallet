@@ -69,6 +69,8 @@ import MetisScannerProcessor from '@crypto/blockchains/metis/MetisScannerProcess
 import OneScannerProcessor from '@crypto/blockchains/one/OneScannerProcessor'
 import OneScannerProcessorErc20 from '@crypto/blockchains/one/OneScannerProcessorErc20'
 
+import WavesScannerProcessorErc20 from '@crypto/blockchains/waves/WavesScannerProcessorErc20'
+
 class BlocksoftDispatcher {
 
     /**
@@ -176,6 +178,8 @@ class BlocksoftDispatcher {
                 return new OneScannerProcessor(currencyDictSettings)
             case 'ONE_ERC_20':
                 return new OneScannerProcessorErc20(currencyDictSettings)
+            case 'WAVES_ERC_20':
+                return new WavesScannerProcessorErc20(currencyDictSettings)
             default:
                 throw new Error('Unknown scannerProcessor ' + currencyDictSettings.scannerProcessor)
         }

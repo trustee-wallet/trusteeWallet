@@ -2391,5 +2391,25 @@
 		"tokenBlockchain": "ETHEREUM",
 		"tokenAddress": "0x558ec3152e2eb2174905cd19aea4e34a23de9ad6",
 		"currencyExplorerLink": "https://etherscan.io/token/0x558ec3152e2eb2174905cd19aea4e34a23de9ad6?a="
+	},
+	"WAVES_USDN": {
+		"currencyType": "token",
+		"currencyName": "USDN Waves",
+		"currencyCode": "WAVES_USDN",
+		"currencyIcon": "WAVES",
+		"currencySymbol": "USDN",
+		"addressProcessor": "WAVES",
+		"scannerProcessor": "WAVES_ERC_20",
+		"transferProcessor": "WAVES",
+		"prettyNumberProcessor": "UNIFIED",
+		"addressCurrencyCode": "WAVES",
+		"addressUiChecker": "WAVES",
+		"ratesCurrencyCode": "USDN",
+		"feesCurrencyCode": "WAVES",
+		"decimals": 6,
+		"tokenBlockchain": "WAVES",
+		"tokenAddress": "DG2xFkPdDwKUoBkzGAhQtLpSGzfXLiCYPEzeKH2Ad24p",
+		"currencyExplorerLink": "https://wavesexplorer.com/address/",
+		"currencyExplorerTxLink": "https://wavesexplorer.com/tx/"
 	}
 }
