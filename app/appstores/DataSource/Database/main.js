@@ -72,6 +72,16 @@ class Database {
     }
   }
 
+  async reInit() {
+    if (!this.#initStart) {
+      this.#initStart = true
+      let dbInit = new DBInit(this);
+      this.#maxVersion = await dbInit.init();
+      dbInit = null;
+      this.#initStart = false
+    }
+  }
+
   async checkVersion() {
     if (this.#checkTries > 100) return false
 

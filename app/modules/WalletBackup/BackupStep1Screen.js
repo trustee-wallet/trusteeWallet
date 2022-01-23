@@ -67,7 +67,7 @@ class BackupStep1Screen extends React.PureComponent {
         let walletMnemonicDefault
         try {
             if (flowType === 'DELETE_WALLET') {
-                const selectedWallet = await settingsActions.getSelectedWallet()
+                const selectedWallet = await settingsActions.getSelectedWallet('WalletBackup.BackupStep1Screen')
                 walletMnemonicDefault = await cryptoWallets.getWallet(selectedWallet, 'WalletBackup.BackupStep1Screen')
                 walletMnemonicDefault = walletMnemonicDefault.split(' ')
             } else {

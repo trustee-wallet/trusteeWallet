@@ -3,8 +3,8 @@
  **/
 import { Platform } from 'react-native'
 import { sublocale } from '../i18n'
-import MarketingEvent from '../Marketing/MarketingEvent'
 import Log from '../Log/Log'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default new class AppNotificationPushSave {
 
@@ -71,6 +71,7 @@ export default new class AppNotificationPushSave {
             }
         }
 
+        const walletHash = await settingsActions.getSelectedWallet('unifyPushAndSave')
         const result = {
             newsSource: 'PUSHES',
             newsGroup,
@@ -83,7 +84,7 @@ export default new class AppNotificationPushSave {
 
             newsCreated : new Date().getTime(),
             newsOpenedAt : null,
-            walletHash : MarketingEvent.DATA.LOG_WALLET,
+            walletHash ,
             id : 0
         }
         await Log.log('unifyPushAndSave result', result)

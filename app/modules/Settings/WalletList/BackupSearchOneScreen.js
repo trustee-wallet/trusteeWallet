@@ -61,7 +61,7 @@ class BackupSearchOneScreen extends React.PureComponent {
 
             setLoaderStatus(true)
 
-            const walletHash = await settingsActions.getSelectedWallet()
+            const walletHash = await settingsActions.getSelectedWallet('BackupSearchOneScreen')
 
             const sql = `SELECT account.wallet_hash AS walletHash, account.currency_code AS currencyCode, account.address, account.derivation_path as derivationPath
             FROM account

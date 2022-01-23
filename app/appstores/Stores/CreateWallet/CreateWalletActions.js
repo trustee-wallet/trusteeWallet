@@ -64,7 +64,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
     let storedKey
 
-    const prevWallet = await settingsActions.getSelectedWallet()
+    const prevWallet = await settingsActions.getSelectedWallet('proceedSaveGeneratedWallet')
 
     try {
         Log.log('ACT/MStore proceedSaveGeneratedWallet called prevWallet ' + prevWallet)

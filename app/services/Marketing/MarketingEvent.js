@@ -49,7 +49,7 @@ class MarketingEvent {
     /**
      * @return {Promise<void>}
      */
-    async initMarketing(testerMode) {
+    async initMarketing(testerMode, firstInit = false) {
         this.TG = new BlocksoftTg(changeableProd.tg.info.spamBot)
 
         if (typeof testerMode === 'undefined' || testerMode === false) {
@@ -99,7 +99,10 @@ class MarketingEvent {
         }
 
         // after this is a little bit long soooo we will pass variables any time we could
-        this.DATA.LOG_WALLET = await settingsActions.getSelectedWallet('MarketingEvent')
+        if (!firstInit) {
+            const walletHash = await settingsActions.getSelectedWallet('MarketingEvent')
+            this.setWalletHash(walletHash)
+        }
         const tmp = await trusteeAsyncStorage.getCacheBalance()
         if (tmp) {
             CACHE_BALANCE = tmp
@@ -111,11 +114,15 @@ class MarketingEvent {
         await this._reinitTgMessage(await trusteeAsyncStorage.getTesterMode())
     }
 
+    setWalletHash(walletHash) {
+        this.DATA.LOG_WALLET = walletHash
+    }
+
     async reinitByWallet(walletHash) {
         if (this.DATA.LOG_WALLET === walletHash) {
             return false
         }
-        this.DATA.LOG_WALLET = walletHash
+        this.setWalletHash(walletHash)
 
         await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET }, 'MarketingEvent')
 

@@ -9,6 +9,7 @@ import { SettingsKeystore } from './SettingsKeystore'
 import { fioSdkWrapper } from '@crypto/blockchains/fio/FioSdkWrapper'
 
 import * as RNLocalize from 'react-native-localize'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const { dispatch } = store
 
@@ -44,6 +45,7 @@ const settingsActions = {
             if (walletHash) {
                 await fioSdkWrapper.init(walletHash, source)
             }
+            await MarketingEvent.reinitByWallet(walletHash)
             return walletHash
         } catch (e) {
             Log.err('ACT/Settings getSelectedWallet ' + source + ' error ' + e.message)

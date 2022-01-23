@@ -192,7 +192,7 @@ class CashBackUtils {
         try {
             let tmpAuthHash = _requestAuthHash
             if (!tmpAuthHash) {
-                tmpAuthHash = await settingsActions.getSelectedWallet()
+                tmpAuthHash = await settingsActions.getSelectedWallet('createWalletSignature')
             }
             if (!tmpAuthHash) {
                 return false

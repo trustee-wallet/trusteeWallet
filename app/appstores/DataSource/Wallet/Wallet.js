@@ -225,8 +225,13 @@ class Wallet {
      */
     hasWallet = async () => {
         try {
-            const res = await Database.query(`SELECT wallet_hash FROM wallet LIMIT 1`)
-            return res && res.array && res.array[0]
+            let res = await Database.query(`SELECT name FROM sqlite_master WHERE type='table' AND name='wallet'`)
+            if (res && typeof res.array !== 'undefined' && res.array.length !== 0) {
+                res = await Database.query(`SELECT wallet_hash FROM wallet LIMIT 1`)
+                return res && res.array && res.array[0]
+            }
+            await Database.reInit()
+            return false
         } catch (e) {
             return false
         }

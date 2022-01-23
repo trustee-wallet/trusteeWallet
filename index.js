@@ -15,7 +15,7 @@ import PushNotification from 'react-native-push-notification'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import AppNotificationPopup from '@app/services/AppNotification/AppNotificationPopup'
 
-MarketingEvent.initMarketing(false)
+MarketingEvent.initMarketing(false, true)
 
 PushNotification.configure({
     // (required) Called when a remote is received or opened, or local notification is opened
