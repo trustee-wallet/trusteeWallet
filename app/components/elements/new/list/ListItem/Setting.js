@@ -132,6 +132,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='cpa' size={22} color={color} />
         case 'earn':
             return <CustomIcon name='earn' size={22} color={color} />
+        case 'blockchain':
+            return <CustomIcon name='blockchain' size={22} color={color} />
         default: return null
     }
 }

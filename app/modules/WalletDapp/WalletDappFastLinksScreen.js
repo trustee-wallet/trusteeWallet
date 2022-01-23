@@ -2,48 +2,63 @@
  * @version 0.50
  */
 import React, { PureComponent } from 'react'
+import {
+    StyleSheet,
+    ScrollView,
+    View,
+    ActivityIndicator
+} from 'react-native'
 import { connect } from 'react-redux'
-import { StyleSheet, ScrollView } from 'react-native'
+import { FlatList } from 'react-native-gesture-handler'
 
 import NavStore from '@app/components/navigation/NavStore'
+import ScrollingList from '@app/components/elements/new/ScrollingList'
+import DappListItem from './elements/DappListItem'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
+import WalletConnectNetworksDict from '@crypto/assets/WalletConnectNetworksDict.json'
+
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
-import { setWalletDapp, setWalletDappIncognito } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
+import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions' // setWalletDappIncognito
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 
 class WalletDappFastLinksScreen extends PureComponent {
+
+    state = {
+        selectedIndex: 0,
+        networks: [],
+        dapps: [],
+        localDapps: []
+    }
+
+    async componentDidMount() {
+        this.loadNetworks()
+        await this.loadDapps()
+        await this.handlefilterDapps(0)
+    }
 
     setDapp = async (item) => {
         setWalletDapp(item)
         NavStore.goNext('WalletDappWebViewScreen')
     }
 
-    handleIncognito = () => {
-        setWalletDappIncognito(!this.props.walletDappData.incognito)
+    loadNetworks = () => {
+        const networks = [{ "currencyCode": "ALL", "networkTitle": "All" }]
+
+        for (const key in WalletConnectNetworksDict) {
+            const item = WalletConnectNetworksDict[key]
+            networks.push(item)
+        }
+
+        this.setState({ networks })
     }
 
-    handleBack = () => {
-        NavStore.goBack()
-    }
+    loadDapps = async () => {
 
-    handleClose = () => {
-        NavStore.goBack()
-    }
-
-    render() {
-        MarketingAnalytics.setCurrentScreen('WalletDapp.FastLinkScreen')
-
-        const { dappCode, incognito } = this.props.walletDappData
-
-        const { GRID_SIZE } = this.context
-
-        const mapping = []
+        const localDapps = []
 
         const indexedCurrencies = {}
         for (const item of this.props.currencies) {
@@ -52,53 +67,100 @@ class WalletDappFastLinksScreen extends PureComponent {
         for (const key in dappsBlocksoftDict) {
             const item = dappsBlocksoftDict[key]
             if (typeof item.dappNetworks === 'undefined') {
-                mapping.push(item)
+                localDapps.push(item)
                 break
             }
             for (const code of item.dappNetworks) {
                 if (typeof indexedCurrencies[code] !== 'undefined') {
-                    mapping.push(item)
+                    localDapps.push(item)
                     break
                 }
             }
+
         }
+
+        this.setState({
+            dapps: localDapps
+        })
+    }
+
+    handleSelectIndex = async (selectedIndex) => {
+        this.setState({ selectedIndex })
+        await this.handlefilterDapps(selectedIndex)
+    }
+
+    handlefilterDapps = async (index) => {
+        const {
+            networks,
+            dapps
+        } = this.state
+
+        if (index === 0) {
+            this.setState({
+                localDapps: dapps
+            })
+        } else {
+            this.setState({
+                localDapps: dapps.filter(item => item.dappNetworks.includes(networks[index].currencyCode))
+            })
+        }
+    }
+
+    renderListItem = ({ item, index }) => {
+
+        const last = this.state.localDapps.length - 1 === index
+
         return (
-            <ScreenWrapper
-                leftType='back'
-                leftAction={this.handleBack}
-                rightType='close'
-                rightAction={this.handleClose}
-                title={'Dapps'}
+            <DappListItem
+                data={item}
+                last={last}
+                onPress={this.setDapp}
+            />
+        )
+    }
+
+    renderEmptyComponent = () => {
+
+        const {
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        return (
+            <View style={[styles.loader, { marginTop: GRID_SIZE }]}>
+                <ActivityIndicator
+                    color={colors.common.text1}
+                    size='large'
+                />
+            </View>
+        )
+    }
+
+    render() {
+        MarketingAnalytics.setCurrentScreen('WalletDapp.FastLinkScreen')
+
+        const { localDapps, networks, selectedIndex } = this.state
+
+        return (
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollViewContent}
+                keyboardShouldPersistTaps='handled'
                 setHeaderHeight={this.setHeaderHeight}
             >
-                <ScrollView
+                <ScrollingList
+                    data={networks}
+                    onPress={this.handleSelectIndex}
+                    active={selectedIndex}
+                />
+                <FlatList
+                    data={localDapps}
+                    keyExtractor={(item) => item.dappsDomenName.toString()}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={[styles.scrollViewContent, {
-                        padding: GRID_SIZE,
-                        paddingLeft: GRID_SIZE * 2
-                    }]}
-                    keyboardShouldPersistTaps='handled'
-                >
-                    <ListItem
-                        key='clean'
-                        title='Open new session if possible'
-                        checked={incognito}
-                        onPress={() => this.handleIncognito()}
-                        rightContent='checkbox'
-                    />
-                    {
-                        mapping.map((item, index) => (
-                            <ListItem
-                                key={item.dappCode}
-                                checked={item.dappCode === dappCode}
-                                title={item.dappName}
-                                onPress={() => this.setDapp(item)}
-                                rightContent='arrow'
-                            />
-                        ))
-                    }
-                </ScrollView>
-            </ScreenWrapper>
+                    renderItem={this.renderListItem}
+                    ListEmptyComponent={this.renderEmptyComponent}
+                />
+            </ScrollView>
         )
     }
 }

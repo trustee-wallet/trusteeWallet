@@ -38,7 +38,7 @@ import PercentView from '@app/components/elements/new/PercentView'
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
 
 import InfoProgressBar from './elements/InfoProgressBar'
-import AccountGradientBlock from '../elements/AccountGradientBlock'
+import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
 import { handleTrxScan, handleFreezeTrx, handleUnFreezeTrx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
 import Loader from '@app/components/elements/LoaderItem'
 
@@ -97,7 +97,7 @@ class AccountStakingTRX extends React.PureComponent {
     async componentDidMount() {
 
         await handleTrxScan.call(this)
-        
+
         const { account } = this.props
         const address = account.address
 

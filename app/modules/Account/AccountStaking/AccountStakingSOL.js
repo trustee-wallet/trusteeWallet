@@ -47,7 +47,7 @@ import whiteLoader from '@assets/jsons/animations/refreshWhite.json'
 
 import StakingItem from './sol/StakingItem'
 import RewardItem from './sol/SolRewardItem'
-import AccountGradientBlock from '../elements/AccountGradientBlock'
+import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
 import { diffTimeScan } from '../helpers'
 import { handlePartBalance, handleSolScan, handleSolStake } from './helper'
 
