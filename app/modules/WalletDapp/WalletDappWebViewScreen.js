@@ -157,6 +157,7 @@ class WalletDappWebViewScreen extends PureComponent {
 
 
     onMessage = async (e) => {
+
         let showLog = false
         if (config.debug.appErrors) {
             if (e.nativeEvent.data.indexOf('eth_accounts') === -1 && e.nativeEvent.data.indexOf('net_version') === -1) {
@@ -307,9 +308,7 @@ class WalletDappWebViewScreen extends PureComponent {
                     onShouldStartLoadWithRequest={this.handleWebViewNavigationTestLink}
 
                     injectedJavaScript={prepared}
-                    onMessage={(e) => {
-                        this.onMessage(e)
-                    }}
+                    onMessage={this.onMessage}
 
                     onError={(e) => {
                         Log.err('WalletDapp.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
@@ -320,15 +319,14 @@ class WalletDappWebViewScreen extends PureComponent {
                     }}
 
                     renderLoading={this.renderLoading}
-                    renderError={() => {
-                        this.renderError()
-                    }}
+                    renderError={this.renderError}
 
                     javaScriptEnabled={true}
                     useWebKit={true}
                     startInLoadingState={true}
                     allowsInlineMediaPlayback={true}
                     allowsBackForwardNavigationGestures={true}
+                    userAgent='Mozilla/5.0 (Linux; Android 10; MI 8 Build/QKQ1.190828.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/96.0.4664.45 Mobile Safari/537.36'
                 />
             </ScreenWrapper>
         )
