@@ -94,14 +94,14 @@ const currencyActions = {
                 if (config.debug.appErrors) {
                     console.log('ACT/Currency checkIsCurrencySynchronized no account ' + currencyCode, params)
                 }
-                Log.log('ACT/Currency checkIsCurrencySynchronized no account ' + currencyCode, params)
+                // Log.log('ACT/Currency checkIsCurrencySynchronized no account ' + currencyCode, params)
                 return false
             }
             if (!params.account.balanceScanTime) {
                 if (config.debug.appErrors) {
                     // console.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
                 }
-                Log.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
+                // Log.log('ACT/Currency checkIsCurrencySynchronized no account.balanceScanTime ' + currencyCode, params.account)
                 return false
             }
             return true
