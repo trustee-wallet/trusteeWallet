@@ -124,7 +124,8 @@ const CACHE = {
     'INVOICE_URL_EN' : 'https://trusteeglobal.com/',
     'INVOICE_URL_RU' : 'https://trusteeglobal.com/ru',
     'INVOICE_URL_UK' : 'https://trusteeglobal.com/uk',
-    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  }
+    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  },
+    'DAPPS_IMAGE_LINK': 'https://raw.githubusercontent.com/trustee-wallet/trusteeWalletAssets/main/dapps/'
 }
 
 

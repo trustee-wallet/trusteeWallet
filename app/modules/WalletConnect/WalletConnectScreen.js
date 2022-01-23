@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 
 import { connect } from 'react-redux'
+import { TabView } from 'react-native-tab-view'
 
 import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import NavStore from '@app/components/navigation/NavStore'
@@ -39,14 +40,15 @@ import { getWalletConnectData } from '@app/appstores/Stores/WalletConnect/select
 
 import InfoNotification from '@app/components/elements/new/InfoNotification'
 import Button from '@app/components/elements/new/buttons/Button'
-import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
-
+import Tabs from '@app/components/elements/new/cashbackTabs'
+import Message from '@app/components/elements/new/Message'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import GradientView from '@app/components/elements/GradientView'
 
-import colorDict from '@app/services/UIDict/UIDictData'
+import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
+import WalletDappFastLinksScreen from '@app/modules/WalletDapp/WalletDappFastLinksScreen'
 
-import Message from '@app/components/elements/new/Message'
+import colorDict from '@app/services/UIDict/UIDictData'
 
 import {
     handleApplyLink,
@@ -80,7 +82,18 @@ class WalletConnectScreen extends PureComponent {
         peerId: false,
         peerStatus: false,
         inputFullLink: '',
-        linkError: false
+        linkError: false,
+        routes: [
+            {
+                title: 'wc',
+                key: 'first'
+            },
+            {
+                title: 'dapps',
+                key: 'second'
+            }
+        ],
+        index: 0
     }
 
     linkInput = React.createRef()
@@ -88,6 +101,12 @@ class WalletConnectScreen extends PureComponent {
     componentDidMount() {
         BackHandler.addEventListener('hardwareBackPress', this.handleLogout)
         this._setLink(this.props.walletConnectData.fullLink)
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.walletConnectData.fullLink !== this.props.walletConnectData.fullLink) {
+            this._setLink(this.props.walletConnectData.fullLink)
+        }
     }
 
     _setLink(fullLink) {
@@ -239,10 +258,6 @@ class WalletConnectScreen extends PureComponent {
         NavStore.goNext('WalletConnectChangeNetworkScreen')
     }
 
-    handleFastLinks = () => {
-        NavStore.goNext('WalletDappFastLinksScreen')
-    }
-
     handleLastDapp = () => {
         NavStore.goNext('WalletDappWebViewScreen')
     }
@@ -256,11 +271,24 @@ class WalletConnectScreen extends PureComponent {
         return currencyCode
     }
 
-    render() {
+    handleTabChange = index => {
+        this.setState({index})
+    }
 
-        MarketingAnalytics.setCurrentScreen('WalletConnect')
-        UpdateAccountListDaemon.pause()
-        UpdateOneByOneDaemon.pause()
+    renderTabs = () => <Tabs active={this.state.index} tabs={this.state.routes} changeTab={this.handleTabChange} />
+
+    renderScene = ({ route }) => {
+        switch (route.key) {
+            case 'first':
+                return this.renderFirstRoute()
+            case 'second':
+                return this.renderSecondRoute()
+            default:
+                return null
+        }
+    }
+
+    renderFirstRoute = () => {
 
         const {
             GRID_SIZE,
@@ -279,22 +307,10 @@ class WalletConnectScreen extends PureComponent {
 
         const textCondition = condition ? typeof this.state.peerMeta.url !== 'undefined' ? this.state.peerMeta.url : '' : strings('settings.walletConnect.unconnectedText')
 
-        const { dappCode, dappName, dappUrl, incognito } = this.props.walletDappData
+        const { dappCode, dappName } = this.props.walletDappData
 
-        return (
-            <ScreenWrapper
-                leftType='back'
-                leftAction={() => this.handleLogout(this.handleBack)}
-                rightType='close'
-                rightAction={() => this.handleLogout(this.handleClose)}
-                title={strings('settings.walletConnect.title')}
-            >
-                <View style={[styles.mainButton, { bottom: GRID_SIZE, paddingHorizontal: GRID_SIZE }]}>
-                    <Button
-                        onPress={peerStatus ? this.handleDisconnect : this.handleConnect}
-                        title={peerStatus ? strings('settings.walletConnect.disconnect') : strings('settings.walletConnect.connect')}
-                    />
-                </View>
+        return(
+            <>
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={[styles.scrollViewContent, { paddingBottom: GRID_SIZE * 4.5 }]}
@@ -304,9 +320,9 @@ class WalletConnectScreen extends PureComponent {
                         <View style={{ overflow: 'hidden' }}>
                             <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE, backgroundColor: colors.common.roundButtonContent }]}>
                                 {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus ?
-                                    <Image style={styles.image} resizeMode='center' source={{
+                                    <Image style={styles.image} resizeMode='cover' source={{
                                         uri: this.state.peerMeta.icons !== 'undefined' ? this.state.peerMeta.icons[0] : ''
-                                    }} /> : <CustomIcon name='walletConnect' color='#555555' size={40} style={styles.walletConnectLogo}/>
+                                    }} /> : <CustomIcon name='walletConnect' color='#555555' size={40} style={styles.walletConnectLogo} />
                                 }
                                 {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus &&
                                     <View style={[styles.icon__mark, { backgroundColor: colors.common.iconMarkBg }]}>
@@ -314,14 +330,12 @@ class WalletConnectScreen extends PureComponent {
                                     </View>
                                 }
                             </View>
-
                             <View style={{ marginVertical: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE }}>
                                 <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
                                     <Text style={[styles.peerMetaName, { color: colors.common.text1 }]}>{titleCondition}</Text>
                                     <Text style={styles.peerMetaUrl}>{textCondition}</Text>
                                 </View>
                             </View>
-
                             {this.state.peerId && typeof this.state.peerMeta !== 'undefined' && peerStatus &&
                                 <View style={{ paddingHorizontal: GRID_SIZE, marginTop: -GRID_SIZE / 2 }}>
                                     <TransactionItem
@@ -331,7 +345,6 @@ class WalletConnectScreen extends PureComponent {
                                     />
                                 </View>
                             }
-
                             {!peerStatus &&
                                 <>
                                     <View style={{ ...styles.linkInput, margin: GRID_SIZE }}>
@@ -350,6 +363,8 @@ class WalletConnectScreen extends PureComponent {
                                             addressError={linkError}
                                             qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
                                             validPlaceholder={true}
+                                            containerStyle={{ height: 50 }}
+                                            inputStyle={{ marginTop: -5 }}
                                         />
                                     </View>
                                     {linkError &&
@@ -360,39 +375,29 @@ class WalletConnectScreen extends PureComponent {
                                             containerStyles={{ marginTop: 12, marginHorizontal: GRID_SIZE }}
                                         />
                                     }
-                                    <View style={{ marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
-                                        <ListItem
-                                            title={'Dapps'}
-                                            subtitle={'some popular dapps for you'}
-                                            iconType="scanning"
-                                            onPress={this.handleFastLinks}
-                                            rightContent="arrow"
-                                        />
-                                    </View>
+
                                 </>
                             }
                         </View>
-
-                        {dappCode &&
-                        <View style={{ marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
-                            <ListItem
-                                title={'Last Dapp'}
-                                subtitle={dappName}
-                                iconType="scanning"
-                                onPress={this.handleLastDapp}
-                                rightContent="arrow"
-                                last
-                            />
-                        </View>
-                        }
-
-                        { this.props.walletConnectData.mainCurrencyCode && peerStatus &&
-                            <View style={{ marginVertical: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
+                        {this.props.walletConnectData.mainCurrencyCode && peerStatus &&
+                            <View style={{ marginTop: GRID_SIZE / 2, marginHorizontal: GRID_SIZE }}>
                                 <ListItem
                                     title={strings('settings.walletConnect.changeNetwork')}
                                     subtitle={this.getNetwork(this.props.walletConnectData.mainCurrencyCode)}
-                                    iconType="scanning"
+                                    iconType='blockchain'
                                     onPress={this.handleChangeNetwork}
+                                    rightContent='arrow'
+                                    last
+                                />
+                            </View>
+                        }
+                        {dappCode && peerStatus &&
+                            <View style={{ marginHorizontal: GRID_SIZE }}>
+                                <ListItem
+                                    title={strings('settings.walletConnect.returnDapp')}
+                                    subtitle={dappName}
+                                    iconType="scanning"
+                                    onPress={this.handleLastDapp}
                                     rightContent="arrow"
                                     last
                                 />
@@ -405,22 +410,78 @@ class WalletConnectScreen extends PureComponent {
                                 <InfoNotification
                                     title={strings('settings.walletConnect.notificationTitle')}
                                     subTitle={strings('settings.walletConnect.notificationText', { name: this.state.peerMeta.name })}
-                                    iconType="warningMessage"
+                                    iconType='warningMessage'
                                 />
                             </View>
                         }
                     </View>
                 </ScrollView>
+                <View style={[styles.mainButton, { bottom: GRID_SIZE, paddingHorizontal: GRID_SIZE }]}>
+                    <Button
+                        onPress={peerStatus ? this.handleDisconnect : this.handleConnect}
+                        title={peerStatus ? strings('settings.walletConnect.disconnect') : strings('settings.walletConnect.connect')}
+                    />
+                </View>
                 <GradientView
                     style={styles.bottomButtons}
                     array={colors.accountScreen.bottomGradient}
                     start={styles.containerBG.start}
                     end={styles.containerBG.end}
                 />
+            </>
+        )
+    }
+
+    renderSecondRoute = () => {
+
+        const {
+            colors
+        } = this.context
+
+        return (
+            <>
+                <WalletDappFastLinksScreen />
+                <GradientView
+                    style={styles.bottomButtons}
+                    array={colors.accountScreen.bottomGradient}
+                    start={styles.containerBG.start}
+                    end={styles.containerBG.end}
+                />
+            </>
+        )
+    }
+
+    render() {
+
+        MarketingAnalytics.setCurrentScreen('WalletConnect')
+        UpdateAccountListDaemon.pause()
+        UpdateOneByOneDaemon.pause()
+
+        return (
+            <ScreenWrapper
+                leftType='back'
+                leftAction={() => this.handleLogout(this.handleBack)}
+                rightType='close'
+                rightAction={() => this.handleLogout(this.handleClose)}
+                title={strings('settings.walletConnect.title')}
+                ExtraView={this.renderTabs}
+            >
+                <TabView
+                    renderScene={this.renderScene}
+                    onIndexChange={this.handleTabChange}
+                    navigationState={this.state}
+                    renderTabBar={() => null}
+                    renderHeader={null}
+                    useNativeDriver
+                />
             </ScreenWrapper>
         )
     }
 }
+
+
+
+
 
 const mapStateToProps = (state) => {
     return {
