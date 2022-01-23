@@ -157,17 +157,6 @@ class WalletDappWebViewScreen extends PureComponent {
 
 
     onMessage = async (e) => {
-        console.log()
-        console.log()
-        console.log()
-        console.log()
-        console.log()
-        console.log('eeeeee', e)
-        console.log()
-        console.log()
-        console.log()
-        console.log()
-        console.log()
 
         let showLog = false
         if (config.debug.appErrors) {
