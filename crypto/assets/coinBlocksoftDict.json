@@ -2411,5 +2411,33 @@
 		"tokenAddress": "DG2xFkPdDwKUoBkzGAhQtLpSGzfXLiCYPEzeKH2Ad24p",
 		"currencyExplorerLink": "https://wavesexplorer.com/address/",
 		"currencyExplorerTxLink": "https://wavesexplorer.com/tx/"
+	},
+	"WAVES_USDT": {
+		"currencyType": "token",
+		"currencyName": "USDT Waves",
+		"currencyCode": "WAVES_USDT",
+		"currencySymbol": "USDT",
+		"extendsProcessor": "WAVES_USDN",
+		"addressUiChecker": "WAVES",
+		"ratesCurrencyCode": "USDT",
+		"decimals": 6,
+		"tokenBlockchain": "WAVES",
+		"tokenAddress": "34N9YcEETLWn93qYQ64EsP1x89tSruJU44RrEMSXXEPJ",
+		"currencyExplorerLink": "https://wavesexplorer.com/address/",
+		"currencyExplorerTxLink": "https://wavesexplorer.com/tx/"
+	},
+	"WAVES_USDC": {
+		"currencyType": "token",
+		"currencyName": "USDC Waves",
+		"currencyCode": "WAVES_USDC",
+		"currencySymbol": "USDT",
+		"extendsProcessor": "WAVES_USDN",
+		"addressUiChecker": "WAVES",
+		"ratesCurrencyCode": "USDC",
+		"decimals": 6,
+		"tokenBlockchain": "WAVES",
+		"tokenAddress": "6XtHjpXbs9RRJP2Sr9GUyVqzACcby9TkThHXnjVC5CDJ",
+		"currencyExplorerLink": "https://wavesexplorer.com/address/",
+		"currencyExplorerTxLink": "https://wavesexplorer.com/tx/"
 	}
 }
