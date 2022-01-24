@@ -2439,5 +2439,25 @@
 		"tokenAddress": "6XtHjpXbs9RRJP2Sr9GUyVqzACcby9TkThHXnjVC5CDJ",
 		"currencyExplorerLink": "https://wavesexplorer.com/address/",
 		"currencyExplorerTxLink": "https://wavesexplorer.com/tx/"
+	},
+	"ASH_SKRYPIN": {
+		"currencyType": "token",
+		"currencyName": "Skrypin Aeneas",
+		"currencyCode": "ASH_SKRYPIN",
+		"currencyIcon": "ASH",
+		"currencySymbol": "SKRYPIN",
+		"addressProcessor": "ASH",
+		"scannerProcessor": "WAVES_ERC_20",
+		"transferProcessor": "WAVES",
+		"prettyNumberProcessor": "UNIFIED",
+		"addressCurrencyCode": "ASH",
+		"addressUiChecker": "ASH",
+		"ratesCurrencyCode": "SKRYPIN",
+		"feesCurrencyCode": "ASH",
+		"decimals": 8,
+		"tokenBlockchain": "ASH",
+		"tokenAddress": "H4hpkUDJGVr1HGXvDq8gYpoQ4zT94quVj4AYK2GihbHW",
+		"currencyExplorerLink": "http://explorer.aeneas.id/address/",
+		"currencyExplorerTxLink": "http://explorer.aeneas.id/tx/"
 	}
 }
