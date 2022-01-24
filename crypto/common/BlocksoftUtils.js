@@ -7,6 +7,24 @@ const Web3 = require('web3')
 
 class BlocksoftUtils {
 
+    static cutZeros(val) {
+        const tmp = val.toString().split('.')
+        if (typeof tmp[1] === 'undefined' || !tmp[1]) return tmp[0]
+
+        let firstNonZero = -1
+        let i = tmp[1].length - 1
+        do {
+            const char = tmp[1][i]
+            if (char !== '0') {
+                firstNonZero = i
+            }
+            i--
+        } while (firstNonZero === -1 && i >= 0)
+        const last = tmp[1].substr(0, firstNonZero + 1)
+        if (!last || last === '') return tmp[0]
+        return tmp[0] + '.' + last
+    }
+
     static round(val) {
         const tmp = val.toString().split('.')
         return tmp[0].replace(' ', '')
