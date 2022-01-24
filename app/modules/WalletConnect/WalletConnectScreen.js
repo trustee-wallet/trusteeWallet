@@ -63,6 +63,8 @@ import {
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
 
+let CACHE_LINK = ''
+
 const getIcon = (block, isLight) => {
     return(
         <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
@@ -110,14 +112,31 @@ class WalletConnectScreen extends PureComponent {
     }
 
     _setLink(fullLink) {
-        if (!fullLink || fullLink === '' || fullLink === this.state.inputFullLink) {
+        const { inputFullLink } = this.state
+        if (!fullLink || fullLink === '' || fullLink === inputFullLink) {
             return false
         }
+
         if (this.linkInput) {
-            this.setState({
-                inputFullLink: fullLink
-            })
-            this.linkInput.handleInput(fullLink, false)
+            if (fullLink.length <= 50) {
+                if (CACHE_LINK.indexOf(fullLink) === 0) {
+
+                    this.setState({
+                        inputFullLink: CACHE_LINK
+                    })
+                } else {
+                    this.setState({
+                        linkError: true
+                    })
+                }
+            } else {
+                this.setState({
+                    inputFullLink: fullLink
+                })
+                CACHE_LINK = fullLink
+            }
+
+            this.linkInput.handleInput(inputFullLink, false)
             setTimeout(() => {
                 this.handleLinkApply(true)
             }, 0)
@@ -557,7 +576,7 @@ const styles = {
     peerMetaName: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,
-        lineHeight: 17,
+        lineHeight: 21,
         textAlign: 'center',
         marginBottom: 3
     },
