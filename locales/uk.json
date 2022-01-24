@@ -1275,7 +1275,8 @@
       "1min": "Щохвилини"
     },
     "lastScan": "Ваші баланси відскановано о:",
-    "helper": "Ви можете обрати частоту самостійно"
+    "helper": "Ви можете обрати частоту самостійно",
+    "clean" : "Rescan selected wallet again"
    },
   "loggingSettings": {
     "title": "Логування",

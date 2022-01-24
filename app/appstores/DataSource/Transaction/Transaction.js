@@ -83,6 +83,11 @@ class Transaction {
         }
     }
 
+    cleanAll = async (walletHash) => {
+        const sql = `DELETE FROM transactions WHERE wallet_hash='${walletHash}'`
+        return Database.query(sql)
+    }
+
     /**
      *
      * @param transaction.accountId

@@ -1274,7 +1274,8 @@
       "1min": "Every minute"
     },
     "lastScan": "Your balances have scanned at:",
-    "helper": "But you can choose frequency yourself"
+    "helper": "But you can choose frequency yourself",
+    "clean" : "Rescan selected wallet again"
   },
   "loggingSettings": {
     "title": "Logging",

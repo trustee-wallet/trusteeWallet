@@ -1275,7 +1275,8 @@
       "1min": "Toutes les minutes"
     },
     "lastScan": "Vos soldes ont été scannés à:",
-    "helper": "Mais vous pouvez choisir la fréquence vous-même"
+    "helper": "Mais vous pouvez choisir la fréquence vous-même",
+    "clean" : "Rescan selected wallet again"
   },
   "loggingSettings": {
     "title": "Journal d'enregistrement",

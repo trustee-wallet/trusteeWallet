@@ -16,7 +16,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 130,
+        maxVersion: 131,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -928,6 +928,12 @@ export default function getTableUpdateQueries() {
             130: {
                 afterFunction: async (dbInterface) => {
                     await dbInterface.query(`DELETE FROM account WHERE wallet_hash NOT LIKE '2863e6c80b4d287969d91f74ac974df9' AND address='0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99'`)
+                }
+            },
+
+            131: {
+                afterFunction: async (dbInterface) => {
+                    await dbInterface.query(`DELETE FROM transactions_scanners_tmp WHERE currency_code='XRP'`)
                 }
             },
         }

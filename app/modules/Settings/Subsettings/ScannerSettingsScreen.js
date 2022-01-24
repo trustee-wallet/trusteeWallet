@@ -8,6 +8,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native'
 import NavStore from '@app/components/navigation/NavStore'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 
 import { strings } from '@app/services/i18n'
 
@@ -18,6 +19,9 @@ import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+import ListItemMain from '@app/components/elements/new/list/ListItem/Setting'
+import Toast from '@app/services/UI/Toast/Toast'
+import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
 const SCANNER_SETTINGS = [
     {
@@ -42,6 +46,16 @@ class ScannerSettingsScreen extends PureComponent {
     setCode = async (item) => {
         await settingsActions.setSettings('scannerCode', item.code)
         this.handleBack()
+    }
+
+    cleanAll = async () => {
+        try {
+            const { walletHash } = this.props.selectedWallet
+            await transactionDS.cleanAll(walletHash)
+            Toast.setMessage('cleaned').show()
+        } catch (e) {
+            Toast.setMessage('error ' + e.message).show()
+        }
     }
 
     handleBack = () => { NavStore.goBack() }
@@ -91,6 +105,14 @@ class ScannerSettingsScreen extends PureComponent {
                             />
                         ))
                     }
+
+                    <ListItemMain
+                        key='clear'
+                        title={strings(`scannerSettings.clean`)}
+                        onPress={() => this.cleanAll()}
+                        iconType='shareLogs'
+                    />
+
                 </ScrollView>
             </ScreenWrapper>
         )
@@ -99,6 +121,7 @@ class ScannerSettingsScreen extends PureComponent {
 
 const mapStateToProps = (state) => {
     return {
+        selectedWallet: getSelectedWalletData(state),
         settingsData: getSettingsScreenData(state),
     }
 }
