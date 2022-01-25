@@ -23,6 +23,7 @@ import { proceedSaveGeneratedWallet } from '@app/appstores/Stores/CreateWallet/C
 
 import walletCreateVideo from '@assets/videos/KeyAndSeed.mp4'
 
+import { deleteUserPinCode } from '@haskkor/react-native-pincode'
 
 const MNEMONIC_PHRASE_LENGTH = 128
 
@@ -43,6 +44,8 @@ class WalletCreateWithAnimation extends PureComponent {
     }
 
     createWallet = async () => {
+        deleteUserPinCode()
+
         let walletMnemonic = ''
         let walletName = ''
 
@@ -68,7 +71,7 @@ class WalletCreateWithAnimation extends PureComponent {
                 e.message += ' while WalletCreateWithAnimation.createWallet'
                 throw e
             }
-            
+
         } catch {
             Log.log('WalletCreateWithAnimation.createWallet error mnemonic generation')
         }
