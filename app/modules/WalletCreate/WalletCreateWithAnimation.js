@@ -3,7 +3,7 @@
  * @author yura
  */
 import React, { PureComponent } from 'react'
-import { View, StyleSheet, Platform, StatusBar } from 'react-native'
+import { View, StyleSheet, Platform, StatusBar, BackHandler } from 'react-native'
 import Video from 'react-native-video';
 
 import NavStore from '@app/components/navigation/NavStore';
@@ -19,7 +19,7 @@ import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions';
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions';
 import App from '@app/appstores/Actions/App/App'
-import { setCallback, setFlowType, setMnemonicLength, setWalletMnemonic, setWalletName, proceedSaveGeneratedWallet } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+import { proceedSaveGeneratedWallet } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
 import walletCreateVideo from '@assets/videos/KeyAndSeed.mp4'
 
@@ -29,16 +29,17 @@ const MNEMONIC_PHRASE_LENGTH = 128
 class WalletCreateWithAnimation extends PureComponent {
 
     async componentDidMount() {
+        this.backButtonHandler = this.backButtonHandler.bind(this);
+        BackHandler.addEventListener('backPress', this.backButtonHandler);
         this.createWallet()
     }
 
     componentWillUnmount() {
+        BackHandler.removeEventListener('backPress', this.backButtonHandler);
     }
 
-    handleGreateWallet = (data) => {
-        setFlowType(data)
-        setCallback({ callback: 'InitScreen' })
-        setMnemonicLength({ mnemonicLength: MNEMONIC_PHRASE_LENGTH })
+    backButtonHandler() {
+        return true;
     }
 
     createWallet = async () => {
@@ -47,11 +48,8 @@ class WalletCreateWithAnimation extends PureComponent {
 
         try {
             walletMnemonic = (await BlocksoftKeys.newMnemonic(MNEMONIC_PHRASE_LENGTH)).mnemonic
-
             walletName = await walletActions.getNewWalletName()
 
-            setWalletMnemonic({ walletMnemonic })
-            setWalletName({ walletName })
 
             try {
                 await proceedSaveGeneratedWallet({
@@ -70,7 +68,7 @@ class WalletCreateWithAnimation extends PureComponent {
                 e.message += ' while WalletCreateWithAnimation.createWallet'
                 throw e
             }
-
+            
         } catch {
             Log.log('WalletCreateWithAnimation.createWallet error mnemonic generation')
         }
@@ -86,12 +84,10 @@ class WalletCreateWithAnimation extends PureComponent {
         }
 
         MarketingEvent.logEvent('gx_view_create_gif_screen_tap_create', { number: '1', source: 'WalletCreateWithAnimation' }, 'GX')
-        this.handleGreateWallet({ flowType: 'CREATE_NEW_WALLET_GIF', source: 'WalletCreateWithAnimation', walletNumber: 1 })
 
     }
 
     handleGoHomeScreen = () => {
-        setCallback({ callback: null })
         NavStore.reset('TabBar')
     }
 
