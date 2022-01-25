@@ -362,7 +362,7 @@
     "enterInviteLinkPlaceholder": "Введите ссылку-приглашение",
     "applyButton": "Применить",
     "wholeBalance": "Баланс за все время",
-    "availableCashBack": "Доступный кешбэк",
+    "availableCashBack": "Общий баланс",
     "balanceTitle": "Баланс",
     "toWithdraw": "Мин. сумма вывода:",
     "cpaTotal": "Всего CPA",
@@ -420,7 +420,8 @@
     "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Вывести",
     "minWithdraw": "Минимальная сумма для вывода",
-    "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм"
+    "performWithdraw": "Чтобы вывести награду свяжитесь с нашей службой поддержки и предоставьте Вашу кэшбэк ссылку и адрес Tron (TRX) из приложения",
+    "withdrawSupport": "Поддержка"
   },
   "account": {
     "staking": "Стейкинг",

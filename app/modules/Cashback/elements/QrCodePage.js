@@ -18,6 +18,7 @@ import QrCodeBox from '@app/components/elements/QrCodeBox'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 import qrLogo from '@assets/images/logoWithWhiteBG.png'
 
 import { strings } from '@app/services/i18n'
@@ -33,7 +34,6 @@ import { showModal, hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { HIT_SLOP } from '@app/theme/HitSlop'
-import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -201,7 +201,7 @@ class QrCodePage extends PureComponent {
                         <Text style={[styles.yourToken, { color: colors.common.text3, marginTop: GRID_SIZE / 2 }]}>{strings('cashback.yourToken')}</Text>
 
                     </View>
-                    <View style={[styles.inviteContainer, styles.tokenBox, { marginTop: GRID_SIZE * 4, paddingHorizontal: GRID_SIZE * 1.6 }]}>
+                    <View style={[{ position: 'relative', bottom: -GRID_SIZE * 2 }]}>
                         <TouchableDebounce
                             onPress={() => this.handleBackDropModal(this.state.promoCode)}
                             activeOpacity={0.9}
