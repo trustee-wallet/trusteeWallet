@@ -362,7 +362,7 @@
     "enterInviteLinkPlaceholder": "Entrer le lien d'invité",
     "applyButton": "Appliquer",
     "wholeBalance": "Tout solde",
-    "availableCashBack": "Cashback disponible",
+    "availableCashBack": "équilibre global",
     "balanceTitle": "Solde",
     "toWithdraw": "à retirer nécessaire :",
 
@@ -420,7 +420,8 @@
     "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Retrait",
     "minWithdraw": "Montant minimum du retrait",
-    "performWithdraw": "Pour effectuer le retrait, s'il vous plaît, écrivez votre surnom sur Télégram"
+    "performWithdraw": "Pour retirer votre récompense, contactez notre support et fournissez votre lien de cashback et votre adresse Tron (TRX) depuis l'application",
+    "retirerSupport": "Soutenir"
   },
   "account": {
     "staking": "Staking",
