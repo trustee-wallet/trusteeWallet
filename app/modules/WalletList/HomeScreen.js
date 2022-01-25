@@ -169,6 +169,8 @@ class HomeScreen extends React.PureComponent {
 
         const balanceData = getBalanceData(this.props)
 
+        const { walletIsCreatedHere } = this.props.selectedWalletData
+
         return {
             ref: this.props.scrollRef,
             showsVerticalScrollIndicator: false,
@@ -198,6 +200,7 @@ class HomeScreen extends React.PureComponent {
             renderItem: ({ item }) => (
                 <CryptoCurrency
                     cryptoCurrency={item}
+                    walletIsCreatedHere={walletIsCreatedHere}
                     isBalanceVisible={this.state.isBalanceVisible}
                     handleReceive={account => handleReceive(item, account)}
                     handleSend={account => handleSend(item, account)}

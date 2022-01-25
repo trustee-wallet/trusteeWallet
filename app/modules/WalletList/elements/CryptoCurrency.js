@@ -83,6 +83,8 @@ class CryptoCurrency extends React.PureComponent {
             if (ratePrep.toString() === '0') {
                 ratePrep = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate, 8).separated
             }
+        } else {
+            ratePrep = ''
         }
 
         const priceChangePercentage24h = cryptoCurrency.priceChangePercentage24h * 1 || 0
@@ -91,10 +93,14 @@ class CryptoCurrency extends React.PureComponent {
         const basicBalancePrep = account.basicCurrencyBalance
 
         let isSynchronized = true
-        try {
-            isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
-        } catch (e) {
-            Log.err('HomeScreen.Currency render ' + e.message)
+        if (this.props.walletIsCreatedHere) {
+            // do nothing as its from creation
+        } else {
+            try {
+                isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
+            } catch (e) {
+                Log.err('HomeScreen.Currency render ' + e.message)
+            }
         }
 
         const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)

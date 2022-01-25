@@ -16,7 +16,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 131,
+        maxVersion: 132,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -935,6 +935,10 @@ export default function getTableUpdateQueries() {
                 afterFunction: async (dbInterface) => {
                     await dbInterface.query(`DELETE FROM transactions_scanners_tmp WHERE currency_code='XRP'`)
                 }
+            },
+
+            132: {
+                queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_created_here INTEGER NULL`
             },
         }
     }
