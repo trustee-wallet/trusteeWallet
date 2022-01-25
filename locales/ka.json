@@ -360,7 +360,7 @@
     "enterInviteLinkPlaceholder": "შეიყვანე მოსაწვევი ბმული",
     "applyButton": "დადასტურება",
     "wholeBalance": "Balance for the whole time",
-    "availableCashBack": "Available cashback",
+    "availableCashBack": "საერთო ბალანსი",
     "balanceTitle": "Balance",
     "toWithdraw": "Min. withdraw amount:",
     "cpaTotal": "Total CPA",
@@ -417,7 +417,8 @@
     "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "თანხის გატანა",
     "minWithdraw": "მინიმალური თანხა გასატანად",
-    "performWithdraw": "გატანის ოპერაციის განსახორციელებლად, გთხოვთ, მოგვწეროთ telegram-ში ნიკნეიმზე"
+    "performWithdraw": "To withdraw your reward, contact our support and provide your cashback link and Tron (TRX) address from the app",
+    "withdrawSupport": "Support"
   },
   "account": {
     "staking": "Staking",

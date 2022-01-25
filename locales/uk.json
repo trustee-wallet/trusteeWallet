@@ -362,7 +362,7 @@
     "enterInviteLinkPlaceholder": "Введіть посилання-запрошення",
     "applyButton": "Застосувати",
     "wholeBalance": "Баланс за весь час",
-    "availableCashBack": "Доступний кешбек",
+    "availableCashBack": "Загальний баланс",
     "balanceTitle": "Баланс",
     "toWithdraw": "Мін. сумма виводу:",
     "cpaTotal": "Усього CPA",
@@ -419,7 +419,8 @@
     "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Вивести",
     "minWithdraw": "Мінімальна сума для виводу",
-    "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм"
+    "performWithdraw": "Щоб вивести нагороду, зв'яжіться з нашою службою підтримки та надайте Ваше кешбек посилання та адресу Tron (TRX) із додатку",
+    "withdrawSupport": "Підтримка"
   },
   "account": {
     "staking": "Стейкінг",

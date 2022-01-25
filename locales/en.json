@@ -362,7 +362,7 @@
     "enterInviteLinkPlaceholder": "Enter invite link",
     "applyButton": "Apply",
     "wholeBalance": "Balance for the all time",
-    "availableCashBack": "Available cashback",
+    "availableCashBack": "Total balance",
     "balanceTitle": "Balance",
     "toWithdraw": "Min. withdraw amount:",
     "cpaTotal": "Total CPA",
@@ -419,7 +419,8 @@
     "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Withdraw",
     "minWithdraw": "Minimal amount to withdraw",
-    "performWithdraw": "To perform withdraw, please, write to telegram to nickname"
+    "performWithdraw": "To withdraw your reward, contact our support and provide your cashback link and Tron (TRX) address from the app",
+    "withdrawSupport": "Support"
   },
   "account": {
     "staking": "Staking",
