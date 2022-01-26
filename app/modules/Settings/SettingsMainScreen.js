@@ -29,7 +29,7 @@ import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import { getWalletsNumber } from '@app/appstores/Stores/Wallet/selectors'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getWalletConnectIsConnected } from '@app/appstores/Stores/WalletConnect/selectors'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
 import { setBseLink } from '@app/appstores/Stores/Main/MainStoreActions'
 import { LANGUAGE_SETTINGS } from './helpers'
@@ -203,7 +203,7 @@ class SettingsMainScreen extends PureComponent {
     handleWalletConnect = () => NavStore.goNext('WalletConnectScreen')
 
     handleFAQ = () => {
-        Linking.openURL(BlocksoftExternalSettings.getStatic('SOCIAL_LINK_FAQ'))
+        Linking.openURL(BlocksoftCustomLinks.getLink('SOCIAL_LINK_FAQ', this.context.isLight))
     }
 
     handleCoinSettings = () => NavStore.goNext('GlobalCoinSettings')
