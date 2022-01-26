@@ -2156,8 +2156,8 @@
 		"transferProcessor": "ETC",
 		"network": "mainnet",
 		"decimals": 18,
-		"currencyExplorerLink": "https://explorer.velas.com/address/",
-		"currencyExplorerTxLink": "https://explorer.velas.com/tx/"
+		"currencyExplorerLink": "https://evmexplorer.velas.com/address/",
+		"currencyExplorerTxLink": "https://evmexplorer.velas.com/tx/"
 	},
 	"VLX_USDT": {
 		"currencyType": "token",
