@@ -15,8 +15,8 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
 class DetailsContent extends React.Component {
 
@@ -58,9 +58,9 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{level2Users}</Text>
                         </View>
                         <TouchableDebounce
-                            onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CASHBACK_LINK'))}
+                            onPress={() => this.handleOpenLink(BlocksoftCustomLinks.getLink('HOW_WORK_CASHBACK_LINK', this.context.isLight))}
                             activeOpacity={0.7}
-                        > 
+                        >
                             <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
                         </TouchableDebounce>
                     </View> : null}
@@ -78,7 +78,7 @@ class DetailsContent extends React.Component {
                             <Text style={[styles.textRowTitle, { color: colors.common.text3 }]}>{strings('cashback.cpaLevel3')}</Text>
                             <Text style={[styles.textRowValue, { color: colors.common.text1 }]}>{cpaLevel3}</Text>
                         </View>
-                        <TouchableDebounce onPress={() => this.handleOpenLink(BlocksoftExternalSettings.getStatic('HOW_WORK_CPA_LINK'))}>
+                        <TouchableDebounce onPress={() => this.handleOpenLink(BlocksoftCustomLinks.getLink('HOW_WORK_CPA_LINK', this.context.isLight))}>
                             <Text style={[styles.howItWorks, { color: colors.common.text3, marginTop: GRID_SIZE }]}>{strings('cashback.howItWorks.title')}</Text>
                         </TouchableDebounce>
                     </View> : null}

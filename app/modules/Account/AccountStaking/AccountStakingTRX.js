@@ -25,7 +25,7 @@ import { strings } from '@app/services/i18n'
 
 import config from '@app/config/config'
 
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import Input from '@app/components/elements/NewInput'
@@ -43,7 +43,7 @@ import { handleTrxScan, handleFreezeTrx, handleUnFreezeTrx, handlePartBalance, h
 import Loader from '@app/components/elements/LoaderItem'
 
 
-let CACHE_ASKED = {}
+const CACHE_ASKED = {}
 const CACHE_ASK_TIME = 6000
 
 class AccountStakingTRX extends React.PureComponent {
@@ -261,7 +261,7 @@ class AccountStakingTRX extends React.PureComponent {
     }
 
     handleOpenLink = () => {
-        NavStore.goNext('WebViewScreen', { url: BlocksoftExternalSettings.getStatic('TRX_STAKING_LINK'), title: 'Staking' })
+        NavStore.goNext('WebViewScreen', { url: BlocksoftCustomLinks.getLink('TRX_STAKING_LINK', this.context.isLight), title: 'Staking' })
     }
 
     onFocus = () => {
