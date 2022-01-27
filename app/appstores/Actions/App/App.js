@@ -216,8 +216,8 @@ class App {
         }
     }
 
-    willMount = () => {
-        AppDeepLinking.willMount()
+    willUnmount = () => {
+        AppDeepLinking.willUnmount()
     }
 
 }

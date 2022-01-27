@@ -23,7 +23,7 @@ export default new class AppDeepLinking {
         this.receiveDeepLink(url)
     }
 
-    willMount = () => {
+    willUnmount = () => {
         Linking.removeEventListener('url', this.handler)
     }
 
