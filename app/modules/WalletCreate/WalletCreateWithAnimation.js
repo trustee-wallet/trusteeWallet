@@ -24,6 +24,7 @@ import { proceedSaveGeneratedWallet } from '@app/appstores/Stores/CreateWallet/C
 import walletCreateVideo from '@assets/videos/KeyAndSeed.mp4'
 
 import { deleteUserPinCode } from '@haskkor/react-native-pincode'
+import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore'
 
 const MNEMONIC_PHRASE_LENGTH = 128
 
@@ -45,6 +46,7 @@ class WalletCreateWithAnimation extends PureComponent {
 
     createWallet = async () => {
         deleteUserPinCode()
+        await SettingsKeystore.setLockScreenStatus(false)
 
         let walletMnemonic = ''
         let walletName = ''
