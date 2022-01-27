@@ -13,6 +13,7 @@ import Log from "@app/services/Log/Log"
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
 
 import NavStore from '@app/components/navigation/NavStore'
+import config from '@app/config/config'
 
 const diffTimeScan = (timeScan) => {
     const lastScan = timeScan * 1000
@@ -23,9 +24,21 @@ const diffTimeScan = (timeScan) => {
     return Math.abs(Math.round(diffTime))
 }
 
-const getExplorerLink = (code, type, value) => {
+const getExplorerLink = (code, type, _value) => {
 
     const currency = BlocksoftDict.getCurrencyAllSettings(code)
+
+    let value = ''
+    if (typeof _value === 'string') {
+        value = _value
+    } else {
+        if (config.debug.appErrors) {
+            console.log('Account.getExplorerLink error value ', _value)
+        }
+        Log.log('Account.getExplorerLink error value ', _value)
+
+        value = JSON.stringify(_value)
+    }
 
     const currencyCode = currency.tokenBlockchain === 'ETHEREUM' ? 'ETH' : currency.currencyCode
 

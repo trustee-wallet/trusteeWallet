@@ -506,7 +506,7 @@ class AccountReceiveScreen extends React.PureComponent {
         this.setState((state) => ({ isBalanceVisible: value || originalVisibility, isBalanceVisibleTriggered : true }))
     }
 
-    renderModalContent = (params) => {
+    renderModalContent = (address) => {
 
         const {
             GRID_SIZE,
@@ -545,7 +545,7 @@ class AccountReceiveScreen extends React.PureComponent {
                 />
                 <InvoiceListItem
                     title={strings('account.openInBlockchair')}
-                    onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
+                    onPress={() => this.handleOpenLink(address)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
                     iconType='blockchair'
                     last
@@ -554,10 +554,10 @@ class AccountReceiveScreen extends React.PureComponent {
         )
     }
 
-    handleBackDropModal = (address, forceLink) => {
+    handleBackDropModal = (address) => {
         showModal({
             type: 'BACK_DROP_MODAL',
-            Content: () => this.renderModalContent({address, forceLink})
+            Content: () => this.renderModalContent(address)
         })
     }
 
@@ -684,7 +684,7 @@ class AccountReceiveScreen extends React.PureComponent {
 
                             <TouchableDebounce
                                 style={styles.qr}
-                                onPressIn={this.handleBackDropModal}
+                                onPressIn={() => this.handleBackDropModal(shownAddress)}
                                 activeOpacity={0.8}
                                 onLongPress={this.copyToClip}
                                 delayLongPress={500}
@@ -757,7 +757,7 @@ class AccountReceiveScreen extends React.PureComponent {
                                     <View style={styles.backgroundAddress}>
                                         <TouchableDebounce
                                             style={{ alignItems: 'center' }}
-                                            onPress={this.handleBackDropModal}
+                                            onPress={() => this.handleBackDropModal(shownAddress)}
                                             hitSlop={HIT_SLOP}
                                             onLongPress={this.copyToClip}
                                             delayLongPress={500}
@@ -800,7 +800,7 @@ class AccountReceiveScreen extends React.PureComponent {
                 </ScrollView>
                 {!customAmount && <Button
                     title={strings('account.receiveScreen.share')}
-                    onPress={this.handleBackDropModal}
+                    onPress={() => this.handleBackDropModal(shownAddress)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
                 />}
             </ScreenWrapper>
