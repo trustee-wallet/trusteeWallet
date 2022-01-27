@@ -420,7 +420,7 @@
     "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Вывести",
     "minWithdraw": "Минимальная сумма для вывода",
-    "performWithdraw": "Чтобы вывести награду свяжитесь с нашей службой поддержки и предоставьте Вашу кэшбэк ссылку и адрес Tron (TRX) из приложения",
+    "performWithdraw": "Чтобы вывести награду, свяжитесь с нашей службой поддержки и предоставьте Вашу кешбэк ссылку и адрес Tron (TRX) из приложения",
     "withdrawSupport": "Поддержка"
   },
   "account": {
@@ -1277,7 +1277,7 @@
     },
     "lastScan": "Ваши балансы отсканированы в:",
     "helper": "Вы можете выбрать частоту самостоятельно",
-    "clean" : "Rescan selected wallet again"
+    "clean" : "Сканировать избранный кошелек еще раз"
   },
   "loggingSettings": {
     "title": "Логирование",

@@ -364,7 +364,7 @@
     "wholeBalance": "Баланс за весь час",
     "availableCashBack": "Загальний баланс",
     "balanceTitle": "Баланс",
-    "toWithdraw": "Мін. сумма виводу:",
+    "toWithdraw": "Мін. сума виводу:",
     "cpaTotal": "Усього CPA",
     "cpaLevel1": "CPA Рівень №1",
     "cpaLevel2": "CPA Рівень №2",
@@ -1277,7 +1277,7 @@
     },
     "lastScan": "Ваші баланси відскановано о:",
     "helper": "Ви можете обрати частоту самостійно",
-    "clean" : "Rescan selected wallet again"
+    "clean" : "Сканувати обраний гаманець ще раз"
    },
   "loggingSettings": {
     "title": "Логування",
