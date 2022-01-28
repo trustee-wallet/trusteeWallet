@@ -8,6 +8,7 @@ import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 const ethers = require('ethers')
 const ADDRESS_PREFIX_REGEX = /^(41)/
@@ -78,6 +79,7 @@ const TrxDappHandler = {
             let shouldAskText = callData.address + '.' + callData.functionSelector
             let parameter = ''
             const abiCoder = new AbiCoder()
+
             if (callData.parameters) {
                 const types = []
                 const values = []
@@ -103,6 +105,12 @@ const TrxDappHandler = {
                 } catch (e) {
                     throw new Error(e.message + ' in abiCoder')
                 }
+            }
+            if (typeof callData.address === 'undefined' || !callData.address) {
+                throw new Error('callData.address is undefined')
+            }
+            if (typeof TrxDappHandler.account.address === 'undefined'){
+                throw new Error('TrxDappHandler.account.address ius undefined')
             }
             const params = {
                 contract_address: await TronUtils.addressToHex(callData.address),
@@ -184,6 +192,27 @@ const TrxDappHandler = {
                 tmp.data.error = BlocksoftUtils.hexToUtf('0x' + tmp.data.message)
             }
             return {res : tmp.data}
+        } else if (callData.action === 'getBalance') {
+            let address = callData.data
+            if (address.substr(0, 1) === 'T') {
+                address = await TronUtils.addressToHex(address)
+            }
+            const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SOLIDITY_NODE')
+            const link = nodeLink + '/walletsolidity/getaccount'
+            const params = { address }
+            const res = await BlocksoftAxios.postWithoutBraking(link, params, 10000)
+            if (!res || !res.data) {
+                return false
+            }
+            let { balance } = res.data
+            if (typeof balance !== 'undefined') {
+                balance = balance.toString()
+            } else {
+                balance = TrxDappHandler.account.balance
+            }
+            return {res : balance}
+        } else if (callData.action === 'fromSun') {
+            return {res : BlocksoftUtils.toUnified(callData.data, 6)}
         } else {
             if (config.debug.appErrors) {
                 console.log('TrxDappHandler no callData.action handler', callData)

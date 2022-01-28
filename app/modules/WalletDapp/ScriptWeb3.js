@@ -91,15 +91,66 @@ try {
                 getBalance: async (data) => {
                     return trustee.sendBridge({ main: 'tronWeb', action: 'getBalance', data })
                 },
+                getAccount: async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'getAccount', data })
+                },
                 getConfirmedTransaction: async (data) => {
                     return trustee.sendBridge({ main: 'tronWeb', action: 'getConfirmedTransaction', data })
+                },
+                getTransactionInfo: async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'getTransactionInfo', data })
                 }
             },
-            contract: () => {
-                return {
-                    at: async (address) => {
-                        try {
-                            const contract = await trustee.sendBridge({ main: 'tronWeb', action: 'getContractAt', address })
+            fullNode: {
+                request : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'request', data })
+                },
+            },
+            solidityNode: {
+                request : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'request', data })
+                },
+            },
+            address: {
+                toHex : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'toHex', data })
+                },
+                fromPrivateKey : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'fromPrivateKey', data })
+                },
+            },
+            isAddress : async (data) => {
+                return trustee.sendBridge({ main: 'tronWeb', action: 'isAddress', data })
+            },
+            toUtf8 : async (data) => {
+                return trustee.sendBridge({ main: 'tronWeb', action: 'toUtf8', data })
+            },
+            sha3 : async (data) => {
+                return trustee.sendBridge({ main: 'tronWeb', action: 'sha3', data })
+            },
+            fromSun : (data) => {
+                let ic = data.length;
+                let res = '';
+                for (let i = 0; i < ic - 6; i++) {
+                    res += data[i];
+                }
+                if (!res) {
+                    res = '0.';
+                } else {
+                    res += '.';
+                }
+                for (let i = ic - 6; i < ic; i++) {
+                    res += data[i];
+                }
+                return res;
+            },
+            event : {
+                getEventsByContractAddress :  async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'event.getEventsByContractAddress', data })
+                },
+            },            
+            contract: (abi, address) => {
+                const _tmp = (contract, address) => {                          
                             // https://github.com/tronprotocol/tronweb/blob/5fa94d0c44839bb6d64a0e1cbc703a3c5c8ff332/src/lib/contract/index.js#L102
                             if (typeof contract.abi.entrys !== 'undefined') {
                                 for (const tmp of contract.abi.entrys) {
@@ -135,6 +186,26 @@ try {
                                 }
                             }
                             return contract
+                }
+                
+                if (abi && address) {
+                    const contract = {
+                        address : address,
+                        // bytecode : res.bytecode,
+                        deployed : true,
+                        abi : {
+                            entrys : abi
+                        }
+                    }
+                    _tmp(contract, address)
+                    return contract
+                    //exchangeTokensEXR2().send()
+                }
+                return {                    
+                    at: async (address) => {
+                        try {
+                            const contract = await trustee.sendBridge({ main: 'tronWeb', action: 'getContractAt', address })
+                            return _tmp(contract, address)
                         } catch (e) {
                             console.log('contact load error ' + e.message)
                         }
