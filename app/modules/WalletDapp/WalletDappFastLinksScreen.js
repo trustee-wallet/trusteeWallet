@@ -81,6 +81,7 @@ class WalletDappFastLinksScreen extends PureComponent {
                     break
                 }
                 if (found) {
+                    localNetworks[code] = 1
                     break
                 }
             }
