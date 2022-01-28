@@ -13,11 +13,13 @@
   },
   "BNB" : {
     "currencyCode": "BNB_SMART",
-    "blockchainName" : "BSC (BEP-20)"
+    "blockchainName" : "BSC (BEP-20)",
+    "dappsListName" : "BNB Smart Chain"
   },
   "MATIC" : {
     "currencyCode" : "MATIC",
-    "blockchainName" : "Matic"
+    "blockchainName" : "Matic",
+    "dappsListName" : "Polygon Network"
   },
   "FTM" : {
     "currencyCode": "FTM",

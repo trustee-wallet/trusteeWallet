@@ -19,7 +19,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
-import WalletConnectNetworksDict from '@crypto/assets/WalletConnectNetworksDict.json'
+import tokenBlockchainBlocksoftDict from '@crypto/assets/tokenBlockchainBlocksoftDict.json'
 
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
 import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions' // setWalletDappIncognito
@@ -29,15 +29,14 @@ class WalletDappFastLinksScreen extends PureComponent {
 
     state = {
         selectedIndex: 0,
-        networks: [],
+        networks: [{ 'currencyCode': 'ALL', 'networkTitle': 'All' }],
         dapps: [],
         localDapps: []
     }
 
     async componentDidMount() {
-        this.loadNetworks()
         await this.loadDapps()
-        await this.handlefilterDapps(0)
+        await this.handleFilterDapps(0)
     }
 
     setDapp = async (item) => {
@@ -45,24 +44,19 @@ class WalletDappFastLinksScreen extends PureComponent {
         NavStore.goNext('WalletDappWebViewScreen')
     }
 
-    loadNetworks = () => {
-        const networks = [{ "currencyCode": "ALL", "networkTitle": "All" }]
-
-        for (const key in WalletConnectNetworksDict) {
-            const item = WalletConnectNetworksDict[key]
-            networks.push(item)
-        }
-
-        this.setState({ networks })
-    }
 
     loadDapps = async () => {
 
         const localDapps = []
-
+        const localNetworks = {}
         const indexedCurrencies = {}
+        const extendDict = tokenBlockchainBlocksoftDict
         for (const item of this.props.currencies) {
             indexedCurrencies[item.currencyCode] = 1
+        }
+        for (const blockchainCode in tokenBlockchainBlocksoftDict) {
+            const blockchain = tokenBlockchainBlocksoftDict[blockchainCode]
+            extendDict[blockchain.currencyCode] = blockchain
         }
         for (const key in dappsBlocksoftDict) {
             const item = dappsBlocksoftDict[key]
@@ -70,26 +64,48 @@ class WalletDappFastLinksScreen extends PureComponent {
                 localDapps.push(item)
                 break
             }
+
+            let found = false
             for (const code of item.dappNetworks) {
-                if (typeof indexedCurrencies[code] !== 'undefined') {
+                if (typeof indexedCurrencies[code] === 'undefined') continue
+
+                if (typeof item.dappCoins === 'undefined') {
                     localDapps.push(item)
+                    localNetworks[code] = 1
+                    break
+                }
+                for (const code2 of item.dappCoins) { // some dapps shown only in special networks when some tokens are selected
+                    if (typeof indexedCurrencies[code2] === 'undefined') continue
+                    localDapps.push(item)
+                    found = true
+                    break
+                }
+                if (found) {
                     break
                 }
             }
+        }
 
+        const networks = [{ 'currencyCode': 'ALL', 'networkTitle': 'All' }]
+        for (const code in localNetworks) {
+            const item = extendDict[code]
+            const networkTitle = typeof item.dappsListName !== 'undefined' ? item.dappsListName : item.blockchainName
+            networks.push({ currencyCode: code, networkTitle })
         }
 
         this.setState({
-            dapps: localDapps
+            dapps: localDapps,
+            networks
         })
+
     }
 
     handleSelectIndex = async (selectedIndex) => {
         this.setState({ selectedIndex })
-        await this.handlefilterDapps(selectedIndex)
+        await this.handleFilterDapps(selectedIndex)
     }
 
-    handlefilterDapps = async (index) => {
+    handleFilterDapps = async (index) => {
         const {
             networks,
             dapps
@@ -155,7 +171,7 @@ class WalletDappFastLinksScreen extends PureComponent {
                 />
                 <FlatList
                     data={localDapps}
-                    keyExtractor={(item) => item.dappsDomenName.toString()}
+                    keyExtractor={(item) => item.dappCode.toString()}
                     showsVerticalScrollIndicator={false}
                     renderItem={this.renderListItem}
                     ListEmptyComponent={this.renderEmptyComponent}
