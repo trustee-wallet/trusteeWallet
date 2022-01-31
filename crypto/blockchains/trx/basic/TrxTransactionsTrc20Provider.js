@@ -6,6 +6,8 @@ import TrxTransactionsProvider from './TrxTransactionsProvider'
 import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import Database from '@app/appstores/DataSource/Database/main'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
 const SWAPS = require('../dict/swaps')
 export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvider {
@@ -85,16 +87,49 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
             res.transactionDirection = 'swap_income'
             res.addressAmount = '0'
             needData = true
+        } else if (res.transactionDirection === 'outcome') {
+            needData = true
         }
+
+
 
         if (needData) {
             const diff = scanData.account.transactionsScanTime - transaction.timestamp / 1000
-            if (diff > 600) {
+            if (diff > 6000) {
                 return false
             }
         }
+
+
         if (needData) {
             const tmp = await BlocksoftAxios.get('https://apilist.tronscan.org/api/transaction-info?hash=' + res.transactionHash)
+            res.transactionFee = tmp.data.cost.fee * 1 + tmp.data.cost.energy_fee * 1
+
+            if (res.transactionFee * 1 > 0) {
+                const savedTRX = await Database.query(` SELECT * FROM transactions WHERE transaction_hash='${res.transactionHash}' AND currency_code='TRX' `)
+                if (!savedTRX || !savedTRX.array || savedTRX.array.length === 0) {
+                    const saveFee = {
+                        'account_id': 0,
+                        'address_amount': 0,
+                        'address_from': res.addressFrom,
+                        'address_to': res.addressTo,
+                        'block_confirmations': res.blockConfirmations,
+                        'block_number': res.blockNumber,
+                        'block_time': res.blockTime,
+                        'created_at': res.blockTime,
+                        'currency_code': 'TRX',
+                        'mined_at': res.blockTime,
+                        'transaction_direction': res.transactionDirection,
+                        'transaction_fee': res.transactionFee,
+                        'transaction_filter_type': TransactionFilterTypeDict.FEE,
+                        'transaction_hash': res.transactionHash,
+                        'transaction_status': res.transactionStatus,
+                        'transactions_scan_time': new Date().getTime(),
+                        'wallet_hash': scanData.account.walletHash
+                    }
+                    await Database.setTableName('transactions').setInsertData({ insertObjs: [saveFee] }).insert()
+                }
+            }
             if (typeof tmp.data.trc20TransferInfo !== 'undefined') {
                 for (const info of tmp.data.trc20TransferInfo) {
                     if (info.contract_address !== this._token) continue
