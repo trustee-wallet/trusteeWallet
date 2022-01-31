@@ -305,7 +305,7 @@ const getSortedData = (array, currentArray, accountList, sortValue, filter = fal
     }
 
     if (filter) {
-        const filterAccount = accountList.filter(item => parseInt(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
+        const filterAccount = accountList.filter(item => parseFloat(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
         return results.filter(item => filterAccount.includes(item.currencyCode))
     }
 
