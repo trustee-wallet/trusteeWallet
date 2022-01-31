@@ -618,7 +618,7 @@
 	},
 	"TRX_WBTT": {
 		"currencyType": "token",
-		"currencyName": "BitTorrent TRC20",
+		"currencyName": "BitTorrent Wrapped TRC20",
 		"currencyCode": "TRX_WBTT",
 		"currencySymbol": "WBTT",
 		"extendsProcessor": "TRX_USDT",
@@ -645,7 +645,7 @@
 	},
 	"ETH_BTT": {
 		"currencyType": "token",
-		"currencyName": "BTT ERC20",
+		"currencyName": "BTT ERC20 (Old)",
 		"currencyCode": "ETH_BTT",
 		"currencySymbol": "BTT",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -656,6 +656,20 @@
 		"tokenAddress": "0xe83cccfabd4ed148903bf36d4283ee7c8b3494d1",
 		"currencyExplorerLink": "https://etherscan.io/token/0xe83cccfabd4ed148903bf36d4283ee7c8b3494d1?a="
 	},
+	"ETH_BTT_NEW": {
+		"currencyType": "token",
+		"currencyName": "BTT ERC20",
+		"currencyCode": "ETH_BTT_NEW",
+		"currencySymbol": "BTT",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "BTT_NEW",
+		"decimals": 18,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xc669928185dbce49d2230cc9b0979be6dc797957",
+		"currencyExplorerLink": "https://etherscan.io/token/0xc669928185dbce49d2230cc9b0979be6dc797957?a="
+	},
+
 	"BNB_SMART_BTC": {
 		"currencyType": "token",
 		"currencyName": "BTC BEP20",
