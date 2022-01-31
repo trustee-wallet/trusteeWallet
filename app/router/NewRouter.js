@@ -343,7 +343,7 @@ export default () => {
             <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
-            <Stack.Screen name='WalletCreateWithAnimation' component={WalletCreateWithAnimation} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='WalletCreateWithAnimation' component={WalletCreateWithAnimation} options={{ headerShown: false, transitionSpec, cardStyleInterpolator, gestureEnabled: false }} />
 
             <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 

@@ -258,7 +258,7 @@ class BlocksoftUtils {
             started = true
         }
 
-        return cutted
+        return cutted || 0
     }
 
     static toWei(val, from = 'ether') {
