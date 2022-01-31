@@ -2444,7 +2444,7 @@
 		"currencyType": "token",
 		"currencyName": "USDC Waves",
 		"currencyCode": "WAVES_USDC",
-		"currencySymbol": "USDT",
+		"currencySymbol": "USDС",
 		"extendsProcessor": "WAVES_USDN",
 		"addressUiChecker": "WAVES",
 		"ratesCurrencyCode": "USDC",
