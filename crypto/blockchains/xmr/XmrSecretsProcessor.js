@@ -21,6 +21,10 @@ export default class XmrSecretsProcessor {
      */
     async getWords(data) {
         const seed = await BlocksoftKeys.getSeedCached(data.mnemonic)
+        const seedHex = seed.toString('hex')
+        if (seedHex.length < 128) {
+            throw new Error('bad seedHex')
+        }
         const root = bip32.fromSeed(seed)
         const child = root.derivePath('m/44\'/128\'/0\'/0/0')
         const keyPair = bitcoin.ECPair.fromPrivateKey(child.privateKey, { network: BTC })
