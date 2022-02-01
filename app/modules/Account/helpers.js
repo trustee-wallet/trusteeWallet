@@ -14,6 +14,7 @@ import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckT
 
 import NavStore from '@app/components/navigation/NavStore'
 import config from '@app/config/config'
+import UpdateCurrencyRateDaemon from "@app/daemons/back/UpdateCurrencyRateDaemon"
 
 const diffTimeScan = (timeScan) => {
     const lastScan = timeScan * 1000
@@ -130,6 +131,7 @@ const handleSend = async (props) => {
     const { currencyCode } = props.selectedCryptoCurrencyData
 
     if (isSynchronized) {
+        UpdateCurrencyRateDaemon.updateCurrencyRate({ force: true, source: 'Account.helper.handleSend' })
         await SendActionsStart.startFromAccountScreen(currencyCode)
     } else {
         showModal({
