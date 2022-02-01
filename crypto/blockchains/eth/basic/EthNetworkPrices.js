@@ -51,7 +51,7 @@ class EthNetworkPrices {
                     address,
                     logData,
                     marketingData: MarketingEvent.DATA
-                })
+                }, 20000)
             } catch (e) {
                 if (config.debug.cryptoErrors) {
                     console.log('EthNetworkPricesProvider.getWithProxy proxy error checkError ' + e.message)

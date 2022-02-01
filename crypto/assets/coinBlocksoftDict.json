@@ -1900,7 +1900,7 @@
 	},
 	"MATIC_USDT": {
 		"currencyType": "token",
-		"currencyName": "USDT Matic (Polygon)",
+		"currencyName": "Tether Matic (Polygon)",
 		"currencyCode": "MATIC_USDT",
 		"currencyIcon": "USDT",
 		"currencySymbol": "USDT",
@@ -1921,7 +1921,7 @@
 	},
 	"SOL_USDT": {
 		"currencyType": "token",
-		"currencyName": "USDT Solana",
+		"currencyName": "Tether Solana",
 		"currencyCode": "SOL_USDT",
 		"currencySymbol": "USDT",
 		"extendsProcessor": "SOL_RAY",
@@ -2175,7 +2175,7 @@
 	},
 	"VLX_USDT": {
 		"currencyType": "token",
-		"currencyName": "USDT Velas VLX20",
+		"currencyName": "Tether Velas VLX20",
 		"currencyCode": "VLX_USDT",
 		"currencyIcon": "USDT",
 		"currencySymbol": "USDT",
@@ -2428,7 +2428,7 @@
 	},
 	"WAVES_USDT": {
 		"currencyType": "token",
-		"currencyName": "USDT Waves",
+		"currencyName": "Tether Waves",
 		"currencyCode": "WAVES_USDT",
 		"currencySymbol": "USDT",
 		"extendsProcessor": "WAVES_USDN",
