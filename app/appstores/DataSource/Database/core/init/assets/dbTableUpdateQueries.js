@@ -1,22 +1,21 @@
+import axios from 'axios'
+import VersionCheck from 'react-native-version-check'
 
-import axios from 'axios';
-import VersionCheck from 'react-native-version-check';
-
-import BlocksoftDict from '@crypto/common/BlocksoftDict';
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
-import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions';
-import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore';
+import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
+import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore'
 
-import Log from '@app/services/Log/Log';
+import Log from '@app/services/Log/Log'
 
-import countries from '@assets/jsons/other/country-codes';
+import countries from '@assets/jsons/other/country-codes'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 132,
+        maxVersion: 136,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -762,36 +761,36 @@ export default function getTableUpdateQueries() {
                 queryString: `ALTER TABLE card ADD COLUMN card_check_status VARCHAR(256) NULL`
             },
 
-			111: {
+            111: {
                 queryString: `ALTER TABLE card ADD COLUMN card_to_send_status INTEGER NULL`
             },
 
-			112: {
+            112: {
                 queryString: `ALTER TABLE card ADD COLUMN card_create_wallet_hash VARCHAR(256) NULL`
             },
 
-			113: {
+            113: {
                 queryString: `ALTER TABLE wallet ADD COLUMN wallet_to_send_status INTEGER NULL`
             },
 
-			114 : {
-				queryString: `ALTER TABLE wallet ADD COLUMN wallet_number INTEGER NULL`
-			},
+            114: {
+                queryString: `ALTER TABLE wallet ADD COLUMN wallet_number INTEGER NULL`
+            },
 
-			115: {
+            115: {
                 afterFunction: async (dbInterface) => {
                     const wallets = await dbInterface.query('SELECT wallet_hash FROM wallet')
-					let index = 0
+                    let index = 0
                     if (typeof wallets.array !== 'undefined' && wallets.array) {
                         for (const row of wallets.array) {
-							index++
-                            await  await dbInterface.query(`UPDATE wallet SET wallet_number=${index} WHERE wallet_hash='${row.wallet_hash}'`)
+                            index++
+                            await await dbInterface.query(`UPDATE wallet SET wallet_number=${index} WHERE wallet_hash='${row.wallet_hash}'`)
                         }
                     }
                 }
-			},
+            },
 
-			116: {
+            116: {
                 queryString: `ALTER TABLE card ADD COLUMN card_to_send_id INTEGER NULL`
             },
 
@@ -808,7 +807,7 @@ export default function getTableUpdateQueries() {
                 }
             },
 
-            118 : {
+            118: {
                 queryString: `CREATE TABLE IF NOT EXISTS custom_nfts (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
@@ -940,6 +939,45 @@ export default function getTableUpdateQueries() {
             132: {
                 queryString: `ALTER TABLE wallet ADD COLUMN wallet_is_created_here INTEGER NULL`
             },
+
+            133: {
+                afterFunction: async (dbInterface) => {
+                    await dbInterface.query(`DELETE FROM account WHERE wallet_hash NOT LIKE '0c9a28aa7f4b7ae79a99bf56a92a80b8' AND address='7q6PYSw2dCYfw74igJtDB4iodhCrGBvUg78TnScK6kZj'`)
+                }
+            },
+
+            134: {
+                afterFunction: async (dbInterface) => {
+                    await dbInterface.query(`DELETE FROM account WHERE wallet_hash NOT LIKE '0c9a28aa7f4b7ae79a99bf56a92a80b8' AND address='GsBTrAGNbY2Fgya1F48rAjPXNNLB88JwMM7fM93Waqkp'`)
+                }
+            },
+
+            135: {
+                afterFunction: async (dbInterface) => {
+                    await dbInterface.query(`DELETE FROM account WHERE wallet_hash NOT LIKE '0c9a28aa7f4b7ae79a99bf56a92a80b8' AND address='GAVEX22PIDJDXDYMP6P4JU6NUCLE7YRK4WJGCSAC4STCY5E35VAFYNCG'`)
+                }
+            },
+
+            136: {
+                afterFunction: async (dbInterface) => {
+                    const addresses = [
+                        'ekXU6sCbHxDmTip1JafikRgCnNUWbGV3MjFAiiMbrB3UCXyBkHvPt44KiA6EBVTB6HAUgDrTPB2KtuZggnQfKMx',
+                        '5XmFi1jP8MDPtRje64tLQNuRCEsXAsg29mcpc7UQoubZtbXTFH5vTi6cXe72NQVMCzLNgff6dJdKS6CnZmBmn7hK',
+                        'ekXU6sCbHxDmTip1JafikRgCnNUWbGV3MjFAiiMbrB3UCXyBkHvPt44KiA6EBVTB6HAUgDrTPB2KtuZggnQfKMx',
+                        '5XmFi1jP8MDPtRje64tLQNuRCEsXAsg29mcpc7UQoubZtbXTFH5vTi6cXe72NQVMCzLNgff6dJdKS6CnZmBmn7hK',
+                        'RcTYUztwSzcUtf2tf6sN1gfWiRmhrqw6KYLA8JvVKLHMNqVA1Naa73MdXYaRT2XhFb7p6KxyUq8kRHXqEZSPjXS',
+                        '2eZ5jFcS4LZJUwAQVVw27VpcxmUbbi37QMuaAeCiHQd3xdhptaabbDmfChL3RLURF7Xg8wv26qJ17iGyfrm2xDuZ',
+                        '4SpkBDDLck2uHbWZcNNPPv3xkcQxTz5T3z9ZmrocVZ31iURBvAiSYfRhXiJ1vZ86hvBBzs7UTZyY4oMQ8Xsv1edM',
+                        'CX8s8LTGPXiWVnr1beSCvE1gxgpNZUJ7kfjDuhQ2pHDAvWHcTZebg2HTMsFG7ZX5tsm4ovAzbm6ecJ58eE5o79A',
+                        '3yMSonW9hBGqKu7LBn1AV1SU94vQVGhUGdPvXP6rHVb8xqaSLzFsE39wGuxs8SpsG5avwyBQYRqnsibm5VhUsAUh'
+                    ]
+                    for (const address of addresses) {
+                        console.log('address ' + address)
+                        await dbInterface.query(`DELETE FROM transactions WHERE wallet_hash NOT LIKE '0c9a28aa7f4b7ae79a99bf56a92a80b8' 
+                                AND (transaction_hash='${address}')`)
+                    }
+                }
+            }
         }
     }
 }
