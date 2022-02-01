@@ -80,7 +80,7 @@ export default function SubSettingListItem(props) {
             disabled={checked}
         >
             {radioButtonFirst ?
-                <View style={[styles.container, containerStyle]}>
+                <View style={containerStyle}>
                     <View style={[styles.mainContent, last && styles.noBorder]}>
                         <View style={[styles.rightContent, { marginRight: GRID_SIZE }]}>
                             <RadioButton
