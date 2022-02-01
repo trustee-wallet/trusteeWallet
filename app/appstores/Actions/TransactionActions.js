@@ -219,13 +219,19 @@ const transactionActions = {
         }
 
         if (transaction.transactionDirection === 'income' && typeof exchangeOrder.requestedOutAmount !== 'undefined' && typeof exchangeOrder.requestedOutAmount.amount !== 'undefined') {
-            transaction.addressAmountPretty = exchangeOrder.requestedOutAmount.amount
+            if (!transaction?.addressAmountPretty || transaction?.addressAmountPretty === '?') {
+                const res = BlocksoftPrettyNumbers.makeCut(exchangeOrder.requestedOutAmount.amount)
+                transaction.addressAmountPretty = res.cutted
+            }
             if (!transaction.currencyCode) {
                 transaction.currencyCode = exchangeOrder.requestedOutAmount.currencyCode
             }
         }
         if (transaction.transactionDirection === 'outcome' && typeof exchangeOrder.requestedInAmount !== 'undefined' && typeof exchangeOrder.requestedInAmount.amount !== 'undefined') {
-            transaction.addressAmountPretty = exchangeOrder.requestedInAmount.amount
+            if (!transaction?.addressAmountPretty || transaction?.addressAmountPretty === '?') {
+                const res = BlocksoftPrettyNumbers.makeCut(exchangeOrder.requestedInAmount.amount)
+                transaction.addressAmountPretty = res.cutted
+            }
             if (!transaction.currencyCode) {
                 transaction.currencyCode = exchangeOrder.requestedInAmount.currencyCode
             }
