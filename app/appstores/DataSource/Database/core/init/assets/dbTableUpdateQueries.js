@@ -972,7 +972,6 @@ export default function getTableUpdateQueries() {
                         '3yMSonW9hBGqKu7LBn1AV1SU94vQVGhUGdPvXP6rHVb8xqaSLzFsE39wGuxs8SpsG5avwyBQYRqnsibm5VhUsAUh'
                     ]
                     for (const address of addresses) {
-                        console.log('address ' + address)
                         await dbInterface.query(`DELETE FROM transactions WHERE wallet_hash NOT LIKE '0c9a28aa7f4b7ae79a99bf56a92a80b8' 
                                 AND (transaction_hash='${address}')`)
                     }

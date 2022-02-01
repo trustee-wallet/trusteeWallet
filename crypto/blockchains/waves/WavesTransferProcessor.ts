@@ -14,9 +14,9 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
 
-    private  _tokenAddress : string
+    private _tokenAddress: string
 
-    private _mainCurrencyCode : string
+    private _mainCurrencyCode: string
 
     constructor(settings: { network: string; currencyCode: string }) {
         this._settings = settings
@@ -45,7 +45,7 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         result.fees = [
             {
                 langMsg: 'xrp_speed_one',
-                feeForTx: ' 100000',
+                feeForTx: '100000',
                 amountForTx: data.amount
             }
         ]
@@ -60,13 +60,19 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
 
-        const fees = await this.getFeeRate(data, privateData, additionalData)
-        const amount = this._tokenAddress ? BlocksoftUtils.diff(balance, '100000').toString() : balance
+        const res = await this.getFeeRate(data, privateData, additionalData)
+        let amount
+        if (this._tokenAddress) {
+            amount = balance
+        } else {
+            amount = BlocksoftUtils.diff(balance, '100000').toString()
+            res.fees[0].amountForTx = amount
+        }
 
         return {
-            ...fees,
+            ...res,
             shouldShowFees: false,
-            selectedTransferAllBalance: amount
+            selectedTransferAllBalance: amount,
         }
     }
 
@@ -99,7 +105,7 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         try {
             const money = {
                 recipient: addressTo,
-                amount: data.amount,
+                amount: data.amount
             }
             if (this._tokenAddress) {
                 money.assetId = this._tokenAddress
@@ -116,7 +122,7 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         }
 
         if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
-            return { rawOnly: uiData.selectedFee.rawOnly, raw : JSON.stringify(signedData)}
+            return { rawOnly: uiData.selectedFee.rawOnly, raw: JSON.stringify(signedData) }
         }
 
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
