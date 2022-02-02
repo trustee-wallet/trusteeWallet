@@ -36,6 +36,7 @@ class MarketingEvent {
         LOG_PLATFORM : '',
         LOG_VERSION : '',
         LOG_WALLETS_COUNT : '0',
+        LOG_DEVICE_ID : '',
         LOG_DEV : false,
         LOG_TESTER: false
     }
@@ -106,6 +107,15 @@ class MarketingEvent {
         const tmp = await trusteeAsyncStorage.getCacheBalance()
         if (tmp) {
             CACHE_BALANCE = tmp
+        }
+
+        try {
+            const deviceId = DeviceInfo.getUniqueId()
+            if (deviceId) {
+                this.DATA.LOG_DEVICE_ID = deviceId
+            }
+        } catch (e) {
+
         }
     }
 
