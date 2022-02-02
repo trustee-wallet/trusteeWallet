@@ -185,10 +185,10 @@ class MarketingEvent {
 
             if (key === 'LOG_DEV') {
                 // do nothing
-            } else if (key === 'LOG_TOKEN') {
+            } else if (key === 'LOG_TOKEN' || key === 'LOG_DEVICE_ID') {
                 const short = val.substr(0, 20)
-                this.TG_MESSAGE += '\nTOKEN ' + short
-                this.TG_MESSAGE += '\nFULL_TOKEN ' + val
+                this.TG_MESSAGE += '\n ' + key + ' ' + short
+                this.TG_MESSAGE += '\nFULL ' + key + ' ' + val
                 if (crashlytics()) {
                     crashlytics().setAttribute(key, short)
                     crashlytics().setAttribute(key + '_FULL', val)
