@@ -192,6 +192,7 @@ export default {
         const data = {
             locale: sublocale(),
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
+            uniqueDeviceId: MarketingEvent.DATA.LOG_DEVICE_ID,
             wallets: [],
             cards
         }
