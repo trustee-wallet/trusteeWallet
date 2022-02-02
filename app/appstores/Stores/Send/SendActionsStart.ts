@@ -256,7 +256,8 @@ export namespace SendActionsStart {
         bseMinCrypto : any,
         bseTrusteeFee : any,
         bseOrderData : any,
-        payway : any
+        payway : any,
+        forceExecAmount : boolean
     }, selectedFee : any) => {
         const addressTo = typeof data.addressTo !== 'undefined' ? data.addressTo : data.address
         const { cryptoCurrency, account } = findWalletPlus(data.currencyCode)

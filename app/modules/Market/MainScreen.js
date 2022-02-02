@@ -517,7 +517,8 @@ class MarketScreen extends PureComponent {
                     from: data.currencyCode,
                     to: data.outCurrency
                 },
-                bseOrderData: bseOrderData
+                bseOrderData: bseOrderData,
+                forceExecAmount : typeof data.forceExecAmount !== 'undefined' ? data.forceExecAmount : false
             }
 
             if (typeof data.apiRaw !== 'undefined' && data.apiRaw && typeof data.apiRaw.dexCurrencyCode !== 'undefined' && data.apiRaw.dexCurrencyCode) {
