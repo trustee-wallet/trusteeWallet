@@ -218,6 +218,7 @@ class App {
 
     willUnmount = () => {
         AppDeepLinking.willUnmount()
+        AppLockScreenIdleTime.willUnmount()
     }
 
 }

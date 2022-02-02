@@ -38,11 +38,28 @@ class AppLockScreenIdleTime {
             return true
         }
         if (Platform.OS === 'android') {
-            AppState.addEventListener('change', (state) => this.handleLockScreenStateAndroid({ state }))
+            AppState.addEventListener('change', this.handlerAndroid)
         } else {
             BackgroundTimer.start()
-            AppState.addEventListener('change', (state) => this.handleLockScreenStateIOS({ state }))
+            AppState.addEventListener('change', this.handlerIOS)
         }
+    }
+
+    willUnmount() {
+        if (Platform.OS === 'android') {
+            AppState.removeEventListener('change', this.handlerAndroid)
+        } else {
+            BackgroundTimer.stop()
+            AppState.removeEventListener('change', this.handlerIOS)
+        }
+    }
+
+    handlerAndroid = (state) => {
+        this.handleLockScreenStateAndroid({ state })
+    }
+
+    handlerIOS = (state) => {
+        this.handleLockScreenStateIOS({ state })
     }
 
     handleLockScreenStateAndroid = (param) => {
