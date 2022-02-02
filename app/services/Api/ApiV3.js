@@ -192,6 +192,7 @@ export default {
         const data = {
             locale: sublocale(),
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
+            uniqueDeviceId: MarketingEvent.DATA.LOG_DEVICE_ID,
             wallets: [],
             cards
         }
@@ -227,7 +228,7 @@ export default {
         const sign = await CashBackUtils.createWalletSignature(true, msg + '_' + hash)
         Log.log('ApiV3.initData CashBackUtils.createWalletSignature finish')
         data.sign = sign
-
+        console.log(data)
         const currentToken = CashBackUtils.getWalletToken()
         const date = new Date().toISOString().split('T')
         const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + currentToken
