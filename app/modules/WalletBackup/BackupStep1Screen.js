@@ -58,7 +58,7 @@ class BackupStep1Screen extends React.PureComponent {
     init = async () => {
         Log.log('WalletBackup.BackupStep1Screen init')
 
-        if (typeof this.props.createWalletStore.walletMnemonic === 'undefined') {
+        if (typeof this.props.createWalletStore.walletMnemonic === 'undefined' && this.props.createWalletStore.flowType !== 'DELETE_WALLET') {
             throw new Error('WalletBackup.BackupStep1Screen init error')
         }
 
