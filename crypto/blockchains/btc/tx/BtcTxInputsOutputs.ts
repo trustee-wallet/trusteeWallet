@@ -12,21 +12,23 @@ import BlocksoftDict from '@crypto/common/BlocksoftDict'
 export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxInputsOutputs {
 
     async _addressForChange(data: BlocksoftBlockchainTypes.TransferData): string {
-        const btcShowTwoAddress = settingsActions.getSettingStatic('btcShowTwoAddress')
-        const btcLegacyOrSegwit = settingsActions.getSettingStatic('btc_legacy_or_segwit')
+        const btcShowTwoAddress = await settingsActions.getSetting('btcShowTwoAddress')
+        const btcLegacyOrSegwit = await settingsActions.getSetting('btc_legacy_or_segwit')
 
-        const mainCurrencyCode =  this._settings.currencyCode === 'LTC' ?  'LTC' : 'BTC'
+        const mainCurrencyCode = this._settings.currencyCode === 'LTC' ? 'LTC' : 'BTC'
         const legacyPrefix = BlocksoftDict.Currencies[mainCurrencyCode].addressPrefix
         const segwitPrefix = BlocksoftDict.CurrenciesForTests[mainCurrencyCode + '_SEGWIT'].addressPrefix
 
-        let needFindSegwit = false
+        let needFindSegwit = true
         if (btcShowTwoAddress === '1' || data.useLegacy === 1) {
             // @todo as btcShowTwoAddress this will be deprecated simplify the code
             // its only for wallets with old setting of two addresses where there was useLegacy on
             // console.log('will legacy')
+            needFindSegwit = false
         } else if (btcShowTwoAddress === '1' || btcLegacyOrSegwit === 'segwit') {
             needFindSegwit = true
-        } else {
+        } else if (btcLegacyOrSegwit === 'legacy') {
+            needFindSegwit = false
             // console.log('will legacy 2')
         }
 
