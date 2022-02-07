@@ -2,6 +2,8 @@ import { createSelector } from 'reselect'
 import store from '@app/store'
 import Log from '@app/services/Log/Log'
 
+const hiddenAssets = ['ETH_ONE']
+
 export const getVisibleCurrencies = createSelector(
     [state => state.currencyStore.cryptoCurrencies],
     (currencies => {
@@ -29,4 +31,9 @@ export const getVisibleCurrencies = createSelector(
         })
         return [...tmp]
     })
+)
+
+export const getVisibleAssets = createSelector(
+    [state => state.currencyStore.cryptoCurrencies],
+    (data => data.filter(item => !hiddenAssets.includes(item.currencyCode)))
 )
