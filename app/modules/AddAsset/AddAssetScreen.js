@@ -49,6 +49,7 @@ import PercentView from '@app/components/elements/new/PercentView'
 import { getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
+import { getVisibleAssets } from '@app/appstores/Stores/Currency/selectors'
 
 
 class AddAssetScreen extends React.PureComponent {
@@ -488,7 +489,8 @@ class AddAssetScreen extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        assets: state.currencyStore.cryptoCurrencies,
+        // assets: state.currencyStore.cryptoCurrencies,
+        assets: getVisibleAssets(state),
         stakingCoins: getStakingCoins(state)
     }
 }

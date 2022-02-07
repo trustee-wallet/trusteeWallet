@@ -16,8 +16,6 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import walletHDActions from '@app/appstores/Actions/WalletHDActions'
-import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
 
 export const ASSESTS_GROUP = {
@@ -108,7 +106,7 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
 export function prepareAssets(assets) {
     const notAddedAssets = []
     _forEach(BlocksoftDict.Currencies, (currency, currencyCode) => {
-        let tmpCurrency = assets.find(as => as.currencyCode === currencyCode)
+        let tmpCurrency = assets.find(as => as.currencyCode === currencyCode) || null
         if (typeof tmpCurrency === 'undefined') {
             tmpCurrency = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currencyCode]))
             tmpCurrency.isHidden = null
