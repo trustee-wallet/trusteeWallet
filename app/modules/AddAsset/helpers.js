@@ -106,10 +106,13 @@ export function prepareDataForDisplaying(assets, newTab, searchQuery) {
 export function prepareAssets(assets) {
     const notAddedAssets = []
     _forEach(BlocksoftDict.Currencies, (currency, currencyCode) => {
-        let tmpCurrency = assets.find(as => as.currencyCode === currencyCode) || null
+        let tmpCurrency = assets.find(as => as.currencyCode === currencyCode)
         if (typeof tmpCurrency === 'undefined') {
             tmpCurrency = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currencyCode]))
             tmpCurrency.isHidden = null
+            if (tmpCurrency.currencyCode === 'ETH_ONE') {
+                return
+            }
             notAddedAssets.push(tmpCurrency)
         }
     })
