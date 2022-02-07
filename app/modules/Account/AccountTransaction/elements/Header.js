@@ -70,7 +70,7 @@ const HeaderTx = (props) => {
 
     const copyToClip = () => {
         try {
-            copyToClipboard(addressAmountPretty)
+            copyToClipboard(addressAmountPretty.toString())
             Toast.setMessage(strings('toast.copied')).show()
         } catch (e) {
             Log.err('Header.copyToClip error', e.message)
