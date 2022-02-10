@@ -3,7 +3,7 @@
  * @author yura
  */
 import React from 'react'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Platform } from 'react-native'
 import { BlurView } from "@react-native-community/blur"
 import { connect } from 'react-redux'
 
@@ -19,9 +19,9 @@ class AppLockBlur extends React.PureComponent {
 
         return (
             <>
-                {this.props.isBlurVisible ? (
+                {(this.props.isBlurVisible && Platform.OS === 'ios') ? (
                     <BlurView
-                        style={styles.wrapper}
+                        style={StyleSheet.absoluteFill}
                         blurType={blurColor}
                         blurAmount={10}
                         reducedTransparencyFallbackColor='white'
@@ -39,13 +39,3 @@ const mapStateToProps = (state) => {
 }
 
 export default connect(mapStateToProps)(AppLockBlur)
-
-const styles = StyleSheet.create({
-    wrapper: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0
-    }
-})
