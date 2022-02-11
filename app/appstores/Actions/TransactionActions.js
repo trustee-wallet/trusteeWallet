@@ -147,9 +147,9 @@ const transactionActions = {
         if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
             transaction.wayType = transaction.transactionDirection
         }
-        if (transaction?.bseOrderData) {
-            transaction.wayType = TransactionFilterTypeDict.SWAP
-        }
+        // if (transaction?.bseOrderData) {
+            // transaction.wayType = TransactionFilterTypeDict.SWAP
+        // }
         if (transaction?.addressAmount === 0 || transaction?.transactionFilterType === TransactionFilterTypeDict.FEE) {
             transaction.addressAmountPrettyPrefix = '-'
             transaction.wayType = TransactionFilterTypeDict.FEE
