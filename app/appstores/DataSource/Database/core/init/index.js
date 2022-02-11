@@ -8,6 +8,7 @@ import Log from '@app/services/Log/Log'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 import settingsDS from '@app/appstores/DataSource/Settings/Settings'
+import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore'
 
 export default class DBInit {
     /**
@@ -73,7 +74,8 @@ export default class DBInit {
         if (countError === 0) {
             const wallets = await this.#db.query('SELECT wallet_hash FROM wallet LIMIT 2')
             if (!wallets || !wallets.array || wallets.array.length === 0) {
-                deleteUserPinCode();
+                deleteUserPinCode()
+                await SettingsKeystore.setLockScreenStatus(false)
             }
         }
 

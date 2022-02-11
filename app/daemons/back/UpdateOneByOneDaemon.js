@@ -78,7 +78,7 @@ class UpdateOneByOneDaemon extends Update {
             return false
         }
 
-        const tmpAuthHash = await settingsActions.getSelectedWallet()
+        const tmpAuthHash = await settingsActions.getSelectedWallet('updateOneByOneDaemon')
         if (!tmpAuthHash) {
             return false
         }

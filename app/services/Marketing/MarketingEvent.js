@@ -36,6 +36,7 @@ class MarketingEvent {
         LOG_PLATFORM : '',
         LOG_VERSION : '',
         LOG_WALLETS_COUNT : '0',
+        LOG_DEVICE_ID : '',
         LOG_DEV : false,
         LOG_TESTER: false
     }
@@ -49,7 +50,7 @@ class MarketingEvent {
     /**
      * @return {Promise<void>}
      */
-    async initMarketing(testerMode) {
+    async initMarketing(testerMode, firstInit = false) {
         this.TG = new BlocksoftTg(changeableProd.tg.info.spamBot)
 
         if (typeof testerMode === 'undefined' || testerMode === false) {
@@ -99,10 +100,22 @@ class MarketingEvent {
         }
 
         // after this is a little bit long soooo we will pass variables any time we could
-        this.DATA.LOG_WALLET = await settingsActions.getSelectedWallet('MarketingEvent')
+        if (!firstInit) {
+            const walletHash = await settingsActions.getSelectedWallet('MarketingEvent')
+            this.setWalletHash(walletHash)
+        }
         const tmp = await trusteeAsyncStorage.getCacheBalance()
         if (tmp) {
             CACHE_BALANCE = tmp
+        }
+
+        try {
+            const deviceId = DeviceInfo.getUniqueId()
+            if (deviceId) {
+                this.DATA.LOG_DEVICE_ID = deviceId
+            }
+        } catch (e) {
+
         }
     }
 
@@ -111,11 +124,15 @@ class MarketingEvent {
         await this._reinitTgMessage(await trusteeAsyncStorage.getTesterMode())
     }
 
+    setWalletHash(walletHash) {
+        this.DATA.LOG_WALLET = walletHash
+    }
+
     async reinitByWallet(walletHash) {
         if (this.DATA.LOG_WALLET === walletHash) {
             return false
         }
-        this.DATA.LOG_WALLET = walletHash
+        this.setWalletHash(walletHash)
 
         await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET }, 'MarketingEvent')
 
@@ -168,10 +185,10 @@ class MarketingEvent {
 
             if (key === 'LOG_DEV') {
                 // do nothing
-            } else if (key === 'LOG_TOKEN') {
+            } else if (key === 'LOG_TOKEN' || key === 'LOG_DEVICE_ID') {
                 const short = val.substr(0, 20)
-                this.TG_MESSAGE += '\nTOKEN ' + short
-                this.TG_MESSAGE += '\nFULL_TOKEN ' + val
+                this.TG_MESSAGE += '\n ' + key + ' ' + short
+                this.TG_MESSAGE += '\nFULL ' + key + ' ' + val
                 if (crashlytics()) {
                     crashlytics().setAttribute(key, short)
                     crashlytics().setAttribute(key + '_FULL', val)

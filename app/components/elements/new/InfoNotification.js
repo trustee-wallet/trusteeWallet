@@ -7,7 +7,6 @@ import {
     View,
     Text,
     Animated,
-    TouchableOpacity,
     StyleSheet
 } from 'react-native'
 
@@ -15,6 +14,7 @@ import CustomIcon from '../CustomIcon'
 import { SIZE } from '@app/modules/WalletList/helpers'
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import TouchableDebounce from './TouchableDebounce'
 
 const getIcon = (type, color) => {
     switch(type) {
@@ -96,7 +96,7 @@ class InfoNotification extends React.Component {
 
         return (
             <Animated.View style={[styles.container, animated && backupAnimaStyle , containerStyles, { backgroundColor: colors.homeScreen.backupBg }]}>
-                <TouchableOpacity
+                <TouchableDebounce
                     onPress={onPress}
                     style={styles.backupWrapper}
                     onLayout={this.processViewHeight}
@@ -107,10 +107,10 @@ class InfoNotification extends React.Component {
                         {title && <Text style={[styles.backupName, { color: colors.walletManagment.walletItemBorderColor }]}>{title}</Text>}
                         <Text style={[styles.backupDescription, { color: colors.homeScreen.backupDescription }]}>{subTitle}</Text>
                     </View>
-                    {!withoutClosing && <TouchableOpacity onPress={this.close} style={styles.close} hitSlop={HIT_SLOP}>
+                    {!withoutClosing && <TouchableDebounce onPress={this.close} style={styles.close} hitSlop={HIT_SLOP}>
                         <CustomIcon name='close' size={18} color={colors.common.button.text} />
-                    </TouchableOpacity>}
-                </TouchableOpacity>
+                    </TouchableDebounce>}
+                </TouchableDebounce>
             </Animated.View>
         )
     }

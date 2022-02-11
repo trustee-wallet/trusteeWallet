@@ -34,7 +34,7 @@ import { strings } from '@app/services/i18n'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { changeAddress } from './helpers'
-import AccountGradientBlock from '../elements/AccountGradientBlock'
+import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
 import HdAddressListItem from './elements/HdAddressListItem'
 
 const TX_PER_PAGE = 40

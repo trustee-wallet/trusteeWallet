@@ -9,7 +9,7 @@ import Log from '@app/services/Log/Log'
 
 const { dispatch } = store
 
-const CODES = ['ETH_RINKEBY', 'MATIC', 'ETH', 'BNB', 'ETH_ROPSTEN']
+const CODES = ['ETH_RINKEBY', 'MATIC', 'ETH', 'BNB', 'ONE', 'ETH_ROPSTEN']
 
 export namespace NftActions {
 

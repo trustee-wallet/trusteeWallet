@@ -13,6 +13,9 @@ class BlocksoftPrettyStrings {
 
     makeFromTrustee(link) {
         let linkUrl = link
+        if (linkUrl.indexOf('harmony.one') !== -1) {
+            return linkUrl
+        }
         if (linkUrl.indexOf('?') === -1) {
             linkUrl += '?from=trustee'
         }

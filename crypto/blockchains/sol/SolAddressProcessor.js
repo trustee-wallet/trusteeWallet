@@ -24,8 +24,17 @@ export default class SolAddressProcessor {
      * @returns {Promise<{privateKey: string, address: string}>}
      */
     async getAddress(privateKey, data = {}, superPrivateData = {}) {
-        const seed = BlocksoftKeys.getSeedCached(superPrivateData.mnemonic).toString('hex')
-        const res = XlmDerivePath(seed, data.derivationPath)
+        if (typeof superPrivateData.mnemonic === 'undefined' || !superPrivateData.mnemonic) {
+            throw new Error('need mnemonic')
+        }
+
+        const seed = await BlocksoftKeys.getSeedCached(superPrivateData.mnemonic)
+        const seedHex = seed.toString('hex')
+        if (seedHex.length < 128) {
+            throw new Error('bad seedHex')
+        }
+
+        const res = XlmDerivePath(seedHex, data.derivationPath)
         const key = nacl.sign.keyPair.fromSeed(res.key)
         const naclPubKey = Buffer.from(key.publicKey).toString('hex')
         const naclSecretKey = Buffer.from(key.secretKey).toString('hex')

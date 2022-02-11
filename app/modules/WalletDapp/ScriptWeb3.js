@@ -1,165 +1,360 @@
 // https://developers.tron.network/reference/sendtransaction
 // https://justlend.org/static/js/utils/blockchain.js
+export const INJECTEDJAVASCRIPT_SMALL = `
+const meta = document.createElement('meta')
+meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')
+meta.setAttribute('name', 'viewport')
+document.getElementsByTagName('head')[0].appendChild(meta)
+
+window.ReactNativeWebView.postMessage('ScriptWeb3 loaded without injected')
+`
+
 export const INJECTEDJAVASCRIPT = `
-const meta = document.createElement('meta'); meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'); meta.setAttribute('name', 'viewport');
-document.getElementsByTagName('head')[0].appendChild(meta);
+const meta = document.createElement('meta')
+meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')
+meta.setAttribute('name', 'viewport')
+document.getElementsByTagName('head')[0].appendChild(meta)
 
-
-window.ReactNativeWebView.postMessage('ScriptWeb3 loaded');
+window.ReactNativeWebView.postMessage('ScriptWeb3 loaded')
 
 try {
     const trustee = {
-        _received : false,
-        _setInterval : false,
-        
-        receiveBridge : (data) => {
+        _received: {},
+        _setInterval :{},
+        _callbackOnEvent: {},
+
+        receiveBridge: (data) => {
             try {
-                const tmp = JSON.parse(data);
+                const tmp = JSON.parse(data)
                 if (typeof tmp.req !== 'undefined' && typeof tmp.req.main !== 'undefined' && tmp.req.main) {
-                    trustee._received = tmp;
+                    trustee._received[tmp.req.id] = tmp
                 }
             } catch (e) {
-                window.ReactNativeWebView.postMessage('receiveBridge parse error ' + e.message);
+                window.ReactNativeWebView.postMessage('receiveBridge parse error ' + e.message + ' on data ' + data)
             }
         },
-        
+
         sendBridge: async (data) => {
+            let res
             try {
-                if (trustee._setInterval) {
-                   clearInterval(trustee._setInterval)
-                }
-                data.id = new Date().getTime()
-                window.ReactNativeWebView.postMessage(JSON.stringify(data));           
-                const res = await new Promise((resolve, reject) => {
-                    trustee._setInterval = setInterval(() => {
-                        if (trustee._received && trustee._received.req.main === data.main && trustee._received.req.id === data.id) {
-                            if (typeof trustee._received.res.error !== 'undefined') {
-                                reject(new Error(trustee._received.res.error));
+                data.id = new Date().getTime() + '_' + Math.random()
+                window.ReactNativeWebView.postMessage(JSON.stringify(data))
+                res = await new Promise((resolve, reject) => {
+                    trustee._setInterval[data.id] = setInterval(() => {
+                        if (typeof trustee._received[data.id] !== 'undefined') {
+                            if (typeof trustee._received[data.id].res.error !== 'undefined') {
+                                const tmp = trustee._received[data.id].res.error
+                                delete trustee._received[data.id]
+                                reject(new Error(tmp))
                             } else {
-                                resolve(trustee._received.res);
+                                const tmp = JSON.parse(JSON.stringify(trustee._received[data.id].res))
+                                delete trustee._received[data.id]
+                                resolve(tmp)
                             }
                         }
                     }, 1000)
-               });
-               return res;
+                })
+                clearInterval(trustee._setInterval[data.id])
             } catch (e) {
-              window.ReactNativeWebView.postMessage('sendBridge error1 ' + e.message);
-              throw new Error(e);
+                clearInterval(trustee._setInterval[data.id])
+                window.ReactNativeWebView.postMessage('sendBridge error11 ' + e.message)
+                throw new Error(e)
             }
+
+            return res
         },
-        
-        tronWeb : {
-            defaultAddress : {
+
+        tronWeb: {
+            isTrustee: true,
+            defaultAddress: {
                 base58: 'TRX_ADDRESS_BASE58',
-                hex : 'TRX_ADDRESS_HEX'
+                hex: 'TRX_ADDRESS_HEX'
             },
-            transactionBuilder : {
-                triggerSmartContract : async (address, functionSelector, options, parameters) => {
-                    return trustee.sendBridge({main: 'tronWeb', action: 'triggerSmartContract', address, functionSelector, options, parameters});
+            transactionBuilder: {
+                triggerSmartContract: async (address, functionSelector, options, parameters) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'triggerSmartContract', address, functionSelector, options, parameters })
+                },
+                sendTrx : async (address, amount, addressTo) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'sendTrx', address, amount, addressTo })
                 },
             },
-            trx : {
-                sign : async (data) => {
-                    return trustee.sendBridge({main: 'tronWeb', action: 'sign', data});
+            trx: {
+                request : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'request', data })
                 },
-                sendRawTransaction : async (data) => {
-                    return trustee.sendBridge({main: 'tronWeb', action: 'sendRawTransaction', data});
+                sign: async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'sign', data })
                 },
-                getBalance : async (data) => {
-                    return trustee.sendBridge({main: 'tronWeb', action: 'getBalance', data});
+                sendRawTransaction: async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'sendRawTransaction', data })
                 },
-                getConfirmedTransaction : async (data) => {
-                    return trustee.sendBridge({main: 'tronWeb', action: 'getConfirmedTransaction', data});
+                getBalance: async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'getBalance', data })
+                },
+                getAccount: async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'getAccount', data })
+                },
+                getConfirmedTransaction: async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'getConfirmedTransaction', data })
+                },
+                getTransactionInfo: async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'getTransactionInfo', data })
+                }
+            },
+            fullNode: {
+                request : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'request', data })
+                },
+            },
+            solidityNode: {
+                request : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'request', data })
+                },
+            },
+            address: {
+                toHex : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'toHex', data })
+                },
+                fromPrivateKey : async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'fromPrivateKey', data })
+                },
+            },
+            isAddress : async (data) => {
+                return trustee.sendBridge({ main: 'tronWeb', action: 'isAddress', data })
+            },
+            toUtf8 : async (data) => {
+                return trustee.sendBridge({ main: 'tronWeb', action: 'toUtf8', data })
+            },
+            sha3 : async (data) => {
+                return trustee.sendBridge({ main: 'tronWeb', action: 'sha3', data })
+            },
+            fromSun : (data) => {
+                let ic = data.length;
+                let res = '';
+                for (let i = 0; i < ic - 6; i++) {
+                    res += data[i];
+                }
+                if (!res) {
+                    res = '0.';
+                } else {
+                    res += '.';
+                }
+                for (let i = ic - 6; i < ic; i++) {
+                    res += data[i];
+                }
+                return res;
+            },
+            event : {
+                getEventsByContractAddress :  async (data) => {
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'event.getEventsByContractAddress', data })
+                },
+            },            
+            contract: (abi, address) => {
+                const _tmp = (contract, address) => {                          
+                            // https://github.com/tronprotocol/tronweb/blob/5fa94d0c44839bb6d64a0e1cbc703a3c5c8ff332/src/lib/contract/index.js#L102
+                            if (typeof contract.abi.entrys !== 'undefined') {
+                                for (const tmp of contract.abi.entrys) {
+                                    const { name, inputs } = tmp
+                                    contract[name] = (arg0, arg1, arg2, arg3, arg4, arg5) => {
+                                        const args = [arg0, arg1, arg2, arg3, arg4, arg5]
+                                        const parameters = []
+                                        const types = []
+                                        if (typeof inputs !== 'undefined' && inputs) {
+                                            for (let i = 0, ic = inputs.length; i<ic; i++) {
+                                                const input = inputs[i]
+                                                input.value = args[i]
+                                                parameters.push(input)
+                                                types.push(input.type)
+                                            }
+                                        }
+                                        const functionSelector =  name + '(' + types.join(',') + ')'
+                                        return {
+                                            send : async (options) => {
+                                                const tmp = await trustee.sendBridge({ main: 'tronWeb', action: 'triggerSmartContract', address, functionSelector, parameters, options})
+                                                if (typeof tmp === 'undefined' || !tmp || typeof tmp.result === 'undefined' || typeof tmp.result.result === 'undefined' || tmp.result.result !== true) {
+                                                    return tmp
+                                                }
+                                                return trustee.sendBridge({ main: 'tronWeb', action: 'sendRawTransaction', data : tmp.transaction })
+                                            },
+                                            call : async (options) => {
+                                                return trustee.sendBridge({ main: 'tronWeb', action: 'triggerConstantContract', address, functionSelector, parameters})
+                                            }
+                                        }
+
+
+                                    }
+                                }
+                            }
+                            return contract
+                }
+                
+                if (abi && address) {
+                    const contract = {
+                        address : address,
+                        // bytecode : res.bytecode,
+                        deployed : true,
+                        abi : {
+                            entrys : abi
+                        }
+                    }
+                    _tmp(contract, address)
+                    return contract
+                    //exchangeTokensEXR2().send()
+                }
+                return {                    
+                    at: async (address) => {
+                        try {
+                            const contract = await trustee.sendBridge({ main: 'tronWeb', action: 'getContractAt', address })
+                            return _tmp(contract, address)
+                        } catch (e) {
+                            console.log('contact load error ' + e.message)
+                        }
+                    }
                 }
             }
+        },
+
+        ethereum: {
+            selectedAddress: 'ETH_ADDRESS_HEX',
+            chainId: 'ETH_CHAIN_ID_HEX',
+            networkVersion: 'ETH_CHAIN_ID_INTEGER',
+            isMetaMask: true,
+            isConnected: () => {
+                return true
+            },
+            activate: () => {
+                return true
+            },
+            enable: async () => {
+                return true
+            },
+
+            on: (event, funcOnEvent) => {
+                if (typeof funcOnEvent !== 'undefined' && funcOnEvent !== 'undefined') {
+                    trustee._callbackOnEvent[event] = funcOnEvent;
+                }
+            },
+
+            onCallback: (event, result) => {
+                if (typeof trustee._callbackOnEvent[event] !== 'undefined' && JSON.stringify(trustee._callbackOnEvent[event]) !== 'undefined') {
+                    trustee._callbackOnEvent[event](JSON.parse(JSON.stringify(result)))
+                }
+            },
+
+            request: async (data) => {
+                const tmp = await trustee.sendBridge({ main: 'ethereum', action: 'request', data })
+                if (typeof tmp.onEvent !== 'undefined' && tmp.onEvent) {
+                    trustee.ethereum.onCallback(tmp.onEvent, tmp.result)
+                }
+                return tmp.result
+            },
+            send: async (data) => {
+                const tmp = await trustee.sendBridge({ main: 'ethereum', action: 'send', data })
+                if (typeof tmp.onEvent !== 'undefined' && tmp.onEvent) {
+                    trustee.ethereum.onCallback(tmp.onEvent, tmp.rpc.result)
+                }
+                return tmp.rpc
+            },
+            sendAsync: async (data, callback) => {
+                const tmp = await trustee.sendBridge({ main: 'ethereum', action: 'sendAsync', data })
+                if (typeof callback !== 'undefined') {
+                    callback(false, tmp.rpc)
+                }
+                if (typeof tmp.onEvent !== 'undefined' && tmp.onEvent) {
+                    trustee.ethereum.onCallback(tmp.onEvent, tmp.rpc.result)
+                }
+                return tmp.rpc
+            },
+            getAccounts : async () => {
+                console.log('GEEET ACCOUNTS?')
+            },
+            _handleAccountsChanged : () => {
+                console.log('KSU 1')
+            },
+            _handleConnect : () => {
+                console.log('KSU 2')
+            },
+            _handleChainChanged : () => {
+                console.log('KSU 3')
+            },
+            _handleDisconnect : () => {
+                console.log('KSU 5')
+            },
+            _handleStreamDisconnect : () => {
+                console.log('KSU 6')
+            },
+            _handleUnlockStateChanged : () => {
+                console.log('KSU 7')
+            },
+            _rpcRequest: () => {
+                console.log('KSU 8')
+            },
+            _jsonRpcConnection : () => {
+                 console.log('KSU 9')
+                 return {
+                     events : {
+                         on : () => {
+                                console.log('KSU 9-1')
+                         },
+                     }
+                 }
+            },
+            _initializeState: () => {
+                console.log('KSU 11')
+            },
+
         }
     }
-    window.tronWeb = trustee.tronWeb;
-    
     window.tronLink = {
-      ready: true,
-      request: (data) => {
-        window.ReactNativeWebView.postMessage('trustee.tronLink request ');
-      },
-      tronWeb: trustee.tronWeb
-    };
-    
+        ready: true,
+        tronWeb: trustee.tronWeb
+    }
+    window.tronWeb = trustee.tronWeb
+
+    window.tronLink = {
+        ready: true,
+        request: (data) => {
+            window.ReactNativeWebView.postMessage('trustee.tronLink request ')
+        },
+        tronWeb: trustee.tronWeb
+    }
+
+    window.ethereum = trustee.ethereum;
+
     (function() {
+        window.dispatchEvent(new Event('ethereum#initialized'))
+
         window.addEventListener('message', (event) => {
             if (typeof event.data !== 'undefined' && event.data) {
-                trustee.receiveBridge(event.data)
+                if (event.data.indexOf('fromTrustee') !== -1) {
+                    trustee.receiveBridge(event.data)
+                }
             }
-        });
-    
+        })
+
         document.addEventListener('message', (event) => {
             if (typeof event.data !== 'undefined' && event.data) {
-                trustee.receiveBridge(event.data)
+                if (event.data.indexOf('fromTrustee') !== -1) {
+                    trustee.receiveBridge(event.data)
+                }
             }
-        });
+        })
         
         console.log = (txt, data) => {
-            window.ReactNativeWebView.postMessage('console.log ' + txt + (data ? JSON.stringify(data) : ''));
+            window.ReactNativeWebView.postMessage('console.log general ' + (txt ? JSON.stringify(txt) : '') + ' ' + (data ? JSON.stringify(data) : ''))
         }
-    })();
-    
+
+        console.info = (txt, data) => {
+            window.ReactNativeWebView.postMessage('console.info general ' + (txt ? JSON.stringify(txt) : '') + ' ' + (data ? JSON.stringify(data) : ''))
+        }
+
+        console.error = (e, data) => {
+            window.ReactNativeWebView.postMessage('console.error general ' + (e && typeof e.message !== 'undefined' ? JSON.stringify(e.message) : '') + ' ' + (data ? JSON.stringify(data) : ''))
+        }
+    })()
+
 
 } catch (e) {
-    window.ReactNativeWebView.postMessage('injected error ' + e.message);
+    window.ReactNativeWebView.postMessage('injected error ' + e.message)
 }
 `
-
-
-// here will be code later
-/*
-
- window.ReactNativeWebView.postMessage('trustee.tronWeb.transactionBuilder.triggerSmartContract ' + JSON.stringify({address, functionSelector, options, parameters});
-                sendTrx : (to, amount, from) => {
-                    window.ReactNativeWebView.postMessage('trustee.tronWeb.transactionBuilder.sendTrx ' + to + ' ' + amount + ' ' + from);
-                },
-
-        trx : {
-            getContract : (tx) => {
-               window.ReactNativeWebView.postMessage('trustee.tronWeb.trx.getContract ' + JSON.stringify(tx));
-            },
-            sendRawTransaction: (tx) => {
-               window.ReactNativeWebView.postMessage('trustee.tronWeb.trx.sendRawTransaction ' + JSON.stringify(tx));
-            },
-            sendTransaction: (tx) => {
-               window.ReactNativeWebView.postMessage('trustee.tronWeb.trx.sendTransaction ' + JSON.stringify(tx));
-            },
-            sendToken: (tx) => {
-               window.ReactNativeWebView.postMessage('trustee.tronWeb.trx.sendToken ' + JSON.stringify(tx));
-            },
-            sign : (tx) => {
-                window.ReactNativeWebView.postMessage('trustee.tronWeb.trx.sign ' + JSON.stringify(tx));
-            }
-        },
-        contract : (tx) => {
-              window.ReactNativeWebView.postMessage('trustee.tronWeb.contract ' + JSON.stringify(tx));
-        }
-
-const trustee = {
-    personal : {
-        sign : () => {
-            window.ReactNativeWebView.postMessage('trustee.personal.sign');
-        },
-    },
-    ethereum : {
-        request : (data) => {
-            window.ReactNativeWebView.postMessage('trustee.ethereum.request ' + JSON.stringify(data));
-        },
-        isConnected : () => {
-           window.ReactNativeWebView.postMessage('trustee.ethereum.isConnected')
-        },
-        on : (name, fnc) => {
-           window.ReactNativeWebView.postMessage('trustee.ethereum.on ' + name)
-        },
-        removeListener : (name, fnc) => {
-           window.ReactNativeWebView.postMessage('trustee.ethereum.removeListener ' + name)
-        }
-    }
-}
-window.web3 = trustee;
-window.ethereum = trustee;
- */
-

@@ -32,7 +32,7 @@ class BlocksoftKeysForRef {
             if (typeof data.index !== 'undefined') {
                 index = data.index
             }
-            const root =  BlocksoftKeys.getBip32Cached(data.mnemonic)
+            const root =  await BlocksoftKeys.getBip32Cached(data.mnemonic)
             const path = `m/44'/60'/${index}'/0/0`
             const child = root.derivePath(path)
 

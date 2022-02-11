@@ -64,7 +64,7 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
     let storedKey
 
-    const prevWallet = await settingsActions.getSelectedWallet()
+    const prevWallet = await settingsActions.getSelectedWallet('proceedSaveGeneratedWallet')
 
     try {
         Log.log('ACT/MStore proceedSaveGeneratedWallet called prevWallet ' + prevWallet)
@@ -103,7 +103,8 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
                     walletIsHideTransactionForFee : savedWallet.wallet_is_hide_transaction_for_free,
                     walletUseLegacy : savedWallet.wallet_use_legacy,
                     walletUseUnconfirmed : savedWallet.wallet_use_unconfirmed,
-                    walletNumber : wallet.walletNumber
+                    walletNumber : wallet.walletNumber,
+                    walletIsCreatedHere : 0
                 }
                 if (tmpWalletName && tmpWalletName !== '') {
                     fullWallet.walletName = tmpWalletName
@@ -119,10 +120,17 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             if (!tmpWalletName || tmpWalletName === '') {
                 tmpWalletName = await walletActions.getNewWalletName()
             }
-            await walletDS.saveWallet({ walletHash: storedKey, walletName : tmpWalletName, walletIsBackedUp: wallet.walletIsBackedUp || 0, walletNumber : wallet.walletNumber })
             fullWallet.walletName = tmpWalletName
             fullWallet.walletIsBackedUp =  wallet.walletIsBackedUp || 0
             fullWallet.walletNumber = wallet.walletNumber
+            fullWallet.walletIsCreatedHere = source === 'IMPORT' ? 0 : 1
+            await walletDS.saveWallet({
+                walletHash: storedKey,
+                walletName : tmpWalletName,
+                walletIsBackedUp: wallet.walletIsBackedUp || 0,
+                walletNumber : wallet.walletNumber,
+                walletIsCreatedHere : fullWallet.walletIsCreatedHere
+            })
         }
 
         if (source === 'IMPORT' && !fromSaved && hasInternet) {
@@ -139,9 +147,9 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
 
         await walletActions.addAvailableWallets(fullWallet)
 
-        await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source }, source)
+        await accountDS.discoverAccounts({ walletHash: storedKey, fullTree: false, source, currencyCode : ['ETH'] }, source)
 
-        await accountBalanceActions.initBalances(storedKey, source === 'IMPORT')
+        //await accountBalanceActions.initBalances(storedKey, source === 'IMPORT')
 
         await cryptoWalletActions.setSelectedWallet(storedKey, 'ACT/MStore proceedSaveGeneratedWallet Revert', false)
 

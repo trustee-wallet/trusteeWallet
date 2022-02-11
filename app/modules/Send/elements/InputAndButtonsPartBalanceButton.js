@@ -3,9 +3,10 @@
  * @author yura
  */
 import React from 'react'
-import { Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { Text, StyleSheet } from 'react-native'
 
 import { useTheme } from '@app/theme/ThemeProvider'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 const InputAndButtonsPartBalanceButton = (props) => {
 
@@ -13,14 +14,14 @@ const InputAndButtonsPartBalanceButton = (props) => {
     const { text, action, inverse } = props
 
     return (
-        <TouchableOpacity style={{
+        <TouchableDebounce style={{
             ...styles.button,
             backgroundColor: inverse ? colors.common.text1 : colors.common.background,
             borderColor: inverse ? '' : colors.common.text1,
             borderWidth: inverse ? 0 : 2,
         }} onPress={action}>
             <Text style={{ ...styles.text, color: inverse ? colors.common.background : colors.common.text3 }} >{text}</Text>
-        </TouchableOpacity>
+        </TouchableDebounce>
     )
 }
 

@@ -18,6 +18,7 @@ import { strings } from '@app/services/i18n'
 import config from '@app/config/config'
 import store from '@app/store'
 import { getEnsAddress, isEnsAddressValid } from '@crypto/services/EnsUtils'
+import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
 
 const translateResolutionError = (domain: string, errorCode: ResolutionErrorCode, ticker: string) => {
@@ -118,6 +119,18 @@ export namespace SendActionsContactBook {
         if (res) {
             return res
         }
+
+        try {
+            if (OneUtils.isOneAddress(data.addressName)) {
+                res = OneUtils.fromOneAddress(data.addressName)
+            }
+        } catch (e) {
+            Log.log('SendActionsContactBook.getContactAddress oneAddress error ' + e.message)
+        }
+        if (res) {
+            return res
+        }
+
         res = await getContactAddressUnstoppable(data)
         if (res) {
             return res

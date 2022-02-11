@@ -3,16 +3,18 @@ import { showModal } from "@app/appstores/Stores/Modal/ModalActions"
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 import BlocksoftDict from "@crypto/common/BlocksoftDict"
-import BlocksoftExternalSettings from "@crypto/common/BlocksoftExternalSettings"
+import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
 import Netinfo from '@app/services/Netinfo/Netinfo'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
-import { strings, sublocale } from "@app/services/i18n"
+import { strings } from "@app/services/i18n"
 import prettyShare from "@app/services/UI/PrettyShare/PrettyShare"
 import Log from "@app/services/Log/Log"
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
 
 import NavStore from '@app/components/navigation/NavStore'
+import config from '@app/config/config'
+import UpdateCurrencyRateDaemon from "@app/daemons/back/UpdateCurrencyRateDaemon"
 
 const diffTimeScan = (timeScan) => {
     const lastScan = timeScan * 1000
@@ -23,9 +25,21 @@ const diffTimeScan = (timeScan) => {
     return Math.abs(Math.round(diffTime))
 }
 
-const getExplorerLink = (code, type, value) => {
+const getExplorerLink = (code, type, _value) => {
 
     const currency = BlocksoftDict.getCurrencyAllSettings(code)
+
+    let value = ''
+    if (typeof _value === 'string') {
+        value = _value
+    } else {
+        if (config.debug.appErrors) {
+            console.log('Account.getExplorerLink error value ', _value)
+        }
+        Log.log('Account.getExplorerLink error value ', _value)
+
+        value = JSON.stringify(_value)
+    }
 
     const currencyCode = currency.tokenBlockchain === 'ETHEREUM' ? 'ETH' : currency.currencyCode
 
@@ -117,6 +131,7 @@ const handleSend = async (props) => {
     const { currencyCode } = props.selectedCryptoCurrencyData
 
     if (isSynchronized) {
+        UpdateCurrencyRateDaemon.updateCurrencyRate({ force: true, source: 'Account.helper.handleSend' })
         await SendActionsStart.startFromAccountScreen(currencyCode)
     } else {
         showModal({
@@ -135,8 +150,7 @@ const getCurrentDate = (date) => {
 }
 
 const handleShareInvoice = (address, currencyCode, currencyName) => {
-    const lang = sublocale()
-    const message = `${BlocksoftExternalSettings.getStatic(`INVOICE_URL_${lang.toUpperCase()}`)}?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
+    const message = `${BlocksoftCustomLinks.getLink(`INVOICE_URL`, this.context.isLight)}?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
 
     const shareOptions = {
         title: strings('account.invoiceText'),
@@ -147,7 +161,7 @@ const handleShareInvoice = (address, currencyCode, currencyName) => {
 
 
 export {
-    diffTimeScan, 
+    diffTimeScan,
     getExplorerLink,
     getPrettyCurrencyName,
     handleBuy,

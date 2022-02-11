@@ -17,7 +17,7 @@ import _isEqual from 'lodash/isEqual'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import NavStore from '@app/components/navigation/NavStore'
 
-import { getSortValue } from '@app/appstores/Stores/Main/selectors'
+import { getHomeFilterWithBalance, getSelectedWalletData, getSortValue } from '@app/appstores/Stores/Main/selectors'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
@@ -64,13 +64,13 @@ class HomeDragScreen extends PureComponent {
             this.setState({
                 fromGuide: true
             })
-        } 
+        }
     }
 
     handleDone = () => {
 
         NavStore.goBack()
-        if(this.state.fromGuide) {
+        if (this.state.fromGuide) {
             this.setState({
                 fromGuide: false
             })
@@ -79,7 +79,7 @@ class HomeDragScreen extends PureComponent {
     }
 
     handlRightAction = () => {
-        NavStore.goNext('HomeSortScreen')
+        this.bottomSheetRef.open()
     }
 
     onDragBegin = () => {
@@ -98,10 +98,10 @@ class HomeDragScreen extends PureComponent {
         trusteeAsyncStorage.setSortValue('custom')
     }
 
-    triggerGuide = () => { 
+    triggerGuide = () => {
         this.setState({
             isTraining: !this.state.isTraining
-        })    
+        })
     }
 
     handleGuide = () => {
@@ -109,6 +109,8 @@ class HomeDragScreen extends PureComponent {
     }
 
     render() {
+
+        const { walletIsCreatedHere } = this.props.selectedWalletData
 
         const {
             GRID_SIZE,
@@ -122,8 +124,6 @@ class HomeDragScreen extends PureComponent {
                 title={strings('homeScreen.settings')}
                 leftType='done'
                 leftAction={this.handleDone}
-                rightType='sort'
-                rightAction={this.handlRightAction}
                 withMarginTop
             >
                 <DraggableFlatList
@@ -135,6 +135,7 @@ class HomeDragScreen extends PureComponent {
                     renderItem={({ item, index, drag, isActive }) => (
                         <CryptoCurrency
                             index={index}
+                            walletIsCreatedHere={walletIsCreatedHere}
                             cryptoCurrency={item}
                             isBalanceVisible={this.props.isBalanceVisible}
                             onDrag={drag}
@@ -160,10 +161,12 @@ HomeDragScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
+        selectedWalletData: getSelectedWalletData(state),
         currencies: getVisibleCurrencies(state),
         isBalanceVisible: getIsBalanceVisible(state.settingsStore),
         sortValue: getSortValue(state),
-        accountList: getAccountList(state)
+        accountList: getAccountList(state),
+        homeFilterWithBalance: getHomeFilterWithBalance(state)
     }
 }
 

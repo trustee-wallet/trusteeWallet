@@ -12,9 +12,9 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import { setCallback, setFlowType, setMnemonicLength, setWalletName } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
-import { strings, sublocale } from '@app/services/i18n'
+import { strings } from '@app/services/i18n'
 
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -86,8 +86,7 @@ class WalletCreateScreen extends PureComponent {
     }
 
     handleCreate = () => {
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_create', {number : '1', source : 'WalletCreateScreen'}, 'GX')
-        this.handleSelect({ flowType: 'CREATE_NEW_WALLET', source : 'WalletCreateScreen', walletNumber : 1 })
+        NavStore.goNext('WalletCreateWithAnimation')
     }
 
     handleImport = () => {
@@ -100,14 +99,12 @@ class WalletCreateScreen extends PureComponent {
     }
 
     handleTermsPress = () => {
-        const lang = sublocale()
-        const url = BlocksoftExternalSettings.getStatic(`TERMS_${lang}`)
+        const url = BlocksoftCustomLinks.getLink(`TERMS`, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.termsTitle'), backOnClose: true })
     }
 
     handlePrivacyPolicyPress = () => {
-        const lang = sublocale()
-        const url = BlocksoftExternalSettings.getStatic(`PRIVACY_POLICY_${lang}`)
+        const url = BlocksoftCustomLinks.getLink(`PRIVACY_POLICY`, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.privacyPolicyTitle'), backOnClose: true })
     }
 

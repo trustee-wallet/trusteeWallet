@@ -23,8 +23,11 @@ export const LANGUAGE_SETTINGS = [
         code: 'uk-UA'
     },
     {
+        code: 'fr-FR'
+    },
+    {
         code: 'ka-GE'
-    }
+    },
 ]
 
 export async function deleteWallet(walletHash, source, goBack) {

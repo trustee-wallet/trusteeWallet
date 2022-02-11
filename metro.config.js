@@ -5,9 +5,10 @@ extraNodeModules.sourceExts = defaultSourceExts
 module.exports = {
     resolver: {
         extraNodeModules,
-        assetExts: ['png', 'jpeg', 'jpg']
+        assetExts: ['png', 'jpeg', 'jpg', 'mp4']
     },
     transformer: {
+        // babelTransformerPath: require.resolve("./metro.transform.js"),
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,

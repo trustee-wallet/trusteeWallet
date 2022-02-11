@@ -32,6 +32,8 @@ import cryptoWallets from '@app/appstores/DataSource/CryptoWallets/CryptoWallets
 import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import { deleteWallet } from '../Settings/helpers'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 
 const VISIBILITY_TIMEOUT = 4000
@@ -56,7 +58,7 @@ class BackupStep1Screen extends React.PureComponent {
     init = async () => {
         Log.log('WalletBackup.BackupStep1Screen init')
 
-        if (typeof this.props.createWalletStore.walletMnemonic === 'undefined') {
+        if (typeof this.props.createWalletStore.walletMnemonic === 'undefined' && this.props.createWalletStore.flowType !== 'DELETE_WALLET') {
             throw new Error('WalletBackup.BackupStep1Screen init error')
         }
 
@@ -65,7 +67,7 @@ class BackupStep1Screen extends React.PureComponent {
         let walletMnemonicDefault
         try {
             if (flowType === 'DELETE_WALLET') {
-                const selectedWallet = await settingsActions.getSelectedWallet()
+                const selectedWallet = await settingsActions.getSelectedWallet('WalletBackup.BackupStep1Screen')
                 walletMnemonicDefault = await cryptoWallets.getWallet(selectedWallet, 'WalletBackup.BackupStep1Screen')
                 walletMnemonicDefault = walletMnemonicDefault.split(' ')
             } else {
@@ -254,6 +256,9 @@ class BackupStep1Screen extends React.PureComponent {
     render() {
         Log.log('WalletBackup.BackupStep1Screen render')
         MarketingAnalytics.setCurrentScreen('WalletBackup.BackupStep1Screen')
+
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
 
         const {
             isMnemonicVisible,

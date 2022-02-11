@@ -184,7 +184,7 @@ export default class VetScannerProcessor {
         const amount = BlocksoftUtils.hexToDecimalBigger(transaction.amount)
         let formattedTime = transaction.meta.blockTimestamp
         try {
-            formattedTime = BlocksoftUtils.toDate(transaction.meta.blockTimestamp / 1000)
+            formattedTime = BlocksoftUtils.toDate(transaction.meta.blockTimestamp)
         } catch (e) {
             e.message += ' timestamp error transaction2 data ' + JSON.stringify(transaction)
             throw e
@@ -234,7 +234,7 @@ export default class VetScannerProcessor {
         const amount = BlocksoftUtils.hexToDecimalBigger(transaction.data)
         let formattedTime = transaction.meta.blockTimestamp
         try {
-            formattedTime = BlocksoftUtils.toDate(transaction.meta.blockTimestamp / 1000)
+            formattedTime = BlocksoftUtils.toDate(transaction.meta.blockTimestamp)
         } catch (e) {
             e.message += ' timestamp error transaction2 data ' + JSON.stringify(transaction)
             throw e

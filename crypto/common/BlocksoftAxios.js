@@ -165,7 +165,7 @@ class BlocksoftAxios {
             }
         }
         if (doOld) {
-            tmp = this._request(link, 'post', data, false, errSend, timeOut = false)
+            tmp = this._request(link, 'post', data, false, errSend, timeOut)
         }
         return tmp
     }

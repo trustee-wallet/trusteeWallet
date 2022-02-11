@@ -1,4 +1,4 @@
-/**
+    /**
  * @version 0.42
  * @author Vadym
  */
@@ -8,7 +8,6 @@ import {
     Image,
     ImageBackground,
     Text,
-    TouchableOpacity,
     View,
     StyleSheet,
     Dimensions,
@@ -19,6 +18,7 @@ import QrCodeBox from '@app/components/elements/QrCodeBox'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 import qrLogo from '@assets/images/logoWithWhiteBG.png'
 
 import { strings } from '@app/services/i18n'
@@ -33,6 +33,7 @@ import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { showModal, hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
+import { HIT_SLOP } from '@app/theme/HitSlop'
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -171,7 +172,7 @@ class QrCodePage extends PureComponent {
                     <Image style={[styles.donut1, { marginTop: Platform.OS === 'ios' ? -GRID_SIZE * 4 : -GRID_SIZE * 2.5 }]} source={require('@assets/images/donut1.png')} />
 
                     <View style={styles.qrCodeContainer}>
-                        <TouchableOpacity
+                        <TouchableDebounce
                             style={[styles.qrBox, { padding: GRID_SIZE, backgroundColor: '#F5F5F5' }]}
                             onPress={() => this.copyToClip(cashbackLink)}
                             activeOpacity={0.7}
@@ -186,8 +187,8 @@ class QrCodePage extends PureComponent {
                                 onError={this.handleRenderQrError}
                                 style={styles.qrCode}
                             />
-                        </TouchableOpacity>
-                        <TouchableOpacity
+                        </TouchableDebounce>
+                        <TouchableDebounce
                             style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }]}
                             onPress={() => this.copyToClip(cashbackLink)}
                             activeOpacity={0.8}
@@ -196,14 +197,15 @@ class QrCodePage extends PureComponent {
                                 {cashbackLinkTitle + '  '}
                                 <CustomIcon name='copy' size={WINDOW_WIDTH * 0.06} color={colors.cashback.token} />
                             </Text>
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                         <Text style={[styles.yourToken, { color: colors.common.text3, marginTop: GRID_SIZE / 2 }]}>{strings('cashback.yourToken')}</Text>
 
                     </View>
-                    <View style={[styles.inviteContainer, styles.tokenBox, { marginTop: GRID_SIZE * 4, paddingHorizontal: GRID_SIZE * 1.6 }]}>
-                        <TouchableOpacity
+                    <View style={[{ position: 'relative', bottom: -GRID_SIZE * 2 }]}>
+                        <TouchableDebounce
                             onPress={() => this.handleBackDropModal(this.state.promoCode)}
                             activeOpacity={0.9}
+                            hitSlop={HIT_SLOP}
                         >
                             <Text
                                 style={[
@@ -214,7 +216,7 @@ class QrCodePage extends PureComponent {
                                     }
                                 ]}
                             >{strings('cashback.promoButton')}</Text>
-                        </TouchableOpacity>
+                        </TouchableDebounce>
                     </View>
                     <Image style={styles.donut2} source={require('@assets/images/donut2.png')} />
                     <Image style={styles.donuts} source={require('@assets/images/donuts.png')} />

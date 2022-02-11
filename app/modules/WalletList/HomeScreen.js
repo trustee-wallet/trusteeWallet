@@ -2,10 +2,10 @@
  * @version 0.30
  */
 import React from 'react'
-import { 
-    SafeAreaView, 
-    View, 
-    RefreshControl, 
+import {
+    SafeAreaView,
+    View,
+    RefreshControl,
     StyleSheet,
     FlatList,
     SectionList,
@@ -20,6 +20,7 @@ import _isEqual from 'lodash/isEqual'
 import CryptoCurrency from './elements/CryptoCurrency'
 import WalletInfo from './elements/WalletInfo'
 import Header from './elements/Header'
+import SortList from './elements/SortList'
 
 import Log from '@app/services/Log/Log'
 
@@ -37,7 +38,7 @@ import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
-import { getIsBlurVisible, getSelectedWalletData, getSortValue } from '@app/appstores/Stores/Main/selectors'
+import { getHomeFilterWithBalance, getIsBlurVisible, getSelectedWalletData, getSortValue } from '@app/appstores/Stores/Main/selectors'
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
 
 import { NftActions } from '@app/appstores/Stores/Nfts/NftsActions'
@@ -47,6 +48,8 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 import { getAccountList } from '@app/appstores/Stores/Account/selectors'
 import { strings } from '@app/services/i18n'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
+
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
 
 
 class HomeScreen extends React.PureComponent {
@@ -64,7 +67,8 @@ class HomeScreen extends React.PureComponent {
             originalData: [],
             data: [],
             currenciesOrder: [],
-            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue() || null
+            sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue() || null,
+            homeFilterWithBalance: this.props.homeFilterWithBalance || trusteeAsyncStorage.getHomeFilterWithBalance() || false
         }
     }
 
@@ -88,10 +92,11 @@ class HomeScreen extends React.PureComponent {
     }
 
     componentDidUpdate(prevProps) {
-        if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList)) {
+        if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList) || !_isEqual(prevProps.homeFilterWithBalance, this.props.homeFilterWithBalance)) {
             this.setState({
-                data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue),
-                sortValue: this.props.sortValue
+                data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue, this.props.homeFilterWithBalance),
+                sortValue: this.props.sortValue,
+                homeFilterWithBalance: this.props.homeFilterWithBalance
             })
         }
     }
@@ -164,6 +169,8 @@ class HomeScreen extends React.PureComponent {
 
         const balanceData = getBalanceData(this.props)
 
+        const { walletIsCreatedHere } = this.props.selectedWalletData
+
         return {
             ref: this.props.scrollRef,
             showsVerticalScrollIndicator: false,
@@ -193,6 +200,7 @@ class HomeScreen extends React.PureComponent {
             renderItem: ({ item }) => (
                 <CryptoCurrency
                     cryptoCurrency={item}
+                    walletIsCreatedHere={walletIsCreatedHere}
                     isBalanceVisible={this.state.isBalanceVisible}
                     handleReceive={account => handleReceive(item, account)}
                     handleSend={account => handleSend(item, account)}
@@ -205,35 +213,46 @@ class HomeScreen extends React.PureComponent {
 
     }
 
+    handlerSortValue = () => {
+        this.bottomSheetRef?.open()
+    }
+
+    handleCloseSortValue = () => {
+        this.bottomSheetRef?.close()
+    }
+
     render() {
 
         const { colors, GRID_SIZE } = this.context
 
-        const { sortValue } = this.state
+        const { sortValue, homeFilterWithBalance } = this.state
 
         MarketingAnalytics.setCurrentScreen('WalletList.HomeScreen')
 
         const balanceData = getBalanceData(this.props)
 
         return (
-            <View style={styles.container}>
-                <Header
-                    hasStickyHeader={this.state.hasStickyHeader}
-                    isBalanceVisible={this.state.isBalanceVisible}
-                    originalVisibility={this.state.originalVisibility}
-                    triggerBalanceVisibility={this.triggerBalanceVisibility}
-                    balanceData={balanceData}
-                />
-                <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]} />
+            <>
+                <View style={styles.container}>
+                    <Header
+                        hasStickyHeader={this.state.hasStickyHeader}
+                        isBalanceVisible={this.state.isBalanceVisible}
+                        originalVisibility={this.state.originalVisibility}
+                        triggerBalanceVisibility={this.triggerBalanceVisibility}
+                        balanceData={balanceData}
+                        handleSortView={this.handlerSortValue}
+                        sortValue={sortValue}
+                    />
+                    <SafeAreaView style={[styles.safeAreaContent, { backgroundColor: colors.homeScreen.tabBarBackground }]} />
                     <View style={[styles.content, { backgroundColor: colors.common.background }]}>
                         <View style={styles.stub} />
-                            {(sortValue === 'coinFirst' || sortValue === 'tokenFirst') ? 
-                                <SectionList
+                        {(sortValue === 'coinFirst' || sortValue === 'tokenFirst') ?
+                            <SectionList
                                 {...this.commonHeaderProps}
                                 sections={getSectionsData(this.state.data)}
                                 renderSectionHeader={({ section: { title } }) => {
                                     if (title === 'special') return null
-                                    
+
                                     return (
                                         <Text style={[styles.blockTitle, { color: colors.common.text3, paddingLeft: GRID_SIZE * 1.25, paddingTop: GRID_SIZE }]}>
                                             {strings(`homeScreen.categories.${title}`)}
@@ -242,15 +261,27 @@ class HomeScreen extends React.PureComponent {
                                 }}
                                 renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE }} />}
                                 stickySectionHeadersEnabled={false}
-                                />
+                            />
                             :
-                                <FlatList
-                                    {...this.commonHeaderProps}
-                                    data={this.state.data}
-                                />
-                            }
+                            <FlatList
+                                {...this.commonHeaderProps}
+                                data={this.state.data}
+                            />
+                        }
                     </View>
-            </View>
+                </View>
+                <SheetBottom
+                    ref={ref => this.bottomSheetRef = ref}
+                    snapPoints={[0, 440]}
+                    index={0}
+                >
+                    <SortList
+                        handleClose={this.handleCloseSortValue}
+                        sortValue={sortValue}
+                        homeFilterWithBalance={homeFilterWithBalance}
+                    />
+                </SheetBottom>
+            </>
         )
     }
 }
@@ -265,13 +296,14 @@ const mapStateToProps = (state) => {
         nftsData: getNftsData(state),
         sortValue: getSortValue(state),
         cashbackStore: getCashBackData(state),
-        accountList: getAccountList(state)
+        accountList: getAccountList(state),
+        homeFilterWithBalance: getHomeFilterWithBalance(state)
     }
 }
 
 HomeScreen.contextType = ThemeContext
 
-function HomeWrap (props) {
+function HomeWrap(props) {
     const ref = React.useRef(null);
 
     useScrollToTop(ref);

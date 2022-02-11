@@ -38,6 +38,8 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
+import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
+import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
 class BackupSettingsScreen extends PureComponent {
     state = {
@@ -161,6 +163,9 @@ class BackupSettingsScreen extends PureComponent {
     }
 
     render() {
+        UpdateOneByOneDaemon.pause()
+        UpdateAccountListDaemon.pause()
+
         const {
             mnemonicLength,
             walletName,

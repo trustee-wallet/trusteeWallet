@@ -25,7 +25,8 @@ export function setLockScreenConfig(data, source = '') {
         type: 'SET_LOCK_SCREEN_CONFIG',
         flowType : data.flowType,
         timeLocked : new Date().getTime(),
-        callback : data.callback || false
+        callback : data.callback || false,
+        noCallback : data.noCallback
     })
 }
 

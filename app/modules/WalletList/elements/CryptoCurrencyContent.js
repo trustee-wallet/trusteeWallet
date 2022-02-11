@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native'
+import { View, Text, Platform, StyleSheet } from 'react-native'
 
 import { MaterialIndicator, UIActivityIndicator } from 'react-native-indicators'
 
@@ -23,6 +23,7 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { SIZE } from '../helpers';
 import PercentView from '@app/components/elements/new/PercentView'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 const renderSynchronization = () => {
     const {
@@ -151,14 +152,14 @@ const CryptoCurrencyContent = (props) => {
                 </View>
             }
             {!props.constructorMode ? null :
-                <TouchableOpacity
+                <TouchableDebounce
                     style={{ marginLeft: GRID_SIZE }}
                     activeOpacity={0.7}
                     onPressIn={props.onDrag}
                     hitSlop={HIT_SLOP}
                 >
                     <CustomIcon name='dots' color={colors.common.text1} size={20} />
-                </TouchableOpacity>
+                </TouchableDebounce>
             }
         </GradientView>
     )

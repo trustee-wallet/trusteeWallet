@@ -133,7 +133,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.50.4"
+        versionName "1.50.5"
 
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
@@ -245,6 +245,8 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    implementation("com.squareup.okhttp3:okhttp-urlconnection:4.4.1")
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";

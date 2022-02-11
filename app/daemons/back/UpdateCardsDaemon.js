@@ -36,7 +36,7 @@ class UpdateCardsDaemon {
 
         let asked = false
         if (!dataUpdate) {
-            const authHash = await settingsActions.getSelectedWallet()
+            const authHash = await settingsActions.getSelectedWallet('UpdateCardsDaemon')
             if (!authHash) {
                 Log.daemon('UpdateCardsDaemon skipped as no auth')
                 return false

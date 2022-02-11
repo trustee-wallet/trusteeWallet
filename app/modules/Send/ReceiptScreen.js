@@ -357,24 +357,17 @@ class ReceiptScreen extends PureComponent {
                         <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{ ...styles.title, color: colors.sendScreen.amount }}>{strings('send.receiptScreen.totalSend')}</Text>
 
-
-                            {typeof contractCallData !== 'undefined' && contractCallData.infoForUser.map((item, index) => {
-                                return (
-                                    <TransactionItem
-                                        key={index}
-                                        title={item.title}
-                                        subtitle={item.subtitle}
-                                        iconType={item.iconType}
-                                    />
-                                )
-                            })}
-
-                            {(typeof contractCallData === 'undefined' || !contractCallData) &&
-                                (typeof walletConnectData === 'undefined' || typeof walletConnectData.data === 'undefined' || cryptoValue.toString() !== '0' )
+                            {
+                                (typeof walletConnectData !== 'undefined' && typeof walletConnectData.data !== 'undefined')
                                 ?
-                                    <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
-                                :
                                     <Text style={{ ...styles.value, color: color }}>{`WalletConnect ${currencySymbol}`}</Text>
+                                :
+                                    amountPrettySeparated.toString() !== '0'
+                                        ?
+                                        <Text style={{ ...styles.value, color: color }}>{`${amountPrettySeparated} ${currencySymbol}`}</Text>
+                                        :
+                                        <Text style={{ ...styles.value, color: color }}>{`${currencySymbol}`}</Text>
+
                             }
 
                             {
@@ -398,6 +391,18 @@ class ReceiptScreen extends PureComponent {
                                         letterSpacing={1} />
 
                             }
+
+                            {typeof contractCallData !== 'undefined' && contractCallData.infoForUser.map((item, index) => {
+                                return (
+                                    <TransactionItem
+                                        key={index}
+                                        title={item.title}
+                                        subtitle={item.subtitle}
+                                        iconType={item.iconType}
+                                    />
+                                )
+                            })}
+                            
                             <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                         </View>
                         <View style={{ marginTop: 12 }}>

@@ -26,6 +26,7 @@ class Wallet {
      * @param {integer} wallet.walletUseLegacy
      * @param {integer} wallet.walletUseUnconfirmed
      * @param {integer} wallet.walletIsHd
+     * @param {integer} wallet.walletIsCreatedHere
      */
     saveWallet = async (wallet) => {
         if (typeof wallet.walletHash === 'undefined') {
@@ -36,6 +37,10 @@ class Wallet {
         if (typeof wallet.walletNumber !== 'undefined' && wallet.walletNumber && wallet.walletNumber * 1 > 0) {
             walletNumber = wallet.walletNumber * 1
         }
+        let walletIsCreatedHere = 0
+        if (typeof wallet.walletIsCreatedHere !== 'undefined' && wallet.walletIsCreatedHere && wallet.walletIsCreatedHere * 1 > 0) {
+            walletIsCreatedHere = wallet.walletIsCreatedHere * 1
+        }
         const tmpWalletName = Database.escapeString(wallet.walletName)
         const recheck = await Database.query(`SELECT wallet_name FROM wallet WHERE wallet_hash='${wallet.walletHash}'`)
         if (recheck && recheck.array && recheck.array.length > 0) {
@@ -44,12 +49,13 @@ class Wallet {
         const sql = `INSERT INTO wallet (
         wallet_to_send_status, wallet_hash, wallet_name, 
         wallet_is_hd, wallet_use_legacy, wallet_use_unconfirmed, 
-        wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee, wallet_number)
+        wallet_allow_replace_by_fee, wallet_is_backed_up, wallet_is_hide_transaction_for_fee, 
+        wallet_number, wallet_is_created_here)
         VALUES (
         ${wallet.walletToSendStatus || 0}, '${wallet.walletHash}', '${tmpWalletName}', 
         ${wallet.walletIsHd || 0}, ${wallet.walletUseLegacy || 2}, ${wallet.walletUseUnconfirmed || 1}, 
         ${wallet.walletAllowReplaceByFee || 1}, ${wallet.walletIsBackedUp || 0}, ${wallet.walletIsHideTransactionForFee || 1},
-        ${walletNumber}
+        ${walletNumber}, ${walletIsCreatedHere}
         )`
         await Database.query(sql, true)
     }
@@ -182,7 +188,8 @@ class Wallet {
                 wallet_use_legacy AS walletUseLegacy,
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
                 wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee,
-                wallet_number AS walletNumber
+                wallet_number AS walletNumber,
+                wallet_is_created_here AS walletIsCreatedHere
                 FROM wallet ORDER BY wallet_number`)
         if (!res || !res.array) {
             Log.log('DS/Wallet getWallets no result')
@@ -217,6 +224,7 @@ class Wallet {
         wallet.walletUseLegacy = wallet.walletUseLegacy * 1 || 0
         wallet.walletAllowReplaceByFee = wallet.walletAllowReplaceByFee * 1 || 0
         wallet.walletIsHideTransactionForFee = wallet.walletIsHideTransactionForFee * 1 || 0
+        wallet.walletIsCreatedHere = wallet.walletIsCreatedHere * 1 || 0
         return wallet
     }
 
@@ -225,8 +233,13 @@ class Wallet {
      */
     hasWallet = async () => {
         try {
-            const res = await Database.query(`SELECT wallet_hash FROM wallet LIMIT 1`)
-            return res && res.array && res.array[0]
+            let res = await Database.query(`SELECT name FROM sqlite_master WHERE type='table' AND name='wallet'`)
+            if (res && typeof res.array !== 'undefined' && res.array.length !== 0) {
+                res = await Database.query(`SELECT wallet_hash FROM wallet LIMIT 1`)
+                return res && res.array && res.array[0]
+            }
+            await Database.reInit()
+            return false
         } catch (e) {
             return false
         }
@@ -253,7 +266,8 @@ class Wallet {
                 wallet_use_legacy AS walletUseLegacy,
                 wallet_allow_replace_by_fee AS walletAllowReplaceByFee,
                 wallet_is_hide_transaction_for_fee AS walletIsHideTransactionForFee,
-                wallet_number AS walletNumber
+                wallet_number AS walletNumber,
+                wallet_is_created_here AS walletIsCreatedHere
                 FROM wallet WHERE wallet_hash='${walletHash}' LIMIT 1`)
         if (!res || !res.array || res.array.length === 0) return false
 

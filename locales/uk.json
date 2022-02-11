@@ -14,7 +14,7 @@
       "byValue": "За балансом",
       "firstCoin": "Спочатку монети",
       "firstToken": "Спочатку токени",
-      "withBalance": "З позитивним балансом",
+      "withBalance": "Приховати нульовий баланс",
       "guideTitle": "Навчання"
     },
     "categories": {
@@ -87,7 +87,8 @@
       "connect": "Підключитись",
       "placeholder": "Тут буде адреса гаманця, до якого Ви підключились",
       "linkError": "Помилка підключення WalletConnect. Будь ласка,перевірте правильність прямого посилання",
-      "title": "WalletConnect",
+      "title": "WalletConnect & Dapps",
+      "returnDapp": "Повернутися до Dapp",
       "activated": "Активовано",
       "disabled": "Відключено",
       "changeNetwork": "Зміна мережі",
@@ -202,6 +203,7 @@
       "staked": "Застейкано",
       "frozen" : "Заморожено",
       "stakeTransactionsSOL": "Транзакції стейкінгу",
+      "solValidator": "Комісія валідатора:",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
       "serverInputXMR" : "Сервер з даними (наприклад, api.mymonero.com)",
@@ -270,7 +272,7 @@
       "contactSupportLoadingText" : "Якщо у Вас не відкрився чат служби підтримки, будь ласка, зв'яжіться з нами на сайті",
       "contactSupportLoadingTextEmail": "або напишіть на пошту",
       "information": "Інформація",
-      "copyright": "© BlockSoftLab Inc, 2021"
+      "copyright": "© BlockSoftLab Inc, %{currentYear}"
     },
     "notifications": {
       "title": "Налаштування сповіщень",
@@ -360,9 +362,9 @@
     "enterInviteLinkPlaceholder": "Введіть посилання-запрошення",
     "applyButton": "Застосувати",
     "wholeBalance": "Баланс за весь час",
-    "availableCashBack": "Доступний кешбек",
+    "availableCashBack": "Загальний баланс",
     "balanceTitle": "Баланс",
-    "toWithdraw": "Мін. сумма виводу:",
+    "toWithdraw": "Мін. сума виводу:",
     "cpaTotal": "Усього CPA",
     "cpaLevel1": "CPA Рівень №1",
     "cpaLevel2": "CPA Рівень №2",
@@ -417,7 +419,8 @@
     "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Вивести",
     "minWithdraw": "Мінімальна сума для виводу",
-    "performWithdraw": "Щоб здійснити вивід, будь ласка, напишіть в telegram на нікнейм"
+    "performWithdraw": "Щоб вивести нагороду, зв'яжіться з нашою службою підтримки та надайте Ваше кешбек посилання та адресу Tron (TRX) із додатку",
+    "withdrawSupport": "Підтримка"
   },
   "account": {
     "staking": "Стейкінг",
@@ -1240,6 +1243,9 @@
       "guideTitle": "Персональний інтерфейс",
       "guideAccept": "Прийняти",
       "hideAsset": "Приховати актив"
+    },
+    "cancelPayment": {
+      "description": "Дочекайтесь завершення платежу, екран оплати закриється автоматично. Якщо Ви закриєте його власноруч, то це відмінить Вашу заявку. Бажаєте відмінити заявку?"
     }
   },
   "lockScreen": {
@@ -1270,7 +1276,8 @@
       "1min": "Щохвилини"
     },
     "lastScan": "Ваші баланси відскановано о:",
-    "helper": "Ви можете обрати частоту самостійно"
+    "helper": "Ви можете обрати частоту самостійно",
+    "clean" : "Сканувати обраний гаманець ще раз"
    },
   "loggingSettings": {
     "title": "Логування",

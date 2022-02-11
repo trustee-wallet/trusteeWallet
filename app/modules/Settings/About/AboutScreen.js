@@ -15,11 +15,12 @@ import {
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import { strings, sublocale } from '@app/services/i18n'
+import { strings } from '@app/services/i18n'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
 import Toast from '@app/services/UI/Toast/Toast'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
@@ -62,14 +63,12 @@ class AboutScreen extends PureComponent {
     handleClose = () => { NavStore.reset('HomeScreen') }
 
     handleTermsPress = () => {
-        const lang = sublocale()
-        const url = BlocksoftExternalSettings.getStatic(`TERMS_${lang}`)
+        const url = BlocksoftCustomLinks.getLink(`TERMS`, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.terms') })
     }
 
     handlePrivacyPolicyPress = () => {
-        const lang = sublocale()
-        const url = BlocksoftExternalSettings.getStatic(`PRIVACY_POLICY_${lang}`)
+        const url = BlocksoftCustomLinks.getLink(`PRIVACY_POLICY`, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.privacy') })
     }
 
@@ -137,6 +136,8 @@ class AboutScreen extends PureComponent {
         MarketingAnalytics.setCurrentScreen('About.index')
 
         const { colors, GRID_SIZE, isLight } = this.context
+
+        const currentYear = new Date().getFullYear()
 
         return (
             <ScreenWrapper
@@ -234,7 +235,7 @@ class AboutScreen extends PureComponent {
                         </View>
                     </View>
 
-                    <Text style={[styles.copyright, { color: colors.common.text3, marginVertical: GRID_SIZE }]}>{strings('settings.about.copyright')}</Text>
+                    <Text style={[styles.copyright, { color: colors.common.text3, marginVertical: GRID_SIZE }]}>{strings('settings.about.copyright', { currentYear })}</Text>
                 </ScrollView>
             </ScreenWrapper>
         )

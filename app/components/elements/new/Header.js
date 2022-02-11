@@ -5,11 +5,11 @@
 import React from 'react'
 import {
     View,
-    TouchableOpacity,
     Text,
     StatusBar,
     SafeAreaView,
-    Keyboard
+    Keyboard,
+    TouchableOpacity
 } from 'react-native'
 
 import CustomIcon from '../CustomIcon'
@@ -21,6 +21,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import AntIcon from 'react-native-vector-icons/AntDesign'
 import TextInput from '@app/components/elements/new/TextInput'
+import TouchableDebounce from './TouchableDebounce'
 
 export default class Header extends React.PureComponent {
 
@@ -40,7 +41,7 @@ export default class Header extends React.PureComponent {
                     return <CustomIcon name="arrow_back" size={20} color={props.color} />
                 case 'connect':
                     return <CustomIcon name='reload' size={20} color={props.color} />
-                case 'done': 
+                case 'done':
                     return <CustomIcon name='done' size={20} color={props.color} />
                 default: return null
             }
@@ -49,9 +50,9 @@ export default class Header extends React.PureComponent {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={HIT_SLOP} onPress={() => leftParams ? leftAction(leftParams.close) : leftAction()}>
+            <TouchableDebounce hitSlop={HIT_SLOP} onPress={() => leftParams ? leftAction(leftParams.close) : leftAction()}>
                 <Icon color={leftParams && leftParams.color ? leftParams.color : colors.common.text1} />
-            </TouchableOpacity>
+            </TouchableDebounce>
         )
     }
 
@@ -84,9 +85,29 @@ export default class Header extends React.PureComponent {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={() => rightParams ? rightAction(rightParams.close) : rightAction()}>
+            <TouchableDebounce hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={() => rightParams ? rightAction(rightParams.close) : rightAction()}>
                 <Icon color={colors.common.text1} />
-            </TouchableOpacity>
+            </TouchableDebounce>
+        )
+    }
+
+    getTitleIcon = () => {
+
+        const {
+            titleIconType,
+        } = this.props
+        const { colors } = this.context
+
+        const Icon = (props) => {
+            switch (titleIconType) {
+                case 'downArrow':
+                    return <CustomIcon name="downArrow" size={14} color={props.color} style={{ marginLeft: 6 }} />
+                default: return null
+            }
+        }
+
+        return(
+            <Icon color={colors.common.text1} />
         )
     }
 
@@ -95,6 +116,8 @@ export default class Header extends React.PureComponent {
     render() {
         const {
             title,
+            titleAction,
+            titleIconType,
             ExtraView,
             ExtraViewParams,
             setStatusBar,
@@ -124,9 +147,15 @@ export default class Header extends React.PureComponent {
                             {this.getLeftAction()}
                         </View>
 
-                        <View style={styles.header__center}>
+                        <TouchableOpacity
+                            onPress={titleAction}
+                            disabled={!titleAction}
+                            style={styles.header__center}
+                            hitSlop={HIT_SLOP}
+                        >
                             {title && <Text numberOfLines={2} style={[styles.title, { color: colors.common.text3 }]}>{title}</Text>}
-                        </View>
+                            {titleIconType && this.getTitleIcon()}
+                        </TouchableOpacity>
 
                         <View style={styles.header__right}>
                             {this.getRightAction()}
@@ -214,6 +243,8 @@ const styles = {
     header__center: {
         flex: 4,
         alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row'
     },
     header__right: {
         flexDirection: 'row',

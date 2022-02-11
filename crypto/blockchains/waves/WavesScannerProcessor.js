@@ -4,11 +4,18 @@
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import WavesTransactionsProvider from '@crypto/blockchains/waves/providers/WavesTransactionsProvider'
 
 export default class WavesScannerProcessor {
 
     constructor(settings) {
         this._settings = settings
+        this._provider = new WavesTransactionsProvider()
+        this._mainCurrencyCode = 'WAVES'
+        if (this._settings.currencyCode === 'ASH' || this._settings.currencyCode.indexOf('ASH_') === 0) {
+            this._mainCurrencyCode = 'ASH'
+        }
     }
 
     /**
@@ -18,7 +25,7 @@ export default class WavesScannerProcessor {
      * @return {Promise<{balance, provider}>}
      */
     async getBalanceBlockchain(address) {
-        if (this._settings.currencyCode === 'ASH') {
+        if (this._mainCurrencyCode == 'ASH') {
             this._apiPath = await BlocksoftExternalSettings.get('ASH_SERVER')
         } else {
             this._apiPath = await BlocksoftExternalSettings.get('WAVES_SERVER')
@@ -45,19 +52,10 @@ export default class WavesScannerProcessor {
      * @return {Promise<[UnifiedTransaction]>}
      */
     async getTransactionsBlockchain(scanData, source) {
-        if (this._settings.currencyCode === 'ASH') {
-            this._apiPath = await BlocksoftExternalSettings.get('ASH_SERVER')
-        } else {
-            this._apiPath = await BlocksoftExternalSettings.get('WAVES_SERVER')
-        }
         const address = scanData.account.address.trim()
-        const link = this._apiPath + '/transactions/address/' + address + '/limit/100'
-        const res = await BlocksoftAxios.get(link)
-        if (!res || !res.data || typeof res.data[0] === 'undefined') {
-            return false
-        }
+        const data = await this._provider.get(address, this._mainCurrencyCode)
         const transactions = []
-        for (const tx of res.data[0]) {
+        for (const tx of data) {
             const transaction = await this._unifyTransaction(address, tx)
             if (transaction) {
                 transactions.push(transaction)
@@ -104,19 +102,39 @@ export default class WavesScannerProcessor {
             throw e
         }
         const addressFrom = transaction.sender
-        const addressTo = transaction.recipient
+        const addressTo = transaction.recipient || address
         const addressAmount = transaction.amount
         const transactionFee = transaction.feeAsset && transaction.feeAssetId ? 0 : transaction.fee
         if (transaction.assetId) {
             return false
         }
-        return {
+        let transactionFilterType = TransactionFilterTypeDict.USUAL
+        let transactionDirection = 'self'
+        if (addressFrom === address) {
+            if (addressTo !== address) {
+                transactionDirection = 'outcome'
+            }
+        } else if (addressTo === address) {
+            transactionDirection = 'income'
+        }
+
+        if (typeof transaction.order1 !== 'undefined') {
+            if (transaction.order2.amount === addressAmount) {
+                transactionDirection = 'swap_outcome'
+            } else {
+                transactionDirection = 'swap_income'
+            }
+            transactionFilterType = TransactionFilterTypeDict.SWAP
+        }
+
+        const tmp = {
             transactionHash: transaction.id,
             blockHash: transaction.height,
             blockNumber: transaction.height,
             blockTime: formattedTime,
             blockConfirmations,
-            transactionDirection: addressFrom === address ? 'outcome' : 'income',
+            transactionDirection,
+            transactionFilterType,
             addressFrom: addressFrom === address ? '' : addressFrom,
             addressFromBasic: addressFrom,
             addressTo: addressTo === address ? '' : addressTo,
@@ -125,5 +143,6 @@ export default class WavesScannerProcessor {
             transactionStatus,
             transactionFee
         }
+        return tmp
     }
 }

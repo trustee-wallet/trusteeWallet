@@ -143,6 +143,7 @@ export default {
 
     async initData(type, inCurrencyCode = false, outCurrencyCode = false, orderHash = false) {
 
+        Log.log('ApiV3.initData start')
         const { mode: exchangeMode, apiEndpoints } = config.exchange
         let entryURL = exchangeMode === 'DEV' ? apiEndpoints.entryURLTest : apiEndpoints.entryURL
         entryURL = type === 'MARKET' ? exchangeMode === 'DEV' ? apiEndpoints.entryMarketURLTest : apiEndpoints.entryMarketURL : entryURL
@@ -171,6 +172,7 @@ export default {
         }
         */
 
+        Log.log('ApiV3.initData cardDS.getCards() start')
         const tmp = await cardDS.getCards()
         const cards = []
         if (tmp) {
@@ -185,14 +187,18 @@ export default {
             }
         }
 
+        Log.log('ApiV3.initData cardDS.getCards() finish')
+
         const data = {
             locale: sublocale(),
             deviceToken: MarketingEvent.DATA.LOG_TOKEN,
+            uniqueDeviceId: MarketingEvent.DATA.LOG_DEVICE_ID,
             wallets: [],
             cards
         }
 
         try {
+            Log.log('ApiV3.initData get wallets from state start')
             const wallets = store.getState().walletStore.wallets
             for (let wallet of wallets) {
                 wallet = await walletDS._redoCashback(wallet)
@@ -204,6 +210,7 @@ export default {
                     accounts
                 })
             }
+            Log.log('ApiV3.initData get wallets from state finish')
         } catch (e) {
             if (config.debug.appErrors) {
                 console.log('ApiV3.initData build error ' + e.message)
@@ -216,10 +223,10 @@ export default {
             msg = new Date().getTime() + ''
         }
 
-        const dataHexed = BlocksoftUtils.utfToHex(JSON.stringify({ cards: data.cards, wallets: data.wallets }))
-        const hash = BlocksoftCryptoUtils.sha256(dataHexed)
-
+        Log.log('ApiV3.initData CashBackUtils.createWalletSignature start with easy')
+        const hash = 'easy'
         const sign = await CashBackUtils.createWalletSignature(true, msg + '_' + hash)
+        Log.log('ApiV3.initData CashBackUtils.createWalletSignature finish')
         data.sign = sign
 
         const currentToken = CashBackUtils.getWalletToken()
@@ -242,6 +249,7 @@ export default {
             await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
             await database().ref(keyTitle).set(data)
             await Log.log('ApiV3.initData end save to firebase link ' + link)
+            Log.log('ApiV3.initData finish')
             return link
         } catch (e) {
             await Log.err('ApiV3.initData error ' + e.message)

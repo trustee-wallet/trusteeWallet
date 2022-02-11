@@ -17,7 +17,7 @@ export default new class AppNotificationPopup {
 
     async onOpened(message: any) {
         if (typeof message.foreground === 'undefined' || !message.foreground) {
-            if (!MarketingEvent.UI_DATA.IS_LOCKED) {
+            if (!MarketingEvent.UI_DATA.IS_LOCKED && !MarketingEvent.UI_DATA.IS_ACTIVE) {
                 await Log.log('AppNotificationPopup.onOpened message is not foreground')
                 return false
             } else {
@@ -27,8 +27,8 @@ export default new class AppNotificationPopup {
         try {
             await Log.log('AppNotificationPopup.onOpened message')
             const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(message)
-            if (await AppNewsActions.onOpen(unifiedPush)) {
-                NavStore.reset('NotificationsScreen')
+            if (unifiedPush && await AppNewsActions.onOpen(unifiedPush)) {
+                NavStore.reset('TabBar', { screen: 'HomeScreen', params: { screen: 'NotificationsScreen', initial: false }})
             }
         } catch (e) {
             await Log.err('AppNotificationPopup.onOpened error ' + e.message)

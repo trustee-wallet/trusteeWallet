@@ -136,7 +136,7 @@ export default class BnbScannerProcessor {
                     transactionDirection: '?',
                     addressFrom: tmp.from === address ? '' : tmp.from,
                     addressTo: tmp.to === address ? '' : tmp.to,
-                    addressAmount: BlocksoftUtils.fromUnified(tmp.amount.amount, 8),
+                    addressAmount: BlocksoftUtils.toUnified(tmp.amount.amount, 8),
                     transactionStatus: transaction.code === 0 ? 'success' : (transaction.txAge === 0 ? 'new' : 'fail'),
                     transactionFee: transaction.txFee
                 }

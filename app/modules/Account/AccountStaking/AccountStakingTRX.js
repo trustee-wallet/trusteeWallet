@@ -25,7 +25,7 @@ import { strings } from '@app/services/i18n'
 
 import config from '@app/config/config'
 
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import Input from '@app/components/elements/NewInput'
@@ -38,12 +38,12 @@ import PercentView from '@app/components/elements/new/PercentView'
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
 
 import InfoProgressBar from './elements/InfoProgressBar'
-import AccountGradientBlock from '../elements/AccountGradientBlock'
+import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
 import { handleTrxScan, handleFreezeTrx, handleUnFreezeTrx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
 import Loader from '@app/components/elements/LoaderItem'
 
 
-let CACHE_ASKED = {}
+const CACHE_ASKED = {}
 const CACHE_ASK_TIME = 6000
 
 class AccountStakingTRX extends React.PureComponent {
@@ -97,7 +97,7 @@ class AccountStakingTRX extends React.PureComponent {
     async componentDidMount() {
 
         await handleTrxScan.call(this)
-        
+
         const { account } = this.props
         const address = account.address
 
@@ -261,7 +261,7 @@ class AccountStakingTRX extends React.PureComponent {
     }
 
     handleOpenLink = () => {
-        NavStore.goNext('WebViewScreen', { url: BlocksoftExternalSettings.getStatic('TRX_STAKING_LINK'), title: 'Staking' })
+        NavStore.goNext('WebViewScreen', { url: BlocksoftCustomLinks.getLink('TRX_STAKING_LINK', this.context.isLight), title: 'Staking' })
     }
 
     onFocus = () => {

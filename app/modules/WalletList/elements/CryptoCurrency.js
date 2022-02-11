@@ -6,7 +6,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 import {
     View,
-    TouchableOpacity,
     StyleSheet
 } from 'react-native'
 
@@ -28,6 +27,7 @@ import { SIZE, handleCurrencySelect } from '../helpers';
 
 import CryptoCurrencyContent from './CryptoCurrencyContent'
 import config from '@app/config/config'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 
 class CryptoCurrency extends React.PureComponent {
@@ -83,6 +83,8 @@ class CryptoCurrency extends React.PureComponent {
             if (ratePrep.toString() === '0') {
                 ratePrep = BlocksoftPrettyNumbers.makeCut(account.basicCurrencyRate, 8).separated
             }
+        } else {
+            ratePrep = ''
         }
 
         const priceChangePercentage24h = cryptoCurrency.priceChangePercentage24h * 1 || 0
@@ -91,10 +93,14 @@ class CryptoCurrency extends React.PureComponent {
         const basicBalancePrep = account.basicCurrencyBalance
 
         let isSynchronized = true
-        try {
-            isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
-        } catch (e) {
-            Log.err('HomeScreen.Currency render ' + e.message)
+        if (this.props.walletIsCreatedHere) {
+            // do nothing as its from creation
+        } else {
+            try {
+                isSynchronized = currencyActions.checkIsCurrencySynchronized({ account, cryptoCurrency })
+            } catch (e) {
+                Log.err('HomeScreen.Currency render ' + e.message)
+            }
         }
 
         const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
@@ -105,7 +111,7 @@ class CryptoCurrency extends React.PureComponent {
                     <View style={styles.shadow__item} />
                 </View>
                 <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
-                <TouchableOpacity
+                <TouchableDebounce
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
                     onPress={() => handleCurrencySelect(this.props)}
@@ -127,7 +133,7 @@ class CryptoCurrency extends React.PureComponent {
                         availableStaking={availableStaking}
                         stakingCoins={this.props.stakingCoins}
                     />
-                </TouchableOpacity>
+                </TouchableDebounce>
             </View>
         )
     };
@@ -193,7 +199,7 @@ class CryptoCurrency extends React.PureComponent {
                     <View style={styles.shadow__item} />
                 </View>
                 <View style={[styles.shadow__item__background, { backgroundColor: colors.homeScreen.listItemShadowBg }]} />
-                <TouchableOpacity
+                <TouchableDebounce
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
                     onPress={() => handleCurrencySelect(this.props)}
@@ -207,7 +213,7 @@ class CryptoCurrency extends React.PureComponent {
                         constructorMode={this.props.constructorMode}
                         onDrag={this.props.onDrag}
                     />
-                </TouchableOpacity>
+                </TouchableDebounce>
             </View>
         )
     };

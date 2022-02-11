@@ -14,7 +14,7 @@
       "byValue": "By value",
       "firstCoin": "Coins first",
       "firstToken": "Tokens first",
-      "withBalance": "With a positive balance",
+      "withBalance": "ნულოვანი ნაშთების დამალვა",
       "guideTitle": "Guide"
     },
     "categories": {
@@ -91,7 +91,8 @@
       "connect": "Connect",
       "placeholder": "There is will be your wallet address that you connected to",
       "linkError": "WalletConnect connection error. Please, check if the direct link is correct",
-      "title": "WalletConnect",
+      "title": "WalletConnect & Dapps",
+      "returnDapp": "დაბრუნება Dapp-ში",
       "activated": "Activated",
       "disabled": "Disabled",
       "changeNetwork": "Change Network",
@@ -200,6 +201,7 @@
       "staked": "Staked",
       "frozen": "Frozen",
       "stakeTransactionsSOL": "Staking transactions",
+      "solValidator": "დამოწმების საფასური:",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
       "serverInputXMR": "სერვერი მონაცემებით (მაგალითად, api.mymonero.com)",
@@ -268,7 +270,7 @@
       "contactSupportLoadingText" : "If you have not opened the support chat, please contact us at",
       "contactSupportLoadingTextEmail": "or write to",
       "information": "ინფორმაცია",
-      "copyright": "© BlockSoftLab Inc, 2021"
+      "copyright": "© BlockSoftLab Inc, %{currentYear}"
     },
     "notifications": {
       "title": "შეტყობინებების კონფიგურაცია",
@@ -358,7 +360,7 @@
     "enterInviteLinkPlaceholder": "შეიყვანე მოსაწვევი ბმული",
     "applyButton": "დადასტურება",
     "wholeBalance": "Balance for the whole time",
-    "availableCashBack": "Available cashback",
+    "availableCashBack": "საერთო ბალანსი",
     "balanceTitle": "Balance",
     "toWithdraw": "Min. withdraw amount:",
     "cpaTotal": "Total CPA",
@@ -415,7 +417,8 @@
     "inputParentCashbackLink": "https://trustee.deals/link/example",
     "withdraw": "თანხის გატანა",
     "minWithdraw": "მინიმალური თანხა გასატანად",
-    "performWithdraw": "გატანის ოპერაციის განსახორციელებლად, გთხოვთ, მოგვწეროთ telegram-ში ნიკნეიმზე"
+    "performWithdraw": "To withdraw your reward, contact our support and provide your cashback link and Tron (TRX) address from the app",
+    "withdrawSupport": "Support"
   },
   "account": {
     "staking": "Staking",
@@ -1221,6 +1224,9 @@
       "guideTitle": "Personal interface",
       "guideAccept": "Accept",
       "hideAsset": "Hide assets"
+    },
+    "cancelPayment": {
+      "description": "დაელოდეთ გადახდის დასრულებას, გადახდის ეკრანი ავტომატურად დაიხურება. თუ მას ხელით დახურავთ, ეს გააუქმებს თქვენს შეკვეთას. გსურთ შეკვეთის გაუქმება?"
     }
   },
   "lockScreen": {
@@ -1251,7 +1257,8 @@
       "1min": "ყოველწუთიერად"
     },
     "lastScan": "თქვენი ბალანსების ასლები შენახულია:",
-    "helper": "თქვენ შეგიძლიათ შეარჩიოთ სიხშირე დამოუკიდებლად"
+    "helper": "თქვენ შეგიძლიათ შეარჩიოთ სიხშირე დამოუკიდებლად",
+    "clean" : "Rescan selected wallet again"
   },
   "loggingSettings": {
     "title": "Logging",

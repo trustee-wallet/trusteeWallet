@@ -16,6 +16,7 @@ import BackupStep0Screen from '@app/modules/WalletBackup/BackupStep0Screen'
 import BackupStep1Screen from '@app/modules/WalletBackup/BackupStep1Screen'
 import BackupSettingsScreen from '@app/modules/WalletBackup/Settings'
 import EnterMnemonicPhrase from '@app/modules/WalletCreate/EnterMnemonicPhrase'
+import WalletCreateWithAnimation from '@app/modules/WalletCreate/WalletCreateWithAnimation';
 
 import ErrorScreen from '@app/modules/Error/ErrorScreen'
 import HomeScreen from '@app/modules/WalletList/HomeScreen'
@@ -28,7 +29,6 @@ import QRCodeScannerScreen from '@app/modules/QRCodeScanner/QRCodeScannerScreen'
 import WalletConnectScreen from '@app/modules/WalletConnect/WalletConnectScreen'
 import WalletConnectChangeNetworkScreen from '@app/modules/WalletConnect/WalletConnectChangeNetworkScreen'
 
-import WalletDappFastLinksScreen from '@app/modules/WalletDapp/WalletDappFastLinksScreen'
 import WalletDappWebViewScreen from '@app/modules/WalletDapp/WalletDappWebViewScreen'
 
 import SMSV3CodeScreen from '@app/modules/Market/SMSV3CodeScreen'
@@ -94,14 +94,13 @@ import NftAddAssetScreen from '@app/modules/NFT/NftAddAssetScreen';
 import SellCodeScreen from '@app/modules/Market/SellCodeScreen';
 import GlobalCoinSettings from '@app/modules/Settings/CoinSettings/GlobalCoinSettings';
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
-import HomeSortScreen from '@app/modules/WalletList/HomeFilter/HomeSortScreen';
 import HomeDragScreen from '@app/modules/WalletList/HomeFilter/HomeDragScreen';
 import GuideScreen from '@app/modules/WalletList/HomeFilter/GuideScreen';
 
 import TransactionFilter from '@app/modules/Account/AccountFilter/AccountTransactionFilter';
 import TransactionCategories from '@app/modules/Account/AccountFilter/AccountTransactionCategories';
 
-import { SendReceiveDeepLinking } from '@app/appstores/Stores/Send/SendReceiveDeepLinking'
+import AppDeepLinking from '@app/services/AppDeepLinking/AppDeepLinking';
 
 const Stack = createStackNavigator()
 
@@ -125,7 +124,7 @@ const HomeStackScreen = () => {
 
     useEffect(() => {
         if(!CASHE_USED){
-            SendReceiveDeepLinking.receiveDeepLink(null, 'Init app')
+            AppDeepLinking.receiveDeepLink(null, 'Init app')
             CASHE_USED = true
         }
     }, [])
@@ -143,7 +142,6 @@ const HomeStackScreen = () => {
             <HomeStack.Screen name='WalletConnectScreen' component={WalletConnectScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletConnectChangeNetworkScreen' component={WalletConnectChangeNetworkScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
-            <HomeStack.Screen name='WalletDappFastLinksScreen' component={WalletDappFastLinksScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='WalletDappWebViewScreen' component={WalletDappWebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='SendScreen' component={SendScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
@@ -345,12 +343,12 @@ export default () => {
             <Stack.Screen name='BackupStep1Screen' component={BackupStep1Screen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='BackupSettingsScreen' component={BackupSettingsScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='EnterMnemonicPhrase' component={EnterMnemonicPhrase} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <Stack.Screen name='WalletCreateWithAnimation' component={WalletCreateWithAnimation} options={{ headerShown: false, transitionSpec, cardStyleInterpolator, gestureEnabled: false }} />
 
             <Stack.Screen name='WebViewScreen' component={WebViewScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <Stack.Screen name='ErrorScreen' component={ErrorScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
-            <Stack.Screen name='HomeSortScreen' component={HomeSortScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='HomeDragScreen' component={HomeDragScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <Stack.Screen name='GuideScreen' component={GuideScreen} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
         </Stack.Navigator>

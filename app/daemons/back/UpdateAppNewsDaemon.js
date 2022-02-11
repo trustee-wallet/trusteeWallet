@@ -48,7 +48,7 @@ class UpdateAppNewsDaemon {
         }
         this._canUpdate = false
 
-        const walletHash = await settingsActions.getSelectedWallet()
+        const walletHash = await settingsActions.getSelectedWallet('UpdateNewsDaemon')
         let res
         let asked = false
         if (!dataUpdate) {

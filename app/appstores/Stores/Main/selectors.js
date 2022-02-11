@@ -24,7 +24,8 @@ export const getSelectedWalletData = createSelector(
             walletNumber : data.walletNumber,
             walletIsHd : data.walletIsHd === 1,
             walletIsBackedUp : data.walletIsBackedUp === 1,
-            walletIsHideTransactionForFee : data.walletIsHideTransactionForFee !== null && data.walletIsHideTransactionForFee * 1 === 1
+            walletIsHideTransactionForFee : data.walletIsHideTransactionForFee !== null && data.walletIsHideTransactionForFee * 1 === 1,
+            walletIsCreatedHere : data.walletIsCreatedHere !== null && data.walletIsCreatedHere * 1 === 1
         }
     })
 )
@@ -132,5 +133,10 @@ export const getSortValue = createSelector(
 
 export const getStakingCoins = createSelector(
     [state => state.mainStore.stakingCoins],
+    (data => data)
+)
+
+export const getHomeFilterWithBalance = createSelector(
+    [state => state.mainStore.homeFilterWithBalance],
     (data => data)
 )

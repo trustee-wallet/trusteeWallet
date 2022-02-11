@@ -2,96 +2,190 @@
  * @version 0.50
  */
 import React, { PureComponent } from 'react'
+import {
+    StyleSheet,
+    ScrollView,
+    View,
+    ActivityIndicator
+} from 'react-native'
 import { connect } from 'react-redux'
-import { StyleSheet, ScrollView } from 'react-native'
+import { FlatList } from 'react-native-gesture-handler'
 
 import NavStore from '@app/components/navigation/NavStore'
+import ScrollingList from '@app/components/elements/new/ScrollingList'
+import DappListItem from './elements/DappListItem'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
-import ListItem from '@app/components/elements/new/list/ListItem/Setting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
-import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
+import tokenBlockchainBlocksoftDict from '@crypto/assets/tokenBlockchainBlocksoftDict.json'
+
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
-import { setWalletDapp, setWalletDappIncognito } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
+import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions' // setWalletDappIncognito
+import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 
 class WalletDappFastLinksScreen extends PureComponent {
+
+    state = {
+        selectedIndex: 0,
+        networks: [{ 'currencyCode': 'ALL', 'networkTitle': 'All' }],
+        dapps: [],
+        localDapps: []
+    }
+
+    async componentDidMount() {
+        await this.loadDapps()
+        await this.handleFilterDapps(0)
+    }
 
     setDapp = async (item) => {
         setWalletDapp(item)
         NavStore.goNext('WalletDappWebViewScreen')
     }
 
-    handleIncognito = () => {
-        setWalletDappIncognito(!this.props.walletDappData.incognito)
+
+    loadDapps = async () => {
+
+        const localDapps = []
+        const localNetworks = {}
+        const indexedCurrencies = {}
+        const extendDict = tokenBlockchainBlocksoftDict
+        for (const item of this.props.currencies) {
+            indexedCurrencies[item.currencyCode] = 1
+        }
+        for (const blockchainCode in tokenBlockchainBlocksoftDict) {
+            const blockchain = tokenBlockchainBlocksoftDict[blockchainCode]
+            extendDict[blockchain.currencyCode] = blockchain
+        }
+        for (const key in dappsBlocksoftDict) {
+            const item = dappsBlocksoftDict[key]
+            if (typeof item.dappNetworks === 'undefined') {
+                localDapps.push(item)
+                break
+            }
+
+            let found = false
+            for (const code of item.dappNetworks) {
+                if (typeof indexedCurrencies[code] === 'undefined') continue
+
+                if (typeof item.dappCoins === 'undefined') {
+                    localDapps.push(item)
+                    localNetworks[code] = 1
+                    break
+                }
+                for (const code2 of item.dappCoins) { // some dapps shown only in special networks when some tokens are selected
+                    if (typeof indexedCurrencies[code2] === 'undefined') continue
+                    localDapps.push(item)
+                    found = true
+                    break
+                }
+                if (found) {
+                    localNetworks[code] = 1
+                    break
+                }
+            }
+        }
+
+        const networks = [{ 'currencyCode': 'ALL', 'networkTitle': 'All' }]
+        for (const code in localNetworks) {
+            const item = extendDict[code]
+            const networkTitle = typeof item.dappsListName !== 'undefined' ? item.dappsListName : item.blockchainName
+            networks.push({ currencyCode: code, networkTitle })
+        }
+
+        this.setState({
+            dapps: localDapps,
+            networks
+        })
+
     }
 
-    handleBack = () => {
-        NavStore.goBack()
+    handleSelectIndex = async (selectedIndex) => {
+        this.setState({ selectedIndex })
+        await this.handleFilterDapps(selectedIndex)
     }
 
-    handleClose = () => {
-        NavStore.goBack()
+    handleFilterDapps = async (index) => {
+        const {
+            networks,
+            dapps
+        } = this.state
+
+        if (index === 0) {
+            this.setState({
+                localDapps: dapps
+            })
+        } else {
+            this.setState({
+                localDapps: dapps.filter(item => item.dappNetworks.includes(networks[index].currencyCode))
+            })
+        }
+    }
+
+    renderListItem = ({ item, index }) => {
+
+        const last = this.state.localDapps.length - 1 === index
+
+        return (
+            <DappListItem
+                data={item}
+                last={last}
+                onPress={this.setDapp}
+            />
+        )
+    }
+
+    renderEmptyComponent = () => {
+
+        const {
+            colors,
+            GRID_SIZE
+        } = this.context
+
+        return (
+            <View style={[styles.loader, { marginTop: GRID_SIZE }]}>
+                <ActivityIndicator
+                    color={colors.common.text1}
+                    size='large'
+                />
+            </View>
+        )
     }
 
     render() {
         MarketingAnalytics.setCurrentScreen('WalletDapp.FastLinkScreen')
 
-        const { dappCode, incognito } = this.props.walletDappData
+        const { localDapps, networks, selectedIndex } = this.state
 
-        const { GRID_SIZE } = this.context
-
-        const mapping = []
-        for(const key in dappsBlocksoftDict) {
-            const item = dappsBlocksoftDict[key]
-            mapping.push(item)
-
-        }
         return (
-            <ScreenWrapper
-                leftType='back'
-                leftAction={this.handleBack}
-                rightType='close'
-                rightAction={this.handleClose}
-                title={'Dapps'}
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollViewContent}
+                keyboardShouldPersistTaps='handled'
                 setHeaderHeight={this.setHeaderHeight}
             >
-                <ScrollView
+                <ScrollingList
+                    data={networks}
+                    onPress={this.handleSelectIndex}
+                    active={selectedIndex}
+                />
+                <FlatList
+                    data={localDapps}
+                    keyExtractor={(item) => item.dappCode.toString()}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={[styles.scrollViewContent, {
-                        padding: GRID_SIZE,
-                        paddingLeft: GRID_SIZE * 2
-                    }]}
-                    keyboardShouldPersistTaps='handled'
-                >
-                    <ListItem
-                    key="clean"
-                    title="Open new session if possible"
-                    checked={incognito}
-                    onPress={() => this.handleIncognito()}
-                    rightContent="checkbox"
-                    />
-                    {
-                        mapping.map((item, index) => (
-                            <ListItem
-                                key={item.dappCode}
-                                checked={item.dappCode === dappCode}
-                                title={item.dappName}
-                                onPress={() => this.setDapp(item)}
-                                rightContent="arrow"
-                            />
-                        ))
-                    }
-                </ScrollView>
-            </ScreenWrapper>
+                    renderItem={this.renderListItem}
+                    ListEmptyComponent={this.renderEmptyComponent}
+                />
+            </ScrollView>
         )
     }
 }
 
 const mapStateToProps = (state) => {
     return {
-        walletDappData: getWalletDappData(state)
+        walletDappData: getWalletDappData(state),
+        currencies: getVisibleCurrencies(state)
     }
 }
 

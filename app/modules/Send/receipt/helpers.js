@@ -9,6 +9,7 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 
 const showSendError = function(e, _this, passwordCheck) {
@@ -86,8 +87,8 @@ const checkLoadedFee = function(_this) {
     }
 
     if (BlocksoftExternalSettings.getStatic('SEND_AMOUNT_CHECK') > 0) {
-        if (value.toString() !== cryptoValue.toString()) {
-            Log.log('SendingValue ' + value.toString() + ' != ' + cryptoValue.toString())
+        if (BlocksoftUtils.cutZeros(value) !== BlocksoftUtils.cutZeros(cryptoValue)) {
+            Log.log('SendingValue ' + BlocksoftUtils.cutZeros(value) + ' != ' + BlocksoftUtils.cutZeros(cryptoValue))
             if (uiType === 'TRADE_SEND') {
                 msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
                 goBack = BlocksoftExternalSettings.getStatic('TRADE_SEND_AMOUNT_CHECK_FORCE_QUIT') > 0

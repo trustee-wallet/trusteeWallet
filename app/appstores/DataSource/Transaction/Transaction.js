@@ -83,6 +83,11 @@ class Transaction {
         }
     }
 
+    cleanAll = async (walletHash) => {
+        const sql = `DELETE FROM transactions WHERE wallet_hash='${walletHash}'`
+        return Database.query(sql)
+    }
+
     /**
      *
      * @param transaction.accountId
@@ -380,6 +385,7 @@ class Transaction {
         }
 
         where.push(`transaction_hash !=''`)
+        where.push(`NOT (transaction_direction IN ('swap_income', 'income') AND (address_amount == '0' OR address_amount IS NULL))`)
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {

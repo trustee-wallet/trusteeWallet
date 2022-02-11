@@ -2,16 +2,49 @@
   "OPENSEA": {
     "dappCode" : "OPENSEA",
     "dappName" : "OpenSea",
-    "dappUrl" : "https://opensea.io/account"
+    "dappUrl" : "https://opensea.io/account",
+    "dappNetworks" : ["ETH", "MATIC"],
+    "dappsDomenName": "opensea.io"
   },
   "PANCAKE" : {
     "dappCode" : "PANCAKE",
     "dappName" : "Pancake Swap",
-    "dappUrl" : "https://pancakeswap.finance/swap"
+    "dappUrl" : "https://pancakeswap.finance/swap",
+    "dappNetworks" : ["BNB_SMART"],
+    "disableInjected" : true,
+    "dappsDomenName": "pancakeswap.finance"
+  },
+  "NFTRADE" : {
+    "dappCode" : "NFTRADE",
+    "dappName" : "NFTrade",
+    "dappUrl" : "https://nftrade.com/",
+    "dappNetworks" : ["ETH", "BNB_SMART", "MATIC"],
+    "disableInjected" : true,
+    "dappsDomenName": "nftrade.com"
+  },
+  "MOCHISWAP" : {
+    "dappCode" : "MOCHISWAP",
+    "dappName" : "Mochiswap",
+    "dappUrl" : " https://harmony.mochiswap.io/swap",
+    "dappNetworks" : ["ONE"],
+    "disableInjected" : true,
+    "dappsDomenName": "harmony.mochiswap.io"
   },
   "JUSTLEND" : {
     "dappCode": "JUSTLEND",
     "dappName" : "JustLend",
-    "dappUrl" : "https://justlend.org/#/home"
+    "dappUrl" : "https://justlend.org/#/home",
+    "dappNetworks" : ["TRX"],
+    "dappCoins" : ["TRX", "TRX_USDT"],
+    "dappsDomenName": "justlend.org"
+  },
+  "EXON" : {
+    "dappCode" : "EXON",
+    "dappName" : "Exon center",
+    "dappUrl" : "https://app.exoncenter.com/430",
+    "dappNetworks" : ["TRX"],
+    "dappCoins" : ["TRX_EXON"],
+    "dappsDomenName": "app.exoncenter.com"
   }
+
 }

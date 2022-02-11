@@ -13,11 +13,19 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
-    private _web3: any
-    private _token: any
+
+    private _tokenAddress: string
+
+    private _mainCurrencyCode: string
 
     constructor(settings: { network: string; currencyCode: string }) {
         this._settings = settings
+        this._tokenAddress = typeof settings.tokenAddress !== 'undefined' ? settings.tokenAddress : false
+
+        this._mainCurrencyCode = 'WAVES'
+        if (this._settings.currencyCode === 'ASH' || this._settings.currencyCode.indexOf('ASH_') === 0) {
+            this._mainCurrencyCode = 'ASH'
+        }
     }
 
     needPrivateForFee(): boolean {
@@ -37,7 +45,7 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         result.fees = [
             {
                 langMsg: 'xrp_speed_one',
-                feeForTx: ' 100000',
+                feeForTx: '100000',
                 amountForTx: data.amount
             }
         ]
@@ -50,15 +58,21 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         const balance = data.amount
         // @ts-ignore
-        console.log(this._settings.currencyCode + ' WavesTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
 
-        const fees = await this.getFeeRate(data, privateData, additionalData)
-        const amount = BlocksoftUtils.diff(balance, '100000').toString()
+        const res = await this.getFeeRate(data, privateData, additionalData)
+        let amount
+        if (this._tokenAddress) {
+            amount = balance
+        } else {
+            amount = BlocksoftUtils.diff(balance, '100000').toString()
+            res.fees[0].amountForTx = amount
+        }
 
         return {
-            ...fees,
+            ...res,
             shouldShowFees: false,
-            selectedTransferAllBalance: amount
+            selectedTransferAllBalance: amount,
         }
     }
 
@@ -78,7 +92,7 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
 
         let addressTo = data.addressTo
         let apiPath
-        if (this._settings.currencyCode === 'ASH') {
+        if (this._mainCurrencyCode === 'ASH') {
             apiPath = await BlocksoftExternalSettings.get('ASH_SERVER')
             addressTo = addressTo.replace('Æx', '')
         } else {
@@ -91,7 +105,10 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         try {
             const money = {
                 recipient: addressTo,
-                amount: data.amount,
+                amount: data.amount
+            }
+            if (this._tokenAddress) {
+                money.assetId = this._tokenAddress
             }
             signedData = transfer(money, { privateKey: privateData.privateKey })
 
@@ -105,7 +122,7 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         }
 
         if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
-            return { rawOnly: uiData.selectedFee.rawOnly, raw : JSON.stringify(signedData)}
+            return { rawOnly: uiData.selectedFee.rawOnly, raw: JSON.stringify(signedData) }
         }
 
         let result = {} as BlocksoftBlockchainTypes.SendTxResult

@@ -2,7 +2,7 @@
  * @version 0.9
  */
 import '@app/services/GlobalExceptionHandler/GlobalExceptionHandler'
-import { Text } from 'react-native'
+import { Text, Platform, UIManager } from 'react-native'
 
 import Orientation from 'react-native-orientation'
 
@@ -34,6 +34,7 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import config from '@app/config/config'
 import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBasicActions'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import AppDeepLinking from '@app/services/AppDeepLinking/AppDeepLinking'
 
 if (Text.defaultProps == null) Text.defaultProps = {}
 Text.defaultProps.allowFontScaling = false
@@ -85,6 +86,16 @@ class App {
 
                     return
                 }
+
+                AppLockScreenIdleTime.init()
+
+                this.initStatus = 'AppLockScreenIdleTime.init()'
+
+                this.addSupportUiMananger()
+
+                AppDeepLinking.init()
+
+                this.initStatus = 'AppDeepLinking.init()'
             }
 
             this.initHasWallets = true
@@ -105,13 +116,8 @@ class App {
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
 
-            AppLockScreenIdleTime.init()
-
-            this.initStatus = 'AppLockScreenIdleTime.init()'
-
             if (UpdateAppNewsDaemon.isGoToNotifications('AFTER_APP')) {
-                // NavStore.reset('HomeScreen', { screen: 'NotificationsScreen' }) - not working
-                NavStore.reset('NotificationsScreen')
+                NavStore.reset('TabBar', { screen: 'HomeScreen', params: { screen: 'NotificationsScreen', initial: false }})
             } else {
                 UpdateAppNewsDaemon.goToNotifications('INITED_APP')
             }
@@ -202,6 +208,18 @@ class App {
         await setFilter(filter)
     }
 
+    addSupportUiMananger = () => {
+        if (Platform.OS === 'android') {
+            if (UIManager.setLayoutAnimationEnabledExperimental) {
+                UIManager.setLayoutAnimationEnabledExperimental(true)
+            }
+        }
+    }
+
+    willUnmount = () => {
+        AppDeepLinking.willUnmount()
+        AppLockScreenIdleTime.willUnmount()
+    }
 
 }
 

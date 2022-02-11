@@ -14,7 +14,7 @@
       "byValue": "По балансу",
       "firstCoin": "Сначала монеты",
       "firstToken": "Сначала токены",
-      "withBalance": "С положительным балансом",
+      "withBalance": "Скрыть с нулевым балансом",
       "guideTitle": "Обучение"
     },
     "categories": {
@@ -91,7 +91,8 @@
       "connect": "Подключиться",
       "placeholder": "Здесь будет адрес кошелька, к которому Вы подключились",
       "linkError": "Ошибка подключения WalletConnect. Пожалуйста, проверьте правильность прямой ссылки",
-      "title": "WalletСonnect",
+      "title": "WalletСonnect & Dapps",
+      "returnDapp": "Вернуться в Dapp",
       "activated": "Активировано",
       "disabled": "Отключено",
       "changeNetwork": "Изменить Сеть",
@@ -202,6 +203,7 @@
       "staked": "Застейкано",
       "frozen": "Заморожено",
       "stakeTransactionsSOL": "Транзакции стейкинга",
+      "solValidator": "Комиссия валидатора:",
       "bandwidthTRX": "Bandwidth",
       "energyTRX": "Energy",
       "serverInputXMR" : "Сервер с данными (например, api.mymonero.com)",
@@ -270,7 +272,7 @@
       "contactSupportLoadingText" : "Если у Вас не открылся чат службы поддержки, пожалуйста, свяжитесь с нами на сайте",
       "contactSupportLoadingTextEmail": "или напишите на почту",
       "information": "Информация",
-      "copyright": "© BlockSoftLab Inc, 2021"
+      "copyright": "© BlockSoftLab Inc, %{currentYear}"
     },
     "notifications": {
       "title": "Настройка сообщений",
@@ -360,7 +362,7 @@
     "enterInviteLinkPlaceholder": "Введите ссылку-приглашение",
     "applyButton": "Применить",
     "wholeBalance": "Баланс за все время",
-    "availableCashBack": "Доступный кешбэк",
+    "availableCashBack": "Общий баланс",
     "balanceTitle": "Баланс",
     "toWithdraw": "Мин. сумма вывода:",
     "cpaTotal": "Всего CPA",
@@ -418,7 +420,8 @@
     "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Вывести",
     "minWithdraw": "Минимальная сумма для вывода",
-    "performWithdraw": "Чтобы осуществить вывод, пожалуйста, напишите в telegram на никнейм"
+    "performWithdraw": "Чтобы вывести награду, свяжитесь с нашей службой поддержки и предоставьте Вашу кешбэк ссылку и адрес Tron (TRX) из приложения",
+    "withdrawSupport": "Поддержка"
   },
   "account": {
     "staking": "Стейкинг",
@@ -1240,6 +1243,9 @@
       "guideTitle": "Персональный интерфейс",
       "guideAccept": "Принять",
       "hideAsset": "Скрыть актив"
+    },
+    "cancelPayment": {
+      "description": "Дождитесь завершения платежа, экран оплаты закроется автоматически. Если Вы закроете его вручную, то это отменит Ваш ордер. Желаете отменить ордер?"
     }
   },
   "lockScreen": {
@@ -1270,7 +1276,8 @@
       "1min": "Ежеминутно"
     },
     "lastScan": "Ваши балансы отсканированы в:",
-    "helper": "Вы можете выбрать частоту самостоятельно"
+    "helper": "Вы можете выбрать частоту самостоятельно",
+    "clean" : "Сканировать избранный кошелек еще раз"
   },
   "loggingSettings": {
     "title": "Логирование",

@@ -114,12 +114,15 @@ export namespace SendActionsBlockchainWrapper {
                 uiData = store.getState().sendScreenStore.ui
             }
 
+            const forceExecAmount = typeof uiData.bse !== 'undefined' && typeof uiData.bse.forceExecAmount !== 'undefined' && uiData.bse.forceExecAmount
+
             const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
             newCountedFeesData.addressTo = uiData.addressTo
             newCountedFeesData.amount = uiData.cryptoValue
             newCountedFeesData.memo = uiData.memo
             newCountedFeesData.isTransferAll = uiData.isTransferAll
-            if (newCountedFeesData.isTransferAll) {
+
+            if (newCountedFeesData.isTransferAll && !forceExecAmount) {
                 newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
             }
             if (typeof uiData.contractCallData !== 'undefined') {
@@ -158,6 +161,18 @@ export namespace SendActionsBlockchainWrapper {
                     throw e
                 }
             }
+
+            if (forceExecAmount && typeof countedFees !== 'undefined' && countedFees && typeof countedFees.fees !== 'undefined' && countedFees.fees) {
+                for (let i = 0; i< countedFees.fees.length; i++ ) {
+                    if (typeof countedFees.fees[i].amountForTx !== 'undefined') {
+                        countedFees.fees[i].amountForTx = uiData.cryptoValue
+                    }
+                }
+                if (typeof countedFees.amountForTx !== 'undefined') {
+                    countedFees.amountForTx = uiData.cryptoValue
+                }
+            }
+
             let selectedFee = false
             if (typeof countedFees.selectedFeeIndex !== 'undefined' && countedFees.selectedFeeIndex >= 0) {
                 // @ts-ignore

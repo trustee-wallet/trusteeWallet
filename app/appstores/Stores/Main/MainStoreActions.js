@@ -29,7 +29,7 @@ export async function setSelectedWallet(source, walletHash = false) {
 
     let settingsWalletHash = false
     if (typeof walletHash === 'undefined' || !walletHash) {
-        settingsWalletHash = await settingsActions.getSelectedWallet()
+        settingsWalletHash = await settingsActions.getSelectedWallet('setSelectedWallet')
     }
     if (settingsWalletHash) {
         walletHash = settingsWalletHash
@@ -411,5 +411,12 @@ export async function setStakingCoins() {
     dispatch({
         type: 'SET_STAKING_COINS',
         stakingCoins
+    })
+}
+
+export function setHomeFilterWithBalance(homeFilterWithBalance) {
+    dispatch({
+        type: 'SET_HOME_FILTER_WITH_BALANCE',
+        homeFilterWithBalance
     })
 }

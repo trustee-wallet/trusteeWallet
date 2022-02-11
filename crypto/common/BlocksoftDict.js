@@ -7,7 +7,7 @@ import CoinBlocksoftDict from '@crypto/assets/coinBlocksoftDict.json'
 const { RNFastCrypto } = NativeModules
 
 const VisibleCodes = [
-    'CASHBACK', 'NFT', 'BTC', 'ETH', 'TRX', 'TRX_USDT', 'BNB_SMART', 'MATIC' // add code here to show on start screen
+    'CASHBACK', 'NFT', 'BTC', 'ETH', 'TRX', 'TRX_USDT' // add code here to show on start screen
 ]
 const Codes = [
     'CASHBACK', 'NFT', 'BTC', 'ETH', 'USDT', 'LTC', 'ETH_USDT', 'TRX', 'TRX_USDT', 'BNB', 'BNB_SMART', 'MATIC', 'ETH_TRUE_USD', 'ETH_BNB', 'ETH_USDC', 'ETH_PAX', 'ETH_DAI', 'FIO'   // add code here for autocreation the wallet address with the currency
@@ -131,6 +131,13 @@ function addAndUnifyCustomCurrency(currencyObject) {
         tmp.tokenAddress = currencyObject.tokenAddress
         tmp.tokenBlockchain = 'VLX'
         tmp.currencyExplorerLink = 'https://evmexplorer.velas.com/tokens/' + currencyObject.tokenAddress
+    } else if (currencyObject.tokenType === 'ONE_ERC_20') {
+        tmp.currencyCode = 'CUSTOM_ONE_ERC_20_' + currencyObject.currencyCode
+        tmp.extendsProcessor = 'ONE_USDC'
+        tmp.addressUiChecker = 'ETH'
+        tmp.tokenAddress = currencyObject.tokenAddress
+        tmp.tokenBlockchain = 'ONE'
+        tmp.currencyExplorerLink = 'https://explorer.harmony.one/address/' + currencyObject.tokenAddress
     } else if (currencyObject.tokenType === 'SOL') {
         tmp.currencyCode = 'CUSTOM_SOL_' + currencyObject.currencyCode
         tmp.extendsProcessor = 'SOL_RAY'

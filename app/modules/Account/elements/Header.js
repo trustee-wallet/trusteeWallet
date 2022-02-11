@@ -6,7 +6,6 @@
 import React, { PureComponent } from 'react'
 import {
     View,
-    TouchableOpacity,
     Text,
     StatusBar,
     SafeAreaView,
@@ -16,6 +15,7 @@ import {
 import { HIT_SLOP } from '@app/theme/HitSlop'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 const headerHeight = 44
 const headerHeightSticky = Platform.OS === 'android' ? 144 : 148
@@ -54,9 +54,9 @@ export default class Header extends PureComponent {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={HIT_SLOP} onPress={leftAction}>
+            <TouchableDebounce hitSlop={HIT_SLOP} onPress={leftAction}>
                 <Icon color={colors.common.text1} />
-            </TouchableOpacity>
+            </TouchableDebounce>
         )
     }
 
@@ -78,9 +78,9 @@ export default class Header extends PureComponent {
         if (!Icon) return null
 
         return (
-            <TouchableOpacity hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={rightAction}>
+            <TouchableDebounce hitSlop={{ top: 20, right: 20, bottom: 20, left: 20 }} onPress={rightAction}>
                 <Icon color={colors.common.text1} />
-            </TouchableOpacity>
+            </TouchableDebounce>
         )
     }
 

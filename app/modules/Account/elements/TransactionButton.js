@@ -4,11 +4,12 @@
  */
 
 import React from 'react'
-import { Text, TouchableOpacity } from 'react-native'
+import { Text } from 'react-native'
 import FontistoIcon from 'react-native-vector-icons/Fontisto'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 import CustomIcon from '@app/components/elements/CustomIcon'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 
 const iconButton = (type) => {
@@ -36,11 +37,11 @@ const TransactionButton = (props) => {
     const { colors } = useTheme()
 
     return (
-        <TouchableOpacity style={style} onPress={action}>
+        <TouchableDebounce style={style} onPress={action}>
             {iconButton(type)}
             {text &&
                 <Text style={{ ...textStyle, paddingTop: 4, color: colors.common.text1 }} >{text}</Text>}
-        </TouchableOpacity>
+        </TouchableDebounce>
     )
 }
 

@@ -16,7 +16,6 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
-import walletHDActions from '@app/appstores/Actions/WalletHDActions'
 
 
 export const ASSESTS_GROUP = {
@@ -111,6 +110,9 @@ export function prepareAssets(assets) {
         if (typeof tmpCurrency === 'undefined') {
             tmpCurrency = JSON.parse(JSON.stringify(BlocksoftDict.Currencies[currencyCode]))
             tmpCurrency.isHidden = null
+            if (tmpCurrency.currencyCode === 'ETH_ONE') {
+                return
+            }
             notAddedAssets.push(tmpCurrency)
         }
     })
@@ -234,6 +236,17 @@ export async function addCustomToken(tokenAddress, tokenType ) {
             Log.log('AddCustomTokenScreen.addToken checked6 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked6))
             if (checked6) {
                 todoArray.push({ tokenType : 'VLX_ERC_20', checked : checked6})
+            }
+        }
+
+        if (tokenType === 'ETH_ERC_20' || tokenType === 'ONE_ERC_20') {
+            const checked7 = await customCurrencyActions.checkCustomCurrency({
+                tokenType: 'ONE_ERC_20',
+                tokenAddress
+            })
+            Log.log('AddCustomTokenScreen.addToken checked7 ' + tokenAddress + ' ' + tokenType + ' result ' + JSON.stringify(checked7))
+            if (checked7) {
+                todoArray.push({ tokenType : 'ONE_ERC_20', checked : checked7})
             }
         }
 

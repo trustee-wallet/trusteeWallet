@@ -2,7 +2,6 @@
 import React from 'react'
 import {
     Text,
-    TouchableOpacity,
     View,
     StyleSheet,
 } from 'react-native'
@@ -12,6 +11,7 @@ import Switch from 'react-native-switch-pro'
 import CurrencyIcon from '../../../CurrencyIcon'
 
 import { useTheme } from '@app/theme/ThemeProvider'
+import TouchableDebounce from '../../TouchableDebounce'
 
 
 const getRightContent = (rightContent, params) => {
@@ -52,11 +52,11 @@ export default function SettingListItem(props) {
         delayLongPress = 5000,
         TitleExtraView
     } = props
-    const { colors, GRID_SIZE } = useTheme()
+    const { colors } = useTheme()
 
     return (
         <View style={{ flexDirection: 'column' }}>
-            <TouchableOpacity
+            <TouchableDebounce
                 style={styles.container}
                 onPress={onPress}
                 onLongPress={onLongPress}
@@ -84,7 +84,7 @@ export default function SettingListItem(props) {
                         </View>
                     )}
                 </View>
-            </TouchableOpacity>
+            </TouchableDebounce>
         </View>
     )
 }

@@ -54,7 +54,7 @@ class BackDropModal extends React.PureComponent {
                     </TouchableWithoutFeedback>
                 }
             >
-                <KeyboardAvoidingView style={{ flex: 1, justifyContent: 'flex-end' }} behavior='padding'>
+                <KeyboardAvoidingView style={{ justifyContent: 'flex-end' }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                     <View style={[styles.content, { backgroundColor: colors.backDropModal.bg, paddingBottom: Platform.OS === 'ios' ? GRID_SIZE : 0 }]}>
                         <View style={[styles.topBtn, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE * 1.2 }]} />
                         <Content data={this.props.data} />

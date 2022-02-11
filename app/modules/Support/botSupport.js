@@ -21,6 +21,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
 class BotSupportScreen extends React.PureComponent {
@@ -61,12 +62,12 @@ class BotSupportScreen extends React.PureComponent {
     }
 
     handleSite = () => {
-        const link = BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE')
+        const link = `${BlocksoftCustomLinks.getLink('SOCIAL_LINK_SITE', this.context.isLight)}`
 
         if (link.indexOf('https://') !== -1) {
-            Linking.openURL(BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE'))
+            Linking.openURL(BlocksoftCustomLinks.getLink('SOCIAL_LINK_SITE', this.context.isLight))
         } else {
-            Linking.openURL(`https://${BlocksoftExternalSettings.getStatic('SOCIAL_LINK_SITE')}`)
+            Linking.openURL(`https://${BlocksoftCustomLinks.getLink('SOCIAL_LINK_SITE', this.context.isLight)}`)
         }
     }
 

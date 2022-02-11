@@ -13,6 +13,11 @@ import BlocksoftPrettyDates from '@crypto/common/BlocksoftPrettyDates'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 import CustomIcon from '@app/components/elements/CustomIcon'
 
+import Toast from '@app/services/UI/Toast/Toast'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import Log from '@app/services/Log/Log'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+
 
 const prepareStatusHeaderToView = (status) => {
     return strings(`account.transactionScreen.header.status.${status.toLowerCase()}`).toUpperCase()
@@ -63,6 +68,15 @@ const HeaderTx = (props) => {
     //     arrowIcon = <Feather name='x' style={{ color: colors.common.text1, fontSize: 17 }} />
     // }
 
+    const copyToClip = () => {
+        try {
+            copyToClipboard(addressAmountPretty.toString())
+            Toast.setMessage(strings('toast.copied')).show()
+        } catch (e) {
+            Log.err('Header.copyToClip error', e.message)
+        }
+    }
+
     const isFeeTx = addressAmount * 1 <= 0
 
     let amountTxt = addressAmountPrettyPrefix + ' ' + (isFeeTx ? transactionFeePretty : addressAmountPretty)
@@ -101,15 +115,14 @@ const HeaderTx = (props) => {
                     </View>
                 </View>
             </View>
-            <View style={styles.topContent__title}>
-                <>
+            <TouchableDebounce onPress={copyToClip}>
+                <View style={styles.topContent__title}>
                     <Text style={{ ...styles.amount, color: colors.common.text1 }}>
                         {amountTxt}
                     </Text>
                     <Text style={{ ...styles.code, color: color }}>{currencySymbol}</Text>
-                </>
-            </View>
-
+                </View>
+            </TouchableDebounce>
         </View>
     )
 

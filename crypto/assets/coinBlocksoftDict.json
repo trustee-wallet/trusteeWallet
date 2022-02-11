@@ -234,6 +234,27 @@
 		"currencyExplorerLink": "https://tronscan.org/#/address/",
 		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
 	},
+	"ONE_USDC": {
+		"currencyType": "token",
+		"currencyName": "USDC Harmony",
+		"currencyCode": "ONE_USDC",
+		"currencyIcon": "ETH",
+		"currencySymbol": "USDC",
+		"addressProcessor": "ETH",
+		"scannerProcessor": "ONE_ERC_20",
+		"transferProcessor": "BNB_SMART_20",
+		"prettyNumberProcessor": "ETH_ERC_20",
+		"addressCurrencyCode": "ETH",
+		"addressUiChecker": "ETH_ONE",
+		"ratesCurrencyCode": "USDC",
+		"feesCurrencyCode": "ONE",
+		"network": "mainnet",
+		"decimals": 6,
+		"tokenBlockchain": "ONE",
+		"tokenAddress": "0x985458e523db3d53125813ed68c274899e9dfab4",
+		"currencyExplorerLink": "https://explorer.harmony.one/address/0x985458e523db3d53125813ed68c274899e9dfab4",
+		"currencyExplorerTxLink": "https://explorer.harmony.one/tx/"
+	},
 	"ETH_PAX": {
 		"currencyType": "token",
 		"currencyName": "Pax Dollar",
@@ -597,7 +618,7 @@
 	},
 	"TRX_WBTT": {
 		"currencyType": "token",
-		"currencyName": "BitTorrent TRC20",
+		"currencyName": "BitTorrent Wrapped TRC20",
 		"currencyCode": "TRX_WBTT",
 		"currencySymbol": "WBTT",
 		"extendsProcessor": "TRX_USDT",
@@ -624,7 +645,7 @@
 	},
 	"ETH_BTT": {
 		"currencyType": "token",
-		"currencyName": "BTT ERC20",
+		"currencyName": "BTT ERC20 (Old)",
 		"currencyCode": "ETH_BTT",
 		"currencySymbol": "BTT",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -635,6 +656,20 @@
 		"tokenAddress": "0xe83cccfabd4ed148903bf36d4283ee7c8b3494d1",
 		"currencyExplorerLink": "https://etherscan.io/token/0xe83cccfabd4ed148903bf36d4283ee7c8b3494d1?a="
 	},
+	"ETH_BTT_NEW": {
+		"currencyType": "token",
+		"currencyName": "BTT ERC20",
+		"currencyCode": "ETH_BTT_NEW",
+		"currencySymbol": "BTT",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "BTT_NEW",
+		"decimals": 18,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xc669928185dbce49d2230cc9b0979be6dc797957",
+		"currencyExplorerLink": "https://etherscan.io/token/0xc669928185dbce49d2230cc9b0979be6dc797957?a="
+	},
+
 	"BNB_SMART_BTC": {
 		"currencyType": "token",
 		"currencyName": "BTC BEP20",
@@ -1103,7 +1138,7 @@
 	},
 	"ETH_ONE": {
 		"currencyType": "token",
-		"currencyName": "Harmony",
+		"currencyName": "Harmony ERC20",
 		"currencyCode": "ETH_ONE",
 		"currencySymbol": "ONE",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -1865,7 +1900,7 @@
 	},
 	"MATIC_USDT": {
 		"currencyType": "token",
-		"currencyName": "USDT Matic (Polygon)",
+		"currencyName": "Tether Matic (Polygon)",
 		"currencyCode": "MATIC_USDT",
 		"currencyIcon": "USDT",
 		"currencySymbol": "USDT",
@@ -1886,7 +1921,7 @@
 	},
 	"SOL_USDT": {
 		"currencyType": "token",
-		"currencyName": "USDT Solana",
+		"currencyName": "Tether Solana",
 		"currencyCode": "SOL_USDT",
 		"currencySymbol": "USDT",
 		"extendsProcessor": "SOL_RAY",
@@ -2135,12 +2170,12 @@
 		"transferProcessor": "ETC",
 		"network": "mainnet",
 		"decimals": 18,
-		"currencyExplorerLink": "https://explorer.velas.com/address/",
-		"currencyExplorerTxLink": "https://explorer.velas.com/tx/"
+		"currencyExplorerLink": "https://evmexplorer.velas.com/address/",
+		"currencyExplorerTxLink": "https://evmexplorer.velas.com/tx/"
 	},
 	"VLX_USDT": {
 		"currencyType": "token",
-		"currencyName": "USDT Velas VLX20",
+		"currencyName": "Tether Velas VLX20",
 		"currencyCode": "VLX_USDT",
 		"currencyIcon": "USDT",
 		"currencySymbol": "USDT",
@@ -2159,6 +2194,26 @@
 		"currencyExplorerLink": "https://evmexplorer.velas.com/tokens/0x01445C31581c354b7338AC35693AB2001B50b9aE/token-transfers",
 		"currencyExplorerTxLink": "https://evmexplorer.velas.com/tx/"
 	},
+
+	"ONE": {
+		"currencyType": "coin",
+		"currencyName": "Harmony",
+		"currencyCode": "ONE",
+		"currencySymbol": "ONE",
+		"ratesCurrencyCode": "ONE",
+		"addressCurrencyCode": "ETH",
+		"addressProcessor": "ETH",
+		"addressUiChecker": "ETH_ONE",
+		"scannerProcessor": "ONE",
+		"extendsProcessor": "ETH",
+		"prettyNumberProcessor": "ETH",
+		"transferProcessor": "ETC",
+		"network": "mainnet",
+		"decimals": 18,
+		"currencyExplorerLink": "https://explorer.harmony.one/address/",
+		"currencyExplorerTxLink": "https://explorer.harmony.one/tx/"
+	},
+
 	"ETH_UFI": {
 		"currencyType": "token",
 		"currencyName": "PureFi Token ERC20",
@@ -2350,5 +2405,73 @@
 		"tokenBlockchain": "ETHEREUM",
 		"tokenAddress": "0x558ec3152e2eb2174905cd19aea4e34a23de9ad6",
 		"currencyExplorerLink": "https://etherscan.io/token/0x558ec3152e2eb2174905cd19aea4e34a23de9ad6?a="
+	},
+	"WAVES_USDN": {
+		"currencyType": "token",
+		"currencyName": "USDN Waves",
+		"currencyCode": "WAVES_USDN",
+		"currencyIcon": "WAVES",
+		"currencySymbol": "USDN",
+		"addressProcessor": "WAVES",
+		"scannerProcessor": "WAVES_ERC_20",
+		"transferProcessor": "WAVES",
+		"prettyNumberProcessor": "UNIFIED",
+		"addressCurrencyCode": "WAVES",
+		"addressUiChecker": "WAVES",
+		"ratesCurrencyCode": "USDN",
+		"feesCurrencyCode": "WAVES",
+		"decimals": 6,
+		"tokenBlockchain": "WAVES",
+		"tokenAddress": "DG2xFkPdDwKUoBkzGAhQtLpSGzfXLiCYPEzeKH2Ad24p",
+		"currencyExplorerLink": "https://wavesexplorer.com/address/",
+		"currencyExplorerTxLink": "https://wavesexplorer.com/tx/"
+	},
+	"WAVES_USDT": {
+		"currencyType": "token",
+		"currencyName": "Tether Waves",
+		"currencyCode": "WAVES_USDT",
+		"currencySymbol": "USDT",
+		"extendsProcessor": "WAVES_USDN",
+		"addressUiChecker": "WAVES",
+		"ratesCurrencyCode": "USDT",
+		"decimals": 6,
+		"tokenBlockchain": "WAVES",
+		"tokenAddress": "34N9YcEETLWn93qYQ64EsP1x89tSruJU44RrEMSXXEPJ",
+		"currencyExplorerLink": "https://wavesexplorer.com/address/",
+		"currencyExplorerTxLink": "https://wavesexplorer.com/tx/"
+	},
+	"WAVES_USDC": {
+		"currencyType": "token",
+		"currencyName": "USDC Waves",
+		"currencyCode": "WAVES_USDC",
+		"currencySymbol": "USDС",
+		"extendsProcessor": "WAVES_USDN",
+		"addressUiChecker": "WAVES",
+		"ratesCurrencyCode": "USDC",
+		"decimals": 6,
+		"tokenBlockchain": "WAVES",
+		"tokenAddress": "6XtHjpXbs9RRJP2Sr9GUyVqzACcby9TkThHXnjVC5CDJ",
+		"currencyExplorerLink": "https://wavesexplorer.com/address/",
+		"currencyExplorerTxLink": "https://wavesexplorer.com/tx/"
+	},
+	"ASH_SKRYPIN": {
+		"currencyType": "token",
+		"currencyName": "Skrypin Aeneas",
+		"currencyCode": "ASH_SKRYPIN",
+		"currencyIcon": "ASH",
+		"currencySymbol": "SKRYPIN",
+		"addressProcessor": "ASH",
+		"scannerProcessor": "WAVES_ERC_20",
+		"transferProcessor": "WAVES",
+		"prettyNumberProcessor": "UNIFIED",
+		"addressCurrencyCode": "ASH",
+		"addressUiChecker": "ASH",
+		"ratesCurrencyCode": "SKRYPIN",
+		"feesCurrencyCode": "ASH",
+		"decimals": 8,
+		"tokenBlockchain": "ASH",
+		"tokenAddress": "H4hpkUDJGVr1HGXvDq8gYpoQ4zT94quVj4AYK2GihbHW",
+		"currencyExplorerLink": "http://explorer.aeneas.id/address/",
+		"currencyExplorerTxLink": "http://explorer.aeneas.id/tx/"
 	}
 }

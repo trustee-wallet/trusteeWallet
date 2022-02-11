@@ -9,8 +9,6 @@ import {
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
-import { strings } from '@app/services/i18n'
-
 
 export default function RadioButton(props) {
     const {
@@ -18,7 +16,8 @@ export default function RadioButton(props) {
         checked,
         onChange = () => {},
         value,
-        containerStyle
+        containerStyle,
+        radioStyles
     } = props
     const { colors } = useTheme()
 
@@ -32,10 +31,10 @@ export default function RadioButton(props) {
             <View
                 style={[
                     styles.radio,
-                    { borderColor: checked ? colors.common.radioButton.checked : colors.common.radioButton.border }
+                    { borderColor: checked ? colors.common.radioButton.checked : colors.common.radioButton.border },
                 ]}
             >
-                <View style={[styles.radioInner, { backgroundColor: checked ? colors.common.radioButton.checked : colors.common.radioButton.uncheckedBg }]} />
+                <View style={[styles.radioInner, { backgroundColor: checked ? colors.common.radioButton.checked : radioStyles?.backgroundColor || colors.common.radioButton.uncheckedBg }]} />
             </View>
             {!!label && <Text style={[styles.label, { color: checked ? colors.common.radioButton.checked : colors.common.radioButton.text }]}>{label}</Text>}
         </TouchableOpacity>

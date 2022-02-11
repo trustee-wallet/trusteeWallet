@@ -3,7 +3,7 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Image, StyleSheet, BackHandler } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
 
@@ -22,6 +22,7 @@ import { getLockScreenData } from '@app/appstores/Stores/LockScreen/selectors'
 import { getIsTouchIDStatus } from '@app/appstores/Stores/Settings/selectors'
 import { finishProcess } from '@app/modules/LockScreen/helpers'
 import { LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
 
 class LockScreen extends React.PureComponent {
@@ -40,6 +41,17 @@ class LockScreen extends React.PureComponent {
         this.setState({
             passwordState: res ? 'enter' : 'choose'
         })
+        BackHandler.addEventListener("hardwareBackPress", this.backAction)
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener("hardwareBackPress", this.backAction)
+    }
+
+    backAction = () => {
+        if(typeof this.props.lockScreen.noCallback === 'function'){
+            this.props.lockScreen.noCallback()
+        }
     }
 
     renderIconComponentLockedPage = () => {
@@ -227,9 +239,9 @@ class LockScreen extends React.PureComponent {
                             bottomLeftComponent={
                                 noTouchIDShow ? null :
                                     (launchTouchID) => {
-                                        return <TouchableOpacity onPress={launchTouchID} style={[styles.iconContainer]}>
+                                        return <TouchableDebounce onPress={launchTouchID} style={[styles.iconContainer]}>
                                             <MaterialIcons size={35} name={'fingerprint'} color={'#7229AE'} />
-                                        </TouchableOpacity>
+                                        </TouchableDebounce>
                                     }
                             }
                         />

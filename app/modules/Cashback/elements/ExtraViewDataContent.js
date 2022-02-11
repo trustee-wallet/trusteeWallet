@@ -167,7 +167,7 @@ export class Tab1 extends React.Component {
                             qr={true}
                             qrCallback={this.handleQrCode}
                             onBlur={this.handleSubmitInviteLink}
-                        /> 
+                        />
                         <RoundButton
                             type='sendMessage'
                             size={50}
@@ -187,49 +187,26 @@ export class Tab1 extends React.Component {
 
 export class Tab2 extends React.Component {
 
-    renderTelegramComponent = () => {
+    handleTelegramComponent = () => {
         const link = BlocksoftExternalSettings.getStatic('SUPPORT_BOT')
-        const bot = BlocksoftExternalSettings.getStatic('SUPPORT_BOT_NAME')
         MarketingEvent.logEvent('taki_cashback_withdraw', { link, screen: 'CASHBACK_WITHDRAW' })
-
-        return (
-            <View style={{ alignItems: 'center', width: '100%' }}>
-                <TouchableOpacity onPress={() => {
-                    hideModal()
-                    NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
-                }}>
-                    <Text style={{
-                        paddingTop: 10,
-                        paddingHorizontal: 10,
-                        fontFamily: 'SFUIDisplay-Semibold',
-                        color: '#4AA0EB'
-                    }}>{bot}</Text>
-                </TouchableOpacity>
-            </View>
-        )
+        hideModal()
+        NavStore.goNext('WebViewScreen', { url: link, title: strings('settings.about.contactSupportTitle') })
     }
 
     handleWithdraw = () => {
-        const { cashbackBalance = 0, minWithdraw } = this.props.cashbackStore.dataFromApi
-
-        if (cashbackBalance < minWithdraw) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.exchange.sorry'),
-                description: `${strings('cashback.minWithdraw')} ${minWithdraw} ${this.cashbackCurrency}`
-            })
-        } else {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.titles.attention'),
-                description: strings('cashback.performWithdraw'),
-                component: this.renderTelegramComponent
-            })
-        }
+        showModal({
+            type: 'YES_NO_MODAL',
+            icon: 'WARNING',
+            reverse: true,
+            yesTitle: 'cashback.withdrawSupport',
+            noTitle: 'modal.ok',
+            title: strings('modal.titles.attention'),
+            description: strings('cashback.performWithdraw')
+        }, () => {
+            this.handleTelegramComponent()
+        })
     }
-
 
     render() {
 
@@ -382,4 +359,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 10
     },
+    supportText: {
+        fontFamily: 'SFUIDisplay-Regular',
+        fontSize: 14,
+        lineHeight: 20,
+        letterSpacing: 0.5
+    }
 })

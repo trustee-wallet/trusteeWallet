@@ -2,10 +2,11 @@
 import React from 'react'
 import {
     Text,
-    TouchableOpacity,
     View,
     StyleSheet,
 } from 'react-native'
+
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
 
 import Switch from 'react-native-switch-pro'
 
@@ -131,6 +132,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='cpa' size={22} color={color} />
         case 'earn':
             return <CustomIcon name='earn' size={22} color={color} />
+        case 'blockchain':
+            return <CustomIcon name='blockchain' size={22} color={color} />
         default: return null
     }
 }
@@ -142,7 +145,7 @@ const getRightContent = (rightContent, params, color, isVisibleDone) => {
     const reversedValue = !value
     switch (rightContent) {
         case 'arrow':
-            return <CustomIcon name="next" size={17} color={colors.common.text1} style={{ left: 0.5 }} />
+            return <CustomIcon name='next' size={17} color={colors.common.text1} style={{ left: 0.5 }} />
         case 'switch':
             return (
                 <Switch
@@ -158,9 +161,9 @@ const getRightContent = (rightContent, params, color, isVisibleDone) => {
                 />
             )
         case 'arrow_down':
-            return <CustomIcon name={'down'} size={18} color={color} />
+            return <CustomIcon name='down' size={18} color={color} />
         case 'arrow_up':
-            return <CustomIcon name={'up'} size={18} color={color} />
+            return <CustomIcon name='up' size={18} color={color} />
         case 'checkbox':
             return <CheckBox isVisibleDone={isVisibleDone} checked={checked} onPress={onPress} />
 
@@ -189,7 +192,9 @@ export default function SettingListItem(props) {
         checked,
         opacityWithDisabled,
         customTextStyle,
-        hasInfo
+        hasInfo,
+        containerStyle = {},
+        contentStyle = {}
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
@@ -199,7 +204,7 @@ export default function SettingListItem(props) {
         return (
             <>
                 <TouchableOpacity
-                    style={styles.container}
+                    style={[styles.container, containerStyle]}
                     onPress={onPress}
                     onLongPress={onLongPress}
                     delayLongPress={delayLongPress}
@@ -230,7 +235,7 @@ export default function SettingListItem(props) {
         return (
             <View style={{ flexDirection: 'column' }}>
                 <TouchableOpacity
-                    style={styles.container}
+                    style={[styles.container, containerStyle]}
                     onPress={onPress}
                     onLongPress={onLongPress}
                     delayLongPress={delayLongPress}
@@ -243,8 +248,8 @@ export default function SettingListItem(props) {
                             {hasInfo && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
                         </View>
                     }
-                    <View style={styles.mainContent}>
-                        <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, paddingVertical: !!subtitle ? 13 : 23, marginLeft: iconType ? 0 : GRID_SIZE }]}>
+                    <View style={[styles.mainContent, { paddingLeft: iconType ? 4 : 0, paddingVertical: !!subtitle ? 13 : 23 }, contentStyle]}>
+                        <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, marginLeft: iconType ? 0 : GRID_SIZE }]}>
                             <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1, ...customTextStyle }]}>{title}</Text>
                             {!!subtitle && <Text numberOfLines={4} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
                         </View>
@@ -282,7 +287,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingLeft: 4,
         flex: 1,
     },
     textContent: {

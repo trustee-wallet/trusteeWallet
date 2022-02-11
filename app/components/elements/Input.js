@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Clipboard, Text, TextInput, View } from 'react-native'
 
 import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
@@ -22,6 +22,7 @@ import { normalizeInputWithDecimals } from '../../services/UI/Normalize/Normaliz
 import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
 import Log from '../../services/Log/Log'
 import NavStore from '../../components/navigation/NavStore'
+import TouchableDebounce from './new/TouchableDebounce'
 
 
 class Input extends Component {
@@ -317,7 +318,7 @@ class Input extends Component {
                 }
                 {
                     typeof tapText !== 'undefined' ?
-                        <TouchableOpacity disabled={typeof disabled !== 'undefined' ? disabled : false} style={[styles.tap, tapWrapperStyles]} onPress={() => {
+                        <TouchableDebounce disabled={typeof disabled !== 'undefined' ? disabled : false} style={[styles.tap, tapWrapperStyles]} onPress={() => {
                             tapCallback()
                             this.setState({ tap: !this.state.tap })
                         }}>
@@ -331,43 +332,43 @@ class Input extends Component {
                                 </View>
                                  <Text style={{...styles.tap__text, ...tapTextStyles, color: noEdit ? '#999999' : '#7127ac'}}>{tapText}</Text>
                             </View>
-                        </TouchableOpacity> : null
+                        </TouchableDebounce> : null
                 }
                 <View style={styles.actions}>
                     {
                         typeof fio !== 'undefined' && fio ?
-                            <TouchableOpacity onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
+                            <TouchableDebounce onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
                                 <MaterialCommunityIcons style={styles.actionBtn__icon} name="contacts" size={25} color="#855eab"/>
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                     {
                         typeof copy !== 'undefined' && copy ?
-                            <TouchableOpacity onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
+                            <TouchableDebounce onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
                                 <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-copy" size={25} color="#855eab"/>
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                     {
                         typeof paste !== 'undefined' && paste ?
-                            <TouchableOpacity onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
+                            <TouchableDebounce onPress={this.handleReadFromClipboard} style={[styles.actionBtn]}>
                                 <MaterialCommunityIcons style={styles.actionBtn__icon} name="content-paste" size={25} color="#855eab"/>
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                     {
                         typeof qr !== 'undefined' && qr ?
-                            <TouchableOpacity onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
+                            <TouchableDebounce onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
                                 <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon }} name="qrcode" size={25} color="#855eab"/>
-                            </TouchableOpacity> : null
+                            </TouchableDebounce> : null
                     }
                 </View>
                 {
                     typeof action !== 'undefined' && !disabled ?
-                        <TouchableOpacity onPress={action.callback} style={[styles.action, actionBtnStyles]}>
+                        <TouchableDebounce onPress={action.callback} style={[styles.action, actionBtnStyles]}>
                             <View style={styles.action__title}>
                                 <Text style={styles.action__title__text}>
                                     {action.title}
                                 </Text>
                             </View>
-                        </TouchableOpacity> : null
+                        </TouchableDebounce> : null
                 }
                 {
                     typeof subTitle !== 'undefined' ?

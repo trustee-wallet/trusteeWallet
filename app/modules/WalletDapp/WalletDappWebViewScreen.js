@@ -30,7 +30,6 @@ import {
     handleStop
 } from '@app/modules/WalletConnect/helpers'
 import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
-import * as scriptWeb3 from './ScriptWeb3'
 
 import { setWalletDappWalletConnectLink } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
 
@@ -38,8 +37,12 @@ import config from '@app/config/config'
 import store from '@app/store'
 import TronUtils from '@crypto/blockchains/trx/ext/TronUtils'
 import TrxDappHandler from '@app/modules/WalletDapp/injected/TrxDappHandler'
+import EthDappHandler from '@app/modules/WalletDapp/injected/EthDappHandler'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import BlocksoftUtils from "@crypto/common/BlocksoftUtils"
+import { Web3Injected } from '@crypto/services/Web3Injected'
+import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
+import { INJECTEDJAVASCRIPT, INJECTEDJAVASCRIPT_SMALL } from './ScriptWeb3.js'
 
 class WalletDappWebViewScreen extends PureComponent {
     state = {
@@ -89,6 +92,10 @@ class WalletDappWebViewScreen extends PureComponent {
 
     handleDisconnect = (isConnected) => {
         handleStop.call(this, isConnected)
+    }
+
+    handleChangeNetwork = () => {
+        NavStore.goNext('WalletConnectChangeNetworkScreen')
     }
 
     handleLogout = (func) => {
@@ -150,20 +157,38 @@ class WalletDappWebViewScreen extends PureComponent {
 
 
     onMessage = async (e) => {
+
+        let showLog = false
         if (config.debug.appErrors) {
-            console.log(`
+            if (e.nativeEvent.data.indexOf('eth_accounts') === -1 && e.nativeEvent.data.indexOf('net_version') === -1) {
+                console.log(`
             
             
             `)
-            console.log('WalletDappWebView message', e.nativeEvent.data)
+                console.log('WalletDappWebView message', e.nativeEvent.data)
+                showLog = true
+            }
         }
         Log.log('WalletDappWebView message', e.nativeEvent.data)
         if (e.nativeEvent.data && e.nativeEvent.data.indexOf('{') !== -1) {
+            let tmp = false
             try {
-                const tmp = JSON.parse(e.nativeEvent.data)
+                tmp = JSON.parse(e.nativeEvent.data)
+            } catch (e) {
+                console.log('WalletDapp.WebViewScreen.onMessage parse error ' + e.message  + ' ' + e.nativeEvent.data)
+            }
+
+            try {
+                let handler = false
                 if (tmp.main === 'tronWeb') {
-                    const { res, shouldAsk, shouldAskText} = await TrxDappHandler.handle(tmp, false)
-                    if (config.debug.appErrors) {
+                    handler = TrxDappHandler
+                } else if (tmp.main === 'ethereum') {
+                    handler = EthDappHandler
+                }
+
+                if (handler) {
+                    const { res, shouldAsk, shouldAskText} = await handler.handle(tmp, false)
+                    if (config.debug.appErrors && showLog) {
                         console.log('WalletDappWebView res', res)
                     }
                     if (typeof shouldAsk !== 'undefined' && shouldAsk) {
@@ -173,21 +198,20 @@ class WalletDappWebViewScreen extends PureComponent {
                             title: strings('settings.walletConnect.transaction'),
                             description: shouldAskText
                         },  async () => {
-                            const { res : resAfterAsk } = await TrxDappHandler.handle(tmp, true)
-                            this.webref.postMessage(JSON.stringify({ req: tmp, res : resAfterAsk }))
+                            const { res : resAfterAsk } = await handler.handle(tmp, true)
+                            this.webref.postMessage(JSON.stringify({ fromTrustee : 1, req: tmp, res : resAfterAsk }))
                             if (config.debug.appErrors) {
                                 console.log('WalletDappWebView resAfterAsk', resAfterAsk)
                             }
                         })
                     } else {
-                        this.webref.postMessage(JSON.stringify({ req: tmp, res }))
+                        this.webref.postMessage(JSON.stringify({ fromTrustee : 1, req: tmp, res }))
                     }
                 }
             } catch (e) {
-                // console.log('WalletDapp.WebViewScreen.onMessage parse error ' + e.message)
+                console.log('WalletDapp.WebViewScreen.onMessage handle error ' + e.message, tmp)
             }
         }
-        // this.webref.postMessage('aergag')
     }
 
     // general handler (could be not only wallet connect)
@@ -229,19 +253,40 @@ class WalletDappWebViewScreen extends PureComponent {
 
         const { walletHash } = this.props.selectedWalletData
         const { dappCode, dappName, dappUrl, incognito } = this.props.walletDappData
+        const { dappNetworks, disableInjected } = dappsBlocksoftDict[dappCode]
 
         Log.log('WalletDapp.WebViewScreen render ' + dappCode + ' incognito ' + JSON.stringify(incognito) )
 
-        let prepared = scriptWeb3.INJECTEDJAVASCRIPT
-        try {
-            if (typeof store.getState().accountStore.accountList[walletHash] !== 'undefined' && typeof store.getState().accountStore.accountList[walletHash]['TRX'] !== 'undefined') {
-                const found = store.getState().accountStore.accountList[walletHash]['TRX']
-                TrxDappHandler.init(found)
-                prepared = prepared.replace('TRX_ADDRESS_BASE58', found.address)
-                prepared = prepared.replace('TRX_ADDRESS_HEX', TronUtils.addressToHex(found.address))
+        let prepared
+        if (typeof disableInjected === 'undefined' || !disableInjected) {
+            prepared = INJECTEDJAVASCRIPT
+            try {
+                if (typeof store.getState().accountStore.accountList[walletHash] !== 'undefined') {
+                    if (typeof store.getState().accountStore.accountList[walletHash]['TRX'] !== 'undefined') {
+                        const found = store.getState().accountStore.accountList[walletHash]['TRX']
+                        TrxDappHandler.init(found)
+                        prepared = prepared.replace('TRX_ADDRESS_BASE58', found.address)
+                        prepared = prepared.replace('TRX_ADDRESS_HEX', TronUtils.addressToHex(found.address))
+                    }
+                    const codes = typeof dappNetworks !== 'undefined' && dappNetworks ? dappNetworks : ['ETH', 'MATIC', 'BNB_SMART']
+                    for (const code of codes) {
+                        if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
+                            const found = store.getState().accountStore.accountList[walletHash][code]
+                            prepared = prepared.replace('ETH_ADDRESS_HEX', found.address)
+                            const web3 = Web3Injected(code)
+                            const chainId = BlocksoftUtils.decimalToHexWalletConnect(web3.MAIN_CHAIN_ID)
+                            prepared = prepared.replace('ETH_CHAIN_ID_INTEGER', web3.MAIN_CHAIN_ID)
+                            prepared = prepared.replace('ETH_CHAIN_ID_HEX', chainId)
+                            EthDappHandler.init(found, web3)
+                            break;
+                        }
+                    }
+                }
+            } catch (e) {
+                Log.log('WalletDappWebViewScreen found trx error ' + e.message)
             }
-        } catch (e) {
-            Log.log('WalletDappWebViewScreen found trx error ' + e.message)
+        } else {
+            prepared = INJECTEDJAVASCRIPT_SMALL
         }
 
         return (
@@ -250,7 +295,9 @@ class WalletDappWebViewScreen extends PureComponent {
                 leftAction={this.handleBack}
                 rightType="close"
                 rightAction={this.handleClose}
-                title={dappName + (this.state.walletStarted ? ' / by WalletConnect' : '')}
+                title={dappName}
+                titleAction={this.props.walletConnectData.fullLink ? this.handleChangeNetwork : null}
+                titleIconType='downArrow'
             >
                 <WebView
                     ref={webView => (this.webref = webView)}
@@ -261,9 +308,7 @@ class WalletDappWebViewScreen extends PureComponent {
                     onShouldStartLoadWithRequest={this.handleWebViewNavigationTestLink}
 
                     injectedJavaScript={prepared}
-                    onMessage={(e) => {
-                        this.onMessage(e)
-                    }}
+                    onMessage={this.onMessage}
 
                     onError={(e) => {
                         Log.err('WalletDapp.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
@@ -274,15 +319,14 @@ class WalletDappWebViewScreen extends PureComponent {
                     }}
 
                     renderLoading={this.renderLoading}
-                    renderError={(e) => {
-                        this.renderError()
-                    }}
+                    renderError={this.renderError}
 
                     javaScriptEnabled={true}
                     useWebKit={true}
                     startInLoadingState={true}
                     allowsInlineMediaPlayback={true}
                     allowsBackForwardNavigationGestures={true}
+                    userAgent='Mozilla/5.0 (Linux; Android 10; MI 8 Build/QKQ1.190828.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/96.0.4664.45 Mobile Safari/537.36'
                 />
             </ScreenWrapper>
         )

@@ -343,18 +343,18 @@ class UpdateAccountListDaemon extends Update {
                             }
                         } else {
                             if (config.debug.appErrors) {
-                                console.log('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' but started regeneration')
+                                //console.log('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' but started regeneration')
                             }
-                            Log.daemon('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' but started regeneration')
+                            //Log.daemon('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' but started regeneration')
 
                             // low code as something strange if no account but there is currency
                             const mnemonic = await BlocksoftKeysStorage.getWalletMnemonic(tmpWalletHash, 'UpdateAccountListDaemon')
                             let accounts = await BlocksoftKeys.discoverAddresses({ mnemonic, fullTree: false, fromIndex: 0, toIndex: 1, currencyCode }, 'APP_ACCOUNTS_LIST')
                             if (typeof accounts[currencyCode] === 'undefined') {
                                 if (config.debug.appErrors) {
-                                    console.log('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' fail regeneration')
+                                    //console.log('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' fail regeneration')
                                 }
-                                Log.daemon('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' fail regeneration')
+                                //Log.daemon('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' fail regeneration')
                             } else {
                                 const prepare = []
                                 for (const account of accounts[currencyCode]) {

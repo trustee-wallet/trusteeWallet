@@ -36,7 +36,7 @@ class UpdateWalletsDaemon {
 
         let asked = false
         if (!dataUpdate) {
-            const authHash = await settingsActions.getSelectedWallet()
+            const authHash = await settingsActions.getSelectedWallet('_updateWalletsDaemon')
             if (!authHash) {
                 Log.daemon('UpdateWalletsDaemon skipped as no auth')
                 return false
@@ -89,7 +89,8 @@ class UpdateWalletsDaemon {
                         walletName: dataOne.wallet_name,
                         walletToSendStatus: dataOne.wallet_to_send_status,
                         walletUseLegacy: dataOne.wallet_use_legacy,
-                        walletUseUnconfirmed: dataOne.wallet_use_unconfirmed
+                        walletUseUnconfirmed: dataOne.wallet_use_unconfirmed,
+                        walletIsCreatedHere: dataOne.wallet_is_created_here
                     }
                     mapping = walletDS._prepWallet(mapping)
 

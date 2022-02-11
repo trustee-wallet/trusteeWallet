@@ -1,13 +1,13 @@
 import React from 'react'
 import {
     Text,
-    TouchableOpacity,
     View,
     StyleSheet
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
 import { useTheme } from '@app/theme/ThemeProvider'
+import TouchableDebounce from './TouchableDebounce'
 
 const getStyle = (checked, title) => {
     const { colors } = useTheme()
@@ -42,13 +42,13 @@ export default function CheckBox(props) {
     const preparedStyles = getStyle(checked)
 
     return (
-        <TouchableOpacity style={[styles.container, { ...style }]} onPress={onPress} activeOpacity={0.8}>
+        <TouchableDebounce style={[styles.container, { ...style }]} onPress={onPress} activeOpacity={0.8}>
             <View style={[preparedStyles.checkbox]}>
                 {!isVisibleDone ? <Icon name='done' size={16} color={checked ? colors.common.background : '#DADADA' } /> : checked && <Icon name='done' size={16} color={colors.common.background} />}
             </View>
             {typeof title === 'string' && <Text style={preparedStyles.text}>{title}</Text>}
             {typeof title === 'function' && title()}
-        </TouchableOpacity>
+        </TouchableDebounce>
     )
 }
 

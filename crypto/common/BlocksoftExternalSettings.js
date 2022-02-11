@@ -62,6 +62,9 @@ const CACHE = {
     'AMB_TREZOR_SERVER' : ['http://64.227.116.62:29136'],
     'AMB_PRICE' : 5000000000,
     'AMB_GAS_LIMIT' : 620000,
+    'ONE_SERVER' : 'https://api.harmony.one',
+    'ONE_GAS_LIMIT' : 920000,
+    'ONE_PRICE' : 30000000000,
     'VLX_SERVER' : 'https://evmexplorer.velas.com/rpc',
     'VLX_GAS_LIMIT' : 620000,
     'VLX_PRICE' : 3000000000,
@@ -105,12 +108,8 @@ const CACHE = {
     'SOCIAL_LINK_GITHUB': 'https://github.com/trustee-wallet/trusteeWallet',
     'SOCIAL_LINK_FAQ': 'https://trusteeglobal.com/faq/',
     'SOCIAL_LINK_YOUTUBE': 'https://www.youtube.com/TrusteeWallet',
-    'PRIVACY_POLICY_en': 'https://trusteeglobal.com/privacy-policy/?header_footer=none',
-    'PRIVACY_POLICY_ru': 'https://trusteeglobal.com/ru/politika-konfidencialnosti/?header_footer=none',
-    'PRIVACY_POLICY_uk': 'https://trusteeglobal.com/uk/poltika-konfidencijnosti/?header_footer=none',
-    'TERMS_en': 'https://trusteeglobal.com/terms-of-use/?header_footer=none',
-    'TERMS_ru': 'https://trusteeglobal.com/ru/usloviya-ispolzovaniya/?header_footer=none',
-    'TERMS_uk': 'https://trusteeglobal.com/uk/umovi-vikoristannya/?header_footer=none',
+    'PRIVACY_POLICY': 'https://trusteeglobal.com/privacy-policy/?header_footer=none',
+    'TERMS': 'https://trusteeglobal.com/terms-of-use/?header_footer=none',
     'SEND_CHECK_ALMOST_ALL_PERCENT' : 0.95,
     'SEND_AMOUNT_CHECK' : 1,
     'TRADE_SEND_AMOUNT_CHECK_FORCE_QUIT' : 1,
@@ -118,10 +117,9 @@ const CACHE = {
     'HOW_WORK_CASHBACK_LINK' : 'https://trusteeglobal.com/programma-loyalnosti/',
     'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/',
     'TRX_STAKING_LINK' : 'https://blog.trusteeglobal.com/stejking-trona-i-kak-zarabotat/',
-    'INVOICE_URL_EN' : 'https://trusteeglobal.com/',
-    'INVOICE_URL_RU' : 'https://trusteeglobal.com/ru',
-    'INVOICE_URL_UK' : 'https://trusteeglobal.com/uk',
-    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  }
+    'INVOICE_URL' : 'https://trusteeglobal.com/',
+    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  },
+    'DAPPS_IMAGE_LINK': 'https://raw.githubusercontent.com/trustee-wallet/trusteeWalletAssets/main/dapps/'
 }
 
 
