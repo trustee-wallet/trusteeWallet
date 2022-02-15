@@ -1046,6 +1046,36 @@ export default {
             darkColor: '#3B6C9E'
         }
     },
+    'WAVES_USDT': {
+        colors: {
+            mainColor: '#31D182',
+            darkColor: '#2D9D66'
+        }
+    },
+    'WAVES_USDC': {
+        colors: {
+            mainColor: '#2A7FDB',
+            darkColor: '#2FB9B8'
+        }
+    },
+    'WAVES_USDN': {
+        colors: {
+            mainColor: '#08B596',
+            darkColor: '#08B596'
+        }
+    },
+    'ASH_CRYPTEX': {
+        colors: {
+            mainColor: '#103F68',
+            darkColor: '#356E9F'
+        }
+    },
+    'ASH_SKRYPIN': {
+        colors: {
+            mainColor: '#02D193',
+            darkColor: '#20BE8F'
+        }
+    },
     'CUSTOM_ABYSS': {
         colors: {
             mainColor: '#2E50CF',
