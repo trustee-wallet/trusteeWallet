@@ -30,6 +30,13 @@
     "disableInjected" : true,
     "dappsDomenName": "harmony.mochiswap.io"
   },
+  "DAVINCI" : {
+    "dappCode" : "DAVINCI",
+    "dappName" : "daVinci",
+    "dappUrl" : " https://davinci.gallery",
+    "dappNetworks" : ["ONE"],
+    "dappsDomenName": "davinci.gallery"
+  },
   "JUSTLEND" : {
     "dappCode": "JUSTLEND",
     "dappName" : "JustLend",

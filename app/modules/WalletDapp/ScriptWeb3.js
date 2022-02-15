@@ -320,8 +320,9 @@ try {
     }
 
     window.ethereum = trustee.ethereum;
-
-    (function() {
+    window.isTrustee = true;
+    
+    (function() {        
         window.dispatchEvent(new Event('ethereum#initialized'))
 
         window.addEventListener('message', (event) => {

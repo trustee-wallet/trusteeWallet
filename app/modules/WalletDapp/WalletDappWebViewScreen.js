@@ -253,7 +253,7 @@ class WalletDappWebViewScreen extends PureComponent {
 
         const { walletHash } = this.props.selectedWalletData
         const { dappCode, dappName, dappUrl, incognito } = this.props.walletDappData
-        const { dappNetworks, disableInjected } = dappsBlocksoftDict[dappCode]
+        const { disableInjected, dappNetworks } = dappsBlocksoftDict[dappCode]
 
         Log.log('WalletDapp.WebViewScreen render ' + dappCode + ' incognito ' + JSON.stringify(incognito) )
 
@@ -268,18 +268,37 @@ class WalletDappWebViewScreen extends PureComponent {
                         prepared = prepared.replace('TRX_ADDRESS_BASE58', found.address)
                         prepared = prepared.replace('TRX_ADDRESS_HEX', TronUtils.addressToHex(found.address))
                     }
-                    const codes = typeof dappNetworks !== 'undefined' && dappNetworks ? dappNetworks : ['ETH', 'MATIC', 'BNB_SMART']
-                    for (const code of codes) {
-                        if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
-                            const found = store.getState().accountStore.accountList[walletHash][code]
-                            prepared = prepared.replace('ETH_ADDRESS_HEX', found.address)
-                            const web3 = Web3Injected(code)
-                            const chainId = BlocksoftUtils.decimalToHexWalletConnect(web3.MAIN_CHAIN_ID)
-                            prepared = prepared.replace('ETH_CHAIN_ID_INTEGER', web3.MAIN_CHAIN_ID)
-                            prepared = prepared.replace('ETH_CHAIN_ID_HEX', chainId)
-                            EthDappHandler.init(found, web3)
-                            break;
+
+                    let found = false
+                    if (typeof dappNetworks !== 'undefined' && dappNetworks) {
+                        for (const code of dappNetworks) {
+                            if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
+                                found = store.getState().accountStore.accountList[walletHash][code]
+                                found.code = code
+                                break
+                            }
                         }
+                    }
+                    if (!found) {
+                        for (const code of ['ETH', 'MATIC', 'BNB_SMART', 'ONE']) {
+                            if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
+                                found = store.getState().accountStore.accountList[walletHash][code]
+                                found.code = code
+                                break
+                            }
+                        }
+                        if (found && dappNetworks.length === 1) {
+                            found.code = dappNetworks[0]
+                        }
+                    }
+
+                    if (found) {
+                        prepared = prepared.replace('ETH_ADDRESS_HEX', found.address)
+                        const web3 = Web3Injected(found.code)
+                        const chainId = BlocksoftUtils.decimalToHexWalletConnect(web3.MAIN_CHAIN_ID)
+                        prepared = prepared.replace('ETH_CHAIN_ID_INTEGER', web3.MAIN_CHAIN_ID)
+                        prepared = prepared.replace('ETH_CHAIN_ID_HEX', chainId)
+                        EthDappHandler.init(found, web3)
                     }
                 }
             } catch (e) {
