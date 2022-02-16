@@ -17,13 +17,14 @@ export default class BnbSmartTransferProcessor extends EthTransferProcessor impl
             if (typeof defaultFee === 'undefined' || !defaultFee) {
                 defaultFee = 5000000000
             }
-            if (!this._etherscanApiPathForFee) {
-                additionalData.gasPrice = defaultFee
-                additionalData.gasPriceTitle = 'speed_blocks_2'
-            } else {
-                additionalData.gasPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPathForFee, defaultFee, 'BnbSmartTransferProcessor.getFeeRate')
-                additionalData.gasPriceTitle = 'speed_blocks_2'
+            if (this._etherscanApiPathForFee) {
+                const tmpPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPathForFee, defaultFee, 'BnbSmartTransferProcessor.getFeeRate')
+                if (tmpPrice*1>defaultFee*1) {
+                    defaultFee = tmpPrice*1
+                }
             }
+            additionalData.gasPrice = defaultFee
+            additionalData.gasPriceTitle = 'speed_blocks_2'
         }
         return super.getFeeRate(data, privateData, additionalData)
     }

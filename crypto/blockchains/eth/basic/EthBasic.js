@@ -193,7 +193,7 @@ export default class EthBasic {
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
-            this._etherscanApiPathForFee = `https://api.ftmscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
+            this._etherscanApiPathForFee = false // invalid now `https://api.ftmscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
 
             this._trezorServer = false
             this._trezorServerCode = false
