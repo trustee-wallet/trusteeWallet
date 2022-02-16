@@ -71,6 +71,7 @@ const CACHE = {
     'METIS_SERVER' : 'https://andromeda.metis.io/?owner=1088',
     'METIS_GAS_LIMIT' : 620000,
     'METIS_PRICE' : 40000000000,
+    'BTTC_SERVER' : 'https://rpc.bt.io',
     'OPTIMISM_SERVER' : 'https://mainnet.optimism.io',
     'OPTIMISM_PRICE' : 15000000,
     'OPTIMISM_GAS_LIMIT' : 2320100000,

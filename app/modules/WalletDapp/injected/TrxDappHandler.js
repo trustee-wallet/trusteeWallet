@@ -8,7 +8,6 @@ import config from '@app/config/config'
 import Log from '@app/services/Log/Log'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
-import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 const ethers = require('ethers')
 const ADDRESS_PREFIX_REGEX = /^(41)/
@@ -119,21 +118,37 @@ const TrxDappHandler = {
                 owner_address: TronUtils.addressToHex(TrxDappHandler.account.address)
             }
 
-            if (callData.action === 'triggerConstantContract') {
+            if (callData.action === 'triggerConstantContract' || (callData.options && typeof callData.options._isConstant !== 'undefined' && callData.options._isConstant)) {
                 asked = true
 
             } else {
                 if (typeof callData.options !== 'undefined') {
                     if (typeof callData.options.callValue !== 'undefined' && callData.options.callValue * 1 > 0) {
-                        params.call_value = BlocksoftUtils.hexToDecimal(callData.options.callValue);
+                        params.call_value = BlocksoftUtils.hexToDecimal(callData.options.callValue)
                         shouldAskText += ' ' + params.call_value + ' TRX'
+                    } else {
+                        params.call_value = 0
                     }
                     if (typeof callData.options.feeLimit !== 'undefined') {
                         params.fee_limit = callData.options.feeLimit
+                    } else {
+                        params.fee_limit = 150000000
                     }
+                    if (typeof callData.options.tokenId !== 'undefined') {
+                        params.token_id = callData.options.tokenId * 1
+                    }
+                    if (typeof callData.options.tokenValue !== 'undefined') {
+                        params.call_token_value = callData.options.tokenValue * 1
+                        if (typeof params.call_value === 'undefined') {
+                            params.call_value = 0
+                        }
+                        shouldAskText += ' ' + params.call_token_value + ' token ' + (callData.options.tokenId || '')
+                    }
+                } else {
+                    params.call_value = 0
+                    params.fee_limit = 150000000
                 }
             }
-
             const tmp = await BlocksoftAxios.post(sendLink + '/wallet/triggerconstantcontract', params, true, 1000000)
             if (typeof typeof tmp.data.result !== 'undefined' && typeof tmp.data.result.message !== 'undefined') {
                 // @ts-ignore
@@ -145,7 +160,7 @@ const TrxDappHandler = {
                     description: tmp.data.error,
                 })
                 if (config.debug.appLogs) {
-                    console.log('TrxDappHandler ' + callData.address + '.' + callData.functionSelector + ' ' + JSON.stringify(callData.parameters) + ' => error ' +  tmp.data.error + ' ' + tmp.data.error)
+                    console.log('TrxDappHandler ' + callData.address + '.' + callData.functionSelector + ' ' + JSON.stringify(callData.parameters) + ' => error ' + tmp.data.error + ' ' + tmp.data.error)
                 }
             }
             if (callData.action === 'triggerConstantContract' && typeof tmp.data.constant_result !== 'undefined') {

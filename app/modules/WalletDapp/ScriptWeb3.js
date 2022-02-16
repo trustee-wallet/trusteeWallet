@@ -41,7 +41,7 @@ try {
                 window.ReactNativeWebView.postMessage(JSON.stringify(data))
                 res = await new Promise((resolve, reject) => {
                     trustee._setInterval[data.id] = setInterval(() => {
-                        if (typeof trustee._received[data.id] !== 'undefined') {
+                        if (typeof trustee._received[data.id] !== 'undefined' && typeof trustee._received[data.id].res !== 'undefined') {
                             if (typeof trustee._received[data.id].res.error !== 'undefined') {
                                 const tmp = trustee._received[data.id].res.error
                                 delete trustee._received[data.id]
@@ -72,7 +72,8 @@ try {
             },
             transactionBuilder: {
                 triggerSmartContract: async (address, functionSelector, options, parameters) => {
-                    return trustee.sendBridge({ main: 'tronWeb', action: 'triggerSmartContract', address, functionSelector, options, parameters })
+                    const tmp2 = await trustee.sendBridge({ main: 'tronWeb', action: 'triggerSmartContract', address, functionSelector, options, parameters })
+                    return tmp2
                 },
                 sendTrx : async (address, amount, addressTo) => {
                     return trustee.sendBridge({ main: 'tronWeb', action: 'sendTrx', address, amount, addressTo })
@@ -128,7 +129,8 @@ try {
             sha3 : async (data) => {
                 return trustee.sendBridge({ main: 'tronWeb', action: 'sha3', data })
             },
-            fromSun : (data) => {
+            fromSun : (_data) => {
+                let data = _data.toString()
                 let ic = data.length;
                 let res = '';
                 for (let i = 0; i < ic - 6; i++) {
@@ -154,7 +156,7 @@ try {
                             // https://github.com/tronprotocol/tronweb/blob/5fa94d0c44839bb6d64a0e1cbc703a3c5c8ff332/src/lib/contract/index.js#L102
                             if (typeof contract.abi.entrys !== 'undefined') {
                                 for (const tmp of contract.abi.entrys) {
-                                    const { name, inputs } = tmp
+                                    const { name, inputs, outputs } = tmp
                                     contract[name] = (arg0, arg1, arg2, arg3, arg4, arg5) => {
                                         const args = [arg0, arg1, arg2, arg3, arg4, arg5]
                                         const parameters = []
@@ -177,11 +179,33 @@ try {
                                                 return trustee.sendBridge({ main: 'tronWeb', action: 'sendRawTransaction', data : tmp.transaction })
                                             },
                                             call : async (options) => {
-                                                return trustee.sendBridge({ main: 'tronWeb', action: 'triggerConstantContract', address, functionSelector, parameters})
+                                               const tmpRes = await trustee.sendBridge({ main: 'tronWeb', action: 'triggerConstantContract', address, functionSelector, parameters});
+                                               if (typeof outputs !=='undefined') {
+                                                    if (outputs.length === 1) {
+                                                        if (outputs[0].type.indexOf('uint') === 0) {                                                       
+                                                            const hex = '0x' + tmpRes;
+                                                            const num = Number(hex);
+                                                            return {
+                                                                _hex: hex,
+                                                                _isBigNumber: true,
+                                                                toNumber: () => {
+                                                                    console.log('return number ' + num)
+                                                                    return num
+                                                                },
+                                                                toString: () => {
+                                                                    return hex
+                                                                }
+                                                            }
+                                                        } else {
+                                                            console.log('todo type ' + outputs[0].type)
+                                                        }
+                                                    } else {
+                                                        console.log('todo outputs ', outputs);
+                                                    }
+                                               }
+                                               return tmpRes;
                                             }
                                         }
-
-
                                     }
                                 }
                             }

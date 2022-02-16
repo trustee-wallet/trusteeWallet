@@ -29,6 +29,10 @@ export const Web3Injected = (type) => {
         MAIN_CURRENCY_CODE = 'METIS'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('METIS_SERVER')
         MAIN_CHAIN_ID = 1088
+    } else if (type === 199 || type === 'BTTC') {
+        MAIN_CURRENCY_CODE = 'BTTC'
+        WEB3_LINK = BlocksoftExternalSettings.getStatic('BTTC_SERVER')
+        MAIN_CHAIN_ID = 199
     } else if (type === 106 || type === 'VLX') {
         MAIN_CURRENCY_CODE = 'VLX'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('VLX_SERVER')

@@ -161,12 +161,8 @@ class WalletDappWebViewScreen extends PureComponent {
         let showLog = false
         if (config.debug.appErrors) {
             if (e.nativeEvent.data.indexOf('eth_accounts') === -1 && e.nativeEvent.data.indexOf('net_version') === -1) {
-                console.log(`
-            
-            
-            `)
-                console.log('WalletDappWebView message', e.nativeEvent.data)
-                showLog = true
+                // console.log('WalletDappWebView message', e.nativeEvent.data)
+                // showLog = true
             }
         }
         Log.log('WalletDappWebView message', e.nativeEvent.data)
@@ -272,6 +268,7 @@ class WalletDappWebViewScreen extends PureComponent {
                     let found = false
                     if (typeof dappNetworks !== 'undefined' && dappNetworks) {
                         for (const code of dappNetworks) {
+                            if (code === 'TRX') continue
                             if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
                                 found = store.getState().accountStore.accountList[walletHash][code]
                                 found.code = code
@@ -287,8 +284,13 @@ class WalletDappWebViewScreen extends PureComponent {
                                 break
                             }
                         }
-                        if (found && dappNetworks.length === 1) {
-                            found.code = dappNetworks[0]
+                        if (found && dappNetworks.length > 0) {
+                            const code = dappNetworks[0]
+                            if (dappNetworks.length === 1) {
+                                found.code = code
+                            } else if (code === 'TRX') {
+                                found.code = dappNetworks[1]
+                            }
                         }
                     }
 
@@ -330,11 +332,11 @@ class WalletDappWebViewScreen extends PureComponent {
                     onMessage={this.onMessage}
 
                     onError={(e) => {
-                        Log.err('WalletDapp.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
+                        Log.log('WalletDapp.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
                     }}
 
                     onHttpError={(e) => {
-                        Log.err('WalletDapp.WebViewScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
+                        Log.log('WalletDapp.WebViewScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                     }}
 
                     renderLoading={this.renderLoading}
