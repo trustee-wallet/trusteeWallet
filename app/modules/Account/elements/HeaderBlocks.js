@@ -81,14 +81,15 @@ class HeaderBlocks extends React.Component {
 
         const {
             GRID_SIZE,
-            colors
+            colors,
+            isLight
         } = this.context
 
         return (
             <View>
                 <InvoiceListItem
                     title={strings('account.invoiceText')}
-                    onPress={() => handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName)}
+                    onPress={() => handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName, isLight)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'
