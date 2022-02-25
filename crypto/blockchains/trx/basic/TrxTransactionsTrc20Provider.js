@@ -134,10 +134,13 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
                 for (const info of tmp.data.trc20TransferInfo) {
                     if (info.contract_address !== this._token) continue
                     if (info.from_address === address) {
-                        res.transactionDirection = 'swap_outcome'
-                        res.addressAmount = info.amount_str
+                        if (info.to_address === address) {
+                            res.transactionDirection = 'self'
+                        } else {
+                            res.transactionDirection = 'outcome'
+                        }
                     } else if (info.to_address === address) {
-                        res.transactionDirection = 'swap_income'
+                        res.transactionDirection = 'income'
                         res.addressAmount = info.amount_str
                     } else {
                         continue
