@@ -179,14 +179,23 @@ export namespace AppWalletConnect {
             try {
                 Log.log('AppWalletConnect.on call_request payload', payload)
                 if (error) {
-                    throw error
+                    throw new Error('Strange ' + error.message)
                 }
                 if (payload.method === 'wallet_addEthereumChain' || payload.method === 'wallet_switchEthereumChain') {
                     autoChangeChain(payload)
                 } else if (payload.method === 'eth_signTypedData') {
                     sendSignTyped(JSON.parse(payload.params[1]), payload)
                 } else if (payload.method === 'personal_sign') {
-                    sendSign(BlocksoftUtils.hexToUtf(payload.params[0]), payload)
+                    let tmp = payload.params[0]
+                    /*
+                    hex not needed to be converted anymore!
+                    try {
+                        tmp = BlocksoftUtils.hexToUtf(payload.params[0])
+                    } catch (e) {
+                        // do nothing
+                    }
+                    */
+                    sendSign(tmp, payload)
                 } else if (payload.method === 'eth_sendTransaction') {
                     sendTx(payload.params[0], payload, MAIN_CURRENCY_CODE)
                 } else {
