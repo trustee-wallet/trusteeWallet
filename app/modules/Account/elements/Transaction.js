@@ -481,7 +481,8 @@ const globalStyles = {
 
             fontFamily: 'Montserrat-SemiBold',
             fontSize: 14,
-            color: '#1EB3E4'
+            color: '#1EB3E4',
+            paddingBottom: Platform.OS === 'ios' ? 0 : 1
         },
         transaction__item__subtitle: {
             fontFamily: 'Montserrat-SemiBold',
