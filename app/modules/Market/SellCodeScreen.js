@@ -133,13 +133,25 @@ class SellCodeScreen extends PureComponent {
                 inTxHash: null,
                 orderHash: data.orderHash,
                 orderId: data.orderHash,
-                outDestination: '',
+                outDestination: data.exchangeWayType === 'SELL'
+                    ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}`
+                    : data.outDestination,
                 outTxHash: null,
                 payinUrl: null,
                 requestedInAmount: { amount: data.amount, currencyCode: data.currencyCode },
                 requestedOutAmount: { amount: data.outAmount, currencyCode: data.outCurrency },
                 status: 'pending_payin',
                 payway: data.payway || null
+            }
+
+            let feeData = false
+            try {
+                if (typeof data.feeData !== 'undefined' && data.feeData) {
+                    feeData = JSON.parse(data.feeData)
+                    feeData = typeof feeData.selectedFee !== 'undefined' ? feeData.selectedFee : false
+                }
+            } catch (e) {
+                // do nothing
             }
 
             const bse = {
@@ -172,14 +184,7 @@ class SellCodeScreen extends PureComponent {
                 return true
             }
 
-            await SendActionsStart.startFromBSE({
-                addressTo: data.address,
-                amount: BlocksoftPrettyNumbers.setCurrencyCode(data.currencyCode).makeUnPretty(data.amount),
-                memo: data.memo,
-                comment: data.comment || '',
-                currencyCode: data.currencyCode,
-                isTransferAll: data.useAllFunds
-            }, bse)
+            await SendActionsStart.startFromBSE(data, bse, feeData)
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('Market/MainScreen.send ' + e.message)
