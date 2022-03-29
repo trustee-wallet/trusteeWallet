@@ -25,7 +25,7 @@
   "MOCHISWAP" : {
     "dappCode" : "MOCHISWAP",
     "dappName" : "Mochiswap",
-    "dappUrl" : " https://harmony.mochiswap.io/swap",
+    "dappUrl" : "https://harmony.mochiswap.io/swap",
     "dappNetworks" : ["ONE"],
     "disableInjected" : true,
     "dappsDomenName": "harmony.mochiswap.io"
@@ -33,7 +33,7 @@
   "DAVINCI" : {
     "dappCode" : "DAVINCI",
     "dappName" : "daVinci",
-    "dappUrl" : " https://davinci.gallery",
+    "dappUrl" : "https://davinci.gallery",
     "dappNetworks" : ["ONE"],
     "dappsDomenName": "davinci.gallery"
   },
