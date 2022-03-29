@@ -345,6 +345,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'TRX_WBTT':
             case 'BNB_SMART_BTT':
             case 'ETH_BTT':
+            case 'ETH_BTT_NEW':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>

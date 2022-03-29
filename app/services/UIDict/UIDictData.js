@@ -1076,6 +1076,12 @@ export default {
             darkColor: '#20BE8F'
         }
     },
+    'ETH_BTT_NEW': {
+        colors: {
+            mainColor: '#D73A64',
+            darkColor: '#CA4D6F'
+        }
+    },
     'CUSTOM_ABYSS': {
         colors: {
             mainColor: '#2E50CF',
