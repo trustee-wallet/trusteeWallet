@@ -205,11 +205,11 @@ class TrusteeAsyncStorage {
     }
 
     getHomeFilterWithBalance = () => {
-        return this._getStatic('homeFilterWithBalacne')
+        return this._getStatic('homeFilterWithBalance')
     }
 
     setHomeFilterWithBalance = (value) => {
-        return this._set('homeFilterWithBalacne', value)
+        return this._set('homeFilterWithBalance', value)
     }
 }
 
