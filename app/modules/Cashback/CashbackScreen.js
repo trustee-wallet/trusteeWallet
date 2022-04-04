@@ -68,20 +68,20 @@ class CashbackScreen extends React.PureComponent {
             cashbackStore
         } = this.props
 
-        const cashbackTotalBalance = cashbackStore.dataFromApi.totalCashbackBalance || 0
-        const cpaTotalBalance = cashbackStore.dataFromApi.cpaTotalBalance || 0
+        const cashbackBalance = cashbackStore.dataFromApi.cashbackBalance || 0
+        const cpaBalance = cashbackStore.dataFromApi.cpaBalance || 0
 
         const getSections = [
             {
                 title: strings('cashback.cashback'),
                 value: 'CASHBACK',
-                balance: `${UtilsService.cutNumber(cashbackTotalBalance, 2)} ${this.cashbackCurrency}`,
+                balance: `${UtilsService.cutNumber(cashbackBalance, 2)} ${this.cashbackCurrency}`,
                 iconType: 'earn'
             },
             {
                 title: strings('cashback.cpa'),
                 value: 'CPA',
-                balance: `${UtilsService.cutNumber(cpaTotalBalance, 2)} ${this.cashbackCurrency}`,
+                balance: `${UtilsService.cutNumber(cpaBalance, 2)} ${this.cashbackCurrency}`,
                 iconType: 'cpa'
             }
         ]
@@ -90,8 +90,6 @@ class CashbackScreen extends React.PureComponent {
             <DetailsHeader
                 cashbackStore={cashbackStore}
                 scrollDetails={this.scrollDetails}
-                cashbackTotalBalance={cashbackTotalBalance}
-                cpaTotalBalance={cpaTotalBalance}
                 sections={getSections}
             />
         )
