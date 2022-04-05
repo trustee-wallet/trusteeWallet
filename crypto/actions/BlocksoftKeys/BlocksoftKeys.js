@@ -352,7 +352,12 @@ class BlocksoftKeys {
          */
         const processor = await BlocksoftDispatcher.getAddressProcessor(data.currencyCode)
         processor.setBasicRoot(root)
-        return processor.getAddress(child.privateKey, {derivationPath : data.derivationPath, derivationIndex: data.derivationIndex, derivationType:  data.derivationType}, data)
+        return processor.getAddress(child.privateKey, {
+            derivationPath : data.derivationPath,
+            derivationIndex: data.derivationIndex,
+            derivationType:  data.derivationType,
+            publicKey : child.publicKey
+        }, data)
     }
 
     /**
