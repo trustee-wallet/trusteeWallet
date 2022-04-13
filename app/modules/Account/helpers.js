@@ -150,7 +150,7 @@ const getCurrentDate = (date) => {
 }
 
 const handleShareInvoice = (address, currencyCode, currencyName, isLight) => {
-    const message = `${BlocksoftCustomLinks.getLink(`INVOICE_URL`, isLight)}?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
+    const message = `${BlocksoftCustomLinks.getLink(`INVOICE_URL`, isLight)}&crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
     const shareOptions = {
         title: strings('account.invoiceText'),
         url: message
