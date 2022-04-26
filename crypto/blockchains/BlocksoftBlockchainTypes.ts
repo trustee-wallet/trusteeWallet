@@ -195,6 +195,7 @@ export namespace BlocksoftBlockchainTypes {
             nSequence?: string,
             txAllowReplaceByFee?: boolean
             feeForByte?: string
+            secretTxKey?: string
         },
 
         amountForTx?: string,

@@ -62,6 +62,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const logFees = []
         let noBalanceError = false
         apiClient.init()
+
         for (let i = 1; i <= 4; i++) {
             try {
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
@@ -91,6 +92,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         langMsg: 'xmr_speed_' + i,
                         feeForTx: fee.used_fee,
                         blockchainData: {
+                            secretTxKey: fee.tx_key,
                             rawTxHex: fee.serialized_signed_tx,
                             rawTxHash: fee.tx_hash,
                             usingOuts: fee.using_outs,
@@ -102,6 +104,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         langMsg: 'xmr_speed_' + i,
                         feeForTx: fee.used_fee,
                         blockchainData: {
+                            secretTxKey: fee.tx_key,
                             rawTxHash: fee.tx_hash,
                             usingOuts: fee.using_outs,
                             simplePriority: i
@@ -212,6 +215,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
             address: data.addressFrom,
             tx: uiData.selectedFee.blockchainData.rawTxHex,
             privViewKey,
+            secretTxKey: uiData.selectedFee.blockchainData.secretTxKey,
             usingOuts: uiData.selectedFee.blockchainData.usingOuts,
             unspentsProvider: this.unspentsProvider
         })
@@ -220,7 +224,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx result', send)
 
         if (send.status === 'OK') {
-            return { transactionHash: uiData.selectedFee.blockchainData.rawTxHash }
+            return { transactionHash: uiData.selectedFee.blockchainData.rawTxHash, transactionJson: { secretTxKey: uiData.selectedFee.blockchainData.secretTxKey }}
         } else {
             throw new Error(this._settings.currencyCode + ' XmrTransferProcessor.sendTx status error ' + JSON.stringify(send))
         }
