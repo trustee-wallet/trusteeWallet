@@ -2065,6 +2065,7 @@
 		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
 	},
     "NFT" : {
+		"extendsProcessor": "ETH",
         "currencyType": "special",
         "currencyName": "NFT",
         "currencyCode": "NFT",
