@@ -148,9 +148,9 @@ class InputAndButtons extends PureComponent {
     }
 
     _setCryptoValue = (cryptoValue, inputType, cryptoValueRecounted = false) => {
-        const { currencyCode, basicCurrencyRate } = this.props.sendScreenStoreDict
+        const { currencyCode, basicCurrencyRate, decimals } = this.props.sendScreenStoreDict
 
-        const cryptoPrettyValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(cryptoValue)
+        const cryptoPrettyValue = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(cryptoValue, decimals)
         const fiatPrettyValue = RateEquivalent.mul({ value: cryptoPrettyValue, currencyCode, basicCurrencyRate })
         const toUpdate = {
             isCountingTransferAll: false,
@@ -175,7 +175,7 @@ class InputAndButtons extends PureComponent {
         }
         this.setState(toUpdate)
         if (toUpdate.inputValue > 0) {
-            this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(toUpdate.inputValue).separated, false)
+            this.valueInput.handleInput(BlocksoftPrettyNumbers.makeCut(toUpdate.inputValue, decimals).separated, false)
         }
     }
 

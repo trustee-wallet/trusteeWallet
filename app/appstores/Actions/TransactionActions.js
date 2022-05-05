@@ -260,7 +260,7 @@ const transactionActions = {
 
         try {
             transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount, 'transactionActions.addressAmount')
-            const res = BlocksoftPrettyNumbers.makeCut(transaction.addressAmountNorm)
+            const res = BlocksoftPrettyNumbers.makeCut(transaction.addressAmountNorm, account.currencyCode === 'BTC' ? 8 : 5) // @todo settings for better
             if (res.isSatoshi) {
                 addressAmountSatoshi = '...' + transaction.addressAmount
                 transaction.addressAmountPretty = res.cutted

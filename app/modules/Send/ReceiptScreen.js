@@ -304,7 +304,7 @@ class ReceiptScreen extends PureComponent {
         const { colors, GRID_SIZE, isLight } = this.context
 
         const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
-        const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate } = this.props.sendScreenStore.dict
+        const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate, decimals } = this.props.sendScreenStore.dict
         const { cryptoValue, bse, rawOnly, contractCallData, walletConnectData } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse
         const { sendInProcess } = this.state
@@ -317,18 +317,18 @@ class ReceiptScreen extends PureComponent {
         } else if (typeof selectedFee.amountForTx !== 'undefined' ) {
             value = selectedFee.amountForTx
         }
-        const amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value)
+        const amountPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value, decimals)
 
         let amountPrettySeparated = 0
         let equivalent = false
         let equivalentSeparated = false
         if (typeof bseOrderId === 'undefined' || !bseOrderId) {
-            amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty).separated
+            amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty, decimals).separated
             equivalent = RateEquivalent.mul({ value: amountPretty, currencyCode, basicCurrencyRate })
             equivalentSeparated = BlocksoftPrettyNumbers.makeCut(equivalent).separated
         } else {
             // from bse its longer hmmm
-            amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty, 6).separated
+            amountPrettySeparated = BlocksoftPrettyNumbers.makeCut(amountPretty, decimals > 6 ? decimals : 6).separated
         }
 
         return (
@@ -402,7 +402,7 @@ class ReceiptScreen extends PureComponent {
                                     />
                                 )
                             })}
-                            
+
                             <View style={{ ...styles.line, borderBottomColor: colors.sendScreen.colorLine }} />
                         </View>
                         <View style={{ marginTop: 12 }}>
