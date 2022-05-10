@@ -43,7 +43,7 @@ RUN cd ./src && \
     mkdir /${WDIR}/src
 
 RUN cd /${WDIR}/androidsdk/cmdline-tools/ && \
-    curl -s -o commandlinetools-linux.zip https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip && \
+    curl -s -o commandlinetools-linux.zip https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip && \
     unzip commandlinetools-linux.zip && \
     cd ./cmdline-tools/ && \
     mv ./* ../latest/ && \
