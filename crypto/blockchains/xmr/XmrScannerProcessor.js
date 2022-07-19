@@ -24,7 +24,7 @@ export default class XmrScannerProcessor {
      */
     _serverUrl = false
 
-    _blocksToConfirm = 10
+    _blocksToConfirm = 30
 
     _maxBlockNumber = 500000000
 
