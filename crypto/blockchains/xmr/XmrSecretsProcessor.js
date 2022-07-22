@@ -1,6 +1,6 @@
 /**
  * @version 0.11
- * https://coinomi.github.io/bip39-monero/
+ * https://github.com/Coinomi/bip39-coinomi/releases
  */
 import BlocksoftKeys from '../../actions/BlocksoftKeys/BlocksoftKeys'
 
@@ -33,7 +33,13 @@ export default class XmrSecretsProcessor {
         const rawSecretSpendKey = soliditySha3(rawPrivateKey)
         const rawSecretSpendKeyBuffer = Buffer.from(rawSecretSpendKey.substr(2), 'hex')
 
-        const secretSpendKey = MoneroUtils.sc_reduce32(rawSecretSpendKeyBuffer)
+        let secretSpendKey = MoneroUtils.sc_reduce32(rawSecretSpendKeyBuffer)
+        const secretSpendLength = secretSpendKey.length
+        if (secretSpendLength < 64) {
+            for (let i = secretSpendLength; i<64; i++) {
+                secretSpendKey = secretSpendKey + '0'
+            }
+        }
 
         const secretViewKey = MoneroUtils.hash_to_scalar(secretSpendKey)
 
