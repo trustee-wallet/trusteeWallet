@@ -73,7 +73,7 @@ export namespace AppWalletConnect {
         }
         const account = accountList[walletHash][MAIN_CURRENCY_CODE] || accountList[walletHash]['ETH']
         let res = []
-        if (peerMeta.description === "TrusteeConnect4Tron") {
+        if (peerMeta && typeof peerMeta !== 'undefined' && typeof peerMeta.description !== 'undefined' && peerMeta.description === "TrusteeConnect4Tron") {
             res = [accountList[walletHash]['TRX'], account]
             setWalletConnectAccount(res[0].address, 'TRX', walletName)
         } else {
