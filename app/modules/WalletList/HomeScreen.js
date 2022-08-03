@@ -84,26 +84,38 @@ class HomeScreen extends React.PureComponent {
             Log.log('WalletList.HomeScreen initDeepLinking error ' + e.message)
         }
 
-        Log.log('WalletList.HomeScreen initial sortValue ' + this.state.sortValue)
+        try {
+            Log.log('WalletList.HomeScreen initial sortValue ' + this.state?.sortValue)
 
-        setLoaderStatus(false)
-        this.getBalanceVisibility()
-        NftActions.init(false)
+            setLoaderStatus(false)
+            this.getBalanceVisibility()
+            NftActions.init(false)
+        } catch (e) {
+            Log.log('WalletList.HomeScreen componentDidMount error ' + e.message)
+        }
     }
 
     componentDidUpdate(prevProps) {
-        if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList) || !_isEqual(prevProps.homeFilterWithBalance, this.props.homeFilterWithBalance)) {
-            this.setState({
-                data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue, this.props.homeFilterWithBalance),
-                sortValue: this.props.sortValue,
-                homeFilterWithBalance: this.props.homeFilterWithBalance
-            })
+        try {
+            if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList) || !_isEqual(prevProps.homeFilterWithBalance, this.props.homeFilterWithBalance)) {
+                this.setState({
+                    data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue, this.props.homeFilterWithBalance),
+                    sortValue: this.props.sortValue,
+                    homeFilterWithBalance: this.props.homeFilterWithBalance
+                })
+            }
+        } catch (e) {
+            Log.log('WalletList.HomeScreen componentDidUpdate error ' + e.message)
         }
     }
 
     getBalanceVisibility = () => {
-        const isBalanceVisible = this.props.isBalanceVisible
-        this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
+        try {
+            const isBalanceVisible = this.props.isBalanceVisible
+            this.setState(() => ({ isBalanceVisible, originalVisibility: isBalanceVisible }))
+        } catch (e) {
+            Log.log('WalletList.HomeScreen getBalanceVisibility error ' + e.message)
+        }
     }
 
     handleRefresh = async () => {
@@ -137,30 +149,46 @@ class HomeScreen extends React.PureComponent {
     }
 
     changeBalanceVisibility = async () => {
-        const newVisibilityValue = !this.state.isBalanceVisible
-        settingsActions.setSettings('isBalanceVisible', newVisibilityValue ? '1' : '0')
-        this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
+        try {
+            const newVisibilityValue = !this.state.isBalanceVisible
+            settingsActions.setSettings('isBalanceVisible', newVisibilityValue ? '1' : '0')
+            this.setState(() => ({ isBalanceVisible: newVisibilityValue, originalVisibility: newVisibilityValue }))
+        } catch (e) {
+            Log.log('WalletList.HomeScreen changeBalanceVisibility error ' + e.message)
+        }
     }
 
     triggerBalanceVisibility = (value) => {
-        this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
+        try {
+            this.setState((state) => ({ isBalanceVisible: value || state.originalVisibility }))
+        } catch (e) {
+            Log.log('WalletList.HomeScreen triggerBalanceVisibility error ' + e.message)
+        }
     }
 
     updateOffset = (offset) => {
-        // const newOffset = Math.round(offset)
-        const newOffset = Math.round(offset.nativeEvent.contentOffset.y)
-        if (!this.state.hasStickyHeader && newOffset > 110) this.setState(() => ({ hasStickyHeader: true }))
-        if (this.state.hasStickyHeader && newOffset < 110) this.setState(() => ({ hasStickyHeader: false }))
+        try {
+            // const newOffset = Math.round(offset)
+            const newOffset = Math.round(offset.nativeEvent.contentOffset.y)
+            if (!this.state.hasStickyHeader && newOffset > 110) this.setState(() => ({ hasStickyHeader: true }))
+            if (this.state.hasStickyHeader && newOffset < 110) this.setState(() => ({ hasStickyHeader: false }))
+        } catch (e) {
+            Log.log('WalletList.HomeScreen updateOffset error ' + e.message)
+        }
     }
 
     setScrollEnabled = (value) => {
-        if (this.props.scrollRef && this.props.scrollRef.setNativeProps) {
-            this.props.scrollRef.setNativeProps({ scrollEnabled: value });
-        } else if (this.props.scrollRef && this.props.scrollRef.getScrollResponder) {
-            const scrollResponder = this.props.scrollRef.getScrollResponder();
-            if (scrollResponder.setNativeProps) scrollResponder.setNativeProps({ scrollEnabled: value });
-        } else {
-            this.setState(() => ({ enableVerticalScroll: value }))
+        try {
+            if (this.props.scrollRef && this.props.scrollRef.setNativeProps) {
+                this.props.scrollRef.setNativeProps({ scrollEnabled: value });
+            } else if (this.props.scrollRef && this.props.scrollRef.getScrollResponder) {
+                const scrollResponder = this.props.scrollRef.getScrollResponder();
+                if (scrollResponder.setNativeProps) scrollResponder.setNativeProps({ scrollEnabled: value });
+            } else {
+                this.setState(() => ({ enableVerticalScroll: value }))
+            }
+        } catch (e) {
+            Log.log('WalletList.HomeScreen setScrollEnabled error ' + e.message)
         }
     };
 

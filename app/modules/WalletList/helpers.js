@@ -299,7 +299,7 @@ const getSortedData = (array, currentArray, accountList, sortValue, filter = fal
             results = [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType').reverse()]
             break
         default: {
-            results = currentArray
+            results = filter ? currentArray : array
             break
         }
     }
@@ -332,7 +332,7 @@ const getDerivedState = (nextProps, prevState) => {
         const data = _orderBy(nextProps.currencies, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
 
         newState.originalData = nextProps.currencies
-        newState.data = nextProps.sortValue ? getSortedData(nextProps.currencies, data, nextProps.accountList, nextProps.sortValue, nextProps.homeFilterWithBalance) : data
+        newState.data = getSortedData(nextProps.currencies, data, nextProps.accountList, nextProps.sortValue, nextProps.homeFilterWithBalance)
         newState.sortValue = nextProps.sortValue || prevState.sortValue
         newState.homeFilterWithBalance = nextProps.homeFilterWithBalance || prevState.homeFilterWithBalance
 

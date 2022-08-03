@@ -35,6 +35,10 @@ export default class CurrencyIcon extends PureComponent {
             return 'ETH_VLX'
         } else if (currencyCode.indexOf('ONE_') !== -1) {
             return 'ETH_ONE'
+        } else if (currencyCode.indexOf('WAVES_') !== -1) {
+            return 'WAVES'
+        } else if (currencyCode.indexOf('ASH_') !== -1) {
+            return require('@assets/images/currency/ASH.png')
         }
     }
 
@@ -58,6 +62,10 @@ export default class CurrencyIcon extends PureComponent {
                 return 'ETH_VLX'
             case 'ONE':
                 return 'ETH_ONE'
+            case 'WAVES':
+                return 'WAVES'
+            case 'ASH':
+                return 'ASH'
             default:
                 return null
         }
@@ -337,6 +345,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'TRX_WBTT':
             case 'BNB_SMART_BTT':
             case 'ETH_BTT':
+            case 'ETH_BTT_NEW':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -533,6 +542,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'SOL_USDT':
             case 'MATIC_USDT':
             case 'VLX_USDT':
+            case 'WAVES_USDT':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -563,6 +573,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'SOL_USDC':
             case 'MATIC_USDC':
             case 'FTM_USDC':
+            case 'WAVES_USDC':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict['ETH_USDC'].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -869,6 +880,30 @@ export default class CurrencyIcon extends PureComponent {
                     </View>
                 )
 
+            case 'WAVES_USDN':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name='WAVES_USDN' style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                            </View>
+                        </View>
+                    </View>
+                )
+
+            case 'ASH_CRYPTEX':
+            case 'ASH_SKRYPIN':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name={currencyCode} style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <Image resize='stretch' source={block} style={{ width: 14, height: 14, marginBottom: 2, marginRight: 1 }} />
+                            </View>
+                        </View>
+                    </View>
+                )
 
             case 'CUSTOM_ABYSS':
             case 'CUSTOM_SOLVE':

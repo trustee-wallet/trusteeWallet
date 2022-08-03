@@ -193,7 +193,7 @@ export default class EthBasic {
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
             this._etherscanApiPathInternal = `https://api.ftmscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
-            this._etherscanApiPathForFee = `https://api.ftmscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
+            this._etherscanApiPathForFee = false // invalid now `https://api.ftmscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
 
             this._trezorServer = false
             this._trezorServerCode = false
@@ -202,6 +202,20 @@ export default class EthBasic {
             this._mainTokenType = 'FTM_ERC_20'
             this._mainTokenBlockchain = 'Fantom Network'
             this._mainChainId = 250
+        } else if (settings.currencyCode === 'BTTC' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'BTTC')) {
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = `https://api.bttcscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
+            this._etherscanApiPathInternal = `https://api.bttcscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
+            this._etherscanApiPathForFee = `https://api.bttcscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._mainCurrencyCode = 'BTTC'
+            this._mainTokenType = 'BTTC_ERC_20'
+            this._mainTokenBlockchain = 'BTTC Network'
+            this._mainChainId = 199
         } else if (settings.currencyCode === 'RSK') {
             this._etherscanSuffix = false
             this._etherscanApiPath = false

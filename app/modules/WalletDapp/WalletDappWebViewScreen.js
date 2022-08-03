@@ -161,12 +161,8 @@ class WalletDappWebViewScreen extends PureComponent {
         let showLog = false
         if (config.debug.appErrors) {
             if (e.nativeEvent.data.indexOf('eth_accounts') === -1 && e.nativeEvent.data.indexOf('net_version') === -1) {
-                console.log(`
-            
-            
-            `)
-                console.log('WalletDappWebView message', e.nativeEvent.data)
-                showLog = true
+                // console.log('WalletDappWebView message', e.nativeEvent.data)
+                // showLog = true
             }
         }
         Log.log('WalletDappWebView message', e.nativeEvent.data)
@@ -253,7 +249,7 @@ class WalletDappWebViewScreen extends PureComponent {
 
         const { walletHash } = this.props.selectedWalletData
         const { dappCode, dappName, dappUrl, incognito } = this.props.walletDappData
-        const { dappNetworks, disableInjected } = dappsBlocksoftDict[dappCode]
+        const { disableInjected, dappNetworks } = dappsBlocksoftDict[dappCode]
 
         Log.log('WalletDapp.WebViewScreen render ' + dappCode + ' incognito ' + JSON.stringify(incognito) )
 
@@ -268,18 +264,43 @@ class WalletDappWebViewScreen extends PureComponent {
                         prepared = prepared.replace('TRX_ADDRESS_BASE58', found.address)
                         prepared = prepared.replace('TRX_ADDRESS_HEX', TronUtils.addressToHex(found.address))
                     }
-                    const codes = typeof dappNetworks !== 'undefined' && dappNetworks ? dappNetworks : ['ETH', 'MATIC', 'BNB_SMART']
-                    for (const code of codes) {
-                        if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
-                            const found = store.getState().accountStore.accountList[walletHash][code]
-                            prepared = prepared.replace('ETH_ADDRESS_HEX', found.address)
-                            const web3 = Web3Injected(code)
-                            const chainId = BlocksoftUtils.decimalToHexWalletConnect(web3.MAIN_CHAIN_ID)
-                            prepared = prepared.replace('ETH_CHAIN_ID_INTEGER', web3.MAIN_CHAIN_ID)
-                            prepared = prepared.replace('ETH_CHAIN_ID_HEX', chainId)
-                            EthDappHandler.init(found, web3)
-                            break;
+
+                    let found = false
+                    if (typeof dappNetworks !== 'undefined' && dappNetworks) {
+                        for (const code of dappNetworks) {
+                            if (code === 'TRX') continue
+                            if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
+                                found = store.getState().accountStore.accountList[walletHash][code]
+                                found.code = code
+                                break
+                            }
                         }
+                    }
+                    if (!found) {
+                        for (const code of ['ETH', 'MATIC', 'BNB_SMART', 'ONE']) {
+                            if (typeof store.getState().accountStore.accountList[walletHash][code] !== 'undefined') {
+                                found = store.getState().accountStore.accountList[walletHash][code]
+                                found.code = code
+                                break
+                            }
+                        }
+                        if (found && dappNetworks.length > 0) {
+                            const code = dappNetworks[0]
+                            if (dappNetworks.length === 1) {
+                                found.code = code
+                            } else if (code === 'TRX') {
+                                found.code = dappNetworks[1]
+                            }
+                        }
+                    }
+
+                    if (found) {
+                        prepared = prepared.replace('ETH_ADDRESS_HEX', found.address)
+                        const web3 = Web3Injected(found.code)
+                        const chainId = BlocksoftUtils.decimalToHexWalletConnect(web3.MAIN_CHAIN_ID)
+                        prepared = prepared.replace('ETH_CHAIN_ID_INTEGER', web3.MAIN_CHAIN_ID)
+                        prepared = prepared.replace('ETH_CHAIN_ID_HEX', chainId)
+                        EthDappHandler.init(found, web3)
                     }
                 }
             } catch (e) {
@@ -311,11 +332,11 @@ class WalletDappWebViewScreen extends PureComponent {
                     onMessage={this.onMessage}
 
                     onError={(e) => {
-                        Log.err('WalletDapp.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
+                        Log.log('WalletDapp.WebViewScreen.on error ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.description)
                     }}
 
                     onHttpError={(e) => {
-                        Log.err('WalletDapp.WebViewScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
+                        Log.log('WalletDapp.WebViewScreen.on httpError ' + e.nativeEvent.title + ' ' + e.nativeEvent.url + ' ' + e.nativeEvent.statusCode + ' ' + e.nativeEvent.description)
                     }}
 
                     renderLoading={this.renderLoading}

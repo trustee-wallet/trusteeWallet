@@ -146,8 +146,7 @@ export default class XlmScannerProcessor {
      * @return {UnifiedTransaction}
      * @private
      **/
-    async _unifyPayment(address, transaction, basicTransaction
-    ) {
+    async _unifyPayment(address, transaction, basicTransaction) {
         try {
             if (typeof transaction.asset_type !== 'undefined') {
                 if (transaction.asset_type !== 'native') {
@@ -175,7 +174,7 @@ export default class XlmScannerProcessor {
                 blockConfirmations: transaction.transaction_successful === true ? 100 : 0,
                 transactionDirection: '?',
                 addressFrom: transaction.source_account === address ? '' : transaction.source_account,
-                addressTo: transaction.to === address ? '' : transaction.to,
+                addressTo: transaction.account === address ? '' : transaction.account,
                 addressAmount: transaction.amount,
                 transactionStatus: transaction.transaction_successful === true ? 'success' : 'new',
                 transactionFee: '0'

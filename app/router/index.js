@@ -57,8 +57,8 @@ export default class RouterMainWrapper extends React.Component {
                     </NavigationContainer>
                     <Modal />
                     <StatusBar translucent={true} backgroundColor='transparent' barStyle='dark-content' />
-                    <Loader />
                 </View>
+                <Loader />
                 <AppLockBlur />
             </ErrorBoundary>
         )

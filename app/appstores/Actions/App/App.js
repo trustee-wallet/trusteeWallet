@@ -10,7 +10,7 @@ import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import { setFilter, setSelectedWallet, setSortValue, setStakingCoins } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setFilter, setSelectedWallet, setSortValue, setStakingCoins, setHomeFilterWithBalance } from '@app/appstores/Stores/Main/MainStoreActions'
 import { setInitState, setInitError } from '@app/appstores/Stores/Init/InitStoreActions'
 import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
@@ -177,6 +177,8 @@ class App {
             await currencyBasicActions.init()
 
             await setSortValue(trusteeAsyncStorage.getSortValue() || null)
+
+            await setHomeFilterWithBalance(trusteeAsyncStorage.getHomeFilterWithBalance() || false)
 
             await this.setAccountFilterData()
 

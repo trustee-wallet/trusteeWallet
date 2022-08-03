@@ -25,6 +25,10 @@ export default class XrpAddressProcessor {
         const rippleAddress = basex('rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz').encode(
             basex('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz').decode(btcAddress)
         )
-        return {address: rippleAddress, privateKey: ripplePrivateKey, addedData : {publicKey : data.publicKey.toString('hex')}}
+        const addedData = {}
+        if (typeof data !== 'undefined' && typeof data.publicKey !== 'undefined') {
+            addedData.publicKey = data.publicKey.toString('hex')
+        }
+        return {address: rippleAddress, privateKey: ripplePrivateKey, addedData}
     }
 }

@@ -25,10 +25,17 @@
   "MOCHISWAP" : {
     "dappCode" : "MOCHISWAP",
     "dappName" : "Mochiswap",
-    "dappUrl" : " https://harmony.mochiswap.io/swap",
+    "dappUrl" : "https://harmony.mochiswap.io/swap",
     "dappNetworks" : ["ONE"],
     "disableInjected" : true,
     "dappsDomenName": "harmony.mochiswap.io"
+  },
+  "DAVINCI" : {
+    "dappCode" : "DAVINCI",
+    "dappName" : "daVinci",
+    "dappUrl" : "https://davinci.gallery",
+    "dappNetworks" : ["ONE"],
+    "dappsDomenName": "davinci.gallery"
   },
   "JUSTLEND" : {
     "dappCode": "JUSTLEND",
@@ -37,6 +44,14 @@
     "dappNetworks" : ["TRX"],
     "dappCoins" : ["TRX", "TRX_USDT"],
     "dappsDomenName": "justlend.org"
+  },
+  "BTT" : {
+    "dappCode": "BTT",
+    "dappName" : "BitTorrent Chain Wallet",
+    "dappUrl" : "https://wallet.bt.io/staking",
+    "dappNetworks" : ["TRX", "BTTC"],
+    "dappCoins" : ["TRX", "BTT"],
+    "dappsDomenName": "wallet.bt.io"
   },
   "EXON" : {
     "dappCode" : "EXON",

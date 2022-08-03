@@ -147,9 +147,9 @@ const transactionActions = {
         if (typeof transaction.wayType === 'undefined' || !transaction.wayType) {
             transaction.wayType = transaction.transactionDirection
         }
-        if (transaction?.bseOrderData) {
-            transaction.wayType = TransactionFilterTypeDict.SWAP
-        }
+        // if (transaction?.bseOrderData) {
+            // transaction.wayType = TransactionFilterTypeDict.SWAP
+        // }
         if (transaction?.addressAmount === 0 || transaction?.transactionFilterType === TransactionFilterTypeDict.FEE) {
             transaction.addressAmountPrettyPrefix = '-'
             transaction.wayType = TransactionFilterTypeDict.FEE
@@ -260,7 +260,7 @@ const transactionActions = {
 
         try {
             transaction.addressAmountNorm = BlocksoftPrettyNumbers.setCurrencyCode(account.currencyCode).makePretty(transaction.addressAmount, 'transactionActions.addressAmount')
-            const res = BlocksoftPrettyNumbers.makeCut(transaction.addressAmountNorm)
+            const res = BlocksoftPrettyNumbers.makeCut(transaction.addressAmountNorm, account.currencyCode === 'BTC' ? 8 : 5) // @todo settings for better
             if (res.isSatoshi) {
                 addressAmountSatoshi = '...' + transaction.addressAmount
                 transaction.addressAmountPretty = res.cutted

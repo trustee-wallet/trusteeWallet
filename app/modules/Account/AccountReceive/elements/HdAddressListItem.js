@@ -73,7 +73,8 @@ class HdAddressListItem extends React.PureComponent {
 
         const { 
             GRID_SIZE,
-            colors
+            colors,
+            isLight
         } = this.context
 
         const { currencyCode, currencyName } = this.props.selectedCryptoCurrencyData
@@ -82,7 +83,7 @@ class HdAddressListItem extends React.PureComponent {
             <View>
                 <InvoiceListItem 
                     title={strings('account.invoiceText')}
-                    onPress={() => handleShareInvoice(this.props.address, currencyCode, currencyName)}
+                    onPress={() => handleShareInvoice(this.props.address, currencyCode, currencyName, isLight)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'

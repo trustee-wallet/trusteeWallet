@@ -23,6 +23,7 @@ import { sublocale } from '../../../app/services/i18n'
 import abi721 from './ext/erc721.js'
 import abi1155 from './ext/erc1155'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -43,6 +44,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         this.checkWeb3CurrentServerUpdated()
 
+        let realAddressTo = data.addressTo
+        if (realAddressTo !== '' && OneUtils.isOneAddress(realAddressTo)) {
+            realAddressTo = OneUtils.fromOneAddress(realAddressTo)
+        }
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate remove started ' + data.transactionRemoveByFee)
             txRBF = data.transactionRemoveByFee
@@ -54,10 +59,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate dex ' + data.addressFrom + ' started')
         } else {
-            const addressToLower = data.addressTo.toLowerCase()
+            const realAddressToLower = realAddressTo.toLowerCase()
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' started')
             txRBFed = 'usualSend'
-            if (data.addressTo !== '' && (addressToLower.indexOf('0x') === -1 || addressToLower.indexOf('0x') !== 0)) {
+            if (realAddressTo !== '' && (realAddressToLower.indexOf('0x') === -1 || realAddressToLower.indexOf('0x') !== 0)) {
                 throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
             }
         }
@@ -160,7 +165,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         'params': [
                             {
                                 'from': typeof data.walletConnectData.from && data.walletConnectData.from ? data.walletConnectData.from : data.addressFrom,
-                                'to':  typeof data.walletConnectData.to && data.walletConnectData.to ? data.walletConnectData.to : data.addressTo,
+                                'to':  typeof data.walletConnectData.to && data.walletConnectData.to ? data.walletConnectData.to : realAddressTo,
                                 'value': typeof data.walletConnectData.value !== 'undefined' && data.walletConnectData.value
                                     ? data.walletConnectData.value
                                     : data.amount.indexOf('0x') === 0 ? data.amount : ('0x' + BlocksoftUtils.decimalToHex(data.amount)),
@@ -198,7 +203,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         const tmpParams = data.contractCallData.contractActionParams
                         for (let i = 0, ic = tmpParams.length; i<ic; i++) {
                             if (tmpParams[i] === 'addressTo') {
-                                tmpParams[i] = data.addressTo
+                                tmpParams[i] = realAddressTo
                             }
                         }
                         gasLimit = await token.methods[data.contractCallData.contractAction](...tmpParams).estimateGas({ from: data.addressFrom })
@@ -225,7 +230,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                         do {
                             try {
                                 i++
-                                gasLimitNew = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, data.addressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                                gasLimitNew = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, realAddressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
                                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
                             } catch (e1) {
                                 ok = false
@@ -731,7 +736,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         let txRBFed = ''
         let txRBF = false
-        const addressToLower = data.addressTo.toLowerCase()
+        let realAddressTo = data.addressTo
+        if (realAddressTo !== '' && OneUtils.isOneAddress(realAddressTo)) {
+            realAddressTo = OneUtils.fromOneAddress(realAddressTo)
+        }
+        const realAddressToLower = realAddressTo.toLowerCase()
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx started ' + data.transactionRemoveByFee)
             txRBF = data.transactionRemoveByFee
@@ -746,7 +755,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         } else {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx ' + data.addressFrom + ' started')
             txRBFed = 'usualSend'
-            if (data.addressTo !== '' && (addressToLower.indexOf('0x') === -1 || addressToLower.indexOf('0x') !== 0)) {
+            if (realAddressTo !== '' && (realAddressToLower.indexOf('0x') === -1 || realAddressToLower.indexOf('0x') !== 0)) {
                 throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
             }
         }
@@ -788,7 +797,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         const tx: BlocksoftBlockchainTypes.EthTx = {
             from: data.addressFrom,
-            to: data.addressTo.toLowerCase(),
+            to: realAddressToLower,
             gasPrice: finalGasPrice,
             gas: finalGasLimit,
             value: data.amount
@@ -822,7 +831,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 const tmpParams = data.contractCallData.contractActionParams
                 for (let i = 0, ic = tmpParams.length; i < ic; i++) {
                     if (tmpParams[i] === 'addressTo') {
-                        tmpParams[i] = data.addressTo
+                        tmpParams[i] = realAddressTo
                     }
                 }
                 tx.to = data.contractCallData.contractAddress
@@ -840,7 +849,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         const logData = JSON.parse(JSON.stringify(tx))
         logData.currencyCode = this._settings.currencyCode
         logData.selectedFee = selectedFee
-        logData.basicAddressTo = typeof data.basicAddressTo !== 'undefined' ? data.basicAddressTo.toLowerCase() : data.addressTo.toLowerCase()
+        logData.basicAddressTo = typeof data.basicAddressTo !== 'undefined' ? data.basicAddressTo.toLowerCase() : realAddressToLower
         logData.basicAmount = typeof data.basicAmount !== 'undefined' ? data.basicAmount : data.amount
         logData.basicToken = typeof data.basicToken !== 'undefined' ? data.basicToken : ''
         logData.pushLocale = sublocale()
@@ -906,7 +915,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 if (typeof data.blockchainData === 'undefined' || !data.blockchainData) {
                     result.amountForTx = data.amount
                 }
-                result.addressTo = data.addressTo === data.addressFrom ? '' : data.addressTo
+                result.addressTo = data.addressTo === data.addressFrom || realAddressTo === data.addressFrom ? '' : realAddressTo
             } else {
                 result.transactionJson.txData = tx.data
                 await EthTmpDS.getCache(this._mainCurrencyCode, data.addressFrom)
@@ -921,7 +930,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         // @ts-ignore
         logData.result = result
         // noinspection ES6MissingAwait
-        MarketingEvent.logOnlyRealTime('v20_eth_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
+        MarketingEvent.logOnlyRealTime('v20_eth_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + realAddressTo, logData)
 
         return result
     }

@@ -248,6 +248,24 @@ class AccountTransactionScreen extends PureComponent {
         )
     }
 
+    renderTxSecretToView = (transaction) => {
+
+        if (typeof transaction.transactionJson === 'undefined') return null
+
+        if (transaction.transactionJson === null) return null
+
+        if (typeof transaction.transactionJson.secretTxKey === 'undefined' || !transaction.transactionJson.secretTxKey) {
+            return null
+        }
+
+        return <TransactionItem
+            title={'Tx private key'}
+            subtitle={transaction.transactionJson.secretTxKey}
+            copyAction={() => this.handleSubContentPress({ plain: transaction.transactionJson.secretTxKey })}
+        />
+    }
+
+
     renderRBFToView = (transaction) => {
         if (typeof transaction.transactionJson === 'undefined') return null
 
@@ -466,6 +484,9 @@ class AccountTransactionScreen extends PureComponent {
                                                 />
                                             )
                                         })}
+
+                                        {this.renderTxSecretToView(transaction)}
+
                                         {linkExplorer !== null ?
                                             <TouchableDebounce onPress={() => handleLink.call(this, linkExplorer)}>
                                                 <LetterSpacing textStyle={{ ...styles.viewExplorer, color: colors.common.checkbox.bgChecked }}

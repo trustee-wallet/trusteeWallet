@@ -2065,6 +2065,7 @@
 		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
 	},
     "NFT" : {
+		"extendsProcessor": "ETH",
         "currencyType": "special",
         "currencyName": "NFT",
         "currencyCode": "NFT",
@@ -2456,7 +2457,7 @@
 	},
 	"ASH_SKRYPIN": {
 		"currencyType": "token",
-		"currencyName": "Skrypin Aeneas",
+		"currencyName": "Skrypin",
 		"currencyCode": "ASH_SKRYPIN",
 		"currencyIcon": "ASH",
 		"currencySymbol": "SKRYPIN",
@@ -2471,6 +2472,26 @@
 		"decimals": 8,
 		"tokenBlockchain": "ASH",
 		"tokenAddress": "H4hpkUDJGVr1HGXvDq8gYpoQ4zT94quVj4AYK2GihbHW",
+		"currencyExplorerLink": "http://explorer.aeneas.id/address/",
+		"currencyExplorerTxLink": "http://explorer.aeneas.id/tx/"
+	},
+	"ASH_CRYPTEX": {
+		"currencyType": "token",
+		"currencyName": "CRYPTEX",
+		"currencyCode": "ASH_CRYPTEX",
+		"currencyIcon": "ASH",
+		"currencySymbol": "C24",
+		"addressProcessor": "ASH",
+		"scannerProcessor": "WAVES_ERC_20",
+		"transferProcessor": "WAVES",
+		"prettyNumberProcessor": "UNIFIED",
+		"addressCurrencyCode": "ASH",
+		"addressUiChecker": "ASH",
+		"ratesCurrencyCode": "C24",
+		"feesCurrencyCode": "ASH",
+		"decimals": 8,
+		"tokenBlockchain": "ASH",
+		"tokenAddress": "H4fw6LA9vHMEM4DdqrJGWNpvokg9xqDZzaRTuSSXRkzs",
 		"currencyExplorerLink": "http://explorer.aeneas.id/address/",
 		"currencyExplorerTxLink": "http://explorer.aeneas.id/tx/"
 	}

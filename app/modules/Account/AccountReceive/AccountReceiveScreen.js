@@ -519,7 +519,7 @@ class AccountReceiveScreen extends React.PureComponent {
             <View>
                 <InvoiceListItem
                     title={strings('account.invoiceText')}
-                    onPress={() => handleShareInvoice(getAddress.call(this), currencyCode, currencyName)}
+                    onPress={() => handleShareInvoice(getAddress.call(this), currencyCode, currencyName, this.context.isLight)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'

@@ -131,7 +131,9 @@ class AccountStakingSOL extends React.PureComponent {
                         inputBaseColor='#f4f4f4'
                         inputTextColor='#f4f4f4'
                         tintColor='#7127ac'
-                        paste={true}
+                        paste
+                        additional='NUMBER'
+                        decimals={9}
                     />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: GRID_SIZE * 1.5 }}>

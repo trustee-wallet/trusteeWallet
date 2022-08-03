@@ -149,9 +149,8 @@ const getCurrentDate = (date) => {
     return newDate.toString().split(' ')[1] + ' ' + newDate.getDate() + ', ' + newDate.getFullYear()
 }
 
-const handleShareInvoice = (address, currencyCode, currencyName) => {
-    const message = `${BlocksoftCustomLinks.getLink(`INVOICE_URL`, this.context.isLight)}?crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
-
+const handleShareInvoice = (address, currencyCode, currencyName, isLight) => {
+    const message = `${BlocksoftCustomLinks.getLink(`INVOICE_URL`, isLight)}&crypto_name=${currencyName}&crypto_code=${currencyCode}&wallet_address=${address}`
     const shareOptions = {
         title: strings('account.invoiceText'),
         url: message
