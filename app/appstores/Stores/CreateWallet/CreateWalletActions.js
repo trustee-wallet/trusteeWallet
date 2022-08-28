@@ -88,8 +88,13 @@ export async function proceedSaveGeneratedWallet(wallet, source = 'GENERATION') 
             walletCashback : cashbackToken
         }
         const hasInternet = await ApiProxyLoad.hasInternet()
+        let res = false
         if (source === 'IMPORT' && hasInternet) {
-            const res = await ApiProxyLoad.getSaved(storedKey, wallet.walletName)
+            try {
+                res = await ApiProxyLoad.getSaved(storedKey, wallet.walletName)
+            } catch (e) {
+                // do nothing
+            }
 
             if (res && typeof res.forWalletsAll !== 'undefined' && typeof res.forWalletsAll[storedKey] !== 'undefined') {
                 const savedWallet = res.forWalletsAll[storedKey]
