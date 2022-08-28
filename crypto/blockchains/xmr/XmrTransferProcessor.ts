@@ -49,7 +49,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const privViewKey = keys[1]
         const pubSpendKey = data.accountJson.publicSpendKey
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate  newSender ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
 
         const apiClient = this.unspentsProvider
 
@@ -153,6 +153,9 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     } else if (e.message.indexOf('decode address') !== -1) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor error will go out')
                         throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
+                    } else if (e.message.indexOf('Not enough spendables') !== -1) {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor error not enough')
+                        throw new Error('SERVER_RESPONSE_NO_RESPONSE')
                     } else {
                         BlocksoftCryptoLog.err(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' finished amount: ' + data.amount + ' error fee ' + i + ': ' + e.message)
                         throw e
