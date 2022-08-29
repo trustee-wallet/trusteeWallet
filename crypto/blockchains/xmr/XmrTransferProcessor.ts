@@ -68,10 +68,12 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const unspentOuts = await apiClient._getUnspents({
             address: data.addressFrom,
             view_key: privViewKey,
-            amount: data.amount.toString(),
-            mixin: '10',
-            use_dust: true,
-            dust_threshold: '2000000000'
+            amount: '0',
+            app_name: 'MyMonero',
+            app_version: '1.3.2',
+            dust_threshold: '2000000000',
+            mixin: 15,
+            use_dust: true
         }, false)
 
         for (let i = 1; i <= 4; i++) {
@@ -96,9 +98,9 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         }
                         return apiClient._getRandomOutputs({
                             amounts,
-                            count: 16,
-                            //app_name: 'MyMonero',
-                            //app_version: '1.3.0'
+                            app_name: 'MyMonero',
+                            app_version: '1.3.2',
+                            count: 16
                         })
                     }
                 })

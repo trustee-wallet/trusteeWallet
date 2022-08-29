@@ -151,7 +151,7 @@ class SettingsPrivateXMR extends Component {
                         title={'Address'}
                         subtitle={this.props.selectedAccountData.address}
                         iconType='keyMonero'
-                        onPress={this.handlePrivate}
+                        onPress={() => this.handleCopy(this.props.selectedAccountData.address)}
                     />
                     <ListItem
                         title={'public ViewKey'}
