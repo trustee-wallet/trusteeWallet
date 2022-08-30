@@ -89,13 +89,28 @@ class EthTmpDS {
                 if (txCurrencyCode !== '') {
                     for (const tmp of tmps.array) {
                         if (tmp.currencyCode !== txCurrencyCode) continue
+
+                        let recheckRBFStatus = 'none'
+                        if (tmp.transactionStatus === 'new' || tmp.transactionStatus === 'confirming') {
+                            const recheckTmp = await Database.query(`SELECT transaction_status as transactionStatus FROM transactions WHERE transactions_other_hashes LIKE '%${txHash}%'`)
+                            if (recheckTmp && recheckTmp.array && typeof recheckTmp.array[0] !== 'undefined') {
+                                recheckRBFStatus = recheckTmp.array[0].transactionStatus
+                                if (recheckRBFStatus !== 'new') {
+                                    await Database.query(`UPDATE transactions SET transaction_status='${recheckRBFStatus}'
+                                            WHERE transaction_hash='${txHash}'
+                                            AND (currency_code LIKE '%ETH%' OR currency_code LIKE 'CUSTOM_%')
+                                            `)
+                                }
+                                tmp.transactionStatus = recheckRBFStatus
+                            }
+                        }
                         if (tmp.transactionStatus === 'new') {
                             const amount = tmp.addressAmount
                             if (typeof amountBN[tmp.currencyCode] === 'undefined') {
                                 amountBN[tmp.currencyCode] = new BlocksoftBN(0)
                             }
                             queryLength++
-                            queryTxs.push({ currencyCode: tmp.currencyCode, txHash })
+                            queryTxs.push({ currencyCode: tmp.currencyCode, txHash, recheckRBFStatus })
                             amountBN[tmp.currencyCode].add(amount)
                         } else if (tmp.transactionStatus === 'missing') {
                             if (maxSuccess > forBalances[txHash]) {
