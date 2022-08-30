@@ -17,6 +17,7 @@ import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
 import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
 import { Buffer } from 'buffer'
 import BlocksoftCryptoUtils from '@crypto/common/BlocksoftCryptoUtils'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 
 export default class SolTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
@@ -54,7 +55,28 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
     }
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        const balance = data.amount
+        const address = data.addressFrom.trim()
+        let rent = 0
+        let balance = data.amount
+        try {
+            const beachPath = 'https://public-api.solanabeach.io/v1/account/' + address + '?'
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance address ' + address + ' beach link ' + beachPath)
+            const res = await BlocksoftAxios.get(beachPath)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance address ' + address + ' beach res ', res?.data)
+            if (typeof res?.data?.value !== 'undefined' && typeof res?.data?.value?.base !== 'undefined') {
+                if (res?.data?.value?.base?.address?.address !== address) {
+                    throw new Error('wrong value address ' + res?.data?.value?.base?.address?.address)
+                }
+                balance = res?.data?.value?.base?.balance || data.amount
+                rent = res?.data?.value?.base?.rentExemptReserve || 0
+                if (rent) {
+                    balance = BlocksoftUtils.diff(balance, rent)
+                }
+            }
+        } catch (e) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance address ' + address + ' beach error ' + e.message)
+        }
+
         // @ts-ignore
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
 
