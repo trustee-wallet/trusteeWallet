@@ -6,7 +6,9 @@
 import config from '../../../../app/config/config'
 
 import * as payment from '@mymonero/mymonero-paymentid-utils'
-import * as parser from '@mymonero/mymonero-response-parser-utils/ResponseParser'
+// import * as parser from '@mymonero/mymonero-response-parser-utils/ResponseParser'
+import * as parser from './vendor/ResponseParser'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 const MyMoneroCoreBridgeRN = require('react-native-mymonero-core/src/index')
 const MY_MONERO = { core: false }
@@ -23,8 +25,22 @@ export default {
             return MY_MONERO.core
         }
         MY_MONERO.core = MyMoneroCoreBridgeRN
-        MY_MONERO.core.generate_key_image = (txPublicKey, privateViewKey, publicSpendKey, privateSpendKey, outputIndex) => {
-            return MY_MONERO.core.Module.generateKeyImage(txPublicKey, privateViewKey, publicSpendKey, privateSpendKey, outputIndex + '')
+        MY_MONERO.core.generate_key_image = async (txPublicKey, privateViewKey, publicSpendKey, privateSpendKey, outputIndex) => {
+            let res = await MY_MONERO.core.Module.generateKeyImage(txPublicKey, privateViewKey, publicSpendKey, privateSpendKey, outputIndex + '')
+            if (typeof res !== 'undefined' && res) {
+                if (typeof res === 'string') {
+                    try {
+                        const newRes = JSON.parse(res)
+                        res = newRes
+                    } catch (e) {
+
+                    }
+                }
+                if (typeof res.retVal !== 'undefined') {
+                    return res.retVal
+                }
+            }
+            return res
         }
         MY_MONERO.core.createTransaction = async (options) => {
             if (options.privateViewKey.length !== 64) {
@@ -80,7 +96,8 @@ export default {
             const ret = JSON.parse(retString)
             // check for any errors passed back from WebAssembly
             if (ret.err_msg) {
-                throw Error('ret.err_msg error ' + ret.err_msg)
+                BlocksoftCryptoLog.log('MoneroUtilsParser ret.err_msg error ' + ret.err_msg)
+                return false
             }
 
             const _getRandomOuts = async (numberOfOuts, randomOutsCb) => {
