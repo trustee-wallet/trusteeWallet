@@ -853,6 +853,7 @@
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Solde insuffisant pour payer les frais de réseau - veuillez utiliser une option \"Envoyer tout\" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Solde insuffisant pour payer la transaction déléguée - veuillez utiliser la transaction standard ERC20",
       "SERVER_RESPONSE_NO_RESPONSE": "La transaction n'a pas reçu de confirmation du réseau - veuillez attendre que les autres transactions soient minées",
+      "SERVER_RESPONSE_NO_RESPONSE_XMR": "Veuillez attendre que les transactions précédentes aient atteint le nombre requis de confirmations de réseau (au moins 15) et réessayez avec la transaction en cours",
       "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "La transaction n'a pas reçu de confirmation de réseau - veuillez attendre que les autres transactions soient minées ou placez des frais plus élevés",
       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Solde insuffisant de la devise native %{symbol} pour payer les frais de réseau - veuillez attendre que les autres transactions soient minées",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Les frais de transaction sont trop faibles",

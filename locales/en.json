@@ -854,6 +854,7 @@
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Insufficient balance to pay the network fee - please use an option \"Send All\" ",
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Insufficient balance to pay the delegated transaction - please use ERC20 standard transaction",
      "SERVER_RESPONSE_NO_RESPONSE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined",
+     "SERVER_RESPONSE_NO_RESPONSE_XMR": "Please, wait until the previous transactions have reached the required number of network confirmations (at least 15) and retry the current one",
      "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined or place higher fee",
      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Insufficient balance of native currency %{symbol} to pay the network fee - please wait for the other transactions to be mined",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee is too small",

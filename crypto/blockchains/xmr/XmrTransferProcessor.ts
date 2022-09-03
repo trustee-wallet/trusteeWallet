@@ -157,7 +157,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
                     } else if (e.message.indexOf('Not enough spendables') !== -1) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor error not enough')
-                        throw new Error('SERVER_RESPONSE_NO_RESPONSE')
+                        throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
                     } else {
                         BlocksoftCryptoLog.err(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' finished amount: ' + data.amount + ' error fee ' + i + ': ' + e.message)
                         throw e
@@ -167,7 +167,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         }
 
         if (result.fees.length === 0 && noBalanceError) {
-            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE')
+            throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
         }
 
         // @ts-ignore
@@ -228,6 +228,9 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const keys = privateData.privateKey.split('_')
         const privViewKey = keys[1]
 
+        if (typeof uiData?.selectedFee?.blockchainData?.rawTxHex === 'undefined') {
+            throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
+        }
         if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined'&& typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : uiData.selectedFee.blockchainData.rawTxHex}
         }
