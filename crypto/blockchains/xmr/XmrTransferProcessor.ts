@@ -82,8 +82,8 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
                 // @ts-ignore
                 const fee = await core.createTransaction({
-                    destinations: [{ to_address : data.addressTo, send_amount: data.isTransferAll ? 0 : BlocksoftPrettyNumbers.setCurrencyCode('XMR').makePretty(data.amount)}],
-                    shouldSweep: data.isTransferAll ? true: false,
+                    destinations: [{ to_address : data.addressTo, send_amount: BlocksoftPrettyNumbers.setCurrencyCode('XMR').makePretty(data.amount)}],
+                    shouldSweep: false,
                     address: data.addressFrom,
                     privateViewKey: privViewKey,
                     privateSpendKey: privSpendKey,
