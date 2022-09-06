@@ -1077,7 +1077,7 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 10 TRX coins, which can later be used in other transactions"
+        "description": "Your Tron (TRX) wallet is not activated but can accept funds. Top up your Tron address with 10 TRX to activate your wallet. In the future, you can use these coins in transactions."
       },
       "TOKEN": {
         "title": "Please, pay attention!",

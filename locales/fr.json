@@ -1076,7 +1076,7 @@
       },
       "TRX_20": {
         "title": "Votre attention s'il vous plaît!",
-        "description": "Votre portefeuille Tron n'est pas activé. L'activation nécessite d'envoyer n'importe quel TRX à l'adresse du portefeuille - vous pouvez l'utiliser plus tard pour les transactions"
+        "description": "Votre portefeuille Tron (TRX) n'est pas activé mais peut accepter des fonds. Financez votre adresse Tron avec 10 TRX pour activer votre portefeuille. À l'avenir, vous pourrez utiliser ces pièces dans des transactions."
       },
       "TOKEN": {
         "title": "Votre attention s'il vous plaît!",
