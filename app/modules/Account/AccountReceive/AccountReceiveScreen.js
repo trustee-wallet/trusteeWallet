@@ -569,7 +569,8 @@ class AccountReceiveScreen extends React.PureComponent {
                 type: 'YES_NO_MODAL',
                 title: strings('account.externalLink.title'),
                 icon: 'WARNING',
-                description: strings('account.externalLink.description')
+                description: strings('account.externalLink.description'),
+                reverse: true
             }, () => {
                 trusteeAsyncStorage.setExternalAsked(now + '')
                 CACHE_ASKED = now
