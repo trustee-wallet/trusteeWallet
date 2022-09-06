@@ -156,7 +156,7 @@ class HeaderBlocks extends React.Component {
         const { isBalanceVisible, isBalanceVisibleTriggered, originalVisibility, account } = this.props
         const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
 
-        const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+        const { currencyCode, currencySymbol, decimals } = this.props.cryptoCurrency
 
         const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
         const withoutDescription = currencyCode === 'SOL'
@@ -194,7 +194,7 @@ class HeaderBlocks extends React.Component {
                 >
                     {diffAvailable &&
                         <Text style={[styles.availableText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
-                            {`${strings('settings.walletList.available')}: ${finalIsBalanceVisible ? balanceTotalPretty + ' ' + currencySymbol : ' ****'}`}
+                            {`${strings('settings.walletList.available')}: ${finalIsBalanceVisible ? BlocksoftPrettyNumbers.makeCut(balanceTotalPretty, decimals).cutted + ' ' + currencySymbol : ' ****'}`}
                         </Text>}
                     {!withoutDescription &&
                         <Text style={styles.availableText}>
