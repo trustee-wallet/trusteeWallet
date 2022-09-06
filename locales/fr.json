@@ -517,6 +517,7 @@
       "endAmount": "Montant final",
       "setAmount": "Définir le montant",
       "discard": "Rejeter",
+      "txPrivateKey": "Clé privée de la transaction",
       "RBF": {
         "replaceByFeeBtn": "Mise à jour des frais tx",
         "willReplaceWithNewFee": "La transaction en cours sera remplacée par une nouvelle, avec un nouveau hachage et une commission plus élevée",

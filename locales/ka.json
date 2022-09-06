@@ -516,6 +516,7 @@
       "endAmount": "End amount",
       "setAmount": "Set amount",
       "discard": "Discard",
+      "txPrivateKey": "ტრანზაქციის პირადი გასაღები",
       "RBF": {
         "replaceByFeeBtn": "საკომისიოს გაზრდა",
         "willReplaceWithNewFee": "მიმდინარე ტრანზაქცია შეიცვლება ახლით, ახალი ჰაშით და უფრო მაღალი საკომისიოთი",

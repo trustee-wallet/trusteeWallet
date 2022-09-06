@@ -518,6 +518,7 @@
       "endAmount": "End amount",
       "setAmount": "Set amount",
       "discard": "Discard",
+      "txPrivateKey": "Transaction Private key",
       "RBF": {
         "replaceByFeeBtn": "Update tx fee",
         "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
