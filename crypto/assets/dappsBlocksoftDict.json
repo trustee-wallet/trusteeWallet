@@ -55,7 +55,7 @@
   },
   "EXON" : {
     "dappCode" : "EXON",
-    "dappName" : "Exon center",
+    "dappName" : "Exon Center",
     "dappUrl" : "https://app.exoncenter.com/430",
     "dappNetworks" : ["TRX"],
     "dappCoins" : ["TRX_EXON"],
