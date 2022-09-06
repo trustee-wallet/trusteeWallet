@@ -2,8 +2,9 @@
  * @version 0.41
  */
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
 import { connect } from 'react-redux'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import MemoInput from '@app/components/elements/NewInput'
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -20,7 +21,17 @@ class InputMemo extends React.PureComponent {
 
     constructor(props) {
         super(props)
+        this.state = {
+            memoError: false
+        }
         this.memoInput = React.createRef()
+    }
+
+    memoName = {
+        XRP: strings('send.xrp_memo'),
+        XLM: strings('send.bnb_memo'),
+        BNB: strings('send.bnb_memo'),
+        XMR: strings('send.xmr_memo')
     }
 
     componentDidMount() {
@@ -55,6 +66,9 @@ class InputMemo extends React.PureComponent {
 
     async disabledGotoWhy() {
         if (typeof this.memoInput.handleInput === 'undefined') {
+            this.setState({
+                memoError: false
+            })
             return {
                 status : 'success',
                 value : ''
@@ -63,14 +77,45 @@ class InputMemo extends React.PureComponent {
         const destinationTagValidation = await this.memoInput.handleValidate()
 
         if (destinationTagValidation.status !== 'success') {
+            this.setState({
+                memoError: true
+            })
             return {
                 status : 'fail'
             }
         }
+        this.setState({
+            memoError: false
+        })
         return {
             status : 'success',
             value : destinationTagValidation.value
         }
+    }
+
+    renderMemoError = () => {
+        const { memoError } = this.state
+        const { colors, GRID_SIZE } = this.context
+        const { currencyCode } = this.props.sendScreenStoreDict
+
+        if (!memoError) return
+        return (
+            <View style={{ marginVertical: GRID_SIZE }}>
+                <View style={style.texts}>
+                    <View style={style.texts__icon}>
+                        <Icon
+                            name='information-outline'
+                            size={22}
+                            color='#864DD9'
+                        />
+                    </View>
+                    <Text style={{ ...style.texts__item, color: colors.common.text3 }}>
+                        {strings('send.memoError', { name: this.memoName[currencyCode] })}
+                    </Text>
+                </View>
+            </View>
+        )
+
     }
 
 
@@ -86,7 +131,7 @@ class InputMemo extends React.PureComponent {
                         <MemoInput
                             ref={component => this.memoInput = component}
                             id={memoInput.id}
-                            name={strings('send.xrp_memo')}
+                            name={this.memoName[currencyCode]}
                             type={'XRP_DESTINATION_TAG'}
                             onFocus={() => this.onFocus()}
                             keyboardType={'numeric'}
@@ -104,7 +149,7 @@ class InputMemo extends React.PureComponent {
                         <MemoInput
                             ref={component => this.memoInput = component}
                             id={memoInput.id}
-                            name={strings('send.bnb_memo')}
+                            name={this.memoName[currencyCode]}
                             type={'XLM_DESTINATION_TAG'}
                             onFocus={() => this.onFocus()}
                             keyboardType={'default'}
@@ -120,7 +165,7 @@ class InputMemo extends React.PureComponent {
                         <MemoInput
                             ref={component => this.memoInput = component}
                             id={memoInput.id}
-                            name={strings('send.bnb_memo')}
+                            name={this.memoName[currencyCode]}
                             type={'BNB_DESTINATION_TAG'}
                             onFocus={() => this.onFocus()}
                             keyboardType={'default'}
@@ -132,11 +177,11 @@ class InputMemo extends React.PureComponent {
 
             {
                 currencyCode === 'XMR' ?
-                    <View style={{ ...style.inputWrapper, marginVertical: GRID_SIZE }}>
+                    <View style={{ ...style.inputWrapper, marginTop: GRID_SIZE }}>
                         <MemoInput
                             ref={component => this.memoInput = component}
                             id={memoInput.id}
-                            name={strings('send.xmr_memo')}
+                            name={this.memoName[currencyCode]}
                             type={'XMR_DESTINATION_TAG'}
                             onFocus={() => this.onFocus()}
                             keyboardType={'default'}
@@ -145,7 +190,7 @@ class InputMemo extends React.PureComponent {
                         />
                     </View> : null
             }
-
+            {this.renderMemoError()}
         </View>
 
     }
@@ -170,5 +215,19 @@ const style = StyleSheet.create({
             width: 0,
             height: 0
         }
+    },
+    texts: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 30
+    },
+    texts__item: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1
+    },
+    texts__icon: {
+        marginRight: 10,
+        transform: [{ rotate: '180deg' }]
     }
 })

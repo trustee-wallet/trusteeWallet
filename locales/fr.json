@@ -718,6 +718,7 @@
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "Vous n'avez pas assez de fonds pour envoyer",
     "addressError": "L'adresse du destinataire est incorrecte, veuillez la vérifier",
+    "memoError": "%{name} est incorrecte, veuillez la vérifier",
     "notValidAmount": "S'il vous plaît, entrez le montant",
     "notValidAmountInFiat": "S'il vous plaît, entrez un plus grand montant ou changez en entrée crypto",
     "notEnoughForFee": "Pour envoyer des tokens, vous devez avoir un solde positif en monnaie native %{symbol}. Cliquez pour plus d'informations ",
