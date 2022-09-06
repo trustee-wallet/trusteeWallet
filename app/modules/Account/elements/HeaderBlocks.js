@@ -190,7 +190,7 @@ class HeaderBlocks extends React.Component {
                 <TouchableDebounce
                     onPress={() => this.accountStaking(currencyCode)}
                     hitSlop={HIT_SLOP}
-                    disabled={withoutDescription || !canBeStaked}
+                    disabled={!canBeStaked}
                 >
                     {diffAvailable &&
                         <Text style={[styles.availableText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
@@ -201,6 +201,11 @@ class HeaderBlocks extends React.Component {
                             {`${strings(balanceStakedTitle)}: ${finalIsBalanceVisible ? balanceStakedPretty + ' ' + currencySymbol : ' ****'}`}
                         </Text>
                     }
+                    {!diffAvailable && withoutDescription ?
+                        <Text style={styles.availableText}>
+                            {strings('account.staking')}
+                        </Text>
+                    : null}
                 </TouchableDebounce>
                 {
                     canBeStaked &&
@@ -411,16 +416,21 @@ class HeaderBlocks extends React.Component {
                             <View style={styles.stakingValue}>
                                 <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
                                 {availableStaking &&
-                                    <PercentView
-                                        value={this.props.stakingCoins[currencyCode]}
-                                        staking
-                                    />
+                                    <TouchableDebounce
+                                        hitSlop={{ top: 15, right: 15, bottom: 7, left: 10 }}
+                                        onPress={() => this.accountStaking(currencyCode)}
+                                    >
+                                        <PercentView
+                                            value={this.props.stakingCoins[currencyCode]}
+                                            staking
+                                        />
+                                    </TouchableDebounce>
                                 }
                             </View>
                             <TouchableDebounce
                                 style={styles.topContent__middle}
                                 onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
-                                hitSlop={HIT_SLOP}
+                                hitSlop={{ top: 6, right: 15, bottom: 15, left: 15 }}
                                 onLongPress={() => this.handleBtcAddressCopy(shownAddress)}
                                 delayLongPress={500}
                             >
