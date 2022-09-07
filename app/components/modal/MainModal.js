@@ -17,6 +17,7 @@ import YesNoModal from './elements/YesNoModal'
 import UpdateModal from './elements/UpdateModal'
 import NotificationModal from './elements/NotificationModal'
 import MarketModal from './elements/MarketModal'
+import CreateWalletModal from './elements/CreateWalletModal'
 
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
@@ -72,6 +73,8 @@ class MainModal extends Component {
                 return <NotificationModal show={show} data={data} callback={callback}/>
             case 'MARKET_MODAL':
                 return <MarketModal show={show} data={data} callback={callback} />
+            case 'WALLET_MODAL':
+                return <CreateWalletModal show={show} data={data} callback={callback} />
             default:
                 return <View></View>
         }

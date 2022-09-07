@@ -1213,7 +1213,9 @@
     },
     "walletCreate": {
       "success": "Réussite!",
-      "walletImported": "Votre portefeuille a été importé!"
+      "walletImported": "Votre portefeuille a été importé!",
+      "title": "Méfiez-vous des arnaqueurs!",
+      "description": "N'utilisez pas de portefeuilles que vous avez trouvés sur Internet, qu'on vous a donnés ou vendus. Avec une forte probabilité, vous perdrez des fonds que vous transférerez aux adresses de ces portefeuilles.\n\nUtilisez uniquement les portefeuilles que vous avez personnellement générés!"
     },
     "receive": {
       "success": "Réussite!",

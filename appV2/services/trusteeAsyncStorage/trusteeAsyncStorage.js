@@ -211,6 +211,14 @@ class TrusteeAsyncStorage {
     setHomeFilterWithBalance = (value) => {
         return this._set('homeFilterWithBalance', value)
     }
+
+    getCreateWalletModal = () => {
+        return this._getStatic('createWalletModal')
+    }
+
+    setCreateWalletModal = (value) => {
+        return this._set('createWalletModal', value)
+    }
 }
 
 const trusteeAsyncStorage = new TrusteeAsyncStorage()

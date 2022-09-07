@@ -44,6 +44,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import Toast from '@app/services/UI/Toast/Toast'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 const callWithDelay = _debounce(
@@ -77,6 +78,19 @@ class EnterMnemonicPhrase extends PureComponent {
     componentDidMount() {
         const flowSubtype = NavStore.getParamWrapper(this, 'flowSubtype', 'createFirst')
         this.setState(() => ({ flowSubtype }))
+
+        const noShowModal = trusteeAsyncStorage.getCreateWalletModal() === '1'
+
+        if (!noShowModal) {
+            showModal({
+                type: 'WALLET_MODAL',
+                icon: 'INFO',
+                title: strings('modal.walletCreate.title'),
+                description: strings('modal.walletCreate.description'),
+            }, (checkValue) => {
+                trusteeAsyncStorage.setCreateWalletModal(checkValue ? '1' : '0')
+            })
+        }
     }
 
     // init() {

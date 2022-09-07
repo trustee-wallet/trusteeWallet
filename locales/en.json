@@ -1214,7 +1214,9 @@
     },
     "walletCreate": {
       "success": "Success!",
-      "walletImported": "Your wallet was imported!"
+      "walletImported": "Your wallet was imported!",
+      "title": "Beware of scammers!",
+      "description": "Do not use wallets that you found on the Internet, that you were given or sold. With a high probability, you will lose funds that you will transfer to the addresses of such wallets.\n\nUse only those wallets that you personally generated!"
     },
     "receive": {
       "success": "Success!",
