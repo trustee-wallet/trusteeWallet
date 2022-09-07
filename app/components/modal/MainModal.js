@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Dimensions, Platform, View } from 'react-native'
+import { Dimensions, View } from 'react-native'
 
 
 import MnemonicFailModal from '@app/modules/WalletBackup/elements/MnemomicFail'
@@ -18,7 +18,6 @@ import UpdateModal from './elements/UpdateModal'
 import NotificationModal from './elements/NotificationModal'
 import MarketModal from './elements/MarketModal'
 
-import BackDropModal from './elements/BackDropModal'
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -73,28 +72,17 @@ class MainModal extends Component {
                 return <NotificationModal show={show} data={data} callback={callback}/>
             case 'MARKET_MODAL':
                 return <MarketModal show={show} data={data} callback={callback} />
-            case 'BACK_DROP_MODAL':
-                return <BackDropModal show={show} data={data} callback={callback} />
             default:
                 return <View></View>
         }
     }
 
     render = () => {
-        const {
-            show,
-            data
-        } = this.props.modal
-
-        let bgColor = '#000'
-
-        if (data.type === 'BACK_DROP_MODAL' && Platform.OS === 'ios') {
-            bgColor = 'transparent'
-        }
+        const { show } = this.props.modal
 
         return (
             <View style={show ? styles.wrapper : styles.wrapper_hidden}>
-                <View style={{ alignItems: 'center', justifyContent: 'center', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%', backgroundColor: bgColor, opacity: .5, overflow: 'hidden' }}/>
+                <View style={{ alignItems: 'center', justifyContent: 'center', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%', backgroundColor: '#000', opacity: .5, overflow: 'hidden' }}/>
                 {this.renderTemplate()}
             </View>
         )

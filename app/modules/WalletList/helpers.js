@@ -27,8 +27,6 @@ import DaemonCache from '@app/daemons/DaemonCache'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
-import ContentDropModal from './elements/ContentDropModal'
-
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
 
@@ -180,7 +178,7 @@ const getBalanceData = (props) => {
     return { currencySymbol, beforeDecimal, afterDecimal }
 }
 
-const handleCurrencySelect = async (props, screen) => {
+const handleCurrencySelect = async (props, screen, ref) => {
 
     const { cryptoCurrency } = props
     const { currencyCode } = cryptoCurrency
@@ -194,18 +192,7 @@ const handleCurrencySelect = async (props, screen) => {
     let status = ''
 
     if (props.constructorMode) {
-        showModal({
-            type: 'BACK_DROP_MODAL',
-            currentIndex: props.index,
-            onDrag: props.onDragEnd,
-            listData: props.listData,
-            handleGuide: props.handleGuide,
-            handleHide: () => handleHide(cryptoCurrency),
-            // eslint-disable-next-line react/display-name
-            Content: ({ data }) => {
-                return <ContentDropModal data={data} />
-            }
-        })
+        ref?.open()
         CACHE_CLICK = false
         return
     }

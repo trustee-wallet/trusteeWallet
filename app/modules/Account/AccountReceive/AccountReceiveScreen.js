@@ -5,6 +5,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { View, Text, ScrollView, Platform, Dimensions, Linking } from 'react-native'
+import { Portal, PortalHost } from '@gorhom/portal'
 
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -16,6 +17,7 @@ import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import LightButton from '@app/components/elements/LightButton'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import Loader from '@app/components/elements/LoaderItem'
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
 
 import { strings } from '@app/services/i18n'
 
@@ -26,7 +28,7 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
-import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
 import { HIT_SLOP } from '@app/theme/HitSlop'
@@ -516,10 +518,13 @@ class AccountReceiveScreen extends React.PureComponent {
         const { currencyCode, currencyName } = this.props.selectedCryptoCurrencyData
 
         return(
-            <View>
+            <View style={{ marginTop: GRID_SIZE }}>
                 <InvoiceListItem
                     title={strings('account.invoiceText')}
-                    onPress={() => handleShareInvoice(getAddress.call(this), currencyCode, currencyName, this.context.isLight)}
+                    onPress={() => {
+                        handleShareInvoice(getAddress.call(this), currencyCode, currencyName, this.context.isLight)
+                        this.handleCloseBackDropModal()
+                    }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'
@@ -529,7 +534,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     title={strings('account.receiveScreen.amount')}
                     onPress={() => {
                         this.handleCustomAmount()
-                        hideModal()
+                        this.handleCloseBackDropModal()
                     }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                     iconType='edit'
@@ -538,14 +543,17 @@ class AccountReceiveScreen extends React.PureComponent {
                     title={strings('account.copyLink')}
                     onPress={() => {
                         this.copyToClip()
-                        hideModal()
+                        this.handleCloseBackDropModal()
                     }}
                     containerStyle={{ marginHorizontal: GRID_SIZE }}
                     iconType='copy'
                 />
                 <InvoiceListItem
                     title={strings('account.openInBlockchair')}
-                    onPress={() => this.handleOpenLink(address)}
+                    onPress={() => {
+                        this.handleOpenLink(address)
+                        this.handleCloseBackDropModal()
+                    }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
                     iconType='blockchair'
                     last
@@ -554,11 +562,12 @@ class AccountReceiveScreen extends React.PureComponent {
         )
     }
 
-    handleBackDropModal = (address) => {
-        showModal({
-            type: 'BACK_DROP_MODAL',
-            Content: () => this.renderModalContent(address)
-        })
+    handleBackDropModal = () => {
+        this.bottomSheetRef.open()
+    }
+
+    handleCloseBackDropModal = () => {
+        this.bottomSheetRef.close()
     }
 
     handleOpenLink = async (address, forceLink = false) => {
@@ -804,6 +813,23 @@ class AccountReceiveScreen extends React.PureComponent {
                     onPress={() => this.handleBackDropModal(shownAddress)}
                     containerStyle={{ marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }}
                 />}
+                <Portal>
+                    <SheetBottom
+                        ref={ref => this.bottomSheetRef = ref}
+                        snapPoints={[0, 340]}
+                        index={0}
+                    >
+                        {this.renderModalContent(address)}
+                        <Button
+                            title={strings('assets.hideAsset')}
+                            type='withoutShadow'
+                            onPress={this.handleCloseBackDropModal}
+                            containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
+                            textStyle={{ color: colors.backDropModal.buttonText }}
+                        />
+                    </SheetBottom>
+                </Portal>
+                <PortalHost name='receiveScreenPortal' />
             </ScreenWrapper>
         )
     }

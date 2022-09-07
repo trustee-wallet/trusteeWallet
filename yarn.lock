@@ -983,7 +983,7 @@
     nanoid "^3.1.20"
     react-native-redash "^14.2.4"
 
-"@gorhom/portal@^1.0.9":
+"@gorhom/portal@^1.0.14", "@gorhom/portal@^1.0.9":
   version "1.0.14"
   resolved "https://registry.yarnpkg.com/@gorhom/portal/-/portal-1.0.14.tgz#1953edb76aaba80fb24021dc774550194a18e111"
   integrity sha512-MXyL4xvCjmgaORr/rtryDNFy3kU4qUbKlwtQqqsygd0xX3mhKjOLn6mQK8wfu0RkoE0pBE0nAasRoHua+/QZ7A==

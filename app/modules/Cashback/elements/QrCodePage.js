@@ -13,12 +13,14 @@ import {
     Dimensions,
     Platform
 } from 'react-native'
+import { Portal, PortalHost } from '@gorhom/portal'
 
 import QrCodeBox from '@app/components/elements/QrCodeBox'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
 import qrLogo from '@assets/images/logoWithWhiteBG.png'
 
 import { strings } from '@app/services/i18n'
@@ -30,7 +32,7 @@ import ApiPromo from '@app/services/Api/ApiPromo'
 import config from '@app/config/config'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import { showModal, hideModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { HIT_SLOP } from '@app/theme/HitSlop'
@@ -112,7 +114,7 @@ class QrCodePage extends PureComponent {
         const buttonWidth = (WINDOW_WIDTH / 2) - GRID_SIZE * 1.5
 
         return (
-            <View style={[styles.inputWrapper, { marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }]}>
+            <View style={[styles.inputWrapper, { margin: GRID_SIZE }]}>
                 <TextInput
                     onBlur={this.handleDisablePromoCode}
                     numberOfLines={1}
@@ -124,7 +126,7 @@ class QrCodePage extends PureComponent {
                 <View style={[styles.buttonsRow, { marginTop: GRID_SIZE }]}>
                     <Button
                         title={strings('assets.hideAsset')}
-                        onPress={hideModal}
+                        onPress={this.handleCloseBackDropModal}
                         type='withoutShadow'
                         containerStyle={{ backgroundColor: colors.common.button.bg, width: buttonWidth, marginRight: GRID_SIZE / 2 }}
                     />
@@ -140,12 +142,11 @@ class QrCodePage extends PureComponent {
     }
 
     handleBackDropModal = () => {
-        showModal({
-            type: 'BACK_DROP_MODAL',
-            withMainButton: false,
-            disabledPresentationStyle: true,
-            Content: () => this.renderModalContent()
-        })
+        this.bottomSheetRef.open()
+    }
+
+    handleCloseBackDropModal = () => {
+        this.bottomSheetRef.close()
     }
 
     render() {
@@ -221,6 +222,16 @@ class QrCodePage extends PureComponent {
                     <Image style={styles.donut2} source={require('@assets/images/donut2.png')} />
                     <Image style={styles.donuts} source={require('@assets/images/donuts.png')} />
                 </ImageBackground>
+                <Portal>
+                    <SheetBottom
+                        ref={ref => this.bottomSheetRef = ref}
+                        snapPoints={[0, 180]}
+                        index={0}
+                    >
+                        {this.renderModalContent()}
+                    </SheetBottom>
+                    <PortalHost name='qrPageHost' />
+                </Portal>
             </>
         )
     }

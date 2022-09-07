@@ -5,6 +5,7 @@ import React from 'react'
 import { Linking, Platform, Text, View } from 'react-native'
 import _isEqual from 'lodash/isEqual'
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons'
+import { Portal, PortalHost } from '@gorhom/portal'
 
 import GradientView from '@app/components/elements/GradientView'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
@@ -12,7 +13,7 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
 import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
 
-import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -37,6 +38,8 @@ import PercentView from '@app/components/elements/new/PercentView'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
+import Button from '@app/components/elements/new/buttons/Button'
 
 class HeaderBlocks extends React.Component {
 
@@ -87,10 +90,13 @@ class HeaderBlocks extends React.Component {
         } = this.context
 
         return (
-            <View>
+            <View style={{ marginTop: GRID_SIZE }}>
                 <InvoiceListItem
                     title={strings('account.invoiceText')}
-                    onPress={() => handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName, isLight)}
+                    onPress={() => {
+                        handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName, isLight)
+                        this.handleCloseBackDropModal()
+                    }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'
@@ -100,14 +106,17 @@ class HeaderBlocks extends React.Component {
                     title={strings('account.copyLink')}
                     onPress={() => {
                         this.handleBtcAddressCopy(params?.address)
-                        hideModal()
+                        this.handleCloseBackDropModal()
                     }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                     iconType='copy'
                 />
                 <InvoiceListItem
                     title={strings('account.openInBlockchair')}
-                    onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
+                    onPress={() => {
+                        this.handleOpenLink(params?.address, params?.forceLink)
+                        this.handleCloseBackDropModal()
+                    }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
                     iconType='blockchair'
                     last
@@ -116,11 +125,12 @@ class HeaderBlocks extends React.Component {
         )
     }
 
-    handleBackDropModal = (address, forceLink, currencyCode, currencyName) => {
-        showModal({
-            type: 'BACK_DROP_MODAL',
-            Content: () => this.renderModalContent({ address, forceLink, currencyCode, currencyName })
-        })
+    handleBackDropModal = () => {
+        this.bottomSheetRef?.open()
+    }
+
+    handleCloseBackDropModal = () => {
+        this.bottomSheetRef?.close()
     }
 
     handleCopy = (text) => {
@@ -429,7 +439,7 @@ class HeaderBlocks extends React.Component {
                             </View>
                             <TouchableDebounce
                                 style={styles.topContent__middle}
-                                onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
+                                onPress={this.handleBackDropModal}
                                 hitSlop={{ top: 6, right: 15, bottom: 15, left: 15 }}
                                 onLongPress={() => this.handleBtcAddressCopy(shownAddress)}
                                 delayLongPress={500}
@@ -437,7 +447,7 @@ class HeaderBlocks extends React.Component {
                                 <View style={{ alignItems: 'center' }}>
                                     <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
                                 </View>
-                                <View onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)} style={styles.copyBtn}>
+                                <View onPress={this.handleBackDropModal} style={styles.copyBtn}>
                                     <IconMaterial name="content-copy" size={15} color={'#939393'} />
                                 </View>
                             </TouchableDebounce>
@@ -450,6 +460,23 @@ class HeaderBlocks extends React.Component {
                     {this.renderBalance()}
                     {this.renderStakeBalance()}
                 </AccountGradientBlock>
+                <Portal>
+                    <SheetBottom 
+                        ref={ref => this.bottomSheetRef = ref}
+                        snapPoints={[0, 300]}
+                        index={0}
+                    >
+                        {this.renderModalContent({ shownAddress, forceLink, currencyCode, currencyName })}
+                        <Button
+                            title={strings('assets.hideAsset')}
+                            type='withoutShadow'
+                            onPress={this.handleCloseBackDropModal}
+                            containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
+                            textStyle={{ color: colors.backDropModal.buttonText }}
+                        />
+                    </SheetBottom>
+                </Portal>
+                <PortalHost name='accountScreenPortal' />
             </View>
         )
     }
