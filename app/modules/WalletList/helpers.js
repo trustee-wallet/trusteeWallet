@@ -301,8 +301,6 @@ const getSortedData = (array, currentArray, accountList, sortValue, filter = fal
         Log.log('HomeScreen.getSortedData error ' + JSON.stringify(e))
     }
 
-    Log.log('HomeScreen.getSortedData result ' + JSON.stringify(results.map(item => item.currencyCode)))
-
     return results
 }
 
@@ -314,7 +312,6 @@ const getSectionsData = (array) => {
     }
 
     const _tmp = Object.keys(sections).map((key) => ({ title: key, data: sections[key] }))
-    Log.log('HomeScreen.getSectionData _tmp ' + JSON.stringify(_tmp.map(item => item.data.map(asset => asset.currencyCode))))
     return _tmp
 }
 

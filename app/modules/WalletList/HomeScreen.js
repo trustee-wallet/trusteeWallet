@@ -99,7 +99,15 @@ class HomeScreen extends React.PureComponent {
     componentDidUpdate(prevProps) {
         try {
             if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList) || !_isEqual(prevProps.homeFilterWithBalance, this.props.homeFilterWithBalance)) {
-                Log.log('HomeScreen componentDidUpdate sortValue ' + JSON.stringify(this.props.sortValue))
+
+                if (!_isEqual(prevProps.sortValue, this.props.sortValue)) {
+                    Log.log('HomeScreen componentDidUpdate sortValue ' + JSON.stringify(this.props.sortValue))
+                    if (this.props.sortValue === 'coinFirst' || this.props.sortValue === 'tokenFirst') {
+                        Log.log('HomeScreen.getSectionData data ' + JSON.stringify(getSectionsData(this.state.data).map(item => item.data.map(asset => asset.currencyCode))))
+                    } else {
+                        Log.log('HomeScreen.getSortedData result ' + JSON.stringify(this.state.data.map(item => item.currencyCode)))
+                    }
+                }
                 this.setState({
                     data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue, this.props.homeFilterWithBalance),
                     sortValue: this.props.sortValue,
