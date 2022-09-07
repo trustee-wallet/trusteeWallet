@@ -32,6 +32,7 @@ class SortList extends PureComponent {
 
     componentDidUpdate(prevProps, nextProps) {
         if (!_isEqual(prevProps.sortValue, nextProps.sortValue)) {
+            Log.log('SortList.componentDidUpdate sortValue ' + this.props.sortValue)
             this.setState({
                 sortValue: this.props.sortValue
             })

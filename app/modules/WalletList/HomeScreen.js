@@ -77,6 +77,7 @@ class HomeScreen extends React.PureComponent {
     }
 
     async componentDidMount() {
+        Log.log('HomeScreen componentDidMount sortValue ' + JSON.stringify(this.props.sortValue))
         try {
             Log.log('WalletList.HomeScreen initDeepLinking')
             SendDeepLinking.initDeepLinking()
@@ -98,6 +99,7 @@ class HomeScreen extends React.PureComponent {
     componentDidUpdate(prevProps) {
         try {
             if (!_isEqual(prevProps.sortValue, this.props.sortValue) || !_isEqual(prevProps.accountList, this.props.accountList) || !_isEqual(prevProps.homeFilterWithBalance, this.props.homeFilterWithBalance)) {
+                Log.log('HomeScreen componentDidUpdate sortValue ' + JSON.stringify(this.props.sortValue))
                 this.setState({
                     data: getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.props.sortValue, this.props.homeFilterWithBalance),
                     sortValue: this.props.sortValue,
