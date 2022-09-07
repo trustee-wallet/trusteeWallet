@@ -49,19 +49,24 @@ class SettingsMainScreen extends PureComponent {
         return typeof tmpLanguage === 'undefined' ? 'en-US' : tmpLanguage.code
     }
 
-    handleChangeLockScreenStatus = () => {
-
+    handleChangeLockScreenStatus = (_callback) => {
         try {
 
             const { lockScreenStatus } = this.props.settingsData
 
             if (+lockScreenStatus) {
-                setLockScreenConfig({flowType : LockScreenFlowTypes.DELETE_PINCODE})
+                setLockScreenConfig({
+                    flowType : LockScreenFlowTypes.DELETE_PINCODE,
+                    callback: () => _callback(!lockScreenStatus)
+                })
                 NavStore.goNext('LockScreen')
             } else {
                 const isAllWalletBackUp = this.isAllWalletBackUp()
                 if (isAllWalletBackUp) {
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.CREATE_PINCODE})
+                    setLockScreenConfig({
+                        flowType : LockScreenFlowTypes.CREATE_PINCODE,
+                        callback: () => _callback(!lockScreenStatus)
+                    })
                     NavStore.goNext('LockScreen')
                 } else {
                     showModal({
@@ -94,13 +99,21 @@ class SettingsMainScreen extends PureComponent {
         return true
     }
 
-    handleChangeTouchIDStatus = () => {
-        setLockScreenConfig({flowType : LockScreenFlowTypes.CHANGE_TOUCHID_STATUS})
+    handleChangeTouchIDStatus = (_callback) => {
+        const { touchIDStatus } = this.props.settingsData
+        setLockScreenConfig({
+            flowType : LockScreenFlowTypes.CHANGE_TOUCHID_STATUS,
+            callback: () => _callback(!touchIDStatus)
+        })
         NavStore.goNext('LockScreen')
     }
 
-    changeAskWhenSending = () => {
-        setLockScreenConfig({flowType : LockScreenFlowTypes.CHANGE_ASKING_STATUS})
+    changeAskWhenSending = (_callback) => {
+        const { askPinCodeWhenSending } = this.props.settingsData
+        setLockScreenConfig({
+            flowType : LockScreenFlowTypes.CHANGE_ASKING_STATUS,
+            callback: () => _callback(!askPinCodeWhenSending)
+        })
         NavStore.goNext('LockScreen')
     }
 
@@ -196,7 +209,7 @@ class SettingsMainScreen extends PureComponent {
 
     handleOpenNotifications = () => NavStore.goNext('NotificationsSettingsScreen')
 
-    handleWalletManagment = () => NavStore.goNext('WalletListScreen')
+    handleWalletManagement = () => NavStore.goNext('WalletListScreen')
 
     handleBack = () => NavStore.goBack()
 
@@ -257,7 +270,7 @@ class SettingsMainScreen extends PureComponent {
                                 title={strings('settings.wallets.listTitle')}
                                 subtitle={strings('settings.wallets.listSubtitle', { number: walletsNumber })}
                                 iconType="wallet"
-                                onPress={this.handleWalletManagment}
+                                onPress={this.handleWalletManagement}
                                 rightContent="arrow"
                             />
                             {false && (
