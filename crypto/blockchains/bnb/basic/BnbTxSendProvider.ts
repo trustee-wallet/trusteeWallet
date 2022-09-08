@@ -25,33 +25,49 @@ function decodeAddress(value: any) {
 }
 
 function convertObjectToSignBytes(obj: any) {
-    return Buffer.from(JSON.stringify(Encode.sortObject(obj)))
+    try {
+        return Buffer.from(JSON.stringify(Encode.sortObject(obj)))
+    } catch (e) {
+        throw new Error(e.message + ' in convertObjectToSignBytes')
+    }
 }
 
 function encodeBinaryByteArray(bytes: any) {
-    const lenPrefix = bytes.length
-    return Buffer.concat([UVarInt.encode(lenPrefix), bytes])
+    try {
+        const lenPrefix = bytes.length
+        return Buffer.concat([UVarInt.encode(lenPrefix), bytes])
+    } catch (e) {
+        throw new Error(e.message + ' in encodeBinaryByteArray')
+    }
 }
 
 function serializePubKey(unencodedPubKey: any) {
-    let format = 0x2
-    const y = unencodedPubKey.getY()
-    const x = unencodedPubKey.getX()
+    try {
+        let format = 0x2
+        const y = unencodedPubKey.getY()
+        const x = unencodedPubKey.getX()
 
-    if (y && y.isOdd()) {
-        format |= 0x1
+        if (y && y.isOdd()) {
+            format |= 0x1
+        }
+
+        let pubBz = Buffer.concat([UVarInt.encode(format), x.toArrayLike(Buffer, 'be', 32)]) // prefixed with length
+
+        pubBz = encodeBinaryByteArray(pubBz) // add the amino prefix
+
+        pubBz = Buffer.concat([Buffer.from('EB5AE987', 'hex'), pubBz])
+        return pubBz
+    } catch (e) {
+        throw new Error(e.message + ' in serializePubKey')
     }
-
-    let pubBz = Buffer.concat([UVarInt.encode(format), x.toArrayLike(Buffer, 'be', 32)]) // prefixed with length
-
-    pubBz = encodeBinaryByteArray(pubBz) // add the amino prefix
-
-    pubBz = Buffer.concat([Buffer.from('EB5AE987', 'hex'), pubBz])
-    return pubBz
 }
 
 function marshalBinary(obj: any) {
-    return Encode.encodeBinary(obj, -1, true).toString('hex')
+    try {
+        return Encode.encodeBinary(obj, -1, true).toString('hex')
+    } catch (e) {
+        throw new Error(e.message + ' in marshalBinary')
+    }
 }
 
 
@@ -68,6 +84,20 @@ export class BnbTxSendProvider {
         const unified = BlocksoftUtils.fromUnified(data.amount, 8) * 1
         let msg
         let txMsg
+
+        let decodedFrom
+        let decodedTo
+        try {
+            decodedFrom = decodeAddress(data.addressFrom)
+        } catch (e) {
+            throw new Error(e.message + ' in BNB decodeAddress ' + JSON.stringify(data.addressFrom))
+        }
+        try {
+            decodedTo = decodeAddress(data.addressTo)
+        } catch (e) {
+            throw new Error(e.message + ' in BNB decodeAddress ' + JSON.stringify(data.addressTo))
+        }
+
         if (typeof data.blockchainData !== 'undefined' && typeof data.blockchainData.action !== 'undefined' && data.blockchainData.action === 'BnbToSmart') {
             let addressTo = data.addressTo
             if (addressTo.substr(0,2) === '0x') {
@@ -80,7 +110,7 @@ export class BnbTxSendProvider {
                 expire_time: data.blockchainData.expire_time
             }
             txMsg = {
-                from: decodeAddress(data.addressFrom),
+                from: decodedFrom,
                 to: Buffer.from(addressTo, 'hex'),
                 amount: { 'denom': 'BNB', 'amount': unified },
                 expire_time: data.blockchainData.expire_time,
@@ -103,13 +133,13 @@ export class BnbTxSendProvider {
             }
             txMsg = {
                 'inputs': [{
-                    'address': decodeAddress(data.addressFrom), 'coins': [{
+                    'address': decodedFrom, 'coins': [{
                         'denom': 'BNB',
                         'amount': unified
                     }]
                 }],
                 'outputs': [{
-                    'address': decodeAddress(data.addressTo), 'coins': [{
+                    'address': decodedTo, 'coins': [{
                         'denom': 'BNB',
                         'amount': unified
                     }]
@@ -127,17 +157,44 @@ export class BnbTxSendProvider {
             sequence: account.sequence + '',
             source: '0'
         }
-
-        const buff = convertObjectToSignBytes(signMsg)
+        let buff
+        try {
+            buff = convertObjectToSignBytes(signMsg)
+        } catch (e) {
+            throw new Error(e.message + ' in BNB convertObjectToSignBytes ' + JSON.stringify(signMsg))
+        }
         const signBytesHex = buff.toString('hex')
-
-        const msgHash = createHash('sha256').update(signBytesHex, 'hex').digest()
-        const keypair = ec.keyFromPrivate(privateData.privateKey, 'hex')
-        const signature = _tinySecp256k.sign(msgHash, Buffer.from(privateData.privateKey, 'hex'))
+        let msgHash
+        try {
+            msgHash = createHash('sha256').update(signBytesHex, 'hex').digest()
+        } catch (e) {
+            throw new Error(e.message + ' in BNB createHash')
+        }
+        let keypair
+        try {
+            keypair = ec.keyFromPrivate(privateData.privateKey, 'hex')
+        } catch (e) {
+            throw new Error(e.message + ' in BNB ec.keyFromPrivate')
+        }
+        let signature
+        try {
+            signature = _tinySecp256k.sign(msgHash, Buffer.from(privateData.privateKey, 'hex'))
+        } catch (e) {
+            throw new Error(e.message + ' in BNB _tinySecp256k.sign')
+        }
         const signatureHex = signature.toString('hex')
-
-        const pubKey = keypair.getPublic()
-        const pubSerialize = serializePubKey(pubKey)
+        let pubKey
+        try {
+            pubKey = keypair.getPublic()
+        } catch (e) {
+            throw new Error(e.message + ' in BNB keypair.getPublic()')
+        }
+        let pubSerialize
+        try {
+            pubSerialize = serializePubKey(pubKey)
+        } catch (e) {
+            throw new Error(e.message + ' in BNB serializePubKey')
+        }
 
         const signatures = [{
             pub_key: pubSerialize,
