@@ -394,7 +394,8 @@ class MarketScreen extends PureComponent {
                         txData: {
                             transactionHash: txHash
                         },
-                        source : 'Market/MainScreen.onMessage has txHash ' + JSON.stringify(txHash)
+                        source : 'Market/MainScreen.onMessage has txHash ' + JSON.stringify(txHash),
+                        goBackProps: true
                     }
                 })
             }

@@ -121,6 +121,7 @@ class AccountTransactionScreen extends PureComponent {
     }
 
     backAction = async () => {
+        const goBackProps = NavStore.getParamWrapper(this, 'goBackProps')
         if (this.state.uiType === 'WALLET_CONNECT') {
             NavStore.reset('WalletConnectScreen')
         } else if (this.state.uiType === 'TRADE_SEND' || this.state.uiType === 'TRADE_LIKE_WALLET_CONNECT') {
@@ -130,6 +131,8 @@ class AccountTransactionScreen extends PureComponent {
             await setSelectedAccount('AccountTransactionScreen.backAction')
             await setSelectedAccountTransactions('AccountTransactionScreen.backAction')
             NavStore.reset('AccountScreen')
+        } else if (goBackProps) {
+            NavStore.reset('TabBar')
         } else {
             NavStore.goBack()
         }
@@ -323,7 +326,6 @@ class AccountTransactionScreen extends PureComponent {
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
         const buttonsArray = []
-
 
         renderReplaceByFeeRemove.call(this, buttonsArray)
         renderReplaceByFee.call(this, buttonsArray)
