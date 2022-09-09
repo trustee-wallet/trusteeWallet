@@ -518,6 +518,7 @@
       "endAmount": "End amount",
       "setAmount": "Set amount",
       "discard": "Discard",
+      "txPrivateKey": "Transaction Private key",
       "RBF": {
         "replaceByFeeBtn": "Update tx fee",
         "willReplaceWithNewFee": "The current transaction will be replaced with a new one, with a new hash and a higher commission",
@@ -719,6 +720,7 @@
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "You don't have enough funds to send",
     "addressError": "The recipient’s address is incorrect, please, check it",
+    "memoError": "%{name} is incorrect, please, check it",
     "notValidAmount": "Please, input amount",
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}. Click for more info ",
@@ -854,6 +856,7 @@
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Insufficient balance to pay the network fee - please use an option \"Send All\" ",
      "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Insufficient balance to pay the delegated transaction - please use ERC20 standard transaction",
      "SERVER_RESPONSE_NO_RESPONSE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined",
+     "SERVER_RESPONSE_NO_RESPONSE_XMR": "Please, wait until the previous transactions have reached the required number of network confirmations (at least 15) and retry the current one",
      "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "The transaction has not received a network confirmation - please wait for the other transactions to be mined or place higher fee",
      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Insufficient balance of native currency %{symbol} to pay the network fee - please wait for the other transactions to be mined",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Transaction fee is too small",
@@ -1074,7 +1077,7 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron wallet (TRX) is not activated. To activate, it is enough to top up the Tron address for 10 TRX coins, which can later be used in other transactions"
+        "description": "Your Tron (TRX) wallet is not activated but can accept funds. Top up your Tron address with 10 TRX to activate your wallet. In the future, you can use these coins in transactions."
       },
       "TOKEN": {
         "title": "Please, pay attention!",

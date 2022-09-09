@@ -517,6 +517,7 @@
       "endAmount": "Montant final",
       "setAmount": "Définir le montant",
       "discard": "Rejeter",
+      "txPrivateKey": "Clé privée de la transaction",
       "RBF": {
         "replaceByFeeBtn": "Mise à jour des frais tx",
         "willReplaceWithNewFee": "La transaction en cours sera remplacée par une nouvelle, avec un nouveau hachage et une commission plus élevée",
@@ -718,6 +719,7 @@
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "Vous n'avez pas assez de fonds pour envoyer",
     "addressError": "L'adresse du destinataire est incorrecte, veuillez la vérifier",
+    "memoError": "%{name} est incorrecte, veuillez la vérifier",
     "notValidAmount": "S'il vous plaît, entrez le montant",
     "notValidAmountInFiat": "S'il vous plaît, entrez un plus grand montant ou changez en entrée crypto",
     "notEnoughForFee": "Pour envoyer des tokens, vous devez avoir un solde positif en monnaie native %{symbol}. Cliquez pour plus d'informations ",
@@ -853,6 +855,7 @@
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Solde insuffisant pour payer les frais de réseau - veuillez utiliser une option \"Envoyer tout\" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Solde insuffisant pour payer la transaction déléguée - veuillez utiliser la transaction standard ERC20",
       "SERVER_RESPONSE_NO_RESPONSE": "La transaction n'a pas reçu de confirmation du réseau - veuillez attendre que les autres transactions soient minées",
+      "SERVER_RESPONSE_NO_RESPONSE_XMR": "Veuillez attendre que les transactions précédentes aient atteint le nombre requis de confirmations de réseau (au moins 15) et réessayez avec la transaction en cours",
       "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "La transaction n'a pas reçu de confirmation de réseau - veuillez attendre que les autres transactions soient minées ou placez des frais plus élevés",
       "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Solde insuffisant de la devise native %{symbol} pour payer les frais de réseau - veuillez attendre que les autres transactions soient minées",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Les frais de transaction sont trop faibles",
@@ -1073,7 +1076,7 @@
       },
       "TRX_20": {
         "title": "Votre attention s'il vous plaît!",
-        "description": "Votre portefeuille Tron n'est pas activé. L'activation nécessite d'envoyer n'importe quel TRX à l'adresse du portefeuille - vous pouvez l'utiliser plus tard pour les transactions"
+        "description": "Votre portefeuille Tron (TRX) n'est pas activé mais peut accepter des fonds. Financez votre adresse Tron avec 10 TRX pour activer votre portefeuille. À l'avenir, vous pourrez utiliser ces pièces dans des transactions."
       },
       "TOKEN": {
         "title": "Votre attention s'il vous plaît!",

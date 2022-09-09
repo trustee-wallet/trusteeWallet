@@ -360,7 +360,8 @@ class Account extends React.PureComponent {
                                     currencyCode: selectedCryptoCurrencyData.currencyCode,
                                     currencySymbol: selectedCryptoCurrencyData.currencySymbol,
                                     currencyName: selectedCryptoCurrencyData.currencyName,
-                                    currencyExplorerLink: selectedCryptoCurrencyData.currencyExplorerLink
+                                    currencyExplorerLink: selectedCryptoCurrencyData.currencyExplorerLink,
+                                    decimals: selectedCryptoCurrencyData.decimals
                                 }}
                                 isSegwit={isSegwit}
                                 cacheAsked={CACHE_ASKED}

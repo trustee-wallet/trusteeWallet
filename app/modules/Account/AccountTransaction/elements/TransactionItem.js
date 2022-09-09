@@ -78,7 +78,7 @@ const TransactionItem = (props) => {
                             <Text style={[styles.title, { color: colors.common.text2 }]}>{title}</Text>
                             {!!subtitle ?
                                 <TouchableDebounce onPress={handleLink ? handleLink : copyAction} onLongPress={handleLink ? copyAction : null}>
-                                    <Text style={[styles.subtitle, { color: colorLink ? colorLink : colors.common.text1, textDecorationLine: colorLink ? 'underline' : null }]}>{subtitle}</Text>
+                                    <Text numberOfLines={2} style={[styles.subtitle, { color: colorLink ? colorLink : colors.common.text1, textDecorationLine: colorLink ? 'underline' : null }]}>{subtitle}</Text>
                                 </TouchableDebounce> : null}
                         </View>
                     </View>

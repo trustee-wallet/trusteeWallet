@@ -9,6 +9,7 @@ import XmrUnspentsProvider from './providers/XmrUnspentsProvider'
 
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import config from '../../../app/config/config'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private sendProvider: XmrSendProvider
@@ -48,7 +49,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const privViewKey = keys[1]
         const pubSpendKey = data.accountJson.publicSpendKey
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate  newSender ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
 
         const apiClient = this.unspentsProvider
 
@@ -63,28 +64,45 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         let noBalanceError = false
         apiClient.init()
 
+
+        const unspentOuts = await apiClient._getUnspents({
+            address: data.addressFrom,
+            view_key: privViewKey,
+            amount: '0',
+            app_name: 'MyMonero',
+            app_version: '1.3.2',
+            dust_threshold: '2000000000',
+            mixin: 15,
+            use_dust: true
+        }, false)
+
         for (let i = 1; i <= 4; i++) {
             try {
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
 
                 // @ts-ignore
-                const fee = await core.async__send_funds({
-                    is_sweeping: false,
-                    payment_id_string: typeof data.memo !== 'undefined' && data.memo ? data.memo : undefined, // may be nil or undefined
-                    sending_amount: data.amount, // sending amount
-                    sending_all: data.isTransferAll,
-                    from_address_string: data.addressFrom,
-                    sec_viewKey_string: privViewKey,
-                    sec_spendKey_string: privSpendKey,
-                    pub_spendKey_string: pubSpendKey,
-                    to_address_string: data.addressTo,
-                    priority: i,
-                    unlock_time: 0, // unlock_time
-                    nettype: 0, // MAINNET
-                    // @ts-ignore
-                    get_unspent_outs_fn: async (req) => apiClient._getUnspents(req),
-                    // @ts-ignore
-                    get_random_outs_fn: async (req) => apiClient._getRandomOutputs(req)
+                const fee = await core.createTransaction({
+                    destinations: [{ to_address : data.addressTo, send_amount: data.isTransferAll ? 0 : BlocksoftPrettyNumbers.setCurrencyCode('XMR').makePretty(data.amount)}],
+                    shouldSweep: data.isTransferAll ? true: false,
+                    address: data.addressFrom,
+                    privateViewKey: privViewKey,
+                    privateSpendKey: privSpendKey,
+                    publicSpendKey: pubSpendKey,
+                    priority: '' + i,
+                    nettype: 'MAINNET',
+                    unspentOuts: unspentOuts,
+                    randomOutsCb: (numberOfOuts) => {
+                        const amounts = []
+                        for (let i = 0; i < numberOfOuts; i++) {
+                            amounts.push('0')
+                        }
+                        return apiClient._getRandomOutputs({
+                            amounts,
+                            app_name: 'MyMonero',
+                            app_version: '1.3.2',
+                            count: 16
+                        })
+                    }
                 })
 
                 if (typeof fee !== 'undefined' && fee && typeof fee.used_fee) {
@@ -137,6 +155,9 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     } else if (e.message.indexOf('decode address') !== -1) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor error will go out')
                         throw new Error('SERVER_RESPONSE_BAD_DESTINATION')
+                    } else if (e.message.indexOf('Not enough spendables') !== -1) {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor error not enough')
+                        throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
                     } else {
                         BlocksoftCryptoLog.err(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' finished amount: ' + data.amount + ' error fee ' + i + ': ' + e.message)
                         throw e
@@ -146,7 +167,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         }
 
         if (result.fees.length === 0 && noBalanceError) {
-            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE')
+            throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
         }
 
         // @ts-ignore
@@ -207,6 +228,9 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const keys = privateData.privateKey.split('_')
         const privViewKey = keys[1]
 
+        if (typeof uiData?.selectedFee?.blockchainData?.rawTxHex === 'undefined') {
+            throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
+        }
         if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined'&& typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw : uiData.selectedFee.blockchainData.rawTxHex}
         }

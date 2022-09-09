@@ -59,7 +59,7 @@ const CACHE = {
     'ETC_PRICE' : 6710000000,
     'ETC_GAS_LIMIT' : 620000,
     'AMB_SERVER' : 'https://network.ambrosus.com',
-    'AMB_TREZOR_SERVER' : ['http://64.227.116.62:29136'],
+    'AMB_TREZOR_SERVER' : ['https://blockbook.ambrosus.com'],
     'AMB_PRICE' : 5000000000,
     'AMB_GAS_LIMIT' : 620000,
     'ONE_SERVER' : 'https://api.harmony.one',

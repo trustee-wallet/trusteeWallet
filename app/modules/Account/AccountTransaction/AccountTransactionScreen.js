@@ -259,9 +259,10 @@ class AccountTransactionScreen extends PureComponent {
         }
 
         return <TransactionItem
-            title={'Tx private key'}
+            title={strings('account.transaction.txPrivateKey')}
             subtitle={transaction.transactionJson.secretTxKey}
             copyAction={() => this.handleSubContentPress({ plain: transaction.transactionJson.secretTxKey })}
+            withoutBack
         />
     }
 

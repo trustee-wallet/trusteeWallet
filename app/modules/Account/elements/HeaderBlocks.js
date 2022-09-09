@@ -53,7 +53,8 @@ class HeaderBlocks extends React.Component {
                 type: 'YES_NO_MODAL',
                 title: strings('account.externalLink.title'),
                 icon: 'WARNING',
-                description: strings('account.externalLink.description')
+                description: strings('account.externalLink.description'),
+                reverse: true
             }, () => {
                 trusteeAsyncStorage.setExternalAsked(now + '')
                 this.props.cacheAsked = now
@@ -155,7 +156,7 @@ class HeaderBlocks extends React.Component {
         const { isBalanceVisible, isBalanceVisibleTriggered, originalVisibility, account } = this.props
         const finalIsBalanceVisible = isBalanceVisibleTriggered ? isBalanceVisible : originalVisibility
 
-        const { currencyCode, currencySymbol } = this.props.cryptoCurrency
+        const { currencyCode, currencySymbol, decimals } = this.props.cryptoCurrency
 
         const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
         const withoutDescription = currencyCode === 'SOL'
@@ -189,17 +190,22 @@ class HeaderBlocks extends React.Component {
                 <TouchableDebounce
                     onPress={() => this.accountStaking(currencyCode)}
                     hitSlop={HIT_SLOP}
-                    disabled={withoutDescription || !canBeStaked}
+                    disabled={!canBeStaked}
                 >
                     {diffAvailable &&
                         <Text style={[styles.availableText, { color: colors.common.text3, marginBottom: GRID_SIZE / 3 }]}>
-                            {`${strings('settings.walletList.available')}: ${finalIsBalanceVisible ? balanceTotalPretty + ' ' + currencySymbol : ' ****'}`}
+                            {`${strings('settings.walletList.available')}: ${finalIsBalanceVisible ? BlocksoftPrettyNumbers.makeCut(balanceTotalPretty, decimals).cutted + ' ' + currencySymbol : ' ****'}`}
                         </Text>}
                     {!withoutDescription &&
                         <Text style={styles.availableText}>
                             {`${strings(balanceStakedTitle)}: ${finalIsBalanceVisible ? balanceStakedPretty + ' ' + currencySymbol : ' ****'}`}
                         </Text>
                     }
+                    {!diffAvailable && withoutDescription ?
+                        <Text style={styles.availableText}>
+                            {strings('account.staking')}
+                        </Text>
+                    : null}
                 </TouchableDebounce>
                 {
                     canBeStaked &&
@@ -410,16 +416,21 @@ class HeaderBlocks extends React.Component {
                             <View style={styles.stakingValue}>
                                 <Text style={{ ...styles.currencyName, color: colors.common.text1 }}>{currencySymbol}</Text>
                                 {availableStaking &&
-                                    <PercentView
-                                        value={this.props.stakingCoins[currencyCode]}
-                                        staking
-                                    />
+                                    <TouchableDebounce
+                                        hitSlop={{ top: 15, right: 15, bottom: 7, left: 10 }}
+                                        onPress={() => this.accountStaking(currencyCode)}
+                                    >
+                                        <PercentView
+                                            value={this.props.stakingCoins[currencyCode]}
+                                            staking
+                                        />
+                                    </TouchableDebounce>
                                 }
                             </View>
                             <TouchableDebounce
                                 style={styles.topContent__middle}
                                 onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
-                                hitSlop={HIT_SLOP}
+                                hitSlop={{ top: 6, right: 15, bottom: 15, left: 15 }}
                                 onLongPress={() => this.handleBtcAddressCopy(shownAddress)}
                                 delayLongPress={500}
                             >

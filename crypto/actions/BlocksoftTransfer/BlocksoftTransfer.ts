@@ -174,7 +174,12 @@ export namespace BlocksoftTransfer {
                 // noinspection ES6MissingAwait
                 BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
             }
-            throw e
+
+            if (e.message.indexOf('SERVER_RESPONSE_NOT_CONNECTED') !== -1 && (data.currencyCode === 'TRX' || data.currencyCode.indexOf('TRX_') !== -1)) {
+                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
+            } else {
+                throw e
+            }
         }
         return txResult
     }

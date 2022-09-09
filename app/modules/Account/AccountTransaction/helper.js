@@ -231,6 +231,9 @@ export function renderReplaceByFeeRemove(array) {
     if (transaction.transactionBlockchainStatus !== 'new' && transaction.transactionBlockchainStatus !== 'missing') {
         return false
     }
+    if (transaction?.wayType === 'fee') {
+        return false
+    }
     if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
         Log.log('AccountTransactionScreen.helper.renderReplaceByFeeRemove could not remove', { account, transaction })
         return false
@@ -274,6 +277,11 @@ export function renderReplaceByFee(array) {
     if (!transaction.addressTo || transaction.addressTo === '') {
         transaction.addressTo = transaction.basicAddressTo || account.address
     }
+
+    if (transaction?.wayType === 'fee') {
+        return false
+    }
+
     if (!BlocksoftTransfer.canRBF(account, transaction, 'REPLACE')) {
         Log.log('AccountTransactionScreen.helper.renderReplaceByFee could not replace', { account, transaction })
         return false
@@ -415,7 +423,8 @@ export function handleLink(link) {
             type: 'YES_NO_MODAL',
             title: strings('account.externalLink.title'),
             icon: 'WARNING',
-            description: strings('account.externalLink.description')
+            description: strings('account.externalLink.description'),
+            reverse: true
         }, () => {
             trusteeAsyncStorage.setExternalAsked(now + '')
             this.props.cacheAsked = now
