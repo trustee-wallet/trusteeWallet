@@ -116,8 +116,11 @@ class BackupStep0Screen extends PureComponent {
                 if (checkLock) {
                     if (this.props.lockScreenStatus * 1 > 0) {
                         setLockScreenConfig({
-                            flowType: LockScreenFlowTypes.JUST_CALLBACK, 
-                            noCallback: NavStore.goBack, 
+                            flowType: LockScreenFlowTypes.MNEMONIC_CALLBACK, 
+                            noCallback: () => {
+                                NavStore.goBack()
+                                NavStore.goBack()
+                            }, 
                             callback: async () => {
                                 await this._init(false)
                             }

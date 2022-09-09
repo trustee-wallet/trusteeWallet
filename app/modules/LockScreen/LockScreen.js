@@ -66,7 +66,13 @@ class LockScreen extends React.PureComponent {
     }
 
     handleBack = () => {
+        const { flowType } = this.props.lockScreen
+        
         NavStore.goBack()
+
+        if (flowType === LockScreenFlowTypes.MNEMONIC_CALLBACK) {
+            NavStore.goBack()
+        }
     }
 
     handleClose = () => {
