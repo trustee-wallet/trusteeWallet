@@ -10324,12 +10324,11 @@ protobufjs@^6.8.8:
     "@types/node" ">=13.7.0"
     long "^4.0.0"
 
-protocol-buffers-encodings@^1.1.1:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/protocol-buffers-encodings/-/protocol-buffers-encodings-1.2.0.tgz#39900b85dcff3172a23f15bdf3fda70daa2b38d3"
-  integrity sha512-daeNPuKh1NlLD1uDfbLpD+xyUTc07nEtfHwmBZmt/vH0B7VOM+JOCOpDcx9ZRpqHjAiIkGqyTDi+wfGSl17R9w==
+protocol-buffers-encodings@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/protocol-buffers-encodings/-/protocol-buffers-encodings-1.1.1.tgz#f1e4a386711823137330171d2c82b49d062e75d3"
+  integrity sha512-5aFshI9SbhtcMiDiZZu3g2tMlZeS5lhni//AGJ7V34PQLU5JA91Cva7TIs6inZhYikS3OpnUzAUuL6YtS0CyDA==
   dependencies:
-    b4a "^1.6.0"
     signed-varint "^2.0.1"
     varint "5.0.0"
 
