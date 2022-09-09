@@ -50,8 +50,12 @@ var encodeBool = function encodeBool(b) {
 exports.encodeBool = encodeBool
 
 var encodeString = function encodeString(str) {
-    var buf = Buffer.alloc(protocolBuffersEncodings.string.encodingLength(str))
-    return protocolBuffersEncodings.string.encode(str, buf, 0)
+    try {
+        var buf = Buffer.alloc(protocolBuffersEncodings.string.encodingLength(str))
+        return protocolBuffersEncodings.string.encode(str, buf, 0)
+    } catch (e) {
+        throw new Error(e.message + ' in protocolBuffersEncodings.string.encode')
+    }
 }
 /**
  * encode time
