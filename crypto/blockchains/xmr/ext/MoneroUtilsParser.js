@@ -108,8 +108,10 @@ export default {
                 return randomOuts
             }
 
+            BlocksoftCryptoLog.log('MoneroUtilsParser ret?.amounts?.length ' + ret?.amounts?.length)
+
             // fetch random decoys
-            const randomOuts = await _getRandomOuts(ret.amounts.length, options.randomOutsCb)
+            const randomOuts = await _getRandomOuts(ret?.amounts?.length || 0, options.randomOutsCb)
             // send random decoys on and complete the tx creation
             const retString2 = await MY_MONERO.core.Module.createAndSignTx(JSON.stringify(randomOuts))
             const rawTx = JSON.parse(retString2)
