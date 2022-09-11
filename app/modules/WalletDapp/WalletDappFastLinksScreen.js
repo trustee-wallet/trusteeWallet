@@ -1,5 +1,5 @@
 /**
- * @version 0.50
+ * @version 1.0
  */
 import React, { PureComponent } from 'react'
 import {
@@ -22,7 +22,7 @@ import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
 import tokenBlockchainBlocksoftDict from '@crypto/assets/tokenBlockchainBlocksoftDict.json'
 
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
-import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions' // setWalletDappIncognito
+import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 
 class WalletDappFastLinksScreen extends PureComponent {

@@ -1,9 +1,9 @@
 /**
- * @version 0.50
+ * @version 1.0
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import { View, Text, StyleSheet, ActivityIndicator, BackHandler } from 'react-native'
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
 
 import { WebView } from 'react-native-webview'
 import UrlParse from 'url-parse'
@@ -21,18 +21,6 @@ import { getSelectedAccountData, getSelectedWalletData } from '@app/appstores/St
 import { getLockScreenStatus } from '@app/appstores/Stores/Settings/selectors'
 import { getWalletConnectData } from '@app/appstores/Stores/WalletConnect/selectors'
 
-import {
-    handleParanoidLogout,
-    handleSendSign,
-    handleSendSignTyped,
-    handleSendTransaction,
-    handleSessionRequest,
-    handleStop
-} from '@app/modules/WalletConnect/helpers'
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
-
-import { setWalletDappWalletConnectLink } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
-
 import config from '@app/config/config'
 import store from '@app/store'
 import TronUtils from '@crypto/blockchains/trx/ext/TronUtils'
@@ -43,27 +31,13 @@ import BlocksoftUtils from "@crypto/common/BlocksoftUtils"
 import { Web3Injected } from '@crypto/services/Web3Injected'
 import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
 import { INJECTEDJAVASCRIPT, INJECTEDJAVASCRIPT_SMALL } from './ScriptWeb3.js'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 class WalletDappWebViewScreen extends PureComponent {
-    state = {
-        walletStarted: false,
-        chainId: false,
-        peerMeta: {
-            name: '',
-            url: '',
-            description: '',
-            icons: []
-        },
-        peerId: false,
-        peerStatus: false,
-        transactions: [],
-        inputFullLink: '',
-        noMoreLock: false,
-        linkError: false
-    }
 
-    /** wallet connect part **/
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => {
+        NavStore.goBack()
+    }
 
     handleClose = () => {
         const prev = NavStore.getParamWrapper(this, 'backOnClose')
@@ -74,86 +48,9 @@ class WalletDappWebViewScreen extends PureComponent {
         }
     }
 
-    handleSend = (message, payload) => {
-        handleSendSign.call(this, message, payload)
-    }
-
-    handleSendTyped = (data, payload) => {
-        handleSendSignTyped.call(this, data, payload)
-    }
-
-    handleTransactionSend = (data, payload, mainCurrencyCode) => {
-        handleSendTransaction.call(this, data, payload, mainCurrencyCode)
-    }
-
-    handleRequest = (data) => {
-        handleSessionRequest.call(this, data)
-    }
-
-    handleDisconnect = (isConnected) => {
-        handleStop.call(this, isConnected)
-    }
-
     handleChangeNetwork = () => {
         NavStore.goNext('WalletConnectChangeNetworkScreen')
     }
-
-    handleLogout = (func) => {
-        const { peerStatus } = this.state
-        handleParanoidLogout.call(this, peerStatus, func)
-        BackHandler.removeEventListener('hardwareBackPress', this.handleLogout);
-    }
-
-    componentDidMount() {
-        const { walletConnectLink } = this.props.walletDappData
-        if (walletConnectLink) {
-            this._init({ fullLink: walletConnectLink })
-        }
-    }
-
-    async _init(anyData) {
-        Log.log('WalletDappWebView.WalletConnect.init ', anyData)
-        try {
-            const clientData = await AppWalletConnect.init(anyData,
-                this.handleRequest,
-                this.handleSessionEnd,
-                this.handleTransactionSend,
-                this.handleSend,
-                this.handleSendTyped
-            )
-            if (clientData) {
-                const stateData = {
-                    walletStarted: true,
-                    peerStatus: clientData.connected,
-                    chainId: clientData.chainId
-                }
-                if (typeof clientData.peerMeta !== 'undefined' && clientData.peerMeta && clientData.peerMeta !== '') {
-                    stateData.peerMeta = clientData.peerMeta
-                }
-                if (typeof clientData.peerId !== 'undefined' && clientData.peerId && clientData.peerId !== '') {
-                    stateData.peerId = clientData.peerId
-                }
-                this.setState(stateData)
-            }
-        } catch (e) {
-            if (config.debug.appErrors) {
-                console.log('WalletDappWebView.WalletConnect.init error ' + e.message)
-                this.setState({ linkError: true })
-            }
-            if (e.message.indexOf('URI format') === -1) {
-                Log.log('WalletDappWebView.WalletConnect.init error ' + e.message)
-                this.setState({ linkError: true })
-            } else {
-                Log.log('WalletDappWebView.WalletConnect.init error ' + e.message)
-                this.setState({ linkError: true })
-            }
-            this.setState({
-                walletStarted: false,
-                linkError: true
-            })
-        }
-    }
-    /** wallet connect part end **/
 
 
     onMessage = async (e) => {
@@ -232,8 +129,7 @@ class WalletDappWebViewScreen extends PureComponent {
         try {
             if (parsedUrl.protocol === 'wc:') {
                 if (url.indexOf('?bridge=') !== -1) {
-                    setWalletDappWalletConnectLink(url)
-                    this._init({ fullLink: url })
+                    walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP', false, this.props.walletDappData)
                 } else {
                     // ?
                 }
@@ -248,10 +144,11 @@ class WalletDappWebViewScreen extends PureComponent {
         MarketingAnalytics.setCurrentScreen('WalletDapp.WebViewScreen')
 
         const { walletHash } = this.props.selectedWalletData
-        const { dappCode, dappName, dappUrl, incognito } = this.props.walletDappData
+        const { dappCode, dappName, dappUrl } = this.props.walletDappData
+        const { walletConnectLink, linkSource } = this.props.walletConnectData
         const { disableInjected, dappNetworks } = dappsBlocksoftDict[dappCode]
 
-        Log.log('WalletDapp.WebViewScreen render ' + dappCode + ' incognito ' + JSON.stringify(incognito) )
+        Log.log('WalletDapp.WebViewScreen render ' + dappCode )
 
         let prepared
         if (typeof disableInjected === 'undefined' || !disableInjected) {
@@ -310,6 +207,13 @@ class WalletDappWebViewScreen extends PureComponent {
             prepared = INJECTEDJAVASCRIPT_SMALL
         }
 
+        let isCurrentDappWalletConnect = false
+        if (walletConnectLink) {
+            if (linkSource === 'DAPP' || linkSource === 'DAPP_SAVED') {
+                isCurrentDappWalletConnect = true
+            }
+        }
+
         return (
             <ScreenWrapper
                 leftType="back"
@@ -317,13 +221,13 @@ class WalletDappWebViewScreen extends PureComponent {
                 rightType="close"
                 rightAction={this.handleClose}
                 title={dappName}
-                titleAction={this.props.walletConnectData.fullLink ? this.handleChangeNetwork : null}
+                titleAction={isCurrentDappWalletConnect ? this.handleChangeNetwork : null}
                 titleIconType='downArrow'
             >
                 <WebView
                     ref={webView => (this.webref = webView)}
                     source={{ uri: dappUrl }}
-                    incognito={incognito}
+                    incognito={false}
                     originWhitelist={['*']}
 
                     onShouldStartLoadWithRequest={this.handleWebViewNavigationTestLink}

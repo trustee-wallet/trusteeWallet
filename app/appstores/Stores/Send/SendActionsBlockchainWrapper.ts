@@ -13,7 +13,6 @@ import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
 
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 import EthNetworkPrices from '@crypto/blockchains/eth/basic/EthNetworkPrices'
 
 const { dispatch } = store

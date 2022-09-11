@@ -1,5 +1,5 @@
 /**
- * @version 0.50
+ * @version 1.0
  */
 import { createSelector } from 'reselect'
 
@@ -8,10 +8,8 @@ export const getWalletDappData = createSelector(
     (data => {
         return {
             dappCode: data.dappCode,
-            dappName : data.dappName,
-            dappUrl : data.dappUrl,
-            incognito : data.incognito,
-            walletConnectLink : data.walletConnectLink
+            dappName: data.dappName,
+            dappUrl: data.dappUrl,
         }
     })
 )

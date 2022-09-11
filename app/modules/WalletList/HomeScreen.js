@@ -50,6 +50,7 @@ import { strings } from '@app/services/i18n'
 import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 
 import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 
 class HomeScreen extends React.PureComponent {
@@ -83,6 +84,13 @@ class HomeScreen extends React.PureComponent {
             SendDeepLinking.initDeepLinking()
         } catch (e) {
             Log.log('WalletList.HomeScreen initDeepLinking error ' + e.message)
+        }
+
+        try {
+            Log.log('WalletList.HomeScreen initWalletConnect')
+            await walletConnectActions.initWalletConnect()
+        } catch (e) {
+            Log.log('WalletList.HomeScreen initWalletConnect error ' + e.message)
         }
 
         try {

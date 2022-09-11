@@ -36,12 +36,9 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
-import Toast from '@app/services/UI/Toast/Toast'
 import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
 
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
-
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 let CACHE_IS_COUNTING = false
 let CACHE_IS_SENDING_CLICKED = 0
@@ -268,7 +265,7 @@ class ReceiptScreen extends PureComponent {
         } else {
             if (uiType === 'WALLET_CONNECT') {
                 try {
-                    await AppWalletConnect.rejectRequest(walletConnectPayload)
+                    await walletConnectActions.rejectRequestWalletConnect(walletConnectPayload)
                 } catch (e) {
                     Log.log('ReceiptScreen.closeAction WALLET_CONNECT error ' + e)
                 }
@@ -285,7 +282,7 @@ class ReceiptScreen extends PureComponent {
         const { uiType, walletConnectPayload } = this.props.sendScreenStore.ui
         if (uiType === 'WALLET_CONNECT') {
             try {
-                await AppWalletConnect.rejectRequest(walletConnectPayload)
+                await walletConnectActions.rejectRequestWalletConnect(walletConnectPayload)
             } catch (e) {
                 Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e.message)
             }

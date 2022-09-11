@@ -219,6 +219,29 @@ class TrusteeAsyncStorage {
     setCreateWalletModal = (value) => {
         return this._set('createWalletModal', value)
     }
+
+    getWalletConnectLink = () => {
+        return this._getStatic('wcLink')
+    }
+
+    setWalletConnectLink = (value) => {
+        return this._set('wcLink', value)
+    }
+
+    getWalletConnectSession = () => {
+        const tmp = this._getStatic('wcSession')
+        if (!tmp) return false
+        try {
+            return JSON.parse(tmp)
+        } catch (e) {
+            return false
+        }
+    }
+
+    setWalletConnectSession = (value) => {
+        return this._set('wcSession', JSON.stringify(value))
+    }
+
 }
 
 const trusteeAsyncStorage = new TrusteeAsyncStorage()

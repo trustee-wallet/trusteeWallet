@@ -18,7 +18,7 @@ import store from '@app/store'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 import { QRCodeScannerFlowTypes } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 
 export const finishProcess = async (param, qrCodeScannerConfig) => {
@@ -76,7 +76,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         } else {
             NavStore.goBack()
             setTimeout(() => {
-                setWalletConnectData(res.data.walletConnect.fullLink)
+                walletConnectActions.connectAndSetWalletConnectLink(res.data.walletConnect.fullLink, 'QR')
                 NavStore.goNext('WalletConnectScreen')
             }, 100)
         }
