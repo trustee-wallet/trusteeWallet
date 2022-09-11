@@ -31,6 +31,11 @@ export const finishProcess = async (lockScreenData, lockScreen) => {
         }, 500)
     } else if (flowType === LockScreenFlowTypes.INIT_POPUP) {
         NavStore.reset('TabBar')
+    } else if (flowType === LockScreenFlowTypes.MNEMONIC_CALLBACK) {
+        NavStore.goBack()
+        setTimeout(() => {
+            actionCallback(false)
+        }, 500)
     } else if (flowType === LockScreenFlowTypes.PUSH_POPUP_CALLBACK) {
         actionCallback(false)
     } else if (flowType === LockScreenFlowTypes.CREATE_PINCODE) {
