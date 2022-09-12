@@ -1082,6 +1082,42 @@ export default {
             darkColor: '#CA4D6F'
         }
     },
+    'ETH_APE': {
+        colors: {
+            mainColor: '#0037C1',
+            darkColor: '#4470DE',
+        }
+    },
+    'ETH_ATOM': {
+        colors: {
+            mainColor: '#2E3148',
+            darkColor: '#6F7390',
+        }
+    },
+    'BNB_SMART_ATOM': {
+        colors: {
+            mainColor: '#2E3148',
+            darkColor: '#6F7390',
+        }
+    },
+    'BNB_SMART_TWT': {
+        colors: {
+            mainColor: '#3375BB',
+            darkColor: '#3375BB',
+        }
+    },
+    'BNB_SMART_GMT': {
+        colors: {
+            mainColor: '#C49162',
+            darkColor: '#C49162',
+        }
+    },
+    'VLX_USDV': {
+        colors: {
+            mainColor: '#6665DD',
+            darkColor: '#6665DD',
+        }
+    },
     'CUSTOM_ABYSS': {
         colors: {
             mainColor: '#2E50CF',
