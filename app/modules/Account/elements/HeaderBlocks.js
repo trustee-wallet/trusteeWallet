@@ -466,7 +466,7 @@ class HeaderBlocks extends React.Component {
                         snapPoints={[0, 300]}
                         index={0}
                     >
-                        {this.renderModalContent({ shownAddress, forceLink, currencyCode, currencyName })}
+                        {this.renderModalContent({ address: shownAddress, forceLink, currencyCode, currencyName })}
                         <Button
                             title={strings('assets.hideAsset')}
                             type='withoutShadow'
