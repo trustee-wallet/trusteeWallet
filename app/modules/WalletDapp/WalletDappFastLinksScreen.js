@@ -24,6 +24,7 @@ import tokenBlockchainBlocksoftDict from '@crypto/assets/tokenBlockchainBlocksof
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
 import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 class WalletDappFastLinksScreen extends PureComponent {
 
@@ -35,12 +36,14 @@ class WalletDappFastLinksScreen extends PureComponent {
     }
 
     async componentDidMount() {
+        MarketingEvent.logEvent('wallet_dapps_list', {})
         await this.loadDapps()
         await this.handleFilterDapps(0)
     }
 
     setDapp = async (item) => {
         setWalletDapp(item)
+        MarketingEvent.logEvent('wallet_dapps_list_select', item)
         NavStore.goNext('WalletDappWebViewScreen')
     }
 
