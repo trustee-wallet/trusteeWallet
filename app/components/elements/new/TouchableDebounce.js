@@ -4,7 +4,7 @@
  */
 
 import React, { PureComponent } from 'react'
-import { TouchableOpacity } from 'react-native'
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
 
 class TouchableDebounce extends PureComponent {
 
