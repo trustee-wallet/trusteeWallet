@@ -843,6 +843,8 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             tx.data = data.walletConnectData.data
         } else if (typeof data.blockchainData !== 'undefined') {
             tx.data = data.blockchainData // actual value for erc20 etc
+        } else if (typeof data?.transactionJson?.txData !== 'undefined') {
+            tx.data = data?.transactionJson?.txData
         }
 
         const sender = new EthTxSendProvider(this._web3, this._trezorServerCode, this._mainCurrencyCode, this._mainChainId, this._settings)

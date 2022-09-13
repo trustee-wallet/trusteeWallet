@@ -231,7 +231,8 @@ export function renderReplaceByFeeRemove(array) {
     if (transaction.transactionBlockchainStatus !== 'new' && transaction.transactionBlockchainStatus !== 'missing') {
         return false
     }
-    if (transaction?.wayType === 'fee') {
+
+    if (transaction?.transactionFilterType !== 'walletConnect' && transaction?.wayType === 'fee') {
         return false
     }
     if (!BlocksoftTransfer.canRBF(account, transaction, 'REMOVE')) {
@@ -278,7 +279,8 @@ export function renderReplaceByFee(array) {
         transaction.addressTo = transaction.basicAddressTo || account.address
     }
 
-    if (transaction?.wayType === 'fee') {
+
+    if (transaction?.transactionFilterType !== 'walletConnect' && transaction?.wayType === 'fee') {
         return false
     }
 
