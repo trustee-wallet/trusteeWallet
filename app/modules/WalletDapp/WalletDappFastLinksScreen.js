@@ -67,7 +67,7 @@ class WalletDappFastLinksScreen extends PureComponent {
 
             let found = false
             for (const code of item.dappNetworks) {
-                if (typeof indexedCurrencies[code] === 'undefined') continue
+                // uncomment to filter by chains/tokens if (typeof indexedCurrencies[code] === 'undefined') continue
 
                 if (typeof item.dappCoins === 'undefined') {
                     localDapps.push(item)
@@ -75,7 +75,7 @@ class WalletDappFastLinksScreen extends PureComponent {
                     break
                 }
                 for (const code2 of item.dappCoins) { // some dapps shown only in special networks when some tokens are selected
-                    if (typeof indexedCurrencies[code2] === 'undefined') continue
+                    // uncomment to filter by chains/tokens if (typeof indexedCurrencies[code2] === 'undefined') continue
                     localDapps.push(item)
                     found = true
                     break
