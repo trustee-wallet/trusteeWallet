@@ -139,7 +139,11 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
             })
             return { transactionHash: result[0].hash }
         } catch (e) {
-            throw new Error(e.message + ' in BNB sendRaw parse result')
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                throw new Error(e.message + ' in BNB sendRaw parse result')
+            } else {
+                throw e
+            }
         }
     }
 }
