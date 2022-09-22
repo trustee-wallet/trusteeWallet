@@ -42,6 +42,9 @@ import { NETWORKS_SETTINGS } from '@app/appstores/Stores/WalletConnect/settings'
 import { getSelectedAccountData } from '@app/appstores/Stores/Main/selectors'
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
 import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
+import Toast from 'react-native-root-toast'
+import Log from '@app/services/Log/Log'
 
 
 const getIcon = (block, isLight) => {
@@ -88,6 +91,21 @@ class WalletConnectScreen extends PureComponent {
 
     handleDisconnect = async () => {
         return walletConnectActions.disconnectAndSetWalletConnectLink()
+    }
+
+    qrPermissionCallback = () => {
+        Log.log('Settings qrPermissionCallback started')
+        setQRConfig({
+            flowType: QRCodeScannerFlowTypes.WALLET_CONNECT_SCANNER, callback: async (data) => {
+                try {
+                    await walletConnectActions.connectAndSetWalletConnectLink(data.fullLink, 'WalletConnectScreen')
+                } catch (e) {
+                    Log.log('QRCodeScannerScreen callback error ' + e.message)
+                    Toast.setMessage(e.message).show()
+                }
+            }
+        })
+        NavStore.goNext('QRCodeScannerScreen')
     }
 
     handleBack = async () => {
@@ -159,7 +177,7 @@ class WalletConnectScreen extends PureComponent {
                 >
                     <View style={{ marginTop: GRID_SIZE }}>
                         <View style={{ overflow: 'hidden' }}>
-                            {peerMeta && typeof peerMeta !== 'undefined' &&
+
                                 <>
                                     <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE, backgroundColor: colors.common.roundButtonContent }]}>
                                         {peerId && peerMeta && isConnected ?
@@ -189,7 +207,7 @@ class WalletConnectScreen extends PureComponent {
                                         </View>
                                     }
                                 </>
-                            }
+
 
                             {!isConnected &&
                                 <>
