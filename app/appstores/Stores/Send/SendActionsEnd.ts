@@ -126,6 +126,7 @@ export namespace SendActionsEnd {
         const { uiType, tbk, walletConnectPayload } = sendScreenStore.ui
         const { transactionAction } = tbk
 
+        Log.log('SendActionsEnd.endRedirect start ', {transactionAction, uiType})
         if (typeof transactionAction !== 'undefined' && transactionAction !== '' && transactionAction) {
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
@@ -173,6 +174,7 @@ export namespace SendActionsEnd {
                     source : 'SendActionsEnd.TradeSend'
             }})
         } else if (uiType === 'WALLET_CONNECT') {
+            Log.log('SendActionsEnd.endRedirect walletConnect will get ' + tx.transactionHash)
             await walletConnectActions.approveRequestWalletConnect(walletConnectPayload, tx.transactionHash)
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
