@@ -48,8 +48,15 @@ import Log from '@app/services/Log/Log'
 
 
 const getIcon = (block, isLight) => {
+    let _block = block
+    if (block === 'MATIC') {
+        _block = 'ETH_MATIC'
+    } else if (block === 'ONE') {
+        _block = 'ETH_ONE'
+    }
+
     return (
-        <CustomIcon name={block === 'MATIC' ? 'ETH_MATIC' : block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+        <CustomIcon name={_block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
     )
 }
 

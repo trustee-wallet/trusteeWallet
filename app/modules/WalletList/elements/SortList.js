@@ -158,6 +158,7 @@ class SortList extends PureComponent {
                     onPress={this.props.handleClose}
                     containerStyle={{ marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
                     textStyle={{ color: colors.backDropModal.buttonText }}
+                    bottomSheet
                 />
             </View>
         )
