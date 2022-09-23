@@ -249,6 +249,7 @@ class CryptoCurrency extends React.PureComponent {
                             onPress={this.bottomSheetRef?.close}
                             containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
                             textStyle={{ color: colors.backDropModal.buttonText }}
+                            bottomSheet
                         />
                     </SheetBottom>
                 </Portal>

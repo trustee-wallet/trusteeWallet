@@ -826,6 +826,7 @@ class AccountReceiveScreen extends React.PureComponent {
                             onPress={this.handleCloseBackDropModal}
                             containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
                             textStyle={{ color: colors.backDropModal.buttonText }}
+                            bottomSheet
                         />
                     </SheetBottom>
                 </Portal>
