@@ -113,7 +113,11 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
         try {
             result = await this._provider.sendRaw(raw)
         } catch (e) {
-            throw new Error(e.message + ' in BNB sendRaw')
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                throw new Error(e.message + ' in BNB sendRaw')
+            } else {
+                throw e
+            }
         }
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx result', result)
 
