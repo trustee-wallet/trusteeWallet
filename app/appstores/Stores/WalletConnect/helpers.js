@@ -28,6 +28,7 @@ export function handleSessionRequestModal(walletConnector, data, dappData) {
         icon: 'WARNING',
         title: strings('settings.walletConnect.session'),
         description: strings('settings.walletConnect.sessionText') + title,
+        reverse: true,
         noCallback: async () => {
             await walletConnectService.rejectSession(walletConnector)
             const { initSource } = store.getState().walletConnectStore

@@ -7,6 +7,7 @@ import {
 } from 'react-native'
 
 import LottieView from 'lottie-react-native'
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
@@ -69,33 +70,38 @@ export default function Button(props) {
         disabled = false,
         activeOpacity = 0.5,
         sendInProcess,
-        iconType
+        iconType,
+        bottomSheet
     } = props
     const preparedStyles = getStyle(type, disabled, containerStyle, textStyle)
 
     const {colors} = useTheme()
 
+    const data = !sendInProcess ?
+        !iconType ? 
+            <Text style={[preparedStyles.text]}>{title}</Text>
+            :
+            iconType && <View>{getIcon(iconType, colors.common.roundButtonContent)}</View>
+        :
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={[preparedStyles.text, { paddingRight: 6 }]}>{strings('send.receiptScreen.sending')}</Text>
+            <LottieView style={{ width: 40, height: 40, marginTop: -20, top: 16 }}
+                source={loaderWhite}
+                autoPlay loop />
+        </View>
+
+    const Touchable = bottomSheet ? TouchableOpacity : TouchableDebounce
+    
+
     return (
-        <TouchableDebounce
+        <Touchable
             onPress={onPress}
             style={[preparedStyles.container]}
             disabled={sendInProcess ? true : disabled}
             activeOpacity={activeOpacity}
         >
-            {!sendInProcess ?
-                !iconType ? 
-                    <Text style={[preparedStyles.text]}>{title}</Text>
-                    :
-                    iconType && <View>{getIcon(iconType, colors.common.roundButtonContent)}</View>
-                :
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={[preparedStyles.text, { paddingRight: 6 }]}>{strings('send.receiptScreen.sending')}</Text>
-                    <LottieView style={{ width: 40, height: 40, marginTop: -20, top: 16 }}
-                        source={loaderWhite}
-                        autoPlay loop />
-                </View>
-            }
-        </TouchableDebounce>
+            {data}
+        </Touchable>
     )
 }
 

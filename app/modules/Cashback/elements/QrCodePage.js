@@ -129,12 +129,14 @@ class QrCodePage extends PureComponent {
                         onPress={this.handleCloseBackDropModal}
                         type='withoutShadow'
                         containerStyle={{ backgroundColor: colors.common.button.bg, width: buttonWidth, marginRight: GRID_SIZE / 2 }}
+                        bottomSheet
                     />
                     <Button
                         title={strings('walletBackup.settingsScreen.apply')}
                         onPress={this.handleApplyPromoCode}
                         type='withoutShadow'
                         containerStyle={{ backgroundColor: colors.common.button.bg, width: buttonWidth, marginLeft: GRID_SIZE / 2 }}
+                        bottomSheet
                     />
                 </View>
             </View>

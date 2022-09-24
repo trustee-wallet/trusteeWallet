@@ -48,8 +48,15 @@ import Log from '@app/services/Log/Log'
 
 
 const getIcon = (block, isLight) => {
+    let _block = block
+    if (block === 'MATIC') {
+        _block = 'ETH_MATIC'
+    } else if (block === 'ONE') {
+        _block = 'ETH_ONE'
+    }
+
     return (
-        <CustomIcon name={block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+        <CustomIcon name={_block} style={{ color: colorDict[block].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
     )
 }
 
@@ -168,6 +175,8 @@ class WalletConnectScreen extends PureComponent {
 
         const textCondition = condition ? typeof peerMeta.url !== 'undefined' ? peerMeta.url : '' : strings('settings.walletConnect.unconnectedText')
 
+        const imageUri = typeof peerMeta.icons !== 'undefined' ? peerMeta.icons[0].indexOf('.png') === -1 ? peerMeta.icons[1] : peerMeta.icons[0] : ''
+
         return (
             <>
                 <ScrollView
@@ -182,7 +191,7 @@ class WalletConnectScreen extends PureComponent {
                                     <View style={[styles.imageView, { marginTop: GRID_SIZE * 1.5, paddingHorizontal: GRID_SIZE, backgroundColor: colors.common.roundButtonContent }]}>
                                         {peerId && peerMeta && isConnected ?
                                             <Image style={styles.image} resizeMode='cover' source={{
-                                                uri: typeof peerMeta.icons !== 'undefined' ? peerMeta.icons[0] : ''
+                                                uri: imageUri
                                             }} /> : <CustomIcon name='walletConnect' color='#555555' size={40} style={styles.walletConnectLogo} />
                                         }
                                         {peerId && peerMeta && isConnected &&
