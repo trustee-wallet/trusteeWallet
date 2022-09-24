@@ -93,7 +93,11 @@ export class BnbTxSendProvider {
             throw new Error(e.message + ' in BNB decodeAddress ' + JSON.stringify(data.addressFrom))
         }
         try {
-            decodedTo = decodeAddress(data.addressTo)
+            if (data.addressTo.indexOf('0x') === -1) {
+                decodedTo = decodeAddress(data.addressTo)
+            } else {
+                decodedTo = data.addressTo
+            }
         } catch (e) {
             throw new Error(e.message + ' in BNB decodeAddress ' + JSON.stringify(data.addressTo))
         }
