@@ -114,7 +114,7 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
             result = await this._provider.sendRaw(raw)
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-                throw new Error(e.message + ' in BNB sendRaw')
+                throw new Error(e.message + ' in BNB sendRaw1')
             } else {
                 throw e
             }
@@ -144,7 +144,7 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
             return { transactionHash: result[0].hash }
         } catch (e) {
             if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
-                throw new Error(e.message + ' in BNB sendRaw parse result')
+                throw new Error(e.message + ' in BNB sendRaw1 parse result')
             } else {
                 throw e
             }
