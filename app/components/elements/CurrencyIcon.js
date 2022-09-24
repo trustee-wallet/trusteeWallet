@@ -596,6 +596,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'ETH_MKR':
             case 'ETH_CRO':
             case 'ETH_RSR':
+            case 'ETH_RSR_NEW':
             case 'ETH_YFI':
             case 'ETH_CHZ':
             case 'ETH_OMG':
@@ -893,7 +894,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'ETH_ATOM':
             case 'BNB_SMART_ATOM':
                 return (
@@ -906,7 +907,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'BNB_SMART_GMT':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
@@ -918,7 +919,7 @@ export default class CurrencyIcon extends PureComponent {
                         </View>
                     </View>
                 )
-            
+
             case 'VLX_USDV':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>

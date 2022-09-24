@@ -308,6 +308,12 @@ export default {
             darkColor: '#6A6477'
         }
     },
+    "ETH_RSR_NEW": {
+        colors: {
+            mainColor: '#161616',
+            darkColor: '#B8B8B8'
+        }
+    },
     "ETH_RSR": {
         colors: {
             mainColor: '#161616',

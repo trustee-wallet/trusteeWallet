@@ -15,7 +15,7 @@ import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 136,
+        maxVersion: 137,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -976,7 +976,21 @@ export default function getTableUpdateQueries() {
                                 AND (transaction_hash='${address}')`)
                     }
                 }
-            }
+            },
+
+            137: {
+                afterFunction: async (dbInterface) => {
+                    try {
+                        const res = await dbInterface.query(`SELECT currency_code FROM currency WHERE currency_code='ETH_RSR'`)
+                        if (res && res.array) {
+                            await currencyActions.addCurrency({ currencyCode: 'ETH_RSR_NEW' }, 1, 0)
+                        }
+                    } catch (e) {
+                        Log.err('DB/Update afterFunction - Migration 137 error', e)
+                    }
+                }
+            },
+
         }
     }
 }

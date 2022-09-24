@@ -1515,7 +1515,7 @@
 	},
 	"ETH_RSR": {
 		"currencyType": "token",
-		"currencyName": "Reserve Rights",
+		"currencyName": "Reserve Rights (OLD)",
 		"currencyCode": "ETH_RSR",
 		"currencySymbol": "RSR",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -1525,6 +1525,20 @@
 		"tokenBlockchain": "ETHEREUM",
 		"tokenAddress": "0x8762db106b2c2a0bccb3a80d1ed41273552616e8",
 		"currencyExplorerLink": "https://etherscan.io/token/0x8762db106b2c2a0bccb3a80d1ed41273552616e8?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+	"ETH_RSR_NEW": {
+		"currencyType": "token",
+		"currencyName": "Reserve Rights",
+		"currencyCode": "ETH_RSR",
+		"currencySymbol": "RSR",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "RSR",
+		"decimals": 18,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x320623b8e4ff03373931769a31fc52a4e78b5d70",
+		"currencyExplorerLink": "https://etherscan.io/token/0x320623b8e4ff03373931769a31fc52a4e78b5d70?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	},
 	"XRP": {
