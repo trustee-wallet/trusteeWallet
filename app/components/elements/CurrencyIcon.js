@@ -156,7 +156,7 @@ export default class CurrencyIcon extends PureComponent {
 
     renderIcon = () => {
 
-        const { currencyCode, containerStyle, markStyle, iconStyle, setBackground } = this.props
+        let { currencyCode, containerStyle, markStyle, iconStyle, setBackground } = this.props
 
         const fontSize = typeof iconStyle !== 'undefined' ? iconStyle.fontSize : 24
 
@@ -177,6 +177,10 @@ export default class CurrencyIcon extends PureComponent {
 
         if (setBackground && currencyCode) {
             tmpContainerStyle.backgroundColor = colorDict[currencyCode]?.colors[isLight ? 'mainColor' : 'darkColor'] + '1A'
+        }
+
+        if (currencyCode === 'ETH_RSR_NEW') {
+            currencyCode = 'ETH_RSR'
         }
 
         switch (currencyCode) {
