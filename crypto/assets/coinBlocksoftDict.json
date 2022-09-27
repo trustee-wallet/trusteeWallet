@@ -1530,7 +1530,7 @@
 	"ETH_RSR_NEW": {
 		"currencyType": "token",
 		"currencyName": "Reserve Rights",
-		"currencyCode": "ETH_RSR",
+		"currencyCode": "ETH_RSR_NEW",
 		"currencySymbol": "RSR",
 		"extendsProcessor": "ETH_TRUE_USD",
 		"addressUiChecker": "ETH",

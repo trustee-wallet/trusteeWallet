@@ -987,8 +987,10 @@ export default function getTableUpdateQueries() {
                                 console.log(`row old`, row)
                                 const res3 = await dbInterface.query(`SELECT is_hidden FROM currency WHERE currency_code='ETH_RSR_NEW'`)
                                 if (!res3 || !res3.array || !res3.array.length) {
+                                    Log.log('DB/Update afterFunction insert RSR_NEW')
                                     await dbInterface.query(`INSERT INTO currency ( currency_code , currency_rate_scan_time , is_hidden ) VALUES ( 'ETH_RSR_NEW' , '0' , ${row.is_hidden})`)
                                 } else {
+                                    Log.log('DB/Update afterFunction update RSR_NEW')
                                     await dbInterface.query(`UPDATE currency SET is_hidden=${row.is_hidden} WHERE currency_code='ETH_RSR_NEW'`)
                                 }
                             }

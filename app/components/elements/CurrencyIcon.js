@@ -179,10 +179,6 @@ export default class CurrencyIcon extends PureComponent {
             tmpContainerStyle.backgroundColor = colorDict[currencyCode]?.colors[isLight ? 'mainColor' : 'darkColor'] + '1A'
         }
 
-        if (currencyCode === 'ETH_RSR_NEW') {
-            currencyCode = 'ETH_RSR'
-        }
-
         switch (currencyCode) {
 
             //  img
