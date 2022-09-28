@@ -156,7 +156,7 @@ export default class CurrencyIcon extends PureComponent {
 
     renderIcon = () => {
 
-        let { currencyCode, containerStyle, markStyle, iconStyle, setBackground } = this.props
+        const { currencyCode, containerStyle, markStyle, iconStyle, setBackground } = this.props
 
         const fontSize = typeof iconStyle !== 'undefined' ? iconStyle.fontSize : 24
 
@@ -377,15 +377,6 @@ export default class CurrencyIcon extends PureComponent {
                     </View>
                 )
 
-            case 'ETH_ROPSTEN':
-                return (
-                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
-                        <View style={styles.icon__item}>
-                            <CustomIcon name='ETH_ROPSTEN' style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
-                        </View>
-                    </View>
-                )
-
             case 'XVG':
             case 'BCH':
             case 'BSV':
@@ -400,6 +391,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'TON':
             case 'WAVES':
             case 'ETH_RINKEBY':
+            case 'ETH_ROPSTEN':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -585,6 +577,19 @@ export default class CurrencyIcon extends PureComponent {
                     </View>
                 )
 
+            case 'ETH_RSR':
+            case 'ETH_RSR_NEW':
+                return (
+                    <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
+                        <View style={styles.icon__item}>
+                            <CustomIcon name='ETH_RSR' style={{ color: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], fontSize: fontSize }} />
+                            <View style={{ ...styles.icon__mark, backgroundColor: colors.common.iconMarkBg, ...tmpMarkStyle }}>
+                                <CustomIcon name="ETH" style={{ color: colorDict['ETH'].colors[isLight ? 'mainColor' : 'darkColor'] }} size={14} />
+                            </View>
+                        </View>
+                    </View>
+                )
+
             case 'ETH_BNB':
             case 'ETH_PAX':
             case 'ETH_DAI':
@@ -595,8 +600,6 @@ export default class CurrencyIcon extends PureComponent {
             case 'ETH_BNT':
             case 'ETH_MKR':
             case 'ETH_CRO':
-            case 'ETH_RSR':
-            case 'ETH_RSR_NEW':
             case 'ETH_YFI':
             case 'ETH_CHZ':
             case 'ETH_OMG':
