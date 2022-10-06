@@ -231,7 +231,7 @@ export default {
 
         const currentToken = CashBackUtils.getWalletToken()
         const date = new Date().toISOString().split('T')
-        const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + currentToken
+        const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + sign.signedAddress
         try {
             const link = entryURL + entryPoint
                 + '?date=' + date[0]
