@@ -979,6 +979,24 @@
 		"currencyExplorerLink": "https://tronscan.org/#/address/",
 		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
 	},
+	"ETH_POW": {
+		"currencyType": "coin",
+		"currencyName": "Ethereum POW",
+		"currencyCode": "ETH_POW",
+		"currencySymbol": "ETHW",
+		"ratesCurrencyCode": "ETHW",
+		"addressCurrencyCode": "ETH",
+		"addressProcessor": "ETH",
+		"addressUiChecker": "ETH",
+		"scannerProcessor": "ETH",
+		"extendsProcessor": "ETH",
+		"prettyNumberProcessor": "ETH",
+		"transferProcessor": "ETH",
+		"network": "mainnet",
+		"decimals": 18,
+		"currencyExplorerLink": "https://www.oklink.com/en/ethw/address/",
+		"currencyExplorerTxLink": "https://www.oklink.com/en/ethw/tx/"
+	},
 	"ETC": {
 		"currencyType": "coin",
 		"currencyName": "Ethereum Classic",
