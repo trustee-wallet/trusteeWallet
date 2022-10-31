@@ -358,10 +358,10 @@ class BlocksoftUtils {
 
     static decimalToHex(decimal, len = 0) {
         let str = Web3.utils.toHex(decimal).substr(2)
-        if (len < str.length) {
-            throw new Error('hex ' + decimal + ' => ' + str + ' is longer then ' + len + ' and equal ' + str.length )
-        }
         if (len > 0) {
+            if (len < str.length) {
+                throw new Error('hex ' + decimal + ' => ' + str + ' is longer then ' + len + ' and equal ' + str.length )
+            }
             str = '0'.repeat(len - str.length) + str
         }
         return str

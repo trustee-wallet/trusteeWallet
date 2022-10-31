@@ -17,6 +17,16 @@ export default class MetisTransferProcessor extends EthTransferProcessor impleme
             additionalData.gasPriceTitle = 'speed_blocks_2'
         }
 
+        let value = 0
+        try {
+            if (data.amount.indexOf('0x') === 0) {
+                value = data.amount
+            } else {
+                value = '0x' + BlocksoftUtils.decimalToHex(data.amount)
+            }
+        } catch (e) {
+            throw new Error(e.message + ' with data.amount ' + data.amount)
+        }
         const params = {
             'jsonrpc': '2.0',
             'method': 'eth_estimateGas',
@@ -24,7 +34,7 @@ export default class MetisTransferProcessor extends EthTransferProcessor impleme
                 {
                     'from': data.addressFrom,
                     'to': data.addressTo,
-                    'value': data.amount.indexOf('0x') === 0 ? data.amount : ('0x' + BlocksoftUtils.decimalToHex(data.amount)),
+                    'value': value,
                     'data': '0x'
                 }
             ],
