@@ -86,6 +86,7 @@ const CACHE = {
     'RSK_PRICE' : 5000000000,
     'RSK_GAS_LIMIT' : 620000,
     'SOL_SERVER' : 'https://api.mainnet-beta.solana.com',
+    'SOL_SERVER_2' : 'https://solana-mainnet.phantom.app/YBPpkkN4g91xDiAnTE9r0RcMkjg0sKUIWvAfoFVJ',
     'SOL_PRICE' : 5000,
     'SOL_PRICE_NEW_SPL' : 2044280,
     'SOL_TOKENS_LIST' : 'https://raw.githubusercontent.com/solana-labs/token-list/main/src/tokens/solana.tokenlist.json',

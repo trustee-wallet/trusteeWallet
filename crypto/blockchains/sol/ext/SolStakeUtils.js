@@ -100,7 +100,7 @@ export default {
     },
 
     // https://prod-api.solana.surf/v1/account/3siLSmroYvPHPZCrK5VYR3gmFhQFWefVGGpasXdzSPnn/stake-rewards
-    async getAccountRewards(address) {
+    async getAccountRewards(address, stakedAddresses) {
         if (typeof CACHE_STAKED[address] === 'undefined') {
             CACHE_STAKED[address] = {
                 all: {},
@@ -108,12 +108,60 @@ export default {
                 rewards: []
             }
         }
+        const askAddresses = [ address ]
+        if (stakedAddresses) {
+            for(let tmp of stakedAddresses) {
+                askAddresses.push(tmp.stakeAddress)
+            }
+        }
         try {
-            const link = 'https://prod-api.solana.surf/v1/account/' + address + '/stake-rewards'
-            const res = await BlocksoftAxios.get(link)
+            const link =  BlocksoftExternalSettings.getStatic('SOL_SERVER')
+            const data = {
+                'method': 'getInflationReward',
+                'jsonrpc': '2.0',
+                'params': [
+                    askAddresses,
+                    {
+                        'commitment': 'confirmed'
+                    }
+                ],
+                'id': '1'
+            }
 
-            if (res.data && typeof res.data[0] !== 'undefined') {
-                CACHE_STAKED[address].rewards = res.data
+            /*console.log(`
+
+
+           curl ${link} -X POST -H "Content-Type: application/json" -d '${JSON.stringify(data)}'
+
+            `)
+             */
+
+            const res = await BlocksoftAxios.post(link, data)
+            if (res.data && typeof res.data.result !== 'undefined' && typeof res.data.result[0] !== 'undefined') {
+                CACHE_STAKED[address].rewards = res.data.result[0]
+                if (stakedAddresses) {
+                    let count = 0
+                    if (typeof CACHE_STAKED[address].rewards !== 'undefined') {
+                        count = 100;
+                    } else {
+                        for(let tmp of res.data.result) {
+                            if (tmp && typeof tmp.amount !== 'undefined' && tmp.amount * 1 > 0) {
+                                CACHE_STAKED[address].rewards = tmp
+                                count++
+                            }
+                        }
+                    }
+                    if (count > 1) {
+                        if (typeof CACHE_STAKED[address].rewards !== 'undefined') {
+                            CACHE_STAKED[address].rewards.amount = 0;
+                        }
+                        for (let tmp of res.data.result) {
+                            if (tmp && typeof tmp.amount !== 'undefined' && tmp.amount * 1 > 0) {
+                                CACHE_STAKED[address].rewards.amount += tmp.amount * 1
+                            }
+                        }
+                    }
+                }
             }
         } catch (e) {
             if (config.debug.cryptoErrors) {
@@ -157,6 +205,15 @@ export default {
                     }
                 ]
             }
+
+            /*
+            console.log(`
+
+
+            curl ${apiPath} -X POST -H "Content-Type: application/json" -d '${JSON.stringify(checkData)}'
+
+            `)
+             */
             let res
             accountInfo = []
             try {

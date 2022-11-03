@@ -293,6 +293,9 @@ class BlocksoftAxios {
                 } else if (link.indexOf('/internet') !== -1) {
                     timeOut = Math.round(TIMEOUT_TRIES_INTERNET)
                 }
+                if (link.indexOf('solana.trusteeglobal.com') !== -1) {
+                    timeOut = timeOut * 10
+                }
             }
 
             if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {
@@ -307,7 +310,7 @@ class BlocksoftAxios {
             CACHE_STARTED_CANCEL[cacheMD] = cancelSource
 
             const tmpTimer = setTimeout(() => {
-                cancelSource.cancel('TIMEOUT CANCELED ' + timeOut)
+                cancelSource.cancel('TIMEOUT CANCELED ' + timeOut + ' ' +  link + ' ' + JSON.stringify(data))
             }, timeOut)
             if (method === 'get') {
                 tmp = await instance.get(link)
