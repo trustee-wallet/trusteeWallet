@@ -90,7 +90,8 @@ const walletConnectService = {
                 if (payload.method === 'wallet_addEthereumChain' || payload.method === 'wallet_switchEthereumChain') {
                     const chainId = 1 * BlocksoftUtils.hexToDecimalWalletConnect(payload.params[0].chainId)
                     Log.log('autoChangeChain ' + payload.params[0].chainId + ' => ' + chainId)
-                    walletConnectActions.getAndSetWalletConnectAccountNetwork(walletConnector, chainId)
+                    walletConnectActions.getAndSetWalletConnectAccountNetwork(walletConnector, chainId, 'call_request')
+
                 } else if (payload.method === 'eth_signTypedData') {
                     handleSendSignTypedModal(walletConnector, JSON.parse(payload.params[1]), payload)
                 } else if (payload.method === 'personal_sign') {

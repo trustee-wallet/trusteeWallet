@@ -24,7 +24,7 @@ import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConn
 class WalletConnectChangeNetworkScreen extends PureComponent {
 
     setNetwork = async (item) => {
-        await walletConnectActions.getAndSetWalletConnectAccountNetwork(false, item.currencyCode)
+        await walletConnectActions.getAndSetWalletConnectAccountNetwork(false, item.currencyCode, 'WalletConnectChangeNetworkScreen')
         this.handleClose()
     }
 

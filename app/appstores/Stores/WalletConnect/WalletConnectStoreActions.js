@@ -114,16 +114,16 @@ const walletConnectActions = {
         await walletConnectService.killSession(walletConnector)
     },
 
-    getAndSetWalletConnectAccountNetwork: async (_walletConnector = false, chainId = 0) => {
+    getAndSetWalletConnectAccountNetwork: async (_walletConnector = false, chainId = 0, source = '_') => {
         let walletConnector = _walletConnector
-        if (walletConnector) {
+        if (!walletConnector) {
             walletConnector = store.getState().walletConnectStore.walletConnector
         }
         if (!walletConnector) {
             return false
         }
 
-        Log.log('WalletConnect.getAndSetWalletConnectAccountNetwork chainId ' + chainId)
+        Log.log('WalletConnect.getAndSetWalletConnectAccountNetwork chainId ' + chainId + ' source ' + source)
         try {
             await walletConnectService.updateSession(walletConnector, { chainId })
         } catch (e) {
