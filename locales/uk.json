@@ -594,10 +594,10 @@
       "website": "Сайт: ",
       "self": "Дана транзакція була відправлена на Вашу власну адресу",
       "order": "До ордеру",
-      "transactionSum": "Сума відправки ",
-      "addresTo": "Отримувач ",
-      "addresFrom": "Відправник ",
-      "blockConfirmations": "Поточна кількість підтверджень ",
+      "transactionSum": "Сума відправки: ",
+      "addressTo": "Отримувач: ",
+      "addressFrom": "Відправник: ",
+      "blockConfirmations": "Поточна кількість підтверджень: ",
       "transactionAmount": "%{currencyCode} сума"
     }
   },
@@ -866,7 +866,7 @@
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Транзакцію вже підтверджено",
       "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} вже використано в підтвердженій транзакції",
       "SERVER_RESPONSE_REVERTED_BY_EVM" : "Транзакція відмінена EVM - будь ласка, перевірте код контракту",
-      "SERVER_RESPONSE_NOT_CONNECTED": "Мережа не відповідає - будь ласка, повторіть операцію пізніше",
+      "SERVER_RESPONSE_NOT_CONNECTED": "Немає підключення до вузла в мережі. Будь ласка, змініть підключення до Інтернету або використовуйте VPN під час роботи з додатком",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE" : "Недостатньо коштів для транзакції і сплати мінімальної комісії",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM" : "Будь ласка, зачекайте доки інші транзакції замайняться або увімкніть функцію \"Використовувати непідтверджені транзакції\" ",
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Занадто велика комісія за транзакцію - будь ласка, оберіть розмір комісії вручну або задайте більшу суму переказу",
@@ -892,7 +892,8 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Будь ласка, перевірте системний годинник пристрою - потрібно сінхронізувати час для створення транзакції",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостатньо коштів для відправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Недостатня сума для відправки в стейк",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не є валідатором"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Обрана адреса - не є валідатором",
+      "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "Адреса одержувача порожня. У блокчейні Solana неможливо надіслати токени на адресу з нульовим балансом SOL"
     }
   },
   "walletBackup": {

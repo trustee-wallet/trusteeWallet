@@ -587,15 +587,15 @@
           "out_of_energy" : "No energy"
         }
       },
-      "transactionHash": "ტრანზაქციის ჰაში:",
+      "transactionHash": "ტრანზაქციის ჰაში: ",
       "cashbackLink": "I’m using Trustee Wallet! Here is my personal link",
       "website": "Website: ",
       "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე",
       "order": "To order",
-      "transactionSum": "Amount send",
-      "addresTo": "Recipient ",
-      "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations ",
+      "transactionSum": "Amount send: ",
+      "addressTo": "Recipient: ",
+      "addressFrom": "Sender: ",
+      "blockConfirmations": "Current number of confirmations: ",
       "transactionAmount": "%{currencyCode} amount"
     }
   },
@@ -857,7 +857,7 @@
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED": "ტრანზაქცია უკვე დადასტურებულია",
       "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce %{nonce} უკვე გამოყენებულია დადასტურებულ ტრანზაქციაში",
       "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
-      "SERVER_RESPONSE_NOT_CONNECTED": "ქსელი არ პასუხობს - გთხოვთ, გაიმეოროთ ოპერაცია მოგვიანებით",
+      "SERVER_RESPONSE_NOT_CONNECTED": "ქსელში კვანძთან კავშირი არ არის. გთხოვთ, შეცვალოთ თქვენი ინტერნეტ კავშირი ან გამოიყენოთ VPN აპის გამოყენებისას",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "არასაკმარისია თანხა ტრანზაქციების განსახორციელებლად და მინიმალური საკომისიოსთვის",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "გთხოვთ, დაელოდოთ სხვა ტრანზაქციების დადასტურებას ან ჩართეთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "ძალიან მაღალია საკომისიო ტრანზაქციისთვის - გთხოვთ, აირჩიეთ საკომისიოს ოდენობა  ან მიუთითეთ თანხის დიდი რაოდენობა გადარიცხვისთვის ",
@@ -883,7 +883,8 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator",
+      "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "Η διεύθυνση του παραλήπτη είναι κενή. Στο blockchain Solana, δεν είναι δυνατή η αποστολή διακριτικών σε μια διεύθυνση με μηδενικό υπόλοιπο SOL"
     }
   },
   "walletBackup": {

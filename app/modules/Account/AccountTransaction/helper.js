@@ -620,14 +620,14 @@ export function shareTransaction() {
     shareOptions.message += `\n${strings('account.transactionScreen.transactionSum')} ${transaction.addressAmountNorm} ${transaction.currencyCode}\n`
 
     fromToView ?
-        shareOptions.message += `\n${strings('account.transactionScreen.addresFrom')} ${transaction.addressFrom}\n` :
+        shareOptions.message += `\n${strings('account.transactionScreen.addressFrom')} ${transaction.addressFrom}\n` :
         addressToToView ?
-            shareOptions.message += `\n${strings('account.transactionScreen.addresTo')} ${transaction.addressTo}\n` : null
+            shareOptions.message += `\n${strings('account.transactionScreen.addressTo')} ${transaction.addressTo}\n` : null
 
     shareOptions.message += `\n${strings('account.transactionScreen.blockConfirmations')} ${transaction.blockConfirmations > 20 ? '20+' : transaction.blockConfirmations}\n`
 
     if (typeof transaction.bseOrderData !== 'undefined' && transaction.bseOrderData) {
-        shareOptions.message = strings(`account.transaction.orderId`) + `${transaction?.bseOrderData?.orderHash || transaction?.bseOrderData?.orderId}\n` + shareOptions.message
+        shareOptions.message = strings(`account.transaction.orderId`) + ': ' + `${transaction?.bseOrderData?.orderHash || transaction?.bseOrderData?.orderId}\n` + shareOptions.message
     }
 
     shareOptions.message += `\n${(this.props.cashBackData.cashbackLink ? strings('account.transactionScreen.cashbackLink') + ` ${this.props.cashBackData.cashbackLink}\n` : '\n')}`
