@@ -1196,7 +1196,7 @@
       "bigGas": "Vous envoyez dans une direction qui nécessite un niveau de gas anormalement élevé: %{gasLimit}. Afin de protéger vos fonds, la transaction a été arrêtée !",
       "bigGasForceQuitOff": "Vous envoyez une transaction qui a un paramètre de gaz élevé : %{gasLimit}. Cette valeur n'est pas standard, par conséquent, afin de protéger vos fonds, la transaction est suspendue.\n\nSi vous êtes sûr de l'exactitude de ceci transaction, puis cliquez sur \"Continuer\" pour l'envoyer.\n",
       "blockedBalance": "Votre solde a été utilisé lors de précédentes transactions non confirmées, vous pouvez utiliser %{free}",
-      "feeSmallAmount": "Le montant laissé pour les frais est trop petit - la transaction pourrait prendre trop de temps à confirmer",
+      "feeSmallAmount": "Le solde de %{feesCurrencySymbol} n'est pas suffisant pour payer les frais de réseau. Rechargez votre solde %{feesCurrencySymbol} et répétez l'opération.",
       "longQuery": "La ou les transactions précédentes ne sont pas encore confirmées. La transaction en cours ne sera confirmée que par la précédente",
       "longQuerySettingOff": "La possibilité d'envoyer une deuxième transaction jusqu'à ce que la précédente soit confirmée est désactivée",
       "noTBKprovider": "Désolé, la fonction est désactivée car l'opérateur de change n'a pas pu traiter les transactions accélérées",

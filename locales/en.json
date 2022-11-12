@@ -1197,7 +1197,7 @@
       "bigGas" : "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
       "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance" : "Your balance was used in previous unconfirmed transactions, you can use %{free}",
-      "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",
+      "feeSmallAmount" : "The %{feesCurrencySymbol} balance is not enough to pay the network fee. Top up the balance %{feesCurrencySymbol} and repeat the operation.",
       "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
       "longQuerySettingOff" : "The ability to send a second transaction until the previous one is confirmed is disabled",
       "noTBKprovider" : "Sorry, the function is disabled as exchange operator could not process speed up transactions",
