@@ -191,19 +191,20 @@ class QrCodePage extends PureComponent {
                                 style={styles.qrCode}
                             />
                         </TouchableDebounce>
-                        <TouchableDebounce
-                            style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }]}
-                            onPress={() => this.copyToClip(cashbackLink)}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
-                                {cashbackLinkTitle + '  '}
-                                <CustomIcon name='copy' size={WINDOW_WIDTH * 0.06} color={colors.cashback.token} />
-                            </Text>
-                        </TouchableDebounce>
-                        <Text style={[styles.yourToken, { color: colors.common.text3, marginTop: GRID_SIZE / 2 }]}>{strings('cashback.yourToken')}</Text>
-
                     </View>
+                    <TouchableDebounce
+                        style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }]}
+                        onPress={() => this.copyToClip(cashbackLink)}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
+                            {cashbackLinkTitle + '  '}
+                            <CustomIcon name='copy' size={WINDOW_WIDTH * 0.06} color={colors.cashback.token} />
+                        </Text>
+                    </TouchableDebounce>
+
+                    <Text style={[styles.yourToken, { color: colors.common.text3, marginTop: GRID_SIZE / 2 }]}>{strings('cashback.yourToken')}</Text>
+                    
                     <View style={[{ position: 'relative', bottom: -GRID_SIZE * 2 }]}>
                         <TouchableDebounce
                             onPress={() => this.handleBackDropModal(this.state.promoCode)}
