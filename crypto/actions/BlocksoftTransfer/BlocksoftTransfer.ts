@@ -143,7 +143,7 @@ export namespace BlocksoftTransfer {
                 console.log(`${data.currencyCode} BlocksoftTransfer.sendTx check double error ` + e.message, e)
             }
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
-                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx error ` + e.message)
+                BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendTx error ` + e.message)
             }
             throw e
         }

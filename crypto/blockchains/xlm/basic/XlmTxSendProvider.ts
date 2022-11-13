@@ -18,6 +18,8 @@ const CACHE_VALID_TIME = 600000 // 10 minute
 let CACHE_FEES_TIME = 0
 let CACHE_FEES_VALUE = 0
 
+const TX_TIMEOUT = 30
+
 export class XlmTxSendProvider {
 
     private readonly _api: any
@@ -30,6 +32,11 @@ export class XlmTxSendProvider {
     }
 
     async getFee() {
+        const force = BlocksoftExternalSettings.getStatic('XLM_SERVER_PRICE_FORCE')
+        if (force * 1 > 1) {
+            return force
+        }
+
         const now = new Date().getTime()
         if (now - CACHE_FEES_TIME <= CACHE_VALID_TIME) {
             return CACHE_FEES_VALUE
@@ -74,12 +81,12 @@ export class XlmTxSendProvider {
                 transaction = new StellarSdk.TransactionBuilder(account, {
                     fee: uiData.selectedFee.blockchainData,
                     networkPassphrase: StellarSdk.Networks.PUBLIC
-                }).addOperation(operation).addMemo(StellarSdk.Memo.text(data.memo)).setTimeout(30).build()
+                }).addOperation(operation).addMemo(StellarSdk.Memo.text(data.memo)).setTimeout(TX_TIMEOUT).build()
             } else {
                 transaction = new StellarSdk.TransactionBuilder(account, {
                     fee: uiData.selectedFee.blockchainData,
                     networkPassphrase: StellarSdk.Networks.PUBLIC
-                }).addOperation(operation).setTimeout(30).build()
+                }).addOperation(operation).setTimeout(TX_TIMEOUT).build()
             }
         } catch (e) {
             await BlocksoftCryptoLog.log('XlmTxSendProvider builder create error ' + e.message)
@@ -98,7 +105,7 @@ export class XlmTxSendProvider {
     async sendRaw(raw: string) {
         let result = false
         const link = BlocksoftExternalSettings.getStatic('XLM_SEND_LINK')
-        BlocksoftCryptoLog.log('XlmSendProvider.sendRaw ' + link)
+        BlocksoftCryptoLog.log('XlmSendProvider.sendRaw ' + link + ' raw ' + raw)
         try {
             // console.log(`curl -X POST -F "tx=${raw}" "https://horizon.stellar.org/transactions"`)
 
@@ -115,8 +122,18 @@ export class XlmTxSendProvider {
                 body: formData
             })
             result = await response.json()
-            if (result && typeof result.extras !== 'undefined' && typeof result.extras.result_codes !== 'undefined' && typeof result.extras.result_codes.operations !== 'undefined') {
-                throw new Error(result.extras.result_codes.operations[0] + ' ' + raw)
+            if (result && typeof result.extras !== 'undefined' && typeof result.extras.result_codes !== 'undefined') {
+                if (config.debug.cryptoErrors) {
+                    console.log('XlmTransferProcessor.sendTx result.extras.result_codes ' + JSON.stringify(result.extras.result_codes))
+                }
+                await BlocksoftCryptoLog.log('XlmTransferProcessor.sendTx result.extras.result_codes ' + JSON.stringify(result.extras.result_codes))
+
+                if (typeof result.extras.result_codes.operations !== 'undefined') {
+                    throw new Error(result.extras.result_codes.operations[0] + ' ' + raw)
+                }
+                if (typeof result.extras.result_codes.transaction !== 'undefined') {
+                    throw new Error(result.extras.result_codes.transaction + ' ' + raw)
+                }
             }
             if (typeof result.status !== 'undefined') {
                 if (result.status === 406 || result.status === 400 || result.status === 504) {
@@ -128,7 +145,13 @@ export class XlmTxSendProvider {
                 console.log('XlmTransferProcessor.sendTx error ' + e.message + ' link ' + link)
             }
             await BlocksoftCryptoLog.log('XlmTransferProcessor.sendTx error ' + e.message + ' link ' + link)
-            throw e
+            if (e.message.indexOf('status code 406') !== -1 || e.message.indexOf('status code 400') !== -1 || e.message.indexOf('status code 504') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            } else if (e.message.indexOf('tx_insufficient_fee') !== -1) {
+                throw new Error('SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE')
+            } else {
+                throw e
+            }
         }
         await BlocksoftCryptoLog.log('XlmTransferProcessor.sendTx result ', result)
         return result

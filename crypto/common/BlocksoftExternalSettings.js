@@ -36,7 +36,8 @@ const CACHE = {
     'XRP_SCANNER_TYPE' : 'xrpscan', // dataripple
     'XRP_MIN' : 10,
     'XLM_SERVER' : 'https://horizon.stellar.org',
-    'XLM_SERVER_PRICE' : 100,
+    'XLM_SERVER_PRICE' : 5500,
+    'XLM_SERVER_PRICE_FORCE' : 5500,
     'XLM_SEND_LINK' : 'https://horizon.stellar.org/transactions',
     'BNB_SERVER' : 'https://dex.binance.org',
     'BNB_SMART_SERVER' : 'https://bsc-dataseed1.binance.org:443',
