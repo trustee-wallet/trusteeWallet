@@ -58,7 +58,7 @@ const showSendError = function(e, _this, passwordCheck) {
 
 const checkLoadedFee = function(_this) {
     const { countedFees, selectedFee } = _this.props.sendScreenStore.fromBlockchain
-    const { currencyCode, currencySymbol } = _this.props.sendScreenStore.dict
+    const { currencyCode, currencySymbol, feesCurrencySymbol } = _this.props.sendScreenStore.dict
     const { bse, cryptoValue, uiType } = _this.props.sendScreenStore.ui
     const { bseMinCrypto, bseOrderId } = bse
 
@@ -144,7 +144,7 @@ const checkLoadedFee = function(_this) {
                     msg = ''
                     cacheWarningNoticeValue = countedFees.showSmallFeeNotice
                 }
-                msg += strings('modal.send.feeSmallAmount')
+                msg += strings('modal.send.feeSmallAmount', { feesCurrencySymbol })
                 goBack = BlocksoftExternalSettings.getStatic('ETH_SMALL_FEE_FORCE_QUIT') > 0
             }
         }

@@ -589,15 +589,15 @@
           "out_of_energy" : "No energy"
         }
       },
-      "transactionHash": "Transaction hash:",
+      "transactionHash": "Transaction hash: ",
       "cashbackLink": "I’m using Trustee Wallet! Here is my personal link ",
       "website": "Website: ",
       "self": "This transaction was send to your own address",
       "order": "To order",
-      "transactionSum": "Amount send",
-      "addresTo": "Recipient ",
-      "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations ",
+      "transactionSum": "Amount send: ",
+      "addressTo": "Recipient: ",
+      "addressFrom": "Sender: ",
+      "blockConfirmations": "Current number of confirmations: ",
       "transactionAmount": "%{currencyCode} amount"
     }
   },
@@ -865,7 +865,7 @@
      "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Transaction already mined",
      "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} already mined",
      "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
-     "SERVER_RESPONSE_NOT_CONNECTED": "Network is unreachable - please repeat the operation later",
+     "SERVER_RESPONSE_NOT_CONNECTED": "There is no connection to a node in the network. Please change your internet connection or use a VPN while using the app",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Insufficient balance to make the transaction and to pay the minimal fee",
      "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Please wait for the other transactions to be mined or turn ON an option \"Use unconfirmed transactions\" ",
      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee is too high - please adjust the fee manually or send more funds",
@@ -891,7 +891,8 @@
      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
-     "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
+     "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator",
+     "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "The recipient's address is empty. Cannot send tokens to address with zero SOL balance in the Solana blockchain"
     }
   },
   "walletBackup": {
@@ -1196,7 +1197,7 @@
       "bigGas" : "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
       "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance" : "Your balance was used in previous unconfirmed transactions, you can use %{free}",
-      "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",
+      "feeSmallAmount" : "The %{feesCurrencySymbol} balance is not enough to pay the network fee. Top up the balance %{feesCurrencySymbol} and repeat the operation.",
       "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
       "longQuerySettingOff" : "The ability to send a second transaction until the previous one is confirmed is disabled",
       "noTBKprovider" : "Sorry, the function is disabled as exchange operator could not process speed up transactions",

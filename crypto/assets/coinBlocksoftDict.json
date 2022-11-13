@@ -1860,7 +1860,7 @@
 	},
 	"BNB_SMART_USD": {
 		"currencyType": "token",
-		"currencyName": "USD BEP20",
+		"currencyName": "Binance USD BEP20",
 		"currencyCode": "BNB_SMART_USD",
 		"currencySymbol": "BUSD",
 		"ratesCurrencyCode": "BUSD",
