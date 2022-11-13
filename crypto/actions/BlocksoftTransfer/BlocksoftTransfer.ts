@@ -175,8 +175,11 @@ export namespace BlocksoftTransfer {
                 BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
             }
 
+            if (e.message.indexOf('imeout') !== -1 || e.message.indexOf('network error') !== -1 || e.message==='SERVER_RESPONSE_BAD_INTERNET') {
+                throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            }
             if (e.message.indexOf('SERVER_RESPONSE_NOT_CONNECTED') !== -1 && (data.currencyCode === 'TRX' || data.currencyCode.indexOf('TRX_') !== -1)) {
-                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
+                BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
             } else {
                 throw e
             }
