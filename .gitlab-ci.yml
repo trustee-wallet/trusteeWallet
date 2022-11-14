@@ -18,7 +18,7 @@ include:
   - project: 'Trustee/walletinternals'
     ref: master
     file: '/gitlabcicd/wallet-gitlab-ci.yml'
-  - project: 'Trustee/walletinternals'
-    ref: master
-    file: '/githubcicd/wallet-github-ci.yml'
+#  - project: 'Trustee/walletinternals'
+#    ref: master
+#    file: '/githubcicd/wallet-github-ci.yml'
 
