@@ -52,7 +52,7 @@ export default class XlmScannerProcessor {
      */
     async getTransactionsBlockchain(scanData, source = '') {
         const address = scanData.account.address.trim()
-        BlocksoftCryptoLog.log('XrpScannerProcessor.getTransactions started ' + address)
+        BlocksoftCryptoLog.log('XlmScannerProcessor.getTransactions started ' + address)
         const linkTxs = `${API_PATH}/accounts/${address}/transactions?order=desc&limit=50`
         let res = false
         try {
