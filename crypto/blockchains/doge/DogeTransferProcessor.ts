@@ -542,6 +542,17 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             result = await this.sendProvider.sendTx(uiData.selectedFee.blockchainData.rawTxHex, txRBFed, txRBF, logData)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error', e)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error '+ e.message)
+            // noinspection ES6MissingAwait
+            MarketingEvent.logOnlyRealTime('v20_doge_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+            throw e
+        }
+
+        try {
             result.transactionFee = uiData.selectedFee.feeForTx
             result.transactionFeeCurrencyCode = this._settings.currencyCode
             result.transactionJson = {
@@ -591,12 +602,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error', e, uiData)
+                console.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error additional', e, uiData)
             }
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error '+ e.message)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error additional'+ e.message)
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('v20_doge_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
-            throw e
+            MarketingEvent.logOnlyRealTime('v20_doge_tx_error2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
         }
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('v20_doge_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
