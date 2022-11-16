@@ -59,6 +59,7 @@ const CACHE = {
     'ETC_SERVER' : 'https://www.ethercluster.com/etc',
     'ETC_PRICE' : 6710000000,
     'ETC_GAS_LIMIT' : 620000,
+    'ETH_POW_SERVER' : 'https://mainnet.ethereumpow.org',
     'AMB_SERVER' : 'https://network.ambrosus.com',
     'AMB_TREZOR_SERVER' : ['https://blockbook.ambrosus.com'],
     'AMB_PRICE' : 5000000000,

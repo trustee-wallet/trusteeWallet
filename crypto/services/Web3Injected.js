@@ -15,7 +15,7 @@ export const Web3Injected = (type) => {
         MAIN_CHAIN_ID = 1
     } else if (type === 10001 || type === 'eth_pow'  || type === 'ETH_POW' || type === 'ETHW' || type === 'ethw') {
         MAIN_CURRENCY_CODE = 'ETH_POW'
-        WEB3_LINK = `https://mainnet.ethereumpow.org`
+        WEB3_LINK = BlocksoftExternalSettings.getStatic('ETH_POW_SERVER')
         MAIN_CHAIN_ID = 10001
     } else if (type === 3 || type === 'ropsten'  || type === 'ETH_ROPSTEN') {
         MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
