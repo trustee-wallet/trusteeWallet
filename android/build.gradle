@@ -5,8 +5,8 @@ buildscript {
         firebaseMessagingVersion = "21.1.0"
         buildToolsVersion = "30.0.3"
         minSdkVersion = 21
-        compileSdkVersion = 30
-        targetSdkVersion = 30
+        compileSdkVersion = 31
+        targetSdkVersion = 31
 		kotlinVersion = "1.6.0"
     }
     repositories {
