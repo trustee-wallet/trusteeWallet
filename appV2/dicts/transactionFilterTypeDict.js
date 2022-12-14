@@ -8,7 +8,8 @@ const TransactionFilterTypeDict = {
     WALLET_CONNECT: 'walletConnect',
     STAKE : 'stake',
     FEE: 'fee',
-    USUAL: 'usual'
+    USUAL: 'usual',
+    SPAM: 'spam'
 }
 
 export default TransactionFilterTypeDict

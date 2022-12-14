@@ -7,6 +7,7 @@ import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import TrxNodeInfoProvider from './TrxNodeInfoProvider'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const TXS_MAX_TRY = 10
 
@@ -57,10 +58,15 @@ export default class TrxTransactionsProvider {
         CACHE_OF_TRANSACTIONS[address][tokenName] = []
         let tx
         for (tx of res.data.data) {
-            const tmp = await this._unifyTransaction(scanData, tx)
+            let tmp = false
+            try {
+                tmp = await this._unifyTransaction(scanData, tx)
+            } catch (e) {
+                BlocksoftCryptoLog.log('TrxTransactionsProvider.get unify error ' + e.message + ' tx ' + tx?.transactionHash)
+            }
             if (!tmp) continue
 
-            const transaction = tmp.res
+            const transaction = tmp?.res
 
             let txTokenName = '_'
             if (typeof tmp.txTokenName !== 'undefined' && tmp.txTokenName) {
@@ -223,11 +229,20 @@ export default class TrxTransactionsProvider {
             addressFrom,
             addressTo: (address.toLowerCase() === transaction.toAddress.toLowerCase()) ? '' : transaction.toAddress,
             addressAmount,
-            transactionStatus: transactionStatus,
+            transactionStatus,
             transactionFee,
             transactionFilterType,
             inputValue: transaction.data
         }
+        if (!res.addressTo && (!res.addressFrom || res.addressFrom.toLowerCase() === address.toLowerCase())) {
+            return false
+        }
+        if (transactionDirection === 'income') {
+            if (res.addressAmount < BlocksoftExternalSettings.getStatic('TRX_SPAM_LIMIT') && res.transactionFilterType === TransactionFilterTypeDict.USUAL) {
+                res.transactionFilterType = TransactionFilterTypeDict.SPAM
+            }
+        }
+
         return { res, txTokenName }
     }
 }

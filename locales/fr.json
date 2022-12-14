@@ -459,6 +459,7 @@
       "description": "Aller à la page d'inscription et l'enregistrer maintenant?"
     },
     "transaction": {
+      "spam": "Spam",
       "pay": "Payer",
       "remove": "Supprimer",
       "removeRBF": "Retour des fonds",

@@ -19,6 +19,10 @@ import { strings } from '@app/services/i18n'
 import { setFilter } from '@app/appstores/Stores/Main/MainStoreActions'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
+const CACHE_CLICK = {
+    title : '',
+    ts : 0
+}
 class TransactionCategories extends React.PureComponent {
 
     state = {
@@ -46,6 +50,12 @@ class TransactionCategories extends React.PureComponent {
                 title: strings('account.transaction.fee'),
                 iconType: 'feeTxScreen',
                 value: 'filterTypeHideFee'
+            },
+            {
+                notActive: this.props.filterData?.filterTypeHideSpam || false,
+                title: strings('account.transaction.spam'),
+                iconType: 'feeTxScreen',
+                value: 'filterTypeHideSpam'
             },
             {
                 notActive: this.props.filterData?.filterTypeHideSwap || false,
@@ -117,13 +127,20 @@ class TransactionCategories extends React.PureComponent {
     }
 
     handleSelectCategory = (title) => {
+        if (CACHE_CLICK.title === title && (new Date().getTime() - CACHE_CLICK.ts < 600)) {
+            return false
+        }
+        CACHE_CLICK.title = title
+        CACHE_CLICK.ts = new Date().getTime()
+
         const { categoriesData } = this.state
 
         const data = categoriesData.map(el => el.title === title ? ({ ...el, notActive: !el.notActive }) : el)
+        const isAllActive = data.every(el => el.notActive !== true)
 
         this.setState({
             categoriesData: data,
-            isAllActive: data.every(el => el.notActive !== true)
+            isAllActive
         })
     }
 

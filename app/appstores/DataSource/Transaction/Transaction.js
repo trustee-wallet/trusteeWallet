@@ -238,6 +238,7 @@ class Transaction {
      * @param {string} params.filterTypeHideSwap
      * @param {string} params.filterTypeHideStake
      * @param {string} params.filterTypeHideWalletConnect
+     * @param {string} params.filterTypeHideSpam
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
@@ -338,6 +339,10 @@ class Transaction {
                     )
                 ))
             `)
+        }
+
+        if (typeof params.filterTypeHideSpam !== 'undefined' && params.filterTypeHideSpam) {
+            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SPAM}')`)
         }
 
 

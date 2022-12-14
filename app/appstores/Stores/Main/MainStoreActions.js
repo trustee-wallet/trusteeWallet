@@ -313,7 +313,8 @@ export async function setSelectedAccountTransactions(source) {
             filterTypeHideFee: filter?.filterTypeHideFee || null,
             filterTypeHideSwap: filter?.filterTypeHideSwap || null,
             filterTypeHideStake: filter?.filterTypeHideStake || null,
-            filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null
+            filterTypeHideWalletConnect: filter?.filterTypeHideWalletConnect || null,
+            filterTypeHideSpam: filter?.filterTypeHideSpam || null
         }
 
         const tmp = await transactionDS.getTransactions(params, 'ACT/MStore setSelectedAccount.transactionInfinity list')

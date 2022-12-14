@@ -120,7 +120,8 @@ export const getFilterData = createSelector(
             filterTypeHideFee : data?.filterTypeHideFee || false,
             filterTypeHideStake : data?.filterTypeHideStake || false,
             filterTypeHideWalletConnect : data?.filterTypeHideWalletConnect || false,
-            filterTypeHideSwap : data ?.filterTypeHideSwap || false,
+            filterTypeHideSwap : data?.filterTypeHideSwap || false,
+            filterTypeHideSpam: data?.filterTypeHideSpam || false,
             activeCategories: data?.activeCategories || false
         }
     })
