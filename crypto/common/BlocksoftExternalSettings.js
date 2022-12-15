@@ -123,6 +123,11 @@ const CACHE = {
     'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/',
     'TRX_STAKING_LINK' : 'https://blog.trusteeglobal.com/stejking-trona-i-kak-zarabotat/',
     'TRX_SPAM_LIMIT': 40000,
+    'TRX_BASIC_PRICE_WHEN_NO_BAND':  100000,
+    'TRX_TRC20_BAND_PER_TX': 350,
+    'TRX_TRC20_PRICE_PER_BAND': 140,
+    'TRX_TRC20_ENERGY_PER_TX': 29650, // 14650,
+    'TRX_TRC20_PRICE_PER_ENERGY': 420,
     'INVOICE_URL' : 'https://trusteeglobal.com/',
     'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  },
     'DAPPS_IMAGE_LINK': 'https://raw.githubusercontent.com/trustee-wallet/trusteeWalletAssets/main/dapps/'

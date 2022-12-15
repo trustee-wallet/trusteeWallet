@@ -107,27 +107,43 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 const res = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(data.addressFrom)).getResources('TrxSendTx')
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate result resources from ' + data.addressFrom, res)
                 if (this._isToken20) {
+                    const bandForTx = BlocksoftExternalSettings.getStatic('TRX_TRC20_BAND_PER_TX')
+                    const priceForBand = BlocksoftExternalSettings.getStatic('TRX_TRC20_PRICE_PER_BAND')
+                    const fullPriceBand = bandForTx * priceForBand
+                    let feeLog = ''
                     if (res.leftBand <= 0) {
-                        feeForTx = 49000
+                        feeForTx = fullPriceBand
+                        feeLog += ' res.leftBand<=0 bandFee=' + bandForTx + '*' + priceForBand + '=' + fullPriceBand
                     } else {
-                        const diffB = 350 - res.leftBand
+                        const diffB = bandForTx - res.leftBand
+                        feeLog += ' diffB=' + bandForTx + '-' + res.leftBand + '=' + diffB
                         if (diffB > 0) {
-                            feeForTx = BlocksoftUtils.mul(49000, BlocksoftUtils.div(diffB, 350))
+                            feeForTx = BlocksoftUtils.mul(fullPriceBand, BlocksoftUtils.div(diffB, bandForTx))
+                            feeLog += ' fullPriceBand=' + bandForTx + '*' + priceForBand + '=' + fullPriceBand
+                            feeLog += ' bandFee=' + fullPriceBand + '*' + diffB + '/' + bandForTx + '=' + feeForTx
                         }
                     }
+                    const energyForTx = BlocksoftExternalSettings.getStatic('TRX_TRC20_ENERGY_PER_TX')
+                    const priceForEnergy = BlocksoftExternalSettings.getStatic('TRX_TRC20_PRICE_PER_ENERGY')
+                    const fullPriceEnergy = energyForTx * priceForEnergy
                     if (res.leftEnergy <= 0 ) {
-                        feeForTx = feeForTx * 1 + 8296680
+                        feeForTx = feeForTx * 1 + fullPriceEnergy
+                        feeLog += ' res.leftEnergy<=0 energyFee=' + energyForTx + '*' + priceForEnergy + '=' + fullPriceEnergy
                     } else {
-                        const diffE = 59262 - res.leftEnergy
+                        const diffE = energyForTx - res.leftEnergy
+                        feeLog += ' diffE=' + energyForTx + '-' + res.leftEnergy + '=' + diffE
                         if (diffE > 0) {
-                            feeForTx = feeForTx * 1 + BlocksoftUtils.mul( 8296680, BlocksoftUtils.div(diffE / 59262)) * 1
+                            const energyFee = BlocksoftUtils.mul(fullPriceEnergy, BlocksoftUtils.div(diffE / energyForTx)) * 1
+                            feeForTx = feeForTx * 1 + energyFee
+                            feeLog += ' fullPriceEnergy=' + energyForTx + '*' + priceForEnergy + '=' + fullPriceEnergy
+                            feeLog += ' energyFee=' + fullPriceEnergy + '*' + diffE + '/' + bandForTx + '=' + energyFee
                         }
                     }
-                    await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx)
+                    await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate feeForTx ' + feeForTx + ' calculated by ' + feeLog)
                 } else {
                     // @ts-ignore
                     if (res.leftBand <= 0) {
-                        feeForTx = 100000
+                        feeForTx = BlocksoftExternalSettings.getStatic('TRX_BASIC_PRICE_WHEN_NO_BAND')
                     }
                 }
             } catch (e) {
@@ -136,6 +152,14 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressFrom data error ' + e.message)
                 }
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate addressFrom data error ' + e.message)
+            }
+
+
+            const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(data.addressFrom)).getBalance('TrxSendTx')
+            if (balance && balance.balanceAvailable < feeForTx) {
+                if (this._isToken20) {
+                    throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+                }
             }
 
             if (typeof data.dexOrderData === 'undefined' || !data.dexOrderData) {
