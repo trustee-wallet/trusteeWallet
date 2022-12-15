@@ -60,7 +60,7 @@ export default class TrxTransactionsProvider {
         for (tx of res.data.data) {
             let tmp = false
             try {
-                tmp = await this._unifyTransaction(scanData, tx)
+                tmp = await this._unifyTransaction(scanData, tx, tokenName)
             } catch (e) {
                 BlocksoftCryptoLog.log('TrxTransactionsProvider.get unify error ' + e.message + ' tx ' + tx?.transactionHash)
             }
@@ -103,7 +103,7 @@ export default class TrxTransactionsProvider {
      * @return {UnifiedTransaction}
      * @private
      */
-    async _unifyTransaction(scanData, transaction) {
+    async _unifyTransaction(scanData, transaction, tokenName) {
         const address = scanData.account.address.trim()
         let transactionStatus = 'new'
         const now = new Date().getTime()
@@ -236,11 +236,6 @@ export default class TrxTransactionsProvider {
         }
         if (!res.addressTo && (!res.addressFrom || res.addressFrom.toLowerCase() === address.toLowerCase())) {
             return false
-        }
-        if (transactionDirection === 'income') {
-            if (res.addressAmount < BlocksoftExternalSettings.getStatic('TRX_SPAM_LIMIT') && res.transactionFilterType === TransactionFilterTypeDict.USUAL) {
-                res.transactionFilterType = TransactionFilterTypeDict.SPAM
-            }
         }
 
         return { res, txTokenName }

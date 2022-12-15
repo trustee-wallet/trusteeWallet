@@ -6,6 +6,7 @@ import Log from '@app/services/Log/Log'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 class Transaction {
 
@@ -342,7 +343,12 @@ class Transaction {
         }
 
         if (typeof params.filterTypeHideSpam !== 'undefined' && params.filterTypeHideSpam) {
-            where.push(`transaction_filter_type NOT IN ('${TransactionFilterTypeDict.SPAM}')`)
+            const spamLimit = BlocksoftExternalSettings.getStatic('TRX_SPAM_LIMIT') * 1
+            if (spamLimit > 1) {
+                where.push(`
+                    NOT(currency_code='TRX' AND transaction_direction = 'income' AND address_amount<${spamLimit})
+                    `)
+            }
         }
 
 
