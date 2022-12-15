@@ -7,6 +7,9 @@ import { BlocksoftBlockchainTypes } from '../../blockchains/BlocksoftBlockchainT
 import { BlocksoftTransferDispatcher } from '../../blockchains/BlocksoftTransferDispatcher'
 import { BlocksoftTransferPrivate } from './BlocksoftTransferPrivate'
 import { BlocksoftDictTypes } from '../../common/BlocksoftDictTypes'
+
+import CoinBlocksoftDict from '@crypto/assets/coinBlocksoftDict.json'
+
 import config from '../../../app/config/config'
 
 
@@ -64,6 +67,17 @@ export namespace BlocksoftTransfer {
     }
 
     export const getFeeRate = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
+        const lower = data.addressTo.toLowerCase()
+        for(const key in CoinBlocksoftDict) {
+            const tmp = CoinBlocksoftDict[key]
+            if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
+                throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+            }
+            if (tmp?.tokenAddress && tmp?.tokenAddress.toLowerCase() === lower) {
+                throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+            }
+        }
+
         if (config.debug.sendLogs) {
             console.log('BlocksoftTransfer.getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
         }

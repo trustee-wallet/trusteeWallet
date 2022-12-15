@@ -843,6 +843,7 @@
       "UI_CONFIRM_DOUBLE_BSE_SEND" : "Транзакция на заявку уже отправлена, Вы уверены, что хотите создать новую транзакцию?",
       "UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE": "Этот адрес еще не имеет баланса. Вы уверены, что он введен правильно?",
       "UI_CALCULATE_CUSTOM_FEE" : "Пожалуйста, просчитайте полную стоимость для выбранной цены за байт",
+      "SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID": "Please, recheck destination address. Possible sent directly to Contract - for fund protection it is forbidden",
       "SERVER_RESPONSE_CLOUDFLARE" : "Пожалуйста, попробуйте еще раз - доступ к сети защищен cloudflare",
       "SERVER_RESPONSE_BAD_CODE" : "Что-то пошло не так, пожалуйста, свяжитесь со службой поддержки",
       "SERVER_RESPONSE_BAD_INTERNET" : "Нет доступа к интернету",
