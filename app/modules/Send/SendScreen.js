@@ -28,9 +28,11 @@ import config from '@app/config/config'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import Log from '@app/services/Log/Log'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 let CACHE_IS_COUNTING = false
-
+let CACHE_IS_BALANCE_UPDATING = false
 class SendScreen extends PureComponent {
 
     constructor(props) {
@@ -39,6 +41,8 @@ class SendScreen extends PureComponent {
         this.inputAndButtonsComponent = React.createRef()
         this.inputAddressComponent = React.createRef()
         this.inputMemoComponent = React.createRef()
+
+        this.refreshBalance()
     }
 
     closeAction = async (closeScreen = false) => {
@@ -120,6 +124,32 @@ class SendScreen extends PureComponent {
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
         }
+    }
+
+    async refreshBalance() {
+        if (CACHE_IS_BALANCE_UPDATING) {
+            return false
+        }
+        CACHE_IS_BALANCE_UPDATING = true
+        const { balanceRaw, basicCurrencyRate, currencyCode, addressFrom } = this.props.sendScreenStore.dict
+
+        if (currencyCode === 'TRX_USDT') {
+            try {
+                const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(addressFrom)).getBalance('SendScreen')
+                if (tmp && tmp?.balance && tmp?.balance !== balanceRaw) {
+                    const newBalanceRaw = tmp?.balance
+                    const newPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalanceRaw)
+                    const newCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(newPretty * basicCurrencyRate, 2).cutted
+                    SendActionsUpdateValues.setDict({ balanceRaw: newBalanceRaw, balanceTotalPretty: newPretty, basicCurrencyBalanceTotal: newCurrencyBalanceTotal })
+                }
+            } catch (e) {
+                Log.log('SendScreen.reload error ' + e.message)
+            }
+            setTimeout(() => {
+                this.refreshBalance()
+            },5000)
+        }
+        CACHE_IS_BALANCE_UPDATING = false
     }
 
     render() {

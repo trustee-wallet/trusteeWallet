@@ -155,9 +155,9 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
 
 
-            const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(data.addressFrom)).getBalance('TrxSendTx')
-            if (balance && balance.balanceAvailable < feeForTx) {
-                if (this._isToken20) {
+            if (this._isToken20) {
+                const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(data.addressFrom)).getBalance('TrxSendTx')
+                if (balance && balance.balanceAvailable < feeForTx) {
                     throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
                 }
             }

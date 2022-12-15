@@ -17,6 +17,14 @@ export namespace SendActionsUpdateValues {
         })
     }
 
+    export const setDict = (data: {balanceRaw : 0}) => {
+        dispatch({
+            type: 'SET_DATA',
+            dict: data
+        })
+    }
+
+
     export const setCommentAndFeeFromTmp = async (comment : string, rawOnly : boolean = false) => {
         if (!CACHE_SELECTED_FEE) {
             dispatch({
