@@ -160,7 +160,10 @@
       "faqSubtitle": "Frequently asked questions",
       "toolTips": "მინიშნებები",
       "configMode": "კონფიგურაცია",
-      "testerMode": "ტესტირება"
+      "testerMode": "ტესტირება",
+      "useFirebaseForBSE": "გამოიყენე firebase სვოპისთვის",
+      "enabledUseFirebaseForBSE": "ჩართულია",
+      "disabledUseFirebaseForBSE": "გამორთულია"
     },
     "walletList": {
       "showBalance": "Show balance",

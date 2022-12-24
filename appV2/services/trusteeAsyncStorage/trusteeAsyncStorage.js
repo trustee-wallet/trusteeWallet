@@ -242,6 +242,14 @@ class TrusteeAsyncStorage {
         return this._set('wcSession', JSON.stringify(value))
     }
 
+    setUseFirebaseForBSE = (value) => {
+        return this._set('useFirebaseForBSE', value)
+    }
+
+    getUseFirebaseForBSE = () => {
+        return this._getStatic('useFirebaseForBSE')
+    }
+
 }
 
 const trusteeAsyncStorage = new TrusteeAsyncStorage()

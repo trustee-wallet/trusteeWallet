@@ -160,7 +160,10 @@
       "faqSubtitle": "Питання, що часто задаються",
       "toolTips": "Підказки",
       "configMode": "Конфіг",
-      "testerMode": "Тестувальник"
+      "testerMode": "Тестувальник",
+      "useFirebaseForBSE": "Використовувати Firebase для обміннику",
+      "enabledUseFirebaseForBSE": "Увімкнено",
+      "disabledUseFirebaseForBSE": "Вимкнено"
     },
     "walletList": {
       "showBalance": "Показати баланс",

@@ -160,7 +160,10 @@
       "faqSubtitle": "Frequently asked questions",
       "toolTips": "Tooltips",
       "configMode": "Config",
-      "testerMode": "Tester"
+      "testerMode": "Tester",
+      "useFirebaseForBSE": "Use firebase for swap",
+      "enabledUseFirebaseForBSE": "Enabled",
+      "disabledUseFirebaseForBSE": "Disabled"
     },
     "walletList": {
       "showBalance": "Show balance",

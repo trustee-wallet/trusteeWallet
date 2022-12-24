@@ -160,7 +160,10 @@
       "faqSubtitle": "Часто задаваемые вопросы",
       "toolTips": "Подсказки",
       "configMode": "Конфиг",
-      "testerMode": "Тестировщик"
+      "testerMode": "Тестировщик",
+      "useFirebaseForBSE": "Использовать Firebase для обменника",
+      "enabledUseFirebaseForBSE": "Вклюечено",
+      "disabledUseFirebaseForBSE": "Выключено"
     },
     "walletList": {
       "showBalance": "Показать баланс",

@@ -4,7 +4,6 @@
  */
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
-import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
@@ -15,15 +14,15 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import cardDS from '@app/appstores/DataSource/Card/Card'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import axios from 'axios'
-import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftCryptoUtils from '@crypto/common/BlocksoftCryptoUtils'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import ApiProxy from './ApiProxy'
 
 import store from '@app/store'
+
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
@@ -162,6 +161,41 @@ export default {
             throw new Error('ApiV3 invalid settings type ' + type)
         }
 
+        const data = await this.getWalletData()
+
+        const currentToken = CashBackUtils.getWalletToken()
+        const date = new Date().toISOString().split('T')
+        const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + data.sign.signedAddress
+
+        const useFirebase = JSON.stringify(trusteeAsyncStorage.getUseFirebaseForBSE())
+
+        try {
+            const link = entryURL + entryPoint
+                + '?date=' + date[0]
+                + '&message=' + data.sign.message
+                + '&messageHash=' + data.sign.messageHash
+                + '&signature=' + data.sign.signature
+                + '&cashbackToken=' + currentToken
+                + '&locale=' + sublocale()
+                + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
+                + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
+                + '&inCurrency=' + inCurrencyCode
+                + '&outCurrency=' + outCurrencyCode
+                + '&orderHash=' + orderHash
+                + '&useFirebase=' + (useFirebase || 'true')
+
+            await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
+            await database().ref(keyTitle).set(data)
+            await Log.log('ApiV3.initData end save to firebase link ' + link)
+            Log.log('ApiV3.initData finish')
+            return link
+        } catch (e) {
+            await Log.err('ApiV3.initData error ' + e.message)
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+        }
+    },
+
+    async getWalletData() {
         // yurchik update anyway so do load faster
         /*
         try {
@@ -228,33 +262,7 @@ export default {
         const sign = await CashBackUtils.createWalletSignature(true, msg + '_' + hash)
         Log.log('ApiV3.initData CashBackUtils.createWalletSignature finish')
         data.sign = sign
-
-        const currentToken = CashBackUtils.getWalletToken()
-        const date = new Date().toISOString().split('T')
-        const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + sign.signedAddress
-        try {
-            const link = entryURL + entryPoint
-                + '?date=' + date[0]
-                + '&message=' + sign.message
-                + '&messageHash=' + sign.messageHash
-                + '&signature=' + sign.signature
-                + '&cashbackToken=' + currentToken
-                + '&locale=' + sublocale()
-                + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
-                + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
-                + '&inCurrency=' + inCurrencyCode
-                + '&outCurrency=' + outCurrencyCode
-                + '&orderHash=' + orderHash
-
-            await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
-            await database().ref(keyTitle).set(data)
-            await Log.log('ApiV3.initData end save to firebase link ' + link)
-            Log.log('ApiV3.initData finish')
-            return link
-        } catch (e) {
-            await Log.err('ApiV3.initData error ' + e.message)
-            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
-        }
+        return data
     },
 
     getMobileCheck: async (orderHash) => {

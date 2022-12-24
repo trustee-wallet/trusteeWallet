@@ -40,7 +40,8 @@ class SettingsMainScreen extends PureComponent {
     state = {
         devMode: trusteeAsyncStorage.getDevMode(),
         mode: trusteeAsyncStorage.getDevMode() ? config.exchange.mode : '',
-        testerMode: trusteeAsyncStorage.getTesterModeStatic() || ''
+        testerMode: trusteeAsyncStorage.getTesterModeStatic() || '',
+        useFirebaseForBSE: trusteeAsyncStorage.getUseFirebaseForBSE() || true
     }
 
     getLangCode = () => {
@@ -226,6 +227,14 @@ class SettingsMainScreen extends PureComponent {
         await AppNewsActions.markAllAsOpened()
     }
 
+    handleChangeUseFirebaseForBSE = async () => {
+        this.setState({
+            useFirebaseForBSE: !this.state.useFirebaseForBSE
+        })
+        trusteeAsyncStorage.setUseFirebaseForBSE(!this.state.useFirebaseForBSE)
+        setBseLink(null)
+    }
+
 
     render() {
         MarketingAnalytics.setCurrentScreen('Settings.SettingsMainScreen')
@@ -247,6 +256,7 @@ class SettingsMainScreen extends PureComponent {
             devMode,
             testerMode,
             mode,
+            useFirebaseForBSE
         } = this.state
 
         // @todo uncomment payment accounts
@@ -399,6 +409,14 @@ class SettingsMainScreen extends PureComponent {
                                 iconType="shareLogs"
                                 onPress={this.handleChangeLogging}
                                 rightContent="arrow"
+                            />
+                            <ListItem
+                                title={strings('settings.other.useFirebaseForBSE')}
+                                subtitle={strings('settings.other.' + (useFirebaseForBSE ? 'enabledUseFirebaseForBSE' : 'disabledUseFirebaseForBSE'))}
+                                iconType="testerMode"
+                                onPress={this.handleChangeUseFirebaseForBSE}
+                                rightContent="switch"
+                                switchParams={{ value: !!useFirebaseForBSE, onPress: this.handleChangeUseFirebaseForBSE }}
                             />
                             <ListItem
                                 title={strings('settings.other.faqSettings')}

@@ -159,7 +159,10 @@
       "faqSubtitle": "Questions fréquemment posées",
       "toolTips": "Info-bulles",
       "configMode": "Configuration",
-      "testerMode": "Testeur"
+      "testerMode": "Testeur",
+      "useFirebaseForBSE": "Utiliser Firebase pour l'échange",
+      "enabledUseFirebaseForBSE": "Activé",
+      "disabledUseFirebaseForBSE": "Désactivé"
     },
     "walletList": {
       "showBalance": "Show balance",
