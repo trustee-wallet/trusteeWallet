@@ -121,7 +121,7 @@ export const getFilterData = createSelector(
             filterTypeHideStake : data?.filterTypeHideStake || false,
             filterTypeHideWalletConnect : data?.filterTypeHideWalletConnect || false,
             filterTypeHideSwap : data?.filterTypeHideSwap || false,
-            filterTypeHideSpam: data?.filterTypeHideSpam || false,
+            filterTypeShowSpam: data?.filterTypeShowSpam || false,
             activeCategories: data?.activeCategories || false
         }
     })

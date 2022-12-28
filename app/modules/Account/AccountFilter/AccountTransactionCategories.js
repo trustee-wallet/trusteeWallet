@@ -52,10 +52,10 @@ class TransactionCategories extends React.PureComponent {
                 value: 'filterTypeHideFee'
             },
             {
-                notActive: this.props.filterData?.filterTypeHideSpam || false,
+                notActive: this.props.filterData?.filterTypeShowSpam || false,
                 title: strings('account.transaction.spam'),
                 iconType: 'feeTxScreen',
-                value: 'filterTypeHideSpam'
+                value: 'filterTypeShowSpam'
             },
             {
                 notActive: this.props.filterData?.filterTypeHideSwap || false,

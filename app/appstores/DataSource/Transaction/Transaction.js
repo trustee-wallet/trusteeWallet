@@ -239,7 +239,7 @@ class Transaction {
      * @param {string} params.filterTypeHideSwap
      * @param {string} params.filterTypeHideStake
      * @param {string} params.filterTypeHideWalletConnect
-     * @param {string} params.filterTypeHideSpam
+     * @param {string} params.filterTypeShowSpam
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
@@ -342,7 +342,9 @@ class Transaction {
             `)
         }
 
-        if (typeof params.filterTypeHideSpam !== 'undefined' && params.filterTypeHideSpam) {
+        if (typeof params.filterTypeShowSpam !== 'undefined' && params.filterTypeShowSpam) {
+            // do nothing
+        } else {
             const spamLimit = BlocksoftExternalSettings.getStatic('TRX_SPAM_LIMIT') * 1
             if (spamLimit > 1) {
                 where.push(`

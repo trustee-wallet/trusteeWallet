@@ -9,7 +9,7 @@ const TransactionFilterTypeDict = {
     STAKE : 'stake',
     FEE: 'fee',
     USUAL: 'usual',
-    SPAM: 'spam'
+    NO_SPAM: 'no_spam'
 }
 
 export default TransactionFilterTypeDict

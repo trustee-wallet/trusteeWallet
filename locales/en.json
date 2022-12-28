@@ -463,7 +463,7 @@
       "description": "Go to the registration page and register it now?"
     },
     "transaction": {
-      "spam": "Spam",
+      "spam": "No Spam",
       "pay": "Pay",
       "remove" : "Hide",
       "removeRBF" : "Return funds",
