@@ -290,6 +290,16 @@ export async function setSelectedAccount(source) {
     }
 }
 
+export async function setSelectedAccountBalance(accountNew) {
+    const account = store.getState().mainStore.selectedAccount
+    if (account.address === accountNew.address && account.currencyCode === accountNew.currencyCode) {
+        dispatch({
+            type: 'SET_SELECTED_ACCOUNT_BALANCE',
+            selectedAccount: accountNew
+        })
+    }
+}
+
 export async function setSelectedAccountTransactions(source) {
     try {
         const wallet = store.getState().mainStore.selectedWallet

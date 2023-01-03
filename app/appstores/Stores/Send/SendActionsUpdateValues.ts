@@ -17,11 +17,14 @@ export namespace SendActionsUpdateValues {
         })
     }
 
-    export const setDict = (data: {balanceRaw : 0}) => {
-        dispatch({
-            type: 'SET_DATA',
-            dict: data
-        })
+    export const setDict = (dictNew: {balanceRaw : 0}) => {
+        const dict = store.getState().sendScreenStore.dict
+        if (dict.addressFrom === dictNew.addressFrom && dict.currencyCode === dictNew.currencyCode) {
+            dispatch({
+                type: 'SET_DATA',
+                dict: dictNew
+            })
+        }
     }
 
 

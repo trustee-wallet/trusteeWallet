@@ -35,6 +35,14 @@ const mainStoreReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 selectedAccount: action.selectedAccount
             }
+        case 'SET_SELECTED_ACCOUNT_BALANCE':
+            return {
+                ...state,
+                selectedAccount: {
+                    ...state.selectedAccount,
+                    ...action.selectedAccount
+                }
+            }
         case 'SET_SELECTED_ACCOUNT_TRANSACTIONS':
             return {
                 ...state,

@@ -133,17 +133,29 @@ class SendScreen extends PureComponent {
         CACHE_IS_BALANCE_UPDATING = true
         const { balanceRaw, basicCurrencyRate, currencyCode, addressFrom } = this.props.sendScreenStore.dict
 
-        if (currencyCode === 'TRX_USDT') {
+        if (currencyCode === 'TRX_USDT' || currencyCode === 'TRX') {
             try {
+                Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' start')
                 const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(addressFrom)).getBalance('SendScreen')
                 if (tmp && tmp?.balance && tmp?.balance !== balanceRaw) {
-                    const newBalanceRaw = tmp?.balance
-                    const newPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalanceRaw)
-                    const newCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(newPretty * basicCurrencyRate, 2).cutted
-                    SendActionsUpdateValues.setDict({ balanceRaw: newBalanceRaw, balanceTotalPretty: newPretty, basicCurrencyBalanceTotal: newCurrencyBalanceTotal })
+                    if (!tmp?.address || tmp?.address !== addressFrom || tmp?.currencyCode !== currencyCode) {
+                        Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will not update as got ' + tmp?.address)
+                    } else {
+                        Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will update from ' + balanceRaw + ' to ' + tmp?.balance)
+                        const newBalanceRaw = tmp?.balance
+                        const newPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalanceRaw)
+                        const newCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(newPretty * basicCurrencyRate, 2).cutted
+                        SendActionsUpdateValues.setDict({
+                            addressFrom: addressFrom,
+                            currencyCode: currencyCode,
+                            balanceRaw: newBalanceRaw,
+                            balanceTotalPretty: newPretty,
+                            basicCurrencyBalanceTotal: newCurrencyBalanceTotal
+                        })
+                    }
                 }
             } catch (e) {
-                Log.log('SendScreen.reload error ' + e.message)
+                Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
             }
             setTimeout(() => {
                 this.refreshBalance()

@@ -89,6 +89,8 @@ class BlocksoftBalances {
         let res
         try {
             res = await this._processor[currencyCode].getBalanceBlockchain(this._data.address, this._data.jsonData, this._data.walletHash, source)
+            res.address = this._data.address
+            res.currencyCode = currencyCode
         } catch (e) {
             e.code = 'ERROR_SYSTEM'
             throw e

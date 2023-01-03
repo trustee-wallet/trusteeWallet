@@ -20,7 +20,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setFilter, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setFilter, setSelectedAccount, setSelectedAccountBalance } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import { getFilterData, getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
@@ -51,12 +51,16 @@ import { getPrettyCurrencyName, handleBuy, handleReceive, handleSend } from './h
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import SynchronizedBlock from './elements/SynchronizedBlock'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
 let CACHE_TX_LOADED = 0
 const TX_PER_PAGE = 20
 
+let CACHE_IS_BALANCE_UPDATING = false
 class Account extends React.PureComponent {
 
     constructor(props) {
@@ -75,6 +79,8 @@ class Account extends React.PureComponent {
 
             isSeaching: false
         }
+
+        this.refreshBalance()
         // this.handleSearch = this.handleSearch.bind(this)
     }
 
@@ -186,6 +192,54 @@ class Account extends React.PureComponent {
             refreshing: false,
             clickRefresh: false
         })
+    }
+
+    async refreshBalance() {
+        if (CACHE_IS_BALANCE_UPDATING) {
+            return false
+        }
+        CACHE_IS_BALANCE_UPDATING = true
+        const { address, balance, basicCurrencyRate } = this.props.selectedAccountData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+
+        if (currencyCode === 'TRX_USDT' || currencyCode === 'TRX') {
+            const addressFrom = address
+            const balanceRaw = balance
+            try {
+                Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' start')
+                const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(addressFrom)).getBalance('AccountScreen')
+
+                if (tmp && tmp?.balance && tmp?.balance !== balanceRaw) {
+                    if (!tmp?.address || tmp?.address !== addressFrom || tmp?.currencyCode !== currencyCode) {
+                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will not update as got ' + tmp?.address)
+                    } else {
+                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will update from ' + balanceRaw + ' to ' + tmp?.balance)
+
+                        const newBalanceRaw = tmp?.balance
+                        const newPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalanceRaw)
+                        const balanceStakedPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(tmp?.balanceStaked)
+                        const balanceTotalPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(tmp?.balanceAvailable)
+                        const newCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(newPretty * basicCurrencyRate, 2).cutted
+
+                        setSelectedAccountBalance({
+                            address : addressFrom,
+                            currencyCode: currencyCode,
+                            balance : newBalanceRaw,
+                            balancePretty : newPretty,
+                            basicCurrencyBalance: newCurrencyBalanceTotal,
+                            balanceStakedPretty,
+                            balanceTotalPretty
+                        })
+                    }
+                }
+            } catch (e) {
+                Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
+            }
+            setTimeout(() => {
+                this.refreshBalance()
+            },5000)
+        }
+        CACHE_IS_BALANCE_UPDATING = false
     }
 
     closeAction = () => {
