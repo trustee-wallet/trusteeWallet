@@ -220,11 +220,11 @@ export namespace SendActionsBlockchainWrapper {
     }
 
     export const getTransferAllBalance = async (uiData = {}) => {
+        const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
         try {
             if (typeof uiData === 'undefined' || typeof uiData.addressTo === 'undefined') {
                 uiData = store.getState().sendScreenStore.ui
             }
-            const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
             newCountedFeesData.addressTo = uiData.addressTo
             newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
             newCountedFeesData.memo = uiData.memo
@@ -265,14 +265,16 @@ export namespace SendActionsBlockchainWrapper {
                 console.log('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)
             }
             if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+                const extend = BlocksoftDict.getCurrencyAllSettings(newCountedFeesData?.currencyCode)
+                Log.errorTranslate(e, 'SendActionsBlockchainWrapper.getTransferAllBalance ', extend)
                 showModal({
                     type: 'INFO_MODAL',
                     icon: null,
                     title: strings('modal.exchange.sorry'),
-                    description: strings('send.errors.' + e.message)
+                    description: e.message
                 })
             } else {
-                Log.err('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)
+                Log.err('error ' + e.message)
             }
         }
         return { transferAllBalance : 0, source : 'ERROR', addressTo : '?'}
