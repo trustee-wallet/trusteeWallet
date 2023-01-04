@@ -61,6 +61,7 @@ let CACHE_TX_LOADED = 0
 const TX_PER_PAGE = 20
 
 let CACHE_IS_BALANCE_UPDATING = false
+let CACHE_BALANCE_TIMEOUT = false
 class Account extends React.PureComponent {
 
     constructor(props) {
@@ -199,6 +200,9 @@ class Account extends React.PureComponent {
             return false
         }
         CACHE_IS_BALANCE_UPDATING = true
+        if (CACHE_BALANCE_TIMEOUT) {
+            clearTimeout(CACHE_BALANCE_TIMEOUT)
+        }
         const { address, balance, basicCurrencyRate } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
 
@@ -235,7 +239,7 @@ class Account extends React.PureComponent {
             } catch (e) {
                 Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
             }
-            setTimeout(() => {
+            CACHE_BALANCE_TIMEOUT = setTimeout(() => {
                 this.refreshBalance()
             },5000)
         }

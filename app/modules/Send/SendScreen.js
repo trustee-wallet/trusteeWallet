@@ -33,6 +33,8 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 let CACHE_IS_COUNTING = false
 let CACHE_IS_BALANCE_UPDATING = false
+let CACHE_BALANCE_TIMEOUT = false
+
 class SendScreen extends PureComponent {
 
     constructor(props) {
@@ -131,6 +133,9 @@ class SendScreen extends PureComponent {
             return false
         }
         CACHE_IS_BALANCE_UPDATING = true
+        if (CACHE_BALANCE_TIMEOUT) {
+            clearTimeout(CACHE_BALANCE_TIMEOUT)
+        }
         const { balanceRaw, basicCurrencyRate, currencyCode, addressFrom } = this.props.sendScreenStore.dict
 
         if (currencyCode === 'TRX_USDT' || currencyCode === 'TRX') {
@@ -157,7 +162,7 @@ class SendScreen extends PureComponent {
             } catch (e) {
                 Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
             }
-            setTimeout(() => {
+            CACHE_BALANCE_TIMEOUT = setTimeout(() => {
                 this.refreshBalance()
             },5000)
         }
