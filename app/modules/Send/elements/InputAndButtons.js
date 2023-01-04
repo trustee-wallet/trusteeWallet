@@ -278,7 +278,7 @@ class InputAndButtons extends PureComponent {
                     } else {
                         msg = strings('send.errors.SERVER_RESPONSE_LEGACY_BALANCE_NEEDED_USDT', { symbol })
                     }
-                } else if (parentBalance === 0) {
+                } else if (parentBalance === 0 && currencyCode !== 'TRX_USDT') {
                     if (typeof parentCurrency.unconfirmed !== 'undefined' && parentCurrency.unconfirmed > 0) {
                         msg = strings('send.notEnoughForFeeConfirmed', { symbol })
                     } else {

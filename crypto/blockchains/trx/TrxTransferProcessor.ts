@@ -155,10 +155,17 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
 
 
+            let isErrorFee = false
+            const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(data.addressFrom)).getBalance('TrxSendTx')
             if (this._isToken20) {
-                const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(data.addressFrom)).getBalance('TrxSendTx')
-                if (balance && balance.balanceAvailable < feeForTx) {
-                    throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+                if (!balance || balance.balanceAvailable <= feeForTx) {
+                    isErrorFee = true
+                    // throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
+                }
+            } else if (this._tokenName === '_') {
+                if (!balance || (balance.balanceAvailable <= feeForTx*1 + data.amount*1)) {
+                    isErrorFee = true
+                    // throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
                 }
             }
 
@@ -205,7 +212,8 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         langMsg: 'xrp_speed_one',
                         feeForTx: Math.round(feeForTx).toString(),
                         amountForTx,
-                        selectedTransferAllBalance
+                        selectedTransferAllBalance,
+                        isErrorFee
                     }
                 ]
                 /*
@@ -265,6 +273,9 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
         if (typeof privateData.privateKey === 'undefined') {
             throw new Error('TRX transaction required privateKey')
+        }
+        if (uiData.selectedFee.isErrorFee) {
+            throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
         }
 
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx started ' + data.addressFrom + ' => ' + data.addressTo)
