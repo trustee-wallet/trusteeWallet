@@ -20,6 +20,7 @@ import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import UIDict from '@app/services/UIDict/UIDict'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import Database from '@app/appstores/DataSource/Database/main'
 
 
 const { dispatch } = store
@@ -293,6 +294,27 @@ export async function setSelectedAccount(source) {
 export async function setSelectedAccountBalance(accountNew) {
     const account = store.getState().mainStore.selectedAccount
     if (account.address === accountNew.address && account.currencyCode === accountNew.currencyCode) {
+        let sql2
+        if (typeof accountNew?.balanceStaked !== 'undefined') {
+            sql2 = `
+                UPDATE account_balance
+                SET balance_fix=${accountNew.balance},
+                balance_txt="${accountNew.balance}",
+                balance_staked_txt="${accountNew.balanceStaked}"
+                WHERE currency_code="${accountNew.currencyCode}" AND account_id=${account.accountId}
+            `
+        } else {
+            sql2 = `
+                UPDATE account_balance
+                SET balance_fix=${accountNew.balance},
+                balance_txt="${accountNew.balance}"
+                WHERE currency_code="${accountNew.currencyCode}" AND account_id=${account.accountId}
+            `
+        }
+        await Database.query(sql2)
+
+
+
         dispatch({
             type: 'SET_SELECTED_ACCOUNT_BALANCE',
             selectedAccount: accountNew

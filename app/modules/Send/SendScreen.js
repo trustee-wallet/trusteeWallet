@@ -140,26 +140,30 @@ class SendScreen extends PureComponent {
 
         if (currencyCode === 'TRX_USDT' || currencyCode === 'TRX') {
             try {
-                Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' start')
                 const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(addressFrom)).getBalance('SendScreen')
-                if (tmp && tmp?.balance && tmp?.balance !== balanceRaw) {
-                    if (!tmp?.address || tmp?.address !== addressFrom || tmp?.currencyCode !== currencyCode) {
-                        Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will not update as got ' + tmp?.address)
-                    } else {
-                        Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will update from ' + balanceRaw + ' to ' + tmp?.balance)
-                        const newBalanceRaw = tmp?.balance
-                        const newPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalanceRaw)
-                        const newCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(newPretty * basicCurrencyRate, 2).cutted
-                        SendActionsUpdateValues.setDict({
-                            addressFrom: addressFrom,
-                            currencyCode: currencyCode,
-                            balanceRaw: newBalanceRaw,
-                            balanceTotalPretty: newPretty,
-                            basicCurrencyBalanceTotal: newCurrencyBalanceTotal
-                        })
+                if (tmp) {
+                    const newBalanceRaw = typeof tmp?.balanceAvailable !== 'undefined' ? tmp?.balanceAvailable : tmp?.balance
+                    if (newBalanceRaw !== balanceRaw) {
+                        if (!tmp?.address || tmp?.address !== addressFrom || tmp?.currencyCode !== currencyCode) {
+                            Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will not update as got ' + tmp?.address)
+                        } else {
+                            Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will update from ' + balanceRaw + ' to ' + tmp?.balance)
+                            const newPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalanceRaw)
+                            const newCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(newPretty * basicCurrencyRate, 2).cutted
+                            SendActionsUpdateValues.setDict({
+                                addressFrom: addressFrom,
+                                currencyCode: currencyCode,
+                                balanceRaw: newBalanceRaw,
+                                balanceTotalPretty: newPretty,
+                                basicCurrencyBalanceTotal: newCurrencyBalanceTotal
+                            })
+                        }
                     }
                 }
             } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
+                }
                 Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
             }
             CACHE_BALANCE_TIMEOUT = setTimeout(() => {

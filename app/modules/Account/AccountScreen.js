@@ -53,7 +53,8 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import SynchronizedBlock from './elements/SynchronizedBlock'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
+import config from '@app/config/config'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
@@ -203,41 +204,53 @@ class Account extends React.PureComponent {
         if (CACHE_BALANCE_TIMEOUT) {
             clearTimeout(CACHE_BALANCE_TIMEOUT)
         }
-        const { address, balance, basicCurrencyRate } = this.props.selectedAccountData
+        const { address, basicCurrencyRate, balanceStakedPretty, balanceTotalPretty } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
 
         if (currencyCode === 'TRX_USDT' || currencyCode === 'TRX') {
-            const addressFrom = address
-            const balanceRaw = balance
             try {
-                Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' start')
-                const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(addressFrom)).getBalance('AccountScreen')
-
-                if (tmp && tmp?.balance && tmp?.balance !== balanceRaw) {
-                    if (!tmp?.address || tmp?.address !== addressFrom || tmp?.currencyCode !== currencyCode) {
-                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will not update as got ' + tmp?.address)
+                const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address)).getBalance('AccountScreen')
+                if (tmp && typeof tmp?.balance !== 'undefined') {
+                    if (!tmp?.address || tmp?.address !== address || tmp?.currencyCode !== currencyCode) {
+                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not update as got ' + tmp?.address)
                     } else {
-                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will update from ' + balanceRaw + ' to ' + tmp?.balance)
-
-                        const newBalanceRaw = tmp?.balance
-                        const newPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalanceRaw)
-                        const balanceStakedPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(tmp?.balanceStaked)
-                        const balanceTotalPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(tmp?.balanceAvailable)
-                        const newCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(newPretty * basicCurrencyRate, 2).cutted
-
-                        setSelectedAccountBalance({
-                            address : addressFrom,
-                            currencyCode: currencyCode,
-                            balance : newBalanceRaw,
-                            balancePretty : newPretty,
-                            basicCurrencyBalance: newCurrencyBalanceTotal,
-                            balanceStakedPretty,
-                            balanceTotalPretty
-                        })
+                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will be checked for update')
+                        const newBalance = tmp?.balance
+                        const newBalancePretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalance)
+                        const newBasicCurrencyBalance = BlocksoftPrettyNumbers.makeCut(newBalancePretty * basicCurrencyRate, 2).cutted
+                        const newBalanceStakedPretty = typeof tmp?.balanceStaked !== 'undefined' ? BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(tmp?.balanceStaked ) : balanceStakedPretty
+                        const newBalanceTotalPretty = typeof tmp?.balanceAvailable !== 'undefined' ? BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(tmp?.balanceAvailable ) : balanceTotalPretty
+                        const accountNew = {
+                            balance : newBalance,
+                            balancePretty : newBalancePretty,
+                            basicCurrencyBalance: newBasicCurrencyBalance,
+                            balanceStakedPretty : newBalanceStakedPretty,
+                            balanceTotalPretty : newBalanceTotalPretty
+                        }
+                        let isChanged = false
+                        for (const key in accountNew) {
+                            if (this.props.selectedAccountData[key].toString() !== accountNew[key].toString()) {
+                                isChanged = true
+                            }
+                        }
+                        if (isChanged) {
+                            if (typeof tmp?.balanceStaked !== 'undefined') {
+                                accountNew.balanceStaked = tmp?.balanceStaked
+                            }
+                            Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will be updated ' + JSON.stringify(accountNew))
+                            accountNew.address = address
+                            accountNew.currencyCode = currencyCode
+                            await setSelectedAccountBalance(accountNew)
+                        } else {
+                            Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not be updated')
+                        }
                     }
                 }
             } catch (e) {
-                Log.log('AccountScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
+                if (config.debug.appErrors) {
+                    console.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' error ' + e.message, e)
+                }
+                Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' error ' + e.message)
             }
             CACHE_BALANCE_TIMEOUT = setTimeout(() => {
                 this.refreshBalance()

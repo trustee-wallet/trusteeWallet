@@ -20,9 +20,9 @@ export default class TrxTrongridProvider {
      * @param {string} tokenName
      * @returns {Promise<boolean|{unconfirmed: number, frozen: *, frozenEnergy:*, voteTotal: *, balance: *, provider: string}>}
      */
-    async get(address, tokenName) {
+    async get(address, tokenName, useCache = true) {
         const now = new Date().getTime()
-        if (typeof CACHE_TRONGRID[address] !== 'undefined' && (now - CACHE_TRONGRID[address].time) < CACHE_VALID_TIME) {
+        if (useCache && typeof CACHE_TRONGRID[address] !== 'undefined' && (now - CACHE_TRONGRID[address].time) < CACHE_VALID_TIME) {
             if (typeof CACHE_TRONGRID[address][tokenName] !== 'undefined') {
                 BlocksoftCryptoLog.log('TrxTrongridProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONGRID[address][tokenName])
                 const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
