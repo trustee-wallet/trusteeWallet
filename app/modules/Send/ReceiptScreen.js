@@ -39,6 +39,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
 
 import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 let CACHE_IS_COUNTING = false
 let CACHE_IS_SENDING_CLICKED = 0
@@ -129,7 +130,8 @@ class ReceiptScreen extends PureComponent {
         const checkLoadedFeeResult = checkLoadedFee(this)
 
         if (checkLoadedFeeResult.msg && CACHE_WARNING_NOTICE !== checkLoadedFeeResult.cacheWarningNoticeValue) {
-            Log.log('countedFees notice' + JSON.stringify(checkLoadedFeeResult))
+            Log.log('ReceiptScreen.handleSend countedFees notice ' + JSON.stringify(checkLoadedFeeResult))
+            BlocksoftCryptoLog.log('ReceiptScreen.handleSend countedFees notice ' + JSON.stringify(checkLoadedFeeResult))
             if (checkLoadedFeeResult.goBack) {
                 showModal({
                     type: 'INFO_MODAL',

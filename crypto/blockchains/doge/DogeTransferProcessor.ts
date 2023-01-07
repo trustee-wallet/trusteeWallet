@@ -229,6 +229,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
 
         let uniqueFees = {}
+        let allFees = {}
         let isError = false
         for (const key of keys) {
             // @ts-ignore
@@ -438,6 +439,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             blockchainData.isRBFed = { transactionRemoveByFee, transactionReplaceByFee, transactionSpeedUp }
 
 
+            allFees[this._langPrefix + '_' + key] = logInputsOutputs.diffInOut
             if (typeof uniqueFees[logInputsOutputs.diffInOut] !== 'undefined') {
                 continue
             }
@@ -460,13 +462,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         result.selectedFeeIndex = result.fees.length - 1
 
         if (!transactionReplaceByFee && !transactionRemoveByFee && !isStaticFee) {
-            let foundFast = false
-            for (const fee of result.fees) {
-                if (fee.langMsg === this._langPrefix + '_speed_blocks_2') {
-                    foundFast = true
-                }
-            }
-            if (!foundFast) {
+
+            if (typeof allFees[this._langPrefix + '_speed_blocks_2'] === 'undefined') {
+
                 result.showSmallFeeNotice = new Date().getTime()
             }
         }
@@ -474,6 +472,20 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             result.amountForTx = 0
         }
         result.additionalData = { unspents }
+        const logResult = {
+            selectedFeeIndex: result.selectedFeeIndex ?  result.selectedFeeIndex : 'none',
+            showSmallFeeNotice: result.showSmallFeeNotice ? result.showSmallFeeNotice : 'none',
+            allFees: allFees,
+            fees: []
+        }
+        if (result.fees) {
+            for (const fee of result.fees) {
+                const logFee = { ...fee }
+                delete logFee.blockchainData
+                logResult.fees.push(logFee)
+            }
+        }
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFees ' + JSON.stringify(logResult))
         return result
     }
 
