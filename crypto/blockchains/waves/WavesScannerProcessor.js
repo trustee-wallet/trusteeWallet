@@ -103,11 +103,7 @@ export default class WavesScannerProcessor {
         }
         const addressFrom = transaction.sender
         const addressTo = transaction.recipient || address
-        const addressAmount = transaction.amount
-        const transactionFee = transaction.feeAsset && transaction.feeAssetId ? 0 : transaction.fee
-        if (transaction.assetId) {
-            return false
-        }
+
         let transactionFilterType = TransactionFilterTypeDict.USUAL
         let transactionDirection = 'self'
         if (addressFrom === address) {
@@ -116,6 +112,24 @@ export default class WavesScannerProcessor {
             }
         } else if (addressTo === address) {
             transactionDirection = 'income'
+        }
+
+        let addressAmount = 0
+        if (typeof transaction.transfers !== 'undefined') {
+            for (const transfer of transaction.transfers) {
+                if (transfer.recipient === address && transfer.amount*1>0) {
+                    addressAmount = addressAmount + transfer.amount*1
+                    transactionDirection = 'income'
+                }
+            }
+        }
+        if (addressAmount === 0 && typeof transaction.amount !== 'undefined'){
+            addressAmount = transaction.amount
+        }
+
+        const transactionFee = transaction.feeAsset && transaction.feeAssetId ? 0 : transaction.fee
+        if (transaction.assetId) {
+            return false
         }
 
         if (typeof transaction.order1 !== 'undefined') {
