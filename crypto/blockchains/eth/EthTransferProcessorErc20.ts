@@ -7,6 +7,7 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 
 import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
+import config from '@app/config/config'
 
 const abi = require('./ext/erc20.js')
 
@@ -80,24 +81,31 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
             try {
                 serverEstimatedGas = await this._token.methods.transfer(firstAddressTo, data.amount).estimateGas({ from: data.addressFrom })
             } catch (e) {
-                e.message += ' while transfer check1 ' + data.amount
-                if (e.message.indexOf('opcode 0xfe')) {
-                    throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                e.message += ' while transfer check1 ' + data.amount + ' firstAddressTo ' + firstAddressTo + ' from ' + data.addressFrom
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas error1 ' + e.message)
                 }
-                throw e
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas error1 ' + e.message)
             }
             try {
                 serverEstimatedGas2 = await this._token.methods.transfer(basicAddressTo, data.amount).estimateGas({ from: data.addressFrom })
             } catch (e) {
-                e.message += ' while transfer check2 ' + data.amount
-                throw e
+                e.message += ' while transfer check2 ' + data.amount +' basicAddressTo ' + firstAddressTo + ' from ' + data.addressFrom
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas error2 ' + e.message)
+                }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas error2 ' + e.message)
             }
             // @ts-ignore
             const tmp3 = data.amount * 1
             try {
                 serverEstimatedGas3 = await this._token.methods.transfer(basicAddressTo, tmp3).estimateGas({ from: data.addressFrom })
             } catch (e) {
-                // do nothing
+                e.message += ' while transfer check3 ' + tmp3 +' basicAddressTo ' + firstAddressTo + ' from ' + data.addressFrom
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas error3 ' + e.message)
+                }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas error3 ' + e.message)
             }
 
 
