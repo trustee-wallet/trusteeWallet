@@ -202,7 +202,9 @@ export namespace SendActionsBlockchainWrapper {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getFeeRate error ' + e.message, e)
             }
-            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+            if (typeof e.message === 'undefined' ) {
+                Log.log('SendActionsBlockchainWrapper.getFeeRate strange error')
+            } else if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
                 const extend = BlocksoftDict.getCurrencyAllSettings(newCountedFeesData?.currencyCode)
                 Log.errorTranslate(e, 'SendActionsBlockchainWrapper.getFeeRate', extend)
                 showModal({
@@ -212,7 +214,7 @@ export namespace SendActionsBlockchainWrapper {
                     description: e.message
                 })
             } else {
-                Log.err('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
+                Log.log('SendActionsBlockchainWrapper.getFeeRate inner error ' + e.message)
             }
         }
 
@@ -264,7 +266,9 @@ export namespace SendActionsBlockchainWrapper {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)
             }
-            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+            if (typeof e.message === 'undefined' ) {
+                Log.log('SendActionsBlockchainWrapper.getTransferAllBalance strange error')
+            } else if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
                 const extend = BlocksoftDict.getCurrencyAllSettings(newCountedFeesData?.currencyCode)
                 Log.errorTranslate(e, 'SendActionsBlockchainWrapper.getTransferAllBalance ', extend)
                 showModal({
@@ -274,7 +278,7 @@ export namespace SendActionsBlockchainWrapper {
                     description: e.message
                 })
             } else {
-                Log.err('error ' + e.message)
+                Log.log('SendActionsBlockchainWrapper.getTransferAllBalance inner error '  + e.message)
             }
         }
         return { transferAllBalance : 0, source : 'ERROR', addressTo : '?'}

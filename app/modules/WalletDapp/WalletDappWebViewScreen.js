@@ -57,13 +57,13 @@ class WalletDappWebViewScreen extends PureComponent {
 
         let showLog = false
         if (config.debug.appErrors) {
-            if (e.nativeEvent.data.indexOf('eth_accounts') === -1 && e.nativeEvent.data.indexOf('net_version') === -1) {
+            if (e?.nativeEvent?.data && e.nativeEvent.data.indexOf('eth_accounts') === -1 && e.nativeEvent.data.indexOf('net_version') === -1) {
                 // console.log('WalletDappWebView message', e.nativeEvent.data)
                 // showLog = true
             }
         }
         Log.log('WalletDappWebView message', e.nativeEvent.data)
-        if (e.nativeEvent.data && e.nativeEvent.data.indexOf('{') !== -1) {
+        if (e?.nativeEvent?.data && e.nativeEvent.data.indexOf('{') !== -1) {
             let tmp = false
             try {
                 tmp = JSON.parse(e.nativeEvent.data)

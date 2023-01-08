@@ -98,16 +98,18 @@ export namespace BlocksoftTransfer {
             additionalDataTmp.mnemonic = '***'
             feesCount = await processor.getFeeRate(data, privateData, additionalDataTmp)
             feesCount.countedTime = new Date().getTime()
-
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('BlocksoftTransfer.getFeeRate error ', e)
             }
-            if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
+            if (typeof e.message === 'undefined' ) {
+                await BlocksoftCryptoLog.log('BlocksoftTransfer.getFeeRate strange error')
+            } else if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.getFeeRate error ` + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' ' + e.message)
+                await BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.getFeeRate error ` + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' ' + e.message)
                 throw new Error('server.not.responding.network.prices.' + data.currencyCode + ' ' + e.message)
             } else {
+                await BlocksoftCryptoLog.log('BlocksoftTransfer.getFeeRate inner error ' + e.message)
                 throw e
             }
         }

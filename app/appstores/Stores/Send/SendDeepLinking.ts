@@ -41,22 +41,39 @@ export namespace SendDeepLinking {
         }
         await Log.log('SendDeepLinking.handleInitialURL get success ' + JSON.stringify(initialURL))
 
-        if (typeof initialURL === 'undefined' || initialURL === null) return
+        if (typeof initialURL === 'undefined' || initialURL === null) {
+            return
+        }
+        if (initialURL.indexOf('trustee.page.link') !== -1) {
+            await Log.log('SendDeepLinking.handleInitialURL url skipped as not trustee')
+            return
+        }
+
         try {
 
             let type = initialURL.split('//')[1]
 
-            if (typeof type === 'undefined') return
+            if (typeof type === 'undefined') {
+                await Log.log('SendDeepLinking.handleInitialURL type skipped as undefined')
+                return
+            }
 
             const data = type.split('/')[1]
             type = type.split('/')[0]
-            if (typeof data === 'undefined' || typeof type === 'undefined') return
+            if (typeof data === 'undefined' || typeof type === 'undefined') {
+                await Log.log('SendDeepLinking.handleInitialURL type skipped as zero')
+                return
+            }
 
-            if (type !== 'pay') return
+            if (type !== 'pay') {
+                await Log.log('SendDeepLinking.handleInitialURL type skipped as none')
+                return
+            }
 
             const res = await decodeTransactionQrCode({ data: data })
             if (typeof res.data === 'undefined') {
-                throw new Error('res.data is empty')
+                await Log.log('SendDeepLinking.handleInitialURL error as no parsing result ' + JSON.stringify(data))
+                return
             }
 
             const parsed = res.data as {
@@ -66,11 +83,7 @@ export namespace SendDeepLinking {
                 currencyCode: string,
                 label: string
             }
-            await Log.log('SendDeepLinking.handleInitialURL decode parsed', parsed)
-
-            if (initialURL.indexOf('trustee.page.link') !== -1) return
-
-            await Log.log('SendDeepLinking.handleInitialURL decode success and will go to Send')
+            await Log.log('SendDeepLinking.handleInitialURL decode success and will go to Send ', parsed)
             await SendActionsStart.startFromDeepLinking(parsed)
 
         } catch (e) {

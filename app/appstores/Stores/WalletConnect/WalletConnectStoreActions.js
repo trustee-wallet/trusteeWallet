@@ -44,6 +44,7 @@ const walletConnectActions = {
     initWalletConnect: () => {
         const walletConnectLink = trusteeAsyncStorage.getWalletConnectLink()
         if (!walletConnectLink) return false
+        Log.log('WalletConnect.initWalletConnect link ' + walletConnectLink)
         const { session, dappData } = trusteeAsyncStorage.getWalletConnectSession()
         walletConnectActions.connectAndSetWalletConnectLink(walletConnectLink, dappData ? 'DAPP_SAVED' : 'SAVED', session)
 

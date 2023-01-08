@@ -66,11 +66,10 @@ export default new class AppDeepLinking {
     }
 
     openUrl = (url, source) => {
-        Log.log('AppDeepLinking openUrl source ' + source)
-
         if (config.debug.appErrors) {
-            console.log('AppDeepLinking ' + url)
+            console.log('AppDeepLinking openUrl url ' + url + ' source ' + source)
         }
+        Log.log('AppDeepLinking openUrl source ' + source)
         if (url != null) {
             let tmpUrl = url.split('symbol')
 
