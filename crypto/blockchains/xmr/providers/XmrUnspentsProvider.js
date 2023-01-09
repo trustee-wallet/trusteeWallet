@@ -83,14 +83,21 @@ export default class XmrUnspentsProvider {
             */
 
             const res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
-            BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs res ' + JSON.stringify(res.data).substr(0, 200))
+            await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs res ' + JSON.stringify(res.data).substr(0, 200))
+
+            if (typeof res.data === 'undefined' || !typeof res.data || typeof res.data.amount_outs === 'undefined' || !res.data.amount_outs || res.data.amount_outs.length === 0) {
+                throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
+            }
+
             if (typeof fn === 'undefined' || !fn) {
                 return res.data
             } else {
                 fn(null, res.data)
             }
         } catch (e) {
-            e.message += ' while Xmr._getRandomOutputs'
+            if (e.message.indexOf('SERVER_RESPONSE') === -1) {
+                e.message += ' while Xmr._getRandomOutputs'
+            }
             if (typeof fn === 'undefined' || !fn) {
                 throw e
             } else {

@@ -78,7 +78,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         for (let i = 1; i <= 4; i++) {
             try {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
 
                 // @ts-ignore
                 const fee = await core.createTransaction({
