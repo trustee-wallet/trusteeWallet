@@ -16,14 +16,13 @@ import changeableProd from '@app/config/changeable.prod'
 import changeableTester from '@app/config/changeable.tester'
 
 import DeviceInfo from 'react-native-device-info'
-import appsFlyer from 'react-native-appsflyer'
+
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 let CACHE_TG_INITED = false
 let CACHE_BALANCE = {}
-let CACHE_APP_FLYER_ERROR = 0
-const CACHE_APP_FLYER_ERROR_TIME = 120000
+
 
 
 
@@ -196,13 +195,6 @@ class MarketingEvent {
                 analytics().setUserProperty(key, short)
                 analytics().setUserProperty(key + '_FULL', val.toString().substr(0, 36))
             } else {
-                if (key === 'LOG_CASHBACK') {
-                    try {
-                        await appsFlyer.setCustomerUserId(val.toString(), () => {})
-                    } catch (e) {
-                        await Log.log(`DMN/MarketingEventappsFlyer.setCustomerUserId error ` + e.message.toString())
-                    }
-                }
                 if (key === 'LOG_VERSION') {
                     // do nothing
                 } else {
@@ -262,14 +254,6 @@ class MarketingEvent {
 
         if (PREFIX !== 'RTM') {
             const now = new Date().getTime()
-            if (now - CACHE_APP_FLYER_ERROR > CACHE_APP_FLYER_ERROR_TIME) {
-                try {
-                    await appsFlyer.logEvent(logTitle.replace(' ', '_'), logDataObject)
-                } catch (e) {
-                    CACHE_APP_FLYER_ERROR = now
-                    await Log.log(`DMN/MarketingEvent send appsFlyer error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
-                }
-            }
 
             try {
                 await analytics().logEvent(logTitle.replace(' ', '_'), logDataObject)
