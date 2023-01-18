@@ -22,7 +22,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 const networksConstants = require('../../common/ext/networks-constants')
-
+const MAX_UNSPENTS = 100
 
 export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -147,6 +147,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
 
         let unspents = []
+        let totalUnspents = 0
         if (transactionRemoveByFee) {
             if (typeof this.unspentsProvider.getTx === 'undefined') {
                 throw new Error('No DogeTransferProcessor unspentsProvider.getTx for transactionRemoveByFee')
@@ -160,6 +161,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     throw new Error('No DogeTransferProcessor unspentsProvider.getTx for transactionReplaceByFee')
                 }
                 unspents = await this.unspentsProvider.getTx(data.transactionReplaceByFee, data.addressFrom, unspents, data.walletHash)
+            }
+
+            totalUnspents = unspents.length
+            if (totalUnspents > MAX_UNSPENTS) {
+                unspents = unspents.slice(0, MAX_UNSPENTS)
             }
         }
 
@@ -480,6 +486,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
         if (result.fees) {
             for (const fee of result.fees) {
+                if (totalUnspents && totalUnspents > unspents.length) {
+                    fee.blockchainData.countedForLessOutputs = totalUnspents
+                }
                 const logFee = { ...fee }
                 delete logFee.blockchainData
                 logResult.fees.push(logFee)

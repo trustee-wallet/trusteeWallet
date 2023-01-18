@@ -728,6 +728,7 @@
     "notValidAmountInFiat": "S'il vous plaît, entrez un plus grand montant ou changez en entrée crypto",
     "notEnoughForFee": "Pour envoyer des tokens, vous devez avoir un solde positif en monnaie native %{symbol}. Cliquez pour plus d'informations ",
     "notEnoughForFeeConfirmed": "Pour envoyer des tokens, vous devez avoir un solde confirmé positif en monnaie native %{symbol}, s'il vous plait, attendez les confirmations",
+    "countedForLessOutputs": "Transaction could not use all %{count} outputs for Transfer All, please, accumulate outputs by few transactions",
     "publicFioAddressNotFound": "%{symbol} l'adresse publique n'est pas associée à l'adresse FIO spécifiée",
     "domainResolution": {
       "resolving": "Résolution %{domain}...",

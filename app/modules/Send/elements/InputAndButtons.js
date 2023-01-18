@@ -56,7 +56,8 @@ class InputAndButtons extends PureComponent {
         enoughFunds: {
             isAvailable: true,
             messages: []
-        }
+        },
+        countedForLessOutputs: 0
     }
 
     valueInput = React.createRef()
@@ -121,6 +122,12 @@ class InputAndButtons extends PureComponent {
                 CACHE_PART_BALANCE_CLICK = true
                 Log.log('Input.handlePartBalance ' + newPartBalance + ' start counting')
                 const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
+                const newCountedForLessOutputs = res.selectedFee.blockchainData?.countedForLessOutputs || 0
+                if (newCountedForLessOutputs !== this.state.countedForLessOutputs) {
+                    this.setState({
+                        countedForLessOutputs: newCountedForLessOutputs
+                    })
+                }
                 const val = this.transferAllCallback(res.transferAllBalance)
                 Log.log('Input.handlePartBalance ' + newPartBalance + ' end counting ' + val + ' with res ' + JSON.stringify(res))
             } catch (e) {
@@ -357,6 +364,38 @@ class InputAndButtons extends PureComponent {
 
     }
 
+    renderCountedForLessOutputs = () => {
+        const { countedForLessOutputs } = this.state
+
+        const { colors, GRID_SIZE } = this.context
+
+        if (!countedForLessOutputs) return
+
+        return (
+            <View style={{ marginTop: GRID_SIZE }}>
+                            <View key='less_outputs' style={style.texts}>
+                                <View style={style.texts__icon}>
+                                    <TouchableOpacity onPress={() => this.handleOpenLink('https://')}>
+                                        <Icon
+                                            name='information-outline'
+                                            size={22}
+                                            color='#864DD9'
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View>
+                                    <TouchableOpacity onPress={() => this.handleOpenLink('https://')}>
+                                        <Text style={{ ...style.texts__item, color: colors.common.text3 }}>
+                                            {strings('send.countedForLessOutputs', {count: countedForLessOutputs})}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+            </View>
+        )
+
+    }
+
     render() {
         const { colors, GRID_SIZE } = this.context
         const { decimals, currencySymbol, basicCurrencyCode, balanceTotalPretty } = this.props.sendScreenStoreDict
@@ -472,6 +511,7 @@ class InputAndButtons extends PureComponent {
 
                 {this.renderEnoughFundsError()}
 
+                {this.renderCountedForLessOutputs()}
             </View>
         )
     }

@@ -730,6 +730,7 @@
     "notValidAmountInFiat": "Пожалуйста, введите большую сумму или переключите на ввод в криптовалюте",
     "notEnoughForFee": "Для отправки токенов необходимо иметь положительный баланс в нативной монете %{symbol}. Нажмите, чтобы узнать подробнее ",
     "notEnoughForFeeConfirmed": "Для отправки токенов необходимо иметь положительный подтвержденный баланс в нативной монете %{symbol}, подождите подтверждения",
+    "countedForLessOutputs": "Transaction could not use all %{count} outputs for Transfer All, please, accumulate outputs by few transactions",
     "publicFioAddressNotFound": "%{symbol} публичный адрес не связан с указанным FIO адресом",
     "domainResolution": {
       "resolving": "Поиск %{domain}...",

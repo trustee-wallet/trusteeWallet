@@ -197,7 +197,11 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             }
         }
         // @ts-ignore
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getUnspents finished ' + address, totalUnspents)
+        if (totalUnspents.length > 10) {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getUnspents finished ' + address + ' total ' + totalUnspents.length, totalUnspents.slice(0, 10))
+        } else {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' ' + mainCurrencyCode + ' BtcUnspentsProvider.getUnspents finished ' + address + ' total ' + totalUnspents.length, totalUnspents)
+        }
         return totalUnspents
     }
 }

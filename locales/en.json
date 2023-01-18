@@ -729,6 +729,7 @@
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}. Click for more info ",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations",
+    "countedForLessOutputs": "Transaction could not use all %{count} outputs for Transfer All, please, accumulate outputs by few transactions",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
     "domainResolution": {
       "resolving": "Resolving %{domain}...",

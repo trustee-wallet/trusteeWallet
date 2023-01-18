@@ -721,6 +721,7 @@
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
     "notEnoughForFee": "ტოკენების გასაგზავნად აუცილებელია ადგილობრივ ვალუტაში დადებითი ბალანსის არსებობა %{symbol}. Click for more info ",
     "notEnoughForFeeConfirmed": "ტოკენების გასაგზავნად აუცილებელია დადებითი დადასტურებული ბალანსი ადგილობრივ ვალუტაში %{symbol}, დაელოდეთ დადასტურებას",
+    "countedForLessOutputs": "Transaction could not use all %{count} outputs for Transfer All, please, accumulate outputs by few transactions",
     "publicFioAddressNotFound": "%{symbol} საჯარო მისამართი არაა დაკავშირებული FIO მისამართთან",
     "domainResolution": {
       "resolving": "გადაჭრის %{domain}...",
