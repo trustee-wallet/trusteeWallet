@@ -385,7 +385,14 @@ class UpdateAccountListDaemon extends Update {
                                     }
                                     prepare.push(tmp)
                                 }
-                                await Database.setTableName('account').setInsertData({ insertObjs: prepare }).insert()
+                                if (prepare.length === 0) {
+                                    if (config.debug.appErrors) {
+                                        console.log('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' fail prepare')
+                                    }
+                                    Log.daemon('UpdateAccountListDaemon skip as no account ' + tmpWalletHash + ' ' + currencyCode + ' fail prepare')
+                                } else {
+                                    await Database.setTableName('account').setInsertData({ insertObjs: prepare }).insert()
+                                }
                             }
                             // end low code
                         }

@@ -10,7 +10,7 @@ import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-
+import config from '@app/config/config'
 
 const showSendError = function(e, _this, passwordCheck) {
     const { currencyCode } = _this.props.sendScreenStore.dict
@@ -86,8 +86,11 @@ const checkLoadedFee = function(_this) {
         value = selectedFee.amountForTx
     }
 
-    if (BlocksoftExternalSettings.getStatic('SEND_AMOUNT_CHECK') > 0) {
+    if (BlocksoftExternalSettings.getStatic('SEND_AMOUNT_CHECK') > 0 && cryptoValue > 0) {  // somehow after bse cryptoValue=0
         if (BlocksoftUtils.cutZeros(value) !== BlocksoftUtils.cutZeros(cryptoValue)) {
+            if (config.debug.appErrors) {
+                console.log('SendingValue ' + BlocksoftUtils.cutZeros(value) + ' != ' + BlocksoftUtils.cutZeros(cryptoValue))
+            }
             Log.log('SendingValue ' + BlocksoftUtils.cutZeros(value) + ' != ' + BlocksoftUtils.cutZeros(cryptoValue))
             if (uiType === 'TRADE_SEND') {
                 msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
