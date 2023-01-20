@@ -68,13 +68,15 @@ export namespace BlocksoftTransfer {
 
     export const getFeeRate = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         const lower = data.addressTo.toLowerCase()
-        for(const key in CoinBlocksoftDict) {
-            const tmp = CoinBlocksoftDict[key]
-            if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
-                throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
-            }
-            if (tmp?.tokenAddress && tmp?.tokenAddress.toLowerCase() === lower) {
-                throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+        if (!data?.walletConnectData?.data) {
+            for (const key in CoinBlocksoftDict) {
+                const tmp = CoinBlocksoftDict[key]
+                if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
+                    throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+                }
+                if (tmp?.tokenAddress && tmp?.tokenAddress.toLowerCase() === lower) {
+                    throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+                }
             }
         }
 
