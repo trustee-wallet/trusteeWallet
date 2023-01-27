@@ -613,6 +613,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'ETH_DENT':
             case 'ETH_GNO':
             case 'ETH_APE':
+            case 'ETH_VERSE':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>

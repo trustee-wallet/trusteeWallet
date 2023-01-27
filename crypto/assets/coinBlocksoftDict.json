@@ -2634,5 +2634,19 @@
 		"tokenAddress": "0xcd7509b76281223f5b7d3ad5d47f8d7aa5c2b9bf",
 		"currencyExplorerLink": "https://evmexplorer.velas.com/tokens/0xcd7509b76281223f5b7d3ad5d47f8d7aa5c2b9bf/token-transfers",
 		"currencyExplorerTxLink": "https://evmexplorer.velas.com/tx/"
+	},
+	"ETH_VERSE": {
+		"currencyType": "token",
+		"currencyName": "Verse ERC20",
+		"currencyCode": "ETH_VERSE",
+		"currencySymbol": "VERSE",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "VERSE",
+		"decimals": 18,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x249cA82617eC3DfB2589c4c17ab7EC9765350a18",
+		"currencyExplorerLink": "https://etherscan.io/token/0x249cA82617eC3DfB2589c4c17ab7EC9765350a18?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	}
 }

@@ -1124,6 +1124,12 @@ export default {
             darkColor: '#6665DD',
         }
     },
+    'ETH_VERSE': {
+        colors: {
+            mainColor: '#0285FF',
+            darkColor: '#2A69D7'
+        }
+    },
     'CUSTOM_ABYSS': {
         colors: {
             mainColor: '#2E50CF',
