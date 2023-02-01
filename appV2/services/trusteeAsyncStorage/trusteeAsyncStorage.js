@@ -89,7 +89,7 @@ class TrusteeAsyncStorage {
     setCashbackParent = (value) => {
         let tmp = value
         try {
-            tmp = tmp.trim().split(/\s+/g)s
+            tmp = tmp.trim().split(/\s+/g)
             return this._set('parentTokenRechecked', tmp[0])
         } catch (e) {
             return ''
