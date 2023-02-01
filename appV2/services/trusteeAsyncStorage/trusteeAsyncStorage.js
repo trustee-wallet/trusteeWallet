@@ -1,5 +1,5 @@
 /**
- * @version 0.50
+ * @version 0.77
  */
 import AsyncStorage from '@react-native-community/async-storage'
 
@@ -77,11 +77,23 @@ class TrusteeAsyncStorage {
     }
 
     getCashbackParent = async () => {
-        return this._get('parentTokenRechecked')
+        let tmp = await this._get('parentTokenRechecked')
+        try {
+            tmp = tmp.trim().split(/\s+/g)
+            return tmp[0]
+        } catch (e) {
+            return ''
+        }
     }
 
     setCashbackParent = (value) => {
-        return this._set('parentTokenRechecked', value)
+        let tmp = value
+        try {
+            tmp = tmp.trim().split(/\s+/g)s
+            return this._set('parentTokenRechecked', tmp[0])
+        } catch (e) {
+            return ''
+        }
     }
 
     getFirebaseDynamicUrl = async () => {

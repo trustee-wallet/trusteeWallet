@@ -1,15 +1,10 @@
 /**
- * @version 0.42
+ * @version 0.77
  * @author Vadym
  */
 
 import React from 'react'
-import {
-    View,
-    Text,
-    Dimensions, 
-    TouchableOpacity
-} from 'react-native'
+import { View, Text, Dimensions, TouchableOpacity } from 'react-native'
 
 import LottieView from 'lottie-react-native'
 import { connect } from 'react-redux'

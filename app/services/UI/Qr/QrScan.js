@@ -1,11 +1,12 @@
 /**
- * @version 0.9
+ * @version 0.77
  */
-import Log from '../../Log/Log'
-import MarketingEvent from '../../Marketing/MarketingEvent'
-import BlocksoftDict from '../../../../crypto/common/BlocksoftDict'
 import _ from 'lodash'
+
 import { changeNetworkToCurrencyCode } from '@crypto/common/BlocksoftQrScanDict'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import Validator from '@app/services/UI/Validator/Validator'
+import Log from '@app/services/Log/Log'
 
 const axios = require('axios')
 
@@ -15,16 +16,24 @@ export async function decodeTransactionQrCode(param, currencyCode) {
         data: {}
     }
 
-    Log.log('Utils.QR started', param)
     if (typeof param.data === 'undefined' || !param.data) {
-        Log.log('Utils.QR no data, param', param)
         return false
     }
     try {
+        const fullLink = param.data.trim()
 
-        MarketingEvent.logOnlyRealTime('qr_scan', param.data)
+        const isMnemonicFirstWord = Validator.mnemonicValidationWordsOnly(fullLink)
+        if (isMnemonicFirstWord) {
+            return {
+                status: 'success',
+                data: {
+                    address: isMnemonicFirstWord,
+                    parsedUrl: isMnemonicFirstWord,
+                    couldBeMnemonic: true
+                }
+            }
+        }
 
-        let fullLink = param.data
         let tmp = param.data.split(':')
         if (tmp[0] === 'wc') {
             res.data.isWalletConnect = true
@@ -35,25 +44,23 @@ export async function decodeTransactionQrCode(param, currencyCode) {
                 fullLink,
                 wc : tmp[0]
             }
-            /*
-            for now - not needed - wc too but lets keep
-            if (typeof tmp[1] !== 'undefined') {
-                tmp = tmp[1].split('&')
-                for (let tmp1 of tmp) {
-                    tmp1 = tmp1.split('=')
-                    if (typeof tmp1[1] === 'undefined') continue
-                    res.data.walletConnect[tmp1[0]] = decodeURI(tmp1[1])
-                }
-            }
-            */
             return res
         } else if (!tmp[1] || tmp[1].length < 2) {
             if (!currencyCode) {
-                MarketingEvent.logOnlyRealTime('qr_error_no_network', param.data)
-                return {
-                    status: 'fail',
-                    data: {
-                        parsedUrl: param.data
+                try {
+                    const text = typeof param.data !== 'undefined' ? param.data.toString() : ''
+                    return {
+                        status: 'fail',
+                        data: {
+                            parsedUrl: text.split(' ')[0]
+                        }
+                    }
+                } catch (e1) {
+                    return {
+                        status: 'fail',
+                        data: {
+                            parsedUrl: '???'
+                        }
                     }
                 }
             } else {
@@ -177,21 +184,20 @@ export async function decodeTransactionQrCode(param, currencyCode) {
         }
 
     } catch (err) {
-        Log.err('Utils.QR error ' + err.message)
+        Log.log('Utils.QR error')
     }
 
 
     if (_.isEmpty(res.data)) {
-        Log.err('Utils.QR is empty ', res.data)
         res.status = 'fail'
-        res.data.parsedUrl = param.data
     } else {
+        res.data.parsedUrl = param.data.substring(0, 100)
         if (currencyCode && currencyCode !== res.data.currencyCode) {
             res.data.parsedCurrencyCode = res.data.currencyCode
             res.data.currencyCode = currencyCode
-            Log.log('Utils.QR is ok with updated currencyCode', res)
+            Log.log('Utils.QR is ok with updated currencyCode')
         } else {
-            Log.log('Utils.QR is ok ', res)
+            Log.log('Utils.QR is ok ')
         }
     }
 

@@ -27,6 +27,7 @@ import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { HIT_SLOP } from '@app/theme/HitSlop'
+import Validator from '@app/services/UI/Validator/Validator'
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
@@ -47,10 +48,12 @@ class QrCodePage extends PureComponent {
             }
             return ''
         }
+
+        let safePromo = ''
         try {
             setLoaderStatus(true)
-            let desc = await ApiPromo.activatePromo(this.state.promoCode)
-
+            safePromo = Validator.safeWords(this.state.promoCode)
+            let desc = await ApiPromo.activatePromo(safePromo)
             if (typeof desc !== 'string') {
                 if (typeof desc['en'] !== 'undefined') {
                     desc = desc['en']
@@ -61,7 +64,7 @@ class QrCodePage extends PureComponent {
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
-                title: strings('modal.walletBackup.success'),
+                title: strings('modal.walletBackup.success') ,
                 description: desc
             })
         } catch (e) {
@@ -69,7 +72,7 @@ class QrCodePage extends PureComponent {
                 type: 'INFO_MODAL',
                 icon: false,
                 title: strings('modal.exchange.sorry'),
-                description: strings('cashback.cashbackError.' + e.message)
+                description: strings('cashback.cashbackError.' + e.message) + ': ' + safePromo
             })
         }
         try {
@@ -86,13 +89,8 @@ class QrCodePage extends PureComponent {
     }
 
     onChangeCode = (text) => {
-        const words = text.trim().split(/\s+/g)
-        if (words.length > 2) {
-            const safeText = words.slice(0, 2).join(' ')
-            this.setState({ promoCode: safeText})
-        } else {
-            this.setState({ promoCode: text })
-        }
+        const safeText = Validator.safeWords(text)
+        this.setState({ promoCode: safeText })
     }
 
     copyToClip = (token) => {

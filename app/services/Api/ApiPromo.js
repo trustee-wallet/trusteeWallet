@@ -13,13 +13,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 export default {
 
-    activatePromo: async (text) => {
-        const words = text.trim().split(/\s+/g)
-        let promoCode = text
-        if (words.length > 2) {
-            promoCode = words.slice(0, 2).join(' ')
-        }
-
+    activatePromo: async (promoCode) => {
         const signature = await CashBackUtils.createWalletSignature(true)
         if (!signature) {
             throw new Error('UI_ERROR_CASHBACK_SIGN_ERROR')

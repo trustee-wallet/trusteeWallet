@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.77
  * Use __validator.arrayValidation to perform validation od array of data
  * Single record should be object with next fields:
  * id - identity of data/error field (for exp. 'password')
@@ -8,21 +8,22 @@
  * name - (optionally) title that will be used in error message and not equal id (for exp. 'confirm password'). If not set -> will be used id.
  **/
 
-import { strings } from '../../i18n'
-import BlocksoftKeys from '../../../../crypto/actions/BlocksoftKeys/BlocksoftKeys'
-import BtcCashUtils from '../../../../crypto/blockchains/bch/ext/BtcCashUtils'
-import MoneroUtilsParser from '../../../../crypto/blockchains/xmr/ext/MoneroUtilsParser'
-import Log from '../../Log/Log'
+import { strings } from '@app/services/i18n'
+import Log from '@app/services/Log/Log'
+
+import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
+import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
+import MoneroUtilsParser from '@crypto/blockchains/xmr/ext/MoneroUtilsParser'
 
 import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 import { isFioAddressValid } from '@crypto/blockchains/fio/FioUtils'
 import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
-import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import { isEnsAddressValid } from '@crypto/services/EnsUtils'
+import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import TronUtils from '@crypto/blockchains/trx/ext/TronUtils'
 import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
-const networksConstants = require('../../../../crypto/common/ext/networks-constants')
+const networksConstants = require('@crypto/common/ext/networks-constants')
 
 const cardNumberValid = require('fast-luhn')
 const DEFAULT_WORDS = require('./_words/english.json')
@@ -56,6 +57,16 @@ async function _userDataValidation(obj) {
 
     if (!value && optional) {
         return false
+    }
+
+
+    if (type !== 'MNEMONIC_PHRASE') {
+        const res = _mnemonicValidationWordsOnly(value)
+        if (typeof res.wordsString !== 'undefined') {
+            error.msg = strings('validator.mnemonic_detected', { name: name })
+            error.field = id
+            return error
+        }
     }
 
 
@@ -181,7 +192,7 @@ async function _userDataValidation(obj) {
             value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
-            } else if (!(value.startsWith("Æx"))) {
+            } else if (!(value.startsWith('Æx'))) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
@@ -417,17 +428,17 @@ async function _userDataValidation(obj) {
                 if (tmp.length > 1) {
                     error.msg = strings('validator.invalidFormat', { name: name })
                 }
-            } else if (typeof valueArray[valueArray.length -1] === 'undefined' || valueArray[valueArray.length -1].length !== 8) {
+            } else if (typeof valueArray[valueArray.length - 1] === 'undefined' || valueArray[valueArray.length - 1].length !== 8) {
                 error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
 
         case 'WALLET_CONNECT_LINK':
             if (!value.includes('wc:')) {
-                error.msg = strings('validator.invalidFormat', {name: name})
+                error.msg = strings('validator.invalidFormat', { name: name })
             }
             if (value.indexOf('URI format') === -1) {
-                error.msg = strings('validator.invalidFormat', {name: name})
+                error.msg = strings('validator.invalidFormat', { name: name })
             }
             break
 
@@ -459,18 +470,14 @@ function _passwordsValidation(obj) {
 }
 
 
-/**
- * @param {string} obj.mnemonic
- * @return {string|{msg: string, word: string}}
- * @private
- */
-async function _validateMnemonic(obj) {
-    const words = obj.mnemonic.trim().toLowerCase().split(/\s+/g)
+function _mnemonicValidationWordsOnly(txt) {
+    const words = txt.trim().toLowerCase().split(/\s+/g)
     const mnemonicLength = words.length
+
 
     let i = 0
     let wordsString = ''
-    if (obj.mnemonic[obj.mnemonic.length - 1] === ' ') {
+    if (txt[txt.length - 1] === ' ') {
         i = -1 //last word is spaced so will be checked
     }
     let lastError = false
@@ -499,28 +506,68 @@ async function _validateMnemonic(obj) {
     }
 
     if (lastError) {
-        return lastError
+        return { lastError }
     }
 
     wordsString = wordsString.trim()
+    return { wordsString }
+}
+
+
+/**
+ * @param {string} obj.mnemonic
+ * @return {string|{msg: string, word: string}}
+ * @private
+ */
+async function _validateMnemonic(obj) {
+    const res = _mnemonicValidationWordsOnly(obj.mnemonic)
+    if (typeof res.wordsString === 'undefined') {
+        return res
+    }
     try {
-        await BlocksoftKeys.validateMnemonic(wordsString)
+        await BlocksoftKeys.validateMnemonic(res.wordsString)
     } catch (e) {
         return e.message
     }
-    obj.mnemonic = wordsString
+    obj.mnemonic = res.wordsString
 
     return ''
 }
 
 
 module.exports = {
-    userDataValidation : async function(obj) {
+    mnemonicValidationWordsOnly: function(text) {
+        const res = _mnemonicValidationWordsOnly(text)
+        if (typeof res.wordsString === 'undefined') {
+            return false
+        }
+        return res.wordsString.split(' ')[0]
+    },
+
+    safeWords: function(text) {
+        if (!text) {
+            return false
+        }
+        try {
+            const words = text.trim().split(/\s+/g)
+            if (words.length > 2) {
+                const res = _mnemonicValidationWordsOnly(text)
+                if (typeof res.wordsString === 'undefined') {
+                    return words.slice(0, 2).join(' ')
+                }
+                return 'mnemonic'
+            } else {
+                return text
+            }
+        } catch (e) {
+            return false
+        }
+    },
+
+    userDataValidation: async function(obj) {
         obj.id = 'any'
         return _userDataValidation(obj)
     },
-
-
 
     arrayValidation: async function(array) {
         let resultArray = []
@@ -534,13 +581,13 @@ module.exports = {
                 }
             }
         }
-        if ( array.type === 'CASHBACK_LINK' ) {
-            if (array.value.includes('trusteeglobal.com/')){
+        if (array.type === 'CASHBACK_LINK') {
+            if (array.value.includes('trusteeglobal.com/')) {
                 return {
                     status: 'success',
                     errorArr: []
                 }
-            }else {
+            } else {
                 return {
                     status: 'fail',
                     errorArr: resultArray

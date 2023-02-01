@@ -1,15 +1,10 @@
 /**
- * @version 0.42
+ * @version 0.77
  * @author Vadym
  */
 
 import React from 'react'
-import {
-    View,
-    Text,
-    StyleSheet,
-    Platform
-} from 'react-native'
+import { View, Text, StyleSheet, Platform } from 'react-native'
 import { strings } from '@app/services/i18n'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 

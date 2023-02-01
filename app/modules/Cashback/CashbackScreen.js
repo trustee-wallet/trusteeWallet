@@ -1,5 +1,5 @@
 /**
- * @version 0.50
+ * @version 0.77
  * @author Vadym
  */
 import React from 'react'
@@ -273,9 +273,7 @@ class CashbackScreen extends React.PureComponent {
 
     renderFirstRoute = () => {
 
-        const {
-            cashbackStore
-        } = this.props
+        const { cashbackStore } = this.props
         let cashbackLink = cashbackStore.dataFromApi.cashbackLink || false
         let cashbackLinkTitle = cashbackStore.dataFromApi.customToken || false
         if (!cashbackLink || cashbackLink === '') {
@@ -293,10 +291,6 @@ class CashbackScreen extends React.PureComponent {
                 />
             </View>
         )
-    }
-
-    onChangeCode = (value) => {
-        this.setState(() => ({ promoCode: value }))
     }
 
     renderSecondRoute = () => {
