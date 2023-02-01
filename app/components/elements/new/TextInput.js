@@ -1,17 +1,9 @@
 /**
- * @version 0.44
+ * @version 0.77
  */
 
 import React from 'react'
-import {
-    Text,
-    TextInput,
-    View,
-    StyleSheet,
-    Animated,
-    Keyboard,
-    Clipboard
-} from 'react-native'
+import { Text, TextInput, View, StyleSheet, Animated, Keyboard, Clipboard } from 'react-native'
 
 import QR from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -27,7 +19,6 @@ export default function Input(props) {
         placeholder = '',
         label = '',
         labelColor = colors.common.text1,
-        autoCorrect = false,
         onChangeText = null,
         value,
         inputStyle,
@@ -71,7 +62,8 @@ export default function Input(props) {
                     allowFontScaling={false}
                     placeholder={placeholder}
                     placeholderTextColor={colors.common.textInput.placeholder}
-                    autoCorrect={autoCorrect}
+                    autoCorrect={false}
+                    spellCheck={false}
                     onChangeText={onChangeText}
                     value={value}
                     ref={compRef}

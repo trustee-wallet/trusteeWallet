@@ -1,18 +1,10 @@
-    /**
- * @version 0.42
+/**
+ * @version 0.77
  * @author Vadym
  */
 
 import React, { PureComponent } from 'react'
-import {
-    Image,
-    ImageBackground,
-    Text,
-    View,
-    StyleSheet,
-    Dimensions,
-    Platform
-} from 'react-native'
+import { Image, ImageBackground, Text, View, StyleSheet, Dimensions, Platform } from 'react-native'
 import { Portal, PortalHost } from '@gorhom/portal'
 
 import QrCodeBox from '@app/components/elements/QrCodeBox'
@@ -29,7 +21,6 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 import Log from '@app/services/Log/Log'
 import ApiPromo from '@app/services/Api/ApiPromo'
-import config from '@app/config/config'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
@@ -45,10 +36,21 @@ class QrCodePage extends PureComponent {
         promoCode: ''
     }
 
+    promoInput = React.createRef()
+
     handleApplyPromoCode = async () => {
+        if (!this.state.promoCode || this.state.promoCode.trim() === '') {
+            try {
+                this.promoInput.clear()
+            } catch (e) {
+                // do nothing
+            }
+            return ''
+        }
         try {
             setLoaderStatus(true)
             let desc = await ApiPromo.activatePromo(this.state.promoCode)
+
             if (typeof desc !== 'string') {
                 if (typeof desc['en'] !== 'undefined') {
                     desc = desc['en']
@@ -63,15 +65,17 @@ class QrCodePage extends PureComponent {
                 description: desc
             })
         } catch (e) {
-            if (config.debug.appErrors) {
-                console.log('CashBackScreen.Promo.handleApply error ' + e.message, e)
-            }
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
                 title: strings('modal.exchange.sorry'),
                 description: strings('cashback.cashbackError.' + e.message)
             })
+        }
+        try {
+            this.promoInput.clear()
+        } catch (e) {
+            // do nothing
         }
         setLoaderStatus(false)
         this.handleDisablePromoCode()
@@ -82,7 +86,13 @@ class QrCodePage extends PureComponent {
     }
 
     onChangeCode = (text) => {
-        this.setState({ promoCode: text })
+        const words = text.trim().split(/\s+/g)
+        if (words.length > 2) {
+            const safeText = words.slice(0, 2).join(' ')
+            this.setState({ promoCode: safeText})
+        } else {
+            this.setState({ promoCode: text })
+        }
     }
 
     copyToClip = (token) => {
@@ -92,15 +102,8 @@ class QrCodePage extends PureComponent {
     }
 
     handleRenderQrError = (e) => {
-        if (e.message !== 'No input text') Log.err('CashbackScreen QRCode error ' + e.message)
-    }
-
-    handleBlur = () => {
-        if (this.state.promoCode === '') {
-            this.handleDisablePromoCode()
-            this.props.scrollToTop()
-        } else {
-            return null
+        if (e.message !== 'No input text') {
+            Log.log('CashbackScreen QRCode error')
         }
     }
 
@@ -116,6 +119,7 @@ class QrCodePage extends PureComponent {
         return (
             <View style={[styles.inputWrapper, { margin: GRID_SIZE }]}>
                 <TextInput
+                    compRef={ref => this.promoInput = ref}
                     onBlur={this.handleDisablePromoCode}
                     numberOfLines={1}
                     containerStyle={{ width: WINDOW_WIDTH - GRID_SIZE * 2 }}
@@ -204,7 +208,7 @@ class QrCodePage extends PureComponent {
                     </TouchableDebounce>
 
                     <Text style={[styles.yourToken, { color: colors.common.text3, marginTop: GRID_SIZE / 2 }]}>{strings('cashback.yourToken')}</Text>
-                    
+
                     <View style={[{ position: 'relative', bottom: -GRID_SIZE * 2 }]}>
                         <TouchableDebounce
                             onPress={() => this.handleBackDropModal(this.state.promoCode)}

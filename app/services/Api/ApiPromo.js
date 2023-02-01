@@ -1,5 +1,5 @@
 /**
- * @version 0.11
+ * @version 0.77
  */
 
 import Log from '@app/services/Log/Log'
@@ -13,7 +13,13 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 export default {
 
-    activatePromo: async (promoCode) => {
+    activatePromo: async (text) => {
+        const words = text.trim().split(/\s+/g)
+        let promoCode = text
+        if (words.length > 2) {
+            promoCode = words.slice(0, 2).join(' ')
+        }
+
         const signature = await CashBackUtils.createWalletSignature(true)
         if (!signature) {
             throw new Error('UI_ERROR_CASHBACK_SIGN_ERROR')
@@ -46,7 +52,6 @@ export default {
             try {
                 res = await BlocksoftAxios.post(link, getStatisticsReqData)
             } catch (e) {
-                console.log(e.message)
                 if (e.message.indexOf('checkforduplicate') !== -1) {
                     throw new Error('UI_ERROR_CASHBACK_PROMO_DUPLICATE')
                 } else if (e.message.indexOf('no info about promo code')) {
