@@ -544,7 +544,7 @@ module.exports = {
         return res.wordsString.split(' ')[0]
     },
 
-    safeWords: function(text) {
+    safeWords: function(text, maxWords = 2) {
         if (!text) {
             return false
         }
@@ -553,7 +553,7 @@ module.exports = {
             if (words.length > 2) {
                 const res = _mnemonicValidationWordsOnly(text)
                 if (typeof res.wordsString === 'undefined') {
-                    return words.slice(0, 2).join(' ')
+                    return words.slice(0, maxWords).join(' ')
                 }
                 return 'mnemonic'
             } else {

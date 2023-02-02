@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.77
  * @author Vadym
  */
 import React from 'react'
@@ -134,7 +134,7 @@ class AddAssetScreen extends React.PureComponent {
         NavStore.goNext('QRCodeScannerScreen')
     }
 
-    handleChangeCustomAddress = (value) => { this.setState(() => ({ customAddress: value })) }
+    handleChangeCustomAddress = (value) => { this.setState(() => ({ customAddress: Validator.safeWords(value) })) }
 
     handleAddCustomToken = async (value) => {
         Keyboard.dismiss()
@@ -271,19 +271,19 @@ class AddAssetScreen extends React.PureComponent {
 
     renderTokenHeader = (data) => {
 
-        const { GRID_SIZE } = this.context 
-        
+        const { GRID_SIZE } = this.context
+
         data = data.map(item => ({
             data: item.data,
             title: item.title === 'BINANCE SMART CHAIN (BEP-20)' ? item.title = 'BSC (BEP-20)' : item.title,
         }))
 
         return(
-            <View>  
+            <View>
                 <View>
                     {this.renderTabs(true)}
                 </View>
-                <View style={{ marginTop: -GRID_SIZE / 2, marginBottom: GRID_SIZE * 1.5, flexGrow: 1 }}> 
+                <View style={{ marginTop: -GRID_SIZE / 2, marginBottom: GRID_SIZE * 1.5, flexGrow: 1 }}>
                     {this.renderTokenFlatList([{title: 'ALL', data: []}, ...data])}
                 </View>
             </View>
@@ -296,7 +296,7 @@ class AddAssetScreen extends React.PureComponent {
 
         return(
             <View>
-                <ActivityIndicator 
+                <ActivityIndicator
                     color={colors.common.text1}
                     size='large'
                 />
@@ -348,7 +348,7 @@ class AddAssetScreen extends React.PureComponent {
                                 {...this.commonHeaderProps}
                                 ListEmptyComponent={null}
                                 data={data}
-                                ListHeaderComponent={this.state.searchQuery ? null : 
+                                ListHeaderComponent={this.state.searchQuery ? null :
                                 <TouchableDebounce style={{ flex: 1, marginBottom: GRID_SIZE }} activeOpacity={1} >
                                     {this.renderTabs(false)}
                                     <View style={[styles.customAddressConent, { marginHorizontal: GRID_SIZE }]}>
@@ -372,7 +372,7 @@ class AddAssetScreen extends React.PureComponent {
                                     )}
                                     ListEmptyComponent={() => this.renderLoader()}
                                 />
-                            ) : 
+                            ) :
                                  (
                                     <SectionList
                                         {...this.commonHeaderProps}
@@ -385,7 +385,7 @@ class AddAssetScreen extends React.PureComponent {
                                         renderSectionFooter={() => <View style={{ flex: 1, height: GRID_SIZE * 2 }} />}
                                         ListEmptyComponent={() => this.renderLoader()}
                                     />
-                                ) : 
+                                ) :
                                 (
                                     <FlatList
                                         {...this.commonHeaderProps}
@@ -471,7 +471,7 @@ class AddAssetScreen extends React.PureComponent {
                     TitleExtraView={() => {
                         if (availableStaking) {
                             return (
-                                <PercentView 
+                                <PercentView
                                     value={this.props.stakingCoins[item.currencyCode]}
                                     staking
                                 />

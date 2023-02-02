@@ -1,5 +1,5 @@
 /**
- * @version 0.577
+ * @version 0.77
  * @author yura
  */
 import React, { PureComponent } from 'react'
@@ -172,7 +172,7 @@ class AccountTransactionScreen extends PureComponent {
         this.setState({
             commentToView: {
                 ...commentToView,
-                description: Validator.safeWords(value)
+                description: Validator.safeWords(value, 100)
             },
             commentEditable: true
         })
