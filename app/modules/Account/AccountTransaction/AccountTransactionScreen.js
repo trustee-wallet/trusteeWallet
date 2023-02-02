@@ -1,5 +1,5 @@
 /**
- * @version 0.53
+ * @version 0.577
  * @author yura
  */
 import React, { PureComponent } from 'react'
@@ -44,6 +44,7 @@ import TextInput from '@app/components/elements/new/TextInput'
 
 import { renderReplaceByFee, renderReplaceByFeeRemove, _onLoad, handleLink, onBlurComment, shareTransaction } from './helper'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import Validator from '@app/services/UI/Validator/Validator'
 
 
 let CACHE_RESCAN_TX = false
@@ -171,7 +172,7 @@ class AccountTransactionScreen extends PureComponent {
         this.setState({
             commentToView: {
                 ...commentToView,
-                description: value
+                description: Validator.safeWords(value)
             },
             commentEditable: true
         })
