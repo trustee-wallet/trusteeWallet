@@ -1,5 +1,5 @@
 /**
- * @version 0.41
+ * @version 0.77
  */
 import Log from '@app/services/Log/Log'
 
@@ -36,7 +36,7 @@ export namespace SendDeepLinking {
                 initialURL = branchData ? branchData.$desktop_url : ''
             }
         } catch (e) {
-            Log.err('SendDeepLinking.handleInitialURL get error ' + e.message, initialURL)
+            Log.log('SendDeepLinking.handleInitialURL get error ' + e.message, initialURL)
             return
         }
         await Log.log('SendDeepLinking.handleInitialURL get success ' + JSON.stringify(initialURL))
@@ -70,9 +70,9 @@ export namespace SendDeepLinking {
                 return
             }
 
-            const res = await decodeTransactionQrCode({ data: data })
+            const res = await decodeTransactionQrCode({ data })
             if (typeof res.data === 'undefined') {
-                await Log.log('SendDeepLinking.handleInitialURL error as no parsing result ' + JSON.stringify(data))
+                await Log.log('SendDeepLinking.handleInitialURL error as no parsing result')
                 return
             }
 
@@ -87,7 +87,7 @@ export namespace SendDeepLinking {
             await SendActionsStart.startFromDeepLinking(parsed)
 
         } catch (e) {
-            Log.err('SendDeepLinking.handleInitialURL decode error ' + e.message)
+            Log.log('SendDeepLinking.handleInitialURL decode error ')
         }
     }
 }

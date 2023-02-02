@@ -1,5 +1,5 @@
 /**
- * @version 0.41
+ * @version 0.77
  */
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
@@ -13,10 +13,7 @@ import AddressInput from '@app/components/elements/NewInput'
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-
 import { SendActionsContactBook } from '@app/appstores/Stores/Send/SendActionsContactBook'
-import Log from '@app/services/Log/Log'
-import Toast from '@app/services/UI/Toast/Toast'
 
 const addressInput = {
     id: 'address',

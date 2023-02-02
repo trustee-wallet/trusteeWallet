@@ -1,5 +1,5 @@
 /**
- * @version 0.41
+ * @version 0.77
  * @author yura
  */
 import React, { PureComponent } from 'react'
@@ -11,8 +11,6 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import Validator from '@app/services/UI/Validator/Validator'
 import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
-
-import Log from '@app/services/Log/Log'
 
 class InputAndButtonsInput extends PureComponent {
 
@@ -54,7 +52,7 @@ class InputAndButtonsInput extends PureComponent {
         } else {
             const validation = await Validator.arrayValidation([{ id, name, type, subtype, cuttype, value }])
             this.setState({
-                value,
+                value : Validator.safeWords(value),
                 errors: validation.errorArr,
                 fontSize: value.length > 8 && value.length < 10 ? 36 : value.length >= 10 && value.length < 12 ? 32 : value.length >= 12 && value.length < 15 ? 28 : value.length >= 15 ? 20 : 40
             })
@@ -122,7 +120,6 @@ class InputAndButtonsInput extends PureComponent {
                 value
             }
             validation = await Validator.arrayValidation([params])
-            Log.log('Input.handleValidate one', { validation, params })
         }
 
         this.setState({
@@ -132,38 +129,26 @@ class InputAndButtonsInput extends PureComponent {
 
         return {
             status: validation.status,
-            value: value,
+            value,
             valueState: valueState
         }
     }
 
     render() {
 
-        const { value, focus, errors, autoFocus, fontSize } = this.state
-        const {
-            id,
-            style,
-            onFocus,
-            disabled,
-            noEdit,
-            enoughFunds = false,
-            maxLength,
-            maxWidth = 17
-        } = this.props
+        const { value, focus, fontSize } = this.state
+        const { onFocus, noEdit, enoughFunds = false,  maxLength, maxWidth = 17 } = this.props
 
         const { colors } = this.context
-
-        let error = errors.find(item => item.field === id)
-        error = typeof error !== 'undefined' ? error.msg : ''
 
         return (
             <View style={styles.wrapper}>
                 <TextInput
                     ref={component => this.valueInput = component}
                     keyboardType={'numeric'}
-                    placeholder={this.state.focus ? '' : '0.00'}
+                    placeholder={focus ? '' : '0.00'}
                     placeholderTextColor={colors.sendScreen.amount }
-                    fontSize={this.state.fontSize}
+                    fontSize={fontSize}
                     selectionColor={'#7127ac'}
                     textAlign={'center'}
                     value={value}
@@ -181,8 +166,8 @@ class InputAndButtonsInput extends PureComponent {
                         onFocus()
                     }}
                     maxLength={maxLength}
-                    autoCorrect={true}
-                    spellCheck={true}
+                    autoCorrect={false}
+                    spellCheck={false}
                     allowFontScaling={false}
                     />
             </View>
