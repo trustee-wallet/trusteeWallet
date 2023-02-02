@@ -1,17 +1,10 @@
 /**
- * @version 0.50
+ * @version 0.77
  * @author yura
  */
 
 import React, { PureComponent } from 'react'
-import { 
-    Dimensions, 
-    PixelRatio, 
-    StyleSheet, 
-    TouchableOpacity, 
-    View, 
-    Text
-} from 'react-native'
+import { Dimensions, PixelRatio, StyleSheet, TouchableOpacity, View, Text } from 'react-native'
 import { connect } from 'react-redux'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -28,6 +21,7 @@ import { strings } from '@app/services/i18n'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import NavStore from '@app/components/navigation/NavStore'
+import Validator from '@app/services/UI/Validator/Validator'
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
@@ -55,7 +49,6 @@ class WalletName extends PureComponent {
         if (!isEditable) {
             try {
                 tmpWalletName = tmpWalletName.length > SIZE ? tmpWalletName.slice(0, SIZE) + '...' : tmpWalletName
-                // tmpWalletName = tmpWalletName.replace(/[\u2006]/g, '').split('').join(String.fromCodePoint(parseInt('2006', 16)))
             } catch (e) {
                 tmpWalletName = 'TRUSTEE WALLET'
             }
@@ -64,7 +57,7 @@ class WalletName extends PureComponent {
     }
 
     onChangeName = (text) => {
-        const tmpText = text.replace(/[\u2006]/g, '')
+        const tmpText = Validator.safeWords(text.replace(/[\u2006]/g, ''), 10)
         setSelectedWalletName(tmpText)
     }
 
@@ -87,7 +80,6 @@ class WalletName extends PureComponent {
     }
 
     render() {
-
         const { walletHash, walletName } = this.props.selectedWallet
         const { isEditing } = this.state
         const { colors, GRID_SIZE } = this.context

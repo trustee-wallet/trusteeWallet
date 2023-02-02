@@ -1,14 +1,8 @@
 /**
- * @version 0.43
+ * @version 0.77
  */
 import React, { PureComponent } from 'react'
-import {
-    View,
-    Text,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-} from 'react-native'
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux'
 
 import NavStore from '@app/components/navigation/NavStore'
@@ -30,6 +24,7 @@ import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { getWalletsGeneralData, getWalletsNumber } from '@app/appstores/Stores/Wallet/selectors'
 import { handleBackup } from '../helpers'
+import Validator from '@app/services/UI/Validator/Validator'
 
 
 class AdvancedWalletScreen extends PureComponent {
@@ -40,7 +35,7 @@ class AdvancedWalletScreen extends PureComponent {
 
     inputRef = React.createRef()
 
-    onChangeName = (value) => { this.setState(() => ({ walletName: value })) }
+    onChangeName = (value) => { this.setState(() => ({ walletName: Validator.safeWords(value, 10) })) }
 
     onBlurInput = async () => {
         const { walletName: oldName, walletHash } = this.props.selectedWalletData

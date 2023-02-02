@@ -1,14 +1,14 @@
 /**
- * @version 0.9
+ * @version 0.77
  */
 import Database from '@app/appstores/DataSource/Database'
 
 import BlocksoftKeysUtils from '@crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
-import Log from '@app/services/Log/Log'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import UpdateWalletsDaemon from '@app/daemons/back/UpdateWalletsDaemon'
 
 import store from '@app/store'
+import Validator from '@app/services/UI/Validator/Validator'
 
 
 const CACHE = []
@@ -66,11 +66,9 @@ class Wallet {
      * @returns {Promise<void>}
      */
     clearWallet = async (wallet) => {
-        Log.daemon('DS/Wallet clear wallet called ' + wallet.walletHash)
         const sql = `DELETE FROM wallet WHERE wallet_hash='${wallet.walletHash}'`
         await Database.query(sql)
         CACHE[wallet.walletHash] = false
-        Log.daemon('DS/Wallet clear wallet finished ' + wallet.walletHash)
     }
 
     /**
@@ -192,7 +190,6 @@ class Wallet {
                 wallet_is_created_here AS walletIsCreatedHere
                 FROM wallet ORDER BY wallet_number`)
         if (!res || !res.array) {
-            Log.log('DS/Wallet getWallets no result')
             return []
         }
         for (let i = 0, ic = res.array.length; i < ic; i++) {
@@ -215,6 +212,10 @@ class Wallet {
     _prepWallet(wallet) {
         wallet.walletToSendStatus = wallet.walletToSendStatus * 1
         wallet.walletName = Database.unEscapeString(wallet.walletName)
+        const safeName = Validator.safeWords(wallet.walletName, 10)
+        if (wallet.walletName !== safeName) {
+            Database.query(`UPDATE wallet SET wallet_name='${Database.escapeString(safeName)}' WHERE wallet_hash='${wallet.walletHash}'`)
+        }
         wallet.walletNumber = wallet.walletNumber * 1 || 1
         wallet.walletIsHd = wallet.walletIsHd * 1 || 0
         if (typeof wallet.walletIsBackedUp !== 'undefined') {
