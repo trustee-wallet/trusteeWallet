@@ -1,4 +1,8 @@
-import config from '../../app/config/config'
+/**
+ * @version 0.77
+ */
+import config from '@app/config/config'
+import Log from '@app/services/Log/Log'
 
 const MAX_LENGTH = 4090
 
@@ -6,14 +10,13 @@ const IN_TEST = (process && process.env && process.env.JEST_WORKER_ID)
 
 const BAD_CHATS = {}
 
-const CACHE_VALID_TIME = 60000 // 1 minute
-const CACHE_TIME = {}
-const CACHE_FILTER = {}
-
 const CACHE_ERROR_TIME = 60000
 let CACHE_ERROR = 0
 
 const axios = require('axios')
+
+const CACHE_SAY_MY_NAME = { }
+const CACHE_NAMES = {}
 
 class BlocksoftTg {
     constructor(key, chat) {
@@ -30,30 +33,16 @@ class BlocksoftTg {
     }
 
     async _getFilter(API_KEY, CHAT) {
-        const now = new Date().getTime()
-
-        if (typeof CACHE_TIME[CHAT] !== 'undefined' && now - CACHE_TIME[CHAT] < CACHE_VALID_TIME) {
-            return CACHE_FILTER[CHAT]
-        }
-
-        const data = await this._request('getChat', { chat_id: CHAT }, API_KEY)
-        CACHE_FILTER[CHAT] = false
-        CACHE_TIME[CHAT] = now
-
-        if (!data || typeof data.result === 'undefined' || !data.result || typeof data.result.pinned_message === 'undefined') {
-            return false
-        }
-        const text = data.result.pinned_message.text
-        if (!text) {
-            return false
-        }
         try {
-            const tmp = JSON.parse(text)
-            CACHE_FILTER[CHAT] = tmp.mute
+            const data = await this._request('getChat', { chat_id: CHAT }, API_KEY)
+            if (!data || typeof data.result === 'undefined' || !data.result || data.result === true) {
+                return false
+            }
+            CACHE_NAMES[CHAT] = data.result
         } catch (e) {
-
+            // do nothing
         }
-        return CACHE_FILTER[CHAT]
+        return false
     }
 
     async send(text, API_KEY = false, CHAT = false) {
@@ -75,6 +64,9 @@ class BlocksoftTg {
 
         let result
         for (const ID of CHAT) {
+            if (typeof CACHE_SAY_MY_NAME[API_KEY + '_' + ID] === 'undefined') {
+                await this._getFilter(API_KEY, ID)
+            }
             if (typeof BAD_CHATS[ID] !== 'undefined' && typeof BAD_CHATS[ID][API_KEY] !== 'undefined') {
                 return false
             }
@@ -83,22 +75,23 @@ class BlocksoftTg {
                 text = text.substring(0, MAX_LENGTH)
             }
             try {
-                const filters = await this._getFilter(API_KEY, ID)
-                if (filters) {
-                    let filter
-                    for (filter of filters) {
-                        if (text.indexOf(filter) !== -1) {
-                            return false
-                        }
-                    }
-                }
                 result = await this._request('sendMessage', {
                     text: text,
                     chat_id: ID
                 }, API_KEY)
+
+                if (typeof CACHE_NAMES[ID] === 'undefined' || typeof CACHE_SAY_MY_NAME[API_KEY + '_' + ID] === 'undefined') {
+                    await this._getFilter(API_KEY, ID)
+                    Log.log('BlocksoftTg ID: ' + ID + ' NAME OK: ', CACHE_NAMES[ID])
+                    CACHE_SAY_MY_NAME[API_KEY + '_' + ID] = 1
+                }
             } catch (err) {
+                if (typeof CACHE_NAMES[ID] === 'undefined' || typeof CACHE_SAY_MY_NAME[API_KEY + '_' + ID] === 'undefined') {
+                    await this._getFilter(API_KEY, ID)
+                    Log.log('BlocksoftTg ID: ' + ID + ' NAME BAD: ', CACHE_NAMES[ID])
+                    CACHE_SAY_MY_NAME[API_KEY + '_' + ID] = 1
+                }
                 if (typeof err.code !== 'undefined' && err.code && err.code.toString() === '429') {
-                    console.error(text)
                     return true
                 } else if (err.description === 'Bad Gateway') {
                     return false
@@ -144,9 +137,6 @@ class BlocksoftTg {
                 }
             }
             e.message += ' ' + link + ' ' + JSON.stringify(qs)
-            if (config.debug.appErrors) {
-                console.log('TG error : ' + e.message)
-            }
             if (e.message.indexOf('Too Many Requests') !== -1) {
                 CACHE_ERROR = now
             }

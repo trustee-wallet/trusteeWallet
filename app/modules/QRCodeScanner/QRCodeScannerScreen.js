@@ -1,5 +1,5 @@
 /**
- * @version 0.45
+ * @version 0.77
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
@@ -60,7 +60,7 @@ class QRCodeScannerScreen extends PureComponent {
             UpdateOneByOneDaemon.unstop()
             await finishProcess(param, this.props.qrCodeScannerConfig)
         } catch (e) {
-            Log.err('QRCodeScanner.onSuccess error ' + e.message)
+            Log.log('QRCodeScanner.onSuccess error')
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -85,7 +85,7 @@ class QRCodeScannerScreen extends PureComponent {
                 message = strings('tradeScreen.modalError.qrNotFoundInFile')
                 goBack = false
             } else {
-                Log.err('QRCodeScanner.onOpenGallery error ' + e.message)
+                Log.log('QRCodeScanner.onOpenGallery error')
             }
             showModal({
                 type: 'INFO_MODAL',

@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.77
  */
 import crashlytics from '@react-native-firebase/crashlytics'
 import analytics from '@react-native-firebase/analytics'
@@ -253,19 +253,17 @@ class MarketingEvent {
         }
 
         if (PREFIX !== 'RTM') {
-            const now = new Date().getTime()
-
             try {
                 await analytics().logEvent(logTitle.replace(' ', '_'), logDataObject)
             } catch (e) {
-                await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
+                await Log.log(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             }
         }
 
         try {
             await this.TG.send(PREFIX + `_2021_04_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
         } catch (e) {
-            await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
+            // do nothing
         }
     }
 

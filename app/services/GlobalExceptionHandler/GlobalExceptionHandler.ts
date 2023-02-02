@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.77
  */
 import {
     setJSExceptionHandler,
@@ -22,6 +22,7 @@ const exceptionHandlerText = async (text: string, isFatal : string = 'native'): 
             if (text.indexOf('the componentWillUnmount') === -1
                 && text.indexOf('AsyncStorage has been extracted from react-native core') === -1
                 && text.indexOf('Each child') === -1
+                && text.indexOf('React state') === -1
             ) {
                 Log.err('ERROR FROM HANDLER ' + isFatal + ' ' + text)
             } else {

@@ -1,3 +1,6 @@
+/**
+ * @version 0.77
+ */
 const networkToCurrencyCode = {
     'litecoin': 'LTC',
     'ltc': 'LTC',
@@ -41,7 +44,12 @@ const networkToCurrencyCode = {
     'bitcoincash': 'BCH',
     'fantom': 'FTM',
     'optimism': 'OPTIMISM',
-    'solana': 'SOL'
+    'solana': 'SOL',
+    'tether usd (usdttrx) address': 'TRX_USDT',
+    'tron trc20 (usdt)': 'TRX_USDT',
+    'trc20': 'TRX_USDT',
+    'tether-erc-20': 'TRX_USDT',
+    'tethererc20': 'ETH_USDT'
 }
 
 const currencyNameToNetwork = {
