@@ -1,18 +1,11 @@
+/**
+ * @version 0.77
+ */
 
 import React from 'react'
-import {
-    Text,
-    TouchableOpacity,
-    View,
-    StyleSheet,
-} from 'react-native'
+import { StyleSheet } from 'react-native'
 
-import Button from '../../../components/elements/new/buttons/Button'
-
-import { useTheme } from '@app/theme/ThemeProvider'
-
-import { strings } from '../../../services/i18n'
-
+import Button from '@app/components/elements/new/buttons/Button'
 
 export default function MnemonicWord(props) {
     const {
@@ -21,7 +14,6 @@ export default function MnemonicWord(props) {
         hidden,
     } = props
     const title = hidden ? '-'.repeat(value.length) : value.toUpperCase()
-    const { colors } = useTheme()
 
     return (
         <Button

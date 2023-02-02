@@ -5,15 +5,7 @@
 
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    Animated,
-    Dimensions
-} from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Dimensions } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -201,7 +193,7 @@ class BackupStep0Screen extends PureComponent {
             })
 
         } catch (e) {
-            Log.err('WalletBackup.BackupStep0Screen.componentDidMount error ' + e.message)
+            Log.log('WalletBackup.BackupStep0Screen.componentDidMount error')
         }
     }
 

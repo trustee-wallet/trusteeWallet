@@ -1,17 +1,10 @@
 /**
- * @version 0.43
+ * @version 0.77
  * @author Vadym
  */
 
 import React, { useState } from 'react'
-import {
-    View,
-    StyleSheet,
-    Dimensions,
-    Animated,
-    LayoutAnimation,
-    Text
-} from 'react-native'
+import { View, StyleSheet, Dimensions, Animated, LayoutAnimation, Text } from 'react-native'
 import { BlurView } from "@react-native-community/blur";
 
 import { strings } from '@app/services/i18n'
@@ -30,15 +23,15 @@ const MnemonicQrCode = (props) => {
 
     const CustomAnimationConfig = {
         duration: 250,
-        create: { 
-            type: 'linear', 
+        create: {
+            type: 'linear',
             property: 'opacity'
         },
-        update: { 
+        update: {
             type: 'linear',
         },
-        delate: { 
-            type: 'linear', 
+        delete: {
+            type: 'linear',
             property: 'opacity'
         }
     }
@@ -106,7 +99,7 @@ const MnemonicQrCode = (props) => {
                             logoSize={WINDOW_WIDTH * 0.175}
                             logoBackgroundColor='transparent'
                             onError={(e) => {
-                                Log.err('MnemonicQrCode QRCode error ' + e.message)
+                                Log.log('MnemonicQrCode QRCode error')
                             }}
                         />
                         
