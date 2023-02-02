@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.77
  * @description ksu jumping
  */
 
@@ -116,11 +116,11 @@ class BackupStep0Screen extends PureComponent {
                 if (checkLock) {
                     if (this.props.lockScreenStatus * 1 > 0) {
                         setLockScreenConfig({
-                            flowType: LockScreenFlowTypes.MNEMONIC_CALLBACK, 
+                            flowType: LockScreenFlowTypes.MNEMONIC_CALLBACK,
                             noCallback: () => {
                                 NavStore.goBack()
                                 NavStore.goBack()
-                            }, 
+                            },
                             callback: async () => {
                                 await this._init(false)
                             }
@@ -385,8 +385,9 @@ class BackupStep0Screen extends PureComponent {
 
     // for developing and testing only
     handleCopyModal = () => {
-        copyToClipboard(this.state.walletMnemonic)
-        Toast.setMessage(strings('toast.copied')).show()
+        // mnemonic - no buffer!
+        copyToClipboard('disabled')
+        Toast.setMessage(strings('toast.copy.disabled')).show()
     }
 
     onNext = () => {
