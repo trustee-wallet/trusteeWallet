@@ -4,7 +4,7 @@
  */
 
 import React, { PureComponent } from 'react'
-import { Image, ImageBackground, Text, View, StyleSheet, Dimensions, Platform } from 'react-native'
+import { Image, ImageBackground, Text, View, StyleSheet, Dimensions, Platform, Keyboard, KeyboardAvoidingView } from 'react-native'
 import { Portal, PortalHost } from '@gorhom/portal'
 
 import QrCodeBox from '@app/components/elements/QrCodeBox'
@@ -34,10 +34,28 @@ const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 class QrCodePage extends PureComponent {
 
     state = {
-        promoCode: ''
+        promoCode: '',
+        keyboardHeight: 0
     }
 
     promoInput = React.createRef()
+
+    _keyboardDidShow = (e) => {
+        this.setState({ keyboardHeight: e.endCoordinates.height })
+    }
+
+    _keyboardDidHide = () => {
+        this.setState({ keyboardHeight: 0 })
+    }
+
+    componentDidMount(){
+        this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow)
+        this.keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', this._keyboardDidHide)
+    }
+
+    componentWillUnmount(){
+        Keyboard.removeAllListeners()
+    }
 
     handleApplyPromoCode = async () => {
         if (!this.state.promoCode || this.state.promoCode.trim() === '') {
@@ -68,6 +86,7 @@ class QrCodePage extends PureComponent {
                 description: desc
             })
         } catch (e) {
+            this.handleCloseBackDropModal()
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
@@ -82,6 +101,7 @@ class QrCodePage extends PureComponent {
         }
         setLoaderStatus(false)
         this.handleDisablePromoCode()
+        Keyboard.dismiss()
     }
 
     handleDisablePromoCode = () => {
@@ -124,6 +144,9 @@ class QrCodePage extends PureComponent {
                     placeholder={strings('cashback.enterPromoPlaceholder')}
                     onChangeText={this.onChangeCode}
                     value={this.state.promoCode.value}
+                    onFocus={() => {
+                        this.bottomSheetRef.open()
+                    }}
                 />
                 <View style={[styles.buttonsRow, { marginTop: GRID_SIZE }]}>
                     <Button
@@ -147,10 +170,18 @@ class QrCodePage extends PureComponent {
 
     handleBackDropModal = () => {
         this.bottomSheetRef.open()
+        this.promoInput?.focus()
     }
 
     handleCloseBackDropModal = () => {
         this.bottomSheetRef.close()
+        Keyboard.dismiss()
+    }
+
+    onChange = (number) => {
+        if (number < 1) {
+            Keyboard.dismiss()
+        }
     }
 
     render() {
@@ -230,8 +261,9 @@ class QrCodePage extends PureComponent {
                 <Portal>
                     <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
-                        snapPoints={[0, 180]}
+                        snapPoints={[-1, this.state.keyboardHeight+180]}
                         index={0}
+                        onChange={this.onChange}
                     >
                         {this.renderModalContent()}
                     </SheetBottom>
