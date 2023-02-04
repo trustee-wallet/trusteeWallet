@@ -4,7 +4,7 @@
  */
 
 import React, { PureComponent } from 'react'
-import { Image, ImageBackground, Text, View, StyleSheet, Dimensions, Platform, Keyboard, KeyboardAvoidingView } from 'react-native'
+import { Image, ImageBackground, Text, View, StyleSheet, Dimensions, Platform, Keyboard } from 'react-native'
 import { Portal, PortalHost } from '@gorhom/portal'
 
 import QrCodeBox from '@app/components/elements/QrCodeBox'
@@ -40,6 +40,8 @@ class QrCodePage extends PureComponent {
 
     promoInput = React.createRef()
 
+    isAndroid = Platform.OS === 'android'
+
     _keyboardDidShow = (e) => {
         this.setState({ keyboardHeight: e.endCoordinates.height })
     }
@@ -49,12 +51,17 @@ class QrCodePage extends PureComponent {
     }
 
     componentDidMount(){
-        this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow)
-        this.keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', this._keyboardDidHide)
+        if (!this.isAndroid) {
+            this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow)
+            this.keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', this._keyboardDidHide)
+        }
     }
 
     componentWillUnmount(){
-        Keyboard.removeAllListeners()
+        if (!this.isAndroid) {
+            this.keyboardDidShowListener.remove()
+            this.keyboardDidHideListener.remove()
+        }
     }
 
     handleApplyPromoCode = async () => {
@@ -101,7 +108,9 @@ class QrCodePage extends PureComponent {
         }
         setLoaderStatus(false)
         this.handleDisablePromoCode()
-        Keyboard.dismiss()
+        if (!this.isAndroid) {
+            Keyboard.dismiss()
+        }
     }
 
     handleDisablePromoCode = () => {
@@ -145,7 +154,9 @@ class QrCodePage extends PureComponent {
                     onChangeText={this.onChangeCode}
                     value={this.state.promoCode.value}
                     onFocus={() => {
-                        this.bottomSheetRef.open()
+                        if (!this.isAndroid) {
+                            this.bottomSheetRef.open()
+                        }
                     }}
                 />
                 <View style={[styles.buttonsRow, { marginTop: GRID_SIZE }]}>
@@ -174,12 +185,13 @@ class QrCodePage extends PureComponent {
     }
 
     handleCloseBackDropModal = () => {
-        this.bottomSheetRef.close()
+        this.bottomSheetRef.close()        
         Keyboard.dismiss()
     }
 
     onChange = (number) => {
-        if (number < 1) {
+        if (this.isAndroid) return
+        if (this.props.isFocused && number < 1) {
             Keyboard.dismiss()
         }
     }
@@ -261,7 +273,7 @@ class QrCodePage extends PureComponent {
                 <Portal>
                     <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
-                        snapPoints={[-1, this.state.keyboardHeight+180]}
+                        snapPoints={[0, this.isAndroid ? 180 : this.state.keyboardHeight+180]}
                         index={0}
                         onChange={this.onChange}
                     >
@@ -368,7 +380,8 @@ const styles = StyleSheet.create({
         height: WINDOW_HEIGHT * 0.2,
         left: WINDOW_WIDTH * 0.78,
         top: WINDOW_HEIGHT * (Platform.OS === 'ios' ? 0.44 : 0.48),
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        zIndex: -1
     },
     donuts: {
         position: 'absolute',
@@ -376,7 +389,8 @@ const styles = StyleSheet.create({
         height: WINDOW_HEIGHT * 0.3,
         bottom: WINDOW_HEIGHT * (Platform.OS === 'ios' ? 0.16 : 0.11),
         left: -WINDOW_WIDTH * 0.2,
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        zIndex: -1
     },
     inviteContainer: {
         justifyContent: 'center',
