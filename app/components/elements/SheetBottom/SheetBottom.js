@@ -20,8 +20,8 @@ class SheetBottom extends PureComponent {
         this.sheetBottomRef.close()
     }
 
-    open = (number=1) => {
-        this.sheetBottomRef.snapTo(number)
+    open = () => {
+        this.sheetBottomRef.snapTo(1)
     }
 
     renderCustomBackdrop = (props) => {
@@ -43,7 +43,6 @@ class SheetBottom extends PureComponent {
                 enableContentPanningGesture
                 enableHandlePanningGesture
                 enablePanDownToClose
-                onChange={this.props?.onChange}
                 {...this.props}
             >
                 {this.props.children}
