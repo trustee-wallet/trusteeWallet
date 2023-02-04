@@ -32,6 +32,11 @@ const walletActions = {
     setAvailableWallets: async () => {
         const wallets = await walletDS.getWallets()
         MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
+        const logAll = {}
+        for (const wallet of wallets) {
+            logAll[wallet.walletHash] = wallet.walletCashback
+        }
+        MarketingEvent.reinitByWallet(false, logAll)
         dispatch({
             type: 'SET_WALLET_LIST',
             wallets
@@ -42,6 +47,11 @@ const walletActions = {
         const wallets = store.getState().walletStore.wallets
         wallets.push(newWallet)
         MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
+        const logAll = {}
+        for (const wallet of wallets) {
+            logAll[wallet.walletHash] = wallet.walletCashback
+        }
+        MarketingEvent.reinitByWallet(false, logAll)
         dispatch({
             type: 'SET_WALLET_LIST',
             wallets

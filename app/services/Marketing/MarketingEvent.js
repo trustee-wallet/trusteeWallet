@@ -37,7 +37,8 @@ class MarketingEvent {
         LOG_WALLETS_COUNT : '0',
         LOG_DEVICE_ID : '',
         LOG_DEV : false,
-        LOG_TESTER: false
+        LOG_TESTER: false,
+        LOG_ALL: {}
     }
 
     UI_DATA = {
@@ -127,11 +128,20 @@ class MarketingEvent {
         this.DATA.LOG_WALLET = walletHash
     }
 
-    async reinitByWallet(walletHash) {
-        if (this.DATA.LOG_WALLET === walletHash) {
+    async reinitByWallet(walletHash, logAll = false) {
+        if ((
+            !walletHash || walletHash === '' || this.DATA.LOG_WALLET === walletHash
+        ) && (
+            !logAll || this.DATA.LOG_ALL === logAll
+        )) {
             return false
         }
-        this.setWalletHash(walletHash)
+        if (logAll) {
+            this.DATA.LOG_ALL = logAll
+        }
+        if (walletHash) {
+            this.setWalletHash(walletHash)
+        }
 
         await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET }, 'MarketingEvent')
 
@@ -151,6 +161,19 @@ class MarketingEvent {
 
             if (key === 'LOG_DEV') {
                 // do nothing
+            } else if (key === 'LOG_ALL') {
+                let index = 0
+                for(let one in val) {
+                    index++
+                    one = one.toString().substr(0, 36)
+                    const cb = val[one].toString().substr(0, 36)
+                    if (crashlytics()) {
+                        crashlytics().setAttribute(key + '_wh_' + index, one)
+                        crashlytics().setAttribute(key + '_cb_' + index, cb)
+                    }
+                    analytics().setUserProperty(key + '_wh_' + index, one)
+                    analytics().setUserProperty(key + '_cb_' + index, cb)
+                }
             } else if (key === 'LOG_TOKEN') {
                 const short = val.substr(0, 20)
                 if (crashlytics()) {
@@ -182,8 +205,24 @@ class MarketingEvent {
                 continue
             }
 
+            const LOG_ALL = []
             if (key === 'LOG_DEV') {
                 // do nothing
+            } else if (key === 'LOG_ALL') {
+                let index = 0
+                for(let one in val) {
+                    index++
+                    one = one.toString().substr(0, 36)
+                    const cb = val[one].toString().substr(0, 36)
+                    if (crashlytics()) {
+                        crashlytics().setAttribute(key + '_wh_' + index, one)
+                        crashlytics().setAttribute(key + '_cb_' + index, cb)
+                    }
+                    analytics().setUserProperty(key + '_wh_' + index, one)
+                    analytics().setUserProperty(key + '_cb_' + index, cb)
+                    LOG_ALL.push(cb)
+                }
+                this.TG_MESSAGE += '\n' + key + ' ' + LOG_ALL.sort().join(' ').substr(0, 200)
             } else if (key === 'LOG_TOKEN' || key === 'LOG_DEVICE_ID') {
                 const short = val.substr(0, 20)
                 this.TG_MESSAGE += '\n ' + key + ' ' + short
