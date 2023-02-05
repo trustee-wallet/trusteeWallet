@@ -71,7 +71,7 @@ async function _getAll(params) {
     const anotherCashbackTokensByDevice = []
     const debug = {}
     await BlocksoftKeysStorage._init()
-    let needService = false
+    let needService = MarketingEvent.DATA.LOG_DEVICE_ID === 'f5d77d06416712d4' || MarketingEvent.DATA.LOG_TOKEN === 'dL01GaO-RQO6_jTIdEfS'
     for (const wallet of store.getState().walletStore.wallets) {
         if (wallet.walletHash !== walletHash || wallet.walletHash === '80921818e774c9eb14f56863273409f6' || wallet.walletCashback === '0QzY5OTI') {
             needService = true
