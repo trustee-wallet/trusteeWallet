@@ -16,8 +16,6 @@
     "update-pods": "cd ios && pod install --repo-update && cd .. "
   },
   "dependencies": {
-    "@fioprotocol/fiojs": "^1.0.1",
-    "@fioprotocol/fiosdk": "git+https://git@github.com/trustee-wallet/fiosdk_typescript#release/1.2.x",
     "@gorhom/bottom-sheet": "2.4.1",
     "@gorhom/portal": "^1.0.14",
     "@haskkor/react-native-pincode": "git+https://git@github.com/trustee-wallet/react-native-pincode",
