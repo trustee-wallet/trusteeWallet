@@ -55,12 +55,31 @@ class CashbackScreen extends React.PureComponent {
                 key: 'second'
             }
         ],
-        selected: false
+        selected: false,
+        focus: false
     }
 
     cashbackCurrency = 'USDT'
     cpaValue = 10
     cashbackValue = 2
+
+    _focusScreen = (e) => {
+        this.setState({ focus: true })
+    }
+
+    _blurScreen = (e) => {
+        this.setState({ focus: false })
+    }
+
+    componentDidMount() {
+        this.navigationFocusListener = this.props.navigation.addListener('focus', this._focusScreen)
+        this.navigationBlurListener = this.props.navigation.addListener('blur', this._blurScreen)
+    }
+
+    componentWillUnmount() {
+        this.navigationFocusListener()
+        this.navigationBlurListener()
+    }
 
     renderDetailsHeader = () => {
 
@@ -288,6 +307,7 @@ class CashbackScreen extends React.PureComponent {
                     cashbackLink={cashbackLink}
                     cashbackLinkTitle={cashbackLinkTitle}
                     scrollToTop={this.scrollTabSwitch}
+                    isFocused={this.state.focus}
                 />
             </View>
         )

@@ -65,7 +65,7 @@ export default function Input(props) {
                     autoCorrect={false}
                     spellCheck={false}
                     onChangeText={onChangeText}
-                    value={value}
+                    value={value || ''}
                     ref={compRef}
                     onFocus={onFocus}
                     onBlur={onBlur}
