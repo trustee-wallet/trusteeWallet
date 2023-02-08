@@ -77,6 +77,7 @@ class QrCodePage extends PureComponent {
         let safePromo = ''
         try {
             setLoaderStatus(true)
+            Keyboard.dismiss()
             safePromo = Validator.safeWords(this.state.promoCode)
             let desc = await ApiPromo.activatePromo(safePromo)
             if (typeof desc !== 'string') {
@@ -152,7 +153,7 @@ class QrCodePage extends PureComponent {
                     containerStyle={{ width: WINDOW_WIDTH - GRID_SIZE * 2 }}
                     placeholder={strings('cashback.enterPromoPlaceholder')}
                     onChangeText={this.onChangeCode}
-                    value={this.state.promoCode.value}
+                    value={this.state.promoCode}
                     onFocus={() => {
                         if (!this.isAndroid) {
                             this.bottomSheetRef.open()
@@ -181,16 +182,24 @@ class QrCodePage extends PureComponent {
 
     handleBackDropModal = () => {
         this.bottomSheetRef.open()
-        this.promoInput?.focus()
+        if (!this.isAndroid) {
+            this.promoInput?.focus()
+        }
     }
 
     handleCloseBackDropModal = () => {
-        this.bottomSheetRef.close()        
-        Keyboard.dismiss()
+        if (this.isAndroid) {
+            Keyboard.dismiss()
+            setTimeout(() => {
+                this.bottomSheetRef.close()
+            }, 250)
+        } else {
+            this.bottomSheetRef.close()
+            Keyboard.dismiss()
+        }
     }
 
     onChange = (number) => {
-        if (this.isAndroid) return
         if (this.props.isFocused && number < 1) {
             Keyboard.dismiss()
         }
@@ -273,8 +282,8 @@ class QrCodePage extends PureComponent {
                 <Portal>
                     <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
-                        snapPoints={[0, this.isAndroid ? 180 : this.state.keyboardHeight+180]}
-                        index={0}
+                        snapPoints={[-1, this.isAndroid ? 180 : this.state.keyboardHeight+180]}
+                        index={-1}
                         onChange={this.onChange}
                     >
                         {this.renderModalContent()}
