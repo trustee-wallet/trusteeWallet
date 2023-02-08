@@ -353,7 +353,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                             function_selector: order.contractMethod,
                             // @ts-ignore
                             parameter,
-                            fee_limit: 100000000
+                            fee_limit: BlocksoftExternalSettings.getStatic('TRX_TRC20_MAX_LIMIT')
                         }
                         if (typeof order.options !== 'undefined' && typeof order.options.callValue !== 'undefined') {
                             params.call_value = order.options.callValue * 1
@@ -469,7 +469,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         contract_address: TronUtils.addressToHex(this._tokenName),
                         function_selector: 'transfer(address,uint256)',
                         parameter,
-                        fee_limit: 100000000,
+                        fee_limit: BlocksoftExternalSettings.getStatic('TRX_TRC20_MAX_LIMIT'),
                         call_value: 0
                     }
                     await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx inited1' + data.addressFrom + ' => ' + data.addressTo + ' ' + link, params)

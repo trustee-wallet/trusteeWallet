@@ -128,6 +128,7 @@ const CACHE = {
     'TRX_TRC20_PRICE_PER_BAND': 140,
     'TRX_TRC20_ENERGY_PER_TX': 29650, // 14650,
     'TRX_TRC20_PRICE_PER_ENERGY': 420,
+    'TRX_TRC20_MAX_LIMIT' : 100000000,
     'INVOICE_URL' : 'https://trusteeglobal.com/',
     'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  },
     'DAPPS_IMAGE_LINK': 'https://raw.githubusercontent.com/trustee-wallet/trusteeWalletAssets/main/dapps/'
