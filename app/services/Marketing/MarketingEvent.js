@@ -252,7 +252,7 @@ class MarketingEvent {
 
     }
 
-    async logEvent(logTitle, logData, PREFIX = 'SPM') {
+    async logEvent(logTitle, logData, PREFIX = 'SPM', toBot = true) {
         if (this.DATA.LOG_DEV) {
             return false
         }
@@ -300,7 +300,11 @@ class MarketingEvent {
         }
 
         try {
-            await this.TG.send(PREFIX + `_2021_04_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
+            if (toBot) {
+                await this.TG.send(PREFIX + `_2021_04_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
+            } else {
+                await this.TG.send(PREFIX + `_2021_04_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp.substring(0, 60) + this.TG_MESSAGE)
+            }
         } catch (e) {
             // do nothing
         }

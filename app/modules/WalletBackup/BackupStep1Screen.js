@@ -158,11 +158,11 @@ class BackupStep1Screen extends React.PureComponent {
             })
 
         } else if (flowType === 'BACKUP_WALLET') {
-            MarketingEvent.logEvent('gx_view_mnemonic_screen_cnf', { walletNumber, source }, 'GX')
+            MarketingEvent.logEvent('gx_view_mnemonic_screen_cnf', { walletNumber, walletHash, source }, 'GX')
 
             walletActions.setWalletBackedUpStatus(walletHash)
 
-            MarketingEvent.logEvent('gx_view_mnemonic_screen_success', { walletNumber, source }, 'GX')
+            MarketingEvent.logEvent('gx_view_mnemonic_screen_success', { walletNumber, walletHash, source }, 'GX')
             showModal({
                 type: 'INFO_MODAL',
                 icon: true,

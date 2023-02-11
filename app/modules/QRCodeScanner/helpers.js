@@ -27,9 +27,12 @@ import Validator from '@app/services/UI/Validator/Validator'
 
 
 export const finishProcess = async (param, qrCodeScannerConfig) => {
-    if ( param.data.indexOf('trusteenft:') === 0 ) {
+    if (param.data.indexOf('trusteenft:') === 0 ) {
         NavStore.goNext('NftDetailedInfoQRCheck', { jsonData: param.data.substring(11) })
         return
+    }
+    if (param.data.indexOf('tg://resolve?domain=trustee_support_bot&start=app') === 0) {
+        NavStore.goNext('SupportScreen')
     }
 
     const { currencyCode, flowType, callback } = qrCodeScannerConfig

@@ -35,8 +35,10 @@ class InfoModal extends React.PureComponent {
     }
 
     copyToClip = (info) => {
+        MarketingEvent.logEvent('info_copyToClip', { info }, 'SPM', false)
         copyToClipboard(info)
-        Toast.setMessage(strings('toast.copied')).show()
+        Toast.setMessage('FIX BACK FOR PROD').show()
+        // Toast.setMessage(strings('toast.copied')).show()
     }
 
     render() {
