@@ -287,7 +287,7 @@ class MarketingEvent {
             this._cacheLastLog = tmp
             logDataObject.date = date
         } catch (e) {
-            await Log.err(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
+            await Log.log(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             return false
         }
 
