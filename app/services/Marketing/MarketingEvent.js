@@ -8,8 +8,6 @@ import { Platform } from 'react-native'
 
 import Log from '@app/services/Log/Log'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
-import BlocksoftTg from '@crypto/common/BlocksoftTg'
-import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 import changeableProd from '@app/config/changeable.prod'
@@ -20,11 +18,8 @@ import DeviceInfo from 'react-native-device-info'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-let CACHE_TG_INITED = false
 let CACHE_BALANCE = {}
-
-
-
+let CACHE_TG_INITED = false
 
 class MarketingEvent {
     DATA = {
@@ -51,7 +46,6 @@ class MarketingEvent {
      * @return {Promise<void>}
      */
     async initMarketing(testerMode, firstInit = false) {
-        this.TG = new BlocksoftTg(changeableProd.tg.info.spamBot)
 
         if (typeof testerMode === 'undefined' || testerMode === false) {
             testerMode = await trusteeAsyncStorage.getTesterMode()
@@ -252,7 +246,8 @@ class MarketingEvent {
 
     }
 
-    async logEvent(logTitle, logData, PREFIX = 'SPM', toBot = true) {
+
+    async logEvent(logTitle, logData, PREFIX = 'SPM') {
         if (this.DATA.LOG_DEV) {
             return false
         }
@@ -291,23 +286,13 @@ class MarketingEvent {
             return false
         }
 
-        if (PREFIX !== 'RTM') {
+        // if (PREFIX !== 'RTM') {
             try {
                 await analytics().logEvent(logTitle.replace(' ', '_'), logDataObject)
             } catch (e) {
                 await Log.log(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             }
-        }
-
-        try {
-            if (toBot) {
-                await this.TG.send(PREFIX + `_2021_04_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
-            } else {
-                await this.TG.send(PREFIX + `_2021_04_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp.substring(0, 60) + this.TG_MESSAGE)
-            }
-        } catch (e) {
-            // do nothing
-        }
+        // }
     }
 
     async logOnlyRealTime(logTitle, logData) {

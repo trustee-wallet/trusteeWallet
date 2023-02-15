@@ -38,7 +38,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
     const { currencyCode, flowType, callback } = qrCodeScannerConfig
 
     if (flowType === QRCodeScannerFlowTypes.ADD_MNEMONIC_SCANNER) {
-        MarketingEvent.logOnlyRealTime('ksu_mnemonic_import_qr add_screen')
+        MarketingEvent.logEvent('ksu_mnemonic_import_qr add_screen', {}, 'KS')
         if (callback) {
             await callback(param.data)
         } else {
@@ -50,9 +50,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
 
     const res = await decodeTransactionQrCode(param, currencyCode)
 
-    // 4 MISHA
-    if (false && typeof res.data?.couldBeMnemonic !== 'undefined' && res.data?.couldBeMnemonic) {
-        MarketingEvent.logOnlyRealTime('ksu_mnemonic_import_qr main_screen')
+    if (typeof res.data?.couldBeMnemonic !== 'undefined' && res.data?.couldBeMnemonic) {
         const walletNumber = (MarketingEvent.DATA.LOG_WALLETS_COUNT * 1 + 1).toString()
         MarketingEvent.logEvent('gx_view_create_import_screen_qr_import_main_flow', { walletNumber, source: 'MainQrScanner' }, 'GX')
         setFlowType({ flowType: 'IMPORT_WALLET', source: 'MainQrScanner', walletNumber })

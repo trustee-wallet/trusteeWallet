@@ -4,15 +4,12 @@
 import crashlytics from '@react-native-firebase/crashlytics'
 import { Dimensions, PixelRatio } from 'react-native'
 
-import BlocksoftTg from '../../../crypto/common/BlocksoftTg'
-import BlocksoftExternalSettings from '../../../crypto/common/BlocksoftExternalSettings'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import config from '../../config/config'
-import changeableProd from '../../config/changeable.prod'
-import changeableTester from '../../config/changeable.tester'
-import { FileSystem } from '../FileSystem/FileSystem'
-import { strings } from '../i18n'
-import { showModal } from '../../appstores/Stores/Modal/ModalActions'
+import config from '@app/config/config'
+import { strings } from '@app/services/i18n'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
@@ -37,7 +34,6 @@ const FULL_LOGS_TXT = {
 class Log {
 
     constructor() {
-        this.TG = new BlocksoftTg(changeableProd.tg.info.theBot, changeableProd.tg.info.appErrorsChannel)
         this.FS = {
             TEST: new FileSystem({ fileEncoding: 'utf8', fileName: 'TestLog', fileExtension: 'txt' }),
             DAEMON: new FileSystem({ fileEncoding: 'utf8', fileName: 'DaemonLog', fileExtension: 'txt' }),
@@ -51,14 +47,6 @@ class Log {
     }
 
     async _reinitTgMessage(testerMode, obj, msg) {
-
-        if (testerMode === 'TESTER') {
-            this.TG.API_KEY = changeableTester.tg.info.theBot
-            this.TG.CHAT = changeableTester.tg.info.appErrorsChannel
-        } else {
-            this.TG.API_KEY = changeableProd.tg.info.theBot
-            this.TG.CHAT = changeableProd.tg.info.appErrorsChannel
-        }
 
         for (const key in obj) {
             this.DATA[key] = obj[key]
@@ -307,15 +295,11 @@ class Log {
             return false
         }
 
-
         this.log(errorObjectOrText, errorObject2, false, LOG_SUBTYPE, true, LOG_WRITE_FILE)
 
         if (errorObject2 && typeof errorObject2.code !== 'undefined' && (errorObject2.code === 'ERROR_USER' || errorObject2.code === 'ERROR_NOTICE')) {
             return true
         }
-
-        let msg = `FRNT_2021_02_${this.DATA.LOG_VERSION} ${LOG_SUBTYPE}` + '\n' + date + line + '\n'
-        msg += this.TG_MSG
 
         try {
 
@@ -334,29 +318,8 @@ class Log {
                 MarketingEvent.reinitCrashlytics()
             }
         } catch (firebaseError) {
-            msg += ' Crashlytics error ' + firebaseError.message
-        }
 
-        // noinspection ES6MissingAwait
-
-        let canSend = true
-        if (typeof this.DATA.LOG_VERSION !== 'undefined') {
-            if (this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER') !== -1) {
-                canSend = false
-            } else {
-                const tmp = this.DATA.LOG_VERSION.toString().split(' ')
-                if (typeof tmp[1] !== 'undefined') {
-                    const minVersion = await BlocksoftExternalSettings.get('minAppErrorsVersion', 'Log.error')
-                    if (minVersion * 1 > tmp[1] * 1) {
-                        canSend = false
-                    }
-                }
-            }
         }
-        if (canSend) {
-            this.TG.send('\n\n\n\n=========================================================\n\n\n\n' + msg + '\n' + LOGS_TXT[LOG_SUBTYPE])
-        }
-
         return true
     }
 

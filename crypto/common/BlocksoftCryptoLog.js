@@ -4,13 +4,10 @@
  */
 import crashlytics from '@react-native-firebase/crashlytics'
 
-import BlocksoftTg from './BlocksoftTg'
 import BlocksoftExternalSettings from './BlocksoftExternalSettings'
 
-import config from '../../app/config/config'
-import changeableProd from '../../app/config/changeable.prod'
-import changeableTester from '../../app/config/changeable.tester'
-import { FileSystem } from '../../app/services/FileSystem/FileSystem'
+import config from '@app/config/config'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
@@ -25,30 +22,17 @@ let FULL_LOGS_TXT = ''
 class BlocksoftCryptoLog {
 
     constructor() {
-        this.TG = new BlocksoftTg(changeableProd.tg.info.theBot, changeableProd.tg.info.cryptoErrorsChannel)
         this.FS = new FileSystem({ fileEncoding: 'utf8', fileName: 'CryptoLog', fileExtension: 'txt' })
 
         this.DATA = {}
         this.DATA.LOG_VERSION = false
-
-        this.TG_MSG = ''
     }
 
     async _reinitTgMessage(testerMode, obj, msg) {
 
-        if (testerMode === 'TESTER') {
-            this.TG.API_KEY = changeableTester.tg.info.theBot
-            this.TG.CHAT = changeableTester.tg.info.cryptoErrorsChannel
-        } else {
-            this.TG.API_KEY = changeableProd.tg.info.theBot
-            this.TG.CHAT = changeableProd.tg.info.cryptoErrorsChannel
-        }
-
         for (const key in obj) {
             this.DATA[key] = obj[key]
         }
-
-        this.TG_MSG = msg
 
         // noinspection JSIgnoredPromiseFromCall
         await this.FS.checkOverflow()
@@ -153,11 +137,6 @@ class BlocksoftCryptoLog {
             return true
         }
 
-        let msg = `CRPT_2021_02_${this.DATA.LOG_VERSION}` + '\n' + date + line + '\n'
-        if (msg) {
-            msg += this.TG_MSG
-        }
-
         try {
             await this.FS.writeLine('CRPT_2021_02 ' + line)
             if (!config.debug.cryptoErrors) {
@@ -170,25 +149,7 @@ class BlocksoftCryptoLog {
                 MarketingEvent.reinitCrashlytics()
             }
         } catch (firebaseError) {
-            msg += ' Crashlytics error ' + firebaseError.message
-        }
 
-        let canSend = true
-        if (typeof this.DATA.LOG_VERSION !== 'undefined') {
-            if (this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER') !== -1) {
-                canSend = false
-            } else {
-                const tmp = this.DATA.LOG_VERSION.toString().split(' ')
-                if (typeof tmp[1] !== 'undefined') {
-                    const minVersion = await BlocksoftExternalSettings.get('minCryptoErrorsVersion', 'BlocksoftCryptoLog.error')
-                    if (minVersion * 1 > tmp[1] * 1) {
-                        canSend = false
-                    }
-                }
-            }
-        }
-        if (canSend) {
-            this.TG.send('\n\n\n\n=========================================================\n\n\n\n' + msg + '\n' + FULL_LOGS_TXT)
         }
 
         return true
