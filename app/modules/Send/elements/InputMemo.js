@@ -11,6 +11,7 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 
 import { strings } from '@app/services/i18n'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import Log from '@app/services/Log/Log'
 
 const memoInput = {
     id: 'memo',
@@ -74,22 +75,25 @@ class InputMemo extends React.PureComponent {
                 value : ''
             }
         }
-        const destinationTagValidation = await this.memoInput.handleValidate()
-
-        if (destinationTagValidation.status !== 'success') {
+        try {
+            const destinationTagValidation = await this.memoInput.handleValidate()
+            if (destinationTagValidation.status !== 'success') {
+                this.setState({
+                    memoError: true
+                })
+                return {
+                    status: 'fail'
+                }
+            }
             this.setState({
-                memoError: true
+                memoError: false
             })
             return {
-                status : 'fail'
+                status: 'success',
+                value: destinationTagValidation.value
             }
-        }
-        this.setState({
-            memoError: false
-        })
-        return {
-            status : 'success',
-            value : destinationTagValidation.value
+        } catch (e) {
+           Log.log('InputMemo.disabledGotoWhy error ' + e.message)
         }
     }
 

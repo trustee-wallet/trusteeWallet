@@ -59,16 +59,16 @@ async function _userDataValidation(obj) {
         return false
     }
 
-
     if (type !== 'MNEMONIC_PHRASE') {
         const res = _mnemonicValidationWordsOnly(value)
-        if (typeof res.wordsString !== 'undefined') {
+        if (res && typeof res.wordsString !== 'undefined') {
             error.msg = strings('validator.mnemonic_detected', { name: name })
             error.field = id
             return error
         }
     }
 
+    value = value ? value.trim() : ''
 
     switch (type) {
 
@@ -137,7 +137,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'WALLET_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (value.length !== 42) {
@@ -146,7 +145,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'TRX_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^T[0-9a-zA-Z]{33}$/.test(value)) {
@@ -157,7 +155,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'TRX_TOKEN':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^100[0-9]{4,}$/.test(value)) {
@@ -168,7 +165,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'ETH_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^0[xX]+[0-9a-fA-F]{40}$/.test(value)) {
@@ -177,7 +173,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'ETH_ONE_ADDRESS':
-            value = value.trim()
             if (value && value.indexOf('one1') !== -1) {
                 value = OneUtils.fromOneAddress(value)
             }
@@ -189,7 +184,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'ASH_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!(value.startsWith('Æx'))) {
@@ -198,7 +192,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'SOL_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(value)) {
@@ -213,7 +206,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'FIO_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
@@ -226,7 +218,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'XRP_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^r[0-9a-zA-Z]{24,34}$/.test(value)) {
@@ -235,7 +226,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'XMR_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (!/^[0-9a-zA-Z]{95,106}$/.test(value)) {
@@ -244,7 +234,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'BNB_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else if (value.toLowerCase().indexOf('bnb') !== 0) {
@@ -256,7 +245,6 @@ async function _userDataValidation(obj) {
             break
 
         case 'XRP_DESTINATION_TAG':
-            value = value.trim()
             if (!value) {
                 return
             } else if (value > 4294967295) {
@@ -265,14 +253,10 @@ async function _userDataValidation(obj) {
             break
 
         case 'XLM_DESTINATION_TAG':
-            value = value.trim()
+            // do nothing
             break
 
         case 'XMR_DESTINATION_TAG':
-            if (typeof value === 'undefined') {
-                return
-            }
-            value = value.trim()
             if (!value || value === '') {
                 return
             } else if (!MoneroUtilsParser.checkDestination(value)) {
@@ -282,7 +266,6 @@ async function _userDataValidation(obj) {
 
         // unified LTC XVG DOGE
         case 'BTC_BY_NETWORK_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
@@ -310,7 +293,6 @@ async function _userDataValidation(obj) {
         // actually could be unified to prev ones (as its the same)
         case 'BTC_ADDRESS':
         case 'BITCOIN_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
@@ -342,7 +324,6 @@ async function _userDataValidation(obj) {
             }
             break
         case 'BTC_LEGACY_ADDRESS':
-            value = value.trim()
             if (!value) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
@@ -471,7 +452,14 @@ function _passwordsValidation(obj) {
 
 
 function _mnemonicValidationWordsOnly(txt) {
-    const words = txt.trim().toLowerCase().split(/\s+/g)
+    if (typeof txt === 'undefined' || !txt) {
+        return false
+    }
+    txt = txt.trim()
+    if (!txt || txt === '') {
+        return false
+    }
+    const words = txt.toLowerCase().split(/\s+/g)
     const mnemonicLength = words.length
 
 
