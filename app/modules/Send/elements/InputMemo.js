@@ -71,8 +71,8 @@ class InputMemo extends React.PureComponent {
                 memoError: false
             })
             return {
-                status : 'success',
-                value : ''
+                status: 'success',
+                value: ''
             }
         }
         try {
@@ -93,7 +93,13 @@ class InputMemo extends React.PureComponent {
                 value: destinationTagValidation.value
             }
         } catch (e) {
-           Log.log('InputMemo.disabledGotoWhy error ' + e.message)
+            Log.log('InputMemo.disabledGotoWhy error ' + e.message)
+            this.setState({
+                memoError: true
+            })
+            return {
+                status: 'fail'
+            }
         }
     }
 
