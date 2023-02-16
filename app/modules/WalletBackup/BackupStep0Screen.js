@@ -41,7 +41,7 @@ import { LockScreenFlowTypes, setLockScreenConfig } from '@app/appstores/Stores/
 import { getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
 import Tabs from '@app/components/elements/new/cashbackTabs'
-// import MnemonicQrCode from '@app/modules/WalletBackup/elements/MnemonicQrCode'
+import MnemonicQrCode from '@app/modules/WalletBackup/elements/MnemonicQrCode'
 import Message from '@app/components/elements/new/Message'
 import LottieView from 'lottie-react-native'
 
@@ -74,12 +74,11 @@ class BackupStep0Screen extends PureComponent {
                     title: strings('walletBackup.step0Screen.phrase'),
                     key: 'first'
                 },
-                /*
                 {
                     title: strings('walletBackup.step0Screen.qr'),
                     key: 'second'
                 }
-                */
+
             ],
         };
         this.value = new Animated.Value(0);
@@ -233,8 +232,8 @@ class BackupStep0Screen extends PureComponent {
         switch (route.key) {
             case 'first':
                 return this.renderFirstRoute()
-            // case 'second':
-                // return this.renderSecondRoute()
+            case 'second':
+                return this.renderSecondRoute()
             default:
                 return null
         }
@@ -369,7 +368,7 @@ class BackupStep0Screen extends PureComponent {
         )
     }
 
-    /*
+
     renderSecondRoute = () => {
         return(
             <MnemonicQrCode
@@ -377,7 +376,7 @@ class BackupStep0Screen extends PureComponent {
             />
         )
     }
-    */
+
 
     // for developing and testing only
     handleCopyModal = () => {
