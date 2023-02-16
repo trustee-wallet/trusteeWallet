@@ -207,7 +207,7 @@ class Account extends React.PureComponent {
         const { address, basicCurrencyRate, balanceStakedPretty, balanceTotalPretty } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
 
-        if (currencyCode === 'TRX_USDT' || currencyCode === 'TRX') {
+        if (config.daemon.scanOnAccount) {
             try {
                 const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address)).getBalance('AccountScreen')
                 if (tmp && typeof tmp?.balance !== 'undefined') {

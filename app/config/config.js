@@ -21,6 +21,7 @@ const config = {
         }
     },
     daemon: {
+        scanOnAccount : true,
         updateTimes: {
             oneByOne: 5000, // 5 seconds
             view: 10000 // 10 second

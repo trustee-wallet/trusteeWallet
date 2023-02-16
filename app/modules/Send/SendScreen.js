@@ -138,7 +138,7 @@ class SendScreen extends PureComponent {
         }
         const { balanceRaw, basicCurrencyRate, currencyCode, addressFrom } = this.props.sendScreenStore.dict
 
-        if (currencyCode === 'TRX_USDT' || currencyCode === 'TRX') {
+        if (config.daemon.scanOnAccount) {
             try {
                 const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(addressFrom)).getBalance('SendScreen')
                 if (tmp) {
