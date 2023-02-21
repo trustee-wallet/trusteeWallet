@@ -23,22 +23,31 @@ export default class SolAddressProcessor {
      * @param {*} data
      * @returns {Promise<{privateKey: string, address: string}>}
      */
-    async getAddress(privateKey, data = {}, superPrivateData = {}) {
+    async getAddress(privateKey, data = {}, superPrivateData = {}, seed, source  = '') {
         if (typeof superPrivateData.mnemonic === 'undefined' || !superPrivateData.mnemonic) {
             throw new Error('need mnemonic')
         }
-
-        const seed = await BlocksoftKeys.getSeedCached(superPrivateData.mnemonic)
+        if (!seed) {
+            seed = await BlocksoftKeys.getSeedCached(superPrivateData.mnemonic)
+        }
         const seedHex = seed.toString('hex')
+        let derivationPath = data.derivationPath
+        if (derivationPath !== `m/44'/501'/0'` && derivationPath !== `m/44'/501'/0'/0'`) {
+            derivationPath = `m/44'/501'/0'/0'`
+        }
+
         if (seedHex.length < 128) {
             throw new Error('bad seedHex')
         }
 
-        const res = XlmDerivePath(seedHex, data.derivationPath)
+        const res = XlmDerivePath(seedHex, derivationPath)
         const key = nacl.sign.keyPair.fromSeed(res.key)
+
         const naclPubKey = Buffer.from(key.publicKey).toString('hex')
         const naclSecretKey = Buffer.from(key.secretKey).toString('hex')
         const address = bs58.encode(key.publicKey)
-        return { address, privateKey : naclSecretKey, addedData: { naclPubKey } }
+
+        const ret = { address, privateKey : naclSecretKey, addedData: { naclPubKey, derivationPath : derivationPath.replace(/[']/g, 'quote'), seedHexPart: seedHex.substr(0, 5) } }
+        return ret
     }
 }

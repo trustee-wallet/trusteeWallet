@@ -118,6 +118,7 @@ class BlocksoftKeys {
         let bitcoinRoot = false
         let currencyCode
         let settings
+        const seed = await BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
         for (currencyCode of toDiscover) {
             results[currencyCode] = []
             try {
@@ -160,7 +161,7 @@ class BlocksoftKeys {
                 BlocksoftCryptoLog.log(`BlocksoftKeys will discover ${settings.addressProcessor}`)
                 let root = false
                 if (typeof networksConstants[currencyCode] !== 'undefined') {
-                    root = await this.getBip32Cached(data.mnemonic, networksConstants[currencyCode])
+                    root = await this.getBip32Cached(data.mnemonic, networksConstants[currencyCode], seed)
                 } else {
                     if (!bitcoinRoot) {
                         bitcoinRoot = await this.getBip32Cached(data.mnemonic)
@@ -196,8 +197,8 @@ class BlocksoftKeys {
                         const result = await processor.getAddress(child.privateKey, {
                             publicKey: child.publicKey,
                             walletHash: data.walletHash,
-                            derivationPath : derivation.path
-                        }, data)
+                            derivationPath : derivation.path,
+                        }, data, seed, 'discoverAddresses')
                         result.basicPrivateKey = child.privateKey.toString('hex')
                         result.basicPublicKey = child.publicKey.toString('hex')
                         result.path = derivation.path
@@ -273,7 +274,7 @@ class BlocksoftKeys {
                                     derivationPath : path,
                                     derivationIndex : index,
                                     derivationType : suffix.type
-                                }, data)
+                                }, data, seed, 'discoverAddresses2')
                                 if (result) {
                                     if (privateKey) {
                                         result.basicPrivateKey = privateKey.toString('hex')
@@ -316,10 +317,12 @@ class BlocksoftKeys {
         return seed
     }
 
-    async getBip32Cached(mnemonic, network = false) {
+    async getBip32Cached(mnemonic, network = false, seed = false) {
         const mnemonicCache = mnemonic.toLowerCase() + '_' + (network || 'btc')
         if (typeof CACHE_ROOTS[mnemonicCache] === 'undefined') {
-            const seed = await this.getSeedCached(mnemonic)
+            if (!seed) {
+                seed = await this.getSeedCached(mnemonic)
+            }
             CACHE_ROOTS[mnemonicCache] = network ? bip32.fromSeed(seed, network) : bip32.fromSeed(seed)
         }
         return CACHE_ROOTS[mnemonicCache]
@@ -357,7 +360,7 @@ class BlocksoftKeys {
             derivationIndex: data.derivationIndex,
             derivationType:  data.derivationType,
             publicKey : child.publicKey
-        }, data)
+        }, data, seed, 'discoverOne')
     }
 
     /**

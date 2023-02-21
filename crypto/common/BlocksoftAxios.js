@@ -420,7 +420,7 @@ class BlocksoftAxios {
             } else if (errSend) {
                 // noinspection ES6MissingAwait
                 if (e.message.indexOf('PREV CALL CANCELED') === -1) {
-                    if (link.indexOf('trustee.deals') !== -1) {
+                    if (link.indexOf('trustee.deals') !== -1 || link.indexOf('https://api.mainnet-beta.solana.com') !== -1) {
                         BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK ERROR3 ' + JSON.stringify(data))
                     } else {
                         BlocksoftCryptoLog.err('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK ERROR2')
