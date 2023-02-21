@@ -71,9 +71,6 @@ export namespace NftActions {
                 try {
                     tmp = Nfts.getNftsCache(tokenBlockchainCode, address)
                 } catch (e) {
-                    if (config.debug.appErrors) {
-                        console.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' getNftsCache error ' + e.message, e)
-                    }
                     Log.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' getNftsCache error ' + e.message)
                 }
                 try {
@@ -90,9 +87,6 @@ export namespace NftActions {
                         }
                     }
                 } catch (e) {
-                    if (config.debug.appErrors) {
-                        console.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' error ' + e.message, e)
-                    }
                     Log.log('NftsActions.getDataByAddress ' + tokenBlockchainCode + ' error ' + e.message)
                 }
                 if (typeof tmp.assets === 'undefined') continue

@@ -96,7 +96,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         try {
             const link = PROXY_FEE + '?from=' + data.addressFrom + '&fromHex=' + TronUtils.addressToHex(data.addressFrom) + '&to=' + data.addressTo + '&toHex=' + addressHexTo
                 + '&token=' + this._tokenName + '&tokenHex=' + (this._isToken20 ? TronUtils.addressToHex( this._tokenName) : '')
-                + '&amount=' + data.amount
+                + '&amount=' + data.amount + '&isTransferAll=' + (data.isTransferAll ? 1 : 0)
             let res = false
             try {
                 res = await BlocksoftAxios.get(link)
@@ -291,6 +291,7 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
     }
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
+        data.isTransferAll = true
         const balance = data.amount
         // @ts-ignore
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
