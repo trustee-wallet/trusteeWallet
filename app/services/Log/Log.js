@@ -41,7 +41,6 @@ class Log {
         }
 
         this.DATA = {}
-        this.DATA.LOG_VERSION = false
 
         this.TG_MSG = ''
     }
@@ -324,7 +323,7 @@ class Log {
     }
 
     getHeaders() {
-        let msg = `\n\n\n\n=================================\n\nVERSION_${this.DATA.LOG_VERSION}`
+        let msg = `\n\n\n\n=================================\n\nVERSION ${config.version.code + ' ' + config.version.hash}`
         if (msg) {
             msg += '\n\n' + this.TG_MSG
         }

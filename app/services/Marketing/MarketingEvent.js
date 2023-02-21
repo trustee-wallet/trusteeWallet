@@ -10,13 +10,11 @@ import Log from '@app/services/Log/Log'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
-import changeableProd from '@app/config/changeable.prod'
-import changeableTester from '@app/config/changeable.tester'
-
 import DeviceInfo from 'react-native-device-info'
 
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import config from '@app/config/config'
 
 let CACHE_BALANCE = {}
 let CACHE_TG_INITED = false
@@ -51,17 +49,8 @@ class MarketingEvent {
             testerMode = await trusteeAsyncStorage.getTesterMode()
         }
 
-        let changeable
-        if (testerMode === 'TESTER') {
-            changeable = changeableTester
-        } else {
-            changeable = changeableProd
-        }
-
-        this.TG.API_KEY = changeable.tg.info.spamBot
-
         this.DATA = {}
-        this.DATA.LOG_VERSION = changeable.tg.info.version
+        this.DATA.LOG_VERSION = `new ${config.version.code + ' ' + config.version.hash}`
         this.DATA.LOG_DEV = !(this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER COMMIT_SHORT_SHA_PLACEHOLDER') === -1) ? 'TRUE' : false
         this.DATA.LOG_TESTER = testerMode === 'TESTER' ? 'TRUE' : false
 

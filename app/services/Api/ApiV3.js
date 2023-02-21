@@ -285,7 +285,7 @@ export default {
                 + '&cashbackToken=' + currentToken
                 + '&locale=' + sublocale()
                 + '&orderHash=' + orderHash
-                + '&version=' + MarketingEvent.DATA.LOG_VERSION
+                + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
             Log.log('ApiV3 getMobileCheck link ' + link)
             return link
