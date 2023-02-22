@@ -204,12 +204,12 @@ class Account extends React.PureComponent {
         if (CACHE_BALANCE_TIMEOUT) {
             clearTimeout(CACHE_BALANCE_TIMEOUT)
         }
-        const { address, basicCurrencyRate, balanceStakedPretty, balanceTotalPretty } = this.props.selectedAccountData
+        const { address, basicCurrencyRate, balanceStakedPretty, balanceTotalPretty, walletHash, derivationPath } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
 
         if (config.daemon.scanOnAccount) {
             try {
-                const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setAddress(address)).getBalance('AccountScreen')
+                const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({derivationPath}).setAddress(address)).getBalance('AccountScreen')
                 if (tmp && typeof tmp?.balance !== 'undefined') {
                     if (!tmp?.address || tmp?.address !== address || tmp?.currencyCode !== currencyCode) {
                         Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not update as got ' + tmp?.address)

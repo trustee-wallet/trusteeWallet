@@ -50,6 +50,7 @@ export default class XmrScannerProcessor {
      * @private
      */
     async _get(address, additionalData, walletHash) {
+        BlocksoftCryptoLog.log('XmrScannerProcessor._get ' + walletHash + ' ' + address)
         const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             CACHE[address].provider = 'mymonero-cache'
@@ -75,11 +76,12 @@ export default class XmrScannerProcessor {
             walletHash: walletHash,
             currencyCode: 'XMR',
             derivationPath: 'm/44\'/0\'/0\'/0/0',
-            derivationIndex: additionalData.derivationIndex
+            derivationIndex: typeof additionalData.derivationIndex !== 'undefined' ? additionalData.derivationIndex : 0
         }
+
         const result = await BlocksoftPrivateKeysUtils.getPrivateKey(discoverFor, 'XmrScannerProcessor') // privateSpend_privateView
         const keys = result.privateKey.split('_')
-        const spendKey = keys[0]
+        const spendKey = keys[0] // private spend and view keys
         let viewKey = keys[1]
         while (viewKey.length < 64) {
             viewKey += '0'
