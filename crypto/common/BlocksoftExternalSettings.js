@@ -130,7 +130,7 @@ const CACHE = {
     'TRX_TRC20_PRICE_PER_ENERGY': 420,
     'TRX_TRC20_MAX_LIMIT' : 100000000,
     'INVOICE_URL' : 'https://trusteeglobal.com/',
-    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  },
+    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63, 'ETH': 5.1, 'ETH_MATIC': 6.3 },
     'DAPPS_IMAGE_LINK': 'https://raw.githubusercontent.com/trustee-wallet/trusteeWalletAssets/main/dapps/'
 }
 
@@ -180,9 +180,14 @@ class BlocksoftExternalSettings {
     }
 
     _setCache(json) {
-        let key
-        for (key in json) {
-            CACHE[key] = json[key]
+        for (const key in json) {
+            if (key === 'STAKING_COINS_PERCENT') {
+                for (const key2 in json[key]) {
+                    CACHE[key][key2] = json[key][key2]
+                }
+            } else {
+                CACHE[key] = json[key]
+            }
         }
     }
 

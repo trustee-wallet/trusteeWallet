@@ -457,7 +457,7 @@ class AddAssetScreen extends React.PureComponent {
 
         const { GRID_SIZE } = this.context
 
-        const availableStaking = Object.keys(this.props.stakingCoins).includes(item.currencyCode)
+        const availableStaking = typeof this.props.stakingCoins[item.currencyCode] !== 'undefined' && this.props.stakingCoins[item.currencyCode]*1 > 0
 
         return (
             <View style={{ marginHorizontal: GRID_SIZE * 2 }}>

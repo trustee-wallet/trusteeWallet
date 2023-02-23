@@ -108,8 +108,7 @@ class CryptoCurrency extends React.PureComponent {
             }
         }
 
-        const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
-
+        const availableStaking = typeof this.props.stakingCoins[currencyCode] !== 'undefined' &&  this.props.stakingCoins[currencyCode]*1 > 0
         return (
             <View style={styles.container}>
                 <View style={styles.shadow__container}>

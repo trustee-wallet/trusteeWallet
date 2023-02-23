@@ -20,7 +20,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setFilter, setSelectedAccount, setSelectedAccountBalance } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount, setSelectedAccountBalance } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import { getFilterData, getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
@@ -54,7 +54,6 @@ import SynchronizedBlock from './elements/SynchronizedBlock'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import config from '@app/config/config'
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false

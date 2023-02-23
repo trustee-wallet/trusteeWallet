@@ -22,6 +22,7 @@ import Toast from '@app/services/UI/Toast/Toast'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -40,6 +41,9 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
 import Button from '@app/components/elements/new/buttons/Button'
+
+import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
+import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
 
 class HeaderBlocks extends React.Component {
 
@@ -156,7 +160,7 @@ class HeaderBlocks extends React.Component {
         this.handleCopy(address)
     }
 
-    renderStakeBalance = () => {
+    renderStakeBalance = (availableStaking) => {
 
         const {
             colors,
@@ -168,8 +172,8 @@ class HeaderBlocks extends React.Component {
 
         const { currencyCode, currencySymbol, decimals } = this.props.cryptoCurrency
 
-        const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
-        const withoutDescription = currencyCode === 'SOL'
+        const canBeStaked = availableStaking // currencyCode === 'TRX' || currencyCode === 'SOL' || currencyCode === 'ETH'
+        const withoutDescription = currencyCode === 'SOL' || currencyCode === 'ETH' || currencyCode === 'ETH_MATIC'
 
         let balanceTotalPretty = account?.balanceTotalPretty || '0'
         let balanceStakedPretty = account?.balanceStakedPretty || '0'
@@ -355,6 +359,7 @@ class HeaderBlocks extends React.Component {
 
     renderStakingBtn = (currencyCode) => {
         switch (currencyCode) {
+            case 'ETH':
             case 'TRX':
             case 'SOL':
                 return this.handleStakingAccount(currencyCode)
@@ -365,6 +370,14 @@ class HeaderBlocks extends React.Component {
 
     accountStaking = (currencyCode) => {
         switch (currencyCode) {
+            case 'ETH':
+                setWalletDapp(dappsBlocksoftDict['ETH_LIDO'])
+                MarketingEvent.logEvent('wallet_dapps_eth_stacking')
+                return NavStore.goNext('WalletDappWebViewScreen')
+            case 'ETH_MATIC':
+                setWalletDapp(dappsBlocksoftDict['MATIC_LIDO'])
+                MarketingEvent.logEvent('wallet_dapps_matic_stacking')
+                return NavStore.goNext('WalletDappWebViewScreen')
             case 'TRX':
                 return NavStore.goNext('AccountStakingTRX')
             case 'SOL':
@@ -390,7 +403,7 @@ class HeaderBlocks extends React.Component {
 
         const addressPrep = BlocksoftPrettyStrings.makeCut(shownAddress, 6, 6)
 
-        const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
+        const availableStaking = typeof this.props.stakingCoins[currencyCode] !== 'undefined' && this.props.stakingCoins[currencyCode] * 1 > 0
 
         return (
             <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }} >
@@ -458,10 +471,10 @@ class HeaderBlocks extends React.Component {
                             </View>}
                     </View>
                     {this.renderBalance()}
-                    {this.renderStakeBalance()}
+                    {this.renderStakeBalance(availableStaking)}
                 </AccountGradientBlock>
                 <Portal>
-                    <SheetBottom 
+                    <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
                         snapPoints={[0, 300]}
                         index={0}

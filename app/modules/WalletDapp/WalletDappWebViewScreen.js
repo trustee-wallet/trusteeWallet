@@ -251,6 +251,12 @@ class WalletDappWebViewScreen extends PureComponent {
                     startInLoadingState={true}
                     allowsInlineMediaPlayback={true}
                     allowsBackForwardNavigationGestures={true}
+
+                    usePersistentCookie={true}
+                    sharedCookiesEnabled={true}
+                    thirdPartyCookiesEnabled={true}
+                    domStorageEnabled={true}
+
                     userAgent='Mozilla/5.0 (Linux; Android 10; MI 8 Build/QKQ1.190828.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/96.0.4664.45 Mobile Safari/537.36'
                 />
             </ScreenWrapper>

@@ -14,6 +14,22 @@
     "disableInjected" : true,
     "dappsDomenName": "pancakeswap.finance"
   },
+  "ETH_LIDO" : {
+    "dappCode" : "ETH_LIDO",
+    "dappName" : "Ethereum Liquid Staking (LIDO)",
+    "dappUrl" : "https://stake.lido.fi",
+    "dappNetworks" : ["ETH"],
+    "disableInjected" : true,
+    "dappsDomenName": "lido.fi"
+  },
+  "MATIC_LIDO" : {
+    "dappCode" : "MATIC_LIDO",
+    "dappName" : "Polygon Liquid Staking (LIDO)",
+    "dappUrl" : "https://polygon.lido.fi",
+    "dappNetworks" : ["ETH"],
+    "disableInjected" : true,
+    "dappsDomenName": "lido.fi"
+  },
   "NFTRADE" : {
     "dappCode" : "NFTRADE",
     "dappName" : "NFTrade",

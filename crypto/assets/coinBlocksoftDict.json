@@ -2648,5 +2648,35 @@
 		"tokenAddress": "0x249cA82617eC3DfB2589c4c17ab7EC9765350a18",
 		"currencyExplorerLink": "https://etherscan.io/token/0x249cA82617eC3DfB2589c4c17ab7EC9765350a18?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_STETH": {
+		"currencyType": "token",
+		"currencyName": "stETH ERC20",
+		"currencyCode": "ETH_STETH",
+		"currencySymbol": "stETH",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "STETH",
+		"decimals": 18,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+		"currencyExplorerLink": "https://etherscan.io/token/0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_STMATIC": {
+		"currencyType": "token",
+		"currencyName": "stMATIC ERC20",
+		"currencyCode": "ETH_STETH",
+		"currencySymbol": "stMATIC",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "STMATIC",
+		"decimals": 18,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x9ee91F9f426fA633d227f7a9b000E28b9dfd8599",
+		"currencyExplorerLink": "https://etherscan.io/token/0x9ee91F9f426fA633d227f7a9b000E28b9dfd8599?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	}
 }
