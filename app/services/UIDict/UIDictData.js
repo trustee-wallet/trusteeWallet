@@ -1130,6 +1130,18 @@ export default {
             darkColor: '#2A69D7'
         }
     },
+    'ETH_STETH': {
+        colors: {
+            mainColor: '#00A2FF',
+            darkColor: '#00A2FF'
+        }
+    },
+    'ETH_STMATIC': {
+        colors: {
+            mainColor: '#1EC0FF',
+            darkColor: '#14B5DE'
+        }
+    },
     'CUSTOM_ABYSS': {
         colors: {
             mainColor: '#2E50CF',

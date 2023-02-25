@@ -2668,7 +2668,7 @@
 	"ETH_STMATIC": {
 		"currencyType": "token",
 		"currencyName": "stMATIC ERC20",
-		"currencyCode": "ETH_STETH",
+		"currencyCode": "ETH_STMATIC",
 		"currencySymbol": "stMATIC",
 		"extendsProcessor": "ETH_TRUE_USD",
 		"addressUiChecker": "ETH",

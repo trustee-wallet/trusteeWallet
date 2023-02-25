@@ -26,7 +26,7 @@
     "dappCode" : "MATIC_LIDO",
     "dappName" : "Polygon Liquid Staking (LIDO)",
     "dappUrl" : "https://polygon.lido.fi",
-    "dappNetworks" : ["ETH"],
+    "dappNetworks" : ["MATIC"],
     "disableInjected" : true,
     "dappsDomenName": "lido.fi"
   },

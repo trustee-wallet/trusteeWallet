@@ -145,6 +145,8 @@ export default class CurrencyIcon extends PureComponent {
                 return require('@assets/images/currency/HEX.png')
             case 'ETH_PAXG':
                 return require('@assets/images/currency/PAXG.png')
+            case 'ETH_STETH':
+                return require('@assets/images/currency/STETH.png')
             case 'CUSTOM_ABYSS':
                 return require('@assets/images/currency/ETH_ABYSS.png')
             case 'CUSTOM_SOLVE':
@@ -206,6 +208,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'ETH_BRD':
             case 'ETH_HEX':
             case 'ETH_PAXG':
+            case 'ETH_STETH':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
@@ -655,6 +658,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'ETH_MATIC':
             case 'MATIC':
             case 'MATIC_WMATIC':
+            case 'ETH_STMATIC':
                 return (
                     <View style={{ ...styles.icon, borderColor: colorDict[currencyCode].colors[isLight ? 'mainColor' : 'darkColor'], ...tmpContainerStyle }}>
                         <View style={styles.icon__item}>
