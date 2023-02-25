@@ -1080,7 +1080,7 @@
       },
       "TOKEN": {
         "title": "გთხოვთ, მიაქციოთ ყურადღება!",
-        "description": "ტოკენი %{currencySymbol} მუშაობს ბლოკჩეინზე %{parentBlockchain} და ბრუნვისთვის საჭიროა პოზიტიური ბალანსი %{parentCurrency} მაინერებისთვის საკომისიოს მისაცემად. ამ ეტაპზე თქვენს საფულეში ნულოვანი ბალანსია %{parentCurrency}"
+        "description": "%{currencySymbol} ტოკენი მუშაობს %{parentBlockchain} ბლოკჩეინზე და მოითხოვს დადებით %{parentCurrency} ბალანსს ქსელის საკომისიოს გადასახდელად. სანამ საფულეში გაქვთ ნულოვანი %{parentCurrency} ბალანსი"
       }
     },
     "tokenNotAdded": {

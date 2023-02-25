@@ -1089,7 +1089,7 @@
       },
       "TOKEN": {
         "title": "Пожалуйста, обратите внимание!",
-        "description": "Токен %{currencySymbol} работает на блокчейне %{parentBlockchain} и для оборота требует позитивный баланс в %{parentCurrency} для оплаты комиссии майнерам. Пока на Вашем кошельке нулевой баланс %{parentCurrency}"
+        "description": "Токен %{currencySymbol} работает на блокчейне %{parentBlockchain} и для оборота требует позитивный баланс %{parentCurrency} для оплаты сетевой комиссии. Пока на Вашем кошельке нулевой баланс %{parentCurrency}"
       }
     },
     "tokenNotAdded": {

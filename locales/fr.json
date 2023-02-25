@@ -1087,7 +1087,7 @@
       },
       "TOKEN": {
         "title": "Votre attention s'il vous plaît!",
-        "description": "Token %{currencySymbol} deployé sur %{parentBlockchain} blockchain et pour l'utilisation, vous deviez avoir un solde positif de %{parentCurrency} pour payer les frais des mineurs. Jusqu'à présent, il n'y a aucun solde dans votre portefeuille %{parentCurrency}"
+        "description": "Le jeton %{currencySymbol} fonctionne sur la blockchain %{parentBlockchain} et nécessite un solde %{parentCurrency} positif pour payer les frais de réseau. Tant que vous avez un solde %{parentCurrency} nul dans votre portefeuille"
       }
     },
     "tokenNotAdded": {
