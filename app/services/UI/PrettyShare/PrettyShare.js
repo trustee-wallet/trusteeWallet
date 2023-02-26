@@ -29,14 +29,16 @@ export default function prettyShare(shareOptions, marketingTitle) {
                 }
 
                 if (text.indexOf('User did not share') !== -1) {
-                    text = strings('modal.walletLog.notComplited')
+                    text = '' // strings('modal.walletLog.notComplited')
                 }
-                showModal({
-                     type: 'INFO_MODAL',
-                     icon: false,
-                     title: strings('modal.walletLog.sorry'),
-                     description: text
-                })
+                if (text) {
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: false,
+                        title: strings('modal.walletLog.sorry'),
+                        description: text
+                    })
+                }
                 resolve(true)
             })
     })
