@@ -155,7 +155,7 @@
     "react-native-safe-area-view": "^1.0.0",
     "react-native-screens": "2.9.0",
     "react-native-shadow": "git+https://github.com/trustee-wallet/react-native-shadow",
-    "react-native-share": "^4.0.2",
+    "react-native-share": "^8.2.0",
     "react-native-snap-carousel": "^3.8.4",
     "react-native-sqlite-helper": "1.1.0",
     "react-native-sqlite-storage": "^4.1.0",
