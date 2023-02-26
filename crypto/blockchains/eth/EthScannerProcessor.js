@@ -621,9 +621,9 @@ export default class EthScannerProcessor extends EthBasic {
 
             if (typeof CACHE_BLOCK_NUMBER_TO_HASH[this._mainCurrencyCode][transaction.blockNumber] === 'undefined') {
                 const data = await this._web3.eth.getTransaction(transaction.hash)
-                CACHE_BLOCK_NUMBER_TO_HASH[this._mainCurrencyCode][transaction.blockNumber] = data.blockHash
+                CACHE_BLOCK_NUMBER_TO_HASH[this._mainCurrencyCode][transaction.blockNumber] = data?.blockHash
             }
-            transaction.blockHash = CACHE_BLOCK_NUMBER_TO_HASH[this._mainCurrencyCode][transaction.blockNumber]
+            transaction.blockHash = CACHE_BLOCK_NUMBER_TO_HASH[this._mainCurrencyCode][transaction.blockNumber] || transaction.blockNumber
             // noinspection PointlessArithmeticExpressionJS
             transaction.confirmations = CACHE_GET_MAX_BLOCK[this._mainCurrencyCode].max_block_number - transaction.blockNumber + 1 * CACHE_GET_MAX_BLOCK[this._mainCurrencyCode].confirmations
         } else {
