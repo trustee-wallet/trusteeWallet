@@ -8,14 +8,17 @@ import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore'
 
 import Log from '@app/services/Log/Log'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 import countries from '@assets/jsons/other/country-codes'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
+
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 137,
+        maxVersion: 138,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -997,6 +1000,22 @@ export default function getTableUpdateQueries() {
                         }
                     } catch (e) {
                         Log.err('DB/Update afterFunction - Migration 137 error', e)
+                    }
+                }
+            },
+
+            138: {
+                afterFunction: async (dbInterface) => {
+                    try {
+                        const zp = new FileSystem({ baseDir: 'zip', fileName: 'logsB', fileExtension: 'zip' })
+                        await zp.cleanDir()
+                        await Log.FS.ALL.cleanFile()
+                        await Log.FS.TEST.cleanFile()
+                        await Log.FS.DAEMON.cleanFile()
+                        await BlocksoftCryptoLog.FS.cleanFile()
+                        await Log.FS.ALL.cleanDir()
+                    } catch (e) {
+                        console.log('DB/Update afterFunction - Migration 138 error', e)
                     }
                 }
             },

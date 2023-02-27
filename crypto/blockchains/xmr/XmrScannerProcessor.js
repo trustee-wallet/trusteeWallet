@@ -268,9 +268,6 @@ export default class XmrScannerProcessor {
                 }
             }
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._unifyTransaction ' + address
-            + ' hash ' + transaction.hash + ' mempool ' + JSON.stringify(transaction.mempool) + ' height ' + transaction.height + ' lastBlock ' + lastBlock + ' => ' + transactionStatus)
-
 
         let direction = 'self'
         let amount

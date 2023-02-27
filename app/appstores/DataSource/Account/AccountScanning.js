@@ -20,8 +20,6 @@ class AccountScanning {
         let where = []
         let limit = 3
 
-        //where.push(`account.currency_code='ETH_UAX'`)
-
         if (typeof params.force === 'undefined' || !params.force) {
             const now = Math.round(new Date().getTime() / 1000) - 30 // 1 minute before
             where.push(`(account_balance.balance_scan_time IS NULL OR account_balance.balance_scan_time < ${now} OR account.transactions_scan_time IS NULL OR account.transactions_scan_time < ${now})`)
@@ -74,39 +72,6 @@ class AccountScanning {
         } else {
             where = ''
         }
-
-        const sqlTotal = `
-            SELECT
-            account.id,
-            account.currency_code AS currencyCode,
-            account.wallet_hash AS walletHash,
-            account.address,
-            account.transactions_scan_time AS transactionsScanTime,
-            account.transactions_scan_log AS transactionsScanLog,
-            account_balance.balance_provider AS balanceProvider,
-            account_balance.balance_scan_time AS balanceScanTime,
-            account_balance.balance_scan_error AS balanceScanError,
-            account_balance.balance_scan_log AS balanceScanLog,
-            account_balance.balance_scan_block AS balanceScanBlock            
-            FROM account
-            LEFT JOIN account_balance ON account_balance.account_id=account.id
-            LEFT JOIN currency ON currency.currency_code=account.currency_code
-            LEFT JOIN wallet ON wallet.wallet_hash=account.wallet_hash
-            ORDER BY account_balance.balance_scan_time ASC, account.currency_code ASC
-        `
-        const resTotal = await Database.query(sqlTotal)
-        let tmp = ''
-        for (const account1 of resTotal.array) {
-            tmp += account1.currencyCode + ' ' + account1.address + ' ' + (account1.balanceScanLog ? account1.balanceScanLog.substr(0, 200) : '') + `
-                `
-        }
-        Log.test(`
-        
-                ============================================================================================
-                ${new Date().toISOString()} accounts total
-                ${tmp}
-                `)
-
         const sql = `
             SELECT
             account.id,
@@ -141,7 +106,6 @@ class AccountScanning {
             ORDER BY account_balance.balance_scan_time ASC, account.currency_code ASC
             LIMIT ${limit}
         `
-        Log.daemon('AccountScanning getAccountsForScan where ' + where + ' limit ' + limit)
 
         let res = []
         const uniqueAddresses = {}
@@ -149,7 +113,6 @@ class AccountScanning {
         try {
             res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
-                Log.daemon('AccountScanning getAccountsForScan finished as empty')
                 return false
             }
             res = res.array
@@ -191,7 +154,6 @@ class AccountScanning {
                 }
             }
             if (idsToRemove.length > 0) {
-                Log.daemon('AccountScanning getAccountsForScan unique check finished, found ' + idsToRemove.join(','))
                 Log.daemon('AccountScanning getAccountsForScan not removed', uniqueAddresses)
 
                 await Database.query(`DELETE FROM account WHERE id IN (${idsToRemove.join(',')})`)
@@ -244,7 +206,6 @@ class AccountScanning {
         try {
             let res = await Database.query(sql)
             if (!res || typeof res.array === 'undefined' || !res.array || !res.array.length) {
-                Log.daemon('AccountScanning getAddresses finished as empty')
                 return false
             }
             if (typeof params.limit !== 'undefined') {
@@ -254,7 +215,7 @@ class AccountScanning {
             }
 
             res = res.array
-            
+
             res = res.map(e => e.addressName.includes("CREATED") ? {...e, addressName: ''} : e)
 
             let tmp
