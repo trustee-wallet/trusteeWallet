@@ -3,14 +3,16 @@
  * https://api.mymonero.com:8443/get_address_info
  */
 
-import BlocksoftUtils from '../../common/BlocksoftUtils'
-import BlocksoftAxios from '../../common/BlocksoftAxios'
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftPrivateKeysUtils from '@crypto/common/BlocksoftPrivateKeysUtils'
 
-import BlocksoftPrivateKeysUtils from '../../common/BlocksoftPrivateKeysUtils'
 import MoneroUtilsParser from './ext/MoneroUtilsParser'
-import { showModal } from '../../../app/appstores/Stores/Modal/ModalActions'
-import { strings } from '../../../app/services/i18n'
+
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { strings } from '@app/services/i18n'
+import config from '@app/config/config'
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
@@ -50,7 +52,7 @@ export default class XmrScannerProcessor {
      * @private
      */
     async _get(address, additionalData, walletHash) {
-        BlocksoftCryptoLog.log('XmrScannerProcessor._get ' + walletHash + ' ' + address)
+        BlocksoftCryptoLog.log('XMR XmrScannerProcessor._get ' + walletHash + ' ' + address)
         const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             CACHE[address].provider = 'mymonero-cache'
@@ -137,33 +139,50 @@ export default class XmrScannerProcessor {
             return false
         }
         if (typeof res.data.spent_outputs === 'undefined') {
-            throw new Error(this._settings.currencyCode + ' XmrScannerProcessor._get nothing loaded for address ' + link)
+            throw new Error('XMR XmrScannerProcessor._get nothing loaded for address ' + link)
         }
 
-        const parsed = await MoneroUtilsParser.parseAddressInfo(address, res.data, viewKey, additionalData.publicSpendKey, spendKey)
+        let parsed = false
+        try {
+            parsed = await MoneroUtilsParser.parseAddressInfo(address, res.data, viewKey, additionalData.publicSpendKey, spendKey)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('XMR XmrScannerProcessor._get MoneroUtilsParser.parseAddressInfo error ' + e.message)
+            }
+            await BlocksoftCryptoLog.log('XMR XmrScannerProcessor._get MoneroUtilsParser.parseAddressInfo error ' + e.message)
+        }
 
         const res2 = await BlocksoftAxios.postWithoutBraking(link + 'get_address_txs', linkParams)
         if (!res2 || !res2.data) {
             return false
         }
 
-        const parsed2 = await MoneroUtilsParser.parseAddressTransactions(address, res2.data, viewKey, additionalData.publicSpendKey, spendKey)
-
-        CACHE[address] = {
-            outputs: parsed.spent_outputs,
-            transactions: typeof parsed2.serialized_transactions !== 'undefined' ? parsed2.serialized_transactions : parsed2.transactions,
-            balance: typeof parsed.total_received_String !== 'undefined' ? BlocksoftUtils.diff(parsed.total_received_String, parsed.total_sent_String) : BlocksoftUtils.diff(parsed.total_received, parsed.total_sent),
-            account_scan_start_height: parsed2.account_scan_start_height,
-            scanned_block_height: parsed2.account_scanned_block_height,
-            account_scanned_height: parsed2.account_scanned_height,
-            blockchain_height: parsed2.blockchain_height,
-            transaction_height: parsed2.transaction_height,
-            time: now,
-            provider: 'mymonero'
+        let parsed2 = false
+        try {
+            parsed2 = await MoneroUtilsParser.parseAddressTransactions(address, res2.data, viewKey, additionalData.publicSpendKey, spendKey)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('XMR XmrScannerProcessor._get MoneroUtilsParser.parseAddressTransactions error ' + e.message)
+            }
+            await BlocksoftCryptoLog.log('XMR XmrScannerProcessor._get MoneroUtilsParser.parseAddressTransactions error ' + e.message)
         }
-        return CACHE[address]
 
-
+        if (parsed && parsed2) {
+            CACHE[address] = {
+                outputs: parsed?.spent_outputs,
+                transactions: typeof parsed2.serialized_transactions !== 'undefined' ? parsed2.serialized_transactions : parsed2.transactions,
+                balance: typeof parsed.total_received_String !== 'undefined' ? BlocksoftUtils.diff(parsed.total_received_String, parsed.total_sent_String) : BlocksoftUtils.diff(parsed.total_received, parsed.total_sent),
+                account_scan_start_height: parsed2.account_scan_start_height,
+                scanned_block_height: parsed2.account_scanned_block_height,
+                account_scanned_height: parsed2.account_scanned_height,
+                blockchain_height: parsed2.blockchain_height,
+                transaction_height: parsed2.transaction_height,
+                time: now,
+                provider: 'mymonero'
+            }
+            return CACHE[address]
+        }
+        return false
     }
 
     /**
@@ -196,10 +215,8 @@ export default class XmrScannerProcessor {
         }
         const additionalData = scanData.additional
         const walletHash = scanData.account.walletHash
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor.getTransactions started ' + address + ' of ' + walletHash)
         const res = await this._get(address, additionalData, walletHash)
         if (!res || typeof res === 'undefined') return []
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor.getTransactions loaded from ' + res.provider + ' ' + res.time)
 
         if (typeof res.transactions === 'undefined' || !res.transactions) return []
         let tx
@@ -211,8 +228,6 @@ export default class XmrScannerProcessor {
                 transactions.push(transaction)
             }
         }
-
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor.getTransactions finished ' + address + ' total: ' + transactions.length)
         return transactions
     }
 
