@@ -130,7 +130,7 @@ class WalletInfo extends React.Component {
         try {
             Linking.openURL(linkUrl)
         } catch (e) {
-            
+
         }
     }
 
@@ -147,8 +147,7 @@ class WalletInfo extends React.Component {
         // @misha to optimize
         const date = new Date()
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
-
-        console.log('this.props.walletIsScammed', this.props.walletIsScammed)
+        
         return (
             <>
                 <Animated.View style={{ opacity: this.state.opacity, marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}>
