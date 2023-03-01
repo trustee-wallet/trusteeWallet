@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect'
+import BlocksoftKeysScam from '@crypto/actions/BlocksoftKeys/BlocksoftKeysScam'
 
 export const getIsLoaderVisible = createSelector(
   [state => state.mainStore.loaderVisibility],
@@ -12,6 +13,11 @@ export const getIsBlurVisible = createSelector(
 
 export const getIsBackedUp = createSelector(
     [state => state.mainStore.selectedWallet.walletIsBackedUp],
+    (data => data)
+)
+
+export const getIsScammed = createSelector(
+    [state => BlocksoftKeysScam.isScamCashbackStatic(state.mainStore.selectedWallet.walletCashback)],
     (data => data)
 )
 

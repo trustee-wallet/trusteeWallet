@@ -2,22 +2,27 @@
  * @author Ksu
  * @version 0.5
  */
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import BlocksoftDict from '../../common/BlocksoftDict'
-import BlocksoftKeysUtils from './BlocksoftKeysUtils'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftKeysUtils from '@crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
+
 
 import * as BlocksoftRandom from 'react-native-blocksoft-random'
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
+import BlocksoftKeysScam from '@crypto/actions/BlocksoftKeys/BlocksoftKeysScam'
 
 const bip32 = require('bip32')
 const bip39 = require('bip39')
 const bip44Constants = require('../../common/ext/bip44-constants')
 const networksConstants = require('../../common/ext/networks-constants')
+
 const bs58check = require('bs58check')
+
 
 const ETH_CACHE = {}
 const CACHE = {}
 const CACHE_ROOTS = {}
+
 
 class BlocksoftKeys {
 
@@ -72,6 +77,9 @@ class BlocksoftKeys {
      */
     async validateMnemonic(mnemonic) {
         BlocksoftCryptoLog.log(`BlocksoftKeys validateMnemonic called`)
+        if (await BlocksoftKeysScam.isScamMnemonic(mnemonic)) {
+            throw new Error('scam mnemonic')
+        }
         const result = await bip39.validateMnemonic(mnemonic)
         if (!result) {
             throw new Error('invalid mnemonic for bip39')

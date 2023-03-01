@@ -197,6 +197,12 @@
         "title": "აღმდგენი ფრაზა არ არის შენახული!",
         "description": "აღმდგენი ფრაზა (Seed-ფრაზა) ეს არის ერთადერთი გასაღები თქვენი აქტივებისთვის! ტელეფონის მწყობრიდან გამოსვლის ან სხვა მსგავს შემთხვევებში, თქვენს აქტივებთან წვდომა ამ ფრაზის გარეშე შეუძლებელი გახდება. გთხოვთ, ახლავე შეინახოთ ფრაზა უსაფრთხო ადგილას! \n \n  თუ თქვენ გთხოვენ აღმდენ ფრაზას, ე.ი. საქმე გაქვთ თაღლითებთან. \n არავის და არანაირ პირობებში არ გაანდოთ აღმდგენი ფრაზა!"
       },
+      "scamWallet": "SCAM",
+      "scamModal": {
+        "title": "One of wallets you have imported is marked as SCAM",
+        "description": "Recovery phrase (Seed phrase) is the only key to your assets! If you are importing some phrase you have not generated - you put yourself in scam danger!",
+        "remove": "Remove this wallets"
+      },
       "hdEnableModal": {
         "title": "გადავრთოთ საფულე HD რეჟიმში?",
         "description": "HD რეჟიმი გულისხმობს მისამართების როტაციას ყოველ ტრანზაქციაზე. გადართვის ოპერაცია შუქცევადია."

@@ -198,6 +198,12 @@
         "save": "sauvegarder",
         "late": "Faire plus tard"
       },
+      "scamWallet": "SCAM",
+      "scamModal": {
+        "title": "One of wallets you have imported is marked as SCAM",
+        "description": "Recovery phrase (Seed phrase) is the only key to your assets! If you are importing some phrase you have not generated - you put yourself in scam danger!",
+        "remove": "Remove this wallets"
+      },
       "hdEnableModal": {
         "title": "Passer le portefeuille en mode HD?",
         "description": "Le mode HD implique une rotation des adresses pour chaque transaction. L'opération de commutation est irréversible."

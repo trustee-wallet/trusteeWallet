@@ -8,7 +8,7 @@ import {
     View,
     Text,
     Animated,
-    StyleSheet
+    StyleSheet, Linking
 } from 'react-native'
 
 import moment from 'moment'
@@ -23,7 +23,7 @@ import currencyBasicActions from '@app/appstores/Stores/CurrencyBasic/CurrencyBa
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
-import { strings } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
 import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
@@ -35,12 +35,13 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import { SIZE } from '../helpers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
-import { getIsBackedUp } from '@app/appstores/Stores/Main/selectors'
+import { getIsBackedUp, getIsScammed } from '@app/appstores/Stores/Main/selectors'
 import InfoNotification from '@app/components/elements/new/InfoNotification'
 import { handleBackUpModal } from '@app/modules/Settings/helpers'
 
 import BorderedButton from '@app/components/elements/new/buttons/BorderedButton'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 
 
 let CACHE_PREV_CURRENCY = false
@@ -123,6 +124,16 @@ class WalletInfo extends React.Component {
         handleBackUpModal(this.props.selectedWalletData)
     }
 
+    handleMoreInfo = () => {
+        const sub = sublocale()
+        const linkUrl = 'https://blog.trusteeglobal.com/' + sub + '/yak-ne-staty-zhertvoyu-shahrayiv-u-kryptovalyutah/'
+        try {
+            Linking.openURL(linkUrl)
+        } catch (e) {
+            
+        }
+    }
+
     render() {
         const {
             changeBalanceVisibility,
@@ -137,6 +148,7 @@ class WalletInfo extends React.Component {
         const date = new Date()
         const todayPrep = `${strings('homeScreen.today')}, ${date.getDate()} ${capitalize(moment(date).format('MMM'))}`
 
+        console.log('this.props.walletIsScammed', this.props.walletIsScammed)
         return (
             <>
                 <Animated.View style={{ opacity: this.state.opacity, marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE / 2 }}>
@@ -226,7 +238,7 @@ class WalletInfo extends React.Component {
                         </GradientView>
                     </TouchableDebounce>
                 </Animated.View>
-                
+
                 {!this.props.walletIsBackedUp ?
                     <View style={{ marginHorizontal: this.props.constructorMode ? 0 : GRID_SIZE }}>
                         <InfoNotification
@@ -234,6 +246,18 @@ class WalletInfo extends React.Component {
                             subTitle={strings('settings.walletList.backupDescription')}
                             closeCallback={this.closeMsg}
                             onPress={this.handleBackupModal}
+                            iconType="warning"
+                        />
+                    </View> : null
+                }
+
+                {this.props.walletIsScammed ?
+                    <View style={{ marginHorizontal: this.props.constructorMode ? 0 : GRID_SIZE }}>
+                        <InfoNotification
+                            title={strings('settings.walletList.scamWallet')}
+                            subTitle={strings('settings.walletList.scamModal.description')}
+                            closeCallback={this.closeMsg}
+                            onPress={this.handleMoreInfo}
                             iconType="warning"
                         />
                     </View> : null
@@ -248,7 +272,8 @@ const mapStateToProps = (state) => {
         selectedBasicCurrency: state.mainStore.selectedBasicCurrency,
         cryptoCurrencies: state.currencyStore.cryptoCurrencies,
         accountList: state.accountStore.accountList,
-        walletIsBackedUp: getIsBackedUp(state)
+        walletIsBackedUp: getIsBackedUp(state),
+        walletIsScammed: getIsScammed(state)
     }
 }
 

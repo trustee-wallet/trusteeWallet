@@ -3,7 +3,7 @@
  * @author yura
  */
 import Log from '../Log/Log'
-import { sublocale } from '../i18n'
+import { strings, sublocale } from '../i18n'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
@@ -23,6 +23,10 @@ import ApiProxy from './ApiProxy'
 import store from '@app/store'
 
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import BlocksoftKeysScam from '@crypto/actions/BlocksoftKeys/BlocksoftKeysScam'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { handleBackup } from '@app/modules/Settings/helpers'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
 
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
@@ -231,18 +235,27 @@ export default {
             cards
         }
 
+        let showScam = false
+        let scamWallets = []
+        let scamWalletsTitle = ''
         try {
             Log.log('ApiV3.initData get wallets from state start')
             const wallets = store.getState().walletStore.wallets
             for (let wallet of wallets) {
+                scamWallets.push(wallet)
                 wallet = await walletDS._redoCashback(wallet)
-                const accounts = await this.initWallet(wallet, 'ApiV3')
-                data.wallets.push({
-                    walletHash: wallet.walletHash,
-                    walletName: wallet.walletName,
-                    cashbackToken: wallet.walletCashback,
-                    accounts
-                })
+                if (await BlocksoftKeysScam.isScamCashback(wallet.walletCashback)) {
+                    showScam = true
+                    scamWalletsTitle += ' ' + wallet.walletCashback
+                } else {
+                    const accounts = await this.initWallet(wallet, 'ApiV3')
+                    data.wallets.push({
+                        walletHash: wallet.walletHash,
+                        walletName: wallet.walletName,
+                        cashbackToken: wallet.walletCashback,
+                        accounts
+                    })
+                }
             }
             Log.log('ApiV3.initData get wallets from state finish')
         } catch (e) {
@@ -250,6 +263,21 @@ export default {
                 console.log('ApiV3.initData build error ' + e.message)
             }
             Log.err('ApiV3.initData build error ' + e.message)
+        }
+        if (showScam) {
+            showModal({
+                type: 'YES_NO_MODAL',
+                icon: 'WARNING',
+                title: strings('settings.walletList.scamModal.title'),
+                description: strings('settings.walletList.scamModal.description') + '\n\n' + scamWalletsTitle,
+                oneButton: strings('settings.walletList.scamModal.remove'),
+                twoButton: strings('settings.walletList.backupModal.late'),
+                noCallback: async () => {
+                    for (const wallet of scamWallets) {
+                        await walletActions.removeWallet(wallet.walletHash)
+                    }
+                }
+            }, () => {})
         }
 
         let msg = await ApiProxy.getServerTimestampIfNeeded()
