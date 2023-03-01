@@ -33,6 +33,15 @@ export default class TrxScannerProcessor {
         this._transactionsTrc20Provider = new TrxTransactionsTrc20Provider()
     }
 
+    async isMultisigBlockchain(address) {
+        address = address.trim()
+        let addressHex = address
+        if (address.substr(0, 1) === 'T') {
+            addressHex = await TronUtils.addressToHex(address)
+        }
+        return this._trongridProvider.isMultisigTrongrid(addressHex)
+    }
+
     /**
      * https://developers.tron.network/reference#addresses-accounts
      * @param {string} address

@@ -14,6 +14,14 @@ const CACHE_VALID_TIME = 3000 // 3 seconds
 
 export default class TrxTrongridProvider {
 
+    async isMultisigTrongrid(address) {
+        if (typeof CACHE_TRONGRID[address] !== 'undefined') {
+            return
+        }
+        const res = await this.get(address, '_', true)
+        return res?.isMultisig || false
+    }
+
     /**
      * https://api.trongrid.io/walletsolidity/getaccount?address=41d4eead2ea047881ce54cae1a765dfe92a8bfdbe9
      * @param {string} address
@@ -33,6 +41,7 @@ export default class TrxTrongridProvider {
                 const frozenEnergyExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] : 0
                 const frozenEnergyOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] : 0
                 return {
+                    isMultisig: CACHE_TRONGRID[address].isMultisig,
                     balance: CACHE_TRONGRID[address][tokenName],
                     voteTotal,
                     frozen,
@@ -61,9 +70,20 @@ export default class TrxTrongridProvider {
             return false
         }
 
+        let isMultisig = false
+        if (res.data.active_permission) {
+            for (const perm of res.data.active_permission) {
+                if (perm.keys[0].address !== address) {
+                    isMultisig = TronUtils.addressHexToStr(perm.keys[0].address)
+                }
+            }
+        }
+
+
         CACHE_TRONGRID[address] = {}
         CACHE_TRONGRID[address].time = now
         CACHE_TRONGRID[address]._ = typeof res.data.balance !== 'undefined' ? res.data.balance : 0
+        CACHE_TRONGRID[address].isMultisig = isMultisig
         CACHE_TRONGRID[address]._frozen = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].frozen_balance : 0
         CACHE_TRONGRID[address]._frozenExpireTime = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].expire_time : 0
         CACHE_TRONGRID[address]._frozenOthers = typeof res.data.delegated_frozen_balance_for_bandwidth !== 'undefined' ? res.data.delegated_frozen_balance_for_bandwidth : 0
@@ -103,6 +123,7 @@ export default class TrxTrongridProvider {
         const frozenEnergyOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] : 0
         const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
         return {
+            isMultisig: CACHE_TRONGRID[address].isMultisig,
             balance,
             voteTotal,
             frozen,

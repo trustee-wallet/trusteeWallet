@@ -128,6 +128,22 @@ class BlocksoftBalances {
         BlocksoftCryptoLog.log('BlocksoftBalances.getResources ' + this._data.currencyCode + ' ' + this._data.address + ' ended ' + JSON.stringify(res))
         return res
     }
+
+    async isMultisig(source) {
+        const currencyCode = this._data.currencyCode
+        if (!currencyCode) {
+            throw new Error('plz set currencyCode before calling')
+        }
+        let res
+        try {
+            res = await this._processor[currencyCode].isMultisigBlockchain(this._data.address, this._data.jsonData, this._data.walletHash, source)
+        } catch (e) {
+            e.code = 'ERROR_SYSTEM'
+            throw e
+        }
+        BlocksoftCryptoLog.log('BlocksoftBalances.isMultisigBlockchain ' + this._data.currencyCode + ' ' + this._data.address + ' ended ' + JSON.stringify(res))
+        return res
+    }
 }
 
 const singleBlocksoftBalances = new BlocksoftBalances()

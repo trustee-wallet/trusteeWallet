@@ -199,6 +199,8 @@
         "save": "Сохранить",
         "late": "Отложить"
       },
+      "multisigWallet": "MULTISIG",
+      "multisigWalletDesc": "Может быть мошенничеством",
       "scamWallet": "SCAM",
       "scamModal": {
         "title": "Один из Ваших кошельков помечен как SCAM",

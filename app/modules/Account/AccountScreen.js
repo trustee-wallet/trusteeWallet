@@ -9,7 +9,7 @@ import {
     Platform,
     RefreshControl,
     View,
-    FlatList
+    FlatList, Linking
 } from 'react-native'
 
 import _isEqual from 'lodash/isEqual'
@@ -35,7 +35,7 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
-import { strings } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
 
@@ -54,6 +54,8 @@ import SynchronizedBlock from './elements/SynchronizedBlock'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import config from '@app/config/config'
+import InfoNotification from '@app/components/elements/new/InfoNotification'
+import { handleBackUpModal } from '@app/modules/Settings/helpers'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
@@ -78,7 +80,9 @@ class Account extends React.PureComponent {
 
             hasStickyHeader: false,
 
-            isSeaching: false
+            isSeaching: false,
+            isMultisig: false,
+            showMultisigMsg : true
         }
 
         this.refreshBalance()
@@ -203,7 +207,7 @@ class Account extends React.PureComponent {
         if (CACHE_BALANCE_TIMEOUT) {
             clearTimeout(CACHE_BALANCE_TIMEOUT)
         }
-        const { address, basicCurrencyRate, balanceStakedPretty, balanceTotalPretty, walletHash, derivationPath } = this.props.selectedAccountData
+        const { address, basicCurrencyRate, balanceStakedPretty, balanceTotalPretty, walletHash, derivationPath, walletCashback } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
 
         if (config.daemon.scanOnAccount) {
@@ -243,6 +247,19 @@ class Account extends React.PureComponent {
                         } else {
                             Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not be updated')
                         }
+                    }
+                }
+                if (currencyCode === 'TRX' || currencyCode.indexOf('TRX_') === 0) {
+                    try {
+                        if (!this.state.isMultisig) {
+                            const isMultisig = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({ derivationPath }).setAddress(address)).isMultisig('AccountScreen')
+                            if (isMultisig) {
+                                MarketingEvent.logEvent('trx_multisig', { address, isMultisig, walletCashback, walletHash })
+                                this.setState({ isMultisig })
+                            }
+                        }
+                    } catch (e) {
+                        // do nothing
                     }
                 }
             } catch (e) {
@@ -323,11 +340,26 @@ class Account extends React.PureComponent {
     //     }
     // }
 
+    closeMsg = () => {
+        this.setState({ showMultisigMsg : !this.state.showMultisigMsg })
+    }
+
+
+    handleMoreInfo = () => {
+        const sub = sublocale()
+        const linkUrl = 'https://blog.trusteeglobal.com/' + sub + '/yak-ne-staty-zhertvoyu-shahrayiv-u-kryptovalyutah/'
+        try {
+            Linking.openURL(linkUrl)
+        } catch (e) {
+
+        }
+    }
+
     render() {
 
         MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
         const { isSegwit, selectedAccountData, selectedCryptoCurrencyData } = this.props
         let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
@@ -366,7 +398,6 @@ class Account extends React.PureComponent {
                 logData.legacyAddress = selectedAccountData.legacyAddress || ''
                 logData.segwitAddress = selectedAccountData.segwitAddress || ''
             }
-            MarketingEvent.logEvent('view_account', logData)
         }
 
         return (
@@ -458,6 +489,16 @@ class Account extends React.PureComponent {
                                 // isSeaching={this.state.isSeaching}
                                 filterData={this.props.filterData}
                             />
+                            {this.state.isMultisig && this.state.showMultisigMsg ?
+                                <View style={{ marginHorizontal: GRID_SIZE }}>
+                                    <InfoNotification
+                                        title={strings('settings.walletList.multisigWallet')}
+                                        subTitle={strings('settings.walletList.multisigWalletDesc')}
+                                        closeCallback={this.closeMsg}
+                                        onPress={this.handleMoreInfo}
+                                        iconType="warning"
+                                    />
+                                </View> : null }
                         </>
                     )}
                     renderItem={({ item, index }) => (

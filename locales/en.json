@@ -199,6 +199,8 @@
         "save": "Save",
         "late": "Do later"
       },
+      "multisigWallet": "MULTISIG",
+      "multisigWalletDesc": "Could be scam, read more",
       "scamWallet": "SCAM",
       "scamModal": {
         "title": "One of wallets you have imported is marked as SCAM",

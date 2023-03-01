@@ -193,6 +193,8 @@
         "title": "Головна адреса буде змінена",
         "description" : "Ви будете використовувати баланс %{newAddress}"
       },
+      "multisigWallet": "MULTISIG",
+      "multisigWalletDesc": "Може бути шахрайством",
       "scamWallet": "SCAM",
       "backupModal": {
         "title": "Ваша фраза відновлення не збережена!",
