@@ -46,8 +46,8 @@ class BlocksoftPrettyNumbers {
         throw new Error('undefined BlocksoftPrettyNumbers processor to makePretty')
     }
 
-    makeCut(tmp, size = 5, source = false) {
-        if (this._decimals <= 6 && size === 5 && this._decimals > 0) {
+    makeCut(tmp, size = 5, source = false, useDict = true) {
+        if (this._decimals <= 6 && size === 5 && this._decimals > 0 && useDict) {
             size = this._decimals
         }
         let cutted = 0

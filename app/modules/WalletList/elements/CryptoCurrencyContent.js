@@ -113,7 +113,7 @@ const CryptoCurrencyContent = (props) => {
                             ? !isSynchronized
                                 ? renderSynchronization()
                                 : isBalanceVisible
-                                    ? <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>{BlocksoftPrettyNumbers.makeCut(account.balancePretty).separated}</Text>
+                                    ? <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>{BlocksoftPrettyNumbers.makeCut(account.balancePretty, 5,  'WalletList', false).separated}</Text>
                                     : <Text style={[styles.cryptoList__title, { color: colors.common.text1 }]}>****</Text>
                             : null}
                     </View>
