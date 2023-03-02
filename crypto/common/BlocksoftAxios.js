@@ -99,6 +99,70 @@ class BlocksoftAxios {
         return tmp
     }
 
+    async postWithHeaders(link, data, addHeaders, errSend = true, timeOut = false) {
+        let tmp = false
+        try {
+            const headers = {
+                'upgrade-insecure-requests': 1,
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36'
+            }
+            const dataPrep = JSON.stringify(data)
+            headers['Content-Type'] = 'application/json'
+            headers['Accept'] = 'application/json'
+            for (let key in addHeaders) {
+                headers[key] = addHeaders[key]
+            }
+
+            const tmpInner = await fetch(link, {
+                method: 'POST',
+                credentials: 'same-origin',
+                mode: 'same-origin',
+                redirect: 'follow',
+                headers,
+                body: dataPrep
+            })
+            if (tmpInner.status !== 200 && tmpInner.status !== 201 && tmpInner.status !== 202) {
+                BlocksoftCryptoLog.log('BlocksoftAxios.post fetch result ' + JSON.stringify(tmpInner))
+            } else {
+                tmp = { data: await tmpInner.json() }
+            }
+        } catch (e) {
+            BlocksoftCryptoLog.log('BlocksoftAxios.postWithHeaders fetch result error ' + e.message)
+        }
+        return tmp
+    }
+
+    async getWithHeaders(link, addHeaders, errSend = true, timeOut = false) {
+        let tmp = false
+        try {
+            const headers = {
+                'upgrade-insecure-requests': 1,
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36'
+            }
+            headers['Content-Type'] = 'application/json'
+            headers['Accept'] = 'application/json'
+            for (let key in addHeaders) {
+                headers[key] = addHeaders[key]
+            }
+
+            const tmpInner = await fetch(link, {
+                method: 'GET',
+                credentials: 'same-origin',
+                mode: 'same-origin',
+                redirect: 'follow',
+                headers
+            })
+            if (tmpInner.status !== 200 && tmpInner.status !== 201 && tmpInner.status !== 202) {
+                BlocksoftCryptoLog.log('BlocksoftAxios.get fetch result ' + JSON.stringify(tmpInner))
+            } else {
+                tmp = { data: await tmpInner.json() }
+            }
+        } catch (e) {
+            console.log('BlocksoftAxios.getWithHeaders fetch result error ' + e.message)
+        }
+        return tmp
+    }
+
     async post(link, data, errSend = true, timeOut = false) {
         let tmp = false
         let doOld = this._isTrustee(link)

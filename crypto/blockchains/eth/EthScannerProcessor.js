@@ -11,6 +11,7 @@ import BlocksoftBN from '../../common/BlocksoftBN'
 import EthTmpDS from './stores/EthTmpDS'
 import EthRawDS from './stores/EthRawDS'
 import config from '@app/config/config'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 const CACHE_GET_MAX_BLOCK = {
     ETH: { max_block_number: 0, confirmations: 0 },
@@ -210,6 +211,9 @@ export default class EthScannerProcessor extends EthBasic {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getTransactions trezor unify started ' + address)
             transactions = await this._unifyTransactions(address, res.data.transactions, false, true, {})
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getTransactions trezor finished ' + address)
+        } else if (this._oklinkAPI) {
+            let logTitle = this._settings.currencyCode + ' EthScannerProcessor.getTransactions oklink '
+            transactions = await this._getFromOklink(address, this._oklinkAPI, logTitle, {})
         } else {
             if (!this._etherscanApiPath) {
                 BlocksoftCryptoLog.err(this._settings.currencyCode + ' EthScannerProcessor.getTransactions no _etherscanApiPath')
@@ -238,6 +242,25 @@ export default class EthScannerProcessor extends EthBasic {
         }
         return reformatted
     }
+
+    async _getFromOklink(address, key, logTitle, transactions = {}) {
+        const link = 'https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=ethw&address=' +  address
+        const tmp = await BlocksoftAxios.getWithHeaders(link, {'Ok-Access-Key': key})
+        if (typeof tmp?.data?.data === 'undefined' || typeof tmp?.data?.data[0] === 'undefined' || typeof tmp?.data?.data[0]?.transactionLists === 'undefined') {
+            return []
+        }
+        await BlocksoftCryptoLog.log(logTitle + ' started ', link)
+        const list = tmp.data.data[0].transactionLists
+        for (const tx of list) {
+            const transaction = await this._unifyTransactionOklink(address, tx)
+            if (transaction) {
+                transactions[transaction.transactionHash] = transaction
+            }
+        }
+        await BlocksoftCryptoLog.log(logTitle + ' finished ' + address)
+        return transactions
+    }
+
 
     async _getFromEtherscan(address, link, logTitle, isInternal, transactions = {}) {
 
@@ -558,6 +581,76 @@ export default class EthScannerProcessor extends EthBasic {
         }
         if (additional) {
             tx.transactionJson = additional
+        }
+        return tx
+    }
+
+    /**
+     * @param {string} address
+     * @param {Object} transaction
+     * @param {string} transaction.amount 0.001852572296633876
+     * @param {string} transaction.blockHash 0x3661deb1c783baed6b1917a1f58ad460ad9cbaac5977919cfd75019e6a12363a
+     * @param {string} transaction.challengeStatus
+     * @param {string} transaction.from 0xf1cff704c6e6ce459e3e1544a9533cccbdad7b99
+     * @param {string} transaction.height 5495990
+     * @param {string} transaction.isFromContract false
+     * @param {string} transaction.isToContract false
+     * @param {string} transaction.l1OriginHash ''
+     * @param {string} transaction.methodId ''
+     * @param {string} transaction.state success
+     * @param {string} transaction.to 0xf1cff704c6e6ce459e3e1544a9533cccbdad7b99
+     * @param {string} transaction.tokenContractAddress ''
+     * @param {string} transaction.tokenId ''
+     * @param {string} transaction.transactionSymbol ETHW
+     * @param {string} transaction.transactionTime 1662632042000
+     * @param {string} transaction.txFee 0.000231
+     * @param {string} transaction.txId 0x3cc404044f96f07bee0af9717d49ce72dba645c5bb5af4846be84dafa68127b1
+     * @return {UnifiedTransaction}
+     * @protected
+     */
+    async _unifyTransactionOklink(_address, transaction) {
+        if (typeof transaction.transactionTime === 'undefined') {
+            throw new Error(' no transaction.timeStamp error transaction data ' + JSON.stringify(transaction))
+        }
+
+        const address = _address.toLowerCase()
+        const formattedTime = transaction.transactionTime
+
+        let transactionStatus = 'new'
+        let confirmations = 0
+        if (transaction.state === 'success') {
+            const diff = new Date().getTime() - transaction.transactionTime
+            confirmations = Math.round(diff / 60000)
+            if (confirmations > 120) {
+                transactionStatus = 'success'
+            } else {
+                transactionStatus = 'confirming'
+            }
+        } else if (transaction.state === 'fail') {
+            transactionStatus = 'fail'
+        } else if (transaction.state === 'pending') {
+            transactionStatus = 'confirming'
+        }
+
+        const tx = {
+            transactionHash: transaction.txId.toLowerCase() + '_1',
+            blockHash: transaction.blockHash,
+            blockNumber: +transaction.height,
+            blockTime: formattedTime,
+            blockConfirmations: confirmations,
+            transactionDirection: (address.toLowerCase() === transaction.from.toLowerCase()) ? 'outcome' : 'income',
+            addressFrom: (address.toLowerCase() === transaction.from.toLowerCase()) ? '' : transaction.from,
+            addressFromBasic: transaction.from.toLowerCase(),
+            addressTo: (address.toLowerCase() === transaction.to.toLowerCase()) ? '' : transaction.to,
+            addressAmount : BlocksoftPrettyNumbers.setCurrencyCode('ETH').makeUnPretty(transaction.amount),
+            transactionStatus: transactionStatus,
+            contractAddress : '',
+            inputValue: '',
+            transactionFee: BlocksoftPrettyNumbers.setCurrencyCode('ETH').makeUnPretty(transaction.txFee)
+        }
+        if (tx.addressFrom === '' && tx.addressTo === '') {
+            tx.transactionDirection = 'self'
+            tx.addressAmount = 0
         }
         return tx
     }
