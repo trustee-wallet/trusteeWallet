@@ -55,7 +55,6 @@ import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalanc
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import config from '@app/config/config'
 import InfoNotification from '@app/components/elements/new/InfoNotification'
-import { handleBackUpModal } from '@app/modules/Settings/helpers'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
@@ -365,7 +364,7 @@ class Account extends React.PureComponent {
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
             CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
-        } else if (CACHE_TX_LOADED * 1 <= this.props.selectedAccountTransactions.transactionsLoaded * 1) {
+        } else if (CACHE_TX_LOADED * 1 <= this.props.selectedAccountTransactions.transactionsLoaded * 1 && !this.state.hasStickyHeader) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
             CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
             this.loadTransactions(0)
