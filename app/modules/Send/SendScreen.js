@@ -137,6 +137,9 @@ class SendScreen extends PureComponent {
             clearTimeout(CACHE_BALANCE_TIMEOUT)
         }
         const { balanceRaw, basicCurrencyRate, currencyCode, addressFrom, walletHash, derivationPath } = this.props.sendScreenStore.dict
+        if (currencyCode === 'BTC' || currencyCode === 'LTC') {
+            return false
+        }
         if (config.daemon.scanOnAccount) {
             try {
                 const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({derivationPath}).setAddress(addressFrom)).getBalance('SendScreen')

@@ -209,6 +209,9 @@ class Account extends React.PureComponent {
         const { address, basicCurrencyRate, balanceStakedPretty, balanceTotalPretty, walletHash, derivationPath, walletCashback } = this.props.selectedAccountData
         const { currencyCode } = this.props.selectedCryptoCurrencyData
 
+        if (currencyCode === 'BTC' || currencyCode === 'LTC') {
+            return false
+        }
         if (config.daemon.scanOnAccount) {
             try {
                 const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({derivationPath}).setAddress(address)).getBalance('AccountScreen')
