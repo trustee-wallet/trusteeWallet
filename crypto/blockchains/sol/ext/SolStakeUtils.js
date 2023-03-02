@@ -67,7 +67,8 @@ export default {
                 const address = tmp.votePubkey
                 if (typeof validators.data[address] === 'undefined') continue
 
-                const validator = { address, commission: tmp.commission, activatedStake: tmp.activatedStake, name: '', description: '', website: '' }
+                const validator = { address, commission: tmp.commission, activatedStake: tmp.activatedStake, name: '', description: '', website: '', index : 100 }
+                validator.index = typeof validators.data[validator.address].index !== 'undefined' ? validators.data[validator.address].index : 0
                 validator.name = validators.data[validator.address].name
                 validator.description = validators.data[validator.address].description
                 validator.website = validators.data[validator.address].website
@@ -75,11 +76,15 @@ export default {
                 CACHE_VOTES.data.push(validator)
             }
             CACHE_VOTES.data.sort((a, b) => {
-                const diff = a.commission - b.commission
-                if (diff <= 0.1 && diff >= -0.1) {
-                    return b.activatedStake - a.activatedStake
+                if (a.index*1 === b.index*1) {
+                    const diff = a.commission - b.commission
+                    if (diff <= 0.1 && diff >= -0.1) {
+                        return b.activatedStake - a.activatedStake
+                    }
+                    return diff
+                } else {
+                    return b.index - a.index
                 }
-                return diff
             })
             CACHE_VOTES.time = now
         } catch (e) {
