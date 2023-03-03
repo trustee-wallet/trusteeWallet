@@ -38,14 +38,6 @@
     "disableInjected" : true,
     "dappsDomenName": "nftrade.com"
   },
-  "MOCHISWAP" : {
-    "dappCode" : "MOCHISWAP",
-    "dappName" : "Mochiswap",
-    "dappUrl" : "https://harmony.mochiswap.io/swap",
-    "dappNetworks" : ["ONE"],
-    "disableInjected" : true,
-    "dappsDomenName": "harmony.mochiswap.io"
-  },
   "JUSTLEND" : {
     "dappCode": "JUSTLEND",
     "dappName" : "JustLend",
