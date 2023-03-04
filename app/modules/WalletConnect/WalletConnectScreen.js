@@ -175,10 +175,7 @@ class WalletConnectScreen extends PureComponent {
 
         const textCondition = condition ? typeof peerMeta.url !== 'undefined' ? peerMeta.url : '' : strings('settings.walletConnect.unconnectedText')
 
-        let imageUri = ''
-        if (typeof peerMeta.icons !== 'undefined' && typeof peerMeta.icons[0] !== 'undefined' && peerMeta.icons[0]) {
-            imageUri = peerMeta.icons[0].indexOf('.png') === -1 ? peerMeta.icons[1] : peerMeta.icons[0]
-        }
+        const imageUri = peerMeta?.icons.length ? peerMeta?.icons?.find(item => item.indexOf('.png') !== -1) : ''
 
         return (
             <>
