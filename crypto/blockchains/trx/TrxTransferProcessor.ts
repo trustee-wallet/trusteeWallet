@@ -330,7 +330,10 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
         if (typeof privateData.privateKey === 'undefined') {
             throw new Error('TRX transaction required privateKey')
         }
-        if (uiData.selectedFee.isErrorFee) {
+        if (uiData.selectedFee.isErrorFee && (typeof uiData.uiErrorConfirmed === 'undefined' || !uiData.uiErrorConfirmed)) {
+            if (config.debug.cryptoErrors) {
+                console.log(`uiData.selectedFee.isErrorFee`, uiData)
+            }
             throw new Error('SERVER_RESPONSE_NOT_ENOUGH_FEE')
         }
 

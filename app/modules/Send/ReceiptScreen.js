@@ -160,6 +160,9 @@ class ReceiptScreen extends PureComponent {
                 sendInProcess: false
             })
             return false
+        } else if (checkLoadedFeeResult.newCryptoValue * 1 > 0) {
+            newCryptoValue = checkLoadedFeeResult.newCryptoValue
+            uiErrorConfirmed = true
         }
 
         const { sendScreenStore } = this.props

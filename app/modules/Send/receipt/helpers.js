@@ -95,7 +95,7 @@ const checkLoadedFee = function(_this) {
             if (uiType === 'TRADE_SEND') {
                 msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
                 goBack = BlocksoftExternalSettings.getStatic('TRADE_SEND_AMOUNT_CHECK_FORCE_QUIT') > 0
-            } else {
+            } else if (currencyCode !== 'TRX' && currencyCode.indexOf('TRX_') === -1) {
                 msg = strings('send.errors.UI_CORRECTED_AMOUNT', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
             }
             newCryptoValue = value
