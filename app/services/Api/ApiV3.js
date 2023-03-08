@@ -236,7 +236,7 @@ export default {
         }
 
         let showScam = false
-        let scamWallets = []
+        let scamWallets = {}
         let scamWalletsTitle = ''
         try {
             Log.log('ApiV3.initData get wallets from state start')
