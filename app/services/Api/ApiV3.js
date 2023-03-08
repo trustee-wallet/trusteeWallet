@@ -247,6 +247,7 @@ export default {
                 if (await BlocksoftKeysScam.isScamCashback(wallet.walletCashback)) {
                     showScam = true
                     scamWalletsTitle += ' ' + wallet.walletCashback
+                    scamWallets[wallet.walletCashback] = 1
                 } else {
                     const accounts = await this.initWallet(wallet, 'ApiV3')
                     data.wallets.push({
@@ -274,7 +275,9 @@ export default {
                 twoButton: strings('settings.walletList.backupModal.late'),
                 noCallback: async () => {
                     for (const wallet of scamWallets) {
-                        await walletActions.removeWallet(wallet.walletHash)
+                        if (typeof scamWallets[wallet.walletCashback] !== 'undefined') {
+                            await walletActions.removeWallet(wallet.walletHash)
+                        }
                     }
                 }
             }, () => {})
