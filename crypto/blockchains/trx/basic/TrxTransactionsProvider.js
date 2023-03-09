@@ -156,40 +156,6 @@ export default class TrxTransactionsProvider {
                 addressAmount = transaction.amount
                 transactionDirection = 'claim'
                 transactionFilterType = TransactionFilterTypeDict.STAKE
-            } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 31) {
-                transactionFilterType = TransactionFilterTypeDict.SWAP
-                if (typeof transaction.contractData.call_value === 'undefined') {
-                    addressAmount = 0
-                    txTokenName = '_'
-                    transactionDirection = 'swap_income'
-                    const diff = scanData.account.transactionsScanTime - transaction.timestamp / 1000
-                    if (diff > 600) {
-                        return false
-                    }
-                    try {
-                        const tmp = await BlocksoftAxios.get('https://apilist.tronscan.org/api/transaction-info?hash=' + transaction.hash)
-
-                        if (typeof tmp.data.internal_transactions !== 'undefined') {
-                            for (const tmp2 in tmp.data.internal_transactions) {
-                                for (const info of tmp.data.internal_transactions[tmp2]) {
-                                    if (typeof info.token_list === 'undefined'
-                                        || typeof info.token_list[0] === 'undefined'
-                                        || typeof info.token_list[0].token_id === 'undefined'
-                                        || info.token_list[0].token_id !== '_'
-                                    ) continue
-                                    addressAmount = info.token_list[0].call_value
-                                }
-                            }
-                        }
-
-                    } catch (e) {
-                        BlocksoftCryptoLog.log('TrxTransactionsProvider._unifyTransaction tx ' + JSON.stringify(transaction) + ' error ' + e.message + ' transaction-info for swap_income')
-                    }
-                } else {
-                    addressAmount = transaction.contractData.call_value
-                    txTokenName = '_'
-                    transactionDirection = 'swap_outcome'
-                }
             } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 12) {
                 addressAmount = transaction.amount
                 addressFrom = transaction.ownerAddress
