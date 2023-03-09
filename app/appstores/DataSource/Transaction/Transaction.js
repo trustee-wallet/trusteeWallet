@@ -398,7 +398,10 @@ class Transaction {
         }
 
         where.push(`transaction_hash !=''`)
-        where.push(`NOT (transaction_direction IN ('swap_income', 'income') AND (address_amount == '0' OR address_amount IS NULL))`)
+
+        // trx fee somehow marked as "swap_income"
+        where.push(`NOT (currency_code != 'TRX' AND transaction_direction IN ('swap_income', 'income') AND (address_amount == '0' OR address_amount IS NULL))`)
+        where.push(`NOT (currency_code = 'TRX' AND address_from !='' AND (address_amount == '0' OR address_amount IS NULL))`)
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
@@ -407,8 +410,7 @@ class Transaction {
             where.push(`(hidden_at IS NULL OR hidden_at='null')`)
         }
 
-        // where.push(`(address_from OR adress_to OR transaction_hash) LIKE ('d2884dd42808150753d')`)
-        // where.push(`'${source}' = '${source})
+
 
         if (where.length > 0) {
             where = ' WHERE (' + where.join(') AND (') + ')'
