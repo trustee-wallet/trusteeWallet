@@ -236,19 +236,30 @@ export default {
         }
 
         let showScam = false
-        let scamWallets = {}
         let scamWalletsTitle = ''
+        const scamWallets = {}
         try {
             Log.log('ApiV3.initData get wallets from state start')
             const wallets = store.getState().walletStore.wallets
             for (let wallet of wallets) {
-                scamWallets.push(wallet)
                 wallet = await walletDS._redoCashback(wallet)
-                if (await BlocksoftKeysScam.isScamCashback(wallet.walletCashback)) {
-                    showScam = true
-                    scamWalletsTitle += ' ' + wallet.walletCashback
-                    scamWallets[wallet.walletCashback] = 1
-                } else {
+
+                let isScam = false
+                try {
+                    if (await BlocksoftKeysScam.isScamCashback(wallet.walletCashback)) {
+                        showScam = true
+                        isScam = true
+                        scamWalletsTitle += ' ' + wallet.walletCashback
+                        scamWallets[wallet.walletCashback] = 1
+                    }
+                } catch (e1) {
+                    if (config.debug.appErrors) {
+                        console.log('ApiV3.initData build isScam error ' + e1.message, e1)
+                    }
+                    Log.err('ApiV3.initData build isScam error ' + e1.message)
+                }
+
+                if (!isScam) {
                     const accounts = await this.initWallet(wallet, 'ApiV3')
                     data.wallets.push({
                         walletHash: wallet.walletHash,
@@ -261,7 +272,7 @@ export default {
             Log.log('ApiV3.initData get wallets from state finish')
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('ApiV3.initData build error ' + e.message)
+                console.log('ApiV3.initData build error ' + e.message, e)
             }
             Log.err('ApiV3.initData build error ' + e.message)
         }
