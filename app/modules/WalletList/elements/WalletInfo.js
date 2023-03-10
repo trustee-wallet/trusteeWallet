@@ -254,7 +254,7 @@ class WalletInfo extends React.Component {
                     <View style={{ marginHorizontal: this.props.constructorMode ? 0 : GRID_SIZE }}>
                         <InfoNotification
                             title={strings('settings.walletList.scamWallet')}
-                            subTitle={strings('settings.walletList.scamModal.description')}
+                            subTitle={strings('settings.walletList.scamWalletDesc')}
                             closeCallback={this.closeMsg}
                             onPress={this.handleMoreInfo}
                             iconType="warning"

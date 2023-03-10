@@ -199,13 +199,15 @@
         "save": "Save",
         "late": "Do later"
       },
+      "scamImport": "This wallet is a scam, you won't be able to use it in the app.",
       "multisigWallet": "MULTISIG",
-      "multisigWalletDesc": "Could be scam, read more",
-      "scamWallet": "SCAM",
+      "multisigWalletDesc": "The address is only for viewing the balance of the wallet and does not have the function for sending transactions.",
+      "scamWallet": "Scam wallet",
+      "scamWalletDesc": "Do not transfer crypto to the addresses of this wallet, as the funds will be lost. Use only a personally created wallet for the safe storage of crypto.",
       "scamModal": {
-        "title": "One of wallets you have imported is marked as SCAM",
-        "description": "Recovery phrase (Seed phrase) is the only key to your assets! If you are importing some phrase you have not generated - you put yourself in scam danger!",
-        "remove": "Remove this wallets"
+        "title": "You have added a Scam wallet",
+        "description": "The Swap section is not available for a such wallet. Do not transfer crypto to his addresses, as the funds will be lost.",
+        "remove": "Delete wallet"
       },
       "hdEnableModal": {
         "title": "Switch wallet to HD mode?",
@@ -1092,7 +1094,7 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron (TRX) wallet is not activated but can accept funds. Top up your Tron address with 15 TRX to activate your wallet. In the future, you can use these coins in transactions."
+        "description": "%{currencySymbol} token runs on the Tron blockchain and requires a positive TRX balance in order to pay the network fee. While your wallet has zero TRX balance. To activate the address, top up your TRX balance with any amount."
       },
       "TOKEN": {
         "title": "Please, pay attention!",

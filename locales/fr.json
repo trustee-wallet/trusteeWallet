@@ -198,13 +198,15 @@
         "save": "sauvegarder",
         "late": "Faire plus tard"
       },
+      "scamImport": "Ce portefeuille est une arnaque, vous ne pourrez pas l'utiliser dans l'application.",
       "multisigWallet": "MULTISIG",
-      "multisigWalletDesc": "Could be scam, read more",
-      "scamWallet": "SCAM",
+      "multisigWalletDesc": "L'adresse sert uniquement à consulter le solde du portefeuille et n'a pas la fonction d'envoyer des transactions.",
+      "scamWallet": "Portefeuille frauduleux",
+      "scamWalletDesc": "Ne transférez pas de crypto aux adresses de ce portefeuille, car les fonds seront perdus. Utilisez uniquement un portefeuille créé personnellement pour le stockage sécurisé de la crypto.",
       "scamModal": {
-        "title": "One of wallets you have imported is marked as SCAM",
-        "description": "Recovery phrase (Seed phrase) is the only key to your assets! If you are importing some phrase you have not generated - you put yourself in scam danger!",
-        "remove": "Remove this wallets"
+        "title": "Vous avez ajouté un portefeuille Scam",
+        "description": "La section Swap n'est pas disponible pour un tel portefeuille. Ne transférez pas de crypto à ses adresses, car les fonds seront perdus.",
+        "remove": "Supprimer le portefeuille"
       },
       "hdEnableModal": {
         "title": "Passer le portefeuille en mode HD?",
@@ -1091,7 +1093,7 @@
       },
       "TRX_20": {
         "title": "Votre attention s'il vous plaît!",
-        "description": "Votre portefeuille Tron (TRX) n'est pas activé mais peut accepter des fonds. Financez votre adresse Tron avec 15 TRX pour activer votre portefeuille. À l'avenir, vous pourrez utiliser ces pièces dans des transactions."
+        "description": "%{currencySymbol} fonctionne sur la blockchain Tron et nécessite un solde TRX positif pour payer les frais de réseau. Tant que vous avez un solde TRX nul dans votre portefeuille. Pour activer l'adresse, rechargez votre solde TRX avec n'importe quel montant."
       },
       "TOKEN": {
         "title": "Votre attention s'il vous plaît!",

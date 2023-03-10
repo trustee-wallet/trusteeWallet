@@ -10,6 +10,7 @@ import BlocksoftKeysUtils from '@crypto/actions/BlocksoftKeys/BlocksoftKeysUtils
 import * as BlocksoftRandom from 'react-native-blocksoft-random'
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
 import BlocksoftKeysScam from '@crypto/actions/BlocksoftKeys/BlocksoftKeysScam'
+import { strings } from '@app/services/i18n'
 
 const bip32 = require('bip32')
 const bip39 = require('bip39')
@@ -78,7 +79,7 @@ class BlocksoftKeys {
     async validateMnemonic(mnemonic) {
         BlocksoftCryptoLog.log(`BlocksoftKeys validateMnemonic called`)
         if (await BlocksoftKeysScam.isScamMnemonic(mnemonic)) {
-            throw new Error('scam mnemonic')
+            throw new Error(strings('settings.walletList.scamImport'))
         }
         const result = await bip39.validateMnemonic(mnemonic)
         if (!result) {
