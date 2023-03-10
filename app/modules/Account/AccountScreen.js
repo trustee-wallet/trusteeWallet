@@ -255,6 +255,7 @@ class Account extends React.PureComponent {
                     try {
                         if (!this.state.isMultisig) {
                             const isMultisig = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({ derivationPath }).setAddress(address)).isMultisig('AccountScreen')
+                            Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance isMultisig result ' + JSON.stringify(isMultisig))
                             if (isMultisig) {
                                 MarketingEvent.logEvent('trx_multisig', { address, isMultisig, walletCashback, walletHash })
                                 this.setState({ isMultisig })

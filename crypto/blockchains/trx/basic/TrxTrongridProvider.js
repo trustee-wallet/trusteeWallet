@@ -16,7 +16,7 @@ export default class TrxTrongridProvider {
 
     async isMultisigTrongrid(address) {
         if (typeof CACHE_TRONGRID[address] !== 'undefined') {
-            return
+            return CACHE_TRONGRID[address].isMultisig
         }
         const res = await this.get(address, '_', true)
         return res?.isMultisig || false
