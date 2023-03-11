@@ -10,16 +10,22 @@ export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessor
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         if (typeof additionalData.gasPrice  === 'undefined' || !additionalData.gasPrice) {
-            let defaultFee = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_PRICE')
-            if (typeof defaultFee === 'undefined' || !defaultFee) {
-                defaultFee = 5000000000
-            }
-            if (!this._etherscanApiPathForFee) {
-                additionalData.gasPrice = defaultFee
+            let minFee = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_FORCE_PRICE_ERC20')
+            if (typeof minFee !== 'undefined' && minFee > 1) {
+                additionalData.gasPrice = minFee
                 additionalData.gasPriceTitle = 'speed_blocks_2'
             } else {
-                additionalData.gasPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPathForFee, defaultFee, 'BnbSmartTransferProcessorErc20.getFeeRate')
-                additionalData.gasPriceTitle = 'speed_blocks_2'
+                let defaultFee = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_PRICE')
+                if (typeof defaultFee === 'undefined' || !defaultFee) {
+                    defaultFee = 5000000000
+                }
+                if (!this._etherscanApiPathForFee) {
+                    additionalData.gasPrice = defaultFee
+                    additionalData.gasPriceTitle = 'speed_blocks_2'
+                } else {
+                    additionalData.gasPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPathForFee, defaultFee, 'BnbSmartTransferProcessorErc20.getFeeRate')
+                    additionalData.gasPriceTitle = 'speed_blocks_2'
+                }
             }
         }
         const result = await super.getFeeRate(data, privateData, additionalData)
