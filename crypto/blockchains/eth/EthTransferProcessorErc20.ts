@@ -3,11 +3,14 @@
  * @version 0.20
  */
 import EthTransferProcessor from './EthTransferProcessor'
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
+import config from '@app/config/config'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 
-import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
-import config from '@app/config/config'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+
 
 const abi = require('./ext/erc20.js')
 
@@ -117,8 +120,16 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
             if (estimatedGas < serverEstimatedGas3) {
                 estimatedGas = serverEstimatedGas3
             }
-            if (estimatedGas < 70200) {
-                estimatedGas = 70200
+
+            let minGas = BlocksoftExternalSettings.getStatic(this._settings.tokenBlockchain + '_MIN_GAS_ERC20')
+            if (typeof minGas === 'undefined' || !minGas) {
+                minGas = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_ERC20')
+            }
+            if (typeof minGas === 'undefined' || !minGas) {
+                minGas = 70200
+            }
+            if (estimatedGas < minGas) {
+                estimatedGas = minGas
             }
             MarketingEvent.logOnlyRealTime(eventTitle + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo,
                 {

@@ -43,6 +43,7 @@ const CACHE = {
     'BNB_SMART_SERVER' : 'https://bsc-dataseed1.binance.org:443',
     'BNB_SMART_PRICE' : 10000000000,
     'BNB_GAS_LIMIT' : 620000,
+    'ETH_MIN_GAS_ERC20' : 73000,
     'ETH_MIN_GAS_LIMIT' : 42000,
     'ETH_TESTNET_PRICE' : 6710000000,
     'ETH_INFURA' : '5e52e85aba6f483398c461c55b639a7b',
