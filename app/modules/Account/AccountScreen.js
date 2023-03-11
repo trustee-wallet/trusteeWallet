@@ -233,21 +233,29 @@ class Account extends React.PureComponent {
                             balanceTotalPretty : newBalanceTotalPretty
                         }
                         let isChanged = false
-                        for (const key in accountNew) {
-                            if (this.props.selectedAccountData[key].toString() !== accountNew[key].toString()) {
-                                isChanged = true
+                        try {
+                            for (const key in accountNew) {
+                                if (typeof this.props.selectedAccountData[key] === 'undefined' || this.props.selectedAccountData[key].toString() !== accountNew[key].toString()) {
+                                    isChanged = true
+                                }
                             }
+                        } catch (e) {
+                            throw new Error(e.message + ' while isChanged check')
                         }
-                        if (isChanged) {
-                            if (typeof tmp?.balanceStaked !== 'undefined') {
-                                accountNew.balanceStaked = tmp?.balanceStaked
+                        try {
+                            if (isChanged) {
+                                if (typeof tmp?.balanceStaked !== 'undefined') {
+                                    accountNew.balanceStaked = tmp?.balanceStaked
+                                }
+                                Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will be updated ' + JSON.stringify(accountNew))
+                                accountNew.address = address
+                                accountNew.currencyCode = currencyCode
+                                await setSelectedAccountBalance(accountNew)
+                            } else {
+                                Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not be updated')
                             }
-                            Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will be updated ' + JSON.stringify(accountNew))
-                            accountNew.address = address
-                            accountNew.currencyCode = currencyCode
-                            await setSelectedAccountBalance(accountNew)
-                        } else {
-                            Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not be updated')
+                        } catch (e) {
+                            throw new Error(e.message + ' while isChanged applied')
                         }
                     }
                 }

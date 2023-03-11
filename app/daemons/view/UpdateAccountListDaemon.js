@@ -399,9 +399,6 @@ class UpdateAccountListDaemon extends Update {
                         continue
                     }
                     const accountWallet = allWallets.find(item => item.walletHash === tmpWalletHash)
-                    if (!accountWallet) {
-                        throw new Error('not found walletHash ' + tmpWalletHash)
-                    }
                     const account = reformatted[tmpWalletHash][currencyCode]
 
                     const extendCurrencyCode = BlocksoftDict.getCurrencyAllSettings(account.currencyCode)
@@ -410,12 +407,12 @@ class UpdateAccountListDaemon extends Update {
                     account.feesCurrencySymbol = extendedFeesCode.currencySymbol || extendedFeesCode.currencyCode
 
                     account.feeRates = DaemonCache.getCacheRates(account.feesCurrencyCode)
-                    account.walletUseUnconfirmed = accountWallet.walletUseUnconfirmed
+                    account.walletUseUnconfirmed = accountWallet?.walletUseUnconfirmed
                     try {
                         account.balanceRaw =
                             BlocksoftTransferUtils.getBalanceForTransfer({
                                 balance : account.balance,
-                                unconfirmed : (accountWallet && accountWallet.walletUseUnconfirmed === 1) ? account.unconfirmed : false,
+                                unconfirmed : (accountWallet && accountWallet?.walletUseUnconfirmed === 1) ? account.unconfirmed : false,
                                 balanceStaked: account.balanceStaked,
                                 currencyCode
                             })
@@ -480,11 +477,13 @@ class UpdateAccountListDaemon extends Update {
                         str += ' ' + account.basicCurrencyBalance + ' ' + account.basicCurrencyCode + ', '
 
                         const mask = Number(tmpCurrency.isHidden || 0).toString(2).split('').reverse() // split to binary
-                        let maskedHidden
-                        if (typeof mask[accountWallet.walletNumber] === 'undefined') {
-                            maskedHidden = mask.length === 1 ? ( mask[mask.length - 1] === '1' ) : false
-                        } else {
-                            maskedHidden = mask[accountWallet.walletNumber] === '1'
+                        let maskedHidden = true
+                        if (accountWallet) {
+                            if (typeof mask[accountWallet?.walletNumber] === 'undefined') {
+                                maskedHidden = mask.length === 1 ? (mask[mask.length - 1] === '1') : false
+                            } else {
+                                maskedHidden = mask[accountWallet?.walletNumber] === '1'
+                            }
                         }
 
                         if (!maskedHidden) {
