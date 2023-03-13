@@ -71,6 +71,9 @@ export namespace BlocksoftTransfer {
         if (!data?.walletConnectData?.data) {
             for (const key in CoinBlocksoftDict) {
                 const tmp = CoinBlocksoftDict[key]
+                if (typeof tmp.canBeDestination !== 'undefined' && tmp.canBeDestination) {
+                    continue
+                }
                 if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
                     throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
                 }
