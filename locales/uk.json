@@ -856,7 +856,7 @@
       "UI_CONFIRM_DOUBLE_BSE_SEND" : "Транзакція на заявку вже відправлена, Ви впевнені, що хочете створити ще одну транзакцію?",
       "UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE": "Ця адреса ще не має балансу. Ви впевнені, що вона вірна?",
       "UI_CALCULATE_CUSTOM_FEE" : "Будь ласка, порахуйте повну вартість від ціни за байт",
-      "SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID": "Please, recheck destination address. Possible sent directly to Contract - for fund protection it is forbidden",
+      "SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID": "Будь ласка, перевірте адресу одержувача. Відправка транзакцій безпосередньо на адресу смарт-контракту неможлива",
       "SERVER_RESPONSE_CLOUDFLARE" : "Будь ласка, спробуйте ще раз - доступ до мережі захищено cloudflare",
       "SERVER_RESPONSE_BAD_CODE" : "Щось пішло не так, будь ласка, зв'яжіться зі службою підтримки",
       "SERVER_RESPONSE_BAD_INTERNET" : "Немає доступу до інтернету",
