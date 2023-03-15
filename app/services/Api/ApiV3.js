@@ -237,7 +237,7 @@ export default {
 
         let showScam = false
         let scamWalletsTitle = ''
-        const scamWallets = {}
+        const scamWallets = []
         try {
             Log.log('ApiV3.initData get wallets from state start')
             const wallets = store.getState().walletStore.wallets
@@ -250,7 +250,7 @@ export default {
                         showScam = true
                         isScam = true
                         scamWalletsTitle += ' ' + wallet.walletCashback
-                        scamWallets[wallet.walletCashback] = 1
+                        scamWallets.push(wallet.walletHash)
                     }
                 } catch (e1) {
                     if (config.debug.appErrors) {
@@ -259,15 +259,16 @@ export default {
                     Log.err('ApiV3.initData build isScam error ' + e1.message)
                 }
 
+                let accounts = []
                 if (!isScam) {
-                    const accounts = await this.initWallet(wallet, 'ApiV3')
-                    data.wallets.push({
-                        walletHash: wallet.walletHash,
-                        walletName: wallet.walletName,
-                        cashbackToken: wallet.walletCashback,
-                        accounts
-                    })
+                    accounts = await this.initWallet(wallet, 'ApiV3')
                 }
+                data.wallets.push({
+                    walletHash: wallet.walletHash,
+                    walletName: wallet.walletName,
+                    cashbackToken: wallet.walletCashback,
+                    accounts
+                })
             }
             Log.log('ApiV3.initData get wallets from state finish')
         } catch (e) {
@@ -286,12 +287,14 @@ export default {
                 twoButton: strings('settings.walletList.backupModal.late'),
                 noCallback: async () => {
                     for (const wallet of scamWallets) {
-                        if (typeof scamWallets[wallet.walletCashback] !== 'undefined') {
-                            await walletActions.removeWallet(wallet.walletHash)
+                        try {
+                            await walletActions.removeWallet(wallet)
+                        } catch (e) {
+                            // do nothing
                         }
                     }
                 }
-            }, () => {})
+            }, async () => {})
         }
 
         let msg = await ApiProxy.getServerTimestampIfNeeded()
