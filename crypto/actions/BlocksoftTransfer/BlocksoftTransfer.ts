@@ -125,6 +125,23 @@ export namespace BlocksoftTransfer {
         if (config.debug.sendLogs) {
             console.log('BlocksoftTransfer.sendTx', data, uiData)
         }
+
+        const lower = data.addressTo.toLowerCase()
+        if (!data?.walletConnectData?.data) {
+            for (const key in CoinBlocksoftDict) {
+                const tmp = CoinBlocksoftDict[key]
+                if (typeof tmp.canBeDestination !== 'undefined' && tmp.canBeDestination) {
+                    continue
+                }
+                if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
+                    throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+                }
+                if (tmp?.tokenAddress && tmp?.tokenAddress.toLowerCase() === lower) {
+                    throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+                }
+            }
+        }
+
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
 
         const bseOrderId = typeof uiData !== 'undefined' && uiData && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.bseOrderId !== 'undefined' ? uiData.selectedFee.bseOrderId : false
