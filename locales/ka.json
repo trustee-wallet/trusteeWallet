@@ -725,7 +725,7 @@
     "useAllFunds": "ყველა საშუალების გამოყენება",
     "equivalent": "ექვივალენტი: ~ %{amount} %{symbol}",
     "notEnough": "თქვენ არ გაქვთ საკმარისი თანხა გადარიცხვის განსახორციელებლად",
-    "addressError": "მიმღების მისამართი არასწორია, გთხოვთ, შეამოწმოთ",
+    "addressError": "მიმღების მისამართი არასწორია. გთხოვთ, დაუკავშირდეთ თქვენს მასპინძელს სწორი მისამართისთვის.",
     "memoError": "%{name} არასწორია, გთხოვთ, შეამოწმოთ",
     "notValidAmount": "გთხოვთ, შეიყვანოთ თანხის ოდენობა",
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",

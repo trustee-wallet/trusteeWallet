@@ -733,7 +733,7 @@
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "You don't have enough funds to send",
-    "addressError": "The recipient’s address is incorrect, please, check it",
+    "addressError": "The recipient’s address is incorrect. Please contact the receiving party for the correct address.",
     "memoError": "%{name} is incorrect, please, check it",
     "notValidAmount": "Please, input amount",
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",

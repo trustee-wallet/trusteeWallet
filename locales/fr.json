@@ -732,7 +732,7 @@
     "useAllFunds": "Utiliser tous les fonds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "Vous n'avez pas assez de fonds pour envoyer",
-    "addressError": "L'adresse du destinataire est incorrecte, veuillez la vérifier",
+    "addressError": "L'adresse du destinataire est incorrecte. Veuillez contacter le destinataire pour obtenir l'adresse correcte.",
     "memoError": "%{name} est incorrecte, veuillez la vérifier",
     "notValidAmount": "S'il vous plaît, entrez le montant",
     "notValidAmountInFiat": "S'il vous plaît, entrez un plus grand montant ou changez en entrée crypto",
