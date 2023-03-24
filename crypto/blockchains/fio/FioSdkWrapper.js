@@ -1,8 +1,13 @@
+/**
+ * @version 0.77
+ */
 import { FIOSDK } from '@fioprotocol/fiosdk'
-import config from '../../../app/config/config'
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import BlocksoftKeysStorage from '../../actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
+
+import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+
+import config from '@app/config/config'
 
 const fetchJson = async (uri, opts = {}) => {
     // eslint-disable-next-line no-undef
@@ -34,9 +39,8 @@ export class FioSdkWrapper {
             BlocksoftCryptoLog.log(`FioSdkWrapper.inited for ${walletHash}`)
         } catch (e) {
             if (config.debug.fioErrors) {
-                console.log('FioSdkWrapper.init error ' + e.message, e.json)
+                console.log('FioSdkWrapper.init error')
             }
-            BlocksoftCryptoLog.err('FioSdkWrapper.init error ' + e.message, e.json)
         }
         return true
     }

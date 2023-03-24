@@ -75,6 +75,7 @@ class LoggingSettingsScreen extends PureComponent {
     handleLogs = async () => {
         setLoaderStatus(true)
 
+        let text = ''
         try {
             const shareOptions = await SendLog.getAll()
             if (shareOptions) {
@@ -85,7 +86,7 @@ class LoggingSettingsScreen extends PureComponent {
             try {
                 setLoaderStatus(false)
 
-                let text = e.message || JSON.stringify(e.error).substr(0, 100)
+                text = e.message || JSON.stringify(e.error).substr(0, 100)
                 let log = e.message
                 if (typeof (e.error) !== 'undefined') {
                     if (e.error.toString().indexOf('No Activity') !== -1) {
@@ -105,15 +106,17 @@ class LoggingSettingsScreen extends PureComponent {
                 }
                 Log.err('SettingsMain.handleLogs error ' + log)
                 BlocksoftCryptoLog.err('SettingsMain.handleLogs error ' + log)
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: false,
-                    title: strings('modal.walletLog.sorry'),
-                    description: text
-                })
             } catch (e1) {
-                Log.err('SettingsMain.handleLogs error1 ' + e1.message)
+                text = 'Share Error ' + e1.message
             }
+        }
+        if (text) {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: false,
+                title: strings('modal.walletLog.sorry'),
+                description: text
+            })
         }
     }
 

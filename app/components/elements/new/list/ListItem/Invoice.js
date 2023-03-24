@@ -9,10 +9,10 @@ import {
     Text,
     StyleSheet
 } from 'react-native'
+import { TouchableOpacity } from '@gorhom/bottom-sheet'
 
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/theme/ThemeProvider'
-import TouchableDebounce from '../../TouchableDebounce'
 
 const getIcon = (iconType, color) => {
     switch (iconType) {
@@ -56,7 +56,7 @@ const InvoiceListItem = (props) => {
 
 
     return (
-        <TouchableDebounce
+        <TouchableOpacity
             onPress={onPress}
             activeOpacity={activeOpacity}
             style={[styles.container, { backgroundColor: colors.backDropModal.buttonBg }, containerStyle]}
@@ -66,7 +66,7 @@ const InvoiceListItem = (props) => {
                 {getIcon(iconType, textColor)}
             </View>
             {!last && <View style={[styles.underline, { backgroundColor: colors.backDropModal.underline }]} />}
-        </TouchableDebounce>
+        </TouchableOpacity>
     )
 }
 

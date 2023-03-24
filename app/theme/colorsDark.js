@@ -129,6 +129,7 @@ export const colorsDark = {
         balanceColor: '#404040',
         balanceNotEquivalent: '#999999',
         loaderColor: '#999',
+        balanceLongScan: '#D6956F',
         transactions: {
             color: '#404040',
             circleColor: '#F7F7F7',

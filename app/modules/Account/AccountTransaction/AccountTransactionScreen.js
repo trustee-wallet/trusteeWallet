@@ -1,5 +1,5 @@
 /**
- * @version 0.53
+ * @version 0.77
  * @author yura
  */
 import React, { PureComponent } from 'react'
@@ -44,6 +44,7 @@ import TextInput from '@app/components/elements/new/TextInput'
 
 import { renderReplaceByFee, renderReplaceByFeeRemove, _onLoad, handleLink, onBlurComment, shareTransaction } from './helper'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import Validator from '@app/services/UI/Validator/Validator'
 
 
 let CACHE_RESCAN_TX = false
@@ -121,6 +122,7 @@ class AccountTransactionScreen extends PureComponent {
     }
 
     backAction = async () => {
+        const goBackProps = NavStore.getParamWrapper(this, 'goBackProps')
         if (this.state.uiType === 'WALLET_CONNECT') {
             NavStore.reset('WalletConnectScreen')
         } else if (this.state.uiType === 'TRADE_SEND' || this.state.uiType === 'TRADE_LIKE_WALLET_CONNECT') {
@@ -130,6 +132,8 @@ class AccountTransactionScreen extends PureComponent {
             await setSelectedAccount('AccountTransactionScreen.backAction')
             await setSelectedAccountTransactions('AccountTransactionScreen.backAction')
             NavStore.reset('AccountScreen')
+        } else if (goBackProps) {
+            NavStore.reset('TabBar')
         } else {
             NavStore.goBack()
         }
@@ -168,7 +172,7 @@ class AccountTransactionScreen extends PureComponent {
         this.setState({
             commentToView: {
                 ...commentToView,
-                description: value
+                description: Validator.safeWords(value, 100)
             },
             commentEditable: true
         })
@@ -323,7 +327,6 @@ class AccountTransactionScreen extends PureComponent {
         const color = dict.settings.colors[isLight ? 'mainColor' : 'darkColor']
 
         const buttonsArray = []
-
 
         renderReplaceByFeeRemove.call(this, buttonsArray)
         renderReplaceByFee.call(this, buttonsArray)

@@ -26,6 +26,7 @@ class SendLog {
 
                 ↑↑↑ Send to: contact@trustee.deals ↑↑↑
 
+                GENERATED: ${new Date().toISOString()}
                 ${JSON.stringify(deviceToken)}
 
                 ${JSON.stringify(basicText)}

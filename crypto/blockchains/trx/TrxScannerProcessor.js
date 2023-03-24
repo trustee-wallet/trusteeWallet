@@ -33,14 +33,23 @@ export default class TrxScannerProcessor {
         this._transactionsTrc20Provider = new TrxTransactionsTrc20Provider()
     }
 
+    async isMultisigBlockchain(address) {
+        address = address.trim()
+        let addressHex = address
+        if (address.substr(0, 1) === 'T') {
+            addressHex = await TronUtils.addressToHex(address)
+        }
+        return this._trongridProvider.isMultisigTrongrid(addressHex)
+    }
+
     /**
      * https://developers.tron.network/reference#addresses-accounts
      * @param {string} address
      * @return {Promise<{balance, frozen, frozenEnergy, balanceStaked, unconfirmed, provider}>}
      */
-    async getBalanceBlockchain(address) {
+    async getBalanceBlockchain(address, jsonData, walletHash, source) {
         address = address.trim()
-        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address)
+        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' from ' + source)
         let addressHex = address
         if (address.substr(0, 1) === 'T') {
             addressHex = await TronUtils.addressToHex(address)
@@ -48,13 +57,14 @@ export default class TrxScannerProcessor {
             address = await TronUtils.addressHexToStr(addressHex)
         }
         const useTronscan = BlocksoftExternalSettings.getStatic('TRX_USE_TRONSCAN') * 1 > 0
-        let result = useTronscan ? await this._tronscanProvider.get(address, this._tokenName) : false
+        let result = false
         let subresult = false
-        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronScan ' + JSON.stringify(result))
+        if (useTronscan) {
+            result = await this._tronscanProvider.get(address, this._tokenName, source === 'AccountScreen')
+            BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronScan ' + JSON.stringify(result) + ' from ' + source)
+        }
 
         if (result === false || result === 0) {
-            subresult = await this._tronscanProvider.get(address, '_')
-
             if (this._tokenName !== '_' && this._tokenName.substr(0, 1) === 'T') {
                 // https://developers.tron.network/docs/trc20-contract-interaction#balanceof
                 try {
@@ -67,7 +77,7 @@ export default class TrxScannerProcessor {
                     }
                     const tmp = await BlocksoftAxios.post(sendLink + '/wallet/triggerconstantcontract', params)
                     if (typeof tmp.data !== 'undefined' && typeof tmp.data.constant_result !== 'undefined') {
-                        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronwallet ' + JSON.stringify(tmp.data))
+                        BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronwallet ' + JSON.stringify(tmp.data) + ' from ' + source)
                         return { balance: BlocksoftUtils.hexToDecimal('0x' + tmp.data.constant_result), unconfirmed: 0, provider: 'tronwallet-raw-call' }
                     }
                 } catch (e) {
@@ -75,14 +85,18 @@ export default class TrxScannerProcessor {
                 }
                 result = await this._tronscanProvider.get(address, this._tokenName)
             } else {
-                result = await this._trongridProvider.get(addressHex, this._tokenName)
+                result = await this._trongridProvider.get(addressHex, this._tokenName, source === 'AccountScreen')
             }
-            BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronGrid ' + JSON.stringify(result))
+            BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronGrid ' + JSON.stringify(result) + ' from ' + source)
         }
 
         if (result === false && this._tokenName !== '_') {
+
+            subresult = await this._tronscanProvider.get(address, '_', source === 'AccountScreen')
+            BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' result tronScan2 ' + JSON.stringify(result) + ' from ' + source)
+
             if (subresult !== false) {
-                BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' subresult tronScan ' + JSON.stringify(subresult))
+                BlocksoftCryptoLog.log(this._tokenName + ' TrxScannerProcessor getBalanceBlockchain address ' + address + ' subresult tronScan ' + JSON.stringify(subresult) + ' from ' + source)
                 return { balance: 0, unconfirmed: 0, balanceStaked : 0, balanceAvailable : 0, provider: 'tronscan-ok-but-no-token' }
             }
         }

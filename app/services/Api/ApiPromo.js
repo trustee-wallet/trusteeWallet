@@ -1,5 +1,5 @@
 /**
- * @version 0.11
+ * @version 0.77
  */
 
 import Log from '@app/services/Log/Log'
@@ -46,7 +46,6 @@ export default {
             try {
                 res = await BlocksoftAxios.post(link, getStatisticsReqData)
             } catch (e) {
-                console.log(e.message)
                 if (e.message.indexOf('checkforduplicate') !== -1) {
                     throw new Error('UI_ERROR_CASHBACK_PROMO_DUPLICATE')
                 } else if (e.message.indexOf('no info about promo code')) {

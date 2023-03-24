@@ -2,6 +2,8 @@
  * @version 0.45
  */
 import { deleteUserPinCode } from '@haskkor/react-native-pincode'
+import TouchID from 'react-native-touch-id'
+import { check, PERMISSIONS } from 'react-native-permissions'
 
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
@@ -29,6 +31,11 @@ export const finishProcess = async (lockScreenData, lockScreen) => {
         }, 500)
     } else if (flowType === LockScreenFlowTypes.INIT_POPUP) {
         NavStore.reset('TabBar')
+    } else if (flowType === LockScreenFlowTypes.MNEMONIC_CALLBACK) {
+        NavStore.goBack()
+        setTimeout(() => {
+            actionCallback(false)
+        }, 500)
     } else if (flowType === LockScreenFlowTypes.PUSH_POPUP_CALLBACK) {
         actionCallback(false)
     } else if (flowType === LockScreenFlowTypes.CREATE_PINCODE) {
@@ -63,4 +70,30 @@ export const finishProcess = async (lockScreenData, lockScreen) => {
     } else {
         NavStore.reset('TabBar')
     }
+}
+
+export const biometricActions = {
+    checkBiometryType: async () => {
+        let result = false
+        try {
+            result = await TouchID.isSupported()
+            Log.log('LockScreen.helper.checkBiometryType result: ' + result)
+        } catch (error) {
+            Log.log('LockScreen.helper.checkBiometryType error: ' + error.message)
+        }
+
+        return result
+    },
+
+    checkBiometricPermission: async () => {
+        let result = false
+        try {
+            result = await check(PERMISSIONS.IOS.FACE_ID)
+            Log.log('LockScreen.helper.checkBiometricPermission IOS.FACE_ID result ' + result)
+        } catch (error) {
+            Log.log('LockScreen.helper.checkBiometricPermission error ' + error.message)
+        }
+        return result
+    },
+
 }

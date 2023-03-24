@@ -1,5 +1,5 @@
 /**
- * @version 0.50
+ * @version 1.0
  */
 import React, { PureComponent } from 'react'
 import {
@@ -22,8 +22,9 @@ import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
 import tokenBlockchainBlocksoftDict from '@crypto/assets/tokenBlockchainBlocksoftDict.json'
 
 import { getWalletDappData } from '@app/appstores/Stores/WalletDapp/selectors'
-import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions' // setWalletDappIncognito
+import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 class WalletDappFastLinksScreen extends PureComponent {
 
@@ -35,12 +36,14 @@ class WalletDappFastLinksScreen extends PureComponent {
     }
 
     async componentDidMount() {
+        MarketingEvent.logEvent('wallet_dapps_list', {})
         await this.loadDapps()
         await this.handleFilterDapps(0)
     }
 
     setDapp = async (item) => {
         setWalletDapp(item)
+        MarketingEvent.logEvent('wallet_dapps_list_select', item)
         NavStore.goNext('WalletDappWebViewScreen')
     }
 
@@ -67,7 +70,7 @@ class WalletDappFastLinksScreen extends PureComponent {
 
             let found = false
             for (const code of item.dappNetworks) {
-                if (typeof indexedCurrencies[code] === 'undefined') continue
+                // uncomment to filter by chains/tokens if (typeof indexedCurrencies[code] === 'undefined') continue
 
                 if (typeof item.dappCoins === 'undefined') {
                     localDapps.push(item)
@@ -75,7 +78,7 @@ class WalletDappFastLinksScreen extends PureComponent {
                     break
                 }
                 for (const code2 of item.dappCoins) { // some dapps shown only in special networks when some tokens are selected
-                    if (typeof indexedCurrencies[code2] === 'undefined') continue
+                    // uncomment to filter by chains/tokens if (typeof indexedCurrencies[code2] === 'undefined') continue
                     localDapps.push(item)
                     found = true
                     break

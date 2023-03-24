@@ -50,7 +50,6 @@ class UpdateAccountBalanceAndTransactions {
      * @returns {Promise<boolean>}
      */
     updateAccountBalanceAndTransactions = async (callParams) => {
-        Log.daemon('UpdateAccountBalanceAndTransactions called ' + JSON.stringify(callParams))
         const source = callParams.source || 'FRONT'
         const force = callParams.force || false
         const allWallets = callParams.allWallets || false
@@ -114,20 +113,6 @@ class UpdateAccountBalanceAndTransactions {
             if (!accounts || accounts.length === 0) {
                 Log.daemon('UpdateAccountBalanceAndTransactions called - no account')
                 return false
-            }
-
-            if (accounts) {
-                let tmp = ''
-                for (const account1 of accounts) {
-                    tmp += account1.currencyCode + ' ' + account1.address + ' ' + (account1.balanceScanLog ? account1.balanceScanLog.substr(0, 200) : '') + `
-                `
-                }
-                Log.test(`
-                
-                ============================================================================================
-                ${new Date().toISOString()} account for scan
-                ${tmp}
-                `)
             }
 
             tmpAction = 'accounts log'

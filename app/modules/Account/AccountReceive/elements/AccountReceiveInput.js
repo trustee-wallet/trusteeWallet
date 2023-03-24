@@ -1,5 +1,5 @@
 /**
- * @version 0.1
+ * @version 0.77
  * @author yura
  */
 import React, { Component } from 'react'
@@ -11,8 +11,6 @@ import Validator from '@app/services/UI/Validator/Validator'
 import Toast from '@app/services/UI/Toast/Toast'
 import { strings } from '@app/services/i18n'
 import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
-
-import Log from '@app/services/Log/Log'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -116,7 +114,7 @@ class AccountReceiveInput extends Component {
         }
 
         if (Array.isArray(type)) {
-
+            value = Validator.safeWords(value)
             const tmps = []
             let tmp
             for (tmp of type) {
@@ -140,6 +138,9 @@ class AccountReceiveInput extends Component {
                 }
             }
         } else {
+            if (type !== 'MNEMONIC_PHRASE') {
+                value = Validator.safeWords(value)
+            }
             const params = {
                 id,
                 name,
@@ -149,7 +150,6 @@ class AccountReceiveInput extends Component {
                 value
             }
             validation = await Validator.arrayValidation([params])
-            Log.log('Input.handleValidate one', { validation, params })
         }
 
         this.setState({
@@ -166,9 +166,8 @@ class AccountReceiveInput extends Component {
 
     render() {
 
-        const { value, errors, fontSize } = this.state
+        const { value, fontSize } = this.state
         const {
-            id,
             onFocus,
             noEdit,
             enoughFunds = false,
@@ -179,9 +178,6 @@ class AccountReceiveInput extends Component {
         } = this.props
 
         const { colors } = this.context
-
-        let error = errors.find(item => item.field === id)
-        error = typeof error !== 'undefined' ? error.msg : ''
 
         return (
             <View style={styles.wrapper}>
@@ -211,8 +207,8 @@ class AccountReceiveInput extends Component {
                         onFocus()
                     }}
                     maxLength={maxLength}
-                    autoCorrect={true}
-                    spellCheck={true}
+                    autoCorrect={false}
+                    spellCheck={false}
                     allowFontScaling={false}
                     />
             </View>

@@ -65,7 +65,16 @@ try {
         },
 
         tronWeb: {
+            ready: true,
             isTrustee: true,
+            isMainnet: true,
+            currentProvider: () => {
+                return {
+                    eventServer: { host: 'https://api.trongrid.io', chainType: 0},
+                    fullNode: { host: 'https://api.trongrid.io', chainType: 0},
+                    solidityNode: { host: 'https://api.trongrid.io', chainType: 0}
+                };
+            },
             defaultAddress: {
                 base58: 'TRX_ADDRESS_BASE58',
                 hex: 'TRX_ADDRESS_HEX'
@@ -100,6 +109,14 @@ try {
                 },
                 getTransactionInfo: async (data) => {
                     return trustee.sendBridge({ main: 'tronWeb', action: 'getTransactionInfo', data })
+                },
+                getBlock: async(data) => {
+                    if (data*1 === 0) {
+                        return {
+                            blockID: "00000000000000001ebf88508a03865c71d452e25f4d51194196a1d22b6653dc"
+                        }
+                    }
+                    return trustee.sendBridge({ main: 'tronWeb', action: 'getBlock', data })
                 }
             },
             fullNode: {
@@ -331,11 +348,12 @@ try {
     }
     window.tronLink = {
         ready: true,
+        isMainnet: true,
         tronWeb: trustee.tronWeb
     }
     window.tronWeb = trustee.tronWeb
 
-    window.tronLink = {
+    window.tronLink1 = {
         ready: true,
         request: (data) => {
             window.ReactNativeWebView.postMessage('trustee.tronLink request ')

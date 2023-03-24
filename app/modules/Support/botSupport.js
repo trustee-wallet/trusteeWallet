@@ -63,8 +63,7 @@ class BotSupportScreen extends React.PureComponent {
 
     handleSite = () => {
         const link = `${BlocksoftCustomLinks.getLink('SOCIAL_LINK_SITE', this.context.isLight)}`
-
-        if (link.indexOf('https://') !== -1) {
+        if (typeof link !== 'undefined' && link && link.indexOf('https://') !== -1) {
             Linking.openURL(BlocksoftCustomLinks.getLink('SOCIAL_LINK_SITE', this.context.isLight))
         } else {
             Linking.openURL(`https://${BlocksoftCustomLinks.getLink('SOCIAL_LINK_SITE', this.context.isLight)}`)
@@ -87,7 +86,7 @@ class BotSupportScreen extends React.PureComponent {
                     startInLoadingState
 
                     onError={(e) => {
-                        if (e.nativeEvent.description.indexOf('net::ERR_UNKNOWN_URL_SCHEME') !== -1) {
+                        if (typeof e?.nativeEvent?.description !== 'undefined' && e?.nativeEvent?.description && e?.nativeEvent?.description.indexOf('net::ERR_UNKNOWN_URL_SCHEME') !== -1) {
                             Linking.openURL(this.state.url)
                         } else {
                             // do nothing

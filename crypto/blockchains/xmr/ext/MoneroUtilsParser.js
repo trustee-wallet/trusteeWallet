@@ -26,21 +26,39 @@ export default {
         }
         MY_MONERO.core = MyMoneroCoreBridgeRN
         MY_MONERO.core.generate_key_image = async (txPublicKey, privateViewKey, publicSpendKey, privateSpendKey, outputIndex) => {
-            let res = await MY_MONERO.core.Module.generateKeyImage(txPublicKey, privateViewKey, publicSpendKey, privateSpendKey, outputIndex + '')
-            if (typeof res !== 'undefined' && res) {
-                if (typeof res === 'string') {
-                    try {
-                        const newRes = JSON.parse(res)
-                        res = newRes
-                    } catch (e) {
+            if (!txPublicKey || !privateViewKey || !publicSpendKey || !privateSpendKey) {
+                throw new Error('no keys 1')
+            }
+            if (typeof txPublicKey === 'undefined' || typeof privateViewKey === 'undefined' || typeof publicSpendKey === 'undefined' || typeof privateSpendKey === 'undefined') {
+                throw new Error('no keys 2')
+            }
+            if (txPublicKey === 'undefined' || privateViewKey === 'undefined' || publicSpendKey === 'undefined' || privateSpendKey === 'undefined') {
+                throw new Error('no keys 3')
+            }
+            if (typeof outputIndex === 'undefined') {
+                outputIndex = ''
+            }
 
+            try {
+                let res = await MY_MONERO.core.Module.generateKeyImage(txPublicKey, privateViewKey, publicSpendKey, privateSpendKey, outputIndex + '')
+                if (typeof res !== 'undefined' && res) {
+                    if (typeof res === 'string') {
+                        try {
+                            const newRes = JSON.parse(res)
+                            res = newRes
+                        } catch (e) {
+
+                        }
+                    }
+                    if (typeof res.retVal !== 'undefined') {
+                        return res.retVal
                     }
                 }
-                if (typeof res.retVal !== 'undefined') {
-                    return res.retVal
-                }
+                return res
+            } catch (e) {
+                BlocksoftCryptoLog.log('MoneroUtilsParser.generate_key_image ' + e.message)
+                throw new Error('MoneroUtilsParser.generate_key_image ' + e.message)
             }
-            return res
         }
         MY_MONERO.core.createTransaction = async (options) => {
             if (options.privateViewKey.length !== 64) {
@@ -108,8 +126,10 @@ export default {
                 return randomOuts
             }
 
+            BlocksoftCryptoLog.log('MoneroUtilsParser ret?.amounts?.length ' + ret?.amounts?.length)
+
             // fetch random decoys
-            const randomOuts = await _getRandomOuts(ret.amounts.length, options.randomOutsCb)
+            const randomOuts = await _getRandomOuts(ret?.amounts?.length || 0, options.randomOutsCb)
             // send random decoys on and complete the tx creation
             const retString2 = await MY_MONERO.core.Module.createAndSignTx(JSON.stringify(randomOuts))
             const rawTx = JSON.parse(retString2)

@@ -88,39 +88,66 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx start')
 
-        const transaction = await this._provider.getPrepared(data, privateData, uiData)
-
+        let transaction
+        try {
+            transaction = await this._provider.getPrepared(data, privateData, uiData)
+        } catch (e) {
+            throw new Error(e.message + ' in BNB getPrepared')
+        }
         // @ts-ignore
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx tx', transaction)
 
 
-        const raw = this._provider.serializeTx(transaction)
+        let raw
+        try {
+            raw = this._provider.serializeTx(transaction)
+        } catch (e) {
+            throw new Error(e.message + ' in BNB serializeTx')
+        }
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx raw', raw)
         if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
             return { rawOnly: uiData.selectedFee.rawOnly, raw }
         }
 
-        const result = await this._provider.sendRaw(raw)
-        if (typeof result.message !== 'undefined') {
-            if (result.message.indexOf('insufficient fund') !== -1 || result.message.indexOf('BNB <') !== -1) {
-                throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+        let result
+        try {
+            result = await this._provider.sendRaw(raw)
+        } catch (e) {
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                throw new Error(e.message + ' in BNB sendRaw1')
             } else {
-                throw new Error(result.message)
+                throw e
             }
         }
-        if (typeof result[0] === 'undefined' || typeof result[0].hash === 'undefined' || typeof result[0].ok === 'undefined' || !result[0].ok || !result[0].hash) {
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx result', result)
-            MarketingEvent.logOnlyRealTime('v20_bnb_no_result ' + data.addressFrom + ' => ' + data.addressTo, {
-                result,
-                raw
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx result', result)
+
+        try {
+            if (typeof result.message !== 'undefined') {
+                if (result.message.indexOf('insufficient fund') !== -1 || result.message.indexOf('BNB <') !== -1) {
+                    throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
+                } else {
+                    throw new Error(result.message)
+                }
+            }
+            if (typeof result[0] === 'undefined' || typeof result[0].hash === 'undefined' || typeof result[0].ok === 'undefined' || !result[0].ok || !result[0].hash) {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx result', result)
+                MarketingEvent.logOnlyRealTime('v20_bnb_no_result ' + data.addressFrom + ' => ' + data.addressTo, {
+                    result,
+                    raw
+                })
+                throw new Error('SERVER_RESPONSE_NO_RESPONSE')
+            }
+
+            MarketingEvent.logOnlyRealTime('v20_bnb_success_result ' + data.addressFrom + ' => ' + data.addressTo + ' ' + result[0].hash, {
+                result
             })
-            throw new Error('SERVER_RESPONSE_NO_RESPONSE')
+            return { transactionHash: result[0].hash }
+        } catch (e) {
+            if (e.message.indexOf('SERVER_RESPONSE_') === -1) {
+                throw new Error(e.message + ' in BNB sendRaw1 parse result')
+            } else {
+                throw e
+            }
         }
-
-        MarketingEvent.logOnlyRealTime('v20_bnb_success_result ' + data.addressFrom + ' => ' + data.addressTo + ' ' + result[0].hash, {
-            result
-        })
-        return { transactionHash: result[0].hash }
-
     }
 }

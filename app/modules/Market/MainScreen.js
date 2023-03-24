@@ -57,7 +57,7 @@ import { Cards } from '@app/services/Cards/Cards'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
-import { getBseLink, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
+import { getBseLink } from '@app/appstores/Stores/Main/selectors'
 
 import prettyShare from '@app/services/UI/PrettyShare/PrettyShare'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
@@ -280,6 +280,11 @@ class MarketScreen extends PureComponent {
         }
     }
 
+    getWalletData = async () => {
+        const res = await ApiV3.getWalletData()
+        this.webref && this.webref.postMessage(JSON.stringify({ walletData: res }))
+    }
+
     onMessage(event) {
 
         const { isLight } = this.context
@@ -290,7 +295,7 @@ class MarketScreen extends PureComponent {
                 error, backToOld, close, homePage, cardData, takePhoto, scanCard, deleteCard,
                 updateCard, orderData, injectScript, currencySelect, dataSend, didMount, navigationState, message, exchangeStatus,
                 useAllFunds, checkCamera, refreshControl, restart, share, txHash, needActivateCurrency, checkApproveData, orderHistory,
-                openUrl
+                openUrl, getWalletData
             } = allData
 
             Log.log('Market/MainScreen.onMessage parsed', event.nativeEvent.data)
@@ -319,6 +324,10 @@ class MarketScreen extends PureComponent {
 
             if (needActivateCurrency) {
                 this.handleAddCurrency(needActivateCurrency)
+            }
+
+            if (getWalletData) {
+                this.getWalletData()
             }
 
             if (backToOld) {
@@ -394,7 +403,8 @@ class MarketScreen extends PureComponent {
                         txData: {
                             transactionHash: txHash
                         },
-                        source : 'Market/MainScreen.onMessage has txHash ' + JSON.stringify(txHash)
+                        source : 'Market/MainScreen.onMessage has txHash ' + JSON.stringify(txHash),
+                        goBackProps: true
                     }
                 })
             }
@@ -1013,7 +1023,6 @@ MarketScreen.contextType = ThemeContext
 
 const mapStateToProps = (state) => {
     return {
-        selectedWalletData: getSelectedWalletData(state),
         bseLink: getBseLink(state)
     }
 }

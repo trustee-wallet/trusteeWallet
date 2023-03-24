@@ -10,6 +10,7 @@ import Log from '@app/services/Log/Log'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import accountDS from '@app/appstores/DataSource/Account/Account'
 import cryptoWalletActions from '@app/appstores/Actions/CryptoWalletActions'
+import BlocksoftKeysScam from '@crypto/actions/BlocksoftKeys/BlocksoftKeysScam'
 
 const { dispatch } = store
 
@@ -32,6 +33,18 @@ const walletActions = {
     setAvailableWallets: async () => {
         const wallets = await walletDS.getWallets()
         MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
+        const logAll = {}
+        let index = 0
+        for (const wallet of wallets) {
+            logAll[wallet.walletHash] = wallet.walletCashback
+            if (index > 0) {
+                wallet.isScammed = BlocksoftKeysScam.isScamCashbackStatic(wallet.walletCashback)
+            } else {
+                wallet.isScammed = await BlocksoftKeysScam.isScamCashback(wallet.walletCashback)
+            }
+            index++
+        }
+        MarketingEvent.reinitByWallet(false, logAll)
         dispatch({
             type: 'SET_WALLET_LIST',
             wallets
@@ -42,6 +55,11 @@ const walletActions = {
         const wallets = store.getState().walletStore.wallets
         wallets.push(newWallet)
         MarketingEvent.DATA.LOG_WALLETS_COUNT = wallets ? wallets.length.toString() : '0'
+        const logAll = {}
+        for (const wallet of wallets) {
+            logAll[wallet.walletHash] = wallet.walletCashback
+        }
+        MarketingEvent.reinitByWallet(false, logAll)
         dispatch({
             type: 'SET_WALLET_LIST',
             wallets

@@ -1,5 +1,5 @@
 /**
- * @version 0.50
+ * @version 0.77
  */
 import AsyncStorage from '@react-native-community/async-storage'
 
@@ -77,11 +77,23 @@ class TrusteeAsyncStorage {
     }
 
     getCashbackParent = async () => {
-        return this._get('parentTokenRechecked')
+        let tmp = await this._get('parentTokenRechecked')
+        try {
+            tmp = tmp.trim().split(/\s+/g)
+            return tmp[0]
+        } catch (e) {
+            return ''
+        }
     }
 
     setCashbackParent = (value) => {
-        return this._set('parentTokenRechecked', value)
+        let tmp = value
+        try {
+            tmp = tmp.trim().split(/\s+/g)
+            return this._set('parentTokenRechecked', tmp[0])
+        } catch (e) {
+            return ''
+        }
     }
 
     getFirebaseDynamicUrl = async () => {
@@ -211,6 +223,45 @@ class TrusteeAsyncStorage {
     setHomeFilterWithBalance = (value) => {
         return this._set('homeFilterWithBalance', value)
     }
+
+    getCreateWalletModal = () => {
+        return this._getStatic('createWalletModal')
+    }
+
+    setCreateWalletModal = (value) => {
+        return this._set('createWalletModal', value)
+    }
+
+    getWalletConnectLink = () => {
+        return this._getStatic('wcLink')
+    }
+
+    setWalletConnectLink = (value) => {
+        return this._set('wcLink', value)
+    }
+
+    getWalletConnectSession = () => {
+        const tmp = this._getStatic('wcSession')
+        if (!tmp) return false
+        try {
+            return JSON.parse(tmp)
+        } catch (e) {
+            return false
+        }
+    }
+
+    setWalletConnectSession = (value) => {
+        return this._set('wcSession', JSON.stringify(value))
+    }
+
+    setUseFirebaseForBSE = (value) => {
+        return this._set('useFirebaseForBSE', value)
+    }
+
+    getUseFirebaseForBSE = () => {
+        return this._getStatic('useFirebaseForBSE')
+    }
+
 }
 
 const trusteeAsyncStorage = new TrusteeAsyncStorage()

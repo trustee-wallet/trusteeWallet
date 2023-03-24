@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.77
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
@@ -23,11 +23,9 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
-// import GoogleDrive from '@app/services/Back/Google/GoogleDrive'
 
 import TextInput from '@app/components/elements/new/TextInput'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
-import CustomIcon from '@app/components/elements/CustomIcon'
 
 import MnemonicWord from '../WalletBackup/elements/MnemonicWord'
 import SelectedMnemonic from '../WalletBackup/elements/SelectedMnemonic'
@@ -41,11 +39,12 @@ import Validator from '@app/services/UI/Validator/Validator'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
 import { QRCodeScannerFlowTypes, setQRConfig } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import Toast from '@app/services/UI/Toast/Toast'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
+let CACHE_IS_IMPORTING = false
 const callWithDelay = _debounce(
     (cb) => {
         if (typeof cb === 'function') cb();
@@ -77,24 +76,34 @@ class EnterMnemonicPhrase extends PureComponent {
     componentDidMount() {
         const flowSubtype = NavStore.getParamWrapper(this, 'flowSubtype', 'createFirst')
         this.setState(() => ({ flowSubtype }))
+
+        const noShowModal = trusteeAsyncStorage.getCreateWalletModal() === '1'
+
+        if (!noShowModal) {
+            showModal({
+                type: 'WALLET_MODAL',
+                icon: 'INFO',
+                title: strings('modal.walletCreate.title'),
+                description: strings('modal.walletCreate.description'),
+            }, (checkValue) => {
+                trusteeAsyncStorage.setCreateWalletModal(checkValue ? '1' : '0')
+            })
+        }
+
+        const { walletMnemonic, source } = this.props.walletCreateStore
+        if (source === 'MainQrScanner' && walletMnemonic) {
+            try {
+                this.handleInputPhrase(walletMnemonic)
+                MarketingEvent.logEvent('ksu_mnemonic_import_qr_home', {}, 'KS')
+            } catch (e) {
+                Log.log('QRCodeScannerScreen callback error')
+                Toast.setMessage(strings('modal.qrScanner.sorry')).show()
+            }
+        }
+
+
     }
 
-    // init() {
-    //     const data = this.props.navigation.getParam('flowSubtype')
-
-    //     if (data !== 'GOOGLE_SUBTYPE') {
-    //         return false
-    //     }
-    //     // somehow without state change init not loaded with ref
-    //     if (typeof this.mnemonicPhrase.handleInput !== 'undefined') {
-    //         if (!this.state.googleMnemonic) {
-    //             this.setState({ googleMnemonic: true })
-    //             this.mnemonicPhrase.handleInput(GoogleDrive.currentMnemonic())
-    //         }
-    //     } else {
-    //         this.setState({ googleMnemonic: false })
-    //     }
-    // }
 
     handleImport = async () => {
         const walletMnemonic = this.state.walletMnemonicSelected.join(' ')
@@ -115,6 +124,11 @@ class EnterMnemonicPhrase extends PureComponent {
             this.setState(() => ({ error: strings('walletCreate.walletExist') }))
             return
         }
+
+        if (CACHE_IS_IMPORTING) {
+            return
+        }
+        CACHE_IS_IMPORTING = true
 
         setWalletMnemonic(walletMnemonic)
 
@@ -172,8 +186,6 @@ class EnterMnemonicPhrase extends PureComponent {
             })
 
         } catch (e) {
-            Log.err('WalletCreate.EnterMnemonicPhrase error ' + e.message)
-
             setLoaderStatus(false)
 
             showModal({
@@ -184,6 +196,7 @@ class EnterMnemonicPhrase extends PureComponent {
             })
 
         }
+        CACHE_IS_IMPORTING = false
 
     }
 
@@ -296,32 +309,15 @@ class EnterMnemonicPhrase extends PureComponent {
             try {
                 this.handleInputPhrase(data)
             } catch (e) {
-                Log.log('QRCodeScannerScreen callback error ' + e.message )
-                Toast.setMessage(e.message).show()
+                Log.log('QRCodeScannerScreen callback error')
+                Toast.setMessage(strings('modal.qrScanner.sorry')).show()
             }
             NavStore.goBack()
         }})
         NavStore.goNext('QRCodeScannerScreen')
     }
 
-    renderQrCode = () => {
-        const { error, phraseInputValue } = this.state
-        const { colors } = this.context
-        const iconColor = error
-            ? colors.createWalletScreen.importWallet.error
-            : phraseInputValue
-                ? colors.common.text2
-                : colors.common.text1
-
-        return (
-            <TouchableOpacity onPress={() => checkQRPermission(this.handleOpenQr)}>
-                <CustomIcon name={'qr'} size={20} color={iconColor} />
-            </TouchableOpacity>
-        )
-    }
-
     render() {
-        // this.init()
 
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()

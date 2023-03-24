@@ -1,24 +1,18 @@
-    /**
- * @version 0.42
+/**
+ * @version 0.77
  * @author Vadym
  */
 
 import React, { PureComponent } from 'react'
-import {
-    Image,
-    ImageBackground,
-    Text,
-    View,
-    StyleSheet,
-    Dimensions,
-    Platform
-} from 'react-native'
+import { Image, ImageBackground, Text, View, StyleSheet, Dimensions, Platform, Keyboard } from 'react-native'
+import { Portal, PortalHost } from '@gorhom/portal'
 
 import QrCodeBox from '@app/components/elements/QrCodeBox'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import TextInput from '@app/components/elements/new/TextInput'
 import Button from '@app/components/elements/new/buttons/Button'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
 import qrLogo from '@assets/images/logoWithWhiteBG.png'
 
 import { strings } from '@app/services/i18n'
@@ -27,26 +21,65 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Toast from '@app/services/UI/Toast/Toast'
 import Log from '@app/services/Log/Log'
 import ApiPromo from '@app/services/Api/ApiPromo'
-import config from '@app/config/config'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
-import { showModal, hideModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import { HIT_SLOP } from '@app/theme/HitSlop'
+import Validator from '@app/services/UI/Validator/Validator'
 
 const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 class QrCodePage extends PureComponent {
 
     state = {
-        promoCode: ''
+        promoCode: '',
+        keyboardHeight: 0
+    }
+
+    promoInput = React.createRef()
+
+    isAndroid = Platform.OS === 'android'
+
+    _keyboardDidShow = (e) => {
+        this.setState({ keyboardHeight: e.endCoordinates.height })
+    }
+
+    _keyboardDidHide = () => {
+        this.setState({ keyboardHeight: 0 })
+    }
+
+    componentDidMount(){
+        if (!this.isAndroid) {
+            this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow)
+            this.keyboardDidHideListener = Keyboard.addListener('keyboardWillHide', this._keyboardDidHide)
+        }
+    }
+
+    componentWillUnmount(){
+        if (!this.isAndroid) {
+            this.keyboardDidShowListener.remove()
+            this.keyboardDidHideListener.remove()
+        }
     }
 
     handleApplyPromoCode = async () => {
+        if (!this.state.promoCode || this.state.promoCode.trim() === '') {
+            try {
+                this.promoInput.clear()
+            } catch (e) {
+                // do nothing
+            }
+            return ''
+        }
+
+        let safePromo = ''
         try {
             setLoaderStatus(true)
-            let desc = await ApiPromo.activatePromo(this.state.promoCode)
+            Keyboard.dismiss()
+            safePromo = Validator.safeWords(this.state.promoCode)
+            let desc = await ApiPromo.activatePromo(safePromo)
             if (typeof desc !== 'string') {
                 if (typeof desc['en'] !== 'undefined') {
                     desc = desc['en']
@@ -57,22 +90,28 @@ class QrCodePage extends PureComponent {
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
-                title: strings('modal.walletBackup.success'),
+                title: strings('modal.walletBackup.success') ,
                 description: desc
             })
         } catch (e) {
-            if (config.debug.appErrors) {
-                console.log('CashBackScreen.Promo.handleApply error ' + e.message, e)
-            }
+            this.handleCloseBackDropModal()
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
                 title: strings('modal.exchange.sorry'),
-                description: strings('cashback.cashbackError.' + e.message)
+                description: strings('cashback.cashbackError.' + e.message) + ': ' + safePromo
             })
+        }
+        try {
+            this.promoInput.clear()
+        } catch (e) {
+            // do nothing
         }
         setLoaderStatus(false)
         this.handleDisablePromoCode()
+        if (!this.isAndroid) {
+            Keyboard.dismiss()
+        }
     }
 
     handleDisablePromoCode = () => {
@@ -80,7 +119,8 @@ class QrCodePage extends PureComponent {
     }
 
     onChangeCode = (text) => {
-        this.setState({ promoCode: text })
+        const safeText = Validator.safeWords(text)
+        this.setState({ promoCode: safeText })
     }
 
     copyToClip = (token) => {
@@ -90,15 +130,8 @@ class QrCodePage extends PureComponent {
     }
 
     handleRenderQrError = (e) => {
-        if (e.message !== 'No input text') Log.err('CashbackScreen QRCode error ' + e.message)
-    }
-
-    handleBlur = () => {
-        if (this.state.promoCode === '') {
-            this.handleDisablePromoCode()
-            this.props.scrollToTop()
-        } else {
-            return null
+        if (e.message !== 'No input text') {
+            Log.log('CashbackScreen QRCode error')
         }
     }
 
@@ -112,27 +145,35 @@ class QrCodePage extends PureComponent {
         const buttonWidth = (WINDOW_WIDTH / 2) - GRID_SIZE * 1.5
 
         return (
-            <View style={[styles.inputWrapper, { marginHorizontal: GRID_SIZE, marginBottom: GRID_SIZE }]}>
+            <View style={[styles.inputWrapper, { margin: GRID_SIZE }]}>
                 <TextInput
+                    compRef={ref => this.promoInput = ref}
                     onBlur={this.handleDisablePromoCode}
                     numberOfLines={1}
                     containerStyle={{ width: WINDOW_WIDTH - GRID_SIZE * 2 }}
                     placeholder={strings('cashback.enterPromoPlaceholder')}
                     onChangeText={this.onChangeCode}
-                    value={this.state.promoCode.value}
+                    value={this.state.promoCode}
+                    onFocus={() => {
+                        if (!this.isAndroid) {
+                            this.bottomSheetRef.open()
+                        }
+                    }}
                 />
                 <View style={[styles.buttonsRow, { marginTop: GRID_SIZE }]}>
                     <Button
                         title={strings('assets.hideAsset')}
-                        onPress={hideModal}
+                        onPress={this.handleCloseBackDropModal}
                         type='withoutShadow'
                         containerStyle={{ backgroundColor: colors.common.button.bg, width: buttonWidth, marginRight: GRID_SIZE / 2 }}
+                        bottomSheet
                     />
                     <Button
                         title={strings('walletBackup.settingsScreen.apply')}
                         onPress={this.handleApplyPromoCode}
                         type='withoutShadow'
                         containerStyle={{ backgroundColor: colors.common.button.bg, width: buttonWidth, marginLeft: GRID_SIZE / 2 }}
+                        bottomSheet
                     />
                 </View>
             </View>
@@ -140,12 +181,28 @@ class QrCodePage extends PureComponent {
     }
 
     handleBackDropModal = () => {
-        showModal({
-            type: 'BACK_DROP_MODAL',
-            withMainButton: false,
-            disabledPresentationStyle: true,
-            Content: () => this.renderModalContent()
-        })
+        this.bottomSheetRef.open()
+        if (!this.isAndroid) {
+            this.promoInput?.focus()
+        }
+    }
+
+    handleCloseBackDropModal = () => {
+        if (this.isAndroid) {
+            Keyboard.dismiss()
+            setTimeout(() => {
+                this.bottomSheetRef.close()
+            }, 250)
+        } else {
+            this.bottomSheetRef.close()
+            Keyboard.dismiss()
+        }
+    }
+
+    onChange = (number) => {
+        if (this.props.isFocused && number < 1) {
+            Keyboard.dismiss()
+        }
     }
 
     render() {
@@ -188,19 +245,20 @@ class QrCodePage extends PureComponent {
                                 style={styles.qrCode}
                             />
                         </TouchableDebounce>
-                        <TouchableDebounce
-                            style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }]}
-                            onPress={() => this.copyToClip(cashbackLink)}
-                            activeOpacity={0.8}
-                        >
-                            <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
-                                {cashbackLinkTitle + '  '}
-                                <CustomIcon name='copy' size={WINDOW_WIDTH * 0.06} color={colors.cashback.token} />
-                            </Text>
-                        </TouchableDebounce>
-                        <Text style={[styles.yourToken, { color: colors.common.text3, marginTop: GRID_SIZE / 2 }]}>{strings('cashback.yourToken')}</Text>
-
                     </View>
+                    <TouchableDebounce
+                        style={[styles.tokenBox, { backgroundColor: colors.common.listItem.basic.iconBgLight, marginTop: GRID_SIZE, paddingHorizontal: GRID_SIZE * 2 }]}
+                        onPress={() => this.copyToClip(cashbackLink)}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={[styles.qrCodeTokenString, { color: colors.cashback.token }]}>
+                            {cashbackLinkTitle + '  '}
+                            <CustomIcon name='copy' size={WINDOW_WIDTH * 0.06} color={colors.cashback.token} />
+                        </Text>
+                    </TouchableDebounce>
+
+                    <Text style={[styles.yourToken, { color: colors.common.text3, marginTop: GRID_SIZE / 2 }]}>{strings('cashback.yourToken')}</Text>
+
                     <View style={[{ position: 'relative', bottom: -GRID_SIZE * 2 }]}>
                         <TouchableDebounce
                             onPress={() => this.handleBackDropModal(this.state.promoCode)}
@@ -221,6 +279,17 @@ class QrCodePage extends PureComponent {
                     <Image style={styles.donut2} source={require('@assets/images/donut2.png')} />
                     <Image style={styles.donuts} source={require('@assets/images/donuts.png')} />
                 </ImageBackground>
+                <Portal>
+                    <SheetBottom
+                        ref={ref => this.bottomSheetRef = ref}
+                        snapPoints={[-1, this.isAndroid ? 180 : this.state.keyboardHeight+180]}
+                        index={-1}
+                        onChange={this.onChange}
+                    >
+                        {this.renderModalContent()}
+                    </SheetBottom>
+                    <PortalHost name='qrPageHost' />
+                </Portal>
             </>
         )
     }
@@ -320,7 +389,8 @@ const styles = StyleSheet.create({
         height: WINDOW_HEIGHT * 0.2,
         left: WINDOW_WIDTH * 0.78,
         top: WINDOW_HEIGHT * (Platform.OS === 'ios' ? 0.44 : 0.48),
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        zIndex: -1
     },
     donuts: {
         position: 'absolute',
@@ -328,7 +398,8 @@ const styles = StyleSheet.create({
         height: WINDOW_HEIGHT * 0.3,
         bottom: WINDOW_HEIGHT * (Platform.OS === 'ios' ? 0.16 : 0.11),
         left: -WINDOW_WIDTH * 0.2,
-        resizeMode: 'contain'
+        resizeMode: 'contain',
+        zIndex: -1
     },
     inviteContainer: {
         justifyContent: 'center',

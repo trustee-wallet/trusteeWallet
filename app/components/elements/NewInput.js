@@ -1,5 +1,5 @@
 /**
- * @version 0.30
+ * @version 0.77
  * @author yura
  */
 import React, { Component } from 'react'
@@ -18,7 +18,6 @@ import Toast from '@app/services/UI/Toast/Toast'
 import { strings } from '@app/services/i18n'
 import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
-import Log from '@app/services/Log/Log'
 import NavStore from '../navigation/NavStore'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
@@ -126,7 +125,7 @@ class Input extends Component {
         }
 
         if (Array.isArray(type)) {
-
+            value = Validator.safeWords(value)
             const tmps = []
             let tmp
             for (tmp of type) {
@@ -150,6 +149,9 @@ class Input extends Component {
                 }
             }
         } else {
+            if (type !== 'MNEMONIC_PHRASE') {
+                value = Validator.safeWords(value)
+            }
             const params = {
                 id,
                 name,
@@ -159,7 +161,6 @@ class Input extends Component {
                 value
             }
             validation = await Validator.arrayValidation([params])
-            Log.log('Input.handleValidate one', { validation, params })
         }
 
         this.setState({

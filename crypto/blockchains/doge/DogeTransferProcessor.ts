@@ -22,7 +22,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 const networksConstants = require('../../common/ext/networks-constants')
-
+const MAX_UNSPENTS = 100
 
 export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -147,6 +147,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
 
         let unspents = []
+        let totalUnspents = 0
         if (transactionRemoveByFee) {
             if (typeof this.unspentsProvider.getTx === 'undefined') {
                 throw new Error('No DogeTransferProcessor unspentsProvider.getTx for transactionRemoveByFee')
@@ -160,6 +161,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     throw new Error('No DogeTransferProcessor unspentsProvider.getTx for transactionReplaceByFee')
                 }
                 unspents = await this.unspentsProvider.getTx(data.transactionReplaceByFee, data.addressFrom, unspents, data.walletHash)
+            }
+
+            totalUnspents = unspents.length
+            if (totalUnspents > MAX_UNSPENTS) {
+                unspents = unspents.slice(0, MAX_UNSPENTS)
             }
         }
 
@@ -229,6 +235,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         }
 
         let uniqueFees = {}
+        let allFees = {}
         let isError = false
         for (const key of keys) {
             // @ts-ignore
@@ -438,6 +445,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             blockchainData.isRBFed = { transactionRemoveByFee, transactionReplaceByFee, transactionSpeedUp }
 
 
+            allFees[this._langPrefix + '_' + key] = logInputsOutputs.diffInOut
             if (typeof uniqueFees[logInputsOutputs.diffInOut] !== 'undefined') {
                 continue
             }
@@ -460,13 +468,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         result.selectedFeeIndex = result.fees.length - 1
 
         if (!transactionReplaceByFee && !transactionRemoveByFee && !isStaticFee) {
-            let foundFast = false
-            for (const fee of result.fees) {
-                if (fee.langMsg === this._langPrefix + '_speed_blocks_2') {
-                    foundFast = true
-                }
-            }
-            if (!foundFast) {
+
+            if (typeof allFees[this._langPrefix + '_speed_blocks_2'] === 'undefined') {
+
                 result.showSmallFeeNotice = new Date().getTime()
             }
         }
@@ -474,6 +478,23 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             result.amountForTx = 0
         }
         result.additionalData = { unspents }
+        const logResult = {
+            selectedFeeIndex: result.selectedFeeIndex ?  result.selectedFeeIndex : 'none',
+            showSmallFeeNotice: result.showSmallFeeNotice ? result.showSmallFeeNotice : 'none',
+            allFees: allFees,
+            fees: []
+        }
+        if (result.fees) {
+            for (const fee of result.fees) {
+                if (totalUnspents && totalUnspents > unspents.length) {
+                    fee.blockchainData.countedForLessOutputs = totalUnspents
+                }
+                const logFee = { ...fee }
+                delete logFee.blockchainData
+                logResult.fees.push(logFee)
+            }
+        }
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFees ' + JSON.stringify(logResult))
         return result
     }
 
@@ -542,6 +563,17 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             result = await this.sendProvider.sendTx(uiData.selectedFee.blockchainData.rawTxHex, txRBFed, txRBF, logData)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error', e)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error '+ e.message)
+            // noinspection ES6MissingAwait
+            MarketingEvent.logOnlyRealTime('v20_doge_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+            throw e
+        }
+
+        try {
             result.transactionFee = uiData.selectedFee.feeForTx
             result.transactionFeeCurrencyCode = this._settings.currencyCode
             result.transactionJson = {
@@ -591,12 +623,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent ' + data.addressFrom + ' done ' + JSON.stringify(result.transactionJson))
         } catch (e) {
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error', e, uiData)
+                console.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error additional', e, uiData)
             }
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error '+ e.message)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error additional'+ e.message)
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('v20_doge_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
-            throw e
+            MarketingEvent.logOnlyRealTime('v20_doge_tx_error2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
         }
         // noinspection ES6MissingAwait
         MarketingEvent.logOnlyRealTime('v20_doge_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)

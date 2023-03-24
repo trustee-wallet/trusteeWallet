@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 
 import { SwipeRow } from 'react-native-swipe-list-view'
+import { Portal, PortalHost } from '@gorhom/portal'
 
 import RoundButton from '@app/components/elements/new/buttons/RoundButton'
 
@@ -18,17 +19,21 @@ import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import { getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
 import Log from '@app/services/Log/Log'
+import { strings } from '@app/services/i18n'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import { SIZE, handleCurrencySelect } from '../helpers';
+import { SIZE, handleCurrencySelect } from '../helpers'
 
-import CryptoCurrencyContent from './CryptoCurrencyContent'
 import config from '@app/config/config'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
+import Button from '@app/components/elements/new/buttons/Button'
 
+import CryptoCurrencyContent from './CryptoCurrencyContent'
+import ContentDropModal from './ContentDropModal'
 
 class CryptoCurrency extends React.PureComponent {
 
@@ -103,8 +108,7 @@ class CryptoCurrency extends React.PureComponent {
             }
         }
 
-        const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
-
+        const availableStaking = typeof this.props.stakingCoins[currencyCode] !== 'undefined' &&  this.props.stakingCoins[currencyCode]*1 > 0
         return (
             <View style={styles.container}>
                 <View style={styles.shadow__container}>
@@ -114,8 +118,8 @@ class CryptoCurrency extends React.PureComponent {
                 <TouchableDebounce
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
-                    onPress={() => handleCurrencySelect(this.props)}
-                    onLongPress={() => this.props.constructorMode ? handleCurrencySelect(this.props) : null}
+                    onPress={() => handleCurrencySelect(this.props, false, this.bottomSheetRef)}
+                    onLongPress={() => this.props.constructorMode ? handleCurrencySelect(this.props, false, this.bottomSheetRef) : null}
                     delayLongPress={this.props.constructorMode ? 100 : null}
                 >
                     <CryptoCurrencyContent
@@ -145,7 +149,7 @@ class CryptoCurrency extends React.PureComponent {
                     <RoundButton
                         type="receive"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={() => handleCurrencySelect(this.props, 'CashbackScreen')}
+                        onPress={() => handleCurrencySelect(this.props, 'CashbackScreen', this.bottomSheetRef)}
                         noTitle
                     />
                 </View>
@@ -166,13 +170,13 @@ class CryptoCurrency extends React.PureComponent {
                     <RoundButton
                         type="receive"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={() => handleCurrencySelect(this.props, 'NftReceive')}
+                        onPress={() => handleCurrencySelect(this.props, 'NftReceive', this.bottomSheetRef)}
                         noTitle
                     />
                     <RoundButton
                         type="edit"
                         containerStyle={styles.hiddenLayer__roundButton}
-                        onPress={() => handleCurrencySelect(this.props, 'NftAddAssetScreen')}
+                        onPress={() => handleCurrencySelect(this.props, 'NftAddAssetScreen', this.bottomSheetRef)}
                         noTitle
                     />
                 </View>
@@ -202,8 +206,8 @@ class CryptoCurrency extends React.PureComponent {
                 <TouchableDebounce
                     activeOpacity={0.7}
                     style={styles.cryptoList__item}
-                    onPress={() => handleCurrencySelect(this.props)}
-                    onLongPress={() => this.props.constructorMode ? handleCurrencySelect(this.props) : null}
+                    onPress={() => handleCurrencySelect(this.props, false, this.bottomSheetRef)}
+                    onLongPress={() => this.props.constructorMode ? handleCurrencySelect(this.props, false, this.bottomSheetRef) : null}
                     delayLongPress={this.props.constructorMode ? 100 : null}
                 >
                     <CryptoCurrencyContent
@@ -218,12 +222,89 @@ class CryptoCurrency extends React.PureComponent {
         )
     };
 
+    renderBottomSheet = () => {
+        if (!this.props.constructorMode) return null
+
+        const { colors, GRID_SIZE } = this.context
+        return (
+            <>
+                <Portal>
+                    <SheetBottom
+                        ref={ref => this.bottomSheetRef = ref}
+                        snapPoints={[0, 340]}
+                        index={0}
+                    >
+                        <ContentDropModal 
+                            currentIndex={this.props.index}
+                            onDrag={this.props.onDragEnd}
+                            listData={this.props.listData}
+                            handleGuide={this.props.handleGuide}
+                            handleHide={() => this.props.handleHide(this.props.cryptoCurrency)}
+                            handleClose={this?.bottomSheetRef?.close}
+                        />  
+                        <Button
+                            title={strings('assets.hideAsset')}
+                            type='withoutShadow'
+                            onPress={this.bottomSheetRef?.close}
+                            containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
+                            textStyle={{ color: colors.backDropModal.buttonText }}
+                            bottomSheet
+                        />
+                    </SheetBottom>
+                </Portal>
+                <PortalHost name='dragScreenHost' />
+            </>
+        )
+    }
+
     render() {
         // TODO: change condition - still need?
         if (typeof this.props === 'undefined') return <View />
 
         if (this.props.cryptoCurrency.currencyCode === 'NFT') {
             return (
+                <>
+                    <SwipeRow
+                        disableLeftSwipe={this.props.constructorMode}
+                        disableRightSwipe={this.props.constructorMode}
+                        leftOpenValue={140}
+                        rightOpenValue={-70}
+                        stopLeftSwipe={160}
+                        stopRightSwipe={-90}
+                        swipeToOpenPercent={5}
+                        swipeToClosePercent={5}
+                        setScrollEnabled={this.props.setScrollEnabled}
+                    >
+                        {this.renderHiddenNFTLayer(this.props.cryptoCurrency)}
+                        {this.renderNFTLayer(this.props)}
+                    </SwipeRow>
+                    {this.renderBottomSheet()}
+                </>
+            );
+        } else if (this.props.cryptoCurrency.currencyCode === 'CASHBACK') {
+            return (
+                <>
+                    <SwipeRow
+                        disableLeftSwipe={this.props.constructorMode}
+                        disableRightSwipe={this.props.constructorMode}
+                        leftOpenValue={70}
+                        rightOpenValue={-70}
+                        stopLeftSwipe={90}
+                        stopRightSwipe={-90}
+                        swipeToOpenPercent={5}
+                        swipeToClosePercent={5}
+                        setScrollEnabled={this.props.setScrollEnabled}
+                    >
+                        {this.renderHiddenCashbackLayer()}
+                        {this.renderVisibleLayer(this.props)}
+                    </SwipeRow>
+                    {this.renderBottomSheet()}
+                </>
+            )
+        }
+
+        return (
+            <>
                 <SwipeRow
                     disableLeftSwipe={this.props.constructorMode}
                     disableRightSwipe={this.props.constructorMode}
@@ -235,44 +316,11 @@ class CryptoCurrency extends React.PureComponent {
                     swipeToClosePercent={5}
                     setScrollEnabled={this.props.setScrollEnabled}
                 >
-                    {this.renderHiddenNFTLayer(this.props.cryptoCurrency)}
-                    {this.renderNFTLayer(this.props)}
-                </SwipeRow>
-            );
-        } else if (this.props.cryptoCurrency.currencyCode === 'CASHBACK') {
-            return (
-                <SwipeRow
-                    disableLeftSwipe={this.props.constructorMode}
-                    disableRightSwipe={this.props.constructorMode}
-                    leftOpenValue={70}
-                    rightOpenValue={-70}
-                    stopLeftSwipe={90}
-                    stopRightSwipe={-90}
-                    swipeToOpenPercent={5}
-                    swipeToClosePercent={5}
-                    setScrollEnabled={this.props.setScrollEnabled}
-                >
-                    {this.renderHiddenCashbackLayer()}
+                    {this.renderHiddenLayer()}
                     {this.renderVisibleLayer(this.props)}
                 </SwipeRow>
-            )
-        }
-
-        return (
-            <SwipeRow
-                disableLeftSwipe={this.props.constructorMode}
-                disableRightSwipe={this.props.constructorMode}
-                leftOpenValue={140}
-                rightOpenValue={-70}
-                stopLeftSwipe={160}
-                stopRightSwipe={-90}
-                swipeToOpenPercent={5}
-                swipeToClosePercent={5}
-                setScrollEnabled={this.props.setScrollEnabled}
-            >
-                {this.renderHiddenLayer()}
-                {this.renderVisibleLayer(this.props)}
-            </SwipeRow>
+                {this.renderBottomSheet()}
+            </>
         );
     }
 }

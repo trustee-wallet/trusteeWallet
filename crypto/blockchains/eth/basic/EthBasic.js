@@ -36,6 +36,12 @@ export default class EthBasic {
      * @type {string}
      * @public
      */
+    _oklinkAPI
+
+    /**
+     * @type {string}
+     * @public
+     */
     _trezorServer
 
     /**
@@ -74,6 +80,7 @@ export default class EthBasic {
         this._etherscanApiPathDeposits = false
         this._isTestnet = false
 
+        this._oklinkAPI = false
         if (settings.currencyCode === 'BNB_SMART' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'BNB')) {
 
             this._etherscanSuffix = ''
@@ -103,7 +110,23 @@ export default class EthBasic {
             this._mainTokenType = 'ETC_ERC_20'
             this._mainTokenBlockchain = 'Ethereum Classic'
             this._mainChainId = 61 // https://ethereumclassic.org/development/porting
-        }  else if (settings.currencyCode === 'VLX' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'VLX')) {
+        } else if (settings.currencyCode === 'ETH_POW' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'ETH_POW')) {
+
+            this._etherscanSuffix = ''
+            this._etherscanApiPath = false
+            this._etherscanApiPathInternal = false
+            this._etherscanApiPathForFee = false
+
+            this._trezorServer = false
+            this._trezorServerCode = false
+
+            this._oklinkAPI = 'e11964ac-cfb9-406f-b2c5-3db76f91aebd'
+
+            this._mainCurrencyCode = 'ETH_POW'
+            this._mainTokenType = 'ETH_POW_ERC_20'
+            this._mainTokenBlockchain = 'ETH_POW'
+            this._mainChainId = 10001
+        } else if (settings.currencyCode === 'VLX' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'VLX')) {
 
             this._etherscanSuffix = ''
             this._etherscanApiPath = `https://evmexplorer.velas.com/api?module=account&sort=desc&action=txlist`

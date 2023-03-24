@@ -8,7 +8,6 @@ import BlocksoftTransactions from '@crypto/actions/BlocksoftTransactions/Blockso
 class UpdateAccountPendingTransactions {
 
     updateAccountPendingTransactions = async (callParams = {}) => {
-        Log.daemon('UpdateAccountPendingTransactions called ' + JSON.stringify(callParams))
         const source = callParams.source || 'FRONT'
         let result = false
         try {

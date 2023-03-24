@@ -983,7 +983,7 @@
     nanoid "^3.1.20"
     react-native-redash "^14.2.4"
 
-"@gorhom/portal@^1.0.9":
+"@gorhom/portal@^1.0.14", "@gorhom/portal@^1.0.9":
   version "1.0.14"
   resolved "https://registry.yarnpkg.com/@gorhom/portal/-/portal-1.0.14.tgz#1953edb76aaba80fb24021dc774550194a18e111"
   integrity sha512-MXyL4xvCjmgaORr/rtryDNFy3kU4qUbKlwtQqqsygd0xX3mhKjOLn6mQK8wfu0RkoE0pBE0nAasRoHua+/QZ7A==
@@ -3014,11 +3014,6 @@ axobject-query@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz#943d47e10c0b704aa42275e20edf3722648989be"
   integrity sha512-Td525n+iPOOyUQIeBfcASuG6uJsDOITl7Mds5gFyerkWiX7qhUTdYUBlSgNMyVqtSJqwpt1kXGLdUt6SykLMRA==
-
-b4a@^1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/b4a/-/b4a-1.6.0.tgz#5430a9cac1af388910dd1a1c1aa9d3a0a796ed68"
-  integrity sha512-fsTxXxj1081Yq5MOQ06gZ5+e2QcSyP2U6NofdOWyq+lrNI4IjkZ+fLVmoQ6uUCiNg1NWePMMVq93vOTdbJmErw==
 
 babel-eslint@10.0.1:
   version "10.0.1"
@@ -10324,12 +10319,11 @@ protobufjs@^6.8.8:
     "@types/node" ">=13.7.0"
     long "^4.0.0"
 
-protocol-buffers-encodings@^1.1.1:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/protocol-buffers-encodings/-/protocol-buffers-encodings-1.2.0.tgz#39900b85dcff3172a23f15bdf3fda70daa2b38d3"
-  integrity sha512-daeNPuKh1NlLD1uDfbLpD+xyUTc07nEtfHwmBZmt/vH0B7VOM+JOCOpDcx9ZRpqHjAiIkGqyTDi+wfGSl17R9w==
+protocol-buffers-encodings@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/protocol-buffers-encodings/-/protocol-buffers-encodings-1.1.1.tgz#f1e4a386711823137330171d2c82b49d062e75d3"
+  integrity sha512-5aFshI9SbhtcMiDiZZu3g2tMlZeS5lhni//AGJ7V34PQLU5JA91Cva7TIs6inZhYikS3OpnUzAUuL6YtS0CyDA==
   dependencies:
-    b4a "^1.6.0"
     signed-varint "^2.0.1"
     varint "5.0.0"
 
@@ -10582,11 +10576,6 @@ react-native-appearance@^0.3.4:
     fbemitter "^2.1.1"
     invariant "^2.2.4"
     use-subscription "^1.0.0"
-
-react-native-appsflyer@^6.2.41:
-  version "6.8.0"
-  resolved "https://registry.yarnpkg.com/react-native-appsflyer/-/react-native-appsflyer-6.8.0.tgz#a21f54d2110e965b16be0bbe4ff820e2596e1de8"
-  integrity sha512-cOHr5JLGgCYieNnLetNGoCCIHBS7o9HTaDm+LGqbkVTRO6SOF/RsJHYe4Se4ace3IIXypIvfiHGirGuNigLbjQ==
 
 react-native-awesome-card-io@^0.8.2:
   version "0.8.3"
@@ -11013,10 +11002,10 @@ react-native-screens@2.9.0:
   version "1.2.2"
   resolved "git+https://github.com/trustee-wallet/react-native-shadow#45e01265624dca9cfa4610ed983361a9a2cd8069"
 
-react-native-share@^4.0.2:
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/react-native-share/-/react-native-share-4.1.2.tgz#674bffd7b0cb5f812381569961c341ce3d188dd7"
-  integrity sha512-wfOMrlzxe2lMNTrHnd7sDrRmiOmG1XUmEwqfmUFFypp5y7OOe9prJCjsp3usG83DRkl3bInX1/VOM8DJYIEtfw==
+react-native-share@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-share/-/react-native-share-8.2.0.tgz#6ad15ca3bedca5b7d0ec2b65c78a167d712f1fc8"
+  integrity sha512-0RHeU/yntMzFsPmdSTJH7W7Y3+Fsw7qR3ufBMxodHJKzK8tBv5ZTEst8XMjTzrBUpamMaj23HCBYl9eYqntxpA==
 
 react-native-snap-carousel@^3.8.4:
   version "3.9.1"

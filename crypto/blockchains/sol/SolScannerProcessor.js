@@ -121,10 +121,12 @@ export default class SolScannerProcessor {
                 }
             } catch (e) {
                 hasError = true
-                if (config.debug.appErrors) {
-                    console.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransactions ' + tx.signature + ' error ' + e.message)
+                if (e.message.indexOf('request failed') === -1) {
+                    if (config.debug.appErrors) {
+                        console.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransactions ' + tx.signature + ' error ' + e.message)
+                    }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransactions ' + tx.signature + ' error ' + e.message)
                 }
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor._unifyTransactions ' + tx.signature + ' error ' + e.message)
             }
         }
 

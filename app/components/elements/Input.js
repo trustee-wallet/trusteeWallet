@@ -10,19 +10,19 @@ import QR from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import GradientView from '../../components/elements/GradientView'
+import NavStore from '@app/components/navigation/NavStore'
+import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import GradientView from '@app/components/elements/GradientView'
 
-import copyToClipboard from '../../services/UI/CopyToClipboard/CopyToClipboard'
-import { capitalize } from '../../services/UI/Capitalize/Capitalize'
-import { checkQRPermission } from '../../services/UI/Qr/QrPermissions'
-import Validator from '../../services/UI/Validator/Validator'
-import Toast from '../../services/UI/Toast/Toast'
-import { strings } from '../../services/i18n'
-import { normalizeInputWithDecimals } from '../../services/UI/Normalize/NormalizeInput'
-import BlocksoftPrettyStrings from '../../../crypto/common/BlocksoftPrettyStrings'
-import Log from '../../services/Log/Log'
-import NavStore from '../../components/navigation/NavStore'
-import TouchableDebounce from './new/TouchableDebounce'
+import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
+import { capitalize } from '@app/services/UI/Capitalize/Capitalize'
+import { checkQRPermission } from '@app/services/UI/Qr/QrPermissions'
+import Validator from '@app/services/UI/Validator/Validator'
+import Toast from '@app/services/UI/Toast/Toast'
+import { strings } from '@app/services/i18n'
+import { normalizeInputWithDecimals } from '@app/services/UI/Normalize/NormalizeInput'
+import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+
 
 
 class Input extends Component {
@@ -129,7 +129,7 @@ class Input extends Component {
             if (tmpIndex !== -1) {
                 valueNew = valueNew.slice(tmpIndex + 9).trim()
             }
-            if (cuttype === 'TRX' && value.length<=34 || cuttype === 'FIO') {
+            if ((cuttype === 'TRX' && value.length<=34) || cuttype === 'FIO') {
                 // do nothing
                 // TRX addresses can start with TRX
             } else if (valueNew.indexOf(cuttype) === 0) {
@@ -174,7 +174,6 @@ class Input extends Component {
                 value
             }
             validation = await Validator.arrayValidation([params])
-            Log.log('Input.handleValidate one', {validation, params})
         }
 
         this.setState({

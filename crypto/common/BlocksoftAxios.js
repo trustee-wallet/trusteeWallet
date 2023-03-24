@@ -39,9 +39,7 @@ class BlocksoftAxios {
     async getWithoutBraking(link, maxTry = 5, timeOut = false) {
         let tmp = false
         try {
-            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' start ' + link)
             tmp = await this.get(link, false, false, timeOut)
-            BlocksoftCryptoLog.log('BlocksoftAxios.getWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
             CACHE_ERRORS_BY_LINKS[link] = { time: 0, tries: 0 }
         } catch (e) {
             const now = new Date().getTime()
@@ -73,14 +71,7 @@ class BlocksoftAxios {
     async postWithoutBraking(link, data, maxTry = 5) {
         let tmp = false
         try {
-            BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' start ' + link)
             tmp = await this.post(link, data, false)
-            if (link.indexOf('monero') === -1) {
-                BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link)
-            } else {
-                BlocksoftCryptoLog.log('BlocksoftAxios.postWithoutBraking try ' + JSON.stringify(CACHE_ERRORS_BY_LINKS[link]) + ' success ' + link + ' data ' + JSON.stringify(data).substr(0, 500))
-                BlocksoftCryptoLog.log(JSON.stringify(tmp.data).substr(0, 100))
-            }
             CACHE_ERRORS_BY_LINKS[link] = { time: 0, tries: 0 }
         } catch (e) {
             const now = new Date().getTime()
@@ -108,6 +99,70 @@ class BlocksoftAxios {
         return tmp
     }
 
+    async postWithHeaders(link, data, addHeaders, errSend = true, timeOut = false) {
+        let tmp = false
+        try {
+            const headers = {
+                'upgrade-insecure-requests': 1,
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36'
+            }
+            const dataPrep = JSON.stringify(data)
+            headers['Content-Type'] = 'application/json'
+            headers['Accept'] = 'application/json'
+            for (let key in addHeaders) {
+                headers[key] = addHeaders[key]
+            }
+
+            const tmpInner = await fetch(link, {
+                method: 'POST',
+                credentials: 'same-origin',
+                mode: 'same-origin',
+                redirect: 'follow',
+                headers,
+                body: dataPrep
+            })
+            if (tmpInner.status !== 200 && tmpInner.status !== 201 && tmpInner.status !== 202) {
+                BlocksoftCryptoLog.log('BlocksoftAxios.post fetch result ' + JSON.stringify(tmpInner))
+            } else {
+                tmp = { data: await tmpInner.json() }
+            }
+        } catch (e) {
+            BlocksoftCryptoLog.log('BlocksoftAxios.postWithHeaders fetch result error ' + e.message)
+        }
+        return tmp
+    }
+
+    async getWithHeaders(link, addHeaders, errSend = true, timeOut = false) {
+        let tmp = false
+        try {
+            const headers = {
+                'upgrade-insecure-requests': 1,
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36'
+            }
+            headers['Content-Type'] = 'application/json'
+            headers['Accept'] = 'application/json'
+            for (let key in addHeaders) {
+                headers[key] = addHeaders[key]
+            }
+
+            const tmpInner = await fetch(link, {
+                method: 'GET',
+                credentials: 'same-origin',
+                mode: 'same-origin',
+                redirect: 'follow',
+                headers
+            })
+            if (tmpInner.status !== 200 && tmpInner.status !== 201 && tmpInner.status !== 202) {
+                BlocksoftCryptoLog.log('BlocksoftAxios.get fetch result ' + JSON.stringify(tmpInner))
+            } else {
+                tmp = { data: await tmpInner.json() }
+            }
+        } catch (e) {
+            console.log('BlocksoftAxios.getWithHeaders fetch result error ' + e.message)
+        }
+        return tmp
+    }
+
     async post(link, data, errSend = true, timeOut = false) {
         let tmp = false
         let doOld = this._isTrustee(link)
@@ -129,20 +184,6 @@ class BlocksoftAxios {
                     headers['Accept'] = 'multipart/form-data'
                 }
 
-                /*
-                console.log('')
-                console.log('')
-                console.log('')
-                console.log('')
-                console.log('')
-                console.log('')
-                console.log('BlocksoftAxios.post fetch link ' + link)
-                console.log('BlocksoftAxios.post fetch type ' + JSON.stringify(typeof data))
-                console.log('BlocksoftAxios.post fetch data ' + JSON.stringify(data).substr(0, 100))
-                console.log('BlocksoftAxios.post fetch cookie ' + JSON.stringify(await CookieManager.get(link)))
-                */
-
-                BlocksoftCryptoLog.log('BlocksoftAxios.post fetch link ' + link)
                 const tmpInner = await fetch(link, {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -151,10 +192,8 @@ class BlocksoftAxios {
                     headers,
                     body: dataPrep
                 })
-                BlocksoftCryptoLog.log('BlocksoftAxios.post fetch link ' + link + ' status ' + tmpInner.status)
                 if (tmpInner.status !== 200 && tmpInner.status !== 201 && tmpInner.status !== 202) {
                     BlocksoftCryptoLog.log('BlocksoftAxios.post fetch result ' + JSON.stringify(tmpInner))
-                    // console.log('BlocksoftAxios.post fetch result ' + JSON.stringify(tmpInner))
                     doOld = true
                 } else {
                     tmp = { data: await tmpInner.json() }
@@ -179,16 +218,6 @@ class BlocksoftAxios {
                 let tryOneMore = false
                 let antiCycle = 0
                 do {
-                    /*
-                    console.log('')
-                    console.log('')
-                    console.log('')
-                    console.log('')
-                    console.log('')
-                    console.log('')
-                    console.log('BlocksoftAxios.get fetch link ' + link)
-                    console.log('BlocksoftAxios.get fetch cookie ' + JSON.stringify(await CookieManager.get(link)))
-                    */
                     const tmpInner = await fetch(link, {
                         method: 'GET',
                         credentials: 'same-origin',
@@ -199,8 +228,6 @@ class BlocksoftAxios {
                         }
                     })
                     if (tmpInner.status !== 200) {
-                        BlocksoftCryptoLog.log('BlocksoftAxios.get fetch result ' + JSON.stringify(tmpInner))
-                        // console.log('BlocksoftAxios.get fetch result ' + JSON.stringify(tmpInner))
                         doOld = true
                         if (typeof tmpInner.headers.map['set-cookie'] !== 'undefined') {
                             tryOneMore = true
@@ -241,13 +268,10 @@ class BlocksoftAxios {
         if (oldCookie === '{}') return false
 
         // await CookieManager.clearAll()
-        BlocksoftCryptoLog.log('BlocksoftAxios._cookie domain ' + domain + ' oldCookie ' + oldCookie)
         if (Platform.OS === 'ios') {
-            // console.log('BlocksoftAxios._cookie domain ' + domain + ' CookieManager.clearByName ' + link + ' ' + method)
             await CookieManager.clearByName(domain)
             await CookieManager.clearByName(link)
         } else {
-            // console.log('BlocksoftAxios._cookie domain ' + domain + ' CookieManager.clear ' + link + ' ' + method)
             for (const key in oldCookieObj) {
                 const newData = {
                     name: key,
@@ -260,7 +284,6 @@ class BlocksoftAxios {
                 await CookieManager.set(link, newData)
             }
         }
-        BlocksoftCryptoLog.log('BlocksoftAxios._cookie domain ' + domain + ' newCookie ' + JSON.stringify(await CookieManager.get(link)))
     }
 
 
@@ -293,6 +316,9 @@ class BlocksoftAxios {
                 } else if (link.indexOf('/internet') !== -1) {
                     timeOut = Math.round(TIMEOUT_TRIES_INTERNET)
                 }
+                if (link.indexOf('solana.trusteeglobal.com') !== -1) {
+                    timeOut = timeOut * 10
+                }
             }
 
             if (typeof CACHE_STARTED[cacheMD] !== 'undefined') {
@@ -307,7 +333,7 @@ class BlocksoftAxios {
             CACHE_STARTED_CANCEL[cacheMD] = cancelSource
 
             const tmpTimer = setTimeout(() => {
-                cancelSource.cancel('TIMEOUT CANCELED ' + timeOut)
+                cancelSource.cancel('TIMEOUT CANCELED ' + timeOut + ' ' +  link + ' ' + JSON.stringify(data))
             }, timeOut)
             if (method === 'get') {
                 tmp = await instance.get(link)
@@ -417,7 +443,7 @@ class BlocksoftAxios {
             } else if (errSend) {
                 // noinspection ES6MissingAwait
                 if (e.message.indexOf('PREV CALL CANCELED') === -1) {
-                    if (link.indexOf('trustee.deals') !== -1) {
+                    if (link.indexOf('trustee.deals') !== -1 || link.indexOf('https://api.mainnet-beta.solana.com') !== -1) {
                         BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK ERROR3 ' + JSON.stringify(data))
                     } else {
                         BlocksoftCryptoLog.err('BlocksoftAxios.' + method + ' ' + link + ' ' + e.message + ' GET EXTERNAL LINK ERROR2')

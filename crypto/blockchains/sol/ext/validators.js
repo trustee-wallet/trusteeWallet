@@ -1,4 +1,17 @@
-module.exports = [
+module.exports = [{
+    "id": "GA2t11gJcmuZ4y7pShTzgYDkxVaJaVQJqkVUqojhPPsT",
+    "index": 1,
+    "name": "SolBrothers",
+    "description": "",
+    "website": ""
+  },
+  {
+    "id": "9QU2QSxhb24FUX3Tu2FpczXjpK3VYrvRudywSZaM29mF",
+    "index": 2,
+    "name": "Everstake",
+    "description": "Everstake is a team of seasoned developers, financial experts and blockchain enthusiasts. We run secure and reliable nodes for PoS protocols",
+    "website": "https://everstake.one"
+  },
   {
     "id": "2het6nBRLq9LLZER8fqUEk7j5pbLxq2mVGqSse2nS3tf",
     "name": "Maggie's Crypto Farm",
@@ -70,12 +83,6 @@ module.exports = [
     "name": "Izo Data Network",
     "description": "If we could describe the business relationship we have with our clients in one word, it would be TRUST.",
     "website": "http://www.izo.ro/"
-  },
-  {
-    "id": "9QU2QSxhb24FUX3Tu2FpczXjpK3VYrvRudywSZaM29mF",
-    "name": "Everstake",
-    "description": "Everstake is a team of seasoned developers, financial experts and blockchain enthusiasts. We run secure and reliable nodes for PoS protocols",
-    "website": "https://everstake.one"
   },
   {
     "id": "9sWYTuuR4s12Q4SuSfo5CfWaFggQwA6Z8pf8dWowN5rk",

@@ -113,9 +113,11 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
         ) {
             // do nothing
         } else if (data.addressTo !== 'STAKE' && data.addressTo.indexOf('UNSTAKE') === -1) {
-            const balance = await (BlocksoftBalances.setCurrencyCode('SOL').setAddress(data.addressTo)).getBalance('SolSendTx')
-            if (!balance || typeof balance.balance === 'undefined' || balance.balance === 0) {
-                throw new Error('UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE')
+            if (typeof uiData?.selectedFee?.bseOrderId === 'undefined') {
+                const balance = await (BlocksoftBalances.setCurrencyCode('SOL').setAddress(data.addressTo)).getBalance('SolSendTx')
+                if (!balance || typeof balance.balance === 'undefined' || balance.balance === 0) {
+                    throw new Error('UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE')
+                }
             }
         }
 

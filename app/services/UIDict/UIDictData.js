@@ -308,6 +308,12 @@ export default {
             darkColor: '#6A6477'
         }
     },
+    "ETH_RSR_NEW": {
+        colors: {
+            mainColor: '#161616',
+            darkColor: '#B8B8B8'
+        }
+    },
     "ETH_RSR": {
         colors: {
             mainColor: '#161616',
@@ -1080,6 +1086,60 @@ export default {
         colors: {
             mainColor: '#D73A64',
             darkColor: '#CA4D6F'
+        }
+    },
+    'ETH_APE': {
+        colors: {
+            mainColor: '#0037C1',
+            darkColor: '#4470DE',
+        }
+    },
+    'ETH_ATOM': {
+        colors: {
+            mainColor: '#2E3148',
+            darkColor: '#6F7390',
+        }
+    },
+    'BNB_SMART_ATOM': {
+        colors: {
+            mainColor: '#2E3148',
+            darkColor: '#6F7390',
+        }
+    },
+    'BNB_SMART_TWT': {
+        colors: {
+            mainColor: '#3375BB',
+            darkColor: '#3375BB',
+        }
+    },
+    'BNB_SMART_GMT': {
+        colors: {
+            mainColor: '#C49162',
+            darkColor: '#C49162',
+        }
+    },
+    'VLX_USDV': {
+        colors: {
+            mainColor: '#6665DD',
+            darkColor: '#6665DD',
+        }
+    },
+    'ETH_VERSE': {
+        colors: {
+            mainColor: '#0285FF',
+            darkColor: '#2A69D7'
+        }
+    },
+    'ETH_STETH': {
+        colors: {
+            mainColor: '#00A2FF',
+            darkColor: '#00A2FF'
+        }
+    },
+    'ETH_STMATIC': {
+        colors: {
+            mainColor: '#1EC0FF',
+            darkColor: '#14B5DE'
         }
     },
     'CUSTOM_ABYSS': {

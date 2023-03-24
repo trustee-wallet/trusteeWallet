@@ -21,6 +21,7 @@ const config = {
         }
     },
     daemon: {
+        scanOnAccount : true,
         updateTimes: {
             oneByOne: 5000, // 5 seconds
             view: 10000 // 10 second
@@ -59,11 +60,7 @@ const config = {
         appDBLogs: false, // set false to get db query in files only
         firebaseLogs: true, // set false not to collect data to firebase live db
         sendLogs: false
-    },
-    tg: {
-        appDefaultTg: '1470482129:AAFLkM-rSvOckqNRr7nSO_BSrOLTXERZwdQ', // bot id for app errors https://t.me/trusteeV20ProdAppErrorsBot
-        trusteeCore: ['272629139', '121249105', '231261669']
-    },
+    }
 }
 
 // eslint-disable-next-line no-undef

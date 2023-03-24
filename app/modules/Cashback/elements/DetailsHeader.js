@@ -1,5 +1,5 @@
 /**
- * @version 0.42
+ * @version 0.77
  * @author Vadym
  */
 
@@ -89,8 +89,6 @@ class DetailsHeader extends React.Component{
     renderContent = (value) => {
 
         const { cashbackStore } = this.props
-
-        // const { selectedTitle } = this.state
 
         const overalVolume = cashbackStore.dataFromApi.overalVolume || 0
         let overalPrep = 1 * BlocksoftPrettyNumbers.makeCut(overalVolume, 6).justCutted

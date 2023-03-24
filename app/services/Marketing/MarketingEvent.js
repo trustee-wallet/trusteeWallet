@@ -1,5 +1,5 @@
 /**
- * @version 0.9
+ * @version 0.77
  */
 import crashlytics from '@react-native-firebase/crashlytics'
 import analytics from '@react-native-firebase/analytics'
@@ -8,24 +8,16 @@ import { Platform } from 'react-native'
 
 import Log from '@app/services/Log/Log'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
-import BlocksoftTg from '@crypto/common/BlocksoftTg'
-import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
-import changeableProd from '@app/config/changeable.prod'
-import changeableTester from '@app/config/changeable.tester'
-
 import DeviceInfo from 'react-native-device-info'
-import appsFlyer from 'react-native-appsflyer'
+
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import config from '@app/config/config'
 
-let CACHE_TG_INITED = false
 let CACHE_BALANCE = {}
-let CACHE_APP_FLYER_ERROR = 0
-const CACHE_APP_FLYER_ERROR_TIME = 120000
-
-
+let CACHE_TG_INITED = false
 
 class MarketingEvent {
     DATA = {
@@ -38,7 +30,8 @@ class MarketingEvent {
         LOG_WALLETS_COUNT : '0',
         LOG_DEVICE_ID : '',
         LOG_DEV : false,
-        LOG_TESTER: false
+        LOG_TESTER: false,
+        LOG_ALL: {}
     }
 
     UI_DATA = {
@@ -51,23 +44,13 @@ class MarketingEvent {
      * @return {Promise<void>}
      */
     async initMarketing(testerMode, firstInit = false) {
-        this.TG = new BlocksoftTg(changeableProd.tg.info.spamBot)
 
         if (typeof testerMode === 'undefined' || testerMode === false) {
             testerMode = await trusteeAsyncStorage.getTesterMode()
         }
 
-        let changeable
-        if (testerMode === 'TESTER') {
-            changeable = changeableTester
-        } else {
-            changeable = changeableProd
-        }
-
-        this.TG.API_KEY = changeable.tg.info.spamBot
-
         this.DATA = {}
-        this.DATA.LOG_VERSION = changeable.tg.info.version
+        this.DATA.LOG_VERSION = `new ${config.version.code + ' ' + config.version.hash}`
         this.DATA.LOG_DEV = !(this.DATA.LOG_VERSION.indexOf('VERSION_CODE_PLACEHOLDER COMMIT_SHORT_SHA_PLACEHOLDER') === -1) ? 'TRUE' : false
         this.DATA.LOG_TESTER = testerMode === 'TESTER' ? 'TRUE' : false
 
@@ -128,11 +111,20 @@ class MarketingEvent {
         this.DATA.LOG_WALLET = walletHash
     }
 
-    async reinitByWallet(walletHash) {
-        if (this.DATA.LOG_WALLET === walletHash) {
+    async reinitByWallet(walletHash, logAll = false) {
+        if ((
+            !walletHash || walletHash === '' || this.DATA.LOG_WALLET === walletHash
+        ) && (
+            !logAll || this.DATA.LOG_ALL === logAll
+        )) {
             return false
         }
-        this.setWalletHash(walletHash)
+        if (logAll) {
+            this.DATA.LOG_ALL = logAll
+        }
+        if (walletHash) {
+            this.setWalletHash(walletHash)
+        }
 
         await CashBackUtils.init({ force: true, selectedWallet: this.DATA.LOG_WALLET }, 'MarketingEvent')
 
@@ -152,6 +144,19 @@ class MarketingEvent {
 
             if (key === 'LOG_DEV') {
                 // do nothing
+            } else if (key === 'LOG_ALL') {
+                let index = 0
+                for(let one in val) {
+                    index++
+                    one = one.toString().substr(0, 36)
+                    const cb = val[one].toString().substr(0, 36)
+                    if (crashlytics()) {
+                        crashlytics().setAttribute(key + '_wh_' + index, one)
+                        crashlytics().setAttribute(key + '_cb_' + index, cb)
+                    }
+                    analytics().setUserProperty(key + '_wh_' + index, one)
+                    analytics().setUserProperty(key + '_cb_' + index, cb)
+                }
             } else if (key === 'LOG_TOKEN') {
                 const short = val.substr(0, 20)
                 if (crashlytics()) {
@@ -183,8 +188,24 @@ class MarketingEvent {
                 continue
             }
 
+            const LOG_ALL = []
             if (key === 'LOG_DEV') {
                 // do nothing
+            } else if (key === 'LOG_ALL') {
+                let index = 0
+                for(let one in val) {
+                    index++
+                    one = one.toString().substr(0, 36)
+                    const cb = val[one].toString().substr(0, 36)
+                    if (crashlytics()) {
+                        crashlytics().setAttribute(key + '_wh_' + index, one)
+                        crashlytics().setAttribute(key + '_cb_' + index, cb)
+                    }
+                    analytics().setUserProperty(key + '_wh_' + index, one)
+                    analytics().setUserProperty(key + '_cb_' + index, cb)
+                    LOG_ALL.push(cb)
+                }
+                this.TG_MESSAGE += '\n' + key + ' ' + LOG_ALL.sort().join(' ').substr(0, 200)
             } else if (key === 'LOG_TOKEN' || key === 'LOG_DEVICE_ID') {
                 const short = val.substr(0, 20)
                 this.TG_MESSAGE += '\n ' + key + ' ' + short
@@ -196,13 +217,6 @@ class MarketingEvent {
                 analytics().setUserProperty(key, short)
                 analytics().setUserProperty(key + '_FULL', val.toString().substr(0, 36))
             } else {
-                if (key === 'LOG_CASHBACK') {
-                    try {
-                        await appsFlyer.setCustomerUserId(val.toString(), () => {})
-                    } catch (e) {
-                        await Log.log(`DMN/MarketingEventappsFlyer.setCustomerUserId error ` + e.message.toString())
-                    }
-                }
                 if (key === 'LOG_VERSION') {
                     // do nothing
                 } else {
@@ -220,6 +234,7 @@ class MarketingEvent {
         CACHE_TG_INITED = true
 
     }
+
 
     async logEvent(logTitle, logData, PREFIX = 'SPM') {
         if (this.DATA.LOG_DEV) {
@@ -256,33 +271,17 @@ class MarketingEvent {
             this._cacheLastLog = tmp
             logDataObject.date = date
         } catch (e) {
-            await Log.err(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
+            await Log.log(`DMN/MarketingEvent prepare error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             return false
         }
 
-        if (PREFIX !== 'RTM') {
-            const now = new Date().getTime()
-            if (now - CACHE_APP_FLYER_ERROR > CACHE_APP_FLYER_ERROR_TIME) {
-                try {
-                    await appsFlyer.logEvent(logTitle.replace(' ', '_'), logDataObject)
-                } catch (e) {
-                    CACHE_APP_FLYER_ERROR = now
-                    await Log.log(`DMN/MarketingEvent send appsFlyer error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
-                }
-            }
-
+        // if (PREFIX !== 'RTM') {
             try {
                 await analytics().logEvent(logTitle.replace(' ', '_'), logDataObject)
             } catch (e) {
-                await Log.err(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
+                await Log.log(`DMN/MarketingEvent send analytics error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
             }
-        }
-
-        try {
-            await this.TG.send(PREFIX + `_2021_04_${this.DATA.LOG_VERSION} ` + date[0] + ' ' + date[1] + ' ' + tmp + this.TG_MESSAGE)
-        } catch (e) {
-            await Log.err(`DMN/MarketingEvent send TG error ${logTitle} ` + e.message.toString() + ' with logData ' + logDataString)
-        }
+        // }
     }
 
     async logOnlyRealTime(logTitle, logData) {

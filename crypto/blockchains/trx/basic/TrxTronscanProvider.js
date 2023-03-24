@@ -19,9 +19,9 @@ export default class TrxTronscanProvider {
      * @param {string} tokenName
      * @returns {Promise<boolean|{unconfirmed: number, frozen: *, frozenEnergy: *, voteTotal: *, balance: *, provider: string}>}
      */
-    async get(address, tokenName) {
+    async get(address, tokenName, useCache = true) {
         const now = new Date().getTime()
-        if (typeof CACHE_TRONSCAN[address] !== 'undefined' && (now - CACHE_TRONSCAN[address].time) < CACHE_VALID_TIME) {
+        if (useCache && typeof CACHE_TRONSCAN[address] !== 'undefined' && (now - CACHE_TRONSCAN[address].time) < CACHE_VALID_TIME) {
             if (typeof CACHE_TRONSCAN[address][tokenName] !== 'undefined') {
                 BlocksoftCryptoLog.log('TrxTronscanProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONSCAN[address][tokenName])
                 const frozen = typeof CACHE_TRONSCAN[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONSCAN[address][tokenName + 'frozen'] : 0

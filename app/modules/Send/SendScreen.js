@@ -28,8 +28,12 @@ import config from '@app/config/config'
 import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
 import Log from '@app/services/Log/Log'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 
 let CACHE_IS_COUNTING = false
+let CACHE_IS_BALANCE_UPDATING = false
+let CACHE_BALANCE_TIMEOUT = false
 
 class SendScreen extends PureComponent {
 
@@ -39,6 +43,8 @@ class SendScreen extends PureComponent {
         this.inputAndButtonsComponent = React.createRef()
         this.inputAddressComponent = React.createRef()
         this.inputMemoComponent = React.createRef()
+
+        this.refreshBalance()
     }
 
     closeAction = async (closeScreen = false) => {
@@ -120,6 +126,53 @@ class SendScreen extends PureComponent {
             setLoaderStatus(false)
             CACHE_IS_COUNTING = false
         }
+    }
+
+    async refreshBalance() {
+        if (CACHE_IS_BALANCE_UPDATING) {
+            return false
+        }
+        CACHE_IS_BALANCE_UPDATING = true
+        if (CACHE_BALANCE_TIMEOUT) {
+            clearTimeout(CACHE_BALANCE_TIMEOUT)
+        }
+        const { balanceRaw, basicCurrencyRate, currencyCode, addressFrom, walletHash, derivationPath } = this.props.sendScreenStore.dict
+        if (currencyCode === 'BTC' || currencyCode === 'LTC') {
+            return false
+        }
+        if (config.daemon.scanOnAccount) {
+            try {
+                const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({derivationPath}).setAddress(addressFrom)).getBalance('SendScreen')
+                if (tmp) {
+                    const newBalanceRaw = typeof tmp?.balanceAvailable !== 'undefined' ? tmp?.balanceAvailable : tmp?.balance
+                    if (newBalanceRaw !== balanceRaw) {
+                        if (!tmp?.address || tmp?.address !== addressFrom || tmp?.currencyCode !== currencyCode) {
+                            Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will not update as got ' + tmp?.address)
+                        } else {
+                            Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' balance will update from ' + balanceRaw + ' to ' + tmp?.balance)
+                            const newPretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalanceRaw)
+                            const newCurrencyBalanceTotal = BlocksoftPrettyNumbers.makeCut(newPretty * basicCurrencyRate, 2).cutted
+                            SendActionsUpdateValues.setDict({
+                                addressFrom: addressFrom,
+                                currencyCode: currencyCode,
+                                balanceRaw: newBalanceRaw,
+                                balanceTotalPretty: newPretty,
+                                basicCurrencyBalanceTotal: newCurrencyBalanceTotal
+                            })
+                        }
+                    }
+                }
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
+                }
+                Log.log('SendScreen.reload ' + currencyCode + ' ' + addressFrom + ' error ' + e.message)
+            }
+            CACHE_BALANCE_TIMEOUT = setTimeout(() => {
+                this.refreshBalance()
+            },5000)
+        }
+        CACHE_IS_BALANCE_UPDATING = false
     }
 
     render() {

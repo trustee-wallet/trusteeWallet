@@ -1,17 +1,10 @@
 
 import React from 'react'
-import {
-    Text,
-    TouchableOpacity,
-    View,
-    StyleSheet,
-} from 'react-native'
+import { Text, TouchableOpacity, View, StyleSheet } from 'react-native'
 
 import MnemonicWord from './MnemonicWord'
 
 import { useTheme } from '@app/theme/ThemeProvider'
-
-import { strings } from '../../../services/i18n'
 
 
 export default function SelectedMnemonic(props) {

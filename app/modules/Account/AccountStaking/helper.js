@@ -377,9 +377,29 @@ export async function handleSolScan(force = false) {
     }, async () => {
 
         const selectedVoteAddress = await settingsActions.getSetting('SOL_validator')
-        const voteAddresses = await SolStakeUtils.getVoteAddresses()
-        const stakedAddresses = await SolStakeUtils.getAccountStaked(address, force)
-        const rewards = await SolStakeUtils.getAccountRewards(address)
+
+        let voteAddresses = []
+        let stakedAddresses = []
+        let rewards = false
+        try {
+            voteAddresses = await SolStakeUtils.getVoteAddresses()
+        } catch (e) {
+            Log.log('SolStakeUtils.getVoteAddresses error ' + e.message)
+        }
+
+
+        try {
+            stakedAddresses = await SolStakeUtils.getAccountStaked(address, force)
+        } catch (e) {
+            Log.og('SolStakeUtils.getAccountStaked error ' + e.message)
+        }
+
+        try {
+            rewards = await SolStakeUtils.getAccountRewards(address, stakedAddresses)
+        } catch (e) {
+            Log.log('SolStakeUtils.getAccountRewards error ' + e.message)
+        }
+
         const newData = {
             stakedAddresses,
             voteAddresses,

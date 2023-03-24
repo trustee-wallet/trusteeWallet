@@ -6,6 +6,7 @@ import Log from '@app/services/Log/Log'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import config from '@app/config/config'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 class Transaction {
 
@@ -238,6 +239,7 @@ class Transaction {
      * @param {string} params.filterTypeHideSwap
      * @param {string} params.filterTypeHideStake
      * @param {string} params.filterTypeHideWalletConnect
+     * @param {string} params.filterTypeShowSpam
      * @returns {Promise<[{createdAt, updatedAt, blockTime, blockHash, blockNumber, blockConfirmations, transactionHash, addressFrom, addressAmount, addressTo, transactionFee, transactionStatus, transactionDirection, accountId, walletHash, currencyCode, transactionOfTrusteeWallet, transactionJson}]>}
      */
     getTransactions = async (params, source = '?') => {
@@ -340,6 +342,17 @@ class Transaction {
             `)
         }
 
+        if (typeof params.filterTypeShowSpam !== 'undefined' && params.filterTypeShowSpam) {
+            // do nothing
+        } else {
+            const spamLimit = BlocksoftExternalSettings.getStatic('TRX_SPAM_LIMIT') * 1
+            if (spamLimit > 1) {
+                where.push(`
+                    NOT(currency_code='TRX' AND transaction_direction = 'income' AND address_amount<${spamLimit})
+                    `)
+            }
+        }
+
 
         // other categories
         if (typeof params.filterTypeHideSwap !== 'undefined' && params.filterTypeHideSwap) {
@@ -385,7 +398,10 @@ class Transaction {
         }
 
         where.push(`transaction_hash !=''`)
-        where.push(`NOT (transaction_direction IN ('swap_income', 'income') AND (address_amount == '0' OR address_amount IS NULL))`)
+
+        // trx fee somehow marked as "swap_income"
+        where.push(`NOT (currency_code != 'TRX' AND transaction_direction IN ('swap_income', 'income') AND (address_amount == '0' OR address_amount IS NULL))`)
+        where.push(`NOT (currency_code = 'TRX' AND address_from !='' AND (address_amount == '0' OR address_amount IS NULL))`)
 
         let order = ' ORDER BY created_at DESC, id DESC'
         if (params.noOrder) {
@@ -394,8 +410,7 @@ class Transaction {
             where.push(`(hidden_at IS NULL OR hidden_at='null')`)
         }
 
-        // where.push(`(address_from OR adress_to OR transaction_hash) LIKE ('d2884dd42808150753d')`)
-        // where.push(`'${source}' = '${source})
+
 
         if (where.length > 0) {
             where = ' WHERE (' + where.join(') AND (') + ')'

@@ -15,8 +15,6 @@ export const getVisibleCurrencies = createSelector(
                 walletNumber = walletNumber * 1
             }
 
-            Log.log('ACT/Currency getVisibleCurrencies selectedWallet walletNumber ' + walletNumber + ' started')
-
             const tmp = currencies.filter(c => {
                 if (c.isHidden === null) {
                     c.maskedHidden = true
@@ -34,10 +32,9 @@ export const getVisibleCurrencies = createSelector(
                 return []
             }
 
-            Log.log('ACT/Currency getVisibleCurrencies selectedWallet walletNumber ' + walletNumber + ' finished')
             return [...tmp]
         } catch (e) {
-            Log.err('ACT/Currency getVisibleCurrencies error ' + e.message)
+            Log.log('ACT/Currency getVisibleCurrencies error ' + e.message)
             return []
         }
     })

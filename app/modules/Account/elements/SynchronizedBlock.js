@@ -99,6 +99,7 @@ class SynchronizedBlock extends React.PureComponent {
         }
 
         const diff = diffTimeScan(balanceScanTime)
+        const isBalanceScanError = balanceScanError && balanceScanError !== '' && balanceScanError !== 'null'
         let diffTimeText = ''
         if (diff > 60) {
             diffTimeText = strings('account.soLong')
@@ -108,7 +109,7 @@ class SynchronizedBlock extends React.PureComponent {
             } else {
                 diffTimeText = strings('account.scan', { time: diff })
             }
-            if (balanceScanError && balanceScanError !== '' && balanceScanError !== 'null') {
+            if (isBalanceScanError) {
                 diffTimeText += '\n' + strings(balanceScanError)
             }
         }
@@ -122,7 +123,7 @@ class SynchronizedBlock extends React.PureComponent {
                                 <Text style={[styles.history_title, { color: colors.common.text1 }]}>{strings('account.history')}</Text>
                                 <View style={[styles.scan, { marginLeft: GRID_SIZE }]}>
                                     {isSynchronized ?
-                                        <Text style={[styles.scan__text, { color: colors.common.text2 }]} numberOfLines={2}>{diffTimeText}</Text>
+                                        <Text style={[styles.scan__text, { color: (diff && diff >= 10 || isBalanceScanError) ? colors?.accountScreen?.balanceLongScan : colors.common.text2 }]} numberOfLines={2}>{diffTimeText}</Text>
                                         :
                                         <View style={styles.synchronized__loader}>
                                             <Text style={[styles.synchronized__text, { color: colors.common.text1 }]}>

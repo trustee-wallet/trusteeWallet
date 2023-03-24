@@ -2,22 +2,28 @@
  * @author Ksu
  * @version 0.5
  */
-import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
-import BlocksoftDict from '../../common/BlocksoftDict'
-import BlocksoftKeysUtils from './BlocksoftKeysUtils'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
+import BlocksoftKeysUtils from '@crypto/actions/BlocksoftKeys/BlocksoftKeysUtils'
+
 
 import * as BlocksoftRandom from 'react-native-blocksoft-random'
 import BlocksoftDispatcher from '../../blockchains/BlocksoftDispatcher'
+import BlocksoftKeysScam from '@crypto/actions/BlocksoftKeys/BlocksoftKeysScam'
+import { strings } from '@app/services/i18n'
 
 const bip32 = require('bip32')
 const bip39 = require('bip39')
 const bip44Constants = require('../../common/ext/bip44-constants')
 const networksConstants = require('../../common/ext/networks-constants')
+
 const bs58check = require('bs58check')
+
 
 const ETH_CACHE = {}
 const CACHE = {}
 const CACHE_ROOTS = {}
+
 
 class BlocksoftKeys {
 
@@ -72,6 +78,9 @@ class BlocksoftKeys {
      */
     async validateMnemonic(mnemonic) {
         BlocksoftCryptoLog.log(`BlocksoftKeys validateMnemonic called`)
+        if (await BlocksoftKeysScam.isScamMnemonic(mnemonic)) {
+            throw new Error(strings('settings.walletList.scamImport'))
+        }
         const result = await bip39.validateMnemonic(mnemonic)
         if (!result) {
             throw new Error('invalid mnemonic for bip39')
@@ -118,6 +127,7 @@ class BlocksoftKeys {
         let bitcoinRoot = false
         let currencyCode
         let settings
+        const seed = await BlocksoftKeysUtils.bip39MnemonicToSeed(data.mnemonic.toLowerCase())
         for (currencyCode of toDiscover) {
             results[currencyCode] = []
             try {
@@ -160,7 +170,7 @@ class BlocksoftKeys {
                 BlocksoftCryptoLog.log(`BlocksoftKeys will discover ${settings.addressProcessor}`)
                 let root = false
                 if (typeof networksConstants[currencyCode] !== 'undefined') {
-                    root = await this.getBip32Cached(data.mnemonic, networksConstants[currencyCode])
+                    root = await this.getBip32Cached(data.mnemonic, networksConstants[currencyCode], seed)
                 } else {
                     if (!bitcoinRoot) {
                         bitcoinRoot = await this.getBip32Cached(data.mnemonic)
@@ -196,8 +206,8 @@ class BlocksoftKeys {
                         const result = await processor.getAddress(child.privateKey, {
                             publicKey: child.publicKey,
                             walletHash: data.walletHash,
-                            derivationPath : derivation.path
-                        }, data)
+                            derivationPath : derivation.path,
+                        }, data, seed, 'discoverAddresses')
                         result.basicPrivateKey = child.privateKey.toString('hex')
                         result.basicPublicKey = child.publicKey.toString('hex')
                         result.path = derivation.path
@@ -273,7 +283,7 @@ class BlocksoftKeys {
                                     derivationPath : path,
                                     derivationIndex : index,
                                     derivationType : suffix.type
-                                }, data)
+                                }, data, seed, 'discoverAddresses2')
                                 if (result) {
                                     if (privateKey) {
                                         result.basicPrivateKey = privateKey.toString('hex')
@@ -316,10 +326,12 @@ class BlocksoftKeys {
         return seed
     }
 
-    async getBip32Cached(mnemonic, network = false) {
+    async getBip32Cached(mnemonic, network = false, seed = false) {
         const mnemonicCache = mnemonic.toLowerCase() + '_' + (network || 'btc')
         if (typeof CACHE_ROOTS[mnemonicCache] === 'undefined') {
-            const seed = await this.getSeedCached(mnemonic)
+            if (!seed) {
+                seed = await this.getSeedCached(mnemonic)
+            }
             CACHE_ROOTS[mnemonicCache] = network ? bip32.fromSeed(seed, network) : bip32.fromSeed(seed)
         }
         return CACHE_ROOTS[mnemonicCache]
@@ -357,7 +369,7 @@ class BlocksoftKeys {
             derivationIndex: data.derivationIndex,
             derivationType:  data.derivationType,
             publicKey : child.publicKey
-        }, data)
+        }, data, seed, 'discoverOne')
     }
 
     /**

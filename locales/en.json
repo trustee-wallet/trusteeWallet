@@ -160,7 +160,10 @@
       "faqSubtitle": "Frequently asked questions",
       "toolTips": "Tooltips",
       "configMode": "Config",
-      "testerMode": "Tester"
+      "testerMode": "Tester",
+      "useFirebaseForBSE": "Use firebase for swap",
+      "enabledUseFirebaseForBSE": "Enabled",
+      "disabledUseFirebaseForBSE": "Disabled"
     },
     "walletList": {
       "showBalance": "Show balance",
@@ -195,6 +198,16 @@
         "description": "Recovery phrase (Seed phrase) is the only key to your assets! In case of failure or loss of a mobile device, it will be impossible to restore access to your assets without Seed-phrase!\n\nSave your Recovery phrase in a safe place now!\n\nBeware of scammers, never give your Recovery phrase to anyone!",
         "save": "Save",
         "late": "Do later"
+      },
+      "scamImport": "This wallet is a scam, you won't be able to use it in the app.",
+      "multisigWallet": "MULTISIG",
+      "multisigWalletDesc": "The address is only for viewing the balance of the wallet and does not have the function for sending transactions.",
+      "scamWallet": "Scam wallet",
+      "scamWalletDesc": "Do not transfer crypto to the addresses of this wallet, as the funds will be lost. Use only a personally created wallet for the safe storage of crypto.",
+      "scamModal": {
+        "title": "You have added a Scam wallet",
+        "description": "The Swap section is not available for a such wallet. Do not transfer crypto to his addresses, as the funds will be lost.",
+        "remove": "Delete wallet"
       },
       "hdEnableModal": {
         "title": "Switch wallet to HD mode?",
@@ -279,7 +292,7 @@
       "additional": "Additional",
       "allNotificationsTitle": "Activate all",
       "transactionsTitle": "Transactions",
-      "transactionsSubtitle": "Buy, sell, receive, send, exchange",
+      "transactionsSubtitle": "Buy, sell, exchange",
       "exchangeRatesTitle": "Exchange rates",
       "exchangeRateSubtitle": "Prices of main coins",
       "newsTitle": "News"
@@ -460,6 +473,7 @@
       "description": "Go to the registration page and register it now?"
     },
     "transaction": {
+      "spam": "No Spam",
       "pay": "Pay",
       "remove" : "Hide",
       "removeRBF" : "Return funds",
@@ -589,15 +603,15 @@
           "out_of_energy" : "No energy"
         }
       },
-      "transactionHash": "Transaction hash:",
+      "transactionHash": "Transaction hash: ",
       "cashbackLink": "I’m using Trustee Wallet! Here is my personal link ",
       "website": "Website: ",
       "self": "This transaction was send to your own address",
       "order": "To order",
-      "transactionSum": "Amount send",
-      "addresTo": "Recipient ",
-      "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations ",
+      "transactionSum": "Amount send: ",
+      "addressTo": "Recipient: ",
+      "addressFrom": "Sender: ",
+      "blockConfirmations": "Current number of confirmations: ",
       "transactionAmount": "%{currencyCode} amount"
     }
   },
@@ -725,6 +739,7 @@
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
     "notEnoughForFee": "To send tokens you need to have positive balance in native coin %{symbol}. Click for more info ",
     "notEnoughForFeeConfirmed": "To send tokens you need to have positive confirmed balance in native coin %{symbol}, please, wait for confirmations",
+    "countedForLessOutputs": "Transaction could not use all %{count} outputs for Transfer All, please, accumulate outputs by few transactions",
     "publicFioAddressNotFound": "%{symbol} public address is not associated with specified FIO address",
     "domainResolution": {
       "resolving": "Resolving %{domain}...",
@@ -841,6 +856,7 @@
      "UI_CONFIRM_DOUBLE_BSE_SEND": "The transaction has been sent to order already, are you sure that you want to create new transaction?",
      "UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE": "This address has no funds. Are you sure it's correct?",
      "UI_CALCULATE_CUSTOM_FEE" : "Please, calculate actual custom fee to use for send",
+     "SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID": "Please, check the recipient's address. Sending transactions directly to the smart contract address is not possible",
      "SERVER_RESPONSE_CLOUDFLARE" : "Please, try again - no access to cloudflare protected server",
      "SERVER_RESPONSE_BAD_CODE": "Something went wrong, contact our support service, please,",
      "SERVER_RESPONSE_BAD_INTERNET": "No access to internet",
@@ -865,7 +881,7 @@
      "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED" : "Transaction already mined",
      "SERVER_RESPONSE_NONCE_ALREADY_MINED" : "Nonce %{nonce} already mined",
      "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
-     "SERVER_RESPONSE_NOT_CONNECTED": "Network is unreachable - please repeat the operation later",
+     "SERVER_RESPONSE_NOT_CONNECTED": "There is no connection to a node in the network. Please change your internet connection or use a VPN while using the app",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Insufficient balance to make the transaction and to pay the minimal fee",
      "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Please wait for the other transactions to be mined or turn ON an option \"Use unconfirmed transactions\" ",
      "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Transaction fee is too high - please adjust the fee manually or send more funds",
@@ -891,7 +907,8 @@
      "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
-     "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
+     "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator",
+     "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "The recipient's address is empty. Cannot send tokens to address with zero SOL balance in the Solana blockchain"
     }
   },
   "walletBackup": {
@@ -1077,11 +1094,11 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "Your Tron (TRX) wallet is not activated but can accept funds. Top up your Tron address with 10 TRX to activate your wallet. In the future, you can use these coins in transactions."
+        "description": "%{currencySymbol} token runs on the Tron blockchain and requires a positive TRX balance in order to pay the network fee. While your wallet has zero TRX balance. To activate the address, top up your TRX balance with any amount."
       },
       "TOKEN": {
         "title": "Please, pay attention!",
-        "description": "Token %{currencySymbol} works on %{parentBlockchain} blockchain and for usage you had to have positive %{parentCurrency} balance to pay for miners fee. So far, there is zero balance in your wallet %{parentCurrency}"
+        "description": "%{currencySymbol} token runs on the %{parentBlockchain} blockchain and requires a positive %{parentCurrency} balance in order to pay the network fee. While your wallet has zero %{parentCurrency} balance"
       }
     },
     "tokenNotAdded": {
@@ -1196,7 +1213,7 @@
       "bigGas" : "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
       "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance" : "Your balance was used in previous unconfirmed transactions, you can use %{free}",
-      "feeSmallAmount" : "Left for fee amount is too small - transaction could be take too long time to confirm",
+      "feeSmallAmount" : "The %{feesCurrencySymbol} is not enough in your balance to pay the fastest fee",
       "longQuery" : "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
       "longQuerySettingOff" : "The ability to send a second transaction until the previous one is confirmed is disabled",
       "noTBKprovider" : "Sorry, the function is disabled as exchange operator could not process speed up transactions",
@@ -1214,7 +1231,9 @@
     },
     "walletCreate": {
       "success": "Success!",
-      "walletImported": "Your wallet was imported!"
+      "walletImported": "Your wallet was imported!",
+      "title": "Beware of scammers!",
+      "description": "Do not use wallets that you found on the Internet, that you were given or sold. With a high probability, you will lose funds that you will transfer to the addresses of such wallets.\n\nUse only those wallets that you personally generated!"
     },
     "receive": {
       "success": "Success!",

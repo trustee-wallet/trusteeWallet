@@ -1,10 +1,10 @@
 /**
- * @version 0.11
+ * @version 0.77
  */
 import { NativeModules } from 'react-native'
 
 import { launchImageLibrary } from 'react-native-image-picker'
-import Log from '../../Log/Log'
+import Log from '@app/services/Log/Log'
 
 let { QRScanReader } = NativeModules
 
@@ -27,7 +27,7 @@ export function openQrGallery() {
                 Log.log('QrGallery User cancelled image picker')
                 resolve(false)
             } else if (response.error) {
-                Log.log('QrGallery ImagePicker Error ', response.error)
+                Log.log('QrGallery ImagePicker Error')
                 resolve(false)
             } else if (response.customButton) {
                 Log.log('QrGallery User tapped custom button ', response.customButton)
@@ -41,15 +41,12 @@ export function openQrGallery() {
                     Log.log('QrGallery no path')
                     return false
                 }
-                Log.log('QrGallery path ' + path)
 
                 try {
-
                     QRScanReader.readerQR(path).then((data) => {
-                        Log.log('QrGallery reader data ' + data)
                         resolve({ data })
                     }).catch((e) => {
-                        Log.log('QrGallery reader error ' + e.message)
+                        Log.log('QrGallery reader error')
                         if (e.message.toString() === 'NOT_FOUND') {
                             reject(new Error(e.message))
                         }

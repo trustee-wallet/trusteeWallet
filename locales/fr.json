@@ -159,7 +159,10 @@
       "faqSubtitle": "Questions fréquemment posées",
       "toolTips": "Info-bulles",
       "configMode": "Configuration",
-      "testerMode": "Testeur"
+      "testerMode": "Testeur",
+      "useFirebaseForBSE": "Utiliser Firebase pour l'échange",
+      "enabledUseFirebaseForBSE": "Activé",
+      "disabledUseFirebaseForBSE": "Désactivé"
     },
     "walletList": {
       "showBalance": "Show balance",
@@ -194,6 +197,16 @@
         "description": "La phrase de récupération (phrase de départ) est la seule clé de vos actifs! En cas de panne ou de perte d'un appareil mobile, il sera impossible de restaurer l'accès à vos ressources sans la phrase de départ!\n\nEnregistrez votre phrase de récupération dans un endroit sûr maintenant!\n\nAttention aux escrocs, ne donnez jamais votre phrase de récupération à n'importe qui !",
         "save": "sauvegarder",
         "late": "Faire plus tard"
+      },
+      "scamImport": "Ce portefeuille est une arnaque, vous ne pourrez pas l'utiliser dans l'application.",
+      "multisigWallet": "MULTISIG",
+      "multisigWalletDesc": "L'adresse sert uniquement à consulter le solde du portefeuille et n'a pas la fonction d'envoyer des transactions.",
+      "scamWallet": "Portefeuille frauduleux",
+      "scamWalletDesc": "Ne transférez pas de crypto aux adresses de ce portefeuille, car les fonds seront perdus. Utilisez uniquement un portefeuille créé personnellement pour le stockage sécurisé de la crypto.",
+      "scamModal": {
+        "title": "Vous avez ajouté un portefeuille Scam",
+        "description": "La section Swap n'est pas disponible pour un tel portefeuille. Ne transférez pas de crypto à ses adresses, car les fonds seront perdus.",
+        "remove": "Supprimer le portefeuille"
       },
       "hdEnableModal": {
         "title": "Passer le portefeuille en mode HD?",
@@ -278,7 +291,7 @@
       "additional": "Supplémentaire",
       "allNotificationsTitle": "Activer tout",
       "transactionsTitle": "Transactions",
-      "transactionsSubtitle": "Acheter, vendre, recevoir, envoyer, échanger",
+      "transactionsSubtitle": "Acheter, vendre, échanger",
       "exchangeRatesTitle": "Taux d'échange",
       "exchangeRateSubtitle": "Prix des pièces principales",
       "newsTitle": "Nouveautés"
@@ -459,6 +472,7 @@
       "description": "Aller à la page d'inscription et l'enregistrer maintenant?"
     },
     "transaction": {
+      "spam": "No Spam",
       "pay": "Payer",
       "remove": "Supprimer",
       "removeRBF": "Retour des fonds",
@@ -588,15 +602,15 @@
           "out_of_energy": "Pas d'énergie"
         }
       },
-      "transactionHash": "Transaction hash:",
+      "transactionHash": "Transaction hash: ",
       "cashbackLink": "J'utilise Trustee Wallet ! Voici mon lien personnel",
-      "website": "Website",
+      "website": "Website: ",
       "self": "Cette transaction a été envoyée à votre adresse",
       "order": "Commander",
-      "transactionSum": "Montant envoyé",
-      "addresTo": "Destinataire",
-      "addresFrom": "Expéditeur",
-      "blockConfirmations": "Nombre actuel de confirmations",
+      "transactionSum": "Montant envoyé: ",
+      "addressTo": "Destinataire: ",
+      "addressFrom": "Expéditeur: ",
+      "blockConfirmations": "Nombre actuel de confirmations: ",
       "transactionAmount": "%{currencyCode} montant"
     }
   },
@@ -724,6 +738,7 @@
     "notValidAmountInFiat": "S'il vous plaît, entrez un plus grand montant ou changez en entrée crypto",
     "notEnoughForFee": "Pour envoyer des tokens, vous devez avoir un solde positif en monnaie native %{symbol}. Cliquez pour plus d'informations ",
     "notEnoughForFeeConfirmed": "Pour envoyer des tokens, vous devez avoir un solde confirmé positif en monnaie native %{symbol}, s'il vous plait, attendez les confirmations",
+    "countedForLessOutputs": "Transaction could not use all %{count} outputs for Transfer All, please, accumulate outputs by few transactions",
     "publicFioAddressNotFound": "%{symbol} l'adresse publique n'est pas associée à l'adresse FIO spécifiée",
     "domainResolution": {
       "resolving": "Résolution %{domain}...",
@@ -840,6 +855,7 @@
       "UI_CONFIRM_DOUBLE_BSE_SEND": "La transaction a déjà été envoyée à la commande, êtes-vous sûr de vouloir créer une nouvelle transaction?",
       "UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE": "Cette adresse ne détient pas de fonds. Êtes-vous sûr que c'est correct?",
       "UI_CALCULATE_CUSTOM_FEE": "Veuillez calculer les frais réels à utiliser pour l'envoi",
+      "SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID": "Veuillez vérifier l'adresse du destinataire. L'envoi de transactions directement à l'adresse du contrat intelligent n'est pas possible",
       "SERVER_RESPONSE_CLOUDFLARE": "Veuillez réessayer - pas d'accès au serveur protégé par cloudflare",
       "SERVER_RESPONSE_BAD_CODE": "Quelque chose s'est mal passé, contactez notre service d'assistance, s'il vous plaît",
       "SERVER_RESPONSE_BAD_INTERNET": "Pas d'accès à internet",
@@ -864,7 +880,7 @@
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED": "Transaction déjà minée",
       "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce %{nonce} déjà miné",
       "SERVER_RESPONSE_REVERTED_BY_EVM": "Transaction annulée par EVM - veuillez vérifier le code du contrat",
-      "SERVER_RESPONSE_NOT_CONNECTED": "Le réseau est inaccessible - veuillez répéter l'opération plus tard",
+      "SERVER_RESPONSE_NOT_CONNECTED": "Il n'y a pas de connexion à un nœud du réseau. Veuillez modifier votre connexion Internet ou utiliser un VPN lorsque vous utilisez l'application",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Solde insuffisant pour effectuer la transaction et payer les frais minimes",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "Veuillez attendre que les autres transactions soient extraites ou activez une option \"Utiliser les transactions non confirmées\" ",
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "Les frais de transaction sont trop élevés - veuillez ajuster les frais manuellement ou envoyer plus de fonds",
@@ -890,7 +906,8 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Veuillez vérifier l'heure de votre système téléphonique - elle doit être synchronisée pour une création correcte de la transaction",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL": "Solde insuffisant pour effectuer la transaction",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL": "Montant insuffisant pour participer à la transaction",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL": "L'adresse sélectionnée n'est pas un validateur"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL": "L'adresse sélectionnée n'est pas un validateur",
+      "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "L'adresse du destinataire est vide. Sur la blockchain Solana, il n'est pas possible d'envoyer des jetons à une adresse avec un solde SOL nul"
     }
   },
   "walletBackup": {
@@ -1076,11 +1093,11 @@
       },
       "TRX_20": {
         "title": "Votre attention s'il vous plaît!",
-        "description": "Votre portefeuille Tron (TRX) n'est pas activé mais peut accepter des fonds. Financez votre adresse Tron avec 10 TRX pour activer votre portefeuille. À l'avenir, vous pourrez utiliser ces pièces dans des transactions."
+        "description": "%{currencySymbol} fonctionne sur la blockchain Tron et nécessite un solde TRX positif pour payer les frais de réseau. Tant que vous avez un solde TRX nul dans votre portefeuille. Pour activer l'adresse, rechargez votre solde TRX avec n'importe quel montant."
       },
       "TOKEN": {
         "title": "Votre attention s'il vous plaît!",
-        "description": "Token %{currencySymbol} deployé sur %{parentBlockchain} blockchain et pour l'utilisation, vous deviez avoir un solde positif de %{parentCurrency} pour payer les frais des mineurs. Jusqu'à présent, il n'y a aucun solde dans votre portefeuille %{parentCurrency}"
+        "description": "Le jeton %{currencySymbol} fonctionne sur la blockchain %{parentBlockchain} et nécessite un solde %{parentCurrency} positif pour payer les frais de réseau. Tant que vous avez un solde %{parentCurrency} nul dans votre portefeuille"
       }
     },
     "tokenNotAdded": {
@@ -1195,7 +1212,7 @@
       "bigGas": "Vous envoyez dans une direction qui nécessite un niveau de gas anormalement élevé: %{gasLimit}. Afin de protéger vos fonds, la transaction a été arrêtée !",
       "bigGasForceQuitOff": "Vous envoyez une transaction qui a un paramètre de gaz élevé : %{gasLimit}. Cette valeur n'est pas standard, par conséquent, afin de protéger vos fonds, la transaction est suspendue.\n\nSi vous êtes sûr de l'exactitude de ceci transaction, puis cliquez sur \"Continuer\" pour l'envoyer.\n",
       "blockedBalance": "Votre solde a été utilisé lors de précédentes transactions non confirmées, vous pouvez utiliser %{free}",
-      "feeSmallAmount": "Le montant laissé pour les frais est trop petit - la transaction pourrait prendre trop de temps à confirmer",
+      "feeSmallAmount": "Le solde de %{feesCurrencySymbol} n'est pas suffisant pour payer les frais de réseau. Rechargez votre solde %{feesCurrencySymbol} et répétez l'opération.",
       "longQuery": "La ou les transactions précédentes ne sont pas encore confirmées. La transaction en cours ne sera confirmée que par la précédente",
       "longQuerySettingOff": "La possibilité d'envoyer une deuxième transaction jusqu'à ce que la précédente soit confirmée est désactivée",
       "noTBKprovider": "Désolé, la fonction est désactivée car l'opérateur de change n'a pas pu traiter les transactions accélérées",
@@ -1213,7 +1230,9 @@
     },
     "walletCreate": {
       "success": "Réussite!",
-      "walletImported": "Votre portefeuille a été importé!"
+      "walletImported": "Votre portefeuille a été importé!",
+      "title": "Méfiez-vous des arnaqueurs!",
+      "description": "N'utilisez pas de portefeuilles que vous avez trouvés sur Internet, qu'on vous a donnés ou vendus. Avec une forte probabilité, vous perdrez des fonds que vous transférerez aux adresses de ces portefeuilles.\n\nUtilisez uniquement les portefeuilles que vous avez personnellement générés!"
     },
     "receive": {
       "success": "Réussite!",

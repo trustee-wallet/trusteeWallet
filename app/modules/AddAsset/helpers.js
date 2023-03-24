@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.77
  */
 import _forEach from 'lodash/forEach'
 
@@ -16,6 +16,7 @@ import { strings } from '@app/services/i18n'
 import Log from '@app/services/Log/Log'
 import config from '@app/config/config'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import Validator from '@app/services/UI/Validator/Validator'
 
 
 export const ASSESTS_GROUP = {
@@ -60,7 +61,11 @@ export const getTabs = () => [
  * @param {string} searchQuery
  */
 export function prepareDataForDisplaying(assets, newTab, searchQuery) {
-    if (typeof searchQuery !== 'string') searchQuery = this.state.searchQuery
+    if (typeof searchQuery !== 'string') {
+        searchQuery = this.state.searchQuery
+    }
+    searchQuery = Validator.safeWords(searchQuery)
+
     const { tabs } = this.state
     const activeTab = newTab || tabs.find(tab => tab.active)
     const newTabs = tabs.map(tab => ({ ...tab, active: tab.index === activeTab.index }))

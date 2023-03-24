@@ -78,7 +78,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         for (let i = 1; i <= 4; i++) {
             try {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
 
                 // @ts-ignore
                 const fee = await core.createTransaction({
@@ -222,25 +222,49 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
             throw new Error('XMR transaction required selectedFee')
         }
 
-        // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx started ' + data.addressFrom + '=>' + data.addressTo, uiData.selectedFee)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx started ' + data.addressFrom + '=>' + data.addressTo + ' fee', uiData.selectedFee)
+        let foundFee = uiData?.selectedFee
+        if (data.addressTo !== uiData.selectedFee.addressToTx) {
+            try {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' fee rebuild start as got tx to ' + uiData.selectedFee.addressToTx)
+                const newSelectedFee = await this.getFeeRate(data, privateData)
+                if (typeof newSelectedFee.fees === 'undefined' || !newSelectedFee.fees) {
+                    throw new Error('no fees')
+                }
+                foundFee = newSelectedFee.fees[newSelectedFee.selectedFeeIndex]
+                for (const fee of newSelectedFee.fees) {
+                    if (fee.langMsg === uiData.selectedFee.langMsg) {
+                        foundFee = fee
+                    }
+                }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' found fee', foundFee)
+            } catch (e) {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' fee rebuild error ' + e.message)
+                throw new Error('XMR transaction invalid output - please try again')
+            }
+        }
+        const rawTxHex = foundFee?.blockchainData?.rawTxHex
+        const rawTxHash = foundFee?.blockchainData?.rawTxHash
+        const secretTxKey = foundFee?.blockchainData?.secretTxKey
+        const usingOuts = foundFee?.blockchainData?.usingOuts
 
         const keys = privateData.privateKey.split('_')
         const privViewKey = keys[1]
 
-        if (typeof uiData?.selectedFee?.blockchainData?.rawTxHex === 'undefined') {
+        if (typeof rawTxHex === 'undefined') {
             throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
         }
+
         if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined'&& typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
-            return { rawOnly: uiData.selectedFee.rawOnly, raw : uiData.selectedFee.blockchainData.rawTxHex}
+            return { rawOnly: uiData.selectedFee.rawOnly, raw : rawTxHex}
         }
 
         const send = await this.sendProvider.send({
             address: data.addressFrom,
-            tx: uiData.selectedFee.blockchainData.rawTxHex,
+            tx: rawTxHex,
             privViewKey,
-            secretTxKey: uiData.selectedFee.blockchainData.secretTxKey,
-            usingOuts: uiData.selectedFee.blockchainData.usingOuts,
+            secretTxKey,
+            usingOuts,
             unspentsProvider: this.unspentsProvider
         })
 
@@ -248,9 +272,9 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx result', send)
 
         if (send.status === 'OK') {
-            return { transactionHash: uiData.selectedFee.blockchainData.rawTxHash, transactionJson: { secretTxKey: uiData.selectedFee.blockchainData.secretTxKey }}
+            return { transactionHash: rawTxHash, transactionJson: { secretTxKey }}
         } else {
-            throw new Error(this._settings.currencyCode + ' XmrTransferProcessor.sendTx status error ' + JSON.stringify(send))
+           throw new Error(this._settings.currencyCode + ' XmrTransferProcessor.sendTx status error ' + JSON.stringify(send))
         }
     }
 }

@@ -78,7 +78,7 @@ class HomeDragScreen extends PureComponent {
         }
     }
 
-    handlRightAction = () => {
+    handleRightAction = () => {
         this.bottomSheetRef.open()
     }
 
@@ -146,7 +146,7 @@ class HomeDragScreen extends PureComponent {
                             handleGuide={this.handleGuide}
                         />
                     )}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(_, index) => index.toString()}
                     onDragEnd={this.onDragEnd}
                     onDragBegin={this.onDragBegin}
                     ListFooterComponent={(<View style={{ marginBottom: GRID_SIZE * 1.5 }} />)}

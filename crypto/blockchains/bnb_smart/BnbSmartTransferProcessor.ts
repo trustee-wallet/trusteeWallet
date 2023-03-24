@@ -13,18 +13,24 @@ export default class BnbSmartTransferProcessor extends EthTransferProcessor impl
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: {} = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         if (typeof additionalData.gasPrice  === 'undefined' || !additionalData.gasPrice) {
-            let defaultFee = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_PRICE')
-            if (typeof defaultFee === 'undefined' || !defaultFee) {
-                defaultFee = 5000000000
-            }
-            if (this._etherscanApiPathForFee) {
-                const tmpPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPathForFee, defaultFee, 'BnbSmartTransferProcessor.getFeeRate')
-                if (tmpPrice*1>defaultFee*1) {
-                    defaultFee = tmpPrice*1
+            let minFee = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_FORCE_PRICE')
+            if (typeof minFee !== 'undefined' && minFee > 1) {
+                additionalData.gasPrice = minFee
+                additionalData.gasPriceTitle = 'speed_blocks_2'
+            } else {
+                let defaultFee = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_PRICE')
+                if (typeof defaultFee === 'undefined' || !defaultFee) {
+                    defaultFee = 5000000000
                 }
+                if (this._etherscanApiPathForFee) {
+                    const tmpPrice = await BnbSmartNetworkPrices.getFees(this._mainCurrencyCode, this._etherscanApiPathForFee, defaultFee, 'BnbSmartTransferProcessor.getFeeRate')
+                    if (tmpPrice * 1 > defaultFee * 1) {
+                        defaultFee = tmpPrice * 1
+                    }
+                }
+                additionalData.gasPrice = defaultFee
+                additionalData.gasPriceTitle = 'speed_blocks_2'
             }
-            additionalData.gasPrice = defaultFee
-            additionalData.gasPriceTitle = 'speed_blocks_2'
         }
         return super.getFeeRate(data, privateData, additionalData)
     }

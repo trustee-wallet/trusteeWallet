@@ -13,8 +13,8 @@ import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
 
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 import EthNetworkPrices from '@crypto/blockchains/eth/basic/EthNetworkPrices'
+import BlocksoftDict from '@crypto/common/BlocksoftDict'
 
 const { dispatch } = store
 
@@ -81,8 +81,9 @@ export namespace SendActionsBlockchainWrapper {
     }
 
     export const getCustomFeeRate = async (newFee : any) => {
+        let newCountedFeesData = {}
         try {
-            const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
+            newCountedFeesData = { ...CACHE_DATA.countedFeesData }
             const countedFees = await BlocksoftTransfer.getFeeRate(newCountedFeesData,
                 CACHE_DATA.additionalData ? {...newFee, ... CACHE_DATA.additionalData} : newFee )
             let selectedFee = false
@@ -96,11 +97,13 @@ export namespace SendActionsBlockchainWrapper {
                 console.log('SendActionsBlockchainWrapper.getCustomFeeRate error ' + e.message)
             }
             if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+                const extend = BlocksoftDict.getCurrencyAllSettings(newCountedFeesData?.currencyCode)
+                Log.errorTranslate(e, 'SendActionsBlockchainWrapper.getCustomFeeRate', extend)
                 showModal({
                     type: 'INFO_MODAL',
                     icon: null,
                     title: strings('modal.exchange.sorry'),
-                    description: strings('send.errors.' + e.message)
+                    description: e.message
                 })
             } else {
                 Log.err('SendActionsBlockchainWrapper.getCustomFeeRate error ' + e.message)
@@ -109,6 +112,7 @@ export namespace SendActionsBlockchainWrapper {
     }
 
     export const getFeeRate = async (uiData = {}, precountedSelectedFee = false) => {
+        let newCountedFeesData = {}
         try {
             if (typeof uiData === 'undefined' || typeof uiData.addressTo === 'undefined') {
                 uiData = store.getState().sendScreenStore.ui
@@ -116,7 +120,7 @@ export namespace SendActionsBlockchainWrapper {
 
             const forceExecAmount = typeof uiData.bse !== 'undefined' && typeof uiData.bse.forceExecAmount !== 'undefined' && uiData.bse.forceExecAmount
 
-            const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
+            newCountedFeesData = { ...CACHE_DATA.countedFeesData }
             newCountedFeesData.addressTo = uiData.addressTo
             newCountedFeesData.amount = uiData.cryptoValue
             newCountedFeesData.memo = uiData.memo
@@ -198,15 +202,19 @@ export namespace SendActionsBlockchainWrapper {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getFeeRate error ' + e.message, e)
             }
-            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+            if (typeof e.message === 'undefined' ) {
+                Log.log('SendActionsBlockchainWrapper.getFeeRate strange error')
+            } else if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+                const extend = BlocksoftDict.getCurrencyAllSettings(newCountedFeesData?.currencyCode)
+                Log.errorTranslate(e, 'SendActionsBlockchainWrapper.getFeeRate', extend)
                 showModal({
                     type: 'INFO_MODAL',
                     icon: null,
                     title: strings('modal.exchange.sorry'),
-                    description: strings('send.errors.' + e.message)
+                    description: e.message
                 })
             } else {
-                Log.err('SendActionsBlockchainWrapper.getFeeRate error ' + e.message)
+                Log.log('SendActionsBlockchainWrapper.getFeeRate inner error ' + e.message)
             }
         }
 
@@ -214,11 +222,11 @@ export namespace SendActionsBlockchainWrapper {
     }
 
     export const getTransferAllBalance = async (uiData = {}) => {
+        const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
         try {
             if (typeof uiData === 'undefined' || typeof uiData.addressTo === 'undefined') {
                 uiData = store.getState().sendScreenStore.ui
             }
-            const newCountedFeesData = { ...CACHE_DATA.countedFeesData }
             newCountedFeesData.addressTo = uiData.addressTo
             newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
             newCountedFeesData.memo = uiData.memo
@@ -258,15 +266,19 @@ export namespace SendActionsBlockchainWrapper {
             if (config.debug.appErrors) {
                 console.log('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)
             }
-            if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+            if (typeof e.message === 'undefined' ) {
+                Log.log('SendActionsBlockchainWrapper.getTransferAllBalance strange error')
+            } else if (e.message.indexOf('SERVER_RESPONSE_') !== -1) {
+                const extend = BlocksoftDict.getCurrencyAllSettings(newCountedFeesData?.currencyCode)
+                Log.errorTranslate(e, 'SendActionsBlockchainWrapper.getTransferAllBalance ', extend)
                 showModal({
                     type: 'INFO_MODAL',
                     icon: null,
                     title: strings('modal.exchange.sorry'),
-                    description: strings('send.errors.' + e.message)
+                    description: e.message
                 })
             } else {
-                Log.err('SendActionsBlockchainWrapper.getTransferAllBalance error ' + e.message)
+                Log.log('SendActionsBlockchainWrapper.getTransferAllBalance inner error '  + e.message)
             }
         }
         return { transferAllBalance : 0, source : 'ERROR', addressTo : '?'}

@@ -110,13 +110,40 @@ export default {
             ]
         }
         const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
-        const sendRes = await BlocksoftAxios._request(apiPath, 'POST', sendData)
-        if (!sendRes || typeof sendRes.data === 'undefined') {
-            throw new Error('SERVER_RESPONSE_BAD_INTERNET')
+        const apiPath_2 = BlocksoftExternalSettings.getStatic('SOL_SERVER_2')
+        let try_2 = false
+        let sendRes
+        try {
+            sendRes = await BlocksoftAxios._request(apiPath, 'POST', sendData)
+            if (!sendRes || typeof sendRes.data === 'undefined') {
+                if (apiPath_2) {
+                    try_2 = true
+                } else {
+                    throw new Error('SERVER_RESPONSE_BAD_INTERNET')
+                }
+            }
+            if (typeof sendRes.data.error !== 'undefined' && typeof sendRes.data.error.message !== 'undefined') {
+                if (sendRes.data.error.message === 'Node is unhealthy') {
+                    try_2 = true
+                } else {
+                    throw new Error(sendRes.data.error.message)
+                }
+            }
+        } catch (e) {
+            try_2 = true
         }
-        if (typeof sendRes.data.error !== 'undefined' && typeof sendRes.data.error.message !== 'undefined') {
-            throw new Error(sendRes.data.error.message)
+
+        if (try_2 && apiPath_2 && apiPath_2 !== apiPath) {
+            const sendRes_2 = await BlocksoftAxios._request(apiPath_2, 'POST', sendData)
+            if (!sendRes_2 || typeof sendRes_2.data === 'undefined') {
+                throw new Error('SERVER_RESPONSE_BAD_INTERNET')
+            }
+            if (typeof sendRes_2.data.error !== 'undefined' && typeof sendRes_2.data.error.message !== 'undefined') {
+                throw new Error(sendRes_2.data.error.message)
+            }
+            return sendRes_2.data.result
         }
+
         return sendRes.data.result
     },
 

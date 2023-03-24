@@ -1,14 +1,10 @@
 /**
- * @version 0.42
+ * @version 0.77
  * @author Vadym
  */
 
 import React from 'react'
-import {
-    Text,
-    View,
-    StyleSheet
-} from 'react-native'
+import { Text, View, StyleSheet } from 'react-native'
 
 import { ProgressCircle } from 'react-native-svg-charts'
 
@@ -26,9 +22,7 @@ const ProgressCircleBox = (props) => {
         cpaTitle
     } = props
 
-    const {
-        colors
-    } = useTheme()
+    const { colors } = useTheme()
 
     return(
         <View style={[styles.circleBox, additionalStyles]}>

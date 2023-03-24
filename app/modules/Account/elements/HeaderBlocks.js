@@ -5,6 +5,7 @@ import React from 'react'
 import { Linking, Platform, Text, View } from 'react-native'
 import _isEqual from 'lodash/isEqual'
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons'
+import { Portal, PortalHost } from '@gorhom/portal'
 
 import GradientView from '@app/components/elements/GradientView'
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
@@ -12,7 +13,7 @@ import LetterSpacing from '@app/components/elements/LetterSpacing'
 import Loader from '@app/components/elements/LoaderItem'
 import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
 
-import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -21,6 +22,7 @@ import Toast from '@app/services/UI/Toast/Toast'
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import checkTransferHasError from '@app/services/UI/CheckTransferHasError/CheckTransferHasError'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
@@ -37,6 +39,11 @@ import PercentView from '@app/components/elements/new/PercentView'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
+import Button from '@app/components/elements/new/buttons/Button'
+
+import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
+import dappsBlocksoftDict from '@crypto/assets/dappsBlocksoftDict.json'
 
 class HeaderBlocks extends React.Component {
 
@@ -87,10 +94,13 @@ class HeaderBlocks extends React.Component {
         } = this.context
 
         return (
-            <View>
+            <View style={{ marginTop: GRID_SIZE }}>
                 <InvoiceListItem
                     title={strings('account.invoiceText')}
-                    onPress={() => handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName, isLight)}
+                    onPress={() => {
+                        handleShareInvoice(params?.address, params?.currencyCode, params?.currencyName, isLight)
+                        this.handleCloseBackDropModal()
+                    }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'
@@ -100,14 +110,17 @@ class HeaderBlocks extends React.Component {
                     title={strings('account.copyLink')}
                     onPress={() => {
                         this.handleBtcAddressCopy(params?.address)
-                        hideModal()
+                        this.handleCloseBackDropModal()
                     }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                     iconType='copy'
                 />
                 <InvoiceListItem
                     title={strings('account.openInBlockchair')}
-                    onPress={() => this.handleOpenLink(params?.address, params?.forceLink)}
+                    onPress={() => {
+                        this.handleOpenLink(params?.address, params?.forceLink)
+                        this.handleCloseBackDropModal()
+                    }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}
                     iconType='blockchair'
                     last
@@ -116,11 +129,12 @@ class HeaderBlocks extends React.Component {
         )
     }
 
-    handleBackDropModal = (address, forceLink, currencyCode, currencyName) => {
-        showModal({
-            type: 'BACK_DROP_MODAL',
-            Content: () => this.renderModalContent({ address, forceLink, currencyCode, currencyName })
-        })
+    handleBackDropModal = () => {
+        this.bottomSheetRef?.open()
+    }
+
+    handleCloseBackDropModal = () => {
+        this.bottomSheetRef?.close()
     }
 
     handleCopy = (text) => {
@@ -146,7 +160,7 @@ class HeaderBlocks extends React.Component {
         this.handleCopy(address)
     }
 
-    renderStakeBalance = () => {
+    renderStakeBalance = (availableStaking) => {
 
         const {
             colors,
@@ -158,8 +172,8 @@ class HeaderBlocks extends React.Component {
 
         const { currencyCode, currencySymbol, decimals } = this.props.cryptoCurrency
 
-        const canBeStaked = currencyCode === 'TRX' || currencyCode === 'SOL'
-        const withoutDescription = currencyCode === 'SOL'
+        const canBeStaked = availableStaking // currencyCode === 'TRX' || currencyCode === 'SOL' || currencyCode === 'ETH'
+        const withoutDescription = currencyCode === 'SOL' || currencyCode === 'ETH' || currencyCode === 'ETH_MATIC'
 
         let balanceTotalPretty = account?.balanceTotalPretty || '0'
         let balanceStakedPretty = account?.balanceStakedPretty || '0'
@@ -345,6 +359,7 @@ class HeaderBlocks extends React.Component {
 
     renderStakingBtn = (currencyCode) => {
         switch (currencyCode) {
+            case 'ETH':
             case 'TRX':
             case 'SOL':
                 return this.handleStakingAccount(currencyCode)
@@ -355,6 +370,14 @@ class HeaderBlocks extends React.Component {
 
     accountStaking = (currencyCode) => {
         switch (currencyCode) {
+            case 'ETH':
+                setWalletDapp(dappsBlocksoftDict['ETH_LIDO'])
+                MarketingEvent.logEvent('wallet_dapps_eth_stacking')
+                return NavStore.goNext('WalletDappWebViewScreen')
+            case 'ETH_MATIC':
+                setWalletDapp(dappsBlocksoftDict['MATIC_LIDO'])
+                MarketingEvent.logEvent('wallet_dapps_matic_stacking')
+                return NavStore.goNext('WalletDappWebViewScreen')
             case 'TRX':
                 return NavStore.goNext('AccountStakingTRX')
             case 'SOL':
@@ -380,7 +403,7 @@ class HeaderBlocks extends React.Component {
 
         const addressPrep = BlocksoftPrettyStrings.makeCut(shownAddress, 6, 6)
 
-        const availableStaking = Object.keys(this.props.stakingCoins).includes(currencyCode)
+        const availableStaking = typeof this.props.stakingCoins[currencyCode] !== 'undefined' && this.props.stakingCoins[currencyCode] * 1 > 0
 
         return (
             <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }} >
@@ -429,7 +452,7 @@ class HeaderBlocks extends React.Component {
                             </View>
                             <TouchableDebounce
                                 style={styles.topContent__middle}
-                                onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)}
+                                onPress={this.handleBackDropModal}
                                 hitSlop={{ top: 6, right: 15, bottom: 15, left: 15 }}
                                 onLongPress={() => this.handleBtcAddressCopy(shownAddress)}
                                 delayLongPress={500}
@@ -437,7 +460,7 @@ class HeaderBlocks extends React.Component {
                                 <View style={{ alignItems: 'center' }}>
                                     <LetterSpacing text={addressPrep} textStyle={styles.topContent__address} letterSpacing={1} />
                                 </View>
-                                <View onPress={() => this.handleBackDropModal(shownAddress, forceLink, currencyCode, currencyName)} style={styles.copyBtn}>
+                                <View onPress={this.handleBackDropModal} style={styles.copyBtn}>
                                     <IconMaterial name="content-copy" size={15} color={'#939393'} />
                                 </View>
                             </TouchableDebounce>
@@ -448,8 +471,26 @@ class HeaderBlocks extends React.Component {
                             </View>}
                     </View>
                     {this.renderBalance()}
-                    {this.renderStakeBalance()}
+                    {this.renderStakeBalance(availableStaking)}
                 </AccountGradientBlock>
+                <Portal>
+                    <SheetBottom
+                        ref={ref => this.bottomSheetRef = ref}
+                        snapPoints={[0, 300]}
+                        index={0}
+                    >
+                        {this.renderModalContent({ address: shownAddress, forceLink, currencyCode, currencyName })}
+                        <Button
+                            title={strings('assets.hideAsset')}
+                            type='withoutShadow'
+                            onPress={this.handleCloseBackDropModal}
+                            containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
+                            textStyle={{ color: colors.backDropModal.buttonText }}
+                            bottomSheet
+                        />
+                    </SheetBottom>
+                </Portal>
+                <PortalHost name='accountScreenPortal' />
             </View>
         )
     }

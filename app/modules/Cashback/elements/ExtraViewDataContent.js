@@ -1,14 +1,9 @@
 /**
- * @version 0.42
+ * @version 0.77
  * @author Vadym
  */
 import React from 'react'
-import {
-    Text,
-    View,
-    StyleSheet,
-    TouchableOpacity,
-} from 'react-native'
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 import { Bar } from 'react-native-progress'
 
 import TextInput from '@app/components/elements/new/TextInput'
@@ -39,7 +34,7 @@ export class Tab1 extends React.Component {
     // eslint-disable-next-line camelcase
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (nextProps.inviteLink) {
-            this.setState(() => ({ inviteLink: nextProps.inviteLink, inviteLinkError: false }), () => {
+            this.setState(() => ({ inviteLink: Validator.safeWords(nextProps.inviteLink), inviteLinkError: false }), () => {
                 this.handleSubmitInviteLink()
             })
         }
@@ -48,8 +43,9 @@ export class Tab1 extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const qrCodeData = NavStore.getParamWrapper(this, 'qrData')
         if (qrCodeData && typeof qrCodeData.qrCashbackLink !== 'undefined' && qrCodeData.qrCashbackLink) {
-            if (prevState.inviteLink !== qrCodeData.qrCashbackLink) {
-                this.setState(() => ({ inviteLink: qrCodeData.qrCashbackLink }))
+            const safeText = Validator.safeWords(qrCodeData.qrCashbackLink)
+            if (prevState.inviteLink !== safeText) {
+                this.setState(() => ({ inviteLink: safeText }))
             }
         }
     }
@@ -88,7 +84,6 @@ export class Tab1 extends React.Component {
             || cashbackParentToken === this.props.cashbackStore.dataFromApi.cashbackToken
             || cashbackParentToken === this.props.cashbackStore.dataFromApi.customToken
         ) {
-            Log.log('CashbackLink inputParent for ' + cashbackLink + ' is equal ' + inviteLink)
             showModal({
                 type: 'INFO_MODAL',
                 icon: false,
@@ -99,10 +94,8 @@ export class Tab1 extends React.Component {
             return
         }
 
-        Log.log('CashbackLink inputParent for  ' + cashbackLink + ' res ', validationResult)
-
         try {
-            await CashBackUtils.setParentToken(cashbackParentToken)
+            await CashBackUtils.setParentToken(Validator.safeWords(cashbackParentToken))
             UpdateCashBackDataDaemon.updateCashBackDataDaemon({ force: true })
             showModal({
                 type: 'INFO_MODAL',
@@ -111,25 +104,25 @@ export class Tab1 extends React.Component {
                 description: strings('modal.cashbackTokenLinkModal.success.description')
             })
         } catch (e) {
-            Log.err('CashBackScreen.Details handleSubmitInviteLink error ' + e.message)
+            Log.log('CashBackScreen.Details handleSubmitInviteLink error')
         }
     }
 
 
     handleChangeInviteLink = (value) => {
-        this.setState(() => ({ inviteLink: value, inviteLinkError: false }))
+        this.setState(() => ({ inviteLink: Validator.safeWords(value), inviteLinkError: false }))
     }
 
     handleQrCode = () => {
         setQRConfig({
             flowType: QRCodeScannerFlowTypes.CASHBACK_LINK, callback: (data) => {
                 try {
-                    this.setState(() => ({ inviteLink: data.qrCashbackLink, inviteLinkError: false }), () => {
+                    this.setState(() => ({ inviteLink: Validator.safeWords(data.qrCashbackLink), inviteLinkError: false }), () => {
                         this.handleSubmitInviteLink()
                     })
                 } catch (e) {
-                    Log.log('QRCodeScannerScreen callback error ' + e.message)
-                    Toast.setMessage(e.message).show()
+                    Log.log('QRCodeScannerScreen callback error')
+                    Toast.setMessage(strings('modal.qrScanner.sorry')).show()
                 }
                 NavStore.goBack()
             }

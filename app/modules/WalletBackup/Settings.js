@@ -1,5 +1,5 @@
 /**
- * @version 0.43
+ * @version 0.77
  */
 import React, { PureComponent } from 'react'
 import { View, Text, StyleSheet, ScrollView } from 'react-native'
@@ -9,13 +9,7 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import { strings } from '@app/services/i18n'
 
-import {
-    setWalletMnemonic,
-    setMnemonicLength,
-    setWalletName,
-    proceedSaveGeneratedWallet,
-    setCallback
-} from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
+import { setWalletMnemonic, setMnemonicLength, setWalletName, proceedSaveGeneratedWallet, setCallback} from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
@@ -40,6 +34,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { getSettingsScreenData } from '@app/appstores/Stores/Settings/selectors'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
+import Validator from '@app/services/UI/Validator/Validator'
 
 class BackupSettingsScreen extends PureComponent {
     state = {
@@ -57,7 +52,6 @@ class BackupSettingsScreen extends PureComponent {
 
         if (isCreating && mnemonicLength !== oldMnemonicLength) {
             const walletMnemonic = (await BlocksoftKeys.newMnemonic(mnemonicLength)).mnemonic
-
             setWalletMnemonic({ walletMnemonic })
             setMnemonicLength({ mnemonicLength })
         }
@@ -69,7 +63,7 @@ class BackupSettingsScreen extends PureComponent {
 
     handleBack = () => { NavStore.goBack() }
 
-    changeWalletName = (walletName) => { this.setState(() => ({ walletName })) }
+    changeWalletName = (walletName) => { this.setState(() => ({ walletName: Validator.safeWords(walletName, 10) })) }
 
     changeMnemonicLength = (mnemonicLength) => { this.setState(() => ({ mnemonicLength })) }
 

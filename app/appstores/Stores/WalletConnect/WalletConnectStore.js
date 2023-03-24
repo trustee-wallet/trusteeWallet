@@ -1,13 +1,23 @@
 /**
- * @version 0.45
+ * @version 1.0
  */
-
- const INITIAL_STATE = {
+const INITIAL_STATE = {
     isConnected: false,
-    fullLink: false,
-    address: false,
-    mainCurrencyCode : false,
-    walletName : ''
+    linkSource: false,
+
+    walletConnectLink: false,
+    walletConnectLinkError: false,
+    walletConnector: false,
+
+
+    peerId: false,
+    peerMeta: false,
+
+    accountAddress: false,
+    accountChainId : 1,
+    accountCurrencyCode: false,
+    accountWalletName: false
+
 }
 
 const walletConnectStoreReducer = (state = INITIAL_STATE, action) => {
@@ -16,18 +26,26 @@ const walletConnectStoreReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 isConnected: action.isConnected,
+                peerId: action.peerId,
+                peerMeta: action.peerMeta
             }
-        case 'SET_WALLET_CONNECT_DATA':
+        case 'SET_WALLET_CONNECT':
             return {
-                ... state,
-                fullLink : action.fullLink || false
+                ...state,
+                isConnected: action.isConnected,
+                linkSource: action.linkSource,
+
+                walletConnectLink: action.walletConnectLink,
+                walletConnectLinkError: action.walletConnectLinkError,
+                walletConnector: action.walletConnector
             }
         case 'SET_WALLET_CONNECT_ACCOUNT':
             return {
-                ... state,
-                address : action.address || false,
-                mainCurrencyCode: action.mainCurrencyCode || false,
-                walletName : action.walletName || ''
+                ...state,
+                accountAddress: action.accountAddress,
+                accountChainId: action.accountChainId,
+                accountCurrencyCode: action.accountCurrencyCode,
+                accountWalletName: action.accountWalletName
             }
         default:
             return state

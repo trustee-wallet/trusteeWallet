@@ -36,12 +36,10 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
-import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
-import Toast from '@app/services/UI/Toast/Toast'
 import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
 
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
-
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 let CACHE_IS_COUNTING = false
 let CACHE_IS_SENDING_CLICKED = 0
@@ -132,7 +130,8 @@ class ReceiptScreen extends PureComponent {
         const checkLoadedFeeResult = checkLoadedFee(this)
 
         if (checkLoadedFeeResult.msg && CACHE_WARNING_NOTICE !== checkLoadedFeeResult.cacheWarningNoticeValue) {
-            Log.log('countedFees notice' + JSON.stringify(checkLoadedFeeResult))
+            Log.log('ReceiptScreen.handleSend countedFees notice ' + JSON.stringify(checkLoadedFeeResult))
+            BlocksoftCryptoLog.log('ReceiptScreen.handleSend countedFees notice ' + JSON.stringify(checkLoadedFeeResult))
             if (checkLoadedFeeResult.goBack) {
                 showModal({
                     type: 'INFO_MODAL',
@@ -161,6 +160,9 @@ class ReceiptScreen extends PureComponent {
                 sendInProcess: false
             })
             return false
+        } else if (checkLoadedFeeResult.newCryptoValue * 1 > 0) {
+            newCryptoValue = checkLoadedFeeResult.newCryptoValue
+            uiErrorConfirmed = true
         }
 
         const { sendScreenStore } = this.props
@@ -268,7 +270,7 @@ class ReceiptScreen extends PureComponent {
         } else {
             if (uiType === 'WALLET_CONNECT') {
                 try {
-                    await AppWalletConnect.rejectRequest(walletConnectPayload)
+                    await walletConnectActions.rejectRequestWalletConnect(walletConnectPayload)
                 } catch (e) {
                     Log.log('ReceiptScreen.closeAction WALLET_CONNECT error ' + e)
                 }
@@ -285,7 +287,7 @@ class ReceiptScreen extends PureComponent {
         const { uiType, walletConnectPayload } = this.props.sendScreenStore.ui
         if (uiType === 'WALLET_CONNECT') {
             try {
-                await AppWalletConnect.rejectRequest(walletConnectPayload)
+                await walletConnectActions.rejectRequestWalletConnect(walletConnectPayload)
             } catch (e) {
                 Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e.message)
             }

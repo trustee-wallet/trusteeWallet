@@ -1,19 +1,11 @@
 /**
- * @version 0.43
+ * @version 0.77
  * @description ksu jumping
  */
 
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    Animated,
-    Dimensions
-} from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated, Dimensions } from 'react-native'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -86,6 +78,7 @@ class BackupStep0Screen extends PureComponent {
                     title: strings('walletBackup.step0Screen.qr'),
                     key: 'second'
                 }
+
             ],
         };
         this.value = new Animated.Value(0);
@@ -116,8 +109,11 @@ class BackupStep0Screen extends PureComponent {
                 if (checkLock) {
                     if (this.props.lockScreenStatus * 1 > 0) {
                         setLockScreenConfig({
-                            flowType: LockScreenFlowTypes.JUST_CALLBACK, 
-                            noCallback: NavStore.goBack, 
+                            flowType: LockScreenFlowTypes.MNEMONIC_CALLBACK,
+                            noCallback: () => {
+                                NavStore.goBack()
+                                NavStore.goBack()
+                            },
                             callback: async () => {
                                 await this._init(false)
                             }
@@ -198,7 +194,7 @@ class BackupStep0Screen extends PureComponent {
             })
 
         } catch (e) {
-            Log.err('WalletBackup.BackupStep0Screen.componentDidMount error ' + e.message)
+            Log.log('WalletBackup.BackupStep0Screen.componentDidMount error')
         }
     }
 
@@ -232,7 +228,7 @@ class BackupStep0Screen extends PureComponent {
     }
 
     renderScene = ({ route }) => {
-        
+
         switch (route.key) {
             case 'first':
                 return this.renderFirstRoute()
@@ -372,6 +368,7 @@ class BackupStep0Screen extends PureComponent {
         )
     }
 
+
     renderSecondRoute = () => {
         return(
             <MnemonicQrCode
@@ -380,10 +377,12 @@ class BackupStep0Screen extends PureComponent {
         )
     }
 
+
     // for developing and testing only
     handleCopyModal = () => {
-        copyToClipboard(this.state.walletMnemonic)
-        Toast.setMessage(strings('toast.copied')).show()
+        // mnemonic - no buffer!
+        copyToClipboard('disabled')
+        Toast.setMessage(strings('toast.copy.disabled')).show()
     }
 
     onNext = () => {

@@ -160,7 +160,10 @@
       "faqSubtitle": "Frequently asked questions",
       "toolTips": "მინიშნებები",
       "configMode": "კონფიგურაცია",
-      "testerMode": "ტესტირება"
+      "testerMode": "ტესტირება",
+      "useFirebaseForBSE": "გამოიყენე firebase სვოპისთვის",
+      "enabledUseFirebaseForBSE": "ჩართულია",
+      "disabledUseFirebaseForBSE": "გამორთულია"
     },
     "walletList": {
       "showBalance": "Show balance",
@@ -193,6 +196,16 @@
       "backupModal": {
         "title": "აღმდგენი ფრაზა არ არის შენახული!",
         "description": "აღმდგენი ფრაზა (Seed-ფრაზა) ეს არის ერთადერთი გასაღები თქვენი აქტივებისთვის! ტელეფონის მწყობრიდან გამოსვლის ან სხვა მსგავს შემთხვევებში, თქვენს აქტივებთან წვდომა ამ ფრაზის გარეშე შეუძლებელი გახდება. გთხოვთ, ახლავე შეინახოთ ფრაზა უსაფრთხო ადგილას! \n \n  თუ თქვენ გთხოვენ აღმდენ ფრაზას, ე.ი. საქმე გაქვთ თაღლითებთან. \n არავის და არანაირ პირობებში არ გაანდოთ აღმდგენი ფრაზა!"
+      },
+      "scamImport": "ეს საფულე არის თაღლითური, თქვენ ვერ შეძლებთ მის გამოყენებას აპლიკაციაში.",
+      "multisigWallet": "MULTISIG",
+      "multisigWalletDesc": "მისამართი არის მხოლოდ საფულის ბალანსის სანახავად და არ გააჩნია ტრანზაქციის გაგზავნის ფუნქცია.",
+      "scamWallet": "თაღლითური საფულე",
+      "scamWalletDesc": "არ გადაიტანოთ კრიპტო ამ საფულის მისამართებზე, რადგან თანხები დაიკარგება. გამოიყენეთ მხოლოდ პირადად შექმნილი საფულე კრიპტოვალუტის უსაფრთხო შესანახად.",
+      "scamModal": {
+        "title": "თქვენ დაამატეთ თაღლითური საფულე",
+        "description": "Swap განყოფილება არ არის ხელმისაწვდომი ასეთი საფულესთვის. არ გადაიტანოთ კრიპტო მის მისამართებზე, რადგან თანხები დაიკარგება.",
+        "remove": "საფულის წაშლა"
       },
       "hdEnableModal": {
         "title": "გადავრთოთ საფულე HD რეჟიმში?",
@@ -277,7 +290,7 @@
       "additional": "დამატებითი",
       "allNotificationsTitle": "ყველაფრის გააქტიურება",
       "transactionsTitle": "ტრანზაქციები",
-      "transactionsSubtitle": "ყიდვა, გაყიდვა, მიღება, გაგზავნა, გაცვლა",
+      "transactionsSubtitle": "ყიდვა, გაყიდვა, გაცვლა",
       "exchangeRatesTitle": "ვალუტის კურსის ცვლილება",
       "exchangeRateSubtitle": "ძირითადი მონეტების ფასები",
       "newsTitle": "სიახლეები"
@@ -458,6 +471,7 @@
       "description": "გნებავთ რეგისტრაციის გვერდზე გადასვლა და დარეგისტრირება?"
     },
     "transaction": {
+      "spam": "No Spam",
       "pay": "გადახდა",
       "remove": "დამალვა",
       "removeRBF": "უკან დაბრუნება",
@@ -587,15 +601,15 @@
           "out_of_energy" : "No energy"
         }
       },
-      "transactionHash": "ტრანზაქციის ჰაში:",
+      "transactionHash": "ტრანზაქციის ჰაში: ",
       "cashbackLink": "I’m using Trustee Wallet! Here is my personal link",
       "website": "Website: ",
       "self": "ტრანზაქცია შესრულდა საკუთარ ანგარიშზე",
       "order": "To order",
-      "transactionSum": "Amount send",
-      "addresTo": "Recipient ",
-      "addresFrom": "Sender ",
-      "blockConfirmations": "Current number of confirmations ",
+      "transactionSum": "Amount send: ",
+      "addressTo": "Recipient: ",
+      "addressFrom": "Sender: ",
+      "blockConfirmations": "Current number of confirmations: ",
       "transactionAmount": "%{currencyCode} amount"
     }
   },
@@ -717,6 +731,7 @@
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",
     "notEnoughForFee": "ტოკენების გასაგზავნად აუცილებელია ადგილობრივ ვალუტაში დადებითი ბალანსის არსებობა %{symbol}. Click for more info ",
     "notEnoughForFeeConfirmed": "ტოკენების გასაგზავნად აუცილებელია დადებითი დადასტურებული ბალანსი ადგილობრივ ვალუტაში %{symbol}, დაელოდეთ დადასტურებას",
+    "countedForLessOutputs": "Transaction could not use all %{count} outputs for Transfer All, please, accumulate outputs by few transactions",
     "publicFioAddressNotFound": "%{symbol} საჯარო მისამართი არაა დაკავშირებული FIO მისამართთან",
     "domainResolution": {
       "resolving": "გადაჭრის %{domain}...",
@@ -833,6 +848,7 @@
       "UI_CONFIRM_DOUBLE_BSE_SEND": "აღნიშნულ მისამართზე ტრანზაქცია უკვე გაგზავნილია. დარწმუნებული ხართ, რომ გინდათ ხელახლა გაგზავნა?",
       "UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE": "This address has no funds. Are you sure it's correct?",
       "UI_CALCULATE_CUSTOM_FEE": "გთხოვთ, დაითვალეთ სრული ღირებულება ბაიტის არჩეული ფასზე ",
+      "SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID": "გთხოვთ, შეამოწმოთ მიმღების მისამართი. ტრანზაქციების პირდაპირ სმარტ კონტრაქტის მისამართზე გაგზავნა შეუძლებელია",
       "SERVER_RESPONSE_CLOUDFLARE" : "Please, try again - no access to cloudflare protected server",
       "SERVER_RESPONSE_BAD_CODE": "დაფიქსირდა შეცდომა. გთხოვთ, დაუკავშირდეთ მხარდაჭერის სამსახურს",
       "SERVER_RESPONSE_BAD_INTERNET": "არ არის კავშირი ინტერნეტთან",
@@ -857,7 +873,7 @@
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED": "ტრანზაქცია უკვე დადასტურებულია",
       "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce %{nonce} უკვე გამოყენებულია დადასტურებულ ტრანზაქციაში",
       "SERVER_RESPONSE_REVERTED_BY_EVM" : "Transaction reverted by EVM - please check contract code",
-      "SERVER_RESPONSE_NOT_CONNECTED": "ქსელი არ პასუხობს - გთხოვთ, გაიმეოროთ ოპერაცია მოგვიანებით",
+      "SERVER_RESPONSE_NOT_CONNECTED": "ქსელში კვანძთან კავშირი არ არის. გთხოვთ, შეცვალოთ თქვენი ინტერნეტ კავშირი ან გამოიყენოთ VPN აპის გამოყენებისას",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "არასაკმარისია თანხა ტრანზაქციების განსახორციელებლად და მინიმალური საკომისიოსთვის",
       "SERVER_RESPONSE_WAIT_FOR_CONFIRM": "გთხოვთ, დაელოდოთ სხვა ტრანზაქციების დადასტურებას ან ჩართეთ ფუნქცია \"დაუდასტურებელი ტრანზაქციების გამოყენება\" ",
       "SERVER_RESPONSE_TOO_BIG_FEE_FOR_TRANSACTION": "ძალიან მაღალია საკომისიო ტრანზაქციისთვის - გთხოვთ, აირჩიეთ საკომისიოს ოდენობა  ან მიუთითეთ თანხის დიდი რაოდენობა გადარიცხვისთვის ",
@@ -883,7 +899,8 @@
       "SERVER_RESPONSE_PLEASE_CHECK_SYSTEM_TIME": "Please check your phone system time - it need to be synchronized for correct transaction creation",
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
-      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator"
+      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator",
+      "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "Η διεύθυνση του παραλήπτη είναι κενή. Στο blockchain Solana, δεν είναι δυνατή η αποστολή διακριτικών σε μια διεύθυνση με μηδενικό υπόλοιπο SOL"
     }
   },
   "walletBackup": {
@@ -1069,11 +1086,11 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "თქვენი Tron (TRX) საფულე არ არის გააქტიურებული, მაგრამ შეუძლია თანხების მიღება. დააფინანსეთ თქვენი Tron მისამართი 10 TRX-ით თქვენი საფულის გასააქტიურებლად. მომავალში, თქვენ შეგიძლიათ გამოიყენოთ ეს მონეტები ტრანზაქციებში."
+        "description": "%{currencySymbol} ტოკენი მუშაობს Tron ბლოკჩეინზე და მოითხოვს დადებით TRX ბალანსს ქსელის საკომისიოს გადასახდელად. სანამ საფულეში გაქვთ ნულოვანი TRX ბალანსი. მისამართის გასააქტიურებლად შეავსეთ თქვენი TRX ბალანსი ნებისმიერი თანხით."
       },
       "TOKEN": {
         "title": "გთხოვთ, მიაქციოთ ყურადღება!",
-        "description": "ტოკენი %{currencySymbol} მუშაობს ბლოკჩეინზე %{parentBlockchain} და ბრუნვისთვის საჭიროა პოზიტიური ბალანსი %{parentCurrency} მაინერებისთვის საკომისიოს მისაცემად. ამ ეტაპზე თქვენს საფულეში ნულოვანი ბალანსია %{parentCurrency}"
+        "description": "%{currencySymbol} ტოკენი მუშაობს %{parentBlockchain} ბლოკჩეინზე და მოითხოვს დადებით %{parentCurrency} ბალანსს ქსელის საკომისიოს გადასახდელად. სანამ საფულეში გაქვთ ნულოვანი %{parentCurrency} ბალანსი"
       }
     },
     "tokenNotAdded": {
@@ -1188,7 +1205,7 @@
       "bigGas": "You are sending in a direction that requires an unusually high gas: %{gasLimit}. In order to safeguard your funds, the transaction has been stopped!",
       "bigGasForceQuitOff": "You are sending a transaction that has a high gas parameter: %{gasLimit}. This value is not standard, therefore, in order to safeguard your funds, the transaction is suspended.\n\nIf you are sure of the correctness of this transaction, then click \"Continue\" to send it.\n",
       "blockedBalance": "Your balance was used in previous unconfirmed transactions, you can use %{free}",
-      "feeSmallAmount": "Left for fee amount is too small - transaction could be take too long time to confirm",
+      "feeSmallAmount": "%{feesCurrencySymbol}-ის ბალანსი არ არის საკმარისი ქსელის საფასურის გადასახდელად. შეავსეთ თქვენი %{feesCurrencySymbol} ბალანსი და გაიმეორეთ ოპერაცია",
       "longQuery": "The previous transaction(s) is not yet confirmed. The current transaction will not be confirmed until the previous one",
       "longQuerySettingOff": "The ability to send a second transaction until the previous one is confirmed is disabled",
       "noTBKprovider": "Sorry, the function is disabled as exchange operator could not process speed up transactions"
@@ -1205,7 +1222,9 @@
     },
     "walletCreate": {
       "success": "წარმატება!",
-      "walletImported": "საფულე იმპორტირებულია!"
+      "walletImported": "საფულე იმპორტირებულია!",
+      "title": "უფრთხილდით თაღლითებს!",
+      "description": "არ გამოიყენოთ საფულეები, რომლებიც იპოვნეთ ინტერნეტში, რომლებიც მოგცეს ან გაყიდეს. დიდი ალბათობით, დაკარგავთ თანხებს, რომლებსაც გადარიცხავთ ასეთი საფულეების მისამართებზე.\n\nგამოიყენეთ მხოლოდ ის საფულეები, რომლებიც თქვენ პირადად შექმენით!"
     },
     "receive": {
       "success": "წარმატება!",

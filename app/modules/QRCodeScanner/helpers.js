@@ -1,5 +1,5 @@
 /**
- * @version 0.45
+ * @version 0.77
  */
 import _ from 'lodash'
 import NavStore from '@app/components/navigation/NavStore'
@@ -15,23 +15,30 @@ import { decodeTransactionQrCode } from '@app/services/UI/Qr/QrScan'
 
 import store from '@app/store'
 
+import { setFlowType, setWalletMnemonic, setWalletName } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsUpdateValues'
 import { QRCodeScannerFlowTypes } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
-import { setWalletConnectData } from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
+
+
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+import Validator from '@app/services/UI/Validator/Validator'
 
 
 export const finishProcess = async (param, qrCodeScannerConfig) => {
-    if (
-        param.data.indexOf('trusteenft:') === 0
-    ) {
+    if (param.data.indexOf('trusteenft:') === 0 ) {
         NavStore.goNext('NftDetailedInfoQRCheck', { jsonData: param.data.substring(11) })
         return
+    }
+    if (param.data.indexOf('tg://resolve?domain=trustee_support_bot&start=app') === 0) {
+        NavStore.goNext('SupportScreen')
     }
 
     const { currencyCode, flowType, callback } = qrCodeScannerConfig
 
     if (flowType === QRCodeScannerFlowTypes.ADD_MNEMONIC_SCANNER) {
+        MarketingEvent.logEvent('ksu_mnemonic_import_qr add_screen', {}, 'KS')
         if (callback) {
             await callback(param.data)
         } else {
@@ -40,6 +47,18 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         return
     }
 
+
+    const res = await decodeTransactionQrCode(param, currencyCode)
+
+    if (typeof res.data?.couldBeMnemonic !== 'undefined' && res.data?.couldBeMnemonic) {
+        const walletNumber = (MarketingEvent.DATA.LOG_WALLETS_COUNT * 1 + 1).toString()
+        MarketingEvent.logEvent('gx_view_create_import_screen_qr_import_main_flow', { walletNumber, source: 'MainQrScanner' }, 'GX')
+        setFlowType({ flowType: 'IMPORT_WALLET', source: 'MainQrScanner', walletNumber })
+        setWalletName({ walletName: '' })
+        setWalletMnemonic({ walletMnemonic: param?.data })
+        NavStore.goNext('EnterMnemonicPhrase', { flowSubtype: 'importAnother' })
+        return
+    }
 
     if (flowType === QRCodeScannerFlowTypes.CASHBACK_LINK || (
         flowType === QRCodeScannerFlowTypes.MAIN_SCANNER &&
@@ -50,8 +69,8 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
     )) {
         let link = param.data
         link = link.split('/')
-        link = link[link.length - 1]
-        await Log.log('QRCodeScanner.onSuccess ' + flowType + ' link ' + link + ' from ' + param.data)
+        link = Validator.safeWords(link[link.length - 1])
+        await Log.log('QRCodeScanner.onSuccess ' + flowType)
         const qrData = {
             isCashbackLink: true,
             qrCashbackLink: link
@@ -64,9 +83,6 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         return
     }
 
-
-    const res = await decodeTransactionQrCode(param, currencyCode)
-
     if (typeof res.data.isWalletConnect !== 'undefined' && res.data.isWalletConnect) {
         if (flowType === QRCodeScannerFlowTypes.WALLET_CONNECT_SCANNER && callback) {
             NavStore.goBack()
@@ -76,7 +92,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         } else {
             NavStore.goBack()
             setTimeout(() => {
-                setWalletConnectData(res.data.walletConnect.fullLink)
+                walletConnectActions.connectAndSetWalletConnectLink(res.data.walletConnect.fullLink, 'QR')
                 NavStore.goNext('WalletConnectScreen')
             }, 100)
         }
@@ -120,7 +136,7 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
             if (typeof parsed.label !== 'undefined' && parsed.label && parsed.label !== '') {
                 newValue.memo = parsed.label
             }
-            Log.log('QRCodeScanner.onSuccess from ' + flowType + ' parsed ' + JSON.stringify(parsed))
+            Log.log('QRCodeScanner.onSuccess from ' + flowType + ' parsed')
             SendActionsUpdateValues.setStepOne(newValue)
             if (callback) {
                 await callback(newValue)

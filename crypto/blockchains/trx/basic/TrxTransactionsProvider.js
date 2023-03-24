@@ -7,6 +7,7 @@ import BlocksoftUtils from '../../../common/BlocksoftUtils'
 import TrxNodeInfoProvider from './TrxNodeInfoProvider'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const TXS_MAX_TRY = 10
 
@@ -57,10 +58,15 @@ export default class TrxTransactionsProvider {
         CACHE_OF_TRANSACTIONS[address][tokenName] = []
         let tx
         for (tx of res.data.data) {
-            const tmp = await this._unifyTransaction(scanData, tx)
+            let tmp = false
+            try {
+                tmp = await this._unifyTransaction(scanData, tx, tokenName)
+            } catch (e) {
+                BlocksoftCryptoLog.log('TrxTransactionsProvider.get unify error ' + e.message + ' tx ' + tx?.transactionHash)
+            }
             if (!tmp) continue
 
-            const transaction = tmp.res
+            const transaction = tmp?.res
 
             let txTokenName = '_'
             if (typeof tmp.txTokenName !== 'undefined' && tmp.txTokenName) {
@@ -97,7 +103,7 @@ export default class TrxTransactionsProvider {
      * @return {UnifiedTransaction}
      * @private
      */
-    async _unifyTransaction(scanData, transaction) {
+    async _unifyTransaction(scanData, transaction, tokenName) {
         const address = scanData.account.address.trim()
         let transactionStatus = 'new'
         const now = new Date().getTime()
@@ -150,40 +156,6 @@ export default class TrxTransactionsProvider {
                 addressAmount = transaction.amount
                 transactionDirection = 'claim'
                 transactionFilterType = TransactionFilterTypeDict.STAKE
-            } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 31) {
-                transactionFilterType = TransactionFilterTypeDict.SWAP
-                if (typeof transaction.contractData.call_value === 'undefined') {
-                    addressAmount = 0
-                    txTokenName = '_'
-                    transactionDirection = 'swap_income'
-                    const diff = scanData.account.transactionsScanTime - transaction.timestamp / 1000
-                    if (diff > 600) {
-                        return false
-                    }
-                    try {
-                        const tmp = await BlocksoftAxios.get('https://apilist.tronscan.org/api/transaction-info?hash=' + transaction.hash)
-
-                        if (typeof tmp.data.internal_transactions !== 'undefined') {
-                            for (const tmp2 in tmp.data.internal_transactions) {
-                                for (const info of tmp.data.internal_transactions[tmp2]) {
-                                    if (typeof info.token_list === 'undefined'
-                                        || typeof info.token_list[0] === 'undefined'
-                                        || typeof info.token_list[0].token_id === 'undefined'
-                                        || info.token_list[0].token_id !== '_'
-                                    ) continue
-                                    addressAmount = info.token_list[0].call_value
-                                }
-                            }
-                        }
-
-                    } catch (e) {
-                        BlocksoftCryptoLog.log('TrxTransactionsProvider._unifyTransaction tx ' + JSON.stringify(transaction) + ' error ' + e.message + ' transaction-info for swap_income')
-                    }
-                } else {
-                    addressAmount = transaction.contractData.call_value
-                    txTokenName = '_'
-                    transactionDirection = 'swap_outcome'
-                }
             } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 12) {
                 addressAmount = transaction.amount
                 addressFrom = transaction.ownerAddress
@@ -223,11 +195,15 @@ export default class TrxTransactionsProvider {
             addressFrom,
             addressTo: (address.toLowerCase() === transaction.toAddress.toLowerCase()) ? '' : transaction.toAddress,
             addressAmount,
-            transactionStatus: transactionStatus,
+            transactionStatus,
             transactionFee,
             transactionFilterType,
             inputValue: transaction.data
         }
+        if (!res.addressTo && (!res.addressFrom || res.addressFrom.toLowerCase() === address.toLowerCase())) {
+            return false
+        }
+
         return { res, txTokenName }
     }
 }

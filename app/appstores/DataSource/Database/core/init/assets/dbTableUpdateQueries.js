@@ -8,14 +8,17 @@ import currencyActions from '@app/appstores/Stores/Currency/CurrencyActions'
 import { SettingsKeystore } from '@app/appstores/Stores/Settings/SettingsKeystore'
 
 import Log from '@app/services/Log/Log'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 import countries from '@assets/jsons/other/country-codes'
 
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { FileSystem } from '@app/services/FileSystem/FileSystem'
+
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 136,
+        maxVersion: 138,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -976,7 +979,47 @@ export default function getTableUpdateQueries() {
                                 AND (transaction_hash='${address}')`)
                     }
                 }
-            }
+            },
+
+            137: {
+                afterFunction: async (dbInterface) => {
+                    try {
+                        const res = await dbInterface.query(`SELECT is_hidden FROM currency WHERE currency_code='ETH_RSR'`)
+                        if (res && res.array) {
+                            for(const row of res.array) {
+                                console.log(`row old`, row)
+                                const res3 = await dbInterface.query(`SELECT is_hidden FROM currency WHERE currency_code='ETH_RSR_NEW'`)
+                                if (!res3 || !res3.array || !res3.array.length) {
+                                    Log.log('DB/Update afterFunction insert RSR_NEW')
+                                    await dbInterface.query(`INSERT INTO currency ( currency_code , currency_rate_scan_time , is_hidden ) VALUES ( 'ETH_RSR_NEW' , '0' , ${row.is_hidden})`)
+                                } else {
+                                    Log.log('DB/Update afterFunction update RSR_NEW')
+                                    await dbInterface.query(`UPDATE currency SET is_hidden=${row.is_hidden} WHERE currency_code='ETH_RSR_NEW'`)
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        Log.err('DB/Update afterFunction - Migration 137 error', e)
+                    }
+                }
+            },
+
+            138: {
+                afterFunction: async (dbInterface) => {
+                    try {
+                        const zp = new FileSystem({ baseDir: 'zip', fileName: 'logsB', fileExtension: 'zip' })
+                        await zp.cleanDir()
+                        await Log.FS.ALL.cleanFile()
+                        await Log.FS.TEST.cleanFile()
+                        await Log.FS.DAEMON.cleanFile()
+                        await BlocksoftCryptoLog.FS.cleanFile()
+                        await Log.FS.ALL.cleanDir()
+                    } catch (e) {
+                        console.log('DB/Update afterFunction - Migration 138 error', e)
+                    }
+                }
+            },
+
         }
     }
 }

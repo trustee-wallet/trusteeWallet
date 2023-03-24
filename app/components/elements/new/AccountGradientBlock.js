@@ -19,8 +19,6 @@ class AccountGradientBlock extends React.PureComponent {
     }
 
     componentDidMount() {
-        Log.test('AccountGradientBlock mount ' + CACHE_HEIGHT)
-
         if (this.props.cleanCache) {
             CACHE_HEIGHT = 0
         }
@@ -28,8 +26,6 @@ class AccountGradientBlock extends React.PureComponent {
 
     processViewHeight = (e) => {
         const height = e.nativeEvent.layout.height
-        Log.test('AccountGradientBlock.processViewHeight height ' + height)
-
         CACHE_HEIGHT = height > 0 ? height : CACHE_HEIGHT
         this.setState({
             viewHeight: height

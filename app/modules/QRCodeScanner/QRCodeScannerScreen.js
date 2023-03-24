@@ -1,5 +1,5 @@
 /**
- * @version 0.45
+ * @version 0.77
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
@@ -28,6 +28,15 @@ import { finishProcess } from '@app/modules/QRCodeScanner/helpers'
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const SCREEN_WIDTH = Dimensions.get('window').width
 
+let windowHeight, windowWidth
+if (SCREEN_HEIGHT < SCREEN_WIDTH) {
+    windowHeight = SCREEN_WIDTH
+    windowWidth = SCREEN_HEIGHT
+} else {
+    windowHeight = SCREEN_HEIGHT
+    windowWidth = SCREEN_WIDTH
+}
+
 console.disableYellowBox = true
 
 class QRCodeScannerScreen extends PureComponent {
@@ -37,7 +46,7 @@ class QRCodeScannerScreen extends PureComponent {
         this.value = new Animated.Value(0)
         this.translateY = this.value.interpolate({
             inputRange: [0, 0.5, 1],
-            outputRange: [SCREEN_WIDTH * 0.32, SCREEN_WIDTH * -0.32, SCREEN_WIDTH * 0.32]
+            outputRange: [windowWidth * 0.32, windowWidth * -0.32, windowWidth * 0.32]
         })
     }
 
@@ -51,7 +60,7 @@ class QRCodeScannerScreen extends PureComponent {
             UpdateOneByOneDaemon.unstop()
             await finishProcess(param, this.props.qrCodeScannerConfig)
         } catch (e) {
-            Log.err('QRCodeScanner.onSuccess error ' + e.message)
+            Log.log('QRCodeScanner.onSuccess error')
             showModal({
                 type: 'INFO_MODAL',
                 icon: 'INFO',
@@ -76,7 +85,7 @@ class QRCodeScannerScreen extends PureComponent {
                 message = strings('tradeScreen.modalError.qrNotFoundInFile')
                 goBack = false
             } else {
-                Log.err('QRCodeScanner.onOpenGallery error ' + e.message)
+                Log.log('QRCodeScanner.onOpenGallery error')
             }
             showModal({
                 type: 'INFO_MODAL',
@@ -133,8 +142,9 @@ class QRCodeScannerScreen extends PureComponent {
                     }}
                     showMarker
                     onRead={this.onSuccess.bind(this)}
-                    cameraStyle={{ height: SCREEN_HEIGHT, width: SCREEN_WIDTH }}
-                    topViewStyle={{ height: 0, flex: 0 }} bottomViewStyle={{ height: 0, flex: 0 }}
+                    cameraStyle={{ height: windowHeight, width: windowWidth }}
+                    topViewStyle={{ height: 0, flex: 0 }}
+                    bottomViewStyle={{ height: 0, flex: 0 }}
                     customMarker={
                         <View style={styles.rectangleContainer}>
                             <View style={styles.topOverlay} />
@@ -194,12 +204,12 @@ export default connect(mapStateToProps, {})(QRCodeScannerScreen)
 
 const overlayColor = '#0000008A' // this gives us a black color with a 50% transparency
 
-const rectDimensions = SCREEN_WIDTH * 0.65 // this is equivalent to 255 from a 393 device width
+const rectDimensions = windowWidth * 0.65 // this is equivalent to 255 from a 393 device width
 const rectBorderWidth = 0 // this is equivalent to 2 from a 393 device width
 const rectBorderColor = '#b995d8'
 
-const scanBarWidth = SCREEN_WIDTH * 0.65 // this is equivalent to 180 from a 393 device width
-const scanBarHeight = SCREEN_WIDTH * 0.0025 // this is equivalent to 1 from a 393 device width
+const scanBarWidth = windowWidth * 0.65 // this is equivalent to 180 from a 393 device width
+const scanBarHeight = windowWidth * 0.0025 // this is equivalent to 1 from a 393 device width
 const scanBarColor = '#fff'
 
 const styles = StyleSheet.create({

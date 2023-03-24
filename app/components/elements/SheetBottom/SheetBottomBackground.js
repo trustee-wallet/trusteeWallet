@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 import { useTheme } from '@app/theme/ThemeProvider'
 
 

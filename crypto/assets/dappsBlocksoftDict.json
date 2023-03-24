@@ -14,6 +14,22 @@
     "disableInjected" : true,
     "dappsDomenName": "pancakeswap.finance"
   },
+  "ETH_LIDO" : {
+    "dappCode" : "ETH_LIDO",
+    "dappName" : "Ethereum Liquid Staking (LIDO)",
+    "dappUrl" : "https://stake.lido.fi",
+    "dappNetworks" : ["ETH"],
+    "disableInjected" : true,
+    "dappsDomenName": "lido.fi"
+  },
+  "MATIC_LIDO" : {
+    "dappCode" : "MATIC_LIDO",
+    "dappName" : "Polygon Liquid Staking (LIDO)",
+    "dappUrl" : "https://polygon.lido.fi",
+    "dappNetworks" : ["MATIC"],
+    "disableInjected" : true,
+    "dappsDomenName": "lido.fi"
+  },
   "NFTRADE" : {
     "dappCode" : "NFTRADE",
     "dappName" : "NFTrade",
@@ -21,21 +37,6 @@
     "dappNetworks" : ["ETH", "BNB_SMART", "MATIC"],
     "disableInjected" : true,
     "dappsDomenName": "nftrade.com"
-  },
-  "MOCHISWAP" : {
-    "dappCode" : "MOCHISWAP",
-    "dappName" : "Mochiswap",
-    "dappUrl" : "https://harmony.mochiswap.io/swap",
-    "dappNetworks" : ["ONE"],
-    "disableInjected" : true,
-    "dappsDomenName": "harmony.mochiswap.io"
-  },
-  "DAVINCI" : {
-    "dappCode" : "DAVINCI",
-    "dappName" : "daVinci",
-    "dappUrl" : "https://davinci.gallery",
-    "dappNetworks" : ["ONE"],
-    "dappsDomenName": "davinci.gallery"
   },
   "JUSTLEND" : {
     "dappCode": "JUSTLEND",

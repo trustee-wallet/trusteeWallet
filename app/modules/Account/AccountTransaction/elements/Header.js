@@ -60,7 +60,9 @@ const HeaderTx = (props) => {
     if (wayType === TransactionFilterTypeDict.SWAP) {
         arrowIcon = <CustomIcon name='swap' style={{ color: colors.common.text1, fontSize: 17 }} />
     }
-    if (wayType === TransactionFilterTypeDict.FEE) {
+    if (transaction?.transactionFilterType === 'walletConnect') {
+        arrowIcon = <CustomIcon name='walletConnect' style={{ color: colors.common.text1, fontSize: 14 }} />
+    } else if (wayType === TransactionFilterTypeDict.FEE) {
         arrowIcon = <CustomIcon name='feeTxScreen' style={{ color: colors.common.text1, fontSize: 14 }} />
     }
 
@@ -81,6 +83,9 @@ const HeaderTx = (props) => {
 
     let amountTxt = addressAmountPrettyPrefix + ' ' + (isFeeTx ? transactionFeePretty : addressAmountPretty)
     let statusTxt = strings('account.transaction.' + wayType.toLowerCase())
+    if (transaction?.transactionFilterType === 'walletConnect') {
+        statusTxt = strings('account.transaction.' + wayType.toLowerCase()) + ' WalletConnect'
+    }
     if (addressAmountPretty === '?') {
         if (transaction.bseOrderData) {
             amountTxt = '#' + transaction.bseOrderData.orderHash

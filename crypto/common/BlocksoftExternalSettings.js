@@ -36,12 +36,14 @@ const CACHE = {
     'XRP_SCANNER_TYPE' : 'xrpscan', // dataripple
     'XRP_MIN' : 10,
     'XLM_SERVER' : 'https://horizon.stellar.org',
-    'XLM_SERVER_PRICE' : 100,
+    'XLM_SERVER_PRICE' : 5500,
+    'XLM_SERVER_PRICE_FORCE' : 5500,
     'XLM_SEND_LINK' : 'https://horizon.stellar.org/transactions',
     'BNB_SERVER' : 'https://dex.binance.org',
     'BNB_SMART_SERVER' : 'https://bsc-dataseed1.binance.org:443',
     'BNB_SMART_PRICE' : 10000000000,
     'BNB_GAS_LIMIT' : 620000,
+    'ETH_MIN_GAS_ERC20' : 73000,
     'ETH_MIN_GAS_LIMIT' : 42000,
     'ETH_TESTNET_PRICE' : 6710000000,
     'ETH_INFURA' : '5e52e85aba6f483398c461c55b639a7b',
@@ -58,8 +60,9 @@ const CACHE = {
     'ETC_SERVER' : 'https://www.ethercluster.com/etc',
     'ETC_PRICE' : 6710000000,
     'ETC_GAS_LIMIT' : 620000,
-    'AMB_SERVER' : 'https://network.ambrosus.com',
-    'AMB_TREZOR_SERVER' : ['https://blockbook.ambrosus.com'],
+    'ETH_POW_SERVER' : 'https://mainnet.ethereumpow.org',
+    'AMB_SERVER' : 'https://network.ambrosus.io',
+    'AMB_TREZOR_SERVER' : ['https://blockbook.ambrosus.io'],
     'AMB_PRICE' : 5000000000,
     'AMB_GAS_LIMIT' : 620000,
     'ONE_SERVER' : 'https://api.harmony.one',
@@ -86,6 +89,7 @@ const CACHE = {
     'RSK_PRICE' : 5000000000,
     'RSK_GAS_LIMIT' : 620000,
     'SOL_SERVER' : 'https://api.mainnet-beta.solana.com',
+    'SOL_SERVER_2' : 'https://solana-mainnet.phantom.app/YBPpkkN4g91xDiAnTE9r0RcMkjg0sKUIWvAfoFVJ',
     'SOL_PRICE' : 5000,
     'SOL_PRICE_NEW_SPL' : 2044280,
     'SOL_TOKENS_LIST' : 'https://raw.githubusercontent.com/solana-labs/token-list/main/src/tokens/solana.tokenlist.json',
@@ -119,8 +123,15 @@ const CACHE = {
     'HOW_WORK_CASHBACK_LINK' : 'https://trusteeglobal.com/programma-loyalnosti/',
     'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/',
     'TRX_STAKING_LINK' : 'https://blog.trusteeglobal.com/stejking-trona-i-kak-zarabotat/',
+    'TRX_SPAM_LIMIT': 40000,
+    'TRX_BASIC_PRICE_WHEN_NO_BAND':  100000,
+    'TRX_TRC20_BAND_PER_TX': 350,
+    'TRX_TRC20_PRICE_PER_BAND': 140,
+    'TRX_TRC20_ENERGY_PER_TX': 29650, // 14650,
+    'TRX_TRC20_PRICE_PER_ENERGY': 420,
+    'TRX_TRC20_MAX_LIMIT' : 100000000,
     'INVOICE_URL' : 'https://trusteeglobal.com/',
-    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63  },
+    'STAKING_COINS_PERCENT' : { 'TRX': 5.06, 'SOL': 7.02, 'VET': 1.63, 'ETH': 5.1, 'ETH_MATIC': 6.3 },
     'DAPPS_IMAGE_LINK': 'https://raw.githubusercontent.com/trustee-wallet/trusteeWalletAssets/main/dapps/'
 }
 
@@ -170,9 +181,14 @@ class BlocksoftExternalSettings {
     }
 
     _setCache(json) {
-        let key
-        for (key in json) {
-            CACHE[key] = json[key]
+        for (const key in json) {
+            if (key === 'STAKING_COINS_PERCENT') {
+                for (const key2 in json[key]) {
+                    CACHE[key][key2] = json[key][key2]
+                }
+            } else {
+                CACHE[key] = json[key]
+            }
         }
     }
 

@@ -17,9 +17,9 @@ import transactionActions from '@app/appstores/Actions/TransactionActions'
 
 import ApiV3 from '@app/services/Api/ApiV3'
 import { recordFioObtData } from '@crypto/blockchains/fio/FioUtils'
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
 
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 const logFio = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
     const { fioRequestDetails } = sendScreenStore.ui
@@ -126,6 +126,7 @@ export namespace SendActionsEnd {
         const { uiType, tbk, walletConnectPayload } = sendScreenStore.ui
         const { transactionAction } = tbk
 
+        Log.log('SendActionsEnd.endRedirect start ', {transactionAction, uiType})
         if (typeof transactionAction !== 'undefined' && transactionAction !== '' && transactionAction) {
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
@@ -173,7 +174,8 @@ export namespace SendActionsEnd {
                     source : 'SendActionsEnd.TradeSend'
             }})
         } else if (uiType === 'WALLET_CONNECT') {
-            await AppWalletConnect.approveRequest(walletConnectPayload, tx.transactionHash)
+            Log.log('SendActionsEnd.endRedirect walletConnect will get ' + tx.transactionHash)
+            await walletConnectActions.approveRequestWalletConnect(walletConnectPayload, tx.transactionHash)
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash,
@@ -201,7 +203,7 @@ export namespace SendActionsEnd {
         const { bseOrderId } = bse
         const data = { extraData, ...params, orderHash: bseOrderId, status: 'CLOSE' }
         if (uiType === 'WALLET_CONNECT') {
-            await AppWalletConnect.rejectRequest(walletConnectPayload)
+            await walletConnectActions.rejectRequestWalletConnect(walletConnectPayload)
         }
         if (typeof bseOrderId === 'undefined' || !bseOrderId) return
         return ApiV3.setExchangeStatus(data)

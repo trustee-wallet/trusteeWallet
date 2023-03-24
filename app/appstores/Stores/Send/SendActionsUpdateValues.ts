@@ -17,6 +17,17 @@ export namespace SendActionsUpdateValues {
         })
     }
 
+    export const setDict = (dictNew: {balanceRaw : 0}) => {
+        const dict = store.getState().sendScreenStore.dict
+        if (dict.addressFrom === dictNew.addressFrom && dict.currencyCode === dictNew.currencyCode) {
+            dispatch({
+                type: 'SET_DATA',
+                dict: dictNew
+            })
+        }
+    }
+
+
     export const setCommentAndFeeFromTmp = async (comment : string, rawOnly : boolean = false) => {
         if (!CACHE_SELECTED_FEE) {
             dispatch({

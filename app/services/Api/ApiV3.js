@@ -3,8 +3,7 @@
  * @author yura
  */
 import Log from '../Log/Log'
-import { sublocale } from '../i18n'
-import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import { strings, sublocale } from '../i18n'
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 import CashBackUtils from '@app/appstores/Stores/CashBack/CashBackUtils'
 
@@ -15,15 +14,19 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import cardDS from '@app/appstores/DataSource/Card/Card'
 import MarketingEvent from '../Marketing/MarketingEvent'
 import axios from 'axios'
-import UpdateCardsDaemon from '@app/daemons/back/UpdateCardsDaemon'
 import BlocksoftDict from '@crypto/common/BlocksoftDict'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
-import BlocksoftCryptoUtils from '@crypto/common/BlocksoftCryptoUtils'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import ApiProxy from './ApiProxy'
 
 import store from '@app/store'
+
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
+import BlocksoftKeysScam from '@crypto/actions/BlocksoftKeys/BlocksoftKeysScam'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import { handleBackup } from '@app/modules/Settings/helpers'
+import walletActions from '@app/appstores/Stores/Wallet/WalletActions'
 
 
 const V3_ENTRY_POINT_EXCHANGE = '/mobile-exchanger'
@@ -162,6 +165,41 @@ export default {
             throw new Error('ApiV3 invalid settings type ' + type)
         }
 
+        const data = await this.getWalletData()
+
+        const currentToken = CashBackUtils.getWalletToken()
+        const date = new Date().toISOString().split('T')
+        const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + data.sign.signedAddress
+
+        const useFirebase = JSON.stringify(trusteeAsyncStorage.getUseFirebaseForBSE())
+
+        try {
+            const link = entryURL + entryPoint
+                + '?date=' + date[0]
+                + '&message=' + data.sign.message
+                + '&messageHash=' + data.sign.messageHash
+                + '&signature=' + data.sign.signature
+                + '&cashbackToken=' + currentToken
+                + '&locale=' + sublocale()
+                + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
+                + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
+                + '&inCurrency=' + inCurrencyCode
+                + '&outCurrency=' + outCurrencyCode
+                + '&orderHash=' + orderHash
+                + '&useFirebase=' + (useFirebase || 'true')
+
+            await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
+            await database().ref(keyTitle).set(data)
+            await Log.log('ApiV3.initData end save to firebase link ' + link)
+            Log.log('ApiV3.initData finish')
+            return link
+        } catch (e) {
+            await Log.err('ApiV3.initData error ' + e.message)
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+        }
+    },
+
+    async getWalletData() {
         // yurchik update anyway so do load faster
         /*
         try {
@@ -197,12 +235,34 @@ export default {
             cards
         }
 
+        let showScam = false
+        let scamWalletsTitle = ''
+        const scamWallets = []
         try {
             Log.log('ApiV3.initData get wallets from state start')
             const wallets = store.getState().walletStore.wallets
             for (let wallet of wallets) {
                 wallet = await walletDS._redoCashback(wallet)
-                const accounts = await this.initWallet(wallet, 'ApiV3')
+
+                let isScam = false
+                try {
+                    if (await BlocksoftKeysScam.isScamCashback(wallet.walletCashback)) {
+                        showScam = true
+                        isScam = true
+                        scamWalletsTitle += ' ' + wallet.walletCashback
+                        scamWallets.push(wallet.walletHash)
+                    }
+                } catch (e1) {
+                    if (config.debug.appErrors) {
+                        console.log('ApiV3.initData build isScam error ' + e1.message, e1)
+                    }
+                    Log.err('ApiV3.initData build isScam error ' + e1.message)
+                }
+
+                let accounts = []
+                if (!isScam) {
+                    accounts = await this.initWallet(wallet, 'ApiV3')
+                }
                 data.wallets.push({
                     walletHash: wallet.walletHash,
                     walletName: wallet.walletName,
@@ -213,9 +273,28 @@ export default {
             Log.log('ApiV3.initData get wallets from state finish')
         } catch (e) {
             if (config.debug.appErrors) {
-                console.log('ApiV3.initData build error ' + e.message)
+                console.log('ApiV3.initData build error ' + e.message, e)
             }
             Log.err('ApiV3.initData build error ' + e.message)
+        }
+        if (showScam) {
+            showModal({
+                type: 'YES_NO_MODAL',
+                icon: 'WARNING',
+                title: strings('settings.walletList.scamModal.title'),
+                description: strings('settings.walletList.scamModal.description') + '\n\n' + scamWalletsTitle,
+                oneButton: strings('settings.walletList.scamModal.remove'),
+                twoButton: strings('settings.walletList.backupModal.late'),
+                noCallback: async () => {
+                    for (const wallet of scamWallets) {
+                        try {
+                            await walletActions.removeWallet(wallet)
+                        } catch (e) {
+                            // do nothing
+                        }
+                    }
+                }
+            }, async () => {})
         }
 
         let msg = await ApiProxy.getServerTimestampIfNeeded()
@@ -228,33 +307,7 @@ export default {
         const sign = await CashBackUtils.createWalletSignature(true, msg + '_' + hash)
         Log.log('ApiV3.initData CashBackUtils.createWalletSignature finish')
         data.sign = sign
-
-        const currentToken = CashBackUtils.getWalletToken()
-        const date = new Date().toISOString().split('T')
-        const keyTitle = V3_KEY_PREFIX + '/' + date[0] + '/' + currentToken
-        try {
-            const link = entryURL + entryPoint
-                + '?date=' + date[0]
-                + '&message=' + sign.message
-                + '&messageHash=' + sign.messageHash
-                + '&signature=' + sign.signature
-                + '&cashbackToken=' + currentToken
-                + '&locale=' + sublocale()
-                + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
-                + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
-                + '&inCurrency=' + inCurrencyCode
-                + '&outCurrency=' + outCurrencyCode
-                + '&orderHash=' + orderHash
-
-            await Log.log('ApiV3.initData start json link ' + link + ' and save to firebase ' + (data ? JSON.stringify(data).substr(0, 100) : ' no data'))
-            await database().ref(keyTitle).set(data)
-            await Log.log('ApiV3.initData end save to firebase link ' + link)
-            Log.log('ApiV3.initData finish')
-            return link
-        } catch (e) {
-            await Log.err('ApiV3.initData error ' + e.message)
-            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
-        }
+        return data
     },
 
     getMobileCheck: async (orderHash) => {
@@ -277,7 +330,7 @@ export default {
                 + '&cashbackToken=' + currentToken
                 + '&locale=' + sublocale()
                 + '&orderHash=' + orderHash
-                + '&version=' + MarketingEvent.DATA.LOG_VERSION
+                + '&version=' + (MarketingEvent.DATA.LOG_VERSION? MarketingEvent.DATA.LOG_VERSION.replace(/ /gi, '_') : '')
                 + '&isLight=' + MarketingEvent.UI_DATA.IS_LIGHT
             Log.log('ApiV3 getMobileCheck link ' + link)
             return link

@@ -2,10 +2,9 @@
  * @version 0.11
  */
 import Share from 'react-native-share'
-import { setLoaderStatus } from '../../../appstores/Stores/Main/MainStoreActions'
-import { strings } from '../../i18n'
-import { showModal } from '../../../appstores/Stores/Modal/ModalActions'
-import MarketingEvent from '../../Marketing/MarketingEvent'
+import { strings } from '@app/services/i18n'
+import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
+import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 export default function prettyShare(shareOptions, marketingTitle) {
     return new Promise((resolve, reject) => {
@@ -30,14 +29,16 @@ export default function prettyShare(shareOptions, marketingTitle) {
                 }
 
                 if (text.indexOf('User did not share') !== -1) {
-                    text = strings('modal.walletLog.notComplited')
+                    text = '' // strings('modal.walletLog.notComplited')
                 }
-                // showModal({
-                //     type: 'INFO_MODAL',
-                //     icon: false,
-                //     title: strings('modal.walletLog.sorry'),
-                //     description: text
-                // })
+                if (text) {
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: false,
+                        title: strings('modal.walletLog.sorry'),
+                        description: text
+                    })
+                }
                 resolve(true)
             })
     })

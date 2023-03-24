@@ -281,16 +281,48 @@ class WalletPub {
         ])
         Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan discovered Xpub stared')
 
+        let importCheckUsed = [false, false, false]
+
         const { apiEndpoints } = config.proxy
         const baseURL = MarketingEvent.DATA.LOG_TESTER ? apiEndpoints.baseURLTest : apiEndpoints.baseURL
-        const link2 = baseURL + '/btc/getXpubs'
-        const res2 = await BlocksoftAxios.post(link2, { xpubs })
-        if (!res2.data) {
+        const link2 = baseURL + '/btc/getXpubs?xpubs=' + xpubs.join(',')
+        let res2 = false
+        try {
+            res2 = await BlocksoftAxios.get(link2)
+        } catch (e) {
+
+        }
+        if (res2 && res2.data) {
+            importCheckUsed[0] = res2.data[0] || false
+            importCheckUsed[1] = res2.data[1] || false
+            importCheckUsed[2] = res2.data[2] || false
+        } else {
+            let link3
+            try {
+                link3 = await BlocksoftExternalSettings.getTrezorServer('BTC', 'BTC.Scanner._get')
+            } catch (e) {
+                link3 = 'https://btc.trusteeglobal.com'
+            }
+            let i = 0
+            for(let xpub of xpubs) {
+                let link4 = link3 + '/api/v2/xpub/' + xpub + '?details=tokens&tokens=used&gap=9999&pageSize=20'
+                try {
+                    let res4 = await BlocksoftAxios.get(link4)
+                    importCheckUsed[i] = res4
+                } catch (e) {
+                    let link4 = 'https://btc1.trezor.io/api/v2/xpub/' + xpub + '?details=tokens&tokens=used&gap=9999&pageSize=20'
+                    try {
+                        let res4 = await BlocksoftAxios.get(link4)
+                        importCheckUsed[i] = res4
+                    } catch (e) {
+
+                    }
+                }
+                i++
+            }
             return false
         }
-        const importCheckUsed = res2.data[0] || false
-        const importCheckUsed1 = res2.data[1] || false
-        const importCheckUsed2 = res2.data[2] || false
+
         let toSave = false
         const xPubBalances = [
             {
@@ -306,51 +338,52 @@ class WalletPub {
                 unconfirmed: 0
             }
         ]
-        if (importCheckUsed && importCheckUsed.data && importCheckUsed.data.usedTokens > 0) {
-            xPubBalances[0].balance = importCheckUsed.data.balance
-            xPubBalances[0].unconfirmed = importCheckUsed.data.unconfirmedBalance
-            if (importCheckUsed.data.usedTokens === 1 && importCheckUsed.data.tokens[0].path === 'm/44\'/0\'/0\'/0/0') {
+        console.log(importCheckUsed)
+        if (importCheckUsed[0] && importCheckUsed[0].data && importCheckUsed[0].data.usedTokens > 0) {
+            xPubBalances[0].balance = importCheckUsed[0].data.balance
+            xPubBalances[0].unconfirmed = importCheckUsed[0].data.unconfirmedBalance
+            if (importCheckUsed[0].data.usedTokens === 1 && importCheckUsed[0].data.tokens[0].path === 'm/44\'/0\'/0\'/0/0') {
                 Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC Xpub found nothing')
                 // do nothing
             } else {
-                Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC Xpub found ' + importCheckUsed.data.tokens.length)
+                Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC Xpub found ' + importCheckUsed[0].data.tokens.length)
                 toSave = true
                 let token
-                for (token of importCheckUsed.data.tokens) {
+                for (token of importCheckUsed[0].data.tokens) {
                     const tmp = { path: token.path, alreadyShown: token.transfers > 0 }
                     derivations.BTC.push(tmp)
                     Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' pushed BTC ' + JSON.stringify(token))
                 }
             }
         }
-        if (importCheckUsed1 && importCheckUsed1.data && importCheckUsed1.data.usedTokens > 0) {
-            xPubBalances[1].balance = importCheckUsed1.data.balance
-            xPubBalances[1].unconfirmed = importCheckUsed1.data.unconfirmedBalance
-            if (importCheckUsed1.data.usedTokens === 1 && (importCheckUsed1.data.tokens[0].path === 'm/49\'/0\'/0\'/0/1' || importCheckUsed1.data.tokens[0].path === 'm/49\'/0\'/0\'/0/0')) {
+        if (importCheckUsed[1] && importCheckUsed[1].data && importCheckUsed[1].data.usedTokens > 0) {
+            xPubBalances[1].balance = importCheckUsed[1].data.balance
+            xPubBalances[1].unconfirmed = importCheckUsed[1].data.unconfirmedBalance
+            if (importCheckUsed[1].data.usedTokens === 1 && (importCheckUsed[1].data.tokens[0].path === 'm/49\'/0\'/0\'/0/1' || importCheckUsed[1].data.tokens[0].path === 'm/49\'/0\'/0\'/0/0')) {
                 Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC_SEGWIT_COMPATIBLE Xpub found nothing')
                 // do nothing
             } else {
-                Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC_SEGWIT_COMPATIBLE Xpub found ' + importCheckUsed1.data.tokens.length)
+                Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC_SEGWIT_COMPATIBLE Xpub found ' + importCheckUsed[1].data.tokens.length)
                 toSave = true
                 let token
-                for (token of importCheckUsed1.data.tokens) {
+                for (token of importCheckUsed[1].data.tokens) {
                     const tmp = { path: token.path, alreadyShown: token.transfers > 0 }
                     derivations.BTC_SEGWIT_COMPATIBLE.push(tmp)
                     Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' pushed BTC_SEGWIT_COMPATIBLE ' + JSON.stringify(token))
                 }
             }
         }
-        if (importCheckUsed2 && importCheckUsed2.data && importCheckUsed2.data.usedTokens > 0) {
-            xPubBalances[2].balance = importCheckUsed2.data.balance
-            xPubBalances[2].unconfirmed = importCheckUsed2.data.unconfirmedBalance
-            if (importCheckUsed2.data.usedTokens === 1 && importCheckUsed2.data.tokens[0].path === 'm/84\'/0\'/0\'/0/0') {
+        if (importCheckUsed[2] && importCheckUsed[2].data && importCheckUsed[2].data.usedTokens > 0) {
+            xPubBalances[2].balance = importCheckUsed[2].data.balance
+            xPubBalances[2].unconfirmed = importCheckUsed[2].data.unconfirmedBalance
+            if (importCheckUsed[2].data.usedTokens === 1 && importCheckUsed[2].data.tokens[0].path === 'm/84\'/0\'/0\'/0/0') {
                 Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC_SEGWIT Xpub found nothing')
                 // do nothing
             } else {
-                Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC_SEGWIT Xpub found ' + importCheckUsed2.data.tokens.length)
+                Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' scan BTC_SEGWIT Xpub found ' + importCheckUsed[2].data.tokens.length)
                 toSave = true
                 let token
-                for (token of importCheckUsed2.data.tokens) {
+                for (token of importCheckUsed[2].data.tokens) {
                     const tmp = { path: token.path, alreadyShown: token.transfers > 0 }
                     derivations.BTC_SEGWIT.push(tmp)
                     Log.daemon('DS/WalletPub discoverFromTrezor ' + source + ' pushed BTC_SEGWIT ' + JSON.stringify(token))

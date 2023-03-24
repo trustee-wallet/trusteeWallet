@@ -3,9 +3,10 @@
  */
 import React from 'react'
 import { connect } from 'react-redux'
-import { View, Image, StyleSheet, BackHandler } from 'react-native'
+import { View, Image, StyleSheet, BackHandler, Platform } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
+import { RESULTS } from 'react-native-permissions'
 
 import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode'
 
@@ -20,7 +21,7 @@ import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 import { getLockScreenData } from '@app/appstores/Stores/LockScreen/selectors'
 import { getIsTouchIDStatus } from '@app/appstores/Stores/Settings/selectors'
-import { finishProcess } from '@app/modules/LockScreen/helpers'
+import { biometricActions, finishProcess } from '@app/modules/LockScreen/helpers'
 import { LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import TouchableDebounce from '@app/components/elements/new/TouchableDebounce'
 
@@ -31,7 +32,8 @@ class LockScreen extends React.PureComponent {
         super(props)
         this.state = {
             passwordState: null,
-            headerHeight: 0
+            headerHeight: 0,
+            noShowTouchId: false
         }
     }
 
@@ -41,6 +43,7 @@ class LockScreen extends React.PureComponent {
         this.setState({
             passwordState: res ? 'enter' : 'choose'
         })
+        this.checkAvailableBiometric()
         BackHandler.addEventListener("hardwareBackPress", this.backAction)
     }
 
@@ -63,7 +66,13 @@ class LockScreen extends React.PureComponent {
     }
 
     handleBack = () => {
+        const { flowType } = this.props.lockScreen
+        
         NavStore.goBack()
+
+        if (flowType === LockScreenFlowTypes.MNEMONIC_CALLBACK) {
+            NavStore.goBack()
+        }
     }
 
     handleClose = () => {
@@ -73,6 +82,20 @@ class LockScreen extends React.PureComponent {
     setHeaderHeight = (height) => {
         const headerHeight = Math.round(height || 0)
         this.setState(() => ({ headerHeight }))
+    }
+
+    checkAvailableBiometric = async () => {
+        const isBiometryType = await biometricActions.checkBiometryType()
+        if (isBiometryType) {
+            if (Platform.OS === 'ios' && isBiometryType === 'FaceID') {
+                const checkBiometricResult = await biometricActions.checkBiometricPermission()
+                if (checkBiometricResult === RESULTS.BLOCKED) {
+                    this.setState({ noShowTouchId: true })
+                }
+            }
+        } else {
+            this.setState({ noShowTouchId: false })
+        }
     }
 
     renderHeader = () => {
@@ -100,9 +123,10 @@ class LockScreen extends React.PureComponent {
 
         const { colors, isLight } = this.context
 
-        const { headerHeight } = this.state
+        const { headerHeight, noShowTouchId } = this.state
 
-        const noTouchIDShow = (this.state.passwordState !== 'enter' || touchIDStatus === 0 || flowType === LockScreenFlowTypes.CHANGE_TOUCHID_STATUS)
+        const noTouchIDShow = (noShowTouchId|| this.state.passwordState !== 'enter' || touchIDStatus === 0 || flowType === LockScreenFlowTypes.CHANGE_TOUCHID_STATUS)
+
         return (
             <View style={[styles.wrapper, { backgroundColor: colors.common.background }]}>
                 {this.renderHeader()}

@@ -9,7 +9,7 @@ import {
     Platform,
     RefreshControl,
     View,
-    FlatList
+    FlatList, Linking
 } from 'react-native'
 
 import _isEqual from 'lodash/isEqual'
@@ -20,7 +20,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setFilter, setSelectedAccount } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount, setSelectedAccountBalance } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import { getFilterData, getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
@@ -35,7 +35,7 @@ import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 import UpdateAccountBalanceAndTransactionsHD from '@app/daemons/back/UpdateAccountBalanceAndTransactionsHD'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 
-import { strings } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
 import { getAccountFioName } from '@crypto/blockchains/fio/FioUtils'
 
@@ -51,12 +51,18 @@ import { getPrettyCurrencyName, handleBuy, handleReceive, handleSend } from './h
 import store from '@app/store'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import SynchronizedBlock from './elements/SynchronizedBlock'
+import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
+import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import config from '@app/config/config'
+import InfoNotification from '@app/components/elements/new/InfoNotification'
 
 let CACHE_ASKED = false
 let CACHE_CLICKED_BACK = false
 let CACHE_TX_LOADED = 0
 const TX_PER_PAGE = 20
 
+let CACHE_IS_BALANCE_UPDATING = false
+let CACHE_BALANCE_TIMEOUT = false
 class Account extends React.PureComponent {
 
     constructor(props) {
@@ -73,8 +79,12 @@ class Account extends React.PureComponent {
 
             hasStickyHeader: false,
 
-            isSeaching: false
+            isSeaching: false,
+            isMultisig: false,
+            showMultisigMsg : true
         }
+
+        this.refreshBalance()
         // this.handleSearch = this.handleSearch.bind(this)
     }
 
@@ -188,6 +198,94 @@ class Account extends React.PureComponent {
         })
     }
 
+    async refreshBalance() {
+        if (CACHE_IS_BALANCE_UPDATING) {
+            return false
+        }
+        CACHE_IS_BALANCE_UPDATING = true
+        if (CACHE_BALANCE_TIMEOUT) {
+            clearTimeout(CACHE_BALANCE_TIMEOUT)
+        }
+        const { address, basicCurrencyRate, balanceStakedPretty, balanceTotalPretty, walletHash, derivationPath, walletCashback } = this.props.selectedAccountData
+        const { currencyCode } = this.props.selectedCryptoCurrencyData
+
+        if (currencyCode === 'BTC' || currencyCode === 'LTC') {
+            return false
+        }
+        if (config.daemon.scanOnAccount) {
+            try {
+                const tmp = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({derivationPath}).setAddress(address)).getBalance('AccountScreen')
+                if (tmp && typeof tmp?.balance !== 'undefined') {
+                    if (!tmp?.address || tmp?.address !== address || tmp?.currencyCode !== currencyCode) {
+                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not update as got ' + tmp?.address)
+                    } else {
+                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will be checked for update')
+                        const newBalance = tmp?.balance
+                        const newBalancePretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalance)
+                        const newBasicCurrencyBalance = BlocksoftPrettyNumbers.makeCut(newBalancePretty * basicCurrencyRate, 2).cutted
+                        const newBalanceStakedPretty = typeof tmp?.balanceStaked !== 'undefined' ? BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(tmp?.balanceStaked ) : balanceStakedPretty
+                        const newBalanceTotalPretty = typeof tmp?.balanceAvailable !== 'undefined' ? BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(tmp?.balanceAvailable ) : balanceTotalPretty
+                        const accountNew = {
+                            balance : newBalance,
+                            balancePretty : newBalancePretty,
+                            basicCurrencyBalance: newBasicCurrencyBalance,
+                            balanceStakedPretty : newBalanceStakedPretty,
+                            balanceTotalPretty : newBalanceTotalPretty
+                        }
+                        let isChanged = false
+                        try {
+                            for (const key in accountNew) {
+                                if (typeof this.props.selectedAccountData[key] === 'undefined' || this.props.selectedAccountData[key].toString() !== accountNew[key].toString()) {
+                                    isChanged = true
+                                }
+                            }
+                        } catch (e) {
+                            throw new Error(e.message + ' while isChanged check')
+                        }
+                        try {
+                            if (isChanged) {
+                                if (typeof tmp?.balanceStaked !== 'undefined') {
+                                    accountNew.balanceStaked = tmp?.balanceStaked
+                                }
+                                Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will be updated ' + JSON.stringify(accountNew))
+                                accountNew.address = address
+                                accountNew.currencyCode = currencyCode
+                                await setSelectedAccountBalance(accountNew)
+                            } else {
+                                Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not be updated')
+                            }
+                        } catch (e) {
+                            throw new Error(e.message + ' while isChanged applied')
+                        }
+                    }
+                }
+                if (currencyCode === 'TRX' || currencyCode.indexOf('TRX_') === 0) {
+                    try {
+                        if (!this.state.isMultisig) {
+                            const isMultisig = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({ derivationPath }).setAddress(address)).isMultisig('AccountScreen')
+                            Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance isMultisig result ' + JSON.stringify(isMultisig))
+                            if (isMultisig) {
+                                MarketingEvent.logEvent('trx_multisig', { address, isMultisig, walletCashback, walletHash })
+                                this.setState({ isMultisig })
+                            }
+                        }
+                    } catch (e) {
+                        // do nothing
+                    }
+                }
+            } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' error ' + e.message, e)
+                }
+                Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' error ' + e.message)
+            }
+            CACHE_BALANCE_TIMEOUT = setTimeout(() => {
+                this.refreshBalance()
+            },5000)
+        }
+        CACHE_IS_BALANCE_UPDATING = false
+    }
+
     closeAction = () => {
         if (!CACHE_CLICKED_BACK) {
             CACHE_CLICKED_BACK = true
@@ -253,17 +351,32 @@ class Account extends React.PureComponent {
     //     }
     // }
 
+    closeMsg = () => {
+        this.setState({ showMultisigMsg : !this.state.showMultisigMsg })
+    }
+
+
+    handleMoreInfo = () => {
+        const sub = sublocale()
+        const linkUrl = 'https://blog.trusteeglobal.com/' + sub + '/yak-ne-staty-zhertvoyu-shahrayiv-u-kryptovalyutah/'
+        try {
+            Linking.openURL(linkUrl)
+        } catch (e) {
+
+        }
+    }
+
     render() {
 
         MarketingAnalytics.setCurrentScreen('Account.AccountScreen')
 
-        const { colors } = this.context
+        const { colors, GRID_SIZE } = this.context
         const { isSegwit, selectedAccountData, selectedCryptoCurrencyData } = this.props
         let { transactionsToView } = this.state
         if (typeof transactionsToView === 'undefined' || !transactionsToView || transactionsToView.length === 0) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
             CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
-        } else if (CACHE_TX_LOADED * 1 <= this.props.selectedAccountTransactions.transactionsLoaded * 1) {
+        } else if (CACHE_TX_LOADED * 1 <= this.props.selectedAccountTransactions.transactionsLoaded * 1 && !this.state.hasStickyHeader) {
             transactionsToView = this.props.selectedAccountTransactions.transactionsToView
             CACHE_TX_LOADED = this.props.selectedAccountTransactions.transactionsLoaded
             this.loadTransactions(0)
@@ -296,7 +409,6 @@ class Account extends React.PureComponent {
                 logData.legacyAddress = selectedAccountData.legacyAddress || ''
                 logData.segwitAddress = selectedAccountData.segwitAddress || ''
             }
-            MarketingEvent.logEvent('view_account', logData)
         }
 
         return (
@@ -388,6 +500,16 @@ class Account extends React.PureComponent {
                                 // isSeaching={this.state.isSeaching}
                                 filterData={this.props.filterData}
                             />
+                            {this.state.isMultisig && this.state.showMultisigMsg ?
+                                <View style={{ marginHorizontal: GRID_SIZE }}>
+                                    <InfoNotification
+                                        title={strings('settings.walletList.multisigWallet')}
+                                        subTitle={strings('settings.walletList.multisigWalletDesc')}
+                                        closeCallback={this.closeMsg}
+                                        onPress={this.handleMoreInfo}
+                                        iconType="warning"
+                                    />
+                                </View> : null }
                         </>
                     )}
                     renderItem={({ item, index }) => (

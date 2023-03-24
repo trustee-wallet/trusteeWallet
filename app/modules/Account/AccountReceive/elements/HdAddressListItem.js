@@ -11,11 +11,14 @@ import {
     StyleSheet
 } from 'react-native'
 import { connect } from 'react-redux'
+import { Portal, PortalHost } from '@gorhom/portal'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 import GradientView from '@app/components/elements/GradientView'
 import InvoiceListItem from '@app/components/elements/new/list/ListItem/Invoice'
 import Input from '@app/components/elements/new/TextInput'
+import SheetBottom from '@app/components/elements/SheetBottom/SheetBottom'
+import Button from '@app/components/elements/new/buttons/Button'
 
 import { strings } from '@app/services/i18n'
 import Toast from '@app/services/UI/Toast/Toast'
@@ -24,7 +27,6 @@ import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 
 import { getSelectedAccountData, getSelectedCryptoCurrencyData } from '@app/appstores/Stores/Main/selectors'
 import { getWalletsGeneralData } from '@app/appstores/Stores/Wallet/selectors'
-import { hideModal, showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import Account from '@app/appstores/DataSource/Account/Account'
 
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
@@ -80,10 +82,13 @@ class HdAddressListItem extends React.PureComponent {
         const { currencyCode, currencyName } = this.props.selectedCryptoCurrencyData
 
         return(
-            <View>
+            <View style={{ marginTop: GRID_SIZE }}>
                 <InvoiceListItem 
                     title={strings('account.invoiceText')}
-                    onPress={() => handleShareInvoice(this.props.address, currencyCode, currencyName, isLight)}
+                    onPress={() => {
+                        handleShareInvoice(this.props.address, currencyCode, currencyName, isLight)
+                        this.handleCloseBackDropModal()
+                    }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderRadius: 12, backgroundColor: colors.backDropModal.mainButton, marginBottom: GRID_SIZE }}
                     textColor='#F7F7F7'
                     iconType='invoice'
@@ -93,7 +98,7 @@ class HdAddressListItem extends React.PureComponent {
                     title={strings('account.copyLink')}
                     onPress={() => {
                         this.copyToClip()
-                        hideModal()
+                        this.handleCloseBackDropModal()
                     }}
                     containerStyle={{ marginHorizontal: GRID_SIZE, borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
                     iconType='copy'
@@ -110,10 +115,11 @@ class HdAddressListItem extends React.PureComponent {
     }
 
     handleBackDropModal = () => {
-        showModal({
-            type: 'BACK_DROP_MODAL',
-            Content: () => this.renderModalContent()
-        })
+        this.bottomSheetRef.open()
+    }
+
+    handleCloseBackDropModal = () => {
+        this.bottomSheetRef.close()
     }
 
     onBlurInput = () => {
@@ -172,7 +178,7 @@ class HdAddressListItem extends React.PureComponent {
         this.setState({
             isEditing: true
         })
-        hideModal()
+        this.handleCloseBackDropModal()
     }
 
     render() {
@@ -234,6 +240,24 @@ class HdAddressListItem extends React.PureComponent {
                         </View>
                     </GradientView>
                 </TouchableOpacity>
+                <Portal>
+                    <SheetBottom
+                        ref={ref => this.bottomSheetRef = ref}
+                        snapPoints={[0, 300]}
+                        index={0}
+                    >
+                        {this.renderModalContent()}
+                        <Button
+                            title={strings('assets.hideAsset')}
+                            type='withoutShadow'
+                            onPress={this.handleCloseBackDropModal}
+                            containerStyle={{ marginHorizontal: GRID_SIZE, marginVertical: GRID_SIZE, backgroundColor: colors.backDropModal.buttonBg }}
+                            textStyle={{ color: colors.backDropModal.buttonText }}
+                            bottomSheet
+                        />
+                    </SheetBottom>
+                </Portal>
+                <PortalHost name='HDAddressScreenPortal' />
             </View>
         )
     }

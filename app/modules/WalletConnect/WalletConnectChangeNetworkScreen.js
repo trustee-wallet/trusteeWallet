@@ -1,5 +1,5 @@
 /**
- * @version 0.50
+ * @version 1.0
  */
 import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
@@ -9,20 +9,22 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import { strings } from '@app/services/i18n'
 
-
 import { ThemeContext } from '@app/theme/ThemeProvider'
+
 import ListItem from '@app/components/elements/new/list/ListItem/SubSetting'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 
-import { NETWORKS_SETTINGS } from './helpers'
+
+import { NETWORKS_SETTINGS } from '@app/appstores/Stores/WalletConnect/settings'
+
 import { getWalletConnectData } from '@app/appstores/Stores/WalletConnect/selectors'
-import { AppWalletConnect } from '@app/services/Back/AppWalletConnect/AppWalletConnect'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 class WalletConnectChangeNetworkScreen extends PureComponent {
 
     setNetwork = async (item) => {
-        await AppWalletConnect.manualChangeChain(item.currencyCode)
+        await walletConnectActions.getAndSetWalletConnectAccountNetwork(false, item.currencyCode, 'WalletConnectChangeNetworkScreen')
         this.handleClose()
     }
 
@@ -37,7 +39,7 @@ class WalletConnectChangeNetworkScreen extends PureComponent {
     render() {
         MarketingAnalytics.setCurrentScreen('WalletConnect.changeNetworkScreen')
 
-        const { mainCurrencyCode } = this.props.walletConnectData
+        const { accountCurrencyCode } = this.props.walletConnectData
 
         const { GRID_SIZE } = this.context
 
@@ -53,7 +55,7 @@ class WalletConnectChangeNetworkScreen extends PureComponent {
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={[styles.scrollViewContent, {
-                        padding: GRID_SIZE,
+                        padding: GRID_SIZE
                     }]}
                     keyboardShouldPersistTaps='handled'
                 >
@@ -61,7 +63,7 @@ class WalletConnectChangeNetworkScreen extends PureComponent {
                         NETWORKS_SETTINGS.map((item, index) => (
                             <ListItem
                                 key={item.currencyCode}
-                                checked={item.currencyCode === mainCurrencyCode}
+                                checked={item.currencyCode === accountCurrencyCode}
                                 title={item.networkTitle}
                                 onPress={() => this.setNetwork(item)}
                                 last={NETWORKS_SETTINGS.length - 1 === index}

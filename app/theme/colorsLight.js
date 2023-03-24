@@ -129,6 +129,7 @@ export const colorsLight = {
         balanceColor: '#404040',
         balanceNotEquivalent: '#999999',
         loaderColor: '#999',
+        balanceLongScan: '#F59E6C',
         transactions: {
             color: '#F7F7F7',
             circleColor: '#f7f7f7',

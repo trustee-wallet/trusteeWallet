@@ -1,4 +1,3 @@
-import React from 'react'
 import { Dimensions, PixelRatio } from 'react-native'
 
 import _sortBy from 'lodash/sortBy'
@@ -26,8 +25,6 @@ import DaemonCache from '@app/daemons/DaemonCache'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
-
-import ContentDropModal from './elements/ContentDropModal'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
@@ -180,7 +177,7 @@ const getBalanceData = (props) => {
     return { currencySymbol, beforeDecimal, afterDecimal }
 }
 
-const handleCurrencySelect = async (props, screen) => {
+const handleCurrencySelect = async (props, screen, ref) => {
 
     const { cryptoCurrency } = props
     const { currencyCode } = cryptoCurrency
@@ -194,18 +191,7 @@ const handleCurrencySelect = async (props, screen) => {
     let status = ''
 
     if (props.constructorMode) {
-        showModal({
-            type: 'BACK_DROP_MODAL',
-            currentIndex: props.index,
-            onDrag: props.onDragEnd,
-            listData: props.listData,
-            handleGuide: props.handleGuide,
-            handleHide: () => handleHide(cryptoCurrency),
-            // eslint-disable-next-line react/display-name
-            Content: ({ data }) => {
-                return <ContentDropModal data={data} />
-            }
-        })
+        ref?.open()
         CACHE_CLICK = false
         return
     }
@@ -263,50 +249,56 @@ const getSortedData = (array, currentArray, accountList, sortValue, filter = fal
 
     let results = []
 
-    switch (sortValue) {
-        case 'byTrustee':
-            results = array
-            break
-        case 'byName': 
-            results = _sortBy(array, 'currencySymbol')
-            break
-        case 'custom': {
-            const currenciesOrder = trusteeAsyncStorage.getCurrenciesList()
-            const currenciesLength = currentArray.length
+    try {
 
-            results = _orderBy(currentArray, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
-            break
+        switch (sortValue) {
+            case 'byTrustee':
+                results = array
+                break
+            case 'byName': 
+                results = _sortBy(array, 'currencySymbol')
+                break
+            case 'custom': {
+                const currenciesOrder = trusteeAsyncStorage.getCurrenciesList()
+                const currenciesLength = currentArray.length
+
+                results = _orderBy(currentArray, c => currenciesOrder.indexOf(c.currencyCode) !== -1 ? currenciesOrder.indexOf(c.currencyCode) : currenciesLength)
+                break
+            }
+            case 'byValue': {
+                let sortedAccount = _orderBy(accountList, function (obj) {
+                    return obj?.balancePretty ? parseFloat(obj.balancePretty.toString().replace(/\s+/g, ''), 10) : 0
+                }, 'desc')
+
+                sortedAccount = _orderBy(sortedAccount, function (obj) {
+                    return obj?.basicCurrencyBalance ? parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) : 0
+                }, 'desc').map(item => item.currencyCode)
+
+                sortedAccount = _orderBy(array, x => {
+                    return sortedAccount.indexOf(x.currencyCode) !== -1 ? sortedAccount.indexOf(x.currencyCode) : currentArray.length
+                })
+                results = sortedAccount
+                break
+            }
+            case 'coinFirst':
+                results = [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType')]
+                break
+            case 'tokenFirst':
+                results = [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType').reverse()]
+                break
+            default: {
+                results = filter ? currentArray : array
+                break
+            }
         }
-        case 'byValue': {
-            let sortedAccount = _orderBy(accountList, function (obj) {
-                return obj?.balancePretty ? parseFloat(obj.balancePretty.toString().replace(/\s+/g, ''), 10) : 0
-            }, 'desc')
 
-            sortedAccount = _orderBy(sortedAccount, function (obj) {
-                return obj?.basicCurrencyBalance ? parseFloat(obj.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) : 0
-            }, 'desc').map(item => item.currencyCode)
-
-            sortedAccount = _orderBy(array, x => {
-                return sortedAccount.indexOf(x.currencyCode) !== -1 ? sortedAccount.indexOf(x.currencyCode) : currentArray.length
-            })
-            results = sortedAccount
-            break
+        if (filter) {
+            const filterAccount = accountList.filter(item => parseFloat(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
+            return results.filter(item => filterAccount.includes(item.currencyCode))
         }
-        case 'coinFirst':
-            results = [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType')]
-            break
-        case 'tokenFirst':
-            results = [...array.filter(item => item.currencyType === 'special'), ..._sortBy(array.filter(item => item.currencyType !== 'special'), 'currencyType').reverse()]
-            break
-        default: {
-            results = filter ? currentArray : array
-            break
-        }
-    }
 
-    if (filter) {
-        const filterAccount = accountList.filter(item => parseFloat(item.basicCurrencyBalance.toString().replace(/\s+/g, ''), 10) > 0).map(item => item.currencyCode)
-        return results.filter(item => filterAccount.includes(item.currencyCode))
+    } catch (e) {
+        Log.log('HomeScreen.getSortedData error ' + JSON.stringify(e))
     }
 
     return results
@@ -319,7 +311,8 @@ const getSectionsData = (array) => {
         delete sections.custom
     }
 
-    return Object.keys(sections).map((key) => ({ title: key, data: sections[key] }))
+    const _tmp = Object.keys(sections).map((key) => ({ title: key, data: sections[key] }))
+    return _tmp
 }
 
 const getDerivedState = (nextProps, prevState) => {

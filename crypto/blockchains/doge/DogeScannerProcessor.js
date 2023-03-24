@@ -77,7 +77,7 @@ export default class DogeScannerProcessor {
         let link
         let res = false
         // remove later after tests
-        if (this._settings['currencyCode'] === 'DOGE' || this._settings['currencyCode'] === 'LTC' || this._settings['currencyCode'] === 'BSV') {
+        if (this._settings['currencyCode'] === 'DOGE' || this._settings['currencyCode'] === 'LTC' || this._settings['currencyCode'] === 'BSV' || this._settings['currencyCode'] === 'BCH') {
             link = PROXY_TXS + '?address=' + address + '&currencyCode=' + this._settings['currencyCode']
             res = await BlocksoftAxios.getWithoutBraking(link, 5, TIMEOUT_DOGE)
         }

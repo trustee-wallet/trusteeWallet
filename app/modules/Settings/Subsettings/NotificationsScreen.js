@@ -45,10 +45,10 @@ class NotificationsSettingScreen extends PureComponent {
         try {
             const { notifsStatus } = this.props.settingsData
             await settingsActions.setSettingKeyArray({
-                'notifsStatus': value ? value : notifsStatus ? '0' : '1',
-                'transactionsNotifs': value ? value : notifsStatus ? '0' : '1',
-                'exchangeRatesNotifs': value ? value : notifsStatus ? '0' : '1',
-                'newsNotifs': value ? value : notifsStatus ? '0' : '1'
+                'notifsStatus': value || (notifsStatus ? '0' : '1'),
+                'transactionsNotifs': value || (notifsStatus ? '0' : '1'),
+                'exchangeRatesNotifs': value || (notifsStatus ? '0' : '1'),
+                'newsNotifs': value || (notifsStatus ? '0' : '1')
             })
             await AppNotificationListener.updateSubscriptionsLater()
             AppNewsActions.updateSettings()
@@ -60,21 +60,36 @@ class NotificationsSettingScreen extends PureComponent {
     }
 
     handleChangeTransactions = async () => {
-        const { transactionsNotifs } = this.props.settingsData
-        await settingsActions.setSettings('transactionsNotifs', transactionsNotifs ? '0' : '1')
+        const { transactionsNotifs, newsNotifs, exchangeRatesNotifs } = this.props.settingsData
+        await settingsActions.setSettingKeyArray({
+            'transactionsNotifs': transactionsNotifs ? '0' : '1',
+            'notifsStatus': exchangeRatesNotifs * 1 === 1 && !transactionsNotifs * 1 === 1 && newsNotifs * 1 === 1 ? '1' : '0'
+        })
+
         await AppNotificationListener.updateSubscriptionsLater()
     }
 
     handleChangeRates = async () => {
-        const { exchangeRatesNotifs } = this.props.settingsData
-        await settingsActions.setSettings('exchangeRatesNotifs', exchangeRatesNotifs ? '0' : '1')
+        const {
+            transactionsNotifs,
+            exchangeRatesNotifs,
+            newsNotifs
+        } = this.props.settingsData
+
+        await settingsActions.setSettingKeyArray({
+            'exchangeRatesNotifs': exchangeRatesNotifs ? '0' : '1',
+            'notifsStatus': !exchangeRatesNotifs * 1 === 1 && transactionsNotifs * 1 === 1 && newsNotifs * 1 === 1 ? '1' : '0'
+        })
         await AppNotificationListener.updateSubscriptionsLater()
         AppNewsActions.updateSettings()
     }
 
     handleChangeNews = async () => {
-        const { newsNotifs } = this.props.settingsData
-        await settingsActions.setSettings('newsNotifs', newsNotifs ? '0' : '1')
+        const { newsNotifs, transactionsNotifs, exchangeRatesNotifs } = this.props.settingsData
+        await settingsActions.setSettingKeyArray({
+            'newsNotifs': newsNotifs ? '0' : '1',
+            'notifsStatus': exchangeRatesNotifs * 1 === 1 && transactionsNotifs * 1 === 1 && !newsNotifs * 1 === 1 ? '1' : '0'
+        })
         await AppNotificationListener.updateSubscriptionsLater()
     }
 
@@ -143,9 +158,8 @@ class NotificationsSettingScreen extends PureComponent {
                                 iconType='transactions'
                                 onPress={this.handleChangeTransactions}
                                 rightContent='switch'
-                                disabled={!notifsStatus}
                                 switchParams={{
-                                    value: notifsStatus && transactionsNotifs,
+                                    value: transactionsNotifs,
                                     onPress: this.handleChangeTransactions
                                 }}
                             />
@@ -155,9 +169,8 @@ class NotificationsSettingScreen extends PureComponent {
                                 iconType='exchangeRates'
                                 onPress={this.handleChangeRates}
                                 rightContent='switch'
-                                disabled={!notifsStatus}
                                 switchParams={{
-                                    value: notifsStatus && exchangeRatesNotifs,
+                                    value: exchangeRatesNotifs,
                                     onPress: this.handleChangeRates
                                 }}
                             />
@@ -166,8 +179,7 @@ class NotificationsSettingScreen extends PureComponent {
                                 iconType='news'
                                 onPress={this.handleChangeNews}
                                 rightContent='switch'
-                                disabled={!notifsStatus}
-                                switchParams={{ value: notifsStatus && newsNotifs, onPress: this.handleChangeNews }}
+                                switchParams={{ value: newsNotifs, onPress: this.handleChangeNews }}
                                 last
                             />
                         </View>
