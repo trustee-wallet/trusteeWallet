@@ -3,6 +3,7 @@
  * @version 0.5
  */
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import Log from '@app/services/Log/Log'
 
 const scamSeeds = require('@crypto/common/ext/scam-seeds')
 
@@ -15,17 +16,21 @@ const PROXY_SEEDS = 'https://proxy.trustee.deals/seeds/getScam'
 const _get = async () => {
     const now = new Date().getTime()
     if ((now - CACHE_SEEDS_TIME) > TIMEOUT_SEEDS) {
-        const tmp = await BlocksoftAxios.get(PROXY_SEEDS)
-        CACHE_SEEDS_TIME = now
-        if (tmp.data?.data?.seeds) {
-            for (const seed of tmp.data.data.seeds) {
-                CACHE_SEEDS[seed] = 1
+        try {
+            const tmp = await BlocksoftAxios.get(PROXY_SEEDS)
+            CACHE_SEEDS_TIME = now
+            if (tmp.data?.data?.seeds) {
+                for (const seed of tmp.data.data.seeds) {
+                    CACHE_SEEDS[seed] = 1
+                }
             }
-        }
-        if (tmp.data?.data?.cashbacks) {
-            for (const cb of tmp.data.data.cashbacks) {
-                CACHE_CASHBACKS[cb] = 1
+            if (tmp.data?.data?.cashbacks) {
+                for (const cb of tmp.data.data.cashbacks) {
+                    CACHE_CASHBACKS[cb] = 1
+                }
             }
+        } catch (e) {
+            Log.log('BlocksoftKeysScam check error ' + e.message)
         }
     }
 }
