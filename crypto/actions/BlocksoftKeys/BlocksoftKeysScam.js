@@ -11,7 +11,7 @@ let CACHE_SEEDS = scamSeeds
 let CACHE_CASHBACKS = {}
 let CACHE_SEEDS_TIME = 0
 const TIMEOUT_SEEDS = 60000
-const PROXY_SEEDS = 'https://proxy.trustee.deals/seeds/getScam'
+const PROXY_SEEDS = 'https://proxy.trustee.deals/seeds/checkBad'
 
 const _get = async () => {
     const now = new Date().getTime()
