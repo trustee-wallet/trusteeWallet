@@ -997,26 +997,6 @@
 		"currencyExplorerLink": "https://www.oklink.com/en/ethw/address/",
 		"currencyExplorerTxLink": "https://www.oklink.com/en/ethw/tx/"
 	},
-/* while no explorer no sense
-	"ETH_POW": {
-		"currencyType": "coin",
-		"currencyName": "Ethereum POW",
-		"currencyCode": "ETH_POW",
-		"currencySymbol": "ETHW",
-		"ratesCurrencyCode": "ETHW",
-		"addressCurrencyCode": "ETH",
-		"addressProcessor": "ETH",
-		"addressUiChecker": "ETH",
-		"scannerProcessor": "ETHW",
-		"extendsProcessor": "ETH",
-		"prettyNumberProcessor": "ETH",
-		"transferProcessor": "ETH",
-		"network": "mainnet",
-		"decimals": 18,
-		"currencyExplorerLink": "https://www.oklink.com/en/ethw/address/",
-		"currencyExplorerTxLink": "https://www.oklink.com/en/ethw/tx/"
-	},
-*/
 	"ETC": {
 		"currencyType": "coin",
 		"currencyName": "Ethereum Classic",
@@ -2663,7 +2643,7 @@
 		"tokenAddress": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
 		"currencyExplorerLink": "https://etherscan.io/token/0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/",
-		"canBeDestination": 1,
+		"canBeDestination": 1
 	},
 
 	"ETH_STMATIC": {
