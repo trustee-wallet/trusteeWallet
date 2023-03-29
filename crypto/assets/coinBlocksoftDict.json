@@ -2629,7 +2629,6 @@
 		"currencyExplorerLink": "https://etherscan.io/token/0x249cA82617eC3DfB2589c4c17ab7EC9765350a18?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	},
-
 	"ETH_STETH": {
 		"currencyType": "token",
 		"currencyName": "stETH ERC20",
@@ -2643,9 +2642,8 @@
 		"tokenAddress": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
 		"currencyExplorerLink": "https://etherscan.io/token/0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/",
-		"canBeDestination": 1,
+		"canBeDestination": 1
 	},
-
 	"ETH_STMATIC": {
 		"currencyType": "token",
 		"currencyName": "stMATIC ERC20",
