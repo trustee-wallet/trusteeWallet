@@ -19,6 +19,7 @@ import UpdateCurrencyRateDaemon from '@app/daemons/back/UpdateCurrencyRateDaemon
 import UpdateAccountBalanceAndTransactions from '@app/daemons/back/UpdateAccountBalanceAndTransactions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import config from '@app/config/config'
+import Database from '@app/appstores/DataSource/Database/main'
 const { dispatch } = store
 
 const currencyActions = {
@@ -242,6 +243,76 @@ const currencyActions = {
 
         setLoaderStatus(false)
         return mainCurrencyNotAdded
+    },
+
+
+    recreateCurrency: async (currencyCode, walletHash, isHidden = 0, isLoader = 1) => {
+
+        isLoader ? setLoaderStatus(true) : null
+
+        Log.log('ACT/Currency recreateCurrency started ' + walletHash + ' ' + currencyCode)
+
+        let errorStepMsg = ''
+        const accountBalanceInsertObjs = []
+        try {
+            errorStepMsg = 'accountsDS cleanup started'
+            const sql = `DELETE FROM account WHERE currency_code='${currencyCode}' AND wallet_hash='${walletHash}' `
+            await Database.query(sql)
+            Log.log('ACT/Currency recreateCurrency cleanup finished sql ' + sql)
+
+            const sql2 = `DELETE FROM account_balance WHERE currency_code='${currencyCode}' AND wallet_hash='${walletHash}' `
+            await Database.query(sql2)
+            Log.log('ACT/Currency recreateCurrency cleanup finished sql2 ' + sql)
+
+            errorStepMsg = 'accountsDS.discoverAddresses started'
+            await accountDS.discoverAccounts({ walletHash, currencyCode }, 'RECREATE_CURRENCY')
+            errorStepMsg = 'accountsDS.discoverAddresses finished'
+
+            const dbAccounts = await accountDS.getAccounts({ walletHash, currencyCode })
+            if (dbAccounts && typeof dbAccounts[0] !== 'undefined' && typeof dbAccounts[0].id !== 'undefined') {
+                const { id: insertID } = dbAccounts[0]
+
+                accountBalanceInsertObjs.push({
+                    balanceFix: 0,
+                    unconfirmedFix: 0,
+                    balanceScanTime: 0,
+                    balanceScanLog: '',
+                    status: 0,
+                    currencyCode,
+                    walletHash: walletHash,
+                    accountId: insertID
+                })
+            }
+
+            try {
+                if (accountBalanceInsertObjs && accountBalanceInsertObjs.length > 0) {
+                    errorStepMsg = 'accountBalanceDS.insertAccountBalance started'
+                    await accountBalanceDS.insertAccountBalance({ insertObjs: accountBalanceInsertObjs })
+                    errorStepMsg = 'accountBalanceDS.insertAccountBalance finished'
+                }
+            } catch (e) {
+                Log.log('ACT/Currency addCurrency insertCurrency insertAccountBalance ' + e.message)
+            }
+
+
+            await currencyActions.setCryptoCurrencies()
+            await UpdateCurrencyRateDaemon.updateCurrencyRate({ source: 'ACT/Currency recreateCurrency' })
+            await UpdateAccountBalanceAndTransactions.updateAccountBalanceAndTransactions({ force: true, currencyCode })
+
+            Log.log('ACT/Currency recreateCurrency finished')
+        } catch (e) {
+
+            if (e.message) {
+                e.message = errorStepMsg + ' ' + e.message
+            } else {
+                e.message = errorStepMsg
+            }
+            e.message += ' currencyToAdd = ' + JSON.stringify(currencyCode)
+
+            Log.err('ACT/Currency recreateCurrency error ' + e.message)
+        }
+
+        setLoaderStatus(false)
     },
 
     /**

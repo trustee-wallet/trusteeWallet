@@ -48,7 +48,7 @@ export default class XmrAddressProcessor {
                 console.log('XmrAddressProcessor.getAddress recheck mnemonic error ' + e.message)
             }
         }
-        if (!walletMnemonic || data.walletHash === '2863e6c80b4d287969d91f74ac974df9') {
+        if (!walletMnemonic) {
             return {
                 address: 'invalidRecheck1',
                 privateKey: ''
