@@ -290,7 +290,19 @@ export async function setSelectedAccount(source) {
         throw new Error(e.message + ' account ' + JSON.stringify(account))
     }
 }
-
+export async function setSelectedAccountAddress(accountNew) {
+    const wallet = store.getState().mainStore.selectedWallet
+    const account = store.getState().mainStore.selectedAccount
+    if (wallet.walletHash === accountNew.walletHash && account.currencyCode === accountNew.currencyCode) {
+        Log.log('ACT/MStore setSelectedAccountAddress will update', accountNew)
+        dispatch({
+            type: 'SET_SELECTED_ACCOUNT_BALANCE',
+            selectedAccount: accountNew
+        })
+    } else {
+        Log.log('ACT/MStore setSelectedAccountAddress will not update')
+    }
+}
 export async function setSelectedAccountBalance(accountNew) {
     const account = store.getState().mainStore.selectedAccount
     if (account.address === accountNew.address && account.currencyCode === accountNew.currencyCode) {

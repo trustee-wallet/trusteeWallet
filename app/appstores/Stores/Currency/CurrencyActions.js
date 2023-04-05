@@ -254,6 +254,7 @@ const currencyActions = {
 
         let errorStepMsg = ''
         const accountBalanceInsertObjs = []
+        let dbAccounts = []
         try {
             errorStepMsg = 'accountsDS cleanup started'
             const sql = `DELETE FROM account WHERE currency_code='${currencyCode}' AND wallet_hash='${walletHash}' `
@@ -268,7 +269,7 @@ const currencyActions = {
             await accountDS.discoverAccounts({ walletHash, currencyCode }, 'RECREATE_CURRENCY')
             errorStepMsg = 'accountsDS.discoverAddresses finished'
 
-            const dbAccounts = await accountDS.getAccounts({ walletHash, currencyCode })
+            dbAccounts = await accountDS.getAccounts({ walletHash, currencyCode })
             if (dbAccounts && typeof dbAccounts[0] !== 'undefined' && typeof dbAccounts[0].id !== 'undefined') {
                 const { id: insertID } = dbAccounts[0]
 
@@ -313,6 +314,7 @@ const currencyActions = {
         }
 
         setLoaderStatus(false)
+        return dbAccounts && typeof dbAccounts[0] !== 'undefined' ? dbAccounts[0] : false
     },
 
     /**

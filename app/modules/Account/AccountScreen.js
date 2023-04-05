@@ -20,7 +20,7 @@ import NavStore from '@app/components/navigation/NavStore'
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 import transactionActions from '@app/appstores/Actions/TransactionActions'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
-import { setSelectedAccount, setSelectedAccountBalance } from '@app/appstores/Stores/Main/MainStoreActions'
+import { setSelectedAccount, setSelectedAccountBalance, setSelectedAccountAddress } from '@app/appstores/Stores/Main/MainStoreActions'
 import { getIsBalanceVisible, getIsSegwit } from '@app/appstores/Stores/Settings/selectors'
 import { getFilterData, getIsBlurVisible, getSelectedAccountData, getSelectedAccountTransactions, getSelectedCryptoCurrencyData, getSelectedWalletData, getStakingCoins } from '@app/appstores/Stores/Main/selectors'
 
@@ -217,7 +217,17 @@ class Account extends React.PureComponent {
         if (address === 'invalidRecheck1') {
             Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' rebuild address')
             try {
-                await currencyActions.recreateCurrency(currencyCode, walletHash, 0, 1)
+                const dbAccount = await currencyActions.recreateCurrency(currencyCode, walletHash, 0, 1)
+                if (dbAccount) {
+                    Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' rebuild dbAccount ' + JSON.stringify(dbAccount))
+                    const accountNew = {}
+                    accountNew.walletHash = walletHash
+                    accountNew.address = dbAccount.address
+                    accountNew.currencyCode = currencyCode
+                    await setSelectedAccountAddress(accountNew)
+                } else {
+                    Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' rebuild no dbAccount')
+                }
             } catch (e) {
                 if (config.debug.appErrors) {
                     console.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' rebuild address error ' + e.message, e)
