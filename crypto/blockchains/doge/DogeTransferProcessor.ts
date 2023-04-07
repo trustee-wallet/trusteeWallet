@@ -319,6 +319,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             try {
                 let doBuild = false
                 let actualFeeRebuild = false
+                let onlyOnce = false
                 do {
                     doBuild = false
                     logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
@@ -329,6 +330,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     let needAutoCorrect = false
                     if (autocorrectFee && !isStaticFee) {
                         needAutoCorrect = actualFeeForByte.toString() !== feeForByte.toString()
+                    } else if (this._settings.currencyCode === 'BTC' && !onlyOnce && actualFeeForByte * 1.3 < feeForByte * 1) {
+                        needAutoCorrect = true
+                        onlyOnce = true
                     }
                     if (!actualFeeRebuild && needAutoCorrect) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate will correct as ' + actualFeeForByte.toString() + ' != ' + feeForByte.toString())
