@@ -155,6 +155,8 @@ export default class BtcNetworkPrices implements BlocksoftBlockchainTypes.Networ
 
     async _parseLoaded(currencyCode: string, json: { fastestFee: any; halfHourFee: any; hourFee: any; lastBlock?: number; timeFromBlock?: number; timeFromBlockDiff?: number; mempoolSize?: number }, link: string) {
 
+        BlocksoftCryptoLog.log('BtcNetworkPricesProvider ' + currencyCode + ' _parseLoaded ' + link, json)
+
         CACHE_FEES_BTC = {
             'speed_blocks_2': 0,
             'speed_blocks_6': 0,
