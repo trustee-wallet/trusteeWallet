@@ -602,6 +602,12 @@ export default {
             darkColor: '#E51A31'
         }
     },
+    "BNB_SMART_TRX_NEW": {
+        colors: {
+            mainColor: '#E51A31',
+            darkColor: '#E51A31'
+        }
+    },
     "BNB_SMART_BTT": {
         colors: {
             mainColor: '#D73A64',

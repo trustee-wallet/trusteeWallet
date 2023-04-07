@@ -1795,7 +1795,7 @@
 	},
 	"BNB_SMART_TRX": {
 		"currencyType": "token",
-		"currencyName": "TRX BEP20",
+		"currencyName": "TRX BEP20 OLD",
 		"currencyCode": "BNB_SMART_TRX",
 		"currencySymbol": "TRX",
 		"ratesCurrencyCode": "TRX",
@@ -1804,6 +1804,18 @@
 		"tokenAddress": "0x85eac5ac2f758618dfa09bdbe0cf174e7d574d5b",
 		"tokenBlockchain": "BNB",
 		"currencyExplorerLink": "https://bscscan.com/token/0x85eac5ac2f758618dfa09bdbe0cf174e7d574d5b?a="
+	},
+	"BNB_SMART_TRX_NEW": {
+		"currencyType": "token",
+		"currencyName": "TRX BEP20",
+		"currencyCode": "BNB_SMART_TRX_NEW",
+		"currencySymbol": "TRX",
+		"ratesCurrencyCode": "TRX",
+		"extendsProcessor": "BNB_SMART_CAKE",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0xCE7de646e7208a4Ef112cb6ed5038FA6cC6b12e3",
+		"tokenBlockchain": "BNB",
+		"currencyExplorerLink": "https://bscscan.com/token/0xCE7de646e7208a4Ef112cb6ed5038FA6cC6b12e3?a="
 	},
 	"ETH_TRX": {
 		"currencyType": "token",
