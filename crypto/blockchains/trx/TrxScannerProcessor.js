@@ -101,6 +101,9 @@ export default class TrxScannerProcessor {
             }
         }
         result.balanceStaked = typeof result.frozen !== 'undefined' ? (result.frozen * 1 + result.frozenEnergy * 1) : 0
+        if (typeof result.frozenOld !== 'undefined') {
+            result.balanceStaked += result.frozenOld * 1 + result.frozenOldEnergy * 1
+        }
         result.balanceAvailable = result.balance
         if (result.balanceStaked * 1 > 0) {
             result.balance = result.balance * 1 + result.balanceStaked * 1

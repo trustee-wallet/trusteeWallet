@@ -185,6 +185,34 @@ export async function handleUnFreezeV2Trx(isAll, type) {
 
 }
 
+export async function handleUnFreezeV1Trx(isAll, type) {
+
+    const { account } = this.props
+    const { currentBalanceChecked, currentBalance } = this.state
+    let actualBalance = currentBalance
+    if (currentBalanceChecked === false) {
+        actualBalance = await handleTrxScan.call(this)
+    }
+    setLoaderStatus(true)
+
+    type = type.toUpperCase()
+    const address = account.address
+    const unFreeze = type === 'ENERGY' ? actualBalance.frozenEnergy : actualBalance.frozen
+    try {
+        await _sendTxTrx.call(this, '/wallet/unfreezebalance', {
+            owner_address: TronUtils.addressToHex(address),
+            resource: type
+        }, 'unfreeze for ' + type + ' of ' + address, { type: 'unfreeze', cryptoValue: unFreeze })
+    } catch (e) {
+        if (config.debug.cryptoErrors) {
+            console.log('AccountStaking.helper.handleUnFreezeV1Trx error ', e)
+        }
+        Log.log('AccountStaking.helper.handleUnFreezeV1Trx error ' + e.message)
+        _wrapError(e)
+    }
+    setLoaderStatus(false)
+}
+
 export async function handleWithdrawV2Trx(isAll, type) {
 
     const { account } = this.props

@@ -52,6 +52,8 @@ export default class TrxTrongridProvider {
                 const unfrozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'unfrozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'unfrozenEnergy'] : 0
                 const frozenEnergyExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] : 0
                 const frozenEnergyOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] : 0
+                const frozenOld = typeof CACHE_TRONGRID[address][tokenName + 'frozenOld'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenOld'] : 0
+                const frozenOldEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenOldEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenOldEnergy'] : 0
                 return {
                     isMultisig: CACHE_TRONGRID[address].isMultisig,
                     balance: CACHE_TRONGRID[address][tokenName],
@@ -64,6 +66,8 @@ export default class TrxTrongridProvider {
                     unfrozenEnergy,
                     frozenEnergyExpireTime,
                     frozenEnergyOthers,
+                    frozenOld,
+                    frozenOldEnergy,
                     unconfirmed: 0,
                     provider: 'trongrid-cache',
                     time: CACHE_TRONGRID[address].time
@@ -109,6 +113,12 @@ export default class TrxTrongridProvider {
         CACHE_TRONGRID[address]._frozenEnergyOthers = typeof res?.data?.account_resource?.delegated_frozen_balance_for_energy !== 'undefined' ? res.data.account_resource.delegated_frozen_balance_for_energy : 0
         CACHE_TRONGRID[address].voteTotal = typeof res.data.votes !== 'undefined' && typeof res.data.votes[0] !== 'undefined' ? res.data.votes[0].vote_count : 0
 
+
+        CACHE_TRONGRID[address]._frozenOld = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].frozen_balance : 0
+        CACHE_TRONGRID[address]._frozenOldEnergy = typeof res.data.account_resource !== 'undefined'
+        && typeof res.data.account_resource.frozen_balance_for_energy !== 'undefined'
+        && typeof res.data.account_resource.frozen_balance_for_energy.frozen_balance !== 'undefined'
+            ? res.data.account_resource.frozen_balance_for_energy.frozen_balance : 0
 
         if (res.data?.unfrozenV2) {
             for (const tmp of res.data.unfrozenV2) {
@@ -171,6 +181,8 @@ export default class TrxTrongridProvider {
         const frozenEnergyExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] : 0
         const frozenEnergyOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] : 0
         const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
+        const frozenOld = typeof CACHE_TRONGRID[address][tokenName + 'frozenOld'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenOld'] : 0
+        const frozenOldEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenOldEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenOldEnergy'] : 0
         return {
             isMultisig: CACHE_TRONGRID[address].isMultisig,
             balance,
@@ -183,6 +195,8 @@ export default class TrxTrongridProvider {
             unfrozenEnergy,
             frozenEnergyExpireTime,
             frozenEnergyOthers,
+            frozenOld,
+            frozenOldEnergy,
             unconfirmed: 0,
             provider: 'trongrid ' + nodeLink,
             time: CACHE_TRONGRID[address].time

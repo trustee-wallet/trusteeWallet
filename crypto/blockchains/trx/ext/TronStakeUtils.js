@@ -37,6 +37,8 @@ const TronStakeUtils = {
             balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
             balance.prettyFrozenEnergyOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergyOthers)
             balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenOthers * 1 + balance.prettyFrozenEnergy * 1 + balance.prettyFrozenEnergyOthers * 1).toString().split('.')[0]
+            balance.prettyFrozenOld = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOld)
+            balance.prettyFrozenOldEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOldEnergy)
 
         } catch (e) {
             if (config.debug.cryptoErrors) {
