@@ -228,6 +228,7 @@
       "available": "Disponible",
       "availableSOL": "Solde disponible",
       "frozenTRX": "Gelé",
+      "unfrozenTRX": "UnFrozen",
       "frozenBalanceTRX": " Bande passante: %{prettyFrozen} TRX / Énergie %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "entrer le montant des TRX gelés",
       "freezeForBandTRX": "Geler pour BAND",

@@ -22,6 +22,16 @@ export default class TrxTrongridProvider {
         return res?.isMultisig || false
     }
 
+    setStaked(address, type, minus) {
+        if (typeof CACHE_TRONGRID[address] === 'undefined') {
+            return false
+        }
+        if (type === 'ENERGY') {
+            CACHE_TRONGRID[address]._frozenEnergy = CACHE_TRONGRID[address]._frozenEnergy - minus
+        } else {
+            CACHE_TRONGRID[address]._frozen = CACHE_TRONGRID[address]._frozen - minus
+        }
+    }
     /**
      * https://api.trongrid.io/walletsolidity/getaccount?address=41d4eead2ea047881ce54cae1a765dfe92a8bfdbe9
      * @param {string} address
@@ -35,9 +45,11 @@ export default class TrxTrongridProvider {
                 BlocksoftCryptoLog.log('TrxTrongridProvider.get from cache', address + ' => ' + tokenName + ' : ' + CACHE_TRONGRID[address][tokenName])
                 const voteTotal = typeof CACHE_TRONGRID[address].voteTotal !== 'undefined' ? CACHE_TRONGRID[address].voteTotal : 0
                 const frozen = typeof CACHE_TRONGRID[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozen'] : 0
+                const unfrozen = typeof CACHE_TRONGRID[address][tokenName + 'frozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'unfrozen'] : 0
                 const frozenExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenExpireTime'] : 0
                 const frozenOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenOthers'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenOthers'] : 0
                 const frozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergy'] : 0
+                const unfrozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'unfrozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'unfrozenEnergy'] : 0
                 const frozenEnergyExpireTime = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyExpireTime'] : 0
                 const frozenEnergyOthers = typeof CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'frozenEnergyOthers'] : 0
                 return {
@@ -45,9 +57,11 @@ export default class TrxTrongridProvider {
                     balance: CACHE_TRONGRID[address][tokenName],
                     voteTotal,
                     frozen,
+                    unfrozen,
                     frozenExpireTime,
                     frozenOthers,
                     frozenEnergy,
+                    unfrozenEnergy,
                     frozenEnergyExpireTime,
                     frozenEnergyOthers,
                     unconfirmed: 0,
@@ -80,31 +94,66 @@ export default class TrxTrongridProvider {
         }
 
 
+
         CACHE_TRONGRID[address] = {}
         CACHE_TRONGRID[address].time = now
         CACHE_TRONGRID[address]._ = typeof res.data.balance !== 'undefined' ? res.data.balance : 0
         CACHE_TRONGRID[address].isMultisig = isMultisig
-        CACHE_TRONGRID[address]._frozen = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].frozen_balance : 0
-        CACHE_TRONGRID[address]._frozenExpireTime = typeof res.data.frozen !== 'undefined' && typeof res.data.frozen[0] !== 'undefined' ? res.data.frozen[0].expire_time : 0
-        CACHE_TRONGRID[address]._frozenOthers = typeof res.data.delegated_frozen_balance_for_bandwidth !== 'undefined' ? res.data.delegated_frozen_balance_for_bandwidth : 0
-        CACHE_TRONGRID[address]._frozenEnergy = typeof res.data.account_resource !== 'undefined'
-        && typeof res.data.account_resource.frozen_balance_for_energy !== 'undefined'
-        && typeof res.data.account_resource.frozen_balance_for_energy.frozen_balance !== 'undefined'
-            ? res.data.account_resource.frozen_balance_for_energy.frozen_balance : 0
-        CACHE_TRONGRID[address]._frozenEnergyExpireTime = typeof res.data.account_resource !== 'undefined'
-        && typeof res.data.account_resource.frozen_balance_for_energy !== 'undefined'
-        && typeof res.data.account_resource.frozen_balance_for_energy.expire_time !== 'undefined'
-            ? res.data.account_resource.frozen_balance_for_energy.expire_time : 0
-
-        CACHE_TRONGRID[address]._frozenEnergyOthers = 0
-        if (typeof res.data.account_resource !== 'undefined' && typeof res.data.account_resource.delegated_frozen_balance_for_energy !== 'undefined' && res.data.account_resource.delegated_frozen_balance_for_energy * 1 > 0) {
-            CACHE_TRONGRID[address]._frozenEnergyOthers = res.data.account_resource.delegated_frozen_balance_for_energy * 1
-        }
+        CACHE_TRONGRID[address]._frozen = 0
+        CACHE_TRONGRID[address]._frozenExpireTime = 0
+        CACHE_TRONGRID[address]._unfrozen = 0
+        CACHE_TRONGRID[address]._frozenOthers = typeof res?.data?.delegated_frozen_balance_for_bandwidth !== 'undefined' ? res.data.delegated_frozen_balance_for_bandwidth : 0
+        CACHE_TRONGRID[address]._frozenEnergy = 0
+        CACHE_TRONGRID[address]._frozenEnergyExpireTime = 0
+        CACHE_TRONGRID[address]._unfrozenEnergy = 0
+        CACHE_TRONGRID[address]._frozenEnergyOthers = typeof res?.data?.account_resource?.delegated_frozen_balance_for_energy !== 'undefined' ? res.data.account_resource.delegated_frozen_balance_for_energy : 0
         CACHE_TRONGRID[address].voteTotal = typeof res.data.votes !== 'undefined' && typeof res.data.votes[0] !== 'undefined' ? res.data.votes[0].vote_count : 0
 
+
+        if (res.data?.unfrozenV2) {
+            for (const tmp of res.data.unfrozenV2) {
+                if (tmp?.type === 'ENERGY') {
+                    if (CACHE_TRONGRID[address]._frozenEnergyExpireTime < tmp.unfreeze_expire_time) {
+                        CACHE_TRONGRID[address]._frozenEnergyExpireTime = tmp.unfreeze_expire_time
+                    }
+                    CACHE_TRONGRID[address]._unfrozenEnergy += tmp.unfreeze_amount * 1
+                } else {
+                    if (CACHE_TRONGRID[address]._frozenExpireTime < tmp.unfreeze_expire_time) {
+                        CACHE_TRONGRID[address]._frozenExpireTime = tmp.unfreeze_expire_time
+                    }
+                    CACHE_TRONGRID[address]._unfrozen += tmp.unfreeze_amount * 1
+                }
+            }
+        }
+        const unfrozen = typeof CACHE_TRONGRID[address][tokenName + 'unfrozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'unfrozen'] : 0
+        const unfrozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'unfrozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'unfrozenEnergy'] : 0
+        if (res.data.frozenV2) {
+            let amount = 0
+            let amountEnergy = 0
+            let hasEnergy = false
+            for (const tmp of res.data.frozenV2) {
+                if (tmp.type === 'ENERGY') {
+                    if (typeof tmp.amount !== 'undefined') {
+                        amountEnergy = tmp.amount
+                    }
+                    hasEnergy = true
+                } else if (typeof tmp.amount !== 'undefined') {
+                    amount = tmp.amount
+                }
+            }
+            if (amountEnergy) {
+                CACHE_TRONGRID[address]._frozenEnergy = amountEnergy
+                CACHE_TRONGRID[address]._frozen = amount
+            } else if (amount) {
+                if (hasEnergy) {
+                    CACHE_TRONGRID[address]._frozenEnergy = amount
+                } else {
+                    CACHE_TRONGRID[address]._frozen = amount
+                }
+            }
+        }
         if (res.data.assetV2) {
-            let token
-            for (token of res.data.assetV2) {
+            for (const token of res.data.assetV2) {
                 CACHE_TRONGRID[address][token.key] = token.value
             }
         }
@@ -127,9 +176,11 @@ export default class TrxTrongridProvider {
             balance,
             voteTotal,
             frozen,
+            unfrozen,
             frozenExpireTime,
             frozenOthers,
             frozenEnergy,
+            unfrozenEnergy,
             frozenEnergyExpireTime,
             frozenEnergyOthers,
             unconfirmed: 0,

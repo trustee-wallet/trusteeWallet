@@ -227,6 +227,7 @@
       "available": "ხელმისაწვდომია",
       "availableSOL": "Available balance",
       "frozenTRX": "Застейкано",
+      "unfrozenTRX": "Розморожено",
       "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "შეიყვანეთ TRX-ის  რაოდენობა",
       "freezeForBandTRX": "Застейкать",

@@ -39,7 +39,7 @@ import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAn
 
 import InfoProgressBar from './elements/InfoProgressBar'
 import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
-import { handleTrxScan, handleFreezeTrx, handleUnFreezeTrx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
+import { handleTrxScan, handleFreezeV2Trx, handleUnFreezeV2Trx, handleWithdrawV2Trx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
 import Loader from '@app/components/elements/LoaderItem'
 
 
@@ -57,7 +57,9 @@ class AccountStakingTRX extends React.PureComponent {
             frozenEnergy: '0',
             frozenEnergyOthers: '0',
             prettyFrozen: '0',
+            prettyUnFrozen: '0',
             prettyFrozenEnergy: '0',
+            prettyUnFrozenEnergy: '0',
             voteTotal: '0',
             prettyVote: '0',
             frozenExpireTime : 0,
@@ -371,14 +373,23 @@ class AccountStakingTRX extends React.PureComponent {
                             <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.frozenTRX')}</Text>
                             <Text style={[styles.reward, { color: colors.common.text1 }]}>{tmp}</Text>
                         </View>
-                        {!!currentBalance.prettyFrozen &&
-                            <BorderedButton
-                                containerStyle={styles.withdrawBtn}
-                                text={strings('account.transaction.unfreeze')}
-                                onPress={() => handleUnFreezeTrx.call(this, false, 'BANDWIDTH')}
-                            />}
                     </View>
                 </View>
+                {!!currentBalance.prettyUnFrozen &&
+                <View style={{ marginHorizontal: GRID_SIZE / 2 }}>
+                    <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
+                        <View>
+                            <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.unfrozenTRX')}</Text>
+                            <Text style={[styles.reward, { color: colors.common.text1 }]}>{currentBalance.prettyUnFrozen}</Text>
+                        </View>
+                            <BorderedButton
+                                containerStyle={styles.withdrawBtn}
+                                text={strings('settings.walletList.withdrawTRX')}
+                                onPress={() => handleWithdrawV2Trx.call(this, false, 'BANDWIDTH')}
+                            />
+                    </View>
+                </View>
+                }
             </>
         )
     }
@@ -404,14 +415,24 @@ class AccountStakingTRX extends React.PureComponent {
                             <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.frozenTRX')}</Text>
                             <Text style={[styles.reward, { color: colors.common.text1 }]}>{tmp}</Text>
                         </View>
-                        {!!currentBalance.prettyFrozenEnergy &&
-                            <BorderedButton
-                                containerStyle={styles.withdrawBtn}
-                                text={strings('account.transaction.unfreeze')}
-                                onPress={() => handleUnFreezeTrx.call(this, false, 'ENERGY')}
-                            />}
                     </View>
                 </View>
+                {!!currentBalance.prettyUnFrozenEnergy &&
+                    <View style={{ marginHorizontal: GRID_SIZE / 2 }}>
+                        <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
+                            <View>
+                                <Text style={[styles.description, { color: '#999', marginBottom: GRID_SIZE / 4 }]}>{strings('settings.walletList.unfrozenTRX')}</Text>
+                                <Text style={[styles.reward, { color: colors.common.text1 }]}>{currentBalance.prettyUnFrozenEnergy}</Text>
+                            </View>
+
+                            <BorderedButton
+                                containerStyle={styles.withdrawBtn}
+                                text={strings('settings.walletList.withdrawTRX')}
+                                onPress={() => handleWithdrawV2Trx.call(this, false, 'ENERGY')}
+                            />
+                        </View>
+                    </View>
+                }
             </>
         )
     }
@@ -484,7 +505,12 @@ class AccountStakingTRX extends React.PureComponent {
                     <Button
                         title={strings('settings.walletList.freezeTrx')}
                         containerStyle={{ marginVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
-                        onPress={() => handleFreezeTrx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
+                        onPress={() => handleFreezeV2Trx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
+                    />
+                    <Button
+                        title={strings('account.transaction.unfreeze')}
+                        containerStyle={{ marginVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
+                        onPress={() => handleUnFreezeV2Trx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
                     />
                 </ScrollView>
             </ScreenWrapper>

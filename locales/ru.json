@@ -229,6 +229,7 @@
       "available" : "Доступно",
       "availableSOL": "Доступный баланс",
       "frozenTRX" : "Застейкано",
+      "unfrozenTRX": "Розморожено",
       "frozenBalanceTRX" : "Пропускная способность: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введите количество TRX",
       "freezeForBandTRX" : "Застейкать",

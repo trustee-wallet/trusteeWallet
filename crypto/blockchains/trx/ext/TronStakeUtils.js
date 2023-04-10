@@ -7,6 +7,7 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import Log from '@app/services/Log/Log'
 import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import config from '@app/config/config'
 
 const TronStakeUtils = {
 
@@ -15,24 +16,56 @@ const TronStakeUtils = {
     },
 
     async getPrettyBalance(address) {
-        const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('TronStakeUtils'))
+        let balance = false
+        try {
+            balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('TronStakeUtils'))
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('TronStakeUtils.getPrettyBalance getBalance ' + address + ' ' + e.message)
+            }
+            BlocksoftCryptoLog.log('TronStakeUtils.getPrettyBalance getBalance ' + address + ' ' + e.message)
+            throw e
+        }
         if (!balance) {
             return false
         }
-        balance.prettyBalanceAvailable = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balanceAvailable)
-        balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
-        balance.prettyFrozenOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOthers)
-        balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
-        balance.prettyFrozenEnergyOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergyOthers)
-        balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenOthers * 1 + balance.prettyFrozenEnergy * 1 + balance.prettyFrozenEnergyOthers * 1).toString().split('.')[0]
-        
+
+        try {
+            balance.prettyBalanceAvailable = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balanceAvailable)
+            balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
+            balance.prettyFrozenOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOthers)
+            balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
+            balance.prettyFrozenEnergyOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergyOthers)
+            balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenOthers * 1 + balance.prettyFrozenEnergy * 1 + balance.prettyFrozenEnergyOthers * 1).toString().split('.')[0]
+
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('TronStakeUtils.getPrettyBalance makePretty1 ' + address + ' ' + e.message)
+            }
+            BlocksoftCryptoLog.log('TronStakeUtils.getPrettyBalance makePretty1 ' + address + ' ' + e.message)
+            throw e
+        }
+
+        try {
+            balance.prettyUnFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance?.unfrozen)
+            balance.prettyUnFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance?.unfrozenEnergy)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('TronStakeUtils.getPrettyBalance makePretty2 ' + address + ' ' + e.message)
+            }
+            BlocksoftCryptoLog.log('TronStakeUtils.getPrettyBalance makePretty2 ' + address + ' ' + e.message)
+            throw e
+        }
+
+
         const maxExpire = balance.frozenEnergyExpireTime && balance.frozenEnergyExpireTime > balance.frozenExpireTime ?
             balance.frozenEnergyExpireTime : balance.frozenExpireTime
         if (maxExpire > 0) {
-            balance.diffLastStakeMinutes = 24 * 3 * 60 - (maxExpire - new Date().getTime()) / 60000 // default time = 3 days, so thats how many minutes from last stake
+            balance.diffLastStakeMinutes = (maxExpire - new Date().getTime()) / 60000 // default time = 3 days, so thats how many minutes from last stake
         } else {
             balance.diffLastStakeMinutes = -1
         }
+
         return balance
     },
 

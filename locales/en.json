@@ -229,6 +229,7 @@
       "available" : "Available",
       "availableSOL": "Available balance",
       "frozenTRX" : "Frozen",
+      "unfrozenTRX" : "UnFrozen",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "enter freeze amount TRX",
       "freezeForBandTRX" : "Freeze for BAND",
