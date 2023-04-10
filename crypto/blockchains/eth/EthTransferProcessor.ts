@@ -340,13 +340,15 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
                 nonceForTx = oldNonce
                 isNewNonce = false
                 nonceLog = 'recheck oldNonce ' + oldNonce + ' with basic ' + nonceForTxBasic + nonceLog
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' ' + nonceLog)
             } else {
                 nonceForTx = nonceForTxBasic
                 isNewNonce = true
                 nonceLog = 'recheck nonce ' + oldNonce + ' replaced by basic ' + nonceForTxBasic + nonceLog
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' ' + nonceLog)
             }
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' ' + nonceLog)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate ' + data.addressFrom + ' ' + nonceLog)
         }
 
         if (data.isTransferAll && this._useThisBalance) {
@@ -730,6 +732,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         }
         if (typeof data.addressTo === 'undefined') {
             throw new Error('ETH transaction required addressTo')
+        }
+        if (config.debug.cryptoErrors) {
+            console.log(this._settings.currencyCode + ' EthTransferProcessor sendTx started', JSON.parse(JSON.stringify(data)))
         }
 
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor sendTx started', JSON.parse(JSON.stringify(data)))
