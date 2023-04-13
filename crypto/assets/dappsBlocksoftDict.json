@@ -17,7 +17,7 @@
   "ETH_LIDO" : {
     "dappCode" : "ETH_LIDO",
     "dappName" : "Ethereum Liquid Staking (LIDO)",
-    "dappUrl" : "https://stake.lido.fi",
+    "dappUrl" : "https://stake.lido.fi/?ref=0xf1Cff704c6E6ce459e3E1544a9533cCcBDAD7B99",
     "dappNetworks" : ["ETH"],
     "disableInjected" : true,
     "dappsDomenName": "lido.fi"
