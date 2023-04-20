@@ -146,10 +146,6 @@ export default class VetScannerProcessor {
         try {
             const link = API_PATH + '/blocks/best'
             const result = await BlocksoftAxios.get(link)
-            console.log(`
-            
-            
-            result.data`, result.data.number)
             if (!result.data || typeof result.data.number === 'undefined') {
                 return false
             }
