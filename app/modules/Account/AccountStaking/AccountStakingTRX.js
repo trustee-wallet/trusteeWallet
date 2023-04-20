@@ -112,7 +112,7 @@ class AccountStakingTRX extends React.PureComponent {
             return false
         }
 
-        if (this.state.currentBalance.diffLastStakeMinutes > 20 && this.state.currentBalance.voteTotal * 1 !== this.state.currentBalance.prettyVote * 1) {
+        if (this.state.currentBalance.diffLastStakeMinutes > 1 && this.state.currentBalance.voteTotal * 1 !== this.state.currentBalance.prettyVote * 1) {
             CACHE_ASKED[address] = this.state.currentBalance.time
             showModal({
                 type: 'YES_NO_MODAL',

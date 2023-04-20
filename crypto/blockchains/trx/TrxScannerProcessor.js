@@ -248,7 +248,7 @@ export default class TrxScannerProcessor {
 
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all inited for ' + address + ' action ' + specialActionNeeded)
                 try {
-                    if (await TronStakeUtils.sendVoteAll(address, derivationPath, walletHash, specialActionNeeded)) {
+                    if (await TronStakeUtils.sendVoteAll(address, derivationPath, walletHash, specialActionNeeded, confirmations)) {
                         await Database.query(`
                     UPDATE transactions SET special_action_needed='' WHERE special_action_needed='vote' OR special_action_needed='vote_after_unfreeze'
                     AND address_from_basic='${address}'

@@ -70,7 +70,8 @@ export default class TrxTrongridProvider {
                     frozenOldEnergy,
                     unconfirmed: 0,
                     provider: 'trongrid-cache',
-                    time: CACHE_TRONGRID[address].time
+                    time: CACHE_TRONGRID[address].time,
+                    latestOperation: typeof CACHE_TRONGRID[address][tokenName + 'latestOperation'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'latestOperation'] : 0
                 }
             } else if (tokenName !== '_') {
                 return false
@@ -138,15 +139,23 @@ export default class TrxTrongridProvider {
         const unfrozen = typeof CACHE_TRONGRID[address][tokenName + 'unfrozen'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'unfrozen'] : 0
         const unfrozenEnergy = typeof CACHE_TRONGRID[address][tokenName + 'unfrozenEnergy'] !== 'undefined' ? CACHE_TRONGRID[address][tokenName + 'unfrozenEnergy'] : 0
         if (res.data.frozenV2) {
+            BlocksoftCryptoLog.log('TrxTrongridProvider.get ' + address + ' frozenV2 ' + JSON.stringify(res.data.frozenV2))
             let amount = 0
             let amountEnergy = 0
             let hasEnergy = false
+            let lastEnergy = false
             for (const tmp of res.data.frozenV2) {
                 if (tmp.type === 'ENERGY') {
                     if (typeof tmp.amount !== 'undefined') {
                         amountEnergy = tmp.amount
                     }
                     hasEnergy = true
+                    lastEnergy = true
+                } else if (tmp.type === 'TRON_POWER') {
+                    if (typeof tmp.amount !== 'undefined') {
+                        amount = tmp.amount
+                    }
+                    lastEnergy = false
                 } else if (typeof tmp.amount !== 'undefined') {
                     amount = tmp.amount
                 }
@@ -155,7 +164,7 @@ export default class TrxTrongridProvider {
                 CACHE_TRONGRID[address]._frozenEnergy = amountEnergy
                 CACHE_TRONGRID[address]._frozen = amount
             } else if (amount) {
-                if (hasEnergy) {
+                if (hasEnergy && lastEnergy) {
                     CACHE_TRONGRID[address]._frozenEnergy = amount
                 } else {
                     CACHE_TRONGRID[address]._frozen = amount
@@ -168,6 +177,8 @@ export default class TrxTrongridProvider {
             }
         }
 
+        const latestOperation = res.data?.latest_opration_time
+        CACHE_TRONGRID[address][tokenName + 'latestOperation'] = latestOperation
         if (typeof CACHE_TRONGRID[address][tokenName] === 'undefined') {
             return false
             // return { balance: 0, unconfirmed : 0, provider: 'trongrid' }
@@ -199,6 +210,7 @@ export default class TrxTrongridProvider {
             frozenOldEnergy,
             unconfirmed: 0,
             provider: 'trongrid ' + nodeLink,
+            latestOperation,
             time: CACHE_TRONGRID[address].time
         }
     }

@@ -59,40 +59,36 @@ const TronStakeUtils = {
             throw e
         }
 
-
-        const maxExpire = balance.frozenEnergyExpireTime && balance.frozenEnergyExpireTime > balance.frozenExpireTime ?
-            balance.frozenEnergyExpireTime : balance.frozenExpireTime
-        if (maxExpire > 0) {
-            balance.diffLastStakeMinutes = (maxExpire - new Date().getTime()) / 60000 // default time = 3 days, so thats how many minutes from last stake
-        } else {
-            balance.diffLastStakeMinutes = -1
-        }
-
+        const latestOperation = balance.latestOperation
+        const now = new Date().getTime()
+        balance.diffLastStakeMinutes = (now - latestOperation) / 60000
         return balance
     },
 
-    async sendVoteAll(address, derivationPath, walletHash, specialActionNeeded) {
+    async sendVoteAll(address, derivationPath, walletHash, specialActionNeeded, confirmations) {
 
         const { prettyVote, diffLastStakeMinutes, voteTotal } = await TronStakeUtils.getPrettyBalance(address)
-        if (diffLastStakeMinutes === -1 && specialActionNeeded === 'vote_after_unfreeze') {
-            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' continue ' + diffLastStakeMinutes)
-        } else if (!diffLastStakeMinutes || diffLastStakeMinutes < 3) {
-            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote1 by ' + diffLastStakeMinutes)
-            return false
+        if (confirmations < 100) {
+            if (diffLastStakeMinutes === -1 && specialActionNeeded === 'vote_after_unfreeze') {
+                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' continue confirmations ' + confirmations + ' by ' + diffLastStakeMinutes)
+            } else if (!diffLastStakeMinutes || diffLastStakeMinutes < 3) {
+                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote1 confirmations ' + confirmations + ' by ' + diffLastStakeMinutes)
+                return false
+            }
         }
         if (!prettyVote || typeof prettyVote === 'undefined') {
-            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote2')
+            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote2 confirmations ' + confirmations)
             return false
         } else if (voteTotal * 1 === prettyVote * 1) {
             if (diffLastStakeMinutes > 100) {
-                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote3 ' + voteTotal + ' by ' + diffLastStakeMinutes)
+                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote3 confirmations ' + confirmations + ' votes ' + voteTotal + ' by ' + diffLastStakeMinutes)
                 return true // all done
             }
-            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote4 ' + voteTotal)
+            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote4 confirmations ' + confirmations + ' votes ' + voteTotal)
             return false
         }
 
-        BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' started vote ' + prettyVote + ' by ' + diffLastStakeMinutes)
+        BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' started vote confirmations ' + confirmations + '  votes ' + prettyVote + ' by ' + diffLastStakeMinutes)
 
         const voteAddress = await TronStakeUtils.getVoteAddresses()
         return TronStakeUtils._send('/wallet/votewitnessaccount', {
