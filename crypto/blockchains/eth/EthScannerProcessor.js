@@ -485,7 +485,7 @@ export default class EthScannerProcessor extends EthBasic {
                 amount = new BlocksoftBN(0)
                 for (tmp of transaction.tokenTransfers) {
                     try {
-                        let token = tmp.token || tmp.contact || ''
+                        let token = typeof tmp.token !== 'undefined' ? tmp.token : tmp.contract
                         if (token) {
                             token = token.toLowerCase()
                         }
