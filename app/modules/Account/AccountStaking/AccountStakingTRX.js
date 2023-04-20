@@ -542,7 +542,7 @@ class AccountStakingTRX extends React.PureComponent {
                         onPress={() => handleFreezeV2Trx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
                     />
                     <Button
-                        title={strings('settings.walletList.unfreezeTrx')}
+                        title={strings('settings.walletList.unfreezeTRX')}
                         containerStyle={{ marginVertical: GRID_SIZE, marginHorizontal: GRID_SIZE }}
                         onPress={() => handleUnFreezeV2Trx.call(this, false, index === 0 ? 'BANDWIDTH' : 'ENERGY')}
                     />
