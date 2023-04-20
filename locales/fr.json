@@ -556,7 +556,7 @@
       "process": "En cours",
       "delegated": "délégué",
       "confirming": "Confirmation",
-      "fail": "Échouer",
+      "fail": "Sans succès",
       "missing": "Pas trouvé",
       "replaced": "Remplacé",
       "out_of_energy": "Pas d'Energie",
@@ -599,6 +599,7 @@
           "success": "Réussi",
           "pending": "En attente",
           "canceled": "Annulé",
+          "fail": "Sans succès",
           "missing": "Pas trouvé",
           "out_of_energy": "Pas d'énergie"
         }

@@ -555,7 +555,7 @@
       "process": "მუშავდება",
       "delegated": "დელეგირებულია",
       "confirming": "დასტურდება",
-      "fail": "შეცდომა",
+      "fail": "წარუმატებლად",
       "missing": "არ მოიძებნა",
       "replaced": "შეცვლილია",
       "out_of_energy" : "No energy",
@@ -598,7 +598,8 @@
           "success": "წარმატებულია",
           "pending": "მუშავდება",
           "canceled": "გაუქმებულია",
-          "missing": "Not found",
+          "fail": "წარუმატებლად",
+          "missing": "არ მოიძებნა",
           "out_of_energy" : "No energy"
         }
       },

@@ -166,6 +166,7 @@ const transactionActions = {
             case 'CANCELED_PAYIN':
                 return 'CANCELED'
             case 'FAIL':
+                return 'FAIL'
             case 'MISSING':
             case 'REPLACED':
                 return 'MISSING'

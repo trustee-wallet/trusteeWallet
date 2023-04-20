@@ -600,6 +600,7 @@
           "success": "Success",
           "pending": "Pending",
           "canceled": "Canceled",
+          "fail": "Fail",
           "missing": "Not found",
           "out_of_energy" : "No energy"
         }
