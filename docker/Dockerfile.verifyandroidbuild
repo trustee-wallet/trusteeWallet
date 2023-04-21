@@ -22,7 +22,7 @@ RUN sdkmanager --install "build-tools;30.0.3" && \
     sdkmanager --install "platform-tools" && \
     sdkmanager --install "platforms;android-30" && \
     sdkmanager --install "ndk-bundle" "ndk;21.4.7075529" && \
-    sdkmanager --install "cmake;3.10.2.4988404"
+    sdkmanager --install "cmake;3.6.4111459"
 
 RUN cd ./src/android && \
     touch local.properties && \
@@ -35,7 +35,7 @@ RUN cd ./src/android && ./gradlew --console=plain --parallel bundleRelease
 
 RUN java -jar bundletool.jar build-apks --mode=universal --bundle=./src/android/app/build/outputs/bundle/release/app-release.aab --output-format=directory --output=./built_apk
 
-#RUN sdkmanager --list_installed
+RUN sdkmanager --list_installed
 
 #RUN gplaycli -av -p -y -v -d com.trusteewallet && \
 #    ls -la com.trusteewallet*apk && \
