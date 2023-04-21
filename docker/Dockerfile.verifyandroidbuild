@@ -31,6 +31,10 @@ RUN cd ./src/android && \
 
 RUN cd ./src && yarn install --no-progress --frozen-lockfile
 
+RUN echo " " | sudo tee -a /${WDIR}/src/android/app/build.gradle && \
+    echo 'configurations.all { resolutionStrategy { force "com.facebook.soloader:soloader:0.8.0" } }' | sudo tee -a /${WDIR}/src/android/app/build.gradle && \
+    cat /${WDIR}/src/android/app/build.gradle
+
 RUN cd ./src/android && ./gradlew --console=plain --parallel bundleRelease
 
 RUN java -jar bundletool.jar build-apks --mode=universal --bundle=./src/android/app/build/outputs/bundle/release/app-release.aab --output-format=directory --output=./built_apk
