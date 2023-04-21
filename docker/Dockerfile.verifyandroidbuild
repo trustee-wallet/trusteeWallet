@@ -5,8 +5,10 @@ ARG COMMIT_SHA=NO_SHA_1
 ARG REPOSITORY_BRANCH=master
 ARG REPOSITORY_URL="https://github.com/trustee-wallet/trusteeWallet.git"
 
+ADD . ./src
+
 RUN cd ./src && \
-    git clone -b $REPOSITORY_BRANCH $REPOSITORY_URL . && git status && git remote get-url origin && \
+#    git clone -b $REPOSITORY_BRANCH $REPOSITORY_URL . && git status && git remote get-url origin && \
 #    sed -i "s/android.builder.sdkDownload=true/android.builder.sdkDownload=false/g" ./android/gradle.properties && \
     sed -i "s/versionCode 1/versionCode $BUILD_NUMBER/g" ./android/app/build.gradle && \
     sed -i "s/VERSION_CODE_PLACEHOLDER/$BUILD_NUMBER/g" ./app/config/config.js && \
