@@ -95,7 +95,7 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
 
         if (needData) {
             const diff = scanData.account.transactionsScanTime - transaction.timestamp / 1000
-            if (diff > 6000) {
+            if (diff > 60000) {
                 return false
             }
         }
@@ -148,7 +148,7 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
                     }
                 }
             }
-            if (res.transactionFee * 1 === 0 || res.addressAmount * 1 === 0) {
+            if (res.transactionFee * 1 === 0 && res.addressAmount * 1 === 0) {
                 return false
             }
         } else if (res.addressAmount * 1 === 0) {

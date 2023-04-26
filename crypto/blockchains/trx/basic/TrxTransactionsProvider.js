@@ -8,6 +8,7 @@ import TrxNodeInfoProvider from './TrxNodeInfoProvider'
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
+import config from '@app/config/config'
 
 const TXS_MAX_TRY = 10
 
@@ -62,6 +63,9 @@ export default class TrxTransactionsProvider {
             try {
                 tmp = await this._unifyTransaction(scanData, tx, tokenName)
             } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log('TrxTransactionsProvider.get unify error ' + e.message + ' tx ' + tx?.transactionHash)
+                }
                 BlocksoftCryptoLog.log('TrxTransactionsProvider.get unify error ' + e.message + ' tx ' + tx?.transactionHash)
             }
             if (!tmp) continue
