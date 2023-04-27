@@ -152,7 +152,7 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
 				if (res.transactionFee * 1 === 0) {
 					return false
 				} else {
-					if (res.transactionDirection === 'outcome') {
+					if (res.transactionDirection !== 'outcome') {
 						return false
 					}
 				}
