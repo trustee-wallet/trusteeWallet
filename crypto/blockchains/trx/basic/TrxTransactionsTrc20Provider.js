@@ -148,8 +148,14 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
                     }
                 }
             }
-            if (res.transactionFee * 1 === 0 && res.addressAmount * 1 === 0) {
-                return false
+            if (res.addressAmount * 1 === 0) {
+				if (res.transactionFee * 1 === 0) {
+					return false
+				} else {
+					if (res.transactionDirection === 'outcome') {
+						return false
+					}
+				}
             }
         } else if (res.addressAmount * 1 === 0) {
             return false
