@@ -81,7 +81,7 @@
 		058424311E3E4BEE8CB76D7D /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		080FE389A0F4475A81D7076C /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		0AC1A99D130F237E8458967F /* libPods-TrusteeWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-TrusteeWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C4647043B8F4A8DB84537C5 /* CREDC___.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = CREDC___.ttf; path = ../assets/fonts/CREDC___.ttf; sourceTree = "<group>"; };
+		0C4647043B8F4A8DB84537C5 /* CREDC___.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "CREDC___.ttf"; path = "../assets/fonts/CREDC___.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* TrusteeWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrusteeWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = TrusteeWallet/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = TrusteeWallet/AppDelegate.m; sourceTree = "<group>"; };
@@ -811,7 +811,7 @@
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 8LLQ4BRWQ5;
 				INFOPLIST_FILE = TrusteeWallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.30.395;
 				OTHER_LDFLAGS = (
@@ -842,7 +842,7 @@
 				CURRENT_PROJECT_VERSION = 431;
 				DEVELOPMENT_TEAM = 8LLQ4BRWQ5;
 				INFOPLIST_FILE = TrusteeWallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.30.395;
 				OTHER_LDFLAGS = (
