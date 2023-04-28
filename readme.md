@@ -180,3 +180,4 @@ As we can see there are no significant differences between APK file downloaded f
 For proposals and bug reports feel free to open and issue [HERE](https://github.com/trustee-wallet/trusteeWallet/issues)
 
 If you have any questions please contact us by email <contact@trustee.deals> or join our community in [Telegram](https://t.me/trustee_wallet)
+
