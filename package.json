@@ -181,7 +181,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "ripple-lib": "1.10.0",
+    "ripple-lib": "1.8.0",
     "rn-nodeify": "github:tradle/rn-nodeify",
     "rn-tooltip": "^2.0.0",
     "safe-event-emitter": "^1.0.1",
