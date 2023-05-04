@@ -25,6 +25,161 @@ import abi1155 from './ext/erc1155'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import OneUtils from '@crypto/blockchains/one/ext/OneUtils'
 
+const _getGasLimit = async ({ additionalData, data, currencyCode, realAddressTo, web3, gasPrice, mainCurrencyCode }) => {
+    let gasLimit = 0
+
+    if (typeof additionalData !== 'undefined' && typeof additionalData.gasLimit !== 'undefined' && additionalData.gasLimit) {
+        gasLimit = additionalData.gasLimit
+        BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate preestimatedGas ' + gasLimit)
+        return gasLimit
+    }
+
+    if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
+        gasLimit = typeof data.dexOrderData[0].params.gas !== 'undefined' ? data.dexOrderData[0].params.gas : 0
+        BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate dexOrderData ' + gasLimit)
+        return gasLimit
+    }
+
+    if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
+        gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gas)
+        BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate walletConnectData  ' + gasLimit)
+        return gasLimit
+    }
+
+    if (typeof data.walletConnectData !== 'undefined') {
+        let value = '0x'
+        try {
+            if (typeof data.amount !== 'undefined' && data.amount) {
+                value = data.amount.indexOf('0x') === 0 ? data.amount : ('0x' + BlocksoftUtils.decimalToHex(data.amount))
+            }
+        } catch (e) {
+            throw new Error(e.message + ' in walletConnectData value1 ' )
+        }
+        try {
+            if (typeof data.walletConnectData.value !== 'undefined' && data.walletConnectData.value) {
+                value = data.walletConnectData.value
+            }
+        } catch (e) {
+            throw new Error(e.message + ' in walletConnectData value2 ' )
+        }
+        const params = {
+            'jsonrpc': '2.0',
+            'method': 'eth_estimateGas',
+            'params': [
+                {
+                    'from': typeof data.walletConnectData.from && data.walletConnectData.from ? data.walletConnectData.from : data.addressFrom,
+                    'to': typeof data.walletConnectData.to && data.walletConnectData.to ? data.walletConnectData.to : realAddressTo,
+                    'data': typeof data.walletConnectData.data !== 'undefined' && data.walletConnectData.data ? data.walletConnectData.data : '0x'
+                }
+            ],
+            'id': 1
+        }
+        if (value && value !== '0x') {
+            params[0].value = value
+        }
+        BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas for WalletConnect start')
+        let tmp = await BlocksoftAxios.postWithoutBraking(web3.LINK, params)
+        if (typeof tmp !== 'undefined' && typeof tmp.data !== 'undefined') {
+            try {
+                if (typeof tmp.data.result !== 'undefined') {
+                    gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(tmp.data.result) * 1 + 150000
+                } else if (typeof tmp.data.error !== 'undefined') {
+                    throw new Error(tmp.data.error.message)
+                }
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log(currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas post response data ' + JSON.stringify(params), tmp.data)
+                }
+                throw new Error(e.message + ' in walletConnectData post response data ')
+            }
+        } else {
+            gasLimit = 500000
+        }
+
+        BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas for WalletConnect result ' + gasLimit)
+        return gasLimit
+    }
+
+    if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
+        const schema = data.contractCallData.contractSchema
+        let abiCode
+        if (schema === 'ERC721') {
+            abiCode = abi721.ERC721
+        } else if (schema === 'ERC1155') {
+            abiCode = abi1155.ERC1155
+        } else {
+            throw new Error('Contract abi not found ' + schema)
+        }
+        const token = new web3.eth.Contract(abiCode, data.contractCallData.contractAddress)
+
+        gasLimit = 150000
+        try {
+            const tmpParams = data.contractCallData.contractActionParams
+            for (let i = 0, ic = tmpParams.length; i < ic; i++) {
+                if (tmpParams[i] === 'addressTo') {
+                    tmpParams[i] = realAddressTo
+                }
+            }
+            gasLimit = await token.methods[data.contractCallData.contractAction](...tmpParams).estimateGas({ from: data.addressFrom })
+            if (gasLimit) {
+                gasLimit = BlocksoftUtils.mul(gasLimit, 1.5)
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(currencyCode + ' EthTransferProcessor data.contractCallData error ' + e.message)
+            }
+            BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor data.contractCallData error ' + e.message)
+            // do nothing
+        }
+
+        if (gasLimit <= 150000) {
+            gasLimit = 150000
+        }
+        BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate contractCallData  ' + gasLimit)
+        return gasLimit
+    }
+    
+    try {
+        let ok = false
+        let i = 0
+        let gasLimitNew = false
+        do {
+            try {
+                i++
+                gasLimitNew = await EthEstimateGas(web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, realAddressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
+                BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
+            } catch (e1) {
+                ok = false
+                if (i > 3) {
+                    throw e1
+                }
+            }
+        } while (!ok && i <= 5)
+        if (gasLimitNew && typeof gasLimitNew !== 'undefined' && gasLimitNew * 1 > 0) {
+            gasLimit = gasLimitNew * 1
+        }
+    } catch (e) {
+        if (e.message.indexOf('resolve host') !== -1) {
+            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
+        } else {
+            gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
+            // e.message += ' in EthEstimateGas in getFeeRate'
+            // throw e
+        }
+    }
+    if (!gasLimit || typeof gasLimit !== 'undefined') {
+        gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
+    }
+
+    const minGasLimit = BlocksoftExternalSettings.getStatic(mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
+    if (minGasLimit > 0 && gasLimit < minGasLimit) {
+        gasLimit = minGasLimit
+    }
+    BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate usual  ' + gasLimit)
+    return gasLimit
+
+}
+
 export default class EthTransferProcessor extends EthBasic implements BlocksoftBlockchainTypes.TransferProcessor {
 
 
@@ -152,120 +307,19 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
 
         let gasLimit = 0
         try {
-
-            if (typeof additionalData === 'undefined' || typeof additionalData.gasLimit === 'undefined' || !additionalData.gasLimit) {
-                if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
-                    gasLimit = typeof data.dexOrderData[0].params.gas !== 'undefined' ? data.dexOrderData[0].params.gas : 0
-                } else if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gas !== 'undefined' && data.walletConnectData.gas && data.walletConnectData.gas !== '0x0') {
-                    gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gas)
-                } else if (typeof data.walletConnectData !== 'undefined') {
-                    const params = {
-                        'jsonrpc': '2.0',
-                        'method': 'eth_estimateGas',
-                        'params': [
-                            {
-                                'from': typeof data.walletConnectData.from && data.walletConnectData.from ? data.walletConnectData.from : data.addressFrom,
-                                'to':  typeof data.walletConnectData.to && data.walletConnectData.to ? data.walletConnectData.to : realAddressTo,
-                                'value': typeof data.walletConnectData.value !== 'undefined' && data.walletConnectData.value
-                                    ? data.walletConnectData.value
-                                    : data.amount.indexOf('0x') === 0 ? data.amount : ('0x' + BlocksoftUtils.decimalToHex(data.amount)),
-                                'data': typeof data.walletConnectData.data !== 'undefined' && data.walletConnectData.data ? data.walletConnectData.data : '0x'
-                            }
-                        ],
-                        'id': 1
-                    }
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas for WalletConnect start')
-                    const tmp = await BlocksoftAxios.postWithoutBraking(this._web3.LINK, params)
-                    if (typeof tmp !== 'undefined' && typeof tmp.data !== 'undefined') {
-                        if (typeof tmp.data.result !== 'undefined') {
-                            gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(tmp.data.result) * 1 + 150000
-                        } else  if (typeof tmp.data.error !== 'undefined') {
-                            throw new Error(tmp.data.error.message)
-                        }
-                    } else {
-                        gasLimit = 500000
-                    }
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas for WalletConnect result ' + gasLimit)
-                } else if (typeof data.contractCallData !== 'undefined' && typeof data.contractCallData.contractAddress !== 'undefined') {
-                    const schema = data.contractCallData.contractSchema
-                    let abiCode
-                    if (schema === 'ERC721') {
-                        abiCode = abi721.ERC721
-                    } else if (schema === 'ERC1155') {
-                        abiCode = abi1155.ERC1155
-                    } else {
-                        throw new Error('Contract abi not found ' + schema)
-                    }
-                    const token = new this._web3.eth.Contract(abiCode, data.contractCallData.contractAddress)
-
-                    gasLimit = 150000
-                    try {
-                        const tmpParams = data.contractCallData.contractActionParams
-                        for (let i = 0, ic = tmpParams.length; i<ic; i++) {
-                            if (tmpParams[i] === 'addressTo') {
-                                tmpParams[i] = realAddressTo
-                            }
-                        }
-                        gasLimit = await token.methods[data.contractCallData.contractAction](...tmpParams).estimateGas({ from: data.addressFrom })
-                        if (gasLimit) {
-                            gasLimit = BlocksoftUtils.mul(gasLimit, 1.5)
-                        }
-                    } catch (e) {
-                        if (config.debug.cryptoErrors) {
-                            BlocksoftCryptoLog.log('EthTransferProcessor data.contractCallData error ' + e.message)
-                        }
-                        BlocksoftCryptoLog.log('EthTransferProcessor data.contractCallData error ' + e.message)
-                        // do nothing
-                    }
-
-                    if (gasLimit <= 150000) {
-                        gasLimit = 150000
-                    }
-
-                }  else {
-                    try {
-                        let ok = false
-                        let i = 0
-                        let gasLimitNew = false
-                        do {
-                            try {
-                                i++
-                                gasLimitNew = await EthEstimateGas(this._web3.LINK, gasPrice.speed_blocks_2 || gasPrice.speed_blocks_12, data.addressFrom, realAddressTo, data.amount) // it doesn't matter what the price of gas is, just a required parameter
-                                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate estimatedGas ' + gasLimit)
-                            } catch (e1) {
-                                ok = false
-                                if (i > 3) {
-                                    throw e1
-                                }
-                            }
-                        } while (!ok && i <= 5)
-                        if (gasLimitNew && typeof gasLimitNew !== 'undefined' && gasLimitNew * 1 > 0) {
-                            gasLimit = gasLimitNew * 1
-                        }
-                    } catch (e) {
-                        if (e.message.indexOf('resolve host') !== -1) {
-                            throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
-                        } else {
-                            gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
-                            // e.message += ' in EthEstimateGas in getFeeRate'
-                            // throw e
-                        }
-                    }
-                    if (!gasLimit || typeof gasLimit !== 'undefined') {
-                        gasLimit = BlocksoftExternalSettings.getStatic('ETH_MIN_GAS_LIMIT')
-                    }
-
-                    const minGasLimit = BlocksoftExternalSettings.getStatic(this._mainCurrencyCode + '_MIN_GAS_LIMIT') * 1
-                    if (minGasLimit > 0 && gasLimit < minGasLimit) {
-                        gasLimit = minGasLimit
-                    }
-
-                }
-            } else {
-                gasLimit = additionalData.gasLimit
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate preestimatedGas ' + gasLimit)
-            }
+            gasLimit = await _getGasLimit({
+                data,
+                additionalData,
+                currencyCode: this._settings.currencyCode,
+                realAddressTo,
+                web3: this._web3,
+                gasPrice,
+                mainCurrencyCode: this._mainCurrencyCode
+            })
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate error in get gasLimit ', e)
+            }
             throw new Error(e.message + ' in get gasLimit')
         }
 
