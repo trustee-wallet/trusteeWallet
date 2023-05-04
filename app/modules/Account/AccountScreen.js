@@ -215,18 +215,14 @@ class Account extends React.PureComponent {
         }
 
         if (address === 'invalidRecheck1') {
-            Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' rebuild address')
             try {
                 const dbAccount = await currencyActions.recreateCurrency(currencyCode, walletHash, 0, 1)
                 if (dbAccount) {
-                    Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' rebuild dbAccount ' + JSON.stringify(dbAccount))
                     const accountNew = {}
                     accountNew.walletHash = walletHash
                     accountNew.address = dbAccount.address
                     accountNew.currencyCode = currencyCode
                     await setSelectedAccountAddress(accountNew)
-                } else {
-                    Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' rebuild no dbAccount')
                 }
             } catch (e) {
                 if (config.debug.appErrors) {
@@ -241,7 +237,6 @@ class Account extends React.PureComponent {
                     if (!tmp?.address || tmp?.address !== address || tmp?.currencyCode !== currencyCode) {
                         Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not update as got ' + tmp?.address)
                     } else {
-                        Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will be checked for update')
                         const newBalance = tmp?.balance
                         const newBalancePretty = BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(newBalance)
                         const newBasicCurrencyBalance = BlocksoftPrettyNumbers.makeCut(newBalancePretty * basicCurrencyRate, 2).cutted
@@ -269,12 +264,9 @@ class Account extends React.PureComponent {
                                 if (typeof tmp?.balanceStaked !== 'undefined') {
                                     accountNew.balanceStaked = tmp?.balanceStaked
                                 }
-                                Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will be updated ' + JSON.stringify(accountNew))
                                 accountNew.address = address
                                 accountNew.currencyCode = currencyCode
                                 await setSelectedAccountBalance(accountNew)
-                            } else {
-                                Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance will not be updated')
                             }
                         } catch (e) {
                             throw new Error(e.message + ' while isChanged applied')
@@ -285,7 +277,6 @@ class Account extends React.PureComponent {
                     try {
                         if (!this.state.isMultisig) {
                             const isMultisig = await (BlocksoftBalances.setCurrencyCode(currencyCode).setWalletHash(walletHash).setAdditional({ derivationPath }).setAddress(address)).isMultisig('AccountScreen')
-                            Log.log('AccountScreen.reload ' + currencyCode + ' ' + address + ' balance isMultisig result ' + JSON.stringify(isMultisig))
                             if (isMultisig) {
                                 MarketingEvent.logEvent('trx_multisig', { address, isMultisig, walletCashback, walletHash })
                                 this.setState({ isMultisig })
