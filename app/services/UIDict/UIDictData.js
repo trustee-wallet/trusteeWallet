@@ -1148,6 +1148,24 @@ export default {
             darkColor: '#14B5DE'
         }
     },
+    'ETH_POW': {
+        colors: {
+            mainColor: '#6C86DC',
+            darkColor: '#6C86DC'
+        }
+    },
+    'ETH_UAHG': {
+        colors: {
+            mainColor: '#3171EF',
+            darkColor: '#80AAFF'
+        }
+    },
+    'BNB_SMART_UAHG': {
+        colors: {
+            mainColor: '#1EC0FF',
+            darkColor: '#80AAFF'
+        }
+    },
     'CUSTOM_ABYSS': {
         colors: {
             mainColor: '#2E50CF',

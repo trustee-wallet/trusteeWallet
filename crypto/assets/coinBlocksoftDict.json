@@ -2672,5 +2672,34 @@
 		"currencyExplorerLink": "https://etherscan.io/token/0x9ee91F9f426fA633d227f7a9b000E28b9dfd8599?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/",
 		"canBeDestination": 1
+	},
+
+	"ETH_UAHG": {
+		"currencyType": "token",
+		"currencyName": "UAHg ERC20",
+		"currencyCode": "ETH_UAHG",
+		"currencySymbol": "UAHg",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "UAHG",
+		"decimals": 18,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xd1e0e39bd1758abe0865d5289895a9197c6cd549",
+		"currencyExplorerLink": "https://etherscan.io/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"BNB_SMART_UAHG": {
+		"currencyType": "token",
+		"currencyName": "UAHg BEP20",
+		"currencyCode": "BNB_SMART_UAHG",
+		"currencySymbol": "UAHg",
+		"ratesCurrencyCode": "UAHG",
+		"extendsProcessor": "BNB_SMART_CAKE",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0xd1e0e39bd1758abe0865d5289895a9197c6cd549",
+		"decimals": 18,
+		"tokenBlockchain": "BNB",
+		"currencyExplorerLink": "https://bscscan.com/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a="
 	}
 }
