@@ -2682,7 +2682,7 @@
 		"extendsProcessor": "ETH_TRUE_USD",
 		"addressUiChecker": "ETH",
 		"ratesCurrencyCode": "UAHG",
-		"decimals": 18,
+		"decimals": 6,
 		"tokenBlockchain": "ETHEREUM",
 		"tokenAddress": "0xd1e0e39bd1758abe0865d5289895a9197c6cd549",
 		"currencyExplorerLink": "https://etherscan.io/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a=",
@@ -2698,7 +2698,7 @@
 		"extendsProcessor": "BNB_SMART_CAKE",
 		"addressUiChecker": "ETH",
 		"tokenAddress": "0xd1e0e39bd1758abe0865d5289895a9197c6cd549",
-		"decimals": 18,
+		"decimals": 6,
 		"tokenBlockchain": "BNB",
 		"currencyExplorerLink": "https://bscscan.com/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a="
 	}
