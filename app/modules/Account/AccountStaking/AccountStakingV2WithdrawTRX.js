@@ -327,7 +327,7 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                                 <Text style={[styles.progressText, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE / 2, marginLeft: GRID_SIZE }]}>
                                     {`${strings('settings.walletList.available')} ${prettyFrozenByUser} TRX`}
                                 </Text>
-                                <View style={{ marginBottom: GRID_SIZE * 1.5 }}>{this.renderAmountInput()}</View>
+                                <View style={{ marginBottom: GRID_SIZE * 1.5, marginHorizontal: 2 }}>{this.renderAmountInput()}</View>
                                 <Button
                                     title={strings('settings.walletList.unfreezeTRX')}
                                     containerStyle={{ marginVertical: GRID_SIZE }}
