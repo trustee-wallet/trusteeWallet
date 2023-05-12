@@ -230,6 +230,7 @@
       "unfrozenTRX": "Розморожено",
       "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "შეიყვანეთ TRX-ის  რაოდენობა",
+      "enterToUnfreezeTRX" : "შეიყვანეთ გაყინვის თანხა TRX",
       "freezeForBandTRX": "Застейкать",
       "freezeForEnergyTRX": "ენერგიისთვის",
       "unfreezeTRX": "Разморозить",
@@ -453,9 +454,14 @@
     "showMore": "მეტის ჩვენება",
     "assetSettings": "აქტივის პარამეტრები",
     "stakingTRX": {
+      "BANDWIDTH": "გაყინული გამტარუნარიანობა",
+      "ENERGY": "გაყინული ენერგია",
       "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
       "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
-      "moreInfo": "More details..."
+      "moreInfo": "More details...",
+      "withdraw": "გადაღება",
+      "inUnstakingProcess": "ჩამოხსნის პროცესში: ",
+      "willAvailable": "ხელმისაწვდომი იქნება"
     },
     "stakingSOL": {
       "stake": "Freeze your SOL to receive staking rewards. "

@@ -55,7 +55,8 @@ export async function handleTrxScan() {
                 currentBalance: balance,
                 currentReward: reward,
                 prettyReward,
-                currentBalanceChecked: true
+                currentBalanceChecked: true,
+                lastScanTime: Date.now()
             })
         } else {
             Log.log('AccountStaking.helper.handleTrxScan noBalance', balance)
@@ -264,13 +265,13 @@ export async function handleVoteTrx() {
     setLoaderStatus(false)
 }
 
-export function handlePartBalance(newPartBalance) {
+export function handlePartBalance(newPartBalance, availableBalance=false) {
 
     const { balance, currencyCode } = this.props.account
 
     const { currentBalance } = this.state
 
-    const transferAllBalance = currencyCode === 'SOL' ? balance - 3 * BlocksoftExternalSettings.getStatic('SOL_PRICE') : currentBalance.balanceAvailable
+    const transferAllBalance = availableBalance || (currencyCode === 'SOL' ? balance - 3 * BlocksoftExternalSettings.getStatic('SOL_PRICE') : currentBalance.balanceAvailable)
 
     Log.log('AccountStaking.helper.Input.handlePartBalance ' + newPartBalance + ' clicked' + ' currencyCode ' + currencyCode)
     this.setState({

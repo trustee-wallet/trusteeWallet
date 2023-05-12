@@ -231,6 +231,7 @@
       "unfrozenTRX": "UnFrozen",
       "frozenBalanceTRX": " Bande passante: %{prettyFrozen} TRX / Énergie %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "entrer le montant des TRX gelés",
+      "enterToUnfreezeTRX" : "entrez le montant de dégel TRX",
       "freezeForBandTRX": "Geler pour BAND",
       "freezeForEnergyTRX": "Geler pour ENERGIE",
       "unfreezeTRX": "Dégeler",
@@ -454,9 +455,14 @@
     "showMore": "Montrer les détails",
     "assetSettings": "Paramètres des actifs",
     "stakingTRX": {
+      "BANDWIDTH": "Désengager la bande passante",
+      "ENERGY": "Débloquer l'énergie",
       "bandwidthInfo": "Gelez votre TRX pour la bande passante - cela vous permettra de recevoir des récompenses de staking et d'envoyer des TRX gratuits sans frais de réseau. ",
       "energyInfo": "Gelez votre TRX pour l'énergie - cela vous permettra de recevoir des récompenses de staking et d'envoyer des tokens TRC20 sans frais de réseau.",
-      "moreInfo": "Plus de détails..."
+      "moreInfo": "Plus de détails...",
+      "withdraw": "Retirer",
+      "inUnstakingProcess": "En cours de désimplantation : ",
+      "willAvailable": "sera disponible à"
     },
     "stakingSOL": {
       "stake": "Gelez votre SOL pour recevoir des récompenses de staking."

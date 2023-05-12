@@ -232,6 +232,7 @@
       "unfrozenTRX": "Разморожено",
       "frozenBalanceTRX" : "Пропускная способность: %{prettyFrozen} TRX / Энергия %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "введите количество TRX",
+      "enterToUnfreezeTRX" : "введите количество TRX",
       "freezeForBandTRX" : "Застейкать",
       "freezeForEnergyTRX" : "Для энергии",
       "unfreezeTRX" : "Разморозить",
@@ -456,9 +457,14 @@
     "showMore": "Показать еще",
     "assetSettings": "Настройки актива",
     "stakingTRX": {
+      "BANDWIDTH": "Разморозить Bandwidth",
+      "ENERGY": "Разморозить Energy",
       "bandwidthInfo": "Заморозьте свои монеты TRX для Bandwidth - это позволит получать награду за стейкинг и отправлять свободные монеты TRX без комиссии сети. ",
       "energyInfo": "Заморозьте свои монеты TRX для Energy - это позволит получать награду за стейкинг и отправлять токены TRC20 без комиссии сети. ",
-      "moreInfo": "Детальнее..."
+      "moreInfo": "Детальнее...",
+      "withdraw": "Вывести",
+      "inUnstakingProcess": "В разморозке: ",
+      "willAvailable": "будет доступен в"
     },
     "stakingSOL": {
       "stake": "Заморозьте свои монеты SOL, чтобы получать награду за стейкинг. "

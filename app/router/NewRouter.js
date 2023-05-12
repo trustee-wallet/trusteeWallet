@@ -46,6 +46,7 @@ import AccountReceiveScreen from '@app/modules/Account/AccountReceive/AccountRec
 import AccountTransactionScreen from '@app/modules/Account/AccountTransaction/AccountTransactionScreen'
 import AllAddressesScreen from '@app/modules/Account/AccountReceive/AllAddressesScreen'
 import AccountStakingTRX from '@app/modules/Account/AccountStaking/AccountStakingTRX'
+import AccountStakingV2WithdrawTRX from '@app/modules/Account/AccountStaking/AccountStakingV2WithdrawTRX'
 import AccountStakingSOL from '@app/modules/Account/AccountStaking/AccountStakingSOL'
 
 import SolStakingTransactionScreen from '@app/modules/Account/AccountStaking/sol/SolStakingTransactionScreen'
@@ -159,6 +160,7 @@ const HomeStackScreen = () => {
 
             <HomeStack.Screen name='AccountStakingSOL' component={AccountStakingSOL} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='AccountStakingTRX' component={AccountStakingTRX} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
+            <HomeStack.Screen name='AccountStakingWithdrawTRX' component={AccountStakingV2WithdrawTRX} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
 
             <HomeStack.Screen name='TransactionFilter' component={TransactionFilter} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />
             <HomeStack.Screen name='TransactionCategories' component={TransactionCategories} options={{ headerShown: false, transitionSpec, cardStyleInterpolator }} />

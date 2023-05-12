@@ -232,6 +232,7 @@
       "unfrozenTRX" : "UnFrozen",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "enter freeze amount TRX",
+      "enterToUnfreezeTRX" : "enter unfreeze amount TRX",
       "freezeForBandTRX" : "Freeze for BAND",
       "freezeForEnergyTRX" : "Freeze for ENERGY",
       "unfreezeTRX" : "Unfreeze",
@@ -455,9 +456,14 @@
     "showMore": "Show more",
     "assetSettings": "Asset settings",
     "stakingTRX": {
+      "BANDWIDTH": "Unstake Bandwidth",
+      "ENERGY": "Unstake Energy",
       "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
       "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
-      "moreInfo": "More details..."
+      "moreInfo": "More details...",
+      "withdraw": "Withdraw",
+      "inUnstakingProcess": "In unstaking process: ",
+      "willAvailable": "will available at"
     },
     "stakingSOL": {
       "stake": "Freeze your SOL to receive staking rewards. "
