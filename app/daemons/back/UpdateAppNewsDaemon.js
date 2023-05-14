@@ -118,47 +118,49 @@ class UpdateAppNewsDaemon {
 
         try {
             let index = 0
-            for (const row of res.news) {
-                if (index > 2) {
-                   // break
-                }
-                index++
-                const toSave = {
-                    newsNeedPopup: row.needPopup ? 1 : 0,
-                    newsLog: new Date().toISOString() + ' loaded from Server'
-                }
-                for (const saveField in keys) {
-                    const serverField = keys[saveField]
-                    if (typeof row[serverField] !== 'undefined' && row[serverField]) {
-                        toSave[saveField] = row[serverField]
+            if (typeof res.news !== 'undefined' && res.news) {
+                for (const row of res.news) {
+                    if (index > 2) {
+                        // break
                     }
-                    if (typeof row[serverField] !== 'undefined' && row[serverField]) {
-                        toSave[saveField] = row[serverField]
+                    index++
+                    const toSave = {
+                        newsNeedPopup: row.needPopup ? 1 : 0,
+                        newsLog: new Date().toISOString() + ' loaded from Server'
                     }
-                }
-                let fromStoreStatus = 'no_cache'
-                let fromStore = false
-                if (typeof row.isBroadcast === 'undefined' || row.isBroadcast === false) {
-                    if (row.newsGroup !== 'GOOGLE_EVENTS' && typeof allNewsIndexed[toSave.newsUniqueKey] !== 'undefined') {
+                    for (const saveField in keys) {
+                        const serverField = keys[saveField]
+                        if (typeof row[serverField] !== 'undefined' && row[serverField]) {
+                            toSave[saveField] = row[serverField]
+                        }
+                        if (typeof row[serverField] !== 'undefined' && row[serverField]) {
+                            toSave[saveField] = row[serverField]
+                        }
+                    }
+                    let fromStoreStatus = 'no_cache'
+                    let fromStore = false
+                    if (typeof row.isBroadcast === 'undefined' || row.isBroadcast === false) {
+                        if (row.newsGroup !== 'GOOGLE_EVENTS' && typeof allNewsIndexed[toSave.newsUniqueKey] !== 'undefined') {
+                            fromStore = allNewsIndexed[toSave.newsUniqueKey]
+                            fromStoreStatus = 'check_update_ind'
+                            // not loaded
+                        }
+                        toSave.walletHash = walletHash
+                    } else if (typeof allNewsIndexed[toSave.newsUniqueKey] !== 'undefined') {
                         fromStore = allNewsIndexed[toSave.newsUniqueKey]
-                        fromStoreStatus = 'check_update_ind'
-                        // not loaded
+                        fromStoreStatus = 'check_update'
+                    } else {
+                        fromStoreStatus = 'can_insert'
                     }
-                    toSave.walletHash = walletHash
-                } else if (typeof allNewsIndexed[toSave.newsUniqueKey] !== 'undefined') {
-                    fromStore = allNewsIndexed[toSave.newsUniqueKey]
-                    fromStoreStatus = 'check_update'
-                } else {
-                    fromStoreStatus = 'can_insert'
-                }
-                if (typeof row.status !== 'undefined' && row.status && row.status.toString() === '33') {
-                    toSave.removed = 33
-                }
-                const saved = await appNewsDS.saveAppNews(toSave, fromStoreStatus, fromStore)
-                if (saved.updated) {
-                    savedAny = true
-                } else {
-                    await appNewsDS.pushAppNewsForApi(saved)
+                    if (typeof row.status !== 'undefined' && row.status && row.status.toString() === '33') {
+                        toSave.removed = 33
+                    }
+                    const saved = await appNewsDS.saveAppNews(toSave, fromStoreStatus, fromStore)
+                    if (saved.updated) {
+                        savedAny = true
+                    } else {
+                        await appNewsDS.pushAppNewsForApi(saved)
+                    }
                 }
             }
             CACHE_LAST_TIME = new Date().getTime()
