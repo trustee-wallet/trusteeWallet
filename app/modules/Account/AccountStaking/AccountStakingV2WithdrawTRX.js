@@ -204,7 +204,6 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                 ? currentBalance.prettyFrozenEnergy * 1 + currentBalance.prettyFrozenEnergyOthers * 1
                 : currentBalance.prettyFrozenEnergy
 
-        const prettyUnfrozen = type === 'BANDWIDTH' ? currentBalance.prettyUnFrozen : currentBalance.prettyUnFrozenEnergy
         const prettyFrozenByUser = type === 'BANDWIDTH' ? currentBalance.prettyFrozen : currentBalance.prettyFrozenEnergy
         const unfrozenArray = type === 'BANDWIDTH' ? currentBalance.unfrozenArray : currentBalance.unfrozenEnergyArray
 
@@ -224,7 +223,6 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
         let prettyUnfrozenReady = 0
         let prettyUnfrozenNotReady = 0
         if (unfrozenArray) {
-            let index = 0
             const now = new Date().getTime()
             for (const tmp of unfrozenArray) {
                 const diff = tmp.unfreeze_expire_time - now
@@ -242,10 +240,8 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                     status,
                     amount: tmp.unfreeze_amount,
                     expirationDate: tmp.unfreeze_expire_time,
-                    type,
-                    index
+                    type
                 })
-                index++
             }
         }
         if (prettyUnfrozenReady > 0) {
@@ -269,7 +265,7 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                     style={{ flexGrow: 1 }}
                     data={transactionList}
                     renderItem={this.renderItem}
-                    keyExtractor={(item) => item?.index?.toString()}
+                    keyExtractor={(_, index) => index?.toString()}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
