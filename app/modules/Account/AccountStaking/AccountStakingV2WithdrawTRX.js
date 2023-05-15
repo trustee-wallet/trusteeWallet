@@ -37,33 +37,14 @@ import StakeView from './trx/StakeView'
 import StakingItem from './trx/StakingItem'
 import { handleTrxScan, handleUnFreezeV2Trx, handleWithdrawV2Trx, handlePartBalance } from './helper'
 import { diffTimeScan } from '../helpers'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const CACHE_ASKED = {}
 const CACHE_ASK_TIME = 6000
 
 class AccountStakingWithdrawTRX extends React.PureComponent {
     state = {
-        currentBalance: {
-            balance: '0',
-            prettyBalance: '?',
-            frozen: '0',
-            prettyFrozenOthers: '0',
-            frozenEnergy: '0',
-            frozenEnergyOthers: '0',
-            prettyFrozen: '0',
-            prettyUnFrozen: '0',
-            prettyFrozenEnergy: '0',
-            prettyUnFrozenEnergy: '0',
-            frozenOld: '0',
-            frozenOldEnergy: '0',
-            prettyFrozenOld: '0',
-            prettyFrozenOldEnergy: '0',
-            voteTotal: '0',
-            prettyVote: '0',
-            frozenExpireTime: 0,
-            frozenEnergyExpireTime: 0,
-            diffLastStakeMinutes: 0
-        },
+        currentBalance: NavStore.getParamWrapper(this, 'currentBalance'),
         currentReward: '0',
         prettyReward: '0',
         partBalance: null,
@@ -225,6 +206,7 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
 
         const prettyUnfrozen = type === 'BANDWIDTH' ? currentBalance.prettyUnFrozen : currentBalance.prettyUnFrozenEnergy
         const prettyFrozenByUser = type === 'BANDWIDTH' ? currentBalance.prettyFrozen : currentBalance.prettyFrozenEnergy
+        const unfrozenArray = type === 'BANDWIDTH' ? currentBalance.unfrozenArray : currentBalance.unfrozenEnergyArray
 
         const diff = diffTimeScan(lastScanTime / 1000)
         let diffTimeText = ''
@@ -238,19 +220,40 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
             }
         }
 
-        let transactionList = [
-            // {
-            //     status: 'NEW',
-            //     type: 'BANDWIDTH',
-            //     amount: 20000000,
-            //     expirationDate: 1683902476000,
-            //     transactionHash: 'r4234'
-            // }
-        ]
-
-        transactionList = transactionList?.filter((item) => item?.type === type)
-
-        const pendingTxLength = transactionList.length
+        const transactionList = []
+        let prettyUnfrozenReady = 0
+        let prettyUnfrozenNotReady = 0
+        if (unfrozenArray) {
+            let index = 0
+            const now = new Date().getTime()
+            for (const tmp of unfrozenArray) {
+                const diff = tmp.unfreeze_expire_time - now
+                let status = ''
+                if (diff > 0) {
+                    if (diff > (BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS') * 24 - 1) * 60 * 60 * 1000) {
+                        status = 'NEW'
+                    }
+                    prettyUnfrozenNotReady += tmp.unfreeze_amount * 1
+                } else {
+                    status = 'READY'
+                    prettyUnfrozenReady += tmp.unfreeze_amount * 1
+                }
+                transactionList.push({
+                    status,
+                    amount: tmp.unfreeze_amount,
+                    expirationDate: tmp.unfreeze_expire_time,
+                    type,
+                    index
+                })
+                index++
+            }
+        }
+        if (prettyUnfrozenReady > 0) {
+            prettyUnfrozenReady = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(prettyUnfrozenReady)
+        }
+        if (prettyUnfrozenNotReady > 0) {
+            prettyUnfrozenNotReady = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(prettyUnfrozenNotReady)
+        }
 
         return (
             <ScreenWrapper
@@ -266,7 +269,7 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                     style={{ flexGrow: 1 }}
                     data={transactionList}
                     renderItem={this.renderItem}
-                    keyExtractor={(item) => item?.transactionHash?.toString()}
+                    keyExtractor={(item) => item?.index?.toString()}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
@@ -297,8 +300,8 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                                                 </View>
                                             </View>
                                             <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
-                                                <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyUnfrozen} TRX`}</Text>
-                                                {!!prettyUnfrozen && Number(prettyUnfrozen) > 0 && (
+                                                <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyUnfrozenReady} TRX`}</Text>
+                                                {!!prettyUnfrozenReady && Number(prettyUnfrozenReady) > 0 && (
                                                     <BorderedButton
                                                         containerStyle={styles.withdrawBtn}
                                                         text={strings('settings.walletList.withdrawTRX')}
@@ -308,7 +311,7 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                                             </View>
                                             <View>
                                                 <Text style={[styles.inProcess, { color: colors.common.text3 }]}>
-                                                    {strings('account.stakingTRX.inUnstakingProcess') + ' ' + pendingTxLength}
+                                                    {strings('account.stakingTRX.inUnstakingProcess') + ' ' + prettyUnfrozenNotReady + ' TRX'}
                                                 </Text>
                                             </View>
                                         </View>

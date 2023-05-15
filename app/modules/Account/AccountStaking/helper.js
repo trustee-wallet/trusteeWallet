@@ -406,7 +406,7 @@ const _wrapError = (e) => {
     if (msg.indexOf('less than 24 hours') !== -1) {
         msg = strings('settings.walletList.waitToClaimTRX')
     } else if (msg.indexOf('not time to unfreeze') !== -1 || msg.indexOf('no unFreeze balance to withdraw') !== -1) {
-        msg = strings('settings.walletList.waitToUnfreezeTRX')
+        msg = strings('settings.walletList.waitToUnfreezeTRX', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')})
     } else if (msg.indexOf('frozenBalance must be more') !== -1) {
         msg = strings('settings.walletList.minimalFreezeBalanceTRX')
     }

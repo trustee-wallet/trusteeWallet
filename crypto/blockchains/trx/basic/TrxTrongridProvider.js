@@ -60,10 +60,12 @@ export default class TrxTrongridProvider {
                     voteTotal,
                     frozen,
                     unfrozen,
+                    unfrozenArray: CACHE_TRONGRID[address]._unfrozenArray,
                     frozenExpireTime,
                     frozenOthers,
                     frozenEnergy,
                     unfrozenEnergy,
+                    unfrozenEnergyArray: CACHE_TRONGRID[address]._unfrozenEnergyArray,
                     frozenEnergyExpireTime,
                     frozenEnergyOthers,
                     frozenOld,
@@ -121,6 +123,8 @@ export default class TrxTrongridProvider {
         && typeof res.data.account_resource.frozen_balance_for_energy.frozen_balance !== 'undefined'
             ? res.data.account_resource.frozen_balance_for_energy.frozen_balance : 0
 
+        CACHE_TRONGRID[address]._unfrozenEnergyArray = []
+        CACHE_TRONGRID[address]._unfrozenArray = []
         if (res.data?.unfrozenV2) {
             for (const tmp of res.data.unfrozenV2) {
                 if (tmp?.type === 'ENERGY') {
@@ -128,11 +132,13 @@ export default class TrxTrongridProvider {
                         CACHE_TRONGRID[address]._frozenEnergyExpireTime = tmp.unfreeze_expire_time
                     }
                     CACHE_TRONGRID[address]._unfrozenEnergy += tmp.unfreeze_amount * 1
+                    CACHE_TRONGRID[address]._unfrozenEnergyArray.push(tmp)
                 } else {
                     if (CACHE_TRONGRID[address]._frozenExpireTime < tmp.unfreeze_expire_time) {
                         CACHE_TRONGRID[address]._frozenExpireTime = tmp.unfreeze_expire_time
                     }
                     CACHE_TRONGRID[address]._unfrozen += tmp.unfreeze_amount * 1
+                    CACHE_TRONGRID[address]._unfrozenArray.push(tmp)
                 }
             }
         }
@@ -200,10 +206,12 @@ export default class TrxTrongridProvider {
             voteTotal,
             frozen,
             unfrozen,
+            unfrozenArray: CACHE_TRONGRID[address]._unfrozenArray,
             frozenExpireTime,
             frozenOthers,
             frozenEnergy,
             unfrozenEnergy,
+            unfrozenEnergyArray : CACHE_TRONGRID[address]._unfrozenEnergyArray,
             frozenEnergyExpireTime,
             frozenEnergyOthers,
             frozenOld,

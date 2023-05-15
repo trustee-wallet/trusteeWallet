@@ -244,7 +244,7 @@
       "claimTRX" : "Claim Reward",
       "refreshTRX" : "Reload",
       "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
-      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 14 days from the moment of the last freezing",
+      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after %{TRX_STAKE_DAYS} days from the moment of the last freezing",
       "minimalFreezeBalanceTRX" : "For freezing use more than 1 TRX",
       "allowLongQueryETH" : "Allow pending transactions queue",
       "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance",

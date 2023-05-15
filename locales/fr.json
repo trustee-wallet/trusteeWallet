@@ -243,7 +243,7 @@
       "claimTRX": "Réclamation de la récompense",
       "refreshTRX": "Réactualiser",
       "waitToClaimTRX": "La dernière réclamation a été effectuée il y a moins de 24 heures",
-      "waitToUnfreezeTRX": "Aux termes du protocole Tron, le dégivrage est possible après 14 jours à compter du dernier gelage",
+      "waitToUnfreezeTRX": "Aux termes du protocole Tron, le dégivrage est possible après %{TRX_STAKE_DAYS} jours à compter du dernier gelage",
       "minimalFreezeBalanceTRX": "Pour la congélation, utilisez plus de 1 TRX",
       "allowLongQueryETH": "Autoriser la file d'attente des transactions en attente",
       "allowBlockedBalanceETH": "Autoriser la réutilisation du solde des transactions en attente",

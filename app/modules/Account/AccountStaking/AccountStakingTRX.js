@@ -37,6 +37,7 @@ import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAn
 import InfoProgressBar from './elements/InfoProgressBar'
 import StakeView from './trx/StakeView'
 import { handleTrxScan, handleFreezeV2Trx, handleUnFreezeV1Trx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const CACHE_ASKED = {}
 const CACHE_ASK_TIME = 6000
@@ -157,7 +158,7 @@ class AccountStakingTRX extends React.PureComponent {
         if (msg.indexOf('less than 24 hours') !== -1) {
             msg = strings('settings.walletList.waitToClaimTRX')
         } else if (msg.indexOf('not time to unfreeze') !== -1) {
-            msg = strings('settings.walletList.waitToUnfreezeTRX')
+            msg = strings('settings.walletList.waitToUnfreezeTRX', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')})
         } else if (msg.indexOf('frozenBalance must be more') !== -1) {
             msg = strings('settings.walletList.minimalFreezeBalanceTRX')
         }
@@ -357,10 +358,13 @@ class AccountStakingTRX extends React.PureComponent {
 
         const { currentBalance } = this.state
 
-        const tmp =
+        let tmp =
             currentBalance.prettyFrozenOthers && currentBalance.prettyFrozenOthers * 1 > 0
                 ? currentBalance.prettyFrozen * 1 + currentBalance.prettyFrozenOthers * 1
                 : currentBalance.prettyFrozen
+        if (currentBalance.prettyUnFrozen && currentBalance.prettyUnFrozen * 1 > 0) {
+            tmp += currentBalance.prettyUnFrozen * 1
+        }
         return (
             <>
                 {this.renderDescription(strings('account.stakingTRX.bandwidthInfo'), strings('account.stakingTRX.moreInfo'))}
@@ -381,7 +385,7 @@ class AccountStakingTRX extends React.PureComponent {
                         balance={tmp}
                         currencyCode='TRX'
                         textButton={strings('settings.walletList.unfreezeTRX')}
-                        handleButton={() => NavStore.goNext('AccountStakingWithdrawTRX', { type: 'BANDWIDTH' })}
+                        handleButton={() => NavStore.goNext('AccountStakingWithdrawTRX', { type: 'BANDWIDTH', currentBalance })}
                     />
                 </View>
             </>
@@ -393,10 +397,13 @@ class AccountStakingTRX extends React.PureComponent {
 
         const { currentBalance } = this.state
 
-        const tmp =
+        let tmp =
             currentBalance.prettyFrozenEnergyOthers && currentBalance.prettyFrozenEnergyOthers * 1 > 0
                 ? currentBalance.prettyFrozenEnergy * 1 + currentBalance.prettyFrozenEnergyOthers * 1
                 : currentBalance.prettyFrozenEnergy
+        if (currentBalance.prettyUnFrozenEnergy && currentBalance.prettyUnFrozenEnergy * 1 > 0) {
+           tmp += currentBalance.prettyUnFrozenEnergy * 1
+        }
         return (
             <>
                 {this.renderDescription(strings('account.stakingTRX.energyInfo'), strings('account.stakingTRX.moreInfo'))}
@@ -417,7 +424,7 @@ class AccountStakingTRX extends React.PureComponent {
                         balance={tmp}
                         currencyCode='TRX'
                         textButton={strings('settings.walletList.unfreezeTRX')}
-                        handleButton={() => NavStore.goNext('AccountStakingWithdrawTRX', { type: 'ENERGY' })}
+                        handleButton={() => NavStore.goNext('AccountStakingWithdrawTRX', { type: 'ENERGY', currentBalance })}
                     />
                 </View>
             </>
