@@ -169,7 +169,7 @@ export async function handleUnFreezeV2Trx(isAll, type) {
             owner_address: hexAddress,
             unfreeze_balance: freeze * 1,
             resource: type
-        }, 'unfreeze ' + freeze + ' for ' + type + ' of ' + address, { type: 'unfreeze', cryptoValue: freeze * 1 })
+        }, 'unfreeze ' + freeze + ' for ' + type + ' of ' + address, { type: 'unfreeze', cryptoValue: freeze * 1, version: 2 })
 
         this.stakeAmountInput.handleInput('', false, true)
         const tmp = new TrxTrongridProvider()
@@ -351,7 +351,7 @@ async function _sendTxTrx(shortLink, params, langMsg, uiParams) {
     const result = await BlocksoftTransfer.sendTx(txData, { selectedFee: { langMsg } })
     if (result) {
         if (!hiddenModalRes) {
-            _wrapSuccess(uiParams.type)
+            _wrapSuccess(uiParams.type, uiParams?.version)
         }
         handleTrxScan.call(this)
 
@@ -420,11 +420,14 @@ const _wrapError = (e) => {
     handleTrxScan.call(this)
 }
 
-const _wrapSuccess = (type) => {
-
+const _wrapSuccess = (type, version) => {
     let msg = 'success'
     if (type === 'unfreeze') {
-        msg = strings('settings.walletList.successUnfreeze')
+        if (version === 2) {
+            msg = strings('settings.walletList.successUnfreezeV2', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')})
+        } else {
+            msg = strings('settings.walletList.successUnfreeze')
+        }        
     } else if (type === 'freeze') {
         msg = strings('settings.walletList.successFreeze')
     } else if (type === 'claim') {

@@ -266,6 +266,7 @@
       "rewards" : "Rewards",
       "useCustomValidator": "Use this validator ",
       "successUnfreeze": "TRX unfrozen",
+      "successUnfreezeV2": "The TRX will be able to be withdrawn after the %{TRX_STAKE_DAYS}-day unstaking period",
       "successFreeze": "TRX frozen for staking",
       "successReward": "TRX staking reward received",
       "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
@@ -458,8 +459,8 @@
     "stakingTRX": {
       "BANDWIDTH": "Unstake Bandwidth",
       "ENERGY": "Unstake Energy",
-      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
-      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. Unstaking period is %{TRX_STAKE_DAYS} days. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. Unstaking period is %{TRX_STAKE_DAYS} days. ",
       "moreInfo": "More details...",
       "withdraw": "Withdraw",
       "inUnstakingProcess": "In unstaking process: ",

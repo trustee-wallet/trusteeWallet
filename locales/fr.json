@@ -265,6 +265,7 @@
       "rewards": "Récompenses",
       "useCustomValidator": "Utiliser ce validateur",
       "successUnfreeze": "TRX dégelé",
+      "successUnfreezeV2": "Le TRX pourra être retiré après la période de retrait de %{TRX_STAKE_DAYS} jours",
       "successFreeze": "TRX gelé pour le staking",
       "successReward": "Récompense de staking TRX reçue",
       "noVoted": "l vous reste un steak sans vote. Cliquez sur «Voter» pour terminer la procédure de gel",
@@ -457,8 +458,8 @@
     "stakingTRX": {
       "BANDWIDTH": "Désengager la bande passante",
       "ENERGY": "Débloquer l'énergie",
-      "bandwidthInfo": "Gelez votre TRX pour la bande passante - cela vous permettra de recevoir des récompenses de staking et d'envoyer des TRX gratuits sans frais de réseau. ",
-      "energyInfo": "Gelez votre TRX pour l'énergie - cela vous permettra de recevoir des récompenses de staking et d'envoyer des tokens TRC20 sans frais de réseau.",
+      "bandwidthInfo": "Gelez votre TRX pour la bande passante - cela vous permettra de recevoir des récompenses de staking et d'envoyer des TRX gratuits sans frais de réseau. La période de retrait est de %{TRX_STAKE_DAYS} jours. ",
+      "energyInfo": "Gelez votre TRX pour l'énergie - cela vous permettra de recevoir des récompenses de staking et d'envoyer des tokens TRC20 sans frais de réseau. La période de retrait est de %{TRX_STAKE_DAYS} jours. ",
       "moreInfo": "Plus de détails...",
       "withdraw": "Retirer",
       "inUnstakingProcess": "En cours de désimplantation : ",
