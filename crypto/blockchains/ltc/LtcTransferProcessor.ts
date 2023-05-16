@@ -16,7 +16,7 @@ export default class LtcTransferProcessor extends BtcTransferProcessor implement
 
     _builderSettings: BlocksoftBlockchainTypes.BuilderSettings = {
         minOutputDustReadable: 0.000005,
-        minChangeDustReadable: 0.00001,
+        minChangeDustReadable: 0.0001,
         feeMaxForByteSatoshi: 10000, // for tx builder
         feeMaxAutoReadable2: 0.2, // for fee calc,
         feeMaxAutoReadable6: 0.1, // for fee calc
