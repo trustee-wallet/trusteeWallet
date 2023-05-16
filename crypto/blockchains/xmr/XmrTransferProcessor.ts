@@ -167,6 +167,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         }
 
         if (result.fees.length === 0 && noBalanceError) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' noBalanceError')
             throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
         }
 
@@ -252,6 +253,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const privViewKey = keys[1]
 
         if (typeof rawTxHex === 'undefined') {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' no rawTxHex')
             throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
         }
 

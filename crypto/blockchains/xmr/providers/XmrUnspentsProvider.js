@@ -1,9 +1,13 @@
 /**
  * @version 0.11
  */
-import settingsActions from '../../../../app/appstores/Stores/Settings/SettingsActions'
-import BlocksoftAxios from '../../../common/BlocksoftAxios'
-import BlocksoftCryptoLog from '../../../common/BlocksoftCryptoLog'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import config from '@app/config/config'
+
+
+const PROXY_RANDOM = 'https://proxy.trustee.deals/xmr/getRandom'
 
 export default class XmrUnspentsProvider {
 
@@ -82,11 +86,27 @@ export default class XmrUnspentsProvider {
             }
             */
 
-            const res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
+            if (config.debug.cryptoErrors) {
+                console.log('XmrUnspentsProvider Xmr._getRandomOutputs load ' + this._link + 'get_random_outs', JSON.stringify(params))
+            }
+            let res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
             await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs res ' + JSON.stringify(res.data).substr(0, 200))
 
             if (typeof res.data === 'undefined' || !typeof res.data || typeof res.data.amount_outs === 'undefined' || !res.data.amount_outs || res.data.amount_outs.length === 0) {
-                throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
+                if (config.debug.cryptoErrors) {
+                    console.log('XmrUnspentsProvider Xmr._getRandomOutputs load ' + PROXY_RANDOM, JSON.stringify(params))
+                }
+                res = await BlocksoftAxios.post(PROXY_RANDOM, params)
+                await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs proxy res ' + JSON.stringify(res.data).substr(0, 200))
+
+                if (typeof res.data === 'undefined' || !typeof res.data || typeof res.data.amount_outs === 'undefined' || !res.data.amount_outs || res.data.amount_outs.length === 0) {
+                    await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs proxy res ' + JSON.stringify(res.data).substr(0, 200))
+                    if (config.debug.cryptoErrors) {
+                        console.log('XmrUnspentsProvider Xmr._getRandomOutputs proxy res no amount_outs', res.data)
+                    }
+                    BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs proxy res no amount_outs ' + JSON.stringify(params), res.data)
+                    throw new Error('SERVER_RESPONSE_NO_RESPONSE_XMR')
+                }
             }
 
             if (typeof fn === 'undefined' || !fn) {
