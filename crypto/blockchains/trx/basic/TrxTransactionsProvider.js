@@ -160,7 +160,7 @@ export default class TrxTransactionsProvider {
                 addressAmount = transaction.amount
                 transactionDirection = 'claim'
                 transactionFilterType = TransactionFilterTypeDict.STAKE
-            } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 12) {
+            } else if (typeof transaction.contractType !== 'undefined' && (transaction.contractType === 12 || transaction.contractType === 55)) {
                 addressAmount = transaction.amount
                 addressFrom = transaction.ownerAddress
                 transactionDirection = 'unfreeze'
