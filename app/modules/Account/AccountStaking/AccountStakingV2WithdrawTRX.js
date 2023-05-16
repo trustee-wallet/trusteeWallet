@@ -22,6 +22,7 @@ import { getCashBackData } from '@app/appstores/Stores/CashBack/selectors'
 import { getSelectedAccountData, getSelectedWalletData } from '@app/appstores/Stores/Main/selectors'
 
 import BlocksoftPrettyNumbers from '@crypto/common/BlocksoftPrettyNumbers'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 import { strings } from '@app/services/i18n'
 
@@ -37,7 +38,6 @@ import StakeView from './trx/StakeView'
 import StakingItem from './trx/StakingItem'
 import { handleTrxScan, handleUnFreezeV2Trx, handleWithdrawV2Trx, handlePartBalance } from './helper'
 import { diffTimeScan } from '../helpers'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const CACHE_ASKED = {}
 const CACHE_ASK_TIME = 6000
@@ -195,15 +195,6 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
 
         const { currentBalance, refreshing, type, lastScanTime, clickRefresh } = this.state
 
-        const prettyFrozen =
-            type === 'BANDWIDTH'
-                ? currentBalance.prettyFrozenOthers && currentBalance.prettyFrozenOthers * 1 > 0
-                    ? currentBalance.prettyFrozen * 1 + currentBalance.prettyFrozenOthers * 1
-                    : currentBalance.prettyFrozen
-                : currentBalance.prettyFrozenEnergyOthers && currentBalance.prettyFrozenEnergyOthers * 1 > 0
-                ? currentBalance.prettyFrozenEnergy * 1 + currentBalance.prettyFrozenEnergyOthers * 1
-                : currentBalance.prettyFrozenEnergy
-
         const prettyFrozenByUser = type === 'BANDWIDTH' ? currentBalance.prettyFrozen : currentBalance.prettyFrozenEnergy
         const unfrozenArray = type === 'BANDWIDTH' ? currentBalance.unfrozenArray : currentBalance.unfrozenEnergyArray
 
@@ -232,16 +223,16 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                         status = 'NEW'
                     }
                     prettyUnfrozenNotReady += tmp.unfreeze_amount * 1
+                    transactionList.push({
+                        status,
+                        amount: tmp.unfreeze_amount,
+                        expirationDate: tmp.unfreeze_expire_time,
+                        type
+                    })
                 } else {
-                    status = 'READY'
+                    // status = 'READY'
                     prettyUnfrozenReady += tmp.unfreeze_amount * 1
                 }
-                transactionList.push({
-                    status,
-                    amount: tmp.unfreeze_amount,
-                    expirationDate: tmp.unfreeze_expire_time,
-                    type
-                })
             }
         }
         if (prettyUnfrozenReady > 0) {
@@ -319,7 +310,7 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                                 <View style={{ marginTop: GRID_SIZE * 1.5 }}>
                                     <StakeView
                                         title={strings('settings.walletList.frozenTRX') + (!!currentBalance.prettyFrozenOld ? ' 2.0' : '')}
-                                        balance={prettyFrozen}
+                                        balance={prettyFrozenByUser}
                                         currencyCode='TRX'
                                     />
                                 </View>

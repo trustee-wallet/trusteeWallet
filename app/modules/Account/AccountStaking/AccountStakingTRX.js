@@ -21,6 +21,7 @@ import { strings } from '@app/services/i18n'
 import config from '@app/config/config'
 
 import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
+import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import Input from '@app/components/elements/NewInput'
@@ -37,7 +38,6 @@ import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAn
 import InfoProgressBar from './elements/InfoProgressBar'
 import StakeView from './trx/StakeView'
 import { handleTrxScan, handleFreezeV2Trx, handleUnFreezeV1Trx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
-import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 const CACHE_ASKED = {}
 const CACHE_ASK_TIME = 6000
@@ -203,7 +203,7 @@ class AccountStakingTRX extends React.PureComponent {
         }
 
         return (
-            <AccountGradientBlock cleanCache>
+            <AccountGradientBlock height={156}>
                 {!loading ? (
                     <>
                         <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>
@@ -358,16 +358,13 @@ class AccountStakingTRX extends React.PureComponent {
 
         const { currentBalance } = this.state
 
-        let tmp =
-            currentBalance.prettyFrozenOthers && currentBalance.prettyFrozenOthers * 1 > 0
-                ? currentBalance.prettyFrozen * 1 + currentBalance.prettyFrozenOthers * 1
-                : currentBalance.prettyFrozen
+        let tmp = currentBalance.prettyFrozen * 1
         if (currentBalance.prettyUnFrozen && currentBalance.prettyUnFrozen * 1 > 0) {
             tmp += currentBalance.prettyUnFrozen * 1
         }
         return (
             <>
-                {this.renderDescription(strings('account.stakingTRX.bandwidthInfo'), strings('account.stakingTRX.moreInfo'))}
+                {this.renderDescription(strings('account.stakingTRX.bandwidthInfo', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')}), strings('account.stakingTRX.moreInfo'))}
                 {!!currentBalance.prettyFrozenOld ? (
                     <View style={{ marginBottom: GRID_SIZE }}>
                         <StakeView
@@ -397,16 +394,13 @@ class AccountStakingTRX extends React.PureComponent {
 
         const { currentBalance } = this.state
 
-        let tmp =
-            currentBalance.prettyFrozenEnergyOthers && currentBalance.prettyFrozenEnergyOthers * 1 > 0
-                ? currentBalance.prettyFrozenEnergy * 1 + currentBalance.prettyFrozenEnergyOthers * 1
-                : currentBalance.prettyFrozenEnergy
+        let tmp = currentBalance.prettyFrozenEnergy * 1
         if (currentBalance.prettyUnFrozenEnergy && currentBalance.prettyUnFrozenEnergy * 1 > 0) {
            tmp += currentBalance.prettyUnFrozenEnergy * 1
         }
         return (
             <>
-                {this.renderDescription(strings('account.stakingTRX.energyInfo'), strings('account.stakingTRX.moreInfo'))}
+                {this.renderDescription(strings('account.stakingTRX.energyInfo', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')}), strings('account.stakingTRX.moreInfo'))}
                 {!!currentBalance?.prettyFrozenOldEnergy ? (
                     <View style={{ marginBottom: GRID_SIZE }}>
                         <StakeView
@@ -559,10 +553,10 @@ const styles = {
         color: '#999999'
     },
     description: {
-        fontFamily: 'SFUIDisplay-Semibold',
+        fontFamily: 'SFUIDisplay-Regular',
         fontSize: 16,
         lineHeight: 20,
-        letterSpacing: 1,
+        letterSpacing: 0.5,
         flex: 1
     },
     linkText: {

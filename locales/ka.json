@@ -264,6 +264,7 @@
       "rewards" : "Rewards",
       "useCustomValidator": "Use this validator ",
       "successUnfreeze": "TRX unfrozen",
+      "successUnfreezeV2": "TRX-ის ამოღება შესაძლებელი იქნება %{TRX_STAKE_DAYS}-დღიანი განთავისუფლების პერიოდის შემდეგ",
       "successFreeze": "TRX frozen for staking",
       "successReward": "TRX staking reward received",
       "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
@@ -456,8 +457,8 @@
     "stakingTRX": {
       "BANDWIDTH": "გაყინული გამტარუნარიანობა",
       "ENERGY": "გაყინული ენერგია",
-      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
-      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. განთავისუფლების პერიოდია %{TRX_STAKE_DAYS} დღე. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. განთავისუფლების პერიოდია %{TRX_STAKE_DAYS} დღე. ",
       "moreInfo": "More details...",
       "withdraw": "გადაღება",
       "inUnstakingProcess": "ჩამოხსნის პროცესში: ",
