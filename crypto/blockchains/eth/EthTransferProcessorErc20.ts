@@ -131,8 +131,9 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
             if (estimatedGas < minGas) {
                 estimatedGas = minGas
             }
-            MarketingEvent.logOnlyRealTime(eventTitle + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo,
+            MarketingEvent.logOnlyRealTime(eventTitle + '_' + this._settings.currencyCode,
                 {
+                    title: data.addressFrom + ' => ' + data.addressTo,
                     amount: data.amount + '',
                     estimatedGas,
                     serverEstimatedGas,

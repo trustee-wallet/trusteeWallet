@@ -80,7 +80,10 @@ export namespace DogeLogs {
         }
         // console.log('btc_info ' + this._settings.currencyCode + ' ' + data.addressFrom  + ' => ' + data.addressTo, logInputsOutputs)
         // noinspection JSIgnoredPromiseFromCall
-        MarketingEvent.logOnlyRealTime('v20_doge_info ' + settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logInputsOutputs)
+        MarketingEvent.logOnlyRealTime('v30_doge_info_' + settings.currencyCode, {
+            ...logInputsOutputs,
+            title : data.addressFrom + ' => ' + data.addressTo
+        })
         return logInputsOutputs
     }
 }

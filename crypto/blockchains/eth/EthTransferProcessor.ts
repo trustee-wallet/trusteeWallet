@@ -991,7 +991,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         // @ts-ignore
         logData.result = result
         // noinspection ES6MissingAwait
-        MarketingEvent.logOnlyRealTime('v20_eth_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + realAddressTo, logData)
+        MarketingEvent.logOnlyRealTime('v30_eth_tx_success_' + this._settings.currencyCode, {
+            ...logData,
+            title : data.addressFrom + ' => ' + realAddressTo
+        })
 
         return result
     }
@@ -1001,7 +1004,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferPRocessor.setMissingTx remove nonce ' + transaction.transactionJson.nonce + ' ' + transaction.transactionHash)
             await EthTmpDS.removeNonce(this._mainCurrencyCode, data.address, 'send_' + transaction.transactionHash)
         }
-        MarketingEvent.logOnlyRealTime('v20_eth_tx_set_missing ' + this._settings.currencyCode + ' ' + data.address + ' => ' + transaction.addressTo, transaction)
+        MarketingEvent.logOnlyRealTime('v30_eth_tx_set_missing_' + this._settings.currencyCode, {
+            transaction,
+            title:  data.address + ' => ' + transaction.addressTo
+        })
         return true
     }
 

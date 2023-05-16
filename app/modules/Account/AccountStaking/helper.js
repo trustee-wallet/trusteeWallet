@@ -215,6 +215,7 @@ export async function handleUnFreezeV1Trx(isAll, type) {
 }
 
 export async function handleWithdrawV2Trx(isAll, type) {
+    Log.log('AccountStaking.helper.handleWithdrawV2Trx start')
 
     const { account } = this.props
     setLoaderStatus(true)

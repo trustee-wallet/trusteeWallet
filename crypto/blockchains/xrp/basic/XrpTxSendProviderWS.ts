@@ -90,7 +90,7 @@ export class XrpTxSendProviderWS {
                     BlocksoftCryptoLog.log('XrpTxSendProvider._getPrepared prepared', txJson)
                     resolve(toObject ? JSON.parse(txJson) : txJson)
                 }).catch((error: { toString: () => string }) => {
-                    MarketingEvent.logOnlyRealTime('v20_rippled_prepare_error ' + data.addressFrom + ' => ' + data.addressTo, {
+                    MarketingEvent.logOnlyRealTime('v30_rippled_prepare_error ' + data.addressFrom + ' => ' + data.addressTo, {
                         payment,
                         msg: error.toString()
                     })
@@ -98,7 +98,7 @@ export class XrpTxSendProviderWS {
                     reject(error)
                 })
             }).catch((error: { toString: () => string }) => {
-                MarketingEvent.logOnlyRealTime('v20_rippled_prepare_no_connection ' + data.addressFrom + ' => ' + data.addressTo, {
+                MarketingEvent.logOnlyRealTime('v30_rippled_prepare_no_connection ' + data.addressFrom + ' => ' + data.addressTo, {
                     payment,
                     msg: error.toString()
                 })
@@ -138,13 +138,13 @@ export class XrpTxSendProviderWS {
                         resultCode: '',
                         resultMessage: ''
                     }) => {
-                        MarketingEvent.logOnlyRealTime('v20_rippled_success ' + data.addressFrom + ' => ' + data.addressTo, {
+                        MarketingEvent.logOnlyRealTime('v30_rippled_success ' + data.addressFrom + ' => ' + data.addressTo, {
                             txJson,
                             result
                         })
                         resolve(result)
                     }).catch((error: { toString: () => string }) => {
-                        MarketingEvent.logOnlyRealTime('v20_rippled_send_error ' + data.addressFrom + ' => ' + data.addressTo, {
+                        MarketingEvent.logOnlyRealTime('v30_rippled_send_error ' + data.addressFrom + ' => ' + data.addressTo, {
                             txJson,
                             msg: error.toString()
                         })
@@ -152,7 +152,7 @@ export class XrpTxSendProviderWS {
                         reject(error)
                     })
                 }).catch((error: { toString: () => string }) => {
-                    MarketingEvent.logOnlyRealTime('v20_rippled_send_no_connection ' + data.addressFrom + ' => ' + data.addressTo, {
+                    MarketingEvent.logOnlyRealTime('v30_rippled_send_no_connection ' + data.addressFrom + ' => ' + data.addressTo, {
                         txJson,
                         msg: error.toString()
                     })
@@ -164,7 +164,7 @@ export class XrpTxSendProviderWS {
             if (config.debug.cryptoErrors) {
                 console.log('XrpTransferProcessor.sendTx error ', e)
             }
-            MarketingEvent.logOnlyRealTime('v20_rippled_send2_error ' + data.addressFrom + ' => ' + data.addressTo, {
+            MarketingEvent.logOnlyRealTime('v30_rippled_send2_error ' + data.addressFrom + ' => ' + data.addressTo, {
                 txJson,
                 msg: e.toString()
             })

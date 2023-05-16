@@ -134,7 +134,8 @@ export class XrpTxSendProvider {
             if (config.debug.cryptoErrors) {
                 console.log('XrpTransferProcessor.sendTx error ', e)
             }
-            MarketingEvent.logOnlyRealTime('v20_rippled_send2_error ' + data.addressFrom + ' => ' + data.addressTo, {
+            MarketingEvent.logOnlyRealTime('v30_rippled_send2_error', {
+                title: data.addressFrom + ' => ' + data.addressTo,
                 txJson,
                 msg: e.toString()
             })

@@ -127,7 +127,7 @@ class EthRawDS {
                             }
                         }
                         broadcastLog += ' ' + link + '; '
-                        MarketingEvent.logOnlyRealTime('v20_eth_resend_0 ' + row.transactionHash, { broadcastLog, ...updateObj })
+                        MarketingEvent.logOnlyRealTime('v30_eth_resend_0_' + row.transactionHash, { broadcastLog, ...updateObj })
                     }
 
                     if (this._currencyCode === 'ETH') {
@@ -151,7 +151,7 @@ class EthRawDS {
                             }
                         }
                         broadcastLog1 += ' ' + link + '; '
-                        MarketingEvent.logOnlyRealTime('v20_eth_resend_1 ' + row.transactionHash, { broadcastLog1, ...updateObj })
+                        MarketingEvent.logOnlyRealTime('v30_eth_resend_1_' + row.transactionHash, { broadcastLog1, ...updateObj })
 
 
                         link = 'https://mainnet.infura.io/v3/' + this._infuraProjectId
@@ -182,7 +182,7 @@ class EthRawDS {
 
                         }
                         broadcastLog2 += ' ' + link + '; '
-                        MarketingEvent.logOnlyRealTime('v20_eth_resend_2 ' + row.transactionHash, { broadcastLog2, ...updateObj })
+                        MarketingEvent.logOnlyRealTime('v30_eth_resend_2_' + row.transactionHash, { broadcastLog2, ...updateObj })
 
                         if (updateObj.is_removed === '111') { // do ALL!
                             updateObj.is_removed = 1

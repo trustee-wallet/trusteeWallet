@@ -69,9 +69,6 @@ class SendLog {
         }
 
         logSizes = '\n\nSIZES ' + await fs.countDir()
-        if (logSizes) {
-            MarketingEvent.logOnlyRealTime('LOGSIZES', logSizes)
-        }
 
         let tmp = Log.FS.ALL.getError()
         if (tmp && tmp !== '') {

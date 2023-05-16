@@ -334,7 +334,11 @@ export default class EthBasic {
             BlocksoftCryptoLog.log('EthBasic checkError0.6 ' + e.message + ' for ' + data.addressFrom, logData)
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')
         } else {
-            MarketingEvent.logOnlyRealTime('v20_' + this._mainCurrencyCode.toLowerCase() + '_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+            MarketingEvent.logOnlyRealTime('v30_' + this._mainCurrencyCode.toLowerCase() + '_tx_error_' + this._settings.currencyCode, {
+                ...logData,
+                title: data.addressFrom + ' => ' + data.addressTo,
+                error: e.message
+            })
             throw e
         }
     }

@@ -196,8 +196,10 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.sendTx base64 create account', raw)
                 result = await this._provider.sendRaw(raw)
             } else {
-                MarketingEvent.logOnlyRealTime('v20_stellar_error ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, {
-                    raw
+                MarketingEvent.logOnlyRealTime('v30_stellar_error', {
+                    raw,
+                    title: data.addressFrom + ' => ' + data.addressTo,
+                    error: e.message
                 })
                 if (e.message === 'op_underfunded') {
                     throw new Error('SERVER_RESPONSE_NOTHING_TO_TRANSFER')
@@ -207,14 +209,16 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
         }
         if (!result || typeof result.hash === 'undefined') {
-            MarketingEvent.logOnlyRealTime('v20_stellar_no_result ' + data.addressFrom + ' => ' + data.addressTo, {
-                raw
+            MarketingEvent.logOnlyRealTime('v30_stellar_no_result', {
+                raw,
+                title: data.addressFrom + ' => ' + data.addressTo
             })
             throw new Error('SERVER_RESPONSE_NO_RESPONSE')
         }
 
-        MarketingEvent.logOnlyRealTime('v20_stellar_success_result ' + data.addressFrom + ' => ' + data.addressTo + ' ' + result.hash, {
-            result
+        MarketingEvent.logOnlyRealTime('v30_stellar_success_result', {
+            result,
+            title: data.addressFrom + ' => ' + data.addressTo
         })
 
         return {transactionHash : result.hash}

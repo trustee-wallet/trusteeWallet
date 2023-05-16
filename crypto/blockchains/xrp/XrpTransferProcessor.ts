@@ -197,7 +197,8 @@ export default class XrpTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const result = await this._provider.sendTx(data, privateData, txJson)
 
         // noinspection ES6MissingAwait
-        MarketingEvent.logOnlyRealTime('v20_rippled_any_result ' + data.addressFrom + ' => ' + data.addressTo, {
+        MarketingEvent.logOnlyRealTime('v30_rippled_any_result' , {
+            title: data.addressFrom + ' => ' + data.addressTo,
             txJson,
             result
         })
