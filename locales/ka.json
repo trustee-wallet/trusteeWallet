@@ -267,6 +267,7 @@
       "successUnfreezeV2": "TRX-ის ამოღება შესაძლებელი იქნება %{TRX_STAKE_DAYS}-დღიანი განთავისუფლების პერიოდის შემდეგ",
       "successFreeze": "TRX frozen for staking",
       "successReward": "TRX staking reward received",
+      "successVote": "თქვენ წარმატებით მიეცით ხმა",
       "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
       "withdrawTRX": "Withdraw",
       "freezeTrx": "Freeze"

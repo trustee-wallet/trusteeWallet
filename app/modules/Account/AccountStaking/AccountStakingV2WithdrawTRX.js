@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { View, FlatList, RefreshControl, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, ScrollView, RefreshControl, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 import LottieView from 'lottie-react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -249,14 +249,11 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                 leftAction={this.handleBack}
                 rightType='close'
                 rightAction={this.handleClose}>
-                <FlatList
+                <ScrollView
                     ref={(ref) => (this.scrollView = ref)}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps='handled'
                     style={{ flexGrow: 1 }}
-                    data={transactionList}
-                    renderItem={this.renderItem}
-                    keyExtractor={(_, index) => index?.toString()}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
@@ -267,101 +264,97 @@ class AccountStakingWithdrawTRX extends React.PureComponent {
                             progressViewOffset={-20}
                         />
                     }
-                    contentContainerStyle={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}
-                    ListFooterComponent={() => <View style={{ padding: GRID_SIZE / 2 }} />}
-                    ListHeaderComponent={() => (
-                        <>
-                            <View>
-                                <View style={[styles.container, { height: 126 }]}>
-                                    <GradientView
-                                        style={[styles.bg, { padding: GRID_SIZE }]}
-                                        array={colors.accountScreen.containerBG}
-                                        start={{ x: 0.0, y: 0 }}
-                                        end={{ x: 0, y: 1 }}>
-                                        <View style={styles.content}>
-                                            <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>
-                                                <View>
-                                                    <Text style={[styles.rewardText, { color: colors.common.text1 }]}>
-                                                        {strings('account.stakingTRX.withdraw')}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                            <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
-                                                <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyUnfrozenReady} TRX`}</Text>
-                                                {!!prettyUnfrozenReady && Number(prettyUnfrozenReady) > 0 && (
-                                                    <BorderedButton
-                                                        containerStyle={styles.withdrawBtn}
-                                                        text={strings('settings.walletList.withdrawTRX')}
-                                                        onPress={() => handleWithdrawV2Trx.call(this)}
-                                                    />
-                                                )}
-                                            </View>
-                                            <View>
-                                                <Text style={[styles.inProcess, { color: colors.common.text3 }]}>
-                                                    {strings('account.stakingTRX.inUnstakingProcess') + ' ' + prettyUnfrozenNotReady + ' TRX'}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </GradientView>
-                                    <View style={[styles.containerShadow, { height: 126 }]}>
-                                        <View style={[styles.shadow, { backgroundColor: colors.accountScreen.headBlockBackground }]} />
-                                    </View>
-                                </View>
-                                <View style={{ marginTop: GRID_SIZE * 1.5 }}>
-                                    <StakeView
-                                        title={strings('settings.walletList.frozenTRX') + (!!currentBalance.prettyFrozenOld ? ' 2.0' : '')}
-                                        balance={prettyFrozenByUser}
-                                        currencyCode='TRX'
-                                    />
-                                </View>
-                                <Text style={[styles.progressText, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE / 2, marginLeft: GRID_SIZE }]}>
-                                    {`${strings('settings.walletList.available')} ${prettyFrozenByUser} TRX`}
-                                </Text>
-                                <View style={{ marginBottom: GRID_SIZE * 1.5, marginHorizontal: 2 }}>{this.renderAmountInput()}</View>
-                                <Button
-                                    title={strings('settings.walletList.unfreezeTRX')}
-                                    containerStyle={{ marginVertical: GRID_SIZE }}
-                                    onPress={() => handleUnFreezeV2Trx.call(this, false, type)}
-                                />
-
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        position: 'relative',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        paddingVertical: GRID_SIZE / 2
-                                    }}>
-                                    <View style={{ flexDirection: 'column' }}>
-                                        <Text style={[styles.transaction_title, { color: colors.common.text1, paddingLeft: GRID_SIZE }]}>
-                                            {strings('settings.walletList.stakeTransactionsSOL')}
-                                        </Text>
-                                        <View style={{ ...styles.scan, marginLeft: GRID_SIZE }}>
-                                            <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2}>
-                                                {diffTimeText}
+                    contentContainerStyle={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
+                    <View>
+                        <View style={[styles.container, { height: 126 }]}>
+                            <GradientView
+                                style={[styles.bg, { padding: GRID_SIZE }]}
+                                array={colors.accountScreen.containerBG}
+                                start={{ x: 0.0, y: 0 }}
+                                end={{ x: 0, y: 1 }}>
+                                <View style={styles.content}>
+                                    <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>
+                                        <View>
+                                            <Text style={[styles.rewardText, { color: colors.common.text1 }]}>
+                                                {strings('account.stakingTRX.withdraw')}
                                             </Text>
                                         </View>
                                     </View>
-                                    <TouchableOpacity
-                                        style={{ alignItems: 'center', marginRight: GRID_SIZE }}
-                                        onPress={() => this.onRefresh(true)}
-                                        hitSlop={HIT_SLOP}>
-                                        {clickRefresh ? (
-                                            <LottieView
-                                                style={{ width: 20, height: 20 }}
-                                                source={isLight ? blackLoader : whiteLoader}
-                                                autoPlay
-                                                loop
+                                    <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
+                                        <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyUnfrozenReady} TRX`}</Text>
+                                        {!!prettyUnfrozenReady && Number(prettyUnfrozenReady) > 0 && (
+                                            <BorderedButton
+                                                containerStyle={styles.withdrawBtn}
+                                                text={strings('settings.walletList.withdrawTRX')}
+                                                onPress={() => handleWithdrawV2Trx.call(this)}
                                             />
-                                        ) : (
-                                            <CustomIcon name='reloadTx' size={20} color={colors.common.text1} />
                                         )}
-                                    </TouchableOpacity>
+                                    </View>
+                                    <View>
+                                        <Text style={[styles.inProcess]}>
+                                            {strings('account.stakingTRX.inUnstakingProcess') + ' ' + prettyUnfrozenNotReady + ' TRX'}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </GradientView>
+                            <View style={[styles.containerShadow, { height: 126 }]}>
+                                <View style={[styles.shadow, { backgroundColor: colors.accountScreen.headBlockBackground }]} />
+                            </View>
+                        </View>
+                        <View style={{ marginTop: GRID_SIZE * 1.5 }}>
+                            <StakeView
+                                title={strings('settings.walletList.frozenTRX') + (!!currentBalance.prettyFrozenOld ? ' 2.0' : '')}
+                                balance={prettyFrozenByUser}
+                                currencyCode='TRX'
+                            />
+                        </View>
+                        <Text style={[styles.progressText, { marginTop: GRID_SIZE, marginBottom: GRID_SIZE / 2, marginLeft: GRID_SIZE }]}>
+                            {`${strings('settings.walletList.available')}: ${prettyFrozenByUser} TRX`}
+                        </Text>
+                        <View style={{ marginBottom: GRID_SIZE * 1.5, marginHorizontal: 2 }}>{this.renderAmountInput()}</View>
+                        <Button
+                            title={strings('settings.walletList.unfreezeTRX')}
+                            containerStyle={{ marginVertical: GRID_SIZE }}
+                            onPress={() => handleUnFreezeV2Trx.call(this, false, type)}
+                        />
+
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                position: 'relative',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                paddingVertical: GRID_SIZE / 2
+                            }}>
+                            <View style={{ flexDirection: 'column' }}>
+                                <Text style={[styles.transaction_title, { color: colors.common.text1, paddingLeft: GRID_SIZE }]}>
+                                    {strings('settings.walletList.stakeTransactionsSOL')}
+                                </Text>
+                                <View style={{ ...styles.scan, marginLeft: GRID_SIZE }}>
+                                    <Text style={{ ...styles.scan__text, color: colors.common.text2 }} numberOfLines={2}>
+                                        {diffTimeText}
+                                    </Text>
                                 </View>
                             </View>
-                        </>
-                    )}
-                />
+                            <TouchableOpacity
+                                style={{ alignItems: 'center', marginRight: GRID_SIZE }}
+                                onPress={() => this.onRefresh(true)}
+                                hitSlop={HIT_SLOP}>
+                                {clickRefresh ? (
+                                    <LottieView style={{ width: 20, height: 20 }} source={isLight ? blackLoader : whiteLoader} autoPlay loop />
+                                ) : (
+                                    <CustomIcon name='reloadTx' size={20} color={colors.common.text1} />
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    {transactionList && transactionList.length
+                        ? transactionList.map((item, index) => {
+                              return <React.Fragment key={index}>{this.renderItem({ item })}</React.Fragment>
+                          })
+                        : null}
+                    <View style={{ padding: GRID_SIZE / 2 }} />
+                </ScrollView>
             </ScreenWrapper>
         )
     }
@@ -456,9 +449,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 6
     },
     inProcess: {
-        fontFamily: 'Montserrat-Medium',
+        fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
-        lineHeight: 14
+        lineHeight: 18,
+        color: '#999999'
     },
     inputWrapper: {
         justifyContent: 'center',

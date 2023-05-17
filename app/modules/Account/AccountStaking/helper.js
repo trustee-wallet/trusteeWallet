@@ -120,7 +120,7 @@ export async function handleFreezeV2Trx(isAll, type) {
             owner_address: TronUtils.addressToHex(address),
             frozen_balance: freeze * 1,
             resource: type
-        }, 'freeze ' + freeze + ' for ' + type + ' of ' + address, { type: 'freeze', cryptoValue: freeze * 1 })
+        }, 'freeze ' + freeze + ' for ' + type + ' of ' + address, { type: 'freeze', cryptoValue: freeze * 1, version: 2 })
 
         this.stakeAmountInput.handleInput('', false, true)
     } catch (e) {
@@ -223,7 +223,7 @@ export async function handleWithdrawV2Trx(isAll, type) {
     try {
         await _sendTxTrx.call(this, '/wallet/withdrawexpireunfreeze', {
             owner_address: TronUtils.addressToHex(address)
-        }, 'withdraw of ' + address, { type: 'withdraw' })
+        }, 'withdraw of ' + address, { type: 'withdraw', version: 2 })
     } catch (e) {
         if (config.debug.cryptoErrors) {
             console.log('AccountStaking.helper.handleWithdrawV2Trx error ', e)
@@ -432,6 +432,8 @@ const _wrapSuccess = (type, version) => {
         msg = strings('settings.walletList.successFreeze')
     } else if (type === 'claim') {
         msg = strings('settings.walletList.successReward')
+    } else if (type === 'vote') {
+        msg = strings('settings.walletList.successVote')
     }
 
     showModal({

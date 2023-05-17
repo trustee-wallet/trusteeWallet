@@ -30,7 +30,7 @@ import Tabs from '@app/components/elements/new/TabsWithUnderline'
 import Button from '@app/components/elements/new/buttons/Button'
 import NavStore from '@app/components/navigation/NavStore'
 import PercentView from '@app/components/elements/new/PercentView'
-import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
+import GradientView from '@app/components/elements/GradientView'
 import Loader from '@app/components/elements/LoaderItem'
 
 import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAndButtonsPartBalanceButton'
@@ -158,7 +158,7 @@ class AccountStakingTRX extends React.PureComponent {
         if (msg.indexOf('less than 24 hours') !== -1) {
             msg = strings('settings.walletList.waitToClaimTRX')
         } else if (msg.indexOf('not time to unfreeze') !== -1) {
-            msg = strings('settings.walletList.waitToUnfreezeTRX', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')})
+            msg = strings('settings.walletList.waitToUnfreezeTRX', { TRX_STAKE_DAYS: BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS') })
         } else if (msg.indexOf('frozenBalance must be more') !== -1) {
             msg = strings('settings.walletList.minimalFreezeBalanceTRX')
         }
@@ -202,50 +202,65 @@ class AccountStakingTRX extends React.PureComponent {
             timePrep = '-'
         }
 
+        const height = 156
+
         return (
-            <AccountGradientBlock height={156}>
-                {!loading ? (
-                    <>
-                        <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>
-                            <View>
-                                <Text style={[styles.rewardText, { color: colors.common.text1 }]}>{strings('settings.walletList.rewards')}</Text>
-                                <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
+            <View style={[styles.container, { height: height + GRID_SIZE * 2 + 30 }]}>
+                <GradientView
+                    style={[styles.bg, { padding: GRID_SIZE, minHeight: height + 10 }]}
+                    array={colors.accountScreen.containerBG}
+                    start={styles.containerBG.start}
+                    end={styles.containerBG.end}>
+                    <View style={styles.content}>
+                        {!loading ? (
+                            <>
+                                <View style={[styles.progressBarLocation, { marginBottom: GRID_SIZE }]}>
+                                    <View>
+                                        <Text style={[styles.rewardText, { color: colors.common.text1 }]}>
+                                            {strings('settings.walletList.rewards')}
+                                        </Text>
+                                        <Text style={styles.updateTime}>{strings('cashback.updated') + ' ' + timePrep}</Text>
+                                    </View>
+                                    <PercentView value={this.props.stakingCoins['TRX']} staking />
+                                </View>
+                                <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
+                                    <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
+                                    {!!prettyReward && Number(prettyReward) > 0 && (
+                                        <BorderedButton
+                                            containerStyle={styles.withdrawBtn}
+                                            text={strings('settings.walletList.withdrawTRX')}
+                                            onPress={() => handleGetRewardTrx.call(this)}
+                                        />
+                                    )}
+                                </View>
+                                <View style={styles.progressBarLocation}>
+                                    <InfoProgressBar
+                                        title={strings('settings.walletList.bandwidthTRX')}
+                                        amount={currentLimits.leftBand}
+                                        total={currentLimits.totalBand}
+                                    />
+                                    <InfoProgressBar
+                                        title={strings('settings.walletList.energyTRX')}
+                                        amount={currentLimits.leftEnergy}
+                                        total={currentLimits.totalEnergy}
+                                    />
+                                </View>
+                            </>
+                        ) : (
+                            <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2.3 }}>
+                                <View style={[styles.topContent__title]}>
+                                    <View style={{ height: 46, alignItems: 'center' }}>
+                                        <Loader size={30} color={colors.accountScreen.loaderColor} />
+                                    </View>
+                                </View>
                             </View>
-                            <PercentView value={this.props.stakingCoins['TRX']} staking />
-                        </View>
-                        <View style={[styles.rewardLocation, { marginBottom: GRID_SIZE * 1.5 }]}>
-                            <Text style={[styles.reward, { color: colors.common.text1 }]}>{`${prettyReward} TRX`}</Text>
-                            {!!prettyReward && Number(prettyReward) > 0 && (
-                                <BorderedButton
-                                    containerStyle={styles.withdrawBtn}
-                                    text={strings('settings.walletList.withdrawTRX')}
-                                    onPress={() => handleGetRewardTrx.call(this)}
-                                />
-                            )}
-                        </View>
-                        <View style={styles.progressBarLocation}>
-                            <InfoProgressBar
-                                title={strings('settings.walletList.bandwidthTRX')}
-                                amount={currentLimits.leftBand}
-                                total={currentLimits.totalBand}
-                            />
-                            <InfoProgressBar
-                                title={strings('settings.walletList.energyTRX')}
-                                amount={currentLimits.leftEnergy}
-                                total={currentLimits.totalEnergy}
-                            />
-                        </View>
-                    </>
-                ) : (
-                    <View style={{ ...styles.topContent__top, marginHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2.3 }}>
-                        <View style={[styles.topContent__title]}>
-                            <View style={{ height: 46, alignItems: 'center' }}>
-                                <Loader size={30} color={colors.accountScreen.loaderColor} />
-                            </View>
-                        </View>
+                        )}
                     </View>
-                )}
-            </AccountGradientBlock>
+                </GradientView>
+                <View style={[styles.containerShadow, { height: height + GRID_SIZE * 1.35 }]}>
+                    <View style={[styles.shadow, { backgroundColor: colors.accountScreen.headBlockBackground }]} />
+                </View>
+            </View>
         )
     }
 
@@ -364,7 +379,10 @@ class AccountStakingTRX extends React.PureComponent {
         }
         return (
             <>
-                {this.renderDescription(strings('account.stakingTRX.bandwidthInfo', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')}), strings('account.stakingTRX.moreInfo'))}
+                {this.renderDescription(
+                    strings('account.stakingTRX.bandwidthInfo', { TRX_STAKE_DAYS: BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS') }),
+                    strings('account.stakingTRX.moreInfo')
+                )}
                 {!!currentBalance.prettyFrozenOld ? (
                     <View style={{ marginBottom: GRID_SIZE }}>
                         <StakeView
@@ -396,11 +414,14 @@ class AccountStakingTRX extends React.PureComponent {
 
         let tmp = currentBalance.prettyFrozenEnergy * 1
         if (currentBalance.prettyUnFrozenEnergy && currentBalance.prettyUnFrozenEnergy * 1 > 0) {
-           tmp += currentBalance.prettyUnFrozenEnergy * 1
+            tmp += currentBalance.prettyUnFrozenEnergy * 1
         }
         return (
             <>
-                {this.renderDescription(strings('account.stakingTRX.energyInfo', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')}), strings('account.stakingTRX.moreInfo'))}
+                {this.renderDescription(
+                    strings('account.stakingTRX.energyInfo', { TRX_STAKE_DAYS: BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS') }),
+                    strings('account.stakingTRX.moreInfo')
+                )}
                 {!!currentBalance?.prettyFrozenOldEnergy ? (
                     <View style={{ marginBottom: GRID_SIZE }}>
                         <StakeView
@@ -466,7 +487,7 @@ class AccountStakingTRX extends React.PureComponent {
                             useNativeDriver
                         />
                         <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2, marginLeft: GRID_SIZE }]}>
-                            {`${strings('settings.walletList.available')} ${currentBalance?.prettyBalanceAvailable || ''} ${currencyCode}`}
+                            {`${strings('settings.walletList.available')}: ${currentBalance?.prettyBalanceAvailable || ''} ${currencyCode}`}
                         </Text>
                         <View style={{ marginBottom: GRID_SIZE * 1.5 }}>{this.renderAmountInput()}</View>
                         {config.exchange.mode === 'DEV' && (
@@ -646,5 +667,58 @@ const styles = {
     texts__icon: {
         marginRight: 10,
         transform: [{ rotate: '180deg' }]
+    },
+    bg: {
+        flex: 1,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+
+        width: '100%',
+        zIndex: 1,
+
+        borderRadius: 16,
+        height: 'auto'
+    },
+    containerBG: {
+        start: { x: 0.0, y: 0 },
+        end: { x: 0, y: 1 }
+    },
+    containerShadow: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        borderRadius: 16,
+        zIndex: 0,
+        height: 'auto'
+    },
+    shadow: {
+        marginTop: 10,
+        marginHorizontal: 5,
+
+        height: '100%',
+        borderRadius: 16,
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 5
+        },
+        shadowOpacity: 0.34,
+        shadowRadius: 6.27,
+
+        elevation: 10
+    },
+    container: {
+        position: 'relative',
+        borderRadius: 16,
+        height: 'auto'
+    },
+
+    content: {
+        flex: 1,
+        position: 'relative',
+        zIndex: 2
     }
 }
