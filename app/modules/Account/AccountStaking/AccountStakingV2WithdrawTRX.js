@@ -500,5 +500,19 @@ const styles = StyleSheet.create({
         lineHeight: 18,
         letterSpacing: 1,
         color: '#999999'
+    },
+    texts: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 30
+    },
+    texts__item: {
+        fontSize: 14,
+        fontFamily: 'SFUIDisplay-Semibold',
+        letterSpacing: 1
+    },
+    texts__icon: {
+        marginRight: 10,
+        transform: [{ rotate: '180deg' }]
     }
 })
