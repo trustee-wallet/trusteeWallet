@@ -18,7 +18,7 @@ import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 138,
+        maxVersion: 139,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -1016,6 +1016,16 @@ export default function getTableUpdateQueries() {
                         await Log.FS.ALL.cleanDir()
                     } catch (e) {
                         console.log('DB/Update afterFunction - Migration 138 error', e)
+                    }
+                }
+            },
+
+            139: {
+                afterFunction: async (dbInterface) => {
+                    try {
+                        await dbInterface.query(`DELETE FROM transactions WHERE address_amount=0 AND currency_code='TRX_USDT'`)
+                    } catch (e) {
+                        console.log('DB/Update afterFunction - Migration 139 error', e)
                     }
                 }
             },
