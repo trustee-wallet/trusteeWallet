@@ -105,7 +105,8 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
             const tmp = await BlocksoftAxios.get('https://apilist.tronscan.org/api/transaction-info?hash=' + res.transactionHash)
             res.transactionFee = tmp.data.cost.fee * 1 + tmp.data.cost.energy_fee * 1
 
-            if (res.transactionFee * 1 > 0 && res.addressAmount * 1 > 0) {
+            const isMine = address.toLowerCase() === tmp.data.ownerAddress.toLowerCase()
+            if (res.transactionFee * 1 > 0 && isMine) {
                 const savedTRX = await Database.query(` SELECT * FROM transactions WHERE transaction_hash='${res.transactionHash}' AND currency_code='TRX' `)
                 if (!savedTRX || !savedTRX.array || savedTRX.array.length === 0) {
                     BlocksoftCryptoLog.log('TrxTransactionsTrc20Provider._unifyTransaction added fee for ' + res.transactionHash + ' amount ' + res.addressAmount + ' fee ' + res.transactionFee)
@@ -152,7 +153,7 @@ export default class TrxTransactionsTrc20Provider extends TrxTransactionsProvide
 				if (res.transactionFee * 1 === 0) {
 					return false
 				} else {
-					if (res.transactionDirection !== 'outcome') {
+					if (res.transactionDirection !== 'outcome' || !isMine) {
 						return false
 					}
 				}
