@@ -9,6 +9,8 @@ import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 import DogeRawDS from '../stores/DogeRawDS'
 
+const PROXY_UNSPENTS = 'https://proxy.trustee.deals/btc/getUnspents'
+
 export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.UnspentsProvider {
 
     private _trezorServerCode: string = ''
@@ -25,6 +27,16 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
     async getUnspents(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started ' + address)
+
+        if (this._settings['currencyCode'] === 'BTC' || this._settings['currencyCode'] === 'DOGE' || this._settings['currencyCode'] === 'LTC' || this._settings['currencyCode'] === 'BSV' || this._settings['currencyCode'] === 'BCH') {
+            const link = PROXY_UNSPENTS + '?address=' + address + '&currencyCode=' + this._settings['currencyCode']
+            const res = await BlocksoftAxios.getWithoutBraking(link, 5, 6000)
+            if (res && res.data && typeof res.data.data !== 'undefined' && res.data.data) {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents proxy loaded for address ' + address + ' link ' + link)
+                return res.data.data
+            }
+        }
+
         this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, 'DOGE.Unspents.getUnspents')
         let link = BlocksoftExternalSettings.getStatic(this._trezorServerCode + '_UNSPENDS_LINK')
         if (!link || link === '') {
@@ -44,12 +56,15 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
         }
         const sortedUnspents = []
         let unspent
+        const spamLimit = BlocksoftExternalSettings.getStatic(this._settings.currencyCode + '_UNSPENDS_SPAM_LIMIT') * 1
         // @ts-ignore
         for (unspent of res.data) {
             if (typeof unspent.path !== 'undefined') {
                 unspent.derivationPath = unspent.path
             }
-            sortedUnspents.push(unspent)
+            if (!spamLimit || unspent.value*1 > spamLimit * 1) {
+                sortedUnspents.push(unspent)
+            }
         }
         return sortedUnspents
     }

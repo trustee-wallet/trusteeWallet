@@ -4,6 +4,8 @@
 import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+import config from '@app/config/config'
+
 const PROXY_FEES = 'https://proxy.trustee.deals/btc/getFees'
 
 const CACHE_FEES_BTC = {
@@ -32,6 +34,9 @@ export default class BtcNetworkPrices implements BlocksoftBlockchainTypes.Networ
         } catch (e) {
             BlocksoftCryptoLog.log('BtcNetworkPricesProvider ' + currencyCode + ' error ' + e.toString())
             throw e
+        }
+        if (config.debug.cryptoErrors) {
+           console.log('BtcNetworkPricesProvider ' + currencyCode + ' res ' + JSON.stringify(CACHE_FEES_BTC.data))
         }
 
         return CACHE_FEES_BTC.data

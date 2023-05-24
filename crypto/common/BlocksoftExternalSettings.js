@@ -25,6 +25,7 @@ const CACHE = {
     'BCH': { '2': 2, '6': 1, '12': 1 },
     'BSV': { '2': 2, '6': 1, '12': 1 },
     'BTG': { '2': 10, '6': 5, '12': 2 },
+    'BTC_UNSPENDS_SPAM_LIMIT': 1000,
     'DOGE': { '2': 800000, '6': 600000, '12': 500000 },
     'DOGE_STATIC' : { 'useStatic' : true, 'speed_blocks_2' : 1, 'feeForAllInputs' : 3},
     'BTC_TEST': { '2': 8, '6': 6, '12': 5 },
