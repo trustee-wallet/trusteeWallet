@@ -131,6 +131,34 @@ class EthRawDS {
                     }
 
                     if (this._currencyCode === 'ETH') {
+                        link = 'https://eth.meowrpc.com'
+                        let broadcastLog0 = ''
+                        try {
+                            broad = await BlocksoftAxios.post(link,
+                                {
+                                    'jsonrpc': '2.0',
+                                    'method': 'eth_sendRawTransaction',
+                                    'params': [row.transactionRaw],
+                                    'id': 1
+                                }
+                            )
+                            if (typeof broad.data.error !== 'undefined') {
+                                throw new Error(JSON.stringify(broad.data.error))
+                            }
+                            broadcastLog0 = ' broadcasted ok ' + JSON.stringify(broad.data)
+                            updateObj.is_removed += '1'
+                            updateObj.removed_at = now
+                        } catch (e) {
+                            if (e.message.indexOf('transaction underpriced') !== -1 || e.message.indexOf('already known') !== -1) {
+                                updateObj.is_removed += '1'
+                                broadcastLog0 += ' already known'
+                            } else {
+                                updateObj.is_removed += '0'
+                                broadastLog0 += e.message
+                            }
+                        }
+                        broadcastLog0 += ' ' + link + '; '
+
                         link = 'https://api.etherscan.io/api?module=proxy&action=eth_sendRawTransaction&apikey=YourApiKeyToken&hex='
                         let broadcastLog1 = ''
                         try {
@@ -177,9 +205,8 @@ class EthRawDS {
                                 broadcastLog2 += ' already known'
                             } else {
                                 updateObj.is_removed += '0'
-                                broadcastLog2 += e.message
+                                broadastLog2 += e.message
                             }
-
                         }
                         broadcastLog2 += ' ' + link + '; '
                         MarketingEvent.logOnlyRealTime('v30_eth_resend_2_' + row.transactionHash, { broadcastLog2, ...updateObj })
@@ -190,7 +217,7 @@ class EthRawDS {
                             updateObj.is_removed = 0
                         }
 
-                        broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' + broadcastLog1 + ' ' + broadcastLog2 + ' ' + (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
+                        broadcastLog = new Date().toISOString() + ' ' + broadcastLog + ' ' + broadcastLog0 + ' ' + broadcastLog1 + ' ' + broadcastLog2 + ' ' + (row.broadcastLog ? row.broadcastLog.substr(0, 1000) : '')
                     } else if (this._currencyCode === 'ETH_ROPSTEN') {
                         if (updateObj.is_removed === '1') { // do ALL!
                             updateObj.is_removed = 1

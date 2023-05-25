@@ -129,19 +129,22 @@ export default class EthTxSendProvider {
         let result
         let sendLink
         try {
-            if (this._mainCurrencyCode === 'MATIC' || this._mainCurrencyCode === 'FTM' || !link) {
+            if (this._mainCurrencyCode === 'MATIC' || this._mainCurrencyCode === 'FTM' || this._web3.SEND_RAW_LINK !== this._web3.LINK || !link) {
                 /**
                  * curl http://matic.trusteeglobal.com:8545 -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0x..."],"id":83}'
                  */
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.LINK, rawTransaction)
-                sendLink = this._web3.LINK
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.SEND_RAW_LINK, rawTransaction)
+                sendLink = this._web3.SEND_RAW_LINK
                 const tmp = await BlocksoftAxios.postWithoutBraking(sendLink, {
                     jsonrpc: '2.0',
                     method: 'eth_sendRawTransaction',
                     params: [rawTransaction],
                     id: 1
                 })
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.LINK + ' result ', tmp)
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.SEND_RAW_LINK + ' result ', tmp.data)
+                }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction to ' + this._web3.SEND_RAW_LINK + ' result ', tmp.data)
                 if (!tmp || typeof tmp.data === 'undefined') {
                     throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
                 }
@@ -165,6 +168,10 @@ export default class EthTxSendProvider {
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction ', rawTransaction)
                 sendLink = this._web3.LINK
                 const tmp = await this._web3.eth.sendSignedTransaction(rawTransaction)
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction send result ', tmp.data)
+                }
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send sendSignedTransaction send result ', tmp.data)
                 result = {
                     data: {
                         result: typeof tmp.transactionHash !== 'undefined' ? tmp.transactionHash : false

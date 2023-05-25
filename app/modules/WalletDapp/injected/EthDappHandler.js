@@ -77,24 +77,30 @@ const EthDappHandler = {
             await Log.log('EthDappHandler.eth_sendTransaction tx params', tx)
             const signData = await EthDappHandler.web3.eth.accounts.signTransaction(tx, privateData.privateKey)
             const rawTransaction = signData.rawTransaction
-            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendTransaction tx raw ' + this._web3.LINK, rawTransaction)
-            const tmp = await BlocksoftAxios.postWithoutBraking(EthDappHandler.web3.LINK, {
+            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendTransaction tx raw ' + this._web3.SEND_RAW_LINK, rawTransaction)
+            const tmp = await BlocksoftAxios.postWithoutBraking(EthDappHandler.web3.SEND_RAW_LINK, {
                 jsonrpc: '2.0',
                 method: 'eth_sendRawTransaction',
                 params: [rawTransaction],
                 id: 1
             })
-            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendTransaction tx raw result ' + this._web3.LINK, tmp.data)
+            if (config.debug.cryptoErrors) {
+                console.log('EthDappHandler.eth_sendTransaction tx raw result ' + this._web3.SEND_RAW_LINK, tmp.data)
+            }
+            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendTransaction tx raw result ' + this._web3.SEND_RAW_LINK, tmp.data)
             return {result : typeof tmp.data.result !== 'undefined' ? tmp.data.result : false}
         } else if (method === 'eth_sendRawTransaction') {
             // https://eth.wiki/json-rpc/API#eth_sendRawTransaction
-            const tmp = await BlocksoftAxios.postWithoutBraking(EthDappHandler.web3.LINK, {
+            const tmp = await BlocksoftAxios.postWithoutBraking(EthDappHandler.web3.SEND_RAW_LINK, {
                 jsonrpc: '2.0',
                 method: 'eth_sendRawTransaction',
                 params: [data.params[0]],
                 id: 1
             })
-            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendRawTransaction tx raw result ' + this._web3.LINK, tmp.data)
+            if (config.debug.cryptoErrors) {
+                console.log('EthDappHandler.eth_sendRawTransaction tx raw result ' + this._web3.SEND_RAW_LINK, tmp.data)
+            }
+            await BlocksoftCryptoLog.log('EthDappHandler.eth_sendRawTransaction tx raw result ' + this._web3.SEND_RAW_LINK, tmp.data)
             return {result : typeof tmp.data.result !== 'undefined' ? tmp.data.result : false}
         } else if (method === 'personal_sign') {
             if (!asked) {
