@@ -56,7 +56,10 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
         }
         const sortedUnspents = []
         let unspent
-        const spamLimit = BlocksoftExternalSettings.getStatic(this._settings.currencyCode + '_UNSPENDS_SPAM_LIMIT') * 1
+        let spamLimit = BlocksoftExternalSettings.getStatic(this._settings.currencyCode + '_UNSPENDS_SPAM_LIMIT') * 1
+        if (this._settings.currencyCode === 'BTC' && (address.indexOf('1') === 0 || address.indexOf('xpub') === 0)) {
+            spamLimit = 0
+        }
         // @ts-ignore
         for (unspent of res.data) {
             if (typeof unspent.path !== 'undefined') {

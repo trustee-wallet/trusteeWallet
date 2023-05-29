@@ -11,6 +11,7 @@ import CheckData from '@app/modules/Send/elements/CheckData'
 import { feesTitles } from '@app/modules/Send/advanced/helpers'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import BlocksoftPrettyStrings from '@crypto/common/BlocksoftPrettyStrings'
+import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 class MinerFee extends React.PureComponent {
 
@@ -21,7 +22,7 @@ class MinerFee extends React.PureComponent {
             return false
         }
 
-        const devMode = MarketingEvent.DATA.LOG_DEV
+        const devMode = MarketingEvent.DATA.LOG_DEV || trusteeAsyncStorage.getDevMode()
         const {feesPretty, feesCurrencySymbol, fiatFee} = feesTitles(selectedFee, this.props.sendScreenStoreDict)
 
         let nonceForTxTitle = false

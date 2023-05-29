@@ -154,7 +154,7 @@ class EthRawDS {
                                 broadcastLog0 += ' already known'
                             } else {
                                 updateObj.is_removed += '0'
-                                broadastLog0 += e.message
+                                broadcastLog0 += e.message
                             }
                         }
                         broadcastLog0 += ' ' + link + '; '
@@ -205,7 +205,7 @@ class EthRawDS {
                                 broadcastLog2 += ' already known'
                             } else {
                                 updateObj.is_removed += '0'
-                                broadastLog2 += e.message
+                                broadcastLog2 += e.message
                             }
                         }
                         broadcastLog2 += ' ' + link + '; '
