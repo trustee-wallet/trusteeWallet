@@ -65,48 +65,72 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
                      subtitle: string = 'default')
         : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx>
     {
+        let usdtBalance = false
+        let newUnspents = unspents
+        let usdtKept = false
+        if (this._settings.currencyCode === 'BTC') {
+            usdtBalance = DaemonCache.getCacheAccountStatic(data.walletHash, 'USDT')
+            if (usdtBalance.balance !== '0' && usdtBalance.balance !== 0 && !data.isTransferAll) {
+                newUnspents = []
+                for (const unspent of unspents) {
+                    if (unspent.address === usdtBalance.address && !usdtKept && !unspent.isRequired) {
+                        if (unspent.value*1 < 1000) {
+                            usdtKept = true
+                            continue
+                        }
+                    }
+                    newUnspents.push(unspent)
+                }
+            }
+
+        }
         const res = await super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' btced')
 
         if (this._settings.currencyCode !== 'BTC') {
             return res
         }
 
-        const tmp = DaemonCache.getCacheAccountStatic(data.walletHash, 'USDT')
-        if (tmp.balance === '0' || tmp.balance === 0) {
+        if (usdtBalance.balance === '0' || usdtBalance.balance === 0) {
+            res.countedFor = 'BTC_USDT_ZERO'
+            return res
+        }
+        if (usdtKept) {
+            res.countedFor = 'BTC_USDT_KEPT'
             return res
         }
 
         let usdtCount = 0
         for (const unspent of unspents) {
-            if (unspent.address === tmp.address) {
+            if (unspent.address === usdtBalance.address) {
                 usdtCount++
             }
         }
         if (usdtCount === 0) {
-            res.outputs.push({ to: tmp.address, amount: '546', isChange: true, logType : 'FOR_LEGACY_USDT_KEEP_FROM_BTC' })
+            res.outputs.push({ to: usdtBalance.address, amount: '546', isChange: true, logType : 'FOR_LEGACY_USDT_KEEP_FROM_BTC' })
+            res.countedFor = 'BTC_USDT_ADDED_AS_ZERO_INPUTS'
             return res
         }
 
         let usdtUsed = 0
         for (const input of res.inputs) {
-            if (input.address === tmp.address) {
+            if (input.address === usdtBalance.address) {
                 usdtUsed++
             }
         }
-        BlocksoftCryptoLog.log('BtxTxInputsOutputs for ' + tmp.address + ' usdtUsed ' + usdtUsed + ' usdtCount ' + usdtCount)
+        BlocksoftCryptoLog.log('BtxTxInputsOutputs for ' + usdtBalance.address + ' usdtUsed ' + usdtUsed + ' usdtCount ' + usdtCount)
 
         if (usdtUsed >= usdtCount) {
             let found = false
             for (const input of res.inputs) {
-                if (input.address === tmp.address && !found && input.value === '546') {
+                if (input.address === usdtBalance.address && !found && input.value === '546') {
                     input.value = '0'
                     found = true
                 }
             }
             if (!found) {
                 for (const input of res.inputs) {
-                    if (input.address === tmp.address) {
-                        res.outputs.push({ to: tmp.address, amount: '546', isChange: true, logType : 'FOR_LEGACY_USDT_KEEP_FROM_BTC' })
+                    if (input.address === usdtBalance.address) {
+                        res.outputs.push({ to: usdtBalance.address, amount: '546', isChange: true, logType : 'FOR_LEGACY_USDT_KEEP_FROM_BTC' })
                         break
                     }
                 }
