@@ -1819,7 +1819,7 @@
 	},
 	"ETH_TRX": {
 		"currencyType": "token",
-		"currencyName": "TRX ERC20",
+		"currencyName": "TRX ERC20 OLD",
 		"currencyCode": "ETH_TRX",
 		"currencySymbol": "TRX",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -1830,6 +1830,19 @@
 		"tokenAddress": "0xe1be5d3f34e89de342ee97e6e90d405884da6c67",
 		"currencyExplorerLink": "https://etherscan.io/token/0xe1be5d3f34e89de342ee97e6e90d405884da6c677?a="
 	},
+	"ETH_TRX_NEW": {
+		"currencyType": "token",
+		"currencyName": "TRX ERC20",
+		"currencyCode": "ETH_TRX_NEW",
+		"currencySymbol": "TRX",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "TRX",
+		"decimals": 8,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x50327c6c5a14dcade707abad2e27eb517df87ab5",
+		"currencyExplorerLink": "https://etherscan.io/token/0xe1be5d3f34e89de342ee97e6e90d405884da6c677?a="
+	  },
 	"SOL_TULIP": {
 		"currencyType": "token",
 		"currencyName": "TULIP (Parrot)",

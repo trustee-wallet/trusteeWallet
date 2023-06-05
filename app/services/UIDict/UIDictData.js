@@ -668,6 +668,12 @@ export default {
             darkColor: '#E51A31'
         }
     },
+    'ETH_TRX_NEW': {
+        colors: {
+            mainColor: '#E51A31',
+            darkColor: '#E51A31'
+        }
+    },
     'ETH_SHIB': {
         colors: {
             mainColor: '#F6A31D',
