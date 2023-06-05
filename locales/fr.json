@@ -269,6 +269,7 @@
       "successFreeze": "TRX gelé pour le staking",
       "successReward": "Récompense de staking TRX reçue",
       "successVote": "Vous avez voté avec succès",
+      "successWithdraw": "TRX reçu",
       "noVoted": "l vous reste un steak sans vote. Cliquez sur «Voter» pour terminer la procédure de gel",
       "withdrawTRX": "Retirer",
       "freezeTrx": "Geler"

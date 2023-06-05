@@ -434,6 +434,8 @@ const _wrapSuccess = (type, version) => {
         msg = strings('settings.walletList.successReward')
     } else if (type === 'vote') {
         msg = strings('settings.walletList.successVote')
+    } else if (type === 'withdraw') {
+        msg = strings('settings.walletList.successWithdraw')
     }
 
     showModal({

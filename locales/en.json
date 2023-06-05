@@ -270,6 +270,7 @@
       "successFreeze": "TRX frozen for staking",
       "successReward": "TRX staking reward received",
       "successVote": "You have successfully voted",
+      "successWithdraw": "TRX received",
       "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
       "withdrawTRX": "Withdraw",
       "freezeTrx": "Freeze"
