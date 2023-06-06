@@ -12,6 +12,7 @@ import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import config from '../../../../app/config/config'
 import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 
+const Web3 = require('web3')
 
 export default class EthTxSendProvider {
 
@@ -51,7 +52,16 @@ export default class EthTxSendProvider {
         try {
             signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
         } catch (e) {
-            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message)
+            if (e.message.indexOf('Invalid JSON RPC response:') === -1 || typeof this._web3.SEND_RAW_LINK === 'undefined' || !this._web3.SEND_RAW_LINK) {
+                throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
+        }
+        this._web3 = new Web3(new Web3.providers.HttpProvider(this._web3.SEND_RAW_LINK))
+        try {
+            signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
+        } catch (e) {
+            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
         }
         return signData.rawTransaction
     }
