@@ -60,8 +60,9 @@ const checkLoadedFee = function(_this) {
     const { countedFees, selectedFee } = _this.props.sendScreenStore.fromBlockchain
     const { currencyCode, currencySymbol, feesCurrencySymbol } = _this.props.sendScreenStore.dict
     const { bse, cryptoValue, uiType } = _this.props.sendScreenStore.ui
+    const rawOnly = typeof _this.props.sendScreenStore.ui.rawOnly !== 'undefined' && _this.props.sendScreenStore.ui.rawOnly ? _this.props.sendScreenStore.ui.rawOnly : false
     const { bseMinCrypto, bseOrderId } = bse
-
+    
     let msg = false
     let goBack = false
     let cacheWarningNoticeValue = ''
@@ -95,7 +96,7 @@ const checkLoadedFee = function(_this) {
             if (uiType === 'TRADE_SEND') {
                 msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
                 goBack = BlocksoftExternalSettings.getStatic('TRADE_SEND_AMOUNT_CHECK_FORCE_QUIT') > 0
-            } else if (currencyCode !== 'TRX' && currencyCode.indexOf('TRX_') === -1) {
+            } else if (currencyCode !== 'TRX' && currencyCode.indexOf('TRX_') === -1 && !rawOnly) {
                 msg = strings('send.errors.UI_CORRECTED_AMOUNT', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
             }
             newCryptoValue = value
@@ -104,7 +105,7 @@ const checkLoadedFee = function(_this) {
 
 
     let modalType = 'YES_NO_MODAL'
-    if (!goBack) {
+    if (!goBack && !rawOnly) {
         if (
             (typeof selectedFee.isCustomFee === 'undefined' || !selectedFee.isCustomFee)
             && typeof countedFees.showBigGasNotice !== 'undefined' && countedFees.showBigGasNotice

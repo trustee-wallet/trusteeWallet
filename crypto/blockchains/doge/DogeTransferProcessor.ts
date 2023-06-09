@@ -22,7 +22,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 const networksConstants = require('../../common/ext/networks-constants')
-const MAX_UNSPENTS = 100
+const MAX_UNSPENTS = 50
 
 export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
