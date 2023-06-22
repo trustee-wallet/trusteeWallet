@@ -262,6 +262,20 @@ class TrusteeAsyncStorage {
         return this._getStatic('useFirebaseForBSE')
     }
 
+    getWalletConnectKC = (value) => {
+        const tmp = this._getStatic('wcKC11')
+        if (!tmp) return {}
+        try {
+            return JSON.parse(tmp)
+        } catch (e) {
+            return false
+        }
+    }
+
+    setWalletConnectKC = (value) => {
+        return this._set('wcKC11', JSON.stringify(value))
+    }
+
 }
 
 const trusteeAsyncStorage = new TrusteeAsyncStorage()

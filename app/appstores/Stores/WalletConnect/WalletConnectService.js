@@ -14,23 +14,222 @@ import { Web3Injected } from '@crypto/services/Web3Injected'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 
-const walletConnectCore = require('@walletconnect/core')
-const walletConnectISO = require('@walletconnect/iso-crypto')
+import * as BlocksoftRandom from 'react-native-blocksoft-random'
+import { fromString } from 'uint8arrays/from-string'
+import * as relayAuth from '@walletconnect/relay-auth'
+import { ONE_DAY } from '@walletconnect/time'
+import { isJsonRpcRequest, isJsonRpcResponse } from '@walletconnect/jsonrpc-utils'
 
-class WalletConnect extends walletConnectCore.default {
-    // @ts-ignore
-    constructor(connectorOpts, pushServerOpts) {
-        super({
-            cryptoLib: walletConnectISO,
-            connectorOpts,
-            pushServerOpts
-        })
-    }
+import { Core } from '@walletconnect/core'
+import { Web3Wallet } from '@walletconnect/web3wallet'
+
+const RELAYER_EVENTS = {
+    message: "relayer_message",
+    message_ack: "relayer_message_ack",
+    connect: "relayer_connect",
+    disconnect: "relayer_disconnect",
+    error: "relayer_error",
+    connection_stalled: "relayer_connection_stalled",
+    transport_closed: "relayer_transport_closed",
+    publish: "relayer_publish",
 }
 
+const RELAYER_SUBSCRIBER_SUFFIX = "_subscription";
+
+const RELAYER_PROVIDER_EVENTS = {
+    payload: "payload",
+    connect: "connect",
+    disconnect: "disconnect",
+    error: "error",
+}
+
+const WC_PROJECT_ID = 'daa39ed4fa0978cc19a9c9c0a2a7015c' // https://cloud.walletconnect.com/app/project
+
+let core, web3wallet
 const walletConnectService = {
 
-    createAndConnect: (fullLink, session, dappData) => {
+    createAndConnect: async (fullLink, session, dappData) => {
+
+        console.log(`
+        
+        
+        CREATED2`)
+
+        core = new Core({
+            // logger: 'debug',
+            projectId: WC_PROJECT_ID,
+            relayUrl: 'wss://relay.walletconnect.com',
+        });
+        core.crypto.keychain.set = async (tag, key) => {
+            try {
+                core.crypto.keychain.isInitialized()
+                core.crypto.keychain.keychain[tag] = key
+                await core.crypto.keychain.persist()
+            } catch (e) {
+                console.log(`core.crypto.keychain.set ` + e.message)
+            }
+        }
+        core.crypto.keychain.get = (tag) => {
+            if (typeof core.crypto.keychain.keychain[tag] === 'undefined') {
+                return false
+            }
+            return core.crypto.keychain.keychain[tag]
+        }
+        core.crypto.keychain.has = (tag) => {
+            if (typeof core.crypto.keychain.keychain[tag] === 'undefined') {
+                return false
+            }
+            return true
+        }
+        core.crypto.keychain.del = async (tag) => {
+            if (typeof core.crypto.keychain.keychain[tag] === 'undefined') {
+                return false
+            }
+            delete core.crypto.keychain.keychain[tag]
+            await core.crypto.keychain.persist()
+        }
+        core.crypto.keychain.setKeyChain = async (keychain) => {
+            await trusteeAsyncStorage.setWalletConnectKC(keychain)
+        }
+        core.crypto.keychain.getKeyChain = async () => {
+            return trusteeAsyncStorage.getWalletConnectKC()
+        }
+
+
+        core.crypto.getClientSeed = async () => {
+            let seed = ''
+            try {
+                seed = await core.crypto.keychain.get('client_ed25519_seed')
+            } catch {
+            }
+            if (!seed) {
+                seed = await BlocksoftRandom.getRandomBytes(32)
+                await core.crypto.keychain.set('client_ed25519_seed', seed)
+            }
+            let random
+            try {
+                random = fromString(seed, 'base64')
+            } catch (e) {
+                seed = await BlocksoftRandom.getRandomBytes(32)
+                await core.crypto.keychain.set('client_ed25519_seed', seed)
+            }
+            return random
+        }
+        core.crypto.signJWT = async (aud) => {
+            core.crypto.isInitialized()
+            let seed
+            try {
+                seed = await core.crypto.getClientSeed()
+            } catch (e) {
+                throw new Error(e.message + ' in  core.crypto.getClientSeed')
+            }
+            const keyPair = relayAuth.generateKeyPair(seed)
+            const sub = await BlocksoftRandom.getRandomBytes(32)
+            const ttl = ONE_DAY
+            const jwt = await relayAuth.signJWT(sub, aud, ttl, keyPair)
+            return jwt
+        }
+
+        core.relayer.request = async (request) => {
+            core.logger.debug(`Publishing Request Payload 1`);
+            console.log('request ', request)
+            if (typeof request?.params?.topics !== 'undefined') {
+                if (request?.params?.topics.length === 1 && request?.params?.topics[0].length<64) {
+                    return false
+                }
+            }
+            try {
+                await core.relayer.toEstablishConnection();
+                return await core.relayer.provider.request(request);
+            } catch (e) {
+                core.logger.debug(`Failed to Publish Request 1`);
+                core.logger.error(e);
+            }
+        };
+        core.relayer.onProviderPayload = async (payload) => {
+            core.logger.debug(`Incoming Relay Payload 1`)
+            if (JSON.stringify(payload).indexOf('Topic decoding failed') !== -1) {
+                console.log('bad response', JSON.stringify(payload.error.message))
+                return
+            }
+            console.log('response', payload)
+            core.relayer.logger.trace({ type: "payload", direction: "incoming", payload })
+            if (isJsonRpcRequest(payload)) {
+                if (!payload.method.endsWith(RELAYER_SUBSCRIBER_SUFFIX)) return
+                const event = payload.params
+                const { topic, message, publishedAt } = event.data
+                const messageEvent = { topic, message, publishedAt }
+                core.logger.debug(`Emitting Relayer Payload 1`)
+                core.logger.trace({ type: 'event', event: event.id, ...messageEvent })
+                core.relayer.events.emit(event.id, messageEvent)
+                await core.relayer.acknowledgePayload(payload)
+                await core.relayer.onMessageEvent(messageEvent)
+            } else if (isJsonRpcResponse(payload)) {
+                core.relayer.events.emit(RELAYER_EVENTS.message_ack, payload)
+            }
+        }
+
+        core.relayer.registerProviderListeners = () => {
+            core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.payload, (payload) =>
+                core.relayer.onProviderPayload(payload),
+            );
+            core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.connect, () => {
+                core.relayer.events.emit(RELAYER_EVENTS.connect);
+            });
+            core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.disconnect, () => {
+                core.relayer.onProviderDisconnect();
+            });
+            core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.error, (err) => {
+                // core.relayer.logger.error(err);
+                // core.relayer.events.emit(RELAYER_EVENTS.error, err);
+            });
+        }
+        
+        
+        web3wallet = await Web3Wallet.init({
+            core,
+            metadata: {
+                name: 'React Native Web3Wallet',
+                description: 'ReactNative Web3Wallet',
+                url: 'https://walletconnect.com/',
+                icons: ['https://avatars.githubusercontent.com/u/37784886'],
+            },
+        })
+
+        web3wallet.on('session_proposal', async (proposal) => {
+            console.log('session_proposal', proposal)
+        })
+        web3wallet.on('session_request', (event) => {
+            console.log('session_request', event)
+        })
+        web3wallet.on('session_delete', (event) => {
+            console.log('session_delete', event)
+        })
+        web3wallet.on('auth_request', async (event) => {
+            console.log('auth_request', event)
+        })
+
+        const params = { uri: fullLink, activatePairing: true }
+        try {
+            await web3wallet.core.pairing.pair(params)
+        } catch (e) {
+            if (e.message.indexOf('Pairing already exists') !== -1 || e.message.indexOf('Keychain already exists') !== -1) {
+                // do nothing
+                console.log(`
+                
+                ALREADY ` + e.message)
+            } else if (e.message.indexOf('Request validation') !== -1) {
+                // do nothing
+                console.log(`
+                
+                Request ` + e.message)
+            } else {
+                throw new Error(e.message + ' in web3wallet.core.pairing.pair')
+            }
+        }
+
+        return web3wallet
+        /*
         const walletConnector = new WalletConnect(
             {
                 uri: fullLink,
@@ -120,6 +319,8 @@ const walletConnectService = {
             }
         })
         return walletConnector
+
+         */
     },
 
     approveRequest: async (walletConnector, walletConnectPayload, transactionHash) => {

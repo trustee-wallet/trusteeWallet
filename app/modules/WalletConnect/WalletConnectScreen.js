@@ -86,8 +86,8 @@ class WalletConnectScreen extends PureComponent {
         })
     }
 
-    handleConnect = () => {
-        if (walletConnectActions.connectAndSetWalletConnectLink(this.state.inputFullLink, 'WalletConnectScreen')) {
+    handleConnect = async () => {
+        if (await walletConnectActions.connectAndSetWalletConnectLink(this.state.inputFullLink, 'WalletConnectScreen')) {
             // connected so we can clear input
             this.linkInput.handleInput('', false)
             this.setState({

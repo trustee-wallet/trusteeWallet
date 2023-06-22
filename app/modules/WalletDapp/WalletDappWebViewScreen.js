@@ -108,7 +108,7 @@ class WalletDappWebViewScreen extends PureComponent {
     }
 
     // general handler (could be not only wallet connect)
-    handleWebViewNavigationTestLink = (req) => {
+    handleWebViewNavigationTestLink = async (req) => {
         Log.log('WalletDapp.WebViewScreen handle link ' + req.url)
         let url = req.url
         let parsedUrl = UrlParse(url)
@@ -129,7 +129,7 @@ class WalletDappWebViewScreen extends PureComponent {
         try {
             if (parsedUrl.protocol === 'wc:') {
                 if (url.indexOf('?bridge=') !== -1) {
-                    walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP', false, this.props.walletDappData)
+                    await walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP', false, this.props.walletDappData)
                 } else {
                     // ?
                 }

@@ -41,12 +41,12 @@ const walletConnectActions = {
         })
     },
 
-    initWalletConnect: () => {
+    initWalletConnect: async () => {
         const walletConnectLink = trusteeAsyncStorage.getWalletConnectLink()
         if (!walletConnectLink) return false
         Log.log('WalletConnect.initWalletConnect link ' + walletConnectLink)
         const { session, dappData } = trusteeAsyncStorage.getWalletConnectSession()
-        walletConnectActions.connectAndSetWalletConnectLink(walletConnectLink, dappData ? 'DAPP_SAVED' : 'SAVED', session)
+        await walletConnectActions.connectAndSetWalletConnectLink(walletConnectLink, dappData ? 'DAPP_SAVED' : 'SAVED', session)
 
         const walletConnector = store.getState().walletConnectStore.walletConnector
         walletConnectActions.setIsConnectedWalletConnect({
@@ -58,14 +58,14 @@ const walletConnectActions = {
         walletConnectActions.getAndSetWalletConnectAccount(walletConnector, walletConnector.chainId)
     },
 
-    connectAndSetWalletConnectLink: (walletConnectLink, linkSource, session, dappData) => {
+    connectAndSetWalletConnectLink: async (walletConnectLink, linkSource, session, dappData) => {
         const oldData = store.getState().walletConnectStore.walletConnectLink
         if (oldData === walletConnectLink || !walletConnectLink) {
             return false
         }
 
         try {
-            const walletConnector = walletConnectService.createAndConnect(walletConnectLink, session, dappData)
+            const walletConnector = await walletConnectService.createAndConnect(walletConnectLink, session, dappData)
             trusteeAsyncStorage.setWalletConnectLink(walletConnectLink)
             dispatch({
                 type: 'SET_WALLET_CONNECT',
