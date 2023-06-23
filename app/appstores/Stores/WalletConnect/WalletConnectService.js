@@ -43,23 +43,33 @@ const RELAYER_PROVIDER_EVENTS = {
     error: "error",
 }
 
+const EXPIRER_EVENTS = {
+    created: 'expirer_created',
+    deleted: 'expirer_deleted',
+    expired: 'expirer_expired',
+    sync: 'expirer_sync'
+}
+
+const SUBSCRIBER_EVENTS = {
+    created: 'subscription_created',
+    deleted: 'subscription_deleted',
+    expired: 'subscription_expired',
+    disabled: 'subscription_disabled',
+    sync: 'subscription_sync',
+    resubscribed: 'subscription_resubscribed'
+}
+
 const WC_PROJECT_ID = 'daa39ed4fa0978cc19a9c9c0a2a7015c' // https://cloud.walletconnect.com/app/project
 
-let core, web3wallet
+let core, web3wallet = false
 const walletConnectService = {
 
-    createAndConnect: async (fullLink, session, dappData) => {
-
-        console.log(`
-        
-        
-        CREATED2`)
-
+    _init: async() => {
         core = new Core({
-            // logger: 'debug',
+            logger: 'debug',
             projectId: WC_PROJECT_ID,
-            relayUrl: 'wss://relay.walletconnect.com',
-        });
+            relayUrl: 'wss://relay.walletconnect.com'
+        })
         core.crypto.keychain.set = async (tag, key) => {
             try {
                 core.crypto.keychain.isInitialized()
@@ -93,6 +103,60 @@ const walletConnectService = {
         }
         core.crypto.keychain.getKeyChain = async () => {
             return trusteeAsyncStorage.getWalletConnectKC()
+        }
+        core.expirer.has = (key) => {
+            try {
+                const target = core.formatTarget(key)
+                const expiration = core.expirer.getExpiration(target)
+                return typeof expiration !== 'undefined'
+            } catch (e) {
+                // ignore
+                return false
+            }
+        }
+
+        core.expirer.set = (key, expiry) => {
+            try {
+                core.expirer.isInitialized()
+                const target = core.expirer.formatTarget(key)
+                const expiration = { target, expiry }
+                core.expirer.expirations.set(target, expiration)
+                core.expirer.checkExpiry(target, expiration)
+                core.expirer.events.emit(EXPIRER_EVENTS.created, {
+                    target,
+                    expiration
+                })
+            } catch (e) {
+                console.log('core.expirer.set error ' + e.message)
+            }
+        }
+
+        core.expirer.get = (key) => {
+            try {
+                core.expirer.isInitialized()
+                const target = core.expirer.formatTarget(key)
+                return core.expirer.getExpiration(target)
+            } catch (e) {
+                console.log('core.expirer.get error ' + e.message)
+            }
+        }
+
+        core.expirer.del = (key) => {
+            try {
+                core.expirer.isInitialized()
+                const exists = core.expirer.has(key)
+                if (exists) {
+                    const target = core.expirer.formatTarget(key)
+                    const expiration = core.expirer.getExpiration(target)
+                    core.expirer.expirations.delete(target)
+                    core.expirer.events.emit(EXPIRER_EVENTS.deleted, {
+                        target,
+                        expiration
+                    })
+                }
+            } catch (e) {
+                console.log('core.expirer.del error ' + e.message)
+            }
         }
 
 
@@ -131,21 +195,21 @@ const walletConnectService = {
         }
 
         core.relayer.request = async (request) => {
-            core.logger.debug(`Publishing Request Payload 1`);
+            core.logger.debug(`Publishing Request Payload 1`)
             console.log('request ', request)
             if (typeof request?.params?.topics !== 'undefined') {
-                if (request?.params?.topics.length === 1 && request?.params?.topics[0].length<64) {
+                if (request?.params?.topics.length === 1 && request?.params?.topics[0].length < 64) {
                     return false
                 }
             }
             try {
-                await core.relayer.toEstablishConnection();
-                return await core.relayer.provider.request(request);
+                await core.relayer.toEstablishConnection()
+                return await core.relayer.provider.request(request)
             } catch (e) {
                 core.logger.debug(`Failed to Publish Request 1`);
                 core.logger.error(e);
             }
-        };
+        }
         core.relayer.onProviderPayload = async (payload) => {
             core.logger.debug(`Incoming Relay Payload 1`)
             if (JSON.stringify(payload).indexOf('Topic decoding failed') !== -1) {
@@ -154,21 +218,24 @@ const walletConnectService = {
             }
             console.log('response', payload)
             core.relayer.logger.trace({ type: "payload", direction: "incoming", payload })
-            if (isJsonRpcRequest(payload)) {
-                if (!payload.method.endsWith(RELAYER_SUBSCRIBER_SUFFIX)) return
-                const event = payload.params
-                const { topic, message, publishedAt } = event.data
-                const messageEvent = { topic, message, publishedAt }
-                core.logger.debug(`Emitting Relayer Payload 1`)
-                core.logger.trace({ type: 'event', event: event.id, ...messageEvent })
-                core.relayer.events.emit(event.id, messageEvent)
-                await core.relayer.acknowledgePayload(payload)
-                await core.relayer.onMessageEvent(messageEvent)
-            } else if (isJsonRpcResponse(payload)) {
-                core.relayer.events.emit(RELAYER_EVENTS.message_ack, payload)
+            try {
+                if (isJsonRpcRequest(payload)) {
+                    if (!payload.method.endsWith(RELAYER_SUBSCRIBER_SUFFIX)) return
+                    const event = payload.params
+                    const { topic, message, publishedAt } = event.data
+                    const messageEvent = { topic, message, publishedAt }
+                    core.logger.debug(`Emitting Relayer Payload 1`)
+                    core.logger.trace({ type: 'event', event: event.id, ...messageEvent })
+                    core.relayer.events.emit(event.id, messageEvent)
+                    await core.relayer.acknowledgePayload(payload)
+                    await core.relayer.onMessageEvent(messageEvent)
+                } else if (isJsonRpcResponse(payload)) {
+                    core.relayer.events.emit(RELAYER_EVENTS.message_ack, payload)
+                }
+            } catch (e) {
+                console.log(`core.relayer.onProviderPayload error `, e)
             }
         }
-
         core.relayer.registerProviderListeners = () => {
             core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.payload, (payload) =>
                 core.relayer.onProviderPayload(payload),
@@ -184,8 +251,8 @@ const walletConnectService = {
                 // core.relayer.events.emit(RELAYER_EVENTS.error, err);
             });
         }
-        
-        
+
+
         web3wallet = await Web3Wallet.init({
             core,
             metadata: {
@@ -208,10 +275,15 @@ const walletConnectService = {
         web3wallet.on('auth_request', async (event) => {
             console.log('auth_request', event)
         })
+    },
 
+    createAndConnect: async (fullLink, session, dappData) => {
+        if (web3wallet === false) {
+            await walletConnectService._init()
+        }
         const params = { uri: fullLink, activatePairing: true }
         try {
-            await web3wallet.core.pairing.pair(params)
+            // await web3wallet.core.pairing.pair(params)
         } catch (e) {
             if (e.message.indexOf('Pairing already exists') !== -1 || e.message.indexOf('Keychain already exists') !== -1) {
                 // do nothing
@@ -429,7 +501,7 @@ const walletConnectService = {
                 }
             }
             await walletConnector.updateSession(data)
-            trusteeAsyncStorage.setWalletConnectSession({session : walletConnector.session, dappData})
+            trusteeAsyncStorage.setWalletConnectSession({ session: walletConnector.session, dappData })
 
             Log.log('WalletConnectService.approveSession finish', data)
             BlocksoftCryptoLog.log('WalletConnectService.approveSession finish', data)
