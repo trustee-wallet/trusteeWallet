@@ -18,10 +18,16 @@ import * as BlocksoftRandom from 'react-native-blocksoft-random'
 import { fromString } from 'uint8arrays/from-string'
 import * as relayAuth from '@walletconnect/relay-auth'
 import { ONE_DAY } from '@walletconnect/time'
-import { isJsonRpcRequest, isJsonRpcResponse } from '@walletconnect/jsonrpc-utils'
 
 import { Core } from '@walletconnect/core'
 import { Web3Wallet } from '@walletconnect/web3wallet'
+
+const EXPIRER_EVENTS = {
+    created: 'expirer_created',
+    deleted: 'expirer_deleted',
+    expired: 'expirer_expired',
+    sync: 'expirer_sync'
+}
 
 const RELAYER_EVENTS = {
     message: "relayer_message",
@@ -34,30 +40,14 @@ const RELAYER_EVENTS = {
     publish: "relayer_publish",
 }
 
-const RELAYER_SUBSCRIBER_SUFFIX = "_subscription";
-
-const RELAYER_PROVIDER_EVENTS = {
-    payload: "payload",
-    connect: "connect",
-    disconnect: "disconnect",
-    error: "error",
-}
-
-const EXPIRER_EVENTS = {
-    created: 'expirer_created',
-    deleted: 'expirer_deleted',
-    expired: 'expirer_expired',
-    sync: 'expirer_sync'
-}
-
 const SUBSCRIBER_EVENTS = {
-    created: 'subscription_created',
-    deleted: 'subscription_deleted',
-    expired: 'subscription_expired',
-    disabled: 'subscription_disabled',
-    sync: 'subscription_sync',
-    resubscribed: 'subscription_resubscribed'
-}
+    created: "subscription_created",
+    deleted: "subscription_deleted",
+    expired: "subscription_expired",
+    disabled: "subscription_disabled",
+    sync: "subscription_sync",
+    resubscribed: "subscription_resubscribed",
+};
 
 const WC_PROJECT_ID = 'daa39ed4fa0978cc19a9c9c0a2a7015c' // https://cloud.walletconnect.com/app/project
 
@@ -193,63 +183,49 @@ const walletConnectService = {
             const jwt = await relayAuth.signJWT(sub, aud, ttl, keyPair)
             return jwt
         }
-
-        core.relayer.request = async (request) => {
-            core.logger.debug(`Publishing Request Payload 1`)
-            console.log('request ', request)
-            if (typeof request?.params?.topics !== 'undefined') {
-                if (request?.params?.topics.length === 1 && request?.params?.topics[0].length < 64) {
-                    return false
-                }
+        
+        core.relayer.init = async () => {
+            try {
+                await core.relayer.createProvider()
+            } catch (e) {
+                console.log('core.relayer.init error 1 ' + e.message)
             }
             try {
-                await core.relayer.toEstablishConnection()
-                return await core.relayer.provider.request(request)
+                await core.relayer.messages.init()
             } catch (e) {
-                core.logger.debug(`Failed to Publish Request 1`);
-                core.logger.error(e);
+                console.log('core.relayer.init error 2.1 ' + e.message)
             }
-        }
-        core.relayer.onProviderPayload = async (payload) => {
-            core.logger.debug(`Incoming Relay Payload 1`)
-            if (JSON.stringify(payload).indexOf('Topic decoding failed') !== -1) {
-                console.log('bad response', JSON.stringify(payload.error.message))
-                return
-            }
-            console.log('response', payload)
-            core.relayer.logger.trace({ type: "payload", direction: "incoming", payload })
             try {
-                if (isJsonRpcRequest(payload)) {
-                    if (!payload.method.endsWith(RELAYER_SUBSCRIBER_SUFFIX)) return
-                    const event = payload.params
-                    const { topic, message, publishedAt } = event.data
-                    const messageEvent = { topic, message, publishedAt }
-                    core.logger.debug(`Emitting Relayer Payload 1`)
-                    core.logger.trace({ type: 'event', event: event.id, ...messageEvent })
-                    core.relayer.events.emit(event.id, messageEvent)
-                    await core.relayer.acknowledgePayload(payload)
-                    await core.relayer.onMessageEvent(messageEvent)
-                } else if (isJsonRpcResponse(payload)) {
-                    core.relayer.events.emit(RELAYER_EVENTS.message_ack, payload)
-                }
+                await  core.relayer.transportOpen()
             } catch (e) {
-                console.log(`core.relayer.onProviderPayload error `, e)
+                console.log('core.relayer.init error 2.2 ' + e.message)
             }
-        }
-        core.relayer.registerProviderListeners = () => {
-            core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.payload, (payload) =>
-                core.relayer.onProviderPayload(payload),
-            );
-            core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.connect, () => {
-                core.relayer.events.emit(RELAYER_EVENTS.connect);
-            });
-            core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.disconnect, () => {
-                core.relayer.onProviderDisconnect();
-            });
-            core.relayer.provider.on(RELAYER_PROVIDER_EVENTS.error, (err) => {
-                // core.relayer.logger.error(err);
-                // core.relayer.events.emit(RELAYER_EVENTS.error, err);
-            });
+            try {
+                await core.relayer.subscriber.init()
+            } catch (e) {
+                console.log('core.relayer.init error 2.3 ' + e.message)
+            }
+            try {
+                core.relayer.registerEventListeners();
+                core.relayer.initialized = true;
+            } catch (e) {
+                console.log('core.relayer.init error 3 ' + e.message)
+            }
+            try {
+                setTimeout(async () => {
+                    try {
+                        if (core.relayer.subscriber.topics.length === 0) {
+                            core.relayer.logger.info(`No topics subscribted to after init, closing transport`);
+                            await core.relayer.transportClose();
+                            core.relayer.transportExplicitlyClosed = false;
+                        }
+                    } catch (e) {
+                        console.log('core.relayer.init error 4.1 ' + e.message)
+                    }
+                }, 10000);
+            } catch (e) {
+                console.log('core.relayer.init error 4 ' + e.message)
+            }
         }
 
 
@@ -283,7 +259,7 @@ const walletConnectService = {
         }
         const params = { uri: fullLink, activatePairing: true }
         try {
-            // await web3wallet.core.pairing.pair(params)
+            await web3wallet.core.pairing.pair(params)
         } catch (e) {
             if (e.message.indexOf('Pairing already exists') !== -1 || e.message.indexOf('Keychain already exists') !== -1) {
                 // do nothing
