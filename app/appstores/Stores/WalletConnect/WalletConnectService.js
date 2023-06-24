@@ -9,7 +9,12 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftPrivateKeysUtils from '@crypto/common/BlocksoftPrivateKeysUtils'
 
 import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
-import { handleSendSignModal, handleSendSignTypedModal, handleSendTransactionRedirect, handleSessionRequestModal } from '@app/appstores/Stores/WalletConnect/helpers'
+import {
+    handleSendSignModal,
+    handleSendSignTypedModal,
+    handleSendTransactionRedirect,
+    handleSessionRequestModal
+} from '@app/appstores/Stores/WalletConnect/helpers'
 import { Web3Injected } from '@crypto/services/Web3Injected'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
@@ -18,6 +23,7 @@ import * as BlocksoftRandom from 'react-native-blocksoft-random'
 import { fromString } from 'uint8arrays/from-string'
 import * as relayAuth from '@walletconnect/relay-auth'
 import { ONE_DAY } from '@walletconnect/time'
+import { getRelayProtocolApi, isValidArray, isExpired, getSdkError, hashMessage, getRelayProtocolName} from '@walletconnect/utils'
 
 import { Core } from '@walletconnect/core'
 import { Web3Wallet } from '@walletconnect/web3wallet'
@@ -30,33 +36,33 @@ const EXPIRER_EVENTS = {
 }
 
 const RELAYER_EVENTS = {
-    message: "relayer_message",
-    message_ack: "relayer_message_ack",
-    connect: "relayer_connect",
-    disconnect: "relayer_disconnect",
-    error: "relayer_error",
-    connection_stalled: "relayer_connection_stalled",
-    transport_closed: "relayer_transport_closed",
-    publish: "relayer_publish",
+    message: 'relayer_message',
+    message_ack: 'relayer_message_ack',
+    connect: 'relayer_connect',
+    disconnect: 'relayer_disconnect',
+    error: 'relayer_error',
+    connection_stalled: 'relayer_connection_stalled',
+    transport_closed: 'relayer_transport_closed',
+    publish: 'relayer_publish'
 }
 
 const SUBSCRIBER_EVENTS = {
-    created: "subscription_created",
-    deleted: "subscription_deleted",
-    expired: "subscription_expired",
-    disabled: "subscription_disabled",
-    sync: "subscription_sync",
-    resubscribed: "subscription_resubscribed",
-};
+    created: 'subscription_created',
+    deleted: 'subscription_deleted',
+    expired: 'subscription_expired',
+    disabled: 'subscription_disabled',
+    sync: 'subscription_sync',
+    resubscribed: 'subscription_resubscribed'
+}
 
 const WC_PROJECT_ID = 'daa39ed4fa0978cc19a9c9c0a2a7015c' // https://cloud.walletconnect.com/app/project
 
 let core, web3wallet = false
 const walletConnectService = {
 
-    _init: async() => {
+    _init: async () => {
         core = new Core({
-            logger: 'debug',
+            // logger: 'debug',
             projectId: WC_PROJECT_ID,
             relayUrl: 'wss://relay.walletconnect.com'
         })
@@ -183,7 +189,255 @@ const walletConnectService = {
             const jwt = await relayAuth.signJWT(sub, aud, ttl, keyPair)
             return jwt
         }
+
+        core.relayer.subscriber.subscribe = async (topic, opts) => {
+            await core.relayer.subscriber.restartToComplete();
+            core.relayer.subscriber.isInitialized();
+            core.relayer.subscriber.logger.debug(`Subscribing Topic`);
+            core.relayer.subscriber.logger.trace({ type: "method", method: "subscribe", params: { topic, opts } });
+            let relay, params, id
+            try {
+                relay = getRelayProtocolName(opts);
+                params = { topic, relay };
+                core.relayer.subscriber.pending.set(topic, params);
+            } catch (e) {
+                core.relayer.subscriber.logger.debug(`Failed to Subscribe Topic`)
+                console.log('core.relayer.subscriber.subscribe error 1 ' + e.message)
+                return false
+            }
+            try {
+                id = await core.relayer.subscriber.rpcSubscribe(topic, relay);
+            } catch (e) {
+                core.relayer.subscriber.logger.debug(`Failed to Subscribe Topic`)
+                console.log('core.relayer.subscriber.subscribe error 2 ' + e.message)
+                return false
+            }
+            try {
+                core.relayer.subscriber.onSubscribe(id, params);
+                core.relayer.subscriber.logger.debug(`Successfully Subscribed Topic`);
+                core.relayer.subscriber.logger.trace({ type: "method", method: "subscribe", params: { topic, opts } });
+                return id;
+            } catch (e) {
+                core.relayer.subscriber.logger.debug(`Failed to Subscribe Topic`)
+                console.log('core.relayer.subscriber.subscribe error 3 ' + e.message)
+            }
+        };
+
+        core.relayer.subscriber.onSubscribe = (id, params) => {
+            try {
+                core.relayer.subscriber.setSubscription(id, { ...params, id })
+            } catch (e) {
+                console.log('core.relayer.subscriber.onSubscribe error 1 ' + e.message)
+            }
+            try {
+                core.relayer.subscriber.pending.delete(params.topic)
+            } catch (e) {
+                console.log('core.relayer.subscriber.onSubscribe error 2 ' + e.message)
+            }
+        }
+
+        core.relayer.subscriber.restart = async () => {
+            core.relayer.subscriber.restartInProgress = true
+            try {
+                await core.relayer.subscriber.restore()
+            } catch (e) {
+                console.log('core.relayer.subscriber.restore error ' + e.message)
+            }
+            try {
+                await core.relayer.subscriber.reset()
+            } catch (e) {
+                console.log('core.relayer.subscriber.reset error ' + e.message)
+            }
+            core.relayer.subscriber.restartInProgress = false
+        }
+        core.relayer.subscriber.reset = async () => {
+            if (core.relayer.subscriber.cached.length) {
+                const batches = Math.ceil(core.relayer.subscriber.cached.length / core.relayer.subscriber.batchSubscribeTopicsLimit)
+                for (let i = 0; i < batches; i++) {
+                    const batch = core.relayer.subscriber.cached.splice(0, core.relayer.subscriber.batchSubscribeTopicsLimit)
+                    try {
+                        await core.relayer.subscriber.batchSubscribe(batch)
+                    } catch (e) {
+                        console.log('core.relayer.subscriber.batchSubscribe error ' + e.message)
+                    }
+
+                }
+            }
+            core.relayer.subscriber.events.emit(SUBSCRIBER_EVENTS.resubscribed)
+        }
+        core.relayer.subscriber.batchSubscribe = async (subscriptions) => {
+            if (!subscriptions.length) return
+            let result
+            try {
+                result = await core.relayer.subscriber.rpcBatchSubscribe(subscriptions)
+            } catch (e) {
+                console.log('core.relayer.subscriber.rpcBatchSubscribe error ' + e.message)
+            }
+            try {
+                if (!isValidArray(result)) return
+            } catch (e) {
+                console.log('core.relayer.subscriber.isValidArray error ' + e.message)
+            }
+            try {
+                core.relayer.subscriber.onBatchSubscribe(result.map((id, i) => ({ ...subscriptions[i], id })))
+            } catch (e) {
+                console.log('core.relayer.subscriber.onBatchSubscribe error ' + e.message)
+            }
+        }
+
+        core.relayer.subscriber.rpcSubscribe = async (topic, relay) => {
+            const api = getRelayProtocolApi(relay.protocol);
+            const request = {
+                method: api.subscribe,
+                params: {
+                    topic,
+                },
+            };
+            core.relayer.subscriber.logger.debug(`Outgoing Relay Payload`);
+            core.relayer.subscriber.logger.trace({ type: "payload", direction: "outgoing", request })
+
+            let request2
+            try {
+                request2 =  core.relayer.subscriber.relayer.request(request)
+            } catch (err) {
+                console.log('core.relayer.subscriber.rpcSubscribe error 4.1 ' + err.message)
+            }
+
+            let subscribe
+            try {
+                // fix is here!
+                // eslint-disable-next-line no-async-promise-executor
+                subscribe = new Promise(async (resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('expired')), core.relayer.subscriber.subscribeTimeout)
+                    try {
+                        const result = await request2
+                        resolve(result)
+                    } catch (error) {
+                        reject(error)
+                    }
+                    clearTimeout(timeout)
+                })
+            } catch (err) {
+                console.log('core.relayer.subscriber.rpcSubscribe error 4.2 ' + err.message, core.relayer.subscriber.subscribeTimeout)
+                core.relayer.subscriber.logger.debug(`Outgoing Relay Subscribe Payload stalled`);
+                core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled);
+            }
+            try {
+                const res = await subscribe
+                console.log(`
+                
+                SUBSCRIBED 1 res `, res)
+                return res
+            } catch (err) {
+                // and here also is the fix
+                console.log('core.relayer.subscriber.rpcSubscribe error 4.3 ' + err.message)
+                core.relayer.subscriber.logger.debug(`Outgoing Relay Subscribe Payload stalled`);
+                core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled);
+            }
+
+            try {
+                const hash = hashMessage(topic + core.relayer.subscriber.clientId)
+                return hash
+            } catch (e) {
+                console.log('core.relayer.subscriber.rpcSubscribe error 4.4 ' + e.message)
+            }
+        }
         
+        core.relayer.subscriber.rpcBatchSubscribe = async (subscriptions) => {
+            if (!subscriptions.length) return
+
+            let relay, api, request
+            try {
+                relay = subscriptions[0].relay
+            } catch (e) {
+                console.log('core.relayer.subscriber.rpcBatchSubscribe error 1 ' + e.message)
+                return false
+            }
+            try {
+                api = getRelayProtocolApi(relay.protocol)
+            } catch (e) {
+                console.log('core.relayer.subscriber.rpcBatchSubscribe error 2 ' + e.message)
+                return false
+            }
+            try {
+                request = {
+                    method: api.batchSubscribe,
+                    params: {
+                        topics: subscriptions.map((s) => s.topic)
+                    }
+                }
+            } catch (e) {
+                console.log('core.relayer.subscriber.rpcBatchSubscribe error 3 ' + e.message)
+                return false
+            }
+            core.relayer.subscriber.logger.debug(`Outgoing Relay Payload`)
+            core.relayer.subscriber.logger.trace({ type: 'payload', direction: 'outgoing', request })
+
+            let request2
+            try {
+                request2 = core.relayer.subscriber.relayer.request(request)
+            } catch (err) {
+                console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.1 ' + err.message)
+                core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
+                core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
+            }
+            let subscribe
+            try {
+                // fix is here!
+                // eslint-disable-next-line no-async-promise-executor
+                subscribe = new Promise(async (resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('expired')), core.relayer.subscriber.subscribeTimeout)
+                    try {
+                        const result = await request2
+                        resolve(result)
+                    } catch (error) {
+                        reject(error)
+                    }
+                    clearTimeout(timeout)
+                })
+            } catch (err) {
+                console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.2 ' + err.message, core.relayer.subscriber.subscribeTimeout)
+                core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
+                core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
+            }
+            try {
+                const res = await subscribe
+                console.log(`
+                
+                SUBSCRIBED 2 res `, res)
+                return res
+            } catch (err) {
+                // and here also is the fix
+                console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.3 ' + err.message)
+                // core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
+                // core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
+            }
+        }
+        core.relayer.subscriber.init = async () => {
+            if (!core.relayer.subscriber.initialized) {
+                core.relayer.subscriber.logger.trace(`Initialized`)
+                try {
+                    await core.relayer.subscriber.restart()
+                } catch (e) {
+                    console.log('core.relayer.subscriber.restart error ' + e.message)
+                }
+                try {
+                    core.relayer.subscriber.registerEventListeners()
+                } catch (e) {
+                    console.log('core.relayer.subscriber.registerEventListeners error ' + e.message)
+                }
+                try {
+                    core.relayer.subscriber.onEnable()
+                } catch (e) {
+                    console.log('core.relayer.subscriber.onEnable error ' + e.message)
+                }
+                try {
+                    core.relayer.subscriber.clientId = await core.crypto.getClientId()
+                } catch (e) {
+                    console.log('core.relayer.subscriber.clientId error ' + e.message)
+                }
+            }
+        }
         core.relayer.init = async () => {
             try {
                 await core.relayer.createProvider()
@@ -196,7 +450,7 @@ const walletConnectService = {
                 console.log('core.relayer.init error 2.1 ' + e.message)
             }
             try {
-                await  core.relayer.transportOpen()
+                await core.relayer.transportOpen()
             } catch (e) {
                 console.log('core.relayer.init error 2.2 ' + e.message)
             }
@@ -206,8 +460,8 @@ const walletConnectService = {
                 console.log('core.relayer.init error 2.3 ' + e.message)
             }
             try {
-                core.relayer.registerEventListeners();
-                core.relayer.initialized = true;
+                core.relayer.registerEventListeners()
+                core.relayer.initialized = true
             } catch (e) {
                 console.log('core.relayer.init error 3 ' + e.message)
             }
@@ -215,16 +469,102 @@ const walletConnectService = {
                 setTimeout(async () => {
                     try {
                         if (core.relayer.subscriber.topics.length === 0) {
-                            core.relayer.logger.info(`No topics subscribted to after init, closing transport`);
-                            await core.relayer.transportClose();
-                            core.relayer.transportExplicitlyClosed = false;
+                            core.relayer.logger.info(`No topics subscribted to after init, closing transport`)
+                            await core.relayer.transportClose()
+                            core.relayer.transportExplicitlyClosed = false
                         }
                     } catch (e) {
                         console.log('core.relayer.init error 4.1 ' + e.message)
                     }
-                }, 10000);
+                }, 10000)
             } catch (e) {
                 console.log('core.relayer.init error 4 ' + e.message)
+            }
+        }
+
+        core.relayer.unsubscribe = async(topic, opts) => {
+            try {
+                core.relayer.isInitialized()
+            } catch (e) {
+                console.log('core.relayer.unsubscribe error 1 ' + e.message)
+                return false
+            }
+            try {
+                await core.relayer.subscriber.unsubscribe(topic, opts)
+            } catch (e) {
+                console.log('core.relayer.unsubscribe error 2 ' + e.message)
+                return false
+            }
+        }
+
+
+        core.pairing.deletePairing = async (topic, expirerHasDeleted) => {
+            try {
+                await core.relayer.unsubscribe(topic, {})
+            } catch (e) {
+                console.log('core.pairing.deletePairing error 1 ' + e.message)
+                return false
+            }
+            try {
+                await core.pairing.pairings.delete(topic, getSdkError('USER_DISCONNECTED'))
+            } catch (e) {
+                console.log('core.pairing.deletePairing error 2 ' + e.message)
+                return false
+            }
+            try {
+                await core.pairing.core.crypto.deleteSymKey(topic)
+            } catch (e) {
+                console.log('core.pairing.deletePairing  error 3 ' + e.message)
+                return false
+            }
+            try {
+                await expirerHasDeleted ? Promise.resolve() : core.pairing.core.expirer.del(topic)
+            } catch (e) {
+                console.log('core.pairing.deletePairing  error 4 ' + e.message)
+                return false
+            }
+        }
+
+        core.pairing.cleanup = async () => {
+            let expiredPairings = false
+            try {
+                expiredPairings = core.pairing.pairings.getAll().filter((pairing) => isExpired(pairing.expiry))
+            } catch (e) {
+                console.log('core.pairing.cleanup error 1 ' + e.message)
+                return false
+            }
+            try {
+                await Promise.all(expiredPairings.map((pairing) => core.pairing.deletePairing(pairing.topic)))
+            } catch (e) {
+                console.log('core.pairing.cleanup error 2 ' + e.message)
+            }
+        }
+
+
+        core.pairing.init = async () => {
+            if (!core.pairing.initialized) {
+                try {
+                    await core.pairing.pairings.init()
+                } catch (e) {
+                    console.log('core.pairing.init error 1 ' + e.message)
+                }
+                try {
+                    await core.pairing.cleanup()
+                } catch (e) {
+                    console.log('core.pairing.init error 2 ' + e.message)
+                }
+                try {
+                    core.pairing.registerRelayerEvents()
+                } catch (e) {
+                    console.log('core.pairing.init error 3 ' + e.message)
+                }
+                try {
+                    core.pairing.registerExpirerEvents()
+                } catch (e) {
+                    console.log('core.pairing.init error 4 ' + e.message)
+                }
+                core.pairing.initialized = true
+                core.pairing.logger.trace(`Initialized`)
             }
         }
 
@@ -235,8 +575,8 @@ const walletConnectService = {
                 name: 'React Native Web3Wallet',
                 description: 'ReactNative Web3Wallet',
                 url: 'https://walletconnect.com/',
-                icons: ['https://avatars.githubusercontent.com/u/37784886'],
-            },
+                icons: ['https://avatars.githubusercontent.com/u/37784886']
+            }
         })
 
         web3wallet.on('session_proposal', async (proposal) => {
