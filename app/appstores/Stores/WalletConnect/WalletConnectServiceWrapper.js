@@ -1,7 +1,6 @@
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import * as BlocksoftRandom from 'react-native-blocksoft-random'
 
-import { Core } from '@walletconnect/core'
 import * as relayAuth from '@walletconnect/relay-auth'
 import { ONE_DAY } from '@walletconnect/time'
 import {
@@ -10,7 +9,9 @@ import {
     getSdkError,
     hashMessage,
     isExpired,
-    isValidArray
+    isValidArray,
+    deriveSymKey,
+    generateKeyPair as generateKeyPairUtil
 } from '@walletconnect/utils'
 
 const EXPIRER_EVENTS = {
@@ -40,15 +41,7 @@ const SUBSCRIBER_EVENTS = {
     resubscribed: 'subscription_resubscribed'
 }
 
-const WC_PROJECT_ID = 'daa39ed4fa0978cc19a9c9c0a2a7015c' // https://cloud.walletconnect.com/app/project
-
-
 export default (core) => {
-    core = new Core({
-        // logger: 'debug',
-        projectId: WC_PROJECT_ID,
-        relayUrl: 'wss://relay.walletconnect.com'
-    })
     core.crypto.keychain.set = async (tag, key) => {
         try {
             core.crypto.keychain.isInitialized()
@@ -139,6 +132,31 @@ export default (core) => {
     }
 
 
+    core.crypto.generateKeyPair = () => {
+        try {
+            core.crypto.isInitialized();
+            const keyPair = generateKeyPairUtil();
+            return core.crypto.setPrivateKey(keyPair.publicKey, keyPair.privateKey);
+        } catch (e) {
+            console.log('core.crypto.generateKeyPair error ' + e.message)
+        }
+    }
+    core.crypto.generateSharedKey = (
+        selfPublicKey,
+        peerPublicKey,
+        overrideTopic
+    ) => {
+        try {
+            core.crypto.isInitialized()
+            const selfPrivateKey = core.crypto.getPrivateKey(selfPublicKey)
+            const symKey = deriveSymKey(selfPrivateKey, peerPublicKey)
+            return core.crypto.setSymKey(symKey, overrideTopic)
+        } catch (e) {
+            console.log('core.crypto.generateSharedKey error ' + e.message)
+        }
+    }
+
+
     core.crypto.getClientSeed = async () => {
         let seed = ''
         try {
@@ -188,11 +206,14 @@ export default (core) => {
             console.log('core.relayer.subscriber.subscribe error 1 ' + e.message)
             return false
         }
+        if (typeof relay === 'undefined' || typeof relay.protocol === 'undefined') {
+            relay = { 'protocol': 'irn' }
+        }
         try {
             id = await core.relayer.subscriber.rpcSubscribe(topic, relay);
         } catch (e) {
             core.relayer.subscriber.logger.debug(`Failed to Subscribe Topic`)
-            console.log('core.relayer.subscriber.subscribe error 2 ' + e.message)
+            console.log('core.relayer.subscriber.subscribe error 2 ' + e.message + ' relay ' + relay)
             return false
         }
         try {
@@ -205,6 +226,82 @@ export default (core) => {
             console.log('core.relayer.subscriber.subscribe error 3 ' + e.message)
         }
     };
+
+    core.relayer.subscriber.unsubscribe = async (topic, opts) => {
+        try {
+            await core.relayer.subscriber.restartToComplete()
+        } catch (e) {
+            console.log('core.relayer.subscriber.unsubscribe error 1 ' + e.message)
+        }
+        try {
+            core.relayer.subscriber.isInitialized()
+        } catch (e) {
+            console.log('core.relayer.subscriber.unsubscribe error 2 ' + e.message)
+        }
+        if (typeof opts?.id !== "undefined") {
+            try {
+                await core.relayer.subscriber.unsubscribeById(topic, opts.id, opts);
+            } catch (e) {
+                console.log('core.relayer.subscriber.unsubscribe error 3.1 ' + e.message)
+            }
+        } else {
+            try {
+                await core.relayer.subscriber.unsubscribeByTopic(topic, opts);
+            } catch (e) {
+                console.log('core.relayer.subscriber.unsubscribe error 3.2 ' + e.message)
+            }
+        }
+    }
+
+    core.relayer.subscriber.unsubscribeByTopic = async (topic, opts) => {
+        let ids = false
+        try {
+            ids = core.relayer.subscriber.topicMap.get(topic)
+        } catch (e) {
+            console.log('core.relayer.subscriber.topicMap.get error  ' + e.message)
+        }
+        if (ids) {
+            for (const index in ids) {
+                try {
+                    await core.relayer.subscriber.unsubscribeById(topic, ids[index], opts)
+                } catch (e) {
+                    console.log('core.relayer.subscriber.unsubscribeById error  ' + e.message + ' ' + ids[index])
+                }
+            }
+        }
+    }
+    
+    core.relayer.subscriber.unsubscribeById = async (topic, id, opts) => {
+        core.relayer.subscriber.logger.debug(`Unsubscribing Topic`);
+        core.relayer.subscriber.logger.trace({ type: "method", method: "unsubscribe", params: { topic, id, opts } })
+        let relay
+        try {
+            relay = getRelayProtocolName(opts)
+        } catch (e) {
+            console.log('core.relayer.subscriber.unsubscribeById error 3.1 ' + e.message)
+            return false
+        }
+        try {
+            await core.relayer.subscriber.rpcUnsubscribe(topic, id, relay)
+        } catch (e) {
+            console.log('core.relayer.subscriber.unsubscribeById error 3.2 ' + e.message)
+            return false
+        }
+        try {
+            const reason = getSdkError("USER_DISCONNECTED", `${core.relayer.subscriber.name}, ${topic}`)
+            await core.relayer.subscriber.onUnsubscribe(topic, id, reason)
+        } catch (e) {
+            console.log('core.relayer.subscriber.unsubscribeById error 3.3 ' + e.message)
+            return false
+        }
+        try {
+            core.relayer.subscriber.logger.debug(`Successfully Unsubscribed Topic`);
+            core.relayer.subscriber.logger.trace({ type: "method", method: "unsubscribe", params: { topic, id, opts } })
+        } catch (e) {
+            core.relayer.subscriber.logger.debug(`Failed to Unsubscribe Topic`);
+            console.log('core.relayer.subscriber.unsubscribeById error 3.4 ' + e.message)
+        }
+    }
 
     core.relayer.subscriber.onSubscribe = (id, params) => {
         try {
@@ -307,13 +404,10 @@ export default (core) => {
         }
         try {
             const res = await subscribe
-            console.log(`
-                
-                SUBSCRIBED 1 res `, res)
             return res
         } catch (err) {
             // and here also is the fix
-            console.log('core.relayer.subscriber.rpcSubscribe error 4.3 ' + err.message)
+            console.log('core.relayer.subscriber.rpcSubscribe error 4.3 ' + err.message + ' topic ' + topic)
             core.relayer.subscriber.logger.debug(`Outgoing Relay Subscribe Payload stalled`);
             core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled);
         }
@@ -385,15 +479,12 @@ export default (core) => {
         }
         try {
             const res = await subscribe
-            console.log(`
-                
-                SUBSCRIBED 2 res `, res)
             return res
         } catch (err) {
             // and here also is the fix
             console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.3 ' + err.message)
-            // core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
-            // core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
+            core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
+            core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
         }
     }
     core.relayer.subscriber.init = async () => {

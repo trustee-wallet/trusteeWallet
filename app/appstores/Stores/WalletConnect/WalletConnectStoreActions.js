@@ -132,59 +132,30 @@ const walletConnectActions = {
         }
     },
 
-    getAndSetWalletConnectAccount: (walletConnector, chainId = 0) => {
-        const { walletHash, walletName } = store.getState().mainStore.selectedWallet
-        const { peerMeta } = walletConnector
-        if (typeof chainId === 'undefined' || !chainId) {
-            chainId = walletConnector.chainId * 1 || 1
-        }
+    getAndSetWalletConnectAccount: (payload) => {
+        const { walletHash } = store.getState().mainStore.selectedWallet
+        const { params } = payload
+        const { requiredNamespaces } = params
+
         const accountList = store.getState().accountStore.accountList
         if (!accountList || typeof accountList[walletHash] === 'undefined') {
             return false
         }
-
-        const WEB3 = Web3Injected(chainId)
-        const MAIN_CURRENCY_CODE = WEB3.MAIN_CURRENCY_CODE
-        const MAIN_CHAIN_ID = WEB3.MAIN_CHAIN_ID
-        if (chainId !== 1 && chainId !== 'ETH' && MAIN_CURRENCY_CODE === 'ETH') {
-            throw new Error('Network ' + chainId + ' not supported')
-        }
-
-        Log.log('WalletConnect.getAndSetWalletConnectAccount chainId ' + chainId + ' code ' + MAIN_CURRENCY_CODE + ' id ' + MAIN_CHAIN_ID + ' ' + WEB3.LINK)
-        if (typeof accountList[walletHash][MAIN_CURRENCY_CODE] === 'undefined' && typeof accountList[walletHash]['ETH'] === 'undefined') {
-            throw new Error('TURN ON ' + MAIN_CURRENCY_CODE)
-        }
-
-        const _setWalletConnectAccount = (accountAddress, accountChainId, accountCurrencyCode, accountWalletName) => {
-            const oldData = store.getState().walletConnectStore.accountAddress
-            const oldCurrencyCode = store.getState().walletConnectStore.accountCurrencyCode
-            if (oldData === accountAddress && oldCurrencyCode === accountCurrencyCode) {
-                return false
+        const currentETHAddress = accountList[walletHash]['ETH']
+        const namespaces = {}
+        for (const key in requiredNamespaces) {
+            const accounts = []
+            for (const chain of requiredNamespaces[key].chains) {
+                accounts.push(`${chain}:${currentETHAddress.address}`)
             }
-            return dispatch({
-                type: 'SET_WALLET_CONNECT_ACCOUNT',
-                accountAddress,
-                accountChainId,
-                accountCurrencyCode,
-                accountWalletName
-            })
-        }
-
-        const account = accountList[walletHash][MAIN_CURRENCY_CODE] || accountList[walletHash]['ETH']
-        let res = []
-        if (peerMeta && typeof peerMeta !== 'undefined' && typeof peerMeta.description !== 'undefined' && peerMeta.description === 'TrusteeConnect4Tron') {
-            res = [accountList[walletHash]['TRX'].address, account.address]
-            _setWalletConnectAccount(res[0], 'TRX', 'TRX', walletName)
-        } else {
-            res = [account.address]
-            _setWalletConnectAccount(res[0], MAIN_CHAIN_ID, MAIN_CURRENCY_CODE, walletName)
+            namespaces[key] = {
+                accounts,
+                methods: requiredNamespaces[key].methods,
+                events: requiredNamespaces[key].events
+            }
         }
         return {
-            data: {
-                accounts: res,
-                chainId: MAIN_CHAIN_ID && MAIN_CHAIN_ID > 0 ? MAIN_CHAIN_ID : 1
-            },
-            account,
+            namespaces
         }
     }
 }
