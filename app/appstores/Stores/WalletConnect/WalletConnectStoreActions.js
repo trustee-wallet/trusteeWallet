@@ -46,7 +46,7 @@ const walletConnectActions = {
         if (!walletConnectLink) return false
         Log.log('WalletConnect.initWalletConnect link ' + walletConnectLink)
         const { session, dappData } = trusteeAsyncStorage.getWalletConnectSession()
-        await walletConnectActions.connectAndSetWalletConnectLink(walletConnectLink, dappData ? 'DAPP_SAVED' : 'SAVED', session)
+        await walletConnectActions.connectAndSetWalletConnectLink(walletConnectLink, dappData ? 'DAPP_SAVED' : 'SAVED', true)
 
         const walletConnector = store.getState().walletConnectStore.walletConnector
         walletConnectActions.setIsConnectedWalletConnect({
@@ -58,14 +58,14 @@ const walletConnectActions = {
         walletConnectActions.getAndSetWalletConnectAccount(walletConnector, walletConnector.chainId)
     },
 
-    connectAndSetWalletConnectLink: async (walletConnectLink, linkSource, session, dappData) => {
+    connectAndSetWalletConnectLink: async (walletConnectLink, linkSource, activatePairing = false) => {
         const oldData = store.getState().walletConnectStore.walletConnectLink
         if (oldData === walletConnectLink || !walletConnectLink) {
             return false
         }
 
         try {
-            const walletConnector = await walletConnectService.createAndConnect(walletConnectLink, session, dappData)
+            const walletConnector = await walletConnectService.createAndConnect(walletConnectLink, activatePairing)
             trusteeAsyncStorage.setWalletConnectLink(walletConnectLink)
             dispatch({
                 type: 'SET_WALLET_CONNECT',
@@ -77,7 +77,7 @@ const walletConnectActions = {
             })
             return true
         } catch (e) {
-            Log.log('WalletConnect.connectAndSetWalletConnectLink error ' + e.message + ' ' + walletConnectLink + ' session ' + JSON.stringify(session))
+            Log.log('WalletConnect.connectAndSetWalletConnectLink error ' + e.message + ' ' + walletConnectLink)
             dispatch({
                 type: 'SET_WALLET_CONNECT',
                 walletConnectLink: walletConnectLink,

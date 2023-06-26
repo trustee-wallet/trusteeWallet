@@ -77,6 +77,19 @@ export async function handleSendTransactionRedirect(walletConnector, data, accou
         transactionFilterType : TransactionFilterTypeDict.WALLET_CONNECT
     })
 }
+export function handleSignTransactionModal(walletConnector, data, accountCurrencyCode, payload) {
+    showModal({
+        type: 'YES_NO_MODAL',
+        icon: 'WARNING',
+        title: strings('settings.walletConnect.sign'),
+        description: strings('settings.walletConnect.signText') + JSON.stringify(data),
+        noCallback: async () => {
+            // todo
+        }
+    }, async () => {
+        await walletConnectService.approveSignTransaction(walletConnector, data, accountCurrencyCode, payload)
+    })
+}
 
 export function handleSendSignModal(walletConnector, message, payload) {
     showModal({

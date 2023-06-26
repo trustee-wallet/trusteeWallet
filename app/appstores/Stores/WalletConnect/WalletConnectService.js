@@ -1,11 +1,9 @@
 /**
  * @version 1.0
  */
-import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import Log from '@app/services/Log/Log'
 import { signTypedData } from '@metamask/eth-sig-util'
 
-import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftPrivateKeysUtils from '@crypto/common/BlocksoftPrivateKeysUtils'
 
 import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
@@ -13,7 +11,7 @@ import {
     handleSendSignModal,
     handleSendSignTypedModal,
     handleSendTransactionRedirect,
-    handleSessionProposalModal
+    handleSessionProposalModal, handleSignTransactionModal
 } from '@app/appstores/Stores/WalletConnect/helpers'
 import { Web3Injected } from '@crypto/services/Web3Injected'
 
@@ -25,7 +23,6 @@ import WalletConnectServiceWrapper from '@app/appstores/Stores/WalletConnect/Wal
 import WalletConnectServiceWrapperWeb3 from '@app/appstores/Stores/WalletConnect/WalletConnectServiceWrapperWeb3'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
-import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 
 let core = false
 let web3wallet = false
@@ -57,13 +54,13 @@ const walletConnectService = {
         web3wallet.on('session_proposal', async (payload) => {
             try {
                 if (!payload) {
-                    Log.log('WalletConnectService.on v2 session_proposal no payload')
+                    console.log('WalletConnectService.on v2 session_proposal no payload')
                     return
                 }
-                Log.log('WalletConnectService.on v2 session_proposal', JSON.stringify(payload))
+                console.log('WalletConnectService.on v2 session_proposal', JSON.stringify(payload))
                 handleSessionProposalModal(web3wallet, payload)
             } catch (e) {
-                Log.log('WalletConnectService.on v2 session_proposal error ' + e.message)
+                console.log('WalletConnectService.on v2 session_proposal error ' + e.message)
             }
         })
 
@@ -93,49 +90,50 @@ const walletConnectService = {
                         handleSendTransactionRedirect(web3wallet, params[0], WEB3.MAIN_CURRENCY_CODE, payload)
                     } else if (method === 'eth_signTypedData') {
                         handleSendSignTypedModal(web3wallet, JSON.parse(params[1]), payload)
+                    } else if (method === 'eth_sign') {
+                        handleSendSignModal(web3wallet, params[1], payload)
+                    } else if (method === 'eth_signTransaction') {
+                        handleSignTransactionModal(web3wallet, params[0], WEB3.MAIN_CURRENCY_CODE, payload)
                     } else {
-                        console.log(`
-                    
-                    
-                    todo ` + method, params)
+                        console.log('WalletConnectService.on v2 session_request no method ' + method, JSON.stringify(payload))
                     }
                 }
             } catch (e) {
-                Log.log('WalletConnectService.on v2 session_request error ' + e.message)
+                console.log('WalletConnectService.on v2 session_request error ' + e.message)
             }
         })
 
         web3wallet.on('session_delete', (payload) => {
             try {
-                Log.log('WalletConnectService.on v2 session_delete', JSON.stringify(payload))
+                console.log('WalletConnectService.on v2 session_delete', JSON.stringify(payload))
                 walletConnectActions.resetWalletConnect()
             } catch (e) {
-                Log.log('WalletConnectService.on v2 session_delete error ' + e.message)
+                console.log('WalletConnectService.on v2 session_delete error ' + e.message)
             }
         })
 
         web3wallet.on('auth_request', async (payload) => {
-            Log.log('WalletConnectService.on v2 auth_request', JSON.stringify(payload))
-            console.log('auth_request', JSON.stringify(payload))
+            console.log('WalletConnectService.on v2 auth_request', JSON.stringify(payload))
         })
 
         return web3wallet
     },
 
-    createAndConnect: async (fullLink) => {
+    createAndConnect: async (fullLink, activatePairing) => {
         if (web3wallet === false) {
             await walletConnectService._init()
         }
-        const params = { uri: fullLink, activatePairing: true }
+        console.log('fullLink ' + fullLink)
+        const params = activatePairing ? { uri: fullLink, activatePairing } : { uri: fullLink }
         try {
             await web3wallet.core.pairing.pair(params)
         } catch (e) {
             if (e.message.indexOf('Pairing already exists') !== -1 || e.message.indexOf('Keychain already exists') !== -1) {
                 // do nothing
-                Log.log('WalletConnectService.on v2 web3wallet.core.pairing.pair error 1 ' + e.message)
+                console.log('WalletConnectService.on v2 web3wallet.core.pairing.pair error 1 ' + e.message)
             } else if (e.message.indexOf('Request validation') !== -1) {
                 // do nothing
-                Log.log('WalletConnectService.on v2 web3wallet.core.pairing.pair error 2 ' + e.message)
+                console.log('WalletConnectService.on v2 web3wallet.core.pairing.pair error 2 ' + e.message)
             } else {
                 throw new Error(e.message + ' in v2 web3wallet.core.pairing.pair')
             }
@@ -155,9 +153,18 @@ const walletConnectService = {
         }
     },
 
+    approveSignTransaction: async (walletConnector, transaction, accountCurrencyCode, payload) => {
+        try {
+            console.log('WalletConnectService.approveSignTransaction', transaction, payload)
+
+        } catch (e) {
+            Log.err('WalletConnectService.approveSignTransaction error ' + e.message)
+        }
+    },
+
     approveSign: async (walletConnector, message, payload) => {
         try {
-            Log.log('WalletConnectService.approveSign', message, payload)
+            console.log('WalletConnectService.approveSign', message, payload)
             const { chainId } = payload
             const { account } = await walletConnectActions.getAndSetWalletConnectAccount(walletConnector, chainId)
             const discoverFor = {
@@ -181,7 +188,7 @@ const walletConnectService = {
 
     approveSignTyped: async (walletConnector, data, payload) => {
         try {
-            Log.log('WalletConnectService.approveSignTyped2 ' + JSON.stringify(data), payload)
+            console.log('WalletConnectService.approveSignTyped2 ' + JSON.stringify(data), payload)
             const { chainId } = payload
             const { account } = await walletConnectActions.getAndSetWalletConnectAccount(walletConnector, chainId)
             const discoverFor = {
@@ -203,7 +210,7 @@ const walletConnectService = {
     },
 
     rejectSession: async (walletConnector, payload) => {
-        Log.log('WalletConnectService.rejectSession v2', payload)
+        console.log('WalletConnectService.rejectSession v2', payload)
         const { id } = payload
         if (id) {
             try {
@@ -223,12 +230,11 @@ const walletConnectService = {
             const { id, params } = payload
             const { requiredNamespaces, relays } = params
 
-            Log.log('WalletConnectService.approveSession v2 payload.params.requiredNamespaces', requiredNamespaces)
-            BlocksoftCryptoLog.log('WalletConnectService.approveSession v2 payload.params.requiredNamespaces', requiredNamespaces)
+            console.log('WalletConnectService.approveSession v2 payload.params.requiredNamespaces', requiredNamespaces)
 
             const { namespaces } = await walletConnectActions.getAndSetWalletConnectAccount(payload)
             try {
-                Log.log('WalletConnectService.approveSession v2 namespaces ' + JSON.stringify(namespaces))
+                console.log('WalletConnectService.approveSession v2 namespaces ' + JSON.stringify(namespaces))
                 await walletConnector.approveSession({
                     id,
                     relayProtocol: relays[0].protocol,
@@ -237,8 +243,7 @@ const walletConnectService = {
             } catch (e1) {
                 if (e1.message.indexOf('Session currently connected') === -1) {
                     throw e1
-                }
-            }
+                }            }
             return namespaces
         } catch (e) {
             console.log('WalletConnectService.approveSession v2 error ' + e.message)

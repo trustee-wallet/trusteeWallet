@@ -129,7 +129,7 @@ class WalletDappWebViewScreen extends PureComponent {
         try {
             if (parsedUrl.protocol === 'wc:') {
                 if (url.indexOf('?bridge=') !== -1) {
-                    await walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP', false, this.props.walletDappData)
+                    await walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP')
                 } else {
                     // ?
                 }
