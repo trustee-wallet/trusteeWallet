@@ -80,6 +80,7 @@
       "transaction": "Demande de transaction",
       "transactionText": "Êtes-vous sûr de vouloir autoriser %{subtitle} à utiliser votre %{txPrice} pour les transactions?",
       "sign": "Demande de signature de WalletConnect",
+      "signTransaction": "Do you want to sign transaction ",
       "signText": "Voulez-vous signer le message",
       "signTyped": "Demande de type de signe WalletConnect",
       "signTypedText": "Voulez-vous signer le message",

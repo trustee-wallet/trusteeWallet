@@ -76,6 +76,7 @@
       "transaction": "Запит на транзакцію WalletConnect",
       "transactionText": "Ви хочете %{subtitle} (max tx cost: %{txPrice} ETH)",
       "sign": "Запит на підпис підключення WalletConnect",
+      "signTransaction": "Ви хочете підписати транзакцію ",
       "signText": "Ви хочете підписати повідомлення ",
       "signTyped": "Запит із підписом WalletConnect",
       "signTypedText": "Ви хочете підписати повідомлення ",

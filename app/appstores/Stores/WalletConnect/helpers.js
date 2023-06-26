@@ -73,49 +73,54 @@ export async function handleSendTransactionRedirect(walletConnector, data, accou
     await SendActionsStart.startFromWalletConnect({
         currencyCode: accountCurrencyCode,
         walletConnectData: data,
-        walletConnectPayload : payload,
+        walletConnectPayload: payload,
         transactionFilterType : TransactionFilterTypeDict.WALLET_CONNECT
     })
 }
-export function handleSignTransactionModal(walletConnector, data, accountCurrencyCode, payload) {
+export function handleSignTransactionModal(walletConnector, chainId, data, accountCurrencyCode, payload) {
+
+    const dataCopy = {...data}
+    if (typeof dataCopy.from !== 'undefined') {
+        delete dataCopy.from
+    }
     showModal({
         type: 'YES_NO_MODAL',
         icon: 'WARNING',
-        title: strings('settings.walletConnect.sign'),
-        description: strings('settings.walletConnect.signText') + JSON.stringify(data),
+        title: strings('settings.walletConnect.sign') + ' ' + data.from + ' ' + accountCurrencyCode,
+        description: strings('settings.walletConnect.signTransaction') + ' ' + JSON.stringify(dataCopy),
         noCallback: async () => {
-            // todo
+            walletConnectService.rejectRequest(walletConnector, payload)
         }
     }, async () => {
-        await walletConnectService.approveSignTransaction(walletConnector, data, accountCurrencyCode, payload)
+        await walletConnectService.approveSignTransaction(walletConnector, chainId, data.from, data, accountCurrencyCode, payload)
     })
 }
 
-export function handleSendSignModal(walletConnector, message, payload) {
+export function handleSendSignModal(walletConnector, chainId, from, message, payload) {
     showModal({
         type: 'YES_NO_MODAL',
         icon: 'WARNING',
-        title: strings('settings.walletConnect.sign'),
-        description: strings('settings.walletConnect.signText') + message,
+        title: strings('settings.walletConnect.sign') + ' ' + from,
+        description: strings('settings.walletConnect.signText') + ' ' + message,
         noCallback: async () => {
-            // todo
+            walletConnectService.rejectRequest(walletConnector, payload)
         }
     }, async () => {
-        await walletConnectService.approveSign(walletConnector, message, payload)
+        await walletConnectService.approveSign(walletConnector, chainId, from, message, payload)
     })
 }
 
 
-export function handleSendSignTypedModal(walletConnector, data, payload) {
+export function handleSendSignTypedModal(walletConnector, chainId, from, data, payload) {
     showModal({
         type: 'YES_NO_MODAL',
         icon: 'WARNING',
-        title: strings('settings.walletConnect.signTyped'),
-        description: strings('settings.walletConnect.signTypedText') + JSON.stringify(data).substr(0, 200),
+        title: strings('settings.walletConnect.signTyped') + ' ' + from,
+        description: strings('settings.walletConnect.signTypedText') + ' ' + JSON.stringify(data).substr(0, 200),
         noCallback: async () => {
-            // todo
+            walletConnectService.rejectRequest(walletConnector, payload)
         }
     }, async () => {
-        await walletConnectService.approveSignTyped(walletConnector, data, payload)
+        await walletConnectService.approveSignTyped(walletConnector, chainId, from, data, payload)
     })
 }

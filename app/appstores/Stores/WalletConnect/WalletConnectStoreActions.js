@@ -5,7 +5,6 @@ import store from '@app/store'
 
 import Log from '@app/services/Log/Log'
 
-import { Web3Injected } from '@crypto/services/Web3Injected'
 import walletConnectService from '@app/appstores/Stores/WalletConnect/WalletConnectService'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
@@ -131,33 +130,6 @@ const walletConnectActions = {
             Log.log('WalletConnect.getAndSetWalletConnectAccountNetwork chainId ' + chainId + ' updateSession error ' + e.message)
         }
     },
-
-    getAndSetWalletConnectAccount: (payload) => {
-        const { walletHash } = store.getState().mainStore.selectedWallet
-        const { params } = payload
-        const { requiredNamespaces } = params
-
-        const accountList = store.getState().accountStore.accountList
-        if (!accountList || typeof accountList[walletHash] === 'undefined') {
-            return false
-        }
-        const currentETHAddress = accountList[walletHash]['ETH']
-        const namespaces = {}
-        for (const key in requiredNamespaces) {
-            const accounts = []
-            for (const chain of requiredNamespaces[key].chains) {
-                accounts.push(`${chain}:${currentETHAddress.address}`)
-            }
-            namespaces[key] = {
-                accounts,
-                methods: requiredNamespaces[key].methods,
-                events: requiredNamespaces[key].events
-            }
-        }
-        return {
-            namespaces
-        }
-    }
 }
 
 export default walletConnectActions

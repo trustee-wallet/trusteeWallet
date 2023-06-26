@@ -80,6 +80,7 @@
       "transaction": "Transaction request",
       "transactionText": "Are you sure you want to allow %{subtitle} to use your %{txPrice} for transactions?",
       "sign": "WalletConnect Sign Request",
+      "signTransaction": "Do you want to sign transaction ",
       "signText": "Do you want to sign message ",
       "signTyped": "WalletConnect Sign Typed Request",
       "signTypedText": "Do you want to sign message ",

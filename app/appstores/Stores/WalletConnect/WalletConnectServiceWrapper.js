@@ -1,5 +1,6 @@
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import * as BlocksoftRandom from 'react-native-blocksoft-random'
+import { fromString } from 'uint8arrays/from-string'
 
 import * as relayAuth from '@walletconnect/relay-auth'
 import { ONE_DAY } from '@walletconnect/time'
@@ -342,6 +343,8 @@ export default (core) => {
             console.log('core.relayer.subscriber.onUnsubscribe error 4 ' + e.message)
         }
     }
+
+
     core.relayer.subscriber.relayer.messages.del = async (topic) => {
         try {
             core.relayer.subscriber.relayer.messages.isInitialized()
@@ -358,8 +361,8 @@ export default (core) => {
         } catch (e) {
             console.log('core.relayer.subscriber.relayer.messages.del error 3 ' + e.message)
         }
-
     }
+
     core.relayer.subscriber.deleteSubscription = (id, reason) => {
         let subscription
         try {
@@ -461,7 +464,7 @@ export default (core) => {
             // fix is here!
             // eslint-disable-next-line no-async-promise-executor
             subscribe = new Promise(async (resolve, reject) => {
-                const timeout = setTimeout(() => reject(new Error('expired')), core.relayer.subscriber.subscribeTimeout)
+                const timeout = setTimeout(() => reject(new Error('expired by timeout')), 30000)
                 try {
                     const result = await request2
                     resolve(result)
@@ -471,7 +474,7 @@ export default (core) => {
                 clearTimeout(timeout)
             })
         } catch (err) {
-            console.log('core.relayer.subscriber.rpcSubscribe error 4.2 ' + err.message, core.relayer.subscriber.subscribeTimeout)
+            console.log('core.relayer.subscriber.rpcSubscribe error 4.2 ' + err.message)
             core.relayer.subscriber.logger.debug(`Outgoing Relay Subscribe Payload stalled`)
             core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
         }
@@ -536,7 +539,7 @@ export default (core) => {
             // fix is here!
             // eslint-disable-next-line no-async-promise-executor
             subscribe = new Promise(async (resolve, reject) => {
-                const timeout = setTimeout(() => reject(new Error('expired 1')), 100000)
+                const timeout = setTimeout(() => reject(new Error('expired by timeout')), 30000)
                 try {
                     const result = await request2
                     resolve(result)
@@ -546,7 +549,7 @@ export default (core) => {
                 clearTimeout(timeout)
             })
         } catch (err) {
-            console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.2 ' + err.message, 100000)
+            console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.2 ' + err.message)
             core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
             core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
         }
