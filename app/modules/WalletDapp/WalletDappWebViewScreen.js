@@ -128,15 +128,12 @@ class WalletDappWebViewScreen extends PureComponent {
         }
         try {
             if (parsedUrl.protocol === 'wc:') {
-                if (url.indexOf('?bridge=') !== -1) {
-                    await walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP')
-                } else {
-                    // ?
-                }
+                await walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP', true, this.props.walletDappData)
                 return false
             }
         } catch (err) {
-            return true
+            Log.log(`WalletDapp.WebViewScreen handle dapp error `, err.message)
+            return false
         }
     }
 

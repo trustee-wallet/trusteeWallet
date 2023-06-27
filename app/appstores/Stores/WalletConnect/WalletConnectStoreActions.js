@@ -8,6 +8,7 @@ import Log from '@app/services/Log/Log'
 import walletConnectService from '@app/appstores/Stores/WalletConnect/WalletConnectService'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import config from '@app/config/config'
+import { setWalletDapp } from '@app/appstores/Stores/WalletDapp/WalletDappStoreActions'
 
 const { dispatch } = store
 
@@ -28,8 +29,16 @@ const walletConnectActions = {
 
     initWalletConnect: async () => {
         const walletConnectLink = trusteeAsyncStorage.getWalletConnectLink()
+        const dappData = trusteeAsyncStorage.getWalletConnectDapp()
+        console.log(`
+        
+        
+        dappData`, dappData)
         if (!walletConnectLink) {
             Log.log('WalletConnect.initWalletConnect link NONE')
+        } else if (dappData) {
+            Log.log('WalletConnect.initWalletConnect link ' + walletConnectLink + ' dapp ' + JSON.stringify(dappData))
+            await walletConnectActions.connectAndSetWalletConnectLink(walletConnectLink, 'SAVED', true, dappData)
         } else {
             Log.log('WalletConnect.initWalletConnect link ' + walletConnectLink)
             await walletConnectActions.connectAndSetWalletConnectLink(walletConnectLink, 'SAVED', true)
@@ -37,10 +46,15 @@ const walletConnectActions = {
         return false
     },
 
-    connectAndSetWalletConnectLink: async (walletConnectLink, linkSource, activatePairing = false) => {
-        const oldData = store.getState().walletConnectStore.walletConnectLink
-        if (oldData === walletConnectLink || !walletConnectLink) {
-            return false
+    connectAndSetWalletConnectLink: async (walletConnectLink, linkSource, activatePairing = false, dappData = false) => {
+        if (dappData && store.getState().walletDappStore.dapp !== dappData) {
+            trusteeAsyncStorage.setWalletConnectDapp(dappData)
+            setWalletDapp(dappData)
+        } else {
+            const oldData = store.getState().walletConnectStore.walletConnectLink
+            if (oldData === walletConnectLink || !walletConnectLink) {
+                return false
+            }
         }
 
         try {
@@ -118,6 +132,7 @@ const walletConnectActions = {
                 })
             } else {
                 trusteeAsyncStorage.setWalletConnectLink('')
+                trusteeAsyncStorage.setWalletConnectDapp('')
                 dispatch({
                     type: 'SET_WALLET_CONNECT',
                     walletConnectLink: false,
