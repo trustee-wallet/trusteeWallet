@@ -30,10 +30,6 @@ const walletConnectActions = {
     initWalletConnect: async () => {
         const walletConnectLink = trusteeAsyncStorage.getWalletConnectLink()
         const dappData = trusteeAsyncStorage.getWalletConnectDapp()
-        console.log(`
-        
-        
-        dappData`, dappData)
         if (!walletConnectLink) {
             Log.log('WalletConnect.initWalletConnect link NONE')
         } else if (dappData) {
