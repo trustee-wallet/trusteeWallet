@@ -1,3 +1,7 @@
+/**
+ * @version 1.0
+ */
+import Log from '@app/services/Log/Log'
 import { getRequiredNamespacesFromNamespaces, getSdkError, isValidObject } from '@walletconnect/utils'
 
 export default (web3wallet) => {
@@ -74,7 +78,7 @@ export default (web3wallet) => {
                     ) // artificial delay to allow for the session to be processed by the peer
             }
         } catch (e) {
-            console.log(`web3wallet.engine.signClient.engine.approve error ` + e.message)
+            Log.log(`web3wallet.engine.signClient.engine.approve error ` + e.message)
         }
     }
 
@@ -86,19 +90,19 @@ export default (web3wallet) => {
                 namespaces: sessionProposal.namespaces
             })
         } catch (e) {
-            console.log(`web3wallet.engine.approveSession error 1 ` + e.message)
+            Log.log(`web3wallet.engine.approveSession error 1 ` + e.message)
             throw new Error(e.message)
         }
         try {
             await tmp.acknowledged()
         } catch (e) {
-            console.log(`web3wallet.engine.approveSession error 2 ` + e.message)
+            Log.log(`web3wallet.engine.approveSession error 2 ` + e.message)
             throw new Error(e.message)
         }
         try {
             res = web3wallet.engine.signClient.session.get(tmp.topic)
         } catch (e) {
-            console.log(`web3wallet.engine.approveSession error 3 ` + e.message)
+            Log.log(`web3wallet.engine.approveSession error 3 ` + e.message)
             throw new Error(e.message)
         }
         return res

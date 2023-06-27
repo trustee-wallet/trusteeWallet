@@ -1,3 +1,7 @@
+/**
+ * @version 1.0
+ */
+import Log from '@app/services/Log/Log'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import * as BlocksoftRandom from 'react-native-blocksoft-random'
 import { fromString } from 'uint8arrays/from-string'
@@ -49,7 +53,7 @@ export default (core) => {
             core.crypto.keychain.keychain[tag] = key
             await core.crypto.keychain.persist()
         } catch (e) {
-            console.log(`core.crypto.keychain.set ` + e.message)
+            Log.log(`core.crypto.keychain.set ` + e.message)
         }
     }
     core.crypto.keychain.get = (tag) => {
@@ -100,7 +104,7 @@ export default (core) => {
                 expiration
             })
         } catch (e) {
-            console.log('core.expirer.set error ' + e.message)
+            Log.log('core.expirer.set error ' + e.message)
         }
     }
 
@@ -110,7 +114,7 @@ export default (core) => {
             const target = core.expirer.formatTarget(key)
             return core.expirer.getExpiration(target)
         } catch (e) {
-            console.log('core.expirer.get error ' + e.message)
+            Log.log('core.expirer.get error ' + e.message)
         }
     }
 
@@ -128,7 +132,7 @@ export default (core) => {
                 })
             }
         } catch (e) {
-            console.log('core.expirer.del error ' + e.message)
+            Log.log('core.expirer.del error ' + e.message)
         }
     }
 
@@ -139,7 +143,7 @@ export default (core) => {
             const keyPair = generateKeyPairUtil()
             return core.crypto.setPrivateKey(keyPair.publicKey, keyPair.privateKey)
         } catch (e) {
-            console.log('core.crypto.generateKeyPair error ' + e.message)
+            Log.log('core.crypto.generateKeyPair error ' + e.message)
         }
     }
     core.crypto.generateSharedKey = (
@@ -153,7 +157,7 @@ export default (core) => {
             const symKey = deriveSymKey(selfPrivateKey, peerPublicKey)
             return core.crypto.setSymKey(symKey, overrideTopic)
         } catch (e) {
-            console.log('core.crypto.generateSharedKey error ' + e.message)
+            Log.log('core.crypto.generateSharedKey error ' + e.message)
         }
     }
 
@@ -204,7 +208,7 @@ export default (core) => {
             core.relayer.subscriber.pending.set(topic, params)
         } catch (e) {
             core.relayer.subscriber.logger.debug(`Failed to Subscribe Topic`)
-            console.log('core.relayer.subscriber.subscribe error 1 ' + e.message)
+            Log.log('core.relayer.subscriber.subscribe error 1 ' + e.message)
             return false
         }
         if (typeof relay === 'undefined' || typeof relay.protocol === 'undefined') {
@@ -214,7 +218,7 @@ export default (core) => {
             id = await core.relayer.subscriber.rpcSubscribe(topic, relay)
         } catch (e) {
             core.relayer.subscriber.logger.debug(`Failed to Subscribe Topic`)
-            console.log('core.relayer.subscriber.subscribe error 2 ' + e.message + ' relay ' + relay)
+            Log.log('core.relayer.subscriber.subscribe error 2 ' + e.message + ' relay ' + relay)
             return false
         }
         try {
@@ -224,7 +228,7 @@ export default (core) => {
             return id
         } catch (e) {
             core.relayer.subscriber.logger.debug(`Failed to Subscribe Topic`)
-            console.log('core.relayer.subscriber.subscribe error 3 ' + e.message)
+            Log.log('core.relayer.subscriber.subscribe error 3 ' + e.message)
         }
     }
 
@@ -232,24 +236,24 @@ export default (core) => {
         try {
             await core.relayer.subscriber.restartToComplete()
         } catch (e) {
-            console.log('core.relayer.subscriber.unsubscribe error 1 ' + e.message)
+            Log.log('core.relayer.subscriber.unsubscribe error 1 ' + e.message)
         }
         try {
             core.relayer.subscriber.isInitialized()
         } catch (e) {
-            console.log('core.relayer.subscriber.unsubscribe error 2 ' + e.message)
+            Log.log('core.relayer.subscriber.unsubscribe error 2 ' + e.message)
         }
         if (typeof opts?.id !== 'undefined') {
             try {
                 await core.relayer.subscriber.unsubscribeById(topic, opts.id, opts)
             } catch (e) {
-                console.log('core.relayer.subscriber.unsubscribe error 3.1 ' + e.message)
+                Log.log('core.relayer.subscriber.unsubscribe error 3.1 ' + e.message)
             }
         } else {
             try {
                 await core.relayer.subscriber.unsubscribeByTopic(topic, opts)
             } catch (e) {
-                console.log('core.relayer.subscriber.unsubscribe error 3.2 ' + e.message)
+                Log.log('core.relayer.subscriber.unsubscribe error 3.2 ' + e.message)
             }
         }
     }
@@ -259,14 +263,14 @@ export default (core) => {
         try {
             ids = core.relayer.subscriber.topicMap.get(topic)
         } catch (e) {
-            console.log('core.relayer.subscriber.topicMap.get error  ' + e.message)
+            Log.log('core.relayer.subscriber.topicMap.get error  ' + e.message)
         }
         if (ids) {
             for (const index in ids) {
                 try {
                     await core.relayer.subscriber.unsubscribeById(topic, ids[index], opts)
                 } catch (e) {
-                    console.log('core.relayer.subscriber.unsubscribeById error  ' + e.message + ' ' + ids[index])
+                    Log.log('core.relayer.subscriber.unsubscribeById error  ' + e.message + ' ' + ids[index])
                 }
             }
         }
@@ -279,20 +283,20 @@ export default (core) => {
         try {
             relay = getRelayProtocolName(opts)
         } catch (e) {
-            console.log('core.relayer.subscriber.unsubscribeById error 3.1 ' + e.message)
+            Log.log('core.relayer.subscriber.unsubscribeById error 3.1 ' + e.message)
             return false
         }
         try {
             await core.relayer.subscriber.rpcUnsubscribe(topic, id, relay)
         } catch (e) {
-            console.log('core.relayer.subscriber.unsubscribeById error 3.2 ' + e.message)
+            Log.log('core.relayer.subscriber.unsubscribeById error 3.2 ' + e.message)
             return false
         }
         try {
             const reason = getSdkError('USER_DISCONNECTED', `${core.relayer.subscriber.name}, ${topic}`)
             await core.relayer.subscriber.onUnsubscribe(topic, id, reason)
         } catch (e) {
-            console.log('core.relayer.subscriber.unsubscribeById error 3.3 ' + e.message)
+            Log.log('core.relayer.subscriber.unsubscribeById error 3.3 ' + e.message)
             return false
         }
         try {
@@ -300,7 +304,7 @@ export default (core) => {
             core.relayer.subscriber.logger.trace({ type: 'method', method: 'unsubscribe', params: { topic, id, opts } })
         } catch (e) {
             core.relayer.subscriber.logger.debug(`Failed to Unsubscribe Topic`)
-            console.log('core.relayer.subscriber.unsubscribeById error 3.4 ' + e.message)
+            Log.log('core.relayer.subscriber.unsubscribeById error 3.4 ' + e.message)
         }
     }
 
@@ -308,12 +312,12 @@ export default (core) => {
         try {
             core.relayer.subscriber.setSubscription(id, { ...params, id })
         } catch (e) {
-            console.log('core.relayer.subscriber.onSubscribe error 1 ' + e.message)
+            Log.log('core.relayer.subscriber.onSubscribe error 1 ' + e.message)
         }
         try {
             core.relayer.subscriber.pending.delete(params.topic)
         } catch (e) {
-            console.log('core.relayer.subscriber.onSubscribe error 2 ' + e.message)
+            Log.log('core.relayer.subscriber.onSubscribe error 2 ' + e.message)
         }
     }
 
@@ -322,25 +326,25 @@ export default (core) => {
         try {
             core.relayer.subscriber.events.removeAllListeners(id)
         } catch (e) {
-            console.log('core.relayer.subscriber.onUnsubscribe error 1 ' + e.message)
+            Log.log('core.relayer.subscriber.onUnsubscribe error 1 ' + e.message)
         }
         let t = false
         try {
             t = core.relayer.subscriber.hasSubscription(id, topic)
         } catch (e) {
-            console.log('core.relayer.subscriber.onUnsubscribe error 2 ' + e.message)
+            Log.log('core.relayer.subscriber.onUnsubscribe error 2 ' + e.message)
         }
         try {
             if (t) {
                 core.relayer.subscriber.deleteSubscription(id, reason)
             }
         } catch (e) {
-            console.log('core.relayer.subscriber.onUnsubscribe error 3 ' + e.message)
+            Log.log('core.relayer.subscriber.onUnsubscribe error 3 ' + e.message)
         }
         try {
             await core.relayer.subscriber.relayer.messages.del(topic)
         } catch (e) {
-            console.log('core.relayer.subscriber.onUnsubscribe error 4 ' + e.message)
+            Log.log('core.relayer.subscriber.onUnsubscribe error 4 ' + e.message)
         }
     }
 
@@ -349,17 +353,17 @@ export default (core) => {
         try {
             core.relayer.subscriber.relayer.messages.isInitialized()
         } catch (e) {
-            console.log('core.relayer.subscriber.relayer.messages.del error 1 ' + e.message)
+            Log.log('core.relayer.subscriber.relayer.messages.del error 1 ' + e.message)
         }
         try {
             core.relayer.subscriber.relayer.messages.messages.delete(topic)
         } catch (e) {
-            console.log('core.relayer.subscriber.relayer.messages.del error 2 ' + e.message)
+            Log.log('core.relayer.subscriber.relayer.messages.del error 2 ' + e.message)
         }
         try {
             await core.relayer.subscriber.relayer.messages.persist()
         } catch (e) {
-            console.log('core.relayer.subscriber.relayer.messages.del error 3 ' + e.message)
+            Log.log('core.relayer.subscriber.relayer.messages.del error 3 ' + e.message)
         }
     }
 
@@ -368,18 +372,18 @@ export default (core) => {
         try {
             subscription = core.relayer.subscriber.getSubscription(id)
         } catch (e) {
-            console.log('core.relayer.subscriber.deleteSubscription error 1 ' + e.message)
+            Log.log('core.relayer.subscriber.deleteSubscription error 1 ' + e.message)
         }
         try {
             core.relayer.subscriber.subscriptions.delete(id)
         } catch (e) {
-            console.log('core.relayer.subscriber.deleteSubscription error 2 ' + e.message)
+            Log.log('core.relayer.subscriber.deleteSubscription error 2 ' + e.message)
         }
         if (subscription) {
             try {
                 core.relayer.subscriber.topicMap.delete(subscription.topic, id)
             } catch (e) {
-                console.log('core.relayer.subscriber.deleteSubscription error 3 ' + e.message)
+                Log.log('core.relayer.subscriber.deleteSubscription error 3 ' + e.message)
             }
             try {
                 core.relayer.subscriber.events.emit(SUBSCRIBER_EVENTS.deleted, {
@@ -387,7 +391,7 @@ export default (core) => {
                     reason
                 })
             } catch (e) {
-                console.log('core.relayer.subscriber.deleteSubscription error 4 ' + e.message)
+                Log.log('core.relayer.subscriber.deleteSubscription error 4 ' + e.message)
             }
         }
     }
@@ -397,12 +401,12 @@ export default (core) => {
         try {
             await core.relayer.subscriber.restore()
         } catch (e) {
-            console.log('core.relayer.subscriber.restore error ' + e.message)
+            Log.log('core.relayer.subscriber.restore error ' + e.message)
         }
         try {
             await core.relayer.subscriber.reset()
         } catch (e) {
-            console.log('core.relayer.subscriber.reset error ' + e.message)
+            Log.log('core.relayer.subscriber.reset error ' + e.message)
         }
         core.relayer.subscriber.restartInProgress = false
     }
@@ -414,7 +418,7 @@ export default (core) => {
                 try {
                     await core.relayer.subscriber.batchSubscribe(batch)
                 } catch (e) {
-                    console.log('core.relayer.subscriber.batchSubscribe error ' + e.message)
+                    Log.log('core.relayer.subscriber.batchSubscribe error ' + e.message)
                 }
 
             }
@@ -427,17 +431,17 @@ export default (core) => {
         try {
             result = await core.relayer.subscriber.rpcBatchSubscribe(subscriptions)
         } catch (e) {
-            console.log('core.relayer.subscriber.rpcBatchSubscribe error ' + e.message)
+            Log.log('core.relayer.subscriber.rpcBatchSubscribe error ' + e.message)
         }
         try {
             if (!isValidArray(result)) return
         } catch (e) {
-            console.log('core.relayer.subscriber.isValidArray error ' + e.message)
+            Log.log('core.relayer.subscriber.isValidArray error ' + e.message)
         }
         try {
             core.relayer.subscriber.onBatchSubscribe(result.map((id, i) => ({ ...subscriptions[i], id })))
         } catch (e) {
-            console.log('core.relayer.subscriber.onBatchSubscribe error ' + e.message)
+            Log.log('core.relayer.subscriber.onBatchSubscribe error ' + e.message)
         }
     }
 
@@ -456,7 +460,7 @@ export default (core) => {
         try {
             request2 = core.relayer.subscriber.relayer.request(request)
         } catch (err) {
-            console.log('core.relayer.subscriber.rpcSubscribe error 4.1 ' + err.message)
+            Log.log('core.relayer.subscriber.rpcSubscribe error 4.1 ' + err.message)
         }
 
         let subscribe
@@ -474,7 +478,7 @@ export default (core) => {
                 clearTimeout(timeout)
             })
         } catch (err) {
-            console.log('core.relayer.subscriber.rpcSubscribe error 4.2 ' + err.message)
+            Log.log('core.relayer.subscriber.rpcSubscribe error 4.2 ' + err.message)
             core.relayer.subscriber.logger.debug(`Outgoing Relay Subscribe Payload stalled`)
             core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
         }
@@ -483,7 +487,7 @@ export default (core) => {
             return res
         } catch (err) {
             // and here also is the fix
-            console.log('core.relayer.subscriber.rpcSubscribe error 4.3 ' + err.message + ' topic ' + topic)
+            Log.log('core.relayer.subscriber.rpcSubscribe error 4.3 ' + err.message + ' topic ' + topic)
             core.relayer.subscriber.logger.debug(`Outgoing Relay Subscribe Payload stalled`)
             core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
         }
@@ -492,7 +496,7 @@ export default (core) => {
             const hash = hashMessage(topic + core.relayer.subscriber.clientId)
             return hash
         } catch (e) {
-            console.log('core.relayer.subscriber.rpcSubscribe error 4.4 ' + e.message)
+            Log.log('core.relayer.subscriber.rpcSubscribe error 4.4 ' + e.message)
         }
     }
 
@@ -503,13 +507,13 @@ export default (core) => {
         try {
             relay = subscriptions[0].relay
         } catch (e) {
-            console.log('core.relayer.subscriber.rpcBatchSubscribe error 1 ' + e.message)
+            Log.log('core.relayer.subscriber.rpcBatchSubscribe error 1 ' + e.message)
             return false
         }
         try {
             api = getRelayProtocolApi(relay.protocol)
         } catch (e) {
-            console.log('core.relayer.subscriber.rpcBatchSubscribe error 2 ' + e.message)
+            Log.log('core.relayer.subscriber.rpcBatchSubscribe error 2 ' + e.message)
             return false
         }
         try {
@@ -520,7 +524,7 @@ export default (core) => {
                 }
             }
         } catch (e) {
-            console.log('core.relayer.subscriber.rpcBatchSubscribe error 3 ' + e.message)
+            Log.log('core.relayer.subscriber.rpcBatchSubscribe error 3 ' + e.message)
             return false
         }
         core.relayer.subscriber.logger.debug(`Outgoing Relay Payload`)
@@ -530,7 +534,7 @@ export default (core) => {
         try {
             request2 = core.relayer.subscriber.relayer.request(request)
         } catch (err) {
-            console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.1 ' + err.message)
+            Log.log('core.relayer.subscriber.rpcBatchSubscribe error 4.1 ' + err.message)
             core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
             core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
         }
@@ -549,7 +553,7 @@ export default (core) => {
                 clearTimeout(timeout)
             })
         } catch (err) {
-            console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.2 ' + err.message)
+            Log.log('core.relayer.subscriber.rpcBatchSubscribe error 4.2 ' + err.message)
             core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
             core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
         }
@@ -558,7 +562,7 @@ export default (core) => {
             return res
         } catch (err) {
             // and here also is the fix
-            console.log('core.relayer.subscriber.rpcBatchSubscribe error 4.3 ' + err.message)
+            Log.log('core.relayer.subscriber.rpcBatchSubscribe error 4.3 ' + err.message)
             core.relayer.subscriber.logger.debug(`Outgoing Relay Payload stalled`)
             core.relayer.subscriber.relayer.events.emit(RELAYER_EVENTS.connection_stalled)
         }
@@ -569,22 +573,22 @@ export default (core) => {
             try {
                 await core.relayer.subscriber.restart()
             } catch (e) {
-                console.log('core.relayer.subscriber.restart error ' + e.message)
+                Log.log('core.relayer.subscriber.restart error ' + e.message)
             }
             try {
                 core.relayer.subscriber.registerEventListeners()
             } catch (e) {
-                console.log('core.relayer.subscriber.registerEventListeners error ' + e.message)
+                Log.log('core.relayer.subscriber.registerEventListeners error ' + e.message)
             }
             try {
                 core.relayer.subscriber.onEnable()
             } catch (e) {
-                console.log('core.relayer.subscriber.onEnable error ' + e.message)
+                Log.log('core.relayer.subscriber.onEnable error ' + e.message)
             }
             try {
                 core.relayer.subscriber.clientId = await core.crypto.getClientId()
             } catch (e) {
-                console.log('core.relayer.subscriber.clientId error ' + e.message)
+                Log.log('core.relayer.subscriber.clientId error ' + e.message)
             }
         }
     }
@@ -592,28 +596,28 @@ export default (core) => {
         try {
             await core.relayer.createProvider()
         } catch (e) {
-            console.log('core.relayer.init error 1 ' + e.message)
+            Log.log('core.relayer.init error 1 ' + e.message)
         }
         try {
             await core.relayer.messages.init()
         } catch (e) {
-            console.log('core.relayer.init error 2.1 ' + e.message)
+            Log.log('core.relayer.init error 2.1 ' + e.message)
         }
         try {
             await core.relayer.transportOpen()
         } catch (e) {
-            console.log('core.relayer.init error 2.2 ' + e.message)
+            Log.log('core.relayer.init error 2.2 ' + e.message)
         }
         try {
             await core.relayer.subscriber.init()
         } catch (e) {
-            console.log('core.relayer.init error 2.3 ' + e.message)
+            Log.log('core.relayer.init error 2.3 ' + e.message)
         }
         try {
             core.relayer.registerEventListeners()
             core.relayer.initialized = true
         } catch (e) {
-            console.log('core.relayer.init error 3 ' + e.message)
+            Log.log('core.relayer.init error 3 ' + e.message)
         }
         try {
             setTimeout(async () => {
@@ -624,11 +628,11 @@ export default (core) => {
                         core.relayer.transportExplicitlyClosed = false
                     }
                 } catch (e) {
-                    console.log('core.relayer.init error 4.1 ' + e.message)
+                    Log.log('core.relayer.init error 4.1 ' + e.message)
                 }
             }, 10000)
         } catch (e) {
-            console.log('core.relayer.init error 4 ' + e.message)
+            Log.log('core.relayer.init error 4 ' + e.message)
         }
     }
 
@@ -636,13 +640,13 @@ export default (core) => {
         try {
             core.relayer.isInitialized()
         } catch (e) {
-            console.log('core.relayer.unsubscribe error 1 ' + e.message)
+            Log.log('core.relayer.unsubscribe error 1 ' + e.message)
             return false
         }
         try {
             await core.relayer.subscriber.unsubscribe(topic, opts)
         } catch (e) {
-            console.log('core.relayer.unsubscribe error 2 ' + e.message)
+            Log.log('core.relayer.unsubscribe error 2 ' + e.message)
             return false
         }
     }
@@ -652,25 +656,25 @@ export default (core) => {
         try {
             await core.relayer.unsubscribe(topic, {})
         } catch (e) {
-            console.log('core.pairing.deletePairing error 1 ' + e.message)
+            Log.log('core.pairing.deletePairing error 1 ' + e.message)
             return false
         }
         try {
             await core.pairing.pairings.delete(topic, getSdkError('USER_DISCONNECTED'))
         } catch (e) {
-            console.log('core.pairing.deletePairing error 2 ' + e.message)
+            Log.log('core.pairing.deletePairing error 2 ' + e.message)
             return false
         }
         try {
             await core.pairing.core.crypto.deleteSymKey(topic)
         } catch (e) {
-            console.log('core.pairing.deletePairing  error 3 ' + e.message)
+            Log.log('core.pairing.deletePairing  error 3 ' + e.message)
             return false
         }
         try {
             await expirerHasDeleted ? Promise.resolve() : core.pairing.core.expirer.del(topic)
         } catch (e) {
-            console.log('core.pairing.deletePairing  error 4 ' + e.message)
+            Log.log('core.pairing.deletePairing  error 4 ' + e.message)
             return false
         }
     }
@@ -680,13 +684,13 @@ export default (core) => {
         try {
             expiredPairings = core.pairing.pairings.getAll().filter((pairing) => isExpired(pairing.expiry))
         } catch (e) {
-            console.log('core.pairing.cleanup error 1 ' + e.message)
+            Log.log('core.pairing.cleanup error 1 ' + e.message)
             return false
         }
         try {
             await Promise.all(expiredPairings.map((pairing) => core.pairing.deletePairing(pairing.topic)))
         } catch (e) {
-            console.log('core.pairing.cleanup error 2 ' + e.message)
+            Log.log('core.pairing.cleanup error 2 ' + e.message)
         }
     }
 
@@ -696,22 +700,22 @@ export default (core) => {
             try {
                 await core.pairing.pairings.init()
             } catch (e) {
-                console.log('core.pairing.init error 1 ' + e.message)
+                Log.log('core.pairing.init error 1 ' + e.message)
             }
             try {
                 await core.pairing.cleanup()
             } catch (e) {
-                console.log('core.pairing.init error 2 ' + e.message)
+                Log.log('core.pairing.init error 2 ' + e.message)
             }
             try {
                 core.pairing.registerRelayerEvents()
             } catch (e) {
-                console.log('core.pairing.init error 3 ' + e.message)
+                Log.log('core.pairing.init error 3 ' + e.message)
             }
             try {
                 core.pairing.registerExpirerEvents()
             } catch (e) {
-                console.log('core.pairing.init error 4 ' + e.message)
+                Log.log('core.pairing.init error 4 ' + e.message)
             }
             core.pairing.initialized = true
             core.pairing.logger.trace(`Initialized`)
