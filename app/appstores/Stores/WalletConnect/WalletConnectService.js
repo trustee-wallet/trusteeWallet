@@ -1,5 +1,5 @@
 /**
- * @version 1.0
+ * @version 2.0
  */
 import Log from '@app/services/Log/Log'
 import { signTypedData } from '@metamask/eth-sig-util'
@@ -241,10 +241,63 @@ const walletConnectService = {
             return web3wallet
         } catch (e1) {
             if (config.debug.appErrors) {
-                console.log('WalletConnectService createAndConnect error ' + e1.message)
+                console.log('WalletConnectService createAndConnect v2 error ' + e1.message)
             }
             throw new Error(e1)
         }
+    },
+
+    getConnections: async (walletConnector) => {
+        const connections = []
+        try {
+            const activeSessions = await walletConnector.getActiveSessions()
+            for (const key in activeSessions) {
+                const res = {
+                    key,
+                    topic : activeSessions[key].topic,
+                    peer: activeSessions[key].peer.metadata
+                }
+                connections.push(res)
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('WalletConnectService.getConnections v2 error ' + e.message)
+            }
+            Log.log('WalletConnectService.getConnections v2 error ' + e.message)
+        }
+        return connections
+    },
+
+   killConnections: async (walletConnector) => {
+        const connections = []
+        try {
+            const activeSessions = await walletConnector.getActiveSessions()
+            for (const key in activeSessions) {
+                const res = {
+                    key,
+                    topic : activeSessions[key].topic,
+                    peer: activeSessions[key].peer.metadata
+                }
+                try {
+                    await walletConnector.disconnectSession({
+                        topic: activeSessions[key].topic,
+                        reason: getSdkError("USER_DISCONNECTED"),
+                    })
+                } catch (e) {
+                    if (config.debug.appErrors) {
+                        console.log('WalletConnectService.killConnections v2 error 2 ' + e.message, res)
+                    }
+                    Log.log('WalletConnectService.killConnections v2 error 2 ' + e.message, res)
+                    connections.push(res)
+                }
+            }
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('WalletConnectService.killConnections v2 error ' + e.message)
+            }
+            Log.log('WalletConnectService.killConnections v2 error ' + e.message)
+        }
+        return connections
     },
 
     approveRequest: async (walletConnector, payload, transactionHash) => {

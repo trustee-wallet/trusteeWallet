@@ -1,5 +1,5 @@
 /**
- * @version 0.41
+ * @version 2.0
  */
 import analytics from '@react-native-firebase/analytics'
 
@@ -19,7 +19,7 @@ import ApiV3 from '@app/services/Api/ApiV3'
 import { recordFioObtData } from '@crypto/blockchains/fio/FioUtils'
 
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
-import walletConnectService from '@app/appstores/Stores/WalletConnect/WalletConnectService'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 const logFio = async function(transaction: any, tx: any, logData: any, sendScreenStore: any) {
     const { fioRequestDetails } = sendScreenStore.ui
@@ -175,7 +175,7 @@ export namespace SendActionsEnd {
             }})
         } else if (uiType === 'WALLET_CONNECT') {
             Log.log('SendActionsEnd.endRedirect walletConnect will get ' + tx.transactionHash)
-            await walletConnectService.approveRequest(false, walletConnectPayload, tx.transactionHash)
+            await walletConnectActions.approveRequest(walletConnectPayload, tx.transactionHash)
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash,
@@ -203,7 +203,7 @@ export namespace SendActionsEnd {
         const { bseOrderId } = bse
         const data = { extraData, ...params, orderHash: bseOrderId, status: 'CLOSE' }
         if (uiType === 'WALLET_CONNECT') {
-            await walletConnectService.rejectRequest(false, walletConnectPayload)
+            await walletConnectActions.rejectRequest(walletConnectPayload)
         }
         if (typeof bseOrderId === 'undefined' || !bseOrderId) return
         return ApiV3.setExchangeStatus(data)

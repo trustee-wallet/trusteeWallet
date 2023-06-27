@@ -4,7 +4,92 @@
 import Log from '@app/services/Log/Log'
 import { getRequiredNamespacesFromNamespaces, getSdkError, isValidObject } from '@walletconnect/utils'
 
+
+import { getBigIntRpcId } from '@walletconnect/jsonrpc-utils'
+
+const RELAYER_EVENTS = {
+    message: 'relayer_message',
+    message_ack: 'relayer_message_ack',
+    connect: 'relayer_connect',
+    disconnect: 'relayer_disconnect',
+    error: 'relayer_error',
+    connection_stalled: 'relayer_connection_stalled',
+    transport_closed: 'relayer_transport_closed',
+    publish: 'relayer_publish'
+}
+
 export default (web3wallet) => {
+
+    web3wallet.engine.signClient.engine.disconnect = async (params) => {
+        try {
+            web3wallet.engine.signClient.engine.isInitialized()
+            await web3wallet.engine.signClient.engine.isValidDisconnect(params)
+        } catch (e) {
+            Log.log(`web3wallet.engine.signClient.engine.disconnect error 1 ` + e.message)
+        }
+        const { topic } = params
+
+        let has = false
+        try {
+            has = web3wallet.engine.signClient.engine.client.session.keys.includes(topic)
+        } catch (e) {
+            Log.log(`web3wallet.engine.signClient.engine.disconnect error 2 ` + e.message)
+        }
+        if (has) {
+            let id = 0
+            try {
+                id = getBigIntRpcId().toString()
+            } catch (e) {
+                Log.log(`web3wallet.engine.signClient.engine.disconnect error 3.1 ` + e.message)
+            }
+
+            let resolvePromise
+            const onDisconnectAck = (ack) => {
+                if (ack?.id.toString() === id) {
+                    web3wallet.engine.signClient.engine.client.core.relayer.events.removeListener(
+                        RELAYER_EVENTS.message_ack,
+                        onDisconnectAck
+                    )
+                    resolvePromise()
+                }
+            }
+
+            try {
+                // await a relay ACK on the disconnect req before deleting the session, keychain etc.
+                await new Promise((resolve) => {
+                    resolvePromise = resolve
+                    web3wallet.engine.signClient.engine.client.core.relayer.on(RELAYER_EVENTS.message_ack, onDisconnectAck)
+                })
+            } catch (e) {
+                Log.log(`web3wallet.engine.signClient.engine.disconnect error 3.2 ` + e.message)
+            }
+
+            try {
+                await web3wallet.engine.signClient.engine.sendRequest(
+                    topic,
+                    'wc_sessionDelete',
+                    getSdkError('USER_DISCONNECTED'),
+                    undefined,
+                    id
+                )
+            } catch (e) {
+                Log.log(`web3wallet.engine.signClient.engine.disconnect error 3.3 ` + e.message)
+            }
+
+            try {
+                await web3wallet.engine.signClient.engine.deleteSession(topic)
+            } catch (e) {
+                Log.log(`web3wallet.engine.signClient.engine.disconnect error 3.4 ` + e.message)
+            }
+        } else {
+            try {
+                await web3wallet.engine.signClient.engine.client.core.pairing.disconnect({ topic })
+            } catch (e) {
+                Log.log(`web3wallet.engine.signClient.engine.disconnect error 4 ` + e.message)
+            }
+        }
+    }
+
     web3wallet.engine.signClient.engine.approve = async (params) => {
         try {
             web3wallet.engine.signClient.engine.isInitialized()

@@ -39,7 +39,7 @@ import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import TransactionItem from '@app/modules/Account/AccountTransaction/elements/TransactionItem'
 
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
-import walletConnectService from '@app/appstores/Stores/WalletConnect/WalletConnectService'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
 let CACHE_IS_COUNTING = false
 let CACHE_IS_SENDING_CLICKED = 0
@@ -270,7 +270,7 @@ class ReceiptScreen extends PureComponent {
         } else {
             if (uiType === 'WALLET_CONNECT') {
                 try {
-                    await walletConnectService.rejectRequest(false, walletConnectPayload)
+                    await walletConnectActions.rejectRequest(walletConnectPayload)
                 } catch (e) {
                     Log.log('ReceiptScreen.closeAction WALLET_CONNECT error ' + e)
                 }
@@ -287,7 +287,7 @@ class ReceiptScreen extends PureComponent {
         const { uiType, walletConnectPayload } = this.props.sendScreenStore.ui
         if (uiType === 'WALLET_CONNECT') {
             try {
-                await walletConnectService.rejectRequest(false, walletConnectPayload)
+                await walletConnectActions.rejectRequest(walletConnectPayload)
             } catch (e) {
                 Log.log('ReceiptScreen.backAction WALLET_CONNECT error ' + e.message)
             }
