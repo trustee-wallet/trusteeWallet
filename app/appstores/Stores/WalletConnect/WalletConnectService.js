@@ -109,7 +109,7 @@ const walletConnectService = {
         web3wallet = await Web3Wallet.init({
             core,
             metadata: {
-                description: 'Trustee Wallet for Wallet Connect',
+                description: 'Trustee Wallet',
                 url: 'https://trustee.deals',
                 icons: ['https://trusteeglobal.com/wp-content/uploads/2023/03/icon_wallet.png'],
                 name: 'Trustee Wallet'
@@ -199,11 +199,16 @@ const walletConnectService = {
         })
 
         web3wallet.on('auth_request', async (payload) => {
-            // @todo
             if (config.debug.appErrors) {
                 console.log('WalletConnectService.on v2 auth_request', JSON.stringify(payload))
             }
             Log.log('WalletConnectService.on v2 auth_request', JSON.stringify(payload))
+            showModal({
+                type: 'INFO_MODAL',
+                icon: null,
+                title: strings('modal.exchange.sorry'),
+                description: `Method auth_request is not supported`
+            })
         })
 
         return web3wallet
@@ -242,15 +247,27 @@ const walletConnectService = {
         }
     },
 
-    approveRequest: async (walletConnector, walletConnectPayload, transactionHash) => {
+    approveRequest: async (walletConnector, payload, transactionHash) => {
         try {
-            console.log('WalletConnectService.approveRequest', walletConnectPayload, transactionHash)
-            await walletConnector.approveRequest({
-                id: walletConnectPayload.id,
-                result: transactionHash
-            })
+            Log.log('WalletConnectService.approveRequest v2 transactionHash ' + JSON.stringify(transactionHash), payload)
+            const res = {
+                topic: payload.topic,
+                response: {
+                    id: payload.id,
+                    jsonrpc: '2.0',
+                    result: transactionHash
+                }
+            }
+            if (walletConnector) {
+                await walletConnector.respondSessionRequest(res)
+            } else {
+                await web3wallet.respondSessionRequest(res)
+            }
         } catch (e) {
-            console.log('WalletConnectService.approveRequest error ' + e.message)
+            if (config.debug.appErrors) {
+                console.log('WalletConnectService.approveRequest v2 error ' + e.message)
+            }
+            Log.log('WalletConnectService.approveRequest v2 error ' + e.message)
         }
     },
 
