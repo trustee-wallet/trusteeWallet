@@ -505,6 +505,7 @@
       "self" : "Собі",
       "freeze" : "Заморожено",
       "unfreeze" : "Розморожено",
+      "withdraw_unfrozen": "Вивід розмороженого",
       "stake" : "Стейк",
       "vote": "Голосування",
       "wallet_connect" : "WalletConnect",

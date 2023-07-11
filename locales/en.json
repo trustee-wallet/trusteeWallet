@@ -504,6 +504,7 @@
       "income": "Income",
       "freeze" : "Freeze",
       "unfreeze" : "UnFreeze",
+      "withdraw_unfrozen": "Withdraw UnFrozen",
       "claim" : "Claim",
       "stake" : "Stake",
       "vote": "Vote",

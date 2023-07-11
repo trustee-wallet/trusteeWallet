@@ -503,6 +503,7 @@
       "self": "სელფი",
       "freeze": "გაყინვა",
       "unfreeze" : "UnFreeze",
+      "withdraw_unfrozen": "Withdraw UnFrozen",
       "stake" : "Stake",
       "vote": "Vote",
       "wallet_connect" : "WalletConnect",

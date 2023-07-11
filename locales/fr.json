@@ -503,6 +503,7 @@
       "income": "Revenu",
       "freeze": "Geler",
       "unfreeze": "Dégeler",
+      "withdraw": "Withdraw UnFrozen",
       "claim": "Réclamer",
       "stake": "Stake",
       "vote": "Vote",
