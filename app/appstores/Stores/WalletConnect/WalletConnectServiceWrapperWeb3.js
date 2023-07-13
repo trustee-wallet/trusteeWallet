@@ -43,6 +43,7 @@ export default (web3wallet) => {
                 Log.log(`web3wallet.engine.signClient.engine.disconnect error 3.1 ` + e.message)
             }
 
+            /*
             let resolvePromise
             const onDisconnectAck = (ack) => {
                 if (ack?.id.toString() === id) {
@@ -63,6 +64,7 @@ export default (web3wallet) => {
             } catch (e) {
                 Log.log(`web3wallet.engine.signClient.engine.disconnect error 3.2 ` + e.message)
             }
+            */
 
             try {
                 await web3wallet.engine.signClient.engine.sendRequest(

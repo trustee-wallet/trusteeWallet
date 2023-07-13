@@ -11,8 +11,9 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
-import walletConnectService from '@app/appstores/Stores/WalletConnect/WalletConnectService'
 import { NETWORKS_SETTINGS } from '@app/appstores/Stores/WalletConnect/settings'
+import walletConnectService from '@app/appstores/Stores/WalletConnect/WalletConnectService'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
 export function handleSessionProposalModal(walletConnector, data) {
@@ -40,6 +41,7 @@ export function handleSessionProposalModal(walletConnector, data) {
         }
     }, async () => {
         await walletConnectService.approveSession(walletConnector, data)
+        walletConnectActions.getAndSetWalletConnections(walletConnector)
     })
 }
 
