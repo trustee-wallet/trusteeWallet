@@ -166,6 +166,7 @@ const transactionActions = {
             case 'CANCELED_PAYIN':
                 return 'CANCELED'
             case 'FAIL':
+                return 'FAIL'
             case 'MISSING':
             case 'REPLACED':
                 return 'MISSING'
@@ -311,7 +312,7 @@ const transactionActions = {
             Log.log('ACT/Transaction preformat bad transactionFee ' + JSON.stringify(transaction.transactionFee))
             transaction.transactionFee = 0
             transaction.transactionFeePretty = 0
-        } else if (!transaction.transactionFee || transaction.transactionFee === 0) {
+        } else if (!transaction.transactionFee || transaction.transactionFee === 0 || transaction.transactionFee.toString().indexOf('null') === 0) {
             transaction.transactionFee = 0
             transaction.transactionFeePretty = 0
         } else {
@@ -331,6 +332,9 @@ const transactionActions = {
                     transaction.transactionFeePretty = res.cutted
                 }
             } catch (e) {
+                if (config.debug.appErrors) {
+                    console.log('TransactionActions transactionFeePretty error ' + e.message)
+                }
                 e.message += ' on transactionFeePretty with tx ' + JSON.stringify(transaction)
                 throw e
             }

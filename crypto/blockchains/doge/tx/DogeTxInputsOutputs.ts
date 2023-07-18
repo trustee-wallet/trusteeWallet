@@ -433,7 +433,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                     return {
                         inputs: [],
                         outputs: [],
-                        msg: subtitle + '  notEnough3Stop' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' ' + msg,
+                        msg: subtitle + '  notEnough3Stop ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' ' + msg,
                         // @ts-ignore
                         multiAddress,
                         countedFor: 'DOGE'

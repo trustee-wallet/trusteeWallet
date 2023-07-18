@@ -7,6 +7,7 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import Log from '@app/services/Log/Log'
 import { BlocksoftTransfer } from '@crypto/actions/BlocksoftTransfer/BlocksoftTransfer'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import config from '@app/config/config'
 
 const TronStakeUtils = {
 
@@ -15,49 +16,78 @@ const TronStakeUtils = {
     },
 
     async getPrettyBalance(address) {
-        const balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('TronStakeUtils'))
+        let balance = false
+        try {
+            balance = await (BlocksoftBalances.setCurrencyCode('TRX').setAddress(address).getBalance('TronStakeUtils'))
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('TronStakeUtils.getPrettyBalance getBalance ' + address + ' ' + e.message)
+            }
+            BlocksoftCryptoLog.log('TronStakeUtils.getPrettyBalance getBalance ' + address + ' ' + e.message)
+            throw e
+        }
         if (!balance) {
             return false
         }
-        balance.prettyBalanceAvailable = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balanceAvailable)
-        balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
-        balance.prettyFrozenOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOthers)
-        balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
-        balance.prettyFrozenEnergyOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergyOthers)
-        balance.prettyVote = (balance.prettyFrozen * 1 + balance.prettyFrozenOthers * 1 + balance.prettyFrozenEnergy * 1 + balance.prettyFrozenEnergyOthers * 1).toString().split('.')[0]
-        
-        const maxExpire = balance.frozenEnergyExpireTime && balance.frozenEnergyExpireTime > balance.frozenExpireTime ?
-            balance.frozenEnergyExpireTime : balance.frozenExpireTime
-        if (maxExpire > 0) {
-            balance.diffLastStakeMinutes = 24 * 3 * 60 - (maxExpire - new Date().getTime()) / 60000 // default time = 3 days, so thats how many minutes from last stake
-        } else {
-            balance.diffLastStakeMinutes = -1
+
+        try {
+            balance.prettyBalanceAvailable = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.balanceAvailable)
+            balance.prettyFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozen)
+            balance.prettyFrozenOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOthers)
+            balance.prettyFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergy)
+            balance.prettyFrozenEnergyOthers = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenEnergyOthers)
+            balance.prettyFrozenOld = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOld)
+            balance.prettyFrozenOldEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance.frozenOldEnergy)
+            balance.prettyVote = ( balance.prettyFrozenOld * 1 + balance.prettyFrozenOldEnergy * 1 + balance.prettyFrozen * 1 + balance.prettyFrozenOthers * 1 + balance.prettyFrozenEnergy * 1 + balance.prettyFrozenEnergyOthers * 1).toString().split('.')[0]
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('TronStakeUtils.getPrettyBalance makePretty1 ' + address + ' ' + e.message)
+            }
+            BlocksoftCryptoLog.log('TronStakeUtils.getPrettyBalance makePretty1 ' + address + ' ' + e.message)
+            throw e
         }
+
+        try {
+            balance.prettyUnFrozen = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance?.unfrozen)
+            balance.prettyUnFrozenEnergy = BlocksoftPrettyNumbers.setCurrencyCode('TRX').makePretty(balance?.unfrozenEnergy)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('TronStakeUtils.getPrettyBalance makePretty2 ' + address + ' ' + e.message)
+            }
+            BlocksoftCryptoLog.log('TronStakeUtils.getPrettyBalance makePretty2 ' + address + ' ' + e.message)
+            throw e
+        }
+
+        const latestOperation = balance.latestOperation
+        const now = new Date().getTime()
+        balance.diffLastStakeMinutes = (now - latestOperation) / 60000
         return balance
     },
 
-    async sendVoteAll(address, derivationPath, walletHash, specialActionNeeded) {
+    async sendVoteAll(address, derivationPath, walletHash, specialActionNeeded, confirmations) {
 
         const { prettyVote, diffLastStakeMinutes, voteTotal } = await TronStakeUtils.getPrettyBalance(address)
-        if (diffLastStakeMinutes === -1 && specialActionNeeded === 'vote_after_unfreeze') {
-            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' continue ' + diffLastStakeMinutes)
-        } else if (!diffLastStakeMinutes || diffLastStakeMinutes < 3) {
-            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote1 by ' + diffLastStakeMinutes)
-            return false
+        if (confirmations < 100) {
+            if (diffLastStakeMinutes === -1 && specialActionNeeded === 'vote_after_unfreeze') {
+                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' continue confirmations ' + confirmations + ' by ' + diffLastStakeMinutes)
+            } else if (!diffLastStakeMinutes || diffLastStakeMinutes < 3) {
+                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote1 confirmations ' + confirmations + ' by ' + diffLastStakeMinutes)
+                return false
+            }
         }
         if (!prettyVote || typeof prettyVote === 'undefined') {
-            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote2')
+            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote2 confirmations ' + confirmations)
             return false
         } else if (voteTotal * 1 === prettyVote * 1) {
             if (diffLastStakeMinutes > 100) {
-                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote3 ' + voteTotal + ' by ' + diffLastStakeMinutes)
+                BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote3 confirmations ' + confirmations + ' votes ' + voteTotal + ' by ' + diffLastStakeMinutes)
                 return true // all done
             }
-            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote4 ' + voteTotal)
+            BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' skipped vote4 confirmations ' + confirmations + ' votes ' + voteTotal)
             return false
         }
 
-        BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' started vote ' + prettyVote + ' by ' + diffLastStakeMinutes)
+        BlocksoftCryptoLog.log('TronStake.sendVoteAll ' + address + ' started vote confirmations ' + confirmations + '  votes ' + prettyVote + ' by ' + diffLastStakeMinutes)
 
         const voteAddress = await TronStakeUtils.getVoteAddresses()
         return TronStakeUtils._send('/wallet/votewitnessaccount', {

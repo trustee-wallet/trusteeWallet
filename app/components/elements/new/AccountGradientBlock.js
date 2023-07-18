@@ -1,5 +1,5 @@
 /**
- * @version 0.52
+ * @version 0.53
  * @author yura
  */
 import React from 'react'
@@ -25,6 +25,7 @@ class AccountGradientBlock extends React.PureComponent {
     }
 
     processViewHeight = (e) => {
+        if (this.props.height) return
         const height = e.nativeEvent.layout.height
         CACHE_HEIGHT = height > 0 ? height : CACHE_HEIGHT
         this.setState({
@@ -39,9 +40,9 @@ class AccountGradientBlock extends React.PureComponent {
         } = this.context
 
         return (
-            <View style={[styles.container, { height: CACHE_HEIGHT + GRID_SIZE * 2 + 30 }]}>
+            <View style={[styles.container, { height: (this.props.height || CACHE_HEIGHT) + GRID_SIZE * 2 + 30 }]}>
                 <GradientView
-                    style={[styles.bg, { padding: GRID_SIZE, minHeight: CACHE_HEIGHT + 10 }]}
+                    style={[styles.bg, { padding: GRID_SIZE, minHeight: (this.props.height || CACHE_HEIGHT) + 10 }]}
                     array={colors.accountScreen.containerBG}
                     start={styles.containerBG.start}
                     end={styles.containerBG.end}
@@ -50,7 +51,7 @@ class AccountGradientBlock extends React.PureComponent {
                         {this.props.children}
                     </View>
                 </GradientView>
-                <View style={[styles.containerShadow, { height: CACHE_HEIGHT + GRID_SIZE * 1.35 }]}>
+                <View style={[styles.containerShadow, { height: (this.props.height || CACHE_HEIGHT) + GRID_SIZE * 1.35 }]}>
                     <View style={[styles.shadow, { backgroundColor: colors.accountScreen.headBlockBackground }]} />
                 </View>
             </View>

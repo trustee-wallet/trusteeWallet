@@ -101,6 +101,15 @@ export default class TrxScannerProcessor {
             }
         }
         result.balanceStaked = typeof result.frozen !== 'undefined' ? (result.frozen * 1 + result.frozenEnergy * 1) : 0
+        if (typeof result.unfrozen !== 'undefined') {
+            result.balanceStaked += result.unfrozen * 1 + result.unfrozenEnergy * 1
+        }
+        if (typeof result.frozenOld !== 'undefined') {
+            result.balanceStaked += result.frozenOld * 1 + result.frozenOldEnergy * 1
+        }
+        if (typeof result.frozenOthers !== 'undefined') {
+            result.balanceStaked += result.frozenOthers * 1 + result.frozenEnergyOthers * 1
+        }
         result.balanceAvailable = result.balance
         if (result.balanceStaked * 1 > 0) {
             result.balance = result.balance * 1 + result.balanceStaked * 1
@@ -245,7 +254,7 @@ export default class TrxScannerProcessor {
 
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxScannerProcessor.getTransactionsPendingBlockchain vote all inited for ' + address + ' action ' + specialActionNeeded)
                 try {
-                    if (await TronStakeUtils.sendVoteAll(address, derivationPath, walletHash, specialActionNeeded)) {
+                    if (await TronStakeUtils.sendVoteAll(address, derivationPath, walletHash, specialActionNeeded, confirmations)) {
                         await Database.query(`
                     UPDATE transactions SET special_action_needed='' WHERE special_action_needed='vote' OR special_action_needed='vote_after_unfreeze'
                     AND address_from_basic='${address}'

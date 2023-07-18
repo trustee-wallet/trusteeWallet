@@ -10,9 +10,11 @@ export const Web3Injected = (type) => {
     let WEB3_LINK = `https://mainnet.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
     let MAIN_CURRENCY_CODE = 'ETH'
     let MAIN_CHAIN_ID = 1
+    let SEND_RAW_LINK = false
     if (!type || type === 0 || type === 1 || type === 'ethereum' || type === 'ETH' || type === 'mainnet') {
         MAIN_CURRENCY_CODE = 'ETH'
         MAIN_CHAIN_ID = 1
+        SEND_RAW_LINK = BlocksoftExternalSettings.getStatic('ETH_SEND_RAW_SERVER')
     } else if (type === 10001 || type === 'eth_pow'  || type === 'ETH_POW' || type === 'ETHW' || type === 'ethw') {
         MAIN_CURRENCY_CODE = 'ETH_POW'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('ETH_POW_SERVER')
@@ -29,6 +31,7 @@ export const Web3Injected = (type) => {
         MAIN_CURRENCY_CODE = 'BNB_SMART'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
         MAIN_CHAIN_ID = 56
+        SEND_RAW_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SEND_RAW_SERVER')
     } else if (type === 1088 || type === 'METIS') {
         MAIN_CURRENCY_CODE = 'METIS'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('METIS_SERVER')
@@ -81,6 +84,7 @@ export const Web3Injected = (type) => {
     WEB3.MAIN_CURRENCY_CODE = MAIN_CURRENCY_CODE
     WEB3.LINK = WEB3_LINK
     WEB3.MAIN_CHAIN_ID = MAIN_CHAIN_ID
+    WEB3.SEND_RAW_LINK = SEND_RAW_LINK && SEND_RAW_LINK !== 'none' ? SEND_RAW_LINK : WEB3_LINK
     CACHE_WEB3[WEB3_LINK] = WEB3
 
     return WEB3

@@ -45,17 +45,25 @@ export default class EthScannerProcessorErc20 extends EthScannerProcessor {
             let time = 0
 
             if (this._trezorServerCode) {
-                const res = await this._get(address)
-                if (!res || typeof res.data === 'undefined') return false
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance loaded from ' + res.provider + ' ' + res.time)
-                const data = res.data
-
-                if (data && this._tokenAddress && typeof data.formattedTokens[this._tokenAddress] !== 'undefined' && typeof typeof data.formattedTokens[this._tokenAddress].balance !== 'undefined') {
-                    balance = data.formattedTokens[this._tokenAddress].balance
-                    if (balance === []) return false
-                    provider = res.provider
-                    time = res.time
-                    return { balance, unconfirmed: 0, provider, time, balanceScanBlock: res.data.nonce }
+                try {
+                    const res = await this._get(address)
+                    if (!res || typeof res.data === 'undefined') {
+                        throw new Error('no res')
+                    }
+                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance loaded from ' + res.provider + ' ' + res.time)
+                    const data = res.data
+                    if (data && this._tokenAddress && typeof data.formattedTokens[this._tokenAddress] !== 'undefined' && typeof typeof data.formattedTokens[this._tokenAddress].balance !== 'undefined') {
+                        balance = data.formattedTokens[this._tokenAddress].balance
+                        if (balance === []) return false
+                        provider = res.provider
+                        time = res.time
+                        return { balance, unconfirmed: 0, provider, time, balanceScanBlock: res.data.nonce }
+                    }
+                } catch (e1) {
+                    if (config.debug.appErrors) {
+                        console.log( this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance ' + address + ' error1 ' + e1.message)
+                    }
+                    BlocksoftCryptoLog.log( this._settings.currencyCode + ' EthScannerProcessorErc20.getBalance ' + address + ' error1 ' + e1.message)
                 }
             }
             balance = await this._token.methods.balanceOf(address).call()

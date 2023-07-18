@@ -131,14 +131,16 @@ export default class BnbTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
             if (typeof result[0] === 'undefined' || typeof result[0].hash === 'undefined' || typeof result[0].ok === 'undefined' || !result[0].ok || !result[0].hash) {
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' BnbTransferProcessor.sendTx result', result)
-                MarketingEvent.logOnlyRealTime('v20_bnb_no_result ' + data.addressFrom + ' => ' + data.addressTo, {
+                MarketingEvent.logOnlyRealTime('v30_bnb_no_result', {
+                    title : data.addressFrom + ' => ' + data.addressTo,
                     result,
                     raw
                 })
                 throw new Error('SERVER_RESPONSE_NO_RESPONSE')
             }
 
-            MarketingEvent.logOnlyRealTime('v20_bnb_success_result ' + data.addressFrom + ' => ' + data.addressTo + ' ' + result[0].hash, {
+            MarketingEvent.logOnlyRealTime('v30_bnb_success_result', {
+                title: data.addressFrom + ' => ' + data.addressTo,
                 result
             })
             return { transactionHash: result[0].hash }

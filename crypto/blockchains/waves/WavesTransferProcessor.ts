@@ -152,7 +152,10 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
         if (e.message.indexOf('waves balance to (at least) temporary negative state') !== -1) {
             throw new Error('SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE')
         } else {
-            MarketingEvent.logOnlyRealTime('v20_' + this._settings.currencyCode + '_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, false)
+            MarketingEvent.logOnlyRealTime('v30_' + this._settings.currencyCode + '_tx_error_' + this._settings.currencyCode, {
+                title: data.addressFrom + ' => ' + data.addressTo,
+                error: e.message
+            })
             throw e
         }
     }

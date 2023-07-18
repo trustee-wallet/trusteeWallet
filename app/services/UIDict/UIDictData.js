@@ -602,6 +602,12 @@ export default {
             darkColor: '#E51A31'
         }
     },
+    "BNB_SMART_TRX_NEW": {
+        colors: {
+            mainColor: '#E51A31',
+            darkColor: '#E51A31'
+        }
+    },
     "BNB_SMART_BTT": {
         colors: {
             mainColor: '#D73A64',
@@ -657,6 +663,12 @@ export default {
         }
     },
     'ETH_TRX': {
+        colors: {
+            mainColor: '#E51A31',
+            darkColor: '#E51A31'
+        }
+    },
+    'ETH_TRX_NEW': {
         colors: {
             mainColor: '#E51A31',
             darkColor: '#E51A31'
@@ -1140,6 +1152,24 @@ export default {
         colors: {
             mainColor: '#1EC0FF',
             darkColor: '#14B5DE'
+        }
+    },
+    'ETH_POW': {
+        colors: {
+            mainColor: '#6C86DC',
+            darkColor: '#6C86DC'
+        }
+    },
+    'ETH_UAHG': {
+        colors: {
+            mainColor: '#3171EF',
+            darkColor: '#80AAFF'
+        }
+    },
+    'BNB_SMART_UAHG': {
+        colors: {
+            mainColor: '#1EC0FF',
+            darkColor: '#80AAFF'
         }
     },
     'CUSTOM_ABYSS': {

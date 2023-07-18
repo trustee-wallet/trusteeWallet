@@ -228,8 +228,10 @@
       "available": "Disponible",
       "availableSOL": "Solde disponible",
       "frozenTRX": "Gelé",
+      "unfrozenTRX": "UnFrozen",
       "frozenBalanceTRX": " Bande passante: %{prettyFrozen} TRX / Énergie %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "entrer le montant des TRX gelés",
+      "enterToUnfreezeTRX" : "entrez le montant de dégel TRX",
       "freezeForBandTRX": "Geler pour BAND",
       "freezeForEnergyTRX": "Geler pour ENERGIE",
       "unfreezeTRX": "Dégeler",
@@ -241,7 +243,7 @@
       "claimTRX": "Réclamation de la récompense",
       "refreshTRX": "Réactualiser",
       "waitToClaimTRX": "La dernière réclamation a été effectuée il y a moins de 24 heures",
-      "waitToUnfreezeTRX": "Aux termes du protocole Tron, le dégivrage est possible après 72 heures à compter du dernier gelage",
+      "waitToUnfreezeTRX": "Aux termes du protocole Tron, le dégivrage est possible après %{TRX_STAKE_DAYS} jours à compter du dernier gelage",
       "minimalFreezeBalanceTRX": "Pour la congélation, utilisez plus de 1 TRX",
       "allowLongQueryETH": "Autoriser la file d'attente des transactions en attente",
       "allowBlockedBalanceETH": "Autoriser la réutilisation du solde des transactions en attente",
@@ -263,8 +265,11 @@
       "rewards": "Récompenses",
       "useCustomValidator": "Utiliser ce validateur",
       "successUnfreeze": "TRX dégelé",
+      "successUnfreezeV2": "Le TRX pourra être retiré après la période de retrait de %{TRX_STAKE_DAYS} jours",
       "successFreeze": "TRX gelé pour le staking",
       "successReward": "Récompense de staking TRX reçue",
+      "successVote": "Vous avez voté avec succès",
+      "successWithdraw": "TRX reçu",
       "noVoted": "l vous reste un steak sans vote. Cliquez sur «Voter» pour terminer la procédure de gel",
       "withdrawTRX": "Retirer",
       "freezeTrx": "Geler"
@@ -453,9 +458,14 @@
     "showMore": "Montrer les détails",
     "assetSettings": "Paramètres des actifs",
     "stakingTRX": {
-      "bandwidthInfo": "Gelez votre TRX pour la bande passante - cela vous permettra de recevoir des récompenses de staking et d'envoyer des TRX gratuits sans frais de réseau. ",
-      "energyInfo": "Gelez votre TRX pour l'énergie - cela vous permettra de recevoir des récompenses de staking et d'envoyer des tokens TRC20 sans frais de réseau.",
-      "moreInfo": "Plus de détails..."
+      "BANDWIDTH": "Désengager la bande passante",
+      "ENERGY": "Débloquer l'énergie",
+      "bandwidthInfo": "Gelez votre TRX pour la bande passante - cela vous permettra de recevoir des récompenses de staking et d'envoyer des TRX gratuits sans frais de réseau. La période de retrait est de %{TRX_STAKE_DAYS} jours. ",
+      "energyInfo": "Gelez votre TRX pour l'énergie - cela vous permettra de recevoir des récompenses de staking et d'envoyer des tokens TRC20 sans frais de réseau. La période de retrait est de %{TRX_STAKE_DAYS} jours. ",
+      "moreInfo": "Plus de détails...",
+      "withdraw": "Retirer",
+      "inUnstakingProcess": "En cours de désimplantation: ",
+      "willAvailable": "sera disponible à"
     },
     "stakingSOL": {
       "stake": "Gelez votre SOL pour recevoir des récompenses de staking."
@@ -555,7 +565,7 @@
       "process": "En cours",
       "delegated": "délégué",
       "confirming": "Confirmation",
-      "fail": "Échouer",
+      "fail": "Sans succès",
       "missing": "Pas trouvé",
       "replaced": "Remplacé",
       "out_of_energy": "Pas d'Energie",
@@ -598,6 +608,7 @@
           "success": "Réussi",
           "pending": "En attente",
           "canceled": "Annulé",
+          "fail": "Sans succès",
           "missing": "Pas trouvé",
           "out_of_energy": "Pas d'énergie"
         }
@@ -732,7 +743,7 @@
     "useAllFunds": "Utiliser tous les fonds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "Vous n'avez pas assez de fonds pour envoyer",
-    "addressError": "L'adresse du destinataire est incorrecte, veuillez la vérifier",
+    "addressError": "L'adresse du destinataire est incorrecte. Veuillez contacter le destinataire pour obtenir l'adresse correcte.",
     "memoError": "%{name} est incorrecte, veuillez la vérifier",
     "notValidAmount": "S'il vous plaît, entrez le montant",
     "notValidAmountInFiat": "S'il vous plaît, entrez un plus grand montant ou changez en entrée crypto",

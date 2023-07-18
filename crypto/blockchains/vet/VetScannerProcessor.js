@@ -125,13 +125,13 @@ export default class VetScannerProcessor {
                 },
                 'criteriaSet': [
                     {
-                        address : '0x0000000000000000000000000000456e65726779',
+                        address: '0x0000000000000000000000000000456e65726779',
                         Topic1: tokenHex
                     },
                     {
-                        address : '0x0000000000000000000000000000456e65726779',
+                        address: '0x0000000000000000000000000000456e65726779',
                         Topic2: tokenHex
-                    },
+                    }
                 ],
                 'order': 'desc'
             })
@@ -140,7 +140,19 @@ export default class VetScannerProcessor {
             BlocksoftCryptoLog.log('VetScannerProcessor.getTransactions finished ' + tokenHex)
             return transactions
         }
+    }
 
+    async _reloadLastBlock() {
+        try {
+            const link = API_PATH + '/blocks/best'
+            const result = await BlocksoftAxios.get(link)
+            if (!result.data || typeof result.data.number === 'undefined') {
+                return false
+            }
+            this._lastBlock = result.data.number
+        } catch (e) {
+            BlocksoftCryptoLog.log('VetScannerProcessor._reloadLastBlock error ' + e.message)
+        }
     }
 
     async _unifyTransactions(address, result) {
@@ -190,12 +202,12 @@ export default class VetScannerProcessor {
             throw e
         }
         const now = new Date().getTime()
-        const diffSeconds = Math.round((now - transaction.meta.blockTimestamp) / 1000)
+        const current = new Date(formattedTime).getTime()
+        const diffSeconds = Math.round((now - current) / 1000)
         let blockConfirmations = this._lastBlock - transaction.meta.blockNumber
-        if (blockConfirmations > 100 && diffSeconds < 600) {
-            blockConfirmations = diffSeconds
-        } else if (blockConfirmations < 0) {
-            blockConfirmations = diffSeconds > 60 ? 2 : 0
+        if (diffSeconds > 60 && blockConfirmations < 0) {
+            await this._reloadLastBlock()
+            blockConfirmations = this._lastBlock - transaction.meta.blockNumber
         }
         const tx = {
             transactionHash: transaction.meta.txID,
@@ -240,8 +252,13 @@ export default class VetScannerProcessor {
             throw e
         }
         const now = new Date().getTime()
-        const diffSeconds = Math.round((now - transaction.meta.blockTimestamp) / 1000)
+        const current = new Date(formattedTime).getTime()
+        const diffSeconds = Math.round((now - current) / 1000)
         let blockConfirmations = this._lastBlock - transaction.meta.blockNumber
+        if (diffSeconds > 60 && blockConfirmations < 0) {
+            await this._reloadLastBlock()
+            blockConfirmations = this._lastBlock - transaction.meta.blockNumber
+        }
         if (blockConfirmations > 100 && diffSeconds < 600) {
             blockConfirmations = diffSeconds
         } else if (blockConfirmations < 0) {
@@ -255,11 +272,11 @@ export default class VetScannerProcessor {
             blockNumber: transaction.meta.blockNumber,
             blockTime: formattedTime,
             blockConfirmations,
-            transactionDirection : addressFrom === address.toLowerCase() ? 'outcome' : 'income' ,
+            transactionDirection: addressFrom === address.toLowerCase() ? 'outcome' : 'income',
             addressFrom: addressFrom === address.toLowerCase() ? '' : addressFrom,
             addressTo: addressTo === address.toLowerCase() ? '' : addressTo,
             addressAmount: amount,
-            transactionStatus: blockConfirmations > 20 ? 'success' : 'new',
+            transactionStatus: blockConfirmations > 12 ? 'success' : 'new',
             transactionFee: '0'
         }
         return tx

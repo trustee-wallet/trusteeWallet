@@ -229,8 +229,10 @@
       "available" : "Available",
       "availableSOL": "Available balance",
       "frozenTRX" : "Frozen",
+      "unfrozenTRX" : "UnFrozen",
       "frozenBalanceTRX" : "Bandwidth: %{prettyFrozen} TRX / Energy %{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX" : "enter freeze amount TRX",
+      "enterToUnfreezeTRX" : "enter unfreeze amount TRX",
       "freezeForBandTRX" : "Freeze for BAND",
       "freezeForEnergyTRX" : "Freeze for ENERGY",
       "unfreezeTRX" : "Unfreeze",
@@ -242,7 +244,7 @@
       "claimTRX" : "Claim Reward",
       "refreshTRX" : "Reload",
       "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
-      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 72 hours from the moment of the last freezing",
+      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after %{TRX_STAKE_DAYS} days from the moment of the last freezing",
       "minimalFreezeBalanceTRX" : "For freezing use more than 1 TRX",
       "allowLongQueryETH" : "Allow pending transactions queue",
       "allowBlockedBalanceETH" : "Allow reuse of pending transactions balance",
@@ -264,8 +266,11 @@
       "rewards" : "Rewards",
       "useCustomValidator": "Use this validator ",
       "successUnfreeze": "TRX unfrozen",
+      "successUnfreezeV2": "The TRX will be able to be withdrawn after the %{TRX_STAKE_DAYS}-day unstaking period",
       "successFreeze": "TRX frozen for staking",
       "successReward": "TRX staking reward received",
+      "successVote": "You have successfully voted",
+      "successWithdraw": "TRX received",
       "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
       "withdrawTRX": "Withdraw",
       "freezeTrx": "Freeze"
@@ -454,9 +459,14 @@
     "showMore": "Show more",
     "assetSettings": "Asset settings",
     "stakingTRX": {
-      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
-      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
-      "moreInfo": "More details..."
+      "BANDWIDTH": "Unstake Bandwidth",
+      "ENERGY": "Unstake Energy",
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. Unstaking period is %{TRX_STAKE_DAYS} days. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. Unstaking period is %{TRX_STAKE_DAYS} days. ",
+      "moreInfo": "More details...",
+      "withdraw": "Withdraw",
+      "inUnstakingProcess": "In unstaking process: ",
+      "willAvailable": "will available at"
     },
     "stakingSOL": {
       "stake": "Freeze your SOL to receive staking rewards. "
@@ -599,6 +609,7 @@
           "success": "Success",
           "pending": "Pending",
           "canceled": "Canceled",
+          "fail": "Fail",
           "missing": "Not found",
           "out_of_energy" : "No energy"
         }
@@ -733,7 +744,7 @@
     "useAllFunds": "Use all funds",
     "equivalent": "Equivalent: ~ %{amount} %{symbol}",
     "notEnough": "You don't have enough funds to send",
-    "addressError": "The recipient’s address is incorrect, please, check it",
+    "addressError": "The recipient’s address is incorrect. Please contact the receiving party for the correct address.",
     "memoError": "%{name} is incorrect, please, check it",
     "notValidAmount": "Please, input amount",
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",

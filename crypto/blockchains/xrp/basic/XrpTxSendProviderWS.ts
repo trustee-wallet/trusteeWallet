@@ -14,12 +14,10 @@ import { XrpTxUtils } from './XrpTxUtils'
 
 import MarketingEvent from '../../../../app/services/Marketing/MarketingEvent'
 import config from '../../../../app/config/config'
-import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 
-const PROXY_PREP = 'https://proxy.trustee.deals/xrp/getPrep'
-const PROXY_SEND = 'https://proxy.trustee.deals/xrp/sendTx'
 const RippleAPI = require('ripple-lib').RippleAPI
-export class XrpTxSendProvider {
+
+export class XrpTxSendProviderWS {
 
     private readonly _api: typeof RippleAPI
 
@@ -58,6 +56,7 @@ export class XrpTxSendProvider {
             throw new Error('SERVER_RESPONSE_SELF_TX_FORBIDDEN')
         }
 
+        // https://xrpl.org/rippleapi-reference.html#payment
         try {
             if (typeof data.memo !== 'undefined' && data.memo && data.memo.toString().trim().length > 0) {
                 // @ts-ignore
@@ -78,21 +77,35 @@ export class XrpTxSendProvider {
         // @ts-ignore
         BlocksoftCryptoLog.log('XrpTransferProcessor._getPrepared payment', payment)
 
-        let res = false
-        try {
-            res = await BlocksoftAxios.post(PROXY_PREP, { data, payment })
-            if (typeof res.data === 'undefined') {
-                throw new Error('no data')
-            }
-            if (typeof res.data.msg !== 'undefined') {
-                throw new Error('XRP prep error ' + res.data.msg)
-            }
-            return res.data.res
-        } catch (e) {
-            BlocksoftCryptoLog.log('XrpTxSendProvider._getPrepared error ' + e.toString())
-            throw e
-        }
-        return false
+        const api = this._api
+
+        return new Promise((resolve, reject) => {
+            api.connect().then(() => {
+                api.preparePayment(data.addressFrom, payment).then((prepared: { txJSON: any }) => {
+                    // https://xrpl.org/rippleapi-reference.html#preparepayment
+                    if (typeof prepared.txJSON === 'undefined') {
+                        reject(new Error('No txJSON inside ripple response ' + JSON.stringify(prepared)))
+                    }
+                    const txJson = prepared.txJSON
+                    BlocksoftCryptoLog.log('XrpTxSendProvider._getPrepared prepared', txJson)
+                    resolve(toObject ? JSON.parse(txJson) : txJson)
+                }).catch((error: { toString: () => string }) => {
+                    MarketingEvent.logOnlyRealTime('v30_rippled_prepare_error ' + data.addressFrom + ' => ' + data.addressTo, {
+                        payment,
+                        msg: error.toString()
+                    })
+                    BlocksoftCryptoLog.log('XrpTxSendProvider._getPrepared error ' + error.toString())
+                    reject(error)
+                })
+            }).catch((error: { toString: () => string }) => {
+                MarketingEvent.logOnlyRealTime('v30_rippled_prepare_no_connection ' + data.addressFrom + ' => ' + data.addressTo, {
+                    payment,
+                    msg: error.toString()
+                })
+                BlocksoftCryptoLog.log('XrpTxSendProvider._getPrepared connect error ' + error.toString())
+                reject(error)
+            })
+        })
     }
 
     signTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txJson: any): Promise<string> {
@@ -101,12 +114,8 @@ export class XrpTxSendProvider {
             privateKey: privateData.privateKey,
             publicKey: data.accountJson.publicKey.toUpperCase()
         }
-        try {
-            const signed = api.sign(JSON.stringify(txJson), keypair)
-            return signed.signedTransaction
-        } catch (e) {
-            throw new Error(e.message + ' while signTx')
-        }
+        const signed = api.sign(txJson, keypair)
+        return signed.signedTransaction
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txJson: any): Promise<{
@@ -117,25 +126,45 @@ export class XrpTxSendProvider {
             hash: string
         }
     }> {
+        const api = this._api
         let result
         try {
             const signed = this.signTx(data, privateData, txJson)
             BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx signed', signed)
-
-            const res= await BlocksoftAxios.post(PROXY_SEND, { data, signed})
-            if (typeof res.data === 'undefined') {
-                throw new Error('no data')
-            }
-            if (typeof res.data.msg !== 'undefined') {
-                throw new Error('XRP SEND error ' + res.data.msg)
-            }
-            result = res.data.res
+            result = await new Promise((resolve, reject) => {
+                api.connect().then(() => {
+                    // https://xrpl.org/rippleapi-reference.html#submit
+                    api.submit(signed).then((result: {
+                        resultCode: '',
+                        resultMessage: ''
+                    }) => {
+                        MarketingEvent.logOnlyRealTime('v30_rippled_success ' + data.addressFrom + ' => ' + data.addressTo, {
+                            txJson,
+                            result
+                        })
+                        resolve(result)
+                    }).catch((error: { toString: () => string }) => {
+                        MarketingEvent.logOnlyRealTime('v30_rippled_send_error ' + data.addressFrom + ' => ' + data.addressTo, {
+                            txJson,
+                            msg: error.toString()
+                        })
+                        BlocksoftCryptoLog.log('XrpTransferProcessor.submit error ' + error.toString())
+                        reject(error)
+                    })
+                }).catch((error: { toString: () => string }) => {
+                    MarketingEvent.logOnlyRealTime('v30_rippled_send_no_connection ' + data.addressFrom + ' => ' + data.addressTo, {
+                        txJson,
+                        msg: error.toString()
+                    })
+                    BlocksoftCryptoLog.log('XrpTransferProcessor.sendTx connect error ' + error.toString())
+                    reject(error)
+                })
+            })
         } catch (e) {
             if (config.debug.cryptoErrors) {
                 console.log('XrpTransferProcessor.sendTx error ', e)
             }
-            MarketingEvent.logOnlyRealTime('v30_rippled_send2_error', {
-                title: data.addressFrom + ' => ' + data.addressTo,
+            MarketingEvent.logOnlyRealTime('v30_rippled_send2_error ' + data.addressFrom + ' => ' + data.addressTo, {
                 txJson,
                 msg: e.toString()
             })

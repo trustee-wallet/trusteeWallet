@@ -16,7 +16,7 @@ stages:
 
 include:
   - project: 'Trustee/walletinternals'
-    ref: master
+    ref: refactor2
     file: '/gitlabcicd/wallet-gitlab-ci.yml'
 #  - project: 'Trustee/walletinternals'
 #    ref: master

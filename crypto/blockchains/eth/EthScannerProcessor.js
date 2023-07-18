@@ -484,7 +484,15 @@ export default class EthScannerProcessor extends EthBasic {
                 let found = false
                 amount = new BlocksoftBN(0)
                 for (tmp of transaction.tokenTransfers) {
-                    if (tmp.token.toLowerCase() === this._tokenAddress.toLowerCase()) {
+                    try {
+                        let token = typeof tmp.token !== 'undefined' ? tmp.token : tmp.contract
+                        if (token) {
+                            token = token.toLowerCase()
+                        }
+                        if (token !== this._tokenAddress.toLowerCase()) {
+                            continue
+                        }
+
                         tmp.from = tmp.from.toLowerCase()
                         tmp.to = tmp.to.toLowerCase()
                         if (tmp.to !== address && tmp.from !== address) {
@@ -504,6 +512,12 @@ export default class EthScannerProcessor extends EthBasic {
                             }
                         }
                         found = true
+
+                    } catch (e) {
+                        if (config.debug.cryptoErrors) {
+                            console.log(this._settings.currencyCode + ' EthScannerProcessor._unifyTransactionTrezor ' + e.message + ' while tokenTransfers ', tmp)
+                        }
+                        throw new Error(e.message + ' while tokenTransfers check')
                     }
                 }
                 amount = amount.get()

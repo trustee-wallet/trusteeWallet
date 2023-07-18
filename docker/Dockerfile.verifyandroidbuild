@@ -1,11 +1,15 @@
 FROM trusteewallet/androidprebuild
 
 ARG BUILD_NUMBER=1
-ARG COMMIT_SHA=12345678
+ARG COMMIT_SHA=NO_SHA_1
+ARG REPOSITORY_BRANCH=master
+ARG REPOSITORY_URL="https://github.com/trustee-wallet/trusteeWallet.git"
+
+ADD . ./src
 
 RUN cd ./src && \
-    git clone https://github.com/trustee-wallet/trusteeWallet.git . && \
-    sed -i "s/android.builder.sdkDownload=true/android.builder.sdkDownload=false/g" ./android/gradle.properties && \
+#    git clone -b $REPOSITORY_BRANCH $REPOSITORY_URL . && git status && git remote get-url origin && \
+#    sed -i "s/android.builder.sdkDownload=true/android.builder.sdkDownload=false/g" ./android/gradle.properties && \
     sed -i "s/versionCode 1/versionCode $BUILD_NUMBER/g" ./android/app/build.gradle && \
     sed -i "s/VERSION_CODE_PLACEHOLDER/$BUILD_NUMBER/g" ./app/config/config.js && \
     sed -i "s/COMMIT_SHORT_SHA_PLACEHOLDER/$COMMIT_SHA/g" ./app/config/config.js && \
@@ -25,21 +29,27 @@ RUN cd ./src/android && \
     echo sdk.dir=/${WDIR}/androidsdk/ >> ./local.properties && \
     echo ndk.dir=/${WDIR}/androidsdk/ndk/21.4.7075529 >> ./local.properties
 
-RUN cd ./npm && tar -xf node_modules.tar.gz && \
-    mv --force -v ./${WDIR}/src/node_modules ../src/ && \
-    rm -f ./node_modules.tar.gz
+RUN cd ./src && yarn install --no-progress --frozen-lockfile
 
-RUN cd ./src/android && printenv && ./gradlew --parallel bundleRelease
+RUN echo " " | sudo tee -a /${WDIR}/src/android/app/build.gradle && \
+    echo 'configurations.all { resolutionStrategy { force "com.facebook.soloader:soloader:0.8.0" } }' | sudo tee -a /${WDIR}/src/android/app/build.gradle && \
+    cat /${WDIR}/src/android/app/build.gradle
 
-RUN gplaycli -av -p -y -v -d com.trusteewallet && \
-    ls -la com.trusteewallet*apk && \
-    sha256sum com.trusteewallet*apk && \
-    apktool d -o fromGoogle com.trusteewallet*apk && \
-    ls fromGoogle/lib/
+RUN cd ./src/android && ./gradlew --console=plain --parallel bundleRelease
 
-RUN java -jar bundletool.jar build-apks --mode=universal --bundle=./src/android/app/build/outputs/bundle/release/app.aab --output-format=directory --output=./built_apk && \
-    sha256sum ./built_apk/universal.apk && \
-    apktool d -o fromBuild ./built_apk/universal.apk && \
-    ls fromBuild/lib/
+RUN java -jar bundletool.jar build-apks --mode=universal --bundle=./src/android/app/build/outputs/bundle/release/app-release.aab --output-format=directory --output=./built_apk
 
-RUN diff --recursive --brief fromBuild fromGoogle
+RUN sdkmanager --list_installed
+
+#RUN gplaycli -av -p -y -v -d com.trusteewallet && \
+#    ls -la com.trusteewallet*apk && \
+#    sha256sum com.trusteewallet*apk && \
+#    apktool d -o fromGoogle com.trusteewallet*apk && \
+#    ls fromGoogle/lib/
+
+#RUN java -jar bundletool.jar build-apks --mode=universal --bundle=./src/android/app/build/outputs/bundle/release/app.aab --output-format=directory --output=./built_apk && \
+#    sha256sum ./built_apk/universal.apk && \
+#    apktool d -o fromBuild ./built_apk/universal.apk && \
+#    ls fromBuild/lib/
+
+#RUN diff --recursive --brief fromBuild fromGoogle

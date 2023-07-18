@@ -22,7 +22,7 @@ import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 
 const networksConstants = require('../../common/ext/networks-constants')
-const MAX_UNSPENTS = 100
+const MAX_UNSPENTS = 50
 
 export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
 
@@ -312,13 +312,18 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     console.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + '  getInputsOutputs error', e)
                 }
                 // noinspection ES6MissingAwait
-                MarketingEvent.logOnlyRealTime('v20_doge_error_getfeerate_' + key + ' ' + feeForByte + ' ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, unspents)
+                MarketingEvent.logOnlyRealTime('v30_doge_error_getfeerate_' + key + '_' + feeForByte + '_' + this._settings.currencyCode, {
+                        ...unspents,
+                        title: data.addressFrom + ' => ' + data.addressTo,
+                        error: e.message
+                    })
                 throw e
             }
 
             try {
                 let doBuild = false
                 let actualFeeRebuild = false
+                let onlyOnce = false
                 do {
                     doBuild = false
                     logInputsOutputs = DogeLogs.logInputsOutputs(data, unspents, preparedInputsOutputs, this._settings, subtitle)
@@ -329,6 +334,9 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     let needAutoCorrect = false
                     if (autocorrectFee && !isStaticFee) {
                         needAutoCorrect = actualFeeForByte.toString() !== feeForByte.toString()
+                    } else if (this._settings.currencyCode === 'BTC' && !onlyOnce && actualFeeForByte * 1.3 < feeForByte * 1) {
+                        needAutoCorrect = true
+                        onlyOnce = true
                     }
                     if (!actualFeeRebuild && needAutoCorrect) {
                         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate will correct as ' + actualFeeForByte.toString() + ' != ' + feeForByte.toString())
@@ -429,7 +437,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     */
                 }
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getRawTx error '+ e.message)
-                MarketingEvent.logOnlyRealTime('v20_doge_error_tx_builder_fees ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message.toString(), logInputsOutputs)
+                MarketingEvent.logOnlyRealTime('v30_doge_error_tx_builder_fees_' + this._settings.currencyCode, {
+                    ...logInputsOutputs,
+                    title: data.addressFrom + ' => ' + data.addressTo,
+                    error: e.message.toString()
+                })
 
                 if (e.message.indexOf('Transaction has absurd fees') !== -1) {
                     isError = 'SERVER_RESPONSE_TOO_BIG_FEE_PER_BYTE_FOR_TRANSACTION'
@@ -569,7 +581,11 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error '+ e.message)
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('v20_doge_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+            MarketingEvent.logOnlyRealTime('v30_doge_tx_error_' + this._settings.currencyCode, {
+                ...logData,
+                title: data.addressFrom + ' => ' + data.addressTo,
+                error: e.message
+            })
             throw e
         }
 
@@ -627,10 +643,17 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sent error additional'+ e.message)
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('v20_doge_tx_error2 ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+            MarketingEvent.logOnlyRealTime('v30_doge_tx_error2_' + this._settings.currencyCode, {
+                ...logData,
+                title: data.addressFrom + ' => ' + data.addressTo,
+                error: e.message
+            })
         }
         // noinspection ES6MissingAwait
-        MarketingEvent.logOnlyRealTime('v20_doge_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
+        MarketingEvent.logOnlyRealTime('v30_doge_tx_success_' + this._settings.currencyCode, {
+            ...logData,
+            title: data.addressFrom + ' => ' + data.addressTo
+        })
 
         if (config.debug.cryptoErrors) {
             console.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx result', JSON.parse(JSON.stringify(result)))
@@ -650,7 +673,10 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             transactionHash: transaction.transactionHash,
             currencyCode: this._settings.currencyCode
         })
-        MarketingEvent.logOnlyRealTime('v20_doge_tx_set_missing ' + this._settings.currencyCode + ' ' + data.address + ' => ' + transaction.addressTo, transaction)
+        MarketingEvent.logOnlyRealTime('v30_doge_tx_set_missing_' + this._settings.currencyCode, {
+            ...transaction,
+            title: data.address + ' => ' + transaction.addressTo
+        })
         return true
     }
 

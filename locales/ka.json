@@ -227,8 +227,10 @@
       "available": "ხელმისაწვდომია",
       "availableSOL": "Available balance",
       "frozenTRX": "Застейкано",
+      "unfrozenTRX": "Розморожено",
       "frozenBalanceTRX": "გამტარობა: %{prettyFrozen} TRX / ენერგია%{prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "შეიყვანეთ TRX-ის  რაოდენობა",
+      "enterToUnfreezeTRX" : "შეიყვანეთ გაყინვის თანხა TRX",
       "freezeForBandTRX": "Застейкать",
       "freezeForEnergyTRX": "ენერგიისთვის",
       "unfreezeTRX": "Разморозить",
@@ -240,7 +242,7 @@
       "claimTRX": "ჯილდოს მიღება",
       "refreshTRX": "გადატვირთვა",
       "waitToClaimTRX" : "Last claim was done less then 24 hours ago",
-      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after 72 hours from the moment of the last freezing",
+      "waitToUnfreezeTRX" : "Under the terms of the Tron protocol, unfreezing is possible after %{TRX_STAKE_DAYS} days from the moment of the last freezing",
       "minimalFreezeBalanceTRX" : "For freezing use more than 1 TRX",
       "allowLongQueryETH": "Allow pending transactions queue",
       "allowBlockedBalanceETH": "Allow reuse of pending transactions balance",
@@ -262,8 +264,11 @@
       "rewards" : "Rewards",
       "useCustomValidator": "Use this validator ",
       "successUnfreeze": "TRX unfrozen",
+      "successUnfreezeV2": "TRX-ის ამოღება შესაძლებელი იქნება %{TRX_STAKE_DAYS}-დღიანი განთავისუფლების პერიოდის შემდეგ",
       "successFreeze": "TRX frozen for staking",
       "successReward": "TRX staking reward received",
+      "successVote": "თქვენ წარმატებით მიეცით ხმა",
+      "successWithdraw": "TRX მიიღო",
       "noVoted": "You have a steak left without votes. Click «Vote», to complete the freezing procedure",
       "withdrawTRX": "Withdraw",
       "freezeTrx": "Freeze"
@@ -452,9 +457,14 @@
     "showMore": "მეტის ჩვენება",
     "assetSettings": "აქტივის პარამეტრები",
     "stakingTRX": {
-      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. ",
-      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. ",
-      "moreInfo": "More details..."
+      "BANDWIDTH": "გაყინული გამტარუნარიანობა",
+      "ENERGY": "გაყინული ენერგია",
+      "bandwidthInfo": "Freeze your TRX for Bandwidth - this will allow you to receive staking rewards and send free TRX without network fees. განთავისუფლების პერიოდია %{TRX_STAKE_DAYS} დღე. ",
+      "energyInfo": "Freeze your TRX for Energy - this will allow you to receive staking rewards and send TRC20 tokens without network fees. განთავისუფლების პერიოდია %{TRX_STAKE_DAYS} დღე. ",
+      "moreInfo": "More details...",
+      "withdraw": "გადაღება",
+      "inUnstakingProcess": "ჩამოხსნის პროცესში: ",
+      "willAvailable": "ხელმისაწვდომი იქნება"
     },
     "stakingSOL": {
       "stake": "Freeze your SOL to receive staking rewards. "
@@ -554,7 +564,7 @@
       "process": "მუშავდება",
       "delegated": "დელეგირებულია",
       "confirming": "დასტურდება",
-      "fail": "შეცდომა",
+      "fail": "წარუმატებლად",
       "missing": "არ მოიძებნა",
       "replaced": "შეცვლილია",
       "out_of_energy" : "No energy",
@@ -597,7 +607,8 @@
           "success": "წარმატებულია",
           "pending": "მუშავდება",
           "canceled": "გაუქმებულია",
-          "missing": "Not found",
+          "fail": "წარუმატებლად",
+          "missing": "არ მოიძებნა",
           "out_of_energy" : "No energy"
         }
       },
@@ -725,7 +736,7 @@
     "useAllFunds": "ყველა საშუალების გამოყენება",
     "equivalent": "ექვივალენტი: ~ %{amount} %{symbol}",
     "notEnough": "თქვენ არ გაქვთ საკმარისი თანხა გადარიცხვის განსახორციელებლად",
-    "addressError": "მიმღების მისამართი არასწორია, გთხოვთ, შეამოწმოთ",
+    "addressError": "მიმღების მისამართი არასწორია. გთხოვთ, დაუკავშირდეთ თქვენს მასპინძელს სწორი მისამართისთვის.",
     "memoError": "%{name} არასწორია, გთხოვთ, შეამოწმოთ",
     "notValidAmount": "გთხოვთ, შეიყვანოთ თანხის ოდენობა",
     "notValidAmountInFiat": "Please, input bigger amount or change to crypto input",

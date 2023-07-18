@@ -75,9 +75,15 @@ export namespace BlocksoftTransfer {
                     continue
                 }
                 if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
+                    if (config.debug.cryptoErrors) {
+                        console.log('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID is getFeeRate as no data?.walletConnectData?.data', data)
+                    }
                     throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
                 }
                 if (tmp?.tokenAddress && tmp?.tokenAddress.toLowerCase() === lower) {
+                    if (config.debug.cryptoErrors) {
+                        console.log('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID is getFeeRate as no data?.walletConnectData?.data', data)
+                    }
                     throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
                 }
             }
@@ -134,9 +140,15 @@ export namespace BlocksoftTransfer {
                     continue
                 }
                 if (tmp?.tokenName && tmp?.tokenName.toLowerCase() === lower) {
+                    if (config.debug.cryptoErrors) {
+                        console.log('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID is sendTx as no data?.walletConnectData?.data', data)
+                    }
                     throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
                 }
                 if (tmp?.tokenAddress && tmp?.tokenAddress.toLowerCase() === lower) {
+                    if (config.debug.cryptoErrors) {
+                        console.log('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID is sendTx as no data?.walletConnectData?.data', data)
+                    }
                     throw new Error('SERVER_RESPONSE_CONTRACT_DESTINATION_INVALID')
                 }
             }

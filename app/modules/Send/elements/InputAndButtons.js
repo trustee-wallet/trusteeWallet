@@ -122,7 +122,7 @@ class InputAndButtons extends PureComponent {
                 CACHE_PART_BALANCE_CLICK = true
                 Log.log('Input.handlePartBalance ' + newPartBalance + ' start counting')
                 const res = await SendActionsBlockchainWrapper.getTransferAllBalance()
-                const newCountedForLessOutputs = res.selectedFee.blockchainData?.countedForLessOutputs || 0
+                const newCountedForLessOutputs = res.selectedFee?.blockchainData?.countedForLessOutputs || 0
                 if (newCountedForLessOutputs !== this.state.countedForLessOutputs) {
                     this.setState({
                         countedForLessOutputs: newCountedForLessOutputs

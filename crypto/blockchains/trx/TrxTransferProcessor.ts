@@ -439,7 +439,11 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                             }
                             BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendSubTx  error ' + e.message)
                             // noinspection ES6MissingAwait
-                            MarketingEvent.logOnlyRealTime('v20_trx_tx_sub_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+                            MarketingEvent.logOnlyRealTime('v30_trx_tx_sub_error_' + this._settings.currencyCode, {
+                                ...logData,
+                                title: data.addressFrom + ' => ' + data.addressTo,
+                                error: e.message
+                            })
                             throw e
                         }
 
@@ -618,11 +622,11 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx error ' + e.message)
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('v20_trx_tx_error ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo + ' ' + e.message, logData)
+            MarketingEvent.logOnlyRealTime('v30_trx_tx_error_' + this._settings.currencyCode, {...logData, error : e.message, title: data.addressFrom + ' => ' + data.addressTo})
             throw e
         }
         // noinspection ES6MissingAwait
-        MarketingEvent.logOnlyRealTime('v20_trx_tx_success ' + this._settings.currencyCode + ' ' + data.addressFrom + ' => ' + data.addressTo, logData)
+        MarketingEvent.logOnlyRealTime('v30_trx_tx_success_' + this._settings.currencyCode, {...logData, title: data.addressFrom + ' => ' + data.addressTo})
 
         await (BlocksoftTransactions.resetTransactionsPending({ account: { currencyCode: 'TRX' } }, 'AccountRunPending'))
 

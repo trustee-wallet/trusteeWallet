@@ -494,7 +494,7 @@ function _mnemonicValidationWordsOnly(txt) {
     }
 
     if (lastError) {
-        return { lastError }
+        return lastError
     }
 
     wordsString = wordsString.trim()

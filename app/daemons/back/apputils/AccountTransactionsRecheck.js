@@ -341,6 +341,7 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
         return { isChanged: 1, tmpMsg }
     }
 
+    let updateDirection = false
     if (!old.createdAt) {
         tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by CREATED NEW ${transaction.blockTime} OLD ${old.createdAt} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else  if (transaction.blockTime && (!old.minedAt || old.minedAt !== transaction.blockTime)) {
@@ -351,6 +352,9 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
         tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by AMOUNT NEW ${newAmount} OLD ${oldAmount} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (oldAddressTo !== newAddressTo) {
         tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by ADDRESS_TO ${newAddressTo} OLD ${oldAddressTo} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
+        if (!newAddressTo && old.transactionDirection === 'outcome') {
+            updateDirection = true
+        }
     } else if (old.addressFrom !== transaction.addressFrom) {
         tmpMsg = ` FULL UPDATE ${account.id} ${account.currencyCode} HASH ${transaction.transactionHash} by ADDRESS_FROM ${transaction.addressFrom} OLD ${old.addressFrom} AMOUNT ${transaction.addressAmount} FROM ${transaction.addressFrom} TO ${transaction.addressTo}`
     } else if (old.blockConfirmations === transaction.blockConfirmations || (old.blockConfirmations > blocksToUpdate && transaction.blockConfirmations > blocksToUpdate)) {
@@ -363,8 +367,10 @@ async function AccountTransactionRecheck(transaction, old, account, source) {
     transaction.createdAt = transaction.blockTime
     transaction.minedAt = transaction.blockTime
     if (old.transactionDirection !== transaction.transactionDirection) {
-        Log.daemon('UpdateAccountTransactions ' + account.currencyCode + ' by DIRECTION id ' + old.id + ' address ' + account.address + ' hash ' + transaction.transactionHash + ' OLD ' + old.transactionDirection + ' NEW ' + transaction.transactionDirection)
-        delete transaction.transactionDirection
+        Log.daemon('UpdateAccountTransactions ' + account.currencyCode + ' by DIRECTION ' + (updateDirection ? 'UPDATE ': 'SKIP') + ' id ' + old.id + ' address ' + account.address + ' hash ' + transaction.transactionHash + ' OLD ' + old.transactionDirection + ' NEW ' + transaction.transactionDirection)
+        if (!updateDirection) {
+            delete transaction.transactionDirection
+        }
     }
     transaction.transactionsScanTime = Math.round(new Date().getTime() / 1000)
     transaction.transactionsScanLog = line + ' ' + tmpMsg + ' '

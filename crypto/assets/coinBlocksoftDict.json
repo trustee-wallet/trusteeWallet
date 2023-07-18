@@ -997,26 +997,6 @@
 		"currencyExplorerLink": "https://www.oklink.com/en/ethw/address/",
 		"currencyExplorerTxLink": "https://www.oklink.com/en/ethw/tx/"
 	},
-/* while no explorer no sense
-	"ETH_POW": {
-		"currencyType": "coin",
-		"currencyName": "Ethereum POW",
-		"currencyCode": "ETH_POW",
-		"currencySymbol": "ETHW",
-		"ratesCurrencyCode": "ETHW",
-		"addressCurrencyCode": "ETH",
-		"addressProcessor": "ETH",
-		"addressUiChecker": "ETH",
-		"scannerProcessor": "ETHW",
-		"extendsProcessor": "ETH",
-		"prettyNumberProcessor": "ETH",
-		"transferProcessor": "ETH",
-		"network": "mainnet",
-		"decimals": 18,
-		"currencyExplorerLink": "https://www.oklink.com/en/ethw/address/",
-		"currencyExplorerTxLink": "https://www.oklink.com/en/ethw/tx/"
-	},
-*/
 	"ETC": {
 		"currencyType": "coin",
 		"currencyName": "Ethereum Classic",
@@ -1815,7 +1795,7 @@
 	},
 	"BNB_SMART_TRX": {
 		"currencyType": "token",
-		"currencyName": "TRX BEP20",
+		"currencyName": "TRX BEP20 OLD",
 		"currencyCode": "BNB_SMART_TRX",
 		"currencySymbol": "TRX",
 		"ratesCurrencyCode": "TRX",
@@ -1825,9 +1805,21 @@
 		"tokenBlockchain": "BNB",
 		"currencyExplorerLink": "https://bscscan.com/token/0x85eac5ac2f758618dfa09bdbe0cf174e7d574d5b?a="
 	},
+	"BNB_SMART_TRX_NEW": {
+		"currencyType": "token",
+		"currencyName": "TRX BEP20",
+		"currencyCode": "BNB_SMART_TRX_NEW",
+		"currencySymbol": "TRX",
+		"ratesCurrencyCode": "TRX",
+		"extendsProcessor": "BNB_SMART_CAKE",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0xCE7de646e7208a4Ef112cb6ed5038FA6cC6b12e3",
+		"tokenBlockchain": "BNB",
+		"currencyExplorerLink": "https://bscscan.com/token/0xCE7de646e7208a4Ef112cb6ed5038FA6cC6b12e3?a="
+	},
 	"ETH_TRX": {
 		"currencyType": "token",
-		"currencyName": "TRX ERC20",
+		"currencyName": "TRX ERC20 OLD",
 		"currencyCode": "ETH_TRX",
 		"currencySymbol": "TRX",
 		"extendsProcessor": "ETH_TRUE_USD",
@@ -1838,6 +1830,19 @@
 		"tokenAddress": "0xe1be5d3f34e89de342ee97e6e90d405884da6c67",
 		"currencyExplorerLink": "https://etherscan.io/token/0xe1be5d3f34e89de342ee97e6e90d405884da6c677?a="
 	},
+	"ETH_TRX_NEW": {
+		"currencyType": "token",
+		"currencyName": "TRX ERC20",
+		"currencyCode": "ETH_TRX_NEW",
+		"currencySymbol": "TRX",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "TRX",
+		"decimals": 8,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x50327c6c5a14dcade707abad2e27eb517df87ab5",
+		"currencyExplorerLink": "https://etherscan.io/token/0xe1be5d3f34e89de342ee97e6e90d405884da6c677?a="
+	  },
 	"SOL_TULIP": {
 		"currencyType": "token",
 		"currencyName": "TULIP (Parrot)",
@@ -2663,7 +2668,7 @@
 		"tokenAddress": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
 		"currencyExplorerLink": "https://etherscan.io/token/0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/",
-		"canBeDestination": 1,
+		"canBeDestination": 1
 	},
 
 	"ETH_STMATIC": {
@@ -2680,5 +2685,34 @@
 		"currencyExplorerLink": "https://etherscan.io/token/0x9ee91F9f426fA633d227f7a9b000E28b9dfd8599?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/",
 		"canBeDestination": 1
+	},
+
+	"ETH_UAHG": {
+		"currencyType": "token",
+		"currencyName": "UAHg ERC20",
+		"currencyCode": "ETH_UAHG",
+		"currencySymbol": "UAHg",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "UAHG",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xd1e0e39bd1758abe0865d5289895a9197c6cd549",
+		"currencyExplorerLink": "https://etherscan.io/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"BNB_SMART_UAHG": {
+		"currencyType": "token",
+		"currencyName": "UAHg BEP20",
+		"currencyCode": "BNB_SMART_UAHG",
+		"currencySymbol": "UAHg",
+		"ratesCurrencyCode": "UAHG",
+		"extendsProcessor": "BNB_SMART_CAKE",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0xd1e0e39bd1758abe0865d5289895a9197c6cd549",
+		"decimals": 6,
+		"tokenBlockchain": "BNB",
+		"currencyExplorerLink": "https://bscscan.com/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a="
 	}
 }
