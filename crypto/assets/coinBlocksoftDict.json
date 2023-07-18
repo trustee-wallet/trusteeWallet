@@ -2654,7 +2654,6 @@
 		"currencyExplorerLink": "https://etherscan.io/token/0x249cA82617eC3DfB2589c4c17ab7EC9765350a18?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	},
-
 	"ETH_STETH": {
 		"currencyType": "token",
 		"currencyName": "stETH ERC20",
@@ -2670,7 +2669,6 @@
 		"currencyExplorerTxLink": "https://etherscan.io/tx/",
 		"canBeDestination": 1
 	},
-
 	"ETH_STMATIC": {
 		"currencyType": "token",
 		"currencyName": "stMATIC ERC20",
