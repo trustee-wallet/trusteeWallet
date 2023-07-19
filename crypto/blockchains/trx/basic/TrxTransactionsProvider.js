@@ -165,6 +165,11 @@ export default class TrxTransactionsProvider {
                 addressFrom = transaction.ownerAddress
                 transactionDirection = 'unfreeze'
                 transactionFilterType = TransactionFilterTypeDict.STAKE
+            } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 56) {
+                addressAmount = transaction.amount
+                addressFrom = transaction.ownerAddress
+                transactionDirection = 'withdraw_unfrozen'
+                transactionFilterType = TransactionFilterTypeDict.STAKE
             } else if (typeof transaction.contractType !== 'undefined' && transaction.contractType === 4) {
                 // no vote tx
                 return false
@@ -204,7 +209,10 @@ export default class TrxTransactionsProvider {
             transactionFilterType,
             inputValue: transaction.data
         }
-        if (!res.addressTo && (!res.addressFrom || res.addressFrom.toLowerCase() === address.toLowerCase())) {
+        if (!res.addressTo
+            && (!res.addressFrom || res.addressFrom.toLowerCase() === address.toLowerCase())
+            && transactionFilterType !== TransactionFilterTypeDict.STAKE
+        ) {
             return false
         }
 

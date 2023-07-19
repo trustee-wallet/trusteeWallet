@@ -91,8 +91,8 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
             }, 500)
         } else {
             NavStore.goBack()
-            setTimeout(() => {
-                walletConnectActions.connectAndSetWalletConnectLink(res.data.walletConnect.fullLink, 'QR')
+            setTimeout(async () => {
+                await walletConnectActions.connectAndSetWalletConnectLink(res.data.walletConnect.fullLink, 'QR')
                 NavStore.goNext('WalletConnectScreen')
             }, 100)
         }

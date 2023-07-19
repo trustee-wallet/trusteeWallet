@@ -1,5 +1,5 @@
 /**
- * @version 1.0
+ * @version 2.0
  */
 import store from '@app/store'
 
@@ -11,17 +11,17 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 
-import walletConnectService from '@app/appstores/Stores/WalletConnect/WalletConnectService'
 import { NETWORKS_SETTINGS } from '@app/appstores/Stores/WalletConnect/settings'
+import walletConnectService from '@app/appstores/Stores/WalletConnect/WalletConnectService'
+import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 import { SendActionsStart } from '@app/appstores/Stores/Send/SendActionsStart'
 
-
-export function handleSessionRequestModal(walletConnector, data, dappData) {
+export function handleSessionProposalModal(walletConnector, data) {
     let title = '?'
     try {
-        title = data.peerMeta.name + ' ' + data.peerMeta.url
+        title = data.params?.proposer?.metadata?.name + ' ' + data.params?.proposer?.metadata?.url
     } catch (e) {
-        Log.err('WalletConnectService.handleSessionRequest title error ' + e.message)
+        Log.err('WalletConnectService.handleSessionProposal v2 title error ' + e.message)
     }
     showModal({
         type: 'YES_NO_MODAL',
@@ -30,23 +30,23 @@ export function handleSessionRequestModal(walletConnector, data, dappData) {
         description: strings('settings.walletConnect.sessionText') + title,
         reverse: true,
         noCallback: async () => {
-            await walletConnectService.rejectSession(walletConnector)
+            await walletConnectService.rejectSession(walletConnector, data)
             const { initSource } = store.getState().walletConnectStore
             if (initSource === 'QR') {
-                Log.log('WalletConnectService.handleSessionRequest NO initSource=' + initSource + ' navStore.goBack started')
+                Log.log('WalletConnectService.handleSessionProposal v2 NO initSource=' + initSource + ' navStore.goBack started')
                 NavStore.goBack()
             } else {
-                Log.log('WalletConnectService.handleSessionRequest NO initSource=' + initSource + ' navStore.goBack skipped')
+                Log.log('WalletConnectService.handleSessionProposal v2 NO initSource=' + initSource + ' navStore.goBack skipped')
             }
         }
     }, async () => {
-        await walletConnectService.approveSession(walletConnector, data, dappData)
+        await walletConnectService.approveSession(walletConnector, data)
+        walletConnectActions.getAndSetWalletConnections(walletConnector)
     })
 }
 
 
-export async function handleSendTransactionRedirect(walletConnector, data, payload) {
-    const { accountCurrencyCode } = store.getState().walletConnectStore
+export async function handleSendTransactionRedirect(walletConnector, data, accountCurrencyCode, payload) {
     const { cryptoCurrencies } = store.getState().currencyStore
     let found = false
     for (const cryptoCurrency of cryptoCurrencies) {
@@ -75,36 +75,54 @@ export async function handleSendTransactionRedirect(walletConnector, data, paylo
     await SendActionsStart.startFromWalletConnect({
         currencyCode: accountCurrencyCode,
         walletConnectData: data,
-        walletConnectPayload : payload,
+        walletConnectPayload: payload,
         transactionFilterType : TransactionFilterTypeDict.WALLET_CONNECT
     })
 }
+export function handleSignTransactionModal(walletConnector, chainId, data, accountCurrencyCode, payload) {
 
-export function handleSendSignModal(walletConnector, message, payload) {
+    const dataCopy = {...data}
+    if (typeof dataCopy.from !== 'undefined') {
+        delete dataCopy.from
+    }
     showModal({
         type: 'YES_NO_MODAL',
         icon: 'WARNING',
-        title: strings('settings.walletConnect.sign'),
-        description: strings('settings.walletConnect.signText') + message,
+        title: strings('settings.walletConnect.sign') + ' ' + data.from + ' ' + accountCurrencyCode,
+        description: strings('settings.walletConnect.signTransaction') + ' ' + JSON.stringify(dataCopy),
         noCallback: async () => {
-            await walletConnectService.rejectRequest(walletConnector, payload)
+            walletConnectService.rejectRequest(walletConnector, payload)
         }
     }, async () => {
-        await walletConnectService.approveSign(walletConnector, message, payload)
+        await walletConnectService.approveSignTransaction(walletConnector, chainId, data.from, data, accountCurrencyCode, payload)
+    })
+}
+
+export function handleSendSignModal(walletConnector, chainId, from, message, payload) {
+    showModal({
+        type: 'YES_NO_MODAL',
+        icon: 'WARNING',
+        title: strings('settings.walletConnect.sign') + ' ' + from,
+        description: strings('settings.walletConnect.signText') + ' ' + message,
+        noCallback: async () => {
+            walletConnectService.rejectRequest(walletConnector, payload)
+        }
+    }, async () => {
+        await walletConnectService.approveSign(walletConnector, chainId, from, message, payload)
     })
 }
 
 
-export function handleSendSignTypedModal(walletConnector, data, payload) {
+export function handleSendSignTypedModal(walletConnector, chainId, from, data, payload) {
     showModal({
         type: 'YES_NO_MODAL',
         icon: 'WARNING',
-        title: strings('settings.walletConnect.signTyped'),
-        description: strings('settings.walletConnect.signTypedText') + JSON.stringify(data).substr(0, 200),
+        title: strings('settings.walletConnect.signTyped') + ' ' + from,
+        description: strings('settings.walletConnect.signTypedText') + ' ' + JSON.stringify(data).substr(0, 200),
         noCallback: async () => {
-            await walletConnectService.rejectRequest(walletConnector, payload)
+            walletConnectService.rejectRequest(walletConnector, payload)
         }
     }, async () => {
-        await walletConnectService.approveSignTyped(walletConnector, data, payload)
+        await walletConnectService.approveSignTyped(walletConnector, chainId, from, data, payload)
     })
 }

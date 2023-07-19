@@ -16,11 +16,7 @@ export const getWalletConnectData = createSelector(
             linkSource: data.linkSource,
             walletConnectLink: data.walletConnectLink,
             walletConnectLinkError: data.walletConnectLinkError,
-            accountCurrencyCode: data.accountCurrencyCode,
-            accountAddress: data.accountAddress,
-            accountWalletName: data.accountWalletName,
-            peerId: data.peerId,
-            peerMeta: data.peerMeta
+            walletConnections: data.walletConnections
         }
     })
 )

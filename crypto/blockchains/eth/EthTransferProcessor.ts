@@ -46,6 +46,12 @@ const _getGasLimit = async ({ additionalData, data, currencyCode, realAddressTo,
         return gasLimit
     }
 
+    if (typeof data.walletConnectData !== 'undefined' && typeof data.walletConnectData.gasLimit !== 'undefined' && data.walletConnectData.gasLimit && data.walletConnectData.gasLimit !== '0x0') {
+        gasLimit = BlocksoftUtils.hexToDecimalWalletConnect(data.walletConnectData.gasLimit)
+        BlocksoftCryptoLog.log(currencyCode + ' EthTransferProcessor.getFeeRate walletConnectData v2 ' + gasLimit)
+        return gasLimit
+    }
+
     if (typeof data.walletConnectData !== 'undefined') {
         let value = '0x'
         try {

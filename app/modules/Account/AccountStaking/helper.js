@@ -404,7 +404,10 @@ async function _sendTxTrx(shortLink, params, langMsg, uiParams) {
 
 const _wrapError = (e) => {
     let msg = e.toString()
-    if (msg.indexOf('less than 24 hours') !== -1) {
+    Log.log('AccountStaking.helper._wrapError ' + msg)
+    if (msg.indexOf('SERVER_RESPONSE_') !== -1) {
+        msg = strings('send.errors.' + e.message)
+    } else if (msg.indexOf('less than 24 hours') !== -1) {
         msg = strings('settings.walletList.waitToClaimTRX')
     } else if (msg.indexOf('not time to unfreeze') !== -1 || msg.indexOf('no unFreeze balance to withdraw') !== -1) {
         msg = strings('settings.walletList.waitToUnfreezeTRX', {'TRX_STAKE_DAYS' : BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS')})
