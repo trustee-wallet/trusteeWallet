@@ -240,8 +240,8 @@ class TrusteeAsyncStorage {
         return this._set('wcLink', value)
     }
 
-    getWalletConnectSession = () => {
-        const tmp = this._getStatic('wcSession')
+    getWalletConnectDapp = () => {
+        const tmp = this._getStatic('wcDapp')
         if (!tmp) return false
         try {
             return JSON.parse(tmp)
@@ -250,8 +250,8 @@ class TrusteeAsyncStorage {
         }
     }
 
-    setWalletConnectSession = (value) => {
-        return this._set('wcSession', JSON.stringify(value))
+    setWalletConnectDapp = (value) => {
+        return this._set('wcDapp', value ? JSON.stringify(value) : '')
     }
 
     setUseFirebaseForBSE = (value) => {
@@ -260,6 +260,20 @@ class TrusteeAsyncStorage {
 
     getUseFirebaseForBSE = () => {
         return this._getStatic('useFirebaseForBSE')
+    }
+
+    getWalletConnectKC = (value) => {
+        const tmp = this._getStatic('wcKC11')
+        if (!tmp) return {}
+        try {
+            return JSON.parse(tmp)
+        } catch (e) {
+            return false
+        }
+    }
+
+    setWalletConnectKC = (value) => {
+        return this._set('wcKC11', JSON.stringify(value))
     }
 
 }

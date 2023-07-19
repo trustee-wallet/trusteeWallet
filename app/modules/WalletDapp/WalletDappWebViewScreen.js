@@ -110,34 +110,45 @@ class WalletDappWebViewScreen extends PureComponent {
     // general handler (could be not only wallet connect)
     handleWebViewNavigationTestLink = (req) => {
         Log.log('WalletDapp.WebViewScreen handle link ' + req.url)
-        let url = req.url
-        let parsedUrl = UrlParse(url)
-        if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
-            let position = req.url.indexOf('/wc?uri=wc%3A')
-            if (position !== -1) {
-                position = position + 8
-                const tmp = req.url.substr(position, req.url.length)
-                Log.log('WalletDapp.WebViewScreen handle link update tmp ' + tmp)
-                url = decodeURIComponent(tmp)
-                Log.log('WalletDapp.WebViewScreen handle link update url ' + url)
-                parsedUrl = UrlParse(url)
+        let parsedUrl = false
+        let url = false
+        try {
+            url = req.url
+            parsedUrl = UrlParse(url)
+            if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+                let position = req.url.indexOf('/wc?uri=wc%3A')
+                if (position !== -1) {
+                    position = position + 8
+                    const tmp = req.url.substr(position, req.url.length)
+                    Log.log('WalletDapp.WebViewScreen handle link update tmp ' + tmp)
+                    url = decodeURIComponent(tmp)
+                    Log.log('WalletDapp.WebViewScreen handle link update url ' + url)
+                    parsedUrl = UrlParse(url)
+                }
             }
-        }
-        if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
-            return true
+            if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+                console.log('GO ' + JSON.stringify(parsedUrl))
+                return true
+            }
+        } catch (err) {
+            if (config.debug.appErrors) {
+                console.log(`WalletDapp.WebViewScreen handle parse error `, err.message)
+            }
+            Log.log(`WalletDapp.WebViewScreen handle parse error `, err.message)
+            return false
         }
         try {
             if (parsedUrl.protocol === 'wc:') {
-                if (url.indexOf('?bridge=') !== -1) {
-                    walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP', false, this.props.walletDappData)
-                } else {
-                    // ?
-                }
-                return false
+                walletConnectActions.connectAndSetWalletConnectLink(url, 'DAPP', true, this.props.walletDappData)
             }
         } catch (err) {
-            return true
+            if (config.debug.appErrors) {
+                console.log(`WalletDapp.WebViewScreen handle dapp error `, err.message)
+            }
+            Log.log(`WalletDapp.WebViewScreen handle dapp error `, err.message)
         }
+        // this.webref.stopLoading()
+        return false
     }
 
     render() {

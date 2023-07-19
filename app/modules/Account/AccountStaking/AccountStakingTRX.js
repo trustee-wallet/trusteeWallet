@@ -38,6 +38,7 @@ import InputAndButtonsPartBalanceButton from '@app/modules/Send/elements/InputAn
 import InfoProgressBar from './elements/InfoProgressBar'
 import StakeView from './trx/StakeView'
 import { handleTrxScan, handleFreezeV2Trx, handleUnFreezeV1Trx, handlePartBalance, handleGetRewardTrx, handleVoteTrx } from './helper'
+import Log from '@app/services/Log/Log'
 
 const CACHE_ASKED = {}
 const CACHE_ASK_TIME = 6000
@@ -155,7 +156,10 @@ class AccountStakingTRX extends React.PureComponent {
 
     _wrapError = (e) => {
         let msg = e.toString()
-        if (msg.indexOf('less than 24 hours') !== -1) {
+        Log.log('AccountStakingTrx._wrapError ' + msg)
+        if (msg.indexOf('SERVER_RESPONSE_') !== -1) {
+            msg = strings('send.errors.' + e.message)
+        } else if (msg.indexOf('less than 24 hours') !== -1) {
             msg = strings('settings.walletList.waitToClaimTRX')
         } else if (msg.indexOf('not time to unfreeze') !== -1) {
             msg = strings('settings.walletList.waitToUnfreezeTRX', { TRX_STAKE_DAYS: BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS') })

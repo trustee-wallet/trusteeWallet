@@ -104,7 +104,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         })
                     }
                 })
-
+                
                 if (typeof fee !== 'undefined' && fee && typeof fee.used_fee) {
                     const tmp = {
                         langMsg: 'xmr_speed_' + i,
@@ -129,7 +129,11 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         },
                         amountForTx: '?'
                     }
-                    if (typeof fee.using_amount !== 'undefined') {
+                    if (typeof fee.total_sent !== 'undefined' && fee.total_sent) {
+                        tmp.amountForTx = fee.total_sent - fee.used_fee
+                        logTmp.amountForTx = tmp.amountForTx
+                        logTmp.xmr_total_sent = fee.total_sent
+                    } else if (typeof fee.using_amount !== 'undefined') {
                         tmp.amountForTx = fee.using_amount
                         logTmp.amountForTx = fee.using_amount
                     } else {

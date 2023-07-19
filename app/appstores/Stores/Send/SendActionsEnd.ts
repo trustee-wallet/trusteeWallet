@@ -1,5 +1,5 @@
 /**
- * @version 0.41
+ * @version 2.0
  */
 import analytics from '@react-native-firebase/analytics'
 
@@ -175,7 +175,7 @@ export namespace SendActionsEnd {
             }})
         } else if (uiType === 'WALLET_CONNECT') {
             Log.log('SendActionsEnd.endRedirect walletConnect will get ' + tx.transactionHash)
-            await walletConnectActions.approveRequestWalletConnect(walletConnectPayload, tx.transactionHash)
+            await walletConnectActions.approveRequest(walletConnectPayload, tx.transactionHash)
             NavStore.goNext('AccountTransactionScreen', {
                 txData: {
                     transactionHash: tx.transactionHash,
@@ -203,7 +203,7 @@ export namespace SendActionsEnd {
         const { bseOrderId } = bse
         const data = { extraData, ...params, orderHash: bseOrderId, status: 'CLOSE' }
         if (uiType === 'WALLET_CONNECT') {
-            await walletConnectActions.rejectRequestWalletConnect(walletConnectPayload)
+            await walletConnectActions.rejectRequest(walletConnectPayload)
         }
         if (typeof bseOrderId === 'undefined' || !bseOrderId) return
         return ApiV3.setExchangeStatus(data)
