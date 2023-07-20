@@ -49,7 +49,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const privViewKey = keys[1]
         const pubSpendKey = data.accountJson.publicSpendKey
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate  newSender ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
 
         const apiClient = this.unspentsProvider
 
@@ -78,7 +78,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         for (let i = 1; i <= 4; i++) {
             try {
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate inner ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
 
                 // @ts-ignore
                 const fee = await core.createTransaction({
@@ -104,7 +104,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                         })
                     }
                 })
-                
+
                 if (typeof fee !== 'undefined' && fee && typeof fee.used_fee) {
                     const tmp = {
                         langMsg: 'xmr_speed_' + i,
