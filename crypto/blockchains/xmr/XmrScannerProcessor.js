@@ -19,6 +19,8 @@ const CACHE = {}
 const NEVER_LOGIN = {}
 let CACHE_SHOWN_ERROR = 0
 
+const PROXY_LOGIN = 'https://proxy.trustee.deals/xmr/getLogin'
+
 export default class XmrScannerProcessor {
 
     /**
@@ -118,11 +120,23 @@ export default class XmrScannerProcessor {
                     create_account: true,
                     generated_locally: true
                 }
+                let error = false
+                let resLogin = false
                 try {
-                    await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin) // login needed
+                    resLogin = await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin) // login needed
                 } catch (e) {
                     BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get login error ' + e.message, linkParamsLogin)
-                    if (CACHE_SHOWN_ERROR === 0 && e.message.indexOf('invalid address and/or view key') !== -1) {
+                    error = e.message
+                }
+                if (!resLogin || typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
+                    try {
+                        resLogin = await BlocksoftAxios.post(PROXY_LOGIN, linkParamsLogin) // login needed
+                    } catch (e) {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get proxy ' + PROXY_LOGIN + ' login error ' + e.message, linkParamsLogin)
+                    }
+                }
+                if (!resLogin || typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
+                    if (CACHE_SHOWN_ERROR === 0 && error && error.indexOf('invalid address and/or view key') !== -1) {
                         showModal({
                             type: 'INFO_MODAL',
                             icon: false,

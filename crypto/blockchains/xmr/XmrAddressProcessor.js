@@ -20,6 +20,7 @@ const networksConstants = require('../../common/ext/networks-constants')
 
 const BTC = networksConstants['mainnet'].network
 
+const PROXY_LOGIN = 'https://proxy.trustee.deals/xmr/getLogin'
 
 export default class XmrAddressProcessor {
 
@@ -97,8 +98,21 @@ export default class XmrAddressProcessor {
                 create_account: true,
                 generated_locally: true
             }
-            const resLogin = await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin)
-            if (typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
+            let resLogin = false
+            try {
+                resLogin = await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin)
+            } catch (e) {
+                BlocksoftCryptoLog.log('XmrAddressProcessor login error ' + e.message, linkParamsLogin)
+            }
+            if (!resLogin || typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
+                try {
+                    resLogin = await BlocksoftAxios.post(PROXY_LOGIN, linkParamsLogin)
+                    BlocksoftCryptoLog.log('XmrAddressProcessor proxy ' + PROXY_LOGIN + ' login ' + JSON.stringify(resLogin.data), linkParamsLogin)
+                } catch (e) {
+                    BlocksoftCryptoLog.log('XmrAddressProcessor proxy ' + PROXY_LOGIN + ' login error ' + e.message, linkParamsLogin)
+                }
+            }
+            if (!resLogin || typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
                 throw new Error('no data')
             }
         } catch (e) {

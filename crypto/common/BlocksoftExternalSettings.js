@@ -60,7 +60,7 @@ const CACHE = {
     'BSV_TREZOR_SERVER': ['https://bsv.trusteeglobal.com'],
     'ETH_ROPSTEN_TREZOR_SERVER' : ['https://ac-dev0.net:29136'],
     'ETC_TREZOR_SERVER' : ['https://etcblockexplorer.com'],
-    'ETC_SERVER' : 'https://www.ethercluster.com/etc',
+    'ETC_SERVER' : 'https://etc.rivet.link',
     'ETC_PRICE' : 6710000000,
     'ETC_GAS_LIMIT' : 620000,
     'ETH_POW_SERVER' : 'https://mainnet.ethereumpow.org',

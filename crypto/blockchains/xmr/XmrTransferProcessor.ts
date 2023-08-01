@@ -74,7 +74,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
             dust_threshold: '2000000000',
             mixin: 15,
             use_dust: true
-        }, false)
+        })
 
         for (let i = 1; i <= 4; i++) {
             try {
@@ -90,7 +90,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     publicSpendKey: pubSpendKey,
                     priority: '' + i,
                     nettype: 'MAINNET',
-                    unspentOuts: unspentOuts,
+                    unspentOuts,
                     randomOutsCb: (numberOfOuts) => {
                         const amounts = []
                         for (let i = 0; i < numberOfOuts; i++) {

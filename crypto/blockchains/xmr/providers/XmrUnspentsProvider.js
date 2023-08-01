@@ -8,7 +8,7 @@ import config from '@app/config/config'
 
 
 const PROXY_RANDOM = 'https://proxy.trustee.deals/xmr/getRandom'
-
+const PROXY_UNSPENTS = 'https://proxy.trustee.deals/xmr/getUnspents'
 export default class XmrUnspentsProvider {
 
     constructor(settings) {
@@ -36,7 +36,7 @@ export default class XmrUnspentsProvider {
         this._cache = {}
     }
 
-    async _getUnspents(params, fn) {
+    async _getUnspents(params) {
         try {
             const key = JSON.stringify(params)
             let res = {}
@@ -52,25 +52,37 @@ export default class XmrUnspentsProvider {
                     dust_threshold: '2000000000'
                 }
                 */
-                res = await BlocksoftAxios.post(this._link + 'get_unspent_outs', params)
-                BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents res ' + JSON.stringify(res.data).substr(0, 200))
+                try {
+                    res = await BlocksoftAxios.post(this._link + 'get_unspent_outs', params)
+                    await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents res ' + JSON.stringify(res.data).substr(0, 200))
+                } catch (e) {
+                    await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents ' + this._link + 'get_unspent_outs error ' + e.message)
+                }
+
+
+                if (!res || typeof res.data === 'undefined' || !typeof res.data) {
+                    if (config.debug.cryptoErrors) {
+                        console.log('XmrUnspentsProvider Xmr._getUnspents load ' + PROXY_UNSPENTS + ' params ' + JSON.stringify(params))
+                    }
+                    try {
+                        res = await BlocksoftAxios.post(PROXY_UNSPENTS, params)
+                        await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents proxy res ' + JSON.stringify(res.data).substr(0, 200))
+                    } catch (e) {
+                        await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents proxy ' + PROXY_UNSPENTS + ' error ' + e.message)
+                        throw e
+                    }
+                }
                 this._cache[key] = res.data
             } else {
-                res = {data : this._cache[key]}
+                res = { data: this._cache[key] }
             }
-            if (typeof fn === 'undefined' || !fn) {
-                return res.data
-            } else {
-                fn(null, res.data)
-            }
+            return res?.data
         } catch (e) {
-            e.message += ' while Xmr._getUnspents'
-            fn(e, null)
-            if (typeof fn === 'undefined' || !fn) {
-                throw e
-            } else {
-                fn(e, null)
+            if (config.debug.cryptoErrors) {
+                console.log('XmrUnspentsProvider Xmr._getUnspents error ' + e.message)
             }
+            e.message += ' while Xmr._getUnspents'
+            throw e
         }
     }
 
@@ -94,10 +106,15 @@ export default class XmrUnspentsProvider {
             if (config.debug.cryptoErrors) {
                 console.log('XmrUnspentsProvider Xmr._getRandomOutputs load ' + this._link + 'get_random_outs params ' + JSON.stringify(params))
             }
-            let res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
-            await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs res ' + JSON.stringify(res.data).substr(0, 200))
+            let res = false
+            try {
+                res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
+                await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs res ' + JSON.stringify(res.data).substr(0, 200))
+            } catch (e) {
+                await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs ' + this._link + 'get_random_outs error ' + e.message)
+            }
 
-            if (typeof res.data === 'undefined' || !typeof res.data || typeof res.data.amount_outs === 'undefined' || !res.data.amount_outs || res.data.amount_outs.length === 0) {
+            if (!res || typeof res.data === 'undefined' || !typeof res.data || typeof res.data.amount_outs === 'undefined' || !res.data.amount_outs || res.data.amount_outs.length === 0) {
                 if (config.debug.cryptoErrors) {
                     console.log('XmrUnspentsProvider Xmr._getRandomOutputs load ' + PROXY_RANDOM + ' params ' + JSON.stringify(params))
                 }
