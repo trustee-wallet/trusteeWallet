@@ -36,7 +36,7 @@ export default async function(data) {
         permalink = PERMALINK_PATH
     }
     if (!data.address) return false
-    link += '/account/' + '0xd454ED303748Bb5a433388F9508433ba5d507030' + '/nfts?limit=50'
+    link += '/account/' + data.address + '/nfts?limit=50'
     let result = false
     console.log('EthNftOpensea chain ' + data.tokenBlockchainCode + ' link ' + link + ' started')
     try {
@@ -52,7 +52,7 @@ export default async function(data) {
     } catch (e) {
         console.log('EthNftOpensea fetch chain ' + data.tokenBlockchainCode + ' link ' + link + ' error '  + e.message)
     }
-    
+
     const formatted = []
     const collections = []
     let usdTotal = 0
