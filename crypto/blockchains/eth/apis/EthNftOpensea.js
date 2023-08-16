@@ -1,83 +1,91 @@
 /**
  * @version 0.50
  */
-import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
-const API_PATH = 'https://api.opensea.io/api/v1/'
-const API_TEST_PATH = 'https://testnets-api.opensea.io/api/v1/'
+const API_PATH = 'https://api.opensea.io/v2/chain/ethereum'
+const API_MATIC_PATH = 'https://api.opensea.io/v2/chain/matic'
+const API_BNB_PATH = 'https://api.opensea.io/v2/chain/bnb'
+
+const PERMALINK_PATH = 'https://opensea.io/assets/ethereum'
+const PERMALINK_MATIC_PATH = 'https://opensea.io/assets/matic'
+const PERMALINK_BNB_PATH = 'https://opensea.io/assets/bnb'
+
 /**
- * https://docs.opensea.io/reference/getting-assets
- * curl --request GET --url https://api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=20&owner=0x6cdb97bf46d77233cc943264633c2ed56bcf6f1f
- * curl --request GET --url https://testnets-api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=20&owner=0x6cdb97bf46d77233cc943264633c2ed56bcf6f1f
+ * https://docs.opensea.io/reference/retrieve-nfts-by-account
+ *
+ * curl --url 'https://api.opensea.io/v2/chain/ethereum/account/0x6cdb97bf46d77233cc943264633c2ed56bcf6f1f/nfts?limit=50'
+ *      --header 'X-API-KEY: 22b6f5505ebe454cb91f4748bfacd183'
+ *
  * @param data.address
  * @param data.tokenBlockchainCode
  */
 export default async function(data) {
 
     let link
-    if (data.tokenBlockchainCode === 'ETH_RINKEBY') {
-        link = API_TEST_PATH
+    let permalink
+    if (data.tokenBlockchainCode === 'BNB') {
+        link = API_BNB_PATH
+        permalink = PERMALINK_BNB_PATH
+    } else if (data.tokenBlockchainCode === 'MATIC') {
+        link = API_MATIC_PATH
+        permalink = PERMALINK_MATIC_PATH
     } else {
         link = API_PATH
+        permalink = PERMALINK_PATH
     }
     if (!data.address) return false
-    link += 'assets?order_direction=desc&owner=' + data.address
-    const result = await BlocksoftAxios.getWithoutBraking(link)
-
-
-    /**
-     * @var tmp.id
-     * @var tmp.token_id
-     * @var tmp.image_thumbnail_url
-     * @var tmp.name
-     * @var tmp.title
-     * @var tmp.last_sale
-     * @var tmp.last_sale.total_price
-     * @var tmp.last_sale.payment_token
-     * @var tmp.last_sale.payment_token.symbol
-     * @var tmp.last_sale.payment_token.name
-     * @var tmp.last_sale.payment_token.decimals
-     * @var tmp.last_sale.payment_token.usd_price
-     * @var tmp.asset_contract.address
-     * @var tmp.asset_contract.schema_name ERC721
-     */
+    link += '/account/' + '0xd454ED303748Bb5a433388F9508433ba5d507030' + '/nfts?limit=50'
+    let result = false
+    console.log('EthNftOpensea chain ' + data.tokenBlockchainCode + ' link ' + link + ' started')
+    try {
+        const response = await fetch(link, {
+            method: 'GET',
+            headers: {
+                'X-API-KEY': '22b6f5505ebe454cb91f4748bfacd183',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        result = await response.json()
+    } catch (e) {
+        console.log('EthNftOpensea fetch chain ' + data.tokenBlockchainCode + ' link ' + link + ' error '  + e.message)
+    }
+    
     const formatted = []
     const collections = []
     let usdTotal = 0
 
 
-    if (result && result.data && typeof result.data.assets !== 'undefined' && result.data.assets && result.data.assets.length) {
-        for (const tmp of result.data.assets) {
+    if (result && result.nfts && typeof result.nfts !== 'undefined' && result.nfts && result.nfts.length) {
+        for (const tmp of result.nfts) {
+            if (tmp.token_standard === 'erc20') continue
             const one = {
-                id: tmp.id,
-                tokenId: tmp.token_id,
-                contractAddress: '',
-                contractSchema: 'ERC721',
+                id: tmp.identifier,
+                tokenId: tmp.identifier,
+                contractAddress: tmp.contract,
+                contractSchema: tmp.token_standard === 'erc721' ? 'ERC721 ' : 'ERC1155',
                 tokenBlockchainCode: data.tokenBlockchainCode,
                 tokenBlockchain: data.tokenBlockchain,
                 tokenQty : 1,
-                img: tmp.image_preview_url,
-                title: tmp.name || tmp.title,
+                img: tmp.image_url,
+                title: tmp?.name || tmp?.title,
                 subTitle: '',
-                desc: '',
+                desc: tmp?.description ? tmp.description.substring(0, 1000) : '',
                 cryptoCurrencySymbol: '',
                 cryptoValue: '',
                 usdValue: '',
-                permalink: tmp.permalink || false
+                permalink: tmp?.permalink || (permalink + tmp.contract + '/' + tmp.identifier)
             }
             try {
                 if (!one.title || typeof one.title === 'undefined') {
-                    if (typeof tmp.asset_contract.name !== 'undefined') {
-                        one.title = tmp.asset_contract.name
+                    if (typeof tmp.collection !== 'undefined') {
+                        one.title = tmp.collection
                     }
                 }
-                if (typeof tmp.asset_contract.description !== 'undefined' && tmp.asset_contract.description) {
-                    one.desc = tmp.asset_contract.description
-                }
-                if (one.title.indexOf(tmp.token_id) === -1) {
-                    one.subTitle = '#' + tmp.token_id
+                if (one.title.indexOf(tmp.identifier) === -1) {
+                    one.subTitle = '#' + tmp.identifier
                 } else if (one.desc) {
                     one.subTitle = one.desc.length > 20 ? (one.desc.substring(0, 20) + '...') : one.desc
                 }
@@ -86,37 +94,15 @@ export default async function(data) {
             }
 
 
-            try {
-                if (typeof tmp.asset_contract.address !== 'undefined' && tmp.asset_contract.address) {
-                    one.contractAddress = tmp.asset_contract.address
-                }
-                if (typeof tmp.asset_contract.schema_name !== 'undefined' && tmp.asset_contract.schema_name) {
-                    one.contractSchema = tmp.asset_contract.schema_name
-                }
-            } catch (e) {
-                BlocksoftCryptoLog.log('EthTokenProcessorNft EthNftOpensea contract error ' + e.message)
-            }
-
-            try {
-                if (typeof tmp.last_sale !== 'undefined' && tmp.last_sale) {
-                    one.cryptoCurrencySymbol = tmp.last_sale.payment_token.symbol
-                    one.cryptoValue = BlocksoftUtils.toUnified(tmp.last_sale.total_price, tmp.last_sale.payment_token.decimals)
-                    one.usdValue = tmp.last_sale.payment_token.usd_price
-                    usdTotal = usdTotal + tmp.last_sale.payment_token.usd_price * 1
-                }
-            } catch (e) {
-                BlocksoftCryptoLog.log('EthTokenProcessorNft EthNftOpensealast_sale error ' + e.message, JSON.stringify(tmp))
-            }
-
             let collectionKey = ''
             try {
                 if (typeof tmp.collection !== 'undefined') {
-                    collectionKey = tmp.collection.name + '_' + tmp.collection.payout_address
+                    collectionKey = tmp.collection + '_' + tmp.contract
                     if (typeof collections[collectionKey] === 'undefined') {
                         collections[collectionKey] = {
                             numberAssets: 1,
-                            title: tmp.collection.name,
-                            img: tmp.collection.banner_image_url || tmp.collection.image_url,
+                            title: tmp.collection,
+                            img: tmp.image_url,
                             walletCurrency: data.tokenBlockchainCode,
                             assets: [one]
                         }
