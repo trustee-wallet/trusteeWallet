@@ -108,10 +108,15 @@ export default {
             try {
                 retString = await MY_MONERO.core.Module.prepareTx(JSON.stringify(args, null, ''))
             } catch (e) {
-                throw Error(' MY_MONERO.core.Module.prepareTx error ' + e.message)
+                throw Error('MY_MONERO.core.Module.prepareTx error ' + e.message)
             }
 
-            const ret = JSON.parse(retString)
+            let ret
+            try {
+                ret = JSON.parse(retString)
+            } catch (e) {
+                throw Error('MY_MONERO.core.Module.prepareTx JSON.parse error ' + e.message + ' ' + retString)
+            }
             // check for any errors passed back from WebAssembly
             if (ret.err_msg) {
                 BlocksoftCryptoLog.log('MoneroUtilsParser ret.err_msg error ' + ret.err_msg)
@@ -131,8 +136,18 @@ export default {
             // fetch random decoys
             const randomOuts = await _getRandomOuts(ret?.amounts?.length || 0, options.randomOutsCb)
             // send random decoys on and complete the tx creation
-            const retString2 = await MY_MONERO.core.Module.createAndSignTx(JSON.stringify(randomOuts))
-            const rawTx = JSON.parse(retString2)
+            let retString2
+            try {
+                 retString2 = await MY_MONERO.core.Module.createAndSignTx(JSON.stringify(randomOuts))
+            } catch (e) {
+                throw Error('MY_MONERO.core.Module.createAndSignTx error ' + e.message)
+            }
+            let rawTx
+            try {
+                rawTx = JSON.parse(retString2)
+            } catch (e) {
+                throw Error('MY_MONERO.core.Module.createAndSignTx JSON.parse error ' + e.message + ' ' + retString2)
+            }
             // check for any errors passed back from WebAssembly
             if (rawTx.err_msg) {
                 throw Error(rawTx.err_msg)
