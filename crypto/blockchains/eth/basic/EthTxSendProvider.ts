@@ -162,7 +162,8 @@ export default class EthTxSendProvider {
                     throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
                 }
                 if (typeof tmp.data.error !== 'undefined' && tmp.data.error) {
-                    throw new Error(typeof tmp.data.error.message !== 'undefined' ? tmp.data.error.message : tmp.data.error)
+                    let newError = typeof tmp.data.error.message !== 'undefined' ? tmp.data.error.message : tmp.data.error
+                    throw new Error(JSON.stringify(newError))
                 }
                 result = {
                     data: {
