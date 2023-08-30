@@ -1166,10 +1166,88 @@ export default {
             darkColor: '#80AAFF'
         }
     },
+    'TRX_UAHG': {
+        colors: {
+            mainColor: '#3171EF',
+            darkColor: '#80AAFF'
+        }
+    },
     'BNB_SMART_UAHG': {
         colors: {
             mainColor: '#1EC0FF',
             darkColor: '#80AAFF'
+        }
+    },
+    'ETH_BOB': {
+        colors: {
+            mainColor: '#CF6BFF',
+            darkColor: '#C176E5'
+        }
+    },
+    'BNB_SMART_BOB': {
+        colors: {
+            mainColor: '#CF6BFF',
+            darkColor: '#C176E5'
+        }
+    },
+    'MATIC_BOB': {
+        colors: {
+            mainColor: '#CF6BFF',
+            darkColor: '#C176E5'
+        }
+    },
+    'ETH_OUSD': {
+        colors: {
+            mainColor: '#1E313F',
+            darkColor: '#A0B7C8'
+        }
+    },
+    'ETH_WOUSD': {
+        colors: {
+            mainColor: '#1E313F',
+            darkColor: '#A0B7C8'
+        }
+    },
+    'ETH_LDO': {
+        colors: {
+            mainColor: '#F69988',
+            darkColor: '#E3A397'
+        }
+    },
+    'ETH_OGN': {
+        colors: {
+            mainColor: '#1A82FF',
+            darkColor: '#5E9AE1'
+        }
+    },
+    'ETH_OGV': {
+        colors: {
+            mainColor: '#030C17',
+            darkColor: '#D7DFE9'
+        }
+    },
+    'ETH_EURT': {
+        colors: {
+            mainColor: '#3AC2C2',
+            darkColor: '#72D4D4'
+        }
+    },
+    'ETH_PYUSD': {
+        colors: {
+            mainColor: '#3B6FEF',
+            darkColor: '#3B6FEF'
+        }
+    },
+    'ETH_OETH': {
+        colors: {
+            mainColor: '#0074F0',
+            darkColor: '#3C8BDF'
+        }
+    },
+    'ETH_WOETH': {
+        colors: {
+            mainColor: '#0074F0',
+            darkColor: '#3C8BDF'
         }
     },
     'CUSTOM_ABYSS': {

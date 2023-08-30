@@ -2702,6 +2702,22 @@
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	},
 
+	"TRX_UAHG": {
+		"currencyType": "token",
+		"currencyName": "UAHg TRC20",
+		"currencyCode": "TRX_UAHG",
+		"currencySymbol": "UAHg",
+		"extendsProcessor": "TRX_USDT",
+		"addressUiChecker": "TRX",
+		"ratesCurrencyCode": "UAHG",
+		"network": "trx",
+		"decimals": 18,
+		"tokenBlockchain": "TRON",
+		"tokenName": "TK4zHRAU1WrRPivksia3BMs2JvSLT63opb",
+		"currencyExplorerLink": "https://tronscan.org/#/address/",
+		"currencyExplorerTxLink": "https://tronscan.org/#/transaction/"
+	},
+
 	"BNB_SMART_UAHG": {
 		"currencyType": "token",
 		"currencyName": "UAHg BEP20",
@@ -2714,5 +2730,183 @@
 		"decimals": 6,
 		"tokenBlockchain": "BNB",
 		"currencyExplorerLink": "https://bscscan.com/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a="
+	},
+
+	"ETH_OGV": {
+		"currencyType": "token",
+		"currencyName": "Origin Dollar Governance ERC20",
+		"currencyCode": "ETH_OGV",
+		"currencySymbol": "OGV",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "OGV",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x9c354503C38481a7A7a51629142963F98eCC12D0",
+		"currencyExplorerLink": "https://etherscan.io/token/0x9c354503C38481a7A7a51629142963F98eCC12D0?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_OETH": {
+		"currencyType": "token",
+		"currencyName": "Origin Ether ERC20",
+		"currencyCode": "ETH_OETH",
+		"currencySymbol": "OETH",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "OETH",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3",
+		"currencyExplorerLink": "https://etherscan.io/token/0x856c4Efb76C1D1AE02e20CEB03A2A6a08b0b8dC3?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_WOETH": {
+		"currencyType": "token",
+		"currencyName": "Wrapped Origin Ether ERC20",
+		"currencyCode": "ETH_WOETH",
+		"currencySymbol": "WOETH",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "WOETH",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xDcEe70654261AF21C44c093C300eD3Bb97b78192",
+		"currencyExplorerLink": "https://etherscan.io/token/0xDcEe70654261AF21C44c093C300eD3Bb97b78192?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_WOUSD": {
+		"currencyType": "token",
+		"currencyName": "Wrapped OUSD ERC20",
+		"currencyCode": "ETH_WOUSD",
+		"currencySymbol": "WOUSD",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "WOUSD",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xD2af830E8CBdFed6CC11Bab697bB25496ed6FA62",
+		"currencyExplorerLink": "https://etherscan.io/token/0xD2af830E8CBdFed6CC11Bab697bB25496ed6FA62?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_OUSD": {
+		"currencyType": "token",
+		"currencyName": "Origin Dollar ERC20",
+		"currencyCode": "ETH_OUSD",
+		"currencySymbol": "OUSD",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "OUSD",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86",
+		"currencyExplorerLink": "https://etherscan.io/token/0x2A8e1E676Ec238d8A992307B495b45B3fEAa5e86?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_BOB": {
+		"currencyType": "token",
+		"currencyName": "BOB ERC20",
+		"currencyCode": "ETH_BOB",
+		"currencySymbol": "BOB",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "BOB",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B",
+		"currencyExplorerLink": "https://etherscan.io/token/0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"BNB_SMART_BOB": {
+		"currencyType": "token",
+		"currencyName": "BOB BEP20",
+		"currencyCode": "BNB_SMART_BOB",
+		"currencySymbol": "BOB",
+		"ratesCurrencyCode": "BOB",
+		"extendsProcessor": "BNB_SMART_CAKE",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B",
+		"decimals": 6,
+		"tokenBlockchain": "BNB",
+		"currencyExplorerLink": "https://bscscan.com/token/0xB0B195aEFA3650A6908f15CdaC7D92F8a5791B0B?a="
+	},
+
+	"MATIC_BOB": {
+		"currencyType": "token",
+		"currencyName": "BOB Matic (Polygon)",
+		"currencyCode": "MATIC_BOB",
+		"currencySymbol": "BOB",
+		"ratesCurrencyCode": "BOB",
+		"extendsProcessor": "MATIC_USDT",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0xb0b195aefa3650a6908f15cdac7d92f8a5791b0b",
+		"decimals": 18,
+		"tokenBlockchain": "MATIC",
+		"currencyExplorerLink": "https://polygonscan.com/token/0xb0b195aefa3650a6908f15cdac7d92f8a5791b0b?a="
+	},
+
+	"ETH_PYUSD": {
+		"currencyType": "token",
+		"currencyName": "PayPal USD ERC20",
+		"currencyCode": "ETH_PYUSD",
+		"currencySymbol": "PYUSD",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "PYUSD",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x6c3ea9036406852006290770bedfcaba0e23a0e8",
+		"currencyExplorerLink": "https://etherscan.io/token/0x6c3ea9036406852006290770bedfcaba0e23a0e8?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_EURT": {
+		"currencyType": "token",
+		"currencyName": "Tether EURt ERC20",
+		"currencyCode": "ETH_EURT",
+		"currencySymbol": "EURT",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "EURT",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0xc581b735a1688071a1746c968e0798d642ede491",
+		"currencyExplorerLink": "https://etherscan.io/token/0xc581b735a1688071a1746c968e0798d642ede491?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_OGN": {
+		"currencyType": "token",
+		"currencyName": "Origin Protocol ERC20",
+		"currencyCode": "ETH_OGN",
+		"currencySymbol": "OGN",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "OGN",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26",
+		"currencyExplorerLink": "https://etherscan.io/token/0x8207c1FfC5B6804F6024322CcF34F29c3541Ae26?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
+	},
+
+	"ETH_LDO": {
+		"currencyType": "token",
+		"currencyName": "Lido DAO ERC20",
+		"currencyCode": "ETH_LDO",
+		"currencySymbol": "LDO",
+		"extendsProcessor": "ETH_TRUE_USD",
+		"addressUiChecker": "ETH",
+		"ratesCurrencyCode": "LDO",
+		"decimals": 6,
+		"tokenBlockchain": "ETHEREUM",
+		"tokenAddress": "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
+		"currencyExplorerLink": "https://etherscan.io/token/0x5a98fcbea516cf06857215779fd812ca3bef1b32?a=",
+		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	}
 }
