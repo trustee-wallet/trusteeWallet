@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV WDIR=trustee
 ENV ANDROID_HOME=/${WDIR}/androidsdk \
@@ -8,8 +8,8 @@ ENV ANDROID_HOME=/${WDIR}/androidsdk \
 WORKDIR /${WDIR}
 
 RUN apt-get -y update && \
-#    DEBIAN_FRONTEND=noninteractive apt-get -qq -y install sudo build-essential openjdk-8-jdk git curl sudo pigz unzip python3-distutils python3-apt ca-certificates gnupg && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install sudo build-essential openjdk-8-jdk git curl sudo pigz unzip python3-distutils python3-apt ca-certificates gnupg && \    ln -fs /usr/share/zoneinfo/Europe/Kiev /etc/localtime && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install sudo build-essential openjdk-8-jdk git curl sudo pigz unzip python3-distutils python3-apt ca-certificates gnupg tzdata && \
+    ln -fs /usr/share/zoneinfo/Europe/Kiev /etc/localtime && \
     sudo dpkg-reconfigure --frontend noninteractive tzdata && date && \
     curl -O https://bootstrap.pypa.io/get-pip.py && \
     python3 get-pip.py && \
