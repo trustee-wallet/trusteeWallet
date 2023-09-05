@@ -1,0 +1,56 @@
+diff --git a/node_modules/react-native-reanimated/android/build.gradle b/node_modules/react-native-reanimated/android/build.gradle
+index 21c386c..aa84536 100644
+--- a/node_modules/react-native-reanimated/android/build.gradle
++++ b/node_modules/react-native-reanimated/android/build.gradle
+@@ -18,7 +18,7 @@ buildscript {
+ }
+ 
+ apply plugin: 'com.android.library'
+-apply plugin: 'maven'
++apply plugin: 'maven-publish'
+ 
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 28)
+@@ -87,7 +87,13 @@ afterEvaluate { project ->
+     task androidJavadoc(type: Javadoc) {
+         source = android.sourceSets.main.java.srcDirs
+         classpath += files(android.bootClasspath)
+-        classpath += files(project.getConfigurations().getByName('compile').asList())
++        // classpath += files(project.getConfigurations().getByName('compile').asList())
++
++        configurations.implementation.setCanBeResolved(true)
++        configurations.api.setCanBeResolved(true)
++
++        classpath += files(project.getConfigurations().getByName('implementation').asList())
++
+         include '**/*.java'
+     }
+ 
+@@ -121,13 +127,21 @@ afterEvaluate { project ->
+         archives androidJavadocJar
+     }
+ 
+-    task installArchives(type: Upload) {
+-        configuration = configurations.archives
+-        repositories.mavenDeployer {
+-            // Deploy to react-native-event-bridge/maven, ready to publish to npm
+-            repository url: "file://${projectDir}/../android/maven"
++    // task installArchives(type: Upload) {
++    //     configuration = configurations.archives
++    //     repositories.mavenDeployer {
++    //         // Deploy to react-native-event-bridge/maven, ready to publish to npm
++    //         repository url: "file://${projectDir}/../android/maven"
+ 
+-            configureReactNativePom pom
++    //         configureReactNativePom pom
++    //     }
++    // }
++
++    publishing {
++        repositories {
++            maven {
++                url = uri("${rootProject.projectDir}/maven-repo")
++            }
+         }
+     }
+ }

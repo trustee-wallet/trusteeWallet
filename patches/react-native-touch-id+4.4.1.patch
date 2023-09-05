@@ -1,0 +1,11 @@
+diff --git a/node_modules/react-native-touch-id/android/build.gradle b/node_modules/react-native-touch-id/android/build.gradle
+index e72f2a8..c3d765b 100644
+--- a/node_modules/react-native-touch-id/android/build.gradle
++++ b/node_modules/react-native-touch-id/android/build.gradle
+@@ -34,5 +34,5 @@ repositories {
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:+'
++    implementation 'com.facebook.react:react-native:+'
+ }
