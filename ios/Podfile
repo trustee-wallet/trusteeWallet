@@ -2,6 +2,8 @@ platform :ios, '10.0.4'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 permissions_path = '../node_modules/react-native-permissions/ios'
 
+use_modular_headers!
+
 target 'TrusteeWallet' do
   # Pods for TrusteeWallet
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
@@ -32,7 +34,7 @@ target 'TrusteeWallet' do
   pod 'Yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
 
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
-  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec', :modular_headers => false
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
   pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"

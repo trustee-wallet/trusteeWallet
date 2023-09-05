@@ -1,0 +1,145 @@
+diff --git a/node_modules/lottie-react-native/gradle/wrapper/gradle-wrapper.properties b/node_modules/lottie-react-native/gradle/wrapper/gradle-wrapper.properties
+index 772a981..9f0550b 100644
+--- a/node_modules/lottie-react-native/gradle/wrapper/gradle-wrapper.properties
++++ b/node_modules/lottie-react-native/gradle/wrapper/gradle-wrapper.properties
+@@ -3,4 +3,4 @@ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-5.6.4-all.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-7.4-all.zip
+diff --git a/node_modules/lottie-react-native/src/android/build.gradle b/node_modules/lottie-react-native/src/android/build.gradle
+index c4f43f8..4056964 100644
+--- a/node_modules/lottie-react-native/src/android/build.gradle
++++ b/node_modules/lottie-react-native/src/android/build.gradle
+@@ -8,12 +8,12 @@ apply from: 'gradle-maven-push.gradle'
+ //def DEFAULT_ANDROID_SUPPORT_LIB_VERSION = "1.0.0"
+ 
+ android {
+-  compileSdkVersion safeExtGet('compileSdkVersion', 28)
++  compileSdkVersion safeExtGet('compileSdkVersion', 33)
+   buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
+ 
+   defaultConfig {
+     minSdkVersion safeExtGet('minSdkVersion', 16)
+-    targetSdkVersion safeExtGet('targetSdkVersion', 28)
++    targetSdkVersion safeExtGet('targetSdkVersion', 33)
+   }
+ 
+   lintOptions {
+@@ -31,5 +31,5 @@ dependencies {
+ 
+   implementation "com.facebook.react:react-native:+"
+   implementation "androidx.appcompat:appcompat:1.0.0"
+-  implementation 'com.airbnb.android:lottie:3.4.0'
++  implementation 'com.airbnb.android:lottie:4.0.0'
+ }
+diff --git a/node_modules/lottie-react-native/src/android/gradle-maven-push.gradle b/node_modules/lottie-react-native/src/android/gradle-maven-push.gradle
+index 84bf616..add4dff 100644
+--- a/node_modules/lottie-react-native/src/android/gradle-maven-push.gradle
++++ b/node_modules/lottie-react-native/src/android/gradle-maven-push.gradle
+@@ -14,7 +14,7 @@
+  * limitations under the License.
+  */
+ 
+-apply plugin: 'maven'
++apply plugin: 'maven-publish'
+ apply plugin: 'signing'
+ 
+ def isReleaseBuild() {
+@@ -40,56 +40,65 @@ def getRepositoryPassword() {
+ }
+ 
+ afterEvaluate { project ->
+-  uploadArchives {
+-    repositories {
+-      mavenDeployer {
+-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+-
+-        pom.groupId = GROUP
+-        pom.artifactId = POM_ARTIFACT_ID
+-        pom.version = VERSION_NAME
+-
+-        repository(url: getReleaseRepositoryUrl()) {
+-          authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+-        }
+-        snapshotRepository(url: getSnapshotRepositoryUrl()) {
+-          authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+-        }
+-
+-        pom.project {
+-          name POM_NAME
+-          packaging POM_PACKAGING
+-          description POM_DESCRIPTION
+-          url POM_URL
++  publishing {
++    publications {
++      mavenJava(MavenPublication) {
++        groupId = GROUP
++        artifactId = POM_ARTIFACT_ID
++        version = VERSION_NAME
++
++        pom {
++          name = POM_NAME
++          packaging = POM_PACKAGING
++          description = POM_DESCRIPTION
++          url = POM_URL
+ 
+           scm {
+-            url POM_SCM_URL
+-            connection POM_SCM_CONNECTION
+-            developerConnection POM_SCM_DEV_CONNECTION
++            url = POM_SCM_URL
++            connection = POM_SCM_CONNECTION
++            developerConnection = POM_SCM_DEV_CONNECTION
+           }
+ 
+           licenses {
+             license {
+-              name POM_LICENSE_NAME
+-              url POM_LICENSE_URL
+-              distribution POM_LICENSE_DIST
++              name = POM_LICENSE_NAME
++              url = POM_LICENSE_URL
++              distribution = POM_LICENSE_DIST
+             }
+           }
+ 
+           developers {
+             developer {
+-              id POM_DEVELOPER_ID
+-              name POM_DEVELOPER_NAME
++              id = POM_DEVELOPER_ID
++              name = POM_DEVELOPER_NAME
+             }
+           }
++
++          scm {
++            connection = 'scm:git:git://github.com/lottie-react-native/lottie-react-native.git'
++            developerConnection = 'scm:git:ssh://github.com/lottie-react-native/lottie-react-native.git'
++            url = 'https://github.com/lottie-react-native/lottie-react-native'
++          }
++
+         }
+       }
+     }
+   }
+ 
++  repositories {
++      maven {
++        url = isReleaseBuild() ? getReleaseRepositoryUrl() : getSnapshotRepositoryUrl()
++
++        credentials {
++          username = getRepositoryUsername()
++          password = getRepositoryPassword()
++        }
++      }
++    }
++
+   signing {
+     required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
+-    sign configurations.archives
++    sign publishing.publications.mavenJava
+   }
+ 
+   task androidJavadocs(type: Javadoc) {

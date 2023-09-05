@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-qr-scanner/android/build.gradle b/node_modules/react-native-qr-scanner/android/build.gradle
+index 6dc8df3..45f48ac 100644
+--- a/node_modules/react-native-qr-scanner/android/build.gradle
++++ b/node_modules/react-native-qr-scanner/android/build.gradle
+@@ -46,6 +46,6 @@ repositories {
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:+'
+-    compile 'com.google.zxing:core:3.3.2'
++    implementation 'com.facebook.react:react-native:+'
++    implementation 'com.google.zxing:core:3.3.2'
+ }
