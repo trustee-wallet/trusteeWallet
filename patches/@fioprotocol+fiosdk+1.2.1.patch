@@ -1,0 +1,14 @@
+diff --git a/node_modules/@fioprotocol/fiosdk/android/build.gradle b/node_modules/@fioprotocol/fiosdk/android/build.gradle
+index 08bc9b9..70b5dd0 100644
+--- a/node_modules/@fioprotocol/fiosdk/android/build.gradle
++++ b/node_modules/@fioprotocol/fiosdk/android/build.gradle
+@@ -105,5 +105,8 @@ dependencies {
+     implementation "com.jraska:console:${consoleViewVer}"
+ 
+     testImplementation "junit:junit:${junitVer}"
++
++    implementation 'javax.annotation:javax.annotation-api:1.3.1'
++    annotationProcessor("javax.annotation:javax.annotation-api:1.3.2")
+ }
+   
+\ No newline at end of file
