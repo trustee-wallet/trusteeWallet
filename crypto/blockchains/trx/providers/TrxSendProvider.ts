@@ -33,7 +33,10 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
         }
     }
 
-    async _sendTx(tx: any, subtitle: string, txRBF: any, logData: any): Promise<{ transactionHash: string, logData : any }> {
+    async _sendTx(tx: any, subtitle: string, txRBF: any, logData: any): Promise<{
+        transactionHash: string,
+        logData: any
+    }> {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxSendProvider._sendTx ' + subtitle + ' started ', logData)
 
         const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
@@ -50,9 +53,9 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
         try {
             send = await BlocksoftAxios.post(link, tx)
         } catch (e) {
-           if (config.debug.cryptoErrors) {
-               console.log(this._settings.currencyCode + ' TrxSendProvider._sendTx broadcast error ' + e.message)
-           }
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' TrxSendProvider._sendTx broadcast error ' + e.message)
+            }
         }
 
         // @ts-ignore
@@ -107,22 +110,82 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
             }
         }
 
-        return {transactionHash : tx.txID, logData}
+        return { transactionHash: tx.txID, logData }
     }
 
-    async sendTx(tx: any, subtitle: string, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any, logData }> {
+    async sendTx(tx: any, subtitle: string, txRBF: any, logData: any): Promise<{
+        transactionHash: string,
+        transactionJson: any,
+        logData
+    }> {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxSendProvider.sendTx ' + subtitle + ' started ', logData)
 
-        let send, transactionHash
+        let send = false
+        let transactionHash = tx?.txID
+        let e = false
         try {
             send = await this._sendTx(tx, subtitle, txRBF, logData)
-            transactionHash = send.transactionHash
-        } catch (e) {
-            if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' TrxSendProvider.sendTx error ', e)
+            if (send && typeof send.transactionHash !== 'undefined') {
+                transactionHash = send.transactionHash
+            } else {
+                throw new Error('no transactionHash')
             }
+        } catch (e1) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' TrxSendProvider.sendTx error1 ', e1)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxSendProvider.sendTx error1 ' + e1.message + ' tx ' + JSON.stringify(tx))
+            e = e1
+        }
+        if (e) {
+            const sendLink = BlocksoftExternalSettings.getStatic('TRX_SEND_LINK')
+            const linkRecheck = sendLink + '/wallet/gettransactioninfobyid'
+            let checks = 0
+            let mined = false
+            do {
+                checks++
+                try {
+                    const recheck = await BlocksoftAxios.post(linkRecheck, {
+                        value: '1e4953eb95fc90d15e5f03f38d1c35bb5adf0ca920bf3de4582c2f95dc56f628'
+                    })
+                    if (typeof recheck.data !== 'undefined') {
+                        if (typeof recheck.data.id !== 'undefined' && typeof recheck.data.blockNumber !== 'undefined'
+                            && typeof recheck.data.receipt !== 'undefined' && typeof recheck.data.receipt.result !== 'undefined'
+                        ) {
+
+                            // @ts-ignore
+                            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx recheck on error ', {
+                                id: recheck.data.id,
+                                blockNumber: recheck.data.blockNumber,
+                                receipt: recheck.data.receipt
+                            })
+                            mined = true
+                            const minedStatus = recheck.data.receipt.result.toUpperCase()
+                            if (minedStatus === 'OUT_OF_ENERGY') {
+                                e = new Error(`account.transactionStatuses.out_of_energy`)
+                            } else if (minedStatus === 'FAILED') {
+                                e = new Error(`account.transactionStatuses.fail`)
+                            } else if (minedStatus === 'SUCCESS') {
+                                e = false
+                            }
+                            break
+                        }
+                    }
+                } catch (e1) {
+                    if (config.debug.cryptoErrors) {
+                        console.log(this._settings.currencyCode + ' TRX transaction recheck error ', e1)
+                    }
+                }
+            } while (checks < 10 && !mined)
+        }
+
+        if (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' TrxSendProvider.sendTx error2 ', e)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxSendProvider.sendTx error2 ' + e.message + ' tx ' + JSON.stringify(tx))
             try {
-                logData.error = e.message
+                logData.error = e.message + ' tx ' + JSON.stringify(tx?.txID) + ' send ' + JSON.stringify(send)
                 await this._checkError(tx.raw_data_hex, subtitle, txRBF, logData)
             } catch (e2) {
                 if (config.debug.cryptoErrors) {
@@ -132,7 +195,6 @@ export default class TrxSendProvider extends DogeSendProvider implements Blockso
             }
             throw e
         }
-
 
         try {
             logData = await this._checkSuccess(transactionHash, tx.raw_data_hex, subtitle, txRBF, logData)

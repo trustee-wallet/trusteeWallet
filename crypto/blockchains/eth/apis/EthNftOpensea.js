@@ -38,7 +38,7 @@ export default async function(data) {
     if (!data.address) return false
     link += '/account/' + data.address + '/nfts?limit=50'
     let result = false
-    console.log('EthNftOpensea chain ' + data.tokenBlockchainCode + ' link ' + link + ' started')
+    BlocksoftCryptoLog.log('EthNftOpensea chain ' + data.tokenBlockchainCode + ' link ' + link + ' started')
     try {
         const response = await fetch(link, {
             method: 'GET',
@@ -50,7 +50,7 @@ export default async function(data) {
         })
         result = await response.json()
     } catch (e) {
-        console.log('EthNftOpensea fetch chain ' + data.tokenBlockchainCode + ' link ' + link + ' error '  + e.message)
+        BlocksoftCryptoLog.log('EthNftOpensea fetch chain ' + data.tokenBlockchainCode + ' link ' + link + ' error '  + e.message)
     }
 
     const formatted = []
