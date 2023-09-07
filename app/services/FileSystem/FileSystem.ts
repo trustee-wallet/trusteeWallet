@@ -8,8 +8,8 @@ import { Platform } from 'react-native'
 import FilePermissions from './FilePermissions'
 
 const CACHE_ERROR = {
-    time : 0,
-    txt : ''
+    time: 0,
+    txt: ''
 }
 const CACHE_VALID_TIME_PAUSE = 10000
 
@@ -25,12 +25,17 @@ export class FileSystem {
 
     _fileEncoding: string = ''
 
-    constructor(params : {
-                    baseDir : string,
-                    fileEncoding: string,
-                    fileName : string,
-                    fileExtension : string
-     }) {
+    _fileDate: string = ''
+
+    _withDate: boolean = false
+
+    constructor(params: {
+        baseDir: string,
+        fileEncoding: string,
+        fileName: string,
+        fileExtension: string,
+        withDate: boolean
+    }) {
         if (RNFS.DocumentDirectoryPath) {
             this.coreDirname = RNFS.DocumentDirectoryPath
         } else {
@@ -39,6 +44,10 @@ export class FileSystem {
         this._fileDir = this.coreDirname + '/' + (params.baseDir || 'logs')
         this._fileEncoding = params.fileEncoding || 'base64'
         this._fileName = params.fileName || 'noName'
+        if (params.withDate) {
+            this._fileDate = new Date().toISOString().split('T')[0]
+            this._withDate = params.withDate
+        }
         this._fileExtension = params.fileExtension || 'txt'
     }
 
@@ -72,7 +81,11 @@ export class FileSystem {
     }
 
     getPath = (): string => {
-        return `${this._fileDir}/${this._fileName}.${this._fileExtension}`
+        if (this._withDate) {
+            return `${this._fileDir}/${this._fileName}.${this._fileDate}.${this._fileExtension}`
+        } else {
+            return `${this._fileDir}/${this._fileName}.${this._fileExtension}`
+        }
     }
 
     cleanFile = async (): Promise<void> => {
@@ -106,63 +119,58 @@ export class FileSystem {
         if (!FilePermissions.isOk()) {
             return
         }
-        let moving = ''
         let path = ''
         try {
             path = this.getPath()
-            if (!await RNFS.exists(path)) {
+        } catch (e) {
+            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow getPath error ' + e.message
+            return
+        }
+        if (!this._withDate) {
+            try {
+                if (!await RNFS.exists(path)) {
+                    return
+                }
+                const res = await RNFS.stat(path)
+                if (res.size * 1 > 7000000) { // 7 mb
+                    RNFS.unlink(path)
+                }
+            } catch (e) {
+                CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow withDate=false check error  ' + e.message
                 return
             }
-            const res = await RNFS.stat(path)
-            // @ts-ignore
-            if (res.size * 1 < 700000) { // 0.7 mb
-                for (let index = 5; index >= 1; index--) {
+            return
+        }
+        this._fileDate = new Date().toISOString().split('T')[0]
+
+        const items = await RNFS.readDir(this._fileDir)
+        if (!items) return
+
+        const line = new Date().toISOString().split('T')[0]
+        const line2 = new Date(new Date() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        const line3 = new Date(new Date() - 48 * 60 * 60 * 1000).toISOString().split('T')[0]
+        const line4 = new Date(new Date() - 72 * 60 * 60 * 1000).toISOString().split('T')[0]
+        const needKeepFilesArray = {}
+        // @ts-ignore
+        needKeepFilesArray[this._fileName + '.' + line + '.' + this._fileExtension] = 1
+        // @ts-ignore
+        needKeepFilesArray[this._fileName + '.' + line2 + '.' + this._fileExtension] = 1
+        // @ts-ignore
+        needKeepFilesArray[this._fileName + '.' + line3 + '.' + this._fileExtension] = 1
+        // @ts-ignore
+        needKeepFilesArray[this._fileName + '.' + line4 + '.' + this._fileExtension] = 1
+
+        for (const item of items) {
+            if (item.name.indexOf(this._fileName) === 0) {
+                // @ts-ignore
+                if (typeof needKeepFilesArray[item.name] === 'undefined') {
                     try {
-                        if (await RNFS.exists(path + '-' + index + '.txt')) {
-                            const res2 = await RNFS.stat(path + '-' + index + '.txt')
-                            if (res2 && typeof res2.size !== 'undefined' && res2.size * 1 > 900000) {
-                                await RNFS.unlink(path + '-' + index + '.txt')
-                            }
-                        }
+                        await RNFS.unlink(item.path)
                     } catch (e) {
-                        // nothing
+                        CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow withDate=true unlink error  ' + e.message
                     }
                 }
-                return
             }
-        } catch (e) {
-            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error11 ' + moving + ' ' + e.message
-            return
-        }
-
-        try {
-            for (let index = 5; index >= 1; index--) {
-                try {
-                    if (await RNFS.exists(path + '-' + index + '.txt')) {
-                        moving = path + '-' + index + '.txt => ' + path + '-' + (index + 1) + '.txt'
-                        await RNFS.moveFile(path + '-' + index + '.txt', path + '-' + (index + 1) + '.txt')
-                        await RNFS.unlink(path + '-' + index + '.txt')
-                    }
-                } catch (e) {
-                    // nothing
-                }
-            }
-        } catch (e) {
-            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error12 ' + moving + ' ' + e.message
-            return
-        }
-
-        try {
-            await RNFS.unlink(path + '-1.txt')
-        } catch (e) {
-            // do nothing
-        }
-
-        try {
-            moving = path + ' => ' + path + '-1.txt'
-            await RNFS.moveFile(path, path + '-1.txt')
-        } catch (e) {
-            CACHE_ERROR.txt = 'ERROR!!! FS.checkOverflow error13 ' + moving + ' ' + e.message
         }
     }
 
@@ -186,11 +194,11 @@ export class FileSystem {
         }
     }
 
-    getDir() : string {
+    getDir(): string {
         return this._fileDir
     }
 
-    handleImageBase64 = async (path : string) => {
+    handleImageBase64 = async (path: string) => {
         let res
         try {
             const resizedImageUrl = await ImageResizer.createResizedImage(path, 1920, 1080, 'JPEG', 100, 0, this.coreDirname)
@@ -201,7 +209,7 @@ export class FileSystem {
         return res
     }
 
-    v3handleImageBase64 = async (path : string) => {
+    v3handleImageBase64 = async (path: string) => {
         let res
         try {
             const resizedImageUrl = await ImageResizer.createResizedImage(path, 1920, 1080, 'JPEG', 80, 0, this.coreDirname)

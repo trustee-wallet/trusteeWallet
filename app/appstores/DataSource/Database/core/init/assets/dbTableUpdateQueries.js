@@ -18,7 +18,7 @@ import { FileSystem } from '@app/services/FileSystem/FileSystem'
 
 export default function getTableUpdateQueries() {
     return {
-        maxVersion: 139,
+        maxVersion: 140,
         updateQuery: {
             1: {
                 queryString: `ALTER TABLE account ADD COLUMN transactions_scan_time INTEGER NULL`,
@@ -1007,7 +1007,7 @@ export default function getTableUpdateQueries() {
             138: {
                 afterFunction: async (dbInterface) => {
                     try {
-                        const zp = new FileSystem({ baseDir: 'zip', fileName: 'logsB', fileExtension: 'zip' })
+                        const zp = new FileSystem({ baseDir: 'zip', fileName: 'logsB', withDate: false, fileExtension: 'zip' })
                         await zp.cleanDir()
                         await Log.FS.ALL.cleanFile()
                         await Log.FS.TEST.cleanFile()
@@ -1026,6 +1026,22 @@ export default function getTableUpdateQueries() {
                         await dbInterface.query(`DELETE FROM transactions WHERE address_amount=0 AND currency_code='TRX_USDT'`)
                     } catch (e) {
                         console.log('DB/Update afterFunction - Migration 139 error', e)
+                    }
+                }
+            },
+
+            140: {
+                afterFunction: async (dbInterface) => {
+                    try {
+                        const zp = new FileSystem({ baseDir: 'zip', fileName: 'logsB', withDate: false, fileExtension: 'zip' })
+                        await zp.cleanDir()
+                        await Log.FS.ALL.cleanFile()
+                        await Log.FS.TEST.cleanFile()
+                        await Log.FS.DAEMON.cleanFile()
+                        await BlocksoftCryptoLog.FS.cleanFile()
+                        await Log.FS.ALL.cleanDir()
+                    } catch (e) {
+                        console.log('DB/Update afterFunction - Migration 140 error', e)
                     }
                 }
             },

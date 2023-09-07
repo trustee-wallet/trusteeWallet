@@ -14,7 +14,7 @@ import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyn
 
 class SendLog {
     async getAll(basicText = '', params = {}) {
-        const forceFileContent = typeof params.forceFileContent !== 'undefined' ? forceFileContent : false
+        const forceFileContent = typeof params.forceFileContent !== 'undefined' ? params.forceFileContent : false
         let deviceToken = ''
         try {
             deviceToken = trusteeAsyncStorage.getFcmTokensAll()
@@ -38,11 +38,10 @@ class SendLog {
         let zipFsError = false
         let zipFs
         let fs
-        let logSizes = ''
         try {
             const line = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '-').replace(/:/, '-').replace(/:/, '-')
-            zipFs = new FileSystem({ baseDir: 'zip', fileName: 'logs-' + line, fileExtension: 'zip' })
-            fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'SQL', fileExtension: 'txt' })
+            zipFs = new FileSystem({ baseDir: 'zip', fileName: 'logs-' + line, withDate: false, fileExtension: 'zip' })
+            fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'SQL',  withDate: false, fileExtension: 'txt' })
             await fs.cleanFile()
         } catch (e) {
             zipFsError = true
@@ -68,7 +67,6 @@ class SendLog {
             // do nothing again
         }
 
-        logSizes = '\n\nSIZES ' + await fs.countDir()
 
         let tmp = Log.FS.ALL.getError()
         if (tmp && tmp !== '') {

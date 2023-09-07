@@ -434,7 +434,7 @@ class MarketScreen extends PureComponent {
         RNFS.writeFile(path, orderHistory.data, 'utf8')
             .then(async () => {
                 Log.log('Market/MainScreen saveOrderHistory success save file ', path)
-                const fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'trusteeOrdersHistory', fileExtension: 'csv' });
+                const fs = new FileSystem({ fileEncoding: 'utf8', fileName: 'trusteeOrdersHistory', withDate: false, fileExtension: 'csv' });
 
                 const shareOptions = {
                     title: orderHistory.title,

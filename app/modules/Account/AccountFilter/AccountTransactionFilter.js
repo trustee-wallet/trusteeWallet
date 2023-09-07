@@ -204,7 +204,7 @@ class TransactionFilter extends React.PureComponent {
         RNFS.writeFile(path, csv, 'utf8')
             .then(async () => {
                 Log.log('Account/AccountTransactionFilter saveTxHistory success save file ', path)
-                const fs = new FileSystem({ fileEncoding: 'utf8', fileName: `TRUSTEE_REPORT_${currencyCode}`, fileExtension: 'csv' });
+                const fs = new FileSystem({ fileEncoding: 'utf8', fileName: `TRUSTEE_REPORT_${currencyCode}`, withDate: false, fileExtension: 'csv' });
 
                 const shareOptions = {
                     url: await fs.getPathOrBase64()
