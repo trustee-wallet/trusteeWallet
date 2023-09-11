@@ -405,7 +405,7 @@ async function _sendTxTrx(shortLink, params, langMsg, uiParams) {
 const _wrapError = (e) => {
     let msg = e.toString()
     Log.log('AccountStaking.helper._wrapError ' + msg)
-    if (msg.indexOf('SERVER_RESPONSE_') !== -1) {
+    if (e.message.indexOf('SERVER_RESPONSE_') !== -1 || msg.indexOf('SERVER_RESPONSE_') !== -1) {
         msg = strings('send.errors.' + e.message)
     } else if (msg.indexOf('less than 24 hours') !== -1) {
         msg = strings('settings.walletList.waitToClaimTRX')
