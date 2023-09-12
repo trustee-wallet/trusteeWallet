@@ -103,24 +103,44 @@ export default {
                     nettype_string: options.nettype,
                     unspentOuts: options.unspentOuts
                 }
-
-            let retString
-            try {
-                retString = await MY_MONERO.core.Module.prepareTx(JSON.stringify(args, null, ''))
-            } catch (e) {
-                throw Error('MY_MONERO.core.Module.prepareTx error ' + e.message)
+            const argsLog =
+                {
+                    destinations: options.destinations,
+                    is_sweeping: options.shouldSweep,
+                    from_address_string: options.address,
+                    sec_viewKey_string: options.privateViewKey ? 'options.privateViewKey' : 'none',
+                    sec_spendKey_string: options.privateSpendKey ? 'options.privateSpendKey' : 'none',
+                    pub_spendKey_string: options.publicSpendKey,
+                    priority: '' + options.priority,
+                    nettype_string: options.nettype,
+                    unspentOuts: options.unspentOuts ? JSON.stringify(options.unspentOuts).substring(0, 100) : 'none'
+                }
+            let retString, ret
+            let tries = 0
+            const argsTxt = JSON.stringify(args, null, '')
+            const argsTxtLog = JSON.stringify(argsLog, null, '')
+            while (typeof ret?.amounts?.length === 'undefined' && tries < 4) {
+                try {
+                    retString = await MY_MONERO.core.Module.prepareTx(argsTxt)
+                } catch (e) {
+                    throw Error('MY_MONERO.core.Module.prepareTx error ' + e.message)
+                }
+                try {
+                    ret = JSON.parse(retString)
+                } catch (e) {
+                    throw Error('MY_MONERO.core.Module.prepareTx JSON.parse error ' + e.message + ' ' + retString)
+                }
+                // check for any errors passed back from WebAssembly
+                if (ret?.err_msg) {
+                    BlocksoftCryptoLog.log('MoneroUtilsParser ret.err_msg error ' + ret.err_msg)
+                    return false
+                }
+                tries++
             }
 
-            let ret
-            try {
-                ret = JSON.parse(retString)
-            } catch (e) {
-                throw Error('MY_MONERO.core.Module.prepareTx JSON.parse error ' + e.message + ' ' + retString)
-            }
-            // check for any errors passed back from WebAssembly
-            if (ret.err_msg) {
-                BlocksoftCryptoLog.log('MoneroUtilsParser ret.err_msg error ' + ret.err_msg)
-                return false
+            if (typeof ret?.amounts?.length === 'undefined') {
+                BlocksoftCryptoLog.log('MoneroUtilsParser ret?.amounts?.length undefined retString ' + retString + ' argsTxt ' + argsTxtLog)
+                throw Error('Invalid ret?.amounts?.length in randomOutsCb response')
             }
 
             const _getRandomOuts = async (numberOfOuts, randomOutsCb) => {
@@ -130,11 +150,10 @@ export default {
                 }
                 return randomOuts
             }
+            BlocksoftCryptoLog.log('MoneroUtilsParser ret?.amounts ' + JSON.stringify(ret?.amounts) + ' length ' + ret?.amounts?.length)
+            const randomOuts = await _getRandomOuts(ret?.amounts?.length, options.randomOutsCb)
 
-            BlocksoftCryptoLog.log('MoneroUtilsParser ret?.amounts?.length ' + ret?.amounts?.length)
 
-            // fetch random decoys
-            const randomOuts = await _getRandomOuts(ret?.amounts?.length || 0, options.randomOutsCb)
             // send random decoys on and complete the tx creation
             let retString2
             try {
@@ -142,6 +161,7 @@ export default {
             } catch (e) {
                 throw Error('MY_MONERO.core.Module.createAndSignTx error ' + e.message)
             }
+
             let rawTx
             try {
                 rawTx = JSON.parse(retString2)
@@ -152,7 +172,7 @@ export default {
             if (rawTx.err_msg) {
                 throw Error(rawTx.err_msg)
             }
-            // parse variables ruturned as strings
+            // parse variables returned as strings
             rawTx.mixin = parseInt(rawTx.mixin)
             rawTx.isXMRAddressIntegrated = rawTx.isXMRAddressIntegrated === 'true'
 
