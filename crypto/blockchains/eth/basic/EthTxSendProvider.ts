@@ -192,10 +192,23 @@ export default class EthTxSendProvider {
                     }
                 }
 
+            } else if (this._mainCurrencyCode === 'ETC') {
+                sendLink = link
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send get ', sendLink + rawTransaction)
+                result = await BlocksoftAxios.get(sendLink + rawTransaction)
             } else {
                 sendLink = link
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send post ', rawTransaction)
-                result = await BlocksoftAxios.post(sendLink, rawTransaction)
+                try {
+                    result = await BlocksoftAxios.post(sendLink, rawTransaction)
+                } catch (e1) {
+                    if (e1.message.indexOf('could not determine redirect url') !== -1) {
+                        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send get ', sendLink + rawTransaction)
+                        result = await BlocksoftAxios.get(sendLink + rawTransaction)
+                    } else {
+                        throw e1
+                    }
+                }
             }
             // @ts-ignore
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', typeof result !== 'undefined' && result ? result.data : 'NO RESULT')
