@@ -30,7 +30,7 @@ import store from '@app/store'
 let core = false
 let web3wallet = false
 
-const WC_PROJECT_ID = 'daa39ed4fa0978cc19a9c9c0a2a7015c' // https://cloud.walletconnect.com/app/project
+const WC_PROJECT_ID = 'acf247418560ed01a616cc66231ff430' // https://cloud.walletconnect.com/app/project
 
 const _getPrivateData = async (from) => {
     const accountList = store.getState().accountStore.accountList
