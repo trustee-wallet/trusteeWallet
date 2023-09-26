@@ -11161,10 +11161,10 @@ react-native-modal@^13.0.0:
     prop-types "^15.6.2"
     react-native-animatable "1.3.3"
 
-react-native-mymonero-core@0.2.3:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/react-native-mymonero-core/-/react-native-mymonero-core-0.2.3.tgz#1653ef0f40bb9f0ae8ca202a3e53a02f6445a45f"
-  integrity sha512-N5Hi/X2aN3D4OsdbsWUWxbiZG07k2bpo0TiYWie62sTFN1g2dwvZUDKprcgj0Dl/hQJV5V64RLmkSrd3mg2zOw==
+react-native-mymonero-core@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/react-native-mymonero-core/-/react-native-mymonero-core-0.3.1.tgz#5ef77034d2eec9f494e3a4cba78b7f91bf115901"
+  integrity sha512-FD0ePHvF3udSYvGMktQ8SruQ882+cOhlxp6plSCaqtI/Q/D+LTLFLYZ9bukA7iFA4AJ24Y3mkN8Aj5WZjSOOnw==
   dependencies:
     "@mymonero/mymonero-bigint" "^1.4.2"
     "@mymonero/mymonero-money-format" "^1.4.2"

@@ -14,6 +14,7 @@ import BlocksoftAxios from '../../common/BlocksoftAxios'
 import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import BlocksoftSecrets from '@crypto/actions/BlocksoftSecrets/BlocksoftSecrets'
 import config from '@app/config/config'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const bitcoin = require('bitcoinjs-lib')
 const networksConstants = require('../../common/ext/networks-constants')
@@ -99,10 +100,13 @@ export default class XmrAddressProcessor {
                 generated_locally: true
             }
             let resLogin = false
-            try {
-                resLogin = await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin)
-            } catch (e) {
-                BlocksoftCryptoLog.log('XmrAddressProcessor login error ' + e.message, linkParamsLogin)
+            const val = await settingsActions.getSetting('xmrAllowMyMonero')
+            if (val !== '-1') {
+                try {
+                    resLogin = await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin)
+                } catch (e) {
+                    BlocksoftCryptoLog.log('XmrAddressProcessor login error ' + e.message, linkParamsLogin)
+                }
             }
             if (!resLogin || typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
                 try {

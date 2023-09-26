@@ -62,7 +62,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         const logFees = []
         let noBalanceError = false
-        apiClient.init()
+        await apiClient.init()
 
 
         const unspentOuts = await apiClient._getUnspents({

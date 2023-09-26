@@ -17,21 +17,26 @@ export default class XmrUnspentsProvider {
         this._cache = {}
     }
 
-    init() {
-        if (this._link) return false
+   async init() {
         this._serverUrl = settingsActions.getSettingStatic('xmrServer')
-        if (!this._serverUrl || this._serverUrl === 'false') {
-            this._serverUrl = 'api.mymonero.com:8443'
+        let link = false
+        if (!this._serverUrl || this._serverUrl === 'false' || this._serverUrl.indexOf('api.mymonero.com') !== -1) {
+            const val = await settingsActions.getSetting('xmrAllowMyMonero')
+            if (val !== '-1') {
+                this._serverUrl = 'api.mymonero.com:8443'
+            } else {
+                this._serverUrl = false
+            }
         }
-
-        let link = this._serverUrl.trim()
-        if (link.substr(0, 4).toLowerCase() !== 'http') {
-            link = 'https://' + this._serverUrl
+        if (this._serverUrl) {
+            link = this._serverUrl.trim()
+            if (link.substr(0, 4).toLowerCase() !== 'http') {
+                link = 'https://' + this._serverUrl
+            }
+            if (link[link.length - 1] !== '/') {
+                link = link + '/'
+            }
         }
-        if (link[link.length - 1] !== '/') {
-            link = link + '/'
-        }
-
         this._link = link
         this._cache = {}
     }
@@ -52,11 +57,14 @@ export default class XmrUnspentsProvider {
                     dust_threshold: '2000000000'
                 }
                 */
-                try {
-                    res = await BlocksoftAxios.post(this._link + 'get_unspent_outs', params)
-                    await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents res ' + JSON.stringify(res.data).substr(0, 200))
-                } catch (e) {
-                    await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents ' + this._link + 'get_unspent_outs error ' + e.message)
+                if (this._link) {
+                    try {
+                        res = await BlocksoftAxios.post(this._link + 'get_unspent_outs', params)
+                        await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents res ' + JSON.stringify(res.data).substr(0, 200))
+                    } catch (e) {
+                        await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getUnspents ' + this._link + 'get_unspent_outs error ' + e.message)
+                    }
+
                 }
 
 
@@ -107,11 +115,13 @@ export default class XmrUnspentsProvider {
                 console.log('XmrUnspentsProvider Xmr._getRandomOutputs load ' + this._link + 'get_random_outs params ' + JSON.stringify(params))
             }
             let res = false
-            try {
-                res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
-                await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs res ' + JSON.stringify(res.data).substr(0, 200))
-            } catch (e) {
-                await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs ' + this._link + 'get_random_outs error ' + e.message)
+            if (this._link) {
+                try {
+                    res = await BlocksoftAxios.post(this._link + 'get_random_outs', params)
+                    await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs res ' + JSON.stringify(res.data).substr(0, 200))
+                } catch (e) {
+                    await BlocksoftCryptoLog.log('XmrUnspentsProvider Xmr._getRandomOutputs ' + this._link + 'get_random_outs error ' + e.message)
+                }
             }
 
             if (!res || typeof res.data === 'undefined' || !typeof res.data || typeof res.data.amount_outs === 'undefined' || !res.data.amount_outs || res.data.amount_outs.length === 0) {
