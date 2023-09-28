@@ -69,7 +69,8 @@ const _getAccounts = (payload) => {
         return false
     }
     const currentETHAddress = accountList[walletHash]['ETH']
-    const namespaces = {}
+    let namespaces = {}
+    let found = 0
     for (const key in requiredNamespaces) {
         const accounts = []
         for (const chain of requiredNamespaces[key].chains) {
@@ -85,10 +86,20 @@ const _getAccounts = (payload) => {
                 accounts.push(`${chain}:${currentETHAddress.address}`)
             }
         }
+        found++
         namespaces[key] = {
             accounts,
             methods: requiredNamespaces[key].methods,
             events: requiredNamespaces[key].events
+        }
+    }
+    if (!found) {
+        namespaces = {
+            'eip155': {
+                'accounts': [`eip155:1:${currentETHAddress.address}`],
+                'methods': ['eth_sendTransaction', 'personal_sign'],
+                'events': ['chainChanged', 'accountsChanged']
+            }
         }
     }
     return {
@@ -254,7 +265,7 @@ const walletConnectService = {
             for (const key in activeSessions) {
                 const res = {
                     key,
-                    topic : activeSessions[key].topic,
+                    topic: activeSessions[key].topic,
                     peer: activeSessions[key].peer.metadata
                 }
                 connections.push(res)
@@ -268,20 +279,20 @@ const walletConnectService = {
         return connections
     },
 
-   killConnections: async (walletConnector) => {
+    killConnections: async (walletConnector) => {
         const connections = []
         try {
             const activeSessions = await walletConnector.getActiveSessions()
             for (const key in activeSessions) {
                 const res = {
                     key,
-                    topic : activeSessions[key].topic,
+                    topic: activeSessions[key].topic,
                     peer: activeSessions[key].peer.metadata
                 }
                 try {
                     await walletConnector.disconnectSession({
                         topic: activeSessions[key].topic,
-                        reason: getSdkError("USER_DISCONNECTED"),
+                        reason: getSdkError('USER_DISCONNECTED')
                     })
                 } catch (e) {
                     if (config.debug.appErrors) {
