@@ -2711,7 +2711,7 @@
 		"addressUiChecker": "TRX",
 		"ratesCurrencyCode": "UAHG",
 		"network": "trx",
-		"decimals": 18,
+		"decimals": 6,
 		"tokenBlockchain": "TRON",
 		"tokenName": "TK4zHRAU1WrRPivksia3BMs2JvSLT63opb",
 		"currencyExplorerLink": "https://tronscan.org/#/address/",
