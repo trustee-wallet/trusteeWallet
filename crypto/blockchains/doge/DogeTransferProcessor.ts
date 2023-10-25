@@ -570,7 +570,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         let foundFee = uiData.selectedFee
         if (data.addressTo !== uiData.selectedFee.addressToTx) {
             try {
-                console.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' fee rebuild start as got tx to ' + uiData.selectedFee.addressToTx)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' fee rebuild start as got tx to ' + uiData.selectedFee.addressToTx)
                 const newSelectedFee = await this.getFeeRate(data, privateData)
                 if (typeof newSelectedFee.fees === 'undefined' || !newSelectedFee.fees) {
                     throw new Error('no fees')
