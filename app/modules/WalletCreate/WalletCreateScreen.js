@@ -12,7 +12,7 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import { setCallback, setFlowType, setMnemonicLength, setWalletName } from '@app/appstores/Stores/CreateWallet/CreateWalletActions'
 
-import { strings } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
 import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
@@ -99,12 +99,33 @@ class WalletCreateScreen extends PureComponent {
     }
 
     handleTermsPress = () => {
-        const url = BlocksoftCustomLinks.getLink(`TERMS`, this.context.isLight)
+        const locale = sublocale()
+
+        let link = 'TERMS'
+        if (locale === 'uk') {
+            link += '_UK'
+        } else if (locale === 'ru') {
+            link += '_RU'
+        } else {
+            link += '_EN'
+        }
+        
+        const url = BlocksoftCustomLinks.getLink(link, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.termsTitle'), backOnClose: true })
     }
 
     handlePrivacyPolicyPress = () => {
-        const url = BlocksoftCustomLinks.getLink(`PRIVACY_POLICY`, this.context.isLight)
+        const locale = sublocale()
+
+        let link = 'PRIVACY_POLICY'
+        if (locale === 'uk') {
+            link += '_UK'
+        } else if (locale === 'ru') {
+            link += '_RU'
+        } else {
+            link += '_EN'
+        }
+        const url = BlocksoftCustomLinks.getLink(link, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.privacyPolicyTitle'), backOnClose: true })
     }
 
