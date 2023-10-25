@@ -5,6 +5,7 @@
  */
 import 'react-native'
 import * as Keychain from 'react-native-keychain'
+import { STORAGE_TYPE } from 'react-native-keychain'
 
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import config from '@app/config/config'
@@ -64,7 +65,8 @@ export class BlocksoftKeysStorage {
             authenticationPrompt: {
                 title: 'Fingerprint title',
                 cancel: 'Cancel'
-            }
+            },
+            storage: STORAGE_TYPE.FB
         })
         if (!res) return false
         return { 'pub': res.username, 'priv': res.password }
@@ -87,6 +89,7 @@ export class BlocksoftKeysStorage {
                     title: 'Fingerprint title',
                     cancel: 'Cancel'
                 },
+                storage: STORAGE_TYPE.FB
                 // if will be breaking again try accessControl : 'BiometryAnyOrDevicePasscode'
             })
         } catch (e) {
