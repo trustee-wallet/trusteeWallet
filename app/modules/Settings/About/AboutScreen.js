@@ -15,7 +15,7 @@ import {
 
 import NavStore from '@app/components/navigation/NavStore'
 
-import { strings } from '@app/services/i18n'
+import { strings, sublocale } from '@app/services/i18n'
 
 import { setLoaderStatus } from '@app/appstores/Stores/Main/MainStoreActions'
 
@@ -63,12 +63,33 @@ class AboutScreen extends PureComponent {
     handleClose = () => { NavStore.reset('HomeScreen') }
 
     handleTermsPress = () => {
-        const url = BlocksoftCustomLinks.getLink(`TERMS`, this.context.isLight)
+        const locale = sublocale()
+
+        let link = 'TERMS'
+        if (locale === 'uk') {
+            link += '_UK'
+        } else if (locale === 'ru') {
+            link += '_RU'
+        } else {
+            link += '_EN'
+        }
+        
+        const url = BlocksoftCustomLinks.getLink(link, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.terms') })
     }
 
     handlePrivacyPolicyPress = () => {
-        const url = BlocksoftCustomLinks.getLink(`PRIVACY_POLICY`, this.context.isLight)
+        const locale = sublocale()
+
+        let link = 'PRIVACY_POLICY'
+        if (locale === 'uk') {
+            link += '_UK'
+        } else if (locale === 'ru') {
+            link += '_RU'
+        } else {
+            link += '_EN'
+        }
+        const url = BlocksoftCustomLinks.getLink(link, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('settings.about.privacy') })
     }
 
