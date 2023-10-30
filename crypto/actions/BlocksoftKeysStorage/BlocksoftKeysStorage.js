@@ -61,12 +61,26 @@ export class BlocksoftKeysStorage {
      * @private
      */
     async _getKeyValue(key) {
+        /*
+        try {
+            console.log('SAVED ' + JSON.stringify(await Keychain.getInternetCredentials('TEST_KSU')))
+        } catch (e) {
+            console.log(`
+
+
+
+!!! getString TEST_KSU value error ` + e.message + `
+
+            `)
+            throw e
+        }
+        */
+
         const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key, {
             authenticationPrompt: {
                 title: 'Fingerprint title',
                 cancel: 'Cancel'
-            },
-            storage: STORAGE_TYPE.FB
+            }
         })
         if (!res) return false
         return { 'pub': res.username, 'priv': res.password }
@@ -89,7 +103,6 @@ export class BlocksoftKeysStorage {
                     title: 'Fingerprint title',
                     cancel: 'Cancel'
                 },
-                storage: STORAGE_TYPE.FB
                 // if will be breaking again try accessControl : 'BiometryAnyOrDevicePasscode'
             })
         } catch (e) {
