@@ -31,7 +31,7 @@ const Nfts = [
         tokenBlockchain: 'MATIC',
         tokenBlockchainCode: 'MATIC',
         currencyType: 'NFT',
-        apiType: 'OPENSEA',
+        apiType: 'MATIC',
         explorerLink: 'https://polygonscan.com/token/',
         showOnHome: false
     },
