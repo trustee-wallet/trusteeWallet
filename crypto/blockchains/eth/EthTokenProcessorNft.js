@@ -1,12 +1,17 @@
 /**
- * @version 0.50
+ * @version 0.51
  */
 import EthBasic from './basic/EthBasic'
 import EthNftOpensea from '@crypto/blockchains/eth/apis/EthNftOpensea'
 import EthNftMatic from '@crypto/blockchains/eth/apis/EthNftMatic'
+
 import abi from './ext/erc721.js'
 import config from '@app/config/config'
 import BlocksoftDictNfts from '@crypto/common/BlocksoftDictNfts'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+
+const PROXY_NFTS = 'https://proxy.trustee.deals/nfts/getNfts'
 
 export default class EthTokenProcessorNft extends EthBasic {
 
@@ -18,6 +23,10 @@ export default class EthTokenProcessorNft extends EthBasic {
     async getListBlockchain(data) {
 
         const settings = BlocksoftDictNfts.NftsIndexed[data.tokenBlockchainCode]
+        if (typeof settings === 'undefined') {
+            return false
+        }
+        /*
         if (
            typeof settings !== 'undefined' && typeof settings.apiType !== 'undefined' && settings.apiType === 'OPENSEA'
         ) {
@@ -25,6 +34,16 @@ export default class EthTokenProcessorNft extends EthBasic {
         } else {
             return EthNftMatic(data)
         }
+        */
+
+        try {
+            const res = await BlocksoftAxios.get(PROXY_NFTS + '?address=' + data.address + '&tokenBlockchainCode=' + data.tokenBlockchainCode + '&customAssets=' + JSON.stringify(data.customAssets))
+            BlocksoftCryptoLog.log('EthTokenProcessorNft getListBlockchain res ' + JSON.stringify(res.data).substr(0, 200))
+            return res.data
+        } catch (e) {
+            BlocksoftCryptoLog.log('EthTokenProcessorNft getListBlockchain error ' + e.message)
+        }
+        return false
     }
 
     async getNftDetails(nftAddress, nftType) {

@@ -3,6 +3,7 @@
  */
 import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import config from '@app/config/config'
 
 const API_PATH = 'https://api.opensea.io/v2/chain/ethereum'
 const API_MATIC_PATH = 'https://api.opensea.io/v2/chain/matic'
@@ -11,6 +12,8 @@ const API_BNB_PATH = 'https://api.opensea.io/v2/chain/bnb'
 const PERMALINK_PATH = 'https://opensea.io/assets/ethereum'
 const PERMALINK_MATIC_PATH = 'https://opensea.io/assets/matic'
 const PERMALINK_BNB_PATH = 'https://opensea.io/assets/bnb'
+
+const API_KEY = '8b95f9e6d52b42fe8c19ddea847c0f5d'
 
 /**
  * https://docs.opensea.io/reference/retrieve-nfts-by-account
@@ -38,19 +41,30 @@ export default async function(data) {
     if (!data.address) return false
     link += '/account/' + data.address + '/nfts?limit=50'
     let result = false
+    let status = false
+    let text = ''
+
     BlocksoftCryptoLog.log('EthNftOpensea chain ' + data.tokenBlockchainCode + ' link ' + link + ' started')
     try {
         const response = await fetch(link, {
             method: 'GET',
             headers: {
-                'X-API-KEY': '22b6f5505ebe454cb91f4748bfacd183',
+                'X-API-KEY': API_KEY,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
         })
+        status = response.status
+        if (response.status  === 401 ) {
+            text = await response.text()
+            throw new Error(text)
+        }
         result = await response.json()
     } catch (e) {
-        BlocksoftCryptoLog.log('EthNftOpensea fetch chain ' + data.tokenBlockchainCode + ' link ' + link + ' error '  + e.message)
+        if (config.debug.appErrors) {
+            console.log('EthNftOpensea fetch chain ' + data.tokenBlockchainCode + ' link ' + link + ' error '  + e.message + ' with status ' + status + ' and key ' + API_KEY)
+        }
+        BlocksoftCryptoLog.log('EthNftOpensea fetch chain ' + data.tokenBlockchainCode + ' link ' + link + ' error '  + e.message + ' with status ' + status + ' and key ' + API_KEY)
     }
 
     const formatted = []
