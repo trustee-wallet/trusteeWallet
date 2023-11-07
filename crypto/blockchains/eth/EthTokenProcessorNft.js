@@ -37,9 +37,13 @@ export default class EthTokenProcessorNft extends EthBasic {
         */
 
         try {
-            const res = await BlocksoftAxios.get(PROXY_NFTS + '?address=' + data.address + '&tokenBlockchainCode=' + data.tokenBlockchainCode + '&customAssets=' + JSON.stringify(data.customAssets))
+            let link = PROXY_NFTS + '?address=' + data.address + '&tokenBlockchainCode=' + data.tokenBlockchainCode + '&customAssets='
+            if (typeof data.customAssets !== 'undefined') {
+                link += typeof data.customAssets.join !== 'undefined' ? data.customAssets.join(',') : data.customAssets
+            }
+            const res = await BlocksoftAxios.get(link)
             BlocksoftCryptoLog.log('EthTokenProcessorNft getListBlockchain res ' + JSON.stringify(res.data).substr(0, 200))
-            return res.data
+            return typeof res?.data?.data !== 'undefined' ? res?.data?.data : false
         } catch (e) {
             BlocksoftCryptoLog.log('EthTokenProcessorNft getListBlockchain error ' + e.message)
         }
