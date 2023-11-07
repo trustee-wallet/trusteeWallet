@@ -133,6 +133,7 @@ const CACHE = {
     'HOW_WORK_CPA_LINK' : 'https://trusteeglobal.com/cpa/',
     'TRX_STAKING_LINK' : 'https://blog.trusteeglobal.com/stejking-trona-i-kak-zarabotat/',
     'TRX_SPAM_LIMIT': 40000,
+    'TRX_SPAM_LIMIT_USDT': 1000000,
     'TRX_BASIC_PRICE_WHEN_NO_BAND':  100000,
     'TRX_TRC20_BAND_PER_TX': 350,
     'TRX_TRC20_PRICE_PER_BAND': 140,

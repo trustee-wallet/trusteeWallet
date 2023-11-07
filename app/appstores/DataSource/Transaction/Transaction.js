@@ -351,6 +351,12 @@ class Transaction {
                     NOT(currency_code='TRX' AND transaction_direction = 'income' AND address_amount<${spamLimit})
                     `)
             }
+            const spamLimitUSDT = BlocksoftExternalSettings.getStatic('TRX_SPAM_LIMIT_USDT') * 1
+            if (spamLimitUSDT > 1) {
+                where.push(`
+                    NOT(currency_code='TRX_USDT' AND transaction_direction = 'income' AND address_amount<${spamLimitUSDT})
+                    `)
+            }
         }
 
 
