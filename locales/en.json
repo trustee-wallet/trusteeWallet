@@ -921,7 +921,8 @@
      "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Insufficient balance to make the transaction",
      "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Insufficient amount to stake in the transaction",
      "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Selected address is not validator",
-     "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "The recipient's address is empty. Cannot send tokens to address with zero SOL balance in the Solana blockchain"
+     "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "The recipient's address is empty. Cannot send tokens to address with zero SOL balance in the Solana blockchain",
+      "SERVER_RESPONSE_SPAM_ADDRESS": "Destination address is tagged by the platform as suspected fraud or spam."
     }
   },
   "walletBackup": {

@@ -920,7 +920,8 @@
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL": "Solde insuffisant pour effectuer la transaction",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL": "Montant insuffisant pour participer à la transaction",
       "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL": "L'adresse sélectionnée n'est pas un validateur",
-      "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "L'adresse du destinataire est vide. Sur la blockchain Solana, il n'est pas possible d'envoyer des jetons à une adresse avec un solde SOL nul"
+      "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "L'adresse du destinataire est vide. Sur la blockchain Solana, il n'est pas possible d'envoyer des jetons à une adresse avec un solde SOL nul",
+      "SERVER_RESPONSE_SPAM_ADDRESS": "Destination address is tagged by the platform as suspected fraud or spam."
     }
   },
   "walletBackup": {

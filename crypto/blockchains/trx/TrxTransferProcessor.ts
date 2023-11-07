@@ -27,7 +27,7 @@ const ethers = require('ethers')
 const ADDRESS_PREFIX_REGEX = /^(41)/
 const AbiCoder = ethers.utils.AbiCoder
 const PROXY_FEE = 'https://proxy.trustee.deals/trx/countFee'
-
+const CACHE_ADDRESS_TO = {}
 export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: any
     private _tronscanProvider: TrxTronscanProvider
@@ -92,27 +92,50 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             BlocksoftCryptoLog.log('TrxTransferProcessor.getFeeRateOld check address ' + data.addressTo + ' hex ' + addressHexTo + ' => ' + TronUtils.addressHexToStr(addressHexTo))
             throw new Error('TRX SYSTEM ERROR - Please check address ' + data.addressTo)
         }
+        if (typeof data.addressTo !== 'undefined' && typeof CACHE_ADDRESS_TO[data.addressTo] !== 'undefined') {
+            throw new Error(CACHE_ADDRESS_TO[data.addressTo])
+        }
+
+        let result = false
+        let res = false
+        let tries = 0
+        do {
+            try {
+                const link = PROXY_FEE + '?from=' + data.addressFrom + '&fromHex=' + TronUtils.addressToHex(data.addressFrom) + '&to=' + data.addressTo + '&toHex=' + addressHexTo
+                    + '&token=' + this._tokenName + '&tokenHex=' + (this._isToken20 ? TronUtils.addressToHex(this._tokenName) : '')
+                    + '&amount=' + data.amount + '&isTransferAll=' + (data.isTransferAll ? 1 : 0)
+                    + '&forceLang=' + sublocale()
+                try {
+                    res = await BlocksoftAxios.get(link)
+                } catch (e) {
+                    throw new Error('no proxy fee for ' + link)
+                }
+                res = res.data
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate ' + link + ' res ', res)
+                }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate ' + link + ' res ', res)
+            } catch (e) {
+                if (e.message.indexOf('SERVER_RESPONSE_') === 0) {
+                    throw e
+                }
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate new error1 ' + e.message)
+                }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate new error1 ' + e.message)
+            }
+            tries++
+        } while (!res && tries<10)
+
+        if (res?.status === 'check_error' && res?.msg) {
+            CACHE_ADDRESS_TO[data.addressTo] = res?.msg
+            throw new Error(res?.msg)
+        }
 
         try {
-            const link = PROXY_FEE + '?from=' + data.addressFrom + '&fromHex=' + TronUtils.addressToHex(data.addressFrom) + '&to=' + data.addressTo + '&toHex=' + addressHexTo
-                + '&token=' + this._tokenName + '&tokenHex=' + (this._isToken20 ? TronUtils.addressToHex( this._tokenName) : '')
-                + '&amount=' + data.amount + '&isTransferAll=' + (data.isTransferAll ? 1 : 0)
-            let res = false
-            try {
-                res = await BlocksoftAxios.get(link)
-            } catch (e) {
-                throw new Error('no proxy fee for ' + link)
-            }
-            res = res.data
-            if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate ' + link + ' res ', res)
-            }
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate ' + link + ' res ', res)
-            if (typeof res.feeForTx === 'undefined') {
+            if (typeof res?.feeForTx === 'undefined') {
                 throw new Error('no res?.feeForTx')
             }
-
-            let result
             if (res.feeForTx * 1 > 0) {
                 result = {
                     selectedFeeIndex: 0,
@@ -139,9 +162,9 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 throw e
             }
             if (config.debug.cryptoErrors) {
-                console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate new error ' + e.message)
+                console.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate new error2 ' + e.message)
             }
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate new error ' + e.message)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.getFeeRate new error2 ' + e.message)
             return this.getFeeRateOld(data, privateData, additionalData)
         }
     }
@@ -327,6 +350,9 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
      * https://developers.tron.network/docs/trc20-introduction#section-8usdt-transfer
      */
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
+        if (typeof data.addressTo !== 'undefined' && typeof CACHE_ADDRESS_TO[data.addressTo] !== 'undefined') {
+            throw new Error(CACHE_ADDRESS_TO[data.addressTo])
+        }
         if (typeof privateData.privateKey === 'undefined') {
             throw new Error('TRX transaction required privateKey')
         }
@@ -622,11 +648,18 @@ export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' TrxTransferProcessor.sendTx error ' + e.message)
             // noinspection ES6MissingAwait
-            MarketingEvent.logOnlyRealTime('v30_trx_tx_error_' + this._settings.currencyCode, {...logData, error : e.message, title: data.addressFrom + ' => ' + data.addressTo})
+            MarketingEvent.logOnlyRealTime('v30_trx_tx_error_' + this._settings.currencyCode, {
+                ...logData,
+                error: e.message,
+                title: data.addressFrom + ' => ' + data.addressTo
+            })
             throw e
         }
         // noinspection ES6MissingAwait
-        MarketingEvent.logOnlyRealTime('v30_trx_tx_success_' + this._settings.currencyCode, {...logData, title: data.addressFrom + ' => ' + data.addressTo})
+        MarketingEvent.logOnlyRealTime('v30_trx_tx_success_' + this._settings.currencyCode, {
+            ...logData,
+            title: data.addressFrom + ' => ' + data.addressTo
+        })
 
         await (BlocksoftTransactions.resetTransactionsPending({ account: { currencyCode: 'TRX' } }, 'AccountRunPending'))
 

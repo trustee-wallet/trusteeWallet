@@ -922,7 +922,8 @@
       "SERVER_RESPONSE_NOT_ENOUGH_BALANCE_SOL" : "Недостаточно средств для отправки",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_STAKE_SOL" : "Недостаточная сумма для отправки в стейк",
       "SERVER_RESPONSE_NOT_VALIDATOR_STAKE_SOL" : "Выбранный адрес - не является валидатором",
-      "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "Адрес получателя пустой. В блокчейне Solana невозможно отправить токены на адрес с нулевым балансом SOL"
+      "SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE": "Адрес получателя пустой. В блокчейне Solana невозможно отправить токены на адрес с нулевым балансом SOL",
+      "SERVER_RESPONSE_SPAM_ADDRESS": "Адрес получателя помечен как мошеннический или spam."
     }
   },
   "walletBackup": {
