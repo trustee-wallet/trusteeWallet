@@ -59,7 +59,7 @@ const CACHE = {
     'BTG_TREZOR_SERVER': ['https://btg1.trezor.io', 'https://btg2.trezor.io', 'https://btg3.trezor.io', 'https://btg4.trezor.io', 'https://btg5.trezor.io'],
     'BSV_TREZOR_SERVER': ['https://bsv.trusteeglobal.com'],
     'ETH_ROPSTEN_TREZOR_SERVER' : ['https://ac-dev0.net:29136'],
-    'ETC_TREZOR_SERVER' : ['https://etcblockexplorer.com'],
+    'ETC_TREZOR_SERVER' : ['https://etc1.trezor.io'],
     'ETC_SERVER' : 'https://etc.rivet.link',
     'ETC_PRICE' : 6710000000,
     'ETC_GAS_LIMIT' : 620000,
