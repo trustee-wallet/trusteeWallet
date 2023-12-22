@@ -12,8 +12,8 @@ const TREZOR_SERVERS = {}
 
 const CACHE = {
     'TRX_VOTE_BEST' : 'TV9QitxEJ3pdiAUAfJ2QuPxLKp9qTTR3og',
-    'TRX_SEND_LINK' : 'http://trx.trusteeglobal.com:8090', // http://trx.trusteeglobal.com:8090/wallet
-    'TRX_SOLIDITY_NODE' : 'http://trx.trusteeglobal.com:8091', //  http://trx.trusteeglobal.com:8091/walletsolidity
+    'TRX_SEND_LINK' : 'https://trx-walletapi.trusteeglobal.com',
+    'TRX_SOLIDITY_NODE' : 'https://trx-solidityapi.trusteeglobal.com',
     'TRX_USE_TRONSCAN' : 0,
     'SOL_VOTE_BEST' : 'CertusDeBmqN8ZawdkxK5kFGMwBXdudvWHYwtNgNhvLu',
     'ETH_LONG_QUERY' : 1,
