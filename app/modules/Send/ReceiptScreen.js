@@ -306,6 +306,10 @@ class ReceiptScreen extends PureComponent {
         const { colors, GRID_SIZE, isLight } = this.context
 
         const { selectedFee, countedFees } = this.props.sendScreenStore.fromBlockchain
+        console.log(`
+        
+        
+        selectedFee.render`, selectedFee)
         const { currencyCode, currencySymbol, basicCurrencySymbol, basicCurrencyRate, decimals } = this.props.sendScreenStore.dict
         const { cryptoValue, bse, rawOnly, contractCallData, walletConnectData } = this.props.sendScreenStore.ui
         const { bseOrderId } = bse

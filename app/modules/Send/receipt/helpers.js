@@ -58,6 +58,8 @@ const showSendError = function(e, _this, passwordCheck) {
 
 const checkLoadedFee = function(_this) {
     const { countedFees, selectedFee } = _this.props.sendScreenStore.fromBlockchain
+    console.log(`
+    check selectedFee`, selectedFee)
     const { currencyCode, currencySymbol, feesCurrencySymbol } = _this.props.sendScreenStore.dict
     const { bse, cryptoValue, uiType } = _this.props.sendScreenStore.ui
     const rawOnly = typeof _this.props.sendScreenStore.ui.rawOnly !== 'undefined' && _this.props.sendScreenStore.ui.rawOnly ? _this.props.sendScreenStore.ui.rawOnly : false
