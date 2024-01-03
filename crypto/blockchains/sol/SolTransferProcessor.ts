@@ -41,8 +41,9 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
         } as BlocksoftBlockchainTypes.FeeRateResult
 
         const feeForTx = BlocksoftExternalSettings.getStatic('SOL_PRICE')
-        let amountForTx = data.accountBalanceRaw
+        let amountForTx = data.amount
         if (data?.isTransferAll) {
+            amountForTx = data.accountBalanceRaw
             try {
                 const accountInfo = await SolUtils.getAccountInfo(data?.addressFrom)
                 const rent = await SolStakeUtils.getRentExemptReserve(data?.addressFrom, accountInfo?.space || 0)
