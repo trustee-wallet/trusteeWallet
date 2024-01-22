@@ -192,12 +192,22 @@ class CashBackUtils {
         try {
             let tmpAuthHash = _requestAuthHash
             if (!tmpAuthHash) {
-                tmpAuthHash = await settingsActions.getSelectedWallet('createWalletSignature')
+                try {
+                    tmpAuthHash = await settingsActions.getSelectedWallet('createWalletSignature')
+                } catch (e) {
+                    throw new Error(e.message + ' while settingsActions.getSelectedWallet')
+                }
             }
             if (!tmpAuthHash) {
                 return false
             }
-            const { privateKey, address, cashbackToken } = await this.getByHash(tmpAuthHash, 'ACT/CashBackUtils createSignatureWallet')
+            let tmp2
+            try {
+                tmp2 = await this.getByHash(tmpAuthHash, 'ACT/CashBackUtils createSignatureWallet')
+            } catch (e) {
+                throw new Error(e.message + ' while getByHash')
+            }
+            const { privateKey, address, cashbackToken } = tmp2
             if (!privateKey) {
                 return false
             }
@@ -209,7 +219,11 @@ class CashBackUtils {
                         msg = new Date().getTime()
                     }
                 }
-                tmp = await BlocksoftKeysForRef.signDataForApi(msg + '', privateKey)
+                try {
+                    tmp = await BlocksoftKeysForRef.signDataForApi(msg + '', privateKey)
+                } catch (e) {
+                    throw new Error(e.message + ' while BlocksoftKeysForRef.signDataForApi')
+                }
                 tmp.signedAddress = address
             }
             if (_requestAuthHash) {

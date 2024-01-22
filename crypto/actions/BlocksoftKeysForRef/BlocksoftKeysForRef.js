@@ -58,9 +58,14 @@ class BlocksoftKeysForRef {
             privateKey = '0x' + privateKey
         }
         const signedData = await processor.signMessage(msg, privateKey)
-        delete signedData.v
-        delete signedData.r
-        delete signedData.s
+        try {
+            delete signedData.v
+            delete signedData.r
+            delete signedData.s
+        } catch (e) {
+            // do nothing
+            BlocksoftCryptoLog.log('BlocksoftKeysForRes signedData delete v/r/s error ' + e.message + ' signedData ' + JSON.stringify(signedData))
+        }
         return signedData
     }
 }
