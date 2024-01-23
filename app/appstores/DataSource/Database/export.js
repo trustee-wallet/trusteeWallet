@@ -16,7 +16,7 @@ export async function getSqlForExport(fs) {
     let table
     for (table of tables.array) {
 
-        if (table.name === 'sqlite_sequence' || table.name === 'android_metadata' || table.name === 'settings') continue
+        if (table.name === 'transactions_scanners_tmp' || table.name === 'sqlite_sequence' || table.name === 'android_metadata' || table.name === 'settings') continue
         await fs.writeLine('\n\n\n' + table.sql + ';\n\n')
 
 

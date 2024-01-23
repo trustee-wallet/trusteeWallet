@@ -30,6 +30,7 @@ class EthTmpDS {
         const forBalances = {}
 
         if (res.array) {
+            BlocksoftCryptoLog.log(`EthTmpDS getMaxNonce res ` + JSON.stringify(res.array))
             for (const row of res.array) {
                 const val = row.tmp_val * 1
                 if (row.tmp_sub_key === 'maxScanned') {
