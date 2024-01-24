@@ -2903,7 +2903,7 @@
 		"extendsProcessor": "ETH_TRUE_USD",
 		"addressUiChecker": "ETH",
 		"ratesCurrencyCode": "LDO",
-		"decimals": 6,
+		"decimals": 18,
 		"tokenBlockchain": "ETHEREUM",
 		"tokenAddress": "0x5a98fcbea516cf06857215779fd812ca3bef1b32",
 		"currencyExplorerLink": "https://etherscan.io/token/0x5a98fcbea516cf06857215779fd812ca3bef1b32?a=",
