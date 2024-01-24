@@ -497,6 +497,18 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             fees: []
         }
         if (result.fees) {
+            let i = 0
+            const titles = ['2', '6', '12']
+            result.fees.sort((a, b) => b.feeForByte - a.feeForByte)
+            for (const fee of result.fees) {
+                if (typeof allFees[this._langPrefix + '_speed_blocks_' + titles[i]] === 'undefined') {
+                    i++
+                }
+                fee.langMsgOld = fee.langMsg
+                fee.langMsg = this._langPrefix + '_speed_blocks_' + titles[i]
+                i++
+            }
+            result.fees.sort((a, b) => a.feeForByte - b.feeForByte)
             for (const fee of result.fees) {
                 if (totalUnspents && totalUnspents > unspents.length) {
                     fee.blockchainData.countedForLessOutputs = totalUnspents
