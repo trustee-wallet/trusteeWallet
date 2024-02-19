@@ -2087,7 +2087,7 @@
 		"extendsProcessor": "ETH_TRUE_USD",
 		"addressUiChecker": "ETH",
 		"ratesCurrencyCode": "BTC",
-		"decimals": 18,
+		"decimals": 8,
 		"tokenBlockchain": "ETHEREUM",
 		"tokenAddress": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
 		"currencyExplorerLink": "https://etherscan.io/token/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599?a=",
