@@ -8,7 +8,7 @@ ENV ANDROID_HOME=/${WDIR}/androidsdk \
 WORKDIR /${WDIR}
 
 RUN apt-get -y update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install sudo build-essential libtool openjdk-11-jdk git curl sudo pigz unzip python3-distutils python3-apt python3-pip ca-certificates gnupg tzdata && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install sudo build-essential libtool openjdk-17-jdk git curl sudo pigz unzip python3-distutils python3-apt python3-pip ca-certificates gnupg tzdata && \
     ln -fs /usr/share/zoneinfo/Europe/Kiev /etc/localtime && \
     sudo dpkg-reconfigure --frontend noninteractive tzdata && date && \
 #    curl -O https://bootstrap.pypa.io/get-pip.py && \
