@@ -310,12 +310,12 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                             newOutputs[0].amount = BlocksoftUtils.add( newOutputs[0].amount, output.amount)
                         }
                         // @ts-ignore
-                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs isTransferAll fixed' + data.addressTo, {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs isTransferAll fixed ' + data.addressTo, {
                             old: preparedInputsOutputs.outputs,
                             newOutputs
                         })
                         if (config.debug.cryptoErrors) {
-                            console.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs isTransferAll fixed' + data.addressTo, {
+                            console.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs isTransferAll fixed ' + data.addressTo, {
                                 old: preparedInputsOutputs.outputs,
                                 newOutputs
                             })
@@ -600,10 +600,13 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
         logData.pushSetting = await settingsActions.getSetting('transactionsNotifs')
 
         let foundFee = uiData.selectedFee
-        if (data.addressTo !== uiData.selectedFee.addressToTx) {
+        if (data.addressTo !== foundFee.addressToTx) {
             try {
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' fee rebuild start as got tx to ' + uiData.selectedFee.addressToTx)
+                }
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' fee rebuild start as got tx to ' + uiData.selectedFee.addressToTx)
-                const newSelectedFee = await this.getFeeRate(data, privateData)
+                const newSelectedFee = await this.getFeeRate(data, privateData, { feeForByte:  uiData.selectedFee.feeForByte })
                 if (typeof newSelectedFee.fees === 'undefined' || !newSelectedFee.fees) {
                     throw new Error('no fees')
                 }
@@ -615,9 +618,17 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                 }
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' found fee', foundFee)
             } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' fee rebuild error ' + e.message)
+                }
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' fee rebuild error ' + e.message)
                 throw new Error('BTC transaction invalid output - please try again')
             }
+        } else {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' = FEE ' + uiData.selectedFee.addressToTx)
+            }
+            BlocksoftCryptoLog.loh(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' = FEE ' + uiData.selectedFee.addressToTx)
         }
 
         if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
