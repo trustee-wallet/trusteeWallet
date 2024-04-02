@@ -92,9 +92,9 @@ const checkLoadedFee = function(_this) {
     if (BlocksoftExternalSettings.getStatic('SEND_AMOUNT_CHECK') > 0 && cryptoValue > 0) {  // somehow after bse cryptoValue=0
         if (BlocksoftUtils.cutZeros(value) !== BlocksoftUtils.cutZeros(cryptoValue)) {
             if (config.debug.appErrors) {
-                console.log('SendingValue ' + BlocksoftUtils.cutZeros(value) + ' != ' + BlocksoftUtils.cutZeros(cryptoValue))
+                console.log('SendingValue value ' + BlocksoftUtils.cutZeros(value) + ' != cryptoValue ' + BlocksoftUtils.cutZeros(cryptoValue) + ' uiType ' + uiType)
             }
-            Log.log('SendingValue ' + BlocksoftUtils.cutZeros(value) + ' != ' + BlocksoftUtils.cutZeros(cryptoValue))
+            Log.log('SendingValue value ' + BlocksoftUtils.cutZeros(value) + ' != cryptoValue ' + BlocksoftUtils.cutZeros(cryptoValue) + ' uiType ' + uiType)
             if (uiType === 'TRADE_SEND') {
                 msg = strings('send.errors.UI_CORRECTED_AMOUNT_BSE', { symbol: currencySymbol, amount: BlocksoftPrettyNumbers.setCurrencyCode(currencyCode).makePretty(value) })
                 goBack = BlocksoftExternalSettings.getStatic('TRADE_SEND_AMOUNT_CHECK_FORCE_QUIT') > 0

@@ -5,12 +5,12 @@
       "@app/*": ["./app/*"],
       "@appV2/*": ["./appV2/*"],
       "@assets/*": ["./assets/*"],
-      "@crypto/*": ["./crypto/*"]
+      "@crypto/*": ["./crypto/*"],
     }
   },
   "exclude": [
     "node_modules",
     "ios",
     "android"
-  ],
+  ]
 }

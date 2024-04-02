@@ -1,44 +1,43 @@
 /**
  * @version 0.50
  */
-import store from '@app/store'
+import * as RNLocalize from 'react-native-localize'
 
+import store from '@app/store'
 import settingsDS from '@app/appstores/DataSource/Settings/Settings'
 import Log from '@app/services/Log/Log'
 import { SettingsKeystore } from './SettingsKeystore'
 import { fioSdkWrapper } from '@crypto/blockchains/fio/FioSdkWrapper'
 
-import * as RNLocalize from 'react-native-localize'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 const { dispatch } = store
 
-const locales = RNLocalize.getLocales();
+const locales = RNLocalize.getLocales()
 
 const defaultSettings = {
-    language : locales[0].languageTag,
+    language: locales[0].languageTag,
     local_currency: 'USD',
     btc_legacy_or_segwit: 'segwit',
 
-    notifsStatus : '1',
-    transactionsNotifs : '1',
-    exchangeRatesNotifs : '1',
-    newsNotifs : '1',
-    isBalanceVisible : '1'
+    notifsStatus: '1',
+    transactionsNotifs: '1',
+    exchangeRatesNotifs: '1',
+    newsNotifs: '1',
+    isBalanceVisible: '1'
 }
 
 const settingsActions = {
-
     getSetting: async (key) => {
         try {
             const tmp = await settingsDS.getSetting(key)
-            return tmp ? tmp.paramValue : (typeof defaultSettings[key] !== 'undefined' ? defaultSettings[key] : false)
+            return tmp ? tmp.paramValue : typeof defaultSettings[key] !== 'undefined' ? defaultSettings[key] : false
         } catch (e) {
             Log.err('ACT/Settings getSetting ' + key + ' error ' + e.message)
         }
     },
 
-    getSelectedWallet : async (source) => {
+    getSelectedWallet: async (source) => {
         try {
             // console.log(await settingsActions.getSettings())
             const walletHash = await settingsActions.getSetting('SELECTED_WALLET')
@@ -52,7 +51,7 @@ const settingsActions = {
         }
     },
 
-    setSelectedWallet : async (walletHash) => {
+    setSelectedWallet: async (walletHash) => {
         return settingsActions.setSettings('SELECTED_WALLET', walletHash)
     },
 
@@ -73,7 +72,7 @@ const settingsActions = {
     getSettings: async (updateStore = true, reloadDB = true) => {
         try {
             const tmpSettings = await settingsDS.getSettings(reloadDB)
-            const settings = {...defaultSettings}
+            const settings = { ...defaultSettings }
 
             let key
             for (key in tmpSettings) {
@@ -84,10 +83,10 @@ const settingsActions = {
                 dispatch({
                     type: 'UPDATE_SETTINGS',
                     settings,
-                    keystore : {
-                        lockScreenStatus : await SettingsKeystore.getLockScreenStatus(),
-                        askPinCodeWhenSending : await SettingsKeystore.getAskPinCodeWhenSending(),
-                        touchIDStatus : await SettingsKeystore.getTouchIDStatus()
+                    keystore: {
+                        lockScreenStatus: await SettingsKeystore.getLockScreenStatus(),
+                        askPinCodeWhenSending: await SettingsKeystore.getAskPinCodeWhenSending(),
+                        touchIDStatus: await SettingsKeystore.getTouchIDStatus()
                     }
                 })
             }
@@ -111,7 +110,7 @@ const settingsActions = {
 
     setSettingKeyArray: async (keyValues) => {
         try {
-            for(const key in keyValues) {
+            for (const key in keyValues) {
                 const value = keyValues[key]
                 await settingsDS.setSettings(key, value)
             }

@@ -397,7 +397,7 @@ class AllAddressesScreen extends PureComponent {
                     )}
                     renderItem={this.renderItem}
                     data={[1]}
-                    keyExtractor={index => index}
+                    keyExtractor={(_, index) => index}
                 />
             </ScreenWrapper>
         )

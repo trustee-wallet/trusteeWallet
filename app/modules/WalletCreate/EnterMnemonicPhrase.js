@@ -6,8 +6,8 @@ import { connect } from 'react-redux'
 import _debounce from 'lodash/debounce'
 import { Keyboard, View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 
-import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 
+import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 
 import NavStore from '@app/components/navigation/NavStore'
 

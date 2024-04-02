@@ -1,0 +1,27 @@
+diff --git a/node_modules/react-native-pages/src/components/indicator/index.js b/node_modules/react-native-pages/src/components/indicator/index.js
+index 123f206..755c5a9 100644
+--- a/node_modules/react-native-pages/src/components/indicator/index.js
++++ b/node_modules/react-native-pages/src/components/indicator/index.js
+@@ -1,6 +1,7 @@
+ import PropTypes from 'prop-types';
+ import React, { PureComponent } from 'react';
+-import { View, Animated, ViewPropTypes } from 'react-native';
++import { View, Animated } from 'react-native';
++import { ViewPropTypes } from 'deprecated-react-native-prop-types';
+ 
+ import styles from './styles';
+ 
+diff --git a/node_modules/react-native-pages/src/components/pages/index.js b/node_modules/react-native-pages/src/components/pages/index.js
+index d83158a..ac1c3bb 100644
+--- a/node_modules/react-native-pages/src/components/pages/index.js
++++ b/node_modules/react-native-pages/src/components/pages/index.js
+@@ -6,8 +6,8 @@ import {
+   SafeAreaView,
+   Animated,
+   Platform,
+-  ViewPropTypes,
+ } from 'react-native';
++import { ViewPropTypes } from 'deprecated-react-native-prop-types';
+ 
+ import Indicator from '../indicator';
+ import styles from './styles';

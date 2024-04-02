@@ -13,7 +13,7 @@ const bech = require('bech32')
 
 const UVarInt = require('../utils/UVarInt').UVarInt
 const Encode = require('../utils/Encode')
-const _tinySecp256k = require('tiny-secp256k1')
+
 
 function decodeAddress(value: any) {
     try {
@@ -167,10 +167,10 @@ export class BnbTxSendProvider {
         } catch (e) {
             throw new Error(e.message + ' in BNB convertObjectToSignBytes ' + JSON.stringify(signMsg))
         }
-        const signBytesHex = buff.toString('hex')
+        const msgBytesHex = buff.toString('hex')
         let msgHash
         try {
-            msgHash = createHash('sha256').update(signBytesHex, 'hex').digest()
+            msgHash = createHash('sha256').update(msgBytesHex, 'hex').digest()
         } catch (e) {
             throw new Error(e.message + ' in BNB createHash')
         }
@@ -180,13 +180,24 @@ export class BnbTxSendProvider {
         } catch (e) {
             throw new Error(e.message + ' in BNB ec.keyFromPrivate')
         }
-        let signature
+        let signatureHex
         try {
-            signature = _tinySecp256k.sign(msgHash, Buffer.from(privateData.privateKey, 'hex'))
+            const tmp = ec.sign(msgHash, Buffer.from(privateData.privateKey, 'hex'))
+            let tmpR = tmp.r.toString('hex')
+            let tmpS = tmp.s.toString('hex')
+            if (tmpR.length < 64) {
+                tmpR = '0' + tmpR
+            }
+            if (tmpS.length < 64) {
+                tmpS = '0' + tmpS
+            }
+            signatureHex = tmpR + tmpS
+            // signature = _tinySecp256k.sign(msgHash, Buffer.from(privateData.privateKey, 'hex'))
+            // signatureHex = signature.toString('hex')
         } catch (e) {
-            throw new Error(e.message + ' in BNB _tinySecp256k.sign')
+            throw new Error(e.message + ' in BNB ec.sign')
         }
-        const signatureHex = signature.toString('hex')
+
         let pubKey
         try {
             pubKey = keypair.getPublic()

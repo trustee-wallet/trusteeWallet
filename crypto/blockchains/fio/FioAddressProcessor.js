@@ -8,8 +8,8 @@
  * console.log('r', results['XMR'][0])
  */
 
-import { Ecc } from '@fioprotocol/fiojs'
-import { FIOSDK } from '@fioprotocol/fiosdk'
+// import { Ecc } from '@fioprotocol/fiojs'
+// import { FIOSDK } from '@fioprotocol/fiosdk'
 
 export default class FioAddressProcessor {
 
@@ -30,6 +30,7 @@ export default class FioAddressProcessor {
      * @returns {Promise<{privateKey: string, address: string, addedData: *}>}
      */
     async getAddress(privateKey, data = {}) {
+        return false
         const pvt = await Ecc.PrivateKey(privateKey)
         return {
             address: FIOSDK.derivedPublicKey(privateKey).publicKey,

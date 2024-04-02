@@ -1,9 +1,8 @@
 /**
  * @version 0.50
  */
-import React from 'react'
-import { Dimensions, PixelRatio } from 'react-native'
-import { Appearance } from 'react-native-appearance'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { Appearance, Dimensions, PixelRatio } from 'react-native'
 
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
@@ -15,6 +14,8 @@ import changeNavigationBarColor from 'react-native-navigation-bar-color'
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PIXEL_RATIO = PixelRatio.get()
 
+const COLOR_SCHEME_FLICKER_DELAY_MS = 250
+
 let GRID_SIZE = 16
 if (PIXEL_RATIO <= 2 && SCREEN_WIDTH < 330) {
     GRID_SIZE = 8 // iphone 5s
@@ -23,68 +24,82 @@ if (PIXEL_RATIO <= 2 && SCREEN_WIDTH < 330) {
 let SYSTEM_COLOR_SCHEME = Appearance.getColorScheme()
 if (SYSTEM_COLOR_SCHEME === 'no-preference') SYSTEM_COLOR_SCHEME = 'light'
 
-let subscription
-
 export const ThemeContext = React.createContext({
     isLight: true,
     color: colorsLight,
-    GRID_SIZE,
+    GRID_SIZE
 })
 
-export class ThemeProvider extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            isLight: SYSTEM_COLOR_SCHEME === 'light'
+export const ThemeProvider = (props) => {
+    const [colorScheme, setColorScheme] = useState()
+
+    const isSystemDarkMode = useColorScheme() === 'dark'
+
+    useEffect(() => {
+        if (colorScheme) {
+            const isLight = colorScheme === 'light'
+            trusteeAsyncStorage.setThemeSetting(colorScheme)
+            const colors = isLight ? colorsLight : colorsDark
+            changeNavigationBarColor(colors.common.background, isLight)
         }
-        this.getThemeSetting()
-    }
+    }, [colorScheme])
 
-    componentDidMount() {
-        subscription = Appearance.addChangeListener(({ colorScheme }) => {
-            this.changeTheme(colorScheme)
-          });
-    }
-
-    componentWillUnmount() {
-        subscription.remove()
-    }
-
-    getThemeSetting = async () => {
-        try {
-            const res = await trusteeAsyncStorage.getThemeSetting()
-            if (res !== null) {
-                this.setState(() => ({ isLight: res === 'light' }))
-            }
-        } catch (e) {
-
+    useEffect(() => {
+        const loadUserPref = async () => {
+            const userPref = (await trusteeAsyncStorage.getThemeSetting()) || 'light'
+            setColorScheme(userPref)
+            Appearance.setColorScheme(userPref)
         }
-    }
 
-    changeTheme = async (colorScheme = false) => {
-        const newTheme = colorScheme || (this.state.isLight ? 'dark' : 'light')
-        const isLight = newTheme === 'light'
-        const colors = isLight ? colorsLight : colorsDark
-        this.setState(() => ({ isLight }))
-        await trusteeAsyncStorage.setThemeSetting(newTheme)
-        changeNavigationBarColor( colors.common.background, isLight )
-    }
+        loadUserPref()
+    }, [isSystemDarkMode])
 
-    render() {
-        const { isLight } = this.state
-        const defaultTheme = {
-            isLight,
-            colors: isLight ? colorsLight : colorsDark,
+    const defaultTheme = useMemo(() => {
+        MarketingEvent.UI_DATA.IS_LIGHT = colorScheme === 'light'
+        return {
+            isLight: colorScheme === 'light',
+            colors: colorScheme === 'light' ? colorsLight : colorsDark,
             GRID_SIZE,
-            changeTheme: this.changeTheme
+            changeTheme: () => {
+                const scheme = colorScheme === 'light' ? 'dark' : 'light'
+                setColorScheme(scheme)
+                Appearance.setColorScheme(scheme)
+            }
         }
-        MarketingEvent.UI_DATA.IS_LIGHT = isLight
-        return (
-            <ThemeContext.Provider value={defaultTheme}>
-                {this.props.children}
-            </ThemeContext.Provider>
-        )
-    }
+    }, [colorScheme])
+
+    return <ThemeContext.Provider value={defaultTheme}>{props.children}</ThemeContext.Provider>
 }
 
 export const useTheme = () => React.useContext(ThemeContext)
+
+function useColorScheme() {
+    const [colorScheme, setColorScheme] = useState(Appearance.getColorScheme())
+    const timeout = useRef()
+
+    const resetCurrentTimeout = useCallback(() => {
+        if (timeout.current) {
+            clearTimeout(timeout.current)
+        }
+    }, [timeout.current])
+
+    const onColorSchemeChange = useCallback(
+        (preferences) => {
+            resetCurrentTimeout()
+            timeout.current = setTimeout(() => {
+                setColorScheme(preferences.colorScheme)
+                Appearance.setColorScheme(preferences.colorScheme)
+            }, COLOR_SCHEME_FLICKER_DELAY_MS)
+        },
+        [resetCurrentTimeout]
+    )
+
+    useEffect(() => {
+        Appearance.addChangeListener(onColorSchemeChange)
+        return () => {
+            resetCurrentTimeout()
+        }
+    }, [onColorSchemeChange, resetCurrentTimeout])
+
+    return colorScheme
+}

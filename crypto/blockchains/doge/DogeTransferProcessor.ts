@@ -301,8 +301,28 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
                     }
                 }
                 // @ts-ignore
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' isTransferAll ' + (data?.isTransferAll ? 'true': 'false')
                     + ' preparedInputsOutputs addressTo' + data.addressTo, preparedInputsOutputs)
+                if (data?.isTransferAll && this._settings.currencyCode !== 'USDT') {
+                    if (preparedInputsOutputs.outputs.length > 1) {
+                        let newOutputs = [{ amount: 0, to: data?.addressTo}]
+                        for (let output of preparedInputsOutputs.outputs) {
+                            newOutputs[0].amount = BlocksoftUtils.add( newOutputs[0].amount, output.amount)
+                        }
+                        // @ts-ignore
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs isTransferAll fixed' + data.addressTo, {
+                            old: preparedInputsOutputs.outputs,
+                            newOutputs
+                        })
+                        if (config.debug.cryptoErrors) {
+                            console.log(this._settings.currencyCode + ' DogeTransferProcessor.getFeeRate_' + key + ' ' + feeForByte + ' preparedInputsOutputs isTransferAll fixed' + data.addressTo, {
+                                old: preparedInputsOutputs.outputs,
+                                newOutputs
+                            })
+                        }
+                        preparedInputsOutputs.outputs = newOutputs
+                    }
+                }
                 if (preparedInputsOutputs.inputs.length === 0) {
                     // do noting
                     continue

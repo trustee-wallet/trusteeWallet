@@ -6,7 +6,6 @@ import DogeScannerProcessor from '../doge/DogeScannerProcessor'
 import BtcCashUtils from './ext/BtcCashUtils'
 
 export default class BchScannerProcessor extends DogeScannerProcessor{
-
     /**
      * @type {number}
      * @private

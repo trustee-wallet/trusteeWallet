@@ -25,7 +25,7 @@ import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalanc
 // https://developers.tron.network/docs/parameter-and-return-value-encoding-and-decoding
 const ethers = require('ethers')
 const ADDRESS_PREFIX_REGEX = /^(41)/
-const AbiCoder = ethers.utils.AbiCoder
+const AbiCoder = ethers.AbiCoder
 const PROXY_FEE = 'https://proxy.trustee.deals/trx/countFee'
 const CACHE_ADDRESS_TO = {}
 export default class TrxTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {

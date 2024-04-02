@@ -218,7 +218,7 @@ class TransactionCategories extends React.PureComponent {
                     data={this.state.categoriesData}
                     renderItem={this.renderItem}
                     ListHeaderComponent={this.renderHeaderComponent}
-                    keyExtractor={({ index }) => index}
+                    keyExtractor={(_, index) => index}
                 />
                 <Button
                     title={strings('send.setting.apply')}

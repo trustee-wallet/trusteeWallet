@@ -5,7 +5,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { View, Image, StyleSheet, BackHandler, Platform } from 'react-native'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import Orientation from 'react-native-orientation'
 import { RESULTS } from 'react-native-permissions'
 
 import PINCode, { hasUserSetPinCode } from '@haskkor/react-native-pincode'
@@ -38,7 +37,6 @@ class LockScreen extends React.PureComponent {
     }
 
     async componentDidMount() {
-        Orientation.lockToPortrait()
         const res = await hasUserSetPinCode()
         this.setState({
             passwordState: res ? 'enter' : 'choose'
@@ -119,7 +117,7 @@ class LockScreen extends React.PureComponent {
 
         const { flowType } = this.props.lockScreen
 
-        const touchIDStatus = this.props.touchIDStatus * 1
+        const touchIDStatus = this?.props?.touchIDStatus * 1
 
         const { colors, isLight } = this.context
 

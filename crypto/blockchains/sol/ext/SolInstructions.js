@@ -3,7 +3,7 @@
  * https://github.com/project-serum/spl-token-wallet/blob/master/src/utils/tokens/instructions.js
  */
 import * as BufferLayout from '@solana/buffer-layout'
-import { PublicKey } from '@solana/web3.js/src/index'
+import { PublicKey } from '@solana/web3.js'
 
 const LAYOUT = BufferLayout.union(BufferLayout.u8('instruction'))
 LAYOUT.addVariant(

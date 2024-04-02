@@ -15,7 +15,7 @@ import BlocksoftKeys from '@crypto/actions/BlocksoftKeys/BlocksoftKeys'
 import BtcCashUtils from '@crypto/blockchains/bch/ext/BtcCashUtils'
 import MoneroUtilsParser from '@crypto/blockchains/xmr/ext/MoneroUtilsParser'
 
-import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
+// import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 import { isFioAddressValid } from '@crypto/blockchains/fio/FioUtils'
 import { isUnstoppableAddressValid } from '@crypto/services/UnstoppableUtils'
 import { isEnsAddressValid } from '@crypto/services/EnsUtils'
@@ -105,7 +105,7 @@ async function _userDataValidation(obj) {
             const mm = value.split('/')[0]
             const yy = value.split('/')[1]
 
-            let tmpYY = ((new Date().getFullYear()).toString()).substr(1)
+            let tmpYY = ((new Date().getFullYear())?.toString())?.substr(1)
             tmpYY = tmpYY.substr(1)
 
             if (!value)
@@ -210,6 +210,7 @@ async function _userDataValidation(obj) {
                 error.msg = strings('validator.empty', { name: name })
             } else {
                 try {
+                    return false
                     FIOSDK.isFioPublicKeyValid(value)
                 } catch (e) {
                     error.msg = strings('validator.invalidFormat', { name: name })

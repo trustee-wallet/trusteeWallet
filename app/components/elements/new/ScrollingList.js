@@ -84,7 +84,7 @@ class ScrollingList extends React.PureComponent {
                     ref={ref => this.flatlistRef = ref}
                     data={data}
                     horizontal
-                    keyExtractor={({ index }) => index}
+                    keyExtractor={(_, index) => index}
                     renderItem={this.renderListItem}
                     showsHorizontalScrollIndicator={false}
                     initialScrollIndex={this.state.localIndex}

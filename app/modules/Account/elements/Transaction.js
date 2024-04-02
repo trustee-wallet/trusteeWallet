@@ -9,7 +9,6 @@ import {
     Dimensions,
     PixelRatio,
 } from 'react-native'
-import Dash from 'react-native-dash'
 import { BoxShadow } from 'react-native-shadow'
 import _ from 'lodash'
 

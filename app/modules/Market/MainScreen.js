@@ -19,7 +19,7 @@ import {
     Linking
 } from 'react-native'
 
-import { WebView } from 'react-native-webview'
+import WebView from 'react-native-webview'
 import { CardIOModule } from 'react-native-awesome-card-io'
 import valid from 'card-validator'
 import _ from 'lodash'
@@ -66,7 +66,7 @@ import TransactionFilterTypeDict from '@appV2/dicts/transactionFilterTypeDict'
 const { height: WINDOW_HEIGHT } = Dimensions.get('window')
 
 let CACHE_INIT_KEY = false
-let CASHE_TIME
+let CACHE_TIME
 
 class MarketScreen extends PureComponent {
 
@@ -81,6 +81,8 @@ class MarketScreen extends PureComponent {
             selectedFee: false
         }
     }
+
+    keyboardListener = null
 
     init = async () => {
         const key = 'onlyOne'
@@ -120,18 +122,18 @@ class MarketScreen extends PureComponent {
     componentDidMount() {
         const { isLight } = this.context
 
-        CASHE_TIME = new Date()
+        CACHE_TIME = new Date()
 
         this.init()
 
-        if (this.props.navigation.dangerouslyGetParent()) {
-            this.props.navigation.dangerouslyGetParent().addListener('tabLongPress', (e) => {
+        if (this.props.navigation.getParent()) {
+            this.props.navigation.getParent().addListener('tabLongPress', (e) => {
                 NavStore.reset('MarketScreen')
             });
 
-            this.props.navigation.dangerouslyGetParent().addListener('tabPress', (e) => {
+            this.props.navigation.getParent().addListener('tabPress', (e) => {
                 const currentTime = new Date()
-                if ((this.diffMinutes(currentTime, CASHE_TIME) >= 10) || !this.props.bseLink) {
+                if ((this.diffMinutes(currentTime, CACHE_TIME) >= 10) || !this.props.bseLink) {
                     e.preventDefault()
                     NavStore.reset('MarketScreen')
                 }
@@ -139,7 +141,7 @@ class MarketScreen extends PureComponent {
         }
 
         BackHandler.addEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.addListener('keyboardWillShow', this.onKeyboardShow)
+        this.keyboardListener = Keyboard.addListener('keyboardWillShow', this.onKeyboardShow)
         StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
@@ -147,7 +149,7 @@ class MarketScreen extends PureComponent {
         const { isLight } = this.context
 
         BackHandler.removeEventListener('hardwareBackPress', this.handlerBackPress)
-        Keyboard.removeListener('keyboardWillShow', this.onKeyboardShow)
+        this.keyboardListener.remove()
         StatusBar.setBarStyle(isLight ? 'dark-content' : 'light-content')
     }
 
@@ -196,7 +198,7 @@ class MarketScreen extends PureComponent {
             cardData.numberPlaceholder = value.replace(' ', '')
 
         } else if (name === 'date') {
-            cardData.datePlaceholder = ((value.replace(' ', '')).concat('00000000')).substring(0, 5)
+            cardData.datePlaceholder = ((value.replace(' ', '')).concat('00000000'))?.substring(0, 5)
         }
 
         cardData[name] = value
@@ -493,7 +495,7 @@ class MarketScreen extends PureComponent {
                 orderHash: data.orderHash,
                 orderId: data.orderHash,
                 outDestination: data.exchangeWayType === 'SELL'
-                    ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}`
+                    ? `${data.outDestination?.substr(0, 2)}***${data.outDestination?.substr(-4, 4)}`
                     : data.outDestination,
                 outTxHash: null,
                 payinUrl: null,

@@ -4,7 +4,8 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, View, Platform, Keyboard } from 'react-native'
+import { Text, View, Platform, Keyboard } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 
 import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
@@ -263,10 +264,10 @@ class Input extends Component {
                                 disabledLineType='none'
                                 onChangeText={(value) => this.handleInput(value)}
                                 style={noEdit ? { ...styles.fontFamily, ...inputStyle, color: colors.sendScreen.amount } : { ...styles.fontFamily, ...inputStyle, color: addressError && error ? '#864DD9' : colors.sendScreen.amount }}
+                                inputContainerStyle={{ height: 'auto' }}
                                 multiline={isTextarea}
                                 autoCorrect={false}
                                 spellCheck={false}
-                                label={''}
                                 onBlur={() => {
                                     this.setState({ focus: false })
                                 }}

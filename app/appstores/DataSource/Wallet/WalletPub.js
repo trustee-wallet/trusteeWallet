@@ -51,17 +51,17 @@ class WalletPub {
      */
     getWalletPubs = async (params) => {
         if (params && typeof params.walletHash !== 'undefined') {
-            if (typeof CACHE[params.walletHash] !== 'undefined' && CACHE[params.walletHash] !== false) {
-                return CACHE[params.walletHash]
+            if (typeof CACHE?.[params.walletHash] !== 'undefined' && CACHE?.[params.walletHash] !== false) {
+                return CACHE?.[params.walletHash]
             }
         }
 
         let where = []
         if (params) {
-            if (typeof params.walletHash !== 'undefined') {
+            if (typeof params?.walletHash !== 'undefined') {
                 where.push(`wallet_pub.wallet_hash='${params.walletHash}'`)
             }
-            if (typeof params.currencyCode !== 'undefined') {
+            if (typeof params?.currencyCode !== 'undefined') {
                 where.push(`wallet_pub.currency_code='${params.currencyCode}'`)
             }
         }

@@ -191,12 +191,13 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const balance = data.amount
 
         // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance)
 
         data.isTransferAll = true
         const result = await this.getFeeRate(data, privateData, additionalData)
         // @ts-ignore
         if (!result || result.selectedFeeIndex < 0) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance + ' no FEE')
             return {
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -2,
@@ -206,6 +207,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
         }
         // @ts-ignore
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance + ' selectedTransferAllBalance ' +  result.fees[result.selectedFeeIndex].amountForTx)
         return {
             ...result,
             shouldShowFees : false,

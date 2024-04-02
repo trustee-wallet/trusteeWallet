@@ -56,6 +56,7 @@ class GuideScreen extends React.PureComponent {
                     <View style={{ flex: 1.8 }}>
                         <LottieView
                             style={{
+                                ...StyleSheet.absoluteFill,
                                 marginTop: GRID_SIZE * 1.5,
                                 width: '100%'
                             }}

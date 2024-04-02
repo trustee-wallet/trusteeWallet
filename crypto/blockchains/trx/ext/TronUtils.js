@@ -76,9 +76,9 @@ export default {
 
     pubHexToAddressHex: function(pubHex) { // actually the same as direct but better code
         if (pubHex.substr(0, 2) === '04') {
-            pubHex = '0x' + pubHex.substr(2)
+            pubHex = pubHex.substr(2)
         }
-        return '41' + EthUtil.publicToAddress(pubHex).toString('hex')
+        return '41' + EthUtil.publicToAddress(Buffer.from(pubHex, 'hex')).toString('hex')
     },
 
     addressHexToStr: function(addressHex) {

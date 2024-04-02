@@ -7,7 +7,7 @@ import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchai
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 
-import { PublicKey, TransactionInstruction, Transaction } from '@solana/web3.js/src/index'
+import { PublicKey, TransactionInstruction, Transaction } from '@solana/web3.js'
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import SolTransferProcessor from '@crypto/blockchains/sol/SolTransferProcessor'
 import SolInstructions from '@crypto/blockchains/sol/ext/SolInstructions'

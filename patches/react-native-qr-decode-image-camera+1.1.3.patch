@@ -1,0 +1,1484 @@
+diff --git a/node_modules/react-native-qr-decode-image-camera/android/build.gradle b/node_modules/react-native-qr-decode-image-camera/android/build.gradle
+index ef823e9..d30c6aa 100644
+--- a/node_modules/react-native-qr-decode-image-camera/android/build.gradle
++++ b/node_modules/react-native-qr-decode-image-camera/android/build.gradle
+@@ -29,7 +29,7 @@ android {
+     buildToolsVersion "31.0.0"
+ 
+     defaultConfig {
+-        minSdkVersion 23
++        minSdkVersion 21
+         targetSdkVersion 31
+         versionCode 1
+         versionName computeVersionName()
+diff --git a/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java b/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java
+index e1ae7e8..108d561 100644
+--- a/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java
++++ b/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java
+@@ -1,33 +1,32 @@
+ package com.lewin.qrcode;
+ 
+-import android.net.Uri;
+-import android.util.Log;
+-
+-import androidx.annotation.NonNull;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
+ 
+ import com.facebook.react.bridge.Promise;
+ import com.facebook.react.bridge.ReactApplicationContext;
+ import com.facebook.react.bridge.ReactContextBaseJavaModule;
+ import com.facebook.react.bridge.ReactMethod;
+-import com.google.android.gms.tasks.OnFailureListener;
+-import com.google.android.gms.tasks.OnSuccessListener;
+-import com.google.android.gms.tasks.Task;
+-import com.google.mlkit.vision.barcode.Barcode;
+-import com.google.mlkit.vision.barcode.BarcodeScanner;
+-import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+-import com.google.mlkit.vision.barcode.BarcodeScanning;
+-import com.google.mlkit.vision.common.InputImage;
+-
+-import java.io.IOException;
+-import java.util.LinkedList;
+-import java.util.List;
++import com.google.zxing.BinaryBitmap;
++import com.google.zxing.ChecksumException;
++import com.google.zxing.DecodeHintType;
++import com.google.zxing.FormatException;
++import com.google.zxing.MultiFormatReader;
++import com.google.zxing.NotFoundException;
++import com.google.zxing.PlanarYUVLuminanceSource;
++import com.google.zxing.RGBLuminanceSource;
++import com.google.zxing.ReaderException;
++import com.google.zxing.Result;
++import com.google.zxing.common.HybridBinarizer;
++import com.google.zxing.qrcode.QRCodeReader;
++
++import java.util.Hashtable;
+ 
+ /**
+- * Created by lewin on 2018/3/14,
+- * Updated by stefanmajiros on 2021/6/15
++ * Created by lewin on 2018/3/14.
+  */
+ 
+-public class QRScanReader extends ReactContextBaseJavaModule  {
++public class QRScanReader extends ReactContextBaseJavaModule {
+ 
+     public QRScanReader(ReactApplicationContext reactContext) {
+         super(reactContext);
+@@ -39,49 +38,245 @@ public class QRScanReader extends ReactContextBaseJavaModule  {
+     }
+ 
+     @ReactMethod
+-    public void readerQR(String fileUrl, final Promise promise ) {
+-        // ML Vision : https://developers.google.com/ml-kit/vision/barcode-scanning/android#java
++    public void readerQR(String fileUrl, Promise promise ) {
++        Result result = scanningImage(fileUrl);
++        if(result == null){
++            // promise.reject("404","No related QR code");
++            result = decodeBarcodeRGB(fileUrl);
++            if(result == null){
++                try {
++                    result = decodeBarcodeYUV(fileUrl);
++                } catch (Exception error) {
++                    result = null;
++                }
++                if(result == null){
++                    promise.reject("404","No related QR code");
++                }else{
++                    promise.resolve(result.getText());
++                }
++            }else{
++                promise.resolve(result.getText());
++            }
++
++        }else{
++            promise.resolve(result.getText());
++        }
++    }
++
++    /**
++     * Method for scanning QR code pictures
++     * @param path
++     * @return
++     */
++    public Result scanningImage(String path) {
++        if (path == null || path.length() == 0) {
++            return null;
++        }
++        Hashtable<DecodeHintType, String> hints = new Hashtable<>();
++        hints.put(DecodeHintType.CHARACTER_SET, "UTF8"); //Set the encoding of QR code content
++
++        BitmapFactory.Options options = new BitmapFactory.Options();
++        options.inJustDecodeBounds = true; // Get the original size first
++        Bitmap scanBitmap = BitmapFactory.decodeFile(path, options);
++        options.inJustDecodeBounds = false; // Get new size
++        int sampleSize = (int) (options.outHeight / (float) 200);
++        if (sampleSize <= 0)
++            sampleSize = 1;
++        options.inSampleSize = sampleSize;
++        scanBitmap = BitmapFactory.decodeFile(path, options);
++        int width=scanBitmap.getWidth();
++        int height=scanBitmap.getHeight();
++        int[] pixels=new int[width*height];
++        scanBitmap.getPixels(pixels,0,width,0,0,width,height);//Get picture pixels
++        RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap.getWidth(),scanBitmap.getHeight(),pixels);
++        BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
++        QRCodeReader reader = new QRCodeReader();
++        try {
++            return reader.decode(bitmap1, hints);
++        } catch (NotFoundException e) {
++            e.printStackTrace();
++        } catch (ChecksumException e) {
++            e.printStackTrace();
++        } catch (FormatException e) {
++            e.printStackTrace();
++        }
++        return null;
++    }
++
++    /**
++     * Parse QR code (using the method of parsing RGB coded data)
++     *
++     * @param path
++     * @return
++     */
++    public static Result decodeBarcodeRGB(String path) {
++
++        BitmapFactory.Options opts = new BitmapFactory.Options();
++        opts.inSampleSize = 1;
++        Bitmap barcode = BitmapFactory.decodeFile(path, opts);
++        Result result = decodeBarcodeRGB(barcode);
++        barcode.recycle();
++        barcode = null;
++        return result;
++    }
++
++    /**
++     * Parse QR code (using the method of parsing RGB coded data)
++     *
++     * @param barcode
++     * @return
++     */
++    public static Result decodeBarcodeRGB(Bitmap barcode) {
++        int width = barcode.getWidth();
++        int height = barcode.getHeight();
++        int[] data = new int[width * height];
++        barcode.getPixels(data, 0, width, 0, 0, width, height);
++        RGBLuminanceSource source = new RGBLuminanceSource(width, height, data);
++        BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
++        QRCodeReader reader = new QRCodeReader();
++        Result result = null;
+         try {
+-            Uri uri = Uri.parse(fileUrl);
+-            InputImage image = InputImage.fromFilePath(this.getReactApplicationContext(), uri);
+-            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
+-                    .setBarcodeFormats(
+-                            Barcode.FORMAT_AZTEC,
+-                            Barcode.FORMAT_QR_CODE
+-                    )
+-                    .build();
+-            final BarcodeScanner scanner = BarcodeScanning.getClient(options);
+-            Task<List<Barcode>> result = scanner.process(image)
+-                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
+-                        @Override
+-                        public void onSuccess(List<Barcode> barcodes) {
+-                            Log.d("OK", " " +  barcodes.toString());
+-                            List<String> rawValues = new LinkedList<>();
+-                            for (Barcode barcode: barcodes) {
+-                                String rawValue = barcode.getRawValue();
+-                                rawValues.add(rawValue);
+-                            }
+-                            scanner.close();
+-                            if (!rawValues.isEmpty()){
+-                                promise.resolve(rawValues.get(0));
+-                            } else {
+-                                promise.reject("NOT_OK", "Invalid or No related QR code");
+-                            }
+-
+-                        }
+-                    })
+-                    .addOnFailureListener(new OnFailureListener() {
+-                        @Override
+-                        public void onFailure(@NonNull Exception e) {
+-                            Log.d("NOT_OK", "" +  e.getMessage());
+-                            scanner.close();
+-                            promise.reject("NOT_OK", e.getMessage());
+-
+-                        }
+-                    });
+-        } catch (IOException e) {
+-            Log.e("ERROR", "" + e.getMessage());
++            result = reader.decode(bitmap1);
++        } catch (NotFoundException e) {
+             e.printStackTrace();
++        } catch (ChecksumException e) {
++            e.printStackTrace();
++        } catch (FormatException e) {
++            e.printStackTrace();
++        }
++        barcode.recycle();
++        barcode = null;
++        return result;
++    }
++
++    /**
++     * Parse QR code (using the method of parsing YUV coded data)
++     *
++     * @param path
++     * @return
++     */
++    public static Result decodeBarcodeYUV(String path) {
++        if (path == null || path.length() == 0) {
++            return null;
++        }
++        BitmapFactory.Options opts = new BitmapFactory.Options();
++        opts.inSampleSize = 1;
++        Bitmap barcode = BitmapFactory.decodeFile(path, opts);
++        Result result = decodeBarcodeYUV(barcode);
++        barcode.recycle();
++        barcode = null;
++        return result;
++    }
++
++    /**
++     * Parse QR code (using the method of parsing YUV coded data)
++     *
++     * @param barcode
++     * @return
++     */
++    public static Result decodeBarcodeYUV(Bitmap barcode) {
++        if (null == barcode) {
++            return null;
++        }
++        int width = barcode.getWidth();
++        int height = barcode.getHeight();
++        //Store the pixels of the picture in argb mode
++        int[] argb = new int[width * height];
++        barcode.getPixels(argb, 0, width, 0, 0, width, height);
++        //Convert argb to yuv
++        byte[] yuv = new byte[width * height * 3 / 2];
++        encodeYUV420SP(yuv, argb, width, height);
++        //Analyze the QR code of the YUV encoding method
++        Result result = decodeBarcodeYUV(yuv, width, height);
++
++        barcode.recycle();
++        barcode = null;
++        return result;
++    }
++
++    /**
++     * Parse QR code (using the method of parsing YUV coded data)
++     *
++     * @param yuv
++     * @param width
++     * @param height
++     * @return
++     */
++    private static Result decodeBarcodeYUV(byte[] yuv, int width, int height) {
++        long start = System.currentTimeMillis();
++        MultiFormatReader multiFormatReader = new MultiFormatReader();
++        multiFormatReader.setHints(null);
++
++        Result rawResult = null;
++        PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(yuv, width, height, 0, 0,
++                width, height, false);
++        if (source != null) {
++            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
++            try {
++                rawResult = multiFormatReader.decodeWithState(bitmap);
++            } catch (ReaderException re) {
++                re.printStackTrace();
++            } finally {
++                multiFormatReader.reset();
++                multiFormatReader = null;
++            }
++        }
++        long end = System.currentTimeMillis();
++        return rawResult;
++    }
++
++
++    /**
++     * The formula for RGB to YUV is:
++     * Y=0.299R+0.587G+0.114B;
++     * U=-0.147R-0.289G+0.436B;
++     * V=0.615R-0.515G-0.1B;
++     *
++     * @param yuv
++     * @param argb
++     * @param width
++     * @param height
++     */
++    private static void encodeYUV420SP(byte[] yuv, int[] argb, int width, int height) {
++        // Pixel size of frame picture
++        final int frameSize = width * height;
++        // ---YUV data---
++        int Y, U, V;
++        // Y index starts at 0
++        int yIndex = 0;
++        // UV的index从frameSize开始
++        int uvIndex = frameSize;
++        // ---Color data---
++        int R, G, B;
++        int rgbIndex = 0;
++        // ---Cycle all pixels, RGB to YUV---
++        for (int j = 0; j < height; j++) {
++            for (int i = 0; i < width; i++) {
++                R = (argb[rgbIndex] & 0xff0000) >> 16;
++                G = (argb[rgbIndex] & 0xff00) >> 8;
++                B = (argb[rgbIndex] & 0xff);
++                //
++                rgbIndex++;
++                // well known RGB to YUV algorithm
++                Y = ((66 * R + 129 * G + 25 * B + 128) >> 8) + 16;
++                U = ((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
++                V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
++                Y = Math.max(0, Math.min(Y, 255));
++                U = Math.max(0, Math.min(U, 255));
++                V = Math.max(0, Math.min(V, 255));
++                // NV21 has a plane of Y and interleaved planes of VU each sampled by a factor of 2
++                // meaning for every 4 Y pixels there are 1 V and 1 U. Note the sampling is every other
++                // pixel AND every other scan line.
++                // ---Y---
++                yuv[yIndex++] = (byte) Y;
++                // ---UV---
++                if ((j % 2 == 0) && (i % 2 == 0)) {
++                    //
++                    yuv[uvIndex++] = (byte) V;
++                    //
++                    yuv[uvIndex++] = (byte) U;
++                }
++            }
+         }
+     }
+ }
+diff --git a/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java.orig b/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java.orig
+new file mode 100644
+index 0000000..e1ae7e8
+--- /dev/null
++++ b/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java.orig
+@@ -0,0 +1,87 @@
++package com.lewin.qrcode;
++
++import android.net.Uri;
++import android.util.Log;
++
++import androidx.annotation.NonNull;
++
++import com.facebook.react.bridge.Promise;
++import com.facebook.react.bridge.ReactApplicationContext;
++import com.facebook.react.bridge.ReactContextBaseJavaModule;
++import com.facebook.react.bridge.ReactMethod;
++import com.google.android.gms.tasks.OnFailureListener;
++import com.google.android.gms.tasks.OnSuccessListener;
++import com.google.android.gms.tasks.Task;
++import com.google.mlkit.vision.barcode.Barcode;
++import com.google.mlkit.vision.barcode.BarcodeScanner;
++import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
++import com.google.mlkit.vision.barcode.BarcodeScanning;
++import com.google.mlkit.vision.common.InputImage;
++
++import java.io.IOException;
++import java.util.LinkedList;
++import java.util.List;
++
++/**
++ * Created by lewin on 2018/3/14,
++ * Updated by stefanmajiros on 2021/6/15
++ */
++
++public class QRScanReader extends ReactContextBaseJavaModule  {
++
++    public QRScanReader(ReactApplicationContext reactContext) {
++        super(reactContext);
++    }
++
++    @Override
++    public String getName() {
++        return "QRScanReader";
++    }
++
++    @ReactMethod
++    public void readerQR(String fileUrl, final Promise promise ) {
++        // ML Vision : https://developers.google.com/ml-kit/vision/barcode-scanning/android#java
++        try {
++            Uri uri = Uri.parse(fileUrl);
++            InputImage image = InputImage.fromFilePath(this.getReactApplicationContext(), uri);
++            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
++                    .setBarcodeFormats(
++                            Barcode.FORMAT_AZTEC,
++                            Barcode.FORMAT_QR_CODE
++                    )
++                    .build();
++            final BarcodeScanner scanner = BarcodeScanning.getClient(options);
++            Task<List<Barcode>> result = scanner.process(image)
++                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
++                        @Override
++                        public void onSuccess(List<Barcode> barcodes) {
++                            Log.d("OK", " " +  barcodes.toString());
++                            List<String> rawValues = new LinkedList<>();
++                            for (Barcode barcode: barcodes) {
++                                String rawValue = barcode.getRawValue();
++                                rawValues.add(rawValue);
++                            }
++                            scanner.close();
++                            if (!rawValues.isEmpty()){
++                                promise.resolve(rawValues.get(0));
++                            } else {
++                                promise.reject("NOT_OK", "Invalid or No related QR code");
++                            }
++
++                        }
++                    })
++                    .addOnFailureListener(new OnFailureListener() {
++                        @Override
++                        public void onFailure(@NonNull Exception e) {
++                            Log.d("NOT_OK", "" +  e.getMessage());
++                            scanner.close();
++                            promise.reject("NOT_OK", e.getMessage());
++
++                        }
++                    });
++        } catch (IOException e) {
++            Log.e("ERROR", "" + e.getMessage());
++            e.printStackTrace();
++        }
++    }
++}
+diff --git a/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java.rej b/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java.rej
+new file mode 100644
+index 0000000..c8c00e1
+--- /dev/null
++++ b/node_modules/react-native-qr-decode-image-camera/android/src/main/java/com/lewin/qrcode/QRScanReader.java.rej
+@@ -0,0 +1,348 @@
++@@ -1,40 +1,35 @@
++ package com.lewin.qrcode;
++ 
++-import android.net.Uri;
++-import android.util.Log;
++-
++-import androidx.annotation.NonNull;
+++import android.graphics.Bitmap;
+++import android.graphics.BitmapFactory;
++ 
++ import com.facebook.react.bridge.Promise;
++ import com.facebook.react.bridge.ReactApplicationContext;
++ import com.facebook.react.bridge.ReactContextBaseJavaModule;
++ import com.facebook.react.bridge.ReactMethod;
++-import com.google.android.gms.tasks.OnFailureListener;
++-import com.google.android.gms.tasks.OnSuccessListener;
++-import com.google.android.gms.tasks.Task;
++-import com.google.mlkit.vision.barcode.Barcode;
++-import com.google.mlkit.vision.barcode.BarcodeScanner;
++-import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
++-import com.google.mlkit.vision.barcode.BarcodeScanning;
++-import com.google.mlkit.vision.common.InputImage;
++-
++-import java.io.IOException;
++-import java.util.LinkedList;
++-import java.util.List;
+++import com.google.zxing.BinaryBitmap;
+++import com.google.zxing.ChecksumException;
+++import com.google.zxing.DecodeHintType;
+++import com.google.zxing.FormatException;
+++import com.google.zxing.MultiFormatReader;
+++import com.google.zxing.NotFoundException;
+++import com.google.zxing.PlanarYUVLuminanceSource;
+++import com.google.zxing.RGBLuminanceSource;
+++import com.google.zxing.ReaderException;
+++import com.google.zxing.Result;
+++import com.google.zxing.common.HybridBinarizer;
+++import com.google.zxing.qrcode.QRCodeReader;
+++
+++import java.util.Hashtable;
++ 
++ /**
++- * Created by lewin on 2018/3/14,
++- * Updated by stefanmajiros on 2021/6/15
+++ * Created by lewin on 2018/3/14.
++  */
++ 
++-public class QRScanReader extends ReactContextBaseJavaModule  {
++-
++-    private final ReactApplicationContext reactContext;
+++public class QRScanReader extends ReactContextBaseJavaModule {
++ 
++     public QRScanReader(ReactApplicationContext reactContext) {
++         super(reactContext);
++-
++-        this.reactContext = reactContext;
++     }
++ 
++     @Override
++@@ -43,50 +38,245 @@
++     }
++ 
++     @ReactMethod
++-    public void readerQR(String fileUrl, final Promise promise) {
++-        // ML Vision : https://developers.google.com/ml-kit/vision/barcode-scanning/android#java
+++    public void readerQR(String fileUrl, Promise promise ) {
+++        Result result = scanningImage(fileUrl);
+++        if(result == null){
+++            // promise.reject("404","No related QR code");
+++            result = decodeBarcodeRGB(fileUrl);
+++            if(result == null){
+++                try {
+++                    result = decodeBarcodeYUV(fileUrl);
+++                } catch (Exception error) {
+++                    result = null;
+++                }
+++                if(result == null){
+++                    promise.reject("404","No related QR code");
+++                }else{
+++                    promise.resolve(result.getText());
+++                }
+++            }else{
+++                promise.resolve(result.getText());
+++            }
+++
+++        }else{
+++            promise.resolve(result.getText());
+++        }
+++    }
+++
+++    /**
+++     * Method for scanning QR code pictures
+++     * @param path
+++     * @return
+++     */
+++    public Result scanningImage(String path) {
+++        if (path == null || path.length() == 0) {
+++            return null;
+++        }
+++        Hashtable<DecodeHintType, String> hints = new Hashtable<>();
+++        hints.put(DecodeHintType.CHARACTER_SET, "UTF8"); //Set the encoding of QR code content
+++
+++        BitmapFactory.Options options = new BitmapFactory.Options();
+++        options.inJustDecodeBounds = true; // Get the original size first
+++        Bitmap scanBitmap = BitmapFactory.decodeFile(path, options);
+++        options.inJustDecodeBounds = false; // Get new size
+++        int sampleSize = (int) (options.outHeight / (float) 200);
+++        if (sampleSize <= 0)
+++            sampleSize = 1;
+++        options.inSampleSize = sampleSize;
+++        scanBitmap = BitmapFactory.decodeFile(path, options);
+++        int width=scanBitmap.getWidth();
+++        int height=scanBitmap.getHeight();
+++        int[] pixels=new int[width*height];
+++        scanBitmap.getPixels(pixels,0,width,0,0,width,height);//Get picture pixels
+++        RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap.getWidth(),scanBitmap.getHeight(),pixels);
+++        BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
+++        QRCodeReader reader = new QRCodeReader();
++         try {
++-            Uri uri = Uri.parse(fileUrl);
++-            InputImage image = InputImage.fromFilePath(this.reactContext, uri);
++-            BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
++-                    .setBarcodeFormats(
++-                            Barcode.FORMAT_AZTEC,
++-                            Barcode.FORMAT_QR_CODE
++-                    )
++-                    .build();
++-            final BarcodeScanner scanner = BarcodeScanning.getClient(options);
++-            Task<List<Barcode>> result = scanner.process(image)
++-                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
++-                        @Override
++-                        public void onSuccess(List<Barcode> barcodes) {
++-                            Log.d("OK", " " +  barcodes.toString());
++-                            List<String> rawValues = new LinkedList<>();
++-                            for (Barcode barcode: barcodes) {
++-                                String rawValue = barcode.getRawValue();
++-                                rawValues.add(rawValue);
++-                            }
++-                            scanner.close();
++-                            if (!rawValues.isEmpty()){
++-                                promise.resolve(rawValues.get(0));
++-                            } else {
++-                                promise.reject("NOT_OK", "Invalid or No related QR code");
++-                            }
++-
++-                        }
++-                    })
++-                    .addOnFailureListener(new OnFailureListener() {
++-                        @Override
++-                        public void onFailure(@NonNull Exception e) {
++-                            Log.d("NOT_OK", "" +  e.getMessage());
++-                            scanner.close();
++-                            promise.reject("NOT_OK", e.getMessage());
++-
++-                        }
++-                    });
++-        } catch (IOException e) {
++-            Log.e("ERROR", "" + e.getMessage());
+++            return reader.decode(bitmap1, hints);
+++        } catch (NotFoundException e) {
++             e.printStackTrace();
++-            promise.reject(e);
+++        } catch (ChecksumException e) {
+++            e.printStackTrace();
+++        } catch (FormatException e) {
+++            e.printStackTrace();
+++        }
+++        return null;
+++    }
+++
+++    /**
+++     * Parse QR code (using the method of parsing RGB coded data)
+++     *
+++     * @param path
+++     * @return
+++     */
+++    public static Result decodeBarcodeRGB(String path) {
+++
+++        BitmapFactory.Options opts = new BitmapFactory.Options();
+++        opts.inSampleSize = 1;
+++        Bitmap barcode = BitmapFactory.decodeFile(path, opts);
+++        Result result = decodeBarcodeRGB(barcode);
+++        barcode.recycle();
+++        barcode = null;
+++        return result;
+++    }
+++
+++    /**
+++     * Parse QR code (using the method of parsing RGB coded data)
+++     *
+++     * @param barcode
+++     * @return
+++     */
+++    public static Result decodeBarcodeRGB(Bitmap barcode) {
+++        int width = barcode.getWidth();
+++        int height = barcode.getHeight();
+++        int[] data = new int[width * height];
+++        barcode.getPixels(data, 0, width, 0, 0, width, height);
+++        RGBLuminanceSource source = new RGBLuminanceSource(width, height, data);
+++        BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
+++        QRCodeReader reader = new QRCodeReader();
+++        Result result = null;
+++        try {
+++            result = reader.decode(bitmap1);
+++        } catch (NotFoundException e) {
+++            e.printStackTrace();
+++        } catch (ChecksumException e) {
+++            e.printStackTrace();
+++        } catch (FormatException e) {
+++            e.printStackTrace();
+++        }
+++        barcode.recycle();
+++        barcode = null;
+++        return result;
+++    }
+++
+++    /**
+++     * Parse QR code (using the method of parsing YUV coded data)
+++     *
+++     * @param path
+++     * @return
+++     */
+++    public static Result decodeBarcodeYUV(String path) {
+++        if (path == null || path.length() == 0) {
+++            return null;
+++        }
+++        BitmapFactory.Options opts = new BitmapFactory.Options();
+++        opts.inSampleSize = 1;
+++        Bitmap barcode = BitmapFactory.decodeFile(path, opts);
+++        Result result = decodeBarcodeYUV(barcode);
+++        barcode.recycle();
+++        barcode = null;
+++        return result;
+++    }
+++
+++    /**
+++     * Parse QR code (using the method of parsing YUV coded data)
+++     *
+++     * @param barcode
+++     * @return
+++     */
+++    public static Result decodeBarcodeYUV(Bitmap barcode) {
+++        if (null == barcode) {
+++            return null;
+++        }
+++        int width = barcode.getWidth();
+++        int height = barcode.getHeight();
+++        //Store the pixels of the picture in argb mode
+++        int[] argb = new int[width * height];
+++        barcode.getPixels(argb, 0, width, 0, 0, width, height);
+++        //Convert argb to yuv
+++        byte[] yuv = new byte[width * height * 3 / 2];
+++        encodeYUV420SP(yuv, argb, width, height);
+++        //Analyze the QR code of the YUV encoding method
+++        Result result = decodeBarcodeYUV(yuv, width, height);
+++
+++        barcode.recycle();
+++        barcode = null;
+++        return result;
+++    }
+++
+++    /**
+++     * Parse QR code (using the method of parsing YUV coded data)
+++     *
+++     * @param yuv
+++     * @param width
+++     * @param height
+++     * @return
+++     */
+++    private static Result decodeBarcodeYUV(byte[] yuv, int width, int height) {
+++        long start = System.currentTimeMillis();
+++        MultiFormatReader multiFormatReader = new MultiFormatReader();
+++        multiFormatReader.setHints(null);
+++
+++        Result rawResult = null;
+++        PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(yuv, width, height, 0, 0,
+++                width, height, false);
+++        if (source != null) {
+++            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+++            try {
+++                rawResult = multiFormatReader.decodeWithState(bitmap);
+++            } catch (ReaderException re) {
+++                re.printStackTrace();
+++            } finally {
+++                multiFormatReader.reset();
+++                multiFormatReader = null;
+++            }
+++        }
+++        long end = System.currentTimeMillis();
+++        return rawResult;
+++    }
+++
+++
+++    /**
+++     * The formula for RGB to YUV is:
+++     * Y=0.299R+0.587G+0.114B;
+++     * U=-0.147R-0.289G+0.436B;
+++     * V=0.615R-0.515G-0.1B;
+++     *
+++     * @param yuv
+++     * @param argb
+++     * @param width
+++     * @param height
+++     */
+++    private static void encodeYUV420SP(byte[] yuv, int[] argb, int width, int height) {
+++        // Pixel size of frame picture
+++        final int frameSize = width * height;
+++        // ---YUV data---
+++        int Y, U, V;
+++        // Y index starts at 0
+++        int yIndex = 0;
+++        // UV的index从frameSize开始
+++        int uvIndex = frameSize;
+++        // ---Color data---
+++        int R, G, B;
+++        int rgbIndex = 0;
+++        // ---Cycle all pixels, RGB to YUV---
+++        for (int j = 0; j < height; j++) {
+++            for (int i = 0; i < width; i++) {
+++                R = (argb[rgbIndex] & 0xff0000) >> 16;
+++                G = (argb[rgbIndex] & 0xff00) >> 8;
+++                B = (argb[rgbIndex] & 0xff);
+++                //
+++                rgbIndex++;
+++                // well known RGB to YUV algorithm
+++                Y = ((66 * R + 129 * G + 25 * B + 128) >> 8) + 16;
+++                U = ((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
+++                V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
+++                Y = Math.max(0, Math.min(Y, 255));
+++                U = Math.max(0, Math.min(U, 255));
+++                V = Math.max(0, Math.min(V, 255));
+++                // NV21 has a plane of Y and interleaved planes of VU each sampled by a factor of 2
+++                // meaning for every 4 Y pixels there are 1 V and 1 U. Note the sampling is every other
+++                // pixel AND every other scan line.
+++                // ---Y---
+++                yuv[yIndex++] = (byte) Y;
+++                // ---UV---
+++                if ((j % 2 == 0) && (i % 2 == 0)) {
+++                    //
+++                    yuv[uvIndex++] = (byte) V;
+++                    //
+++                    yuv[uvIndex++] = (byte) U;
+++                }
+++            }
++         }
++     }
++ }
++\ No newline at end of line
+diff --git a/node_modules/react-native-qr-decode-image-camera/index.js b/node_modules/react-native-qr-decode-image-camera/index.js
+index 4d036d5..32660a0 100644
+--- a/node_modules/react-native-qr-decode-image-camera/index.js
++++ b/node_modules/react-native-qr-decode-image-camera/index.js
+@@ -1,8 +1,7 @@
+-import QRscanner from './src/QRScanner'
+ import { NativeModules } from 'react-native';
+ 
+ const QRreader = (fileUrl)=>{
+   var QRScanReader = NativeModules.QRScanReader;
+   return QRScanReader.readerQR(fileUrl);    
+ }
+-export {QRscanner, QRreader}
+\ No newline at end of file
++export { QRreader }
+\ No newline at end of file
+diff --git a/node_modules/react-native-qr-decode-image-camera/src/QRScanner.js b/node_modules/react-native-qr-decode-image-camera/src/QRScanner.js
+index 93f2d16..e69de29 100644
+--- a/node_modules/react-native-qr-decode-image-camera/src/QRScanner.js
++++ b/node_modules/react-native-qr-decode-image-camera/src/QRScanner.js
+@@ -1,276 +0,0 @@
+-import React, { PureComponent } from "react";
+-import { RNCamera } from "react-native-camera";
+-import PropTypes from "prop-types";
+-
+-import {
+-  StyleSheet,
+-  View,
+-  Text,
+-  Image,
+-  Vibration,
+-  Platform,
+-  PixelRatio,
+-  StatusBar
+-} from "react-native";
+-
+-import QRScannerView from "./QRScannerView";
+-const pixelRatio = PixelRatio.get();
+-
+-/**
+- * Scan interface
+- */
+-export default class QRScanner extends PureComponent {
+-  constructor(props) {
+-    super(props);
+-    this.state = {
+-      scanning: false,
+-      barCodeSize: {}
+-    };
+-  }
+-
+-  static defaultProps = {
+-    onRead: () => {},
+-    renderTopView: () => {},
+-    renderBottomView: () => (
+-      <View style={{ flex: 1, backgroundColor: "#0000004D" }} />
+-    ),
+-    rectHeight: 200,
+-    rectWidth: 200,
+-    flashMode: false, // Flashlight mode
+-    finderX: 0, // Viewfinder X-axis offset
+-    finderY: 0, // Viewfinder Y-axis offset
+-    zoom: 0.2, // Zoom range 0 - 1
+-    translucent: false,
+-    isRepeatScan: false,
+-    cameraType: "back",
+-    notAuthorizedView: () => (
+-      <View style={styles.authorizationContainer}>
+-        <Text style={styles.notAuthorizedText}>Camera not authorized</Text>
+-      </View>
+-    ),
+-    vibrate: true,
+-  };
+-
+-  render() {
+-    return (
+-      <View
+-        style={{
+-          flex: 1
+-        }}
+-      >
+-        <RNCamera
+-          style={{
+-            flex: 1
+-          }}
+-          captureAudio={false}
+-          onBarCodeRead={this._handleBarCodeRead}
+-          androidCameraPermissionOptions={null}
+-          androidRecordAudioPermissionOptions={null}
+-          notAuthorizedView={this.props.notAuthorizedView()}
+-          barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+-          flashMode={
+-            !this.props.flashMode
+-              ? RNCamera.Constants.FlashMode.off
+-              : RNCamera.Constants.FlashMode.torch
+-          }
+-          zoom={this.props.zoom}
+-          type={this.props.cameraType}
+-        >
+-          <View style={[styles.topButtonsContainer, this.props.topViewStyle]}>
+-            {this.props.renderTopView()}
+-          </View>
+-          <QRScannerView
+-            maskColor={this.props.maskColor}
+-            cornerColor={this.props.cornerColor}
+-            borderColor={this.props.borderColor}
+-            rectHeight={this.props.rectHeight}
+-            rectWidth={this.props.rectWidth}
+-            borderWidth={this.props.borderWidth}
+-            cornerBorderWidth={this.props.cornerBorderWidth}
+-            cornerBorderLength={this.props.cornerBorderLength}
+-            cornerOffsetSize={this.props.cornerOffsetSize}
+-            isCornerOffset={this.props.isCornerOffset}
+-            bottomHeight={this.props.bottomHeight}
+-            scanBarAnimateTime={this.props.scanBarAnimateTime}
+-            scanBarColor={this.props.scanBarColor}
+-            scanBarHeight={this.props.scanBarHeight}
+-            scanBarMargin={this.props.scanBarMargin}
+-            hintText={this.props.hintText}
+-            hintTextStyle={this.props.hintTextStyle}
+-            scanBarImage={this.props.scanBarImage}
+-            hintTextPosition={this.props.hintTextPosition}
+-            isShowScanBar={this.props.isShowScanBar}
+-            finderX={this.props.finderX}
+-            finderY={this.props.finderY}
+-            returnSize={this.barCodeSize}
+-          />
+-          <View
+-            style={[styles.bottomButtonsContainer, this.props.bottomViewStyle]}
+-          >
+-            {this.props.renderBottomView()}
+-          </View>
+-        </RNCamera>
+-      </View>
+-    );
+-  }
+-
+-  isShowCode = false;
+-
+-  barCodeSize = size => this.setState({ barCodeSize: size });
+-
+-  returnMax = (a, b) => (a > b ? a : b);
+-
+-  returnMin = (a, b) => (a < b ? a : b);
+-
+-  iosBarCode = e => {
+-    let x = Number(e.bounds.origin.x);
+-    let y = Number(e.bounds.origin.y);
+-    let width = e.bounds.size.width;
+-    let height = e.bounds.size.height;
+-    let viewMinX = this.state.barCodeSize.x - this.props.finderX;
+-    let viewMinY = this.state.barCodeSize.y - this.props.finderY;
+-    let viewMaxX =
+-      this.state.barCodeSize.x +
+-      this.state.barCodeSize.width -
+-      width -
+-      this.props.finderX;
+-    let viewMaxY =
+-      this.state.barCodeSize.y +
+-      this.state.barCodeSize.height -
+-      height -
+-      this.props.finderY;
+-    if (x > viewMinX && y > viewMinY && x < viewMaxX && y < viewMaxY) {
+-      if (this.props.isRepeatScan) {
+-        if (this.props.vibrate) {
+-          Vibration.vibrate();
+-        }
+-        this.props.onRead(e);
+-      } else {
+-        if (!this.isShowCode) {
+-          this.isShowCode = true;
+-          if (this.props.vibrate) {
+-            Vibration.vibrate();
+-          }
+-          this.props.onRead(e);
+-        }
+-      }
+-    }
+-  };
+-
+-  androidBarCode = e => {
+-    // if (!e.bounds[0] || !e.bounds[1] || !e.bounds[2] || !e.bounds[3]) return null;
+-    // const leftBottom = {x: e.bounds[0].x / pixelRatio, y: e.bounds[0].y / pixelRatio}
+-    // const leftTop= {x: e.bounds[1].x / pixelRatio, y: e.bounds[1].y / pixelRatio}
+-    // const rightTop = {x: e.bounds[2].x / pixelRatio, y: e.bounds[2].y / pixelRatio}
+-    // const rightBottom = {x: e.bounds[3].x / pixelRatio, y: e.bounds[3].y / pixelRatio}
+-    // let x = this.returnMin(leftTop.x, leftBottom.x);
+-    // let y = this.returnMin(leftTop.y, rightTop.y);
+-    // let width = this.returnMax(rightTop.x - leftTop.x, rightBottom.x - leftBottom.x)
+-    // let height = this.returnMax(leftBottom.y - leftTop.y , rightBottom.y - rightTop.y)
+-    // let viewMinX = this.state.barCodeSize.x - this.props.finderX * 4 / pixelRatio - (this.props.finderX > 0 ? this.props.finderX/10 : 0)
+-    // let viewMinY = this.state.barCodeSize.y - this.props.finderY * 4 / pixelRatio - (this.props.translucent ? 0 : StatusBar.currentHeight)*2/pixelRatio - (this.props.finderY > 0 ? this.props.finderY/3 : this.props.finderY/10*(-1))
+-    // let viewMaxX = this.state.barCodeSize.x + 20 + this.state.barCodeSize.width*2 / pixelRatio - width - this.props.finderX *4/pixelRatio - (this.props.finderX < 0 ? 0 : this.props.finderX/5)
+-    // let viewMaxY = this.state.barCodeSize.y + this.state.barCodeSize.height*2 / pixelRatio - height - this.props.finderY *4/pixelRatio  - (this.props.translucent ? 0 : StatusBar.currentHeight)*2/pixelRatio - (this.props.finderY < 0 ? this.props.finderY/5 : 0 )
+-    // if(x&&y) {
+-    //   if ((x > viewMinX && y > viewMinY) && (x < viewMaxX && y < viewMaxY)) {
+-    //     if (this.props.isRepeatScan) {
+-    //       Vibration.vibrate();
+-    //       this.props.onRead(e)
+-    //     } else {
+-    //       if (!this.isShowCode) {
+-    //         this.isShowCode = true;
+-    //         Vibration.vibrate();
+-    //         this.props.onRead(e)
+-    //       }
+-    //     }
+-    //   }
+-    // }
+-
+-    // The following are unrestricted scanning areas
+-    if (this.props.isRepeatScan) {
+-      Vibration.vibrate();
+-      this.props.onRead(e);
+-    } else {
+-      if (!this.isShowCode) {
+-        this.isShowCode = true;
+-        Vibration.vibrate();
+-        this.props.onRead(e);
+-      }
+-    }
+-  };
+-
+-  _handleBarCodeRead = e => {
+-    switch (Platform.OS) {
+-      case "ios":
+-        this.iosBarCode(e);
+-        break;
+-      case "android":
+-        this.androidBarCode(e);
+-        break;
+-      default:
+-        break;
+-    }
+-  };
+-}
+-
+-const styles = StyleSheet.create({
+-  topButtonsContainer: {
+-    position: "absolute",
+-    height: 100,
+-    top: 0,
+-    left: 0,
+-    right: 0
+-  },
+-  bottomButtonsContainer: {
+-    position: "absolute",
+-    height: 100,
+-    bottom: 0,
+-    left: 0,
+-    right: 0
+-  },
+-  authorizationContainer: {
+-    flex: 1,
+-    alignItems: "center",
+-    justifyContent: "center"
+-  },
+-  notAuthorizedText: {
+-    textAlign: "center",
+-    fontSize: 16
+-  }
+-});
+-
+-QRScanner.propTypes = {
+-  isRepeatScan: PropTypes.bool,
+-  onRead: PropTypes.func,
+-  maskColor: PropTypes.string,
+-  borderColor: PropTypes.string,
+-  cornerColor: PropTypes.string,
+-  borderWidth: PropTypes.number,
+-  cornerBorderWidth: PropTypes.number,
+-  cornerBorderLength: PropTypes.number,
+-  rectHeight: PropTypes.number,
+-  rectWidth: PropTypes.number,
+-  isCornerOffset: PropTypes.bool, //Whether the corners are offset
+-  cornerOffsetSize: PropTypes.number,
+-  bottomHeight: PropTypes.number,
+-  scanBarAnimateTime: PropTypes.number,
+-  scanBarColor: PropTypes.string,
+-  scanBarImage: PropTypes.any,
+-  scanBarHeight: PropTypes.number,
+-  scanBarMargin: PropTypes.number,
+-  hintText: PropTypes.string,
+-  hintTextStyle: PropTypes.object,
+-  hintTextPosition: PropTypes.number,
+-  renderTopView: PropTypes.func,
+-  renderBottomView: PropTypes.func,
+-  isShowScanBar: PropTypes.bool,
+-  topViewStyle: PropTypes.object,
+-  bottomViewStyle: PropTypes.object,
+-  flashMode: PropTypes.bool,
+-  finderX: PropTypes.number,
+-  finderY: PropTypes.number,
+-  zoom: PropTypes.number,
+-  translucent: PropTypes.bool,
+-  cameraType: PropTypes.string,
+-  vibrate: PropTypes.bool,
+-};
+diff --git a/node_modules/react-native-qr-decode-image-camera/src/QRScannerView.js b/node_modules/react-native-qr-decode-image-camera/src/QRScannerView.js
+index ce00a5f..e69de29 100644
+--- a/node_modules/react-native-qr-decode-image-camera/src/QRScannerView.js
++++ b/node_modules/react-native-qr-decode-image-camera/src/QRScannerView.js
+@@ -1,379 +0,0 @@
+-import React, {Component} from 'react';
+-import {
+-  ActivityIndicator,
+-  StyleSheet,
+-  View,
+-  Animated,
+-  Easing,
+-  Text,
+-  Image,
+-  Vibration,
+-  Platform,
+-  PixelRatio,
+-  StatusBar
+-} from 'react-native';
+-/**
+- * Scanning Interface Mask
+- * Write a separate class for easy copying
+- */
+-export default class QRScannerView extends Component {
+-  static defaultProps = {
+-    maskColor: '#0000004D',
+-    cornerColor: '#22ff00',
+-    borderColor: '#000000',
+-    rectHeight: 200,
+-    rectWidth: 200,
+-    borderWidth: 0,
+-    cornerBorderWidth: 4,
+-    cornerBorderLength: 20,
+-    cornerOffsetSize: 1,
+-    isCornerOffset: true,
+-    bottomHeight: 100,
+-    scanBarAnimateTime: 2500,
+-    scanBarColor: '#22ff00',
+-    scanBarImage: null,
+-    scanBarHeight: 1.5,
+-    scanBarMargin: 6,
+-    hintText: 'Put the QR code / bar code into the box and it will scan automatically',
+-    hintTextStyle: {
+-      color: '#fff',
+-      fontSize: 14,
+-      backgroundColor: 'transparent'
+-    },
+-    hintTextPosition: 130,
+-    isShowScanBar: true
+-  };
+-
+-  constructor(props) {
+-    super(props);
+-    this.state = {
+-      topWidth: 0,
+-      topHeight: 0,
+-      leftWidth: 0,
+-      animatedValue: new Animated.Value(0)
+-    }
+-    this.isClosed = false;
+-  }
+-
+-  //Get background color
+-  getBackgroundColor = () => {
+-    return ({backgroundColor: this.props.maskColor});
+-  }
+-
+-  //Get scan box background size
+-  getRectSize = () => {
+-    return ({height: this.props.rectHeight, width: this.props.rectWidth});
+-  }
+-
+-  //Get scan frame border size
+-
+-  getBorderSize = () => {
+-    if (this.props.isCornerOffset) {
+-      return ({
+-        height: this.props.rectHeight - this.props.cornerOffsetSize * 2,
+-        width: this.props.rectWidth - this.props.cornerOffsetSize * 2
+-      });
+-    } else {
+-      return ({height: this.props.rectHeight, width: this.props.rectWidth});
+-    }
+-  }
+-
+-  //Get the color of the corner of the scan frame
+-  getCornerColor = () => {
+-    return ({borderColor: this.props.cornerColor});
+-  }
+-
+-  //Get the size of the corner of the scan frame
+-  getCornerSize = () => {
+-    return ({height: this.props.cornerBorderLength, width: this.props.cornerBorderLength});
+-  }
+-
+-  //Get scan frame size
+-  getBorderWidth = () => {
+-    return ({borderWidth: this.props.borderWidth});
+-  }
+-
+-  //Get scan box color
+-  getBorderColor = () => {
+-    return ({borderColor: this.props.borderColor});
+-  }
+-
+-  //Measure the size of the entire scanning component
+-  measureTotalSize = (e) => {
+-    let totalSize = e.layout;
+-    this.setState({topWidth: totalSize.width})
+-  }
+-
+-  //Measure the position of the scan frame
+-  measureRectPosition = (e) => {
+-    let rectSize = e.layout;
+-    rectSize.x += this.props.finderX
+-    rectSize.y += this.props.finderY
+-    this.props.returnSize(rectSize)
+-    this.setState({topHeight: rectSize.y, leftWidth: rectSize.x})
+-  }
+-
+-  //Get top mask height
+-  getTopMaskHeight = () => {
+-    if (this.props.isCornerOffset) {
+-      return this.state.topHeight + this.props.rectHeight - this.props.cornerOffsetSize;
+-    } else {
+-      return this.state.topHeight + this.props.rectHeight;
+-    }
+-  }
+-
+-  //Get bottom mask height
+-  getBottomMaskHeight = () => {
+-    if (this.props.isCornerOffset) {
+-      return this.props.rectHeight + this.state.topHeight - this.props.cornerOffsetSize;
+-    } else {
+-      return this.state.topHeight + this.props.rectHeight;
+-    }
+-  }
+-
+-  //Get the left and right mask height
+-  getSideMaskHeight = () => {
+-    if (this.props.isCornerOffset) {
+-      return this.props.rectHeight - this.props.cornerOffsetSize * 2;
+-    } else {
+-      return this.props.rectHeight;
+-    }
+-  }
+-
+-  //Get left and right mask width
+-  getSideMaskWidth = () => {
+-    if (this.props.isCornerOffset) {
+-      return this.state.leftWidth + this.props.cornerOffsetSize;
+-    } else {
+-      return this.state.leftWidth;
+-    }
+-  }
+-
+-  getBottomHeight = () => {
+-    return ({bottom: this.props.bottomHeight});
+-  }
+-
+-  getScanBarMargin = () => {
+-    return ({marginRight: this.props.scanBarMargin, marginLeft: this.props.scanBarMargin})
+-  }
+-
+-  getScanImageWidth = () => {
+-    return this.props.rectWidth - this.props.scanBarMargin * 2
+-  }
+-
+-  //Draw scan lines
+-  _renderScanBar = () => {
+-    if (!this.props.isShowScanBar) 
+-      return;
+-    if (this.props.scanBarImage) {
+-      return <Image
+-        style={{
+-        resizeMode: 'contain',
+-        width: this.getScanImageWidth()
+-      }}
+-        source={this.props.scanBarImage}/>
+-    } else {
+-      return <View
+-        style={[
+-        this.getScanBarMargin(), {
+-          backgroundColor: this.props.scanBarColor,
+-          height: this.props.scanBarHeight
+-        }
+-      ]}/>
+-    }
+-  }
+-
+-  render() {
+-    const animatedStyle = {
+-      transform: [
+-        {
+-          translateY: this.state.animatedValue
+-        }
+-      ]
+-    };
+-    return (
+-      <View
+-        onLayout={({nativeEvent: e}) => this.measureTotalSize(e)}
+-        style={[
+-        styles.container, this.getBottomHeight()
+-      ]}>
+-        {/* <View style={{flex:1}}></View> */}
+-        <View
+-          style={[
+-          styles.viewfinder, this.getRectSize(),{top:this.props.finderY,left:this.props.finderX}
+-          ]}
+-          onLayout={({nativeEvent: e}) => this.measureRectPosition(e)}>
+-          <View
+-            style={[
+-            this.getBorderSize(),
+-            this.getBorderColor(),
+-            this.getBorderWidth()
+-          ]}>
+-
+-            <Animated.View style={[animatedStyle]}>
+-              {this._renderScanBar()}
+-            </Animated.View>
+-
+-          </View>
+-          <View
+-            style={[
+-            this.getCornerColor(),
+-            this.getCornerSize(),
+-            styles.topLeftCorner, {
+-              borderLeftWidth: this.props.cornerBorderWidth,
+-              borderTopWidth: this.props.cornerBorderWidth
+-            }
+-          ]}/>
+-          <View
+-            style={[
+-            this.getCornerColor(),
+-            this.getCornerSize(),
+-            styles.topRightCorner, {
+-              borderRightWidth: this.props.cornerBorderWidth,
+-              borderTopWidth: this.props.cornerBorderWidth
+-            }
+-          ]}/>
+-          <View
+-            style={[
+-            this.getCornerColor(),
+-            this.getCornerSize(),
+-            styles.bottomLeftCorner, {
+-              borderLeftWidth: this.props.cornerBorderWidth,
+-              borderBottomWidth: this.props.cornerBorderWidth
+-            }
+-          ]}/>
+-          <View
+-            style={[
+-            this.getCornerColor(),
+-            this.getCornerSize(),
+-            styles.bottomRightCorner, {
+-              borderRightWidth: this.props.cornerBorderWidth,
+-              borderBottomWidth: this.props.cornerBorderWidth
+-            }
+-          ]}/>
+-        </View>
+-
+-        <View
+-          style={[
+-          this.getBackgroundColor(),
+-          styles.topMask, {
+-            bottom: this.getTopMaskHeight() - this.props.finderY * 3,
+-            top: 0,
+-            width: this.state.topWidth
+-          }
+-        ]}/>
+-
+-        <View
+-          style={[
+-          this.getBackgroundColor(),
+-          styles.leftMask, {
+-            height: this.getSideMaskHeight(),
+-            width: this.getSideMaskWidth() - this.props.finderX ,
+-            bottom: this.getTopMaskHeight() - this.props.finderY * 3 - this.getSideMaskHeight()
+-          }
+-        ]}/>
+-
+-        <View
+-          style={[
+-          this.getBackgroundColor(),
+-          styles.rightMask, {
+-            height: this.getSideMaskHeight(),
+-            width: this.getSideMaskWidth() - this.props.finderX * 3,
+-            bottom: this.getTopMaskHeight() - this.props.finderY * 3 - this.getSideMaskHeight()
+-          }
+-        ]}/>
+-
+-        <View
+-          style={[
+-          this.getBackgroundColor(),
+-          styles.bottomMask, {
+-            top: this.getBottomMaskHeight() - this.props.finderY,
+-            width: this.state.topWidth
+-          }
+-        ]}/>
+-
+-        <View
+-          style={{
+-          position: 'absolute',
+-          bottom: this.props.hintTextPosition
+-        }}>
+-          <Text style={[this.props.hintTextStyle,{top:this.props.finderY,left:this.props.finderX}]}>{this.props.hintText}</Text>
+-        </View>
+-
+-      </View>
+-    );
+-  }
+-
+-  componentDidMount() {
+-    this.scannerLineMove();
+-  }
+-
+-  componentWillUnmount() {
+-    this.isClosed = true;
+-  }
+-
+-  scannerLineMove() {
+-    if (this.isClosed) {
+-      return;
+-    }
+-    this.state.animatedValue.setValue(0); //重置Rotate动画值为0
+-    Animated.timing(
+-      this.state.animatedValue,
+-      {toValue: this.props.rectHeight,
+-      duration: this.props.scanBarAnimateTime,
+-      easing: Easing.linear,
+-      useNativeDriver: true
+-    }).start(() => this.scannerLineMove());
+-  }
+-}
+-
+-const styles = StyleSheet.create({
+-  container: {
+-    alignItems: 'center',
+-    justifyContent: 'center',
+-    position: 'absolute',
+-    top: 0,
+-    right: 0,
+-    left: 0
+-  },
+-  viewfinder: {
+-    alignItems: 'center',
+-    justifyContent: 'center'
+-  },
+-  topLeftCorner: {
+-    position: 'absolute',
+-    top: 0,
+-    left: 0
+-  },
+-  topRightCorner: {
+-    position: 'absolute',
+-    top: 0,
+-    right: 0
+-  },
+-  bottomLeftCorner: {
+-    position: 'absolute',
+-    bottom: 0,
+-    left: 0
+-  },
+-  bottomRightCorner: {
+-    position: 'absolute',
+-    bottom: 0,
+-    right: 0
+-  },
+-  topMask: {
+-    position: 'absolute',
+-    top: 0
+-  },
+-  leftMask: {
+-    position: 'absolute',
+-    left: 0
+-  },
+-  rightMask: {
+-    position: 'absolute',
+-    right: 0
+-  },
+-  bottomMask: {
+-    position: 'absolute',
+-    bottom: 0
+-  }
+-});

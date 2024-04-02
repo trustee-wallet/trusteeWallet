@@ -9,7 +9,7 @@ import {
     Dimensions,
     TouchableOpacity
 } from 'react-native'
-import FastImage from 'react-native-fast-image'
+import FastImage from 'react-native-trustee-fast-image'
 
 import GradientView from '@app/components/elements/GradientView'
 import { useTheme } from '@app/theme/ThemeProvider'

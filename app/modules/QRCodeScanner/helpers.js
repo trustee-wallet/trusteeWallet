@@ -21,13 +21,16 @@ import { SendActionsUpdateValues } from '@app/appstores/Stores/Send/SendActionsU
 import { QRCodeScannerFlowTypes } from '@app/appstores/Stores/QRCodeScanner/QRCodeScannerActions'
 import walletConnectActions from '@app/appstores/Stores/WalletConnect/WalletConnectStoreActions'
 
-
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 import Validator from '@app/services/UI/Validator/Validator'
 
+export const finishProcess = async (_param, qrCodeScannerConfig) => {
+    const param = {
+        ..._param,
+        data: _param?.value || _param?.data
+    }
 
-export const finishProcess = async (param, qrCodeScannerConfig) => {
-    if (param.data.indexOf('trusteenft:') === 0 ) {
+    if (param.data.indexOf('trusteenft:') === 0) {
         NavStore.goNext('NftDetailedInfoQRCheck', { jsonData: param.data.substring(11) })
         return
     }
@@ -47,7 +50,6 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         return
     }
 
-
     const res = await decodeTransactionQrCode(param, currencyCode)
 
     if (typeof res.data?.couldBeMnemonic !== 'undefined' && res.data?.couldBeMnemonic) {
@@ -60,13 +62,11 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
         return
     }
 
-    if (flowType === QRCodeScannerFlowTypes.CASHBACK_LINK || (
-        flowType === QRCodeScannerFlowTypes.MAIN_SCANNER &&
-        (
-            param.data.indexOf('https://trusteeglobal.com/link/') === 0
-            || param.data.indexOf('https://trustee.deals/link/') === 0
-        )
-    )) {
+    if (
+        flowType === QRCodeScannerFlowTypes.CASHBACK_LINK ||
+        (flowType === QRCodeScannerFlowTypes.MAIN_SCANNER &&
+            (param.data.indexOf('https://trusteeglobal.com/link/') === 0 || param.data.indexOf('https://trustee.deals/link/') === 0))
+    ) {
         let link = param.data
         link = link.split('/')
         link = Validator.safeWords(link[link.length - 1])
@@ -103,18 +103,25 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
             throw new Error('QRScanner Callback is required')
         }
     } else if (flowType === QRCodeScannerFlowTypes.SEND_SCANNER) {
-        if (res.status === 'success' && typeof res.data.currencyCode !== 'undefined' && res.data.currencyCode && res.data.currencyCode !== currencyCode) {
-            showModal({
-                type: 'INFO_MODAL',
-                icon: false,
-                title: strings('modal.qrScanner.error.title'),
-                description: strings('modal.qrScanner.error.description')
-            }, () => {
-                try {
-                    this.scanner.reactivate()
-                } catch {
+        if (
+            res.status === 'success' &&
+            typeof res.data.currencyCode !== 'undefined' &&
+            res.data.currencyCode &&
+            res.data.currencyCode !== currencyCode
+        ) {
+            showModal(
+                {
+                    type: 'INFO_MODAL',
+                    icon: false,
+                    title: strings('modal.qrScanner.error.title'),
+                    description: strings('modal.qrScanner.error.description')
+                },
+                () => {
+                    try {
+                        this.scanner.reactivate()
+                    } catch {}
                 }
-            })
+            )
         } else {
             let parsed
             if (res.status === 'success' && res.data.currencyCode === currencyCode) {
@@ -161,52 +168,59 @@ export const finishProcess = async (param, qrCodeScannerConfig) => {
             const tmp = res.data.parsedUrl || res.data.address
             copyToClipboard(tmp)
 
-            showModal({
-                type: 'INFO_MODAL',
-                icon: true,
-                title: strings('modal.qrScanner.success.title'),
-                description: strings('modal.qrScanner.success.description') + ' ' + tmp
-            }, () => {
-                NavStore.goBack(null)
-            })
+            showModal(
+                {
+                    type: 'INFO_MODAL',
+                    icon: true,
+                    title: strings('modal.qrScanner.success.title'),
+                    description: strings('modal.qrScanner.success.description') + ' ' + tmp
+                },
+                () => {
+                    NavStore.goBack(null)
+                }
+            )
             return
         }
 
         if (typeof cryptoCurrency === 'undefined') {
-            showModal({
-                type: 'YES_NO_MODAL',
-                icon: 'WARNING',
-                title: strings('modal.exchange.sorry'),
-                description: strings('modal.tokenNotAdded.description', { currencyCode: res.data.currencyCode }),
-                reverse: true,
-                noCallback: () => {
-                    try {
-                        this.scanner.reactivate()
-                    } catch {
+            showModal(
+                {
+                    type: 'YES_NO_MODAL',
+                    icon: 'WARNING',
+                    title: strings('modal.exchange.sorry'),
+                    description: strings('modal.tokenNotAdded.description', { currencyCode: res.data.currencyCode }),
+                    reverse: true,
+                    noCallback: () => {
+                        try {
+                            this.scanner.reactivate()
+                        } catch {}
                     }
+                },
+                () => {
+                    NavStore.goNext('AddAssetScreen', { currencyCode: [res.data.currencyCode] })
                 }
-            }, () => {
-                NavStore.goNext('AddAssetScreen', { currencyCode: [res.data.currencyCode] })
-            })
+            )
             return
         }
 
         if (+cryptoCurrency.isHidden) {
-            showModal({
-                type: 'YES_NO_MODAL',
-                icon: 'WARNING',
-                title: strings('modal.exchange.sorry'),
-                description: strings('modal.tokenHidden.description', { currencyName: cryptoCurrency.currencyName }),
-                reverse: true,
-                noCallback: () => {
-                    try {
-                        this.scanner.reactivate()
-                    } catch {
+            showModal(
+                {
+                    type: 'YES_NO_MODAL',
+                    icon: 'WARNING',
+                    title: strings('modal.exchange.sorry'),
+                    description: strings('modal.tokenHidden.description', { currencyName: cryptoCurrency.currencyName }),
+                    reverse: true,
+                    noCallback: () => {
+                        try {
+                            this.scanner.reactivate()
+                        } catch {}
                     }
+                },
+                () => {
+                    NavStore.goNext('AddAssetScreen', { currencyCode: [cryptoCurrency.currencyCode] })
                 }
-            }, () => {
-                NavStore.goNext('AddAssetScreen', { currencyCode: [cryptoCurrency.currencyCode] })
-            })
+            )
             return
         }
 

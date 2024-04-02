@@ -21,7 +21,7 @@ class SheetBottom extends PureComponent {
     }
 
     open = (number=1) => {
-        this.sheetBottomRef.snapTo(number)
+        this.sheetBottomRef.snapToIndex(number)
     }
 
     renderCustomBackdrop = (props) => {

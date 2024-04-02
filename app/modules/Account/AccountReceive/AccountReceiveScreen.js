@@ -816,7 +816,7 @@ class AccountReceiveScreen extends React.PureComponent {
                 <Portal>
                     <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
-                        snapPoints={[0, 340]}
+                        snapPoints={[1, 340]}
                         index={0}
                     >
                         {this.renderModalContent(address)}

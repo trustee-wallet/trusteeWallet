@@ -141,7 +141,7 @@ class InitScreen extends React.PureComponent {
 
                 <LottieView
                     ref={ref => this.initAnimationRef = ref}
-                    style={{ marginBottom: GRID_SIZE * 2, flex: 1 }}
+                    style={{ marginBottom: GRID_SIZE * 2, flex: 1, ...StyleSheet.absoluteFill }}
                     source={isLight ? require('@assets/jsons/animations/LoaderTrusteeLight.json') : require('@assets/jsons/animations/LoaderTrusteeDark.json')}
                     useNativeDriver
                     autoPlay

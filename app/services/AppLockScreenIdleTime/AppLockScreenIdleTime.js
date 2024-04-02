@@ -22,7 +22,6 @@ import { hideModal } from '@app/appstores/Stores/Modal/ModalActions'
 const TIME_DIFF = 300000
 
 class AppLockScreenIdleTime {
-
     lockScreenTimerIOS = {}
 
     _init = false
@@ -33,24 +32,24 @@ class AppLockScreenIdleTime {
 
     _isBlur = false
 
+    _appStateListener = false
+
     init() {
         if (this._init) {
             return true
         }
         if (Platform.OS === 'android') {
-            AppState.addEventListener('change', this.handlerAndroid)
+            _appStateListener = AppState.addEventListener('change', this.handlerAndroid)
         } else {
             BackgroundTimer.start()
-            AppState.addEventListener('change', this.handlerIOS)
+            _appStateListener = AppState.addEventListener('change', this.handlerIOS)
         }
     }
 
     willUnmount() {
-        if (Platform.OS === 'android') {
-            AppState.removeEventListener('change', this.handlerAndroid)
-        } else {
+        _appStateListener.remove()
+        if (Platform.OS !== 'android') {
             BackgroundTimer.stop()
-            AppState.removeEventListener('change', this.handlerIOS)
         }
     }
 
@@ -150,5 +149,4 @@ class AppLockScreenIdleTime {
     }
 }
 
-const AppLockScreenIdleTimeSingle = new AppLockScreenIdleTime()
-export default AppLockScreenIdleTimeSingle
+export default new AppLockScreenIdleTime()

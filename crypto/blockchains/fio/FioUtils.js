@@ -2,8 +2,8 @@ import BlocksoftCryptoLog from '../../common/BlocksoftCryptoLog'
 import { getFioSdk } from './FioSdkWrapper'
 import config from '../../../app/config/config'
 import BlocksoftAxios from '../../common/BlocksoftAxios'
-import { Fio } from '@fioprotocol/fiojs'
-import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
+// import { Fio } from '@fioprotocol/fiojs'
+// import { FIOSDK } from '@fioprotocol/fiosdk/src/FIOSDK'
 import chunk from 'lodash/chunk'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
@@ -81,6 +81,7 @@ export const getPubAddress = async (fioAddress, chainCode, tokenCode) => {
 
 export const getAccountFioName = async () => {
     try {
+        return false
         const sdk = getFioSdk()
         const fioPublicKey = sdk.getFioPublicKey()
         const response = await getFioSdk().getFioNames(fioPublicKey)
@@ -99,6 +100,7 @@ export const getAccountFioName = async () => {
  * @return Promise<[ { fio_address:*, expiration:* } ]>
  */
 export const getFioNames = async (fioPublicKey) => {
+    return false
     try {
         const response = await getFioSdk().getFioNames(fioPublicKey)
         return response['fio_addresses'] || []
@@ -109,6 +111,7 @@ export const getFioNames = async (fioPublicKey) => {
 }
 
 export const getFioBalance = async (fioPublicKey) => {
+    return false
     try {
         const response = await getFioSdk().getFioBalance(fioPublicKey)
         return response['balance'] || 0
@@ -119,6 +122,7 @@ export const getFioBalance = async (fioPublicKey) => {
 }
 
 export const getSentFioRequests = async (fioPublicKey, limit = 100, offset = 0) => {
+    return false
     try {
         BlocksoftCryptoLog.log(`FIO getSentFioRequests started ${fioPublicKey}`)
         const response = await getFioSdk().getSentFioRequests(limit, offset)
@@ -131,6 +135,7 @@ export const getSentFioRequests = async (fioPublicKey, limit = 100, offset = 0) 
 }
 
 export const getPendingFioRequests = async (fioPublicKey, limit = 100, offset = 0) => {
+    return false
     try {
         BlocksoftCryptoLog.log(`FIO getPendingFioRequests started ${fioPublicKey}`)
         const response = await getFioSdk().getPendingFioRequests(limit, offset)
@@ -151,6 +156,7 @@ export const getPendingFioRequests = async (fioPublicKey, limit = 100, offset = 
  * @param publicAddress The public address to be added to the FIO Address for the specified token.
  */
 export const addCryptoPublicAddress = async ({ fioName, chainCode, tokenCode, publicAddress }) => {
+    return false
     try {
         const { fee = 0 } = await getFioSdk().getFeeForAddPublicAddress(fioName)
         const response = await getFioSdk().addPublicAddress(
@@ -172,6 +178,7 @@ export const addCryptoPublicAddress = async ({ fioName, chainCode, tokenCode, pu
 }
 
 export const addCryptoPublicAddresses = async ({ fioName, publicAddresses }) => {
+    return false
     if (!publicAddresses || Object.keys(publicAddresses).length === 0) return true
 
     let isOK = true
@@ -197,6 +204,7 @@ export const addCryptoPublicAddresses = async ({ fioName, publicAddresses }) => 
 }
 
 export const removeCryptoPublicAddresses = async ({ fioName, publicAddresses }) => {
+    return false
     if (!publicAddresses || Object.keys(publicAddresses).length === 0) return true
 
     let isOK = true
@@ -233,6 +241,7 @@ export const removeCryptoPublicAddresses = async ({ fioName, publicAddresses }) 
  * @param memo
  */
 export const requestFunds = async ({ payerFioAddress, payeeFioAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, memo }) => {
+    return false
     try {
         BlocksoftCryptoLog.log(`FIO requestFunds started ${payerFioAddress} -> ${payeeFioAddress} ${amount} ${tokenCode} (${chainCode})`)
         const { fee = 0 } = await getFioSdk().getFeeForNewFundsRequest(payeeFioAddress)
@@ -266,6 +275,7 @@ export const requestFunds = async ({ payerFioAddress, payeeFioAddress, payeeToke
 }
 
 export const getTransactions = async (publicKey) => {
+    return false
 
     try {
         const link = BlocksoftExternalSettings.getStatic('FIO_HISTORY_URL')
@@ -282,6 +292,7 @@ export const getTransactions = async (publicKey) => {
 }
 
 export const transferTokens = async (addressTo, amount) => {
+    return false
     try {
         const { fee = 0 } = await getFioSdk().getFee('transfer_tokens_pub_key')
         const result = await getFioSdk().transferTokens(addressTo, amount, fee, null)
@@ -296,6 +307,7 @@ export const transferTokens = async (addressTo, amount) => {
 }
 
 export const rejectFioFundsRequest = async (fioRequestId, payerFioAddress) => {
+    return false
     try {
         const sdk = getFioSdk()
         const { fee = 0 } = await sdk.getFeeForRejectFundsRequest(payerFioAddress)
@@ -335,6 +347,7 @@ export const recordFioObtData = async ({
                                            memo
                                        }) => {
     try {
+        return false
         const sdk = getFioSdk()
         const { fee = 0 } = await sdk.getFeeForRecordObtData(payerFioAddress)
         const result = await sdk.recordObtData(fioRequestId, payerFioAddress, payeeFioAddress, payerTokenPublicAddress, payeeTokenPublicAddress, amount, chainCode, tokenCode, 'sent_to_blockchain', obtId, fee, null, null, memo, null, null)
@@ -345,6 +358,7 @@ export const recordFioObtData = async ({
 }
 
 export const getFioObtData = async (tokenCode, offset = 0, limit = 100) => {
+    return false
     let res = false
     try {
         res = await getFioSdk().getObtData(limit, offset, tokenCode)
@@ -355,6 +369,7 @@ export const getFioObtData = async (tokenCode, offset = 0, limit = 100) => {
 }
 
 const formatError = (title, e) => {
+    return false
     if (config.debug.fioErrors) {
         console.log(title + ' error', e.json, e)
     }

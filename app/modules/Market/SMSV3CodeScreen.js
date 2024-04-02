@@ -10,7 +10,7 @@ import LottieView from 'lottie-react-native'
 import axios from 'axios'
 import _ from 'lodash'
 
-import { WebView } from 'react-native-webview'
+import WebView from 'react-native-webview'
 import NavStore from '@app/components/navigation/NavStore'
 
 import Log from '@app/services/Log/Log'

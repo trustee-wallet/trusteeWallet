@@ -327,7 +327,9 @@ class UpdateAccountListDaemon extends Update {
                 for (tmpWalletHash of tmpWalletHashes) {
                     // console.log('updateAccounts ' + tmpWalletHash + ' ' + currencyCode + ' ' + rate, reformatted[tmpWalletHash][currencyCode])
                     if (typeof reformatted[tmpWalletHash][currencyCode] === 'undefined') {
-                        if (currencyCode === 'BTC' && typeof walletPub[tmpWalletHash] !== 'undefined') {
+                        if (currencyCode === 'FIO') {
+                            // do nothing
+                        } else if (currencyCode === 'BTC' && typeof walletPub[tmpWalletHash] !== 'undefined') {
                             Log.daemon('UpdateAccountListDaemon need to generate ' + tmpWalletHash + ' ' + currencyCode)
 
                             const res = await walletPubDS.discoverMoreAccounts({

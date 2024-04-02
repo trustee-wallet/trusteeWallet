@@ -6,6 +6,7 @@ import { NativeModules } from 'react-native'
 import { launchImageLibrary } from 'react-native-image-picker'
 import Log from '@app/services/Log/Log'
 
+// from 'react-native-qr-decode-image-camera', don't remove library
 let { QRScanReader } = NativeModules
 
 export function openQrGallery() {
@@ -33,10 +34,26 @@ export function openQrGallery() {
                 Log.log('QrGallery User tapped custom button ', response.customButton)
                 resolve(false)
             } else if (response) {
-                let path = response.path ? response.path.toString().slice(7, response.path.toString().length) : null
-                if (!path) {
-                    path = response.uri ? response.uri.toString().slice(7, response.uri.toString().length) : null
+                let path
+                try {
+                    path = response?.assets[0]?.path ? response?.assets[0]?.path.toString().slice(7, response?.assets[0]?.path.toString().length) : null
+                    if (!path) {
+                        path = response?.assets[0]?.uri ? response?.assets[0]?.uri.toString().slice(7, response?.assets[0]?.uri.toString().length) : null
+                    }
+                    if (!path) {
+                        path = response.path ? response.path.toString().slice(7, response.path.toString().length) : null
+                    }
+                    if (!path) {
+                        path = response.uri ? response.uri.toString().slice(7, response.uri.toString().length) : null
+                    }
+                    if (!path) {
+                        Log.log('QrGallery no path')
+                        return false
+                    }
+                } catch (err) {
+                    Log.log('QrGallery path err' + err)
                 }
+                
                 if (!path) {
                     Log.log('QrGallery no path')
                     return false
@@ -44,6 +61,7 @@ export function openQrGallery() {
 
                 try {
                     QRScanReader.readerQR(path).then((data) => {
+                        console.log('data', data)
                         resolve({ data })
                     }).catch((e) => {
                         Log.log('QrGallery reader error')

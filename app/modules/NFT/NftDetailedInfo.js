@@ -15,7 +15,7 @@ import {
     Linking
 } from 'react-native'
 import { connect } from 'react-redux'
-import FastImage from 'react-native-fast-image'
+import FastImage from 'react-native-trustee-fast-image'
 
 import ScreenWrapper from '@app/components/elements/ScreenWrapper'
 import { strings } from '@app/services/i18n'

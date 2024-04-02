@@ -3,7 +3,8 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, Text, TextInput, View } from 'react-native'
+import { Text, TextInput, View } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 
 import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'

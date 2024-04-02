@@ -6,6 +6,7 @@ import { Dimensions, Linking, PixelRatio, StyleSheet, Text, TouchableOpacity, Vi
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen'
+import RNRestart from 'react-native-restart'
 import {strings} from '@app/services/i18n'
 import config from '@app/config/config'
 import {setLoaderStatus} from '@app/appstores/Stores/Main/MainStoreActions'
@@ -38,7 +39,7 @@ if (PixelRatio.get() === 2 && WIDTH > 600) {
 
 const goHome = (props) => {
     App.initStatus = 'resetError'
-    NavStore.reset('InitScreen')
+    RNRestart.Restart()
 }
 
 const handleSupport = async () => {

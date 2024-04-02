@@ -212,7 +212,7 @@ class CashbackScreen extends React.PureComponent {
                 data={flatListData}
                 contentContainerStyle={{ paddingHorizontal: GRID_SIZE }}
                 style={{ marginHorizontal: -GRID_SIZE }}
-                keyExtractor={({ index }) => index}
+                keyExtractor={(_, index) => index}
                 horizontal={true}
                 renderItem={this.renderFlatListItem}
                 showsHorizontalScrollIndicator={false}

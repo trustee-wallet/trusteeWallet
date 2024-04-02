@@ -125,6 +125,7 @@ export namespace SendActionsBlockchainWrapper {
             newCountedFeesData.amount = uiData.cryptoValue
             newCountedFeesData.memo = uiData.memo
             newCountedFeesData.isTransferAll = uiData.isTransferAll
+            newCountedFeesData.uiType = uiData?.uiType
 
             if (newCountedFeesData.isTransferAll && !forceExecAmount) {
                 newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
@@ -231,6 +232,7 @@ export namespace SendActionsBlockchainWrapper {
             newCountedFeesData.amount = newCountedFeesData.accountBalanceRaw
             newCountedFeesData.memo = uiData.memo
             newCountedFeesData.isTransferAll = uiData.isTransferAll
+            newCountedFeesData.uiType = uiData?.uiType
             if (!newCountedFeesData.addressTo || newCountedFeesData.addressTo === '' || newCountedFeesData.addressTo === '?') {
                 newCountedFeesData.addressTo = BlocksoftTransferUtils.getAddressToForTransferAll({
                     currencyCode: newCountedFeesData.currencyCode,
