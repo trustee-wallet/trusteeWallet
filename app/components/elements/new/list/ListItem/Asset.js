@@ -1,18 +1,11 @@
-
 import React from 'react'
-import {
-    Text,
-    View,
-    StyleSheet,
-} from 'react-native'
-
-import Switch from 'react-native-switch-pro'
+import { Text, View, StyleSheet } from 'react-native'
 
 import CurrencyIcon from '../../../CurrencyIcon'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 import TouchableDebounce from '../../TouchableDebounce'
-
+import Switch from '../../Switch'
 
 const getRightContent = (rightContent, params) => {
     const { onPress, value, disabled } = params
@@ -23,17 +16,17 @@ const getRightContent = (rightContent, params) => {
         case 'switch':
             return (
                 <Switch
-                    onSyncPress={onPress}
+                    onPress={onPress}
+                    circleColor={colors.common.switch.circleBg}
+                    activeBackgroundColor={colors.common.switch.bgActive}
+                    inactiveBackgroundColor={colors.common.switch.bgInactive}
                     value={!reversedValue}
-                    backgroundInactive={colors.common.switch.bgInactive}
-                    backgroundActive={colors.common.switch.bgActive}
-                    circleColorInactive={colors.common.switch.circleBg}
-                    circleColorActive={colors.common.switch.circleBg}
+                    animated
                     width={34}
-                    circleStyle={Object.assign({}, !disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive })}
                 />
             )
-        default: return null
+        default:
+            return null
     }
 }
 
@@ -62,8 +55,7 @@ export default function SettingListItem(props) {
                 onLongPress={onLongPress}
                 delayLongPress={delayLongPress}
                 activeOpacity={0.8}
-                disabled={disabled}
-            >
+                disabled={disabled}>
                 <CurrencyIcon
                     currencyCode={iconType}
                     containerStyle={styles.icon}
@@ -73,10 +65,16 @@ export default function SettingListItem(props) {
                 <View style={styles.mainContent}>
                     <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
                         <View style={styles.container}>
-                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
+                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>
+                                {title}
+                            </Text>
                             {TitleExtraView && <TitleExtraView />}
                         </View>
-                        {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                        {!!subtitle && (
+                            <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>
+                                {subtitle}
+                            </Text>
+                        )}
                     </View>
                     {!!rightContent && (
                         <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
@@ -92,24 +90,24 @@ export default function SettingListItem(props) {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'center'
     },
     icon: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        marginRight: 8,
+        marginRight: 8
     },
     mainContent: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingLeft: 4,
-        flex: 1,
+        flex: 1
     },
     textContent: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     rightContent: {
         justifyContent: 'center',

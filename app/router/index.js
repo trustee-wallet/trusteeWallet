@@ -5,6 +5,7 @@
 import React from 'react'
 import { View, StatusBar, StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import ErrorBoundary from 'react-native-error-boundary'
 import { PortalProvider } from '@gorhom/portal'
 
@@ -53,6 +54,7 @@ export default class RouterMainWrapper extends React.Component {
         return (
             <ErrorBoundary onError={myErrorHandler} FallbackComponent={ErrorScreen}>
                 <View style={styles.container}>
+                <GestureHandlerRootView style={styles.container}>
                     <NavigationContainer ref={navigationRef}>
                         <PortalProvider>
                             <NewRouter />
@@ -60,6 +62,7 @@ export default class RouterMainWrapper extends React.Component {
                     </NavigationContainer>
                     <Modal />
                     <StatusBar translucent={true} backgroundColor='transparent' barStyle='dark-content' />
+                </GestureHandlerRootView>
                 </View>
                 <Loader />
                 <AppLockBlur />

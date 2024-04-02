@@ -30,7 +30,7 @@ import { getCurrentDate } from '../helpers'
 
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 
-import { Parser } from "json2csv"
+import { Parser } from '@json2csv/plainjs'
 import RNFS from 'react-native-fs'
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 import Log from '@app/services/Log/Log'

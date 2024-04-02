@@ -93,10 +93,18 @@ class MarketingEvent {
         }
 
         try {
-            const deviceId = DeviceInfo.getUniqueId()
-            if (deviceId) {
-                this.DATA.LOG_DEVICE_ID = deviceId
-            }
+            DeviceInfo.getUniqueId().then((uniqueIdOld) => {
+                if (uniqueIdOld) { // keychain + vendor + random
+                    this.DATA.LOG_DEVICE_ID = uniqueIdOld
+                    DeviceInfo.syncUniqueId().then((uniqueId) => {
+                        if (uniqueId) { // vendor + random
+                            this.DATA.LOG_DEVICE_ID = uniqueId
+                        } else {
+                            this.DATA.LOG_DEVICE_ID = uniqueIdOld
+                        }
+                    })
+                }
+            })
         } catch (e) {
 
         }
@@ -326,5 +334,4 @@ class MarketingEvent {
 
 }
 
-const MarketingEventSingleton = new MarketingEvent()
-export default MarketingEventSingleton
+export default new MarketingEvent()

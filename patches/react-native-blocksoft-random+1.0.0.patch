@@ -1,0 +1,15 @@
+diff --git a/node_modules/react-native-blocksoft-random/android/build.gradle b/node_modules/react-native-blocksoft-random/android/build.gradle
+index 5eac9a2..d2e6e8c 100644
+--- a/node_modules/react-native-blocksoft-random/android/build.gradle
++++ b/node_modules/react-native-blocksoft-random/android/build.gradle
+@@ -12,8 +12,8 @@ buildscript {
+ apply plugin: 'com.android.library'
+ 
+ android {
+-    compileSdkVersion 28
+-    buildToolsVersion "28.0.3"
++    compileSdkVersion 34
++    buildToolsVersion = "34.0.0"
+ 
+     defaultConfig {
+         minSdkVersion 16

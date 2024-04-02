@@ -13,7 +13,7 @@ import {
     TouchableOpacity
 } from 'react-native'
 
-import { WebView } from 'react-native-webview'
+import WebView from 'react-native-webview'
 import UrlParse from 'url-parse'
 
 import { strings } from '@app/services/i18n'

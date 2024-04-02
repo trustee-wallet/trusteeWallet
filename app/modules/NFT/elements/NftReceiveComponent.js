@@ -116,7 +116,7 @@ class NftReceiveComponent extends PureComponent {
                 horizontal={true}
                 renderItem={this.renderFlatListItem}
                 showsHorizontalScrollIndicator={false}
-                keyExtractor={({ index }) => index}
+                keyExtractor={(_, index) => 'NftAddAssetScreen_' + index}
             />
         )
     }

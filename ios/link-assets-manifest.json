@@ -1,0 +1,61 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/CREDC___.ttf",
+      "sha1": "ab61f7ea82aad08c74f87fe9327defd87bfcb27d"
+    },
+    {
+      "path": "assets/fonts/Montserrat-Bold.ttf",
+      "sha1": "3a54407a2b26ff4718708a4726b10cb070d16534"
+    },
+    {
+      "path": "assets/fonts/Montserrat-Light.ttf",
+      "sha1": "83879cec4c934d446eca63aa5cfedcebfd60d610"
+    },
+    {
+      "path": "assets/fonts/Montserrat-Medium.ttf",
+      "sha1": "65a98832079c4d2c67f3acc4f4ce2de630fe6cb0"
+    },
+    {
+      "path": "assets/fonts/Montserrat-Regular.ttf",
+      "sha1": "d25b35242deb1c6ff888b8162ca2aacc356d3899"
+    },
+    {
+      "path": "assets/fonts/Montserrat-SemiBold.ttf",
+      "sha1": "f829de4c176fb2ccf5e33360920f48de6794434e"
+    },
+    {
+      "path": "assets/fonts/Montserrat-Thin.ttf",
+      "sha1": "1d00ff2f5bc9331aa6e75b5a82dd698976615dc4"
+    },
+    {
+      "path": "assets/fonts/OCR A Std Regular.ttf",
+      "sha1": "f284a3627799c528bab7ac7125a6ccbf780eebb3"
+    },
+    {
+      "path": "assets/fonts/OCRA-Regular.ttf",
+      "sha1": "95311d280f0567135cb462de409059d34c309e67"
+    },
+    {
+      "path": "assets/fonts/Roboto-Black.ttf",
+      "sha1": "ee52f7cf8e54f3ee2afbc474a352d5c19514d9c1"
+    },
+    {
+      "path": "assets/fonts/SFUIDisplay-Bold.ttf",
+      "sha1": "ba1034abfaf9ecfe713087746f35efa9bc9f4d58"
+    },
+    {
+      "path": "assets/fonts/SFUIDisplay-Regular.ttf",
+      "sha1": "18a14cd1bc60ab26bf0bc1865a8e6ca3a9778949"
+    },
+    {
+      "path": "assets/fonts/SFUIDisplay-Semibold.ttf",
+      "sha1": "03ed495e2cc79f579f05e2d68ff6b81b897889a6"
+    },
+    {
+      "path": "assets/fonts/icomoon.ttf",
+      "sha1": "db141da45efbab264c127a485bb13e811dd82fff"
+    }
+  ]
+}

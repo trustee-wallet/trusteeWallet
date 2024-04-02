@@ -231,7 +231,6 @@ class HomeScreen extends React.PureComponent {
                     tintColor={colors.common.refreshControlIndicator}
                     colors={[colors.common.refreshControlIndicator]}
                     progressBackgroundColor={colors.common.refreshControlBg}
-                    progressViewOffset={-20}
                 />,
             ListHeaderComponent: (
                 <WalletInfo
@@ -318,7 +317,7 @@ class HomeScreen extends React.PureComponent {
                 </View>
                 <SheetBottom
                     ref={ref => this.bottomSheetRef = ref}
-                    snapPoints={[0, 440]}
+                    snapPoints={[1, 460]}
                     index={0}
                 >
                     <SortList

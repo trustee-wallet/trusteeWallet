@@ -70,5 +70,4 @@ class BlocksoftKeysForRef {
     }
 }
 
-const singleBlocksoftKeysForRef = new BlocksoftKeysForRef()
-export default singleBlocksoftKeysForRef
+export default new BlocksoftKeysForRef()

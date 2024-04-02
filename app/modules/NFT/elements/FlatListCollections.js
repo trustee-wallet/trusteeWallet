@@ -11,7 +11,7 @@ import {
     Dimensions
 } from 'react-native'
 
-import FastImage from 'react-native-fast-image'
+import FastImage from 'react-native-trustee-fast-image'
 
 import CurrencyIcon from '@app/components/elements/CurrencyIcon'
 import GradientView from '@app/components/elements/GradientView'

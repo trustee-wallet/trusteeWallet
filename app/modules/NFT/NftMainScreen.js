@@ -280,7 +280,7 @@ class NftMainScreen extends React.PureComponent {
                         contentContainerStyle={{ paddingVertical: this.context.GRID_SIZE }}
                         renderItem={this.renderFlatListCollections}
                         ListHeaderComponent={this.renderTabs}
-                        keyExtractor={({ index }) => index}
+                        keyExtractor={(_, index) => index}
                         refreshControl={
                             <RefreshControl
                                 refreshing={this.state.refreshing}

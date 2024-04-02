@@ -3,12 +3,10 @@
  * @author yura
  */
 
-import React, { PureComponent } from 'react'
-import {
-    Platform,
-    View,
-} from 'react-native'
-import { connect } from 'react-redux'
+import React, { useEffect, useState } from 'react'
+import { Platform, View } from 'react-native'
+import { useSelector } from 'react-redux'
+import _orderBy from 'lodash/orderBy'
 
 import DraggableFlatList from 'react-native-draggable-flatlist'
 
@@ -19,12 +17,12 @@ import NavStore from '@app/components/navigation/NavStore'
 
 import { getHomeFilterWithBalance, getSelectedWalletData, getSortValue } from '@app/appstores/Stores/Main/selectors'
 import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
-import { getIsBalanceVisible } from '@app/appstores/Stores/Settings/selectors'
+import { getIsBalanceVisibleV2 } from '@app/appstores/Stores/Settings/selectors'
 
 import CryptoCurrency from '../elements/CryptoCurrency'
-import { getSortedData, getDerivedState } from '../helpers'
+import { getSortedData } from '../helpers'
 
-import { ThemeContext } from '@app/theme/ThemeProvider'
+import { useTheme } from '@app/theme/ThemeProvider'
 import { strings } from '@app/services/i18n'
 import { setSortValue } from '@app/appstores/Stores/Main/MainStoreActions'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
@@ -34,143 +32,128 @@ import GradientView from '@app/components/elements/GradientView'
 
 import Toast from '@app/services/UI/Toast/Toast'
 
-class HomeDragScreen extends PureComponent {
+const HomeDragScreen = (props) => {
+    const { GRID_SIZE, colors } = useTheme()
 
-    state = {
-        isCurrentlyDraggable: false,
-        originalData: [],
-        data: [],
-        currenciesOrder: [],
-        sortValue: this.props.sortValue || trusteeAsyncStorage.getSortValue(),
-        fromGuide: false
-    }
+    const selectedWalletData = useSelector(getSelectedWalletData)
+    const currencies = useSelector(getVisibleCurrencies)
+    const isBalanceVisible = useSelector(getIsBalanceVisibleV2)
+    const sortValue = useSelector(getSortValue)
+    const accountList = useSelector(getAccountList)
+    const homeFilterWithBalance = useSelector(getHomeFilterWithBalance)
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        return getDerivedState(nextProps, prevState)
-    }
+    const [isFromGuide, setIsFromGuide] = useState(false)
+    const [currentSortValue, setCurrentSortValue] = useState(sortValue || trusteeAsyncStorage.getSortValue())
+    const [data, setData] = useState([])
+    const [originalData, setOriginalData] = useState([])
+    const [currenciesOrder, setCurrenciesOrder] = useState([])
+    const [isCurrentlyDraggable, setIsCurrentlyDraggable] = useState(false)
 
-    componentDidUpdate(prevProps) {
-        if (!_isEqual(prevProps.sortValue, this.props.sortValue)) {
-            this.setState({
-                sortValue: this.props.sortValue
-            })
-        }
-    }
+    const { walletIsCreatedHere } = selectedWalletData
 
-    componentDidMount = () => {
+    useEffect(() => {
         const res = trusteeAsyncStorage.getIsTraining()
         if (typeof res === 'undefined' || res === '0') {
             trusteeAsyncStorage.setIsTraining(false)
-            this.setState({
-                fromGuide: true
-            })
+            setIsFromGuide(true)
         }
-    }
+    }, [])
 
-    handleDone = () => {
-
-        NavStore.goBack()
-        if (this.state.fromGuide) {
-            this.setState({
-                fromGuide: false
-            })
-            NavStore.goBack()
+    useEffect(() => {
+        if (sortValue) {
+            setCurrentSortValue(sortValue)
         }
+    }, [sortValue])
+
+    useEffect(() => {
+        if (!_isEqual(currencies, originalData)) {
+            const _currenciesOrder = currenciesOrder
+            const currenciesLength = currencies.length
+            const data = _orderBy(currencies, (item) =>
+                _currenciesOrder.indexOf(item.currencyCode) !== -1 ? _currenciesOrder.indexOf(item.currencyCode) : currenciesLength
+            )
+
+            setOriginalData(currencies)
+            setData(getSortedData(currencies, data, accountList, sortValue, homeFilterWithBalance))
+
+            const newOrder = data.map((item) => item.currencyCode)
+            if (_currenciesOrder.length && !_isEqual(_currenciesOrder, newOrder)) {
+                setCurrenciesOrder(newOrder)
+                trusteeAsyncStorage.setCurrenciesList(newOrder)
+            }
+        }
+    }, [originalData, currencies, currenciesOrder, accountList, sortValue, data])
+
+    const onDragBegin = () => {
+        setIsCurrentlyDraggable(true)
     }
 
-    handleRightAction = () => {
-        this.bottomSheetRef.open()
-    }
-
-    onDragBegin = () => {
-        this.setState(() => ({ isCurrentlyDraggable: true }))
-    }
-
-    onDragEnd = ({ data }) => {
-        if (this.state.sortValue !== 'custom') {
+    const onDragEnd = ({ data }) => {
+        if (sortValue !== 'custom') {
             Toast.setMessage(strings('homeScreen.setSortValueCustom')).show()
         }
 
-        this.setState({ data, isCurrentlyDraggable: false, sortValue: 'custom' })
-        const currenciesOrder = data.map(c => c.currencyCode)
+        setData(data)
+        setCurrentSortValue('custom')
+        setIsCurrentlyDraggable(false)
+        const currenciesOrder = data.map((item) => item?.currencyCode)
         trusteeAsyncStorage.setCurrenciesList(currenciesOrder)
         setSortValue('custom')
         trusteeAsyncStorage.setSortValue('custom')
     }
 
-    triggerGuide = () => {
-        this.setState({
-            isTraining: !this.state.isTraining
-        })
-    }
-
-    handleGuide = () => {
+    const handleGuide = () => {
         NavStore.goNext('GuideScreen')
     }
 
-    render() {
+    const handleDone = () => {
+        NavStore.goBack()
+        if (isFromGuide) {
+            setIsFromGuide(false)
+            NavStore.goBack()
+        }
+    }
 
-        const { walletIsCreatedHere } = this.props.selectedWalletData
-
-        const {
-            GRID_SIZE,
-            colors
-        } = this.context
-
-        const data = getSortedData(this.state.originalData, this.state.data, this.props.accountList, this.state.sortValue)
-
-        return (
-            <ScreenWrapper
-                title={strings('homeScreen.settings')}
-                leftType='done'
-                leftAction={this.handleDone}
-                withMarginTop
-            >
-                <DraggableFlatList
-                    data={data}
-                    extraData={data}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: GRID_SIZE }}
-                    autoscrollSpeed={300}
-                    renderItem={({ item, index, drag, isActive }) => (
+    return (
+        <ScreenWrapper title={strings('homeScreen.settings')} leftType='done' leftAction={handleDone} withMarginTop>
+            <DraggableFlatList
+                data={data}
+                extraData={data}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingVertical: GRID_SIZE }}
+                autoscrollSpeed={300}
+                renderItem={({ item, getIndex, drag, isActive }) => {
+                    return (
                         <CryptoCurrency
-                            index={index}
+                            index={getIndex()}
                             walletIsCreatedHere={walletIsCreatedHere}
                             cryptoCurrency={item}
-                            isBalanceVisible={this.props.isBalanceVisible}
+                            isBalanceVisible={isBalanceVisible}
                             onDrag={drag}
                             isActive={isActive}
-                            constructorMode={true}
+                            constructorMode
                             listData={data}
-                            onDragEnd={this.onDragEnd}
-                            handleGuide={this.handleGuide}
+                            onDragEnd={onDragEnd}
+                            handleGuide={handleGuide}
                         />
-                    )}
-                    keyExtractor={(_, index) => index.toString()}
-                    onDragEnd={this.onDragEnd}
-                    onDragBegin={this.onDragBegin}
-                    ListFooterComponent={(<View style={{ marginBottom: GRID_SIZE * 1.5 }} />)}
-                />
-                <GradientView style={styles.bottomButtons} array={colors.accountScreen.bottomGradient} start={styles.containerBG.start} end={styles.containerBG.end} />
-            </ScreenWrapper>
-        )
-    }
+                    )
+                }}
+                keyExtractor={(item) => item?.currencyCode?.toString()}
+                onDragEnd={onDragEnd}
+                onDragBegin={onDragBegin}
+                ListFooterComponent={<View style={{ marginBottom: GRID_SIZE * 1.5 }} />}
+            />
+            <GradientView
+                style={styles.bottomButtons}
+                array={colors.accountScreen.bottomGradient}
+                start={styles.containerBG.start}
+                end={styles.containerBG.end}
+            />
+        </ScreenWrapper>
+    )
 }
 
-HomeDragScreen.contextType = ThemeContext
-
-const mapStateToProps = (state) => {
-    return {
-        selectedWalletData: getSelectedWalletData(state),
-        currencies: getVisibleCurrencies(state),
-        isBalanceVisible: getIsBalanceVisible(state.settingsStore),
-        sortValue: getSortValue(state),
-        accountList: getAccountList(state),
-        homeFilterWithBalance: getHomeFilterWithBalance(state)
-    }
-}
-
-export default connect(mapStateToProps)(HomeDragScreen)
+export default HomeDragScreen
 
 const styles = {
     bottomButtons: {

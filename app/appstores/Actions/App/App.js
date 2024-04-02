@@ -4,8 +4,6 @@
 import '@app/services/GlobalExceptionHandler/GlobalExceptionHandler'
 import { Text, Platform, UIManager } from 'react-native'
 
-import Orientation from 'react-native-orientation'
-
 import walletDS from '@app/appstores/DataSource/Wallet/Wallet'
 
 import NavStore from '@app/components/navigation/NavStore'
@@ -62,7 +60,6 @@ class App {
 
                 this.initStatus = 'FilePermissions.init'
 
-                Orientation.lockToPortrait()
 
                 this.initStatus = 'await Database.start()'
 
@@ -75,6 +72,7 @@ class App {
                 if (config.debug.appErrors) {
                     console.log(new Date().toISOString() + ' ACT/App init application called finished DB')
                 }
+            
 
                 if (!(await walletDS.hasWallet())) {
 
@@ -86,32 +84,33 @@ class App {
 
                     return
                 }
-
+            
                 AppLockScreenIdleTime.init()
 
                 this.initStatus = 'AppLockScreenIdleTime.init()'
 
-                this.addSupportUiMananger()
+                this.addSupportUiManager()
 
                 AppDeepLinking.init()
 
                 this.initStatus = 'AppDeepLinking.init()'
             }
 
+            
             this.initHasWallets = true
-
+            
             await AppNotification.init()
-
+            
             this.initStatus = 'await AppNotification.init()'
-
+            
             await customCurrencyActions.importCustomCurrenciesToDict()
-
+            
             this.initStatus = 'await customCurrencyActions.importCustomCurrenciesToDict()'
-
+            
             await settingsActions.getSettings(true, false)
-
+            
             this.initStatus = 'await settingsActions.getSettings()'
-
+            
             await this.refreshWalletsStore({ firstTimeCall: 'first', source: 'ACT/App init', noRatesApi: true, noCashbackApi: true })
 
             this.initStatus = 'await this.refreshWalletsStore(true)'
@@ -161,7 +160,6 @@ class App {
             // called after wallet create finish
             return false
         }
-
         if (firstTimeCall === 'first') {
 
             await Log.log('ACT/App appRefreshWalletsStates called from ' + source + ' firstTimeCall ' + JSON.stringify(firstTimeCall))
@@ -181,6 +179,7 @@ class App {
             await setHomeFilterWithBalance(trusteeAsyncStorage.getHomeFilterWithBalance() || false)
 
             await this.setAccountFilterData()
+
 
             // first step of init
             await Daemon.forceAll({ ...params, noCashbackApi: true })
@@ -210,7 +209,7 @@ class App {
         await setFilter(filter)
     }
 
-    addSupportUiMananger = () => {
+    addSupportUiManager = () => {
         if (Platform.OS === 'android') {
             if (UIManager.setLayoutAnimationEnabledExperimental) {
                 UIManager.setLayoutAnimationEnabledExperimental(true)

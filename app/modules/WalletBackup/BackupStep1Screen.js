@@ -35,11 +35,10 @@ import { deleteWallet } from '../Settings/helpers'
 import UpdateOneByOneDaemon from '@app/daemons/back/UpdateOneByOneDaemon'
 import UpdateAccountListDaemon from '@app/daemons/view/UpdateAccountListDaemon'
 
-
 const VISIBILITY_TIMEOUT = 4000
 
 class BackupStep1Screen extends React.PureComponent {
-    visibilityTimer;
+    visibilityTimer
 
     constructor(props) {
         super(props)
@@ -47,7 +46,7 @@ class BackupStep1Screen extends React.PureComponent {
             isMnemonicVisible: false,
             walletMnemonicDefault: [],
             walletMnemonicSorted: [],
-            walletMnemonicSelected: [],
+            walletMnemonicSelected: []
         }
     }
 
@@ -80,7 +79,7 @@ class BackupStep1Screen extends React.PureComponent {
         let walletMnemonicSorted = JSON.parse(JSON.stringify(walletMnemonicDefault))
         try {
             walletMnemonicSorted = walletMnemonicSorted.sort(() => {
-                return .5 - Math.random()
+                return 0.5 - Math.random()
             })
         } catch (e) {
             throw new Error('WalletBackup.BackupStep1Screen init sort error ' + e.message)
@@ -101,12 +100,15 @@ class BackupStep1Screen extends React.PureComponent {
 
         walletMnemonicSorted.splice(index, 1)
 
-        this.setState({
-            walletMnemonicSelected,
-            walletMnemonicSorted
-        }, () => {
-            this.validateMnemonic()
-        })
+        this.setState(
+            {
+                walletMnemonicSelected,
+                walletMnemonicSorted
+            },
+            () => {
+                this.validateMnemonic()
+            }
+        )
     }
 
     handleRemoveWord = (item, index) => {
@@ -123,7 +125,9 @@ class BackupStep1Screen extends React.PureComponent {
         })
     }
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => {
+        NavStore.goBack()
+    }
 
     confirmDeleteWallet = async () => {
         const { walletHash, source } = this.props.createWalletStore
@@ -140,40 +144,43 @@ class BackupStep1Screen extends React.PureComponent {
         if (JSON.stringify(this.state.walletMnemonicSelected) !== JSON.stringify(this.state.walletMnemonicDefault)) {
             showModal({ type: 'MNEMONIC_FAIL_MODAL' }, this.init)
         } else if (flowType === 'DELETE_WALLET') {
-            showModal({
-                type: 'YES_NO_MODAL',
-                icon: 'WARNING',
-                title: strings('modal.titles.attention'),
-                description: strings('modal.walletDelete.delete'),
-                noCallback: this.init
-            }, (needPassword=true) => {
-                const { lockScreenStatus } = this.props.settingsData
-                if (needPassword && +lockScreenStatus) {
-                    setLockScreenConfig({flowType : LockScreenFlowTypes.JUST_CALLBACK, callback: this.confirmDeleteWallet})
-                    NavStore.goNext('LockScreen')
-                    return
-                } else (
-                    this.confirmDeleteWallet()
-                )
-            })
-
+            showModal(
+                {
+                    type: 'YES_NO_MODAL',
+                    icon: 'WARNING',
+                    title: strings('modal.titles.attention'),
+                    description: strings('modal.walletDelete.delete'),
+                    noCallback: this.init
+                },
+                (needPassword = true) => {
+                    const { lockScreenStatus } = this.props.settingsData
+                    if (needPassword && +lockScreenStatus) {
+                        setLockScreenConfig({ flowType: LockScreenFlowTypes.JUST_CALLBACK, callback: this.confirmDeleteWallet })
+                        NavStore.goNext('LockScreen')
+                        return
+                    } else this.confirmDeleteWallet()
+                }
+            )
         } else if (flowType === 'BACKUP_WALLET') {
             MarketingEvent.logEvent('gx_view_mnemonic_screen_cnf', { walletNumber, walletHash, source }, 'GX')
 
             walletActions.setWalletBackedUpStatus(walletHash)
 
             MarketingEvent.logEvent('gx_view_mnemonic_screen_success', { walletNumber, walletHash, source }, 'GX')
-            showModal({
-                type: 'INFO_MODAL',
-                icon: true,
-                title: strings('modal.walletBackup.success'),
-                description: strings('modal.walletBackup.seedConfirm'),
-                noBackdropPress: true
-            }, () => {
-                NavStore.goBack()
-                NavStore.goBack()
-                NavStore.goBack()
-            })
+            showModal(
+                {
+                    type: 'INFO_MODAL',
+                    icon: true,
+                    title: strings('modal.walletBackup.success'),
+                    description: strings('modal.walletBackup.seedConfirm'),
+                    noBackdropPress: true
+                },
+                () => {
+                    NavStore.goBack()
+                    NavStore.goBack()
+                    NavStore.goBack()
+                }
+            )
         } else {
             const { walletName, walletMnemonic, callback, source, walletNumber } = this.props.createWalletStore
 
@@ -205,25 +212,28 @@ class BackupStep1Screen extends React.PureComponent {
 
                 MarketingEvent.logEvent('gx_view_mnemonic_screen_success', { walletNumber, source }, 'GX')
 
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: true,
-                    title: strings('modal.walletBackup.success'),
-                    description: strings('modal.walletBackup.walletCreated'),
-                    noBackdropPress: true
-                }, async () => {
-                    if (callback === null || !callback) {
-                        NavStore.goBack()
-                        NavStore.goBack()
-                        NavStore.goBack()
-                    } else if (callback === 'InitScreen') {
-                        setCallback({ callback: null })
-                        NavStore.reset('InitScreen')
-                    } else {
-                        callback()
-                        setCallback({ callback: null })
+                showModal(
+                    {
+                        type: 'INFO_MODAL',
+                        icon: true,
+                        title: strings('modal.walletBackup.success'),
+                        description: strings('modal.walletBackup.walletCreated'),
+                        noBackdropPress: true
+                    },
+                    async () => {
+                        if (callback === null || !callback) {
+                            NavStore.goBack()
+                            NavStore.goBack()
+                            NavStore.goBack()
+                        } else if (callback === 'InitScreen') {
+                            setCallback({ callback: null })
+                            NavStore.reset('InitScreen')
+                        } else {
+                            callback()
+                            setCallback({ callback: null })
+                        }
                     }
-                })
+                )
             } catch (e) {
                 Log.err('WalletBackup.BackupStep1Screen.validateMnemonic error ' + e.message)
                 setLoaderStatus(false)
@@ -234,14 +244,12 @@ class BackupStep1Screen extends React.PureComponent {
                     description: e.message
                 })
             }
-
         }
-
     }
 
     triggerMnemonicVisible = (visible) => {
-        if (this.visibilityTimer) return;
-        this.setState(state => ({ isMnemonicVisible: !state.isMnemonicVisible }))
+        if (this.visibilityTimer) return
+        this.setState((state) => ({ isMnemonicVisible: !state.isMnemonicVisible }))
     }
 
     showMnemonic = () => {
@@ -260,25 +268,18 @@ class BackupStep1Screen extends React.PureComponent {
         UpdateOneByOneDaemon.pause()
         UpdateAccountListDaemon.pause()
 
-        const {
-            isMnemonicVisible,
-            walletMnemonicSorted,
-            walletMnemonicSelected
-        } = this.state
+        const { isMnemonicVisible, walletMnemonicSorted, walletMnemonicSelected } = this.state
         const { GRID_SIZE } = this.context
 
         return (
-            <ScreenWrapper
-                title={strings('walletBackup.step1Screen.title')}
-                leftType='back'
-                leftAction={this.handleBack}
-            >
+            <ScreenWrapper title={strings('walletBackup.step1Screen.title')} leftType='back' leftAction={this.handleBack}>
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    ref={ref => { this.scrollView = ref }}
+                    ref={(ref) => {
+                        this.scrollView = ref
+                    }}
                     contentContainerStyle={styles.scrollViewContent}
-                    keyboardShouldPersistTaps='handled'
-                >
+                    keyboardShouldPersistTaps='handled'>
                     <View style={{ paddingHorizontal: GRID_SIZE, paddingVertical: GRID_SIZE * 2 }}>
                         <SelectedMnemonic
                             placeholder={strings('walletBackup.step1Screen.placeholder')}
@@ -291,19 +292,16 @@ class BackupStep1Screen extends React.PureComponent {
                         />
                         <View style={[styles.wordsContainer]}>
                             {walletMnemonicSorted.map((word, i) => (
-                                <MnemonicWord
-                                    value={word}
-                                    key={`${word}${i}`}
-                                    onPress={() => this.handleSelectWord(word, i)}
-                                />
+                                <MnemonicWord value={word} key={`${word}${i}`} onPress={() => this.handleSelectWord(word, i)} />
                             ))}
                         </View>
                     </View>
 
-                    <View style={{
-                        paddingHorizontal: GRID_SIZE,
-                        paddingVertical: GRID_SIZE * 1.5,
-                    }}>
+                    <View
+                        style={{
+                            paddingHorizontal: GRID_SIZE,
+                            paddingVertical: GRID_SIZE * 1.5
+                        }}>
                         <TwoButtons
                             mainButton={{
                                 disabled: !!walletMnemonicSorted.length,
@@ -321,7 +319,7 @@ class BackupStep1Screen extends React.PureComponent {
 const mapStateToProps = (state) => {
     return {
         createWalletStore: state.createWalletStore,
-        settingsData: getSettingsScreenData(state),
+        settingsData: getSettingsScreenData(state)
     }
 }
 
@@ -339,6 +337,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         justifyContent: 'center',
-        flexWrap: 'wrap',
-    },
+        flexWrap: 'wrap'
+    }
 })

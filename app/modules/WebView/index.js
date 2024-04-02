@@ -13,7 +13,7 @@ import {
 } from 'react-native'
 
 
-import { WebView } from 'react-native-webview'
+import WebView from 'react-native-webview'
 import UrlParse from 'url-parse'
 
 import NavStore from '@app/components/navigation/NavStore'

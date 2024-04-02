@@ -29,7 +29,7 @@ class LanguageListScreen extends PureComponent {
 
         const { language } = this.props.settingsData
 
-        const tmpLanguage = LANGUAGE_SETTINGS.find((item) => item.code.split('-')[0] === language.split('-')[0])
+        const tmpLanguage = LANGUAGE_SETTINGS.find((item) => item?.code?.split('-')[0] === language?.split('-')[0])
 
         return typeof tmpLanguage === 'undefined' ? 'en-US' : tmpLanguage.code
     }

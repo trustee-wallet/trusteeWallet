@@ -1,6 +1,8 @@
 /**
  * @version 0.42
  */
+import branch from 'react-native-branch'
+import { Linking } from 'react-native'
 import dynamicLinks from '@react-native-firebase/dynamic-links'
 
 import Log from '@app/services/Log/Log'
@@ -16,10 +18,6 @@ import ApiProxy from '@app/services/Api/ApiProxy'
 import store from '@app/store'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
-
-import branch from 'react-native-branch'
-
-const NativeLinking = require('../../../../node_modules/react-native/Libraries/Linking/NativeLinking').default
 
 const CACHE_DATA_FROM_API = {}
 
@@ -42,8 +40,8 @@ class CashBackUtils {
             firebaseUrl = await dynamicLinks().getInitialLink()
             await Log.log('SRV/CashBack init dynamicLinks().getInitialLink() ' + JSON.stringify(firebaseUrl))
 
-            const tmp2 = await NativeLinking.getInitialURL()
-            await Log.log('SRV/CashBack init NativeLinking.getInitialURL() ' + JSON.stringify(tmp2))
+            const tmp2 = await Linking.getInitialURL()
+            await Log.log('SRV/CashBack init Linking.getInitialURL() ' + JSON.stringify(tmp2))
 
             // Branch
             let branchData
@@ -249,5 +247,4 @@ class CashBackUtils {
 
 }
 
-const singleCashBackUtils = new CashBackUtils()
-export default singleCashBackUtils
+export default new CashBackUtils()

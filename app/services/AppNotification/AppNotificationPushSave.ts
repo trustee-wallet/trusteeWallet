@@ -25,6 +25,9 @@ export default new class AppNotificationPushSave {
         if (typeof message.message !== 'undefined' && message.message) {
             newsCustomText = message.message
         }
+        if (typeof message.body !== 'undefined' && message.body) {
+            newsCustomText = message.body
+        }
         if (Platform.OS === 'android') {
             if (typeof message.notification !== 'undefined') {
                 if (typeof message.notification.title !== 'undefined') {
@@ -33,8 +36,6 @@ export default new class AppNotificationPushSave {
                 if (typeof message.notification.body !== 'undefined') {
                     newsCustomText = message.notification.body
                 }
-            } else {
-                return false
             }
         }
         if (typeof message.data !== 'undefined') {
@@ -79,13 +80,13 @@ export default new class AppNotificationPushSave {
             newsCustomText,
             newsUrl,
             newsNeedPopup: 0,
-            newsServerId:  message.messageId || 0,
+            newsServerId: message.messageId || 0,
             newsJson,
 
-            newsCreated : new Date().getTime(),
-            newsOpenedAt : null,
-            walletHash ,
-            id : 0
+            newsCreated: new Date().getTime(),
+            newsOpenedAt: null,
+            walletHash,
+            id: 0
         }
         await Log.log('unifyPushAndSave result', result)
         return result

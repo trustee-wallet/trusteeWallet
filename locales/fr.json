@@ -63,11 +63,11 @@
     "title": "Paramétres",
     "wallets": {
       "listTitle": "Mon Portefeuille",
-      "listSubtitle": "Portefeuilles: %{number}"
+      "listSubtitle": "Portefeuilles: {number}"
     },
     "paymentAccounts": {
       "listTitle": "Comptes de paiement",
-      "listSubtitle": "Comptes: %{number}"
+      "listSubtitle": "Comptes: {number}"
     },
     "walletConnect": {
       "unconnectedTitle": "Désactivé",
@@ -78,7 +78,7 @@
       "start": "Démarrage de WalletConnect",
       "startText": "Voulez-vous commencer cette session?",
       "transaction": "Demande de transaction",
-      "transactionText": "Êtes-vous sûr de vouloir autoriser %{subtitle} à utiliser votre %{txPrice} pour les transactions?",
+      "transactionText": "Êtes-vous sûr de vouloir autoriser {subtitle} à utiliser votre {txPrice} pour les transactions?",
       "sign": "Demande de signature de WalletConnect",
       "signTransaction": "Do you want to sign transaction ",
       "signText": "Voulez-vous signer le message",
@@ -87,7 +87,7 @@
       "session": "Connexion WalletConnect",
       "sessionText": "Êtes-vous sûr de vouloir connecter votre portefeuille Trustee à",
       "notificationTitle": "Attention!",
-      "notificationText": "Assurez-vous que %{name} est en sécurité. En interagissant avec ce service, vous donnez accès à vos fonds!",
+      "notificationText": "Assurez-vous que {name} est en sécurité. En interagissant avec ce service, vous donnez accès à vos fonds!",
       "disconnect": "Déconnecter",
       "connect": "Se connecter",
       "placeholder": "Erreur de connexion à WalletConnect. Veuillez vérifier si le lien direct est correct",
@@ -96,7 +96,7 @@
       "activated": "Activé",
       "disabled": "Désactivé",
       "changeNetwork": "Changer de réseau",
-      "turnBasicAsset": "Pour WalletConnect, vous devez ajouter %{asset} car il est utilisé dans cette transaction"
+      "turnBasicAsset": "Pour WalletConnect, vous devez ajouter {asset} car il est utilisé dans cette transaction"
     },
     "walletManagement": {
       "title": "Gestion des portefeuilles",
@@ -191,7 +191,7 @@
       "scanAddressesFromHD": "Scanner les adresses depuis HD",
       "setAddressesFromHD": {
         "title": "L'adresse principale sera modifiée",
-        "description": "Vous utiliserez le solde de l'adresse %{newAddress}"
+        "description": "Vous utiliserez le solde de l'adresse {newAddress}"
       },
       "backupModal": {
         "title": "Votre phrase de récupération n'est pas enregistrée!",
@@ -230,21 +230,21 @@
       "availableSOL": "Solde disponible",
       "frozenTRX": "Gelé",
       "unfrozenTRX": "UnFrozen",
-      "frozenBalanceTRX": " Bande passante: %{prettyFrozen} TRX / Énergie %{prettyFrozenEnergy} TRX",
+      "frozenBalanceTRX": " Bande passante: {prettyFrozen} TRX / Énergie {prettyFrozenEnergy} TRX",
       "enterToFreezeTRX": "entrer le montant des TRX gelés",
       "enterToUnfreezeTRX" : "entrez le montant de dégel TRX",
       "freezeForBandTRX": "Geler pour BAND",
       "freezeForEnergyTRX": "Geler pour ENERGIE",
       "unfreezeTRX": "Dégeler",
       "votedTRX": "Voté",
-      "votedBalanceTRX": "Voté %{voteTotal} / Total %{prettyVote}",
+      "votedBalanceTRX": "Voté {voteTotal} / Total {prettyVote}",
       "voteTRX": "Vote",
       "rewardTRX": "Récompense de vote",
-      "rewardBalanceTRX": "Disponible %{prettyReward} TRX",
+      "rewardBalanceTRX": "Disponible {prettyReward} TRX",
       "claimTRX": "Réclamation de la récompense",
       "refreshTRX": "Réactualiser",
       "waitToClaimTRX": "La dernière réclamation a été effectuée il y a moins de 24 heures",
-      "waitToUnfreezeTRX": "Aux termes du protocole Tron, le dégivrage est possible après %{TRX_STAKE_DAYS} jours à compter du dernier gelage",
+      "waitToUnfreezeTRX": "Aux termes du protocole Tron, le dégivrage est possible après {TRX_STAKE_DAYS} jours à compter du dernier gelage",
       "minimalFreezeBalanceTRX": "Pour la congélation, utilisez plus de 1 TRX",
       "allowLongQueryETH": "Autoriser la file d'attente des transactions en attente",
       "allowBlockedBalanceETH": "Autoriser la réutilisation du solde des transactions en attente",
@@ -266,7 +266,7 @@
       "rewards": "Récompenses",
       "useCustomValidator": "Utiliser ce validateur",
       "successUnfreeze": "TRX dégelé",
-      "successUnfreezeV2": "Le TRX pourra être retiré après la période de retrait de %{TRX_STAKE_DAYS} jours",
+      "successUnfreezeV2": "Le TRX pourra être retiré après la période de retrait de {TRX_STAKE_DAYS} jours",
       "successFreeze": "TRX gelé pour le staking",
       "successReward": "Récompense de staking TRX reçue",
       "successVote": "Vous avez voté avec succès",
@@ -277,7 +277,7 @@
     },
     "about": {
       "title": "A Propos",
-      "version": "Trustee version: %{version}",
+      "version": "Trustee version: {version}",
       "privacy": "Politique de confidentialité",
       "terms": "Conditions d'utilisation",
       "feedback": "Feedback",
@@ -290,7 +290,7 @@
       "contactSupportLoadingText": "Si vous n'avez pas ouvert le chat d'assistance, veuillez nous contacter à",
       "contactSupportLoadingTextEmail": "ou écrire à",
       "information": "Information",
-      "copyright": "© BlockSoftLab Inc, %{currentYear}"
+      "copyright": "© BlockSoftLab Inc, {currentYear}"
     },
     "notifications": {
       "title": "Notifications",
@@ -308,8 +308,8 @@
       "tryAgain": "Réactualiser",
       "text": "Si vous voyez ceci, quelque chose s'est mal passé, s'il vous plaît, envoyez-nous les journaux via le support ou essayez de relancer l'application"
     },
-    "config": "Configuration changée en: %{config}",
-    "tester": "Testeur/utilisateur changé en: %{testerMode}",
+    "config": "Configuration changée en: {config}",
+    "tester": "Testeur/utilisateur changé en: {testerMode}",
     "blockchainExplorer": "Blockchain exploreur"
   },
   "assets": {
@@ -337,7 +337,7 @@
   },
   "nftMainScreen": {
     "assets": "Actifs",
-    "receiveText": "Envoyer uniquement %{coin} à cette adresse. L'envoi d'une autre pièce de monnaie peut entraîner une perte permanente",
+    "receiveText": "Envoyer uniquement {coin} à cette adresse. L'envoi d'une autre pièce de monnaie peut entraîner une perte permanente",
     "emptyNftText": "Vous n'avez pas encore de NFT. Mais vous pouvez l'obtenir maintenant.",
     "proof": "Preuve de propriété",
     "info": "Info",
@@ -358,7 +358,7 @@
     "ownershipProved": "Propriétaire prouvé",
     "ownershipNotProved": "Propriétaire non prouvé",
     "checking": "Vérification...",
-    "turnBasicAsset": "Pour le transfert NFT, vous devez ajouter %{asset} car il est utilisé pour les frais de transfert"
+    "turnBasicAsset": "Pour le transfert NFT, vous devez ajouter {asset} car il est utilisé pour les frais de transfert"
   },
   "nftAddAssetScreen": {
     "title": "Ajouter un actif NFT",
@@ -433,7 +433,7 @@
     },
     "cashbackAmount": "Montant du cashback",
     "setParentToken": "Connectez-vous à votre structure d'amis",
-    "hasParentToken": "Invité par %{cashbackParentToken}",
+    "hasParentToken": "Invité par {cashbackParentToken}",
     "inputParentCashbackLink": "https://trusteeglobal.com/link/example",
     "withdraw": "Retrait",
     "minWithdraw": "Montant minimum du retrait",
@@ -445,15 +445,15 @@
     "title": "Compte",
     "copy": "Cliquez pour copier",
     "refresh": "Réactualiser",
-    "receive": "%{receive}",
+    "receive": "{receive}",
     "send": "Envoyer",
     "history": "Transactions",
     "balanceBadNetwork": "Mauvais accès internet",
     "balanceBadBlock": "Erreur de numéro du bloc",
-    "scan": "Scanné il y a %{time} min",
+    "scan": "Scanné il y a {time} min",
     "justScan": "Scanné à l'instant",
     "soLong": "Depuis un long moment",
-    "minutesAgo": " %{time} min ",
+    "minutesAgo": " {time} min ",
     "noTransactions": "Vous n'avez pas encore de transaction. Mais vous pouvez résoudre ce problème rapidement, appuyez simplement sur le bouton ACHETER",
     "noFoundTransactions": "Désolé, aucun résultat n'a été trouvé",
     "showMore": "Montrer les détails",
@@ -461,8 +461,8 @@
     "stakingTRX": {
       "BANDWIDTH": "Désengager la bande passante",
       "ENERGY": "Débloquer l'énergie",
-      "bandwidthInfo": "Gelez votre TRX pour la bande passante - cela vous permettra de recevoir des récompenses de staking et d'envoyer des TRX gratuits sans frais de réseau. La période de retrait est de %{TRX_STAKE_DAYS} jours. ",
-      "energyInfo": "Gelez votre TRX pour l'énergie - cela vous permettra de recevoir des récompenses de staking et d'envoyer des tokens TRC20 sans frais de réseau. La période de retrait est de %{TRX_STAKE_DAYS} jours. ",
+      "bandwidthInfo": "Gelez votre TRX pour la bande passante - cela vous permettra de recevoir des récompenses de staking et d'envoyer des TRX gratuits sans frais de réseau. La période de retrait est de {TRX_STAKE_DAYS} jours. ",
+      "energyInfo": "Gelez votre TRX pour l'énergie - cela vous permettra de recevoir des récompenses de staking et d'envoyer des tokens TRC20 sans frais de réseau. La période de retrait est de {TRX_STAKE_DAYS} jours. ",
       "moreInfo": "Plus de détails...",
       "withdraw": "Retirer",
       "inUnstakingProcess": "En cours de désimplantation: ",
@@ -548,8 +548,8 @@
         "replaceByFeeBtn": "Mise à jour des frais tx",
         "willReplaceWithNewFee": "La transaction en cours sera remplacée par une nouvelle, avec un nouveau hachage et une commission plus élevée",
         "notAllowed": "La transaction a été créée sans possibilité de remplacement ou a déjà été confirmée",
-        "alreadyRemovedByFee": "Vous avez utilisé “retour” %{min} il y a minutes",
-        "alreadyReplacedByFee": "Vous avez utilisé “booster” %{min} il y a minutes",
+        "alreadyRemovedByFee": "Vous avez utilisé “retour” {min} il y a minutes",
+        "alreadyReplacedByFee": "Vous avez utilisé “booster” {min} il y a minutes",
         "alreadyRemovedByFeeLessThen2Minutes": "Vous avez utilisé “retourner” maintenant",
         "alreadyReplacedByFeeLessThen2Minutes": "Vous avez utilisé “booster” maintenant"
       },
@@ -576,8 +576,8 @@
       "internal_fail": "Échec du contrat"
     },
     "receiveScreen": {
-      "title": "%{receive}",
-      "description": "Votre adresse courante %{currency} :",
+      "title": "{receive}",
+      "description": "Votre adresse courante {currency} :",
       "clickToCopy": "Cliquez pour copier",
       "receiveAmount": "Recevoir un montant",
       "FIORequest": "FIO Requete",
@@ -624,7 +624,7 @@
       "addressTo": "Destinataire: ",
       "addressFrom": "Expéditeur: ",
       "blockConfirmations": "Nombre actuel de confirmations: ",
-      "transactionAmount": "%{currencyCode} montant"
+      "transactionAmount": "{currencyCode} montant"
     }
   },
 
@@ -743,20 +743,20 @@
     "xmr_memo": "Paiement ID",
     "fio_memo": "FIO Memo",
     "useAllFunds": "Utiliser tous les fonds",
-    "equivalent": "Equivalent: ~ %{amount} %{symbol}",
+    "equivalent": "Equivalent: ~ {amount} {symbol}",
     "notEnough": "Vous n'avez pas assez de fonds pour envoyer",
     "addressError": "L'adresse du destinataire est incorrecte. Veuillez contacter le destinataire pour obtenir l'adresse correcte.",
-    "memoError": "%{name} est incorrecte, veuillez la vérifier",
+    "memoError": "{name} est incorrecte, veuillez la vérifier",
     "notValidAmount": "S'il vous plaît, entrez le montant",
     "notValidAmountInFiat": "S'il vous plaît, entrez un plus grand montant ou changez en entrée crypto",
-    "notEnoughForFee": "Pour envoyer des tokens, vous devez avoir un solde positif en monnaie native %{symbol}. Cliquez pour plus d'informations ",
-    "notEnoughForFeeConfirmed": "Pour envoyer des tokens, vous devez avoir un solde confirmé positif en monnaie native %{symbol}, s'il vous plait, attendez les confirmations",
-    "countedForLessOutputs": "Transaction could not use all %{count} outputs for Transfer All, please, accumulate outputs by few transactions",
-    "publicFioAddressNotFound": "%{symbol} l'adresse publique n'est pas associée à l'adresse FIO spécifiée",
+    "notEnoughForFee": "Pour envoyer des tokens, vous devez avoir un solde positif en monnaie native {symbol}. Cliquez pour plus d'informations ",
+    "notEnoughForFeeConfirmed": "Pour envoyer des tokens, vous devez avoir un solde confirmé positif en monnaie native {symbol}, s'il vous plait, attendez les confirmations",
+    "countedForLessOutputs": "Transaction could not use all {count} outputs for Transfer All, please, accumulate outputs by few transactions",
+    "publicFioAddressNotFound": "{symbol} l'adresse publique n'est pas associée à l'adresse FIO spécifiée",
     "domainResolution": {
-      "resolving": "Résolution %{domain}...",
-      "success": "%{domain} résolu à %{address}",
-      "fail": "Il n'y a pas d'enregistrements pour %{domain}"
+      "resolving": "Résolution {domain}...",
+      "success": "{domain} résolu à {address}",
+      "fail": "Il n'y a pas d'enregistrements pour {domain}"
     },
     "setting": {
       "title": "Avancée",
@@ -781,12 +781,12 @@
     },
     "confirmModal": {
       "title": "Confirmez-vous l'envoi ?",
-      "titleSpeedUp": "Confirmez-vous l'accélération de la transaction entrante %{hash}?",
-      "titleReplaceByFee": "Confirmez-vous le remplacement de la transaction %{hash}?",
+      "titleSpeedUp": "Confirmez-vous l'accélération de la transaction entrante {hash}?",
+      "titleReplaceByFee": "Confirmez-vous le remplacement de la transaction {hash}?",
       "amount": "Montant",
       "recipient": "Destinataire",
-      "multiRecipient": "Envoyer multiple vers %{total} adresses",
-      "change": "Changer %{amount} %{currencySymbol} ira à",
+      "multiRecipient": "Envoyer multiple vers {total} adresses",
+      "change": "Changer {amount} {currencySymbol} ira à",
       "edit": "Arrière",
       "confirm": "Envoyer",
       "force": "Faire quand même ?"
@@ -847,7 +847,7 @@
     "receiptScreen": {
       "title": "Reçu",
       "totalSend": "Envoi total",
-      "rate": "@ taux par 1 %{currencyCode}",
+      "rate": "@ taux par 1 {currencyCode}",
       "replaceTransactionHash": "Remplacement de Tx",
       "removeTransactionHash": "Suppression de TX",
       "speedUpTransactionHash": "Accélération Tx",
@@ -873,25 +873,25 @@
       "SERVER_RESPONSE_BAD_CODE": "Quelque chose s'est mal passé, contactez notre service d'assistance, s'il vous plaît",
       "SERVER_RESPONSE_BAD_INTERNET": "Pas d'accès à internet",
       "SERVER_RESPONSE_BAD_TX_TO_REPLACE": "La transaction n'a pas été trouvée, veuillez vérifier votre connexion Internet. Délais possibles pour la mise à jour des informations",
-      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Solde insuffisant de la monnaie nationale %{symbol} pour payer les frais de réseau",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE": "Solde insuffisant de la monnaie nationale {symbol} pour payer les frais de réseau",
       "SERVER_RESPONSE_NOT_ENOUGH_FEE_JUST_DUST": "Votre portefeuille a accumulé de nombreuses transactions entrantes avec de petits montants. Veuillez utiliser le bouton \"Envoyer tout\" pour envoyer la transaction correctement",
-      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Monnaie native (%{symbol}) le solde ne peut pas être mis à jour. S'il vous plait, vérifiez votre connexion internet",
+      "SERVER_RESPONSE_NOT_ENOUGH_FEE_OR_BAD_INTERNET": "Monnaie native ({symbol}) le solde ne peut pas être mis à jour. S'il vous plait, vérifiez votre connexion internet",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_DUST": "Le montant de la transaction est trop petit",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER": "Solde insuffisant pour envoyer la transaction",
       "SERVER_RESPONSE_NOTHING_TO_TRANSFER_FROM_ACTUAL_NODE": "Solde insuffisant pour envoyer la transaction (validation du serveur)",
-      "UI_CORRECTED_AMOUNT": "Le solde de votre %{symbol} portefeuille est différent du montant envoyé, veuillez confirmer l'envoi de %{amount} %{symbol}",
-      "UI_CORRECTED_AMOUNT_BSE": "Le solde de votre %{symbol} portefeuille est inférieur au montant à envoyer. Veuillez mettre à jour votre %{symbol} solde et répéter l'opération d'échange.",
+      "UI_CORRECTED_AMOUNT": "Le solde de votre {symbol} portefeuille est différent du montant envoyé, veuillez confirmer l'envoi de {amount} {symbol}",
+      "UI_CORRECTED_AMOUNT_BSE": "Le solde de votre {symbol} portefeuille est inférieur au montant à envoyer. Veuillez mettre à jour votre {symbol} solde et répéter l'opération d'échange.",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_FEE": "Solde insuffisant pour payer les frais de réseau - veuillez utiliser une option \"Envoyer tout\" ",
       "SERVER_RESPONSE_NOTHING_LEFT_FOR_DELEGATED_FEE": "Solde insuffisant pour payer la transaction déléguée - veuillez utiliser la transaction standard ERC20",
       "SERVER_RESPONSE_NO_RESPONSE": "La transaction n'a pas reçu de confirmation du réseau - veuillez attendre que les autres transactions soient minées",
       "SERVER_RESPONSE_NO_RESPONSE_XMR": "Selon les termes du protocole Monero, chaque transaction entrante doit collecter au moins 50 confirmations réseau (~1,5 heures) avant d'être envoyée. Veuillez attendre que la dernière transaction entrante atteigne 50 confirmations de réseau et réessayez d'envoyer.",
       "SERVER_RESPONSE_NO_RESPONSE_OR_MORE_FEE": "La transaction n'a pas reçu de confirmation de réseau - veuillez attendre que les autres transactions soient minées ou placez des frais plus élevés",
-      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Solde insuffisant de la devise native %{symbol} pour payer les frais de réseau - veuillez attendre que les autres transactions soient minées",
+      "SERVER_RESPONSE_NOT_ENOUGH_CONFIRMED_FEE": "Solde insuffisant de la devise native {symbol} pour payer les frais de réseau - veuillez attendre que les autres transactions soient minées",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE": "Les frais de transaction sont trop faibles",
-      "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT": "Solde insuffisant de la devise native %{symbol} à payer - cliquez sur oui, pour prélever des frais sur le montant du destinataire, puis à l'étape suivante, vous verrez les données de transaction recalculées",
+      "UI_CONFIRM_CHANGE_AMOUNT_FOR_REPLACEMENT": "Solde insuffisant de la devise native {symbol} à payer - cliquez sur oui, pour prélever des frais sur le montant du destinataire, puis à l'étape suivante, vous verrez les données de transaction recalculées",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_AS_FEE_FOR_REPLACEMENT": "Les frais de remplacement de la transaction sont trop faibles",
       "SERVER_RESPONSE_TRANSACTION_ALREADY_MINED": "Transaction déjà minée",
-      "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce %{nonce} déjà miné",
+      "SERVER_RESPONSE_NONCE_ALREADY_MINED": "Nonce {nonce} déjà miné",
       "SERVER_RESPONSE_REVERTED_BY_EVM": "Transaction annulée par EVM - veuillez vérifier le code du contrat",
       "SERVER_RESPONSE_NOT_CONNECTED": "Il n'y a pas de connexion à un nœud du réseau. Veuillez modifier votre connexion Internet ou utiliser un VPN lorsque vous utilisez l'application",
       "SERVER_RESPONSE_NOT_ENOUGH_AMOUNT_FOR_ANY_FEE": "Solde insuffisant pour effectuer la transaction et payer les frais minimes",
@@ -970,7 +970,7 @@
     "titleNewWallet": "Créer un nouveau portefeuille",
     "titleNewWalletSmall": "Créer un nouveau",
     "skip": "Sauter",
-    "description": "Toute personne disposant de votre phrase de récupération peut accéder à vos pièces ou les dépenser. S'il vous plaît, écrivez soigneusement ces %{mnemonicLength} %{words}.\nNe dites en aucun cas la phrase de récuperation!",
+    "description": "Toute personne disposant de votre phrase de récupération peut accéder à vos pièces ou les dépenser. S'il vous plaît, écrivez soigneusement ces {mnemonicLength} {words}.\nNe dites en aucun cas la phrase de récuperation!",
     "pinProtected": "Vous devrez entrer le code PIN pour accéder à la phrase de récupération",
     "attention": "Vous confirmerez cette phrase à l'étape suivante",
     "written": "Je l'ai écrite",
@@ -1085,7 +1085,7 @@
       }
     },
     "cashbackLinkEqualModal": {
-      "description": "Désolé, il n'est pas permis de spécifier votre propre lien d'invitation %{link}!"
+      "description": "Désolé, il n'est pas permis de spécifier votre propre lien d'invitation {link}!"
     },
     "cryptocurrencySynchronizing": {
       "title": "Désolé...",
@@ -1107,11 +1107,11 @@
       },
       "TRX_20": {
         "title": "Votre attention s'il vous plaît!",
-        "description": "%{currencySymbol} fonctionne sur la blockchain Tron et nécessite un solde TRX positif pour payer les frais de réseau. Tant que vous avez un solde TRX nul dans votre portefeuille. Pour activer l'adresse, rechargez votre solde TRX avec n'importe quel montant."
+        "description": "{currencySymbol} fonctionne sur la blockchain Tron et nécessite un solde TRX positif pour payer les frais de réseau. Tant que vous avez un solde TRX nul dans votre portefeuille. Pour activer l'adresse, rechargez votre solde TRX avec n'importe quel montant."
       },
       "TOKEN": {
         "title": "Votre attention s'il vous plaît!",
-        "description": "Le jeton %{currencySymbol} fonctionne sur la blockchain %{parentBlockchain} et nécessite un solde %{parentCurrency} positif pour payer les frais de réseau. Tant que vous avez un solde %{parentCurrency} nul dans votre portefeuille"
+        "description": "Le jeton {currencySymbol} fonctionne sur la blockchain {parentBlockchain} et nécessite un solde {parentCurrency} positif pour payer les frais de réseau. Tant que vous avez un solde {parentCurrency} nul dans votre portefeuille"
       }
     },
     "tokenNotAdded": {
@@ -1129,7 +1129,7 @@
       "description": "Recommandé d'utiliser à nouveau les adresses de la dernière avec les transactions"
     },
     "infoSendAllModal": {
-      "description": "Il semble que vous essayez d'envoyer l'intégralité de votre solde %{coin}. Pour un traitement correct, veuillez cliquer sur le bouton '100%'. L'utiliser maintenant?"
+      "description": "Il semble que vous essayez d'envoyer l'intégralité de votre solde {coin}. Pour un traitement correct, veuillez cliquer sur le bouton '100%'. L'utiliser maintenant?"
     },
     "infoUpdateModal": {
       "title": "Attention!",
@@ -1175,8 +1175,8 @@
         "description": "S'il vous plaît, vérifiez l'actif dans l'écran précédent"
       },
       "askReplace": {
-        "title": "L'actif %{tokenName} a déjà été ajouté",
-        "description": "Veuillez confirmer le remplacement de %{oldContact} par %{newContract} "
+        "title": "L'actif {tokenName} a déjà été ajouté",
+        "description": "Veuillez confirmer le remplacement de {oldContact} par {newContract} "
       }
     },
     "selectCoinFio": {
@@ -1221,12 +1221,12 @@
       "txSuccess": "Votre transaction a été envoyée avec succès !",
       "fail": "Attention!",
       "feeChangeAmount": "Le montant de l'envoi a été modifié après le changement des frais de réseau",
-      "bseMinCrypto": "La valeur du montant minimum d'échange est %{limit}",
+      "bseMinCrypto": "La valeur du montant minimum d'échange est {limit}",
       "bseMinCryptoNoFee": "Votre solde n'est pas suffisant pour échanger un montant et des frais minimes",
-      "bigGas": "Vous envoyez dans une direction qui nécessite un niveau de gas anormalement élevé: %{gasLimit}. Afin de protéger vos fonds, la transaction a été arrêtée !",
-      "bigGasForceQuitOff": "Vous envoyez une transaction qui a un paramètre de gaz élevé : %{gasLimit}. Cette valeur n'est pas standard, par conséquent, afin de protéger vos fonds, la transaction est suspendue.\n\nSi vous êtes sûr de l'exactitude de ceci transaction, puis cliquez sur \"Continuer\" pour l'envoyer.\n",
-      "blockedBalance": "Votre solde a été utilisé lors de précédentes transactions non confirmées, vous pouvez utiliser %{free}",
-      "feeSmallAmount": "Le solde de %{feesCurrencySymbol} n'est pas suffisant pour payer les frais de réseau. Rechargez votre solde %{feesCurrencySymbol} et répétez l'opération.",
+      "bigGas": "Vous envoyez dans une direction qui nécessite un niveau de gas anormalement élevé: {gasLimit}. Afin de protéger vos fonds, la transaction a été arrêtée !",
+      "bigGasForceQuitOff": "Vous envoyez une transaction qui a un paramètre de gaz élevé : {gasLimit}. Cette valeur n'est pas standard, par conséquent, afin de protéger vos fonds, la transaction est suspendue.\n\nSi vous êtes sûr de l'exactitude de ceci transaction, puis cliquez sur \"Continuer\" pour l'envoyer.\n",
+      "blockedBalance": "Votre solde a été utilisé lors de précédentes transactions non confirmées, vous pouvez utiliser {free}",
+      "feeSmallAmount": "Le solde de {feesCurrencySymbol} n'est pas suffisant pour payer les frais de réseau. Rechargez votre solde {feesCurrencySymbol} et répétez l'opération.",
       "longQuery": "La ou les transactions précédentes ne sont pas encore confirmées. La transaction en cours ne sera confirmée que par la précédente",
       "longQuerySettingOff": "La possibilité d'envoyer une deuxième transaction jusqu'à ce que la précédente soit confirmée est désactivée",
       "noTBKprovider": "Désolé, la fonction est désactivée car l'opérateur de change n'a pas pu traiter les transactions accélérées",
@@ -1262,9 +1262,9 @@
       "continue": "Continuer"
     },
     "walletDelete": {
-      "deleteWallet": "Cette opération supprimera le portefeuille %{walletName} de l'application, pour continuer, confirmez la phrase de récupération",
+      "deleteWallet": "Cette opération supprimera le portefeuille {walletName} de l'application, pour continuer, confirmez la phrase de récupération",
       "delete": "Voulez-vous supprimer ce portefeuille?",
-      "notBackupPositiveBalance": "Le %{walletName} portefeuille a un solde positif. Sauvegarde de la phase de récupération non créée. L'accès aux actifs sera perdu. "
+      "notBackupPositiveBalance": "Le {walletName} portefeuille a un solde positif. Sauvegarde de la phase de récupération non créée. L'accès aux actifs sera perdu. "
     },
     "notification": {
       "description": "Malheureusement, votre appareil mobile ne prend pas en charge la réception de notifications Push"
@@ -1326,13 +1326,13 @@
     "receive": "Recevoir"
   },
   "validator": {
-    "empty": "Veuillez remplir le champ %{name}",
+    "empty": "Veuillez remplir le champ {name}",
     "invalidFormat": "Format inapproprié",
-    "moreThanMax": "Le %{name} doit comporter moins de 255 caractères",
+    "moreThanMax": "Le {name} doit comporter moins de 255 caractères",
     "unstoppableErrors": {
-      "UnregisteredDomain": "Le domaine %{domain} n'est pas enregistré",
-      "RecordNotFound": "Le domaine %{domain} n'a pas %{ticker} d'adresse",
-      "UnspecifiedResolver": "Le domaine %{domain} n'a pas de contrat de résolveur"
+      "UnregisteredDomain": "Le domaine {domain} n'est pas enregistré",
+      "RecordNotFound": "Le domaine {domain} n'a pas {ticker} d'adresse",
+      "UnspecifiedResolver": "Le domaine {domain} n'a pas de contrat de résolveur"
     }
   },
   "toast": {
@@ -1343,60 +1343,60 @@
   },
   "pushNotifications": {
     "FOUND_OUT_TX_STATUS_NEW": {
-      "title": "%{currencyName} transaction sortante créée",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      "title": "{currencyName} transaction sortante créée",
+      "description": "{walletName} transaction {amountPretty} {currencySymbol} {addressTo}"
     },
     "FOUND_OUT_TX_STATUS_FAIL": {
-      "title": "%{currencyName} échec de la transaction sortante",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      "title": "{currencyName} échec de la transaction sortante",
+      "description": "{walletName} transaction {amountPretty} {currencySymbol} {addressTo}"
     },
     "FOUND_OUT_TX_STATUS_MISSING": {
-      "title": "%{currencyName} transaction sortante introuvable",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      "title": "{currencyName} transaction sortante introuvable",
+      "description": "{walletName} transaction {amountPretty} {currencySymbol} {addressTo}"
     },
     "FOUND_OUT_TX_STATUS_SUCCESS": {
-      "title": "%{currencyName} transaction sortante minée",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      "title": "{currencyName} transaction sortante minée",
+      "description": "{walletName} transaction {amountPretty} {currencySymbol} {addressTo}"
     },
     "FOUND_OUT_TX_STATUS_CONFIRMING": {
-      "title": "%{currencyName} confirmation transaction sortante",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      "title": "{currencyName} confirmation transaction sortante",
+      "description": "{walletName} transaction {amountPretty} {currencySymbol} {addressTo}"
     },
     "FOUND_OUT_TX_STATUS_DELEGATED": {
-      "title": "%{currencyName} transaction sortante déléguée",
-      "description": "%{walletName} transaction %{amountPretty} %{currencySymbol} %{addressTo}"
+      "title": "{currencyName} transaction sortante déléguée",
+      "description": "{walletName} transaction {amountPretty} {currencySymbol} {addressTo}"
     },
     "FOUND_IN_TX": {
-      "title": "%{currencyName} transaction entrante",
-      "description": "%{walletName} got %{amountPretty} %{currencySymbol} %{addressFrom}"
+      "title": "{currencyName} transaction entrante",
+      "description": "{walletName} got {amountPretty} {currencySymbol} {addressFrom}"
     },
     "DAEMON_HAS_FOUND_HD": {
-      "title": "%{currencyName} HD wallet trouvé",
-      "description": "%{walletName} a utilisé plus d'une adresse, donc HD est activé automatiquement"
+      "title": "{currencyName} HD wallet trouvé",
+      "description": "{walletName} a utilisé plus d'une adresse, donc HD est activé automatiquement"
     },
     "DAEMON_HAS_FOUND_BALANCE_NOT_ADDED": {
-      "title": "%{currencyName} pas ajouté, mais dispose d'un solde",
-      "description": "%{walletName} address %{address} has %{amountPretty} %{currencySymbol}"
+      "title": "{currencyName} pas ajouté, mais dispose d'un solde",
+      "description": "{walletName} address {address} has {amountPretty} {currencySymbol}"
     },
     "DAEMON_HAS_FOUND_BALANCE": {
-      "title": "%{currencyName} non montré, mais dispose d'un solde",
-      "description": "%{walletName} address %{address} has %{amountPretty} %{currencySymbol}"
+      "title": "{currencyName} non montré, mais dispose d'un solde",
+      "description": "{walletName} address {address} has {amountPretty} {currencySymbol}"
     },
     "CURRENCY_RATE_UPDATED": {
-      "title": "%{currencyName} taux mis à jour",
-      "description": "la valeur actuelle est %{currencyRateUsd}$"
+      "title": "{currencyName} taux mis à jour",
+      "description": "la valeur actuelle est {currencyRateUsd}$"
     },
     "CURRENCY_RATE_SCANNED_LAST_TIME": {
       "title": "Les taux de change sont scannés",
       "description": "mais les valeurs mises en cache sont les mêmes - donc aucun changement"
     },
     "TXS_SCANNED_LAST_TIME": {
-      "title": "%{currencyName} les transactions sont scannées",
-      "description": "%{walletName} log %{log}"
+      "title": "{currencyName} les transactions sont scannées",
+      "description": "{walletName} log {log}"
     },
     "HD_SCANNED_LAST_TIME": {
       "title": "les transactions HD sont scannées",
-      "description": "%{walletName} log %{log}"
+      "description": "{walletName} log {log}"
     }
   },
   "currencyList": {

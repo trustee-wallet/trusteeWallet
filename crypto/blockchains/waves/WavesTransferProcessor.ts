@@ -6,10 +6,56 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 
 import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchainTypes'
 
-import { transfer, broadcast } from '@waves/waves-transactions/src/index'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 import config from '@app/config/config'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
+
+//import { transfer, broadcast } from '@waves/waves-transactions/src/index'
+import {
+    addProof,
+    chainIdFromRecipient,
+    convertToPairs,
+    fee,
+    getSenderPublicKey,
+    networkByte,
+    normalizeAssetId
+} from '@waves/waves-transactions/src/generic.ts'
+import {validate} from '@waves/waves-transactions/src/validators'
+import {txToProtoBytes} from '@waves/waves-transactions/src/proto-serialize.ts'
+import {binary} from '@waves/marshall'
+import {base58Encode, blake2b, signBytes} from '@waves/ts-lib-crypto'
+
+const transfer = (paramsOrTx, seed) => {
+    const type = 4 // TRANSACTION_TYPE.TRANSFER
+    const version = paramsOrTx.version || 3 //DEFAULT_VERSIONS.TRANSFER
+    const seedsAndIndexes = convertToPairs(seed)
+    const senderPublicKey = getSenderPublicKey(seedsAndIndexes, paramsOrTx)
+
+    const tx = {
+        type,
+        version,
+        senderPublicKey,
+        assetId: normalizeAssetId(paramsOrTx.assetId),
+        recipient: paramsOrTx.recipient,
+        amount: paramsOrTx.amount * 1,
+        attachment: paramsOrTx.attachment || '',
+        fee: fee(paramsOrTx, 100000),
+        feeAssetId: normalizeAssetId(paramsOrTx.feeAssetId),
+        timestamp: paramsOrTx.timestamp || Date.now(),
+        proofs: paramsOrTx.proofs || [],
+        chainId: networkByte(paramsOrTx.chainId, chainIdFromRecipient(paramsOrTx.recipient)),
+        id: '',
+    }
+
+    validate.transfer(tx)
+
+    const bytes = version > 2 ? txToProtoBytes(tx) : binary.serializeTx(tx)
+
+    seedsAndIndexes.forEach(([s, i]) => addProof(tx, signBytes(s, bytes), i))
+    tx.id = base58Encode(blake2b(bytes))
+
+    return tx
+}
 
 export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.TransferProcessor {
     private _settings: { network: string; currencyCode: string }
@@ -127,16 +173,25 @@ export default class WavesTransferProcessor implements BlocksoftBlockchainTypes.
 
         let result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
-            const resp = await new Promise((resolve, reject) => {
-                BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' will broadCast ' + JSON.stringify(apiPath))
-                broadcast(signedData, apiPath).then(resp => {
-                    resolve(resp)
-                }).catch(e => {
-                    reject(e)
-                })
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' will broadCast by POST ' + JSON.stringify(apiPath))
 
+            const resp = await fetch(apiPath + '/transactions/broadcast', {
+                method: 'POST',
+                body: JSON.stringify(signedData),
+                headers: {
+                    'Content-Type': 'application/json',
+                }
             })
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' send res ' + resp)
+            let ret = await resp.text()
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' WavesTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' send res ' + ret)
+            try {
+                let ret1 = JSON.parse(ret)
+                if (typeof ret1.amount === 'undefined') {
+                    throw new Error('no amount')
+                }
+            } catch (e1) {
+                throw new Error(ret)
+            }
             result.transactionHash = signedData.id
         } catch (e) {
             if (config.debug.cryptoErrors) {

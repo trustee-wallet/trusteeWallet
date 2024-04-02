@@ -1,0 +1,15 @@
+diff --git a/node_modules/@notifee/react-native/ios/RNNotifee/NotifeeApiModule.m b/node_modules/@notifee/react-native/ios/RNNotifee/NotifeeApiModule.m
+index 3230d90..8ce1127 100644
+--- a/node_modules/@notifee/react-native/ios/RNNotifee/NotifeeApiModule.m
++++ b/node_modules/@notifee/react-native/ios/RNNotifee/NotifeeApiModule.m
+@@ -79,8 +79,8 @@ RCT_EXPORT_MODULE();
+ }
+ 
+ - (void)sendNotifeeCoreEvent:(NSDictionary *_Nonnull)eventBody {
+-  dispatch_after(
+-      dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
++      dispatch_async(
++        dispatch_get_main_queue(), ^{
+         if (RCTRunningInAppExtension() ||
+             [UIApplication sharedApplication].applicationState == UIApplicationStateBackground) {
+           [self sendEventWithName:kReactNativeNotifeeNotificationBackgroundEvent body:eventBody];

@@ -4,34 +4,38 @@
  */
 
 import React from 'react'
-import {
-    StyleSheet,
-    Text,
-    View
-} from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import CustomIcon from '@app/components/elements/CustomIcon'
 import { useTheme } from '@app/theme/ThemeProvider'
 import LottieView from 'lottie-react-native'
 import ProgressAnimation from '@assets/jsons/animations/pieWithStroke.json'
+import Animated from 'react-native-reanimated'
+
+const AnimatedLottie = Animated.createAnimatedComponent(LottieView)
 
 const Message = (props) => {
+    const { colors } = useTheme()
 
-    const {
-        colors,
-    } = useTheme()
-
-    const {
-        containerStyles,
-        progress,
-        timer,
-        name,
-        text
-    } = props
+    const { containerStyles, progress, timer, name, text, newFlow } = props
 
     return (
         <View style={[styles.infoContainer, containerStyles]}>
             {timer || false ? (
-                <LottieView color={colors.createWalletScreen.keyIcon} source={ProgressAnimation} style={{ width: 24, height: 24 }} progress={progress} />
+                newFlow ? (
+                    <AnimatedLottie
+                        color={colors.createWalletScreen.keyIcon}
+                        source={ProgressAnimation}
+                        style={{ width: 24, height: 24 }}
+                        animatedProps={progress}
+                    />
+                ) : (
+                    <LottieView
+                        color={colors.createWalletScreen.keyIcon}
+                        source={ProgressAnimation}
+                        style={{ width: 24, height: 24 }}
+                        progress={progress}
+                    />
+                )
             ) : (
                 <View style={[styles.keyCircle, { borderColor: colors.createWalletScreen.showMnemonic.showButtonText }]}>
                     <CustomIcon name={name} size={16} color={colors.createWalletScreen.showMnemonic.showButtonText} />
@@ -41,7 +45,6 @@ const Message = (props) => {
         </View>
     )
 }
-
 
 export default Message
 

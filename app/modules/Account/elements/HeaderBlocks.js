@@ -130,11 +130,11 @@ class HeaderBlocks extends React.Component {
     }
 
     handleBackDropModal = () => {
-        this.bottomSheetRef?.open()
+        this.bottomSheetRef.open()
     }
 
     handleCloseBackDropModal = () => {
-        this.bottomSheetRef?.close()
+        this.bottomSheetRef.close()
     }
 
     handleCopy = (text) => {
@@ -476,7 +476,7 @@ class HeaderBlocks extends React.Component {
                 <Portal>
                     <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
-                        snapPoints={[0, 300]}
+                        snapPoints={[1, 300]}
                         index={0}
                     >
                         {this.renderModalContent({ address: shownAddress, forceLink, currencyCode, currencyName })}

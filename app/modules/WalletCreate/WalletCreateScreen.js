@@ -18,33 +18,33 @@ import BlocksoftCustomLinks from '@crypto/common/BlocksoftCustomLinks'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
-import SliderImage1 from '@assets/images/slider/1.png'
-import SliderImage2 from '@assets/images/slider/2.png'
-import SliderImage3 from '@assets/images/slider/3.png'
-import SliderImage4 from '@assets/images/slider/4.png'
 import MarketingAnalytics from '@app/services/Marketing/MarketingAnalytics'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-const screenWidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get('window').width
 
 const getSliderData = () => [
     {
-        image: SliderImage1,
+        id: 'slide_1',
+        image: require('@assets/images/slider/1.png'),
         text: strings('walletCreateScreen.slider1')
     },
     {
-        image: SliderImage2,
+        id: 'slide_2',
+        image: require('@assets/images/slider/2.png'),
         text: strings('walletCreateScreen.slider2')
     },
     {
-        image: SliderImage3,
+        id: 'slide_3',
+        image: require('@assets/images/slider/3.png'),
         text: strings('walletCreateScreen.slider3')
     },
     {
-        image: SliderImage4,
+        id: 'slide_4',
+        image: require('@assets/images/slider/4.png'),
         text: strings('walletCreateScreen.slider4'),
         textStyle: { textDecorationLine: 'line-through' }
-    },
+    }
 ]
 
 const SLIDER_SCROLL_TIMEOUT = 4000
@@ -55,7 +55,7 @@ class WalletCreateScreen extends PureComponent {
     }
 
     sliderData = getSliderData()
-    sliderTimer;
+    sliderTimer
     sliderRef = React.createRef
 
     componentDidMount() {
@@ -82,7 +82,9 @@ class WalletCreateScreen extends PureComponent {
         } else {
             NavStore.goNext('EnterMnemonicPhrase', { flowSubtype: 'importFirst' })
         }
-        setTimeout(() => { this.setState(() => ({ checked: false })) }, 500)
+        setTimeout(() => {
+            this.setState(() => ({ checked: false }))
+        }, 500)
     }
 
     handleCreate = () => {
@@ -90,12 +92,12 @@ class WalletCreateScreen extends PureComponent {
     }
 
     handleImport = () => {
-        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', {number : '1', source : 'WalletCreateScreen'}, 'GX')
-        this.handleSelect({ flowType: 'IMPORT_WALLET', source : 'WalletCreateScreen', walletNumber : 1 })
+        MarketingEvent.logEvent('gx_view_create_import_screen_tap_import', { number: '1', source: 'WalletCreateScreen' }, 'GX')
+        this.handleSelect({ flowType: 'IMPORT_WALLET', source: 'WalletCreateScreen', walletNumber: 1 })
     }
 
     changeAgreementCallback = () => {
-        this.setState(state => ({ checked: !state.checked }))
+        this.setState((state) => ({ checked: !state.checked }))
     }
 
     handleTermsPress = () => {
@@ -109,7 +111,7 @@ class WalletCreateScreen extends PureComponent {
         } else {
             link += '_EN'
         }
-        
+
         const url = BlocksoftCustomLinks.getLink(link, this.context.isLight)
         NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.termsTitle'), backOnClose: true })
     }
@@ -129,28 +131,24 @@ class WalletCreateScreen extends PureComponent {
         NavStore.goNext('WebViewScreen', { url, title: strings('walletCreateScreen.privacyPolicyTitle'), backOnClose: true })
     }
 
-    renderSliderPage = ({ image, text, textStyle }) => {
+    renderSliderPage = ({ id, image, text, textStyle }) => {
         const { colors, GRID_SIZE } = this.context
         return (
-            <View style={styles.sliderItem}>
+            <View style={styles.sliderItem} key={id}>
                 <Image
                     source={image}
                     style={[
                         styles.sliderImage,
                         {
                             width: GRID_SIZE === 16 ? styles.sliderImage.width : styles.sliderImage.width - 50,
-                            height: GRID_SIZE === 16 ? styles.sliderImage.height : styles.sliderImage.height - 50,
+                            height: GRID_SIZE === 16 ? styles.sliderImage.height : styles.sliderImage.height - 50
                         }
                     ]}
-                    resizeMode="contain"
+                    resizeMode='contain'
                 />
-                <Text
-                    style={[
-                        styles.sliderText,
-                        textStyle,
-                        { color: colors.createWalletScreen.sliderText, marginHorizontal: GRID_SIZE * 3 }
-                    ]}
-                >{text}</Text>
+                <Text style={[styles.sliderText, textStyle, { color: colors.createWalletScreen.sliderText, marginHorizontal: GRID_SIZE * 3 }]}>
+                    {text}
+                </Text>
             </View>
         )
     }
@@ -163,9 +161,12 @@ class WalletCreateScreen extends PureComponent {
 
         return (
             <View style={styles.container}>
-                <StatusBar barStyle="light-content" />
+                <StatusBar barStyle='light-content' />
                 <View style={[styles.topContent, { backgroundColor: colors.createWalletScreen.sliderBg }]}>
-                    <Pages ref={ref => { this.sliderRef = ref }}>
+                    <Pages
+                        ref={(ref) => {
+                            this.sliderRef = ref
+                        }}>
                         {this.sliderData.map(this.renderSliderPage)}
                     </Pages>
                 </View>
@@ -178,13 +179,9 @@ class WalletCreateScreen extends PureComponent {
                             handlePrivacyPolicy={this.handlePrivacyPolicyPress}
                         />
                     </View>
+                    <Button title={strings('walletCreateScreen.createWallet')} disabled={!this.state.checked} onPress={this.handleCreate} />
                     <Button
-                        title={strings('walletCreateScreen.createWallet')}
-                        disabled={!this.state.checked}
-                        onPress={this.handleCreate}
-                    />
-                    <Button
-                        type="transparent"
+                        type='transparent'
                         title={strings('walletCreateScreen.importWallet')}
                         disabled={!this.state.checked}
                         onPress={this.handleImport}
@@ -217,13 +214,13 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-end',
-        paddingBottom: 35,
+        paddingBottom: 35
     },
     sliderImage: {
         width: screenWidth - 100,
         height: screenWidth - 100,
         maxWidth: 450,
-        maxHeight: 450,
+        maxHeight: 450
     },
     sliderText: {
         fontFamily: 'SFUIDisplay-Regular',
@@ -231,7 +228,7 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         letterSpacing: 0.5,
         textAlign: 'center',
-        marginTop: 15,
+        marginTop: 15
     },
     agreementContainer: {
         marginBottom: 20

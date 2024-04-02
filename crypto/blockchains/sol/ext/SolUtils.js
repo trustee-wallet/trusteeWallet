@@ -4,8 +4,8 @@
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import { PublicKey } from '@solana/web3.js/src/index'
-import { Account } from '@solana/web3.js/src/account'
+import { PublicKey } from '@solana/web3.js'
+import { Account } from '@solana/web3.js'
 
 import config from '@app/config/config'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'

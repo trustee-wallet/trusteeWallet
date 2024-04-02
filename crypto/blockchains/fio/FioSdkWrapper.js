@@ -1,7 +1,7 @@
 /**
  * @version 0.77
  */
-import { FIOSDK } from '@fioprotocol/fiosdk'
+// import { FIOSDK } from '@fioprotocol/fiosdk'
 
 import BlocksoftKeysStorage from '@crypto/actions/BlocksoftKeysStorage/BlocksoftKeysStorage'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
@@ -18,6 +18,7 @@ export class FioSdkWrapper {
     sdk
     walletHash = false
     async init(walletHash, source) {
+        return false
         if (this.walletHash === walletHash) return false
         try {
             const res = await BlocksoftKeysStorage.getAddressCache(walletHash + 'SpecialFio')
@@ -49,6 +50,7 @@ export class FioSdkWrapper {
 export const fioSdkWrapper = new FioSdkWrapper()
 
 export const getFioSdk = () => {
+    return false
     if (typeof  fioSdkWrapper?.sdk !== 'undefined' &&  fioSdkWrapper?.sdk) {
         return fioSdkWrapper?.sdk
     }

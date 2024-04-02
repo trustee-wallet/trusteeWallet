@@ -37,7 +37,7 @@ class NotificationsSettingScreen extends PureComponent {
 
     async componentDidMount() {
         if (MarketingEvent.DATA.LOG_TOKEN === 'NO_GOOGLE') {
-            await this.handleAllChangeNotifications('0')
+            await this.handleChangeAllNotifications('0')
         }
     }
 

@@ -139,7 +139,7 @@ class SortList extends PureComponent {
                     scrollEnabled={false}
                     data={this.sortList}
                     renderItem={this.renderListItem}
-                    keyExtractor={({ index }) => index}
+                    keyExtractor={(_, index) => index}
                 />
                 <MainItem
                     title={strings('homeScreen.sort.withBalance')}

@@ -11,7 +11,7 @@ import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchai
 
 import config from '@app/config/config'
 
-import { PublicKey, SystemProgram, Transaction, StakeProgram, Authorized } from '@solana/web3.js/src/index'
+import { PublicKey, SystemProgram, Transaction, StakeProgram, Authorized } from '@solana/web3.js'
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
 import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
@@ -48,6 +48,10 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 const accountInfo = await SolUtils.getAccountInfo(data?.addressFrom)
                 const rent = await SolStakeUtils.getRentExemptReserve(data?.addressFrom, accountInfo?.space || 0)
                 amountForTx = BlocksoftUtils.diff(BlocksoftUtils.diff(amountForTx, feeForTx), rent).toString()
+                if (data?.uiType === 'TRADE_SEND') {
+                    amountForTx = amountForTx.toString()
+                    amountForTx = amountForTx.substring(0, amountForTx.length - 1) + '0'
+                }
             } catch (e) {
                 if (config.debug.cryptoErrors) {
                     console.log(this._settings.currencyCode + ' SolTransferProcessor.getFeeRate address error ' + e.message)
