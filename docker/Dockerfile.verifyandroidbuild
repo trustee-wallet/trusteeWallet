@@ -1,6 +1,7 @@
 FROM trusteewallet/androidprebuild
 
 ARG BUILD_NUMBER=1
+ARG VERSION_NUMBER=1.0
 ARG COMMIT_SHA=NO_SHA_1
 ARG REPOSITORY_BRANCH=master
 ARG REPOSITORY_URL="https://github.com/trustee-wallet/trusteeWallet.git"
