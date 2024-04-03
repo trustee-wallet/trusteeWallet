@@ -19,8 +19,8 @@ RUN apt-get -y update && \
     curl -sL -o /usr/local/bin/apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.7.0.jar && \
 #    curl -sL -o /usr/local/bin/apktool.jar https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.6.0.jar && \
     chmod +x /usr/local/bin/apktool /usr/local/bin/apktool.jar && \
-#    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.14.1/bundletool-all-1.14.1.jar && \
-    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.8.0/bundletool-all-1.8.0.jar && \
+    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.14.1/bundletool-all-1.14.1.jar && \
+#    curl -sL -o bundletool.jar https://github.com/google/bundletool/releases/download/1.8.0/bundletool-all-1.8.0.jar && \
     chmod 644 bundletool.jar && \
 #    curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && \
     mkdir -p /etc/apt/sources.list.d/ && \
