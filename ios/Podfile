@@ -50,7 +50,9 @@ target 'trusteeWallet' do
   pod 'Permission-FaceID', :path => "../node_modules/react-native-permissions/ios/FaceID"
   pod 'Permission-Camera', :path => "../node_modules/react-native-permissions/ios/Camera"
 
-  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec', :modular_headers => false
+  pod 'lottie-react-native', :path => '../node_modules/lottie-react-native'
+
+  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
 
   target 'trusteeWalletTests' do
     inherit! :complete
