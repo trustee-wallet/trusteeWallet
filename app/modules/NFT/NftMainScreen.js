@@ -267,7 +267,6 @@ class NftMainScreen extends React.PureComponent {
                                 tintColor={colors.common.refreshControlIndicator}
                                 colors={[colors.common.refreshControlIndicator]}
                                 progressBackgroundColor={colors.common.refreshControlBg}
-                                progressViewOffset={-20}
                             />
                         }
                         ListEmptyComponent={<NftReceiveComponent />}
@@ -288,7 +287,6 @@ class NftMainScreen extends React.PureComponent {
                                 tintColor={colors.common.refreshControlIndicator}
                                 colors={[colors.common.refreshControlIndicator]}
                                 progressBackgroundColor={colors.common.refreshControlBg}
-                                progressViewOffset={-20}
                             />
                         }
                         ListEmptyComponent={<NftReceiveComponent />}

@@ -4,10 +4,9 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Text, View, Platform, Keyboard } from 'react-native'
+import { Text, View, Platform, Keyboard, TextInput } from 'react-native'
 import Clipboard from '@react-native-clipboard/clipboard'
 
-import { TextField } from 'react-native-material-textfield'
 import QR from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -25,7 +24,6 @@ import { ThemeContext } from '@app/theme/ThemeProvider'
 import TouchableDebounce from './new/TouchableDebounce'
 
 class Input extends Component {
-
     constructor(props) {
         super(props)
         this.state = {
@@ -68,14 +66,16 @@ class Input extends Component {
         if (typeof pasteCallback !== 'undefined') {
             pasteCallback(clipboardContent)
         }
-
     }
 
     handleInput = async (value, useCallback, focus = this.state.focus) => {
-
-        value === '' && !focus ? value = this.state.value : value
+        value === '' && !focus ? (value = this.state.value) : value
 
         const { id, name, type, subtype, cuttype, additional, decimals, callback, isTextarea = false } = this.props
+
+        this.setState({
+            value,
+        })
 
         if (additional === 'NUMBER') {
             value = normalizeInputWithDecimals(value, typeof decimals !== 'undefined' ? decimals : 5)
@@ -109,12 +109,12 @@ class Input extends Component {
 
         let validation
         if (cuttype) {
-            let valueNew = value.trim().replace(/\n/g, " ")
+            let valueNew = value.trim().replace(/\n/g, ' ')
             const tmpIndex = valueNew.lastIndexOf('[ Photo ]')
             if (tmpIndex !== -1) {
                 valueNew = valueNew.slice(tmpIndex + 9).trim()
             }
-            if (cuttype === 'TRX' && value.length <= 34 || cuttype === 'FIO') {
+            if ((cuttype === 'TRX' && value.length <= 34) || cuttype === 'FIO') {
                 // do nothing
                 // TRX addresses can start with TRX
             } else if (valueNew.indexOf(cuttype) === 0) {
@@ -130,16 +130,14 @@ class Input extends Component {
             const tmps = []
             let tmp
             for (tmp of type) {
-                tmps.push(
-                    {
-                        id,
-                        name,
-                        type: tmp,
-                        subtype,
-                        cuttype,
-                        value
-                    }
-                )
+                tmps.push({
+                    id,
+                    name,
+                    type: tmp,
+                    subtype,
+                    cuttype,
+                    value
+                })
             }
             validation = await Validator.arrayValidation(tmps)
 
@@ -177,9 +175,8 @@ class Input extends Component {
     }
 
     render() {
-
-        const { colors } = this.context
-        const { value, show, focus, errors, autoFocus } = this.state
+        const { colors, isLight } = this.context
+        const { value, focus, errors, autoFocus } = this.state
         const {
             id,
             name,
@@ -207,139 +204,120 @@ class Input extends Component {
             text,
             containerStyle,
             inputStyle
-
         } = this.props
         const placeholder = isCapitalize ? capitalize(name) : name
 
-        let error = errors.find(item => item.field === id)
+        let error = errors.find((item) => item.field === id)
         error = typeof error !== 'undefined' ? error.msg : ''
         const isDisabled = typeof disabled !== 'undefined' ? disabled : false
 
-        const lineStyle = {}
-        let elementStyle = {}
-        if (typeof style !== 'undefined') {
-            elementStyle = style
-        }
+        const inputWidth =
+            (paste && qr) || (paste && search) ? '75%' : fio || search || copy || paste || qr || info || tabInfo || text ? '85%' : '95%'
 
-
-        if (isTextarea) {
-            let height = this.state.inputHeight + 30
-            if (height < 70) {
-                height = 70
-            }
-            elementStyle.minHeight = height
-            elementStyle.maxHeight = height
-            lineStyle.top = height - 10
-            if (error && height === 70) {
-                lineStyle.top = height - 20
-            }
-        }
-
-        const inputWidth = ( paste && qr || paste && search ) ? '75%' : ( fio || search || copy || paste || qr || info || tabInfo || text ) ? '85%' : '95%'
+        const inputValue = validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value
 
         return (
-            <View style={{ ...styles.wrapper, ...elementStyle, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
-                {
-                    show ?
-
-                        <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10 , ...containerStyle}} >
-                            <TextField
-                                ref={ref => this.inputRef = ref}
-                                allowFontScaling={false}
-                                keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
-                                tintColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
-                                labelHeight={styles.labelHeight}
-                                fontSize={19}
-                                lineWidth={0}
-                                activeLineWidth={0}
-                                placeholder={placeholder}
-                                placeholderTextColor='#999999'
-                                placeholderStyle={{ ...styles.fontFamily, ...inputStyle, fontFamily: 'Montserrat-Semibold' }}
-                                value={validPlaceholder ? !this.state.errors.length && value !== '' && focus === false ? BlocksoftPrettyStrings.makeCut(value, 8) : value : value}
-                                returnKeyLabel='Buy'
-                                onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {
-                                }}
-                                autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
-                                disabled={isDisabled}
-                                disabledLineType='none'
-                                onChangeText={(value) => this.handleInput(value)}
-                                style={noEdit ? { ...styles.fontFamily, ...inputStyle, color: colors.sendScreen.amount } : { ...styles.fontFamily, ...inputStyle, color: addressError && error ? '#864DD9' : colors.sendScreen.amount }}
-                                inputContainerStyle={{ height: 'auto' }}
-                                multiline={isTextarea}
-                                autoCorrect={false}
-                                spellCheck={false}
-                                onBlur={() => {
-                                    this.setState({ focus: false })
-                                }}
-                                onContentSizeChange={(e) => {
-                                    const h = e.nativeEvent.contentSize.height
-                                    if (h > 1) {
-                                        this.setState({ inputHeight: h })
-                                    }
-                                }}
-                                onFocus={typeof onFocus === 'undefined' ? () => {
+            <View style={{ ...styles.wrapper, backgroundColor: colors.sendScreen.addressBg, borderRadius: 10 }}>
+                <View style={{ backgroundColor: colors.sendScreen.addressBg, width: inputWidth, borderRadius: 10, paddingVertical: 16, ...containerStyle }}>
+                    <TextInput
+                        ref={(ref) => this.inputRef = ref}
+                        allowFontScaling={false}
+                        keyboardType={typeof keyboardType !== 'undefined' ? keyboardType : 'default'}
+                        keyboardAppearance={!isLight ? 'dark' : 'light'}
+                        selectionColor={typeof tintColor !== 'undefined' ? tintColor : styles.tintColor}
+                        placeholder={placeholder}
+                        placeholderTextColor='#999999'
+                        value={inputValue}
+                        onChangeText={this.handleInput}
+                        autoCapitalize='none'
+                        autoCorrect={false}
+                        spellCheck={false}
+                        editable={!isDisabled}
+                        multiline={isTextarea}
+                        onSubmitEditing={typeof onSubmitEditing !== 'undefined' ? onSubmitEditing : () => {}}
+                        autoFocus={typeof autoFocus !== 'undefined' && !isDisabled ? autoFocus : false}
+                        style={
+                            noEdit
+                                ? [styles.fontFamily, inputStyle, { color: colors.sendScreen.amount }]
+                                : [styles.fontFamily, inputStyle, { color: addressError && error ? '#864DD9' : colors.sendScreen.amount }]
+                        }
+                        onBlur={() => {
+                            this.setState({ focus: false })
+                        }}
+                        onFocus={
+                            typeof onFocus === 'undefined'
+                                ? () => {
                                     this.setState({ focus: true })
-                                } : () => {
+                                  }
+                                : () => {
                                     this.setState({ focus: true })
-                                    onFocus()
-                                }}
-                            />
-                        </View>
-                        : null
-                }
-                <View style={{...styles.actions }}>
-                    {
-                        typeof fio !== 'undefined' && fio ?
-                            <TouchableDebounce onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="contacts" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableDebounce> : null
-                    }
-                    {
-                        typeof text !== 'undefined' && text ?
-                        <Text styles={[styles.text, styles.actionBtn__icon, { paddingTop: 2, flex: 1, color: colors.common.text3 }]}>
-                            {text}
-                        </Text> : null
-                    }
-                    {
-                        typeof copy !== 'undefined' && copy ?
-                            <TouchableDebounce onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-copy" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableDebounce> : null
-                    }
-                    {
-                        typeof paste !== 'undefined' && paste ?
-                            <TouchableDebounce onPress={this.handleReadFromClipboard} style={[styles.actionBtn, { marginRight: search ? -8 : 0}]}>
-                                <MaterialCommunityIcons style={{...styles.actionBtn__icon, paddingTop: 2}} name="content-paste" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableDebounce> : null
-                    }
-                    {
-                        typeof qr !== 'undefined' && qr ?
-                            <TouchableDebounce onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
-                                <QR style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }} name="qrcode" size={25} color={addressError && error ? '#864DD9' : colors.common.text1} />
-                            </TouchableDebounce> : null
-                    }
-                    {
-                        typeof info !== 'undefined' && typeof tabInfo !== 'undefined' && info && tabInfo ?
-                            <TouchableDebounce onPress={tabInfo} style={styles.actionBtn}>
-                                <MaterialCommunityIcons
-                                    name="information-outline"
-                                    size={25}
-                                    color={error ? '#864DD9' : colors.common.text1}
-                                    style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }}
-                                />
-                            </TouchableDebounce> : null
-                    }
+                                      onFocus()
+                                  }
+                        }
+                    />
                 </View>
-                {
-                    typeof action !== 'undefined' && !disabled ?
-                        <TouchableDebounce onPress={action.callback} style={[styles.action, actionBtnStyles]}>
-                            <View style={styles.action__title}>
-                                <Text style={styles.action__title__text}>
-                                    {action.title}
-                                </Text>
-                            </View>
-                        </TouchableDebounce> : null
-                }
+                <View style={{ ...styles.actions }}>
+                    {typeof fio !== 'undefined' && fio ? (
+                        <TouchableDebounce onPress={() => NavStore.goNext('FioChooseRecipient')} style={styles.actionBtn}>
+                            <MaterialCommunityIcons
+                                style={{ ...styles.actionBtn__icon, paddingTop: 2 }}
+                                name='contacts'
+                                size={25}
+                                color={addressError && error ? '#864DD9' : colors.common.text1}
+                            />
+                        </TouchableDebounce>
+                    ) : null}
+                    {typeof text !== 'undefined' && text ? (
+                        <Text styles={[styles.text, styles.actionBtn__icon, { paddingTop: 2, flex: 1, color: colors.common.text3 }]}>{text}</Text>
+                    ) : null}
+                    {typeof copy !== 'undefined' && copy ? (
+                        <TouchableDebounce onPress={this.handleCopyToClipboard} style={[styles.actionBtn]}>
+                            <MaterialCommunityIcons
+                                style={{ ...styles.actionBtn__icon, paddingTop: 2 }}
+                                name='content-copy'
+                                size={25}
+                                color={addressError && error ? '#864DD9' : colors.common.text1}
+                            />
+                        </TouchableDebounce>
+                    ) : null}
+                    {typeof paste !== 'undefined' && paste ? (
+                        <TouchableDebounce onPress={this.handleReadFromClipboard} style={[styles.actionBtn, { marginRight: search ? -8 : 0 }]}>
+                            <MaterialCommunityIcons
+                                style={{ ...styles.actionBtn__icon, paddingTop: 2 }}
+                                name='content-paste'
+                                size={25}
+                                color={addressError && error ? '#864DD9' : colors.common.text1}
+                            />
+                        </TouchableDebounce>
+                    ) : null}
+                    {typeof qr !== 'undefined' && qr ? (
+                        <TouchableDebounce onPress={() => checkQRPermission(qrCallback)} style={styles.actionBtn}>
+                            <QR
+                                style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }}
+                                name='qrcode'
+                                size={25}
+                                color={addressError && error ? '#864DD9' : colors.common.text1}
+                            />
+                        </TouchableDebounce>
+                    ) : null}
+                    {typeof info !== 'undefined' && typeof tabInfo !== 'undefined' && info && tabInfo ? (
+                        <TouchableDebounce onPress={tabInfo} style={styles.actionBtn}>
+                            <MaterialCommunityIcons
+                                name='information-outline'
+                                size={25}
+                                color={error ? '#864DD9' : colors.common.text1}
+                                style={{ ...styles.actionBtn__icon_qr, ...styles.actionBtn__icon, paddingTop: 2 }}
+                            />
+                        </TouchableDebounce>
+                    ) : null}
+                </View>
+                {typeof action !== 'undefined' && !disabled ? (
+                    <TouchableDebounce onPress={action.callback} style={[styles.action, actionBtnStyles]}>
+                        <View style={styles.action__title}>
+                            <Text style={styles.action__title__text}>{action.title}</Text>
+                        </View>
+                    </TouchableDebounce>
+                ) : null}
             </View>
         )
     }
@@ -366,7 +344,7 @@ const styles = {
         flex: 1,
         position: 'relative',
 
-        zIndex: 3,
+        zIndex: 3
     },
     content: {
         flexDirection: 'row',
@@ -395,9 +373,10 @@ const styles = {
     },
     fontFamily: {
         fontFamily: 'SFUIDisplay-Semibold',
+        fontSize: 19,
+        lineHeight: 22,
         marginLeft: 16,
-        marginTop: -3,
-        letterSpacing: 1,
+        letterSpacing: 1
     },
     mark: {
         right: 0,
@@ -427,11 +406,11 @@ const styles = {
         height: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        paddingRight: 16,
+        paddingRight: 16
     },
     actionBtn: {},
     actionBtn__icon: {
-        marginLeft: 15,
+        marginLeft: 15
     },
     actionBtn__icon_qr: {
         marginTop: 2
@@ -499,7 +478,6 @@ const styles = {
         backgroundColor: '#f9f9f9'
     },
     inputShadow: {
-
         shadowColor: '#000',
 
         shadowOffset: {
@@ -560,7 +538,7 @@ const styles = {
         y: 0,
         style: {
             flexDirection: 'row',
-            position: 'absolute',
+            position: 'absolute'
         }
     },
     text: {

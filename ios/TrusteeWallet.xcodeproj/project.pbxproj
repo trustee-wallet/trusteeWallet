@@ -29,6 +29,7 @@
 		C4A0C34D4292479A85D7A42C /* Montserrat-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1A0B3CC3E3EA452DB79FB128 /* Montserrat-Thin.ttf */; };
 		E46C390687DA4AF1A56DA066 /* SFUIDisplay-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 98F0824EFA0F4E16A6E0B25F /* SFUIDisplay-Bold.ttf */; };
 		F39434002BADD49200EA4D51 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F39433FF2BADD49200EA4D51 /* GoogleService-Info.plist */; };
+		F3964C4D2BC429F0003A5034 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F3964C4C2BC429F0003A5034 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +57,7 @@
 		1A0B3CC3E3EA452DB79FB128 /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Thin.ttf"; path = "../assets/fonts/Montserrat-Thin.ttf"; sourceTree = "<group>"; };
 		30BD867DDA064FBCB2A81A37 /* SFUIDisplay-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIDisplay-Regular.ttf"; path = "../assets/fonts/SFUIDisplay-Regular.ttf"; sourceTree = "<group>"; };
 		36F1B2E8232E46C8B056D9D4 /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
-		3B1713B621774442A97BC53C /* CREDC___.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = CREDC___.ttf; path = ../assets/fonts/CREDC___.ttf; sourceTree = "<group>"; };
+		3B1713B621774442A97BC53C /* CREDC___.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "CREDC___.ttf"; path = "../assets/fonts/CREDC___.ttf"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-trusteeWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-trusteeWallet.debug.xcconfig"; path = "Target Support Files/Pods-trusteeWallet/Pods-trusteeWallet.debug.xcconfig"; sourceTree = "<group>"; };
 		3BF6EB254D054373ABE3C75F /* SFUIDisplay-Semibold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "SFUIDisplay-Semibold.ttf"; path = "../assets/fonts/SFUIDisplay-Semibold.ttf"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-trusteeWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-trusteeWallet.release.xcconfig"; path = "Target Support Files/Pods-trusteeWallet/Pods-trusteeWallet.release.xcconfig"; sourceTree = "<group>"; };
@@ -75,6 +76,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F39433FF2BADD49200EA4D51 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F39434022BB5B6EC00EA4D51 /* trusteeWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = trusteeWallet.entitlements; path = trusteeWallet/trusteeWallet.entitlements; sourceTree = "<group>"; };
+		F3964C4C2BC429F0003A5034 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				F3964C4C2BC429F0003A5034 /* PrivacyInfo.xcprivacy */,
 			);
 			name = trusteeWallet;
 			sourceTree = "<group>";
@@ -310,6 +313,7 @@
 				C4A0C34D4292479A85D7A42C /* Montserrat-Thin.ttf in Resources */,
 				B58E920AA84C48C1A08E4A18 /* OCR A Std Regular.ttf in Resources */,
 				3E96E23C6A9546689F1BC9E2 /* OCRA-Regular.ttf in Resources */,
+				F3964C4D2BC429F0003A5034 /* PrivacyInfo.xcprivacy in Resources */,
 				A2D6AB5B14074D5991358967 /* Roboto-Black.ttf in Resources */,
 				E46C390687DA4AF1A56DA066 /* SFUIDisplay-Bold.ttf in Resources */,
 				20CC116364DF40A6A2430F75 /* SFUIDisplay-Regular.ttf in Resources */,
@@ -693,10 +697,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -764,10 +765,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

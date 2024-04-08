@@ -5,6 +5,7 @@ import React, { useEffect, useCallback, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { View, StyleSheet, useWindowDimensions } from 'react-native'
 import { Camera, useCodeScanner, useCameraDevice } from 'react-native-vision-camera'
+import { runOnJS } from 'react-native-reanimated'
 
 import NavStore from '@app/components/navigation/NavStore'
 
@@ -29,7 +30,7 @@ const QRCodeScannerScreen = (props) => {
 
     const backCamera = useCameraDevice('back')
 
-    const { width, height } = useWindowDimensions()
+    const { width } = useWindowDimensions()
 
     const [barCodes, setBarCodes] = useState([])
     const [shouldFreezeCamera, setShouldFreezeCamera] = useState(false)
@@ -229,12 +230,12 @@ const styles = StyleSheet.create({
     rectangleBottomRight: {
         alignItems: 'flex-end',
         position: 'absolute',
-        bottom: -3,
+        bottom: -2,
         right: -6
     },
 
     bottomOverlay: {
-        flex: 1.5,
+        flex: 1,
         width: '100%',
         alignItems: 'center',
         paddingTop: 20,

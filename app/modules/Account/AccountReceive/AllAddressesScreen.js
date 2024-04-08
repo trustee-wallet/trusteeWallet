@@ -379,7 +379,6 @@ class AllAddressesScreen extends PureComponent {
                             tintColor={colors.common.refreshControlIndicator}
                             colors={[colors.common.refreshControlIndicator]}
                             progressBackgroundColor={colors.common.refreshControlBg}
-                            progressViewOffset={-20}
                         />
                     }
                     onEndReachedThreshold={0.2}

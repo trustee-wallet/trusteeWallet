@@ -226,7 +226,7 @@ class AccountStakingSOL extends React.PureComponent {
         const validator = solValidator && solValidator?.address ? solValidator : selectedVoteAddress
 
         return (
-            <View style={{ flexDirection: 'column' }}>
+            <View style={{ flex: 1, flexDirection: 'column' }}>
                 <View style={{ marginTop: GRID_SIZE }}>
                     {this.renderDescription(strings('account.stakingSOL.stake'), strings('account.stakingTRX.moreInfo'))}
                     {this.renderAmountInput()}
@@ -462,6 +462,8 @@ class AccountStakingSOL extends React.PureComponent {
             >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    nestedScrollEnabled
                     refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
@@ -570,8 +572,7 @@ const styles = StyleSheet.create({
         fontFamily: 'SFUIDisplay-Semibold',
         fontSize: 16,
         lineHeight: 20,
-        letterSpacing: 1,
-        flex: 1
+        letterSpacing: 1
     },
     availableText: {
         fontFamily: 'Montserrat-SemiBold',
