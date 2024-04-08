@@ -281,20 +281,6 @@
 		"tokenAddress": "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359",
 		"currencyExplorerLink": "https://etherscan.io/token/0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359?a="
 	},
-	"FIO": {
-		"currencyType": "coin",
-		"currencyName": "FIO",
-		"currencyCode": "FIO",
-		"currencySymbol": "FIO",
-		"addressProcessor": "FIO",
-		"scannerProcessor": "FIO",
-		"extendsProcessor": "FIO",
-		"prettyNumberProcessor": "UNIFIED",
-		"network": "mainnet",
-		"decimals": 9,
-		"currencyExplorerLink": "https://fio.bloks.io/key/",
-		"currencyExplorerTxLink": "https://fio.bloks.io/transaction/"
-	},
 	"ETH_ZRX": {
 		"currencyType": "token",
 		"currencyName": "0x",
