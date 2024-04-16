@@ -51,11 +51,18 @@ export default class EthTxSendProvider {
         let signData = false
         try {
             signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
-        } catch (e) {
-            if (e.message.indexOf('Invalid JSON RPC response:') === -1 || typeof this._web3.SEND_RAW_LINK === 'undefined' || !this._web3.SEND_RAW_LINK) {
-                throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK)
+            if (typeof signData.rawTransaction !== 'undefined') {
+                console.log('result rawTransaction signData.rawTransaction ' + signData.rawTransaction)
+                return signData.rawTransaction
             }
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error1 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK, e)
+            }
+            if (e.message.indexOf('Invalid JSON RPC response:') === -1 || typeof this._web3.SEND_RAW_LINK === 'undefined' || !this._web3.SEND_RAW_LINK) {
+                throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error1 ' + e.message + ' ' + this._web3?.LINK)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error1 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
         }
         const newLink = this._web3.SEND_RAW_LINK
         this._web3 = new Web3(new Web3.providers.HttpProvider(newLink))
@@ -64,7 +71,11 @@ export default class EthTxSendProvider {
         try {
             signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
         } catch (e) {
-            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error2 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK, e)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error2 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
+            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error2 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
         }
         return signData.rawTransaction
     }
