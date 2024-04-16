@@ -628,7 +628,7 @@ export default class DogeTransferProcessor implements BlocksoftBlockchainTypes.T
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' = FEE ' + uiData.selectedFee.addressToTx)
             }
-            BlocksoftCryptoLog.loh(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' = FEE ' + uiData.selectedFee.addressToTx)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeTransferProcessor.sendTx rechecked ' + data.addressFrom + '=>' + data.addressTo + ' = FEE ' + uiData.selectedFee.addressToTx)
         }
 
         if (typeof uiData !== 'undefined' && typeof uiData.selectedFee !== 'undefined' && typeof uiData.selectedFee.rawOnly !== 'undefined' && uiData.selectedFee.rawOnly) {
