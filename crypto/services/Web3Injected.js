@@ -11,36 +11,36 @@ export const Web3Injected = (type) => {
     let MAIN_CURRENCY_CODE = 'ETH'
     let MAIN_CHAIN_ID = 1
     let SEND_RAW_LINK = false
-    if (!type || type === 0 || type === 1 || type === 'ethereum' || type === 'ETH' || type === 'mainnet') {
+    if (!type || type === 0 || type === 1 || type === 'ethereum' || type === 'ETH' || type === 'mainnet' || type === '0x1') {
         MAIN_CURRENCY_CODE = 'ETH'
         MAIN_CHAIN_ID = 1
         SEND_RAW_LINK = BlocksoftExternalSettings.getStatic('ETH_SEND_RAW_SERVER')
-    } else if (type === 10001 || type === 'eth_pow'  || type === 'ETH_POW' || type === 'ETHW' || type === 'ethw') {
+    } else if (type === 10001 || type === 'eth_pow'  || type === 'ETH_POW' || type === 'ETHW' || type === 'ethw' || type === '0x2711' ) {
         MAIN_CURRENCY_CODE = 'ETH_POW'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('ETH_POW_SERVER')
         MAIN_CHAIN_ID = 10001
-    } else if (type === 3 || type === 'ropsten'  || type === 'ETH_ROPSTEN') {
+    } else if (type === 3 || type === 'ropsten'  || type === 'ETH_ROPSTEN' || type === '0x3') {
         MAIN_CURRENCY_CODE = 'ETH_ROPSTEN'
         WEB3_LINK = `https://ropsten.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         MAIN_CHAIN_ID = 3
-    } else if (type === 4 || type === 'rinkeby' || type === 'ETH_RINKEBY') {
+    } else if (type === 4 || type === 'rinkeby' || type === 'ETH_RINKEBY' || type === '0x4') {
         MAIN_CURRENCY_CODE = 'ETH_RINKEBY'
         WEB3_LINK = `https://rinkeby.infura.io/v3/${BlocksoftExternalSettings.getStatic('ETH_INFURA')}`
         MAIN_CHAIN_ID = 4
-    } else if (type === 56 || type === 'bnb' || type === 'BNB_SMART') {
+    } else if (type === 56 || type === 'bnb' || type === 'BNB_SMART' || type === '0x38') {
         MAIN_CURRENCY_CODE = 'BNB_SMART'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SERVER')
         MAIN_CHAIN_ID = 56
         SEND_RAW_LINK = BlocksoftExternalSettings.getStatic('BNB_SMART_SEND_RAW_SERVER')
-    } else if (type === 1088 || type === 'METIS') {
+    } else if (type === 1088 || type === 'METIS' || type === '0x440') {
         MAIN_CURRENCY_CODE = 'METIS'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('METIS_SERVER')
         MAIN_CHAIN_ID = 1088
-    } else if (type === 199 || type === 'BTTC') {
+    } else if (type === 199 || type === 'BTTC' || type === '0xC7') {
         MAIN_CURRENCY_CODE = 'BTTC'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('BTTC_SERVER')
         MAIN_CHAIN_ID = 199
-    } else if (type === 106 || type === 'VLX') {
+    } else if (type === 106 || type === 'VLX' || type === '0x6A') {
         MAIN_CURRENCY_CODE = 'VLX'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('VLX_SERVER')
         MAIN_CHAIN_ID = 106 // https://docs.velas.com/clusters/
@@ -48,27 +48,27 @@ export const Web3Injected = (type) => {
         MAIN_CURRENCY_CODE = 'ONE'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('ONE_SERVER')
         MAIN_CHAIN_ID = 1666600000
-    } else if (type === 10 || type === 'OPTIMISM') {
+    } else if (type === 10 || type === 'OPTIMISM' || type == '0xA') {
         MAIN_CURRENCY_CODE = 'OPTIMISM'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('OPTIMISM_SERVER')
         MAIN_CHAIN_ID = 10
-    } else if (type === 137 || type === 'MATIC') {
+    } else if (type === 137 || type === 'MATIC' || type === '0x89') {
         MAIN_CURRENCY_CODE = 'MATIC'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('MATIC_SERVER')
         MAIN_CHAIN_ID = 137
-    } else if (type === 250 || type === 'FTM') {
+    } else if (type === 250 || type === 'FTM' || type === '0xFA') {
         MAIN_CURRENCY_CODE = 'FTM'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('FTM_SERVER')
         MAIN_CHAIN_ID = 250
-    } else if (type === 16718 || type === 'AMB') {
+    } else if (type === 16718 || type === 'AMB' || type === '0x414E') {
         MAIN_CURRENCY_CODE = 'AMB'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('AMB_SERVER')
         MAIN_CHAIN_ID = 16718
-    } else if (type === 61 || type === 'ETC') {
+    } else if (type === 61 || type === 'ETC' || type === '0x3D') {
         MAIN_CURRENCY_CODE = 'ETC'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('ETC_SERVER')
         MAIN_CHAIN_ID = 61
-    } else if (type === 30 || type === 'RSK') {
+    } else if (type === 30 || type === 'RSK' || type === '0x1E') {
         MAIN_CURRENCY_CODE = 'RSK'
         WEB3_LINK = BlocksoftExternalSettings.getStatic('RSK_SERVER')
         MAIN_CHAIN_ID = 30
