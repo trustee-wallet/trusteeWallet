@@ -1556,8 +1556,8 @@
 		"prettyNumberProcessor": "USDT",
 		"network": "mainnet",
 		"decimals": 8,
-		"currencyExplorerLink": "https://blockchair.com/ripple/account/",
-		"currencyExplorerTxLink": "https://blockchair.com/ripple/transaction/"
+		"currencyExplorerLink": "https://blockchair.com/xrp-ledger/account/",
+		"currencyExplorerTxLink": "https://blockchair.com/xrp-ledger/transaction/"
 	},
 	"SOL_SBR": {
 		"currencyType": "token",

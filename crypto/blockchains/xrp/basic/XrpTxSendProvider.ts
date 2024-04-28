@@ -18,21 +18,14 @@ import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 
 const PROXY_PREP = 'https://proxy.trustee.deals/xrp/getPrep'
 const PROXY_SEND = 'https://proxy.trustee.deals/xrp/sendTx'
-const RippleAPI = require('ripple-lib').RippleAPI
+
+const xrpl = require("xrpl")
 export class XrpTxSendProvider {
 
-    private readonly _api: typeof RippleAPI
+    private readonly _api
 
     constructor() {
-        this._api = new RippleAPI({ server: BlocksoftExternalSettings.getStatic('XRP_SERVER') }) // Public rippled server
-        this._api.on('error', (errorCode: string, errorMessage: string) => {
-            BlocksoftCryptoLog.log('XrpTransferProcessor constructor' + errorCode + ': ' + errorMessage)
-        })
-        this._api.on('connected', () => {
-        })
-        this._api.on('disconnected', () => {
-
-        })
+        this._api = new xrpl.Client(BlocksoftExternalSettings.getStatic('XRP_SERVER')) // Public rippled server 'wss://xrplcluster.com',
     }
 
     async getPrepared(data: BlocksoftBlockchainTypes.TransferData, toObject = true) {
@@ -95,15 +88,16 @@ export class XrpTxSendProvider {
         return false
     }
 
-    signTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txJson: any): Promise<string> {
+    signTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, txJson: any) {
         const api = this._api
         const keypair = {
             privateKey: privateData.privateKey,
             publicKey: data.accountJson.publicKey.toUpperCase()
         }
         try {
-            const signed = api.sign(JSON.stringify(txJson), keypair)
-            return signed.signedTransaction
+            const standby_wallet = new xrpl.Wallet(keypair.publicKey, keypair.privateKey)
+            const signed = standby_wallet.sign(txJson)
+            return signed.tx_blob
         } catch (e) {
             throw new Error(e.message + ' while signTx')
         }

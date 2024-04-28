@@ -144,14 +144,14 @@
     "redux": "4.2.0",
     "redux-thunk": "2.4.1",
     "reselect": "4.1.6",
-    "ripple-lib": "^1.10.1",
     "safe-event-emitter": "^1.0.1",
     "secp256k1": "3.8.0",
     "stellar-sdk": "^11.3.0",
     "thorify": "git+https://git@github.com/trustee-wallet/thorify#dist",
     "tweetnacl": "^1.0.3",
     "url-parse": "^1.5.10",
-    "web3": "1.10.3"
+    "web3": "1.10.3",
+    "xrpl": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
