@@ -327,24 +327,42 @@ export default class EthTxSendProvider {
         logData.successResult = checkResult && typeof checkResult.data !== 'undefined' && checkResult.data ? JSON.parse(JSON.stringify(checkResult.data)) : false
         logData.txRBF = txRBF
 
-        const nonce = typeof logData.setNonce !== 'undefined' ? logData.setNonce : BlocksoftUtils.hexToDecimal(tx.nonce)
-
-        const transactionJson = {
-            nonce,
-            gasPrice: typeof logData.gasPrice !== 'undefined' ? logData.gasPrice : BlocksoftUtils.hexToDecimal(tx.gasPrice)
+        let transactionJson
+        let nonce = -1
+        try {
+            nonce = typeof logData.setNonce !== 'undefined' ? logData.setNonce : (typeof tx.nonce !== 'undefined' ? BlocksoftUtils.hexToDecimal(tx.nonce) : -1)
+        } catch (e) {
+            throw new Error(e.message + ' while BlocksoftUtils.hexToDecimal(tx.nonce) ')
+        }
+        try {
+            transactionJson = {
+                nonce,
+                gasPrice: typeof logData.gasPrice !== 'undefined' ? logData.gasPrice : BlocksoftUtils.hexToDecimal(tx.gasPrice)
+            }
+        } catch (e) {
+            throw new Error(e.message + ' while BlocksoftUtils.hexToDecimal(tx.gasPrice)')
         }
 
-        await EthRawDS.saveRaw({
-            address: tx.from,
-            currencyCode: this._settings.currencyCode,
-            transactionUnique: tx.from + '_' + nonce,
-            transactionHash,
-            transactionRaw: rawTransaction,
-            transactionLog: logData
-        })
-
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send save nonce ' + nonce + ' from ' + tx.from + ' ' + transactionHash)
-        await EthTmpDS.saveNonce(this._mainCurrencyCode, tx.from, 'send_' + transactionHash, nonce)
+        if (nonce !== -1) {
+            try {
+                await EthRawDS.saveRaw({
+                    address: tx.from,
+                    currencyCode: this._settings.currencyCode,
+                    transactionUnique: tx.from + '_' + nonce,
+                    transactionHash,
+                    transactionRaw: rawTransaction,
+                    transactionLog: logData
+                })
+            } catch (e) {
+                throw new Error(e.message + ' while EthRawDS.saveRaw')
+            }
+            try {
+                await EthTmpDS.saveNonce(this._mainCurrencyCode, tx.from, 'send_' + transactionHash, nonce)
+            } catch (e) {
+                throw new Error(e.message + ' while EthTmpDS.saveNonce')
+            }
+        }
 
         return { transactionHash, transactionJson }
     }
