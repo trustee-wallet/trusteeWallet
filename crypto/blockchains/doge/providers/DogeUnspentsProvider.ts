@@ -27,6 +27,9 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
     }
 
     async getUnspents(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
+        return this._getUnspentsInner(address)
+    }
+    async _getUnspentsInner(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started ' + address)
 

@@ -200,6 +200,9 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     }
 
     async getFeeRate(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
+        return this._getFeeRateInner(data, privateData, additionalData)
+    }
+    async _getFeeRateInner(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.FeeRateResult> {
         let txRBFed = ''
         let txRBF = false
 
@@ -734,8 +737,11 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
         return result
     }
 
-
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
+        return this._getTransferAllBalanceInner(data, privateData, additionalData)
+    }
+
+    async _getTransferAllBalanceInner(data: BlocksoftBlockchainTypes.TransferData, privateData?: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
         if (!data.amount || data.amount === '0') {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' started with load balance needed')
             try {
@@ -787,6 +793,10 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
+        return this.sendTx(data, privateData, uiData)
+    }
+
+    async _sendTxInner(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
         if (typeof privateData.privateKey === 'undefined') {
             throw new Error('ETH transaction required privateKey')
         }

@@ -68,6 +68,9 @@ export default class DogeScannerProcessor {
      * @private
      */
     async _get(address, jsonData) {
+        return this._getInner(address, jsonData)
+    }
+    async _getInner(address, jsonData) {
         const now = new Date().getTime()
         if (typeof CACHE[address] !== 'undefined' && (now - CACHE[address].time < CACHE_VALID_TIME)) {
             CACHE[address].provider = 'trezor-cache'
@@ -99,7 +102,7 @@ export default class DogeScannerProcessor {
         CACHE[address] = {
             data: res.data,
             time: now,
-            provider : 'trezor'
+            provider: 'trezor'
         }
         return CACHE[address]
     }

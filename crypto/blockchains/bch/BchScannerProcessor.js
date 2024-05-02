@@ -25,7 +25,7 @@ export default class BchScannerProcessor extends DogeScannerProcessor{
         } else {
             legacyAddress = BtcCashUtils.toLegacyAddress(address)
         }
-        return super._get(legacyAddress)
+        return this._getInner(legacyAddress)
     }
 
     _addressesForFind(address, jsonData) {

@@ -14,7 +14,7 @@ export default class BchSendProvider extends DogeSendProvider implements Blockso
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' BchSendProvider.sendTx ' + subtitle + ' started ' + subtitle)
 
         try {
-            const trezor = await super.sendTx(hex, subtitle, txRBF, logData)
+            const trezor = await this._sendTxInner(hex, subtitle, txRBF, logData)
             if (trezor) {
                 return trezor
             }

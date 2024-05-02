@@ -190,6 +190,9 @@ export default class EthScannerProcessor extends EthBasic {
      * @return {Promise<[UnifiedTransaction]>}
      */
     async getTransactionsBlockchain(scanData) {
+        return this._getTransactionsBlockchainInner(scanData)
+    }
+    async _getTransactionsBlockchainInner(scanData) {
         const address = scanData.account.address
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthScannerProcessor.getTransactions started ' + address)
         let res = false

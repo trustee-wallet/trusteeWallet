@@ -258,10 +258,10 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                            additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
                            subtitle: string = 'default')
         : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
-        return this._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle)
+        return this._getInputsOutputsInner(data, unspents, feeToCount, additionalData, subtitle)
     }
 
-    async _getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+    async _getInputsOutputsInner(data: BlocksoftBlockchainTypes.TransferData,
                             unspents: BlocksoftBlockchainTypes.UnspentTx[],
                             feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                             additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
