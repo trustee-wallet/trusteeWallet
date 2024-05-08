@@ -100,7 +100,7 @@ export default class SolScannerProcessor {
                 return false
             }
 
-            const transactions = await this._unifyTransactions(address, res.data.result, lastHashVar)
+            const transactions = await this._unifyTransactions(address, res.data.result, lastHashVar, tokenAddress)
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor.getTransactions finished ' + address)
             return transactions
         } catch (e) {
@@ -109,13 +109,13 @@ export default class SolScannerProcessor {
         }
     }
 
-    async _unifyTransactions(address, result, lastHashVar) {
+    async _unifyTransactions(address, result, lastHashVar, tokenAddress) {
         const transactions = []
         let lastHash = false
         let hasError = false
         for (const tx of result) {
             try {
-                const transaction = await this._unifyTransaction(address, tx)
+                const transaction = await this._unifyTransaction(address, tx, tokenAddress)
                 if (transaction) {
                     transactions.push(transaction)
                     if (transaction.transactionStatus === 'success' && !lastHash && !hasError) {
@@ -158,10 +158,7 @@ export default class SolScannerProcessor {
         }
     }
 
-    async _unifyTransaction(address, transaction) {
-        return this._unifyTransactionInner(address, transaction, this.tokenAddress)
-    }
-    async _unifyTransactionInner(address, transaction, tokenAddress) {
+    async _unifyTransaction(address, transaction, tokenAddress) {
 
         const data = {
             'jsonrpc': '2.0',
@@ -334,6 +331,9 @@ export default class SolScannerProcessor {
             addressAmount,
             transactionStatus,
             transactionFee: additional.meta.fee
+        }
+        if (tokenAddress && addressAmount === 0) {
+            return false
         }
         if (typeof transaction.memo !== 'undefined' && transaction.memo) {
             tx.transactionJson = { memo: transaction.memo }

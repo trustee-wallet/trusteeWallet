@@ -70,9 +70,7 @@ export default class SolScannerProcessorSpl extends SolScannerProcessor {
         return { balance, unconfirmed: 0, provider: 'solana-api' }
     }
     async getTransactionsBlockchain(scanData, source) {
-        return this._getTransactionsBlockchainInner(scanData, source, this.tokenAddress)
-    }
-    async _unifyTransaction(address, transaction) {
-        return this._unifyTransactionInner(address, transaction, this.tokenAddress)
+        const tmp = await this._getTransactionsBlockchainInner(scanData, source, this.tokenAddress)
+        return tmp
     }
 }
