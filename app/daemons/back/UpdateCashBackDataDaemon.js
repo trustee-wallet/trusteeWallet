@@ -77,12 +77,6 @@ class UpdateCashBackDataDaemon {
             return
         }
 
-        if (!asked) {
-            if (config.debug.appErrors) {
-                console.log(new Date().toISOString() + ' UpdateCashBackDataDaemon loaded proxy')
-            }
-        }
-
         try {
             Log.daemon('UpdateCashBackDataDaemon result ', data)
             data.time = new Date().getTime()

@@ -66,11 +66,14 @@ export default class SolScannerProcessor {
      * @param  {string} scanData.account.address
      * @return {Promise<[UnifiedTransaction]>}
      * https://docs.solana.com/developing/clients/jsonrpc-api#getsignaturesforaddress
-     * curl https://api.mainnet-beta.solana.com  -X POST -H "Content-Type: application/json" -d '{'jsonrpc": "2.0","id": 1,"method": "getConfirmedSignaturesForAddress2","params": ["9mnBdsuL1x24HbU4oeNDBAYVAGg2vVndkRAc18kPNqCJ",{"limit': 1}]}'
      */
     async getTransactionsBlockchain(scanData, source) {
+        return this._getTransactionsBlockchainInner(scanData, source, this.tokenAddress)
+    }
+
+    async _getTransactionsBlockchainInner(scanData, source, tokenAddress) {
         const address = scanData.account.address.trim()
-        const lastHashVar = address + this.tokenAddress
+        const lastHashVar = address + tokenAddress
         this._cleanCache()
         try {
             if (typeof CACHE_FROM_DB[lastHashVar] === 'undefined') {
@@ -80,11 +83,11 @@ export default class SolScannerProcessor {
             const data = {
                 'jsonrpc': '2.0',
                 'id': 1,
-                'method': 'getConfirmedSignaturesForAddress2',
+                'method': 'getSignaturesForAddress',
                 'params': [
                     address,
                     {
-                        'limit': 100
+                        'limit': 2
                     }
                 ]
             }
@@ -156,6 +159,9 @@ export default class SolScannerProcessor {
     }
 
     async _unifyTransaction(address, transaction) {
+        return this._unifyTransactionInner(address, transaction, this.tokenAddress)
+    }
+    async _unifyTransactionInner(address, transaction, tokenAddress) {
 
         const data = {
             'jsonrpc': '2.0',
@@ -198,15 +204,15 @@ export default class SolScannerProcessor {
         const indexedCreated = {}
         const indexedAssociated = {}
 
-        if (this.tokenAddress) {
+        if (tokenAddress) {
             for (const tmp of additional.meta.preTokenBalances) {
-                if (tmp.mint !== this.tokenAddress) continue
+                if (tmp.mint !== tokenAddress) continue
                 const realIndex = tmp.accountIndex
                 indexedPre[realIndex] = tmp.uiTokenAmount.amount
             }
 
             for (const tmp of additional.meta.postTokenBalances) {
-                if (tmp.mint !== this.tokenAddress) continue
+                if (tmp.mint !== tokenAddress) continue
                 const realIndex = tmp.accountIndex
                 indexedPost[realIndex] = tmp.uiTokenAmount.amount
             }
@@ -221,7 +227,7 @@ export default class SolScannerProcessor {
                 if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
                 const sourceAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
                     tmpAddress.pubkey,
-                    this.tokenAddress
+                    tokenAddress
                 )
                 indexedAssociated[sourceAssociatedTokenAddress] = tmpAddress
             }
@@ -238,7 +244,7 @@ export default class SolScannerProcessor {
             if (typeof indexedAssociated[tmpAddress.pubkey] !== 'undefined') {
                 tmpAddress = indexedAssociated[tmpAddress.pubkey]
             }
-            if (this.tokenAddress) {
+            if (tokenAddress) {
                 const to = typeof indexedPost[i] !== 'undefined' ? indexedPost[i] : 0
                 const from = typeof indexedPre[i] !== 'undefined' ? indexedPre[i] : 0
                 tmpAmount = BlocksoftUtils.diff(to, from).toString()
