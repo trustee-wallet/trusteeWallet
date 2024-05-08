@@ -793,7 +793,7 @@ export default class EthTransferProcessor extends EthBasic implements BlocksoftB
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
-        return this.sendTx(data, privateData, uiData)
+        return this._sendTxInner(data, privateData, uiData)
     }
 
     async _sendTxInner(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
