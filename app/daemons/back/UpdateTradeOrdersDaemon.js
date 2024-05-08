@@ -140,12 +140,7 @@ class UpdateTradeOrdersDaemon {
         try {
 
             let res = false
-            let asked = false
             if (!dataUpdate) {
-                if (config.debug.appErrors) {
-                    console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loading new')
-                }
-                asked = true
                 res = await ApiProxy.getAll({ source: 'UpdateTradeOrdersDaemon.updateTradeOrders' })
                 if (config.debug.appErrors) {
                     console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loaded new finished')
@@ -168,12 +163,6 @@ class UpdateTradeOrdersDaemon {
 
                 if (typeof tmpTradeOrders === 'undefined' || !tmpTradeOrders || !tmpTradeOrders.length) {
                     return false
-                }
-
-                if (!asked) {
-                    if (config.debug.appErrors) {
-                        console.log(new Date().toISOString() + ' UpdateTradeOrdersDaemon loaded proxy')
-                    }
                 }
 
                 let item
