@@ -34,17 +34,12 @@ class UpdateCardsDaemon {
 
         Log.daemon('UpdateCardsDaemon called')
 
-        let asked = false
         if (!dataUpdate) {
             const authHash = await settingsActions.getSelectedWallet('UpdateCardsDaemon')
             if (!authHash) {
                 Log.daemon('UpdateCardsDaemon skipped as no auth')
                 return false
             }
-            if (config.debug.appErrors) {
-                console.log(new Date().toISOString() + ' UpdateCardsDaemon loading new')
-            }
-            asked = true
             try {
                 dataUpdate = await ApiProxy.getAll({ ...params, source: 'UpdateCardsDaemon.updateCards' })
             } catch (e) {
@@ -60,11 +55,6 @@ class UpdateCardsDaemon {
         }
 
         if (typeof dataUpdate.forCardsAll !== 'undefined' && dataUpdate.forCardsAll) {
-            if (!asked) {
-                if (config.debug.appErrors) {
-                    console.log(new Date().toISOString() + ' UpdateCardsDaemon loaded proxy forCardsAll')
-                }
-            }
             try {
                 const saved = await cardDS.getCards()
                 const cardsSaved = {}
@@ -146,9 +136,6 @@ class UpdateCardsDaemon {
                 return false
             }
         } else if (typeof dataUpdate.forCardsOk !== 'undefined' && dataUpdate.forCardsOk) {
-            if (!asked) {
-                console.log(new Date().toISOString() + ' UpdateCardsDaemon loaded proxy forCardsOk', JSON.stringify(params))
-            }
             try {
                 for (const number in dataUpdate.forCardsOk) {
                     const dataOne = dataUpdate.forCardsOk[number]
