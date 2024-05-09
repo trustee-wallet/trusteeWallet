@@ -87,21 +87,21 @@ class SellCodeScreen extends PureComponent {
     }
 
     handleStartAnimation = () => {
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(this.state.progress, {
-                    toValue: 1,
-                    duration: 5000
-                }),
-                Animated.timing(this.state.progress, {
-                    toValue: 0,
-                    duration: 5000
-                })
-            ]),
-            {
-                iterations: 50
-            }
-        ).start()
+        // Animated.loop(
+        //     Animated.sequence([
+        //         Animated.timing(this.state.progress, {
+        //             toValue: 1,
+        //             duration: 5000
+        //         }),
+        //         Animated.timing(this.state.progress, {
+        //             toValue: 0,
+        //             duration: 5000
+        //         })
+        //     ]),
+        //     {
+        //         iterations: 50
+        //     }
+        // ).start()
     }
 
     handleWebViewNavigationStateChange = (navState) => {
@@ -217,17 +217,21 @@ class SellCodeScreen extends PureComponent {
                 leftAction={this.backAction}
             >
                 <View style={styles.wrapper__content}>
-                    {
-                        status !== 'SUCCESS' ?
-                            <View style={styles.img}>
-                                <LottieView style={{
+                    {status !== 'SUCCESS' ? (
+                        <View style={styles.img}>
+                            <LottieView
+                                style={{
                                     width: 200,
                                     height: 200,
                                     marginTop: -50
-                                }} source={require('@assets/jsons/animations/loaderBlue.json')}
-                                    progress={this.state.progress} />
-                            </View> : null
-                    }
+                                }}
+                                source={require('@assets/jsons/animations/loaderBlue.json')}
+                                // progress={this.state.progress}
+                                autoPlay
+                                speed={4}
+                            />
+                        </View>
+                    ) : null}
                     <WebView
                         ref={r => (this.webref = r)}
                         javaScriptEnabled={true}
