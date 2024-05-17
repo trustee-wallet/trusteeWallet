@@ -412,7 +412,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 if (autoDiff.lessThanZero()) {
                     recountWithFee = autoFeeLimit.toString()
                 }
-                const res = await this._getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, additionalData, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                const res = await this._getInputsOutputsInner(newData, unspents, { feeForAll: recountWithFee }, additionalData, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
                 if (res.msg.indexOf('RECHECK') === -1) {
                     return res
                 }
@@ -426,7 +426,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                         console.log('tmp2', tmp2)
                     } else {
                         newData.amount = tmp2.get()
-                        return this._getInputsOutputs(newData, unspents, feeToCount, additionalData, subtitle + '  notEnough3 ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                        return this._getInputsOutputsInner(newData, unspents, feeToCount, additionalData, subtitle + '  notEnough3 ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
                     }
                 } else {
                     // @ts-ignore

@@ -84,7 +84,12 @@ export default class BtcTxInputsOutputs extends DogeTxInputsOutputs implements B
             }
 
         }
-        const res = await this._getInputsOutputsInner(data, unspents, feeToCount, additionalData, subtitle + ' btced')
+        let res
+        try {
+            res = await this._getInputsOutputsInner(data, unspents, feeToCount, additionalData, subtitle + ' btced')
+        } catch (e) {
+            throw new Error(e.message + ' BTC while this._getInputsOutputsInner')
+        }
 
         if (this._settings.currencyCode !== 'BTC') {
             return res
