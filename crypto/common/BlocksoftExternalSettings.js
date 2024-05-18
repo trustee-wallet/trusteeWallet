@@ -45,6 +45,8 @@ const CACHE = {
     'BNB_SMART_SEND_RAW_SERVER' : 'https://proxy.trustee.deals/bsc/sendTx', // 'https://bsc.meowrpc.com',
     'BNB_SMART_PRICE' : 10000000000,
     'BNB_GAS_LIMIT' : 620000,
+    'BNB_MIN_GAS_LIMIT': 77000,
+    'BNB_MIN_GAS_ERC20': 77000,
     'ETH_MIN_GAS_ERC20' : 73000,
     'ETH_MIN_GAS_LIMIT' : 42000,
     'ETH_TESTNET_PRICE' : 6710000000,
