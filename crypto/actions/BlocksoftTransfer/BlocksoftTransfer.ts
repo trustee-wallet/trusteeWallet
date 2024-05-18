@@ -37,8 +37,16 @@ export namespace BlocksoftTransfer {
         data.isTransferAll = true
         let transferAllCount
         try {
+            if (config.debug.cryptoErrors) {
+                console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance started ${data.addressFrom} `)
+            }
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance started ${data.addressFrom} `)
-            const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
+            let processor
+            try {
+                processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
+            } catch (e) {
+                throw new Error(e.message + ' while BlocksoftTransferDispatcher.getTransferProcessor')
+            }
             const additionalDataTmp = { ...additionalData }
             let privateData = {} as BlocksoftBlockchainTypes.TransferPrivateData
             if (processor.needPrivateForFee()) {
@@ -46,7 +54,9 @@ export namespace BlocksoftTransfer {
             }
             additionalDataTmp.mnemonic = '***'
             transferAllCount = await (BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)).getTransferAllBalance(data, privateData, additionalDataTmp)
-
+            if (config.debug.cryptoErrors) {
+                console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance got ${data.addressFrom} result is ok`)
+            }
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance got ${data.addressFrom} result is ok`)
             if (config.debug.sendLogs) {
                 console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance result`, JSON.parse(JSON.stringify(transferAllCount)))
