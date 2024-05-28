@@ -1108,11 +1108,11 @@
       },
       "TRX_20": {
         "title": "Please, pay attention!",
-        "description": "{currencySymbol} token runs on the Tron blockchain and requires a positive TRX balance in order to pay the network fee. While your wallet has zero TRX balance. To activate the address, top up your TRX balance with any amount."
+        "description": "{currencySymbol} token runs on the Tron blockchain and requires a positive TRX balance in order to pay the network fee. Currently, your wallet has a zero TRX balance. To activate the address, top up your TRX balance with any amount."
       },
       "TOKEN": {
         "title": "Please, pay attention!",
-        "description": "{currencySymbol} token runs on the {parentBlockchain} blockchain and requires a positive {parentCurrency} balance in order to pay the network fee. While your wallet has zero {parentCurrency} balance"
+        "description": "{currencySymbol} token runs on the {parentBlockchain} blockchain and requires a positive {parentCurrency} balance in order to pay the network fee. Currently, your wallet has a zero {parentCurrency} balance"
       }
     },
     "tokenNotAdded": {
