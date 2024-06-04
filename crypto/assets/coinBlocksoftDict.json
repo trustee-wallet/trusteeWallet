@@ -1938,7 +1938,7 @@
 		"decimals": 6,
 		"tokenBlockchain": "FTM",
 		"tokenAddress": "0x04068da6c83afcfa0e13ba15a6696662335d5b75",
-		"currencyExplorerLink": "https://ftmscan.com/token/0x04068da6c83afcfa0e13ba15a6696662335d5b75?a=",
+		"currencyExplorerLink": "https://ftmscan.com/token/0x04068da6c83afcfa0e13ba15a6696662335d5b75?a="
 	},
 	"SOL_USDC": {
 		"currencyType": "token",
