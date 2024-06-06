@@ -2683,7 +2683,6 @@
 		"currencyExplorerTxLink": "https://etherscan.io/tx/",
 		"canBeDestination": 1
 	},
-
 	"ETH_UAHG": {
 		"currencyType": "token",
 		"currencyName": "UAHg ERC20",
@@ -2698,7 +2697,6 @@
 		"currencyExplorerLink": "https://etherscan.io/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a=",
 		"currencyExplorerTxLink": "https://etherscan.io/tx/"
 	},
-
 	"BNB_SMART_UAHG": {
 		"currencyType": "token",
 		"currencyName": "UAHg BEP20",
@@ -2711,5 +2709,18 @@
 		"decimals": 6,
 		"tokenBlockchain": "BNB",
 		"currencyExplorerLink": "https://bscscan.com/token/0xd1e0e39bd1758abe0865d5289895a9197c6cd549?a="
+	},	
+	"MATIC_UAHT": {
+		"currencyType": "token",
+		"currencyName": "UAHT",
+		"currencyCode": "MATIC_UAHT",
+		"currencySymbol": "UAHT",
+		"ratesCurrencyCode": "UAHT",
+		"extendsProcessor": "MATIC_USDT",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0x0d9447e16072b636b4a1e8f2b8c644e58f3eaa6a",
+		"decimals": 2,
+		"tokenBlockchain": "MATIC",
+		"currencyExplorerLink": "https://polygonscan.com/token/0x0d9447e16072b636b4a1e8f2b8c644e58f3eaa6a?a="
 	}
 }
