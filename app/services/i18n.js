@@ -21,13 +21,13 @@ const locales = getLocales()
 if (Array.isArray(locales)) {
     CACHE_SELECTED_LANGUAGE = locales[0].languageTag
 } else {
-    CACHE_SELECTED_LANGUAGE = 'en-US'
+    CACHE_SELECTED_LANGUAGE = 'en'
 }
 
 i18n.use(initReactI18next).init({
     compatibilityJSON: 'v3',
     lng: CACHE_SELECTED_LANGUAGE,
-    fallbackLng: 'en-US',
+    fallbackLng: 'en',
     resources: {
         en: { translation: en },
         ru: { translation: ru },
