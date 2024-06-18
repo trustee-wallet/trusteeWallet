@@ -9,6 +9,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, FlatL
 import LottieView from 'lottie-react-native'
 import { TabView } from 'react-native-tab-view'
 import Animated, { useAnimatedProps, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated'
+import { useRoute } from '@react-navigation/core'
 
 import NavStore from '@app/components/navigation/NavStore'
 import TwoButtons from '@app/components/elements/new/buttons/TwoButtons'
@@ -65,6 +66,8 @@ const BackupStep0Screen = (props) => {
     const animationValue = useSharedValue(0)
     const progress = useSharedValue(0)
 
+    const { params } = useRoute()
+
     const { flowType, mnemonicLength, source, walletNumber } = createWalletStore
     const { walletHash } = selectedWalletData
 
@@ -92,7 +95,7 @@ const BackupStep0Screen = (props) => {
         try {
             Log.log('WalletBackup.BackupStep0Screen.componentDidMount init')
 
-            const flowSubtype = NavStore.getParamWrapper(this, 'flowSubtype', 'createFirst')
+            const flowSubtype = params?.flowSubtype || 'createFirst'
 
             let walletMnemonic = ''
             let mnemonic = ''
