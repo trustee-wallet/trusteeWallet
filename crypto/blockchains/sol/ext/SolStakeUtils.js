@@ -159,7 +159,9 @@ export default {
                     }
                     if (count > 1) {
                         if (typeof CACHE_STAKED[address].rewards !== 'undefined') {
-                            CACHE_STAKED[address].rewards.amount = 0;
+                            if (!CACHE_STAKED[address].rewards || typeof CACHE_STAKED[address].rewards.amount === 'undefined') {
+                                CACHE_STAKED[address].rewards = {amount: 0}
+                            }
                         }
                         for (let tmp of res.data.result) {
                             if (tmp && typeof tmp.amount !== 'undefined' && tmp.amount * 1 > 0) {

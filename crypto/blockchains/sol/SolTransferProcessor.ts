@@ -237,7 +237,10 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             const sendRes = await SolUtils.sendTransaction(signedData)
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount, sendRes)
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' sendRes ' + sendRes)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' sendRes ' + sendRes)
             if (typeof sendRes === 'undefined' || !sendRes || typeof sendRes === 'undefined') {
                 throw new Error('SYSTEM_ERROR')
             }

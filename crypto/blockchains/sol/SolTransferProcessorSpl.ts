@@ -186,7 +186,7 @@ export default class SolTransferProcessorSpl extends SolTransferProcessor implem
             const sendRes = await SolUtils.sendTransaction(signedData)
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessorSpl.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount, sendRes)
             if (typeof sendRes === 'undefined' || !sendRes || typeof sendRes === 'undefined') {
-                throw new Error('SYSTEM_ERROR')
+                throw new Error('SYSTEM_ERROR_2')
             }
             result.transactionHash = sendRes
         } catch (e) {
