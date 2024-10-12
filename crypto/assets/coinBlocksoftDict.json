@@ -1896,7 +1896,7 @@
 	},
 	"MATIC_USDC": {
 		"currencyType": "token",
-		"currencyName": "USDC Matic (Polygon)",
+		"currencyName": "USDC Matic Old (Polygon)",
 		"currencyCode": "MATIC_USDC",
 		"currencySymbol": "USDC",
 		"ratesCurrencyCode": "USDC",
@@ -1906,6 +1906,19 @@
 		"decimals": 6,
 		"tokenBlockchain": "MATIC",
 		"currencyExplorerLink": "https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174?a="
+	},
+	"MATIC_USDC_NEW": {
+		"currencyType": "token",
+		"currencyName": "USDC Matic New (Polygon)",
+		"currencyCode": "MATIC_USDC_NEW",
+		"currencySymbol": "USDC",
+		"ratesCurrencyCode": "USDC",
+		"extendsProcessor": "MATIC_USDT",
+		"addressUiChecker": "ETH",
+		"tokenAddress": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+		"decimals": 6,
+		"tokenBlockchain": "MATIC",
+		"currencyExplorerLink": "https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359?a="
 	},
 	"FTM_USDC": {
 		"currencyType": "token",

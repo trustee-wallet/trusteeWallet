@@ -572,6 +572,7 @@ export default class CurrencyIcon extends PureComponent {
             case 'TRX_USDC':
             case 'SOL_USDC':
             case 'MATIC_USDC':
+            case 'MATIC_USDC_NEW':
             case 'FTM_USDC':
             case 'WAVES_USDC':
                 return (

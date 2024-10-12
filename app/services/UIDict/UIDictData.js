@@ -146,6 +146,12 @@ export default {
             darkColor: '#2FB9B8'
         }
     },
+    'MATIC_USDC_NEW': {
+        colors: {
+            mainColor: '#2A7FDB',
+            darkColor: '#2FB9B8'
+        }
+    },
     'BSV': {
         colors: {
             mainColor: '#C8102E',
