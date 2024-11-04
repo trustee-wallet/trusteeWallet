@@ -102,7 +102,7 @@ export default class SolScannerProcessor {
             if (CACHE_FROM_DB[lastHashVar] && typeof CACHE_FROM_DB[lastHashVar]['last_hash'] !== 'undefined') {
                 data.params[1].until = CACHE_FROM_DB[lastHashVar]['last_hash']
                 until = data.params[1].until
-            } else if (CACHE_LAST_BLOCK) {
+            } else if (CACHE_LAST_BLOCK && CACHE_LAST_BLOCK > 1000000000) {
                 data.params[1].minContextSlot = CACHE_LAST_BLOCK - 1000000000
                 until = 'block ' + data.params[1].minContextSlot
             }
