@@ -163,7 +163,7 @@ export default {
         const getRecentBlockhashData = {
             'jsonrpc': '2.0',
             'id': 1,
-            'method': 'getRecentBlockhash'
+            'method': 'getLatestBlockhash'
         }
         const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
         const getRecentBlockhashRes = await BlocksoftAxios._request(apiPath, 'POST', getRecentBlockhashData)
