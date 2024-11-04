@@ -39,7 +39,11 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     constructor(settings: { network: string; currencyCode: string }) {
         this._settings = settings
-        this._provider = new XlmTxSendProvider()
+        try {
+            this._provider = new XlmTxSendProvider()
+        } catch (e1) {
+            BlocksoftCryptoLog.log(`${settings.currencyCode} XlmTransferProcessor.constructor error ` + e1.message)
+        }
     }
 
     needPrivateForFee(): boolean {
@@ -78,19 +82,20 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
             if (config.debug.cryptoErrors) {
                 console.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')
             }
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')
             return result
         }
 
         if (config.debug.cryptoErrors) {
             console.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
         }
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
 
         let getFee
         try {
             getFee = await this._provider.getFee()
         } catch (e) {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' _provider.getFee error ' + e.message)
             throw new Error(e.message + ' while _provider.getFee')
         }
         if (!getFee) {
