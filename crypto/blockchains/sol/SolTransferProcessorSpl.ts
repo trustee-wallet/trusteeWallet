@@ -105,7 +105,7 @@ export default class SolTransferProcessorSpl extends SolTransferProcessor implem
         } else {
 
             if (!destinationAccountInfo || typeof destinationAccountInfo.lamports === 'undefined' || destinationAccountInfo.lamports * 1 === 0) {
-                throw new Error('SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE')
+                // do nothing throw new Error('SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE')
             }
 
             const destinationAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
