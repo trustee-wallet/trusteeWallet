@@ -85,7 +85,7 @@ export default class EthScannerProcessor extends EthBasic {
             throw new Error(this._settings.currencyCode + ' EthScannerProcessor._get empty trezorServer')
         }
 
-        if (!this._trezorServer) {
+        if (!this._trezorServer && this._trezorServerCode !== 'MATIC_TREZOR_SERVER') {
             return false
         }
 
@@ -95,10 +95,15 @@ export default class EthScannerProcessor extends EthBasic {
             return CACHE[this._mainCurrencyCode][address]
         }
 
-        let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs'
+        let link = this._trezorServer + '/api/v2/address/' + address + '?details=txs&pageSize=40'
+        if (this._trezorServerCode === 'MATIC_TREZOR_SERVER') {
+            link = 'https://proxy.trustee.deals/matic/getTxs?address=' + address
+        }
         let res = await BlocksoftAxios.getWithoutBraking(link)
-
         if (!res || !res.data) {
+            if (this._trezorServerCode === 'MATIC_TREZOR_SERVER') {
+                return false
+            }
             BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
             this._trezorServer = await BlocksoftExternalSettings.getTrezorServer(this._trezorServerCode, this._settings.currencyCode + ' ETH.Scanner._get')
             if (typeof this._trezorServer === 'undefined') {
@@ -111,6 +116,9 @@ export default class EthScannerProcessor extends EthBasic {
                 BlocksoftExternalSettings.setTrezorServerInvalid(this._trezorServerCode, this._trezorServer)
                 return false
             }
+        }
+        if (typeof res.data.data !== 'undefined') {
+            res.data = res.data.data
         }
 
         if (typeof res.data.balance === 'undefined') {

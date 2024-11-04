@@ -87,6 +87,7 @@ const CACHE = {
     'MATIC_SERVER' : 'https://polygon-rpc.com',
     'MATIC_PRICE' : 1000000000,
     'MATIC_GAS_LIMIT' : 620000,
+    'MATIC_TREZOR_SERVER': ['https://pol1.trezor.io'],
     'FTM_SERVER' : 'https://rpc.ftm.tools',
     'FTM_PRICE' : 400000000000,
     'FTM_GAS_LIMIT' : 620000,

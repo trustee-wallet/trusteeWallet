@@ -199,13 +199,13 @@ export default class EthBasic {
             this._mainChainId = 16718 // 0x414e
         } else if (settings.currencyCode === 'MATIC' || (typeof settings.tokenBlockchain !== 'undefined' && settings.tokenBlockchain === 'MATIC')) {
 
-            this._etherscanSuffix = ''
-            this._etherscanApiPath = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlist&apikey=YourApiKeyToken`
-            this._etherscanApiPathInternal = `https://api.polygonscan.com/api?module=account&sort=desc&action=txlistinternal&apikey=YourApiKeyToken`
-            this._etherscanApiPathForFee = `https://api.polygonscan.com/api?module=proxy&action=eth_gasPrice&apikey=YourApiKeyToken`
+            this._etherscanSuffix = false
+            this._etherscanApiPath = false
+            this._etherscanApiPathInternal = false
+            this._etherscanApiPathForFee = false
 
-            this._trezorServer = false
-            this._trezorServerCode = false
+            this._trezorServer = 'to_load'
+            this._trezorServerCode = 'MATIC_TREZOR_SERVER'
 
             this._mainCurrencyCode = 'MATIC'
             this._mainTokenType = 'MATIC_ERC_20'
