@@ -28,7 +28,7 @@ export default class BnbSmartTransferProcessorErc20 extends EthTransferProcessor
                 }
             }
         }
-        const result = await super.getFeeRate(data, privateData, additionalData)
+        const result = await this._getFeeRateInner(data, privateData, additionalData)
         result.shouldShowFees = true
         return result
     }

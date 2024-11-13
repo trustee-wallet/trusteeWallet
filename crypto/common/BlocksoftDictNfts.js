@@ -19,6 +19,7 @@ const Nfts = [
         tokenBlockchainLongTitle: 'BNB Smart Chain',
         tokenBlockchainCode: 'BNB_SMART',
         currencyType: 'NFT',
+        apiType: 'OPENSEA',
         explorerLink: 'https://bscscan.com/token/',
         showOnHome: false
     },
@@ -30,6 +31,7 @@ const Nfts = [
         tokenBlockchain: 'MATIC',
         tokenBlockchainCode: 'MATIC',
         currencyType: 'NFT',
+        apiType: 'OPENSEA',
         explorerLink: 'https://polygonscan.com/token/',
         showOnHome: false
     },
@@ -43,7 +45,7 @@ const Nfts = [
         explorerLink: 'https://davinci.gallery/view/',
         showOnHome: false
     },
-    {
+    /*{
         currencyCode: 'NFT_ROPSTEN',
         currencyName: 'Ropsten NFT',
         currencySymbol: 'NFT',
@@ -52,18 +54,18 @@ const Nfts = [
         currencyType: 'NFT',
         explorerLink: 'https://ropsten.explorerLink.io/token/',
         showOnHome: false
-    },
-    {
+    },*/
+    /*{
         currencyCode: 'NFT_RINKEBY',
         currencyName: 'Rinkeby NFT',
         currencySymbol: 'NFT',
         tokenBlockchain: 'RINKEBY',
         tokenBlockchainCode: 'ETH_RINKEBY',
         currencyType: 'NFT',
-        apiType: 'OPENSEA',
+        apiType: 'OPENSEA_STOP_SUPPORT',
         explorerLink: 'https://rinkeby.explorerLink.io/token/',
         showOnHome: false
-    }
+    }*/
     /*
     {
         currencyCode: 'NFT_TRON',

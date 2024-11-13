@@ -1,0 +1,41 @@
+diff --git a/node_modules/react-native-touch-id/TouchID.m b/node_modules/react-native-touch-id/TouchID.m
+index 6bae6c9..12ddfb3 100644
+--- a/node_modules/react-native-touch-id/TouchID.m
++++ b/node_modules/react-native-touch-id/TouchID.m
+@@ -152,19 +152,25 @@ RCT_EXPORT_METHOD(authenticate: (NSString *)reason
+ 
+ - (NSString *)getBiometryType:(LAContext *)context
+ {
+-    if (@available(iOS 11, *)) {
+-        if (context.biometryType == LABiometryTypeFaceID) {
+-            return @"FaceID";
+-        }
+-        else if (context.biometryType == LABiometryTypeTouchID) {
+-            return @"TouchID";
+-        }
+-        else if (context.biometryType == LABiometryNone) {
+-            return @"None";
++    BOOL hasTouchID = NO;
++    NSError *error = nil;
++    hasTouchID = [context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&error];
++
++    if (hasTouchID) {
++        if (@available(iOS 11, *)) {
++            if (context.biometryType == LABiometryTypeFaceID) {
++                return @"FaceID";
++            }
++            else if (context.biometryType == LABiometryTypeTouchID) {
++                return @"TouchID";
++            }
++            else if (context.biometryType == LABiometryNone) {
++                return @"None";
++            }
+         }
++        return @"TouchID";
+     } 
+-
+-    return @"TouchID";
++    return @"None";
+ }
+ 
+ @end

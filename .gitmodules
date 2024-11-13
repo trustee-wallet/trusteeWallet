@@ -1,3 +1,0 @@
-[submodule "__tests__"]
-	path = __tests__
-	url = ../../Trustee/wallettests.git

@@ -5,6 +5,7 @@
  */
 import 'react-native'
 import * as Keychain from 'react-native-keychain'
+import { STORAGE_TYPE } from 'react-native-keychain'
 
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import config from '@app/config/config'
@@ -60,6 +61,21 @@ export class BlocksoftKeysStorage {
      * @private
      */
     async _getKeyValue(key) {
+        /*
+        try {
+            console.log('SAVED ' + JSON.stringify(await Keychain.getInternetCredentials('TEST_KSU')))
+        } catch (e) {
+            console.log(`
+
+
+
+!!! getString TEST_KSU value error ` + e.message + `
+
+            `)
+            throw e
+        }
+        */
+
         const res = await Keychain.getInternetCredentials(this._serviceName + '_' + key, {
             authenticationPrompt: {
                 title: 'Fingerprint title',

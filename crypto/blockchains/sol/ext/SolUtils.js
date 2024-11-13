@@ -4,8 +4,8 @@
 import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
-import { PublicKey } from '@solana/web3.js/src/index'
-import { Account } from '@solana/web3.js/src/account'
+import { PublicKey } from '@solana/web3.js'
+import { Account } from '@solana/web3.js'
 
 import config from '@app/config/config'
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
@@ -56,7 +56,7 @@ export default {
             if (config.debug.cryptoErrors) {
                 console.log('SolUtils.findAssociatedTokenAddress ' + e.message)
             }
-            throw new Error('SYSTEM_ERROR')
+            throw new Error('SYSTEM_ERROR_1')
         }
     },
 
@@ -113,8 +113,16 @@ export default {
         const apiPath_2 = BlocksoftExternalSettings.getStatic('SOL_SERVER_2')
         let try_2 = false
         let sendRes
+        let errorRes = ''
         try {
             sendRes = await BlocksoftAxios._request(apiPath, 'POST', sendData)
+            if (config.debug.cryptoErrors) {
+                console.log(`
+                    
+                    SolUtils.sendTransaction
+                    ${raw}
+                    `, sendRes.data, sendRes.data.error.message)
+            }
             if (!sendRes || typeof sendRes.data === 'undefined') {
                 if (apiPath_2) {
                     try_2 = true
@@ -131,6 +139,7 @@ export default {
             }
         } catch (e) {
             try_2 = true
+            errorRes = e.message
         }
 
         if (try_2 && apiPath_2 && apiPath_2 !== apiPath) {
@@ -139,12 +148,12 @@ export default {
                 throw new Error('SERVER_RESPONSE_BAD_INTERNET')
             }
             if (typeof sendRes_2.data.error !== 'undefined' && typeof sendRes_2.data.error.message !== 'undefined') {
-                throw new Error(sendRes_2.data.error.message)
+                throw new Error('SYSTEM_ERROR ' + sendRes_2.data.error.message)
             }
             return sendRes_2.data.result
         }
 
-        return sendRes.data.result
+        return errorRes ? ('SYSTEM_ERROR ' + errorRes) : sendRes.data.result
     },
 
     /**
@@ -154,7 +163,7 @@ export default {
         const getRecentBlockhashData = {
             'jsonrpc': '2.0',
             'id': 1,
-            'method': 'getRecentBlockhash'
+            'method': 'getLatestBlockhash'
         }
         const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
         const getRecentBlockhashRes = await BlocksoftAxios._request(apiPath, 'POST', getRecentBlockhashData)

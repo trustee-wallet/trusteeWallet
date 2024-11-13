@@ -96,8 +96,8 @@ class NotificationsScreen extends React.PureComponent {
             if (notif.newsOpenedAt === null && !tabsThatHaveNoties.includes(notif.newsGroup)) tabsThatHaveNoties.push(notif.newsGroup)
         })
 
-        const filteredAlllowed = notifications.filter(notif => this.allowedNotifications.includes(notif.newsGroup))
-        filteredAlllowed.forEach((notification) => {
+        const filteredAllowed = notifications.filter(notif => this.allowedNotifications.includes(notif.newsGroup))
+        filteredAllowed.forEach((notification) => {
             const timestamp = Number(notification.newsCreated)
             if (!isNaN(timestamp) && timestamp !== 0) {
                 notification.receivedAtDay = moment(timestamp).startOf('day').calendar()
@@ -105,7 +105,7 @@ class NotificationsScreen extends React.PureComponent {
                 notification.receivedAtDay = null
             }
         })
-        const grouped = filteredAlllowed.reduce((grouped, notif) => {
+        const grouped = filteredAllowed?.reduce((grouped, notif) => {
             if (!grouped[notif.receivedAtDay]) grouped[notif.receivedAtDay] = []
             grouped[notif.receivedAtDay].push(notif)
             return grouped
@@ -231,7 +231,6 @@ class NotificationsScreen extends React.PureComponent {
                             tintColor={colors.common.refreshControlIndicator}
                             colors={[colors.common.refreshControlIndicator]}
                             progressBackgroundColor={colors.common.refreshControlBg}
-                            progressViewOffset={-20}
                         />
                     }
                     keyExtractor={notif => notif.id.toString()}

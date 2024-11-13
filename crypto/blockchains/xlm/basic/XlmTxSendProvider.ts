@@ -27,7 +27,11 @@ export class XlmTxSendProvider {
 
     constructor() {
         this._server = BlocksoftExternalSettings.getStatic('XLM_SERVER')
-        this._api = new StellarSdk.Server(this._server)
+        try {
+            this._api = new StellarSdk.Horizon.Server(this._server)
+        } catch (e) {
+            throw new Error(e.message + ' while new StellarSdk.Horizon.Server ' + this._server)
+        }
         CACHE_FEES_VALUE = BlocksoftExternalSettings.getStatic('XLM_SERVER_PRICE')
     }
 

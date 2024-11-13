@@ -379,7 +379,6 @@ class AllAddressesScreen extends PureComponent {
                             tintColor={colors.common.refreshControlIndicator}
                             colors={[colors.common.refreshControlIndicator]}
                             progressBackgroundColor={colors.common.refreshControlBg}
-                            progressViewOffset={-20}
                         />
                     }
                     onEndReachedThreshold={0.2}
@@ -397,7 +396,7 @@ class AllAddressesScreen extends PureComponent {
                     )}
                     renderItem={this.renderItem}
                     data={[1]}
-                    keyExtractor={index => index}
+                    keyExtractor={(_, index) => index}
                 />
             </ScreenWrapper>
         )

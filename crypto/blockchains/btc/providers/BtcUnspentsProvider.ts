@@ -113,7 +113,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
         const resPub = await Database.query(sqlPub)
         if (resPub && resPub.array && resPub.array.length > 0) {
             for (const row of resPub.array) {
-                const unspents = await super.getUnspents(row.walletPub)
+                const unspents = await this._getUnspentsInner(row.walletPub)
                 if (unspents) {
                     for (const unspent of unspents) {
                         totalUnspents.push(unspent)
@@ -129,7 +129,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             const resAdditional = await Database.query(sqlAdditional)
             if (resAdditional && resAdditional.array && resAdditional.array.length > 0) {
                 for (const row of resAdditional.array) {
-                    const unspents = await super.getUnspents(row.address)
+                    const unspents = await this._getUnspentsInner(row.address)
                     if (unspents) {
                         for (const unspent of unspents) {
                             unspent.address = row.address
@@ -177,7 +177,7 @@ export default class BtcUnspentsProvider extends DogeUnspentsProvider implements
             const res = await Database.query(sql)
             for (const row of res.array) {
                 const walletHash = row.walletHash
-                const unspents = await super.getUnspents(row.address)
+                const unspents = await this._getUnspentsInner(row.address)
                 // @ts-ignore
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + '/' + mainCurrencyCode + ' BtcUnspentsProvider.getUnspents started CACHE_FOR_CHANGE ' + address + ' ' + row.address + ' walletHash ' + walletHash)
                 if (typeof CACHE_FOR_CHANGE[walletHash] === 'undefined') {

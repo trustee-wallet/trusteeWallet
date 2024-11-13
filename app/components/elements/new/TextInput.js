@@ -3,7 +3,8 @@
  */
 
 import React from 'react'
-import { Text, TextInput, View, StyleSheet, Animated, Keyboard, Clipboard } from 'react-native'
+import { Text, TextInput, View, StyleSheet, Animated, Keyboard } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 
 import QR from 'react-native-vector-icons/FontAwesome'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'

@@ -72,7 +72,7 @@ class UpdateAccountBalanceAndTransactionsHD {
                 for (key in this._logNews) {
                     await appNewsDS.saveAppNews({
                         onlyOne: true, walletHash: key, currencyCode: 'BTC', newsGroup: 'ONE_BY_ONE_SCANNER', newsName: 'HD_SCANNED_LAST_TIME',
-                        newsJson: { log: this._logNews[key].substr(0, 50) + '...' }
+                        newsJson: { log: this._logNews[key].substr(0, 50) + '...' },
                     })
                 }
             }

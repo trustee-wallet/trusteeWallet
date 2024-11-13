@@ -9,6 +9,8 @@ import BlocksoftAxios from '../../../common/BlocksoftAxios'
 import BlocksoftExternalSettings from '../../../common/BlocksoftExternalSettings'
 import DogeRawDS from '../stores/DogeRawDS'
 
+import config from '@app/config/config'
+
 const PROXY_UNSPENTS = 'https://proxy.trustee.deals/btc/getUnspents'
 
 export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.UnspentsProvider {
@@ -25,6 +27,9 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
     }
 
     async getUnspents(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
+        return this._getUnspentsInner(address)
+    }
+    async _getUnspentsInner(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getUnspents started ' + address)
 
@@ -98,6 +103,9 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
             // @ts-ignore
             if (!res || typeof res.data === 'undefined' || !res.data) {
                 BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx no tx ' + tx)
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx no tx ' + tx)
+                }
                 throw new Error('SERVER_RESPONSE_BAD_TX_TO_REPLACE')
             }
             // @ts-ignore
@@ -151,7 +159,10 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
                             for (tmp of res2.data.vout) {
                                 if (typeof tmp.addresses !== 'undefined' && tmp.addresses) {
                                     if (typeof tmp.addresses[0] !== 'undefined') {
-                                        const found = this._isMyAddress(tmp.addresses[0], address, walletHash)
+                                        let found = this._isMyAddress(tmp.addresses[0], address, walletHash)
+                                        if (tmp.addresses[0].substr(0, 1) === '3') {
+                                            found = tmp.addresses[0]
+                                        }
                                         if (found !== '') {
                                             unspent.vout = tmp.n
                                             unspent.address = found
@@ -209,6 +220,9 @@ export default class DogeUnspentsProvider implements BlocksoftBlockchainTypes.Un
         }
 
         if (!txIn) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' DogeUnspentsProvider.getTx found ' + tx + ' no txId')
+            }
             throw new Error('SERVER_RESPONSE_BAD_TX_TO_REPLACE')
         }
 

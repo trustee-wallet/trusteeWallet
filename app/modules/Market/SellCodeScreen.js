@@ -13,7 +13,7 @@ import _ from 'lodash'
 
 import queryString from 'query-string'
 
-import { WebView } from 'react-native-webview'
+import WebView from 'react-native-webview'
 import NavStore from '@app/components/navigation/NavStore'
 
 import Log from '@app/services/Log/Log'
@@ -61,13 +61,13 @@ class SellCodeScreen extends PureComponent {
         let item
         for (item of prepare) {
             if (item !== '{')
-                prepare = prepare.substr(1)
+                prepare = prepare?.substr(1)
             else
                 break
         }
 
-        prepare = prepare.substr(1)
-        prepare = prepare.substring(0, prepare.length - 1)
+        prepare = prepare?.substr(1)
+        prepare = prepare?.substring(0, prepare.length - 1)
 
         if (type === 'GENERAL') {
             // eslint-disable-next-line no-new-func
@@ -87,21 +87,21 @@ class SellCodeScreen extends PureComponent {
     }
 
     handleStartAnimation = () => {
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(this.state.progress, {
-                    toValue: 1,
-                    duration: 5000
-                }),
-                Animated.timing(this.state.progress, {
-                    toValue: 0,
-                    duration: 5000
-                })
-            ]),
-            {
-                iterations: 50
-            }
-        ).start()
+        // Animated.loop(
+        //     Animated.sequence([
+        //         Animated.timing(this.state.progress, {
+        //             toValue: 1,
+        //             duration: 5000
+        //         }),
+        //         Animated.timing(this.state.progress, {
+        //             toValue: 0,
+        //             duration: 5000
+        //         })
+        //     ]),
+        //     {
+        //         iterations: 50
+        //     }
+        // ).start()
     }
 
     handleWebViewNavigationStateChange = (navState) => {
@@ -134,7 +134,7 @@ class SellCodeScreen extends PureComponent {
                 orderHash: data.orderHash,
                 orderId: data.orderHash,
                 outDestination: data.exchangeWayType === 'SELL'
-                    ? `${data.outDestination.substr(0, 2)}***${data.outDestination.substr(-4, 4)}`
+                    ? `${data.outDestination?.substr(0, 2)}***${data.outDestination?.substr(-4, 4)}`
                     : data.outDestination,
                 outTxHash: null,
                 payinUrl: null,
@@ -217,17 +217,21 @@ class SellCodeScreen extends PureComponent {
                 leftAction={this.backAction}
             >
                 <View style={styles.wrapper__content}>
-                    {
-                        status !== 'SUCCESS' ?
-                            <View style={styles.img}>
-                                <LottieView style={{
+                    {status !== 'SUCCESS' ? (
+                        <View style={styles.img}>
+                            <LottieView
+                                style={{
                                     width: 200,
                                     height: 200,
                                     marginTop: -50
-                                }} source={require('@assets/jsons/animations/loaderBlue.json')}
-                                    progress={this.state.progress} />
-                            </View> : null
-                    }
+                                }}
+                                source={require('@assets/jsons/animations/loaderBlue.json')}
+                                // progress={this.state.progress}
+                                autoPlay
+                                speed={4}
+                            />
+                        </View>
+                    ) : null}
                     <WebView
                         ref={r => (this.webref = r)}
                         javaScriptEnabled={true}

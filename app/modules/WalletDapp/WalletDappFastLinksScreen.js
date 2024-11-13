@@ -2,12 +2,7 @@
  * @version 1.0
  */
 import React, { PureComponent } from 'react'
-import {
-    StyleSheet,
-    ScrollView,
-    View,
-    ActivityIndicator
-} from 'react-native'
+import { StyleSheet, ScrollView, View, ActivityIndicator } from 'react-native'
 import { connect } from 'react-redux'
 import { FlatList } from 'react-native-gesture-handler'
 
@@ -27,10 +22,9 @@ import { getVisibleCurrencies } from '@app/appstores/Stores/Currency/selectors'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
 class WalletDappFastLinksScreen extends PureComponent {
-
     state = {
         selectedIndex: 0,
-        networks: [{ 'currencyCode': 'ALL', 'networkTitle': 'All' }],
+        networks: [{ currencyCode: 'ALL', networkTitle: 'All' }],
         dapps: [],
         localDapps: []
     }
@@ -47,9 +41,7 @@ class WalletDappFastLinksScreen extends PureComponent {
         NavStore.goNext('WalletDappWebViewScreen')
     }
 
-
     loadDapps = async () => {
-
         const localDapps = []
         const localNetworks = {}
         const indexedCurrencies = {}
@@ -77,7 +69,8 @@ class WalletDappFastLinksScreen extends PureComponent {
                     localNetworks[code] = 1
                     break
                 }
-                for (const code2 of item.dappCoins) { // some dapps shown only in special networks when some tokens are selected
+                for (const code2 of item.dappCoins) {
+                    // some dapps shown only in special networks when some tokens are selected
                     // uncomment to filter by chains/tokens if (typeof indexedCurrencies[code2] === 'undefined') continue
                     localDapps.push(item)
                     found = true
@@ -90,7 +83,7 @@ class WalletDappFastLinksScreen extends PureComponent {
             }
         }
 
-        const networks = [{ 'currencyCode': 'ALL', 'networkTitle': 'All' }]
+        const networks = [{ currencyCode: 'ALL', networkTitle: 'All' }]
         for (const code in localNetworks) {
             const item = extendDict[code]
             const networkTitle = typeof item.dappsListName !== 'undefined' ? item.dappsListName : item.blockchainName
@@ -101,7 +94,6 @@ class WalletDappFastLinksScreen extends PureComponent {
             dapps: localDapps,
             networks
         })
-
     }
 
     handleSelectIndex = async (selectedIndex) => {
@@ -110,10 +102,7 @@ class WalletDappFastLinksScreen extends PureComponent {
     }
 
     handleFilterDapps = async (index) => {
-        const {
-            networks,
-            dapps
-        } = this.state
+        const { networks, dapps } = this.state
 
         if (index === 0) {
             this.setState({
@@ -121,37 +110,23 @@ class WalletDappFastLinksScreen extends PureComponent {
             })
         } else {
             this.setState({
-                localDapps: dapps.filter(item => item.dappNetworks.includes(networks[index].currencyCode))
+                localDapps: dapps.filter((item) => item.dappNetworks.includes(networks[index].currencyCode))
             })
         }
     }
 
     renderListItem = ({ item, index }) => {
-
         const last = this.state.localDapps.length - 1 === index
 
-        return (
-            <DappListItem
-                data={item}
-                last={last}
-                onPress={this.setDapp}
-            />
-        )
+        return <DappListItem data={item} last={last} onPress={this.setDapp} />
     }
 
     renderEmptyComponent = () => {
-
-        const {
-            colors,
-            GRID_SIZE
-        } = this.context
+        const { colors, GRID_SIZE } = this.context
 
         return (
             <View style={[styles.loader, { marginTop: GRID_SIZE }]}>
-                <ActivityIndicator
-                    color={colors.common.text1}
-                    size='large'
-                />
+                <ActivityIndicator color={colors.common.text1} size='large' />
             </View>
         )
     }
@@ -166,19 +141,15 @@ class WalletDappFastLinksScreen extends PureComponent {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollViewContent}
                 keyboardShouldPersistTaps='handled'
-                setHeaderHeight={this.setHeaderHeight}
-            >
-                <ScrollingList
-                    data={networks}
-                    onPress={this.handleSelectIndex}
-                    active={selectedIndex}
-                />
+                setHeaderHeight={this.setHeaderHeight}>
+                <ScrollingList data={networks} onPress={this.handleSelectIndex} active={selectedIndex} />
                 <FlatList
                     data={localDapps}
-                    keyExtractor={(item) => item.dappCode.toString()}
+                    keyExtractor={(item) => item?.dappCode?.toString()}
                     showsVerticalScrollIndicator={false}
                     renderItem={this.renderListItem}
                     ListEmptyComponent={this.renderEmptyComponent}
+                    scrollEnabled={false}
                 />
             </ScrollView>
         )

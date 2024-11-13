@@ -81,7 +81,7 @@ export default class TrxTrongridProvider {
             }
         }
 
-        // curl -X POST  http://trx.trusteeglobal.com:8091/walletsolidity/getassetissuebyname -d
+        // curl -X POST  https://trx-solidityapi.trusteeglobal.com/walletsolidity/getassetissuebyname -d
         const nodeLink = BlocksoftExternalSettings.getStatic('TRX_SOLIDITY_NODE')
         const link = nodeLink + '/walletsolidity/getaccount'
         const params = { address }

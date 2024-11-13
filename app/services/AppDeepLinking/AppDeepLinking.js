@@ -15,8 +15,10 @@ import Log from '../Log/Log'
 
 export default new class AppDeepLinking {
 
+    linking = false
+
     init = () => {
-        Linking.addEventListener('url', this.handler)
+        this.linking = Linking.addEventListener('url', this.handler)
     }
 
     handler = ({ url }) => {
@@ -24,7 +26,7 @@ export default new class AppDeepLinking {
     }
 
     willUnmount = () => {
-        Linking.removeEventListener('url', this.handler)
+        this.linking.remove()
     }
 
     receiveDeepLink = url => {

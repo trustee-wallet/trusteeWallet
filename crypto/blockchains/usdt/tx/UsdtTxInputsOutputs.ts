@@ -50,7 +50,7 @@ export default class UsdtTxInputsOutputs extends BtcTxInputsOutputs implements B
                            additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
                            subtitle: string = 'default')
         : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
-        let res = await super._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle + ' usdted')
+        let res = await this._getInputsOutputsInner(data, unspents, feeToCount, additionalData, subtitle + ' usdted')
         let inputIsFound = false
         let newInputs = []
         let oldInputs = []

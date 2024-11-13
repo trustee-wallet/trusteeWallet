@@ -52,14 +52,14 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
 
         if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.getFeeRate dex ' + data.addressFrom + ' started')
-            return super.getFeeRate(data, privateData, additionalData)
+            return this._getFeeRateInner(data, privateData, additionalData)
         }
 
         const tmpData = { ...data }
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate removeByFee no token ' + this._tokenAddress)
             tmpData.amount = '0'
-            return super.getFeeRate(tmpData, privateData, additionalData)
+            return this._getFeeRateInner(tmpData, privateData, additionalData)
         }
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas started token ' + this._tokenAddress)
@@ -147,7 +147,7 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
 
 
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.getFeeRate estimateGas finished ' + estimatedGas)
-        const result = await super.getFeeRate(tmpData, privateData, { ...additionalData, ...{ gasLimit : estimatedGas } })
+        const result = await this._getFeeRateInner(tmpData, privateData, { ...additionalData, ...{ gasLimit : estimatedGas } })
         return result
     }
 
@@ -166,20 +166,20 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessorErc20.getTransferAllBalance ' + data.addressFrom + ' token ' + this._tokenAddress + ' started with preset balance ' + tmpData.amount)
         }
 
-        const result = await super.getTransferAllBalance(tmpData, privateData, additionalData)
+        const result = await this._getTransferAllBalanceInner(tmpData, privateData, additionalData)
         return result
     }
 
     async sendTx(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, uiData: BlocksoftBlockchainTypes.TransferUiData): Promise<BlocksoftBlockchainTypes.SendTxResult> {
         if (typeof data.dexOrderData !== 'undefined' && data.dexOrderData) {
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTransferProcessor.sendTx dex ' + data.addressFrom + ' started')
-            return super.sendTx(data, privateData, uiData)
+            return this._sendTxInner(data, privateData, uiData)
         }
         const tmpData = { ...data }
         if (typeof data.transactionRemoveByFee !== 'undefined' && data.transactionRemoveByFee) {
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx removeByFee no token ' + this._tokenAddress)
             tmpData.amount = '0'
-            return super.sendTx(tmpData, privateData, uiData)
+            return this._sendTxInner(tmpData, privateData, uiData)
         }
 
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxProcessorErc20.sendTx started token ' + this._tokenAddress)
@@ -197,6 +197,6 @@ export default class EthTransferProcessorErc20 extends EthTransferProcessor impl
         BlocksoftCryptoLog.log('EthTxProcessorErc20 encodeABI finished', tmpData.blockchainData)
         tmpData.amount = '0'
         tmpData.addressTo = this._tokenAddress
-        return super.sendTx(tmpData, privateData, uiData)
+        return this._sendTxInner(tmpData, privateData, uiData)
     }
 }

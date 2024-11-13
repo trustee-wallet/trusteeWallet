@@ -13,12 +13,16 @@ import MoneroUtilsParser from './ext/MoneroUtilsParser'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import { strings } from '@app/services/i18n'
 import config from '@app/config/config'
+import settingsActions from '@app/appstores/Stores/Settings/SettingsActions'
 
 const CACHE_VALID_TIME = 30000 // 30 seconds
 const CACHE = {}
 const NEVER_LOGIN = {}
 let CACHE_SHOWN_ERROR = 0
 
+const PROXY_LOGIN = 'https://proxy.trustee.deals/xmr/getLogin'
+const PROXY_ADDRESS_INFO = 'https://proxy.trustee.deals/xmr/getAddressInfo'
+const PROXY_ADDRESS_TXS = 'https://proxy.trustee.deals/xmr/getAddressTxs'
 export default class XmrScannerProcessor {
 
     /**
@@ -59,18 +63,24 @@ export default class XmrScannerProcessor {
             return CACHE[address]
         }
 
-        //@todo nodes support
-        //this._serverUrl = await settingsActions.getSetting('xmrServer')
-        //if (!this._serverUrl || this._serverUrl === 'false') {
-        this._serverUrl = 'api.mymonero.com:8443'
-        //}
-
-        let link = this._serverUrl.trim()
-        if (link.substr(0, 4).toLowerCase() !== 'http') {
-            link = 'https://' + this._serverUrl
+        this._serverUrl = settingsActions.getSettingStatic('xmrServer')
+        let link = false
+        if (!this._serverUrl || this._serverUrl === 'false' || this._serverUrl.indexOf('api.mymonero.com') !== -1) {
+            const val = await settingsActions.getSetting('xmrAllowMyMonero')
+            if (val !== '-1') {
+                this._serverUrl = 'api.mymonero.com:8443'
+            } else {
+                this._serverUrl = false
+            }
         }
-        if (link[link.length - 1] !== '/') {
-            link = link + '/'
+        if (this._serverUrl) {
+            link = this._serverUrl.trim()
+            if (link.substr(0, 4).toLowerCase() !== 'http') {
+                link = 'https://' + this._serverUrl
+            }
+            if (link[link.length - 1] !== '/') {
+                link = link + '/'
+            }
         }
 
         const discoverFor = {
@@ -92,24 +102,48 @@ export default class XmrScannerProcessor {
 
 
         let res = false
-        try {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get start ' + link + 'get_address_info', JSON.stringify(linkParams))
-            res = await BlocksoftAxios.post(link + 'get_address_info', linkParams)
-        } catch (e) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get error ' + e.message, JSON.stringify(linkParams))
-            if (CACHE_SHOWN_ERROR === 0 && e.message.indexOf('invalid address and/or view key') !== -1) {
-                showModal({
-                    type: 'INFO_MODAL',
-                    icon: false,
-                    title:  strings('modal.walletLog.sorry'),
-                    description: strings('settings.walletList.needReinstallXMR')
-                })
-                CACHE_SHOWN_ERROR++
-                if (CACHE_SHOWN_ERROR > 100) {
-                    CACHE_SHOWN_ERROR = 0
+        let isErrorKey = false
+        if (link) {
+            try {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get start ' + link + 'get_address_info', JSON.stringify(linkParams))
+                res = await BlocksoftAxios.post(link + 'get_address_info', linkParams)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get res ' + JSON.stringify(res.data).substr(0, 200))
+            } catch (e) {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get ' + link + 'get_address_info error ' + e.message, JSON.stringify(linkParams))
+                if (e.message.indexOf('invalid address and/or view key') !== -1) {
+                    isErrorKey = true
                 }
             }
         }
+
+        if (!res || typeof res.data === 'undefined' || !typeof res.data) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' XmrScannerProcessor._get ' + PROXY_ADDRESS_INFO + ' params ' + JSON.stringify(linkParams))
+            }
+            try {
+                res = await BlocksoftAxios.post(PROXY_ADDRESS_INFO, linkParams)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get proxy res ' + JSON.stringify(res.data).substr(0, 200))
+            } catch (e) {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get proxy ' + PROXY_ADDRESS_INFO + ' error ' + e.message)
+                if (e.message.indexOf('invalid address and/or view key') !== -1) {
+                    isErrorKey = true
+                }
+            }
+        }
+
+        if (CACHE_SHOWN_ERROR === 0 && isErrorKey) {
+            showModal({
+                type: 'INFO_MODAL',
+                icon: false,
+                title: strings('modal.walletLog.sorry'),
+                description: strings('settings.walletList.needReinstallXMR')
+            })
+            CACHE_SHOWN_ERROR++
+            if (CACHE_SHOWN_ERROR > 100) {
+                CACHE_SHOWN_ERROR = 0
+            }
+        }
+
         if (!res || !res.data) {
             if (typeof NEVER_LOGIN[address] === 'undefined') {
                 const linkParamsLogin = {
@@ -118,15 +152,29 @@ export default class XmrScannerProcessor {
                     create_account: true,
                     generated_locally: true
                 }
-                try {
-                    await BlocksoftAxios.post('https://api.mymonero.com:8443/login', linkParamsLogin) // login needed
-                } catch (e) {
-                    BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get login error ' + e.message, linkParamsLogin)
-                    if (CACHE_SHOWN_ERROR === 0 && e.message.indexOf('invalid address and/or view key') !== -1) {
+                let error = false
+                let resLogin = false
+                if (link) {
+                    try {
+                        resLogin = await BlocksoftAxios.post(link + 'login', linkParamsLogin) // login needed
+                    } catch (e) {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get login error ' + e.message, linkParamsLogin)
+                        error = e.message
+                    }
+                }
+                if (!resLogin || typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
+                    try {
+                        resLogin = await BlocksoftAxios.post(PROXY_LOGIN, linkParamsLogin) // login needed
+                    } catch (e) {
+                        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get proxy ' + PROXY_LOGIN + ' login error ' + e.message, linkParamsLogin)
+                    }
+                }
+                if (!resLogin || typeof resLogin.data === 'undefined' || !resLogin.data || typeof resLogin.data.new_address === 'undefined') {
+                    if (CACHE_SHOWN_ERROR === 0 && error && error.indexOf('invalid address and/or view key') !== -1) {
                         showModal({
                             type: 'INFO_MODAL',
                             icon: false,
-                            title:  strings('modal.walletLog.sorry'),
+                            title: strings('modal.walletLog.sorry'),
                             description: strings('settings.walletList.needReinstallXMR')
                         })
                         CACHE_SHOWN_ERROR++
@@ -152,7 +200,27 @@ export default class XmrScannerProcessor {
             await BlocksoftCryptoLog.log('XMR XmrScannerProcessor._get MoneroUtilsParser.parseAddressInfo error ' + e.message)
         }
 
-        const res2 = await BlocksoftAxios.postWithoutBraking(link + 'get_address_txs', linkParams)
+        let res2 = false
+        if (link) {
+            try {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get start ' + link + 'get_address_txs', JSON.stringify(linkParams))
+                res2 = await BlocksoftAxios.postWithoutBraking(link + 'get_address_txs', linkParams)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get res2 ' + JSON.stringify(res.data).substr(0, 200))
+            } catch (e) {
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get ' + link + 'get_address_txs error ' + e.message, JSON.stringify(linkParams))
+            }
+        }
+        if (!res2 || typeof res2.data === 'undefined' || !typeof res2.data) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' XmrScannerProcessor._get ' + PROXY_ADDRESS_TXS + ' params ' + JSON.stringify(linkParams))
+            }
+            try {
+                res2 = await BlocksoftAxios.post(PROXY_ADDRESS_TXS, linkParams)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get proxy res2 ' + JSON.stringify(res2.data).substr(0, 200))
+            } catch (e) {
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrScannerProcessor._get proxy ' + PROXY_ADDRESS_TXS + ' error ' + e.message)
+            }
+        }
         if (!res2 || !res2.data) {
             return false
         }
@@ -193,7 +261,7 @@ export default class XmrScannerProcessor {
      */
     async getBalanceBlockchain(address, additionalData, walletHash) {
         if (address === 'invalidRecheck1') {
-            return  { balance: 0, unconfirmed: 0, provider: 'error'}
+            return { balance: 0, unconfirmed: 0, provider: 'error' }
         }
         const res = await this._get(address, additionalData, walletHash)
         if (!res) {
@@ -259,11 +327,11 @@ export default class XmrScannerProcessor {
         let transactionStatus = 'new'
         transaction.confirmations = lastBlock * 1 - transaction.height * 1
         //if (transaction.mempool === false) {
-            if (transaction.confirmations >= this._blocksToConfirm) {
-                transactionStatus = 'success'
-            } else if (transaction.confirmations > 0) {
-                transactionStatus = 'confirming'
-            }
+        if (transaction.confirmations >= this._blocksToConfirm) {
+            transactionStatus = 'success'
+        } else if (transaction.confirmations > 0) {
+            transactionStatus = 'confirming'
+        }
         // }
 
         if (typeof transaction.unlock_time !== 'undefined') {

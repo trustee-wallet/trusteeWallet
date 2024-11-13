@@ -16,6 +16,7 @@ const CACHE_VOTES = {
     time: 0
 }
 const CACHE_VALID_TIME = 12000000 // 200 minute
+const CACHE_ACCOUNT_RENT = {}
 
 const validatorsConstants = require('@crypto/blockchains/sol/ext/validators')
 
@@ -158,7 +159,9 @@ export default {
                     }
                     if (count > 1) {
                         if (typeof CACHE_STAKED[address].rewards !== 'undefined') {
-                            CACHE_STAKED[address].rewards.amount = 0;
+                            if (!CACHE_STAKED[address].rewards || typeof CACHE_STAKED[address].rewards.amount === 'undefined') {
+                                CACHE_STAKED[address].rewards = {amount: 0}
+                            }
                         }
                         for (let tmp of res.data.result) {
                             if (tmp && typeof tmp.amount !== 'undefined' && tmp.amount * 1 > 0) {
@@ -176,6 +179,54 @@ export default {
         }
         //{"amount": 96096, "apr": 7.044036109546499, "effectiveSlot": 99360012, "epoch": 229, "percentChange": 0.05205832165890872, "postBalance": 184689062, "timestamp": 1633153114},
         return CACHE_STAKED[address].rewards
+    },
+
+    async getRentExemptReserve(address, size = 0) { // @todo size
+        // https://solana.com/docs/rpc/http/getminimumbalanceforrentexemption
+
+        const now = new Date().getTime()
+        if (typeof CACHE_ACCOUNT_RENT[size] !== 'undefined' && CACHE_ACCOUNT_RENT[size].time) {
+            if (now - CACHE_ACCOUNT_RENT[size].time < CACHE_VALID_TIME) {
+                return CACHE_ACCOUNT_RENT[size].rent
+            }
+        }
+
+        try {
+            const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
+            const checkData = {
+                'jsonrpc': '2.0',
+                'id': 1,
+                'method': 'getMinimumBalanceForRentExemption',
+                'params': [size] // dataSize
+            }
+            let res
+            try {
+                res = await BlocksoftAxios._request(apiPath, 'POST', checkData)
+                if (res.data?.result) {
+                    CACHE_ACCOUNT_RENT[size] = {
+                        rent: res.data.result,
+                        time: new Date().getTime()
+                    }
+                }
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log('SolStakeUtils getRentExemptReserve request ' + apiPath + ' error ' + e.message)
+                }
+                BlocksoftCryptoLog.log('SolStakeUtils getRentExemptReserve request ' + apiPath + ' error ' + e.message)
+            }
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log('SolStakeUtils.getRentExemptReserve ' + address + ' error ' + e.message)
+            }
+            BlocksoftCryptoLog.log('SolStakeUtils.getRentExemptReserve ' + address + ' error ' + e.message)
+        }
+        if (typeof CACHE_ACCOUNT_RENT[size] !== 'undefined') {
+            return CACHE_ACCOUNT_RENT[size].rent
+        }
+        if (typeof CACHE_ACCOUNT_RENT[0] !== 'undefined') {
+            return CACHE_ACCOUNT_RENT[0].rent
+        }
+        return 0
     },
 
     // https://docs.solana.com/developing/clients/jsonrpc-api#getprogramaccounts
@@ -253,6 +304,9 @@ export default {
                 }
 
             } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log('SolStakeUtils getAccountStaked request ' + apiPath + ' error ' + e.message)
+                }
                 BlocksoftCryptoLog.log('SolStakeUtils getAccountStaked request ' + apiPath + ' error ' + e.message)
 
                 const apiPath2 = 'https://prod-api.solana.surf/v1/account/' + address + '/stakes?limit=10&offset=0'

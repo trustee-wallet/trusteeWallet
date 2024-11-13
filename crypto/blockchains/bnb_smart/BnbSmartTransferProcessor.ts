@@ -32,6 +32,6 @@ export default class BnbSmartTransferProcessor extends EthTransferProcessor impl
                 additionalData.gasPriceTitle = 'speed_blocks_2'
             }
         }
-        return super.getFeeRate(data, privateData, additionalData)
+        return this._getFeeRateInner(data, privateData, additionalData)
     }
 }

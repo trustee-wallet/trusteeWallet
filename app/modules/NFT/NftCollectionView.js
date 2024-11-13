@@ -103,7 +103,7 @@ class NftCollectionView extends React.PureComponent {
                     renderItem={this.renderFlatListItem}
                     horizontal={false}
                     numColumns={numColumns}
-                    keyExtractor={({ index }) => index}
+                    keyExtractor={(_, index) => index}
                 />
             </View>
         )

@@ -4,7 +4,8 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Clipboard, TextInput, View, Platform } from 'react-native'
+import { TextInput, View, Platform } from 'react-native'
+import Clipboard from '@react-native-clipboard/clipboard'
 
 import copyToClipboard from '@app/services/UI/CopyToClipboard/CopyToClipboard'
 import Validator from '@app/services/UI/Validator/Validator'

@@ -6,18 +6,18 @@ import { strings } from '@app/services/i18n'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'
 import MarketingEvent from '@app/services/Marketing/MarketingEvent'
 
-export default function prettyShare(shareOptions, marketingTitle) {
+const onShare = async (options, marketingTitle) => {
     return new Promise((resolve, reject) => {
-        Share.open(shareOptions)
+        Share.open(options)
             .then((res) => {
                 if (typeof marketingTitle !== 'undefined' && marketingTitle) {
-                    MarketingEvent.logEvent(marketingTitle, { url : shareOptions.url })
+                    MarketingEvent.logEvent(marketingTitle, { url: shareOptions.url })
                 }
                 resolve(true)
             })
-            .catch(e => {
+            .catch((e) => {
                 let text = e.message || false
-                if (typeof (e.error) !== 'undefined') {
+                if (typeof e.error !== 'undefined') {
                     if (e.error.toString().indexOf('No Activity') !== -1) {
                         text = strings('modal.walletLog.noMailApp')
                     } else if (!text) {
@@ -43,3 +43,5 @@ export default function prettyShare(shareOptions, marketingTitle) {
             })
     })
 }
+
+export default onShare

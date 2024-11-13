@@ -16,7 +16,7 @@ export default class BchUnspentsProvider extends  DogeUnspentsProvider implement
 
     async getUnspents(address: string): Promise<BlocksoftBlockchainTypes.UnspentTx[]> {
         try {
-            const trezor = await super.getUnspents('bitcoincash:' + address)
+            const trezor = await this._getUnspentsInner('bitcoincash:' + address)
             if (trezor && trezor.length > 0) {
                 return trezor
             }

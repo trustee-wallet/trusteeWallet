@@ -243,7 +243,7 @@ class HdAddressListItem extends React.PureComponent {
                 <Portal>
                     <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
-                        snapPoints={[0, 300]}
+                        snapPoints={[1, 300]}
                         index={0}
                     >
                         {this.renderModalContent()}

@@ -49,7 +49,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const privViewKey = keys[1]
         const pubSpendKey = data.accountJson.publicSpendKey
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate  newSender ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
 
         const apiClient = this.unspentsProvider
 
@@ -62,7 +62,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         const logFees = []
         let noBalanceError = false
-        apiClient.init()
+        await apiClient.init()
 
 
         const unspentOuts = await apiClient._getUnspents({
@@ -74,11 +74,11 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
             dust_threshold: '2000000000',
             mixin: 15,
             use_dust: true
-        }, false)
+        })
 
         for (let i = 1; i <= 4; i++) {
             try {
-                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getFeeRate inner ' + data.addressFrom + ' => ' + data.addressTo + ' start amount: ' + data.amount + ' fee ' + i)
 
                 // @ts-ignore
                 const fee = await core.createTransaction({
@@ -90,7 +90,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
                     publicSpendKey: pubSpendKey,
                     priority: '' + i,
                     nettype: 'MAINNET',
-                    unspentOuts: unspentOuts,
+                    unspentOuts,
                     randomOutsCb: (numberOfOuts) => {
                         const amounts = []
                         for (let i = 0; i < numberOfOuts; i++) {
@@ -191,12 +191,13 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const balance = data.amount
 
         // @ts-ignore
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance)
 
         data.isTransferAll = true
         const result = await this.getFeeRate(data, privateData, additionalData)
         // @ts-ignore
         if (!result || result.selectedFeeIndex < 0) {
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance + ' no FEE')
             return {
                 selectedTransferAllBalance: '0',
                 selectedFeeIndex: -2,
@@ -206,6 +207,7 @@ export default class XmrTransferProcessor implements BlocksoftBlockchainTypes.Tr
             }
         }
         // @ts-ignore
+        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XmrTransferProcessor.getTransferAllBalance ' + data.addressFrom + ' => ' + balance + ' selectedTransferAllBalance ' +  result.fees[result.selectedFeeIndex].amountForTx)
         return {
             ...result,
             shouldShowFees : false,

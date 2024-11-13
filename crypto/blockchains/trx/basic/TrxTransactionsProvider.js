@@ -178,7 +178,7 @@ export default class TrxTransactionsProvider {
                 transactionDirection = 'vote'
                 transactionFilterType = TransactionFilterTypeDict.STAKE
             } else {
-                if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13) {
+                if (transaction.contractType === 11 || transaction.contractType === 4 || transaction.contractType === 13 || transaction.contractType === 31) {
                     // freeze = 11, vote = 4, claim = 13
                 } else {
                     // noinspection ES6MissingAwait

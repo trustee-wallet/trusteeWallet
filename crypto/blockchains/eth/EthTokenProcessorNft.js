@@ -1,12 +1,17 @@
 /**
- * @version 0.50
+ * @version 0.51
  */
 import EthBasic from './basic/EthBasic'
 import EthNftOpensea from '@crypto/blockchains/eth/apis/EthNftOpensea'
 import EthNftMatic from '@crypto/blockchains/eth/apis/EthNftMatic'
+
 import abi from './ext/erc721.js'
 import config from '@app/config/config'
 import BlocksoftDictNfts from '@crypto/common/BlocksoftDictNfts'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
+import BlocksoftAxios from '@crypto/common/BlocksoftAxios'
+
+const PROXY_NFTS = 'https://proxy.trustee.deals/nfts/getNfts'
 
 export default class EthTokenProcessorNft extends EthBasic {
 
@@ -18,6 +23,10 @@ export default class EthTokenProcessorNft extends EthBasic {
     async getListBlockchain(data) {
 
         const settings = BlocksoftDictNfts.NftsIndexed[data.tokenBlockchainCode]
+        if (typeof settings === 'undefined') {
+            return false
+        }
+        /*
         if (
            typeof settings !== 'undefined' && typeof settings.apiType !== 'undefined' && settings.apiType === 'OPENSEA'
         ) {
@@ -25,6 +34,20 @@ export default class EthTokenProcessorNft extends EthBasic {
         } else {
             return EthNftMatic(data)
         }
+        */
+
+        try {
+            let link = PROXY_NFTS + '?address=' + data.address + '&tokenBlockchainCode=' + data.tokenBlockchainCode + '&customAssets='
+            if (typeof data.customAssets !== 'undefined') {
+                link += typeof data.customAssets.join !== 'undefined' ? data.customAssets.join(',') : data.customAssets
+            }
+            const res = await BlocksoftAxios.get(link)
+            BlocksoftCryptoLog.log('EthTokenProcessorNft getListBlockchain res ' + JSON.stringify(res.data).substr(0, 200))
+            return typeof res?.data?.data !== 'undefined' ? res?.data?.data : false
+        } catch (e) {
+            BlocksoftCryptoLog.log('EthTokenProcessorNft getListBlockchain error ' + e.message)
+        }
+        return false
     }
 
     async getNftDetails(nftAddress, nftType) {

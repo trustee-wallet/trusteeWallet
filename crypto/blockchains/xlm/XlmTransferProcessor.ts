@@ -28,6 +28,7 @@ import MarketingEvent from '../../../app/services/Marketing/MarketingEvent'
 
 import { BlocksoftBlockchainTypes } from '../BlocksoftBlockchainTypes'
 import { XlmTxSendProvider } from './basic/XlmTxSendProvider'
+import config from '@app/config/config'
 
 
 const FEE_DECIMALS = 7
@@ -38,7 +39,11 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
     constructor(settings: { network: string; currencyCode: string }) {
         this._settings = settings
-        this._provider = new XlmTxSendProvider()
+        try {
+            this._provider = new XlmTxSendProvider()
+        } catch (e1) {
+            BlocksoftCryptoLog.log(`${settings.currencyCode} XlmTransferProcessor.constructor error ` + e1.message)
+        }
     }
 
     needPrivateForFee(): boolean {
@@ -74,20 +79,34 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         // @ts-ignore
         if (data.amount * 1 <= 0) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' skipped as zero amount')
             return result
         }
 
-        BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
+        if (config.debug.cryptoErrors) {
+            console.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
+        }
+        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' started amount: ' + data.amount)
 
-        const getFee = await this._provider.getFee()
-
+        let getFee
+        try {
+            getFee = await this._provider.getFee()
+        } catch (e) {
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' _provider.getFee error ' + e.message)
+            throw new Error(e.message + ' while _provider.getFee')
+        }
         if (!getFee) {
             throw new Error('SERVER_RESPONSE_BAD_INTERNET')
         }
         // @ts-ignore
         const fee = BlocksoftUtils.toUnified(getFee, FEE_DECIMALS)
 
+        if (config.debug.cryptoErrors) {
+            console.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' finished amount: ' + data.amount + ' fee: ' + fee)
+        }
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getFeeRate ' + data.addressFrom + ' => ' + data.addressTo + ' finished amount: ' + data.amount + ' fee: ' + fee)
         result.fees = [
             {
@@ -104,6 +123,9 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
 
         const balance = data.amount
+        if (config.debug.cryptoErrors) {
+            console.log(this._settings.currencyCode + ' XlmTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
+        }
         // @ts-ignore
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' XlmTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
         // noinspection EqualityComparisonWithCoercionJS
@@ -116,6 +138,7 @@ export default class XlmTransferProcessor implements BlocksoftBlockchainTypes.Tr
                 countedForBasicBalance: '0'
             }
         }
+        console.log(`DIFF DONE`)
 
 
         const result = await this.getFeeRate(data, privateData, additionalData)

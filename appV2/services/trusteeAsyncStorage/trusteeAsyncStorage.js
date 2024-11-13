@@ -1,7 +1,7 @@
 /**
  * @version 0.77
  */
-import AsyncStorage from '@react-native-community/async-storage'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const ASYNC_STORE_KEY = 'trusteeInit'
 
@@ -57,7 +57,7 @@ class TrusteeAsyncStorage {
     }
 
     getDevMode = () => {
-        return this._getStatic('devMode') && this._getStatic('devMode').toString() === '1'
+        return this._getStatic('devMode') && this._getStatic('devMode')?.toString() === '1'
     }
 
     setDevMode = (value) => {

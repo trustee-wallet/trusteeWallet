@@ -1,6 +1,7 @@
 
 import Database from '@app/appstores/DataSource/Database';
 import BlocksoftBN from '../../../common/BlocksoftBN'
+import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 
 const tableName = 'transactions_scanners_tmp'
 
@@ -13,13 +14,15 @@ class EthTmpDS {
 
     async getCache(mainCurrencyCode, scanAddress, toRemove = false) {
         const address = scanAddress.toLowerCase()
-        const res = await Database.query(`
+        const sql = `
                 SELECT id, tmp_key, tmp_sub_key, tmp_val, created_at
                 FROM ${tableName}
                 WHERE currency_code='${mainCurrencyCode}'
                 AND address='${address}'
                 AND tmp_key='nonces'
-                `)
+                `
+        BlocksoftCryptoLog.log(`EthTmpDS getMaxNonce sql ` + sql)
+        const res = await Database.query(sql)
         CACHE_TMP[address] = {}
         let maxValue = -1
         let maxScanned = -1
@@ -27,6 +30,7 @@ class EthTmpDS {
         const forBalances = {}
 
         if (res.array) {
+            BlocksoftCryptoLog.log(`EthTmpDS getMaxNonce res ` + JSON.stringify(res.array))
             for (const row of res.array) {
                 const val = row.tmp_val * 1
                 if (row.tmp_sub_key === 'maxScanned') {
@@ -130,6 +134,7 @@ class EthTmpDS {
         for (const key in amountBN) {
             CACHE_TMP[address]['amountBlocked'][key] = amountBN[key].toString()
         }
+        BlocksoftCryptoLog.log(`EthTmpDS getMaxNonce sql result ` + JSON.stringify(CACHE_TMP[address]))
         return CACHE_TMP[address]
     }
 

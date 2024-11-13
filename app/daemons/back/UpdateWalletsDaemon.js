@@ -34,17 +34,12 @@ class UpdateWalletsDaemon {
 
         Log.daemon('UpdateWalletsDaemon called')
 
-        let asked = false
         if (!dataUpdate) {
             const authHash = await settingsActions.getSelectedWallet('_updateWalletsDaemon')
             if (!authHash) {
                 Log.daemon('UpdateWalletsDaemon skipped as no auth')
                 return false
             }
-            if (config.debug.appErrors) {
-                console.log(new Date().toISOString() + ' UpdateWalletsDaemon loading new')
-            }
-            asked = true
             try {
                 dataUpdate = await ApiProxy.getAll({ ...params, source: 'UpdateWalletsDaemon.updateWallets' })
             } catch (e) {
@@ -60,11 +55,6 @@ class UpdateWalletsDaemon {
         }
 
         if (typeof dataUpdate.forWalletsAll !== 'undefined' && dataUpdate.forWalletsAll) {
-            if (!asked) {
-                if (config.debug.appErrors) {
-                    console.log(new Date().toISOString() + ' UpdateWalletsDaemon loaded proxy forWalletsAll')
-                }
-            }
             try {
 
                 const saved = await walletDS.getWallets()

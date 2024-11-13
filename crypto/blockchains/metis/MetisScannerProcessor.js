@@ -15,7 +15,7 @@ export default class MetisScannerProcessor extends EthScannerProcessor {
     async getTransactionsBlockchain(scanData) {
         const address = scanData.account.address
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' MetisScannerProcessor.getTransactions started ' + address)
-        const transactions = await super.getTransactionsBlockchain(scanData)
+        const transactions = await this._getTransactionsBlockchainInner(scanData)
 
         // https://andromeda-explorer.metis.io/token/0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000/token-transfers
         // actual deposits and withdrawals done as erc20 token transfer

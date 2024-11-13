@@ -10,7 +10,7 @@ import LottieView from 'lottie-react-native'
 import axios from 'axios'
 import _ from 'lodash'
 
-import { WebView } from 'react-native-webview'
+import WebView from 'react-native-webview'
 import NavStore from '@app/components/navigation/NavStore'
 
 import Log from '@app/services/Log/Log'
@@ -60,21 +60,21 @@ class SMSV3CodeScreen extends PureComponent {
     }
 
     handleStartAnimation = () => {
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(this.state.progress, {
-                    toValue: 1,
-                    duration: 5000
-                }),
-                Animated.timing(this.state.progress, {
-                    toValue: 0,
-                    duration: 5000
-                })
-            ]),
-            {
-                iterations: 50
-            }
-        ).start()
+        // Animated.loop(
+        //     Animated.sequence([
+        //         Animated.timing(this.state.progress, {
+        //             toValue: 1,
+        //             duration: 5000
+        //         }),
+        //         Animated.timing(this.state.progress, {
+        //             toValue: 0,
+        //             duration: 5000
+        //         })
+        //     ]),
+        //     {
+        //         iterations: 50
+        //     }
+        // ).start()
     }
 
     handleState(obj) {
@@ -168,6 +168,7 @@ class SMSV3CodeScreen extends PureComponent {
         Log.log('Trade.SMSV3CodeScreen.link status ' + status, link)
 
         CACHE_IS_ERROR = false
+        console.log('link', link)
         return (
             <ScreenWrapper
                 rightType={'close'}
@@ -184,7 +185,11 @@ class SMSV3CodeScreen extends PureComponent {
                                     height: 200,
                                     marginTop: -50
                                 }} source={require('@assets/jsons/animations/loaderBlue.json')}
-                                    progress={this.state.progress} />
+                                    // progress={this.state.progress}
+                                    autoPlay
+                                    speed={4}
+                                    
+                                    />
                             </View> : null
                     }
                     <WebView

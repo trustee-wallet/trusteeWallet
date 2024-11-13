@@ -155,6 +155,10 @@ export default class DogeSendProvider implements BlocksoftBlockchainTypes.SendPr
     }
 
     async sendTx(hex: string, subtitle: string, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any }> {
+        return this._sendTxInner(hex, subtitle, txRBF, logData)
+    }
+
+    async _sendTxInner(hex: string, subtitle: string, txRBF: any, logData: any): Promise<{ transactionHash: string, transactionJson: any }> {
         await BlocksoftCryptoLog.log(this._settings.currencyCode + ' DogeSendProvider.sendTx ' + subtitle + ' started ', logData)
 
         let link = BlocksoftExternalSettings.getStatic(this._trezorServerCode + '_SEND_LINK')

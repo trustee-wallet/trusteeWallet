@@ -11,7 +11,7 @@ import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchai
 
 import config from '@app/config/config'
 
-import { PublicKey, SystemProgram, Transaction, StakeProgram, Authorized } from '@solana/web3.js/src/index'
+import { PublicKey, SystemProgram, Transaction, StakeProgram, Authorized } from '@solana/web3.js'
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
 import SolStakeUtils from '@crypto/blockchains/sol/ext/SolStakeUtils'
@@ -41,54 +41,43 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
         } as BlocksoftBlockchainTypes.FeeRateResult
 
         const feeForTx = BlocksoftExternalSettings.getStatic('SOL_PRICE')
+        let amountForTx = data.amount
+        if (data?.isTransferAll) {
+            amountForTx = data.accountBalanceRaw
+            try {
+                const accountInfo = await SolUtils.getAccountInfo(data?.addressFrom)
+                const rent = await SolStakeUtils.getRentExemptReserve(data?.addressFrom, accountInfo?.space || 0)
+                amountForTx = BlocksoftUtils.diff(BlocksoftUtils.diff(amountForTx, feeForTx), rent).toString()
+                if (data?.uiType === 'TRADE_SEND') {
+                    amountForTx = amountForTx.toString()
+                    amountForTx = amountForTx.substring(0, amountForTx.length - 1) + '0'
+                }
+            } catch (e) {
+                if (config.debug.cryptoErrors) {
+                    console.log(this._settings.currencyCode + ' SolTransferProcessor.getFeeRate address error ' + e.message)
+                }
+                BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getFeeRateaddress error ' + e.message)
+            }
+        }
         result.fees = [
             {
                 langMsg: 'xrp_speed_one',
                 feeForTx,
-                amountForTx: data.amount
+                amountForTx
             }
         ]
         result.selectedFeeIndex = 0
-
-
         return result
     }
 
     async getTransferAllBalance(data: BlocksoftBlockchainTypes.TransferData, privateData: BlocksoftBlockchainTypes.TransferPrivateData, additionalData: BlocksoftBlockchainTypes.TransferAdditionalData = {}): Promise<BlocksoftBlockchainTypes.TransferAllBalanceResult> {
-        const address = data.addressFrom.trim()
-        let rent = 0
-        let balance = data.amount
-        try {
-            const beachPath = 'https://public-api.solanabeach.io/v1/account/' + address + '?'
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance address ' + address + ' beach link ' + beachPath)
-            const res = await BlocksoftAxios.get(beachPath)
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance address ' + address + ' beach res ', res?.data)
-            if (typeof res?.data?.value !== 'undefined' && typeof res?.data?.value?.base !== 'undefined') {
-                if (res?.data?.value?.base?.address?.address !== address) {
-                    throw new Error('wrong value address ' + res?.data?.value?.base?.address?.address)
-                }
-                balance = res?.data?.value?.base?.balance || data.amount
-                rent = res?.data?.value?.base?.rentExemptReserve || 0
-                if (rent) {
-                    balance = BlocksoftUtils.diff(balance, rent)
-                }
-            }
-        } catch (e) {
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance address ' + address + ' beach error ' + e.message)
-        }
-
-        // @ts-ignore
-        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.getTransferAllBalance ', data.addressFrom + ' => ' + balance)
-
         const fees = await this.getFeeRate(data, privateData, additionalData)
-
-        const amount = BlocksoftUtils.diff(balance, fees.fees[0].feeForTx).toString()
-
-        return {
+        const res = {
             ...fees,
             shouldShowFees: false,
-            selectedTransferAllBalance: amount
+            selectedTransferAllBalance: fees.fees[0].amountForTx
         }
+        return res
     }
 
     /**
@@ -107,7 +96,8 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
 
         if (uiData && typeof uiData.uiErrorConfirmed !== 'undefined' &&
             (
-                uiData.uiErrorConfirmed === 'UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE'
+                uiData.uiErrorConfirmed === true
+                || uiData.uiErrorConfirmed === 'UI_CONFIRM_ADDRESS_TO_EMPTY_BALANCE'
                 || uiData.uiErrorConfirmed === 'UI_CONFIRM_DOUBLE_SEND'
             )
         ) {
@@ -247,7 +237,10 @@ export default class SolTransferProcessor implements BlocksoftBlockchainTypes.Tr
         const result = {} as BlocksoftBlockchainTypes.SendTxResult
         try {
             const sendRes = await SolUtils.sendTransaction(signedData)
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount, sendRes)
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' sendRes ' + sendRes)
+            }
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessor.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount + ' sendRes ' + sendRes)
             if (typeof sendRes === 'undefined' || !sendRes || typeof sendRes === 'undefined') {
                 throw new Error('SYSTEM_ERROR')
             }

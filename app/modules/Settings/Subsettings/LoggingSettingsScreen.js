@@ -51,7 +51,7 @@ class LoggingSettingsScreen extends PureComponent {
 
     cleanAll = async () => {
         try {
-            const zp = new FileSystem({ baseDir: 'zip', fileName: 'logsB', fileExtension: 'zip' })
+            const zp = new FileSystem({ baseDir: 'zip', fileName: 'logsB', withDate: false, fileExtension: 'zip' })
             await zp.cleanDir()
             await Log.FS.ALL.cleanFile()
             await Log.FS.TEST.cleanFile()

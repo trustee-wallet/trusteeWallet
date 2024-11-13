@@ -37,8 +37,16 @@ export namespace BlocksoftTransfer {
         data.isTransferAll = true
         let transferAllCount
         try {
+            if (config.debug.cryptoErrors) {
+                console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance started ${data.addressFrom} `)
+            }
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance started ${data.addressFrom} `)
-            const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
+            let processor
+            try {
+                processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
+            } catch (e) {
+                throw new Error(e.message + ' while BlocksoftTransferDispatcher.getTransferProcessor')
+            }
             const additionalDataTmp = { ...additionalData }
             let privateData = {} as BlocksoftBlockchainTypes.TransferPrivateData
             if (processor.needPrivateForFee()) {
@@ -46,7 +54,9 @@ export namespace BlocksoftTransfer {
             }
             additionalDataTmp.mnemonic = '***'
             transferAllCount = await (BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)).getTransferAllBalance(data, privateData, additionalDataTmp)
-
+            if (config.debug.cryptoErrors) {
+                console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance got ${data.addressFrom} result is ok`)
+            }
             BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance got ${data.addressFrom} result is ok`)
             if (config.debug.sendLogs) {
                 console.log(`${data.currencyCode} BlocksoftTransfer.getTransferAllBalance result`, JSON.parse(JSON.stringify(transferAllCount)))
@@ -96,18 +106,32 @@ export namespace BlocksoftTransfer {
             throw new Error('BlocksoftTransfer.getFeeRate requires derivationPath ' + JSON.stringify(data))
         }
         data.derivationPath = data.derivationPath.replace(/quote/g, '\'')
-        let feesCount
+        let feesCount, processor
         try {
-            BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate started ${data.addressFrom} `)
-            const processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
-            const additionalDataTmp = { ...additionalData }
-
+            let additionalDataTmp = { ...additionalData }
             let privateData = {} as BlocksoftBlockchainTypes.TransferPrivateData
-            if (processor.needPrivateForFee()) {
-                privateData = await BlocksoftTransferPrivate.initTransferPrivate(data, additionalData)
+            await BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate started ${data.addressFrom} `)
+            try {
+                await BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate started 1.getTransferProcessor ${data.addressFrom} `)
+                processor = BlocksoftTransferDispatcher.getTransferProcessor(data.currencyCode)
+            } catch (e1) {
+                throw new Error(e1.message + ' while getTransferProcessor')
+            }
+            try {
+                if (processor?.needPrivateForFee()) {
+                    await BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate started 2.initTransferPrivate ${data.addressFrom} `)
+                    privateData = await BlocksoftTransferPrivate.initTransferPrivate(data, additionalData)
+                }
+            } catch (e1) {
+                throw new Error(e1.message + ' while needPrivateForFee')
             }
             additionalDataTmp.mnemonic = '***'
-            feesCount = await processor.getFeeRate(data, privateData, additionalDataTmp)
+            try {
+                await BlocksoftCryptoLog.log(`${data.currencyCode} BlocksoftTransfer.getFeeRate started 3.processor.getFeeRate ${data.addressFrom} `)
+                feesCount = await processor?.getFeeRate(data, privateData, additionalDataTmp)
+            } catch (e1) {
+                throw new Error(e1.message + ' while processor.getFeeRate')
+            }
             feesCount.countedTime = new Date().getTime()
         } catch (e) {
             if (config.debug.cryptoErrors) {

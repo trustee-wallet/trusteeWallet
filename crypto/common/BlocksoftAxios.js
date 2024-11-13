@@ -430,7 +430,7 @@ class BlocksoftAxios {
                 || e.message.indexOf('api calls limits have been reached') !== -1
                 || e.message.indexOf('loudflare') !== -1) {
                 // noinspection ES6MissingAwait
-                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' NOTICE TOO MUCH ' + e.message)
+                BlocksoftCryptoLog.log('BlocksoftAxios.' + method + ' ' + link + ' NOTICE TOO MUCH ' + e.message.substring(0, 200))
                 customError.code = 'ERROR_NOTICE'
             } else if (link.indexOf('/api/v2/sendtx/') !== -1) {
                 // noinspection ES6MissingAwait

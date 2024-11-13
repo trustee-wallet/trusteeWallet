@@ -50,12 +50,7 @@ class UpdateAppNewsDaemon {
 
         const walletHash = await settingsActions.getSelectedWallet('UpdateNewsDaemon')
         let res
-        let asked = false
         if (!dataUpdate) {
-            if (config.debug.appErrors) {
-                console.log(new Date().toISOString() + ' UpdateNewsDaemon loading new')
-            }
-            asked = true
             try {
                 res = await ApiProxy.getAll({...params, source: 'UpdateAppNewsDaemon.updateAppNews' })
             } catch (e) {
@@ -78,12 +73,6 @@ class UpdateAppNewsDaemon {
             // can put log for recheck hashing cache
             this._canUpdate = true
             return false
-        }
-
-        if (!asked) {
-            if (config.debug.appErrors) {
-                console.log(new Date().toISOString() + ' UpdateNewsDaemon loaded proxy')
-            }
         }
 
         CACHE_NEWS_HASH = typeof res.newsHash !== 'undefined' ? res.newsHash : ''

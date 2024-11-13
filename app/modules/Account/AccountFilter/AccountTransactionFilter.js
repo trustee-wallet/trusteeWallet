@@ -30,7 +30,7 @@ import { getCurrentDate } from '../helpers'
 
 import transactionDS from '@app/appstores/DataSource/Transaction/Transaction'
 
-import { Parser } from "json2csv"
+import { Parser } from '@json2csv/plainjs'
 import RNFS from 'react-native-fs'
 import { FileSystem } from '@app/services/FileSystem/FileSystem'
 import Log from '@app/services/Log/Log'
@@ -204,7 +204,7 @@ class TransactionFilter extends React.PureComponent {
         RNFS.writeFile(path, csv, 'utf8')
             .then(async () => {
                 Log.log('Account/AccountTransactionFilter saveTxHistory success save file ', path)
-                const fs = new FileSystem({ fileEncoding: 'utf8', fileName: `TRUSTEE_REPORT_${currencyCode}`, fileExtension: 'csv' });
+                const fs = new FileSystem({ fileEncoding: 'utf8', fileName: `TRUSTEE_REPORT_${currencyCode}`, withDate: false, fileExtension: 'csv' });
 
                 const shareOptions = {
                     url: await fs.getPathOrBase64()

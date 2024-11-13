@@ -258,10 +258,10 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                            additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
                            subtitle: string = 'default')
         : Promise<BlocksoftBlockchainTypes.PreparedInputsOutputsTx> {
-        return this._getInputsOutputs(data, unspents, feeToCount, additionalData, subtitle)
+        return this._getInputsOutputsInner(data, unspents, feeToCount, additionalData, subtitle)
     }
 
-    async _getInputsOutputs(data: BlocksoftBlockchainTypes.TransferData,
+    async _getInputsOutputsInner(data: BlocksoftBlockchainTypes.TransferData,
                             unspents: BlocksoftBlockchainTypes.UnspentTx[],
                             feeToCount: { feeForByte?: string, feeForAll?: string, autoFeeLimitReadable?: string | number },
                             additionalData: BlocksoftBlockchainTypes.TransferAdditionalData,
@@ -412,7 +412,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                 if (autoDiff.lessThanZero()) {
                     recountWithFee = autoFeeLimit.toString()
                 }
-                const res = await this._getInputsOutputs(newData, unspents, { feeForAll: recountWithFee }, additionalData, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                const res = await this._getInputsOutputsInner(newData, unspents, { feeForAll: recountWithFee }, additionalData, subtitle + ' notEnough1 leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
                 if (res.msg.indexOf('RECHECK') === -1) {
                     return res
                 }
@@ -426,7 +426,7 @@ export default class DogeTxInputsOutputs implements BlocksoftBlockchainTypes.TxI
                         console.log('tmp2', tmp2)
                     } else {
                         newData.amount = tmp2.get()
-                        return this._getInputsOutputs(newData, unspents, feeToCount, additionalData, subtitle + '  notEnough3 ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
+                        return this._getInputsOutputsInner(newData, unspents, feeToCount, additionalData, subtitle + '  notEnough3 ' + data.amount + ' => ' + newData.amount + ' leftForChangeDiff ' + leftForChangeDiff.toString() + ' //// ')
                     }
                 } else {
                     // @ts-ignore

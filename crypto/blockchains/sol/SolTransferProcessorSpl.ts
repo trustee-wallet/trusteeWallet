@@ -7,7 +7,7 @@ import { BlocksoftBlockchainTypes } from '@crypto/blockchains/BlocksoftBlockchai
 import BlocksoftCryptoLog from '@crypto/common/BlocksoftCryptoLog'
 import BlocksoftBalances from '@crypto/actions/BlocksoftBalances/BlocksoftBalances'
 
-import { PublicKey, TransactionInstruction, Transaction } from '@solana/web3.js/src/index'
+import { PublicKey, TransactionInstruction, Transaction } from '@solana/web3.js'
 import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 import SolTransferProcessor from '@crypto/blockchains/sol/SolTransferProcessor'
 import SolInstructions from '@crypto/blockchains/sol/ext/SolInstructions'
@@ -105,7 +105,7 @@ export default class SolTransferProcessorSpl extends SolTransferProcessor implem
         } else {
 
             if (!destinationAccountInfo || typeof destinationAccountInfo.lamports === 'undefined' || destinationAccountInfo.lamports * 1 === 0) {
-                throw new Error('SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE')
+                // do nothing throw new Error('SERVER_RESPONSE_RECEIVER_EMPTY_BALANCE')
             }
 
             const destinationAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
@@ -186,7 +186,7 @@ export default class SolTransferProcessorSpl extends SolTransferProcessor implem
             const sendRes = await SolUtils.sendTransaction(signedData)
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolTransferProcessorSpl.sendTx  ' + data.addressFrom + ' => ' + data.addressTo + ' ' + data.amount, sendRes)
             if (typeof sendRes === 'undefined' || !sendRes || typeof sendRes === 'undefined') {
-                throw new Error('SYSTEM_ERROR')
+                throw new Error('SYSTEM_ERROR_2')
             }
             result.transactionHash = sendRes
         } catch (e) {

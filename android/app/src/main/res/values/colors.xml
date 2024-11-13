@@ -1,3 +1,6 @@
 <resources>
+    <color name="black">#141414</color>
+    <color name="white">#F5F5F5</color>
+    <color name="primary_dark">#262626</color>
     <color name="default_notification_color">#f24b93</color>
 </resources>

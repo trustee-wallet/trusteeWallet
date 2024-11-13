@@ -126,3 +126,23 @@ export function handleSendSignTypedModal(walletConnector, chainId, from, data, p
         await walletConnectService.approveSignTyped(walletConnector, chainId, from, data, payload)
     })
 }
+
+export function handleSessionChangeChainModal(walletConnector, accountCurrencyCode, payload) {
+    let title = accountCurrencyCode
+    for (const tmp of NETWORKS_SETTINGS) {
+        if (tmp.currencyCode === accountCurrencyCode) {
+            title = tmp.networkTitle
+        }
+    }
+    showModal({
+        type: 'YES_NO_MODAL',
+        icon: 'WARNING',
+        title: strings('settings.walletConnect.changeNetwork'),
+        description: strings('settings.walletConnect.changeNetwork') + ' ' + title,
+        noCallback: async () => {
+            walletConnectService.rejectRequest(walletConnector, payload)
+        }
+    }, async () => {
+        await walletConnectService.sessionChangeChainModal(walletConnector, accountCurrencyCode, payload)
+    })
+}

@@ -225,7 +225,7 @@ class AccountReceiveScreen extends React.PureComponent {
                     // noinspection ES6MissingAwait
                     prettyShare({ message, url: `data:image/png;base64,${data}`, title: 'QR', type: 'image/png' })
                 } else {
-                    const fs = new FileSystem({ fileEncoding: 'base64', fileName: 'QR', fileExtension: 'jpg' })
+                    const fs = new FileSystem({ fileEncoding: 'base64', fileName: 'QR', withDate: false, fileExtension: 'jpg' })
                     await fs.writeFile(data)
                     // noinspection ES6MissingAwait
                     prettyShare({ message, url: await fs.getPathOrBase64() })
@@ -816,7 +816,7 @@ class AccountReceiveScreen extends React.PureComponent {
                 <Portal>
                     <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
-                        snapPoints={[0, 340]}
+                        snapPoints={[1, 340]}
                         index={0}
                     >
                         {this.renderModalContent(address)}

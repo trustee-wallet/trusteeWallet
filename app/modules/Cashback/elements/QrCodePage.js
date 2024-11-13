@@ -282,7 +282,7 @@ class QrCodePage extends PureComponent {
                 <Portal>
                     <SheetBottom
                         ref={ref => this.bottomSheetRef = ref}
-                        snapPoints={[-1, this.isAndroid ? 180 : this.state.keyboardHeight+180]}
+                        snapPoints={[1, this.isAndroid ? 180 : this.state.keyboardHeight+180]}
                         index={-1}
                         onChange={this.onChange}
                     >

@@ -35,9 +35,9 @@ class Log {
 
     constructor() {
         this.FS = {
-            TEST: new FileSystem({ fileEncoding: 'utf8', fileName: 'TestLog', fileExtension: 'txt' }),
-            DAEMON: new FileSystem({ fileEncoding: 'utf8', fileName: 'DaemonLog', fileExtension: 'txt' }),
-            ALL: new FileSystem({ fileEncoding: 'utf8', fileName: 'AppLog', fileExtension: 'txt' })
+            TEST: new FileSystem({ fileEncoding: 'utf8', fileName: 'TestLog', withDate: true, fileExtension: 'txt' }),
+            DAEMON: new FileSystem({ fileEncoding: 'utf8', fileName: 'DaemonLog', withDate: true, fileExtension: 'txt' }),
+            ALL: new FileSystem({ fileEncoding: 'utf8', fileName: 'AppLog', withDate: true, fileExtension: 'txt' })
         }
 
         this.DATA = {}

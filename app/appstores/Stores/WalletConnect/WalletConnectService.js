@@ -11,7 +11,8 @@ import {
     handleSendSignModal,
     handleSendSignTypedModal,
     handleSendTransactionRedirect,
-    handleSessionProposalModal, handleSignTransactionModal
+    handleSessionProposalModal, handleSignTransactionModal,
+    handleSessionChangeChainModal
 } from '@app/appstores/Stores/WalletConnect/helpers'
 import { Web3Injected } from '@crypto/services/Web3Injected'
 
@@ -30,7 +31,7 @@ import store from '@app/store'
 let core = false
 let web3wallet = false
 
-const WC_PROJECT_ID = 'daa39ed4fa0978cc19a9c9c0a2a7015c' // https://cloud.walletconnect.com/app/project
+const WC_PROJECT_ID = 'acf247418560ed01a616cc66231ff430' // https://cloud.walletconnect.com/app/project
 
 const _getPrivateData = async (from) => {
     const accountList = store.getState().accountStore.accountList
@@ -69,7 +70,8 @@ const _getAccounts = (payload) => {
         return false
     }
     const currentETHAddress = accountList[walletHash]['ETH']
-    const namespaces = {}
+    let namespaces = {}
+    let found = 0
     for (const key in requiredNamespaces) {
         const accounts = []
         for (const chain of requiredNamespaces[key].chains) {
@@ -85,10 +87,20 @@ const _getAccounts = (payload) => {
                 accounts.push(`${chain}:${currentETHAddress.address}`)
             }
         }
+        found++
         namespaces[key] = {
             accounts,
             methods: requiredNamespaces[key].methods,
             events: requiredNamespaces[key].events
+        }
+    }
+    if (!found) {
+        namespaces = {
+            'eip155': {
+                'accounts': [`eip155:1:${currentETHAddress.address}`],
+                'methods': ['eth_sendTransaction', 'personal_sign', 'wallet_switchEthereumChain'],
+                'events': ['chainChanged', 'accountsChanged']
+            }
         }
     }
     return {
@@ -147,7 +159,21 @@ const walletConnectService = {
                     }
                 }
 
-                if (method === 'personal_sign') {
+                if (method === 'wallet_switchEthereumChain') {
+                    if (config.debug.appErrors) {
+                        console.log('WalletConnectService.on v2 session_request wallet_switchEthereumChain', JSON.stringify(payload))
+                    }
+                    Log.log('WalletConnectService.on v2 session_request wallet_switchEthereumChain', JSON.stringify(payload))
+
+                    if (typeof params[0] !== 'undefined' && typeof params[0].chainId != 'undefined') {
+                        const tmp = params[0].chainId
+                        const WEB3 = Web3Injected(tmp)
+                        handleSessionChangeChainModal(web3wallet, WEB3.MAIN_CURRENCY_CODE,  payload)
+                    } else {
+                        walletConnectService.rejectRequest(web3wallet, payload)
+                    }
+
+                } else if (method === 'personal_sign') {
                     handleSendSignModal(web3wallet, chainId, params[1], params[0], payload)
                 } else if (method.indexOf('eth_') === -1) {
                     if (config.debug.appErrors) {
@@ -183,6 +209,14 @@ const walletConnectService = {
                     console.log('WalletConnectService.on v2 session_request error ' + e.message)
                 }
                 Log.log('WalletConnectService.on v2 session_request error ' + e.message)
+                if (e.message.indexOf('PLEASE ADD SUPPORT') === 0) {
+                    showModal({
+                        type: 'INFO_MODAL',
+                        icon: null,
+                        title: strings('modal.exchange.sorry'),
+                        description: `Network is not supported`
+                    })
+                }
             }
         })
 
@@ -254,7 +288,7 @@ const walletConnectService = {
             for (const key in activeSessions) {
                 const res = {
                     key,
-                    topic : activeSessions[key].topic,
+                    topic: activeSessions[key].topic,
                     peer: activeSessions[key].peer.metadata
                 }
                 connections.push(res)
@@ -268,20 +302,20 @@ const walletConnectService = {
         return connections
     },
 
-   killConnections: async (walletConnector) => {
+    killConnections: async (walletConnector) => {
         const connections = []
         try {
             const activeSessions = await walletConnector.getActiveSessions()
             for (const key in activeSessions) {
                 const res = {
                     key,
-                    topic : activeSessions[key].topic,
+                    topic: activeSessions[key].topic,
                     peer: activeSessions[key].peer.metadata
                 }
                 try {
                     await walletConnector.disconnectSession({
                         topic: activeSessions[key].topic,
-                        reason: getSdkError("USER_DISCONNECTED"),
+                        reason: getSdkError('USER_DISCONNECTED')
                     })
                 } catch (e) {
                     if (config.debug.appErrors) {
@@ -407,7 +441,29 @@ const walletConnectService = {
             if (config.debug.appErrors) {
                 console.log('WalletConnectService.approveSignTyped2 v2 error ' + e.message)
             }
-            Log.log.log('WalletConnectService.approveSignTyped2 v2 error ' + e.message)
+            Log.log('WalletConnectService.approveSignTyped2 v2 error ' + e.message)
+        }
+    },
+
+    sessionChangeChainModal: async (walletConnector, accountCurrencyCode, payload) => {
+        try {
+            Log.log('WalletConnectService.sessionChangeChainModal v2 chainId' + accountCurrencyCode, payload)
+
+            // https://github.com/WalletConnect/wallet-mobile-sdk/blob/b6dfb7d6b8447c7c5b238a10443a1ac28223f38f/react-native/src/WalletMobileSDKEVMProvider.ts#L554
+            const res = {
+                topic: payload.topic,
+                response: {
+                    id: payload.id,
+                    jsonrpc: '2.0',
+                    result: null
+                }
+            }
+            await walletConnector.respondSessionRequest(res)
+        } catch (e) {
+            if (config.debug.appErrors) {
+                console.log('WalletConnectService.sessionChangeChainModal v2 error ' + e.message)
+            }
+            Log.log('WalletConnectService.sessionChangeChainModal v2 error ' + e.message)
         }
     },
 

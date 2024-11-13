@@ -267,7 +267,6 @@ class NftMainScreen extends React.PureComponent {
                                 tintColor={colors.common.refreshControlIndicator}
                                 colors={[colors.common.refreshControlIndicator]}
                                 progressBackgroundColor={colors.common.refreshControlBg}
-                                progressViewOffset={-20}
                             />
                         }
                         ListEmptyComponent={<NftReceiveComponent />}
@@ -280,7 +279,7 @@ class NftMainScreen extends React.PureComponent {
                         contentContainerStyle={{ paddingVertical: this.context.GRID_SIZE }}
                         renderItem={this.renderFlatListCollections}
                         ListHeaderComponent={this.renderTabs}
-                        keyExtractor={({ index }) => index}
+                        keyExtractor={(_, index) => index}
                         refreshControl={
                             <RefreshControl
                                 refreshing={this.state.refreshing}
@@ -288,7 +287,6 @@ class NftMainScreen extends React.PureComponent {
                                 tintColor={colors.common.refreshControlIndicator}
                                 colors={[colors.common.refreshControlIndicator]}
                                 progressBackgroundColor={colors.common.refreshControlBg}
-                                progressViewOffset={-20}
                             />
                         }
                         ListEmptyComponent={<NftReceiveComponent />}

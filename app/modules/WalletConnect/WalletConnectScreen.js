@@ -196,7 +196,6 @@ class WalletConnectScreen extends PureComponent {
                                             addressError={walletConnectLinkError && this.state.inputFullLink === walletConnectLink}
                                             qrCallback={() => checkQRPermission(this.qrPermissionCallback)}
                                             validPlaceholder={true}
-                                            containerStyle={{ height: 50 }}
                                             inputStyle={{ marginTop: -5 }}
                                         />
                                     </View>

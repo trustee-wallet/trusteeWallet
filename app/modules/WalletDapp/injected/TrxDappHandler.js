@@ -11,7 +11,7 @@ import { strings } from '@app/services/i18n'
 
 const ethers = require('ethers')
 const ADDRESS_PREFIX_REGEX = /^(41)/
-const AbiCoder = ethers.utils.AbiCoder
+const AbiCoder = ethers.AbiCoder
 
 const TrxDappHandler = {
     account : {},

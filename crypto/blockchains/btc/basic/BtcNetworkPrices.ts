@@ -19,14 +19,17 @@ export default class BtcNetworkPrices implements BlocksoftBlockchainTypes.Networ
 
     async getNetworkPrices(currencyCode: string): Promise<{ 'speed_blocks_2': number, 'speed_blocks_6': number, 'speed_blocks_12': number }> {
         BlocksoftCryptoLog.log('BtcNetworkPricesProvider ' + currencyCode + ' load started')
+
         let res = false
         try {
             res = await BlocksoftAxios.post(PROXY_FEES, { currencyCode })
             if (typeof res.data === 'undefined') {
-                throw new Error('no data')
+                BlocksoftCryptoLog.log('BtcNetworkPricesProvider ' + currencyCode + ' res is error so use cache ' + JSON.stringify(CACHE_FEES_BTC.data))
+                return CACHE_FEES_BTC.data
             }
             if (typeof res.data.data === 'undefined' || typeof res.data.data.speed_blocks_2 === 'undefined') {
-                throw new Error('bad data ' + JSON.stringify(res.data))
+                BlocksoftCryptoLog.log('BtcNetworkPricesProvider ' + currencyCode + ' res is error so use cache ' + JSON.stringify(CACHE_FEES_BTC.data))
+                return CACHE_FEES_BTC.data
             }
             CACHE_FEES_BTC.data = res.data.data
             CACHE_FEES_BTC.loaded = new Date().getTime()

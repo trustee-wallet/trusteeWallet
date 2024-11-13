@@ -84,7 +84,7 @@ class AddAssetScreen extends React.PureComponent {
         this.prepareData(undefined, undefined, value)
     }
 
-    handleBack = () => { NavStore.goBack() }
+    handleBack = () => NavStore.goBack()
 
     handleChangeTab = (newTab) => {
         Keyboard.dismiss()
@@ -235,7 +235,7 @@ class AddAssetScreen extends React.PureComponent {
         return (
             <FlatList
                 data={data}
-                keyExtractor={({ index }) => index}
+                keyExtractor={(_, index) => index}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 renderItem={this.renderFlatListItem}

@@ -6,7 +6,6 @@ import DogeScannerProcessor from '../doge/DogeScannerProcessor'
 import BtcCashUtils from './ext/BtcCashUtils'
 
 export default class BchScannerProcessor extends DogeScannerProcessor{
-
     /**
      * @type {number}
      * @private
@@ -26,7 +25,7 @@ export default class BchScannerProcessor extends DogeScannerProcessor{
         } else {
             legacyAddress = BtcCashUtils.toLegacyAddress(address)
         }
-        return super._get(legacyAddress)
+        return this._getInner(legacyAddress)
     }
 
     _addressesForFind(address, jsonData) {

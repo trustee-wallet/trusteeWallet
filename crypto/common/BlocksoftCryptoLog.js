@@ -22,7 +22,7 @@ let FULL_LOGS_TXT = ''
 class BlocksoftCryptoLog {
 
     constructor() {
-        this.FS = new FileSystem({ fileEncoding: 'utf8', fileName: 'CryptoLog', fileExtension: 'txt' })
+        this.FS = new FileSystem({ fileEncoding: 'utf8', fileName: 'CryptoLog', withDate: true, fileExtension: 'txt' })
 
         this.DATA = {}
         this.DATA.LOG_VERSION = false

@@ -1,7 +1,11 @@
 /**
  * @version 0.30
  **/
+
+import { Platform } from 'react-native'
 import messaging from '@react-native-firebase/messaging'
+import notifee from '@notifee/react-native'
+
 import Log from '../Log/Log'
 import { sublocale } from '../i18n'
 
@@ -16,7 +20,6 @@ import AppNotificationPopup from './AppNotificationPopup'
 import { AppNewsActions } from '../../appstores/Stores/AppNews/AppNewsActions'
 import { SettingsKeystore } from '../../appstores/Stores/Settings/SettingsKeystore'
 
-import { Platform } from 'react-native'
 import { setLockScreenConfig, LockScreenFlowTypes } from '@app/appstores/Stores/LockScreen/LockScreenActions'
 import trusteeAsyncStorage from '@appV2/services/trusteeAsyncStorage/trusteeAsyncStorage'
 import { LANGUAGE_SETTINGS } from '@app/modules/Settings/helpers'
@@ -278,6 +281,7 @@ export default new class AppNotificationListener {
                     await this.updateSubscriptions(fcmToken)
                 }
                 try {
+                    await messaging()?.registerDeviceForRemoteMessages()
                     fcmToken = await messaging().getToken()
                     if (!notifsRmvOld && fcmToken) {
                         await this.rmvOld(fcmToken)
@@ -340,15 +344,15 @@ export default new class AppNotificationListener {
 
     createMessageListener = async (): Promise<void> => {
         try {
-            const startMessage = await messaging().getInitialNotification()
+            const startMessage = await notifee.getInitialNotification()
 
-            if (startMessage && typeof startMessage.messageId !== 'undefined') {
+            if (startMessage) {
                 const lockScreen = await SettingsKeystore.getLockScreenStatus()
                 if (+lockScreen) {
                     if (DEBUG_NOTIFS) {
                         await Log.log('PUSH _onMessage startMessage not null but lockScreen is needed', startMessage)
                     }
-                    const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
+                    const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage?.notification)
 
                     if (unifiedPush) {
                         setLockScreenConfig({flowType : LockScreenFlowTypes.PUSH_POPUP_CALLBACK, callback : async () => {
@@ -368,7 +372,7 @@ export default new class AppNotificationListener {
                     }
                     UpdateAppNewsDaemon.goToNotifications('AFTER_APP')
 
-                    const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage)
+                    const unifiedPush = await AppNotificationPushSave.unifyPushAndSave(startMessage?.notification)
 
                     await UpdateAppNewsDaemon.updateAppNewsDaemon()
 
@@ -405,7 +409,7 @@ export default new class AppNotificationListener {
 
         this.messageListener = messaging().onMessage(async (message) => {
             if (DEBUG_NOTIFS) {
-                await Log.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+                await console.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
             }
             await AppNotificationPopup.displayPush(message)
         })
@@ -417,12 +421,12 @@ export default new class AppNotificationListener {
             await AppNotificationPopup.onOpened(message)
         })
 
-        await messaging().setBackgroundMessageHandler(async (message) => {
-            if (DEBUG_NOTIFS) {
-                await Log.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
-            }
-            await AppNotificationPopup.displayPush(message)
-        })
+        // await messaging().setBackgroundMessageHandler(async (message) => {
+        //     if (DEBUG_NOTIFS) {
+        //         await Log.log('PUSH _onMessage inited, locked ' + JSON.stringify(MarketingEvent.UI_DATA.IS_LOCKED))
+        //     }
+        //     await AppNotificationPopup.displayPush(message)
+        // })
 
     }
 

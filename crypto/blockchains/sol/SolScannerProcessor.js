@@ -7,9 +7,9 @@ import BlocksoftUtils from '@crypto/common/BlocksoftUtils'
 import BlocksoftExternalSettings from '@crypto/common/BlocksoftExternalSettings'
 
 import SolTmpDS from '@crypto/blockchains/sol/stores/SolTmpDS'
+import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 
 import config from '@app/config/config'
-import SolUtils from '@crypto/blockchains/sol/ext/SolUtils'
 
 const CACHE_FROM_DB = {}
 const CACHE_TXS = {}
@@ -55,8 +55,14 @@ export default class SolScannerProcessor {
             }
             balance = res.data.result.value
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' SolScannerProcessor getBalanceBlockchain address ' + address + ' error ' + e.message)
+            }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor getBalanceBlockchain address ' + address + ' error ' + e.message)
             return false
+        }
+        if (config.debug.cryptoErrors) {
+            // console.log(this._settings.currencyCode + ' SolScannerProcessor getBalanceBlockchain address ' + address + ' balance ' + balance)
         }
         return { balance, unconfirmed: 0, provider: 'solana-api' }
     }
@@ -66,12 +72,17 @@ export default class SolScannerProcessor {
      * @param  {string} scanData.account.address
      * @return {Promise<[UnifiedTransaction]>}
      * https://docs.solana.com/developing/clients/jsonrpc-api#getsignaturesforaddress
-     * curl https://api.mainnet-beta.solana.com  -X POST -H "Content-Type: application/json" -d '{'jsonrpc": "2.0","id": 1,"method": "getConfirmedSignaturesForAddress2","params": ["9mnBdsuL1x24HbU4oeNDBAYVAGg2vVndkRAc18kPNqCJ",{"limit': 1}]}'
      */
     async getTransactionsBlockchain(scanData, source) {
+        return this._getTransactionsBlockchainInner(scanData, source, this.tokenAddress)
+    }
+
+    async _getTransactionsBlockchainInner(scanData, source, tokenAddress) {
         const address = scanData.account.address.trim()
-        const lastHashVar = address + this.tokenAddress
+        const lastHashVar = address + tokenAddress
         this._cleanCache()
+        let transactions = false
+        let until = 'none'
         try {
             if (typeof CACHE_FROM_DB[lastHashVar] === 'undefined') {
                 CACHE_FROM_DB[lastHashVar] = await SolTmpDS.getCache(lastHashVar)
@@ -80,16 +91,20 @@ export default class SolScannerProcessor {
             const data = {
                 'jsonrpc': '2.0',
                 'id': 1,
-                'method': 'getConfirmedSignaturesForAddress2',
+                'method': 'getSignaturesForAddress',
                 'params': [
                     address,
                     {
-                        'limit': 100
+                        'limit': 2
                     }
                 ]
             }
             if (CACHE_FROM_DB[lastHashVar] && typeof CACHE_FROM_DB[lastHashVar]['last_hash'] !== 'undefined') {
                 data.params[1].until = CACHE_FROM_DB[lastHashVar]['last_hash']
+                until = data.params[1].until
+            } else if (CACHE_LAST_BLOCK && CACHE_LAST_BLOCK > 1000000000) {
+                data.params[1].minContextSlot = CACHE_LAST_BLOCK - 1000000000
+                until = 'block ' + data.params[1].minContextSlot
             }
             const apiPath = BlocksoftExternalSettings.getStatic('SOL_SERVER')
             const res = await BlocksoftAxios._request(apiPath, 'POST', data)
@@ -97,22 +112,27 @@ export default class SolScannerProcessor {
                 return false
             }
 
-            const transactions = await this._unifyTransactions(address, res.data.result, lastHashVar)
-            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor.getTransactions finished ' + address)
-            return transactions
+            transactions = await this._unifyTransactions(address, res.data.result, lastHashVar, tokenAddress)
+            BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor.getTransactions finished ' + address + ' until ' + until)
         } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' SolScannerProcessor getTransactionsBlockchain address ' + address + ' error ' + e.message)
+            }
             BlocksoftCryptoLog.log(this._settings.currencyCode + ' SolScannerProcessor getTransactionsBlockchain address ' + address + ' error ' + e.message)
-            return false
         }
+        if (config.debug.cryptoErrors) {
+            // console.log(this._settings.currencyCode + ' SolScannerProcessor getTransactionsBlockchain address ' + address + ' until ' + until + ' transactions ' + JSON.stringify(transactions))
+        }
+        return transactions
     }
 
-    async _unifyTransactions(address, result, lastHashVar) {
+    async _unifyTransactions(address, result, lastHashVar, tokenAddress) {
         const transactions = []
         let lastHash = false
         let hasError = false
         for (const tx of result) {
             try {
-                const transaction = await this._unifyTransaction(address, tx)
+                const transaction = await this._unifyTransaction(address, tx, tokenAddress)
                 if (transaction) {
                     transactions.push(transaction)
                     if (transaction.transactionStatus === 'success' && !lastHash && !hasError) {
@@ -155,15 +175,15 @@ export default class SolScannerProcessor {
         }
     }
 
-    async _unifyTransaction(address, transaction) {
-
+    async _unifyTransaction(address, transaction, tokenAddress) {
+        // https://solana.com/docs/rpc/http/gettransaction
         const data = {
             'jsonrpc': '2.0',
             'id': 1,
-            'method': 'getConfirmedTransaction',
+            'method': 'getTransaction',
             'params': [
                 transaction.signature,
-                {encoding : 'jsonParsed'}
+                { encoding : 'jsonParsed', maxSupportedTransactionVersion: 12 }
             ]
         }
 
@@ -173,6 +193,9 @@ export default class SolScannerProcessor {
             try {
                 const res = await BlocksoftAxios._request(apiPath, 'POST', data)
                 if (typeof res.data.result === 'undefined' || !res.data.result) {
+                    if (typeof res.data.error !== 'undefined' && typeof res.data.error.message !== 'undefined' && res.data.error.message) {
+                        throw new Error(res.data.error.message)
+                    }
                     return false
                 }
                 additional = res.data.result
@@ -198,15 +221,15 @@ export default class SolScannerProcessor {
         const indexedCreated = {}
         const indexedAssociated = {}
 
-        if (this.tokenAddress) {
+        if (tokenAddress) {
             for (const tmp of additional.meta.preTokenBalances) {
-                if (tmp.mint !== this.tokenAddress) continue
+                if (tmp.mint !== tokenAddress) continue
                 const realIndex = tmp.accountIndex
                 indexedPre[realIndex] = tmp.uiTokenAmount.amount
             }
 
             for (const tmp of additional.meta.postTokenBalances) {
-                if (tmp.mint !== this.tokenAddress) continue
+                if (tmp.mint !== tokenAddress) continue
                 const realIndex = tmp.accountIndex
                 indexedPost[realIndex] = tmp.uiTokenAmount.amount
             }
@@ -221,7 +244,7 @@ export default class SolScannerProcessor {
                 if (tmpAddress.pubkey === '11111111111111111111111111111111') continue
                 const sourceAssociatedTokenAddress = await SolUtils.findAssociatedTokenAddress(
                     tmpAddress.pubkey,
-                    this.tokenAddress
+                    tokenAddress
                 )
                 indexedAssociated[sourceAssociatedTokenAddress] = tmpAddress
             }
@@ -238,7 +261,7 @@ export default class SolScannerProcessor {
             if (typeof indexedAssociated[tmpAddress.pubkey] !== 'undefined') {
                 tmpAddress = indexedAssociated[tmpAddress.pubkey]
             }
-            if (this.tokenAddress) {
+            if (tokenAddress) {
                 const to = typeof indexedPost[i] !== 'undefined' ? indexedPost[i] : 0
                 const from = typeof indexedPre[i] !== 'undefined' ? indexedPre[i] : 0
                 tmpAmount = BlocksoftUtils.diff(to, from).toString()
@@ -328,6 +351,9 @@ export default class SolScannerProcessor {
             addressAmount,
             transactionStatus,
             transactionFee: additional.meta.fee
+        }
+        if (tokenAddress && addressAmount === 0) {
+            return false
         }
         if (typeof transaction.memo !== 'undefined' && transaction.memo) {
             tx.transactionJson = { memo: transaction.memo }

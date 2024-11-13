@@ -1,18 +1,12 @@
-
 import React from 'react'
-import {
-    Text,
-    View,
-    StyleSheet,
-} from 'react-native'
+import { Text, View, StyleSheet } from 'react-native'
 
 import { TouchableOpacity } from '@gorhom/bottom-sheet'
-
-import Switch from 'react-native-switch-pro'
 
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import CustomIcon from '@app/components/elements/CustomIcon'
+import Switch from '../../Switch'
 
 import { useTheme } from '@app/theme/ThemeProvider'
 
@@ -21,59 +15,59 @@ import CheckBox from '../../CheckBox'
 const getIcon = (iconType, color) => {
     switch (iconType) {
         case 'wallet':
-            return <CustomIcon name="wallet" size={21} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='wallet' size={21} color={color} style={{ left: 1 }} />
         case 'accounts':
-            return <CustomIcon name="addressBook" size={21} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='addressBook' size={21} color={color} style={{ left: 1 }} />
         case 'pinCode':
-            return <CustomIcon name="pin" size={24} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='pin' size={24} color={color} style={{ left: 0.5 }} />
         case 'biometricLock':
-            return <CustomIcon name="faceId" size={24} color={color} />
+            return <CustomIcon name='faceId' size={24} color={color} />
         case 'transactionConfirmation':
-            return <MaterialCommunityIcon name="lock-question" color={color} size={22} style={{ left: 0, top: 0 }} />
+            return <MaterialCommunityIcon name='lock-question' color={color} size={22} style={{ left: 0, top: 0 }} />
         case 'notifications':
-            return <CustomIcon name="notifications" size={24} color={color} style={{ left: 0.5, bottom: 0.5 }} />
+            return <CustomIcon name='notifications' size={24} color={color} style={{ left: 0.5, bottom: 0.5 }} />
         case 'about':
-            return <MaterialCommunityIcon name="information" size={22} color={color} style={{ left: 0.5, top: 1 }} />
+            return <MaterialCommunityIcon name='information' size={22} color={color} style={{ left: 0.5, top: 1 }} />
         case 'darkMode':
-            return <FontAwesomeIcon name="moon-o" color={color} size={23} style={{ marginLeft: 2 }} />
+            return <FontAwesomeIcon name='moon-o' color={color} size={23} style={{ marginLeft: 2 }} />
         case 'localCurrency':
-            return <CustomIcon name="localCurrency" size={24} color={color} style={{ left: 0.5, top: 1 }} />
+            return <CustomIcon name='localCurrency' size={24} color={color} style={{ left: 0.5, top: 1 }} />
         case 'config':
-            return <CustomIcon name="config" size={24} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='config' size={24} color={color} style={{ left: 0.5 }} />
         case 'testerMode':
-            return <CustomIcon name="user" size={20} color={color} style={{ left: 1 }} />
+            return <CustomIcon name='user' size={20} color={color} style={{ left: 1 }} />
         case 'changePinCode':
-            return <CustomIcon name="changePin" size={24} color={color} style={{ left: 0 }} />
+            return <CustomIcon name='changePin' size={24} color={color} style={{ left: 0 }} />
         case 'language':
-            return <CustomIcon name="language" size={24} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='language' size={24} color={color} style={{ left: 0.5 }} />
         case 'scanning':
-            return <CustomIcon name="scanning" size={24} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='scanning' size={24} color={color} style={{ left: 0.5 }} />
         case 'shareLogs':
-            return <CustomIcon name="logs" size={22} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='logs' size={22} color={color} style={{ left: 0.5 }} />
         case 'contactSupport':
-            return <CustomIcon name="support" size={23} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='support' size={23} color={color} style={{ left: 0.5 }} />
         case 'termsOfUse':
-            return <CustomIcon name="terms" size={24} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='terms' size={24} color={color} style={{ left: 0.5 }} />
         case 'transactions':
-            return <CustomIcon name="exchange" size={22} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='exchange' size={22} color={color} style={{ left: 0.5 }} />
         case 'privacyPolicy':
-            return <CustomIcon name="privacy" size={24} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='privacy' size={24} color={color} style={{ left: 0.5 }} />
         case 'exchangeRates':
-            return <CustomIcon name="exchangeRates" size={22} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='exchangeRates' size={22} color={color} style={{ left: 0.5 }} />
         case 'news':
-            return <CustomIcon name="news" size={22} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='news' size={22} color={color} style={{ left: 0.5 }} />
         case 'key':
-            return <CustomIcon name="recoveryPhrase" size={22} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='recoveryPhrase' size={22} color={color} style={{ left: 0.5 }} />
         case 'importWallet':
-            return <CustomIcon name="importWallet" size={22} color={color} style={{ left: 0.5 }} />
+            return <CustomIcon name='importWallet' size={22} color={color} style={{ left: 0.5 }} />
         case 'cashMultiple':
-            return <MaterialCommunityIcon name="cash-multiple" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
+            return <MaterialCommunityIcon name='cash-multiple' color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
         case 'accountBoxMultiple':
-            return <MaterialCommunityIcon name="account-box-multiple" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
+            return <MaterialCommunityIcon name='account-box-multiple' color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
         case 'cogs':
-            return <MaterialCommunityIcon name="cogs" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
+            return <MaterialCommunityIcon name='cogs' color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
         case 'information':
-            return <MaterialCommunityIcon name="information" color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
+            return <MaterialCommunityIcon name='information' color={color} size={22} style={{ marginTop: 0, marginLeft: 1 }} />
         case 'hd':
             return <CustomIcon name='multiAddress' size={18} color={color} />
         case 'rbf':
@@ -134,7 +128,8 @@ const getIcon = (iconType, color) => {
             return <CustomIcon name='earn' size={22} color={color} />
         case 'blockchain':
             return <CustomIcon name='blockchain' size={22} color={color} />
-        default: return null
+        default:
+            return null
     }
 }
 
@@ -149,15 +144,14 @@ const getRightContent = (rightContent, params, color, isVisibleDone) => {
         case 'switch':
             return (
                 <Switch
-                    onAsyncPress={onPress}
+                    // onPress={onPress}
+                    circleColor={colors.common.switch.circleBg}
+                    activeBackgroundColor={colors.common.switch.bgActive}
+                    inactiveBackgroundColor={colors.common.switch.bgInactive}
                     value={!reversedValue}
                     disabled={disabled}
-                    backgroundInactive={colors.common.switch.bgInactive}
-                    backgroundActive={colors.common.switch.bgActive}
-                    circleColorInactive={colors.common.switch.circleBg}
-                    circleColorActive={colors.common.switch.circleBg}
+                    animated={false}
                     width={34}
-                    circleStyle={Object.assign({}, !disabled && styles.switchShadow, { borderColor: reversedValue ? colors.common.switch.bgInactive : colors.common.switch.bgActive })}
                 />
             )
         case 'arrow_down':
@@ -167,7 +161,8 @@ const getRightContent = (rightContent, params, color, isVisibleDone) => {
         case 'checkbox':
             return <CheckBox isVisibleDone={isVisibleDone} checked={checked} onPress={onPress} />
 
-        default: return null
+        default:
+            return null
     }
 }
 
@@ -198,8 +193,6 @@ export default function SettingListItem(props) {
     } = props
     const { colors, GRID_SIZE } = useTheme()
 
-
-
     if (type === 'dropdown') {
         return (
             <>
@@ -209,15 +202,20 @@ export default function SettingListItem(props) {
                     onLongPress={onLongPress}
                     delayLongPress={delayLongPress}
                     activeOpacity={0.8}
-                    disabled={disabled}
-                >
+                    disabled={disabled}>
                     <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: disabled ? 0.5 : 1 }]}>
                         {getIcon(iconType, colors.common.listItem.basic.iconColorLight)}
                     </View>
                     <View style={[styles.mainContent, last && styles.noBorder, { borderColor: colors.common.listItem.basic.borderColor }]}>
                         <View style={[styles.textContent, { opacity: disabled ? 0.5 : 1, paddingVertical: !!subtitle ? 13 : 23 }]}>
-                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>{title}</Text>
-                            {!!subtitle && <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                            <Text numberOfLines={!!subtitle ? 1 : 2} style={[styles.title, { color: colors.common.text1 }]}>
+                                {title}
+                            </Text>
+                            {!!subtitle && (
+                                <Text numberOfLines={2} style={[styles.subtitle, { color: colors.common.text2 }]}>
+                                    {subtitle}
+                                </Text>
+                            )}
                         </View>
                         {!!rightContent && (
                             <View style={[styles.rightContent, { opacity: disabled || disabledRightContent ? 0.3 : 1 }]}>
@@ -226,9 +224,7 @@ export default function SettingListItem(props) {
                         )}
                     </View>
                 </TouchableOpacity>
-                {(ExtraView && switchParams.value) && (
-                    <ExtraView ExtraViewParams={ExtraViewParams} />
-                )}
+                {ExtraView && switchParams.value && <ExtraView ExtraViewParams={ExtraViewParams} />}
             </>
         )
     } else {
@@ -240,29 +236,51 @@ export default function SettingListItem(props) {
                     onLongPress={onLongPress}
                     delayLongPress={delayLongPress}
                     activeOpacity={0.8}
-                    disabled={disabled}
-                >
-                    {iconType &&
-                        <View style={[styles.icon, { backgroundColor: colors.common.listItem.basic.iconBgLight, opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1 }, customIconStyle]}>
+                    disabled={disabled}>
+                    {iconType && (
+                        <View
+                            style={[
+                                styles.icon,
+                                {
+                                    backgroundColor: colors.common.listItem.basic.iconBgLight,
+                                    opacity: !opacityWithDisabled ? (disabled ? 0.5 : 1) : 1
+                                },
+                                customIconStyle
+                            ]}>
                             {getIcon(iconType, customIconStyle?.color || colors.common.listItem.basic.iconColorLight)}
-                            {hasInfo && <View style={[styles.notificationIndicator, { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }]} />}
+                            {hasInfo && (
+                                <View
+                                    style={[
+                                        styles.notificationIndicator,
+                                        { backgroundColor: colors.notifications.newNotiesIndicator, borderColor: colors.common.background }
+                                    ]}
+                                />
+                            )}
                         </View>
-                    }
+                    )}
                     <View style={[styles.mainContent, { paddingLeft: iconType ? 4 : 0, paddingVertical: !!subtitle ? 13 : 23 }, contentStyle]}>
-                        <View style={[styles.textContent, { opacity: !opacityWithDisabled ? disabled ? 0.5 : 1 : 1, marginLeft: iconType ? 0 : GRID_SIZE }]}>
-                            <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1, ...customTextStyle }]}>{title}</Text>
-                            {!!subtitle && <Text numberOfLines={4} style={[styles.subtitle, { color: colors.common.text2 }]}>{subtitle}</Text>}
+                        <View
+                            style={[
+                                styles.textContent,
+                                { opacity: !opacityWithDisabled ? (disabled ? 0.5 : 1) : 1, marginLeft: iconType ? 0 : GRID_SIZE }
+                            ]}>
+                            <Text numberOfLines={3} style={[styles.title, { color: colors.common.text1, ...customTextStyle }]}>
+                                {title}
+                            </Text>
+                            {!!subtitle && (
+                                <Text numberOfLines={4} style={[styles.subtitle, { color: colors.common.text2 }]}>
+                                    {subtitle}
+                                </Text>
+                            )}
                         </View>
                         {!!rightContent && (
-                            <View style={[styles.rightContent, { opacity: !opacityWithDisabled ? disabled || disabledRightContent ? 0.3 : 1 : 1 }]}>
+                            <View style={[styles.rightContent, { opacity: !opacityWithDisabled ? (disabled || disabledRightContent ? 0.3 : 1) : 1 }]}>
                                 {getRightContent(rightContent, { ...switchParams, disabled, onPress, checked }, colors.common.text1, isVisibleDone)}
                             </View>
                         )}
                     </View>
                 </TouchableOpacity>
-                {ExtraView && (
-                    <ExtraView ExtraViewParams={ExtraViewParams} />
-                )}
+                {ExtraView && <ExtraView ExtraViewParams={ExtraViewParams} />}
                 {!last && <View style={{ height: 1, backgroundColor: colors.common.listItem.basic.borderColor, marginLeft: GRID_SIZE * 3 }} />}
             </View>
         )
@@ -272,7 +290,7 @@ export default function SettingListItem(props) {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'center'
     },
     icon: {
         width: 40,
@@ -287,11 +305,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        flex: 1,
+        flex: 1
     },
     textContent: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
     rightContent: {
         justifyContent: 'center',
@@ -329,6 +347,6 @@ const styles = StyleSheet.create({
         width: 10,
         height: 10,
         borderRadius: 5,
-        borderWidth: 2,
+        borderWidth: 2
     }
 })

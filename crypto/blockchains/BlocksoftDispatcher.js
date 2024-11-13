@@ -250,5 +250,4 @@ class BlocksoftDispatcher {
     }
 }
 
-const singleBlocksoftDispatcher = new BlocksoftDispatcher()
-export default singleBlocksoftDispatcher
+export default new BlocksoftDispatcher()

@@ -51,11 +51,18 @@ export default class EthTxSendProvider {
         let signData = false
         try {
             signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
-        } catch (e) {
-            if (e.message.indexOf('Invalid JSON RPC response:') === -1 || typeof this._web3.SEND_RAW_LINK === 'undefined' || !this._web3.SEND_RAW_LINK) {
-                throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK)
+            if (typeof signData.rawTransaction !== 'undefined') {
+                console.log('result rawTransaction signData.rawTransaction ' + signData.rawTransaction)
+                return signData.rawTransaction
             }
-            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
+        } catch (e) {
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error1 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK, e)
+            }
+            if (e.message.indexOf('Invalid JSON RPC response:') === -1 || typeof this._web3.SEND_RAW_LINK === 'undefined' || !this._web3.SEND_RAW_LINK) {
+                throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error1 ' + e.message + ' ' + this._web3?.LINK)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error1 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
         }
         const newLink = this._web3.SEND_RAW_LINK
         this._web3 = new Web3(new Web3.providers.HttpProvider(newLink))
@@ -64,7 +71,11 @@ export default class EthTxSendProvider {
         try {
             signData = await this._web3.eth.accounts.signTransaction(tx, privateData.privateKey)
         } catch (e) {
-            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
+            if (config.debug.cryptoErrors) {
+                console.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error2 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK, e)
+            }
+            await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error2 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
+            throw new Error(this._settings.currencyCode + ' EthTxSendProvider._innerSign signTransaction error2 ' + e.message + ' ' + this._web3?.LINK + ' => ' + this._web3.SEND_RAW_LINK)
         }
         return signData.rawTransaction
     }
@@ -162,7 +173,8 @@ export default class EthTxSendProvider {
                     throw new Error('SERVER_RESPONSE_NOT_CONNECTED')
                 }
                 if (typeof tmp.data.error !== 'undefined' && tmp.data.error) {
-                    throw new Error(typeof tmp.data.error.message !== 'undefined' ? tmp.data.error.message : tmp.data.error)
+                    let newError = typeof tmp.data.error.message !== 'undefined' ? tmp.data.error.message : tmp.data.error
+                    throw new Error(JSON.stringify(newError))
                 }
                 result = {
                     data: {
@@ -191,10 +203,23 @@ export default class EthTxSendProvider {
                     }
                 }
 
+            } else if (this._mainCurrencyCode === 'ETC' || this._settings.currencyCode === 'ETC') {
+                sendLink = link
+                await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send get ', sendLink + rawTransaction)
+                result = await BlocksoftAxios.get(sendLink + rawTransaction)
             } else {
                 sendLink = link
                 await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send post ', rawTransaction)
-                result = await BlocksoftAxios.post(sendLink, rawTransaction)
+                try {
+                    result = await BlocksoftAxios.post(sendLink, rawTransaction)
+                } catch (e1) {
+                    if (e1.message.indexOf('not determine redirect url') !== -1) {
+                        await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send get ', sendLink + rawTransaction)
+                        result = await BlocksoftAxios.get(sendLink + rawTransaction)
+                    } else {
+                        throw e1
+                    }
+                }
             }
             // @ts-ignore
             await BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send result ', typeof result !== 'undefined' && result ? result.data : 'NO RESULT')
@@ -302,24 +327,42 @@ export default class EthTxSendProvider {
         logData.successResult = checkResult && typeof checkResult.data !== 'undefined' && checkResult.data ? JSON.parse(JSON.stringify(checkResult.data)) : false
         logData.txRBF = txRBF
 
-        const nonce = typeof logData.setNonce !== 'undefined' ? logData.setNonce : BlocksoftUtils.hexToDecimal(tx.nonce)
-
-        const transactionJson = {
-            nonce,
-            gasPrice: typeof logData.gasPrice !== 'undefined' ? logData.gasPrice : BlocksoftUtils.hexToDecimal(tx.gasPrice)
+        let transactionJson
+        let nonce = -1
+        try {
+            nonce = typeof logData.setNonce !== 'undefined' ? logData.setNonce : (typeof tx.nonce !== 'undefined' ? BlocksoftUtils.hexToDecimal(tx.nonce) : -1)
+        } catch (e) {
+            throw new Error(e.message + ' while BlocksoftUtils.hexToDecimal(tx.nonce) ')
+        }
+        try {
+            transactionJson = {
+                nonce,
+                gasPrice: typeof logData.gasPrice !== 'undefined' ? logData.gasPrice : BlocksoftUtils.hexToDecimal(tx.gasPrice)
+            }
+        } catch (e) {
+            throw new Error(e.message + ' while BlocksoftUtils.hexToDecimal(tx.gasPrice)')
         }
 
-        await EthRawDS.saveRaw({
-            address: tx.from,
-            currencyCode: this._settings.currencyCode,
-            transactionUnique: tx.from + '_' + nonce,
-            transactionHash,
-            transactionRaw: rawTransaction,
-            transactionLog: logData
-        })
-
         BlocksoftCryptoLog.log(this._settings.currencyCode + ' EthTxSendProvider.send save nonce ' + nonce + ' from ' + tx.from + ' ' + transactionHash)
-        await EthTmpDS.saveNonce(this._mainCurrencyCode, tx.from, 'send_' + transactionHash, nonce)
+        if (nonce !== -1) {
+            try {
+                await EthRawDS.saveRaw({
+                    address: tx.from,
+                    currencyCode: this._settings.currencyCode,
+                    transactionUnique: tx.from + '_' + nonce,
+                    transactionHash,
+                    transactionRaw: rawTransaction,
+                    transactionLog: logData
+                })
+            } catch (e) {
+                throw new Error(e.message + ' while EthRawDS.saveRaw')
+            }
+            try {
+                await EthTmpDS.saveNonce(this._mainCurrencyCode, tx.from, 'send_' + transactionHash, nonce)
+            } catch (e) {
+                throw new Error(e.message + ' while EthTmpDS.saveNonce')
+            }
+        }
 
         return { transactionHash, transactionJson }
     }

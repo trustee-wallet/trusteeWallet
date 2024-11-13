@@ -4,9 +4,9 @@
  */
 
 import React from 'react'
-import { View, ScrollView, RefreshControl, Text } from 'react-native'
+import { View, ScrollView, RefreshControl, Text, Dimensions } from 'react-native'
 import { connect } from 'react-redux'
-import { TabView } from 'react-native-tab-view'
+import { SwiperFlatList } from 'react-native-swiper-flatlist'
 
 import { ThemeContext } from '@app/theme/ThemeProvider'
 
@@ -42,6 +42,8 @@ import Log from '@app/services/Log/Log'
 
 const CACHE_ASKED = {}
 const CACHE_ASK_TIME = 6000
+
+const width = Dimensions.get('window').width
 
 class AccountStakingTRX extends React.PureComponent {
     state = {
@@ -95,6 +97,7 @@ class AccountStakingTRX extends React.PureComponent {
     }
 
     stakeAmountInput = React.createRef()
+    swiperRef = React.createRef()
 
     async componentDidMount() {
         await handleTrxScan.call(this)
@@ -175,8 +178,8 @@ class AccountStakingTRX extends React.PureComponent {
         handleTrxScan.call(this)
     }
 
-    renderScene = ({ route }) => {
-        switch (route.key) {
+    renderScene = ({ item }) => {
+        switch (item) {
             case 'first':
                 return this.renderFirstRoute()
             case 'second':
@@ -190,6 +193,7 @@ class AccountStakingTRX extends React.PureComponent {
 
     handleTabChange = (index) => {
         this.setState({ index })
+        this.swiperRef.scrollToIndex({ index })
     }
 
     renderInfoHeader = () => {
@@ -331,8 +335,6 @@ class AccountStakingTRX extends React.PureComponent {
             <>
                 <View style={styles.inputWrapper}>
                     <Input
-                        style={{ height: 55 }}
-                        containerStyle={{ height: 55 }}
                         ref={(ref) => (this.stakeAmountInput = ref)}
                         id='freezeAmount'
                         name={strings('settings.walletList.enterToFreezeTRX')}
@@ -382,7 +384,7 @@ class AccountStakingTRX extends React.PureComponent {
             tmp += currentBalance.prettyUnFrozen * 1
         }
         return (
-            <>
+            <View style={{ width: width - 32 }}>
                 {this.renderDescription(
                     strings('account.stakingTRX.bandwidthInfo', { TRX_STAKE_DAYS: BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS') }),
                     strings('account.stakingTRX.moreInfo')
@@ -407,7 +409,7 @@ class AccountStakingTRX extends React.PureComponent {
                         handleButton={() => NavStore.goNext('AccountStakingWithdrawTRX', { type: 'BANDWIDTH', currentBalance })}
                     />
                 </View>
-            </>
+            </View>
         )
     }
 
@@ -421,7 +423,7 @@ class AccountStakingTRX extends React.PureComponent {
             tmp += currentBalance.prettyUnFrozenEnergy * 1
         }
         return (
-            <>
+            <View style={{ width: width - 32 }}>
                 {this.renderDescription(
                     strings('account.stakingTRX.energyInfo', { TRX_STAKE_DAYS: BlocksoftExternalSettings.getStatic('TRX_STAKE_DAYS') }),
                     strings('account.stakingTRX.moreInfo')
@@ -446,7 +448,7 @@ class AccountStakingTRX extends React.PureComponent {
                         handleButton={() => NavStore.goNext('AccountStakingWithdrawTRX', { type: 'ENERGY', currentBalance })}
                     />
                 </View>
-            </>
+            </View>
         )
     }
 
@@ -467,7 +469,8 @@ class AccountStakingTRX extends React.PureComponent {
                     ref={(ref) => (this.scrollView = ref)}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps='handled'
-                    style={{ flexGrow: 1 }}
+                    contentContainerStyle={{ flexGrow: 1 }}
+                    style={{ flex: 1 }}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
@@ -475,21 +478,32 @@ class AccountStakingTRX extends React.PureComponent {
                             tintColor={colors.common.refreshControlIndicator}
                             colors={[colors.common.refreshControlIndicator]}
                             progressBackgroundColor={colors.common.refreshControlBg}
-                            progressViewOffset={-20}
                         />
                     }>
-                    <View style={{ marginHorizontal: GRID_SIZE, marginTop: GRID_SIZE }}>
+                    <View
+                        style={{
+                            flex: 1,
+                            marginHorizontal: GRID_SIZE,
+                            marginTop: GRID_SIZE
+                        }}>
                         {this.renderInfoHeader()}
                         <View style={{ marginBottom: GRID_SIZE }}>{this.renderTabs()}</View>
-                        <TabView
-                            style={{ flex: 1 }}
-                            navigationState={this.state}
-                            renderScene={this.renderScene}
-                            renderHeader={null}
-                            onIndexChange={this.handleTabChange}
-                            renderTabBar={() => null}
-                            useNativeDriver
-                        />
+                        <View style={{ flex: 1 }}>
+                            <SwiperFlatList
+                                ref={(ref) => (this.swiperRef = ref)}
+                                data={['first', 'second']}
+                                renderItem={this.renderScene}
+                                bounces={false}
+                                onViewableItemsChanged={(e) => {
+                                    if (typeof e?.viewableItems?.[0]?.index !== 'undefined' && this.state.index !== e?.viewableItems?.[0]?.index) {
+                                        this.setState({
+                                            index: e?.viewableItems?.[0]?.index
+                                        })
+                                    }
+                                }}
+                            />
+                        </View>
+
                         <Text style={[styles.progressText, { marginBottom: GRID_SIZE / 2, marginLeft: GRID_SIZE }]}>
                             {`${strings('settings.walletList.available')}: ${currentBalance?.prettyBalanceAvailable || ''} ${currencyCode}`}
                         </Text>
@@ -581,8 +595,7 @@ const styles = {
         fontFamily: 'SFUIDisplay-Regular',
         fontSize: 16,
         lineHeight: 20,
-        letterSpacing: 0.5,
-        flex: 1
+        letterSpacing: 0.5
     },
     linkText: {
         fontFamily: 'SFUIDisplay-Bold',

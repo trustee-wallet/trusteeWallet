@@ -12,7 +12,7 @@ import {
     StyleSheet
 } from 'react-native'
 
-import FastImage from 'react-native-fast-image'
+import FastImage from 'react-native-trustee-fast-image'
 
 import AccountGradientBlock from '@app/components/elements/new/AccountGradientBlock'
 import { useTheme } from '@app/theme/ThemeProvider'

@@ -1,7 +1,7 @@
 /**
  * @version 0.9
  */
-import { closeOverlay, openOverlay } from 'react-native-blur-overlay'
+// import { closeOverlay, openOverlay } from 'react-native-blur-overlay'
 import { Keyboard } from 'react-native'
 
 import store from '../../../store'
@@ -12,7 +12,7 @@ export function showModal(data, callback = false) {
 
     setTimeout(() => {
         Keyboard.dismiss()
-        openOverlay()
+        // openOverlay()
         Keyboard.dismiss()
     }, 500)
 
@@ -26,9 +26,9 @@ export function showModal(data, callback = false) {
 }
 
 export function hideModal() {
-    setTimeout(() => {
-        closeOverlay()
-    }, 500)
+    // setTimeout(() => {
+    //     closeOverlay()
+    // }, 500)
 
     dispatch({
         type: 'HIDE_MODAL',

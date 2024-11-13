@@ -10,7 +10,7 @@ import { View, Dimensions, KeyboardAvoidingView, Platform } from 'react-native'
 import GoogleDrive from '@app/services/Back/Google/GoogleDrive'
 import Log from '@app/services/Log/Log'
 
-import { WebView } from 'react-native-webview'
+import WebView from 'react-native-webview'
 import { strings } from '@app/services/i18n'
 import NavStore from '@app/components/navigation/NavStore'
 import { showModal } from '@app/appstores/Stores/Modal/ModalActions'

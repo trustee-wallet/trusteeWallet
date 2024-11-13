@@ -1,6 +1,7 @@
 FROM trusteewallet/androidprebuild
 
 ARG BUILD_NUMBER=1
+ARG VERSION_NUMBER=1.0
 ARG COMMIT_SHA=NO_SHA_1
 ARG REPOSITORY_BRANCH=master
 ARG REPOSITORY_URL="https://github.com/trustee-wallet/trusteeWallet.git"
@@ -8,9 +9,10 @@ ARG REPOSITORY_URL="https://github.com/trustee-wallet/trusteeWallet.git"
 ADD . ./src
 
 RUN cd ./src && \
-#    git clone -b $REPOSITORY_BRANCH $REPOSITORY_URL . && git status && git remote get-url origin && \
+#    git clone -b $REPOSITORY_BRANCH $REPOSITORY_URL . && git checkout $COMMIT_SHA && git status && git remote get-url origin && \
 #    sed -i "s/android.builder.sdkDownload=true/android.builder.sdkDownload=false/g" ./android/gradle.properties && \
     sed -i "s/versionCode 1/versionCode $BUILD_NUMBER/g" ./android/app/build.gradle && \
+    sed -i "s/versionName \"1.0\"/versionName \"$VERSION_NUMBER\"/g" ./android/app/build.gradle && \
     sed -i "s/VERSION_CODE_PLACEHOLDER/$BUILD_NUMBER/g" ./app/config/config.js && \
     sed -i "s/COMMIT_SHORT_SHA_PLACEHOLDER/$COMMIT_SHA/g" ./app/config/config.js && \
     sed -i "s/VERSION_CODE_PLACEHOLDER/$BUILD_NUMBER/g" ./app/config/changeable.prod.js && \
@@ -18,26 +20,28 @@ RUN cd ./src && \
     sed -i "s/VERSION_CODE_PLACEHOLDER/$BUILD_NUMBER/g" ./app/config/changeable.tester.js && \
     sed -i "s/COMMIT_SHORT_SHA_PLACEHOLDER/$COMMIT_SHA/g" ./app/config/changeable.tester.js
 
-RUN sdkmanager --install "build-tools;30.0.3" && \
+RUN sdkmanager --install "build-tools;33.0.1" && \
+    sdkmanager --install "build-tools;34.0.0" && \
+    sdkmanager --install "cmake;3.22.1" && \
     sdkmanager --install "platform-tools" && \
-    sdkmanager --install "platforms;android-30" && \
-    sdkmanager --install "ndk-bundle" "ndk;21.4.7075529" && \
-    sdkmanager --install "cmake;3.6.4111459"
+    sdkmanager --install "platforms;android-31" && \
+    sdkmanager --install "platforms;android-33" && \
+    sdkmanager --install "platforms;android-34" && \
+    sdkmanager --install "ndk;25.1.8937393"
 
 RUN cd ./src/android && \
     touch local.properties && \
-    echo sdk.dir=/${WDIR}/androidsdk/ >> ./local.properties && \
-    echo ndk.dir=/${WDIR}/androidsdk/ndk/21.4.7075529 >> ./local.properties
+    echo sdk.dir=/${WDIR}/androidsdk/ >> ./local.properties
 
 RUN cd ./src && yarn install --no-progress --frozen-lockfile
 
 RUN echo " " | sudo tee -a /${WDIR}/src/android/app/build.gradle && \
-    echo 'configurations.all { resolutionStrategy { force "com.facebook.soloader:soloader:0.8.0" } }' | sudo tee -a /${WDIR}/src/android/app/build.gradle && \
+    echo 'configurations.all { resolutionStrategy { force "com.facebook.soloader:soloader:0.11.0" } }' | sudo tee -a /${WDIR}/src/android/app/build.gradle && \
     cat /${WDIR}/src/android/app/build.gradle
 
 RUN cd ./src/android && ./gradlew --console=plain --parallel bundleRelease
 
-RUN java -jar bundletool.jar build-apks --mode=universal --bundle=./src/android/app/build/outputs/bundle/release/app-release.aab --output-format=directory --output=./built_apk
+#RUN java -jar bundletool.jar build-apks --mode=universal --bundle=./src/android/app/build/outputs/bundle/release/app-release.aab --output-format=directory --output=./built_apk
 
 RUN sdkmanager --list_installed
 

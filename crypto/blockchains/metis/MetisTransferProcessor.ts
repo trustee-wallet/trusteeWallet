@@ -49,7 +49,7 @@ export default class MetisTransferProcessor extends EthTransferProcessor impleme
                 throw new Error(tmp.data.error.message)
             }
         }
-        return super.getFeeRate(data, privateData, additionalData)
+        return this._getFeeRateInner(data, privateData, additionalData)
     }
 
     canRBF(data: BlocksoftBlockchainTypes.DbAccount, transaction: BlocksoftBlockchainTypes.DbTransaction, source: string): boolean {
